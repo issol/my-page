@@ -22,7 +22,7 @@ import AddressesForm from '../components/forms/addresses-container'
 import ContactPersonForm from '../components/forms/contact-persons'
 import ClientPrices from '../components/forms/client-prices'
 import PriceActionModal from '@src/pages/components/standard-prices-modal/modal/price-action-modal'
-// import AddSavePriceModal from '@src/pages/components/client-prices-modal/dialog/add-save-price-modal'
+
 import AddSavePriceModal from '@src/pages/components/standard-prices-modal/dialog/add-save-price-modal'
 import NoPriceUnitModal from '@src/pages/components/standard-prices-modal/modal/no-price-unit-modal'
 import AddConfirmModal from '../components/modals/add-confirm-with-title-modal'
@@ -30,7 +30,7 @@ import AddNewLanguagePairModal from '@src/pages/components/client-prices-modal/d
 import SetPriceUnitModal from '@src/pages/components/client-prices-modal/dialog/set-price-unit-modal'
 
 // ** react hook form
-import { useForm, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** validation values & types
@@ -55,7 +55,6 @@ import {
   LanguagePairListType,
   PriceUnitListType,
   SetPriceUnitPair,
-  CatInterfaceParams,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
@@ -78,7 +77,7 @@ import {
 // ** third parties
 import { toast } from 'react-hot-toast'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { roleSelector } from '@src/states/permission'
 
 type PriceListCopyRowType = Omit<
@@ -92,26 +91,13 @@ type PriceListCopyRowType = Omit<
 export default function AddNewClient() {
   const router = useRouter()
 
-  const role = useRecoilValue(roleSelector)
+  const role = useRecoilValueLoadable(roleSelector)
   const [isGeneral, setIsGeneral] = useState(true)
 
   const { openModal, closeModal } = useModal()
   const [isWarn, setIsWarn] = useState(true)
 
   // ** confirm page leaving
-
-  // router.beforePopState(() => {
-  //   openModal({
-  //     type: 'alert-modal',
-  //     children: (
-  //       <PageLeaveModal
-  //         onClose={() => closeModal('alert-modal')}
-  //         onClick={() => router.push('/client')}
-  //       />
-  //     ),
-  //   })
-  //   return false
-  // })
 
   const generalSteps = [
     {
@@ -130,9 +116,10 @@ export default function AddNewClient() {
   })
 
   useEffect(() => {
-    if (role.length) {
+    if (role.state === 'hasValue' && role.getValue().length) {
       const isGeneral =
-        role.filter(item => item.name === 'LPM')[0]?.type === 'General'
+        role.getValue().filter(item => item.name === 'LPM')[0]?.type ===
+        'General'
       setIsGeneral(isGeneral)
     }
   }, [role])

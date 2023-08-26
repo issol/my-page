@@ -33,13 +33,13 @@ import { requestJoinToCompany } from '@src/apis/user.api'
 import { toast } from 'react-hot-toast'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import useAuth from '@src/hooks/useAuth'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 export default function ClientInformationHome() {
   const { logout } = useAuth()
 
-  const { company, user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const roles = getCurrentRole()
 
@@ -57,13 +57,18 @@ export default function ClientInformationHome() {
   )
 
   useEffect(() => {
-    if (company?.name || roles?.name !== 'CLIENT') {
+    if (
+      (auth.state === 'hasValue' &&
+        auth.getValue() &&
+        auth.getValue().company?.name) ||
+      roles?.name !== 'CLIENT'
+    ) {
       router.push('/')
     }
-  }, [company])
+  }, [auth])
 
   function requestJoin() {
-    if (!!selected && user) {
+    if (!!selected && auth.state === 'hasValue' && auth.getValue().user) {
       openModal({
         type: 'request',
         children: (
@@ -76,8 +81,8 @@ export default function ClientInformationHome() {
             onClick={() => {
               closeModal('request')
               requestJoinToCompany({
-                userId: user.userId,
-                email: user.email,
+                userId: auth.getValue().user?.userId!,
+                email: auth.getValue().user?.email!,
                 companyId: selected.id,
               })
                 .then(() => {

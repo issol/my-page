@@ -26,7 +26,7 @@ import styled from 'styled-components'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { useRouter } from 'next/router'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** fetch
@@ -59,7 +59,7 @@ const ContractForm = () => {
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
 
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
   const { data, refetch } = useGetContract({
@@ -194,8 +194,8 @@ const ContractForm = () => {
     updateContractMutation.mutate({
       id: contract?.documentId!,
       form: {
-        writer: user?.username!,
-        email: user?.email!,
+        writer: auth.getValue().user?.username!,
+        email: auth.getValue().user?.email!,
         content: data,
         text: value.getCurrentContent().getPlainText('\u0001'),
       },

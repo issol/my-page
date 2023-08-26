@@ -62,7 +62,7 @@ import { CircularProgress } from '@mui/material'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import useInterval from '@src/hooks/useInterval'
 import { transformMessage } from '@src/shared/transformer/notification-message'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 interface Props {
@@ -183,7 +183,7 @@ const NotificationDropdown = (props: Props) => {
 
   const [refreshing, setRefreshing] = useState(false)
   const router = useRouter()
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const { ref, inView } = useInView()
 
@@ -262,7 +262,7 @@ const NotificationDropdown = (props: Props) => {
 
   return (
     <>
-      {notifications && (
+      {notifications && auth.state === 'hasValue' && (
         <Fragment>
           <IconButton
             color='inherit'
@@ -407,7 +407,7 @@ const NotificationDropdown = (props: Props) => {
                                 <MenuItemSubtitle variant='body2' fontSize={12}>
                                   {FullDateTimezoneHelper(
                                     item.createdAt,
-                                    user?.timezone,
+                                    auth.getValue().user?.timezone,
                                   )}
                                 </MenuItemSubtitle>
                               </Box>

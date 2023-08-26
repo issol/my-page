@@ -30,7 +30,7 @@ import {
 } from '@src/types/orders/order-detail'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { getCurrentRole } from '@src/shared/auth/storage'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useGetStatusList } from '@src/queries/common.query'
 import ClientOrder from '../client-order'
@@ -43,7 +43,7 @@ type Props = {
 }
 
 const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
     null,
   )
@@ -241,7 +241,7 @@ const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
                 <Card>
                   <ClientOrder
                     downloadData={downloadData!}
-                    user={user!}
+                    user={auth.getValue().user!}
                     downloadLanguage={downloadLanguage}
                     setDownloadLanguage={setDownloadLanguage}
                     type='history'

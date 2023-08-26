@@ -46,7 +46,7 @@ import { ModalContext } from 'src/context/ModalContext'
 import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
 import { useAppSelector } from 'src/hooks/useRedux'
 import useAuth from '@src/hooks/useAuth'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -96,7 +96,7 @@ const PersonalInfoManager = () => {
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
   // ** Hooks
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   function isInvalidPhoneNumber(str: string) {
     const regex = /^[0-9]+$/
@@ -104,10 +104,14 @@ const PersonalInfoManager = () => {
   }
 
   useEffect(() => {
-    if (user?.firstName) {
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue() &&
+      auth.getValue().user?.firstName
+    ) {
       router.replace(`/`)
     }
-  }, [user])
+  }, [auth])
 
   const {
     control,
@@ -127,11 +131,11 @@ const PersonalInfoManager = () => {
       updateManagerUserInfo({ ...data, company: 'GloZ' }),
     {
       onSuccess: () => {
-        getUserInfo(user?.id!).then(res => {
+        getUserInfo(auth.getValue().user?.id!).then(res => {
           /* @ts-ignore */
           auth.updateUserInfo({
-            userId: user!.id,
-            email: user!.email,
+            userId: auth.getValue().user!.id,
+            email: auth.getValue().user!.email,
           })
           router.push('/home')
         })
@@ -177,7 +181,7 @@ const PersonalInfoManager = () => {
 
   const onSubmit = (data: ManagerInfo) => {
     const finalData: ManagerUserInfoType & { userId: number } = {
-      userId: user?.id || 0,
+      userId: auth.getValue().user?.id || 0,
       firstName: data.firstName,
       middleName: data.middleName,
       lastName: data.lastName,

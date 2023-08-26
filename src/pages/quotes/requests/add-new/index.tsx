@@ -32,7 +32,7 @@ import Icon from 'src/@core/components/icon'
 import { toast } from 'react-hot-toast'
 
 // ** context
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** types & validation
@@ -75,7 +75,7 @@ import { changeTimezoneFromLocalTimezoneISOString } from '@src/shared/helpers/ti
 export default function AddNewRequest() {
   const router = useRouter()
 
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const { openModal, closeModal } = useModal()
 
   // ** file values
@@ -147,7 +147,7 @@ export default function AddNewRequest() {
     formState: { errors, isValid },
   } = useForm<RequestFormType>({
     mode: 'onChange',
-    defaultValues: getClientRequestDefaultValue(user?.userId!),
+    defaultValues: getClientRequestDefaultValue(auth.getValue().user?.userId!),
     resolver: yupResolver(clientRequestSchema),
   })
 
@@ -211,7 +211,7 @@ export default function AddNewRequest() {
       const fileInfo: Array<{ fileName: string; fileSize: number }> = []
       const paths: string[] = files?.map(file =>
         getFilePath(
-          ['request', user?.userId.toString()!, 'sampleFile'],
+          ['request', auth.getValue().user?.userId.toString()!, 'sampleFile'],
           file.name,
         ),
       )

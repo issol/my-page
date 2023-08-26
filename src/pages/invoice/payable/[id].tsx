@@ -19,7 +19,7 @@ import styled from 'styled-components'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** hooks
@@ -65,7 +65,7 @@ export default function PayableDetail() {
   const router = useRouter()
   const { id } = router.query
 
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
 
   const queryClient = useQueryClient()
@@ -109,24 +109,25 @@ export default function PayableDetail() {
   )
 
   function onConfirmInvoice() {
-    openModal({
-      type: 'confirm',
-      children: (
-        <CustomModal
-          vary='successful'
-          title='Are you sure you want to confirm the invoice? It will be notified to Pro as well.'
-          rightButtonText='Confirm'
-          onClose={() => closeModal('confirm')}
-          onClick={() => {
-            updateMutation.mutate({
-              invoiceConfirmedAt: Date(),
-              invoiceConfirmTimezone: user?.timezone!,
-            })
-            closeModal('confirm')
-          }}
-        />
-      ),
-    })
+    if (auth.state === 'hasValue' && auth.getValue().user)
+      openModal({
+        type: 'confirm',
+        children: (
+          <CustomModal
+            vary='successful'
+            title='Are you sure you want to confirm the invoice? It will be notified to Pro as well.'
+            rightButtonText='Confirm'
+            onClose={() => closeModal('confirm')}
+            onClick={() => {
+              updateMutation.mutate({
+                invoiceConfirmedAt: Date(),
+                invoiceConfirmTimezone: auth.getValue().user?.timezone!,
+              })
+              closeModal('confirm')
+            }}
+          />
+        ),
+      })
   }
 
   // ** Download pdf
@@ -167,7 +168,12 @@ export default function PayableDetail() {
 
   /* Open pdf download modal */
   useEffect(() => {
-    if (invoicePayable.isReady && invoicePayable.invoicePayableData) {
+    if (
+      invoicePayable.isReady &&
+      invoicePayable.invoicePayableData &&
+      auth.state === 'hasValue' &&
+      auth.getValue().user
+    ) {
       openModal({
         type: 'PreviewModal',
         isCloseable: false,
@@ -186,7 +192,7 @@ export default function PayableDetail() {
               <PrintInvoicePayablePreview
                 data={invoicePayable.invoicePayableData}
                 type='preview'
-                user={user!}
+                user={auth.getValue().user!}
                 lang={invoicePayable.lang}
               />
             </div>

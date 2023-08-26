@@ -16,7 +16,7 @@ import ToggleViewButton, {
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** types

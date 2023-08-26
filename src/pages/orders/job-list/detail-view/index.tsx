@@ -34,7 +34,7 @@ import {
   useGetJobInfo,
   useGetJobPrices,
 } from '@src/queries/order/job.query'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 type Props = {
@@ -80,7 +80,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const queryClient = useQueryClient()
   const [value, setValue] = useState<string>(tab ?? 'jobInfo')
   const [success, setSuccess] = useState(false)
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string; userId: any }[]
   >([])
@@ -381,7 +381,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
               </TabPanel>
               <TabPanel value='assignPro' sx={{ pt: '30px' }}>
                 <AssignPro
-                  user={user!}
+                  user={auth.getValue().user!}
                   row={jobInfo}
                   orderDetail={orderDetail}
                   type='view'

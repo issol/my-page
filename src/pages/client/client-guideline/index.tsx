@@ -18,7 +18,8 @@ import {
 import Filters from '../components/client-guideline/filter'
 import ClientGuideLineList from '../components/client-guideline/list'
 import { authState } from '@src/states/auth'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 export type ConstType = {
   label: string
@@ -52,7 +53,7 @@ export default function ClientGuidLines() {
   })
 
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const { data: list, isLoading } = useGetGuideLines(activeFilter)
 
@@ -107,33 +108,39 @@ export default function ClientGuidLines() {
   }, [filter.category])
 
   return (
-    <Grid container spacing={6}>
-      <PageHeader
-        title={<Typography variant='h5'>Client guidelines</Typography>}
-      />
-      <Filters
-        filter={filter}
-        setFilter={setFilter}
-        onReset={onReset}
-        serviceType={serviceType}
-        search={onSearch}
-      />
-      <ClientGuideLineList
-        skip={skip}
-        pageSize={activeFilter.take}
-        setSkip={(n: number) => {
-          setSkip(n)
-          setActiveFilter({ ...activeFilter, skip: n * activeFilter.take })
-        }}
-        setPageSize={(n: number) =>
-          setActiveFilter({ ...activeFilter, take: n })
-        }
-        list={list || { data: [], count: 0 }}
-        isLoading={isLoading}
-        user={user!}
-        page={'client'}
-      />
-    </Grid>
+    <>
+      {auth.state === 'loading' ? (
+        <FallbackSpinner />
+      ) : auth.state === 'hasValue' ? (
+        <Grid container spacing={6}>
+          <PageHeader
+            title={<Typography variant='h5'>Client guidelines</Typography>}
+          />
+          <Filters
+            filter={filter}
+            setFilter={setFilter}
+            onReset={onReset}
+            serviceType={serviceType}
+            search={onSearch}
+          />
+          <ClientGuideLineList
+            skip={skip}
+            pageSize={activeFilter.take}
+            setSkip={(n: number) => {
+              setSkip(n)
+              setActiveFilter({ ...activeFilter, skip: n * activeFilter.take })
+            }}
+            setPageSize={(n: number) =>
+              setActiveFilter({ ...activeFilter, take: n })
+            }
+            list={list || { data: [], count: 0 }}
+            isLoading={isLoading}
+            user={auth.getValue().user!}
+            page={'client'}
+          />
+        </Grid>
+      ) : null}
+    </>
   )
 }
 

@@ -59,7 +59,7 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 // ** context
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** helpers
@@ -147,7 +147,7 @@ export default function AddNewOrder() {
   const requestId = router.query?.requestId
   const quoteId = router.query?.quoteId
 
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
   const [isWarn, setIsWarn] = useState(true)
@@ -228,11 +228,11 @@ export default function AddNewOrder() {
         { type: 'supervisorId', id: null },
         {
           type: 'projectManagerId',
-          id: user?.userId!,
+          id: auth.getValue().user?.userId!,
           name: getLegalName({
-            firstName: user?.firstName!,
-            middleName: user?.middleName,
-            lastName: user?.lastName!,
+            firstName: auth.getValue().user?.firstName!,
+            middleName: auth.getValue().user?.middleName,
+            lastName: auth.getValue().user?.lastName!,
           }),
         },
         { type: 'member', id: null },
@@ -603,7 +603,7 @@ export default function AddNewOrder() {
         .catch(e => {
           return
         })
-        getQuoteLangItems(id).then(res => {
+      getQuoteLangItems(id).then(res => {
         if (res) {
           setLanguagePairs(
             res?.languagePairs?.map(item => {

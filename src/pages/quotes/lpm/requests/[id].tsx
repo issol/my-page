@@ -44,7 +44,7 @@ import { lpm_request } from '@src/shared/const/permission-class'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
@@ -66,10 +66,10 @@ export default function RequestDetail() {
   const { openModal, closeModal } = useModal()
 
   const ability = useContext(AbilityContext)
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const currentRole = getCurrentRole()
 
-  const User = new lpm_request(user?.id!)
+  const User = new lpm_request(auth.getValue().user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
@@ -402,7 +402,7 @@ export default function RequestDetail() {
         <Card sx={{ padding: '24px' }}>
           <RequestDetailCard
             data={data}
-            user={user}
+            user={auth.getValue().user}
             currentRole={currentRole}
             openReasonModal={openReasonModal}
             onStatusChange={onStatusChange}

@@ -53,7 +53,7 @@ import {
   patchAppliedRole,
   patchTestStatus,
 } from 'src/apis/onboarding.api'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
 import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certify-role-modal'
@@ -119,7 +119,7 @@ function ProDetailOverview() {
   const userId = isFetched && !isError ? userInfo!.userId : undefined
   // const { data: appliedRole } = useGetAppliedRole(userId!)
 
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const [hideFailedTest, setHideFailedTest] = useState(false)
 
@@ -585,7 +585,7 @@ function ProDetailOverview() {
         // reviewerList={reviewerList!}
         // history={history!}
         type={type}
-        user={user!}
+        user={auth.getValue().user!}
       />,
     )
   }
@@ -1022,7 +1022,7 @@ function ProDetailOverview() {
                 <CommentsAboutPro
                   ability={ability}
                   userInfo={userInfo!}
-                  user={user!}
+                  user={auth.getValue().user!}
                   page={commentsProPage}
                   rowsPerPage={commentsProRowsPerPage}
                   handleChangePage={handleChangeCommentsProPage}

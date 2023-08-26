@@ -45,7 +45,7 @@ import ClientInvoices from '../components/invoices'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import PaymentInfo from '../components/payment-info'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 export default function ClientDetail() {
@@ -55,9 +55,9 @@ export default function ClientDetail() {
   const [value, setValue] = useState<string>('1')
 
   const ability = useContext(AbilityContext)
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
-  const User = new client(user?.id!)
+  const User = new client(auth.getValue().user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
@@ -132,12 +132,12 @@ export default function ClientDetail() {
         </TabList>
         <TabPanel value='1'>
           <Suspense>
-            <ClientProjects id={Number(id)} user={user!} />
+            <ClientProjects id={Number(id)} user={auth.getValue().user!} />
           </Suspense>
         </TabPanel>
         <TabPanel value='2'>
           <Suspense>
-            <ClientInvoices id={Number(id)} user={user!} />
+            <ClientInvoices id={Number(id)} user={auth.getValue().user!} />
           </Suspense>
         </TabPanel>
         <TabPanel value='3'>

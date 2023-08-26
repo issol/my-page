@@ -36,7 +36,7 @@ import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** form
@@ -88,7 +88,7 @@ const defaultValues = {
 const ClientGuidelineForm = () => {
   const router = useRouter()
   // ** contexts
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
   // ** states
@@ -371,61 +371,63 @@ const ClientGuidelineForm = () => {
   )
 
   const onSubmit = () => {
-    const data = getValues()
-    //** data to send to server */
-    const formContent = convertToRaw(content.getCurrentContent())
-    const finalValue: FormType = {
-      writer: user?.username!,
-      email: user?.email!,
-      title: data.title,
-      client: data.client.value,
-      category: data.category.value,
-      serviceType: data.serviceType.value,
-      content: formContent,
-      text: content.getCurrentContent().getPlainText('\u0001'),
-    }
-    // file upload
-    if (data.file.length) {
-      const fileInfo: Array<FilePostType> = []
-      const paths: string[] = data?.file?.map(file =>
-        getFilePath(
-          [
-            data.client.value,
-            data.category.value,
-            data.serviceType.value,
-            'V1',
-          ],
-          file.name,
-        ),
-      )
-      const promiseArr = paths.map((url, idx) => {
-        return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url).then(
-          res => {
-            fileInfo.push({
-              name: data.file[idx].name,
-              size: data.file[idx]?.size,
-              fileUrl: url,
-            })
-            return uploadFileToS3(res.url, data.file[idx])
-          },
-        )
-      })
-      Promise.all(promiseArr)
-        .then(res => {
-          logger.debug('upload client guideline file success :', res)
-          finalValue.files = fileInfo
-          guidelineMutation.mutate(finalValue)
-        })
-        .catch(err =>
-          toast.error(
-            'Something went wrong while uploading files. Please try again.',
-            {
-              position: 'bottom-left',
-            },
+    if (auth.state === 'hasValue' && auth.getValue().user) {
+      const data = getValues()
+      //** data to send to server */
+      const formContent = convertToRaw(content.getCurrentContent())
+      const finalValue: FormType = {
+        writer: auth.getValue().user?.username!,
+        email: auth.getValue().user?.email!,
+        title: data.title,
+        client: data.client.value,
+        category: data.category.value,
+        serviceType: data.serviceType.value,
+        content: formContent,
+        text: content.getCurrentContent().getPlainText('\u0001'),
+      }
+      // file upload
+      if (data.file.length) {
+        const fileInfo: Array<FilePostType> = []
+        const paths: string[] = data?.file?.map(file =>
+          getFilePath(
+            [
+              data.client.value,
+              data.category.value,
+              data.serviceType.value,
+              'V1',
+            ],
+            file.name,
           ),
         )
-    } else {
-      guidelineMutation.mutate(finalValue)
+        const promiseArr = paths.map((url, idx) => {
+          return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url).then(
+            res => {
+              fileInfo.push({
+                name: data.file[idx].name,
+                size: data.file[idx]?.size,
+                fileUrl: url,
+              })
+              return uploadFileToS3(res.url, data.file[idx])
+            },
+          )
+        })
+        Promise.all(promiseArr)
+          .then(res => {
+            logger.debug('upload client guideline file success :', res)
+            finalValue.files = fileInfo
+            guidelineMutation.mutate(finalValue)
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      } else {
+        guidelineMutation.mutate(finalValue)
+      }
     }
   }
 
@@ -454,10 +456,12 @@ const ClientGuidelineForm = () => {
                     sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                     color='primary'
                   >
-                    {user?.username}
+                    {auth.getValue().user?.username}
                   </Typography>
                   <Divider orientation='vertical' variant='middle' flexItem />
-                  <Typography variant='body2'>{user?.email}</Typography>
+                  <Typography variant='body2'>
+                    {auth.getValue().user?.email}
+                  </Typography>
                 </Box>
               </Box>
               {/* title */}

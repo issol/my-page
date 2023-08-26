@@ -35,7 +35,7 @@ import Icon from 'src/@core/components/icon'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
@@ -58,7 +58,6 @@ import {
 import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { contract as Contract } from '@src/shared/const/permission-class'
-import { Entity } from 'draft-js'
 
 type CellType = {
   row: {
@@ -75,7 +74,7 @@ type CellType = {
 const ContractDetail = () => {
   const router = useRouter()
   const invalidate = useInvalidateContractQuery()
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
   const type = router.query.type as ContractType
   const language = router.query.language as LangType
@@ -135,7 +134,11 @@ const ContractDetail = () => {
   })
   const restoreMutation = useMutation(
     (restoreDocId: number) =>
-      restoreContract(restoreDocId, user?.username!, user?.email!),
+      restoreContract(
+        restoreDocId,
+        auth.getValue().user?.username!,
+        auth.getValue().user?.email!,
+      ),
     {
       onSuccess: () => {
         refetch()
@@ -287,7 +290,10 @@ const ContractDetail = () => {
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => (
         <Box sx={{ overflowX: 'scroll' }}>
-          {FullDateTimezoneHelper(row.updatedAt, user?.timezone!)}
+          {FullDateTimezoneHelper(
+            row.updatedAt,
+            auth.getValue().user?.timezone!,
+          )}
         </Box>
       ),
     },
@@ -449,7 +455,9 @@ const ContractDetail = () => {
                     <Typography
                       sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                       color={`${
-                        user?.id === contract?.userId ? 'primary' : ''
+                        auth.getValue().user?.id === contract?.userId
+                          ? 'primary'
+                          : ''
                       }`}
                     >
                       {contract?.writer}
@@ -460,7 +468,7 @@ const ContractDetail = () => {
                   <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
                     {FullDateTimezoneHelper(
                       contract?.updatedAt,
-                      user?.timezone!,
+                      auth.getValue().user?.timezone!,
                     )}
                   </Typography>
                 </Box>
@@ -576,7 +584,7 @@ const ContractDetail = () => {
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
                       {FullDateTimezoneHelper(
                         currentRow?.updatedAt,
-                        user?.timezone!,
+                        auth.getValue().user?.timezone!,
                       )}
                     </Typography>
                   </Box>

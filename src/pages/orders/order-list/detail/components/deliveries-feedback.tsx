@@ -36,7 +36,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { v4 as uuidv4 } from 'uuid'
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
@@ -70,7 +70,7 @@ const DeliveriesFeedback = ({
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const { data: jobDetails, refetch } = useGetJobDetails(project.id)
 
@@ -375,7 +375,7 @@ const DeliveriesFeedback = ({
         fontWeight={400}
         sx={{ mb: '5px' }}
       >
-        {FullDateTimezoneHelper(file.createdAt, user?.timezone)}
+        {FullDateTimezoneHelper(file.createdAt, auth.getValue().user?.timezone)}
       </Typography>
       <Box
         sx={{

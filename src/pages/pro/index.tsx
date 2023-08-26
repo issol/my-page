@@ -33,7 +33,7 @@ import ListResume from './list/list-resume'
 
 import { ModalContext } from '@src/context/ModalContext'
 import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-preview-download-modal'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { setDate } from 'date-fns'
@@ -68,7 +68,7 @@ const Pro = () => {
   })
 
   const { data: proList, isLoading } = useGetProList(filters)
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
@@ -457,7 +457,10 @@ const Pro = () => {
       renderCell: ({ row }: ProListCellType) => {
         return (
           <Typography variant='body1'>
-            {FullDateTimezoneHelper(row.onboardedAt, user?.timezone!)}
+            {FullDateTimezoneHelper(
+              row.onboardedAt,
+              auth.getValue().user?.timezone!,
+            )}
           </Typography>
         )
       },

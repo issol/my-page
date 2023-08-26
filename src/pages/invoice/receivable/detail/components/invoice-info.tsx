@@ -87,7 +87,7 @@ import {
   uploadFileToS3,
 } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { toast } from 'react-hot-toast'
 import { useDropzone } from 'react-dropzone'
@@ -177,7 +177,7 @@ const InvoiceInfo = ({
   const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
 
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const isInvoiceInfoUpdatable =
     ![30900, 301200].includes(invoiceInfo.invoiceStatus) && isUpdatable
@@ -593,7 +593,7 @@ const InvoiceInfo = ({
         fontWeight={400}
         sx={{ mb: '5px' }}
       >
-        {FullDateTimezoneHelper(file.createdAt, user?.timezone)}
+        {FullDateTimezoneHelper(file.createdAt, auth.getValue().user?.timezone)}
       </Typography>
     </Box>
   ))
@@ -755,24 +755,26 @@ const InvoiceInfo = ({
   )
 
   const onMarkAsPaidClick = () => {
-    openModal({
-      type: 'markAsPaid',
-      children: (
-        <CustomModal
-          onClose={() => closeModal('markAsPaid')}
-          onClick={() => {
-            closeModal('markAsPaid')
-            makeInvoiceMarked.mutate({
-              paidAt: Date(),
-              paidDateTimezone: user?.timezone!,
-            })
-          }}
-          title='Are you sure you want to mark this invoice as paid?'
-          vary='successful'
-          rightButtonText='Mark as paid'
-        />
-      ),
-    })
+    if (auth.state === 'hasValue' && auth.getValue().user) {
+      openModal({
+        type: 'markAsPaid',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('markAsPaid')}
+            onClick={() => {
+              closeModal('markAsPaid')
+              makeInvoiceMarked.mutate({
+                paidAt: Date(),
+                paidDateTimezone: auth.getValue().user?.timezone!,
+              })
+            }}
+            title='Are you sure you want to mark this invoice as paid?'
+            vary='successful'
+            rightButtonText='Mark as paid'
+          />
+        ),
+      })
+    }
   }
 
   return (

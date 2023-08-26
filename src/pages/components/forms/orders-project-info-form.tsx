@@ -58,7 +58,7 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
@@ -87,7 +87,7 @@ export default function ProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
 
   const formattedNow = (now: Date) => {
@@ -112,7 +112,7 @@ export default function ProjectInfoForm({
   const defaultValue = { value: '', label: '' }
 
   const { openModal, closeModal } = useModal()
-  const { data, isSuccess } = useGetWorkNameList(user!.userId)
+  const { data, isSuccess } = useGetWorkNameList(auth.getValue().user!.userId)
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 

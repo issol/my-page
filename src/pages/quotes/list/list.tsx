@@ -18,7 +18,7 @@ import { useRouter } from 'next/router'
 import { QuotesListType } from '@src/types/common/quotes.type'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { useContext, useState } from 'react'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { QuotesFilterType, SortType } from '@src/types/quotes/quote'
@@ -55,7 +55,7 @@ export default function QuotesList({
   role,
 }: Props) {
   const router = useRouter()
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const columns: GridColumns<QuotesListType> = [
     {
@@ -178,7 +178,12 @@ export default function QuotesList({
       renderHeader: () => <Box>Quote date</Box>,
       renderCell: ({ row }: QuotesListCellType) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.quoteDate, user?.timezone!)}</Box>
+          <Box>
+            {FullDateTimezoneHelper(
+              row.quoteDate,
+              auth.getValue().user?.timezone!,
+            )}
+          </Box>
         )
       },
     },
@@ -193,7 +198,10 @@ export default function QuotesList({
       renderCell: ({ row }: QuotesListCellType) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(row.quoteDeadline, user?.timezone!)}
+            {FullDateTimezoneHelper(
+              row.quoteDeadline,
+              auth.getValue().user?.timezone!,
+            )}
           </Box>
         )
       },
@@ -207,7 +215,12 @@ export default function QuotesList({
       renderHeader: () => <Box>Quote expiry date</Box>,
       renderCell: ({ row }: QuotesListCellType) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.quoteExpiry, user?.timezone!)}</Box>
+          <Box>
+            {FullDateTimezoneHelper(
+              row.quoteExpiry,
+              auth.getValue().user?.timezone!,
+            )}
+          </Box>
         )
       },
     },

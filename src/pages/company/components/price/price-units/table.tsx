@@ -126,7 +126,7 @@ export default function PriceUnitTable({
                   <IconButton
                     aria-label='expand row'
                     size='small'
-                    onClick={(e) => {
+                    onClick={e => {
                       // handleToggleOpen(getRowIndex(row.id))
                       setOpen(!open)
                     }}
@@ -194,11 +194,11 @@ export default function PriceUnitTable({
                         onChange={e => {
                           onToggleActive(subItem.id, e.target.checked)
                           // 하위 price가 active로 변경되었는데 Base price가 inactive인 경우 Base price도 함께 Active로 변경
-                          if(
-                              row.id === subItem.parentPriceUnitId &&
-                              !row.isActive &&
-                              e.target.checked
-                            ) {
+                          if (
+                            row.id === subItem.parentPriceUnitId &&
+                            !row.isActive &&
+                            e.target.checked
+                          ) {
                             onToggleActive(row.id, e.target.checked)
                           }
                         }}

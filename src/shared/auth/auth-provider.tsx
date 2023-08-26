@@ -1,5 +1,9 @@
 import { ReactNode, useEffect, useCallback } from 'react'
-import { useRecoilState, useRecoilValue } from 'recoil'
+import {
+  useRecoilState,
+  useRecoilStateLoadable,
+  useRecoilValueLoadable,
+} from 'recoil'
 
 import {
   getUserDataFromBrowser,
@@ -26,15 +30,16 @@ type Props = {
 }
 
 const AuthProvider = ({ children }: Props) => {
-  const [auth, setAuth] = useRecoilState<{
+  const [auth, setAuth] = useRecoilStateLoadable<{
     user: UserDataType | null
     company: ClientUserType | undefined | null
     loading: boolean
   }>(authState)
 
-  const permission = useRecoilValue(permissionSelector)
-  const [roles, setRoles] = useRecoilState(roleSelector)
-  const [currentRole, setCurrentRole] = useRecoilState(currentRoleSelector)
+  const [permission, setPermission] = useRecoilStateLoadable(permissionSelector)
+  const [roles, setRoles] = useRecoilStateLoadable(roleSelector)
+  const [currentRole, setCurrentRole] =
+    useRecoilStateLoadable(currentRoleSelector)
 
   const { data: companyData, refetch } = useGetClientUserInfo()
 
@@ -48,23 +53,30 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleSetCurrentRole = useCallback(() => {
-    if (auth.user && roles.length) {
-      setRoles(roles)
-      const roleNames = roles.map(item => item.name)
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue() &&
+      roles.state === 'hasValue' &&
+      roles.getValue() &&
+      currentRole.state === 'hasValue' &&
+      permission.state === 'hasValue' &&
+      permission.getValue()
+    ) {
+      setPermission(permission.getValue())
+      setRoles(roles.getValue())
+      const roleNames = roles.getValue().map(item => item.name)
+
+      console.log(roleNames)
 
       const redirectPath = getRedirectPath()
-      const storageRole = currentRole
-
-      console.log(currentRole)
+      const storageRole = currentRole.getValue()
 
       if (!storageRole) {
         const TADRole =
-          hasTadAndLpm(roles) && roles.find(item => item.name === 'TAD')
+          hasTadAndLpm(roles.getValue()) &&
+          roles.getValue().find(item => item.name === 'TAD')
 
-        console.log(TADRole)
-        console.log(roles[0])
-
-        TADRole ? setCurrentRole(TADRole) : setCurrentRole(roles[0])
+        TADRole ? setCurrentRole(TADRole) : setCurrentRole(roles.getValue()[0])
       } else {
         // const findRole = roles.find(item => item.name === storageRole.name)
         // console.log(findRole)
@@ -77,25 +89,37 @@ const AuthProvider = ({ children }: Props) => {
 
       const isClient = roleNames?.includes('CLIENT')
       isClient && refetch()
-      const isProUpdatedProfile =
-        roleNames?.includes('PRO') && auth.user?.firstName
-      const isManagerUpdatedProfile =
-        (roleNames?.includes('TAD') || roleNames?.includes('LPM')) &&
-        auth.user?.firstName
+
+      const isPro = roleNames.includes('PRO')
+      const isManager = roleNames.includes('TAD') || roleNames.includes('LPM')
 
       if (!isClient) {
-        if (!isProUpdatedProfile) {
-          router.replace('/welcome/pro')
-        } else if (!isManagerUpdatedProfile) {
-          router.replace('/welcome/manager')
+        if (isPro) {
+          if (
+            auth.getValue().user?.firstName &&
+            auth.getValue().user?.firstName != ''
+          ) {
+            return
+          } else {
+            router.replace('/welcome/pro')
+          }
+        } else if (isManager) {
+          if (
+            auth.getValue().user?.firstName &&
+            auth.getValue().user?.firstName != ''
+          ) {
+            return
+          } else {
+            router.replace('/welcome/manager')
+          }
         }
         return
-      } else if (isClient && auth.company !== undefined) {
+      } else if (isClient && auth.getValue().company !== undefined) {
         const isClientGeneral =
-          roles.find(i => i.name === 'CLIENT')?.type === 'General'
-        if (!auth.company?.name) {
+          roles.getValue().find(i => i.name === 'CLIENT')?.type === 'General'
+        if (!auth.getValue().company?.name) {
           router.replace('/signup/finish/client')
-        } else if (isClientGeneral && !auth.user.firstName) {
+        } else if (isClientGeneral && !auth.getValue().user?.firstName) {
           router.replace('/welcome/client/add-new/general-client')
         }
         return
@@ -107,7 +131,7 @@ const AuthProvider = ({ children }: Props) => {
         router.push(`/home`)
       }
     }
-  }, [auth.user, roles, auth.company, hasTadAndLpm, router, refetch])
+  }, [auth, roles, hasTadAndLpm, router, refetch, permission])
 
   useEffect(() => {
     if (companyData) {

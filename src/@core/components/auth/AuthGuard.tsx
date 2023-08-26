@@ -11,7 +11,7 @@ import {
   setRedirectPath,
 } from 'src/shared/auth/storage'
 
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 interface AuthGuardProps {
@@ -21,7 +21,7 @@ interface AuthGuardProps {
 
 const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props
-  const auth = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const router = useRouter()
 
   useEffect(
@@ -31,7 +31,11 @@ const AuthGuard = (props: AuthGuardProps) => {
       //   return
       // }
 
-      if (auth.user === null && !getUserDataFromBrowser()) {
+      if (
+        auth.state === 'hasValue' &&
+        auth.getValue().user === null &&
+        !getUserDataFromBrowser()
+      ) {
         if (router.asPath !== '/') {
           router.push('/login')
         } else {
@@ -44,7 +48,11 @@ const AuthGuard = (props: AuthGuardProps) => {
   )
 
   useEffect(() => {
-    if (auth.user === null && !getUserDataFromBrowser()) {
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue().user === null &&
+      !getUserDataFromBrowser()
+    ) {
       if (router.asPath !== '/') {
         const parsePath = () => {
           if (router.asPath.includes('[id]')) {
@@ -57,7 +65,11 @@ const AuthGuard = (props: AuthGuardProps) => {
       }
     }
   }, [router.query])
-  if (auth.loading || auth.user === null) {
+  if (
+    auth.state === 'loading' ||
+    auth.getValue().loading ||
+    auth.getValue().user === null
+  ) {
     return fallback
   }
 

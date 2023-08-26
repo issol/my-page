@@ -105,7 +105,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
             {data.corporationId}
-            {/* {FullDateTimezoneHelper(data.invoicedAt, user?.timezone)} */}
+            {/* {FullDateTimezoneHelper(data.invoicedAt, user.timezone)} */}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -117,7 +117,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
             {data.orderCorporationId}
-            {/* {FullDateTimezoneHelper(data.invoicedAt, user?.timezone)} */}
+            {/* {FullDateTimezoneHelper(data.invoicedAt, user.timezone)} */}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -128,7 +128,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
             {lang === 'EN' ? 'Invoice date:' : '정산 요청일:'}
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-            {FullDateTimezoneHelper(data.invoicedAt, user?.timezone)}
+            {FullDateTimezoneHelper(data.invoicedAt, user.timezone)}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

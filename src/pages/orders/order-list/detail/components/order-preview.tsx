@@ -32,7 +32,7 @@ import { useRouter } from 'next/router'
 import PrintOrderPage from '../../../order-print/print-page'
 import useModal from '@src/hooks/useModal'
 import { OrderDownloadData } from '@src/types/orders/order-detail'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useAppSelector } from '@src/hooks/useRedux'
 
@@ -44,7 +44,7 @@ type Props = {
 const OrderPreview = ({ onClose, data, lang }: Props) => {
   const router = useRouter()
   const { closeModal } = useModal()
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const printRef = useRef<HTMLDivElement>(null)
 
@@ -66,7 +66,12 @@ const OrderPreview = ({ onClose, data, lang }: Props) => {
       }}
     >
       <div className='page'>
-        <PrintOrderPage data={data} type='preview' user={user!} lang={lang} />
+        <PrintOrderPage
+          data={data}
+          type='preview'
+          user={auth.getValue().user!}
+          lang={lang}
+        />
       </div>
 
       <Box>

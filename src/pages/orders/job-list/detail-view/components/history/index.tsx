@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useModal from '@src/hooks/useModal'
 import { useGetJobHistory } from '@src/queries/jobs.query'
@@ -52,7 +52,7 @@ export default function JobHistory({
   projectTeam,
 }: Props) {
   const { openModal, closeModal } = useModal()
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
 
@@ -100,7 +100,10 @@ export default function JobHistory({
       renderCell: ({ row }: CellType) => {
         return (
           <Typography>
-            {FullDateTimezoneHelper(row.requestedAt, user?.timezone?.code!)}
+            {FullDateTimezoneHelper(
+              row.requestedAt,
+              auth.getValue().user?.timezone?.code!,
+            )}
           </Typography>
         )
       },

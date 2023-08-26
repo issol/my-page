@@ -32,6 +32,8 @@ import {
 } from '@src/shared/const/menu/menu'
 import { getCurrentRole } from 'src/shared/auth/storage'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
+import { useRecoilValueLoadable } from 'recoil'
+import { permissionState } from '@src/states/permission'
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean
@@ -43,6 +45,10 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
 
   // const { currentRole } = useAppSelector(state => state.userAccess)
   const currentRole = getCurrentRole()
+  const permission = useRecoilValueLoadable(permissionState)
+
+  console.log(permission.state === 'hasValue' && permission.getValue())
+
   // ** Vars for server side navigation
   // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()
   // const { menuItems: horizontalMenuItems } = ServerSideHorizontalNavItems()

@@ -140,11 +140,11 @@ const InvoiceVersionHistoryModal = ({
         { type: 'supervisorId', id: null },
         {
           type: 'projectManagerId',
-          id: user?.userId!,
+          id: user.userId!,
           name: getLegalName({
-            firstName: user?.firstName!,
-            middleName: user?.middleName,
-            lastName: user?.lastName!,
+            firstName: user.firstName!,
+            middleName: user.middleName,
+            lastName: user.lastName!,
           }),
         },
         { type: 'member', id: null },
@@ -225,7 +225,7 @@ const InvoiceVersionHistoryModal = ({
         }),
       }))
       setIsUserInTeamMember(
-        history.members.some(value => value.userId === user?.userId!),
+        history.members.some(value => value.userId === user.userId!),
       )
 
       resetTeam({ teams })

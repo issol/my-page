@@ -46,7 +46,7 @@ import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** form
@@ -98,7 +98,7 @@ export default function RecruitingPost() {
   )
 
   // ** contexts
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
   // ** states
@@ -143,7 +143,11 @@ export default function RecruitingPost() {
         setValueOptions,
       )
     } else if (currDueDate && !watch('dueDateTimezone')?.code) {
-      setValue('dueDateTimezone', user?.timezone, setValueOptions)
+      setValue(
+        'dueDateTimezone',
+        auth.getValue().user?.timezone,
+        setValueOptions,
+      )
     }
   }, [currDueDate])
 
@@ -317,10 +321,12 @@ export default function RecruitingPost() {
                       sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                       color='primary'
                     >
-                      {user?.username}
+                      {auth.getValue().user?.username}
                     </Typography>
                     <Divider orientation='vertical' variant='middle' flexItem />
-                    <Typography variant='body2'>{user?.email}</Typography>
+                    <Typography variant='body2'>
+                      {auth.getValue().user?.email}
+                    </Typography>
                   </Box>
                 </Box>
                 <Grid container spacing={6} mb='20px'>

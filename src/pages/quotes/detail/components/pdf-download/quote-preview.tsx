@@ -65,7 +65,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
       patchQuoteProjectInfo(data.id, data.form),
     {},
   )
-  console.log("data",data)
+  console.log('data', data)
   useEffect(() => {
     if (type === 'download') {
       setTimeout(() => {
@@ -318,7 +318,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   }}
                 >
                   <CustomTableRow>
-                    <CustomTableCell sx={{ flex: 0.4090 }}>
+                    <CustomTableCell sx={{ flex: 0.409 }}>
                       <Box>{columnName.itemDescription}:</Box>
                     </CustomTableCell>
                     <CustomTableCell
@@ -347,7 +347,8 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                     <CustomTableCell
                       sx={{ flex: 0.1505, justifyContent: 'center' }}
                     >
-                      <Box>{`${columnName?.price} (${data?.langItem?.languagePairs[0]?.price?.currency!})`}</Box>
+                      <Box>{`${columnName?.price} (${data?.langItem
+                        ?.languagePairs[0]?.price?.currency!})`}</Box>
                     </CustomTableCell>
                     <CustomTableCell
                       align='center'
@@ -364,11 +365,15 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                         paddingLeft: '20px',
                       }}
                     >
-                      <Box>{`${columnName.totalPrice} (${data?.langItem?.languagePairs[0]?.price?.currency!})`}</Box>
+                      <Box>{`${columnName.totalPrice} (${data?.langItem
+                        ?.languagePairs[0]?.price?.currency!})`}</Box>
                     </CustomTableCell>
                   </CustomTableRow>
                 </TableHead>
-                <MakeTable rows={data?.langItem?.items ?? []} currency={data?.langItem?.languagePairs[0]?.price?.currency!} />
+                <MakeTable
+                  rows={data?.langItem?.items ?? []}
+                  currency={data?.langItem?.languagePairs[0]?.price?.currency!}
+                />
                 <TableBody>
                   <TableRow>
                     <TableCell
@@ -401,14 +406,15 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                             fontWeight: 600,
                             color: '#666CFF',
                             fontSize: '14px',
-                            paddingLeft: '0px'
+                            paddingLeft: '0px',
                           }}
                         >
                           {!data.langItem
                             ? 0
                             : formatCurrency(
                                 calculateTotalPriceRows(data.langItem),
-                                data?.langItem?.languagePairs[0]?.price?.currency! || 'USD',
+                                data?.langItem?.languagePairs[0]?.price
+                                  ?.currency! || 'USD',
                               )}
                         </Typography>
                       </Box>

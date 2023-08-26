@@ -31,7 +31,7 @@ import IndividualClientForm from './components/individual-client-form'
 // ** apis
 import { createClient } from '@src/apis/client.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -68,13 +68,18 @@ export default function NewClientProfileForm() {
   const currentRole = getCurrentRole()
 
   // ** Hooks
-  const { company } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   useEffect(() => {
-    if (company?.name || currentRole?.name !== 'CLIENT') {
+    if (
+      (auth.state === 'hasValue' &&
+        auth.getValue() &&
+        auth.getValue().company?.name) ||
+      currentRole?.name !== 'CLIENT'
+    ) {
       router.push('/')
     }
-  }, [company])
+  }, [auth])
 
   function onError() {
     toast.error('Something went wrong. Please try again.', {

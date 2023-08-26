@@ -28,7 +28,12 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useRedux'
 import { Switch } from '@mui/material'
 
 import { getCurrentRole } from 'src/shared/auth/storage'
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
+import {
+  useRecoilState,
+  useRecoilStateLoadable,
+  useRecoilValueLoadable,
+  useSetRecoilState,
+} from 'recoil'
 
 import { authState } from '@src/states/auth'
 import useAuth from '@src/hooks/useAuth'
@@ -55,12 +60,13 @@ const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props
   const [checked, setChecked] = useState<boolean>(false)
-  const [currentRole, setCurrentRole] = useRecoilState(currentRoleSelector)
-  const role = useRecoilValue(roleState)
+  const [currentRole, setCurrentRole] =
+    useRecoilStateLoadable(currentRoleSelector)
+  const role = useRecoilValueLoadable(roleState)
 
   // ** redux
 
-  const { user } = useRecoilValue(authState)
+  const user = useRecoilValueLoadable(authState)
 
   // ** States
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
@@ -84,9 +90,17 @@ const UserDropdown = (props: Props) => {
   }
 
   useEffect(() => {
-    if (role && hasTadAndLpm(role)) {
-      if (currentRole?.name === 'TAD') setChecked(false)
-      else if (currentRole?.name === 'LPM') setChecked(true)
+    if (role.state === 'hasValue' && hasTadAndLpm(role.getValue())) {
+      if (
+        currentRole.state === 'hasValue' &&
+        currentRole.getValue()?.name === 'TAD'
+      )
+        setChecked(false)
+      else if (
+        currentRole.state === 'hasValue' &&
+        currentRole.getValue()?.name === 'LPM'
+      )
+        setChecked(true)
       else setChecked(false)
     }
   }, [role])
@@ -94,10 +108,10 @@ const UserDropdown = (props: Props) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked)
     // 스위치가 바뀔때 Role을 세션 스토리지에 저장
-    if (hasTadAndLpm(role)) {
+    if (role.state === 'hasValue' && hasTadAndLpm(role.getValue())) {
       const switchedRole: UserRoleType | undefined = event.target.checked
-        ? role.find(item => item.name === 'LPM')
-        : role.find(item => item.name === 'TAD')
+        ? role.getValue().find(item => item.name === 'LPM')
+        : role.getValue().find(item => item.name === 'TAD')
 
       console.log(switchedRole)
 
@@ -191,12 +205,13 @@ const UserDropdown = (props: Props) => {
               }}
             >
               <Typography sx={{ fontWeight: 600 }}>
-                {user?.username?.includes('undefined')
+                {user.state === 'hasValue' &&
+                user.getValue().user?.username?.includes('undefined')
                   ? 'anonymous'
-                  : user?.username}
+                  : user.getValue().user?.username}
               </Typography>
 
-              {role && hasTadAndLpm(role) ? (
+              {role.state === 'hasValue' && hasTadAndLpm(role.getValue()) ? (
                 <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                   <Typography
                     fontSize={14}
@@ -230,7 +245,7 @@ const UserDropdown = (props: Props) => {
                   </Typography>
                 </Box>
               ) : (
-                role?.map((value, index) => {
+                role.getValue()?.map((value, index) => {
                   return (
                     <Typography
                       key={index}

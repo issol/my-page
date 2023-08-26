@@ -33,7 +33,7 @@ import Icon from 'src/@core/components/icon'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** helpers
@@ -101,7 +101,7 @@ const RecruitingDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
 
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
     id,
@@ -211,7 +211,10 @@ const RecruitingDetail = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(row.createdAt, user?.timezone!)}
+            {FullDateTimezoneHelper(
+              row.createdAt,
+              auth.getValue().user?.timezone!,
+            )}
           </Box>
         )
       },
@@ -349,7 +352,9 @@ const RecruitingDetail = () => {
                       <Typography
                         sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                         color={`${
-                          user?.email === currentVersion?.email ? 'primary' : ''
+                          auth.getValue().user?.email === currentVersion?.email
+                            ? 'primary'
+                            : ''
                         }`}
                       >
                         {currentVersion?.writer}
@@ -366,7 +371,7 @@ const RecruitingDetail = () => {
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
                       {FullDateTimezoneHelper(
                         currentVersion?.createdAt,
-                        user?.timezone!,
+                        auth.getValue().user?.timezone!,
                       )}
                     </Typography>
                   </Box>
@@ -405,7 +410,7 @@ const RecruitingDetail = () => {
                         ? convertDateByTimezone(
                             currentVersion?.dueDate,
                             currentVersion?.dueDateTimezone!,
-                            user?.timezone?.code!,
+                            auth.getValue().user?.timezone?.code!,
                           )
                         : '',
                     )}
@@ -417,7 +422,7 @@ const RecruitingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTime(user?.timezone?.code),
+                      getGmtTime(auth.getValue().user?.timezone?.code),
                     )}
                   </Grid>
                 </Grid>
@@ -550,7 +555,7 @@ const RecruitingDetail = () => {
                           >
                             {FullDateTimezoneHelper(
                               new Date(),
-                              user?.timezone!,
+                              auth.getValue().user?.timezone!,
                             )}
                           </Typography>
                         </Box>
@@ -592,7 +597,7 @@ const RecruitingDetail = () => {
                               ? convertDateByTimezone(
                                   currentRow?.dueDate,
                                   currentRow?.dueDateTimezone!,
-                                  user?.timezone?.code!,
+                                  auth.getValue().user?.timezone?.code!,
                                 )
                               : '',
                           )}
@@ -604,7 +609,7 @@ const RecruitingDetail = () => {
                           )}
                           {renderTable(
                             'Due date timezone',
-                            getGmtTime(user?.timezone?.code),
+                            getGmtTime(auth.getValue().user?.timezone?.code),
                           )}
                         </Grid>
                       </Grid>

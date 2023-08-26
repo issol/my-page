@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** mui
@@ -64,7 +64,7 @@ export default function ProjectTeamFormContainer({
 // handleCancel,
 // type,
 Props) {
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const { data } = useGetMemberList()
 
   return (
@@ -81,13 +81,13 @@ Props) {
         watch={watch}
         memberList={
           data?.concat({
-            value: user?.userId.toString()!,
+            value: auth.getValue().user?.userId.toString()!,
             label: getLegalName({
-              firstName: user?.firstName!,
-              middleName: user?.middleName,
-              lastName: user?.lastName!,
+              firstName: auth.getValue().user?.firstName!,
+              middleName: auth.getValue().user?.middleName,
+              lastName: auth.getValue().user?.lastName!,
             }),
-            jobTitle: user?.jobTitle ?? '',
+            jobTitle: auth.getValue().user?.jobTitle ?? '',
           }) || []
         }
       />

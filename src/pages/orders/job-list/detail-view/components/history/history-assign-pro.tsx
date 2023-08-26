@@ -5,7 +5,7 @@ import {
   TableTitleTypography,
   TitleTypography,
 } from '@src/@core/styles/typography'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -55,7 +55,7 @@ export default function HistoryAssignPro({
   pageSize,
   setPageSize,
 }: Props) {
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const columns: GridColumns<AssignProType> = [
     {
       field: 'corporationId',
@@ -156,7 +156,10 @@ export default function HistoryAssignPro({
       renderCell: ({ row }: CellType) => {
         return (
           <Typography>
-            {FullDateTimezoneHelper(row.assignmentDate, user?.timezone?.code!)}
+            {FullDateTimezoneHelper(
+              row.assignmentDate,
+              auth.getValue().user?.timezone?.code!,
+            )}
           </Typography>
         )
       },

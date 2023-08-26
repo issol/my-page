@@ -34,7 +34,7 @@ import styled from 'styled-components'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** contexts
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
@@ -161,7 +161,7 @@ export default function QuotesDetail() {
   const router = useRouter()
   const { data: statusList } = useGetStatusList('Quote')
   const ability = useContext(AbilityContext)
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const currentRole = getCurrentRole()
   const { id } = router.query
 
@@ -188,7 +188,7 @@ export default function QuotesDetail() {
 
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
-  const User = new quotes(user?.id!)
+  const User = new quotes(auth.getValue().user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
@@ -311,7 +311,7 @@ export default function QuotesDetail() {
         (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
         (currentRole?.type === 'General' &&
           team?.length &&
-          team.some(item => item.userId === user?.id!)),
+          team.some(item => item.userId === auth.getValue().user?.id!)),
     )
   }
 
@@ -535,11 +535,11 @@ export default function QuotesDetail() {
         { type: 'supervisorId', id: null },
         {
           type: 'projectManagerId',
-          id: user?.userId!,
+          id: auth.getValue().user?.userId!,
           name: getLegalName({
-            firstName: user?.firstName!,
-            middleName: user?.middleName,
-            lastName: user?.lastName!,
+            firstName: auth.getValue().user?.firstName!,
+            middleName: auth.getValue().user?.middleName,
+            lastName: auth.getValue().user?.lastName!,
           }),
         },
         { type: 'member', id: null },
@@ -626,7 +626,12 @@ export default function QuotesDetail() {
       renderHeader: () => <Box>Date&Time</Box>,
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.downloadedAt, user?.timezone!)}</Box>
+          <Box>
+            {FullDateTimezoneHelper(
+              row.downloadedAt,
+              auth.getValue().user?.timezone!,
+            )}
+          </Box>
         )
       },
     },
@@ -990,7 +995,7 @@ export default function QuotesDetail() {
               <PrintQuotePage
                 data={quote.quoteTotalData}
                 type='preview'
-                user={user!}
+                user={auth.getValue().user!}
                 lang={quote.lang}
               />
             </div>
@@ -1269,7 +1274,7 @@ export default function QuotesDetail() {
               {isIncludeProjectTeam() ? (
                 <Button
                   variant='outlined'
-                  onClick={() => 
+                  onClick={() =>
                     router.push({
                       pathname: `/orders/add-new`,
                       query: { quoteId: id },
@@ -1359,7 +1364,7 @@ export default function QuotesDetail() {
               {downloadData ? (
                 <ClientQuote
                   downloadData={downloadData!}
-                  user={user!}
+                  user={auth.getValue().user!}
                   downloadLanguage={downloadLanguage}
                   setDownloadLanguage={setDownloadLanguage}
                   onClickDownloadQuotes={onClickDownloadQuotes}

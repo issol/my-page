@@ -20,7 +20,7 @@ import {
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** context
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** hooks
@@ -62,7 +62,7 @@ type Props = {
 
 export default function OrderList({ onClose }: Props) {
   const router = useRouter()
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const { openModal, closeModal } = useModal()
 
   const [selected, setSelected] = useState<OrderListForJobType | null>(null)

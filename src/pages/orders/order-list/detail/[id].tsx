@@ -36,7 +36,7 @@ import { GridColumns } from '@mui/x-data-grid'
 import ProjectTeam from './components/project-team'
 import VersionHistory from './components/version-history'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useModal from '@src/hooks/useModal'
 import VersionHistoryModal from './components/modal/version-history-modal'
@@ -160,7 +160,7 @@ const OrderDetail = () => {
   const router = useRouter()
   const menuQuery = router.query.menu as MenuType
   const { id } = router.query
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const currentRole = getCurrentRole()
   const [value, setValue] = useState<MenuType>(
     currentRole && currentRole.name === 'CLIENT' ? 'order' : 'project',
@@ -290,11 +290,11 @@ const OrderDetail = () => {
         { type: 'supervisorId', id: null },
         {
           type: 'projectManagerId',
-          id: user?.userId!,
+          id: auth.getValue().user?.userId!,
           name: getLegalName({
-            firstName: user?.firstName!,
-            middleName: user?.middleName,
-            lastName: user?.lastName!,
+            firstName: auth.getValue().user?.firstName!,
+            middleName: auth.getValue().user?.middleName,
+            lastName: auth.getValue().user?.lastName!,
           }),
         },
         { type: 'member', id: null },
@@ -644,7 +644,12 @@ const OrderDetail = () => {
       renderHeader: () => <Box>Date&Time</Box>,
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.downloadedAt, user?.timezone!)}</Box>
+          <Box>
+            {FullDateTimezoneHelper(
+              row.downloadedAt,
+              auth.getValue().user?.timezone!,
+            )}
+          </Box>
         )
       },
     },
@@ -709,7 +714,7 @@ const OrderDetail = () => {
               <PrintOrderPage
                 data={order.orderTotalData}
                 type='preview'
-                user={user!}
+                user={auth.getValue().user!}
                 lang={order.lang}
               />
             </div>
@@ -1272,7 +1277,7 @@ const OrderDetail = () => {
                 {downloadData ? (
                   <ClientOrder
                     downloadData={downloadData!}
-                    user={user!}
+                    user={auth.getValue().user!}
                     downloadLanguage={downloadLanguage}
                     setDownloadLanguage={setDownloadLanguage}
                     onClickDownloadOrder={onClickDownloadOrder}

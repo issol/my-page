@@ -56,7 +56,7 @@ import { client } from '@src/shared/const/permission-class'
 import SelectOffice from './select-office'
 import NotesToClient from './notes-to-client'
 import { ClientDetailType } from '@src/types/client/client'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 type Props = {
@@ -72,8 +72,8 @@ export default function PaymentInfo({ clientId, clientInfo }: Props) {
   const [editAddress, setEditAddress] = useState(false)
 
   const ability = useContext(AbilityContext)
-  // const { user } = useRecoilValue(authState)
-  const user = useRecoilValue(authState)
+  // const auth = useRecoilValueLoadable(authState)
+  const user = useRecoilValueLoadable(authState)
 
   console.log(user)
 

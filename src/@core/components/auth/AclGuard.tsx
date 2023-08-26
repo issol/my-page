@@ -18,10 +18,10 @@ import NotAuthorized from 'src/pages/401'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 /* redux */
-import { useAppSelector } from 'src/hooks/useRedux'
+
 import FallbackSpinner from '../spinner'
-import { permissionSelector, permissionState } from '@src/states/permission'
-import { useRecoilValue } from 'recoil'
+import { permissionState } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 interface AclGuardProps {
   children: ReactNode
@@ -35,14 +35,15 @@ const AclGuard = (props: AclGuardProps) => {
 
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
 
-  const permission = useRecoilValue(permissionState)
+  const permission = useRecoilValueLoadable(permissionState)
 
   // ** Hooks
   const router = useRouter()
 
   // User is logged in, build ability for the user based on his role
   useEffect(() => {
-    setAbility(buildAbilityFor(permission))
+    permission.state === 'hasValue' &&
+      setAbility(buildAbilityFor(permission.getValue()))
   }, [permission])
 
   // If guestGuard is true and user is not logged in or its an error page, render the page without checking access
@@ -67,7 +68,11 @@ const AclGuard = (props: AclGuardProps) => {
   // Render Not Authorized component if the current user has limited access
   return (
     <BlankLayout>
-      {!permission.length || !ability ? <FallbackSpinner /> : <NotAuthorized />}
+      {!permission.getValue().length || !ability ? (
+        <FallbackSpinner />
+      ) : (
+        <NotAuthorized />
+      )}
       {/* <FallbackSpinner /> */}
     </BlankLayout>
   )

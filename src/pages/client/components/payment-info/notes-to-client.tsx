@@ -3,8 +3,6 @@ import {
   Box,
   Button,
   Card,
-  CardContent,
-  CardHeader,
   Divider,
   IconButton,
   Tooltip,
@@ -13,17 +11,10 @@ import {
 
 import useModal from '@src/hooks/useModal'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
-import { DeliveryFileType } from '@src/types/orders/order-detail'
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import NotesToClientForm from './notes-to-client-form'
 import { FileType } from '@src/types/common/file.type'
@@ -34,19 +25,13 @@ import {
 } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import toast from 'react-hot-toast'
-import {
-  getFilePath,
-  getNotesToClientFilePath,
-} from '@src/shared/transformer/filePath.transformer'
+import { getNotesToClientFilePath } from '@src/shared/transformer/filePath.transformer'
 import { useMutation, useQueryClient } from 'react-query'
 import {
-  createNotesToClient,
   createNotesToClientFiles,
   deleteNotesToClientFiles,
   updateNotesToClient,
 } from '@src/apis/client.api'
-import { useRecoilValue } from 'recoil'
-import { authState } from '@src/states/auth'
 
 type Props = {
   notesToClient: {
@@ -60,7 +45,6 @@ const NotesToClient = ({ notesToClient, clientId }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.NOTES_TO_CLIENT
   const queryClient = useQueryClient()
 
-  const { user } = useRecoilValue(authState)
   const [savedFiles, setSavedFiles] = useState<FileType[]>(notesToClient.file)
 
   const { openModal, closeModal } = useModal()

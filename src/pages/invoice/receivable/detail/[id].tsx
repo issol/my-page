@@ -46,7 +46,7 @@ import {
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import InvoiceClient from './components/client'
 import InvoiceProjectTeam from './components/project-team'
@@ -110,7 +110,7 @@ type MenuType =
 const ReceivableInvoiceDetail = () => {
   const router = useRouter()
   const { id } = router.query
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
   const dispatch = useAppDispatch()
   const currentRole = getCurrentRole()
@@ -147,8 +147,8 @@ const ReceivableInvoiceDetail = () => {
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
-  const User = new invoice_receivable(user?.id!)
-  const AccountingTeam = new account_manage(user?.id!)
+  const User = new invoice_receivable(auth.getValue().user?.id!)
+  const AccountingTeam = new account_manage(auth.getValue().user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
@@ -316,23 +316,25 @@ const ReceivableInvoiceDetail = () => {
   }
 
   const onClickVersionHistoryRow = (history: InvoiceVersionHistoryType) => {
-    openModal({
-      type: 'InvoiceVersionHistoryModal',
-      children: (
-        <InvoiceVersionHistoryModal
-          invoiceInfo={invoiceInfo!}
-          history={history}
-          onClose={() => closeModal('InvoiceVersionHistoryModal')}
-          onClick={handleRestoreVersion}
-          user={user!}
-          prices={prices!}
-          pricesSuccess={isSuccess}
-          statusList={statusList || []}
-          isUpdatable={isUpdatable}
-          isDeletable={isDeletable}
-        />
-      ),
-    })
+    if (auth.state === 'hasValue' && auth.getValue().user) {
+      openModal({
+        type: 'InvoiceVersionHistoryModal',
+        children: (
+          <InvoiceVersionHistoryModal
+            invoiceInfo={invoiceInfo!}
+            history={history}
+            onClose={() => closeModal('InvoiceVersionHistoryModal')}
+            onClick={handleRestoreVersion}
+            user={auth.getValue().user!}
+            prices={prices!}
+            pricesSuccess={isSuccess}
+            statusList={statusList || []}
+            isUpdatable={isUpdatable}
+            isDeletable={isDeletable}
+          />
+        ),
+      })
+    }
   }
 
   const {
@@ -385,11 +387,11 @@ const ReceivableInvoiceDetail = () => {
         { type: 'supervisorId', id: null },
         {
           type: 'projectManagerId',
-          id: user?.userId!,
+          id: auth.getValue().user?.userId!,
           name: getLegalName({
-            firstName: user?.firstName!,
-            middleName: user?.middleName,
-            lastName: user?.lastName!,
+            firstName: auth.getValue().user?.firstName!,
+            middleName: auth.getValue().user?.middleName,
+            lastName: auth.getValue().user?.lastName!,
           }),
         },
         { type: 'member', id: null },
@@ -712,7 +714,12 @@ const ReceivableInvoiceDetail = () => {
   }, [prices, languagePairs])
 
   useEffect(() => {
-    if (invoice.isReady && invoice.invoiceTotalData) {
+    if (
+      invoice.isReady &&
+      invoice.invoiceTotalData &&
+      auth.state === 'hasValue' &&
+      auth.getValue().user
+    ) {
       openModal({
         type: 'PreviewModal',
         isCloseable: false,
@@ -735,7 +742,7 @@ const ReceivableInvoiceDetail = () => {
               <PrintInvoicePage
                 data={invoice.invoiceTotalData}
                 type='preview'
-                user={user!}
+                user={auth.getValue().user!}
                 lang={invoice.lang}
               />
             </div>
@@ -777,7 +784,10 @@ const ReceivableInvoiceDetail = () => {
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {invoiceInfo && !invoiceInfoIsLoading ? (
+        {invoiceInfo &&
+        !invoiceInfoIsLoading &&
+        auth.state === 'hasValue' &&
+        auth.getValue() ? (
           <Box display='flex'>
             <Box
               sx={{
@@ -965,7 +975,7 @@ const ReceivableInvoiceDetail = () => {
                     downloadLanguage={downloadLanguage}
                     setDownloadLanguage={setDownloadLanguage}
                     type='detail'
-                    user={user!}
+                    user={auth.getValue().user!}
                     onSave={patchInvoiceInfoMutation.mutate}
                     onClickDownloadInvoice={onClickDownloadInvoice}
                   />
@@ -991,7 +1001,8 @@ const ReceivableInvoiceDetail = () => {
                   invoiceInfoErrors={invoiceInfoErrors}
                   isInvoiceInfoValid={isInvoiceInfoValid}
                   clientTimezone={
-                    getClientValue('contacts.timezone') ?? user?.timezone!
+                    getClientValue('contacts.timezone') ??
+                    auth.getValue().user?.timezone!
                   }
                   statusList={statusList || []}
                   isUpdatable={isUpdatable}

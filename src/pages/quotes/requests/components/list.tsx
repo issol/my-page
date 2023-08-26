@@ -26,7 +26,7 @@ import { RequestFilterType, SortType } from '@src/types/requests/filters.type'
 
 // ** contexts
 import { useContext } from 'react'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 type CellType = {
@@ -60,7 +60,7 @@ export default function List({
   isLoading,
   onRowClick,
 }: Props) {
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const columns = [
     {
@@ -158,7 +158,10 @@ export default function List({
       renderHeader: () => <Box>Request date</Box>,
       renderCell: ({ row }: CellType) => (
         <Box sx={{ overflowX: 'scroll' }}>
-          {FullDateTimezoneHelper(row.requestedAt, user?.timezone!)}
+          {FullDateTimezoneHelper(
+            row.requestedAt,
+            auth.getValue().user?.timezone!,
+          )}
         </Box>
       ),
     },

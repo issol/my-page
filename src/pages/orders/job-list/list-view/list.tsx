@@ -21,7 +21,7 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** context
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useContext } from 'react'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -50,7 +50,7 @@ export default function JobsList({
   list,
   isLoading,
 }: Props) {
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const router = useRouter()
 
   const columns: GridColumns<JobsListType> = [
@@ -156,11 +156,14 @@ export default function JobsList({
           <Tooltip
             title={FullDateTimezoneHelper(
               row?.startedAt,
-              user?.timezone?.code!,
+              auth.getValue().user?.timezone?.code!,
             )}
           >
             <div>
-              {FullDateTimezoneHelper(row?.startedAt, user?.timezone?.code!)}
+              {FullDateTimezoneHelper(
+                row?.startedAt,
+                auth.getValue().user?.timezone?.code!,
+              )}
             </div>
           </Tooltip>
         )
@@ -175,10 +178,16 @@ export default function JobsList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip
-            title={FullDateTimezoneHelper(row?.dueAt, user?.timezone?.code!)}
+            title={FullDateTimezoneHelper(
+              row?.dueAt,
+              auth.getValue().user?.timezone?.code!,
+            )}
           >
             <div>
-              {FullDateTimezoneHelper(row?.dueAt, user?.timezone?.code!)}
+              {FullDateTimezoneHelper(
+                row?.dueAt,
+                auth.getValue().user?.timezone?.code!,
+              )}
             </div>
           </Tooltip>
         )

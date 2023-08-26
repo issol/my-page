@@ -88,7 +88,7 @@ import {
 } from '@src/types/schema/client-billing-address.schema'
 import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -150,7 +150,7 @@ const PersonalInfoPro = () => {
   const [fileSize, setFileSize] = useState(0)
 
   // ** Hooks
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   // ** State
   const [files, setFiles] = useState<File[]>([])
@@ -171,10 +171,14 @@ const PersonalInfoPro = () => {
   })
 
   useEffect(() => {
-    if (user?.firstName) {
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue() &&
+      auth.getValue().user?.firstName
+    ) {
       router.replace(`/`)
     }
-  }, [user])
+  }, [auth])
 
   const handleRemoveFile = (file: FileType) => {
     const uploadedFiles = files
@@ -249,11 +253,11 @@ const PersonalInfoPro = () => {
       updateConsumerUserInfo(data),
     {
       onSuccess: () => {
-        getUserInfo(user?.id!).then(res => {
+        getUserInfo(auth.getValue().user?.id!).then(res => {
           /* @ts-ignore */
           auth.updateUserInfo({
-            userId: user!.id,
-            email: user!.email,
+            userId: auth.getValue().user!.id,
+            email: auth.getValue().user!.email,
           })
           router.push('/home')
         })
@@ -307,7 +311,7 @@ const PersonalInfoPro = () => {
       const promiseArr = data.resume.map((file, idx) => {
         return getUploadUrlforCommon(
           S3FileType.RESUME,
-          getResumeFilePath(user?.id as number, file.name),
+          getResumeFilePath(auth.getValue().user?.id as number, file.name),
         ).then(res => {
           return uploadFileToS3(res.url, file)
         })
@@ -315,7 +319,7 @@ const PersonalInfoPro = () => {
       Promise.all(promiseArr)
         .then(res => {
           const finalData: ProUserInfoType & { userId: number } = {
-            userId: user?.id || 0,
+            userId: auth.getValue().user?.id || 0,
             firstName: data.firstName,
             lastName: data.lastName,
             country: data.timezone.label,

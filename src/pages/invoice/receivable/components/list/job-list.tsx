@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -18,10 +18,6 @@ import {
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-
-// ** context
-import { useRecoilValue } from 'recoil'
-import { authState } from '@src/states/auth'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -58,7 +54,7 @@ type Props = {
 
 export default function OrderList({ onClose, type = 'order' }: Props) {
   const router = useRouter()
-  const { user } = useRecoilValue(authState)
+
   const { openModal, closeModal } = useModal()
 
   const [selected, setSelected] = useState<OrderListType | null>(null)

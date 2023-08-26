@@ -33,7 +33,7 @@ import Icon from 'src/@core/components/icon'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** helpers
@@ -70,7 +70,7 @@ const JobPostingDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
 
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const { data, refetch, isSuccess, isError } = useGetJobPostingDetail(
     id,
@@ -176,11 +176,16 @@ const JobPostingDetail = () => {
       headerName: 'Date & Time',
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => {
-        return (
-          <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(row.createdAt, user?.timezone!)}
-          </Box>
-        )
+        if (auth.state === 'hasValue' && auth.getValue().user) {
+          return (
+            <Box sx={{ overflowX: 'scroll' }}>
+              {FullDateTimezoneHelper(
+                row.createdAt,
+                auth.getValue().user?.timezone!,
+              )}
+            </Box>
+          )
+        }
       },
     },
   ]
@@ -230,9 +235,9 @@ const JobPostingDetail = () => {
 
   return (
     <>
-      {!data ? (
+      {!data || auth.state === 'loading' ? (
         <FallbackSpinner />
-      ) : isError ? (
+      ) : isError || auth.state === 'hasError' ? (
         <EmptyPost />
       ) : (
         <StyledViewer style={{ margin: '0 70px' }}>
@@ -275,7 +280,9 @@ const JobPostingDetail = () => {
                       <Typography
                         sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                         color={`${
-                          user?.email === data?.email ? 'primary' : ''
+                          auth.getValue().user?.email === data?.email
+                            ? 'primary'
+                            : ''
                         }`}
                       >
                         {data?.writer}
@@ -288,7 +295,10 @@ const JobPostingDetail = () => {
                       <Typography variant='body2'>{data?.email}</Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(data?.createdAt, user?.timezone!)}
+                      {FullDateTimezoneHelper(
+                        data?.createdAt,
+                        auth.getValue().user?.timezone!,
+                      )}
                     </Typography>
                   </Box>
                 </Box>
@@ -319,7 +329,7 @@ const JobPostingDetail = () => {
                       convertDateByTimezone(
                         data?.dueDate,
                         data?.dueDateTimezone!,
-                        user?.timezone.code!,
+                        auth.getValue().user?.timezone.code!,
                       ),
                     )}
                     {renderTable('Job post link', data?.jobPostLink)}
@@ -331,7 +341,7 @@ const JobPostingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTime(user?.timezone?.code),
+                      getGmtTime(auth.getValue().user?.timezone?.code),
                     )}
                   </Grid>
                 </Grid>

@@ -49,7 +49,7 @@ import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** form
@@ -102,7 +102,7 @@ export default function RecruitingEdit() {
   })
 
   // ** contexts
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
@@ -235,7 +235,11 @@ export default function RecruitingEdit() {
         setValueOptions,
       )
     } else if (currDueDate && !watch('dueDateTimezone')?.code) {
-      setValue('dueDateTimezone', user?.timezone, setValueOptions)
+      setValue(
+        'dueDateTimezone',
+        auth.getValue().user?.timezone,
+        setValueOptions,
+      )
     }
   }, [currDueDate])
 
@@ -392,7 +396,7 @@ export default function RecruitingEdit() {
                         <Typography
                           sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                           color={
-                            user?.email === currData?.email
+                            auth.getValue().user?.email === currData?.email
                               ? 'primary'
                               : 'secondary'
                           }

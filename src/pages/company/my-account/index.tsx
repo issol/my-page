@@ -22,7 +22,7 @@ import { useMutation } from 'react-query'
 import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
 import useAuth from '@src/hooks/useAuth'
 import { useGetProfile } from '@src/queries/userInfo/userInfo-query'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { roleState } from '@src/states/permission'
 
@@ -36,9 +36,11 @@ const MyAccount = () => {
 
   const { openModal, closeModal } = useModal()
 
-  const { user } = useRecoilValue(authState)
-  const { data: userInfo, refetch } = useGetProfile(user?.id! ?? 0)
-  const role = useRecoilValue(roleState)
+  const userAuth = useRecoilValueLoadable(authState)
+  const { data: userInfo, refetch } = useGetProfile(
+    userAuth.getValue().user?.id! ?? 0,
+  )
+  const role = useRecoilValueLoadable(roleState)
 
   const saveUserInfoMutation = useMutation(
     (data: ManagerUserInfoType & { userId: number }) =>
@@ -174,16 +176,18 @@ const MyAccount = () => {
                       middleName: userInfo?.middleName,
                     })}
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: '8px' }}>
-                    {role.map(value => {
-                      return (
-                        <Fragment key={uuidv4()}>
-                          {MemberChip(value.name)}
-                        </Fragment>
-                      )
-                    })}
-                    {PermissionChip(role[0]?.type)}
-                  </Box>
+                  {role.state === 'hasValue' && role.getValue() && (
+                    <Box sx={{ display: 'flex', gap: '8px' }}>
+                      {role.getValue().map(value => {
+                        return (
+                          <Fragment key={uuidv4()}>
+                            {MemberChip(value.name)}
+                          </Fragment>
+                        )
+                      })}
+                      {PermissionChip(role.getValue()[0]?.type)}
+                    </Box>
+                  )}
                 </Box>
 
                 <Box

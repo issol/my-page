@@ -20,7 +20,7 @@ import { useForm } from 'react-hook-form'
 import OrdersFilters from './list/filters'
 import { useGetOrderList } from '@src/queries/order/order.query'
 import OrdersList from './list/list'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useRouter } from 'next/router'
 import OrderListCalendar from './calendar'
@@ -73,7 +73,7 @@ export default function OrderList() {
   const { data: statusList } = useGetStatusList('Order')
   const [menu, setMenu] = useState<MenuType>('list')
   const router = useRouter()
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const [orderListPage, setOrderListPage] = useState(0)
   const [orderListRowsPerPage, setOrderListRowsPerPage] = useState(10)
 
@@ -248,7 +248,7 @@ export default function OrderList() {
               setPageSize={setOrderListPage}
               rowsPerPage={orderListRowsPerPage}
               setRowsPerPage={setOrderListRowsPerPage}
-              user={user!}
+              user={auth.getValue().user!}
               list={orderList?.data!}
               listCount={orderList?.totalCount!}
               isLoading={isLoading}

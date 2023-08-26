@@ -15,7 +15,7 @@ import {
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** context
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** hooks
@@ -55,7 +55,7 @@ export default function PayableHistory({
   invoiceCorporationId,
   isUpdatable,
 }: Props) {
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const queryClient = useQueryClient()
 
@@ -230,11 +230,15 @@ export default function PayableHistory({
       sortable: false,
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => {
-        return (
-          <Typography>
-            {FullDateTimezoneHelper(row?.invoicedAt, user?.timezone?.code!)}
-          </Typography>
-        )
+        if (auth.state === 'hasValue' && auth.getValue().user)
+          return (
+            <Typography>
+              {FullDateTimezoneHelper(
+                row?.invoicedAt,
+                auth.getValue().user?.timezone?.code!,
+              )}
+            </Typography>
+          )
       },
     },
   ]

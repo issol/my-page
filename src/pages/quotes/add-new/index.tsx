@@ -65,7 +65,7 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { findEarliestDate } from '@src/shared/helpers/date.helper'
 
 // ** contexts
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** apis
@@ -111,7 +111,7 @@ export const defaultOption: StandardPriceListType & {
 
 export default function AddNewQuotes() {
   const router = useRouter()
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   const requestId = router.query?.requestId
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
@@ -165,11 +165,11 @@ export default function AddNewQuotes() {
         { type: 'supervisorId', id: null },
         {
           type: 'projectManagerId',
-          id: user?.userId!,
+          id: auth.getValue().user?.userId!,
           name: getLegalName({
-            firstName: user?.firstName!,
-            middleName: user?.middleName,
-            lastName: user?.lastName!,
+            firstName: auth.getValue().user?.firstName!,
+            middleName: auth.getValue().user?.middleName,
+            lastName: auth.getValue().user?.lastName!,
           }),
         },
         { type: 'member', id: null },

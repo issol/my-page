@@ -20,7 +20,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** contexts
 import { useContext } from 'react'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useGetStatusList } from '@src/queries/common.query'
 import { UserRoleType } from '@src/context/types'
@@ -52,7 +52,7 @@ export default function ReceivableList({
   role,
 }: Props) {
   const router = useRouter()
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const { data: statusList } = useGetStatusList('InvoiceReceivable')
 
   function NoList() {
@@ -180,12 +180,17 @@ export default function ReceivableList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Invoice date</Box>,
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(row.invoicedAt, user?.timezone.code)
-        return (
-          <Tooltip title={date}>
-            <Typography variant='body2'>{date}</Typography>
-          </Tooltip>
-        )
+        if (auth.state === 'hasValue' && auth.getValue().user) {
+          const date = FullDateTimezoneHelper(
+            row.invoicedAt,
+            auth.getValue().user?.timezone.code,
+          )
+          return (
+            <Tooltip title={date}>
+              <Typography variant='body2'>{date}</Typography>
+            </Tooltip>
+          )
+        }
       },
     },
     {

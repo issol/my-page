@@ -24,7 +24,7 @@ import {
 } from '@src/@core/styles/typography'
 
 // ** contexts
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
@@ -74,10 +74,10 @@ export default function JobTrackerDetail() {
   const router = useRouter()
   const workName = router.query.workName
 
-  const { user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
 
-  const User = new job_list(user?.id!)
+  const User = new job_list(auth.getValue().user?.id!)
   const isUpdatable = ability.can('update', User)
 
   const queryClient = useQueryClient()
@@ -163,11 +163,14 @@ export default function JobTrackerDetail() {
           <Tooltip
             title={FullDateTimezoneHelper(
               row?.itemDueDate,
-              user?.timezone?.code!,
+              auth.getValue().user?.timezone?.code!,
             )}
           >
             <div>
-              {FullDateTimezoneHelper(row?.itemDueDate, user?.timezone?.code!)}
+              {FullDateTimezoneHelper(
+                row?.itemDueDate,
+                auth.getValue().user?.timezone?.code!,
+              )}
             </div>
           </Tooltip>
         )
@@ -205,11 +208,14 @@ export default function JobTrackerDetail() {
           <Tooltip
             title={FullDateTimezoneHelper(
               row?.jobDueDate,
-              user?.timezone?.code!,
+              auth.getValue().user?.timezone?.code!,
             )}
           >
             <div style={{ overflow: 'scroll' }}>
-              {FullDateTimezoneHelper(row?.jobDueDate, user?.timezone?.code!)}
+              {FullDateTimezoneHelper(
+                row?.jobDueDate,
+                auth.getValue().user?.timezone?.code!,
+              )}
             </div>
           </Tooltip>
         )

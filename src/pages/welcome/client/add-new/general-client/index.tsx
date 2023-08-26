@@ -32,7 +32,7 @@ import {
 import CreateContactPersonForm from '@src/pages/components/forms/create-contact-person-form'
 import { updateClientUserInfo } from '@src/apis/user.api'
 import useAuth from '@src/hooks/useAuth'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -63,16 +63,18 @@ export default function NewGeneralClientForm() {
 
   // ** Hooks
 
-  const { company, user } = useRecoilValue(authState)
+  const auth = useRecoilValueLoadable(authState)
 
   useEffect(() => {
     if (
-      user?.firstName ||
+      (auth.state === 'hasValue' &&
+        auth.getValue() &&
+        auth.getValue().user?.firstName) ||
       (currentRole?.name !== 'CLIENT' && currentRole?.type !== 'General')
     ) {
       router.push('/')
     }
-  }, [user])
+  }, [auth])
 
   const {
     control,
@@ -108,15 +110,21 @@ export default function NewGeneralClientForm() {
   )
 
   function updateClientInformation() {
-    if (company && company.companyId) {
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue() &&
+      auth.getValue().company &&
+      auth.getValue().user &&
+      auth.getValue().company?.companyId
+    ) {
       const data: ContactPersonType & { userId: number } & {
         clientId: number
         companyId: string
       } = {
         ...getValues(),
-        userId: user?.userId!,
-        clientId: company.clientId,
-        companyId: company?.companyId,
+        userId: auth.getValue().user?.userId!,
+        clientId: auth.getValue().company?.clientId!,
+        companyId: auth.getValue().company?.companyId!,
       }
       createClientMutation.mutate(data)
     }
