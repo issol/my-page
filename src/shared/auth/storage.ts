@@ -90,6 +90,7 @@ export function removeRedirectPath() {
 export function getCurrentRole(): UserRoleType | null {
   if (typeof window === 'object') {
     const value = window.sessionStorage.getItem(authConfig.currentRole)
+
     try {
       return value !== undefined && value !== null ? JSON.parse(value) : null
     } catch {

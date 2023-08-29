@@ -53,20 +53,18 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleSetCurrentRole = useCallback(() => {
+    console.log(auth, roles, currentRole, permission)
+
     if (
       auth.state === 'hasValue' &&
-      auth.getValue() &&
       roles.state === 'hasValue' &&
       roles.getValue() &&
       currentRole.state === 'hasValue' &&
-      permission.state === 'hasValue' &&
-      permission.getValue()
+      permission.state === 'hasValue'
     ) {
       setPermission(permission.getValue())
       setRoles(roles.getValue())
       const roleNames = roles.getValue().map(item => item.name)
-
-      console.log(roleNames)
 
       const redirectPath = getRedirectPath()
       const storageRole = currentRole.getValue()
@@ -131,7 +129,7 @@ const AuthProvider = ({ children }: Props) => {
         router.push(`/home`)
       }
     }
-  }, [auth, roles, hasTadAndLpm, router, refetch, permission])
+  }, [auth, roles, permission])
 
   useEffect(() => {
     if (companyData) {
