@@ -1,4 +1,5 @@
 import axios from '@src/configs/axios'
+import { JobListFilterType } from '@src/pages/jobs'
 
 import { FilterType } from '@src/pages/orders/job-list/list-view/list-view'
 import { DetailFilterType } from '@src/pages/orders/job-list/tracker-view/[id]'
@@ -9,6 +10,7 @@ import {
   JobsListType,
   JobsTrackerDetailType,
   JobsTrackerListType,
+  ProJobListType,
 } from '@src/types/jobs/jobs.type'
 
 export const getJobsList = async (
@@ -209,6 +211,81 @@ export const getJobHistory = async (
 export const createJob = async (params: CreateJobParamsType) => {
   try {
     await axios.post(`/api/enough/u/job`, { ...params })
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const getProJobList = async (
+  filter: JobListFilterType,
+): Promise<{
+  data: ProJobListType[]
+  totalCount: number
+}> => {
+  try {
+    // const { data } = await axios.get(`/api/enough/u/job/pro?${makeQuery(filter)}`)
+    // return data
+    return {
+      data: [
+        {
+          id: 1,
+          corporationId: 'corporation1',
+          serviceType: 'service1',
+          name: 'job1',
+          jobDueDate: '2023-08-30T14:13:15Z',
+          status: 'Requested from LPM',
+          message: {
+            unReadCount: 1,
+            contents: [
+              {
+                id: 1,
+                content: 'message1',
+                createdAt: '2023-08-31T14:13:15Z',
+                firstName: 'John',
+                middleName: null,
+                lastName: 'Doe',
+                email: 'john.doe@example.com',
+                role: 'role1',
+              },
+            ],
+          },
+        },
+        {
+          id: 2,
+          corporationId: 'corporation2',
+          serviceType: 'service2',
+          name: 'job2',
+          jobDueDate: '2023-08-29T14:13:15Z',
+          status: 'Awaiting approval',
+          message: {
+            unReadCount: 2,
+            contents: [
+              {
+                id: 2,
+                content: 'message2',
+                createdAt: '2023-08-30T14:13:15Z',
+                firstName: 'Jane',
+                middleName: null,
+                lastName: 'Doe',
+                email: 'jane.doe@example.com',
+                role: 'role2',
+              },
+              {
+                id: 3,
+                content: 'message3',
+                createdAt: '2023-08-30T17:13:15Z',
+                firstName: 'Bob',
+                middleName: 'A.',
+                lastName: 'Smith',
+                email: 'bob.smith@example.com',
+                role: 'role3',
+              },
+            ],
+          },
+        },
+      ],
+      totalCount: 2,
+    }
   } catch (error: any) {
     throw new Error(error)
   }

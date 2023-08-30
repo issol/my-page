@@ -3,7 +3,9 @@ import {
   getJobsList,
   getJobsTrackerDetail,
   getJobsTrackerList,
+  getProJobList,
 } from '@src/apis/jobs.api'
+import { JobListFilterType } from '@src/pages/jobs'
 import { FilterType as ListFilterType } from '@src/pages/orders/job-list/list-view/list-view'
 import { DetailFilterType } from '@src/pages/orders/job-list/tracker-view/[id]'
 import toast from 'react-hot-toast'
@@ -46,6 +48,14 @@ export const useGetJobHistory = (
   return useQuery(['jobHistory', filter], () => getJobHistory(id, filter), {
     staleTime: 60 * 1000, // 1
     suspense: false,
+    keepPreviousData: true,
+  })
+}
+
+export const useGetProJobList = (filter: JobListFilterType) => {
+  return useQuery(['proJobList', filter], () => getProJobList(filter), {
+    staleTime: 60 * 1000, // 1
+    suspense: true,
     keepPreviousData: true,
   })
 }

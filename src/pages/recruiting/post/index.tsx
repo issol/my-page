@@ -56,7 +56,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 // ** fetches
 import { FormType, postRecruiting, StatusType } from '@src/apis/recruiting.api'
 import { useMutation } from 'react-query'
-import { useGetJobPostingList } from '@src/queries/jobPosting.query'
+import { useGetJobPostingList } from '@src/queries/jobs/jobPosting.query'
 import { useGetClientList } from '@src/queries/client.query'
 
 // ** types

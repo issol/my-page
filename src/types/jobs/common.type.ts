@@ -10,3 +10,17 @@ export type JobStatusType =
   | 'Paid'
   | 'Without invoice'
   | 'Canceled'
+
+export type ProJobStatusType =
+  | 'Approved'
+  | 'Invoiced'
+  | 'Paid'
+  | 'Unassigned'
+  | 'Canceled'
+  | 'without invoice'
+  | 'Requested from LPM'
+  | 'Awaiting approval'
+  | 'In progress'
+  | 'Job overdue'
+  | 'Delivered to LPM'
+  | 'Declined'

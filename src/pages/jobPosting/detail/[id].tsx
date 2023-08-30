@@ -48,7 +48,7 @@ import { getGmtTime } from 'src/shared/helpers/timezone.helper'
 import { useRouter } from 'next/router'
 
 // ** fetches
-import { useGetJobPostingDetail } from 'src/queries/jobPosting.query'
+import { useGetJobPostingDetail } from '@src/queries/jobs/jobPosting.query'
 import { deleteJobPosting } from 'src/apis/jobPosting.api'
 import { useMutation } from 'react-query'
 

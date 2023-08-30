@@ -3,7 +3,7 @@ import CustomChip from 'src/@core/components/mui/chip'
 import { Chip } from '@mui/material'
 import { StatusType } from '@src/apis/client.api'
 
-import { JobStatusType } from '@src/types/jobs/common.type'
+import { JobStatusType, ProJobStatusType } from '@src/types/jobs/common.type'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
 import {
   InvoicePayableStatusType,
@@ -13,6 +13,7 @@ import { RoleType, UserType } from '@src/context/types'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import {
   getOrderStatusColor,
+  getProJobStatusColor,
   getReceivableStatusColor,
 } from '@src/shared/helpers/colors.helper'
 import { OrderStatusType } from '@src/types/common/orders.type'
@@ -137,6 +138,8 @@ export const ServiceTypeChip = styled(Chip)`
     ),
     #666cff;
   border: 1px solid rgba(102, 108, 255, 0.5);
+  font-size: 13px;
+  font-weight: 500;
 `
 
 export function WorkStatusChip(status: string) {
@@ -438,6 +441,22 @@ export function ClientRequestStatusChip(status: RequestStatusType) {
       : status === 'Canceled'
       ? '#FF4D49'
       : ''
+
+  return (
+    <CustomChip
+      label={status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function ProJobStatusChip(status: ProJobStatusType) {
+  const color = getProJobStatusColor(status)
 
   return (
     <CustomChip

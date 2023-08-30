@@ -118,6 +118,10 @@ export const permissionSelector = selector<PermissionObjectType>({
             can: 'read',
           },
           {
+            subject: 'jobs',
+            can: 'read',
+          },
+          {
             subject: 'certification_test',
             can: 'create',
           },

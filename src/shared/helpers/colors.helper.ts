@@ -4,6 +4,7 @@ import {
   QuotesStatusType,
 } from '@src/types/common/quotes.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 export function getReceivableStatusColor(status: InvoiceReceivableStatusType) {
   const color =
@@ -94,5 +95,34 @@ export function getQuoteStatusColor(status: QuotesStatusType) {
       : status === 201200
       ? '#FF4D49'
       : ''
+  return color
+}
+
+export function getProJobStatusColor(status: ProJobStatusType) {
+  const color =
+    status === 'Requested from LPM'
+      ? '#A81988'
+      : status === 'Awaiting approval'
+      ? '#6D788D'
+      : status === 'In progress'
+      ? '#FDB528'
+      : status === 'Delivered to LPM'
+      ? '#1A6BBA'
+      : status === 'Approved'
+      ? '#64C623'
+      : status === 'Invoiced'
+      ? '#9B6CD8'
+      : status === 'Paid'
+      ? '#1B8332'
+      : status === 'without invoice'
+      ? '#D8AF1D'
+      : status === 'Unassigned'
+      ? '#6D788D'
+      : status === 'Canceled' ||
+        status === 'Declined' ||
+        status === 'Job overdue'
+      ? '#FF4D49'
+      : null
+
   return color
 }

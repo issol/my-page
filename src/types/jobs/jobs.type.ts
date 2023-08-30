@@ -2,7 +2,7 @@ import { CurrencyType } from '../common/standard-price'
 import { AssignProListType } from '../orders/job-detail'
 import { OrderDetailType } from '../orders/order-detail'
 import { CountryType } from '../sign/personalInfoTypes'
-import { JobStatusType } from './common.type'
+import { JobStatusType, ProJobStatusType } from './common.type'
 
 export type JobsListType = {
   id: number
@@ -101,4 +101,28 @@ export type CreateJobParamsType = {
   orderId: number
   itemId: number
   serviceType: string[]
+}
+
+export type ProJobListType = {
+  id: number
+  corporationId: string
+  serviceType: string
+  name: string
+  jobDueDate: string
+  status: ProJobStatusType
+  message: {
+    unReadCount: number
+    contents:
+      | {
+          id: number
+          content: string
+          createdAt: string
+          firstName: string
+          middleName: string | null
+          lastName: string
+          email: string
+          role: string
+        }[]
+      | null
+  }
 }
