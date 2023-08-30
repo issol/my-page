@@ -314,21 +314,21 @@ export default function AddLanguagePairForm({
                           {type === 'detail' ? (
                             <Typography variant='body1' fontSize={14}>
                               {/* {row.price?.priceName} */}
-                              {items?.[idx].quotePrice?.name}
+                              {items?.[idx]?.quotePrice?.name}
                             </Typography>
                           ) : (
                             <Autocomplete
                               value={
-                                // !row.price
-                                //   ? null
-                                //   : options.find(
-                                //       item => item.id === row.price?.id,
-                                //     ) || null
-                                options[0].groupName === 'Current price'
-                                  ? options[0]
+                                !row.price
+                                  ? null
                                   : options.find(
                                       item => item.id === row.price?.id,
-                                    ) || null              
+                                    ) || null
+                                // options[0].groupName === 'Current price'
+                                //   ? options[0]
+                                //   : options.find(
+                                //       item => item.id === row.price?.id,
+                                //     ) || null              
                               }
                               size='small'
                               sx={{ width: 300 }}

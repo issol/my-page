@@ -50,7 +50,7 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 // ** types & validation
 import { MemberType } from '@src/types/schema/project-team.schema'
-import { languageType } from '@src/pages/orders/add-new'
+import { languageType } from '@src/pages/quotes/add-new'
 import {
   PriceUnitListType,
   StandardPriceListType,
@@ -327,20 +327,36 @@ export default function ItemForm({
     const [cardOpen, setCardOpen] = useState(true)
 
     const itemData = getValues(`items.${idx}`)
+    console.log("item",itemData)
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
-    const priceData =
-      getPriceOptions(itemData.source, itemData.target).find(
-        price => price.id === itemData.priceId,
-      ) || null
+
     const sourceLanguage = itemData.source
     const targetLanguage = itemData.target
+
+    // standard price에 등록된 데이터중 매칭된 데이터
+    const priceData =
+    getPriceOptions(itemData.source, itemData.target).find(
+      price => price.id === itemData.priceId,
+    ) || null
     const languagePairData = priceData?.languagePairs?.find(
       i => i.source === sourceLanguage && i.target === targetLanguage,
     )
     const minimumPrice = languagePairData?.minimumPrice
     const priceFactor = languagePairData?.priceFactor
+    // 여기까지
 
+    // 현재 row의 프라이스 유닛에 적용될 currency 값
+    // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 currency 추출
+    // 기존 item인 경우: 저장된 price가 있으므로(quotePrice) quotePrice에서 currency 값 추출
+    const currentCurrency = () => {
+      // 기존 item
+      if (itemData?.id && itemData?.id !== -1) return itemData?.quotePrice?.currency!
+      // Not Applicable(재설계 필요)
+      else if (itemData?.id && itemData?.id === -1) return 'USD'
+      // 신규 item
+      else return priceData?.currency!
+    }
     const {
       fields: details,
       append,
@@ -407,10 +423,10 @@ export default function ItemForm({
       }
 
       // if (prices === data[index].prices) return
-      const currentCurrency = () => {
-        if (isNotApplicable) return detail?.currency
-        return fields[idx]?.quotePrice?.currency!
-      }
+      // const currentCurrency = () => {
+      //   if (isNotApplicable) return detail?.currency
+      //   return fields[idx]?.quotePrice?.currency!
+      // }
       const roundingPrice = formatByRoundingProcedure(
         prices,
         priceData?.decimalPlace!
@@ -421,7 +437,9 @@ export default function ItemForm({
         priceData?.roundingProcedure! ?? 0,
         currentCurrency(),
       )
-
+      // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
+      // 스탠다드 프라이스의 언어페어 정보 : languagePairs
+      console.log("getEachPrice",priceData,languagePairData)
       setValue(`items.${idx}.detail.${index}.currency`, currentCurrency(), {
         shouldDirty: true,
         shouldValidate: false,
@@ -792,7 +810,7 @@ export default function ItemForm({
                           options={options}
                           groupBy={option => option?.groupName ?? ''}
                           isOptionEqualToValue={(option, newValue) => {
-                            return option.priceName === newValue.priceName
+                            return option.priceName === newValue?.priceName
                           }}
                           getOptionLabel={option => `${option.priceName} (${option.currency})`}
                           onChange={(e, v) => {

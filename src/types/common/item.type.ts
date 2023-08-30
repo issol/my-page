@@ -2,7 +2,7 @@ import { JobStatusType } from '../jobs/common.type'
 import { JobPricesDetailType } from '../jobs/jobs.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
-import { PriceType } from './orders-and-quotes.type'
+import { PriceType, PriceUnitType } from './orders-and-quotes.type'
 import { CurrencyType } from './standard-price'
 import { MemSourceType, MemoQType } from './tm-analysis.type'
 
@@ -47,6 +47,7 @@ export type ItemDetailType = {
   unit: string
   currency: CurrencyType
   priceFactor?: string | null
+  quotePriceUnit?: PriceUnitType
 }
 
 export type JobItemType = {

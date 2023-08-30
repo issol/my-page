@@ -145,6 +145,7 @@ import { CancelOrderReason } from '@src/shared/const/reason/reason'
 import { UserRoleType } from '@src/context/types'
 import { ProjectInfoType } from '@src/types/common/quotes.type'
 import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -451,14 +452,26 @@ export default function QuotesDetail() {
       (async function () {
         const priceList = await getClientPriceList({})
         setLanguagePairs(
-          itemsWithLang?.languagePairs?.map(item => {
+          itemsWithLang?.items?.map(item => {
             return {
               id: String(item.id),
               source: item.source,
               target: item.target,
-              price: !item?.price
-                ? null
-                : priceList.find(price => price.id === item?.price?.id) || null,
+              price: {
+                id: item.quotePrice?.priceId!,
+                isStandard: item.quotePrice?.isStandard!,
+                priceName: item.quotePrice?.name!,
+                groupName: 'Current price',
+                category: item.quotePrice?.category!,
+                serviceType: item.quotePrice?.serviceType!,
+                currency: item.quotePrice?.currency!,
+                catBasis: item.quotePrice?.calculationBasis!,
+                decimalPlace: item.quotePrice?.numberPlace!,
+                roundingProcedure: RoundingProcedureList[item.quotePrice?.rounding!].label,
+                languagePairs: [],
+                priceUnit: [],
+                catInterface: { memSource: [], memoQ: [] },
+              }
             }
           }),
         )
@@ -476,7 +489,7 @@ export default function QuotesDetail() {
             contactPerson: item?.contactPerson ?? {},
             // quotePrice는 quote 생성시점에 선택한 price의 값을 담고 있음
             // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 quotePrice 내 값을 쓴다
-            quotePrice: item.quotePrice,
+            quotePrice: item.quotePrice ?? {},
             description: item.description,
             showItemDescription: item.showItemDescription,
           }

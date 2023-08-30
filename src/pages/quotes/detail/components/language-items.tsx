@@ -166,10 +166,10 @@ export default function QuotesLanguageItemsDetail({
     const finalList = [defaultOption].concat(filteredList)
 
     // 기존 선택한 Price 값이 있다면 해당 값을 Current price 그룹으로 추가
-    if(index !== undefined && index >= 0 && items[index].quotePrice) {
+    if(index !== undefined && index >= 0 && items[index]?.quotePrice) {
       finalList.unshift({
         groupName: 'Current price',
-        id: items[index].quotePrice?.id!,
+        id: items[index].quotePrice?.priceId!,
         isStandard: items[index].quotePrice?.isStandard!,
         priceName: items[index].quotePrice?.name!,
         category: items[index].quotePrice?.category!,
@@ -339,15 +339,19 @@ export default function QuotesLanguageItemsDetail({
               variant='subtitle1'
               sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
             >
-              {formatCurrency(
-                formatByRoundingProcedure(
-                  subPrice,
-                  items[0].quotePrice?.numberPlace!,
-                  items[0].quotePrice?.rounding!,
-                  items[0].quotePrice?.currency!,
-                ),
-                items[0].quotePrice?.currency!,
-              )}
+              { 
+                items.length && items[0].quotePrice
+                  ? formatCurrency(
+                      formatByRoundingProcedure(
+                        subPrice,
+                        items[0].quotePrice?.numberPlace!,
+                        items[0].quotePrice?.rounding!,
+                        items[0].quotePrice?.currency!,
+                      ),
+                      items[0].quotePrice?.currency!,
+                    )
+                  : 0
+            }
             </Typography>
           </Box>
         </Box>
