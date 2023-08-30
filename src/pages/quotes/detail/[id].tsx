@@ -476,7 +476,9 @@ export default function QuotesDetail() {
             contactPerson: item?.contactPerson ?? {},
             // quotePrice는 quote 생성시점에 선택한 price의 값을 담고 있음
             // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 quotePrice 내 값을 쓴다
-            quotePrice: item.quotePrice
+            quotePrice: item.quotePrice,
+            description: item.description,
+            showItemDescription: item.showItemDescription,
           }
         })
         itemReset({ items: result })
