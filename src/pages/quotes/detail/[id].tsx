@@ -779,11 +779,16 @@ export default function QuotesDetail() {
   }
 
   async function onItemSave() {
-    const items: PostItemType[] = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-      showItemDescription: item.showItemDescription ? '1' : '0',
-    }))
+    const items: PostItemType[] = getItem().items.map(item => {
+      const { contactPerson, ...filterItem } = item;
+      return {
+        ...filterItem,
+        contactPersonId: item.contactPerson?.id!,
+        description: item.description || '',
+        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+        showItemDescription: item.showItemDescription ? '1' : '0',
+      }
+    })
     const langs: LanguagePairsType[] = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
