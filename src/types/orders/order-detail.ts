@@ -152,6 +152,8 @@ export type LanguagePairTypeInItem = {
     numberPlace: number
     authorId: number
   } | null
+  minimumPrice?: string | null
+  currency?: string | null
 }
 
 export type OrderDetailType = {

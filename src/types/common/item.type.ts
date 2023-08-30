@@ -2,6 +2,7 @@ import { JobStatusType } from '../jobs/common.type'
 import { JobPricesDetailType } from '../jobs/jobs.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
+import { PriceType } from './orders-and-quotes.type'
 import { CurrencyType } from './standard-price'
 import { MemSourceType, MemoQType } from './tm-analysis.type'
 
@@ -34,6 +35,7 @@ export type PostItemType = {
   showItemDescription?: '1' | '0'
   analysis?: number[] //file id를 보내기
   totalPrice: number
+  quotePrice?: PriceType
 }
 
 export type ItemDetailType = {

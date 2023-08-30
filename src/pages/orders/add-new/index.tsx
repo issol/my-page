@@ -113,7 +113,7 @@ export const defaultOption: StandardPriceListType & {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
-  // groupName: 'Not applicable',
+  groupName: 'Not applicable',
   category: '',
   serviceType: [],
   currency: 'USD',

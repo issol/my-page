@@ -448,7 +448,7 @@ export default function QuotesDetail() {
 
   useEffect(() => {
     if (!isItemLoading && itemsWithLang) {
-      ;(async function () {
+      (async function () {
         const priceList = await getClientPriceList({})
         setLanguagePairs(
           itemsWithLang?.languagePairs?.map(item => {
@@ -474,13 +474,16 @@ export default function QuotesDetail() {
             totalPrice: item?.totalPrice ?? 0,
             dueAt: item?.dueAt ?? '',
             contactPerson: item?.contactPerson ?? {},
+            // quotePrice는 quote 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 quotePrice 내 값을 쓴다
+            quotePrice: item.quotePrice
           }
         })
         itemReset({ items: result })
         itemTrigger()
       })()
     }
-  }, [isItemLoading])
+  }, [isItemLoading,itemsWithLang])
 
   // ** 3. Client
   const [editClient, setEditClient] = useState(false)
@@ -802,10 +805,13 @@ export default function QuotesDetail() {
       try {
         await patchQuoteLanguagePairs(Number(id), langs)
         await patchQuoteItems(Number(id), items)
-        updateProject.mutate({ tax, isTaxable: taxable })
-        setEditItems(false)
-        queryClient.invalidateQueries({
-          queryKey: ['quotesDetailItems'],
+        updateProject.mutate({ tax, isTaxable: taxable },{
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: ['quotesDetailItems'],
+            })
+            setEditItems(false)
+          }
         })
       } catch (e: any) {
         onMutationError()
@@ -1487,7 +1493,10 @@ export default function QuotesDetail() {
                 {editItems
                   ? renderSubmitButton({
                       onCancel: () =>
-                        onDiscard({ callback: () => setEditItems(false) }),
+                        onDiscard({ callback: () => {
+                          setEditItems(false)
+                          itemReset()
+                        }}),
                       onSave: () => onItemSave(),
                       isValid: isItemValid || !taxable || (taxable && tax! > 0),
                     })

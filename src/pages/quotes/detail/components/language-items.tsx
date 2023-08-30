@@ -134,7 +134,9 @@ export default function QuotesLanguageItemsDetail({
   const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
   const [subPrice, setSubPrice] = useState(0)
   function sumTotalPrice() {
-    const subPrice = getItem()?.items!
+    // const subPrice = getItem()?.items!
+    // const subPrice = items
+    const subPrice = isEditMode ? getItem()?.items! : items
     if (subPrice) {
       const total = subPrice.reduce((accumulator, item) => {
         return accumulator + item.totalPrice;
@@ -144,9 +146,9 @@ export default function QuotesLanguageItemsDetail({
   }
   useEffect(() => {
     sumTotalPrice()
-  },[])
+  },[items])
 
-  function getPriceOptions(source: string, target: string) {
+  function getPriceOptions(source: string, target: string, index?: number) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
       .filter(item => {
@@ -159,7 +161,30 @@ export default function QuotesLanguageItemsDetail({
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
         ...item,
       }))
-    return [defaultOption].concat(filteredList)
+
+    // Not Applicable Price 추가
+    const finalList = [defaultOption].concat(filteredList)
+
+    // 기존 선택한 Price 값이 있다면 해당 값을 Current price 그룹으로 추가
+    if(index !== undefined && index >= 0 && items[index].quotePrice) {
+      finalList.unshift({
+        groupName: 'Current price',
+        id: items[index].quotePrice?.id!,
+        isStandard: items[index].quotePrice?.isStandard!,
+        priceName: items[index].quotePrice?.name!,
+        category: items[index].quotePrice?.category!,
+        serviceType: items[index].quotePrice?.serviceType!,
+        currency: items[index].quotePrice?.currency!,
+        catBasis: items[index].quotePrice?.calculationBasis!,
+        decimalPlace: items[index].quotePrice?.numberPlace!,
+        roundingProcedure: String(items[index].quotePrice?.rounding),
+        memoForPrice: items[index].quotePrice?.memo!,
+        languagePairs: [],
+        priceUnit: [],
+      })
+    }
+
+    return finalList
   }
 
   function onDeleteLanguagePair(row: languageType) {
@@ -245,6 +270,7 @@ export default function QuotesLanguageItemsDetail({
             getPriceOptions={getPriceOptions}
             type={isEditMode ? 'edit' : 'detail'}
             onDeleteLanguagePair={onDeleteLanguagePair}
+            items={items}
           />
         </Grid>
       )}
@@ -316,11 +342,11 @@ export default function QuotesLanguageItemsDetail({
               {formatCurrency(
                 formatByRoundingProcedure(
                   subPrice,
-                  priceInfo?.decimalPlace!,
-                  priceInfo?.roundingProcedure!,
-                  priceInfo?.currency ?? 'USD',
+                  items[0].quotePrice?.numberPlace!,
+                  items[0].quotePrice?.rounding!,
+                  items[0].quotePrice?.currency!,
                 ),
-                priceInfo?.currency ?? 'USD',
+                items[0].quotePrice?.currency!,
               )}
             </Typography>
           </Box>

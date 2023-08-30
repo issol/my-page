@@ -83,6 +83,7 @@ type Props = {
   type: string
   sumTotalPrice: () => void
   // checkMinimumPrice: () => void
+  fields?: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
 }
 
 export default function ItemPriceUnitForm({
@@ -106,10 +107,14 @@ export default function ItemPriceUnitForm({
   type,
   sumTotalPrice,
   // checkMinimumPrice,
+  fields,
 }: Props) {
-  const itemName: `items.${number}.detail` = `items.${index}.detail`
-  const currentItem = getValues(`${itemName}`) || []
-  
+  const detailName: `items.${number}.detail` = `items.${index}.detail`
+  const quotePriceName: `items.${number}.quotePrice` = `items.${index}.quotePrice`
+
+  const currentItem = getValues(`${detailName}`) || []
+  const currentInitialItem = getValues(`${quotePriceName}`)
+
   type NestedPriceUnitType = PriceUnitListType & {
     subPriceUnits: PriceUnitListType[]
     groupName: string
@@ -142,6 +147,35 @@ export default function ItemPriceUnitForm({
         }
       })
     }
+
+    // // 현재 설정된 Price unit(서버에서 받은 값)
+    // const currentPriceUnit: Array<NestedPriceUnitType> = currentItem.map(item => ({
+    //   id: item.priceUnitId,
+    //   priceUnitId: item.priceUnitId,
+    //   isBase: false,
+    //   title: item.title,
+    //   unit: item.unit,
+    //   weighting: null,
+    //   quantity: item.quantity,
+    //   price: item.prices,
+    //   subPriceUnits: [],
+    //   groupName: 'Current price unit',
+    // }))
+
+    // // quote 생성 시점에 선택한 price unit 값
+    // const initialPriceUnit: Array<NestedPriceUnitType> = currentInitialItem?.priceUnits?.map(item => ({
+    //   id: item.id!,
+    //   priceUnitId: item.id!,
+    //   isBase: item.isBase!,
+    //   title: item.title!,
+    //   unit: item.unit!,
+    //   weighting: item.weighting!,
+    //   quantity: item.quantity!,
+    //   price: item.price!,
+    //   subPriceUnits: [],
+    //   groupName: 'Initial price unit',
+    // }))
+
     allPriceUnits.current = data
     return nestedData
   }
@@ -189,9 +223,9 @@ export default function ItemPriceUnitForm({
     const [price, setPrice] = useState(savedValue.prices)
 
     const updatePrice = (e?:any) => {
-      const newPrice = getValues(`${itemName}.${idx}`)
+      const newPrice = getValues(`${detailName}.${idx}`)
       
-      getEachPrice(idx, showMinimum, isNotApplicable) //폼 데이터 업데이트 (setValue)
+      if(type !== 'detail' && type !== 'invoiceDetail') getEachPrice(idx, showMinimum, isNotApplicable) //폼 데이터 업데이트 (setValue)
       getTotalPrice() // 합계 데이터 업데이트 (setValue)
       setSavedValue(newPrice) // setValue된 값 가져오기
       setPrice(newPrice.prices) // setValue된 값에서 price 정보 가져오기
@@ -225,12 +259,12 @@ export default function ItemPriceUnitForm({
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-                {getValues(`${itemName}.${idx}.quantity`)}
+                {getValues(`${detailName}.${idx}.quantity`)}
               </Typography>
             </Box>
           ) : (
             <Controller
-              name={`${itemName}.${idx}.quantity`}
+              name={`${detailName}.${idx}.quantity`}
               control={control}
               render={({ field: { value, onChange } }) => {
                 return (
@@ -260,14 +294,14 @@ export default function ItemPriceUnitForm({
                 {
                   allPriceUnits?.current?.find(
                     item =>
-                      item.id === getValues(`${itemName}.${idx}.priceUnitId`),
+                      item.id === getValues(`${detailName}.${idx}.priceUnitId`),
                   )?.title
                 }
               </Typography>
             </Box>
           ) : (
             <Controller
-              name={`${itemName}.${idx}.priceUnitId`}
+              name={`${detailName}.${idx}.priceUnitId`}
               control={control}
               render={({ field: { value, onChange } }) => {
                 // const options = nestSubPriceUnits()
@@ -409,14 +443,14 @@ export default function ItemPriceUnitForm({
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {formatCurrency(
-                  getValues(`${itemName}.${idx}.unitPrice`),
-                  priceData?.currency ?? 'USD'
+                  getValues(`${detailName}.${idx}.unitPrice`),
+                  getValues(`${quotePriceName}.currency`)
                 ) ?? '-'}
               </Typography>
             </Box>
           ) : (
             <Controller
-              name={`${itemName}.${idx}.unitPrice`}
+              name={`${detailName}.${idx}.unitPrice`}
               control={control}
               render={({ field: { value, onChange } }) => {
                 return (
@@ -442,13 +476,13 @@ export default function ItemPriceUnitForm({
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {isNotApplicable
-                  ? getValues(`${itemName}.${idx}.currency`) ?? '-'
+                  ? getValues(`${detailName}.${idx}.currency`) ?? '-'
                   : null}
               </Typography>
             </Box>
           ) : isNotApplicable ? (
             <Controller
-              name={`${itemName}.${0}.currency`}
+              name={`${detailName}.${0}.currency`}
               control={control}
               render={({ field: { value, onChange } }) => {
                 return (
@@ -477,30 +511,52 @@ export default function ItemPriceUnitForm({
           ) : null}
         </TableCell>
         <TableCell sx={{width: '20%'}} align='left'>
-          <Typography fontSize={14}>
-            {isNotApplicable
-              ? formatCurrency(
-                formatByRoundingProcedure(
-                  Number(price),
-                  (savedValue.currency === 'USD' || 
-                  savedValue.currency === 'SGD')
-                  ? 2
-                  : 1000,
-                  0,
-                  savedValue.currency,
-                ),
-                savedValue.currency
-              )
-              : formatCurrency(
-                  formatByRoundingProcedure(
-                    Number(price),
-                    priceData?.decimalPlace!,
-                    priceData?.roundingProcedure!,
-                    priceData?.currency!,
-                  ),
-                  priceData?.currency ?? 'USD',
-                )}
-          </Typography>
+            {type === 'detail' || type === 'invoiceDetail' ? 
+            (
+              <Typography fontSize={14}>
+                {
+                  formatCurrency(
+                    formatByRoundingProcedure(
+                      // Number(getValues(`${detailName}.${idx}.prices`)),
+                      Number(fields?.[index].detail?.[idx].prices!),
+                      getValues(`${quotePriceName}.numberPlace`),
+                      getValues(`${quotePriceName}.rounding`),
+                      getValues(`${quotePriceName}.currency`),
+                    ),
+                    getValues(`${quotePriceName}.currency`),
+                  )
+                }
+              </Typography>
+            ):(
+              <Typography fontSize={14}>
+                {
+                  // TODO: Not Applicable 기능 재정의 해야 함
+                  isNotApplicable
+                    ? formatCurrency(
+                      formatByRoundingProcedure(
+                        Number(price),
+                        (savedValue.currency === 'USD' || 
+                        savedValue.currency === 'SGD')
+                        ? 2
+                        : 1000,
+                        0,
+                        savedValue.currency,
+                      ),
+                      savedValue.currency
+                    )
+                    : formatCurrency(
+                        formatByRoundingProcedure(
+                          Number(price),
+                          getValues(`${quotePriceName}.numberPlace`),
+                          getValues(`${quotePriceName}.rounding`),
+                          getValues(`${quotePriceName}.currency`),
+                        ),
+                        getValues(`${quotePriceName}.currency`),
+                      )
+                }
+              </Typography>
+              )}
+          
         </TableCell>
         <TableCell sx={{width: '5%'}} align='center'>
           {type === 'detail' || type === 'invoiceDetail' ? null : (
@@ -658,27 +714,49 @@ export default function ItemPriceUnitForm({
             marginLeft={20} 
             marginRight={5}
           >
-            <Typography fontWeight='bold' fontSize={14}>
-              {!priceData || priceData.id === NOT_APPLICABLE
-                  ? formatCurrency(
-                    formatByRoundingProcedure(
-                      totalPrice,
-                      priceData?.decimalPlace!,
-                      priceData?.roundingProcedure!,
-                      currentItem[0]?.currency ?? 'USD',
-                    ),
-                    currentItem[0]?.currency ?? 'USD',
-                  )
-                : formatCurrency(
-                    formatByRoundingProcedure(
-                      totalPrice,
-                      priceData?.decimalPlace!,
-                      priceData?.roundingProcedure!,
-                      priceData?.currency! ?? 'USD',
-                    ),
-                    priceData?.currency ?? 'USD',
-                  )}
-            </Typography>
+            {type === 'detail' || type === 'invoiceDetail'
+              ? (
+                <Typography fontWeight='bold' fontSize={14}>
+                  {
+                    formatCurrency(
+                      formatByRoundingProcedure(
+                        // getValues로 가져오면 폼에서 계산된 값이 반영됨
+                        // fields에서 가져오면 서버에서 넘어온 값이 반영됨
+                        // Number(getValues(`${itemName}.totalPrice`)),
+                        fields?.[index].totalPrice!,
+                        getValues(`${quotePriceName}.numberPlace`),
+                        getValues(`${quotePriceName}.rounding`),
+                        getValues(`${quotePriceName}.currency`),
+                      ),
+                      getValues(`${quotePriceName}.currency`),
+                    )
+                  }
+                </Typography>
+                )
+              : (
+                <Typography fontWeight='bold' fontSize={14}>
+                  {!priceData || priceData.id === NOT_APPLICABLE
+                      ? formatCurrency(
+                        formatByRoundingProcedure(
+                          totalPrice,
+                          getValues(`${quotePriceName}.numberPlace`),
+                          getValues(`${quotePriceName}.rounding`),
+                          getValues(`${quotePriceName}.currency`),
+                        ),
+                        getValues(`${quotePriceName}.currency`),
+                      )
+                    : formatCurrency(
+                        formatByRoundingProcedure(
+                          totalPrice,
+                          getValues(`${quotePriceName}.numberPlace`),
+                          getValues(`${quotePriceName}.rounding`),
+                          getValues(`${quotePriceName}.currency`),
+                        ),
+                        getValues(`${quotePriceName}.currency`),
+                      )}
+                </Typography>
+                )
+            }
             {type === 'detail' || type === 'invoiceDetail' ? null : (
               <IconButton onClick={() => getTotalPrice()}>
                 <Icon icon='material-symbols:refresh' />

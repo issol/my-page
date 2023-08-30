@@ -49,6 +49,7 @@ import useModal from '@src/hooks/useModal'
 
 // ** modals
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+import { ItemType } from '@src/types/common/item.type'
 
 type Props = {
   languagePairs: languageType[]
@@ -56,9 +57,11 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
+    index?: number,
   ) => Array<StandardPriceListType & { groupName?: string }>
   type: string
   onDeleteLanguagePair: (row: languageType) => void
+  items?: ItemType[]
 }
 export default function AddLanguagePairForm({
   languagePairs,
@@ -66,6 +69,7 @@ export default function AddLanguagePairForm({
   getPriceOptions,
   type,
   onDeleteLanguagePair,
+  items,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -273,7 +277,7 @@ export default function AddLanguagePairForm({
                 languagePairs
                   ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, idx) => {
-                    const options = getPriceOptions(row.source, row.target)
+                    const options = getPriceOptions(row.source, row.target, idx)
 
                     const matchingPrice = options.filter(
                       item => item.groupName === 'Matching price',
@@ -309,16 +313,22 @@ export default function AddLanguagePairForm({
                         <TableCell>
                           {type === 'detail' ? (
                             <Typography variant='body1' fontSize={14}>
-                              {row.price?.priceName}
+                              {/* {row.price?.priceName} */}
+                              {items?.[idx].quotePrice?.name}
                             </Typography>
                           ) : (
                             <Autocomplete
                               value={
-                                !row.price
-                                  ? null
+                                // !row.price
+                                //   ? null
+                                //   : options.find(
+                                //       item => item.id === row.price?.id,
+                                //     ) || null
+                                options[0].groupName === 'Current price'
+                                  ? options[0]
                                   : options.find(
                                       item => item.id === row.price?.id,
-                                    ) || null
+                                    ) || null              
                               }
                               size='small'
                               sx={{ width: 300 }}

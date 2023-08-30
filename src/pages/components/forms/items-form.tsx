@@ -99,6 +99,7 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
+    idx?: number,
   ) => Array<StandardPriceListType & { groupName?: string }>
   priceUnitsList: Array<PriceUnitListType>
   type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
@@ -197,12 +198,12 @@ export default function ItemForm({
     )
     return options
   }
-  // Language pair에 price가 변경된 경우 0번째 language-pair의 currency와 모든 item의 price의 currency를 비교하여
+  // Language pair에 price가 변경된 경우 field(item)의 quotePrice.currency와 모든 item의 price의 currency를 비교하여
   // currency가 다른 경우 해당 item의 price를 null 처리한다.
   // 모달은 등록한 Language pair가 1개인 경우에만 발생시킨다.
   // (등록한 Language pair가 여러개인 경우 AddLanguagePairForm 폼에서 처리된다.)
   useEffect(() => {
-    const targetCurrency = languagePairs[0]?.price?.currency ?? null
+    const targetCurrency = fields[0]?.quotePrice?.currency ?? null
     let items = getValues('items')
     let isUpdate = false
     if (items.length && targetCurrency) {
@@ -219,12 +220,12 @@ export default function ItemForm({
         selectCurrencyViolation(1)
       }
     }
-  }, [languagePairs])
+  }, [languagePairs, fields])
 
-  // item의 Price currency와 0번째 Language pair price의 currency를 비교한다.
+  // item의 Price currency와 field(item)의 quotePrice.currency를 비교한다.
   // 값이 다르면 item의 price를 null 처리한다.
   const checkPriceCurrency = (price: StandardPriceListType, index: number) => {
-    const targetCurrency = languagePairs[0]?.price?.currency ?? null
+    const targetCurrency = fields[0]?.quotePrice?.currency ?? null
     if (targetCurrency) {
       if (price?.currency !== targetCurrency) {
         setValue(`items.${index}.priceId`, null, setValueOptions)
@@ -408,7 +409,7 @@ export default function ItemForm({
       // if (prices === data[index].prices) return
       const currentCurrency = () => {
         if (isNotApplicable) return detail?.currency
-        return priceData?.currency!
+        return fields[idx]?.quotePrice?.currency!
       }
       const roundingPrice = formatByRoundingProcedure(
         prices,
@@ -471,7 +472,7 @@ export default function ItemForm({
           quantity: newData.priceUnitQuantity,
           // priceUnit: newData.priceUnitTitle,
           unit: newData.priceUnitUnit,
-          currency: priceData?.currency || 'USD',
+          currency: fields[idx]?.quotePrice?.currency! || 'USD',
           unitPrice: newData.priceUnitPrice,
           prices: item.prices,
           priceFactor: priceFactor ? String(priceFactor) : null,
@@ -679,20 +680,26 @@ export default function ItemForm({
                       Language pair
                     </Typography>
                     <Typography variant='body1' fontSize={14}>
-                      {languageHelper(
+                      {/* {languageHelper(
                         languagePairs.find(
                           item =>
                             item.source === getValues(`items.${idx}.source`) &&
                             item.target === getValues(`items.${idx}.target`),
                         )?.source,
+                      )} */}
+                      {languageHelper(
+                        getValues(`items.${idx}.source`)
                       )}
                       &nbsp;&rarr;&nbsp;
-                      {languageHelper(
+                      {/* {languageHelper(
                         languagePairs.find(
                           item =>
                             item.source === getValues(`items.${idx}.source`) &&
                             item.target === getValues(`items.${idx}.target`),
                         )?.target,
+                      )} */}
+                      {languageHelper(
+                        getValues(`items.${idx}.target`)
                       )}
                     </Typography>
                   </Box>
@@ -758,12 +765,13 @@ export default function ItemForm({
                     </Typography>
                     <Typography variant='body1' fontSize={14}>
                       {
-                        getPriceOptions(
-                          getValues(`items.${idx}.source`),
-                          getValues(`items.${idx}.target`),
-                        ).find(
-                          item => item.id === getValues(`items.${idx}.priceId`),
-                        )?.priceName
+                        // getPriceOptions(
+                        //   getValues(`items.${idx}.source`),
+                        //   getValues(`items.${idx}.target`),
+                        // ).find(
+                        //   item => item.id === getValues(`items.${idx}.priceId`),
+                        // )?.priceName
+                        itemData.quotePrice?.name
                       }
                     </Typography>
                   </Box>
@@ -775,6 +783,7 @@ export default function ItemForm({
                       const options = getPriceOptions(
                         getValues(`items.${idx}.source`),
                         getValues(`items.${idx}.target`),
+                        idx
                       )
                       return (
                         <Autocomplete
@@ -808,7 +817,9 @@ export default function ItemForm({
                           value={
                             value === null
                               ? null
-                              : options.find(item => item.id === value)
+                              : options[0].groupName === 'Current price'
+                                ? options[0]
+                                : options.find(item => item.id === value)
                           }
                           renderInput={params => (
                             <TextField
@@ -849,6 +860,7 @@ export default function ItemForm({
                 // setShowMinimum={setShowMinimum}
                 type={type}
                 sumTotalPrice={sumTotalPrice}
+                fields={fields}
               />
               {/* price unit end */}
               <Grid item xs={12}>
