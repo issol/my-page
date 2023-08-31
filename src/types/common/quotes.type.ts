@@ -78,6 +78,7 @@ export type QuotesProjectInfoAddNewType = {
   showDescription: boolean
   tax: number | null
   isTaxable: boolean
+  subTotal: number
 }
 
 export type QuotesListType = {
