@@ -120,7 +120,6 @@ export default function ItemPriceUnitForm({
     groupName: string
   }
   const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
-
   const nestSubPriceUnits = (idx: number) => {
     const nestedData: Array<NestedPriceUnitType> = []
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
@@ -140,7 +139,7 @@ export default function ItemPriceUnitForm({
         if (item.parentPriceUnitId === null) {
           nestedData.push(item)
           data.forEach(subItem => {
-            if (subItem.parentPriceUnitId === item.priceUnitId) {
+            if (subItem.parentPriceUnitId === item.priceUnitId && subItem.priceUnitId) {
               item.subPriceUnits.push(subItem)
             }
           })
@@ -167,7 +166,6 @@ export default function ItemPriceUnitForm({
     // }
 
     // // 현재 Row에 설정된 price unit 값이 있다면 해당 값을 Current price unit으로 추가
-    // console.log("currentItem?.[idx]",currentItem?.[idx])
     // if (currentItem?.[idx] && currentItem?.[idx].priceUnitId !== -1) {
     //   const currentUsePriceUnit = {
     //     id: currentItem?.[idx].priceUnitId,
@@ -344,7 +342,7 @@ export default function ItemPriceUnitForm({
                                 : option.price
                               update(idx, {
                                 ...savedValue,
-                                priceUnitId: option.id,
+                                priceUnitId: option.priceUnitId,
                                 quantity: option.quantity ?? 0,
                                 unit: option.unit,
                                 unitPrice: priceFactor
@@ -365,7 +363,7 @@ export default function ItemPriceUnitForm({
                                   append({
                                     ...savedValue,
                                     priceFactor: priceFactor?.toString(),
-                                    priceUnitId: item.id,
+                                    priceUnitId: item.priceUnitId,
                                     quantity: item.quantity!,
                                     unit: item.unit,
                                     unitPrice: unitPrice,
@@ -394,7 +392,7 @@ export default function ItemPriceUnitForm({
                                 onChange(sub.title)
                                 update(idx, {
                                   ...savedValue,
-                                  priceUnitId: sub.id,
+                                  priceUnitId: sub.priceUnitId,
                                   quantity: sub.quantity ?? 0,
                                   unit: sub.unit,
                                   unitPrice: priceFactor

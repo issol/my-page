@@ -327,7 +327,6 @@ export default function ItemForm({
     const [cardOpen, setCardOpen] = useState(true)
 
     const itemData = getValues(`items.${idx}`)
-    console.log("item",itemData)
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
 
@@ -451,7 +450,6 @@ export default function ItemForm({
       )
       // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
       // 스탠다드 프라이스의 언어페어 정보 : languagePairs
-      console.log("getEachPrice",priceData,languagePairData)
       setValue(`items.${idx}.detail.${index}.currency`, currentCurrency(), {
         shouldDirty: true,
         shouldValidate: false,
