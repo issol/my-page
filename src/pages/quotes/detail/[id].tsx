@@ -492,6 +492,7 @@ export default function QuotesDetail() {
             quotePrice: item.quotePrice ?? {},
             description: item.description,
             showItemDescription: item.showItemDescription,
+            minimumPrice: item.minimumPrice,
           }
         })
         itemReset({ items: result })
@@ -820,12 +821,16 @@ export default function QuotesDetail() {
         target: item.target,
       }
     })
-
+    const subTotal = items.reduce((accumulator, item) => {
+      return accumulator + item.totalPrice;
+    }, 0)
+    console.log("save item",items)
     onSave(async () => {
       try {
         await patchQuoteLanguagePairs(Number(id), langs)
         await patchQuoteItems(Number(id), items)
-        updateProject.mutate({ tax, isTaxable: taxable },{
+        //TODO: subtotal 업데이트 쳐줘야 함
+        updateProject.mutate({ tax, isTaxable: taxable, subTotal: subTotal},{
           onSuccess: () => {
             queryClient.invalidateQueries({
               queryKey: ['quotesDetailItems'],

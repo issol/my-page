@@ -405,6 +405,7 @@ export default function AddNewQuotes() {
       detail: [],
       totalPrice: 0,
       showItemDescription: false,
+      minimumPrice: 0,
     })
   }
 
@@ -443,11 +444,17 @@ export default function AddNewQuotes() {
       tax: !rawProjectInfo.isTaxable ? null : tax,
       subtotal: subTotal,
     }
-    const items: Array<PostItemType> = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-      showItemDescription: item.showItemDescription ? '1' : '0',
-    }))
+
+    const items: Array<PostItemType> = getItem().items.map(item => {
+      const { contactPerson, minimumPrice, ...filterItem } = item;
+      return {
+        ...filterItem,
+        contactPersonId: item.contactPerson?.id!,
+        description: item.description || '',
+        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+        showItemDescription: item.showItemDescription ? '1' : '0',
+      }
+    })
 
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {

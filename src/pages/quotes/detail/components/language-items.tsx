@@ -132,16 +132,16 @@ export default function QuotesLanguageItemsDetail({
   })
   // TODO: Item 처음 등록 후 Languages&Items 로딩시 items[0].priceId가 null인 경우가 있음
   const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
-  const [subPrice, setSubPrice] = useState(0)
+  const [subTotal, setSubTotal] = useState(0)
   function sumTotalPrice() {
-    // const subPrice = getItem()?.items!
-    // const subPrice = items
-    const subPrice = isEditMode ? getItem()?.items! : items
-    if (subPrice) {
-      const total = subPrice.reduce((accumulator, item) => {
+    // const subTotal = getItem()?.items!
+    // const subTotal = items
+    const subTotal = isEditMode ? getItem()?.items! : items
+    if (subTotal) {
+      const total = subTotal.reduce((accumulator, item) => {
         return accumulator + item.totalPrice;
       }, 0)
-      setSubPrice(total)
+      setSubTotal(total)
     }
   }
   useEffect(() => {
@@ -165,24 +165,24 @@ export default function QuotesLanguageItemsDetail({
     // Not Applicable Price 추가
     const finalList = [defaultOption].concat(filteredList)
 
-    // 기존 선택한 Price 값이 있다면 해당 값을 Current price 그룹으로 추가
-    if(index !== undefined && index >= 0 && items[index]?.quotePrice) {
-      finalList.unshift({
-        groupName: 'Current price',
-        id: items[index].quotePrice?.priceId!,
-        isStandard: items[index].quotePrice?.isStandard!,
-        priceName: items[index].quotePrice?.name!,
-        category: items[index].quotePrice?.category!,
-        serviceType: items[index].quotePrice?.serviceType!,
-        currency: items[index].quotePrice?.currency!,
-        catBasis: items[index].quotePrice?.calculationBasis!,
-        decimalPlace: items[index].quotePrice?.numberPlace!,
-        roundingProcedure: String(items[index].quotePrice?.rounding),
-        memoForPrice: items[index].quotePrice?.memo!,
-        languagePairs: [],
-        priceUnit: [],
-      })
-    }
+    // // 기존 선택한 Price 값이 있다면 해당 값을 Current price 그룹으로 추가
+    // if(index !== undefined && index >= 0 && items[index]?.quotePrice) {
+    //   finalList.unshift({
+    //     groupName: 'Current price',
+    //     id: items[index].quotePrice?.priceId!,
+    //     isStandard: items[index].quotePrice?.isStandard!,
+    //     priceName: items[index].quotePrice?.name!,
+    //     category: items[index].quotePrice?.category!,
+    //     serviceType: items[index].quotePrice?.serviceType!,
+    //     currency: items[index].quotePrice?.currency!,
+    //     catBasis: items[index].quotePrice?.calculationBasis!,
+    //     decimalPlace: items[index].quotePrice?.numberPlace!,
+    //     roundingProcedure: String(items[index].quotePrice?.rounding),
+    //     memoForPrice: items[index].quotePrice?.memo!,
+    //     languagePairs: [],
+    //     priceUnit: [],
+    //   })
+    // }
 
     return finalList
   }
@@ -248,6 +248,7 @@ export default function QuotesLanguageItemsDetail({
       priceId: null,
       detail: [],
       totalPrice: 0,
+      minimumPrice: null,
     })
   }
   // console.log(isEditMode)
@@ -343,7 +344,7 @@ export default function QuotesLanguageItemsDetail({
                 items.length && items[0].quotePrice
                   ? formatCurrency(
                       formatByRoundingProcedure(
-                        subPrice,
+                        subTotal,
                         items[0].quotePrice?.numberPlace!,
                         items[0].quotePrice?.rounding!,
                         items[0].quotePrice?.currency!,

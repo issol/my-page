@@ -346,6 +346,17 @@ export default function ItemForm({
     const priceFactor = languagePairData?.priceFactor
     // 여기까지
 
+      // 현재 row의 프라이스 유닛에 적용될 minimumPrice 값
+    // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 minimumPrice 추출
+    // 기존 item인 경우: 저장된 price가 있으므로(quotePrice) quotePrice에서 minimumPrice 값 추출
+    const currentMinimumPrice = () => {
+      // 기존 item
+      if (itemData?.id && itemData?.id !== -1) return itemData?.minimumPrice!
+      // Not Applicable(재설계 필요)
+      else if (itemData?.id && itemData?.id === -1) return 0
+      // 신규 item
+      else return minimumPrice
+    }
     // 현재 row의 프라이스 유닛에 적용될 currency 값
     // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 currency 추출
     // 기존 item인 경우: 저장된 price가 있으므로(quotePrice) quotePrice에서 currency 값 추출
@@ -379,12 +390,12 @@ export default function ItemForm({
           (res, item) => (res += Number(item.prices)),
           0,
         )
-
-        if (minimumPrice && price < minimumPrice) {
+        const itemMinimumPrice = currentMinimumPrice()
+        if (itemMinimumPrice && price < itemMinimumPrice) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
           })
-          total += minimumPrice
+          total += itemMinimumPrice
         } else {
           total = price
         }
@@ -409,8 +420,9 @@ export default function ItemForm({
       if (detail && detail.unit === 'Percent') {
         const percentQuantity = data[index].quantity
 
-        if (minimumPrice && showMinimum) {
-          prices = (percentQuantity / 100) * minimumPrice
+        const itemMinimumPrice = currentMinimumPrice()
+        if (itemMinimumPrice && showMinimum) {
+          prices = (percentQuantity / 100) * itemMinimumPrice
         } else {
           const generalPrices = data.filter(item => item.unit !== 'Percent')
           generalPrices.forEach(item => {
@@ -857,7 +869,7 @@ export default function ItemForm({
               <ItemPriceUnitForm
                 control={control}
                 index={idx}
-                minimumPrice={minimumPrice}
+                minimumPrice={currentMinimumPrice()}
                 details={details}
                 priceData={priceData}
                 getValues={getValues}
