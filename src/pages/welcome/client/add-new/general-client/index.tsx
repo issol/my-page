@@ -34,6 +34,11 @@ import { updateClientUserInfo } from '@src/apis/user.api'
 import useAuth from '@src/hooks/useAuth'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import {
+  currentRoleSelector,
+  roleSelector,
+  roleState,
+} from '@src/states/permission'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -59,18 +64,19 @@ export default function NewGeneralClientForm() {
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
-  const currentRole = getCurrentRole()
+  // const currentRole = getCurrentRole()
 
   // ** Hooks
 
   const auth = useRecoilValueLoadable(authState)
+  const role = useRecoilValueLoadable(roleState)
 
   useEffect(() => {
     if (
       (auth.state === 'hasValue' &&
         auth.getValue() &&
         auth.getValue().user?.firstName) ||
-      (currentRole?.name !== 'CLIENT' && currentRole?.type !== 'General')
+      (role.contents[0].name !== 'CLIENT' && role.contents[0].type !== 'General')
     ) {
       router.push('/')
     }
