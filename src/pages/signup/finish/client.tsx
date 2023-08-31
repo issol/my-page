@@ -74,11 +74,11 @@ FinishSignUpConsumer.getLayout = (page: ReactNode) => (
   <BlankLayout>{page}</BlankLayout>
 )
 
-FinishSignUpConsumer.acl = {
-  subject: 'client',
-  action: 'update',
-}
+// FinishSignUpConsumer.acl = {
+//   subject: 'client',
+//   action: 'update',
+// }
 
-// FinishSignUpConsumer.guestGuard = true
+FinishSignUpConsumer.guestGuard = true
 
 export default FinishSignUpConsumer
