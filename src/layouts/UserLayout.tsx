@@ -76,13 +76,19 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
   console.log(currentRoleState)
 
   useEffect(() => {
-    const current = currentRoleStorage
-      ? currentRoleStorage
-      : currentRoleState.state === 'hasValue'
-      ? currentRoleState.getValue()
-      : null
+    const current =
+      currentRoleState.state === 'hasValue'
+        ? currentRoleState.getValue()
+        : currentRoleStorage
+        ? currentRoleStorage
+        : null
+
+    console.log(currentRoleStorage)
+
+    console.log(currentRoleState.getValue())
 
     setCurrentRole(current)
+    // console.log(current)
 
     if (permission.state === 'hasValue' && current) {
       switch (current.name) {

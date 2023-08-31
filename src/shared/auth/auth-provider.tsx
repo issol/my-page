@@ -53,8 +53,6 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleSetCurrentRole = useCallback(() => {
-    console.log(auth, roles, currentRole, permission)
-
     if (
       auth.state === 'hasValue' &&
       roles.state === 'hasValue' &&
