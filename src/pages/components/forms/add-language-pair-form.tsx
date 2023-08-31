@@ -314,7 +314,7 @@ export default function AddLanguagePairForm({
                           {type === 'detail' ? (
                             <Typography variant='body1' fontSize={14}>
                               {/* {row.price?.priceName} */}
-                              {items?.[idx]?.quotePrice?.name}
+                              {items?.[idx]?.initialPrice?.name}
                             </Typography>
                           ) : (
                             <Autocomplete

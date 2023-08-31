@@ -212,7 +212,7 @@ export const getLangItems = async (
         source: item?.sourceLanguage,
         target: item?.targetLanguage,
         totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-        quotePrice: item.quotePrice
+        initialPrice: item.initialPrice
       })),
     }
   } catch (e: any) {

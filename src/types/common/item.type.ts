@@ -14,7 +14,7 @@ export type ItemType = Omit<
   showItemDescription?: boolean
 } & {
   contactPerson?: ContactPersonType | null
-  quotePrice?: PriceType
+  initialPrice?: PriceType
   minimumPrice?: number | null
 }
 
@@ -48,7 +48,7 @@ export type ItemDetailType = {
   unit: string
   currency: CurrencyType
   priceFactor?: string | null
-  quotePriceUnit?: PriceUnitType
+  initialPriceUnit?: PriceUnitType
 }
 
 export type JobItemType = {

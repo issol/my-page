@@ -36,10 +36,10 @@ export type ItemResType = {
   priceId: number
   description: string | null
   totalPrice: string
-  quotePrice?: PriceType
+  initialPrice?: PriceType
 }
 
-// 변경된 item 내 quotePrice or orderPrice type
+// 변경된 item 내 initialPrice or orderPrice type
 export type PriceType = {
   authorId: number
   calculationBasis: string | null

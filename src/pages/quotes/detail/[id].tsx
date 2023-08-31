@@ -458,16 +458,16 @@ export default function QuotesDetail() {
               source: item.source,
               target: item.target,
               price: {
-                id: item.quotePrice?.priceId!,
-                isStandard: item.quotePrice?.isStandard!,
-                priceName: item.quotePrice?.name!,
+                id: item.initialPrice?.priceId!,
+                isStandard: item.initialPrice?.isStandard!,
+                priceName: item.initialPrice?.name!,
                 groupName: 'Current price',
-                category: item.quotePrice?.category!,
-                serviceType: item.quotePrice?.serviceType!,
-                currency: item.quotePrice?.currency!,
-                catBasis: item.quotePrice?.calculationBasis!,
-                decimalPlace: item.quotePrice?.numberPlace!,
-                roundingProcedure: RoundingProcedureList[item.quotePrice?.rounding!].label,
+                category: item.initialPrice?.category!,
+                serviceType: item.initialPrice?.serviceType!,
+                currency: item.initialPrice?.currency!,
+                catBasis: item.initialPrice?.calculationBasis!,
+                decimalPlace: item.initialPrice?.numberPlace!,
+                roundingProcedure: RoundingProcedureList[item.initialPrice?.rounding!].label,
                 languagePairs: [],
                 priceUnit: [],
                 catInterface: { memSource: [], memoQ: [] },
@@ -487,9 +487,9 @@ export default function QuotesDetail() {
             totalPrice: item?.totalPrice ?? 0,
             dueAt: item?.dueAt ?? '',
             contactPerson: item?.contactPerson ?? {},
-            // quotePrice는 quote 생성시점에 선택한 price의 값을 담고 있음
-            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 quotePrice 내 값을 쓴다
-            quotePrice: item.quotePrice ?? {},
+            // initialPrice는 quote 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: item.initialPrice ?? {},
             description: item.description,
             showItemDescription: item.showItemDescription,
             minimumPrice: item.minimumPrice,

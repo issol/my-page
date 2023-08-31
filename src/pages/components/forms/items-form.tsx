@@ -198,12 +198,12 @@ export default function ItemForm({
     )
     return options
   }
-  // Language pair에 price가 변경된 경우 field(item)의 quotePrice.currency와 모든 item의 price의 currency를 비교하여
+  // Language pair에 price가 변경된 경우 field(item)의 initialPrice.currency와 모든 item의 price의 currency를 비교하여
   // currency가 다른 경우 해당 item의 price를 null 처리한다.
   // 모달은 등록한 Language pair가 1개인 경우에만 발생시킨다.
   // (등록한 Language pair가 여러개인 경우 AddLanguagePairForm 폼에서 처리된다.)
   useEffect(() => {
-    const targetCurrency = fields[0]?.quotePrice?.currency ?? null
+    const targetCurrency = fields[0]?.initialPrice?.currency ?? null
     let items = getValues('items')
     let isUpdate = false
     if (items.length && targetCurrency) {
@@ -222,10 +222,10 @@ export default function ItemForm({
     }
   }, [languagePairs, fields])
 
-  // item의 Price currency와 field(item)의 quotePrice.currency를 비교한다.
+  // item의 Price currency와 field(item)의 initialPrice.currency를 비교한다.
   // 값이 다르면 item의 price를 null 처리한다.
   const checkPriceCurrency = (price: StandardPriceListType, index: number) => {
-    const targetCurrency = fields[0]?.quotePrice?.currency ?? null
+    const targetCurrency = fields[0]?.initialPrice?.currency ?? null
     if (targetCurrency) {
       if (price?.currency !== targetCurrency) {
         setValue(`items.${index}.priceId`, null, setValueOptions)
@@ -348,7 +348,7 @@ export default function ItemForm({
 
       // 현재 row의 프라이스 유닛에 적용될 minimumPrice 값
     // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 minimumPrice 추출
-    // 기존 item인 경우: 저장된 price가 있으므로(quotePrice) quotePrice에서 minimumPrice 값 추출
+    // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 minimumPrice 값 추출
     const currentMinimumPrice = () => {
       // 기존 item
       if (itemData?.id && itemData?.id !== -1) return itemData?.minimumPrice!
@@ -359,10 +359,10 @@ export default function ItemForm({
     }
     // 현재 row의 프라이스 유닛에 적용될 currency 값
     // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 currency 추출
-    // 기존 item인 경우: 저장된 price가 있으므로(quotePrice) quotePrice에서 currency 값 추출
+    // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 currency 값 추출
     const currentCurrency = () => {
       // 기존 item
-      if (itemData?.id && itemData?.id !== -1) return itemData?.quotePrice?.currency!
+      if (itemData?.id && itemData?.id !== -1) return itemData?.initialPrice?.currency!
       // Not Applicable(재설계 필요)
       else if (itemData?.id && itemData?.id === -1) return 'USD'
       // 신규 item
@@ -437,7 +437,7 @@ export default function ItemForm({
       // if (prices === data[index].prices) return
       // const currentCurrency = () => {
       //   if (isNotApplicable) return detail?.currency
-      //   return fields[idx]?.quotePrice?.currency!
+      //   return fields[idx]?.initialPrice?.currency!
       // }
       const roundingPrice = formatByRoundingProcedure(
         prices,
@@ -502,7 +502,7 @@ export default function ItemForm({
           quantity: newData.priceUnitQuantity,
           // priceUnit: newData.priceUnitTitle,
           unit: newData.priceUnitUnit,
-          currency: fields[idx]?.quotePrice?.currency! || 'USD',
+          currency: fields[idx]?.initialPrice?.currency! || 'USD',
           unitPrice: newData.priceUnitPrice,
           prices: item.prices,
           priceFactor: priceFactor ? String(priceFactor) : null,
@@ -801,7 +801,7 @@ export default function ItemForm({
                         // ).find(
                         //   item => item.id === getValues(`items.${idx}.priceId`),
                         // )?.priceName
-                        itemData.quotePrice?.name
+                        itemData.initialPrice?.name
                       }
                     </Typography>
                   </Box>

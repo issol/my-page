@@ -166,19 +166,19 @@ export default function QuotesLanguageItemsDetail({
     const finalList = [defaultOption].concat(filteredList)
 
     // // 기존 선택한 Price 값이 있다면 해당 값을 Current price 그룹으로 추가
-    // if(index !== undefined && index >= 0 && items[index]?.quotePrice) {
+    // if(index !== undefined && index >= 0 && items[index]?.initialPrice) {
     //   finalList.unshift({
     //     groupName: 'Current price',
-    //     id: items[index].quotePrice?.priceId!,
-    //     isStandard: items[index].quotePrice?.isStandard!,
-    //     priceName: items[index].quotePrice?.name!,
-    //     category: items[index].quotePrice?.category!,
-    //     serviceType: items[index].quotePrice?.serviceType!,
-    //     currency: items[index].quotePrice?.currency!,
-    //     catBasis: items[index].quotePrice?.calculationBasis!,
-    //     decimalPlace: items[index].quotePrice?.numberPlace!,
-    //     roundingProcedure: String(items[index].quotePrice?.rounding),
-    //     memoForPrice: items[index].quotePrice?.memo!,
+    //     id: items[index].initialPrice?.priceId!,
+    //     isStandard: items[index].initialPrice?.isStandard!,
+    //     priceName: items[index].initialPrice?.name!,
+    //     category: items[index].initialPrice?.category!,
+    //     serviceType: items[index].initialPrice?.serviceType!,
+    //     currency: items[index].initialPrice?.currency!,
+    //     catBasis: items[index].initialPrice?.calculationBasis!,
+    //     decimalPlace: items[index].initialPrice?.numberPlace!,
+    //     roundingProcedure: String(items[index].initialPrice?.rounding),
+    //     memoForPrice: items[index].initialPrice?.memo!,
     //     languagePairs: [],
     //     priceUnit: [],
     //   })
@@ -341,15 +341,15 @@ export default function QuotesLanguageItemsDetail({
               sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
             >
               { 
-                items.length && items[0].quotePrice
+                items.length && items[0].initialPrice
                   ? formatCurrency(
                       formatByRoundingProcedure(
                         subTotal,
-                        items[0].quotePrice?.numberPlace!,
-                        items[0].quotePrice?.rounding!,
-                        items[0].quotePrice?.currency!,
+                        items[0].initialPrice?.numberPlace!,
+                        items[0].initialPrice?.rounding!,
+                        items[0].initialPrice?.currency!,
                       ),
-                      items[0].quotePrice?.currency!,
+                      items[0].initialPrice?.currency!,
                     )
                   : 0
             }

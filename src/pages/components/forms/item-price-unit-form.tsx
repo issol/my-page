@@ -110,10 +110,10 @@ export default function ItemPriceUnitForm({
   fields,
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
-  const quotePriceName: `items.${number}.quotePrice` = `items.${index}.quotePrice`
+  const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
   const currentItem = getValues(`${detailName}`) || []
-  const currentInitialItem = getValues(`${quotePriceName}`)
+  const currentInitialItem = getValues(`${initialPriceName}`)
 
   type NestedPriceUnitType = PriceUnitListType & {
     subPriceUnits: PriceUnitListType[]
@@ -173,7 +173,7 @@ export default function ItemPriceUnitForm({
     //     id: currentItem?.[idx].priceUnitId,
     //     priceUnitId: currentItem?.[idx].priceUnitId,
     //     isBase: false,
-    //     title: currentItem?.[idx].quotePriceUnit?.title!,
+    //     title: currentItem?.[idx].initialPriceUnit?.title!,
     //     unit: currentItem?.[idx].unit,
     //     weighting: null,
     //     quantity: currentItem?.[idx].quantity,
@@ -452,7 +452,7 @@ export default function ItemPriceUnitForm({
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {formatCurrency(
                   getValues(`${detailName}.${idx}.unitPrice`) || 0,
-                  getValues(`${quotePriceName}.currency`) || 'KRW'
+                  getValues(`${initialPriceName}.currency`) || 'KRW'
                 ) ?? '-'}
               </Typography>
             </Box>
@@ -527,11 +527,11 @@ export default function ItemPriceUnitForm({
                     formatByRoundingProcedure(
                       // Number(getValues(`${detailName}.${idx}.prices`)),
                       Number(fields?.[index]?.detail?.[idx]?.prices) || 0,
-                      getValues(`${quotePriceName}.numberPlace`),
-                      getValues(`${quotePriceName}.rounding`),
-                      getValues(`${quotePriceName}.currency`) || 'KRW',
+                      getValues(`${initialPriceName}.numberPlace`),
+                      getValues(`${initialPriceName}.rounding`),
+                      getValues(`${initialPriceName}.currency`) || 'KRW',
                     ),
-                    getValues(`${quotePriceName}.currency`) || 'KRW',
+                    getValues(`${initialPriceName}.currency`) || 'KRW',
                   )
                 }
               </Typography>
@@ -565,11 +565,11 @@ export default function ItemPriceUnitForm({
                       : formatCurrency(
                           formatByRoundingProcedure(
                             Number(price) ?? 0,
-                            getValues(`${quotePriceName}.numberPlace`),
-                            getValues(`${quotePriceName}.rounding`),
-                            getValues(`${quotePriceName}.currency`) || 'KRW',
+                            getValues(`${initialPriceName}.numberPlace`),
+                            getValues(`${initialPriceName}.rounding`),
+                            getValues(`${initialPriceName}.currency`) || 'KRW',
                           ),
-                          getValues(`${quotePriceName}.currency`) || 'KRW',
+                          getValues(`${initialPriceName}.currency`) || 'KRW',
                         )
                 }
                 
@@ -743,11 +743,11 @@ export default function ItemPriceUnitForm({
                         // fields에서 가져오면 서버에서 넘어온 값이 반영됨
                         // Number(getValues(`${itemName}.totalPrice`)),
                         fields?.[index].totalPrice! ?? 0,
-                        getValues(`${quotePriceName}.numberPlace`),
-                        getValues(`${quotePriceName}.rounding`),
-                        getValues(`${quotePriceName}.currency`) || 'KRW',
+                        getValues(`${initialPriceName}.numberPlace`),
+                        getValues(`${initialPriceName}.rounding`),
+                        getValues(`${initialPriceName}.currency`) || 'KRW',
                       ),
-                      getValues(`${quotePriceName}.currency`) || 'KRW',
+                      getValues(`${initialPriceName}.currency`) || 'KRW',
                     )
                   }
                 </Typography>
@@ -761,21 +761,21 @@ export default function ItemPriceUnitForm({
                       ? formatCurrency(
                         formatByRoundingProcedure(
                           totalPrice,
-                          getValues(`${quotePriceName}.numberPlace`),
-                          getValues(`${quotePriceName}.rounding`),
-                          getValues(`${quotePriceName}.currency`),
+                          getValues(`${initialPriceName}.numberPlace`),
+                          getValues(`${initialPriceName}.rounding`),
+                          getValues(`${initialPriceName}.currency`),
                         ),
-                        getValues(`${quotePriceName}.currency`),
+                        getValues(`${initialPriceName}.currency`),
                       )
                       : currentInitialItem
                         ? formatCurrency(
                             formatByRoundingProcedure(
                               totalPrice,
-                              getValues(`${quotePriceName}.numberPlace`),
-                              getValues(`${quotePriceName}.rounding`),
-                              getValues(`${quotePriceName}.currency`),
+                              getValues(`${initialPriceName}.numberPlace`),
+                              getValues(`${initialPriceName}.rounding`),
+                              getValues(`${initialPriceName}.currency`),
                             ),
-                            getValues(`${quotePriceName}.currency`),
+                            getValues(`${initialPriceName}.currency`),
                           )
                         //currentInitialItem 값이 없다면 새로운 row 추가 케이스임
                         : formatCurrency(
@@ -802,11 +802,11 @@ export default function ItemPriceUnitForm({
                         ? formatCurrency(
                             formatByRoundingProcedure(
                               totalPrice ?? 0,
-                              getValues(`${quotePriceName}.numberPlace`),
-                              getValues(`${quotePriceName}.rounding`),
-                              getValues(`${quotePriceName}.currency`) || 'KRW',
+                              getValues(`${initialPriceName}.numberPlace`),
+                              getValues(`${initialPriceName}.rounding`),
+                              getValues(`${initialPriceName}.currency`) || 'KRW',
                             ),
-                            getValues(`${quotePriceName}.currency`) || 'KRW',
+                            getValues(`${initialPriceName}.currency`) || 'KRW',
                           )
                         : 0
                     }
