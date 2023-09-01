@@ -325,5 +325,5 @@ ClientInformationHome.getLayout = (page: ReactNode) => (
 
 ClientInformationHome.acl = {
   subject: 'client',
-  action: 'update',
+  action: 'read',
 }

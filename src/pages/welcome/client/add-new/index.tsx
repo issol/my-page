@@ -219,5 +219,5 @@ NewClientProfileForm.getLayout = (page: ReactNode) => (
 
 NewClientProfileForm.acl = {
   subject: 'client',
-  action: 'update',
+  action: 'read',
 }

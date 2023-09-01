@@ -53,6 +53,7 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleSetCurrentRole = useCallback(() => {
+    console.log("handleSetCurrentRole")
     if (
       auth.state === 'hasValue' &&
       roles.state === 'hasValue' &&
@@ -66,7 +67,7 @@ const AuthProvider = ({ children }: Props) => {
 
       const redirectPath = getRedirectPath()
       const storageRole = currentRole.getValue()
-
+      console.log("role check",roleNames,redirectPath,storageRole)
       if (!storageRole) {
         const TADRole =
           hasTadAndLpm(roles.getValue()) &&
@@ -84,6 +85,7 @@ const AuthProvider = ({ children }: Props) => {
       }
 
       const isClient = roleNames?.includes('CLIENT')
+      console.log("isClient",isClient,auth.getValue())
       isClient && refetch()
 
       const isPro = roleNames.includes('PRO')
@@ -110,20 +112,25 @@ const AuthProvider = ({ children }: Props) => {
           }
         }
         return
-      } else if (isClient && auth.getValue().company !== undefined) {
+      } else if (isClient) {
+        console.log("client",auth.getValue())
         const isClientGeneral =
           roles.getValue().find(i => i.name === 'CLIENT')?.type === 'General'
-        if (!auth.getValue().company?.name) {
+        if (!auth.getValue().company || auth.getValue().company !== undefined) {
+          console.log("check1")
           router.replace('/signup/finish/client')
         } else if (isClientGeneral && !auth.getValue().user?.firstName) {
+          console.log("check2")
           router.replace('/welcome/client/add-new/general-client')
         }
         return
       } else if (redirectPath) {
+        console.log("check3")
         router.replace(redirectPath)
         removeRedirectPath()
         return
       } else if (router.pathname === '/') {
+        console.log("check4")
         router.push(`/home`)
       }
     }
