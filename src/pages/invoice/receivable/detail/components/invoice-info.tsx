@@ -2183,7 +2183,7 @@ const InvoiceInfo = ({
 
 export default InvoiceInfo
 
-const FileBox = styled(Box)`
+export const FileBox = styled(Box)`
   display: flex;
   margin-bottom: 8px;
   width: 100%;
@@ -2194,7 +2194,7 @@ const FileBox = styled(Box)`
   background: #f9f8f9;
 `
 
-const FileName = styled(Typography)`
+export const FileName = styled(Typography)`
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;

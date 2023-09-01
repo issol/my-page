@@ -1,6 +1,10 @@
+import { CurrentGuidelineType } from '@src/apis/client-guideline.api'
+import { FileType } from '../common/file.type'
+import { ItemDetailType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
 import { AssignProListType } from '../orders/job-detail'
 import { OrderDetailType } from '../orders/order-detail'
+import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 import { JobStatusType, ProJobStatusType } from './common.type'
 
@@ -125,4 +129,61 @@ export type ProJobListType = {
         }[]
       | null
   }
+}
+
+export type JobsFileType = {
+  name: string
+  size: number
+  file: string // s3 key
+  type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+  createdAt?: string
+}
+
+export type ProJobDetailType = {
+  id: number
+  corporationId: string
+  name: string
+  status: ProJobStatusType
+  client: {
+    clientId: number
+    email: string
+    fax: string | null
+    mobile: string | null
+    phone: string | null
+    timezone: CountryType
+    name: string
+    taxable: boolean
+    tax: number | null
+  }
+
+  contactPerson: ContactPersonType | null
+  category: string
+  serviceType: string
+  sourceLanguage: string
+  targetLanguage: string
+  requestedAt: string
+  dueAt: string
+  price: {
+    data: ItemDetailType[]
+    totalPrice: number
+    isUsedCAT: boolean
+  }
+  guideLines: ProGuidelineType
+  description: string
+  files: Array<JobsFileType>
+}
+
+export type ProGuidelineType = {
+  id: number
+  version?: number
+  userId: number
+  title: string
+  writer: string
+  email: string
+  client: string
+  category: string
+  serviceType: string
+  updatedAt: string
+  content: any
+  files: Array<FileType>
 }

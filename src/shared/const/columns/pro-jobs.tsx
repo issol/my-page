@@ -1,10 +1,12 @@
 import { Icon } from '@iconify/react'
-import { Box, IconButton, Typography } from '@mui/material'
+import { Badge, Box, IconButton, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import {
   ProJobStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
+import useModal from '@src/hooks/useModal'
+import ProJobsMessage from '@src/pages/jobs/list/message'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { authState } from '@src/states/auth'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
@@ -12,7 +14,15 @@ import dayjs from 'dayjs'
 import { useRecoilValueLoadable } from 'recoil'
 
 export const getProJobColumns = () => {
+  const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
+
+  const onClickMessage = (row: ProJobListType) => {
+    openModal({
+      type: 'ProJobsMessageModal',
+      children: <ProJobsMessage row={row} />,
+    })
+  }
 
   const getJobDateDiff = (jobDueDate: string) => {
     const now = dayjs()
@@ -41,7 +51,9 @@ export const getProJobColumns = () => {
             fontWeight={400}
             fontSize={14}
             color='#e04440'
-          >{`Overdue by ${hours.toString().padStart(2, '0')} hrs ${minutes
+          >{`Overdue by ${days > 0 ? days : ''} ${
+            days > 1 ? 'days' : 'day'
+          } ${hours.toString().padStart(2, '0')} hrs ${minutes
             .toString()
             .padStart(2, '0')} mins`}</Typography>
         </>
@@ -182,16 +194,19 @@ export const getProJobColumns = () => {
       renderCell: ({ row }: { row: ProJobListType }) => {
         return (
           <Box sx={{ margin: '0 auto' }}>
-            <IconButton
-              sx={{ padding: 0 }}
-              // disabled={row.assignmentStatus === null}
-              // onClick={() => onClickMessage(row)}
-            >
-              <Icon
-                icon='material-symbols:chat'
-                color='rgba(76, 78, 100, 0.87)'
-              />
-            </IconButton>
+            <Badge badgeContent={row.message?.unReadCount} color='primary'>
+              <IconButton
+                sx={{ padding: 0 }}
+                // disabled={row.assignmentStatus === null}
+
+                onClick={() => onClickMessage(row)}
+              >
+                <Icon
+                  icon='material-symbols:chat'
+                  color='rgba(76, 78, 100, 0.87)'
+                />
+              </IconButton>
+            </Badge>
           </Box>
         )
       },

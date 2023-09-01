@@ -1,9 +1,10 @@
 import { Box, Card, Typography } from '@mui/material'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
 import NoList from '@src/pages/components/no-list'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import { Dispatch, SetStateAction } from 'react'
 import { JobListFilterType } from '..'
+import { useRouter } from 'next/router'
 
 type Props = {
   page: number
@@ -28,6 +29,7 @@ const JobList = ({
   columns,
   setFilters,
 }: Props) => {
+  const router = useRouter()
   return (
     <Card>
       <Box
@@ -59,24 +61,18 @@ const JobList = ({
             overflowX: 'scroll',
             cursor: 'pointer',
 
-            // [`& .${gridClasses.row}.disabled`]: {
-            //   opacity: 0.5,
-            //   cursor: 'not-allowed',
-            // },
+            [`& .${gridClasses.row}.overdue`]: {
+              // background: 'rgba(255, 77, 73, .1)',
+              background: '#FFE1E0',
+            },
           }}
           columns={columns}
           rows={list ?? []}
           rowCount={listCount ?? 0}
           loading={isLoading}
-          // onCellClick={params => {
-          //   if (
-          //     role.name === 'CLIENT' &&
-          //     params.row.status === 'Under revision'
-          //   )
-          //     return
-
-          //   handleRowClick(params.row)
-          // }}
+          onCellClick={params => {
+            router.push(`/jobs/detail/${params.row.id}`)
+          }}
           rowsPerPageOptions={[10, 25, 50]}
           pagination
           page={page}
@@ -97,6 +93,9 @@ const JobList = ({
             setRowsPerPage!(newPageSize)
           }}
           disableSelectionOnClick
+          getRowClassName={params =>
+            params.row.status === 'Job overdue' ? 'overdue' : 'normal'
+          }
         />
       </Box>
     </Card>

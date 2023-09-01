@@ -24,10 +24,10 @@ import {
 } from '@src/shared/const/service-type/service-types'
 
 // ** apis
-import { useGetJobsList } from '@src/queries/jobs.query'
 
 // ** components
 import JobsList from './list'
+import { useGetJobsList } from '@src/queries/jobs/jobs.query'
 
 export type FilterType = {
   status?: string[]

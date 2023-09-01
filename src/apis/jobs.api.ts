@@ -233,7 +233,7 @@ export const getProJobList = async (
           serviceType: 'service1',
           name: 'job1',
           jobDueDate: '2023-08-30T14:13:15Z',
-          status: 'Requested from LPM',
+          status: 'Job overdue',
           message: {
             unReadCount: 1,
             contents: [
@@ -256,7 +256,7 @@ export const getProJobList = async (
           serviceType: 'service2',
           name: 'job2',
           jobDueDate: '2023-08-29T14:13:15Z',
-          status: 'Awaiting approval',
+          status: 'Invoiced',
           message: {
             unReadCount: 2,
             contents: [

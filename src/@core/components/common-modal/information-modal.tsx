@@ -6,9 +6,10 @@ import { Icon } from '@iconify/react'
 type Props = {
   onClose: any
 
-  title: string
-  subtitle?: string
+  title?: string | JSX.Element
+  subtitle?: string | JSX.Element
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
+  align?: 'center' | 'left' | 'right'
 }
 
 const InformationModal = ({
@@ -17,6 +18,7 @@ const InformationModal = ({
   title,
   subtitle,
   vary,
+  align = 'center',
 }: Props) => {
   return (
     <Box
@@ -62,10 +64,11 @@ const InformationModal = ({
           >
             {title}
           </Typography>
+
           {subtitle ? (
             <Typography
               variant='subtitle2'
-              textAlign='center'
+              textAlign={align}
               sx={{ fontSize: '16px', fontWeight: 400 }}
             >
               {subtitle}
