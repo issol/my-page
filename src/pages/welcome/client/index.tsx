@@ -35,13 +35,19 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import useAuth from '@src/hooks/useAuth'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import {
+  currentRoleSelector,
+  roleSelector,
+  roleState,
+} from '@src/states/permission'
 
 export default function ClientInformationHome() {
   const { logout } = useAuth()
 
   const auth = useRecoilValueLoadable(authState)
 
-  const roles = getCurrentRole()
+  const role = useRecoilValueLoadable(roleState)
+  // const roles = getCurrentRole()
 
   const { openModal, closeModal } = useModal()
 
@@ -61,7 +67,7 @@ export default function ClientInformationHome() {
       (auth.state === 'hasValue' &&
         auth.getValue() &&
         auth.getValue().company?.name) ||
-      roles?.name !== 'CLIENT'
+      role.contents[0].name !== 'CLIENT'
     ) {
       router.push('/')
     }
@@ -319,5 +325,5 @@ ClientInformationHome.getLayout = (page: ReactNode) => (
 
 ClientInformationHome.acl = {
   subject: 'client',
-  action: 'update',
+  action: 'read',
 }

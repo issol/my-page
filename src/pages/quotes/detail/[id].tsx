@@ -145,6 +145,7 @@ import { CancelOrderReason } from '@src/shared/const/reason/reason'
 import { UserRoleType } from '@src/context/types'
 import { ProjectInfoType } from '@src/types/common/quotes.type'
 import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -448,17 +449,29 @@ export default function QuotesDetail() {
 
   useEffect(() => {
     if (!isItemLoading && itemsWithLang) {
-      ;(async function () {
+      (async function () {
         const priceList = await getClientPriceList({})
         setLanguagePairs(
-          itemsWithLang?.languagePairs?.map(item => {
+          itemsWithLang?.items?.map(item => {
             return {
               id: String(item.id),
               source: item.source,
               target: item.target,
-              price: !item?.price
-                ? null
-                : priceList.find(price => price.id === item?.price?.id) || null,
+              price: {
+                id: item.initialPrice?.priceId!,
+                isStandard: item.initialPrice?.isStandard!,
+                priceName: item.initialPrice?.name!,
+                groupName: 'Current price',
+                category: item.initialPrice?.category!,
+                serviceType: item.initialPrice?.serviceType!,
+                currency: item.initialPrice?.currency!,
+                catBasis: item.initialPrice?.calculationBasis!,
+                decimalPlace: item.initialPrice?.numberPlace!,
+                roundingProcedure: RoundingProcedureList[item.initialPrice?.rounding!].label,
+                languagePairs: [],
+                priceUnit: [],
+                catInterface: { memSource: [], memoQ: [] },
+              }
             }
           }),
         )
@@ -474,13 +487,19 @@ export default function QuotesDetail() {
             totalPrice: item?.totalPrice ?? 0,
             dueAt: item?.dueAt ?? '',
             contactPerson: item?.contactPerson ?? {},
+            // initialPrice는 quote 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: item.initialPrice ?? {},
+            description: item.description,
+            showItemDescription: item.showItemDescription,
+            minimumPrice: item.minimumPrice,
           }
         })
         itemReset({ items: result })
         itemTrigger()
       })()
     }
-  }, [isItemLoading])
+  }, [isItemLoading,itemsWithLang])
 
   // ** 3. Client
   const [editClient, setEditClient] = useState(false)
@@ -776,11 +795,16 @@ export default function QuotesDetail() {
   }
 
   async function onItemSave() {
-    const items: PostItemType[] = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-      showItemDescription: item.showItemDescription ? '1' : '0',
-    }))
+    const items: PostItemType[] = getItem().items.map(item => {
+      const { contactPerson, ...filterItem } = item;
+      return {
+        ...filterItem,
+        contactPersonId: item.contactPerson?.id!,
+        description: item.description || '',
+        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+        showItemDescription: item.showItemDescription ? '1' : '0',
+      }
+    })
     const langs: LanguagePairsType[] = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
@@ -797,15 +821,21 @@ export default function QuotesDetail() {
         target: item.target,
       }
     })
-
+    const subTotal = items.reduce((accumulator, item) => {
+      return accumulator + item.totalPrice;
+    }, 0)
     onSave(async () => {
       try {
         await patchQuoteLanguagePairs(Number(id), langs)
         await patchQuoteItems(Number(id), items)
-        updateProject.mutate({ tax, isTaxable: taxable })
-        setEditItems(false)
-        queryClient.invalidateQueries({
-          queryKey: ['quotesDetailItems'],
+        //TODO: subtotal 업데이트 쳐줘야 함
+        updateProject.mutate({ tax, isTaxable: taxable, subTotal: subTotal},{
+          onSuccess: () => {
+            queryClient.invalidateQueries({
+              queryKey: ['quotesDetailItems'],
+            })
+            setEditItems(false)
+          }
         })
       } catch (e: any) {
         onMutationError()
@@ -1487,7 +1517,10 @@ export default function QuotesDetail() {
                 {editItems
                   ? renderSubmitButton({
                       onCancel: () =>
-                        onDiscard({ callback: () => setEditItems(false) }),
+                        onDiscard({ callback: () => {
+                          setEditItems(false)
+                          itemReset()
+                        }}),
                       onSave: () => onItemSave(),
                       isValid: isItemValid || !taxable || (taxable && tax! > 0),
                     })

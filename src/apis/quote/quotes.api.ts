@@ -153,7 +153,7 @@ export const createItemsForQuotes = async (
 ): Promise<any> => {
   try {
     const { data } = await axios.post(
-      `/api/enough/u/quote/item?orderId=${orderId}`,
+      `/api/enough/u/quote/item?quoteId=${orderId}`,
       { items: form },
     )
     return data
@@ -212,6 +212,7 @@ export const getLangItems = async (
         source: item?.sourceLanguage,
         target: item?.targetLanguage,
         totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+        initialPrice: item.initialPrice
       })),
     }
   } catch (e: any) {

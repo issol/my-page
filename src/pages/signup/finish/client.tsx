@@ -76,7 +76,7 @@ FinishSignUpConsumer.getLayout = (page: ReactNode) => (
 
 FinishSignUpConsumer.acl = {
   subject: 'client',
-  action: 'update',
+  action: 'read',
 }
 
 // FinishSignUpConsumer.guestGuard = true

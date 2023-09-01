@@ -33,6 +33,11 @@ import { createClient } from '@src/apis/client.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import {
+  currentRoleSelector,
+  roleSelector,
+  roleState,
+} from '@src/states/permission'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -65,7 +70,8 @@ export default function NewClientProfileForm() {
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
-  const currentRole = getCurrentRole()
+  // const currentRole = getCurrentRole()
+  const role = useRecoilValueLoadable(roleState)
 
   // ** Hooks
   const auth = useRecoilValueLoadable(authState)
@@ -75,7 +81,7 @@ export default function NewClientProfileForm() {
       (auth.state === 'hasValue' &&
         auth.getValue() &&
         auth.getValue().company?.name) ||
-      currentRole?.name !== 'CLIENT'
+      role.contents[0].name !== 'CLIENT'
     ) {
       router.push('/')
     }
@@ -213,5 +219,5 @@ NewClientProfileForm.getLayout = (page: ReactNode) => (
 
 NewClientProfileForm.acl = {
   subject: 'client',
-  action: 'update',
+  action: 'read',
 }

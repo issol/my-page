@@ -21,6 +21,7 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
             <TextField
               autoFocus
               fullWidth
+              type="number"
               label='Business registration number*'
               value={value}
               onBlur={onBlur}

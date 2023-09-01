@@ -107,7 +107,7 @@ export type ClientCompanyInfoType = {
 }
 
 export type CorporateClientInfoType = {
-  registrationNumber?: string
+  registrationNumber?: number
   representativeName?: string
   commencementDate?: string
 }
