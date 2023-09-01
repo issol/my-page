@@ -3,7 +3,7 @@ import { FormErrors } from 'src/shared/const/formErrors'
 import { CorporateClientInfoType } from '@src/context/types'
 
 export const corporateClientDefaultValue: CorporateClientInfoType = {
-  registrationNumber: '',
+  registrationNumber: 1112233333,
   representativeName: '',
   commencementDate: '',
 }
