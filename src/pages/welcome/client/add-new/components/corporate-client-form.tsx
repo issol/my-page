@@ -43,6 +43,7 @@ import {
 } from '@src/types/schema/client-address.schema'
 
 import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
+import { formatDateToYYYYMMDD } from '@src/shared/helpers/date.helper'
 
 type Props = {
   clientType: ClientClassificationType
@@ -107,6 +108,7 @@ export default function CorporateClientForm({
 
   function handleVerify() {
     const corporateCompanyInfo = getValues()
+    corporateCompanyInfo.commencementDate = formatDateToYYYYMMDD(corporateCompanyInfo.commencementDate)
     verifyCompanyInfo(corporateCompanyInfo)
       .then(res => {
         setActiveStep(2)

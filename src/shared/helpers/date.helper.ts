@@ -65,6 +65,20 @@ export function FullDateHelper(value: any): string | undefined {
   return rtn
 }
 
+// output ex : 20180913
+// 사업자등록증 조회시 날짜 포맷
+export const formatDateToYYYYMMDD = (date?: string) => {
+  console.log("date",date)
+  if(date) {
+    const currentDate = new Date(date)
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    return `${year}${month}${day}`;
+  }
+  return 
+};
+
 export function findEarliestDate(dateStrings: string[]) {
   if (!dateStrings || dateStrings.length === 0) {
     return ''
