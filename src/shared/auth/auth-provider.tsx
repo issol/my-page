@@ -113,10 +113,10 @@ const AuthProvider = ({ children }: Props) => {
         }
         return
       } else if (isClient) {
-        console.log("client",auth.getValue())
+        console.log("client",auth.getValue(),Boolean(auth.getValue().company === undefined || !auth.getValue().company?.clientId))
         const isClientGeneral =
           roles.getValue().find(i => i.name === 'CLIENT')?.type === 'General'
-        if (!auth.getValue().company || auth.getValue().company !== undefined) {
+        if (auth.getValue().company === undefined || !auth.getValue().company?.clientId) {
           console.log("check1")
           router.replace('/signup/finish/client')
         } else if (isClientGeneral && !auth.getValue().user?.firstName) {
