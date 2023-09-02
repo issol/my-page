@@ -106,23 +106,28 @@ export default function CorporateClientForm({
     name: 'clientAddresses',
   })
 
+  const verifyFailModal = () => {
+    openModal({
+      type: 'verifyError',
+      children: (
+        <SimpleAlertModal
+          message='No matching company was found. Please try again.'
+          onClose={() => closeModal('verifyError')}
+        />
+      ),
+    })
+  }
   function handleVerify() {
     const corporateCompanyInfo = getValues()
     corporateCompanyInfo.commencementDate = formatDateToYYYYMMDD(corporateCompanyInfo.commencementDate)
     verifyCompanyInfo(corporateCompanyInfo)
       .then(res => {
-        setActiveStep(2)
+        if(res) setActiveStep(2)
+        else verifyFailModal()
+        
       })
       .catch(e => {
-        openModal({
-          type: 'verifyError',
-          children: (
-            <SimpleAlertModal
-              message='No matching company was found. Please try again.'
-              onClose={() => closeModal('verifyError')}
-            />
-          ),
-        })
+        verifyFailModal()
       })
   }
 

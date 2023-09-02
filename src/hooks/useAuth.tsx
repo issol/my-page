@@ -1,5 +1,5 @@
 import { login, logout } from '@src/apis/sign.api'
-import { getUserInfo } from '@src/apis/user.api'
+import { getUserInfo, getClientUserInfo } from '@src/apis/user.api'
 import axios from '@src/configs/axios'
 import {
   ClientUserType,
@@ -58,7 +58,13 @@ const useAuth = () => {
           timezone: profile.timezone,
         }
         saveUserDataToBrowser(userInfo)
-        setAuth(prev => ({ ...prev, user: userInfo }))
+
+        // 컴퍼니 데이터 패칭이 늦어 auth-provider에서 company 데이터가 도착하기 전에 로직체크가 됨
+        // user, company 데이터를 동시에 set 하도록 변경
+        getClientUserInfo()
+        .then(companyData => {
+          setAuth(prev => ({ ...prev, user: userInfo, company: companyData}))
+        })
       })
       .catch(e => {
         router.push('/login')
