@@ -66,6 +66,8 @@ const useAuth = () => {
           .then(companyData => {
             setAuth(prev => ({ ...prev, user: userInfo, company: companyData}))
           })
+        } else {
+          setAuth(prev => ({ ...prev, user: userInfo}))
         }
       })
       .catch(e => {
