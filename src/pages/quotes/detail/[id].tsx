@@ -1513,6 +1513,7 @@ export default function QuotesDetail() {
                   isUpdatable={canUseFeature('tab-Languages&Items')}
                   role={currentRole!}
                   itemTrigger={itemTrigger}
+                  project={project}
                 />
                 {editItems
                   ? renderSubmitButton({

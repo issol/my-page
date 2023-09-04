@@ -99,6 +99,7 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import { useGetStatusList } from '@src/queries/common.query'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 export type languageType = {
   id: number | string
@@ -280,7 +281,7 @@ export default function AddNewOrder() {
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
   } = useForm<OrderProjectInfoFormType>({
     mode: 'onChange',
-    defaultValues: { ...orderProjectInfoDefaultValue, status: 100 },
+    defaultValues: { ...orderProjectInfoDefaultValue, status: 10000 },
     resolver: yupResolver(orderProjectInfoSchema),
   })
 
@@ -390,6 +391,22 @@ export default function AddNewOrder() {
       detail: [],
       totalPrice: 0,
       showItemDescription: false,
+      minimumPrice: 0,
+    })
+  }
+
+  const onClickSaveOrder = () => {
+    openModal({
+      type: 'SaveOrderModal',
+      children: (
+        <CustomModal
+          onClick={onSubmit}
+          onClose={() => closeModal('SaveOrderModal')}
+          title='Are you sure you want to create this order?'
+          vary='successful'
+          rightButtonText='Save'
+        />
+      ),
     })
   }
 
@@ -404,22 +421,27 @@ export default function AddNewOrder() {
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
-    const subTotal = getItem().items.reduce(
-      (acc, item) => acc + item.totalPrice,
-      0,
-    )
+    // const subTotal = getItem().items.reduce(
+    //   (acc, item) => acc + item.totalPrice,
+    //   0,
+    // )
     const projectInfo = {
       ...rawProjectInfo,
       // isTaxable : taxable,
       tax: !rawProjectInfo.isTaxable ? null : tax,
-      subtotal: subTotal,
+      subtotal: subPrice,
     }
 
-    const items: Array<PostItemType> = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-      showItemDescription: item.showItemDescription ? '1' : '0',
-    }))
+    const items: Array<PostItemType> = getItem().items.map(item => {
+      const { contactPerson, minimumPrice, ...filterItem } = item;
+      return {
+        ...filterItem,
+        contactPersonId: item.contactPerson?.id!,
+        description: item.description || '',
+        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+        showItemDescription: item.showItemDescription ? '1' : '0',
+      }
+    })
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
@@ -448,6 +470,7 @@ export default function AddNewOrder() {
           ])
             .then(() => {
               router.push(`/orders/order-list/detail/${res.id}`)
+              closeModal('onClickSaveOrder')
             })
             .catch(e => onRequestError())
         }
@@ -518,6 +541,7 @@ export default function AddNewOrder() {
         category: isCategoryNotSame ? '' : items[0].category,
         serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
         projectDescription: requestData?.notes ?? '',
+        status: 10000,
       })
       const itemLangPairs =
         items?.map(i => ({
@@ -934,7 +958,7 @@ export default function AddNewOrder() {
                   disabled={
                     !isItemValid && getProjectInfoValues('isTaxable') && !tax
                   }
-                  onClick={onSubmit}
+                  onClick={onClickSaveOrder}
                 >
                   Save
                 </Button>

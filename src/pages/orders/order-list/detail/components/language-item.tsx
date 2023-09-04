@@ -22,7 +22,7 @@ import {
 
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
 
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useState, useEffect, } from 'react'
 import {
   Control,
   FieldArrayWithId,
@@ -35,6 +35,7 @@ import {
 } from 'react-hook-form'
 import { UseMutationResult } from 'react-query'
 import { updateOrderType } from '../[id]'
+import { formatByRoundingProcedure, formatCurrency } from '@src/shared/helpers/price.helper'
 
 type Props = {
   langItem: LanguageAndItemType
@@ -137,14 +138,28 @@ const LanguageAndItem = ({
   updateProject,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-
+  console.log("items",items)
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
 
   const currentRole = getCurrentRole()
 
-  function getPriceOptions(source: string, target: string) {
+  const [subTotal, setSubTotal] = useState(0)
+  function sumTotalPrice() {
+    const subTotal = langItemsEdit ? getItem()?.items! : items
+    if (subTotal) {
+      const total = subTotal.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice;
+      }, 0)
+      setSubTotal(total)
+    }
+  }
+  useEffect(() => {
+    sumTotalPrice()
+  },[items])
+
+  function getPriceOptions(source: string, target: string, index?: number) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
       .filter(item => {
@@ -155,11 +170,32 @@ const LanguageAndItem = ({
       })
       .map(item => ({
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
-
         ...item,
       }))
 
-    return [defaultOption].concat(filteredList)
+    // Not Applicable Price 추가
+    const finalList = [defaultOption].concat(filteredList)
+
+    // // 기존 선택한 Price 값이 있다면 해당 값을 Current price 그룹으로 추가
+    // if(index !== undefined && index >= 0 && items[index]?.initialPrice) {
+    //   finalList.unshift({
+    //     groupName: 'Current price',
+    //     id: items[index].initialPrice?.priceId!,
+    //     isStandard: items[index].initialPrice?.isStandard!,
+    //     priceName: items[index].initialPrice?.name!,
+    //     category: items[index].initialPrice?.category!,
+    //     serviceType: items[index].initialPrice?.serviceType!,
+    //     currency: items[index].initialPrice?.currency!,
+    //     catBasis: items[index].initialPrice?.calculationBasis!,
+    //     decimalPlace: items[index].initialPrice?.numberPlace!,
+    //     roundingProcedure: String(items[index].initialPrice?.rounding),
+    //     memoForPrice: items[index].initialPrice?.memo!,
+    //     languagePairs: [],
+    //     priceUnit: [],
+    //   })
+    // }
+
+    return finalList
   }
 
   function isAddItemDisabled(): boolean {
@@ -183,6 +219,7 @@ const LanguageAndItem = ({
       detail: [],
       totalPrice: 0,
       showItemDescription: false,
+      minimumPrice: null,
     })
   }
 
@@ -227,10 +264,6 @@ const LanguageAndItem = ({
       copyOriginal.splice(idx, 1)
       setLanguagePairs([...copyOriginal])
     }
-  }
-
-  const sumTotalPrice = () => {
-    return true
   }
 
   return (
@@ -280,6 +313,7 @@ const LanguageAndItem = ({
             getPriceOptions={getPriceOptions}
             type={langItemsEdit ? 'edit' : 'detail'}
             onDeleteLanguagePair={onDeleteLanguagePair}
+            items={items}
           />
         </Grid>
       )}
@@ -326,6 +360,51 @@ const LanguageAndItem = ({
           </Button>
         </Grid>
       ) : null}
+      {/* subTotal */}
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '20px',
+              borderBottom: '2px solid #666CFF',
+              justifyContent: 'center',
+              width: '257px',
+            }}
+          >
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                textAlign: 'right',
+              }}
+            >
+              Subtotal
+            </Typography>
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+            >
+              { 
+                items.length && items[0].initialPrice
+                  ? formatCurrency(
+                      formatByRoundingProcedure(
+                        langItemsEdit ? subTotal : Number(project?.subtotal),
+                        items[0].initialPrice?.numberPlace!,
+                        items[0].initialPrice?.rounding!,
+                        items[0].initialPrice?.currency!,
+                      ),
+                      items[0].initialPrice?.currency!,
+                    )
+                  : 0
+            }
+            </Typography>
+          </Box>
+        </Box>
+      </Grid>
     </>
   )
 }

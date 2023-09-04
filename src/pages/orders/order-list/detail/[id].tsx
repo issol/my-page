@@ -37,7 +37,10 @@ import ProjectTeam from './components/project-team'
 import VersionHistory from './components/version-history'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
+
 import { authState } from '@src/states/auth'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+
 import useModal from '@src/hooks/useModal'
 import VersionHistoryModal from './components/modal/version-history-modal'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
@@ -104,6 +107,8 @@ import ReasonModal from '@src/@core/components/common-modal/reason-modal'
 import ClientOrder from './components/client-order'
 import PrintOrderPage from '../../order-print/print-page'
 
+import { orders } from '@src/shared/const/permission-class'
+
 interface Detail {
   id: number
   quantity: number
@@ -126,7 +131,7 @@ export type updateOrderType =
   | ProjectTeamFormType
   | ClientFormType
   | { status: number }
-  | { tax: null | number; isTaxable: '1' | '0' }
+  | { tax: null | number; isTaxable: '0' | '1', subTotal: number }
   | { downloadedAt: string }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
@@ -158,6 +163,7 @@ type MenuType =
   | 'deliveries-feedback'
 const OrderDetail = () => {
   const router = useRouter()
+  const ability = useContext(AbilityContext)
   const menuQuery = router.query.menu as MenuType
   const { id } = router.query
   const auth = useRecoilValueLoadable(authState)
@@ -202,6 +208,11 @@ const OrderDetail = () => {
     }
   }, [menuQuery])
 
+  const User = new orders(auth.getValue().user?.id!)
+
+  const isUpdatable = ability.can('update', User)
+  const isDeletable = ability.can('delete', User)
+
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
   const { data: projectTeam, isLoading: projectTeamLoading } =
@@ -213,7 +224,6 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
-
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
   const [taxable, setTaxable] = useState(projectInfo?.isTaxable ?? false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
@@ -275,7 +285,6 @@ const OrderDetail = () => {
     control: itemControl,
     name: 'items',
   })
-
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -430,7 +439,7 @@ const OrderDetail = () => {
     onSave(() => updateProject.mutate(projectInfo))
   }
 
-  const initializeData = () => {
+  const initializeItemData = () => {
     setLanguagePairs(
       langItem?.languagePairs?.map(item => ({
         id: String(item.id),
@@ -457,28 +466,35 @@ const OrderDetail = () => {
         totalPrice: item?.totalPrice ?? 0,
         dueAt: item?.dueAt,
         showItemDescription: item.showItemDescription,
+        initialPrice: item.initialPrice ?? {},
+        minimumPrice: item.minimumPrice,
       }
     })
     itemReset({ items: result })
-    const teams: Array<{
-      type: MemberType
-      id: number | null
-      name: string
-    }> = projectTeam!.map(item => ({
-      type:
-        item.position === 'projectManager'
-          ? 'projectManagerId'
-          : item.position === 'supervisor'
-          ? 'supervisorId'
-          : 'member',
-      id: item.userId,
-      name: getLegalName({
-        firstName: item?.firstName!,
-        middleName: item?.middleName,
-        lastName: item?.lastName!,
-      }),
-    }))
-    resetTeam({ teams })
+  }
+
+  const initializeTeamData = () => {
+    if (!projectTeamLoading && projectTeam) {
+      const teams: Array<{
+        type: MemberType
+        id: number | null
+        name: string
+      }> = projectTeam.map(item => ({
+        type:
+          item.position === 'projectManager'
+            ? 'projectManagerId'
+            : item.position === 'supervisor'
+            ? 'supervisorId'
+            : 'member',
+        id: item.userId,
+        name: getLegalName({
+          firstName: item?.firstName!,
+          middleName: item?.middleName,
+          lastName: item?.lastName!,
+        }),
+      }))
+      resetTeam({ teams })
+    }
   }
 
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
@@ -503,7 +519,8 @@ const OrderDetail = () => {
     }
 
     if (newValue === 'item') {
-      initializeData()
+      initializeItemData()
+      initializeTeamData()
     }
 
     setValue(newValue)
@@ -774,6 +791,9 @@ const OrderDetail = () => {
           analysis: item.analysis ?? [],
           totalPrice: item?.totalPrice ?? 0,
           dueAt: item?.dueAt,
+          showItemDescription: item.showItemDescription,
+          initialPrice: item.initialPrice ?? {},
+          minimumPrice: item.minimumPrice,
         }
       })
       itemReset({ items: result })
@@ -870,8 +890,10 @@ const OrderDetail = () => {
         },
       },
     )
-
-    updateProject.mutate({ isTaxable: taxable ? '1' : '0', tax })
+    const subTotal = items.reduce((accumulator, item) => {
+      return accumulator + item.totalPrice;
+    }, 0)
+    updateProject.mutate({ isTaxable: taxable ? '1' : '0', tax, subTotal: subTotal })
   }
 
   const updateProject = useMutation(
@@ -1369,7 +1391,7 @@ const OrderDetail = () => {
                     splitReady={splitReady}
                   />
 
-                  <Grid item xs={12}>
+                  {/* <Grid item xs={12}>
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <Box
                         sx={{
@@ -1400,7 +1422,7 @@ const OrderDetail = () => {
                         </Typography>
                       </Box>
                     </Box>
-                  </Grid>
+                  </Grid> */}
 
                   {currentRole?.name === 'CLIENT' ? null : (
                     <Grid
@@ -1455,7 +1477,10 @@ const OrderDetail = () => {
                     ? renderSubmitButton({
                         onCancel: () =>
                           onDiscard({
-                            callback: () => setLangItemsEdit(false),
+                            callback: () => {
+                              setLangItemsEdit(false),
+                              itemReset()
+                            }
                           }),
                         onSave: () => onSubmitItems(),
                         isValid: isItemValid || (taxable && tax! > 0),

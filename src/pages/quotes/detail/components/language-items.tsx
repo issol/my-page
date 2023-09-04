@@ -51,6 +51,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import { ProjectInfoType } from '@src/types/common/quotes.type'
 
 type Props = {
   languagePairs: Array<languageType>
@@ -100,6 +101,7 @@ type Props = {
   setIsEditMode: (n: boolean) => void
   isUpdatable: boolean
   role: UserRoleType
+  project?: ProjectInfoType
 }
 
 export default function QuotesLanguageItemsDetail({
@@ -125,6 +127,7 @@ export default function QuotesLanguageItemsDetail({
   isUpdatable,
   role,
   itemTrigger,
+  project,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -248,6 +251,7 @@ export default function QuotesLanguageItemsDetail({
       priceId: null,
       detail: [],
       totalPrice: 0,
+      showItemDescription: false,
       minimumPrice: null,
     })
   }
@@ -344,7 +348,7 @@ export default function QuotesLanguageItemsDetail({
                 items.length && items[0].initialPrice
                   ? formatCurrency(
                       formatByRoundingProcedure(
-                        subTotal,
+                        isEditMode ? subTotal : Number(project?.subtotal),
                         items[0].initialPrice?.numberPlace!,
                         items[0].initialPrice?.rounding!,
                         items[0].initialPrice?.currency!,

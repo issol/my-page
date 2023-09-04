@@ -109,7 +109,7 @@ export const defaultOption: StandardPriceListType & {
   catInterface: { memSource: [], memoQ: [] },
 }
 
-export default function AddNewQuotes() {
+export default function AddNewQuote() {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
 
@@ -435,18 +435,19 @@ export default function AddNewQuotes() {
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
-    const subTotal = getItem().items.reduce(
-      (acc, item) => acc + item.totalPrice,
-      0,
-    )
+    // const subTotal = getItem().items.reduce(
+    //   (acc, item) => acc + item.totalPrice,
+    //   0,
+    // )
     const projectInfo = {
       ...rawProjectInfo,
       tax: !rawProjectInfo.isTaxable ? null : tax,
-      subtotal: subTotal,
+      subtotal: subPrice,
     }
 
     const items: Array<PostItemType> = getItem().items.map(item => {
       const { contactPerson, minimumPrice, ...filterItem } = item;
+      console.log("filterItem",filterItem)
       return {
         ...filterItem,
         contactPersonId: item.contactPerson?.id!,
@@ -822,7 +823,7 @@ export default function AddNewQuotes() {
   )
 }
 
-AddNewQuotes.acl = {
+AddNewQuote.acl = {
   subject: 'quote',
   action: 'create',
 }

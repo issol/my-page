@@ -140,6 +140,7 @@ export type ProjectInfoType = {
     id: number
     corporationId: string
   } | null
+  subtotal: string | number
 }
 
 export type VersionHistoryType = HistoryType & {

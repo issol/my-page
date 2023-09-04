@@ -121,9 +121,12 @@ export default function ItemPriceUnitForm({
   }
   const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
   const nestSubPriceUnits = (idx: number) => {
+    console.log("priceUnitsList",priceUnitsList)
+    console.log("priceData",priceData)
     const nestedData: Array<NestedPriceUnitType> = []
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
       ...item,
+      priceUnitId: item.id,
       subPriceUnits: [],
       groupName: 'Price unit',
     }))
@@ -133,7 +136,10 @@ export default function ItemPriceUnitForm({
         subPriceUnits: [],
         groupName: 'Matching price unit',
       })) || []
+
+    
     const data = matchingUnit?.concat(priceUnit)
+    console.log("concat data",data)
     if (data?.length) {
       data.forEach(item => {
         if (item.parentPriceUnitId === null) {
@@ -182,7 +188,7 @@ export default function ItemPriceUnitForm({
     //   nestedData.unshift(currentUsePriceUnit)
     //   data.unshift(currentUsePriceUnit)
     // }
-
+    console.log("priceUnitData",data)
     allPriceUnits.current = data
     return nestedData
   }
@@ -302,7 +308,7 @@ export default function ItemPriceUnitForm({
                     item =>
                       item.id === getValues(`${detailName}.${idx}.priceUnitId`),
                   )?.title
-                }
+                } {getValues(`${detailName}.${idx}.priceUnitId`)}
               </Typography>
             </Box>
           ) : (
@@ -378,7 +384,7 @@ export default function ItemPriceUnitForm({
                           >
                             {option?.quantity && option?.quantity >= 2
                               ? `${option?.quantity} ${option.title}`
-                              : option.title}
+                              : option.title} {option.priceUnitId}
                           </Box>
                           {option?.subPriceUnits?.map(sub => (
                             <Box
@@ -408,7 +414,7 @@ export default function ItemPriceUnitForm({
                               />
                               {sub?.quantity && sub?.quantity >= 2
                                 ? `${sub?.quantity} ${sub.title}`
-                                : sub.title}
+                                : sub.title} {sub.priceUnitId}
                             </Box>
                           ))}
                         </Box>

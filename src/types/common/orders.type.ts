@@ -35,6 +35,7 @@ export type OrderProjectInfoFormType = {
   tax: number | null
   isTaxable: boolean
   showDescription: boolean
+  subTotal: number
 }
 
 export type QuotesProjectInfoType = {
