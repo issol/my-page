@@ -61,10 +61,12 @@ const useAuth = () => {
 
         // 컴퍼니 데이터 패칭이 늦어 auth-provider에서 company 데이터가 도착하기 전에 로직체크가 됨
         // user, company 데이터를 동시에 set 하도록 변경
-        getClientUserInfo()
-        .then(companyData => {
-          setAuth(prev => ({ ...prev, user: userInfo, company: companyData}))
-        })
+        if (value.roles && value.roles?.filter(role => role.name === 'CLIENT').length > 0) {
+          getClientUserInfo()
+          .then(companyData => {
+            setAuth(prev => ({ ...prev, user: userInfo, company: companyData}))
+          })
+        }
       })
       .catch(e => {
         router.push('/login')

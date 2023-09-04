@@ -60,6 +60,7 @@ export type UserDataType = {
   dateOfBirth?: string
   address: ClientAddressType<number>
   fromSNS?: null | 'GOOGLE'
+  roles?: Array<UserRoleType>
 }
 
 export type LoginSuccessResponse = {
