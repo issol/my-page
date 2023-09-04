@@ -51,11 +51,11 @@ export const getProJobColumns = () => {
             fontWeight={400}
             fontSize={14}
             color='#e04440'
-          >{`Overdue by ${days > 0 ? days : ''} ${
-            days > 1 ? 'days' : 'day'
-          } ${hours.toString().padStart(2, '0')} hrs ${minutes
+          >{`${days > 0 ? days : ''} day(s) ${hours
             .toString()
-            .padStart(2, '0')} mins`}</Typography>
+            .padStart(2, '0')} hr(s) ${minutes
+            .toString()
+            .padStart(2, '0')} min(s) over`}</Typography>
         </>
       )
     } else if (!isPast && days === 0 && hours < 24) {

@@ -162,6 +162,7 @@ export type ProJobDetailType = {
   sourceLanguage: string
   targetLanguage: string
   requestedAt: string
+  startedAt: string
   dueAt: string
   price: {
     data: ItemDetailType[]

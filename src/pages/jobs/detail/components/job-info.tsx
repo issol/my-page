@@ -44,6 +44,8 @@ import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 import dynamic from 'next/dynamic'
 import { useGetGuideLines } from '@src/queries/client-guideline.query'
+import PriceUnit from '@src/pages/components/standard-prices/component/price-unit'
+import dayjs from 'dayjs'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -242,6 +244,7 @@ const ProJobInfo = ({ jobInfo }: Props) => {
       type: 'QuantityPriceUnitMoreInfoModal',
       children: (
         <PriceUnitGuideline
+          vary='info'
           title='Quantity / Price unit Guidelines'
           subtitle='Please note that a single task might incorporate multiple quantity and price unit.'
           firstItem={{
@@ -289,10 +292,48 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                 </>
               }
             />
+          ) : status === 'Canceled' ? (
+            <PriceUnitGuideline
+              vary='info'
+              subtitle='We’re sorry to inform that O-000001-TRA-001 has been canceled due to internal circumstances.'
+              firstItem={{
+                title: 'Job number',
+                value: jobInfo.corporationId,
+                titleWidth: 122,
+                valueWidth: 156,
+              }}
+              secondItem={{
+                title: 'Contact person',
+                value: (
+                  <>
+                    {getLegalName({
+                      firstName: jobInfo.contactPerson?.firstName,
+                      lastName: jobInfo.contactPerson?.lastName,
+                      middleName: jobInfo.contactPerson?.middleName,
+                    })}
+                    <br />({jobInfo.contactPerson?.email})
+                  </>
+                ),
+                titleWidth: 122,
+                valueWidth: 156,
+              }}
+              onClose={() => closeModal('StatusMoreInfoModal')}
+              extra={`If you need any assistance related to this matter, please contact ${jobInfo.contactPerson?.email}.`}
+            />
           ) : (
-            status === 'Canceled' && (
+            status === 'Job overdue' && (
               <PriceUnitGuideline
-                subtitle='We’re sorry to inform that O-000001-TRA-001 has been canceled due to internal circumstances.'
+                subtitle={
+                  <>
+                    The due date has been exceeded.
+                    <br />
+                    <br />
+                    There could be consequences due to the delayed submission,
+                    so we kindly request you to submit the files as soon as
+                    possible.
+                  </>
+                }
+                vary='error'
                 firstItem={{
                   title: 'Job number',
                   value: jobInfo.corporationId,
@@ -300,6 +341,15 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                   valueWidth: 156,
                 }}
                 secondItem={{
+                  title: 'Due date',
+                  value: FullDateTimezoneHelper(
+                    jobInfo.dueAt,
+                    auth.getValue()?.user?.timezone,
+                  ),
+                  titleWidth: 122,
+                  valueWidth: 156,
+                }}
+                thirdItem={{
                   title: 'Contact person',
                   value: (
                     <>
@@ -337,6 +387,42 @@ const ProJobInfo = ({ jobInfo }: Props) => {
         />
       ),
     })
+  }
+
+  const getJobDateDiff = (jobDueDate: string) => {
+    const now = dayjs()
+    const dueDate = dayjs(jobDueDate)
+    const diff = dueDate.diff(now, 'second')
+    const isPast = diff < 0
+
+    const days = Math.abs(Math.floor(diff / 86400))
+    const hours = Math.abs(Math.floor((diff % 86400) / 3600))
+    const minutes = Math.abs(Math.floor((diff % 3600) / 60))
+
+    if (isPast) {
+      return (
+        <>
+          <Typography
+            variant='body1'
+            fontWeight={600}
+            fontSize={14}
+            color='#e04440'
+          >
+            {FullDateTimezoneHelper(jobDueDate, auth.getValue().user?.timezone)}
+          </Typography>
+          <Typography
+            variant='body1'
+            fontWeight={400}
+            fontSize={14}
+            color='#e04440'
+          >{`${days > 0 ? days : ''} day(s) ${hours
+            .toString()
+            .padStart(2, '0')} hr(s) ${minutes
+            .toString()
+            .padStart(2, '0')} min(s) over`}</Typography>
+        </>
+      )
+    }
   }
 
   return (
@@ -391,7 +477,8 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                   >
                     {ProJobStatusChip(jobInfo.status)}
                     {jobInfo.status === 'Unassigned' ||
-                    jobInfo.status === 'Canceled' ? (
+                    jobInfo.status === 'Canceled' ||
+                    jobInfo.status === 'Job overdue' ? (
                       <IconButton
                         sx={{ padding: 0 }}
                         onClick={() =>
@@ -404,7 +491,7 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                   </Box>
                 </Box>
               </Box>
-              <Box sx={{ display: 'flex', gap: '16px' }}>
+              <Box sx={{ display: 'flex' }}>
                 <Box sx={{ display: 'flex', flex: 1, gap: '8px' }}>
                   <Box
                     sx={{
@@ -493,7 +580,7 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                   </Box>
                 </Box>
               </Box>
-              <Box sx={{ display: 'flex', gap: '16px' }}>
+              <Box sx={{ display: 'flex' }}>
                 <Box sx={{ display: 'flex', flex: 1, gap: '8px' }}>
                   <Box
                     sx={{
@@ -581,7 +668,7 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                 </Box>
               </Box>
               <Divider />
-              <Box sx={{ display: 'flex', gap: '16px' }}>
+              <Box sx={{ display: 'flex' }}>
                 <Box sx={{ display: 'flex', flex: 1, gap: '8px' }}>
                   <Box
                     sx={{
@@ -643,7 +730,13 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                         width: '100%',
                       }}
                     >
-                      Job due date
+                      {jobInfo.status !== 'Requested from LPM' &&
+                      jobInfo.status !== 'Canceled' &&
+                      jobInfo.status !== 'Unassigned' &&
+                      jobInfo.status !== 'Awaiting approval' &&
+                      jobInfo.status !== 'Declined'
+                        ? 'Job start date'
+                        : 'Job due date'}
                     </Typography>
                   </Box>
                   <Box
@@ -663,7 +756,13 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                     >
                       <Typography variant='body2'>
                         {FullDateTimezoneHelper(
-                          jobInfo.dueAt,
+                          jobInfo.status !== 'Requested from LPM' &&
+                            jobInfo.status !== 'Canceled' &&
+                            jobInfo.status !== 'Unassigned' &&
+                            jobInfo.status !== 'Awaiting approval' &&
+                            jobInfo.status !== 'Declined'
+                            ? jobInfo.startedAt
+                            : jobInfo.dueAt,
                           auth.getValue()?.user?.timezone,
                         )}
                       </Typography>
@@ -671,6 +770,63 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                   </Box>
                 </Box>
               </Box>
+              {jobInfo.status !== 'Requested from LPM' &&
+              jobInfo.status !== 'Canceled' &&
+              jobInfo.status !== 'Unassigned' &&
+              jobInfo.status !== 'Awaiting approval' &&
+              jobInfo.status !== 'Declined' ? (
+                <Box sx={{ display: 'flex', width: '50%', gap: '8px' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '8px',
+
+                      width: '38.5%',
+                    }}
+                  >
+                    <Typography
+                      variant='subtitle1'
+                      sx={{
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        width: '100%',
+                      }}
+                    >
+                      Job due date
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '8px',
+
+                      alignItems: 'center',
+                      width: '59.73%',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '8px',
+                        alignItems: 'center',
+                      }}
+                    >
+                      {jobInfo.status === 'Job overdue' ? (
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          {getJobDateDiff(jobInfo.dueAt)}
+                        </Box>
+                      ) : (
+                        <Typography variant='body2'>
+                          {FullDateTimezoneHelper(
+                            jobInfo.dueAt,
+                            auth.getValue()?.user?.timezone,
+                          )}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              ) : null}
               <Divider />
               {jobInfo.status === 'Declined' ||
               jobInfo.status === 'Unassigned' ||
@@ -871,7 +1027,8 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                 padding: '0 20px',
                 overflow: 'scroll',
                 marginBottom: '12px',
-                height: '300px',
+                maxHeight: '300px',
+                // height: '300px',
 
                 '&::-webkit-scrollbar': { display: 'none' },
               }}

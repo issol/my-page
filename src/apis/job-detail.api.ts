@@ -205,7 +205,7 @@ export const getProJobDetail = async (
     const testProJobDetail: ProJobDetailType = {
       id: 1,
       corporationId: 'ABC123',
-      status: 'Requested from LPM',
+      status: 'Job overdue',
       name: 'The Remarried Empress EP 1 TRA',
       client: {
         clientId: 1,
@@ -249,6 +249,7 @@ export const getProJobDetail = async (
       targetLanguage: 'fr',
       requestedAt: '2022-01-01T00:00:00.000Z',
       dueAt: '2022-01-10T00:00:00.000Z',
+      startedAt: '2023-08-10T00:00:00.000Z',
       price: {
         data: [
           {
@@ -270,7 +271,7 @@ export const getProJobDetail = async (
         {
           name: 'file1.txt',
           size: 1024,
-          type: 'SAMPLE',
+          type: 'SOURCE',
           file: 'https://example.com/files/file1.txt',
           createdAt: '2023-08-30T17:13:15Z',
         },
@@ -284,7 +285,7 @@ export const getProJobDetail = async (
         {
           name: 'file3.pdf',
           size: 3072,
-          type: 'SAMPLE',
+          type: 'SOURCE',
           file: 'https://example.com/files/file3.pdf',
           createdAt: '2023-08-30T17:13:15Z',
         },

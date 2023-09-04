@@ -1,10 +1,10 @@
 import { Icon } from '@iconify/react'
 import { Box, Card, IconButton, Typography } from '@mui/material'
-import AlertIcon from '@src/@core/components/alert-icon'
+import AlertIcon, { AlertType } from '@src/@core/components/alert-icon'
 
 type Props = {
   title?: string | JSX.Element
-  subtitle?: string
+  subtitle?: string | JSX.Element
   firstItem?: {
     title: string
     value: string
@@ -17,8 +17,17 @@ type Props = {
     titleWidth: number
     valueWidth: number
   }
+
+  thirdItem?: {
+    title: string
+    value: string | JSX.Element
+    titleWidth: number
+    valueWidth: number
+  }
+
   extra?: string
   notify?: string
+  vary: AlertType
   onClose: any
 }
 
@@ -27,9 +36,11 @@ const PriceUnitGuideline = ({
   subtitle,
   firstItem,
   secondItem,
+  thirdItem,
   notify,
   extra,
   onClose,
+  vary,
 }: Props) => {
   return (
     <Box
@@ -66,7 +77,7 @@ const PriceUnitGuideline = ({
             gap: '8px',
           }}
         >
-          <AlertIcon type={'info'} />
+          <AlertIcon type={vary} />
           {title ? (
             <Typography
               variant='body1'
@@ -134,6 +145,26 @@ const PriceUnitGuideline = ({
               </Typography>
               <Typography variant='body2' width={secondItem.valueWidth}>
                 {secondItem.value}
+              </Typography>
+            </Box>
+          ) : null}
+          {thirdItem ? (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography
+                variant='body1'
+                width={thirdItem.titleWidth}
+                fontSize={14}
+                fontWeight={600}
+              >
+                {thirdItem.title}:
+              </Typography>
+              <Typography variant='body2' width={thirdItem.valueWidth}>
+                {thirdItem.value}
               </Typography>
             </Box>
           ) : null}
