@@ -116,13 +116,11 @@ export default function ItemPriceUnitForm({
   const currentInitialItem = getValues(`${initialPriceName}`)
 
   type NestedPriceUnitType = PriceUnitListType & {
-    subPriceUnits: PriceUnitListType[]
+    subPriceUnits: PriceUnitListType[] | undefined
     groupName: string
   }
-  const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
+  const allPriceUnits = useRef<Array<NestedPriceUnitType>>([]);
   const nestSubPriceUnits = (idx: number) => {
-    console.log("priceUnitsList",priceUnitsList)
-    console.log("priceData",priceData)
     const nestedData: Array<NestedPriceUnitType> = []
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
       ...item,
@@ -137,16 +135,20 @@ export default function ItemPriceUnitForm({
         groupName: 'Matching price unit',
       })) || []
 
-    
-    const data = matchingUnit?.concat(priceUnit)
-    console.log("concat data",data)
+    const filteredPriceUnit = priceUnit.filter(item2 => !matchingUnit.some(item1 => item1.priceUnitId === item2.priceUnitId));
+
+    const data = matchingUnit?.concat(filteredPriceUnit)
+
+    // const uniqueArray = Array.from(new Set(data.map(item => item.priceUnitId)))
+    // .map(priceUnitId => data.find(item => item.priceUnitId === priceUnitId))
+
     if (data?.length) {
       data.forEach(item => {
-        if (item.parentPriceUnitId === null) {
+        if (item && item.parentPriceUnitId === null) {
           nestedData.push(item)
           data.forEach(subItem => {
-            if (subItem.parentPriceUnitId === item.priceUnitId && subItem.priceUnitId) {
-              item.subPriceUnits.push(subItem)
+            if (subItem?.parentPriceUnitId === item.priceUnitId && subItem?.priceUnitId) {
+              item.subPriceUnits?.push(subItem)
             }
           })
         }
@@ -188,7 +190,7 @@ export default function ItemPriceUnitForm({
     //   nestedData.unshift(currentUsePriceUnit)
     //   data.unshift(currentUsePriceUnit)
     // }
-    console.log("priceUnitData",data)
+
     allPriceUnits.current = data
     return nestedData
   }
@@ -384,7 +386,7 @@ export default function ItemPriceUnitForm({
                           >
                             {option?.quantity && option?.quantity >= 2
                               ? `${option?.quantity} ${option.title}`
-                              : option.title} {option.priceUnitId}
+                              : option.title}
                           </Box>
                           {option?.subPriceUnits?.map(sub => (
                             <Box
