@@ -1,30 +1,29 @@
-import { Grid, IconButton, Typography } from '@mui/material'
+import {Grid, IconButton, Typography} from '@mui/material'
 
 import PageHeader from 'src/@core/components/page-header'
 import OnboardingDashboard from './components/list/dashboard'
 import Filters from './components/list/filters'
 import OnboardingList from './components/list/list'
-import { SyntheticEvent, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import {SyntheticEvent, useState} from 'react'
+import {useForm} from 'react-hook-form'
 
-import { JobList } from 'src/shared/const/job/jobs'
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
-import { makeStyles } from '@mui/material'
+import {JobList} from 'src/shared/const/job/jobs'
+import {getGloLanguage} from 'src/shared/transformer/language.transformer'
 import {
   FilterType,
-  SelectType,
-  RoleSelectType,
   OnboardingFilterType,
-  OnboardingListType,
   OnboardingListCellType,
+  OnboardingListType,
+  RoleSelectType,
+  SelectType,
 } from 'src/types/onboarding/list'
 import {
   useGetOnboardingProList,
-  useGetStatistic,
   useGetOnboardingStatistic,
+  useGetStatistic,
 } from 'src/queries/onboarding/onboarding-query'
-import { OnboardingListRolePair, RoleList } from '@src/shared/const/role/roles'
-import { GridColumns } from '@mui/x-data-grid'
+import {OnboardingListRolePair} from '@src/shared/const/role/roles'
+import {GridColumns} from '@mui/x-data-grid'
 import Box from '@mui/material/Box'
 import LegalNameEmail from './components/list/list-item/legalname-email'
 import JobTypeRole from '../components/job-type-role-chips'
@@ -54,7 +53,7 @@ export default function Onboarding() {
     testStatus: [],
     take: onboardingListPageSize,
     skip: onboardingListPageSize * onboardingListPage,
-    order: 'desc',
+    order: 'asc',
   })
 
   const { data: onboardingProList, isLoading } =
