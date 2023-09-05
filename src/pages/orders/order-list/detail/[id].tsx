@@ -213,7 +213,6 @@ const OrderDetail = () => {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
 
-  
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
   const { data: projectTeam, isLoading: projectTeamLoading } =
@@ -331,7 +330,7 @@ const OrderDetail = () => {
   const [selectedIds, setSelectedIds] = useState<
     { id: number; selected: boolean }[]
   >(getItem('items').map(value => ({ id: value.id!, selected: false })))
-
+  console.log("projectInfoEdit",projectInfoEdit)
   const order = useAppSelector(state => state.order)
 
   const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
@@ -914,6 +913,19 @@ const OrderDetail = () => {
     },
   )
 
+  const updateProjectWithoutControlForm = useMutation(
+    (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail'],
+        })
+        queryClient.invalidateQueries(['orderList'])
+      },
+      onError: () => onMutationError(),
+    },
+  )
+
   const splitOrderMutation = useMutation(
     (items: number[]) => splitOrder(Number(id!), items),
     {
@@ -1039,14 +1051,14 @@ const OrderDetail = () => {
   // 해당 기능에 첨부된 파일이 있는지 등의 추가 조건은 해당 컴포넌트에서 별도로 체크할 것
   const canUseFeature = (
     featureName:
-      | 'tab-ProjectInfo'
-      | 'tab-Languages&Items'
+      | 'tab-ProjectInfo'//
+      | 'tab-Languages&Items'//
       | 'tab-Client'
       | 'tab-ProjectTeam'
       | 'button-ProjectInfo-CancelOrder'
       | 'button-ProjectInfo-DeleteOrder'
-      | 'checkBox-ProjectInfo-Description'
-      | 'button-Languages&Items-SplitOrder'
+      | 'checkBox-ProjectInfo-Description'//
+      | 'button-Languages&Items-SplitOrder'//
       | 'button-DownloadOrder'//
       | 'button-CreateInvoice'//
       | 'button-ConfirmOrder'//
@@ -1514,16 +1526,15 @@ const OrderDetail = () => {
                       type={'detail'}
                       project={projectInfo!}
                       setEditMode={setProjectInfoEdit}
-                      isUpdatable={
-                        currentRole! && currentRole.name !== 'CLIENT'
-                      }
+                      isUpdatable={canUseFeature('tab-ProjectInfo')}
                       updateStatus={(status: number) =>
-                        updateProject.mutate({ status: status })
+                        updateProjectWithoutControlForm.mutate({ status: status })
                       }
                       updateProject={updateProject}
                       client={client}
                       statusList={statusList!}
                       role={currentRole!}
+                      canUseDescriptionCheckBox={canUseFeature('checkBox-ProjectInfo-Description')}
                     />
                   </Fragment>
                 )}
@@ -1560,6 +1571,11 @@ const OrderDetail = () => {
                     selectedIds={selectedIds}
                     setSelectedIds={setSelectedIds}
                     splitReady={splitReady}
+                    isUpdatable={canUseFeature('tab-Languages&Items')}
+                    updateStatus={(status: number) =>
+                      updateProjectWithoutControlForm.mutate({ status: status })
+                    }
+                    canUseSplit={canUseFeature('button-Languages&Items-SplitOrder')}
                   />
 
                   {/* <Grid item xs={12}>
@@ -1651,6 +1667,8 @@ const OrderDetail = () => {
                             callback: () => {
                               setLangItemsEdit(false),
                               itemReset()
+                              setTax(projectInfo?.tax!)
+                              setTaxable(projectInfo?.isTaxable!)
                             }
                           }),
                         onSave: () => onSubmitItems(),

@@ -100,6 +100,7 @@ import {
 } from '@src/shared/helpers/price.helper'
 import { useGetStatusList } from '@src/queries/common.query'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 export type languageType = {
   id: number | string
@@ -630,15 +631,26 @@ export default function AddNewOrder() {
       getQuoteLangItems(id).then(res => {
         if (res) {
           setLanguagePairs(
-            res?.languagePairs?.map(item => {
+            res?.items?.map(item => {
               return {
                 id: String(item.id),
                 source: item.source,
                 target: item.target,
-                price: !item?.price
-                  ? null
-                  : priceList.find(price => price.id === item?.price?.id) ||
-                    null,
+                price: {
+                  id: item.initialPrice?.priceId!,
+                  isStandard: item.initialPrice?.isStandard!,
+                  priceName: item.initialPrice?.name!,
+                  groupName: 'Current price',
+                  category: item.initialPrice?.category!,
+                  serviceType: item.initialPrice?.serviceType!,
+                  currency: item.initialPrice?.currency!,
+                  catBasis: item.initialPrice?.calculationBasis!,
+                  decimalPlace: item.initialPrice?.numberPlace!,
+                  roundingProcedure: RoundingProcedureList[item.initialPrice?.rounding!].label,
+                  languagePairs: [],
+                  priceUnit: [],
+                  catInterface: { memSource: [], memoQ: [] },
+                }
               }
             }),
           )
@@ -652,6 +664,14 @@ export default function AddNewOrder() {
               detail: !item?.detail?.length ? [] : item.detail,
               analysis: item.analysis ?? [],
               totalPrice: item?.totalPrice ?? 0,
+              dueAt: item?.dueAt ?? '',
+              contactPerson: item?.contactPerson ?? {},
+              // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+              // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+              initialPrice: item.initialPrice ?? {},
+              description: item.description,
+              showItemDescription: item.showItemDescription,
+              minimumPrice: item.minimumPrice,
             }
           })
           itemReset({ items: result })

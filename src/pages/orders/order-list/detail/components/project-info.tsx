@@ -56,6 +56,7 @@ type Props = {
   type: 'detail' | 'history'
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList?: Array<{ value: number; label: string }>
+  canUseDescriptionCheckBox?: boolean
 }
 const ProjectInfo = ({
   project,
@@ -67,6 +68,7 @@ const ProjectInfo = ({
   type,
   updateProject,
   statusList,
+  canUseDescriptionCheckBox,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
@@ -272,8 +274,12 @@ const ProjectInfo = ({
             {type === 'detail' && isUpdatable ? (
               <IconButton
                 onClick={() => {
-                  // TODO: 조건에 맞을때만 10500으로 업데이트 되어야 함
-                  updateProject && updateProject.mutate({ status: 10500 })
+                  if (project?.status === 'Order sent' ||
+                    project?.status === 'In progress' ||
+                    project?.status === 'Partially delivered' ||
+                    project?.status === 'Delivery completed' ||
+                    project?.status === 'Redelivery requested'
+                  ) updateStatus && updateStatus(10500)
                   setEditMode!(true)
                 }}
               >
@@ -829,12 +835,7 @@ const ProjectInfo = ({
                         setShowDescription(e.target.checked)
                       }}
                       checked={showDescription}
-                      disabled={
-                        project?.status === 10700 ||
-                        project.status === 101100 ||
-                        project.status === 101000 ||
-                        project.status === 101200
-                      }
+                      disabled={!canUseDescriptionCheckBox}
                     />
 
                     <Typography

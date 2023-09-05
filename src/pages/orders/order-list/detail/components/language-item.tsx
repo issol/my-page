@@ -105,6 +105,9 @@ type Props = {
   >
   splitReady?: boolean
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
+  isUpdatable?: boolean
+  updateStatus?: (status: number) => void
+  canUseSplit?: boolean
 }
 
 const LanguageAndItem = ({
@@ -136,6 +139,9 @@ const LanguageAndItem = ({
   setSelectedIds,
   splitReady,
   updateProject,
+  isUpdatable,
+  updateStatus,
+  canUseSplit,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   console.log("items",items)
@@ -280,24 +286,21 @@ const LanguageAndItem = ({
           <Button
             variant='outlined'
             sx={{ display: 'flex', gap: '8px', mb: '24px' }}
-            disabled={
-              items.length < 1 ||
-              project?.status === 101100 ||
-              project?.status === 101200
-            }
+            disabled={!canUseSplit}
             onClick={onClickSplitOrder}
           >
             <Icon icon='ic:baseline-splitscreen' />
             Split order
           </Button>
-          {project &&
-          project.status !== 101000 &&
-          project.status !== 101100 &&
-          project.status !== 101200 ? (
+          {isUpdatable ? (
             <IconButton
               onClick={() => {
-                // TODO: 조건에 맞을때만 10500으로 업데이트 되어야 함
-                updateProject && updateProject.mutate({ status: 10500 })
+                if (project?.status === 'Order sent' ||
+                project?.status === 'In progress' ||
+                project?.status === 'Partially delivered' ||
+                project?.status === 'Delivery completed' ||
+                project?.status === 'Redelivery requested'
+              ) updateStatus && updateStatus(10500)
                 setLangItemsEdit(!langItemsEdit)
               }}
             >
