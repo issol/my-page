@@ -93,7 +93,7 @@ export default function OrdersList({
           <OrderStatusChip
             size='small'
             status={row?.status}
-            label={statusList?.find(i => i.value === row?.status)?.label || ''}
+            label={row?.status}
           />
         )
       },

@@ -56,7 +56,7 @@ export default function RequestDetailCard({
           <CustomTypo variant='body2'>
             {FullDateTimezoneHelper(
               data?.requestedAt,
-              data?.contactPerson?.timezone.code,
+              data?.contactPerson?.timezone?.code,
             )}
           </CustomTypo>
         </LabelContainer>

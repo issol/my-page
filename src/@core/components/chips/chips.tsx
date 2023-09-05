@@ -245,6 +245,7 @@ export const OrderStatusChip = styled(Chip)<{
       rgba(255, 255, 255, 0.88)
     ),
     ${({ status }) => getOrderStatusColor(status)};
+    color: ${({ status }) => getOrderStatusColor(status)};
 `
 
 export const QuoteStatusChip = styled(Chip)<{

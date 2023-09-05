@@ -416,7 +416,7 @@ export default function ItemPriceUnitForm({
                               />
                               {sub?.quantity && sub?.quantity >= 2
                                 ? `${sub?.quantity} ${sub.title}`
-                                : sub.title} {sub.priceUnitId}
+                                : sub.title}
                             </Box>
                           ))}
                         </Box>

@@ -213,6 +213,7 @@ const OrderDetail = () => {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
 
+  
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
   const { data: projectTeam, isLoading: projectTeamLoading } =
@@ -527,8 +528,8 @@ const OrderDetail = () => {
   }
 
   const handleRestoreVersion = () => {
-    // TODO API 연결
-    updateProject && updateProject.mutate({ status: 105 })
+    // TODO: 조건에 맞을때만 10500으로 업데이트 되어야 함
+    updateProject && updateProject.mutate({ status: 10500 })
   }
 
   const onClickRestoreVersion = () => {
@@ -1033,7 +1034,185 @@ const OrderDetail = () => {
       })
     }
   }
+  console.log("projectInfo",projectInfo)
+  // 여기서는 role, status, projectTeam 정보를 기반으로 기능을 쓸수 있는지만 체크함
+  // 해당 기능에 첨부된 파일이 있는지 등의 추가 조건은 해당 컴포넌트에서 별도로 체크할 것
+  const canUseFeature = (
+    featureName:
+      | 'tab-ProjectInfo'
+      | 'tab-Languages&Items'
+      | 'tab-Client'
+      | 'tab-ProjectTeam'
+      | 'button-ProjectInfo-CancelOrder'
+      | 'button-ProjectInfo-DeleteOrder'
+      | 'checkBox-ProjectInfo-Description'
+      | 'button-Languages&Items-SplitOrder'
+      | 'button-DownloadOrder'//
+      | 'button-CreateInvoice'//
+      | 'button-ConfirmOrder'//
+      | 'button-Restore'
+      | 'button-Deliveries&Feedback-Upload'
+      | 'button-Deliveries&Feedback-ImportFromJob'
+      | 'button-Deliveries&Feedback-DownloadAll'
+      | 'button-Deliveries&Feedback-DownloadOnce'
+      | 'button-Deliveries&Feedback-DeliverToClient'
+      | 'button-Deliveries&Feedback-CompleteDelivery'
+  ): boolean => {
+    let flag = false
+    if (currentRole! && currentRole.name !== 'CLIENT') {
+      switch (featureName) {
+        case 'button-ProjectInfo-CancelOrder':
+          flag = 
+            isUpdatable &&
+            (projectInfo?.status !== 'New' &&
+              projectInfo?.status !== 'In preparation' &&
+              projectInfo?.status !== 'Internal review') && 
+            isIncludeProjectTeam() &&
+            // TODO: 함수 완성해야 함
+            canCancelJob()
+          break
+        case 'button-ProjectInfo-DeleteOrder':
+          flag = 
+            isUpdatable &&
+            (projectInfo?.status === 'Invoiced' ||
+              projectInfo?.status === 'Paid' ||
+              projectInfo?.status === 'Canceled') &&
+            !projectInfo?.linkedInvoiceReceivable &&
+            projectInfo?.linkedJobs.length === 0 &&
+            isIncludeProjectTeam()
+          break
+        case 'button-Languages&Items-SplitOrder':
+          flag = 
+            isUpdatable &&
+            (projectInfo?.status !== 'Paid' &&
+              projectInfo?.status !== 'Canceled') &&
+            isIncludeProjectTeam()
+          break
+        case 'button-Restore':
+          flag = 
+            isUpdatable &&
+            (projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Under revision' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam() &&
+            !projectInfo?.hasChildOrder
+          break
+        case 'button-Deliveries&Feedback-Upload':
+          flag = 
+            isUpdatable &&
+            (projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam()
+          break
+        case 'button-Deliveries&Feedback-ImportFromJob':
+          flag = 
+            isUpdatable &&
+            (projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam()
+          break
+        case 'button-Deliveries&Feedback-DownloadAll':
+        case 'button-Deliveries&Feedback-DownloadOnce':
+        case 'button-Deliveries&Feedback-DeliverToClient':
+        case 'checkBox-ProjectInfo-Description':
+          flag = 
+            isUpdatable &&
+            isIncludeProjectTeam()
+          break
+        case 'button-Deliveries&Feedback-CompleteDelivery':
+          flag = 
+            isUpdatable &&
+            (projectInfo?.status === 'Under revision' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam()
+          break
+        case 'tab-ProjectInfo':
+        case 'tab-Languages&Items':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'New' ||
+              projectInfo?.status === 'In preparation' ||
+              projectInfo?.status === 'Internal review' ||
+              projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Under revision' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam()
+          break
+        case 'tab-Client':
+          flag =
+            isUpdatable &&
+            projectInfo?.status !== 'Paid' &&
+            projectInfo?.status !== 'Canceled' &&
+            !!!client?.contactPerson?.userId &&
+            isIncludeProjectTeam()
+          break
+        case 'tab-ProjectTeam':
+          flag =
+            isUpdatable &&
+            projectInfo?.status !== 'Paid' &&
+            projectInfo?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
+          break
+        case 'button-DownloadOrder':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Redelivery requested' ||
+              projectInfo?.status === 'Delivery confirmed' ||
+              projectInfo?.status === 'Invoiced' ||
+              projectInfo?.status === 'Paid' ||
+              projectInfo?.status === 'Canceled') &&
+            isIncludeProjectTeam()
+          break
+        case 'button-CreateInvoice':
+          flag =
+            isUpdatable &&
+            !projectInfo?.linkedInvoiceReceivable &&
+            projectInfo?.status === 'Delivery confirmed' &&
+            isIncludeProjectTeam()
+          break
+        case 'button-ConfirmOrder':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'New' ||
+              projectInfo?.status === 'In preparation' ||
+              projectInfo?.status === 'Internal review' ||
+              projectInfo?.status === 'Under revision') &&
+            isIncludeProjectTeam()
+          break
+      }
+    }
+    return flag
+  }
 
+  // 로그인 한 유저가 project team에 속해있는지 체크, 만약 Master, Manager일 경우 true 리턴
+  const isIncludeProjectTeam = () => {
+    return Boolean(
+      (currentRole?.name !== 'CLIENT' &&
+        (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
+        (currentRole?.type === 'General' &&
+          projectTeam?.length &&
+          projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
+    )
+  }
+  // TODO: Order에 포함된 Job의 status를 체크하는 함수 필요
+  const canCancelJob = () => {
+    // 포함된 job중에서 status가 [Partially delivered], [Delivered], [Invoiced], [Paid], [Without invoice]가 있는 경우 false
+    return true
+  }
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1056,6 +1235,7 @@ const OrderDetail = () => {
                   gap: '8px',
                 }}
               >
+                {/* 뒤로가기 */}
                 {projectInfoEdit ||
                 projectTeamEdit ||
                 clientEdit ||
@@ -1161,7 +1341,7 @@ const OrderDetail = () => {
                     </Box>
                   ) : null}
                 </Box>
-                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                {/* <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <OrderStatusChip
                     status={projectInfo?.status ?? ''}
                     label={currentStatus?.label ?? ''}
@@ -1179,7 +1359,7 @@ const OrderDetail = () => {
                       />
                     </IconButton>
                   )}
-                </Box>
+                </Box> */}
               </Box>
               {projectInfoEdit ||
               projectTeamEdit ||
@@ -1193,12 +1373,7 @@ const OrderDetail = () => {
                     variant='outlined'
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickDownloadOrder}
-                    disabled={
-                      projectInfo?.status === 10000 ||
-                      projectInfo?.status === 10100 ||
-                      projectInfo?.status === 10200 ||
-                      projectInfo?.status === 10500
-                    }
+                    disabled={canUseFeature('button-DownloadOrder')}
                   >
                     <Icon icon='material-symbols:request-quote' />
                     Download order
@@ -1207,7 +1382,7 @@ const OrderDetail = () => {
                     variant='outlined'
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickCreateInvoice}
-                    disabled={projectInfo?.status !== 10900}
+                    disabled={canUseFeature('button-CreateInvoice')}
                   >
                     Create invoice
                   </Button>
@@ -1215,11 +1390,7 @@ const OrderDetail = () => {
                     variant='contained'
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickConfirmOrder}
-                    disabled={
-                      projectInfo?.status !== 10000 &&
-                      projectInfo?.status !== 10100 &&
-                      projectInfo?.status !== 10500
-                    }
+                    disabled={canUseFeature('button-ConfirmOrder')}
                   >
                     Confirm order
                   </Button>

@@ -45,6 +45,8 @@ export type ProjectInfoType = {
   serviceType: string[]
   expertise: string[]
   revenueFrom: RevenueFormType
+  parentOrderId: number
+  hasChildOrder: boolean
   projectName: string
   projectDueAt: string
   projectDueTimezone: CountryType

@@ -41,7 +41,8 @@ const OrderDetailClient = ({
           <IconButton
             sx={{ position: 'absolute', top: 0, right: 0 }}
             onClick={() => {
-              updateProject && updateProject.mutate({ status: 105 })
+              // TODO: 조건에 맞을때만 10500으로 업데이트 되어야 함
+              updateProject && updateProject.mutate({ status: 10500 })
               setEdit!(true)
             }}
           >

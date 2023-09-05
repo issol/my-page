@@ -272,7 +272,8 @@ const ProjectInfo = ({
             {type === 'detail' && isUpdatable ? (
               <IconButton
                 onClick={() => {
-                  updateProject && updateProject.mutate({ status: 105 })
+                  // TODO: 조건에 맞을때만 10500으로 업데이트 되어야 함
+                  updateProject && updateProject.mutate({ status: 10500 })
                   setEditMode!(true)
                 }}
               >
@@ -385,11 +386,7 @@ const ProjectInfo = ({
                     >
                       <OrderStatusChip
                         status={project.status}
-                        label={
-                          statusList?.find(
-                            item => item.value === project.status,
-                          )?.label || ''
-                        }
+                        label={project.status}
                       />
                       {(project.status === 10800 ||
                         project.status === 101200) && (

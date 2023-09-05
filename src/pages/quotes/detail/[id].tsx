@@ -256,21 +256,24 @@ export default function QuotesDetail() {
           break
         case 'button-DownloadQuote':
           flag =
-            project?.status === 'Quote sent' ||
-            project?.status === 'Client review' ||
-            project?.status === 'Revision requested' ||
-            project?.status === 'Revised' ||
-            project?.status === 'Accepted' ||
-            project?.status === 'Changed into order' ||
-            project?.status === 'Expired' ||
-            project?.status === 'Rejected'
+            (project?.status === 'Quote sent' ||
+              project?.status === 'Client review' ||
+              project?.status === 'Revision requested' ||
+              project?.status === 'Revised' ||
+              project?.status === 'Accepted' ||
+              project?.status === 'Changed into order' ||
+              project?.status === 'Expired' ||
+              project?.status === 'Rejected') &&
+            isIncludeProjectTeam()
+          break
         case 'button-CreateOrder':
           flag =
             !project?.linkedOrder &&
             (project?.status === 'Revision requested' ||
               project?.status === 'Revised' ||
               project?.status === 'Accepted' ||
-              project?.status === 'Expired')
+              project?.status === 'Expired') &&
+            isIncludeProjectTeam()
           break
         case 'button-ConfirmQuote':
           flag =
@@ -278,12 +281,14 @@ export default function QuotesDetail() {
             project?.status === 'In preparation' ||
             project?.status === 'Internal Review' ||
             project?.status === 'Under revision' ||
-            (project?.status === 'Expired' && project?.confirmedAt === null)
+            (project?.status === 'Expired' && project?.confirmedAt === null) && 
+          isIncludeProjectTeam()
           break
         case 'button-CancelQuote':
           flag =
             project?.status !== 'Changed into order' &&
-            project?.status !== 'Canceled'
+            project?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
           break
         case 'button-DeleteQuote':
           flag =
@@ -298,7 +303,8 @@ export default function QuotesDetail() {
               (project?.status === 'New' ||
                 project?.status === 'In preparation' ||
                 project?.status === 'Internal Review' ||
-                project?.status === 'Expired'))
+                project?.status === 'Expired')) &&
+            isIncludeProjectTeam()
           break
       }
     }
