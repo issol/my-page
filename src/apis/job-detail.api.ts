@@ -205,7 +205,7 @@ export const getProJobDetail = async (
     const testProJobDetail: ProJobDetailType = {
       id: 1,
       corporationId: 'ABC123',
-      status: 'Job overdue',
+      status: 'Delivered to LPM',
       name: 'The Remarried Empress EP 1 TRA',
       client: {
         clientId: 1,
@@ -383,6 +383,33 @@ export const getProJobDetail = async (
           },
         ],
       },
+      deliveries: [
+        {
+          id: 1,
+          deliveredDate: '2022-01-01T00:00:00.000Z',
+          files: [
+            {
+              name: 'testFile.txt',
+              size: 1024,
+              file: 'https://example.com/files/testFile.txt',
+              type: 'SAMPLE',
+              createdAt: '2022-01-01T00:00:00.000Z',
+              updatedAt: '2022-01-01T00:00:00.000Z',
+            },
+          ],
+          note: 'Some note about the delivery',
+        },
+      ],
+      feedbacks: [
+        {
+          id: 1,
+          isChecked: false,
+          name: 'John Doe',
+          email: 'johndoe@example.com',
+          createdAt: '2022-01-01T00:00:00.000Z',
+          feedback: 'Some feedback about the job',
+        },
+      ],
     }
     return testProJobDetail
   } catch (error: any) {

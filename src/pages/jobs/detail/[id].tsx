@@ -7,7 +7,9 @@ import { useGetProJobDetail } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
 import { SyntheticEvent, useState, MouseEvent, Suspense } from 'react'
 import styled from 'styled-components'
-import ProJobInfo from './components/job-info'
+
+import DeliveriesFeedback from './deliveries-feedback'
+import ProJobInfo from './job-info'
 type MenuType = 'jobInfo' | 'feedback'
 
 const ProJobsDetail = () => {
@@ -76,7 +78,9 @@ const ProJobsDetail = () => {
             </Suspense>
           </TabPanel>
           <TabPanel value='feedback' sx={{ pt: '24px' }}>
-            <Suspense></Suspense>
+            <Suspense>
+              <DeliveriesFeedback jobInfo={jobDetail} />
+            </Suspense>
           </TabPanel>
         </TabContext>
       )}

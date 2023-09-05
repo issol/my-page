@@ -1,5 +1,5 @@
 import axios from '@src/configs/axios'
-import { JobListFilterType } from '@src/pages/jobs'
+import { JobListFilterType } from '@src/pages/jobs/requested-ongoing-list'
 
 import { FilterType } from '@src/pages/orders/job-list/list-view/list-view'
 import { DetailFilterType } from '@src/pages/orders/job-list/tracker-view/[id]'
@@ -234,6 +234,8 @@ export const getProJobList = async (
           name: 'job1',
           jobDueDate: '2023-08-30T14:13:15Z',
           status: 'Job overdue',
+          currency: 'USD',
+          totalPrice: '100',
           message: {
             unReadCount: 1,
             contents: [
@@ -255,6 +257,8 @@ export const getProJobList = async (
           corporationId: 'corporation2',
           serviceType: 'service2',
           name: 'job2',
+          currency: 'KRW',
+          totalPrice: '1000',
           jobDueDate: '2023-08-29T14:13:15Z',
           status: 'Invoiced',
           message: {

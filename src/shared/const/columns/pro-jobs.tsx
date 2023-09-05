@@ -6,18 +6,23 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import useModal from '@src/hooks/useModal'
-import ProJobsMessage from '@src/pages/jobs/list/message'
+import ProJobsMessage from '@src/pages/jobs/requested-ongoing-list/message'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { authState } from '@src/states/auth'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import dayjs from 'dayjs'
 import { useRecoilValueLoadable } from 'recoil'
+import { MouseEvent } from 'react'
 
 export const getProJobColumns = () => {
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
 
-  const onClickMessage = (row: ProJobListType) => {
+  const onClickMessage = (
+    event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
+    row: ProJobListType,
+  ) => {
+    event.stopPropagation()
     openModal({
       type: 'ProJobsMessageModal',
       children: <ProJobsMessage row={row} />,
@@ -78,6 +83,25 @@ export const getProJobColumns = () => {
   }
 
   const columns: GridColumns<ProJobListType> = [
+    {
+      flex: 0.0219,
+      minWidth: 28,
+      field: 'new',
+      headerName: '',
+      disableColumnMenu: true,
+      sortable: false,
+
+      hideSortIcons: true,
+      renderCell: ({ row }: { row: ProJobListType }) => {
+        return (
+          <Badge
+            variant='dot'
+            color='primary'
+            sx={{ marginLeft: '4px' }}
+          ></Badge>
+        )
+      },
+    },
     {
       flex: 0.144,
       minWidth: 180,
@@ -199,7 +223,7 @@ export const getProJobColumns = () => {
                 sx={{ padding: 0 }}
                 // disabled={row.assignmentStatus === null}
 
-                onClick={() => onClickMessage(row)}
+                onClick={event => onClickMessage(event, row)}
               >
                 <Icon
                   icon='material-symbols:chat'

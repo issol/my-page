@@ -114,6 +114,8 @@ export type ProJobListType = {
   name: string
   jobDueDate: string
   status: ProJobStatusType
+  currency: CurrencyType
+  totalPrice: string | null
   message: {
     unReadCount: number
     contents:
@@ -137,6 +139,7 @@ export type JobsFileType = {
   file: string // s3 key
   type: 'SAMPLE' | 'SOURCE' | 'TARGET'
   createdAt?: string
+  updatedAt?: string
 }
 
 export type ProJobDetailType = {
@@ -172,6 +175,25 @@ export type ProJobDetailType = {
   guideLines: ProGuidelineType
   description: string
   files: Array<JobsFileType>
+
+  deliveries: [
+    {
+      id: number
+      deliveredDate: string
+      files: JobsFileType[]
+      note: string
+    },
+  ]
+  feedbacks: [
+    {
+      id: number
+      isChecked: boolean
+      name: string
+      email: string
+      createdAt: string
+      feedback: string
+    },
+  ]
 }
 
 export type ProGuidelineType = {
