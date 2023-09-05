@@ -57,6 +57,8 @@ type Props = {
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList?: Array<{ value: number; label: string }>
   canUseDescriptionCheckBox?: boolean
+  canUseCancelOrder?: boolean
+  canUseDeleteOrder?: boolean
 }
 const ProjectInfo = ({
   project,
@@ -69,11 +71,12 @@ const ProjectInfo = ({
   updateProject,
   statusList,
   canUseDescriptionCheckBox,
+  canUseCancelOrder,
+  canUseDeleteOrder,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()
-
   const [contactPersonEdit, setContactPersonEdit] = useState(false)
   const [contactPersonId, setContactPersonId] = useState<number | null>(null)
   const [contactPersonList, setContactPersonList] = useState<
@@ -884,11 +887,7 @@ const ProjectInfo = ({
                 fullWidth
                 color='error'
                 size='large'
-                disabled={
-                  project?.status === 101000 ||
-                  project?.status === 101200 ||
-                  project?.status === 101100
-                }
+                disabled={!canUseCancelOrder}
                 onClick={onClickCancel}
               >
                 Cancel this order
@@ -902,11 +901,7 @@ const ProjectInfo = ({
                 fullWidth
                 color='error'
                 size='large'
-                disabled={
-                  project?.status !== 10000 &&
-                  project?.status !== 10100 &&
-                  project?.status !== 10200
-                }
+                disabled={!canUseDeleteOrder}
                 onClick={onClickDelete}
               >
                 Delete this order

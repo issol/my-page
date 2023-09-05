@@ -40,9 +40,10 @@ type Props = {
   project: ProjectInfoType
   onClose: any
   onClick: any
+  canUseDisableButton?: boolean
 }
 
-const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
+const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisableButton }: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
     null,
@@ -320,6 +321,7 @@ const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
               variant='contained'
               sx={{ width: '226px' }}
               onClick={onClick}
+              disabled={canUseDisableButton}
             >
               Restore this version
             </Button>

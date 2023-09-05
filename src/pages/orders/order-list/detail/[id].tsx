@@ -559,6 +559,7 @@ const OrderDetail = () => {
           project={projectInfo!}
           onClose={() => closeModal('VersionHistoryModal')}
           onClick={onClickRestoreVersion}
+          canUseDisableButton={canUseFeature('button-Restore')}
         />
       ),
     })
@@ -1053,22 +1054,22 @@ const OrderDetail = () => {
     featureName:
       | 'tab-ProjectInfo'//
       | 'tab-Languages&Items'//
-      | 'tab-Client'
-      | 'tab-ProjectTeam'
-      | 'button-ProjectInfo-CancelOrder'
-      | 'button-ProjectInfo-DeleteOrder'
+      | 'tab-Client'//
+      | 'tab-ProjectTeam'//
+      | 'button-ProjectInfo-CancelOrder'//
+      | 'button-ProjectInfo-DeleteOrder'//
       | 'checkBox-ProjectInfo-Description'//
       | 'button-Languages&Items-SplitOrder'//
       | 'button-DownloadOrder'//
       | 'button-CreateInvoice'//
       | 'button-ConfirmOrder'//
-      | 'button-Restore'
-      | 'button-Deliveries&Feedback-Upload'
-      | 'button-Deliveries&Feedback-ImportFromJob'
-      | 'button-Deliveries&Feedback-DownloadAll'
-      | 'button-Deliveries&Feedback-DownloadOnce'
-      | 'button-Deliveries&Feedback-DeliverToClient'
-      | 'button-Deliveries&Feedback-CompleteDelivery'
+      | 'button-Restore'//
+      | 'button-Deliveries&Feedback-Upload'//
+      | 'button-Deliveries&Feedback-ImportFromJob'//
+      | 'button-Deliveries&Feedback-DownloadAll'//
+      | 'button-Deliveries&Feedback-DownloadOnce'//
+      | 'button-Deliveries&Feedback-DeliverToClient'//
+      | 'button-Deliveries&Feedback-CompleteDelivery'//
   ): boolean => {
     let flag = false
     if (currentRole! && currentRole.name !== 'CLIENT') {
@@ -1076,9 +1077,9 @@ const OrderDetail = () => {
         case 'button-ProjectInfo-CancelOrder':
           flag = 
             isUpdatable &&
-            (projectInfo?.status !== 'New' &&
-              projectInfo?.status !== 'In preparation' &&
-              projectInfo?.status !== 'Internal review') && 
+            (projectInfo?.status !== 'Invoiced' &&
+              projectInfo?.status !== 'Paid' &&
+              projectInfo?.status !== 'Canceled') && 
             isIncludeProjectTeam() &&
             // TODO: 함수 완성해야 함
             canCancelJob()
@@ -1086,9 +1087,9 @@ const OrderDetail = () => {
         case 'button-ProjectInfo-DeleteOrder':
           flag = 
             isUpdatable &&
-            (projectInfo?.status === 'Invoiced' ||
-              projectInfo?.status === 'Paid' ||
-              projectInfo?.status === 'Canceled') &&
+            (projectInfo?.status !== 'New' &&
+              projectInfo?.status !== 'In preparation' &&
+              projectInfo?.status !== 'Internal review') &&
             !projectInfo?.linkedInvoiceReceivable &&
             projectInfo?.linkedJobs.length === 0 &&
             isIncludeProjectTeam()
@@ -1143,10 +1144,10 @@ const OrderDetail = () => {
             (projectInfo?.status === 'Under revision' ||
               projectInfo?.status === 'Partially delivered' ||
               projectInfo?.status === 'Redelivery requested') &&
+            projectInfo?.deliveries?.length === 0
             isIncludeProjectTeam()
           break
         case 'tab-ProjectInfo':
-        case 'tab-Languages&Items':
           flag =
             isUpdatable &&
             (projectInfo?.status === 'New' ||
@@ -1159,6 +1160,21 @@ const OrderDetail = () => {
               projectInfo?.status === 'Delivery completed' ||
               projectInfo?.status === 'Redelivery requested') &&
             isIncludeProjectTeam()
+          break
+        case 'tab-Languages&Items':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'New' ||
+              projectInfo?.status === 'In preparation' ||
+              projectInfo?.status === 'Internal review' ||
+              projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Under revision' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam() &&
+            !splitReady
           break
         case 'tab-Client':
           flag =
@@ -1535,6 +1551,8 @@ const OrderDetail = () => {
                       statusList={statusList!}
                       role={currentRole!}
                       canUseDescriptionCheckBox={canUseFeature('checkBox-ProjectInfo-Description')}
+                      canUseCancelOrder={canUseFeature('button-ProjectInfo-CancelOrder')}
+                      canUseDeleteOrder={canUseFeature('button-ProjectInfo-DeleteOrder')}
                     />
                   </Fragment>
                 )}
@@ -1729,11 +1747,7 @@ const OrderDetail = () => {
                     type={'detail'}
                     client={client!}
                     setEdit={setClientEdit}
-                    isUpdatable={
-                      projectInfo?.status !== 101100 &&
-                      projectInfo?.status !== 101200 &&
-                      client?.contactPerson?.userId !== null
-                    }
+                    isUpdatable={canUseFeature('tab-Client')}
                   />
                 )}
               </Suspense>
@@ -1776,10 +1790,7 @@ const OrderDetail = () => {
                     setPageSize={setProjectTeamListPageSize}
                     setEdit={setProjectTeamEdit}
                     updateProject={updateProject}
-                    isUpdatable={
-                      projectInfo?.status !== 101100 &&
-                      projectInfo?.status !== 101200
-                    }
+                    isUpdatable={canUseFeature('tab-ProjectTeam')}
                   />
                 )}
               </Suspense>
@@ -1803,6 +1814,12 @@ const OrderDetail = () => {
                   isSubmittable={true}
                   updateProject={updateProject}
                   statusList={statusList!}
+                  canUseUpload={canUseFeature('button-Deliveries&Feedback-Upload')}
+                  canUseImportFromJob={canUseFeature('button-Deliveries&Feedback-ImportFromJob')}
+                  canUseDownloadAll={canUseFeature('button-Deliveries&Feedback-DownloadAll')}
+                  canUseDownloadOnce={canUseFeature('button-Deliveries&Feedback-DownloadOnce')}
+                  canUseDeliverToClient={canUseFeature('button-Deliveries&Feedback-DeliverToClient')}
+                  canUseCompleteDelivery={canUseFeature('button-Deliveries&Feedback-CompleteDelivery')}
                 />
               </Suspense>
             </TabPanel>

@@ -286,7 +286,7 @@ const LanguageAndItem = ({
           <Button
             variant='outlined'
             sx={{ display: 'flex', gap: '8px', mb: '24px' }}
-            disabled={!canUseSplit}
+            disabled={items.length <= 0 || !canUseSplit}
             onClick={onClickSplitOrder}
           >
             <Icon icon='ic:baseline-splitscreen' />
