@@ -11,6 +11,8 @@ import {
   removeUserDataFromBrowser,
   getRedirectPath,
   removeRedirectPath,
+  getCompanyDataFromBrowser,
+  removeCompanyDataFromBrowser,
 } from 'src/shared/auth/storage'
 
 import { useGetClientUserInfo } from '@src/queries/common.query'
@@ -147,14 +149,18 @@ const AuthProvider = ({ children }: Props) => {
 
       if (storedToken) {
         setAuth(prev => ({ ...prev, loading: true }))
-        getUserDataFromBrowser() &&
-          setAuth(prev => ({
-            ...prev,
-            user: JSON?.parse(getUserDataFromBrowser() || ''),
-          }))
+        const browserUserData = getUserDataFromBrowser() 
+        const browserCompanyData = getCompanyDataFromBrowser()
+
+        setAuth(prev => ({
+          ...prev,
+          user: JSON?.parse(browserUserData || '{}'),
+          company: JSON?.parse(browserCompanyData || '{}'),
+        }))
         setAuth(prev => ({ ...prev, loading: false }))
       } else {
         removeUserDataFromBrowser()
+        removeCompanyDataFromBrowser()
         setAuth(prev => ({ ...prev, loading: false }))
       }
     }

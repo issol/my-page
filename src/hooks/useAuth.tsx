@@ -11,9 +11,11 @@ import {
 import useModal from '@src/hooks/useModal'
 import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
 import {
+  removeCompanyDataFromBrowser,
   removeRememberMe,
   removeUserDataFromBrowser,
   removeUserTokenFromBrowser,
+  saveCompanyDataToBrowser,
   saveRememberMe,
   saveUserDataToBrowser,
   saveUserTokenToBrowser,
@@ -64,6 +66,7 @@ const useAuth = () => {
         if (value.roles && value.roles?.filter(role => role.name === 'CLIENT').length > 0) {
           getClientUserInfo()
           .then(companyData => {
+            saveCompanyDataToBrowser(companyData)
             setAuth(prev => ({ ...prev, user: userInfo, company: companyData}))
           })
         } else {
@@ -127,6 +130,7 @@ const useAuth = () => {
 
     removeUserDataFromBrowser()
     removeUserTokenFromBrowser()
+    removeCompanyDataFromBrowser()
 
     logout()
     router.push('/login')
