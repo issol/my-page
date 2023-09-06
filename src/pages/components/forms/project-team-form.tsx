@@ -91,6 +91,8 @@ export default function ProjectTeamForm({
   }
 
   function findMemberValue(value: number | null) {
+    console.log(value)
+
     let findValue = list.find(item => item.value === value?.toString())
     if (!findValue && value) {
       getUserInfo(value!)
@@ -132,12 +134,14 @@ export default function ProjectTeamForm({
               }))}
               onChange={(e, v) => {
                 if (v) {
-                  onChange(v.value)
+                  onChange(Number(v.value))
                   setValue(`teams.${idx}.name`, v.label, setValueOptions)
                 } else {
-                  onChange('')
+                  onChange(null)
                   setFocusField(false)
-                  setValue(`teams.${idx}.name`, '', setValueOptions)
+                  const { name, ...rest } = getValue('teams')[idx]
+                  update(idx, rest)
+                  // setValue(`teams.${idx}.name`, '', setValueOptions)
                 }
               }}
               disableClearable={
