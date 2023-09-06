@@ -65,6 +65,7 @@ import { QuotesFilterType } from '@src/types/quotes/quote'
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import { UserRoleType } from '@src/context/types'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
+import dayjs from 'dayjs'
 
 type Props = {
   filter: OrderListFilterType
@@ -346,7 +347,26 @@ export default function OrdersFilters({
                             onChange={onChange}
                             popperPlacement={popperPlacement}
                             customInput={
-                              <CustomInput label='Order date' icon='calendar' />
+                              <Box>
+                                <CustomInput
+                                  label='Order date'
+                                  icon='calendar'
+                                  value={
+                                    value[0]?.toDateString() ===
+                                    value[1]?.toDateString()
+                                      ? dayjs(value[0]).format('MM/DD/YYYY')
+                                      : `${dayjs(value[0]).format(
+                                          'MM/DD/YYYY',
+                                        )}${
+                                          value[1]
+                                            ? ` - ${dayjs(value[1]).format(
+                                                'MM/DD/YYYY',
+                                              )}`
+                                            : ''
+                                        }`
+                                  }
+                                />
+                              </Box>
                             }
                           />
                         </Box>
@@ -371,10 +391,26 @@ export default function OrdersFilters({
                             onChange={onChange}
                             popperPlacement={popperPlacement}
                             customInput={
-                              <CustomInput
-                                label='Project due date'
-                                icon='calendar'
-                              />
+                              <Box>
+                                <CustomInput
+                                  label='Order date'
+                                  icon='calendar'
+                                  value={
+                                    value[0]?.toDateString() ===
+                                    value[1]?.toDateString()
+                                      ? dayjs(value[0]).format('MM/DD/YYYY')
+                                      : `${dayjs(value[0]).format(
+                                          'MM/DD/YYYY',
+                                        )}${
+                                          value[1]
+                                            ? ` - ${dayjs(value[1]).format(
+                                                'MM/DD/YYYY',
+                                              )}`
+                                            : ''
+                                        }`
+                                  }
+                                />
+                              </Box>
                             }
                           />
                         </Box>

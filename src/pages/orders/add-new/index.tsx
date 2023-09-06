@@ -434,7 +434,7 @@ export default function AddNewOrder() {
     }
 
     const items: Array<PostItemType> = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, ...filterItem } = item;
+      const { contactPerson, minimumPrice, ...filterItem } = item
       return {
         ...filterItem,
         contactPersonId: item.contactPerson?.id!,
@@ -646,11 +646,12 @@ export default function AddNewOrder() {
                   currency: item.initialPrice?.currency!,
                   catBasis: item.initialPrice?.calculationBasis!,
                   decimalPlace: item.initialPrice?.numberPlace!,
-                  roundingProcedure: RoundingProcedureList[item.initialPrice?.rounding!].label,
+                  roundingProcedure:
+                    RoundingProcedureList[item.initialPrice?.rounding!].label,
                   languagePairs: [],
                   priceUnit: [],
                   catInterface: { memSource: [], memoQ: [] },
-                }
+                },
               }
             }),
           )

@@ -17,11 +17,12 @@ interface PickerProps {
   readOnly?: boolean
   icon?: 'calendar'
   error?: boolean
+  value?: string
 }
 
 const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
   // ** Props
-  const { label, readOnly } = props
+  const { label, readOnly, value } = props
 
   if (props.icon) {
     switch (props.icon) {
@@ -33,6 +34,7 @@ const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
               inputRef={ref}
               error={props.error}
               {...props}
+              value={value}
               label={label || ''}
               {...(readOnly && { inputProps: { readOnly: true } })}
               endAdornment={

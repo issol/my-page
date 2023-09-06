@@ -244,7 +244,7 @@ export default function OrderList() {
               </Box>
             </Box>
             <OrdersList
-              pageSize={orderListPage}
+              page={orderListPage}
               setPageSize={setOrderListPage}
               rowsPerPage={orderListRowsPerPage}
               setRowsPerPage={setOrderListRowsPerPage}
