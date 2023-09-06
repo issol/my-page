@@ -115,6 +115,7 @@ export default function ProjectTeamForm({
     return findValue || { value: '', label: '', jobTitle: '' }
   }
   function renderMemberField(name: `teams.${number}.id`, idx: number) {
+    const [focusField, setFocusField] = useState<boolean>(false)
     return (
       <Controller
         name={name}
@@ -135,6 +136,7 @@ export default function ProjectTeamForm({
                   setValue(`teams.${idx}.name`, v.label, setValueOptions)
                 } else {
                   onChange('')
+                  setFocusField(false)
                   setValue(`teams.${idx}.name`, '', setValueOptions)
                 }
               }}
@@ -143,11 +145,15 @@ export default function ProjectTeamForm({
                 !getValue('teams')[idx].name
               }
               value={findMemberValue(value)}
+              onClickCapture={() => setFocusField(true)}
+              onClose={() => setFocusField(false)}
+              // onFocus={() => setFocusField(true)}
+              // onFocusCapture={() => setFocusField(true)}
               renderInput={params => (
                 <TextField
                   {...params}
                   // label='Member'
-                  placeholder='Member'
+                  placeholder={focusField ? '' : 'Member'}
                   inputProps={{
                     ...params.inputProps,
                   }}
