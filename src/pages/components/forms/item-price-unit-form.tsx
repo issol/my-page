@@ -308,7 +308,7 @@ export default function ItemPriceUnitForm({
                 {
                   allPriceUnits?.current?.find(
                     item =>
-                      item.id === getValues(`${detailName}.${idx}.priceUnitId`),
+                      item.priceUnitId === getValues(`${detailName}.${idx}.priceUnitId`),
                   )?.title
                 }
               </Typography>
@@ -320,7 +320,7 @@ export default function ItemPriceUnitForm({
               render={({ field: { value, onChange } }) => {
                 // const options = nestSubPriceUnits()
                 const findValue =
-                  allPriceUnits?.current?.find(item => item.id === value) ||
+                  allPriceUnits?.current?.find(item => item.priceUnitId === value) ||
                   null
                 return (
                   <Autocomplete
@@ -393,7 +393,7 @@ export default function ItemPriceUnitForm({
                               component='li'
                               padding='4px 0'
                               className={props.className}
-                              key={sub.id}
+                              key={sub.priceUnitId}
                               role={props.role}
                               onClick={() => {
                                 setOpen(false)
