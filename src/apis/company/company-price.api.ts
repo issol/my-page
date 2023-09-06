@@ -19,8 +19,7 @@ export const getClientPriceList = async (
 ): Promise<StandardPriceListType[]> => {
   try {
     const { data } = await axios.get(
-      // `/api/enough/u/client-price/preset?${makeQuery(filter)}`,
-      `/api/enough/u/client-job-price/preset?${makeQuery(filter)}`,
+      `/api/enough/u/client-price/preset?${makeQuery(filter)}`,
     )
     return data
   } catch (e: any) {
