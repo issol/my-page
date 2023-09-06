@@ -16,6 +16,7 @@ import {
 import {
   Control,
   Controller,
+  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -43,6 +44,7 @@ type Props = {
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'create' | 'edit'
+  getValue: UseFormGetValues<ClientFormType>
 }
 
 export default function RegisterClientForm({
@@ -54,6 +56,7 @@ export default function RegisterClientForm({
   setTaxable,
   type,
   formType,
+  getValue,
 }: Props) {
   const [clientDetail, setClientDetail] = useState<ClientDetailType | null>(
     null,
@@ -206,15 +209,22 @@ export default function RegisterClientForm({
                 fullWidth
                 options={clientList}
                 onChange={(e, v) => {
-                  onChange(v ? v.value : '')
+                  if (v) {
+                    onChange(v.value)
+                  } else {
+                    onChange(null)
+                    setValue('contactPersonId', null, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
                 }}
-                disableClearable
                 disabled={
                   type === 'request' ||
                   (formType === 'edit' && type === 'order') ||
                   type === 'invoice'
                 }
-                // disabled
+                disableClearable={getValue('clientId') === null}
                 value={selectedClient || { value: -0, label: '' }}
                 renderInput={params => (
                   <TextField
@@ -246,14 +256,19 @@ export default function RegisterClientForm({
                 fullWidth
                 options={personList}
                 onChange={(e, v) => {
-                  onChange(v.value)
-                  const res = contactPersonList.filter(
-                    item => item.id === Number(v.value),
-                  )
-                  setContactPerson(res.length ? res[0] : v)
+                  if (v) {
+                    onChange(v.value)
+                    const res = contactPersonList.filter(
+                      item => item.id === Number(v.value),
+                    )
+                    setContactPerson(res.length ? res[0] : v)
+                  } else {
+                    onChange(null)
+                    setContactPerson(null)
+                  }
                 }}
-                disableClearable
-                disabled={type === 'request'}
+                disableClearable={getValue('contactPersonId') === null}
+                disabled={type === 'request' || getValue('clientId') === null}
                 value={selectedPerson || { value: '', label: '' }}
                 renderInput={params => (
                   <TextField

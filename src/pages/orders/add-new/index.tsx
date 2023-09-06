@@ -782,6 +782,7 @@ export default function AddNewOrder() {
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'order'}
                 formType={'create'}
+                getValue={getClientValue}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

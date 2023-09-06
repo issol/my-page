@@ -21,6 +21,7 @@ import {
   Control,
   UseFormSetValue,
   UseFormWatch,
+  UseFormGetValues,
 } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -62,6 +63,7 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 type Props = {
   control: Control<ClientFormType, any>
   setValue: UseFormSetValue<ClientFormType>
+  getValue: UseFormGetValues<ClientFormType>
   watch: UseFormWatch<ClientFormType>
   setTax: (n: number | null) => void
   setTaxable: (n: boolean) => void
@@ -76,6 +78,7 @@ export default function ClientQuotesFormContainer({
   setTaxable,
   type,
   formType,
+  getValue,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [openForm, setOpenForm] = useState(false)
@@ -285,6 +288,7 @@ export default function ClientQuotesFormContainer({
         <RegisterClientForm
           control={control}
           setValue={setValue}
+          getValue={getValue}
           watch={watch}
           clientList={clients}
           setTax={setTax}
