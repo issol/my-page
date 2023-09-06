@@ -109,6 +109,7 @@ import ClientOrder from './components/client-order'
 import PrintOrderPage from '../../order-print/print-page'
 
 import { orders } from '@src/shared/const/permission-class'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 interface Detail {
   id: number
@@ -442,15 +443,25 @@ const OrderDetail = () => {
 
   const initializeItemData = () => {
     setLanguagePairs(
-      langItem?.languagePairs?.map(item => ({
+      langItem?.items?.map(item => ({
         id: String(item.id),
         source: item.source,
         target: item.target,
-        price: !item?.price
-          ? null
-          : getPriceOptions(item.source, item.target).filter(
-              price => price.id === item?.price?.id!,
-            )[0],
+        price: {
+          id: item.initialPrice?.priceId!,
+          isStandard: item.initialPrice?.isStandard!,
+          priceName: item.initialPrice?.name!,
+          groupName: 'Current price',
+          category: item.initialPrice?.category!,
+          serviceType: item.initialPrice?.serviceType!,
+          currency: item.initialPrice?.currency!,
+          catBasis: item.initialPrice?.calculationBasis!,
+          decimalPlace: item.initialPrice?.numberPlace!,
+          roundingProcedure: RoundingProcedureList[item.initialPrice?.rounding!].label,
+          languagePairs: [],
+          priceUnit: [],
+          catInterface: { memSource: [], memoQ: [] },
+        }
       }))!,
     )
     const result = langItem?.items?.map(item => {
@@ -768,15 +779,25 @@ const OrderDetail = () => {
   useEffect(() => {
     if (langItem) {
       setLanguagePairs(
-        langItem?.languagePairs?.map(item => ({
+        langItem?.items?.map(item => ({
           id: String(item.id),
           source: item.source,
           target: item.target,
-          price: item.price
-            ? getPriceOptions(item.source, item.target).find(
-                price => price.id === item?.price?.id!,
-              ) ?? null
-            : null,
+          price: {
+            id: item.initialPrice?.priceId!,
+            isStandard: item.initialPrice?.isStandard!,
+            priceName: item.initialPrice?.name!,
+            groupName: 'Current price',
+            category: item.initialPrice?.category!,
+            serviceType: item.initialPrice?.serviceType!,
+            currency: item.initialPrice?.currency!,
+            catBasis: item.initialPrice?.calculationBasis!,
+            decimalPlace: item.initialPrice?.numberPlace!,
+            roundingProcedure: RoundingProcedureList[item.initialPrice?.rounding!].label,
+            languagePairs: [],
+            priceUnit: [],
+            catInterface: { memSource: [], memoQ: [] },
+          }
         }))!,
       )
       const result = langItem?.items?.map(item => {
@@ -1681,7 +1702,7 @@ const OrderDetail = () => {
                             }
                           }),
                         onSave: () => onSubmitItems(),
-                        isValid: isItemValid || (taxable && tax! > 0),
+                        isValid: isItemValid || !taxable || (taxable && tax! > 0),
                       })
                     : null}
                   {splitReady && selectedIds ? (
