@@ -222,6 +222,7 @@ export default function AddNewOrder() {
     setValue: setTeamValues,
     watch: teamWatch,
     reset: resetTeam,
+
     formState: { errors: teamErrors, isValid: isTeamValid },
   } = useForm<ProjectTeamType>({
     mode: 'onChange',
@@ -757,6 +758,7 @@ export default function AddNewOrder() {
                 errors={teamErrors}
                 isValid={isTeamValid}
                 watch={teamWatch}
+                getValue={getTeamValues}
               />
               <Grid item xs={12} display='flex' justifyContent='flex-end'>
                 <Button

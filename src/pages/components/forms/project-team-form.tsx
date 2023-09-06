@@ -11,7 +11,6 @@ import {
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
   UseFormGetValues,
-  UseFormHandleSubmit,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -27,7 +26,7 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
-import TablePagination from '@mui/material/TablePagination'
+
 import {
   Autocomplete,
   Box,
@@ -43,7 +42,6 @@ import Icon from 'src/@core/components/icon'
 import { getUserInfo } from '@src/apis/user.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useState } from 'react'
-import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   control: Control<ProjectTeamType, any>
@@ -60,6 +58,7 @@ type Props = {
     label: string
     jobTitle: string | undefined
   }>
+  getValue: UseFormGetValues<ProjectTeamType>
 }
 export default function ProjectTeamForm({
   control,
@@ -72,6 +71,7 @@ export default function ProjectTeamForm({
   isValid,
   watch,
   memberList,
+  getValue,
 }: Props) {
   const [list, setList] = useState<
     Array<{
@@ -81,8 +81,6 @@ export default function ProjectTeamForm({
     }>
   >(memberList)
   const setValueOptions = { shouldValidate: true, shouldDirty: true }
-
-  const currentRole = getCurrentRole()
 
   function renderHeader(title: string) {
     return (
@@ -121,7 +119,7 @@ export default function ProjectTeamForm({
       <Controller
         name={name}
         control={control}
-        render={({ field }) => {
+        render={({ field: { onChange, value } }) => {
           return (
             <Autocomplete
               autoHighlight
@@ -132,15 +130,24 @@ export default function ProjectTeamForm({
                 label: item.label,
               }))}
               onChange={(e, v) => {
-                field.onChange(v.value)
-                setValue(`teams.${idx}.name`, v.label, setValueOptions)
+                if (v) {
+                  onChange(v.value)
+                  setValue(`teams.${idx}.name`, v.label, setValueOptions)
+                } else {
+                  onChange('')
+                  setValue(`teams.${idx}.name`, '', setValueOptions)
+                }
               }}
-              disableClearable
-              value={findMemberValue(field.value)}
+              disableClearable={
+                getValue('teams')[idx].name === '' ||
+                !getValue('teams')[idx].name
+              }
+              value={findMemberValue(value)}
               renderInput={params => (
                 <TextField
                   {...params}
-                  label='Member'
+                  // label='Member'
+                  placeholder='Member'
                   inputProps={{
                     ...params.inputProps,
                   }}
