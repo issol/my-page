@@ -3,4 +3,4 @@ export const RevenueFrom = [
   { value: 'Korea', label: 'Korea' },
   { value: 'Singapore', label: 'Singapore' },
   { value: 'Japan', label: 'Japan' },
-] as const
+]
