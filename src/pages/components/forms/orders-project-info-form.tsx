@@ -407,6 +407,7 @@ export default function ProjectInfoForm({
                     ? ServiceTypeList
                     : ServiceTypePair[category]
                 }
+                limitTags={2}
                 onChange={(e, v) => {
                   onChange(v.map(item => item.value))
                 }}
@@ -417,7 +418,7 @@ export default function ProjectInfoForm({
                   <TextField
                     {...params}
                     label='Service type'
-                    placeholder='Service type'
+                    // placeholder='Service type'
                   />
                 )}
               />
@@ -471,7 +472,9 @@ export default function ProjectInfoForm({
               <Autocomplete
                 autoHighlight
                 fullWidth
-                options={RevenueFrom}
+                options={RevenueFrom.sort((a, b) =>
+                  a.value > b.value ? 1 : b.value > a.value ? -1 : 0,
+                )}
                 onChange={(e, v) => {
                   onChange(v?.value ?? '')
                 }}
