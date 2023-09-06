@@ -113,38 +113,6 @@ export const getOrderListCalendar = async (
       }),
       totalCount: data?.length ?? 0,
     }
-
-    // const data: OrderListType[] = [
-    //   {
-    //     id: 1,
-    //     orderId: 'O-000001',
-    //     status: 'In preparation',
-    //     clientName: 'Naver Webtoon',
-    //     clientEmail: 'naverwebtoon@naver.com',
-    //     projectName: 'The Remarried Empress 1-10',
-    //     category: 'OTT/Subtitle',
-    //     serviceType: ['Subtitle', 'Translation'],
-    //     orderDate: '2023-04-01',
-    //     projectDueDate: '2023-04-30',
-    //     totalPrice: 500,
-    //     currency: 'USD',
-    //   },
-    // ]
-    // return {
-    //   data: data.map((item: OrderListType, idx: number) => {
-    //     return {
-    //       ...item,
-    //       extendedProps: {
-    //         calendar:
-    //           item.status === 'Canceled'
-    //             ? color_overdue
-    //             : colors[idx % colors.length],
-    //       },
-    //       allDay: true,
-    //     }
-    //   }),
-    //   totalCount: data?.length ?? 0,
-    // }
   } catch (e: any) {
     return {
       data: [],
