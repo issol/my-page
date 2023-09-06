@@ -161,7 +161,7 @@ export default function AddNewOrder() {
   useEffect(() => {
     if (!router.isReady) return
     if (quoteId) {
-      onCopyOrder(Number(quoteId))
+      onCopyQuote(Number(quoteId))
     }
     if (requestId) {
       initializeFormWithRequest()
@@ -555,7 +555,7 @@ export default function AddNewOrder() {
     }
   }
 
-  async function onCopyOrder(id: number | null) {
+  async function onCopyQuote(id: number | null) {
     const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
@@ -607,9 +607,9 @@ export default function AddNewOrder() {
             orderedAt: Date(),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
-            showDescription: false,
+            showDescription: res?.showDescription ?? false,
             status: 10000, //초기값(New) 설정
-            projectDescription: '',
+            projectDescription:  res?.projectDescription ?? '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
@@ -721,7 +721,7 @@ export default function AddNewOrder() {
                   type: 'copy-order',
                   children: (
                     <CopyOrdersList
-                      onCopy={onCopyOrder}
+                      onCopy={onCopyQuote}
                       onClose={() => closeModal('copy-order')}
                     />
                   ),
