@@ -262,6 +262,7 @@ const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisable
               project={history.projectInfo}
               isUpdatable={false}
               role={currentRole!}
+              canUseFeature={() => false}
             />
           </TabPanel>
           <TabPanel
@@ -275,7 +276,6 @@ const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisable
             <OrderDetailClient
               type='history'
               client={history.client}
-              isUpdatable={false}
             />
           </TabPanel>
           <TabPanel
@@ -291,7 +291,6 @@ const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisable
               pageSize={pageSize}
               setPage={setPage}
               setPageSize={setPageSize}
-              isUpdatable={false}
             />
           </TabPanel>
         </TabContext>
