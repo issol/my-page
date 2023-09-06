@@ -253,6 +253,7 @@ const DeliveriesFeedback = ({
           <ImportFromJob
             items={jobDetails?.items}
             onClickUpload={onClickUploadJobFile}
+            onClose={() => closeModal('ImportFromJobModal')}
           />
         ),
       })

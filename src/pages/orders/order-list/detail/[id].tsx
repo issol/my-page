@@ -1150,7 +1150,7 @@ const OrderDetail = () => {
             (projectInfo?.status === 'Under revision' ||
               projectInfo?.status === 'Partially delivered' ||
               projectInfo?.status === 'Redelivery requested') &&
-            projectInfo?.deliveries?.length === 0
+            projectInfo?.deliveries?.length > 0
             isIncludeProjectTeam()
           break
         case 'tab-ProjectInfo':
