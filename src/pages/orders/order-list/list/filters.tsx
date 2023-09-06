@@ -473,9 +473,7 @@ export default function OrdersFilters({
                               onChange={onChange}
                               endAdornment={
                                 <InputAdornment position='end'>
-                                  <IconButton edge='end'>
-                                    <Icon icon='mdi:magnify' />
-                                  </IconButton>
+                                  <Icon icon='mdi:magnify' />
                                 </InputAdornment>
                               }
                             />
