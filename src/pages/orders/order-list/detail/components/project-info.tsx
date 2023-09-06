@@ -21,7 +21,7 @@ import {
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
 
-import { ClientType, ProjectInfoType } from '@src/types/orders/order-detail'
+import { ClientType, OrderFeatureType, ProjectInfoType } from '@src/types/orders/order-detail'
 
 import { v4 as uuidv4 } from 'uuid'
 
@@ -56,9 +56,7 @@ type Props = {
   type: 'detail' | 'history'
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList?: Array<{ value: number; label: string }>
-  canUseDescriptionCheckBox?: boolean
-  canUseCancelOrder?: boolean
-  canUseDeleteOrder?: boolean
+  canUseFeature: (v: OrderFeatureType) => boolean
 }
 const ProjectInfo = ({
   project,
@@ -70,9 +68,7 @@ const ProjectInfo = ({
   type,
   updateProject,
   statusList,
-  canUseDescriptionCheckBox,
-  canUseCancelOrder,
-  canUseDeleteOrder,
+  canUseFeature,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
@@ -277,12 +273,7 @@ const ProjectInfo = ({
             {type === 'detail' && isUpdatable ? (
               <IconButton
                 onClick={() => {
-                  if (project?.status === 'Order sent' ||
-                    project?.status === 'In progress' ||
-                    project?.status === 'Partially delivered' ||
-                    project?.status === 'Delivery completed' ||
-                    project?.status === 'Redelivery requested'
-                  ) updateStatus && updateStatus(10500)
+                  if (canUseFeature('button-Edit-Set-Status-To-UnderRevision')) updateStatus && updateStatus(10500)
                   setEditMode!(true)
                 }}
               >
@@ -838,7 +829,7 @@ const ProjectInfo = ({
                         setShowDescription(e.target.checked)
                       }}
                       checked={showDescription}
-                      disabled={!canUseDescriptionCheckBox}
+                      disabled={!canUseFeature('checkBox-ProjectInfo-Description')}
                     />
 
                     <Typography
@@ -887,7 +878,7 @@ const ProjectInfo = ({
                 fullWidth
                 color='error'
                 size='large'
-                disabled={!canUseCancelOrder}
+                disabled={!canUseFeature('button-ProjectInfo-CancelOrder')}
                 onClick={onClickCancel}
               >
                 Cancel this order
@@ -901,7 +892,7 @@ const ProjectInfo = ({
                 fullWidth
                 color='error'
                 size='large'
-                disabled={!canUseDeleteOrder}
+                disabled={!canUseFeature('button-ProjectInfo-DeleteOrder')}
                 onClick={onClickDelete}
               >
                 Delete this order

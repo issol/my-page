@@ -6,7 +6,7 @@ import { getAddress } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
-import { ClientType } from '@src/types/orders/order-detail'
+import { ClientType, OrderFeatureType } from '@src/types/orders/order-detail'
 
 import { Dispatch, SetStateAction } from 'react'
 import { UseMutationResult } from 'react-query'
@@ -15,18 +15,20 @@ import { updateOrderType } from '../[id]'
 type Props = {
   type: string
   client: ClientType
-  isUpdatable: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
+  canUseFeature?: (v: OrderFeatureType) => boolean
 }
 
 const OrderDetailClient = ({
   type,
   client,
-  isUpdatable,
   setEdit,
   updateProject,
+  canUseFeature,
 }: Props) => {
+  const isUpdatable = canUseFeature ? canUseFeature('tab-Client') : false
+  const canUpdateStatus = canUseFeature ? canUseFeature('button-Edit-Set-Status-To-UnderRevision') : false
   return (
     <Card sx={{ padding: '24px' }}>
       <Box
@@ -41,8 +43,7 @@ const OrderDetailClient = ({
           <IconButton
             sx={{ position: 'absolute', top: 0, right: 0 }}
             onClick={() => {
-              // TODO: 조건에 맞을때만 10500으로 업데이트 되어야 함
-              updateProject && updateProject.mutate({ status: 10500 })
+              if (canUpdateStatus) updateProject && updateProject.mutate({ status: 10500 })
               setEdit!(true)
             }}
           >

@@ -311,17 +311,12 @@ const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisable
           >
             Close
           </Button>
-          {project.status === 10300 ||
-          project.status === 10400 ||
-          project.status === 10500 ||
-          project.status === 10600 ||
-          project.status === 10700 ||
-          project.status === 10800 ? (
+          {canUseDisableButton ? (
             <Button
               variant='contained'
               sx={{ width: '226px' }}
               onClick={onClick}
-              disabled={canUseDisableButton}
+              // disabled={canUseDisableButton}
             >
               Restore this version
             </Button>

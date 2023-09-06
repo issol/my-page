@@ -30,6 +30,7 @@ import ProjectInfo from './components/project-info'
 import OrderDetailClient from './components/client'
 import {
   OrderDownloadData,
+  OrderFeatureType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
 import { GridColumns } from '@mui/x-data-grid'
@@ -135,6 +136,7 @@ export type updateOrderType =
   | { downloadedAt: string }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
+  | { isConfirmed: boolean }
   | { showDescription: boolean }
   | {
       deliveries: {
@@ -330,7 +332,6 @@ const OrderDetail = () => {
   const [selectedIds, setSelectedIds] = useState<
     { id: number; selected: boolean }[]
   >(getItem('items').map(value => ({ id: value.id!, selected: false })))
-  console.log("projectInfoEdit",projectInfoEdit)
   const order = useAppSelector(state => state.order)
 
   const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
@@ -527,8 +528,7 @@ const OrderDetail = () => {
   }
 
   const handleRestoreVersion = () => {
-    // TODO: 조건에 맞을때만 10500으로 업데이트 되어야 함
-    updateProject && updateProject.mutate({ status: 10500 })
+    if (canUseFeature('button-Restore')) updateProject && updateProject.mutate({ status: 10500 })
   }
 
   const onClickRestoreVersion = () => {
@@ -975,10 +975,11 @@ const OrderDetail = () => {
             updateProject.mutate(
               {
                 isConfirmed: true,
+                // isConfirmed 일때는 백엔드가 status 변경으르 처리해 줌
                 status:
                   projectInfo?.status === 10500
                     ? projectInfo.previousStatus
-                    : 103,
+                    : 10300,
               },
               {
                 onSuccess: () => {
@@ -1047,30 +1048,10 @@ const OrderDetail = () => {
       })
     }
   }
-  console.log("projectInfo",projectInfo)
+
   // 여기서는 role, status, projectTeam 정보를 기반으로 기능을 쓸수 있는지만 체크함
   // 해당 기능에 첨부된 파일이 있는지 등의 추가 조건은 해당 컴포넌트에서 별도로 체크할 것
-  const canUseFeature = (
-    featureName:
-      | 'tab-ProjectInfo'//
-      | 'tab-Languages&Items'//
-      | 'tab-Client'//
-      | 'tab-ProjectTeam'//
-      | 'button-ProjectInfo-CancelOrder'//
-      | 'button-ProjectInfo-DeleteOrder'//
-      | 'checkBox-ProjectInfo-Description'//
-      | 'button-Languages&Items-SplitOrder'//
-      | 'button-DownloadOrder'//
-      | 'button-CreateInvoice'//
-      | 'button-ConfirmOrder'//
-      | 'button-Restore'//
-      | 'button-Deliveries&Feedback-Upload'//
-      | 'button-Deliveries&Feedback-ImportFromJob'//
-      | 'button-Deliveries&Feedback-DownloadAll'//
-      | 'button-Deliveries&Feedback-DownloadOnce'//
-      | 'button-Deliveries&Feedback-DeliverToClient'//
-      | 'button-Deliveries&Feedback-CompleteDelivery'//
-  ): boolean => {
+  const canUseFeature = (featureName: OrderFeatureType): boolean => {
     let flag = false
     if (currentRole! && currentRole.name !== 'CLIENT') {
       switch (featureName) {
@@ -1220,6 +1201,15 @@ const OrderDetail = () => {
               projectInfo?.status === 'Internal review' ||
               projectInfo?.status === 'Under revision') &&
             isIncludeProjectTeam()
+          break
+        case 'button-Edit-Set-Status-To-UnderRevision':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Redelivery requested')
           break
       }
     }
@@ -1401,7 +1391,7 @@ const OrderDetail = () => {
                     variant='outlined'
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickDownloadOrder}
-                    disabled={canUseFeature('button-DownloadOrder')}
+                    disabled={!canUseFeature('button-DownloadOrder')}
                   >
                     <Icon icon='material-symbols:request-quote' />
                     Download order
@@ -1410,7 +1400,7 @@ const OrderDetail = () => {
                     variant='outlined'
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickCreateInvoice}
-                    disabled={canUseFeature('button-CreateInvoice')}
+                    disabled={!canUseFeature('button-CreateInvoice')}
                   >
                     Create invoice
                   </Button>
@@ -1418,7 +1408,7 @@ const OrderDetail = () => {
                     variant='contained'
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickConfirmOrder}
-                    disabled={canUseFeature('button-ConfirmOrder')}
+                    disabled={!canUseFeature('button-ConfirmOrder')}
                   >
                     Confirm order
                   </Button>
@@ -1550,9 +1540,7 @@ const OrderDetail = () => {
                       client={client}
                       statusList={statusList!}
                       role={currentRole!}
-                      canUseDescriptionCheckBox={canUseFeature('checkBox-ProjectInfo-Description')}
-                      canUseCancelOrder={canUseFeature('button-ProjectInfo-CancelOrder')}
-                      canUseDeleteOrder={canUseFeature('button-ProjectInfo-DeleteOrder')}
+                      canUseFeature={canUseFeature}
                     />
                   </Fragment>
                 )}
@@ -1589,11 +1577,10 @@ const OrderDetail = () => {
                     selectedIds={selectedIds}
                     setSelectedIds={setSelectedIds}
                     splitReady={splitReady}
-                    isUpdatable={canUseFeature('tab-Languages&Items')}
                     updateStatus={(status: number) =>
                       updateProjectWithoutControlForm.mutate({ status: status })
                     }
-                    canUseSplit={canUseFeature('button-Languages&Items-SplitOrder')}
+                    canUseFeature={canUseFeature}
                   />
 
                   {/* <Grid item xs={12}>
@@ -1747,7 +1734,7 @@ const OrderDetail = () => {
                     type={'detail'}
                     client={client!}
                     setEdit={setClientEdit}
-                    isUpdatable={canUseFeature('tab-Client')}
+                    canUseFeature={canUseFeature}
                   />
                 )}
               </Suspense>
@@ -1790,7 +1777,7 @@ const OrderDetail = () => {
                     setPageSize={setProjectTeamListPageSize}
                     setEdit={setProjectTeamEdit}
                     updateProject={updateProject}
-                    isUpdatable={canUseFeature('tab-ProjectTeam')}
+                    canUseFeature={canUseFeature}
                   />
                 )}
               </Suspense>
@@ -1814,12 +1801,7 @@ const OrderDetail = () => {
                   isSubmittable={true}
                   updateProject={updateProject}
                   statusList={statusList!}
-                  canUseUpload={canUseFeature('button-Deliveries&Feedback-Upload')}
-                  canUseImportFromJob={canUseFeature('button-Deliveries&Feedback-ImportFromJob')}
-                  canUseDownloadAll={canUseFeature('button-Deliveries&Feedback-DownloadAll')}
-                  canUseDownloadOnce={canUseFeature('button-Deliveries&Feedback-DownloadOnce')}
-                  canUseDeliverToClient={canUseFeature('button-Deliveries&Feedback-DeliverToClient')}
-                  canUseCompleteDelivery={canUseFeature('button-Deliveries&Feedback-CompleteDelivery')}
+                  canUseFeature={canUseFeature}
                 />
               </Suspense>
             </TabPanel>

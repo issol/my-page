@@ -17,6 +17,7 @@ import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import {
   LanguageAndItemType,
+  OrderFeatureType,
   ProjectInfoType,
 } from '@src/types/orders/order-detail'
 
@@ -105,9 +106,9 @@ type Props = {
   >
   splitReady?: boolean
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
-  isUpdatable?: boolean
   updateStatus?: (status: number) => void
   canUseSplit?: boolean
+  canUseFeature: (v: OrderFeatureType) => boolean
 }
 
 const LanguageAndItem = ({
@@ -139,16 +140,16 @@ const LanguageAndItem = ({
   setSelectedIds,
   splitReady,
   updateProject,
-  isUpdatable,
   updateStatus,
   canUseSplit,
+  canUseFeature,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   console.log("items",items)
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
-
+  const isUpdatable = canUseFeature('tab-Languages&Items')
   const currentRole = getCurrentRole()
 
   const [subTotal, setSubTotal] = useState(0)
@@ -286,7 +287,7 @@ const LanguageAndItem = ({
           <Button
             variant='outlined'
             sx={{ display: 'flex', gap: '8px', mb: '24px' }}
-            disabled={items.length <= 0 || !canUseSplit}
+            disabled={items.length <= 0 || !canUseFeature('button-Languages&Items-SplitOrder')}
             onClick={onClickSplitOrder}
           >
             <Icon icon='ic:baseline-splitscreen' />
@@ -295,12 +296,7 @@ const LanguageAndItem = ({
           {isUpdatable ? (
             <IconButton
               onClick={() => {
-                if (project?.status === 'Order sent' ||
-                project?.status === 'In progress' ||
-                project?.status === 'Partially delivered' ||
-                project?.status === 'Delivery completed' ||
-                project?.status === 'Redelivery requested'
-              ) updateStatus && updateStatus(10500)
+                if (canUseFeature('button-Edit-Set-Status-To-UnderRevision')) updateStatus && updateStatus(10500)
                 setLangItemsEdit(!langItemsEdit)
               }}
             >

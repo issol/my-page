@@ -173,3 +173,25 @@ export type OrderDetailType = {
   }
   contactPerson: ContactPersonType | null
 }
+
+// Order의 Feature 사용 권한 체크를 위한 함수에서 사용
+export type OrderFeatureType = 
+  | 'tab-ProjectInfo'
+  | 'tab-Languages&Items'
+  | 'tab-Client'
+  | 'tab-ProjectTeam'
+  | 'button-ProjectInfo-CancelOrder'
+  | 'button-ProjectInfo-DeleteOrder'
+  | 'checkBox-ProjectInfo-Description'
+  | 'button-Languages&Items-SplitOrder'
+  | 'button-DownloadOrder'
+  | 'button-CreateInvoice'
+  | 'button-ConfirmOrder'
+  | 'button-Restore'
+  | 'button-Deliveries&Feedback-Upload'
+  | 'button-Deliveries&Feedback-ImportFromJob'
+  | 'button-Deliveries&Feedback-DownloadAll'
+  | 'button-Deliveries&Feedback-DownloadOnce'
+  | 'button-Deliveries&Feedback-DeliverToClient'
+  | 'button-Deliveries&Feedback-CompleteDelivery'
+  | 'button-Edit-Set-Status-To-UnderRevision'

@@ -25,6 +25,7 @@ import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import { FileType } from '@src/types/common/file.type'
 import {
   DeliveryFileType,
+  OrderFeatureType,
   ProjectInfoType,
 } from '@src/types/orders/order-detail'
 import { useContext, useEffect, useState } from 'react'
@@ -59,12 +60,7 @@ type Props = {
   isSubmittable: boolean
   updateProject: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList: Array<{ value: number; label: string }>
-  canUseUpload?: boolean
-  canUseImportFromJob?: boolean
-  canUseDownloadAll?: boolean
-  canUseDownloadOnce?: boolean
-  canUseDeliverToClient?: boolean
-  canUseCompleteDelivery?: boolean
+  canUseFeature: (v: OrderFeatureType) => boolean
 }
 
 const DeliveriesFeedback = ({
@@ -72,12 +68,7 @@ const DeliveriesFeedback = ({
   isSubmittable,
   updateProject,
   statusList,
-  canUseUpload,
-  canUseImportFromJob,
-  canUseDownloadAll,
-  canUseDownloadOnce,
-  canUseDeliverToClient,
-  canUseCompleteDelivery,
+  canUseFeature,
 }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
   const { openModal, closeModal } = useModal()
@@ -437,7 +428,7 @@ const DeliveriesFeedback = ({
         {files.length ? null : (
           <IconButton 
             onClick={() => downloadOneFile(file)}
-            disabled={!canUseDownloadOnce}
+            disabled={!canUseFeature('button-Deliveries&Feedback-DownloadOnce')}
           >
             <Icon icon='mdi:download' fontSize={24} />
           </IconButton>
@@ -677,7 +668,7 @@ const DeliveriesFeedback = ({
                     <Button
                       variant='contained'
                       sx={{ height: '34px' }}
-                      disabled={!canUseUpload}
+                      disabled={!canUseFeature('button-Deliveries&Feedback-Upload')}
                     >
                       <input {...getInputProps()} />
                       <Icon icon='ic:outline-upload-file' fontSize={18} />
@@ -688,7 +679,7 @@ const DeliveriesFeedback = ({
                   <Button
                     variant='contained'
                     sx={{ height: '34px' }}
-                    disabled={!canUseImportFromJob}
+                    disabled={!canUseFeature('button-Deliveries&Feedback-ImportFromJob')}
                     onClick={onClickImportJob}
                   >
                     <Icon icon='mdi:import' fontSize={18} />
@@ -696,7 +687,7 @@ const DeliveriesFeedback = ({
                   </Button>
                   <Button
                     variant='outlined'
-                    disabled={savedFiles.length < 1 || !canUseDownloadAll}
+                    disabled={savedFiles.length < 1 || !canUseFeature('button-Deliveries&Feedback-DownloadAll')}
                     sx={{
                       height: '34px',
                     }}
@@ -816,7 +807,7 @@ const DeliveriesFeedback = ({
                     variant='contained'
                     color='success'
                     onClick={onClickDeliverToClient}
-                    disabled={!canUseDeliverToClient}
+                    disabled={!canUseFeature('button-Deliveries&Feedback-DeliverToClient')}
                   >
                     <Icon icon='ic:outline-send' fontSize={18} />
                     &nbsp;Deliver to client
@@ -831,7 +822,7 @@ const DeliveriesFeedback = ({
                     variant='contained'
                     fullWidth
                     onClick={onClickCompleteDelivery}
-                    disabled={!canUseCompleteDelivery}
+                    disabled={!canUseFeature('button-Deliveries&Feedback-CompleteDelivery')}
                   >
                     Complete delivery
                   </Button>
