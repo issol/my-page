@@ -426,7 +426,7 @@ export default function OrdersFilters({
                           <>
                             <InputLabel>Search projects</InputLabel>
                             <OutlinedInput
-                              label='Search invoice name'
+                              label='Search projects'
                               value={value}
                               onChange={onChange}
                               endAdornment={
