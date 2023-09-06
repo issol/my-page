@@ -356,12 +356,12 @@ export default function OrdersList({
               }}
               disableSelectionOnClick
               getRowClassName={params =>
-                role.name === 'CLIENT' && params.row.status === 10500
+                role.name === 'CLIENT' && params.row.status === 'Under revision'
                   ? 'disabled'
                   : 'normal'
               }
               isRowSelectable={params =>
-                role.name === 'CLIENT' && params.row.status !== 10500
+                role.name === 'CLIENT' && params.row.status !== 'Under revision'
               }
             />
           </Box>
