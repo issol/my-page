@@ -33,7 +33,8 @@ export const getAllClientPriceUnitList = async (): Promise<
   Array<PriceUnitListType>
 > => {
   try {
-    const { data } = await axios.get(`/api/enough/u/price/unit/al/combo`)
+    // const { data } = await axios.get(`/api/enough/u/price/unit/al/combo`)
+    const { data } = await axios.get(`/api/enough/u/job-price/unit/al/combo`)
     return data
   } catch (e: any) {
     return []
