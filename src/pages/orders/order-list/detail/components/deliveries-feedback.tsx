@@ -429,7 +429,7 @@ const DeliveriesFeedback = ({
         {files.length ? null : (
           <IconButton 
             onClick={() => downloadOneFile(file)}
-            disabled={!canUseFeature('button-Deliveries&Feedback-DownloadOnce')}
+            disabled={currentRole?.name !== 'CLIENT' && !canUseFeature('button-Deliveries&Feedback-DownloadOnce')}
           >
             <Icon icon='mdi:download' fontSize={24} />
           </IconButton>
@@ -782,7 +782,7 @@ const DeliveriesFeedback = ({
                 <Button
                   variant='contained'
                   onClick={onClickConfirmDeliveries}
-                  disabled={project.status !== 10700}
+                  disabled={!canUseFeature('button-Deliveries&Feedback-ConfirmDeliveries')}
                 >
                   Confirm deliveries
                 </Button>
@@ -790,9 +790,7 @@ const DeliveriesFeedback = ({
                   variant='outlined'
                   onClick={onClickRequestRedelivery}
                   color='error'
-                  disabled={
-                    project.status !== 10600 && project.status !== 10700
-                  }
+                  disabled={!canUseFeature('button-Deliveries&Feedback-RequestRedelivery')}
                 >
                   Request redelivery
                 </Button>

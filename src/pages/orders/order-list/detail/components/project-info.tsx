@@ -175,7 +175,7 @@ const ProjectInfo = ({
           onClose={() => closeModal(`${project.status}ReasonModal`)}
           reason={project.reason}
           type={
-            project.status === 10800
+            project.status === "Redelivery requested"
               ? 'Requested'
               : statusList?.find(i => i.value === project?.status)?.label || ''
           }
@@ -351,9 +351,9 @@ const ProjectInfo = ({
                 >
                   {type === 'detail' &&
                   isUpdatable &&
-                  (project.status === 10000 ||
-                    project.status === 10100 ||
-                    project.status === 10200) ? (
+                  (project.status === "New" ||
+                    project.status === "In preparation" ||
+                    project.status === "Internal review") ? (
                     <Autocomplete
                       autoHighlight
                       fullWidth
@@ -388,8 +388,8 @@ const ProjectInfo = ({
                         status={project.status}
                         label={project.status}
                       />
-                      {(project.status === 10800 ||
-                        project.status === 101200) && (
+                      {(project.status === "Redelivery requested" ||
+                        project.status === "Canceled") && (
                         <IconButton
                           onClick={() => {
                             project.reason && onClickReason()
@@ -811,10 +811,10 @@ const ProjectInfo = ({
                       display: 'flex',
                       alignItems: 'center',
                       opacity:
-                        project?.status === 10900 ||
-                        project.status === 101100 ||
-                        project.status === 101000 ||
-                        project.status === 101200
+                        project?.status === "Delivery confirmed" ||
+                        project.status === "Invoiced" ||
+                        project.status === "Paid" ||
+                        project.status === "Canceled"
                           ? 0.5
                           : 1,
                     }}

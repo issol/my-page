@@ -193,7 +193,7 @@ export default function LpmRequests() {
                   title={
                     <Box display='flex' justifyContent='space-between'>
                       <Typography variant='h6'>
-                        Requests ({list?.count ?? 0})
+                        Requests ({list?.totalCount ?? 0})
                       </Typography>{' '}
                     </Box>
                   }

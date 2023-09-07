@@ -131,7 +131,7 @@ export default function GoogleButton() {
         onReady={generateGoogleLoginButton}
       />
       <GoogleButtonWrapper>
-        <div id='buttonDiv'></div>
+        <div id='buttonDiv' data-type="icon"></div>
       </GoogleButtonWrapper>
     </>
   )
