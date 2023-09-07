@@ -304,7 +304,7 @@ export const patchQuoteItems = async (
 
 export const confirmQuote = async (id: number) => {
   try {
-    await axios.put(`/api/enough/u/quote/${id}/confirm`)
+    await axios.patch(`/api/enough/u/quote/${id}/confirm`)
   } catch (e: any) {
     throw new Error(e)
   }
