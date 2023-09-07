@@ -172,20 +172,6 @@ export default function AddNewOrder() {
 
   const [subPrice, setSubPrice] = useState(0)
 
-  function sumTotalPrice() {
-    const subPrice = getItem()?.items!
-    if (subPrice) {
-      const total = subPrice.reduce((accumulator, item) => {
-        return accumulator + item.totalPrice
-      }, 0)
-
-      setSubPrice(total)
-    }
-  }
-  useEffect(() => {
-    sumTotalPrice()
-  }, [])
-
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
 
@@ -298,6 +284,7 @@ export default function AddNewOrder() {
     setValue: setItem,
     trigger: itemTrigger,
     reset: itemReset,
+    watch: itemWatch,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
     mode: 'onBlur',
@@ -314,6 +301,25 @@ export default function AddNewOrder() {
     control: itemControl,
     name: 'items',
   })
+
+  function sumTotalPrice() {
+    const subPrice = getItem('items')
+
+    if (subPrice) {
+      const total = subPrice.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice
+      }, 0)
+
+      setSubPrice(total)
+    }
+  }
+  useEffect(() => {
+    console.log(getItem('items'))
+    const subscription = itemWatch((value, { name, type }) => {
+      sumTotalPrice()
+    })
+    return () => subscription.unsubscribe()
+  }, [itemWatch])
 
   function onDeleteLanguagePair(row: languageType) {
     const isDeletable = !getItem()?.items?.length
@@ -610,7 +616,7 @@ export default function AddNewOrder() {
             projectName: res?.projectName ?? '',
             showDescription: res?.showDescription ?? false,
             status: 10000, //초기값(New) 설정
-            projectDescription:  res?.projectDescription ?? '',
+            projectDescription: res?.projectDescription ?? '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],

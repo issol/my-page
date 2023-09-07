@@ -207,11 +207,16 @@ export default function ItemForm({
     let items = getValues('items')
     let isUpdate = false
     if (items.length && targetCurrency) {
-      items.map((item,idx) => {
+      items.map((item, idx) => {
         const matchPriceList = getPricebyPairs(idx)
         const itemPriceId = item.priceId
-        const itemPrice = matchPriceList.filter(pair => itemPriceId === pair.id!)
-        if (itemPrice[0]?.currency && targetCurrency !== itemPrice[0]?.currency) {
+        const itemPrice = matchPriceList.filter(
+          pair => itemPriceId === pair.id!,
+        )
+        if (
+          itemPrice[0]?.currency &&
+          targetCurrency !== itemPrice[0]?.currency
+        ) {
           setValue(`items.${idx}.priceId`, null, setValueOptions)
           isUpdate = true
         }
@@ -236,7 +241,7 @@ export default function ItemForm({
     return true
   }
 
-  const controlMinimumPriceModal = (price:StandardPriceListType) => {
+  const controlMinimumPriceModal = (price: StandardPriceListType) => {
     if (price.languagePairs[0]?.minimumPrice) {
       openMinimumPriceModal(price)
     }
@@ -257,7 +262,8 @@ export default function ItemForm({
 
   const selectCurrencyViolation = (type: number) => {
     const message1 = `Please check the currency of the selected price. You can't use different currencies in a quote.`
-    const message2 = 'Please select the price for the first language pair first.'
+    const message2 =
+      'Please select the price for the first language pair first.'
     openModal({
       type: 'error-currency-violation',
       children: (
@@ -273,8 +279,16 @@ export default function ItemForm({
   function onChangeLanguagePair(v: languageType | null, idx: number) {
     setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
     setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
+    console.log(v)
+
+    // setValue()
+
     if (v?.price) {
       setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
+      setValue(
+        `items.${idx}.totalPrice`,
+        v?.price?.languagePairs[0].minimumPrice,
+      )
       controlMinimumPriceModal(v?.price)
     }
   }
@@ -335,9 +349,9 @@ export default function ItemForm({
 
     // standard price에 등록된 데이터중 매칭된 데이터
     const priceData =
-    getPriceOptions(itemData.source, itemData.target).find(
-      price => price.id === itemData.priceId,
-    ) || null
+      getPriceOptions(itemData.source, itemData.target).find(
+        price => price.id === itemData.priceId,
+      ) || null
     const languagePairData = priceData?.languagePairs?.find(
       i => i.source === sourceLanguage && i.target === targetLanguage,
     )
@@ -345,10 +359,13 @@ export default function ItemForm({
     const priceFactor = languagePairData?.priceFactor
     // 여기까지
 
-      // 현재 row의 프라이스 유닛에 적용될 minimumPrice 값
+    // 현재 row의 프라이스 유닛에 적용될 minimumPrice 값
     // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 minimumPrice 추출
     // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 minimumPrice 값 추출
     const currentMinimumPrice = () => {
+      // console.log(itemData.minimumPrice)
+      console.log(minimumPrice)
+
       // 기존 item
       if (itemData?.id && itemData?.id !== -1) return itemData?.minimumPrice!
       // Not Applicable(재설계 필요)
@@ -361,7 +378,8 @@ export default function ItemForm({
     // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 currency 값 추출
     const currentCurrency = () => {
       // 기존 item
-      if (itemData?.id && itemData?.id !== -1) return itemData?.initialPrice?.currency!
+      if (itemData?.id && itemData?.id !== -1)
+        return itemData?.initialPrice?.currency!
       // Not Applicable(재설계 필요)
       else if (itemData?.id && itemData?.id === -1) return 'USD'
       // 신규 item
@@ -384,12 +402,20 @@ export default function ItemForm({
     function getTotalPrice() {
       let total = 0
       const data = getValues(itemName)
+      console.log(itemData)
+
       if (data?.length) {
         const price = data.reduce(
           (res, item) => (res += Number(item.prices)),
           0,
         )
+        console.log(data)
+
+        console.log(price)
+
         const itemMinimumPrice = currentMinimumPrice()
+        console.log(itemMinimumPrice)
+
         if (itemMinimumPrice && price < itemMinimumPrice) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
@@ -715,9 +741,7 @@ export default function ItemForm({
                             item.target === getValues(`items.${idx}.target`),
                         )?.source,
                       )} */}
-                      {languageHelper(
-                        getValues(`items.${idx}.source`)
-                      )}
+                      {languageHelper(getValues(`items.${idx}.source`))}
                       &nbsp;&rarr;&nbsp;
                       {/* {languageHelper(
                         languagePairs.find(
@@ -726,9 +750,7 @@ export default function ItemForm({
                             item.target === getValues(`items.${idx}.target`),
                         )?.target,
                       )} */}
-                      {languageHelper(
-                        getValues(`items.${idx}.target`)
-                      )}
+                      {languageHelper(getValues(`items.${idx}.target`))}
                     </Typography>
                   </Box>
                 ) : (
@@ -811,7 +833,7 @@ export default function ItemForm({
                       const options = getPriceOptions(
                         getValues(`items.${idx}.source`),
                         getValues(`items.${idx}.target`),
-                        idx
+                        idx,
                       )
                       return (
                         <Autocomplete
@@ -822,11 +844,15 @@ export default function ItemForm({
                           isOptionEqualToValue={(option, newValue) => {
                             return option.priceName === newValue?.priceName
                           }}
-                          getOptionLabel={option => `${option.priceName} (${option.currency})`}
+                          getOptionLabel={option =>
+                            `${option.priceName} (${option.currency})`
+                          }
                           onChange={(e, v) => {
                             // Not Applicable 임시 막기
                             // currency 체크 로직
                             if (v) {
+                              console.log(v)
+
                               if (checkPriceCurrency(v, idx)) {
                                 onChange(v?.id)
                                 const value = getValues().items[idx]
@@ -846,8 +872,8 @@ export default function ItemForm({
                             value === null
                               ? null
                               : options[0].groupName === 'Current price'
-                                ? options[0]
-                                : options.find(item => item.id === value)
+                              ? options[0]
+                              : options.find(item => item.id === value)
                           }
                           renderInput={params => (
                             <TextField
