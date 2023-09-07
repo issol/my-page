@@ -127,6 +127,9 @@ export default function ProjectTeamForm({
             <Autocomplete
               autoHighlight
               fullWidth
+              isOptionEqualToValue={(option, newValue) => {
+                return option.value === newValue.value
+              }}
               {...field}
               options={list.map(item => ({
                 value: item.value,

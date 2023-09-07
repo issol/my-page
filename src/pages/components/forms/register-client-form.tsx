@@ -208,6 +208,9 @@ export default function RegisterClientForm({
                 autoHighlight
                 fullWidth
                 options={clientList}
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
+                }}
                 onChange={(e, v) => {
                   if (v) {
                     onChange(v.value)
@@ -255,6 +258,9 @@ export default function RegisterClientForm({
                 autoHighlight
                 fullWidth
                 options={personList}
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
+                }}
                 onChange={(e, v) => {
                   if (v) {
                     onChange(v.value)
