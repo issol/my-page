@@ -622,6 +622,7 @@ export default function AddNewInvoice() {
                   errors={teamErrors}
                   isValid={isTeamValid}
                   watch={teamWatch}
+                  getValue={getTeamValues}
                 />
               )}
 
@@ -647,6 +648,7 @@ export default function AddNewInvoice() {
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type='invoice'
                 formType='create'
+                getValue={getClientValue}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
