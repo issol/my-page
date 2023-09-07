@@ -212,7 +212,7 @@ export const getLangItems = async (
         source: item?.sourceLanguage,
         target: item?.targetLanguage,
         totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-        initialPrice: item.initialPrice
+        initialPrice: item.initialPrice,
       })),
     }
   } catch (e: any) {
@@ -297,6 +297,14 @@ export const patchQuoteItems = async (
       { items: form },
     )
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const confirmQuote = async (id: number) => {
+  try {
+    await axios.put(`/api/enough/u/quote/${id}/confirm`)
   } catch (e: any) {
     throw new Error(e)
   }
