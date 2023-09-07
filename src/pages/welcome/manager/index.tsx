@@ -97,6 +97,7 @@ const PersonalInfoManager = () => {
 
   // ** Hooks
   const auth = useRecoilValueLoadable(authState)
+  const setAuth = useAuth()
 
   function isInvalidPhoneNumber(str: string) {
     const regex = /^[0-9]+$/
@@ -131,14 +132,14 @@ const PersonalInfoManager = () => {
       updateManagerUserInfo({ ...data, company: 'GloZ' }),
     {
       onSuccess: () => {
-        getUserInfo(auth.getValue().user?.id!).then(res => {
-          /* @ts-ignore */
-          auth.updateUserInfo({
-            userId: auth.getValue().user!.id,
-            email: auth.getValue().user!.email,
-          })
-          router.push('/home')
+        const { userId, email, accessToken } = router.query
+        const accessTokenAsString: string = accessToken as string
+        setAuth.updateUserInfo({
+          userId: auth.getValue().user!.id,
+          email: auth.getValue().user!.email,
+          accessToken: accessTokenAsString,
         })
+        router.push('/home')
       },
       onError: () => {
         setModal(

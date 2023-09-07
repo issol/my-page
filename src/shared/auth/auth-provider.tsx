@@ -85,7 +85,6 @@ const AuthProvider = ({ children }: Props) => {
       }
 
       const isClient = roleNames?.includes('CLIENT')
-      console.log("isClient",isClient,auth.getValue())
       isClient && refetch()
 
       const isPro = roleNames.includes('PRO')

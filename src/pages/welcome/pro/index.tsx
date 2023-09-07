@@ -90,6 +90,7 @@ import ClientBillingAddressesForm from '@src/pages/client/components/forms/clien
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import useAuth from '@src/hooks/useAuth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -151,6 +152,7 @@ const PersonalInfoPro = () => {
 
   // ** Hooks
   const auth = useRecoilValueLoadable(authState)
+  const setAuth = useAuth()
 
   // ** State
   const [files, setFiles] = useState<File[]>([])
@@ -253,14 +255,15 @@ const PersonalInfoPro = () => {
       updateConsumerUserInfo(data),
     {
       onSuccess: () => {
-        getUserInfo(auth.getValue().user?.id!).then(res => {
-          /* @ts-ignore */
-          auth.updateUserInfo({
-            userId: auth.getValue().user!.id,
-            email: auth.getValue().user!.email,
-          })
-          router.push('/home')
+        const { userId, email, accessToken } = router.query
+        const accessTokenAsString: string = accessToken as string
+        setAuth.updateUserInfo({
+          userId: auth.getValue().user!.id,
+          email: auth.getValue().user!.email,
+          accessToken: accessTokenAsString,
         })
+  
+        router.push('/home')
       },
       onError: () => {
         setModal(
