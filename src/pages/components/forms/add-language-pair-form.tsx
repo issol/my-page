@@ -20,6 +20,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  Checkbox,
   Grid,
   IconButton,
   TextField,
@@ -83,6 +84,9 @@ export default function AddLanguagePairForm({
 
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
+
+  const [sourceFocused, setSourceFocused] = useState<boolean>(false)
+  const [targetFocused, setTargetFocused] = useState<boolean>(false)
 
   const header =
     type === 'detail'
@@ -211,12 +215,25 @@ export default function AddLanguagePairForm({
               size='small'
               sx={{ width: 250 }}
               options={languageList}
-              onChange={(e, v) =>
-                setLanguagePair({ ...languagePair, source: v?.value ?? '' })
-              }
+              onChange={(e, v) => {
+                if (v) {
+                  setLanguagePair({ ...languagePair, source: v?.value })
+                } else {
+                  setLanguagePair({ ...languagePair, source: '' })
+                  setSourceFocused(false)
+                }
+              }}
               id='autocomplete-controlled'
+              onClickCapture={() => setSourceFocused(true)}
+              onClose={() => setSourceFocused(false)}
+              disableClearable={languagePair.source === ''}
               getOptionLabel={option => option.label}
-              renderInput={params => <TextField {...params} label='Source' />}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  placeholder={sourceFocused ? '' : 'Source'}
+                />
+              )}
             />
 
             <Icon
@@ -234,6 +251,7 @@ export default function AddLanguagePairForm({
                     )
               }
               multiple
+              limitTags={1}
               size='small'
               sx={{ width: 250 }}
               options={languageList}
@@ -244,8 +262,26 @@ export default function AddLanguagePairForm({
                 })
               }
               id='autocomplete-controlled'
+              onClickCapture={() => setTargetFocused(true)}
+              onClose={() => setTargetFocused(false)}
+              disableClearable={languagePair.target.length === 0}
               getOptionLabel={option => option.label}
-              renderInput={params => <TextField {...params} label='Target' />}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  placeholder={
+                    targetFocused || languagePair.target.length > 0
+                      ? ''
+                      : 'Target'
+                  }
+                />
+              )}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox checked={selected} sx={{ mr: 2 }} />
+                  {option.label}
+                </li>
+              )}
             />
             <Button
               size='small'
