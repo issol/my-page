@@ -120,6 +120,7 @@ const InvoiceClient = ({
             setTaxable={setTaxable!}
             type='order'
             formType='edit'
+            getValue={getClientValue!}
           />
           <Grid item xs={12}>
             <Box

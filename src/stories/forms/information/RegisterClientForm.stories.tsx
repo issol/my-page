@@ -96,6 +96,7 @@ export const Default = ({
       setTaxable={setTaxable}
       type={type}
       formType='create'
+      getValue={getValues}
     />
   )
 }

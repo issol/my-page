@@ -155,6 +155,7 @@ const InvoiceProjectTeam = ({
               remove={removeMember!}
               update={updateMember!}
               setValue={setTeamValues!}
+              getValue={getTeamValues!}
               errors={teamErrors!}
               isValid={isTeamValid!}
               watch={teamWatch!}

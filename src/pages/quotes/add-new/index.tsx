@@ -446,8 +446,8 @@ export default function AddNewQuote() {
     }
 
     const items: Array<PostItemType> = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, ...filterItem } = item;
-      console.log("filterItem",filterItem)
+      const { contactPerson, minimumPrice, ...filterItem } = item
+      console.log('filterItem', filterItem)
       return {
         ...filterItem,
         contactPersonId: item.contactPerson?.id!,
@@ -588,6 +588,7 @@ export default function AddNewQuote() {
                 errors={teamErrors}
                 isValid={isTeamValid}
                 watch={teamWatch}
+                getValue={getTeamValues}
               />
               <Grid item xs={12} display='flex' justifyContent='flex-end'>
                 <Button
@@ -611,6 +612,7 @@ export default function AddNewQuote() {
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'quotes'}
                 formType='create'
+                getValue={getClientValue}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

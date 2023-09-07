@@ -133,7 +133,7 @@ export type updateOrderType =
   | ProjectTeamFormType
   | ClientFormType
   | { status: number }
-  | { tax: null | number; isTaxable: '0' | '1', subTotal: number }
+  | { tax: null | number; isTaxable: '0' | '1'; subTotal: number }
   | { downloadedAt: string }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
@@ -457,11 +457,12 @@ const OrderDetail = () => {
           currency: item.initialPrice?.currency!,
           catBasis: item.initialPrice?.calculationBasis!,
           decimalPlace: item.initialPrice?.numberPlace!,
-          roundingProcedure: RoundingProcedureList[item.initialPrice?.rounding!].label,
+          roundingProcedure:
+            RoundingProcedureList[item.initialPrice?.rounding!].label,
           languagePairs: [],
           priceUnit: [],
           catInterface: { memSource: [], memoQ: [] },
-        }
+        },
       }))!,
     )
     const result = langItem?.items?.map(item => {
@@ -539,7 +540,8 @@ const OrderDetail = () => {
   }
 
   const handleRestoreVersion = () => {
-    if (canUseFeature('button-Restore')) updateProject && updateProject.mutate({ status: 10500 })
+    if (canUseFeature('button-Restore'))
+      updateProject && updateProject.mutate({ status: 10500 })
   }
 
   const onClickRestoreVersion = () => {
@@ -793,11 +795,12 @@ const OrderDetail = () => {
             currency: item.initialPrice?.currency!,
             catBasis: item.initialPrice?.calculationBasis!,
             decimalPlace: item.initialPrice?.numberPlace!,
-            roundingProcedure: RoundingProcedureList[item.initialPrice?.rounding!].label,
+            roundingProcedure:
+              RoundingProcedureList[item.initialPrice?.rounding!].label,
             languagePairs: [],
             priceUnit: [],
             catInterface: { memSource: [], memoQ: [] },
-          }
+          },
         }))!,
       )
       const result = langItem?.items?.map(item => {
@@ -878,7 +881,7 @@ const OrderDetail = () => {
       const { contactPerson, ...filterItem } = item
       return {
         ...filterItem,
-          contactPersonId: Number(item.contactPerson?.id!),
+        contactPersonId: Number(item.contactPerson?.id!),
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
       }
@@ -917,9 +920,13 @@ const OrderDetail = () => {
       },
     )
     const subTotal = items.reduce((accumulator, item) => {
-      return accumulator + item.totalPrice;
+      return accumulator + item.totalPrice
     }, 0)
-    updateProject.mutate({ isTaxable: taxable ? '1' : '0', tax, subTotal: subTotal })
+    updateProject.mutate({
+      isTaxable: taxable ? '1' : '0',
+      tax,
+      subTotal: subTotal,
+    })
   }
 
   const updateProject = useMutation(
@@ -1081,34 +1088,34 @@ const OrderDetail = () => {
     if (currentRole! && currentRole.name !== 'CLIENT') {
       switch (featureName) {
         case 'button-ProjectInfo-CancelOrder':
-          flag = 
+          flag =
             isUpdatable &&
-            (projectInfo?.status !== 'Invoiced' &&
-              projectInfo?.status !== 'Paid' &&
-              projectInfo?.status !== 'Canceled') && 
+            projectInfo?.status !== 'Invoiced' &&
+            projectInfo?.status !== 'Paid' &&
+            projectInfo?.status !== 'Canceled' &&
             isIncludeProjectTeam() &&
             // TODO: 함수 완성해야 함
             canCancelJob()
           break
         case 'button-ProjectInfo-DeleteOrder':
-          flag = 
+          flag =
             isUpdatable &&
-            (projectInfo?.status !== 'New' &&
-              projectInfo?.status !== 'In preparation' &&
-              projectInfo?.status !== 'Internal review') &&
+            projectInfo?.status !== 'New' &&
+            projectInfo?.status !== 'In preparation' &&
+            projectInfo?.status !== 'Internal review' &&
             !projectInfo?.linkedInvoiceReceivable &&
             projectInfo?.linkedJobs.length === 0 &&
             isIncludeProjectTeam()
           break
         case 'button-Languages&Items-SplitOrder':
-          flag = 
+          flag =
             isUpdatable &&
-            (projectInfo?.status !== 'Paid' &&
-              projectInfo?.status !== 'Canceled') &&
+            projectInfo?.status !== 'Paid' &&
+            projectInfo?.status !== 'Canceled' &&
             isIncludeProjectTeam()
           break
         case 'button-Restore':
-          flag = 
+          flag =
             isUpdatable &&
             (projectInfo?.status === 'Order sent' ||
               projectInfo?.status === 'In progress' ||
@@ -1120,7 +1127,7 @@ const OrderDetail = () => {
             !projectInfo?.hasChildOrder
           break
         case 'button-Deliveries&Feedback-Upload':
-          flag = 
+          flag =
             isUpdatable &&
             (projectInfo?.status === 'Order sent' ||
               projectInfo?.status === 'In progress' ||
@@ -1129,7 +1136,7 @@ const OrderDetail = () => {
             isIncludeProjectTeam()
           break
         case 'button-Deliveries&Feedback-ImportFromJob':
-          flag = 
+          flag =
             isUpdatable &&
             (projectInfo?.status === 'In progress' ||
               projectInfo?.status === 'Partially delivered' ||
@@ -1140,18 +1147,16 @@ const OrderDetail = () => {
         case 'button-Deliveries&Feedback-DownloadOnce':
         case 'button-Deliveries&Feedback-DeliverToClient':
         case 'checkBox-ProjectInfo-Description':
-          flag = 
-            isUpdatable &&
-            isIncludeProjectTeam()
+          flag = isUpdatable && isIncludeProjectTeam()
           break
         case 'button-Deliveries&Feedback-CompleteDelivery':
-          flag = 
+          flag =
             isUpdatable &&
             (projectInfo?.status === 'Under revision' ||
               projectInfo?.status === 'Partially delivered' ||
               projectInfo?.status === 'Redelivery requested') &&
             projectInfo?.deliveries?.length > 0
-            isIncludeProjectTeam()
+          isIncludeProjectTeam()
           break
         case 'tab-ProjectInfo':
           flag =
@@ -1559,7 +1564,9 @@ const OrderDetail = () => {
                       setEditMode={setProjectInfoEdit}
                       isUpdatable={canUseFeature('tab-ProjectInfo')}
                       updateStatus={(status: number) =>
-                        updateProjectWithoutControlForm.mutate({ status: status })
+                        updateProjectWithoutControlForm.mutate({
+                          status: status,
+                        })
                       }
                       updateProject={updateProject}
                       client={client}
@@ -1695,14 +1702,14 @@ const OrderDetail = () => {
                         onCancel: () =>
                           onDiscard({
                             callback: () => {
-                              setLangItemsEdit(false),
-                              itemReset()
+                              setLangItemsEdit(false), itemReset()
                               setTax(projectInfo?.tax!)
                               setTaxable(projectInfo?.isTaxable!)
-                            }
+                            },
                           }),
                         onSave: () => onSubmitItems(),
-                        isValid: isItemValid || !taxable || (taxable && tax! > 0),
+                        isValid:
+                          isItemValid || !taxable || (taxable && tax! > 0),
                       })
                     : null}
                   {splitReady && selectedIds ? (
@@ -1740,6 +1747,7 @@ const OrderDetail = () => {
                       <ClientQuotesFormContainer
                         control={clientControl}
                         setValue={setClientValue}
+                        getValue={getClientValue}
                         watch={clientWatch}
                         setTax={setTax}
                         setTaxable={setTaxable}
@@ -1779,6 +1787,7 @@ const OrderDetail = () => {
                         errors={teamErrors}
                         isValid={isTeamValid}
                         watch={teamWatch}
+                        getValue={getTeamValues}
                       />
                       {renderSubmitButton({
                         onCancel: () =>
