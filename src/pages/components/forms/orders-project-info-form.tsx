@@ -23,7 +23,7 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 
 // ** types
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
-import { Fragment, ReactNode, useContext, useEffect, useState } from 'react'
+import { Fragment, ReactNode, useContext, useEffect, useState, useRef } from 'react'
 
 // ** react hook form
 import {
@@ -89,6 +89,7 @@ export default function ProjectInfoForm({
   )
   const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
@@ -145,6 +146,20 @@ export default function ProjectInfoForm({
   function onWorkNameInputChange(name: string) {
     setWorkNameError(workName?.some(item => item.value === name) || false)
   }
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpenPopper(false);
+      }
+    };
+
+    window.addEventListener('mousedown', handleOutsideClick);
+
+    return () => {
+      window.removeEventListener('mousedown', handleOutsideClick);
+    }
+  }, [])
 
   function onAddWorkName() {
     openModal({
@@ -232,12 +247,12 @@ export default function ProjectInfoForm({
         />
       </Grid>
 
-      <Grid item xs={6}>
+      <Grid item xs={6} ref={containerRef}>
         <Controller
           name='workName'
           control={control}
           render={({ field: { value, onChange } }) => {
-            const finedValue = workName.find(item => item.value === value)
+            const finedValue = workName.find(item => item.value === value) || {value: value, label: value}
             return (
               <Autocomplete
                 disableClearable

@@ -118,6 +118,7 @@ export type ProjectInfoType = {
   expertise: string[]
   projectName: string
   projectDescription: string
+  showDescription: boolean
   projectDueAt: string
   projectDueTimezone: CountryType
   quoteDeadline: string

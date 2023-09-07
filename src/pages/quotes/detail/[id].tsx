@@ -819,7 +819,7 @@ export default function QuotesDetail() {
       const { contactPerson, ...filterItem } = item
       return {
         ...filterItem,
-        contactPersonId: item.contactPerson?.id!,
+        contactPersonId: Number(item.contactPerson?.id!),
         description: item.description || '',
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',

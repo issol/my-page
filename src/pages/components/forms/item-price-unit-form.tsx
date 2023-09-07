@@ -123,10 +123,12 @@ export default function ItemPriceUnitForm({
   const nestSubPriceUnits = (idx: number) => {
     const nestedData: Array<NestedPriceUnitType> = []
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
-      ...item,
-      priceUnitId: item.id,
-      subPriceUnits: [],
-      groupName: 'Price unit',
+        ...item,
+        quantity: item.quantity ?? 0,
+        priceUnitId: item.id,
+        subPriceUnits: [],
+        groupName: 'Price unit',
+
     }))
     const matchingUnit: Array<NestedPriceUnitType> =
       priceData?.priceUnit?.map(item => ({
@@ -192,6 +194,7 @@ export default function ItemPriceUnitForm({
     // }
 
     allPriceUnits.current = data
+    console.log("nestedData",nestedData)
     return nestedData
   }
 
@@ -238,7 +241,7 @@ export default function ItemPriceUnitForm({
     const [price, setPrice] = useState(savedValue.prices || 0)
     const updatePrice = (e?:any) => {
     const newPrice = getValues(`${detailName}.${idx}`)
-
+    console.log("savedValue",savedValue)
     if(type !== 'detail' && type !== 'invoiceDetail') getEachPrice(idx, showMinimum, isNotApplicable) //폼 데이터 업데이트 (setValue)
       getTotalPrice() // 합계 데이터 업데이트 (setValue)
       setSavedValue(newPrice) // setValue된 값 가져오기
@@ -281,6 +284,7 @@ export default function ItemPriceUnitForm({
               name={`${detailName}.${idx}.quantity`}
               control={control}
               render={({ field: { value, onChange } }) => {
+                console.log("quantity.value",value)
                 return (
                   <Box display='flex' alignItems='center' gap='8px'>
                     <TextField
@@ -467,6 +471,7 @@ export default function ItemPriceUnitForm({
               name={`${detailName}.${idx}.unitPrice`}
               control={control}
               render={({ field: { value, onChange } }) => {
+                console.log("unitPrice-value",value)
                 return (
                   <TextField
                     placeholder='0.0012'
