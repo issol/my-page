@@ -91,6 +91,10 @@ export type QuotesListType = {
     name: string
     email: string
   }
+  lsp?: {
+    name: string
+    email: string
+  }
   contactPerson: {
     firstName: string
     middleName: string | null
