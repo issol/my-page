@@ -220,7 +220,7 @@ export default function List({
       onRowClick={e => onRowClick(e.row.id)}
       sx={{ overflowX: 'scroll', cursor: 'pointer' }}
       rows={list.data}
-      rowCount={list.count}
+      rowCount={list.totalCount}
       loading={isLoading}
       rowsPerPageOptions={[10, 25, 50]}
       pagination
