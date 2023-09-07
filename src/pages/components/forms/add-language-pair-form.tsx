@@ -265,6 +265,7 @@ export default function AddLanguagePairForm({
               onClickCapture={() => setTargetFocused(true)}
               onClose={() => setTargetFocused(false)}
               disableClearable={languagePair.target.length === 0}
+              disableCloseOnSelect
               getOptionLabel={option => option.label}
               renderInput={params => (
                 <TextField
