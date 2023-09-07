@@ -429,7 +429,7 @@ const DeliveriesFeedback = ({
         {files.length ? null : (
           <IconButton 
             onClick={() => downloadOneFile(file)}
-            disabled={!canUseFeature('button-Deliveries&Feedback-DownloadOnce')}
+            disabled={currentRole?.name !== 'CLIENT' && !canUseFeature('button-Deliveries&Feedback-DownloadOnce')}
           >
             <Icon icon='mdi:download' fontSize={24} />
           </IconButton>

@@ -12,6 +12,7 @@ const sessionStorage =
 const sessionStorageEffect =
   (key: string) =>
   ({ setSelf, onSet }: any) => {
+    console.log("sessionStorageEffect",key)
     if (sessionStorage) {
       const savedValue = sessionStorage.getItem(key)
       // setSelf -> Callbacks to set or reset the value of the atom.
@@ -77,9 +78,9 @@ export const permissionSelector = selector<PermissionObjectType>({
   key: `permission/selector-${uuidv4()}`,
   get: async ({ get }) => {
     const isLogin = get(authState).user !== null
-
+    console.log("permissionSelector",get(authState),isLogin)
     if (isLogin) {
-      if (process.env.NODE_ENV !== 'development') {
+      if (process.env.NODE_ENV == 'development') {
         const { data } = await axios.get(`/api/enough/a/role/map`)
         return data
       } else {
