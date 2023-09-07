@@ -1,4 +1,10 @@
-import { useContext, useEffect, useState } from 'react'
+import {
+  ChangeEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -20,7 +26,7 @@ import PageHeader from '@src/@core/components/page-header'
 import styled from 'styled-components'
 
 // ** react hook form
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Icon Imports
@@ -201,7 +207,7 @@ export default function AddNewOrder() {
   ]
 
   // ** step1
-  const [tax, setTax] = useState<null | number>(null)
+
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -331,14 +337,35 @@ export default function AddNewOrder() {
       openModal({
         type: 'delete-language',
         children: (
-          <DeleteConfirmModal
-            message='Are you sure you want to delete this language pair?'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
-              row.target,
-            )}`}
-            onDelete={deleteLanguage}
+          <CustomModal
+            title={
+              <>
+                Are you sure you want to delete this language pair? <br />
+                <Typography
+                  variant='body2'
+                  fontSize={16}
+                  fontWeight={600}
+                >{`${languageHelper(row.source)} -> ${languageHelper(
+                  row.target,
+                )}`}</Typography>
+              </>
+            }
             onClose={() => closeModal('delete-language')}
+            onClick={() => {
+              deleteLanguage()
+              closeModal('delete-language')
+            }}
+            vary='error'
+            rightButtonText='Delete'
           />
+          // <DeleteConfirmModal
+          //   message='Are you sure you want to delete this language pair?'
+          //   title={`${languageHelper(row.source)} -> ${languageHelper(
+          //     row.target,
+          //   )}`}
+          //   onDelete={deleteLanguage}
+          //   onClose={() => closeModal('delete-language')}
+          // />
         ),
       })
     } else {
@@ -436,7 +463,7 @@ export default function AddNewOrder() {
     const projectInfo = {
       ...rawProjectInfo,
       // isTaxable : taxable,
-      tax: !rawProjectInfo.isTaxable ? null : tax,
+      tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
       subtotal: subPrice,
     }
 
@@ -629,8 +656,9 @@ export default function AddNewOrder() {
             },
 
             isTaxable: res.isTaxable,
+            tax: res.tax ?? null,
           })
-          setTax(res?.tax ?? null)
+          // setTax(res?.tax ?? null)
         })
         .catch(e => {
           return
@@ -784,7 +812,7 @@ export default function AddNewOrder() {
                 control={clientControl}
                 setValue={setClientValue}
                 watch={clientWatch}
-                setTax={setTax}
+                setTax={(n: number | null) => setProjectInfo('tax', n)}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'order'}
                 formType={'create'}
@@ -946,7 +974,7 @@ export default function AddNewOrder() {
                   <Checkbox
                     checked={getProjectInfoValues().isTaxable}
                     onChange={e => {
-                      if (!e.target.checked) setTax(null)
+                      if (!e.target.checked) setProjectInfo('tax', null)
                       setProjectInfo('isTaxable', e.target.checked, {
                         shouldDirty: true,
                         shouldValidate: true,
@@ -959,17 +987,33 @@ export default function AddNewOrder() {
                 </Box>
 
                 <Box display='flex' alignItems='center' gap='4px'>
-                  <TextField
-                    size='small'
-                    type='number'
-                    value={!getProjectInfoValues().isTaxable ? '-' : tax}
-                    disabled={!getProjectInfoValues().isTaxable}
-                    sx={{ maxWidth: '120px', padding: 0 }}
-                    inputProps={{ inputMode: 'decimal' }}
-                    onChange={e => {
-                      if (e.target.value.length > 10) return
-                      setTax(Number(e.target.value))
-                    }}
+                  <Controller
+                    name={'tax'}
+                    control={projectInfoControl}
+                    render={({ field: { value, onChange } }) => (
+                      <TextField
+                        size='small'
+                        type='number'
+                        value={
+                          !getProjectInfoValues().isTaxable || !value
+                            ? '-'
+                            : value
+                        }
+                        placeholder='-'
+                        error={
+                          getProjectInfoValues().isTaxable && value === null
+                        }
+                        // value={tax ?? null}
+                        disabled={!getProjectInfoValues().isTaxable}
+                        sx={{ maxWidth: '120px', padding: 0 }}
+                        inputProps={{ inputMode: 'decimal' }}
+                        onChange={e => {
+                          if (e.target.value.length > 10) return
+                          else if (e.target.value === '') onChange(null)
+                          else onChange(Number(e.target.value))
+                        }}
+                      />
+                    )}
                   />
                   %
                 </Box>
@@ -986,7 +1030,9 @@ export default function AddNewOrder() {
                 <Button
                   variant='contained'
                   disabled={
-                    !isItemValid && getProjectInfoValues('isTaxable') && !tax
+                    !isItemValid &&
+                    getProjectInfoValues('isTaxable') &&
+                    !getProjectInfoValues('tax')
                   }
                   onClick={onClickSaveOrder}
                 >

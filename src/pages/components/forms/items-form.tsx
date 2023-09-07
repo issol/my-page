@@ -85,6 +85,7 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -326,13 +327,30 @@ export default function ItemForm({
     openModal({
       type: 'info-minimum',
       children: (
-        <SimpleMultilineAlertModal
-          onClose={() => {
-            closeModal('info-minimum')
-          }}
-          message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
+        <CustomModal
+          onClose={() => closeModal('info-minimum')}
           vary='info'
+          title={
+            <>
+              The selected price includes a minimum price setting. <br />
+              <br /> Minimum price : ${minimumPrice} <br />
+              <br />
+              If the amount of the added price unit is lower than the minimum
+              price, the minimum price will be automatically applied to the
+              total price.
+            </>
+          }
+          soloButton={true}
+          rightButtonText='Okay'
+          onClick={() => closeModal('info-minimum')}
         />
+        // <SimpleMultilineAlertModal
+        //   onClose={() => {
+        //     closeModal('info-minimum')
+        //   }}
+        //   message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
+        //   vary='info'
+        // />
       ),
     })
   }
