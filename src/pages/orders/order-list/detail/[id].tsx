@@ -1009,7 +1009,7 @@ const OrderDetail = () => {
                 isConfirmed: true,
                 // isConfirmed 일때는 백엔드가 status 변경으르 처리해 줌
                 status:
-                  projectInfo?.status === 10500
+                  projectInfo?.status === "Under revision"
                     ? projectInfo.previousStatus
                     : 10300,
               },
@@ -1070,7 +1070,7 @@ const OrderDetail = () => {
             onClose={() => closeModal(`${projectInfo.status}ReasonModal`)}
             reason={projectInfo.reason}
             type={
-              projectInfo.status === 10800
+              projectInfo.status === "Redelivery requested"
                 ? 'Requested'
                 : currentStatus?.label ?? ''
             }
@@ -1158,6 +1158,15 @@ const OrderDetail = () => {
             projectInfo?.deliveries?.length > 0
           isIncludeProjectTeam()
           break
+          case 'button-Deliveries&Feedback-ConfirmDeliveries':
+            flag =
+              projectInfo?.status === 'Delivery completed'
+            break
+          case 'button-Deliveries&Feedback-RequestRedelivery':
+            flag =
+              (projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed')
+            break
         case 'tab-ProjectInfo':
           flag =
             isUpdatable &&
@@ -1389,25 +1398,6 @@ const OrderDetail = () => {
                     </Box>
                   ) : null}
                 </Box>
-                {/* <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <OrderStatusChip
-                    status={projectInfo?.status ?? ''}
-                    label={currentStatus?.label ?? ''}
-                  />
-                  {(projectInfo?.status === 10800 ||
-                    projectInfo?.status === 101200) && (
-                    <IconButton
-                      onClick={() => {
-                        projectInfo?.reason && onClickReason()
-                      }}
-                    >
-                      <img
-                        src='/images/icons/onboarding-icons/more-reason.svg'
-                        alt='more'
-                      />
-                    </IconButton>
-                  )}
-                </Box> */}
               </Box>
               {projectInfoEdit ||
               projectTeamEdit ||

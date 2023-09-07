@@ -195,3 +195,5 @@ export type OrderFeatureType =
   | 'button-Deliveries&Feedback-DeliverToClient'
   | 'button-Deliveries&Feedback-CompleteDelivery'
   | 'button-Edit-Set-Status-To-UnderRevision'
+  | 'button-Deliveries&Feedback-ConfirmDeliveries'
+  | 'button-Deliveries&Feedback-RequestRedelivery'
