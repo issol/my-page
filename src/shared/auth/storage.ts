@@ -5,9 +5,15 @@ import { ClientUserType, UserDataType, UserRoleType } from 'src/context/types'
 
 /* session, local storage에 저장/삭제하는 로직을 여기서 관리 */
 
-export function removeAllStorage() {
+export function removeAllLocalStorage() {
   if (typeof window === 'object') {
     window.localStorage.clear()
+  }
+}
+
+export function removeAllSessionStorage() {
+  if (typeof window === 'object') {
+    window.sessionStorage.clear()
   }
 }
 

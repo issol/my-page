@@ -11,6 +11,7 @@ import {
 import useModal from '@src/hooks/useModal'
 import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
 import {
+  removeAllSessionStorage,
   removeCompanyDataFromBrowser,
   removeRememberMe,
   removeUserDataFromBrowser,
@@ -72,6 +73,7 @@ const useAuth = () => {
         } else {
           setAuth(prev => ({ ...prev, user: userInfo}))
         }
+        setCurrentRole(value?.roles && value?.roles.length > 0 ? value?.roles[0] : null)
       })
       .catch(e => {
         router.push('/login')
@@ -125,12 +127,13 @@ const useAuth = () => {
   }
 
   const handleLogout = () => {
-    setAuth(prev => ({ ...prev, user: null }))
-    setCurrentRole(null)
+    // setAuth(prev => ({ ...prev, user: null }))
+    // setCurrentRole(null)
 
     removeUserDataFromBrowser()
     removeUserTokenFromBrowser()
     removeCompanyDataFromBrowser()
+    removeAllSessionStorage()
 
     logout()
     router.push('/login')
