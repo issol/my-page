@@ -74,10 +74,6 @@ const ProjectInfo = ({
   statusList,
   canUseFeature,
 }: Props) => {
-  console.log(
-    statusList && statusList.find(item => item.value === project.status),
-  )
-
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()

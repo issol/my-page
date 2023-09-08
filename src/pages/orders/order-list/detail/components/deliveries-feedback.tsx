@@ -141,6 +141,10 @@ const DeliveriesFeedback = ({
       'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
       'image/vnd.adobe.photoshop': ['.psd', '.psb'],
     },
+    disabled: !canUseFeature('button-Deliveries&Feedback-Upload'),
+    noKeyboard: true,
+    noDrag: true,
+
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files
         .concat(acceptedFiles)
@@ -427,9 +431,12 @@ const DeliveriesFeedback = ({
           </Box>
         </Box>
         {files.length ? null : (
-          <IconButton 
+          <IconButton
             onClick={() => downloadOneFile(file)}
-            disabled={currentRole?.name !== 'CLIENT' && !canUseFeature('button-Deliveries&Feedback-DownloadOnce')}
+            disabled={
+              currentRole?.name !== 'CLIENT' &&
+              !canUseFeature('button-Deliveries&Feedback-DownloadOnce')
+            }
           >
             <Icon icon='mdi:download' fontSize={24} />
           </IconButton>
@@ -668,8 +675,12 @@ const DeliveriesFeedback = ({
                   <div {...getRootProps({ className: 'dropzone' })}>
                     <Button
                       variant='contained'
-                      sx={{ height: '34px' }}
-                      disabled={!canUseFeature('button-Deliveries&Feedback-Upload')}
+                      sx={{
+                        height: '34px',
+                      }}
+                      disabled={
+                        !canUseFeature('button-Deliveries&Feedback-Upload')
+                      }
                     >
                       <input {...getInputProps()} />
                       <Icon icon='ic:outline-upload-file' fontSize={18} />
@@ -680,7 +691,9 @@ const DeliveriesFeedback = ({
                   <Button
                     variant='contained'
                     sx={{ height: '34px' }}
-                    disabled={!canUseFeature('button-Deliveries&Feedback-ImportFromJob')}
+                    disabled={
+                      !canUseFeature('button-Deliveries&Feedback-ImportFromJob')
+                    }
                     onClick={onClickImportJob}
                   >
                     <Icon icon='mdi:import' fontSize={18} />
@@ -688,7 +701,10 @@ const DeliveriesFeedback = ({
                   </Button>
                   <Button
                     variant='outlined'
-                    disabled={savedFiles.length < 1 || !canUseFeature('button-Deliveries&Feedback-DownloadAll')}
+                    disabled={
+                      savedFiles.length < 1 ||
+                      !canUseFeature('button-Deliveries&Feedback-DownloadAll')
+                    }
                     sx={{
                       height: '34px',
                     }}
@@ -782,7 +798,11 @@ const DeliveriesFeedback = ({
                 <Button
                   variant='contained'
                   onClick={onClickConfirmDeliveries}
-                  disabled={!canUseFeature('button-Deliveries&Feedback-ConfirmDeliveries')}
+                  disabled={
+                    !canUseFeature(
+                      'button-Deliveries&Feedback-ConfirmDeliveries',
+                    )
+                  }
                 >
                   Confirm deliveries
                 </Button>
@@ -790,7 +810,11 @@ const DeliveriesFeedback = ({
                   variant='outlined'
                   onClick={onClickRequestRedelivery}
                   color='error'
-                  disabled={!canUseFeature('button-Deliveries&Feedback-RequestRedelivery')}
+                  disabled={
+                    !canUseFeature(
+                      'button-Deliveries&Feedback-RequestRedelivery',
+                    )
+                  }
                 >
                   Request redelivery
                 </Button>
@@ -806,7 +830,11 @@ const DeliveriesFeedback = ({
                     variant='contained'
                     color='success'
                     onClick={onClickDeliverToClient}
-                    disabled={!canUseFeature('button-Deliveries&Feedback-DeliverToClient')}
+                    disabled={
+                      !canUseFeature(
+                        'button-Deliveries&Feedback-DeliverToClient',
+                      )
+                    }
                   >
                     <Icon icon='ic:outline-send' fontSize={18} />
                     &nbsp;Deliver to client
@@ -821,7 +849,11 @@ const DeliveriesFeedback = ({
                     variant='contained'
                     fullWidth
                     onClick={onClickCompleteDelivery}
-                    disabled={!canUseFeature('button-Deliveries&Feedback-CompleteDelivery')}
+                    disabled={
+                      !canUseFeature(
+                        'button-Deliveries&Feedback-CompleteDelivery',
+                      )
+                    }
                   >
                     Complete delivery
                   </Button>
