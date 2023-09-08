@@ -98,8 +98,6 @@ export default function OrderList() {
 
   const currentRole = getCurrentRole()
 
-  const { data } = useGetStatusList('Order')
-
   const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
     defaultValues,
     mode: 'onSubmit',
