@@ -21,7 +21,11 @@ import {
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
 
-import { ClientType, OrderFeatureType, ProjectInfoType } from '@src/types/orders/order-detail'
+import {
+  ClientType,
+  OrderFeatureType,
+  ProjectInfoType,
+} from '@src/types/orders/order-detail'
 
 import { v4 as uuidv4 } from 'uuid'
 
@@ -175,7 +179,7 @@ const ProjectInfo = ({
           onClose={() => closeModal(`${project.status}ReasonModal`)}
           reason={project.reason}
           type={
-            project.status === "Redelivery requested"
+            project.status === 'Redelivery requested'
               ? 'Requested'
               : statusList?.find(i => i.value === project?.status)?.label || ''
           }
@@ -273,7 +277,8 @@ const ProjectInfo = ({
             {type === 'detail' && isUpdatable ? (
               <IconButton
                 onClick={() => {
-                  if (canUseFeature('button-Edit-Set-Status-To-UnderRevision')) updateStatus && updateStatus(10500)
+                  if (canUseFeature('button-Edit-Set-Status-To-UnderRevision'))
+                    updateStatus && updateStatus(10500)
                   setEditMode!(true)
                 }}
               >
@@ -351,9 +356,9 @@ const ProjectInfo = ({
                 >
                   {type === 'detail' &&
                   isUpdatable &&
-                  (project.status === "New" ||
-                    project.status === "In preparation" ||
-                    project.status === "Internal review") ? (
+                  (project.status === 'New' ||
+                    project.status === 'In preparation' ||
+                    project.status === 'Internal review') ? (
                     <Autocomplete
                       autoHighlight
                       fullWidth
@@ -388,8 +393,8 @@ const ProjectInfo = ({
                         status={project.status}
                         label={project.status}
                       />
-                      {(project.status === "Redelivery requested" ||
-                        project.status === "Canceled") && (
+                      {(project.status === 'Redelivery requested' ||
+                        project.status === 'Canceled') && (
                         <IconButton
                           onClick={() => {
                             project.reason && onClickReason()
@@ -811,10 +816,10 @@ const ProjectInfo = ({
                       display: 'flex',
                       alignItems: 'center',
                       opacity:
-                        project?.status === "Delivery confirmed" ||
-                        project.status === "Invoiced" ||
-                        project.status === "Paid" ||
-                        project.status === "Canceled"
+                        project?.status === 'Delivery confirmed' ||
+                        project.status === 'Invoiced' ||
+                        project.status === 'Paid' ||
+                        project.status === 'Canceled'
                           ? 0.5
                           : 1,
                     }}
@@ -829,7 +834,9 @@ const ProjectInfo = ({
                         setShowDescription(e.target.checked)
                       }}
                       checked={showDescription}
-                      disabled={!canUseFeature('checkBox-ProjectInfo-Description')}
+                      disabled={
+                        !canUseFeature('checkBox-ProjectInfo-Description')
+                      }
                     />
 
                     <Typography
@@ -860,7 +867,7 @@ const ProjectInfo = ({
                   }}
                 >
                   {project.projectDescription &&
-                  project.projectDescription === ''
+                  project.projectDescription !== ''
                     ? project.projectDescription
                     : '-'}
                 </Typography>
