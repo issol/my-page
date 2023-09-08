@@ -41,7 +41,7 @@ import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 import { getUserInfo } from '@src/apis/user.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type Props = {
   control: Control<ProjectTeamType, any>
@@ -80,7 +80,41 @@ export default function ProjectTeamForm({
       jobTitle: string | undefined
     }>
   >(memberList)
+
   const setValueOptions = { shouldValidate: true, shouldDirty: true }
+
+  const [focusField, setFocusField] = useState<
+    { idx: number; isFocus: boolean }[]
+  >([
+    {
+      idx: 0,
+      isFocus: false,
+    },
+  ])
+
+  const handleFocusChange = (idx: number, isFocus: boolean) => {
+    setFocusField(prevFocusField => {
+      const newFocusField = [...prevFocusField]
+      const targetField = newFocusField.find(field => field.idx === idx)
+      if (targetField) {
+        targetField.isFocus = isFocus
+      }
+      return newFocusField
+    })
+  }
+
+  useEffect(() => {
+    setFocusField(
+      field.map((value, idx) => {
+        return {
+          idx: idx,
+          isFocus: false,
+        }
+      }),
+    )
+  }, [field])
+
+  console.log(focusField)
 
   function renderHeader(title: string) {
     return (
@@ -117,7 +151,6 @@ export default function ProjectTeamForm({
     return findValue || { value: '', label: '', jobTitle: '' }
   }
   function renderMemberField(name: `teams.${number}.id`, idx: number) {
-    const [focusField, setFocusField] = useState<boolean>(false)
     return (
       <Controller
         name={name}
@@ -141,7 +174,7 @@ export default function ProjectTeamForm({
                   setValue(`teams.${idx}.name`, v.label, setValueOptions)
                 } else {
                   onChange(null)
-                  setFocusField(false)
+                  handleFocusChange(idx, false)
                   const { name, ...rest } = getValue('teams')[idx]
                   update(idx, rest)
                   // setValue(`teams.${idx}.name`, '', setValueOptions)
@@ -152,15 +185,15 @@ export default function ProjectTeamForm({
                 !getValue('teams')[idx].name
               }
               value={findMemberValue(value)}
-              onClickCapture={() => setFocusField(true)}
-              onClose={() => setFocusField(false)}
+              onClickCapture={() => handleFocusChange(idx, true)}
+              onClose={() => handleFocusChange(idx, false)}
               // onFocus={() => setFocusField(true)}
               // onFocusCapture={() => setFocusField(true)}
               renderInput={params => (
                 <TextField
                   {...params}
                   // label='Member'
-                  placeholder={focusField ? '' : 'Member'}
+                  placeholder={focusField[idx]?.isFocus ? '' : 'Member'}
                   inputProps={{
                     ...params.inputProps,
                   }}

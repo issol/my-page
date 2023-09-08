@@ -74,6 +74,10 @@ const ProjectInfo = ({
   statusList,
   canUseFeature,
 }: Props) => {
+  console.log(
+    statusList && statusList.find(item => item.value === project.status),
+  )
+
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -362,6 +366,7 @@ const ProjectInfo = ({
                     <Autocomplete
                       autoHighlight
                       fullWidth
+                      autoComplete={false}
                       disableClearable={true}
                       options={filterStatusList() ?? []}
                       onChange={(e, v) => {
@@ -374,13 +379,14 @@ const ProjectInfo = ({
                       }}
                       value={
                         statusList &&
-                        statusList.find(item => item.value === project.status)
+                        statusList.find(item => item.label === project.status)
                       }
                       renderInput={params => (
                         <TextField
                           {...params}
                           placeholder='Status'
                           size='small'
+                          autoComplete='off'
                           sx={{ maxWidth: '300px' }}
                         />
                       )}
