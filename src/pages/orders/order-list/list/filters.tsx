@@ -129,6 +129,14 @@ export default function OrdersFilters({
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
+  const dateValue = (startDate: Date, endDate: Date) => {
+    return startDate.toDateString() === endDate?.toDateString()
+      ? dayjs(startDate).format('MM/DD/YYYY')
+      : `${dayjs(startDate).format('MM/DD/YYYY')}${
+          endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
+        }`
+  }
+
   return (
     <DatePickerWrapper>
       <Grid item xs={12}>
@@ -352,18 +360,9 @@ export default function OrdersFilters({
                                   label='Order date'
                                   icon='calendar'
                                   value={
-                                    value[0]?.toDateString() ===
-                                    value[1]?.toDateString()
-                                      ? dayjs(value[0]).format('MM/DD/YYYY')
-                                      : `${dayjs(value[0]).format(
-                                          'MM/DD/YYYY',
-                                        )}${
-                                          value[1]
-                                            ? ` - ${dayjs(value[1]).format(
-                                                'MM/DD/YYYY',
-                                              )}`
-                                            : ''
-                                        }`
+                                    value.length > 0
+                                      ? dateValue(value[0], value[1])
+                                      : ''
                                   }
                                 />
                               </Box>
@@ -393,21 +392,12 @@ export default function OrdersFilters({
                             customInput={
                               <Box>
                                 <CustomInput
-                                  label='Order date'
+                                  label='Project due date'
                                   icon='calendar'
                                   value={
-                                    value[0]?.toDateString() ===
-                                    value[1]?.toDateString()
-                                      ? dayjs(value[0]).format('MM/DD/YYYY')
-                                      : `${dayjs(value[0]).format(
-                                          'MM/DD/YYYY',
-                                        )}${
-                                          value[1]
-                                            ? ` - ${dayjs(value[1]).format(
-                                                'MM/DD/YYYY',
-                                              )}`
-                                            : ''
-                                        }`
+                                    value.length > 0
+                                      ? dateValue(value[0], value[1])
+                                      : ''
                                   }
                                 />
                               </Box>
