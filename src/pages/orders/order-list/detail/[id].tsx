@@ -60,7 +60,11 @@ import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { setIsReady, setOrder, setOrderLang } from '@src/store/order'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { patchOrderProjectInfo, splitOrder } from '@src/apis/order-detail.api'
+import {
+  confirmOrder,
+  patchOrderProjectInfo,
+  splitOrder,
+} from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
@@ -959,6 +963,17 @@ const OrderDetail = () => {
     },
   )
 
+  const confirmOrderMutation = useMutation(() => confirmOrder(Number(id)), {
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['orderDetail'],
+      })
+      queryClient.invalidateQueries(['orderList'])
+      closeModal('ConfirmOrderModal')
+    },
+    onError: () => onMutationError(),
+  })
+
   const splitOrderMutation = useMutation(
     (items: number[]) => splitOrder(Number(id!), items),
     {
@@ -1004,21 +1019,7 @@ const OrderDetail = () => {
         <CustomModal
           onClose={() => closeModal('ConfirmOrderModal')}
           onClick={() => {
-            updateProject.mutate(
-              {
-                isConfirmed: true,
-                // isConfirmed 일때는 백엔드가 status 변경으르 처리해 줌
-                status:
-                  projectInfo?.status === "Under revision"
-                    ? projectInfo.previousStatus
-                    : 10300,
-              },
-              {
-                onSuccess: () => {
-                  closeModal('ConfirmOrderModal')
-                },
-              },
-            )
+            confirmOrderMutation.mutate()
           }}
           title='Are you sure you want to confirm this order? It will be delivered to the client.'
           vary='successful'
@@ -1070,7 +1071,7 @@ const OrderDetail = () => {
             onClose={() => closeModal(`${projectInfo.status}ReasonModal`)}
             reason={projectInfo.reason}
             type={
-              projectInfo.status === "Redelivery requested"
+              projectInfo.status === 'Redelivery requested'
                 ? 'Requested'
                 : currentStatus?.label ?? ''
             }
@@ -1158,15 +1159,14 @@ const OrderDetail = () => {
             projectInfo?.deliveries?.length > 0
           isIncludeProjectTeam()
           break
-          case 'button-Deliveries&Feedback-ConfirmDeliveries':
-            flag =
-              projectInfo?.status === 'Delivery completed'
-            break
-          case 'button-Deliveries&Feedback-RequestRedelivery':
-            flag =
-              (projectInfo?.status === 'Partially delivered' ||
-              projectInfo?.status === 'Delivery completed')
-            break
+        case 'button-Deliveries&Feedback-ConfirmDeliveries':
+          flag = projectInfo?.status === 'Delivery completed'
+          break
+        case 'button-Deliveries&Feedback-RequestRedelivery':
+          flag =
+            projectInfo?.status === 'Partially delivered' ||
+            projectInfo?.status === 'Delivery completed'
+          break
         case 'tab-ProjectInfo':
           flag =
             isUpdatable &&
