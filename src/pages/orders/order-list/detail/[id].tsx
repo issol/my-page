@@ -800,7 +800,7 @@ const OrderDetail = () => {
             catBasis: item.initialPrice?.calculationBasis!,
             decimalPlace: item.initialPrice?.numberPlace!,
             roundingProcedure:
-              RoundingProcedureList[item.initialPrice?.rounding!].label,
+              RoundingProcedureList[item.initialPrice?.rounding!]?.label,
             languagePairs: [],
             priceUnit: [],
             catInterface: { memSource: [], memoQ: [] },
