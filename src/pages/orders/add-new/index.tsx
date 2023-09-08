@@ -971,18 +971,22 @@ export default function AddNewOrder() {
                 sx={{ background: '#F5F5F7', marginBottom: '24px' }}
               >
                 <Box display='flex' alignItems='center' gap='4px'>
-                  <Checkbox
-                    checked={getProjectInfoValues().isTaxable}
-                    onChange={e => {
-                      if (!e.target.checked) setProjectInfo('tax', null)
-                      setProjectInfo('isTaxable', e.target.checked, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
+                  <Controller
+                    name='isTaxable'
+                    control={projectInfoControl}
+                    render={({ field: { value, onChange } }) => (
+                      <Checkbox
+                        checked={value}
+                        onChange={e => {
+                          if (!e.target.checked) setProjectInfo('tax', null)
+                          onChange(e.target.checked)
 
-                      triggerProjectInfo('isTaxable')
-                    }}
+                          triggerProjectInfo('isTaxable')
+                        }}
+                      />
+                    )}
                   />
+
                   <Typography>Tax</Typography>
                 </Box>
 
