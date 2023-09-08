@@ -221,6 +221,7 @@ const CalendarContainer = () => {
             filter={filters}
             setFilter={setFilters}
             role={currentRole!}
+            type='calendar'
           />
         </Box>
       )}

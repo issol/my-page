@@ -324,6 +324,7 @@ export default function Quotes({ id, user }: Props) {
                   filter={filters}
                   setFilter={setFilters}
                   role={currentRole!}
+                  type='list'
                 />
               </Card>
             </Grid>
