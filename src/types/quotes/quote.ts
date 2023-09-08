@@ -4,9 +4,9 @@ export type QuotesFilterType = {
   take?: number
   skip?: number
   search?: string
-  quoteDate?: Date[]
-  quoteDeadline?: Date[]
-  quoteExpiryDate?: Date[]
+  quoteDate?: string[]
+  quoteDeadline?: string[]
+  quoteExpiryDate?: string[]
   hideCompletedQuotes?: 0 | 1
   seeMyQuotes?: 0 | 1
   status?: number[]
@@ -16,8 +16,8 @@ export type QuotesFilterType = {
   serviceType?: string[]
   ordering?: GridSortDirection
   sort?: SortType
-  estimatedDeliveryDate?: Date[]
-  projectDueDate?: Date[]
+  estimatedDeliveryDate?: string[]
+  projectDueDate?: string[]
   lsp?: string[]
 }
 
