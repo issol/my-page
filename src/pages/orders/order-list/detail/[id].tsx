@@ -483,7 +483,7 @@ const OrderDetail = () => {
         totalPrice: item?.totalPrice ?? 0,
         dueAt: item?.dueAt,
         showItemDescription: item.showItemDescription,
-        initialPrice: item.initialPrice ?? {},
+        initialPrice: item.initialPrice ?? null,
         minimumPrice: item.minimumPrice,
       }
     })

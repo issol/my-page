@@ -25,12 +25,17 @@ export function getCurrencyMark(currency: CurrencyType | null | undefined) {
   return currencySymbol
 }
 
-export function formatCurrency(num: number | string, currency: CurrencyType, decimalPlace?: number) {
+export function formatCurrency(
+  num: number | string,
+  currency: CurrencyType,
+  decimalPlace?: number,
+) {
   const currentLocale = locale[currency]
+
   const formatter = new Intl.NumberFormat(currentLocale, {
     style: 'currency',
     currency: currency,
-    minimumFractionDigits: decimalPlace ?? 0
+    minimumFractionDigits: decimalPlace ?? 0,
   })
   return formatter.format(Number(num))
 }
@@ -93,15 +98,15 @@ export function countDecimalPlaces(number: any) {
 
 export function calculateDigit(number: number): number {
   if (number === 0) {
-    return 0;
+    return 0
   }
 
-  let count = 1;
+  let count = 1
   while (number >= 1) {
-    number /= 10;
-    count--;
+    number /= 10
+    count--
   }
-  return count;
+  return count
 }
 
 function round(number: number, precision: number): number {
@@ -125,7 +130,8 @@ function rounding(number: number, precision: number): number {
 }
 
 export function sliceCurrencyMark(value: string) {
-  const mark = value.slice(0,1)
-  if (currencyMarks.find(currencyMark => currencyMark === mark)) return value.slice(1,value.length)
+  const mark = value.slice(0, 1)
+  if (currencyMarks.find(currencyMark => currencyMark === mark))
+    return value.slice(1, value.length)
   return value
 }

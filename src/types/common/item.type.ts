@@ -14,7 +14,7 @@ export type ItemType = Omit<
   showItemDescription?: boolean
 } & {
   contactPerson?: ContactPersonType | null
-  initialPrice?: PriceType
+  initialPrice?: PriceType | null
   minimumPrice?: number | null
 }
 
