@@ -112,8 +112,8 @@ export default function OrdersList({
       renderCell: ({ row }: OrderListCellType) => {
         return (
           <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>{row?.client.name}</Typography>
-            <Typography variant='body2'>{row?.client.email}</Typography>
+            <Typography fontWeight='bold'>{role.name === 'CLIENT' ? row?.lsp?.name : row?.client.name}</Typography>
+            <Typography variant='body2'>{role.name === 'CLIENT' ? row?.lsp?.email : row?.client.email}</Typography>
           </Box>
         )
       },
