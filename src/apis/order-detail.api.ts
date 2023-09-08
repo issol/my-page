@@ -106,7 +106,9 @@ export const completeDelivery = async (id: number) => {
 
 //TODO API 수정 필요
 export const confirmDelivery = async (id: number, feedback?: string) => {
-  await axios.patch(`/api/enough/u/order/${id}/confirm`, { feedback: feedback })
+  await axios.patch(`/api/enough/u/order/${id}/deliveries/confirm`, {
+    feedback: feedback,
+  })
 }
 
 export const confirmOrder = async (id: number) => {
