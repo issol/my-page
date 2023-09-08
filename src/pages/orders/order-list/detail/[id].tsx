@@ -1251,6 +1251,17 @@ const OrderDetail = () => {
               projectInfo?.status === 'Redelivery requested')
           break
       }
+    } else {
+      switch (featureName) {
+        case 'button-Deliveries&Feedback-ConfirmDeliveries':
+          flag = projectInfo?.status === 'Delivery completed'
+          break
+        case 'button-Deliveries&Feedback-RequestRedelivery':
+          flag =
+            projectInfo?.status === 'Partially delivered' ||
+            projectInfo?.status === 'Delivery completed'
+          break
+      }
     }
     return flag
   }
