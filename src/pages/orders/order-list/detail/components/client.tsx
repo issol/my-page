@@ -28,7 +28,9 @@ const OrderDetailClient = ({
   canUseFeature,
 }: Props) => {
   const isUpdatable = canUseFeature ? canUseFeature('tab-Client') : false
-  const canUpdateStatus = canUseFeature ? canUseFeature('button-Edit-Set-Status-To-UnderRevision') : false
+  const canUpdateStatus = canUseFeature
+    ? canUseFeature('button-Edit-Set-Status-To-UnderRevision')
+    : false
   return (
     <Card sx={{ padding: '24px' }}>
       <Box
@@ -43,7 +45,8 @@ const OrderDetailClient = ({
           <IconButton
             sx={{ position: 'absolute', top: 0, right: 0 }}
             onClick={() => {
-              if (canUpdateStatus) updateProject && updateProject.mutate({ status: 10500 })
+              if (canUpdateStatus)
+                updateProject && updateProject.mutate({ status: 10500 })
               setEdit!(true)
             }}
           >
@@ -205,26 +208,27 @@ const OrderDetailClient = ({
               </Box>
             </Box>
             <Divider />
-
-            <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <Typography
-                variant='subtitle1'
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  width: '131px',
-                  display: 'flex',
-                }}
-              >
-                <Box sx={{ textTransform: 'capitalize' }}>
-                  {client.addressType}
-                </Box>
-                &nbsp;address
-              </Typography>
-              <Typography variant='body2'>
-                {getAddress(client.clientAddress)}
-              </Typography>
-            </Box>
+            {client.clientAddress.length > 0 ? (
+              <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                <Typography
+                  variant='subtitle1'
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    width: '131px',
+                    display: 'flex',
+                  }}
+                >
+                  <Box sx={{ textTransform: 'capitalize' }}>
+                    {client.addressType}
+                  </Box>
+                  &nbsp;address
+                </Typography>
+                <Typography variant='body2'>
+                  {getAddress(client.clientAddress)}
+                </Typography>
+              </Box>
+            ) : null}
           </Box>
         </Box>
       </Box>
