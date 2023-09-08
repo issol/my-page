@@ -361,7 +361,7 @@ export default function RequestDetail() {
                   {data?.linkedOrder && (
                     <MenuItem onClick={handleClose}>
                       <StyledNextLink
-                        href={`/quotes/detail/${data?.linkedOrder.id}`}
+                        href={`/orders/order-list/detail/${data?.linkedOrder.id}`}
                         color='black'
                       >
                         Linked order : <u>{data?.linkedOrder.corporationId}</u>
