@@ -183,16 +183,18 @@ export default function Quotes({ id, user }: Props) {
     } = data
 
     const filter: QuotesFilterType = {
-      quoteDate: quoteDate.map(value => value),
-      quoteDeadline: quoteDeadline?.map(value => value),
-      quoteExpiryDate: quoteExpiryDate?.map(value => value),
+      quoteDate: quoteDate.map(value => value.toISOString()),
+      quoteDeadline: quoteDeadline?.map(value => value.toISOString()),
+      quoteExpiryDate: quoteExpiryDate?.map(value => value.toISOString()),
       status: status.map(value => value.value),
       // client: client?.map(value => value.label),
       clientId: client?.map(value => value.value),
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
-      estimatedDeliveryDate: estimatedDeliveryDate?.map(value => value),
-      projectDueDate: projectDueDate?.map(value => value),
+      estimatedDeliveryDate: estimatedDeliveryDate?.map(value =>
+        value.toISOString(),
+      ),
+      projectDueDate: projectDueDate?.map(value => value.toISOString()),
       lsp: lsp?.map(value => value.label),
       search: search,
       take: quoteListPageSize,
