@@ -159,7 +159,7 @@ export type InvoicePayableDownloadData = {
     timezone?: CountryType
   }
   jobList: InvoicePayableJobType[]
-  subTotal: number
+  subtotal: number
   tax: number | null
   taxRate: number
   totalPrice: number

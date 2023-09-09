@@ -421,7 +421,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                           fontSize: '14px',
                         }}
                       >
-                        {formatCurrency(data.subTotal, data.currency)}
+                        {formatCurrency(data.subtotal, data.currency)}
                       </Typography>
                     </Box>
                   </TableCell>
