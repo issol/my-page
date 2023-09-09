@@ -405,7 +405,8 @@ export default function AddNewQuote() {
       detail: [],
       totalPrice: 0,
       showItemDescription: false,
-      minimumPrice: 0,
+      minimumPrice: null,
+      minimumPriceApplied: false,
     })
   }
 
@@ -435,7 +436,7 @@ export default function AddNewQuote() {
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
-    // const subTotal = getItem().items.reduce(
+    // const subtotal = getItem().items.reduce(
     //   (acc, item) => acc + item.totalPrice,
     //   0,
     // )
@@ -447,13 +448,13 @@ export default function AddNewQuote() {
 
     const items: Array<PostItemType> = getItem().items.map(item => {
       const { contactPerson, minimumPrice, ...filterItem } = item
-      console.log('filterItem', filterItem)
       return {
         ...filterItem,
         contactPersonId: item.contactPerson?.id!,
         description: item.description || '',
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
+        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
       }
     })
 

@@ -426,7 +426,8 @@ export default function AddNewOrder() {
       detail: [],
       totalPrice: 0,
       showItemDescription: false,
-      minimumPrice: 0,
+      minimumPrice: null,
+      minimumPriceApplied: false,
     })
   }
 
@@ -456,7 +457,7 @@ export default function AddNewOrder() {
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
-    // const subTotal = getItem().items.reduce(
+    // const subtotal = getItem().items.reduce(
     //   (acc, item) => acc + item.totalPrice,
     //   0,
     // )
@@ -475,6 +476,7 @@ export default function AddNewOrder() {
         description: item.description || '',
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
+        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
       }
     })
     const langs = languagePairs.map(item => {

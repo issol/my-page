@@ -135,13 +135,13 @@ export default function QuotesLanguageItemsDetail({
   })
   // TODO: Item 처음 등록 후 Languages&Items 로딩시 items[0].priceId가 null인 경우가 있음
   const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
-  const [subTotal, setSubTotal] = useState(0)
+  const [subtotal, setSubTotal] = useState(0)
   function sumTotalPrice() {
-    // const subTotal = getItem()?.items!
-    // const subTotal = items
-    const subTotal = isEditMode ? getItem()?.items! : items
-    if (subTotal) {
-      const total = subTotal.reduce((accumulator, item) => {
+    // const subtotal = getItem()?.items!
+    // const subtotal = items
+    const subtotal = isEditMode ? getItem()?.items! : items
+    if (subtotal) {
+      const total = subtotal.reduce((accumulator, item) => {
         return accumulator + item.totalPrice;
       }, 0)
       setSubTotal(total)
@@ -253,6 +253,7 @@ export default function QuotesLanguageItemsDetail({
       totalPrice: 0,
       showItemDescription: false,
       minimumPrice: null,
+      minimumPriceApplied: false,
     })
   }
   // console.log(isEditMode)
@@ -316,7 +317,7 @@ export default function QuotesLanguageItemsDetail({
           </Button>
         </Grid>
       ) : null}
-      {/* subTotal */}
+      {/* subtotal */}
       <Grid item xs={12}>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Box
@@ -348,7 +349,7 @@ export default function QuotesLanguageItemsDetail({
                 items.length && items[0].initialPrice
                   ? formatCurrency(
                       formatByRoundingProcedure(
-                        isEditMode ? subTotal : Number(project?.subtotal),
+                        isEditMode ? subtotal : Number(project?.subtotal),
                         items[0].initialPrice?.numberPlace!,
                         items[0].initialPrice?.rounding!,
                         items[0].initialPrice?.currency!,

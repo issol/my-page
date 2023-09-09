@@ -14,8 +14,9 @@ export type ItemType = Omit<
   showItemDescription?: boolean
 } & {
   contactPerson?: ContactPersonType | null
-  initialPrice?: PriceType | null
-  minimumPrice?: number | null
+  initialPrice?: PriceType
+  minimumPrice: number | null
+  minimumPriceApplied: boolean
 }
 
 export type AnalysisFileType = {
