@@ -121,6 +121,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
         contactPerson: client?.contactPerson ?? null,
         clientAddress: client?.clientAddress ?? [],
         langItem: items,
+        subtotal: projectInfo?.subtotal
       }
 
       setDownloadData(res)
