@@ -58,8 +58,7 @@ export type QuotesProjectInfoFormType = {
   showDescription: boolean
   tax: number | null
   isTaxable: boolean
-  // TODO: subTotal 타입 체크하기
-  subTotal: number
+  subtotal: number
 }
 
 export type QuotesProjectInfoAddNewType = {
@@ -78,7 +77,7 @@ export type QuotesProjectInfoAddNewType = {
   showDescription: boolean
   tax: number | null
   isTaxable: boolean
-  subTotal: number
+  subtotal: number
 }
 
 export type QuotesListType = {

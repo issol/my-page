@@ -75,14 +75,13 @@ type Props = {
   getTotalPrice: () => void
   getEachPrice: (
     idx: number,
-    showMinimum?: boolean,
     isNotApplicable?: boolean,
   ) => void
   onDeletePriceUnit: (idx: number) => void
   // onItemBoxLeave: () => void
   isValid: boolean
-  // showMinimum: { checked: boolean; show: boolean }
-  // setShowMinimum: (n: { checked: boolean; show: boolean }) => void
+  showMinimum: boolean
+  setShowMinimum: (n: boolean) => void
   // isNotApplicable: boolean
   type: string
   sumTotalPrice: () => void
@@ -104,8 +103,8 @@ export default function ItemPriceUnitForm({
   onDeletePriceUnit,
   // onItemBoxLeave,
   isValid,
-  // showMinimum,
-  // setShowMinimum,
+  showMinimum,
+  setShowMinimum,
   // isNotApplicable,
   priceUnitsList,
   type,
@@ -113,6 +112,9 @@ export default function ItemPriceUnitForm({
   // checkMinimumPrice,
   fields,
 }: Props) {
+  //TODO 가 삭제되는걸 실시간으로 감지해야 함
+  //TODO row가 삭제될때마다 계산로직을 돌려야 함
+
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
@@ -203,7 +205,6 @@ export default function ItemPriceUnitForm({
     // }
 
     allPriceUnits.current = data
-    console.log('nestedData', nestedData)
     return nestedData
   }
 
@@ -225,44 +226,45 @@ export default function ItemPriceUnitForm({
   const [isNotApplicable, setIsNotApplicable] = useState(
     getValues(`items.${index}.priceId`) === NOT_APPLICABLE ? true : false,
   )
-  const [showMinimum, setShowMinimum] = useState(false)
+  // const [showMinimum, setShowMinimum] = useState(getValues(`items.${index}.minimumPriceApplied`))
 
+  
   const checkPriceId = () => {
     setIsNotApplicable(
       getValues(`items.${index}.priceId`) === NOT_APPLICABLE ? true : false,
     )
   }
-  useEffect(() => {
-    console.log(totalPrice)
-
-    if (
-      minimumPrice &&
-      totalPrice <= minimumPrice &&
-      // type === 'edit' &&
-      !showMinimum
-    ) {
-      setShowMinimum(true)
-    }
-    if (
-      minimumPrice &&
-      totalPrice > minimumPrice &&
-      // type === 'edit' &&
-      showMinimum
-    ) {
-      setShowMinimum(false)
-    }
-  }, [totalPrice, showMinimum])
+  // useEffect(() => {
+  //   console.log("check minimum price",totalPrice,minimumPrice)
+  //     if (
+  //       minimumPrice &&
+  //       totalPrice <= minimumPrice &&
+  //       // type === 'edit' &&
+  //       !showMinimum
+  //     ) {
+  //       setShowMinimum(true)
+  //     }
+  //     if (
+  //       minimumPrice &&
+  //       totalPrice > minimumPrice &&
+  //       // type === 'edit' &&
+  //       showMinimum
+  //     ) {
+  //       setShowMinimum(false)
+  //     }
+  // }, [totalPrice, showMinimum])
 
   const Row = ({ idx }: { idx: number }) => {
     const [savedValue, setSavedValue] = useState<ItemDetailType>(
       currentItem[idx],
     )
     const [price, setPrice] = useState(savedValue.prices || 0)
-    const updatePrice = (e?: any) => {
+    const containerRef = useRef<HTMLDivElement | null>(null);
+
+    const updatePrice = () => {
       const newPrice = getValues(`${detailName}.${idx}`)
-      console.log('savedValue', savedValue)
       if (type !== 'detail' && type !== 'invoiceDetail')
-        getEachPrice(idx, showMinimum, isNotApplicable) //폼 데이터 업데이트 (setValue)
+        getEachPrice(idx, isNotApplicable) //폼 데이터 업데이트 (setValue)
       getTotalPrice() // 합계 데이터 업데이트 (setValue)
       setSavedValue(newPrice) // setValue된 값 가져오기
       setPrice(newPrice.prices) // setValue된 값에서 price 정보 가져오기
@@ -276,10 +278,34 @@ export default function ItemPriceUnitForm({
       sumTotalPrice()
     }
 
+    const onClickDeletePriceUnit = (idx: number) => {
+      onDeletePriceUnit(idx)
+      updateTotalPrice()
+    }
+
+    //init
     useEffect(() => {
+      // row init시에 동작하는 로직, 불필요한 리랜더링이 발생할 수 있다
       updatePrice()
       updateTotalPrice()
-    }, [priceData])
+    }, [])
+
+    useEffect(() => {
+      // row 외부가 클릭될때 마다 액션을 준다
+      const handleOutsideClick = (event: MouseEvent) => {
+        if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+          // 필요한 액션
+          updatePrice()
+          updateTotalPrice()
+        }
+      };
+  
+      window.addEventListener('mousedown', handleOutsideClick);
+
+      return () => {
+        window.removeEventListener('mousedown', handleOutsideClick);
+      }
+    }, [])
 
     const [open, setOpen] = useState(false)
     const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
@@ -288,11 +314,11 @@ export default function ItemPriceUnitForm({
       <TableRow
         hover
         tabIndex={-1}
-        onMouseLeave={() => {
-          updateTotalPrice()
-        }}
+        // onMouseLeave={() => {
+        //   updateTotalPrice()
+        // }}
       >
-        <TableCell sx={{ width: '10%' }}>
+        <TableCell sx={{ width: '10%' }} ref={containerRef}>
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
@@ -304,7 +330,6 @@ export default function ItemPriceUnitForm({
               name={`${detailName}.${idx}.quantity`}
               control={control}
               render={({ field: { value, onChange } }) => {
-                console.log('quantity.value', value)
                 return (
                   <Box display='flex' alignItems='center' gap='8px'>
                     <TextField
@@ -315,7 +340,7 @@ export default function ItemPriceUnitForm({
                       inputProps={{ inputMode: 'decimal' }}
                       onChange={e => {
                         onChange(e)
-                        updatePrice(e)
+                        // updatePrice(e)
                       }}
                     />
                     {savedValue.unit === 'Percent' ? '%' : null}
@@ -493,7 +518,6 @@ export default function ItemPriceUnitForm({
               name={`${detailName}.${idx}.unitPrice`}
               control={control}
               render={({ field: { value, onChange } }) => {
-                console.log('unitPrice-value', value)
                 return (
                   <TextField
                     placeholder='0.0012'
@@ -503,7 +527,7 @@ export default function ItemPriceUnitForm({
                     disabled={savedValue.unit === 'Percent'}
                     onChange={e => {
                       onChange(e)
-                      updatePrice(e)
+                      // updatePrice(e)
                     }}
                     sx={{ maxWidth: '104px', padding: 0 }}
                   />
@@ -533,7 +557,7 @@ export default function ItemPriceUnitForm({
                     options={CurrencyList}
                     onChange={(e, v) => {
                       if (v?.value) onChange(v.value)
-                      updatePrice(e)
+                      // updatePrice(e)
                     }}
                     value={
                       CurrencyList.find(item => item.value === value) || null
@@ -607,7 +631,7 @@ export default function ItemPriceUnitForm({
         </TableCell>
         <TableCell sx={{ width: '5%' }} align='center'>
           {type === 'detail' || type === 'invoiceDetail' ? null : (
-            <IconButton onClick={() => onDeletePriceUnit(idx)}>
+            <IconButton onClick={() => onClickDeletePriceUnit(idx)}>
               <Icon icon='mdi:trash-outline' />
             </IconButton>
           )}
@@ -745,7 +769,7 @@ export default function ItemPriceUnitForm({
             marginLeft={5}
           >
             <Button
-              onClick={() =>
+              onClick={() => {
                 append({
                   priceUnitId: -1,
                   quantity: 0,
@@ -754,7 +778,7 @@ export default function ItemPriceUnitForm({
                   unit: '',
                   currency: priceData?.currency ?? 'USD',
                 })
-              }
+              }}
               variant='contained'
               disabled={!isValid}
               sx={{ p: 0.7, minWidth: 26 }}
@@ -855,7 +879,9 @@ export default function ItemPriceUnitForm({
               </Typography>
             )}
             {type === 'detail' || type === 'invoiceDetail' ? null : (
-              <IconButton onClick={() => getTotalPrice()}>
+              <IconButton onClick={() => {
+                getTotalPrice()
+              }}>
                 <Icon icon='material-symbols:refresh' />
               </IconButton>
             )}

@@ -155,6 +155,7 @@ export type updateProjectInfoType =
   | ProjectTeamFormType
   | ClientPostType
   | { tax: null | number; isTaxable: boolean }
+  | { tax: null | number; isTaxable: boolean, subtotal: number }
   | { status: number }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
@@ -502,6 +503,7 @@ export default function QuotesDetail() {
             description: item.description,
             showItemDescription: item.showItemDescription,
             minimumPrice: item.minimumPrice,
+            minimumPriceApplied: item.minimumPriceApplied,
           }
         })
         itemReset({ items: result })
@@ -816,13 +818,14 @@ export default function QuotesDetail() {
 
   async function onItemSave() {
     const items: PostItemType[] = getItem().items.map(item => {
-      const { contactPerson, ...filterItem } = item
+      const { contactPerson, minimumPrice, ...filterItem } = item
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
         description: item.description || '',
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
+        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
       }
     })
     const langs: LanguagePairsType[] = languagePairs.map(item => {
@@ -841,16 +844,16 @@ export default function QuotesDetail() {
         target: item.target,
       }
     })
-    const subTotal = items.reduce((accumulator, item) => {
+    const subtotal = items.reduce((accumulator, item) => {
       return accumulator + item.totalPrice
     }, 0)
     onSave(async () => {
       try {
         await patchQuoteLanguagePairs(Number(id), langs)
         await patchQuoteItems(Number(id), items)
-        //TODO: subtotal 업데이트 쳐줘야 함
+
         updateProject.mutate(
-          { tax, isTaxable: taxable, subTotal: subTotal },
+          { tax, isTaxable: taxable, subtotal: subtotal },
           {
             onSuccess: () => {
               queryClient.invalidateQueries({

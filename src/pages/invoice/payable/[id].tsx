@@ -256,7 +256,7 @@ export default function PayableDetail() {
         paidDateTimezone: data.paidDateTimezone,
         pro: { ...data.pro },
         jobList: jobList?.data || [],
-        subTotal: data.subtotal,
+        subtotal: data.subtotal,
         tax: data.tax,
         totalPrice: data.totalPrice,
         taxRate: data.taxRate,

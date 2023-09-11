@@ -280,7 +280,6 @@ export default function ItemForm({
   function onChangeLanguagePair(v: languageType | null, idx: number) {
     setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
     setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
-    console.log(v)
 
     // setValue()
 
@@ -357,8 +356,8 @@ export default function ItemForm({
 
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
-
     const itemData = getValues(`items.${idx}`)
+
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
 
@@ -366,43 +365,63 @@ export default function ItemForm({
     const targetLanguage = itemData.target
 
     // standard price에 등록된 데이터중 매칭된 데이터
-    const priceData =
-      getPriceOptions(itemData.source, itemData.target).find(
+    const priceData = () => {
+      return getPriceOptions(itemData.source, itemData.target).find(
         price => price.id === itemData.priceId,
       ) || null
-    const languagePairData = priceData?.languagePairs?.find(
+    }
+    const languagePairData = () => priceData()?.languagePairs?.find(
       i => i.source === sourceLanguage && i.target === targetLanguage,
     )
-    const minimumPrice = languagePairData?.minimumPrice
-    const priceFactor = languagePairData?.priceFactor
+    const minimumPrice = () => languagePairData()?.minimumPrice
+    const priceFactor = () => languagePairData()?.priceFactor
     // 여기까지
 
     // 현재 row의 프라이스 유닛에 적용될 minimumPrice 값
     // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 minimumPrice 추출
     // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 minimumPrice 값 추출
     const currentMinimumPrice = () => {
-      // console.log(itemData.minimumPrice)
-      console.log(minimumPrice)
-
+      // 기존 item에서 price 변경, 이때는 Standard price의 minimum price 값을 줘야 함
+      if (itemData?.id && itemData?.id !== -1 && priceData() && itemData?.initialPrice?.priceId !== priceData()?.id) {
+        return minimumPrice()
+      }
+     
       // 기존 item
-      if (itemData?.id && itemData?.id !== -1) return itemData?.minimumPrice!
-      // Not Applicable(재설계 필요)
+      // standard price 데이터가 없다면 쿼츠 작성 후 standard price가 삭제된 케이스이므로 여기서 처리
+      else if ((itemData?.id && itemData?.id !== -1) || ((itemData?.id && itemData?.id !== -1) || !priceData())) {
+        return itemData?.minimumPrice!
+      }
+       // Not Applicable(재설계 필요)
       else if (itemData?.id && itemData?.id === -1) return 0
+
       // 신규 item
-      else return minimumPrice
+      else {
+        return minimumPrice()
+      }
     }
+
+    const showMinimum = itemData.minimumPriceApplied
+    const setShowMinimum = (value: boolean) => {
+      if (value) {
+        if (currentMinimumPrice()) setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
+      }
+      else if(!value) setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
+    }
+
     // 현재 row의 프라이스 유닛에 적용될 currency 값
     // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 currency 추출
     // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 currency 값 추출
     const currentCurrency = () => {
+      // setPriceData(getPriceData())
       // 기존 item
       if (itemData?.id && itemData?.id !== -1)
         return itemData?.initialPrice?.currency!
       // Not Applicable(재설계 필요)
       else if (itemData?.id && itemData?.id === -1) return 'USD'
       // 신규 item
-      else return priceData?.currency!
+      else return priceData()?.currency!
     }
+    
     const {
       fields: details,
       append,
@@ -413,37 +432,42 @@ export default function ItemForm({
       name: itemName,
     })
 
-    function onDeletePriceUnit(idx: number) {
-      remove(idx)
+    function onDeletePriceUnit(index: number) {
+      remove(index)
+      if(getValues(`items.${idx}.detail`)?.length === 0) {
+        setShowMinimum(true)
+      }
+      
+    }
+
+    function onDeleteAllPriceUnit() {
+      details.map((unit, idx) => remove(idx))
+      setShowMinimum(true)
     }
 
     function getTotalPrice() {
       let total = 0
       const data = getValues(itemName)
-      console.log(itemData)
 
       if (data?.length) {
         const price = data.reduce(
           (res, item) => (res += Number(item.prices)),
           0,
         )
-        console.log(data)
-
-        console.log(price)
 
         const itemMinimumPrice = currentMinimumPrice()
-        console.log(itemMinimumPrice)
-
-        if (itemMinimumPrice && price < itemMinimumPrice) {
+        
+        if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
           })
-          total += itemMinimumPrice
+          // setShowMinimum(true)
+          total = itemMinimumPrice
         } else {
+          // setShowMinimum(false)
           total = price
         }
       }
-
       if (total === itemData.totalPrice) return
       setValue(`items.${idx}.totalPrice`, total, {
         shouldDirty: true,
@@ -453,9 +477,9 @@ export default function ItemForm({
 
     function getEachPrice(
       index: number,
-      showMinimum?: boolean,
       isNotApplicable?: boolean,
     ) {
+      // setPriceData(getPriceData())
       const data = getValues(itemName)
       if (!data?.length) return
       let prices = 0
@@ -484,12 +508,12 @@ export default function ItemForm({
       // }
       const roundingPrice = formatByRoundingProcedure(
         prices,
-        priceData?.decimalPlace!
-          ? priceData?.decimalPlace!
+        priceData()?.decimalPlace!
+          ? priceData()?.decimalPlace!
           : currentCurrency() === 'USD' || currentCurrency() === 'SGD'
           ? 2
           : 1000,
-        priceData?.roundingProcedure! ?? 0,
+        priceData()?.roundingProcedure! ?? 0,
         currentCurrency(),
       )
       // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
@@ -547,7 +571,7 @@ export default function ItemForm({
           currency: fields[idx]?.initialPrice?.currency! || 'USD',
           unitPrice: newData.priceUnitPrice,
           prices: item.prices,
-          priceFactor: priceFactor ? String(priceFactor) : null,
+          priceFactor: priceFactor() ? String(priceFactor()) : null,
         })
       })
       getTotalPrice()
@@ -869,8 +893,6 @@ export default function ItemForm({
                             // Not Applicable 임시 막기
                             // currency 체크 로직
                             if (v) {
-                              console.log(v)
-
                               if (checkPriceCurrency(v, idx)) {
                                 onChange(v?.id)
                                 const value = getValues().items[idx]
@@ -883,6 +905,8 @@ export default function ItemForm({
                                   const copyLangPair = [...languagePairs]
                                   copyLangPair[index].price = v
                                 }
+                                getTotalPrice()
+                                setShowMinimum(true)
                               }
                             }
                           }}
@@ -913,7 +937,7 @@ export default function ItemForm({
                 index={idx}
                 minimumPrice={currentMinimumPrice()}
                 details={details}
-                priceData={priceData}
+                priceData={priceData()}
                 getValues={getValues}
                 append={append}
                 update={update}
@@ -928,8 +952,8 @@ export default function ItemForm({
                 }
                 // isNotApplicable={isNotApplicable()}
                 priceUnitsList={priceUnitsList}
-                // showMinimum={showMinimum}
-                // setShowMinimum={setShowMinimum}
+                showMinimum={showMinimum}
+                setShowMinimum={setShowMinimum}
                 type={type}
                 sumTotalPrice={sumTotalPrice}
                 fields={fields}
@@ -1019,8 +1043,8 @@ export default function ItemForm({
                     control={control}
                     index={idx}
                     details={details}
-                    priceData={priceData}
-                    priceFactor={priceFactor}
+                    priceData={priceData()}
+                    priceFactor={priceFactor()}
                     onCopyAnalysis={onCopyAnalysis}
                     type={type}
                   />

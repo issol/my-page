@@ -137,7 +137,7 @@ export type updateOrderType =
   | ProjectTeamFormType
   | ClientFormType
   | { status: number }
-  | { tax: null | number; isTaxable: '0' | '1'; subTotal: number }
+  | { tax: null | number; isTaxable: '0' | '1'; subtotal: number }
   | { downloadedAt: string }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
@@ -483,8 +483,9 @@ const OrderDetail = () => {
         totalPrice: item?.totalPrice ?? 0,
         dueAt: item?.dueAt,
         showItemDescription: item.showItemDescription,
-        initialPrice: item.initialPrice ?? null,
+        initialPrice: item.initialPrice ?? {},
         minimumPrice: item.minimumPrice,
+        minimumPriceApplied: item.minimumPriceApplied,
       }
     })
     itemReset({ items: result })
@@ -823,6 +824,7 @@ const OrderDetail = () => {
           showItemDescription: item.showItemDescription,
           initialPrice: item.initialPrice ?? {},
           minimumPrice: item.minimumPrice,
+          minimumPriceApplied: item.minimumPriceApplied,
         }
       })
       itemReset({ items: result })
@@ -882,12 +884,13 @@ const OrderDetail = () => {
   const onSubmitItems = () => {
     setLangItemsEdit(false)
     const items: PostItemType[] = getItem().items.map(item => {
-      const { contactPerson, ...filterItem } = item
+      const { contactPerson, minimumPrice, ...filterItem } = item
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
+        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
       }
     })
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
@@ -906,30 +909,40 @@ const OrderDetail = () => {
       }
     })
 
-    patchLanguagePairs.mutate(
-      { id: Number(id!), langPair: langs },
-      {
-        onSuccess: () => {
-          patchItems.mutate(
-            { id: Number(id!), items: items },
-            {
-              onSuccess: () => {
-                setLangItemsEdit(false)
-                queryClient.invalidateQueries(`LangItem-${Number(id!)}`)
-                closeModal('LanguageAndItemEditModal')
-              },
-            },
-          )
-        },
-      },
-    )
-    const subTotal = items.reduce((accumulator, item) => {
+    const subtotal = items.reduce((accumulator, item) => {
       return accumulator + item.totalPrice
     }, 0)
-    updateProject.mutate({
-      isTaxable: taxable ? '1' : '0',
-      tax,
-      subTotal: subTotal,
+    onSave(async () => {
+      try {
+        patchLanguagePairs.mutate(
+          { id: Number(id!), langPair: langs },
+          {
+            onSuccess: () => {
+              patchItems.mutate(
+                { id: Number(id!), items: items },
+                {
+                  onSuccess: () => {
+                    updateProject.mutate({
+                      isTaxable: taxable ? '1' : '0',
+                      tax,
+                      subtotal: subtotal,
+                    },
+                    {
+                      onSuccess: () => {
+                        setLangItemsEdit(false)
+                        queryClient.invalidateQueries(`LangItem-${Number(id!)}`)
+                        closeModal('LanguageAndItemEditModal')
+                      }
+                    })
+                  },
+                },
+              )
+            },
+          },
+        )
+      } catch(e: any) {
+        onMutationError()
+      }
     })
   }
 

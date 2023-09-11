@@ -155,6 +155,7 @@ export type LanguagePairTypeInItem = {
     authorId: number
   } | null
   minimumPrice?: string | null
+  minimumPriceApplied?: boolean | null
   currency?: string | null
 }
 

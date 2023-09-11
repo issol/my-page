@@ -131,6 +131,8 @@ export default function HistoryDetail({
         priceId: null,
         detail: [],
         totalPrice: 0,
+        minimumPrice: null,
+        minimumPriceApplied: false,
       })
     }
   }, [jobPrices])

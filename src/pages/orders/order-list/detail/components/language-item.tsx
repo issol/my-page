@@ -145,18 +145,18 @@ const LanguageAndItem = ({
   canUseFeature,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-  console.log("items",items)
+
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
   const isUpdatable = canUseFeature('tab-Languages&Items')
   const currentRole = getCurrentRole()
 
-  const [subTotal, setSubTotal] = useState(0)
+  const [subtotal, setSubTotal] = useState(0)
   function sumTotalPrice() {
-    const subTotal = langItemsEdit ? getItem()?.items! : items
-    if (subTotal) {
-      const total = subTotal.reduce((accumulator, item) => {
+    const subtotal = langItemsEdit ? getItem()?.items! : items
+    if (subtotal) {
+      const total = subtotal.reduce((accumulator, item) => {
         return accumulator + item.totalPrice;
       }, 0)
       setSubTotal(total)
@@ -227,6 +227,7 @@ const LanguageAndItem = ({
       totalPrice: 0,
       showItemDescription: false,
       minimumPrice: null,
+      minimumPriceApplied: false,
     })
   }
 
@@ -360,7 +361,7 @@ const LanguageAndItem = ({
           </Button>
         </Grid>
       ) : null}
-      {/* subTotal */}
+      {/* subtotal */}
       <Grid item xs={12}>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Box
@@ -392,7 +393,7 @@ const LanguageAndItem = ({
                 items.length && items[0].initialPrice
                   ? formatCurrency(
                       formatByRoundingProcedure(
-                        langItemsEdit ? subTotal : Number(project?.subtotal),
+                        langItemsEdit ? subtotal : Number(project?.subtotal),
                         items[0].initialPrice?.numberPlace!,
                         items[0].initialPrice?.rounding!,
                         items[0].initialPrice?.currency!,

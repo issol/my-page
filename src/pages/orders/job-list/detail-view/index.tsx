@@ -151,6 +151,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
         priceId: null,
         detail: [],
         totalPrice: 0,
+        minimumPrice: null,
+        minimumPriceApplied: false,
       })
     }
   }, [jobPrices])
