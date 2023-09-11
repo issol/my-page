@@ -65,7 +65,7 @@ type Props = {
   setValue: UseFormSetValue<ClientFormType>
   getValue: UseFormGetValues<ClientFormType>
   watch: UseFormWatch<ClientFormType>
-  setTax: (n: number | null) => void
+
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'edit' | 'create'
@@ -74,7 +74,7 @@ export default function ClientQuotesFormContainer({
   control,
   setValue,
   watch,
-  setTax,
+
   setTaxable,
   type,
   formType,
@@ -291,7 +291,6 @@ export default function ClientQuotesFormContainer({
           getValue={getValue}
           watch={watch}
           clientList={clients}
-          setTax={setTax}
           setTaxable={setTaxable}
           type={type}
           formType={formType}

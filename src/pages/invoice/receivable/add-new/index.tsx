@@ -208,7 +208,7 @@ export default function AddNewInvoice() {
   // })
 
   // ** step1
-  const [tax, setTax] = useState<null | number>(null)
+
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -383,7 +383,6 @@ export default function AddNewInvoice() {
     const rawProjectInfo = getProjectInfoValues()
     const projectInfo = {
       ...rawProjectInfo,
-      tax: !rawProjectInfo.isTaxable ? null : tax,
     }
 
     const res: InvoiceReceivablePatchParamsType = {
@@ -401,6 +400,7 @@ export default function AddNewInvoice() {
       taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date,
       taxInvoiceDueTimezone: projectInfo.taxInvoiceDueDate?.timezone,
       invoiceDescription: projectInfo.invoiceDescription,
+      setReminder: projectInfo.sendReminder ? '1' : '0',
     }
 
     openModal({
@@ -524,7 +524,7 @@ export default function AddNewInvoice() {
         })
       getProjectInfo(id)
         .then(res => {
-          // console.log(res)
+          console.log(res)
 
           projectInfoReset({
             invoiceDate: Date(),
@@ -545,8 +545,8 @@ export default function AddNewInvoice() {
               },
             },
             isTaxable: res.isTaxable ?? true,
+            tax: res.tax ?? null,
           })
-          setTax(res?.tax ?? null)
         })
         .catch(e => {
           return
@@ -660,7 +660,6 @@ export default function AddNewInvoice() {
                 control={clientControl}
                 setValue={setClientValue}
                 watch={clientWatch}
-                setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type='invoice'
                 formType='create'
@@ -695,6 +694,7 @@ export default function AddNewInvoice() {
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
                   clientTimezone={getClientValue('contacts.timezone')}
+                  type='create'
                 />
                 <Grid
                   item
@@ -815,7 +815,12 @@ export default function AddNewInvoice() {
                 </Box>
 
                 <Box display='flex' alignItems='center' gap='4px'>
-                  <Box>{!getProjectInfoValues().isTaxable ? '-' : tax}</Box>%
+                  <Box>
+                    {!getProjectInfoValues().isTaxable
+                      ? '-'
+                      : getProjectInfoValues().tax}
+                  </Box>
+                  %
                 </Box>
               </Grid>
               <Grid item xs={12}>
@@ -943,7 +948,9 @@ export default function AddNewInvoice() {
                 <Button
                   variant='contained'
                   disabled={
-                    !isItemValid && getProjectInfoValues('isTaxable') && !tax
+                    !isItemValid &&
+                    getProjectInfoValues('isTaxable') &&
+                    getProjectInfoValues('tax') === null
                   }
                   onClick={onSubmit}
                 >

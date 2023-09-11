@@ -40,7 +40,7 @@ type Props = {
   setValue: UseFormSetValue<ClientFormType>
   watch: UseFormWatch<ClientFormType>
   clientList: Array<{ value: number; label: string }>
-  setTax: (n: number) => void
+
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'create' | 'edit'
@@ -52,7 +52,7 @@ export default function RegisterClientForm({
   setValue,
   watch,
   clientList,
-  setTax,
+
   setTaxable,
   type,
   formType,
@@ -111,7 +111,6 @@ export default function RegisterClientForm({
       contracts.fax = clientDetail?.fax
       contracts.email = clientDetail?.email
       if (clientDetail?.isTaxable && clientDetail?.tax) {
-        setTax(clientDetail.tax)
         setTaxable(clientDetail.isTaxable)
       }
     } else {
