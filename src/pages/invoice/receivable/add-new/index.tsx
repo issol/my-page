@@ -553,7 +553,7 @@ export default function AddNewInvoice() {
           const result = res?.items?.map(item => {
             return {
               id: item.id,
-              name: item.name,
+              name: item.itemName,
               source: item.source,
               target: item.target,
               priceId: item.priceId,

@@ -418,7 +418,7 @@ export default function AddNewOrder() {
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      name: '',
+      itemName: '',
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
@@ -712,7 +712,7 @@ export default function AddNewOrder() {
           const result = res?.items?.map(item => {
             return {
               id: item.id,
-              name: item.name,
+              name: item.itemName,
               source: item.source,
               target: item.target,
               priceId: item.priceId,

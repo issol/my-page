@@ -28,10 +28,7 @@ type Props = {
   currency: 'USD' | 'KRW' | 'SGD' | 'JPY'
 }
 
-export default function MakeTable({ 
-  rows, 
-  currency 
-}: Props) {
+export default function MakeTable({ rows, currency }: Props) {
   const [newRows, setNewRows] = useState(rows)
 
   function calculatePrice(row: ItemDetailType[]): number {
@@ -41,9 +38,9 @@ export default function MakeTable({
   }
   // minimumPrice 정보가 없으므로 Row의 totalPrice와 Row.detail의 prices의 합이 다르면 minimumPrice가 적용된 것으로 간주한다.
   const setMinimumPriceRow = () => {
-    const dummyRow = JSON.parse(JSON.stringify(rows));
+    const dummyRow = JSON.parse(JSON.stringify(rows))
     rows.map((row, idx) => {
-      if(row.detail) {
+      if (row.detail) {
         const calPrice = calculatePrice(row.detail)
         if (calPrice !== row.totalPrice) {
           const addRow = {
@@ -63,7 +60,7 @@ export default function MakeTable({
           setNewRows(dummyRow)
         }
       }
-    })  
+    })
   }
   useEffect(() => {
     setMinimumPriceRow()
@@ -88,7 +85,7 @@ export default function MakeTable({
                   >
                     [{languageHelper(row.source)} &rarr;{' '}
                     {languageHelper(row.target)}
-                    ]&nbsp;{row.name}
+                    ]&nbsp;{row.itemName}
                   </Typography>
                 ) : null}
 

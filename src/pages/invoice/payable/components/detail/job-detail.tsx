@@ -147,7 +147,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
       itemReset({ items: result })
     } else {
       appendItems({
-        name: '',
+        itemName: '',
         source: 'en',
         target: 'ko',
         priceId: null,

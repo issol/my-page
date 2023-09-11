@@ -155,7 +155,7 @@ export type updateProjectInfoType =
   | ProjectTeamFormType
   | ClientPostType
   | { tax: null | number; isTaxable: boolean }
-  | { tax: null | number; isTaxable: boolean, subtotal: number }
+  | { tax: null | number; isTaxable: boolean; subtotal: number }
   | { status: number }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
@@ -488,7 +488,7 @@ export default function QuotesDetail() {
         const result = itemsWithLang?.items?.map(item => {
           return {
             id: item.id,
-            name: item.name,
+            name: item.itemName,
             source: item.source,
             target: item.target,
             priceId: item.priceId,

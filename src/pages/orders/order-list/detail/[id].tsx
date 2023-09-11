@@ -472,7 +472,7 @@ const OrderDetail = () => {
     const result = langItem?.items?.map(item => {
       return {
         id: item.id,
-        name: item.name,
+        name: item.itemName,
         source: item.source,
         target: item.target,
         priceId: item.priceId,
@@ -483,7 +483,7 @@ const OrderDetail = () => {
         totalPrice: item?.totalPrice ?? 0,
         dueAt: item?.dueAt,
         showItemDescription: item.showItemDescription,
-        initialPrice: item.initialPrice ?? {},
+        initialPrice: item.initialPrice,
         minimumPrice: item.minimumPrice,
         minimumPriceApplied: item.minimumPriceApplied,
       }
@@ -811,7 +811,7 @@ const OrderDetail = () => {
       const result = langItem?.items?.map(item => {
         return {
           id: item.id,
-          name: item.name,
+          name: item.itemName,
           source: item.source,
           target: item.target,
           priceId: item.priceId,
@@ -822,7 +822,7 @@ const OrderDetail = () => {
           totalPrice: item?.totalPrice ?? 0,
           dueAt: item?.dueAt,
           showItemDescription: item.showItemDescription,
-          initialPrice: item.initialPrice ?? {},
+          initialPrice: item.initialPrice,
           minimumPrice: item.minimumPrice,
           minimumPriceApplied: item.minimumPriceApplied,
         }
@@ -922,25 +922,29 @@ const OrderDetail = () => {
                 { id: Number(id!), items: items },
                 {
                   onSuccess: () => {
-                    updateProject.mutate({
-                      isTaxable: taxable ? '1' : '0',
-                      tax,
-                      subtotal: subtotal,
-                    },
-                    {
-                      onSuccess: () => {
-                        setLangItemsEdit(false)
-                        queryClient.invalidateQueries(`LangItem-${Number(id!)}`)
-                        closeModal('LanguageAndItemEditModal')
-                      }
-                    })
+                    updateProject.mutate(
+                      {
+                        isTaxable: taxable ? '1' : '0',
+                        tax,
+                        subtotal: subtotal,
+                      },
+                      {
+                        onSuccess: () => {
+                          setLangItemsEdit(false)
+                          queryClient.invalidateQueries(
+                            `LangItem-${Number(id!)}`,
+                          )
+                          closeModal('LanguageAndItemEditModal')
+                        },
+                      },
+                    )
                   },
                 },
               )
             },
           },
         )
-      } catch(e: any) {
+      } catch (e: any) {
         onMutationError()
       }
     })

@@ -366,13 +366,16 @@ export default function ItemForm({
 
     // standard price에 등록된 데이터중 매칭된 데이터
     const priceData = () => {
-      return getPriceOptions(itemData.source, itemData.target).find(
-        price => price.id === itemData.priceId,
-      ) || null
+      return (
+        getPriceOptions(itemData.source, itemData.target).find(
+          price => price.id === itemData.priceId,
+        ) || null
+      )
     }
-    const languagePairData = () => priceData()?.languagePairs?.find(
-      i => i.source === sourceLanguage && i.target === targetLanguage,
-    )
+    const languagePairData = () =>
+      priceData()?.languagePairs?.find(
+        i => i.source === sourceLanguage && i.target === targetLanguage,
+      )
     const minimumPrice = () => languagePairData()?.minimumPrice
     const priceFactor = () => languagePairData()?.priceFactor
     // 여기까지
@@ -382,18 +385,26 @@ export default function ItemForm({
     // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 minimumPrice 값 추출
     const currentMinimumPrice = () => {
       // 기존 item에서 price 변경, 이때는 Standard price의 minimum price 값을 줘야 함
-      if (itemData?.id && itemData?.id !== -1 && priceData() && itemData?.initialPrice?.priceId !== priceData()?.id) {
+      if (
+        itemData?.id &&
+        itemData?.id !== -1 &&
+        priceData() &&
+        itemData?.initialPrice?.priceId !== priceData()?.id
+      ) {
         return minimumPrice()
       }
-     
+
       // 기존 item
       // standard price 데이터가 없다면 쿼츠 작성 후 standard price가 삭제된 케이스이므로 여기서 처리
-      else if ((itemData?.id && itemData?.id !== -1) || ((itemData?.id && itemData?.id !== -1) || !priceData())) {
+      else if (
+        (itemData?.id && itemData?.id !== -1) ||
+        (itemData?.id && itemData?.id !== -1) ||
+        !priceData()
+      ) {
         return itemData?.minimumPrice!
       }
-       // Not Applicable(재설계 필요)
+      // Not Applicable(재설계 필요)
       else if (itemData?.id && itemData?.id === -1) return 0
-
       // 신규 item
       else {
         return minimumPrice()
@@ -403,9 +414,10 @@ export default function ItemForm({
     const showMinimum = itemData.minimumPriceApplied
     const setShowMinimum = (value: boolean) => {
       if (value) {
-        if (currentMinimumPrice()) setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
-      }
-      else if(!value) setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
+        if (currentMinimumPrice())
+          setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
+      } else if (!value)
+        setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
     }
 
     // 현재 row의 프라이스 유닛에 적용될 currency 값
@@ -421,7 +433,7 @@ export default function ItemForm({
       // 신규 item
       else return priceData()?.currency!
     }
-    
+
     const {
       fields: details,
       append,
@@ -434,10 +446,9 @@ export default function ItemForm({
 
     function onDeletePriceUnit(index: number) {
       remove(index)
-      if(getValues(`items.${idx}.detail`)?.length === 0) {
+      if (getValues(`items.${idx}.detail`)?.length === 0) {
         setShowMinimum(true)
       }
-      
     }
 
     function onDeleteAllPriceUnit() {
@@ -456,7 +467,7 @@ export default function ItemForm({
         )
 
         const itemMinimumPrice = currentMinimumPrice()
-        
+
         if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
@@ -475,10 +486,7 @@ export default function ItemForm({
       })
     }
 
-    function getEachPrice(
-      index: number,
-      isNotApplicable?: boolean,
-    ) {
+    function getEachPrice(index: number, isNotApplicable?: boolean) {
       // setPriceData(getPriceData())
       const data = getValues(itemName)
       if (!data?.length) return
@@ -628,7 +636,7 @@ export default function ItemForm({
                 <Typography fontWeight={500}>
                   {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}&nbsp;
                   {type === 'detail' || type === 'invoiceDetail'
-                    ? getValues(`items.${idx}.name`)
+                    ? getValues(`items.${idx}.itemName`)
                     : null}
                 </Typography>
               </Box>
@@ -644,7 +652,7 @@ export default function ItemForm({
               {type === 'detail' || type === 'invoiceDetail' ? null : (
                 <Grid item xs={12}>
                   <Controller
-                    name={`items.${idx}.name`}
+                    name={`items.${idx}.itemName`}
                     control={control}
                     render={({ field: { value, onChange } }) => (
                       <TextField
@@ -654,7 +662,7 @@ export default function ItemForm({
                         value={value ?? ''}
                         onChange={onChange}
                         inputProps={{ maxLength: 200 }}
-                        error={Boolean(errors?.items?.[idx]?.name)}
+                        error={Boolean(errors?.items?.[idx]?.itemName)}
                       />
                     )}
                   />

@@ -124,7 +124,7 @@ export default function HistoryDetail({
       itemReset({ items: result })
     } else {
       appendItems({
-        name: '',
+        itemName: '',
         source: 'en',
         target: 'ko',
         contactPersonId: 0,

@@ -142,14 +142,14 @@ export default function QuotesLanguageItemsDetail({
     const subtotal = isEditMode ? getItem()?.items! : items
     if (subtotal) {
       const total = subtotal.reduce((accumulator, item) => {
-        return accumulator + item.totalPrice;
+        return accumulator + item.totalPrice
       }, 0)
       setSubTotal(total)
     }
   }
   useEffect(() => {
     sumTotalPrice()
-  },[items])
+  }, [items])
 
   function getPriceOptions(source: string, target: string, index?: number) {
     if (!isSuccess) return [defaultOption]
@@ -244,7 +244,7 @@ export default function QuotesLanguageItemsDetail({
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      name: '',
+      itemName: '',
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
@@ -345,27 +345,23 @@ export default function QuotesLanguageItemsDetail({
               variant='subtitle1'
               sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
             >
-              { 
-                items.length && items[0].initialPrice
-                  ? formatCurrency(
-                      formatByRoundingProcedure(
-                        isEditMode ? subtotal : Number(project?.subtotal),
-                        items[0].initialPrice?.numberPlace!,
-                        items[0].initialPrice?.rounding!,
-                        items[0].initialPrice?.currency!,
-                      ),
+              {items.length && items[0].initialPrice
+                ? formatCurrency(
+                    formatByRoundingProcedure(
+                      isEditMode ? subtotal : Number(project?.subtotal),
+                      items[0].initialPrice?.numberPlace!,
+                      items[0].initialPrice?.rounding!,
                       items[0].initialPrice?.currency!,
-                    )
-                  : 0
-            }
+                    ),
+                    items[0].initialPrice?.currency!,
+                  )
+                : 0}
             </Typography>
           </Box>
         </Box>
       </Grid>
       {/* tax */}
-      {role.name === 'CLIENT' ? (
-        null
-      ) : (
+      {role.name === 'CLIENT' ? null : (
         <Grid
           item
           xs={12}

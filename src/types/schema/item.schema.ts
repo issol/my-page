@@ -6,7 +6,7 @@ import { ItemType } from '../common/item.type'
 export const itemDefaultValue: { items: ItemType[] } = {
   items: [
     {
-      name: '',
+      itemName: '',
       source: '',
       target: '',
       priceId: null,
@@ -21,7 +21,7 @@ export const itemDefaultValue: { items: ItemType[] } = {
 export const itemSchema = yup.object().shape({
   items: yup.array().of(
     yup.object().shape({
-      name: yup.string().required(FormErrors.required),
+      itemName: yup.string().required(FormErrors.required),
       dueAt: yup.string().required(FormErrors.required),
       contactPersonId: yup.string().required(FormErrors.required),
       source: yup.string().required(FormErrors.required),

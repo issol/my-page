@@ -50,7 +50,7 @@ export default function MakeTable({ rows }: { rows: ItemType[] }) {
                   >
                     [{languageHelper(row.source)} &rarr;{' '}
                     {languageHelper(row.target)}
-                    ]&nbsp;{row.name}
+                    ]&nbsp;{row.itemName}
                   </Typography>
                 ) : null}
 

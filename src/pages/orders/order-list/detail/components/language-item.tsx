@@ -23,7 +23,7 @@ import {
 
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
 
-import { Dispatch, SetStateAction, useState, useEffect, } from 'react'
+import { Dispatch, SetStateAction, useState, useEffect } from 'react'
 import {
   Control,
   FieldArrayWithId,
@@ -36,7 +36,10 @@ import {
 } from 'react-hook-form'
 import { UseMutationResult } from 'react-query'
 import { updateOrderType } from '../[id]'
-import { formatByRoundingProcedure, formatCurrency } from '@src/shared/helpers/price.helper'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 
 type Props = {
   langItem: LanguageAndItemType
@@ -157,14 +160,14 @@ const LanguageAndItem = ({
     const subtotal = langItemsEdit ? getItem()?.items! : items
     if (subtotal) {
       const total = subtotal.reduce((accumulator, item) => {
-        return accumulator + item.totalPrice;
+        return accumulator + item.totalPrice
       }, 0)
       setSubTotal(total)
     }
   }
   useEffect(() => {
     sumTotalPrice()
-  },[items])
+  }, [items])
 
   function getPriceOptions(source: string, target: string, index?: number) {
     if (!isSuccess) return [defaultOption]
@@ -218,7 +221,7 @@ const LanguageAndItem = ({
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      name: '',
+      itemName: '',
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
@@ -288,7 +291,10 @@ const LanguageAndItem = ({
           <Button
             variant='outlined'
             sx={{ display: 'flex', gap: '8px', mb: '24px' }}
-            disabled={items.length <= 0 || !canUseFeature('button-Languages&Items-SplitOrder')}
+            disabled={
+              items.length <= 0 ||
+              !canUseFeature('button-Languages&Items-SplitOrder')
+            }
             onClick={onClickSplitOrder}
           >
             <Icon icon='ic:baseline-splitscreen' />
@@ -297,7 +303,8 @@ const LanguageAndItem = ({
           {isUpdatable ? (
             <IconButton
               onClick={() => {
-                if (canUseFeature('button-Edit-Set-Status-To-UnderRevision')) updateStatus && updateStatus(10500)
+                if (canUseFeature('button-Edit-Set-Status-To-UnderRevision'))
+                  updateStatus && updateStatus(10500)
                 setLangItemsEdit(!langItemsEdit)
               }}
             >
@@ -389,19 +396,17 @@ const LanguageAndItem = ({
               variant='subtitle1'
               sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
             >
-              { 
-                items.length && items[0].initialPrice
-                  ? formatCurrency(
-                      formatByRoundingProcedure(
-                        langItemsEdit ? subtotal : Number(project?.subtotal),
-                        items[0].initialPrice?.numberPlace!,
-                        items[0].initialPrice?.rounding!,
-                        items[0].initialPrice?.currency!,
-                      ),
+              {items.length && items[0].initialPrice !== null
+                ? formatCurrency(
+                    formatByRoundingProcedure(
+                      langItemsEdit ? subtotal : Number(project?.subtotal),
+                      items[0].initialPrice?.numberPlace!,
+                      items[0].initialPrice?.rounding!,
                       items[0].initialPrice?.currency!,
-                    )
-                  : 0
-            }
+                    ),
+                    items[0].initialPrice?.currency!,
+                  )
+                : 0}
             </Typography>
           </Box>
         </Box>

@@ -14,7 +14,7 @@ export type ItemType = Omit<
   showItemDescription?: boolean
 } & {
   contactPerson?: ContactPersonType | null
-  initialPrice?: PriceType
+  initialPrice?: PriceType | null
   minimumPrice: number | null
   minimumPriceApplied: boolean
 }
@@ -27,7 +27,7 @@ export type AnalysisFileType = {
 }
 export type PostItemType = {
   id?: number
-  name: string
+  itemName: string
   dueAt?: string
   contactPersonId?: number
   source: string

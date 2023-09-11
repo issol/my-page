@@ -145,7 +145,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
       itemReset({ items: result })
     } else {
       appendItems({
-        name: '',
+        itemName: '',
         source: 'en',
         target: 'ko',
         priceId: null,
