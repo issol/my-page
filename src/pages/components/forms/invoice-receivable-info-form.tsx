@@ -59,6 +59,7 @@ import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 import InformationModal from '@src/@core/components/common-modal/information-modal'
 import { ClientType } from '@src/types/orders/order-detail'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
+import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
 
 type Props = {
   control: Control<InvoiceProjectInfoFormType, any>
@@ -89,6 +90,23 @@ export default function InvoiceProjectInfoForm({
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   const isClientRegistered = client?.contactPerson?.userId !== null
+
+  const formattedNow = (now: Date) => {
+    const minutes = now.getMinutes()
+
+    const formattedMinutes =
+      minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
+
+    const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
+    const formattedTime = `${formattedHours}:${formattedMinutes
+      .toString()
+      .padStart(2, '0')}`
+    const formattedDate = new Date(now)
+    formattedDate.setHours(parseInt(formattedTime.split(':')[0]))
+    formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
+
+    return formattedDate
+  }
 
   useEffect(() => {
     if (clientTimezone) {
@@ -163,11 +181,8 @@ export default function InvoiceProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={30}
-              selected={new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
+              {...DateTimePickerDefaultOptions}
+              selected={!value ? null : formattedNow(new Date(value))}
               onChange={onChange}
               customInput={
                 <CustomInput label='Invoice date*' icon='calendar' />
