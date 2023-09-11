@@ -590,7 +590,7 @@ export default function AddNewOrder() {
   }
 
   async function onCopyQuote(id: number | null) {
-    const priceList = await getClientPriceList({})
+    // const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
       getQuoteProjectTeam(id)
@@ -598,21 +598,38 @@ export default function AddNewOrder() {
           const teams: Array<{
             type: MemberType
             id: number | null
-            name: string
-          }> = res.map(item => ({
-            type:
-              item.position === 'projectManager'
-                ? 'projectManagerId'
-                : item.position === 'supervisor'
-                ? 'supervisorId'
-                : 'member',
-            id: item.userId,
-            name: getLegalName({
-              firstName: item?.firstName!,
-              middleName: item?.middleName,
-              lastName: item?.lastName!,
-            }),
-          }))
+            name?: string
+          }> = res.reduce(
+            (acc, item) => {
+              const type =
+                item.position === 'projectManager'
+                  ? 'projectManagerId'
+                  : item.position === 'supervisor'
+                  ? 'supervisorId'
+                  : 'member'
+              const id = item.userId
+              const name = getLegalName({
+                firstName: item?.firstName!,
+                middleName: item?.middleName,
+                lastName: item?.lastName!,
+              })
+              acc.push({ type, id, name })
+              return acc
+            },
+            [] as Array<{
+              type: MemberType
+              id: number | null
+              name?: string
+            }>,
+          )
+          if (!teams.find(value => value.type === 'supervisorId')) {
+            teams.unshift({ type: 'supervisorId', id: null })
+          }
+          if (!teams.find(value => value.type === 'member')) {
+            teams.push({ type: 'member', id: null })
+          }
+          console.log(teams, 'hi')
+
           resetTeam({ teams })
         })
         .catch(e => {
