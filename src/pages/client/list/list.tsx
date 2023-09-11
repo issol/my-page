@@ -59,11 +59,11 @@ export default function ClientList({
       flex: 0.1,
       minWidth: 210,
       field: 'name',
-      headerName: 'Company name / Email',
+      headerName: 'Name / Email',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Company name / Email</Box>,
+      renderHeader: () => <Box>Name / Email</Box>,
       renderCell: ({ row }: ClientListCellType) => {
         return (
           <Box display='flex' flexDirection='column'>
