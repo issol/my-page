@@ -271,8 +271,6 @@ export default function ItemForm({
     })
   }
 
-
-
   function onItemRemove(idx: number) {
     openModal({
       type: 'delete-item',
@@ -299,10 +297,7 @@ export default function ItemForm({
   }
 
   const openMinimumPriceModal = (value: any) => {
-    const minimumPrice = formatCurrency(
-      value.minimumPrice,
-      value.currency,
-    )
+    const minimumPrice = formatCurrency(value.minimumPrice, value.currency)
     openModal({
       type: 'info-minimum',
       children: (
@@ -312,7 +307,7 @@ export default function ItemForm({
           title={
             <>
               The selected price includes a minimum price setting. <br />
-              <br /> Minimum price : ${minimumPrice} <br />
+              <br /> Minimum price : {minimumPrice} <br />
               <br />
               If the amount of the added price unit is lower than the minimum
               price, the minimum price will be automatically applied to the
@@ -337,18 +332,18 @@ export default function ItemForm({
   const Row = ({ idx }: { idx: number }) => {
     const debounce = <F extends (...args: any[]) => void>(
       func: F,
-      delay: number
+      delay: number,
     ) => {
-      let timerId: NodeJS.Timeout | null;
+      let timerId: NodeJS.Timeout | null
       return (...args: Parameters<F>) => {
         if (timerId) {
-          clearTimeout(timerId);
+          clearTimeout(timerId)
         }
         timerId = setTimeout(() => {
-          func(...args);
-        }, delay);
-      };
-    };
+          func(...args)
+        }, delay)
+      }
+    }
 
     const [cardOpen, setCardOpen] = useState(true)
     const itemData = getValues(`items.${idx}`)
@@ -358,7 +353,6 @@ export default function ItemForm({
 
     // standard price에 등록된 데이터중 매칭된 데이터
 
-    
     const priceData = () => {
       return (
         getPriceOptions(itemData.source, itemData.target).find(
@@ -372,7 +366,7 @@ export default function ItemForm({
     // const minimumPrice = () => languagePairData()?.minimumPrice
     // const priceFactor = () => languagePairData()?.priceFactor
     // 여기까지
-    
+
     // 현재 row의 프라이스 유닛에 적용될 minimumPrice 값
     // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 minimumPrice 추출
     // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 minimumPrice 값 추출
@@ -388,7 +382,7 @@ export default function ItemForm({
     //     console.log("#1",minimumPrice())
     //     return minimumPrice()
     //   }
-     
+
     //   // 기존 아이템에서 변경되었으나, 기존과 priceId가 같은 경우, 어쨋든 변경된 케이스이므로 Standard price의 minimum price를 줘야 함
     //   if (itemData?.initialPrice?.priceId === priceData()?.id && type === 'edit') {
     //     console.log("#2",minimumPrice())
@@ -418,7 +412,6 @@ export default function ItemForm({
     const handleShowMinimum = (value: boolean) => {
       const minimumPrice = getValues(`items.${idx}.minimumPrice`)
       const totalPrice = getValues(`items.${idx}.totalPrice`)
-
 
       if (value) {
         if (minimumPrice && minimumPrice > totalPrice) {
@@ -594,7 +587,9 @@ export default function ItemForm({
           currency: fields[idx]?.initialPrice?.currency! || 'USD',
           unitPrice: newData.priceUnitPrice,
           prices: item.prices,
-          priceFactor: getValues(`items.${idx}.priceFactor`) ? String(getValues(`items.${idx}.priceFactor`)) : null,
+          priceFactor: getValues(`items.${idx}.priceFactor`)
+            ? String(getValues(`items.${idx}.priceFactor`))
+            : null,
         })
       })
       getTotalPrice()
@@ -609,7 +604,7 @@ export default function ItemForm({
     function onChangeLanguagePair(v: languageType | null, idx: number) {
       setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
       setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
-      
+
       if (v?.price) {
         setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
         const priceData = getPriceOptions(v?.source, v?.target).find(
@@ -622,10 +617,18 @@ export default function ItemForm({
         const priceFactor = languagePairData?.priceFactor
         const currency = languagePairData?.currency
 
-        setValue(`items.${idx}.totalPrice`,0 , setValueOptions)
-        setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0, setValueOptions)
+        setValue(`items.${idx}.totalPrice`, 0, setValueOptions)
+        setValue(
+          `items.${idx}.minimumPrice`,
+          minimumPrice ?? 0,
+          setValueOptions,
+        )
         setValue(`items.${idx}.priceFactor`, priceFactor ?? 0, setValueOptions)
-        setValue(`items.${idx}.initialPrice.currency`, currency!, setValueOptions)
+        setValue(
+          `items.${idx}.initialPrice.currency`,
+          currency!,
+          setValueOptions,
+        )
         itemTrigger(`items.${idx}`)
         getTotalPrice()
 
@@ -648,16 +651,23 @@ export default function ItemForm({
         const priceFactor = languagePairData?.priceFactor
         const currency = languagePairData?.currency
 
-        setValue(`items.${idx}.totalPrice`,0 , setValueOptions)
-        setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0, setValueOptions)
+        setValue(`items.${idx}.totalPrice`, 0, setValueOptions)
+        setValue(
+          `items.${idx}.minimumPrice`,
+          minimumPrice ?? 0,
+          setValueOptions,
+        )
         setValue(`items.${idx}.priceFactor`, priceFactor ?? 0, setValueOptions)
-        setValue(`items.${idx}.initialPrice.currency`, currency!, setValueOptions)
+        setValue(
+          `items.${idx}.initialPrice.currency`,
+          currency!,
+          setValueOptions,
+        )
         itemTrigger(`items.${idx}`)
         getTotalPrice()
-        
+
         handleMinimumPrice()
       }
-
     }
 
     const handleMinimumPrice = () => {
@@ -666,11 +676,10 @@ export default function ItemForm({
       if (minimumPrice && minimumPrice !== 0) {
         handleShowMinimum(true)
         openMinimumPriceModal({
-          minimumPrice: minimumPrice, 
-          currency: currency
+          minimumPrice: minimumPrice,
+          currency: currency,
         })
-      }
-      else handleShowMinimum(false)
+      } else handleShowMinimum(false)
     }
     return (
       <Box
