@@ -228,7 +228,7 @@ export const confirmInvoiceByLpm = async (
 ): Promise<boolean> => {
   try {
     const { data } = await axios.patch(
-      `/api/enough/u/invoice/receivable/${invoiceId}/accept`,
+      `/api/enough/u/invoice/receivable/${invoiceId}/confirm`,
     )
     return data
   } catch (e: any) {
