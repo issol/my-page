@@ -18,6 +18,8 @@ import {
   ClientMemoType,
   CreateClientResType,
   CreateContactPersonFormType,
+  CreateWorkNameType,
+  WorkNameResType,
 } from '@src/types/client/client'
 import {
   ClientInvoiceFilterType,
@@ -462,5 +464,30 @@ export const getClientInvoicesCalendarData = async (
       totalCount: 0,
       count: 0,
     }
+  }
+}
+
+export const getWorkNameList = async (
+  id: number
+): Promise<
+  Array<{ value: string; label: string }>
+> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/client/work/list`)
+    return data
+  } catch (e: any) {
+    return [{ value: '', label: '' }]
+  }
+}
+
+// TODO: work name 생성 body, request 타입 알아야 함
+export const createWorkList = async (
+  body: CreateWorkNameType
+): Promise<WorkNameResType> => {
+  try {
+    const { data } = await axios.post(`/api/enough/u/client/`, body)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
   }
 }

@@ -440,8 +440,11 @@ const OrderDetail = () => {
   }
 
   function onProjectInfoSave() {
-    const projectInfo = getProjectInfo()
-
+    const projectInfo = {
+      ...getProjectInfo(),
+      isTaxable: getProjectInfo().isTaxable ? '1' : '0',
+    }
+    
     onSave(() => updateProject.mutate(projectInfo))
   }
 
