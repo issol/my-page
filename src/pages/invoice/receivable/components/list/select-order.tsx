@@ -274,7 +274,7 @@ export default function OrderList({ onClose, type = 'order' }: Props) {
             }}
             columns={columns}
             rows={orderList?.data ?? []}
-            rowCount={orderList?.count ?? 0}
+            rowCount={orderList?.totalCount ?? 0}
             loading={isLoading}
             onCellClick={params => setSelected(params.row)}
             rowsPerPageOptions={[10, 25, 50]}

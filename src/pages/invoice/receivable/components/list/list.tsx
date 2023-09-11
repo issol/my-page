@@ -37,6 +37,7 @@ type Props = {
   list: {
     data: Array<InvoiceReceivableListType> | []
     totalCount: number
+    count: number
   }
   isLoading: boolean
   role: UserRoleType
@@ -183,7 +184,7 @@ export default function ReceivableList({
         if (auth.state === 'hasValue' && auth.getValue().user) {
           const date = FullDateTimezoneHelper(
             row.invoicedAt,
-            auth.getValue().user?.timezone.code,
+            auth.getValue().user?.timezone?.code,
           )
           return (
             <Tooltip title={date}>
@@ -288,7 +289,7 @@ export default function ReceivableList({
         }}
         columns={columns}
         rows={list.data}
-        rowCount={list.totalCount}
+        rowCount={list.totalCount ?? 0}
         loading={isLoading}
         onCellClick={params =>
           router.push(`/invoice/receivable/detail/${params.id}`)

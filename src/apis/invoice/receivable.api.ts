@@ -24,7 +24,11 @@ import { CancelReasonType } from '@src/types/requests/detail.type'
 
 export const getReceivableList = async (
   filter: InvoiceReceivableFilterType,
-): Promise<{ data: InvoiceReceivableListType[]; totalCount: number }> => {
+): Promise<{
+  data: InvoiceReceivableListType[]
+  totalCount: number
+  count: number
+}> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/invoice/receivable/list?${makeQuery(filter)}`,
@@ -34,6 +38,7 @@ export const getReceivableList = async (
     return {
       data: [],
       totalCount: 0,
+      count: 0,
     }
   }
 }

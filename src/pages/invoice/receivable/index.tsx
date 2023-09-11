@@ -286,7 +286,7 @@ export default function Receivable() {
               />
               <ReceivableList
                 isLoading={isLoading}
-                list={list || { data: [], totalCount: 0 }}
+                list={list || { data: [], totalCount: 0, count: 0 }}
                 pageSize={activeFilter.take}
                 skip={skip}
                 setSkip={(n: number) => {
