@@ -100,7 +100,7 @@ export default function ContactPersonForm<T extends number | string = string>({
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Company name / Email</Box>,
+      renderHeader: () => <Box>Name / Email</Box>,
       renderCell: ({ row }: { row: ContactPersonType<T> }) => {
         return (
           <Box display='flex' flexDirection='column'>
