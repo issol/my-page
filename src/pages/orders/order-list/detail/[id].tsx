@@ -884,13 +884,14 @@ const OrderDetail = () => {
   const onSubmitItems = () => {
     setLangItemsEdit(false)
     const items: PostItemType[] = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, ...filterItem } = item
+      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+        name: item.itemName
       }
     })
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {

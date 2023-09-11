@@ -30,6 +30,7 @@ export function formatCurrency(
   currency: CurrencyType,
   decimalPlace?: number,
 ) {
+  if (!currency) currency = 'KRW'
   const currentLocale = locale[currency]
 
   const formatter = new Intl.NumberFormat(currentLocale, {
@@ -56,7 +57,7 @@ export function formatByRoundingProcedure(
     } else {
       type = Number(roundingType)
     }
-
+    if (!currency) currency = 'KRW'
     if (currency === 'KRW' || currency === 'JPY') {
       precision = calculateDigit(decimalPlace)
     } else precision = decimalPlace

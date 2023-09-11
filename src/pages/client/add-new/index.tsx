@@ -104,7 +104,7 @@ export default function AddNewClient() {
       title: 'Company info',
     },
     {
-      title: 'AddressesForm',
+      title: 'Addresses',
     },
     {
       title: 'Contact person',

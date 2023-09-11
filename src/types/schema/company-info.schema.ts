@@ -65,7 +65,7 @@ export const companyInfoSchema = yup.object().shape({
 
 export const companyInfoDefaultValue: CompanyInfoFormType = {
   clientType: 'Company',
-  status: '',
+  status: 'New',
   name: '',
   email: '',
   timezone: { code: '', label: '', phone: '' },

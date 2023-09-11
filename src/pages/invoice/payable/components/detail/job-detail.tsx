@@ -155,6 +155,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
         totalPrice: 0,
         minimumPrice: null,
         minimumPriceApplied: false,
+        priceFactor: 0,
       })
     }
   }, [jobPrices])

@@ -133,6 +133,7 @@ export default function HistoryDetail({
         totalPrice: 0,
         minimumPrice: null,
         minimumPriceApplied: false,
+        priceFactor: 0,
       })
     }
   }, [jobPrices])
