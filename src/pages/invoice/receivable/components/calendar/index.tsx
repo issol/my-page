@@ -177,8 +177,8 @@ const CalendarContainer = () => {
             setPageSize={setPageSize}
             list={
               currentList?.length
-                ? { data: currentList, totalCount: currentList?.length }
-                : { data: [], totalCount: 0 }
+                ? { data: currentList, count: pageSize, totalCount: currentList?.length }
+                : { data: [], count: 0, totalCount: 0 }
             }
             role={currentRole!}
           />

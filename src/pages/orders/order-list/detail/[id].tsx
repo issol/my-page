@@ -473,6 +473,7 @@ const OrderDetail = () => {
       return {
         id: item.id,
         name: item.itemName,
+        itemName: item.itemName,
         source: item.source,
         target: item.target,
         priceId: item.priceId,
@@ -812,6 +813,7 @@ const OrderDetail = () => {
         return {
           id: item.id,
           name: item.itemName,
+          itemName: item.itemName,
           source: item.source,
           target: item.target,
           priceId: item.priceId,
