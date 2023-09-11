@@ -72,7 +72,9 @@ export const patchOrderProjectInfo = async (
   id: number,
   form: updateOrderType,
 ) => {
-  await axios.patch(`/api/enough/u/order/${id}`, { ...form })
+  const { data } = await axios.patch(`/api/enough/u/order/${id}`, { ...form })
+
+  return data
 }
 
 export const splitOrder = async (

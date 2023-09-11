@@ -953,15 +953,18 @@ const OrderDetail = () => {
   const updateProject = useMutation(
     (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
-      onSuccess: () => {
+      onSuccess: (data: any) => {
+        console.log(data)
+
         setProjectInfoEdit(false)
         setClientEdit(false)
         setProjectTeamEdit(false)
         setLangItemsEdit(false)
-        queryClient.invalidateQueries({
-          queryKey: ['orderDetail'],
-        })
-        queryClient.invalidateQueries(['orderList'])
+        router.replace(`/orders/order-list/detail/${data.id}`)
+        // queryClient.invalidateQueries({
+        //   queryKey: ['orderDetail'],
+        // })
+        // queryClient.invalidateQueries(['orderList'])
       },
       onError: () => onMutationError(),
     },
