@@ -478,6 +478,7 @@ export default function QuotesDetail() {
                 decimalPlace: item.initialPrice?.numberPlace!,
                 roundingProcedure:
                   RoundingProcedureList[item.initialPrice?.rounding!].label,
+                
                 languagePairs: [],
                 priceUnit: [],
                 catInterface: { memSource: [], memoQ: [] },
@@ -489,6 +490,7 @@ export default function QuotesDetail() {
           return {
             id: item.id,
             name: item.itemName,
+            itemName: item.itemName,
             source: item.source,
             target: item.target,
             priceId: item.priceId,
@@ -504,6 +506,7 @@ export default function QuotesDetail() {
             showItemDescription: item.showItemDescription,
             minimumPrice: item.minimumPrice,
             minimumPriceApplied: item.minimumPriceApplied,
+            priceFactor: 0,
           }
         })
         itemReset({ items: result })
@@ -818,7 +821,7 @@ export default function QuotesDetail() {
 
   async function onItemSave() {
     const items: PostItemType[] = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, ...filterItem } = item
+      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
@@ -826,6 +829,7 @@ export default function QuotesDetail() {
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+        name: item.itemName
       }
     })
     const langs: LanguagePairsType[] = languagePairs.map(item => {

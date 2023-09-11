@@ -407,6 +407,7 @@ export default function AddNewQuote() {
       showItemDescription: false,
       minimumPrice: null,
       minimumPriceApplied: false,
+      priceFactor: 0,
     })
   }
 
@@ -447,7 +448,7 @@ export default function AddNewQuote() {
     }
 
     const items: Array<PostItemType> = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, ...filterItem } = item
+      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
       return {
         ...filterItem,
         contactPersonId: item.contactPerson?.id!,
@@ -455,6 +456,7 @@ export default function AddNewQuote() {
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+        name: item.itemName
       }
     })
 

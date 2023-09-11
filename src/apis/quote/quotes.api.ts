@@ -209,6 +209,7 @@ export const getLangItems = async (
       items: data.items.map((item: ItemResType) => ({
         ...item,
         name: item?.name,
+        itemName: item?.name,
         source: item?.sourceLanguage,
         target: item?.targetLanguage,
         totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,

@@ -112,9 +112,6 @@ export default function ItemPriceUnitForm({
   // checkMinimumPrice,
   fields,
 }: Props) {
-  //TODO 가 삭제되는걸 실시간으로 감지해야 함
-  //TODO row가 삭제될때마다 계산로직을 돌려야 함
-
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
