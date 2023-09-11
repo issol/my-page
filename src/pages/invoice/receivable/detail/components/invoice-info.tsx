@@ -285,7 +285,7 @@ const InvoiceInfo = ({
         id: invoiceInfo.id,
         form: {
           ...data,
-          setReminder: event.target.checked,
+          setReminder: event.target.checked ? '1' : '0',
         },
       })
     }
@@ -793,6 +793,7 @@ const InvoiceInfo = ({
                     clientTimezone={clientTimezone}
                     client={client}
                     invoiceInfo={invoiceInfo}
+                    type='edit'
                   />
                   <Grid item xs={12}>
                     <Box

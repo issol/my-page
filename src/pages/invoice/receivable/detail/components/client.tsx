@@ -116,7 +116,6 @@ const InvoiceClient = ({
             control={clientControl!}
             setValue={setClientValue!}
             watch={clientWatch!}
-            setTax={setTax!}
             setTaxable={setTaxable!}
             type='order'
             formType='edit'
