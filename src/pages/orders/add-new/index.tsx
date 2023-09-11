@@ -630,7 +630,6 @@ export default function AddNewOrder() {
           if (!teams.find(value => value.type === 'member')) {
             teams.push({ type: 'member', id: null })
           }
-          console.log(teams, 'hi')
 
           resetTeam({ teams })
         })
