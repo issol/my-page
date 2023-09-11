@@ -381,7 +381,7 @@ export default function CompanyInfoForm({
                 onChange={onChange}
                 customInput={
                   <CustomInput
-                    label='Business commencement Date'
+                    label='Business commencement date'
                     icon='calendar'
                   />
                 }
