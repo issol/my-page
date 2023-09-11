@@ -39,7 +39,7 @@ import {
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import OrderList from './components/list/job-list'
+import OrderList from './components/list/select-order'
 import { useGetCompanyOptions } from '@src/queries/options.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
