@@ -82,7 +82,7 @@ export default function RegisterClientForm({
   ])
 
   const clientId = watch('clientId')
-  const contracts = watch('contacts')
+  const contacts = watch('contacts')
 
   useEffect(() => {
     if (!clientId) return
@@ -195,6 +195,8 @@ export default function RegisterClientForm({
     }
   }
 
+  console.log(contacts)
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
@@ -301,7 +303,7 @@ export default function RegisterClientForm({
           fullWidth
           placeholder='Time zone'
           value={
-            !contracts?.timezone ? '-' : getGmtTime(contracts?.timezone?.code)
+            !contacts?.timezone ? '-' : getGmtTime(contacts?.timezone?.code)
           }
           disabled={true}
         />
@@ -311,9 +313,9 @@ export default function RegisterClientForm({
           fullWidth
           placeholder='Telephone'
           value={
-            !contracts?.phone
+            !contacts?.phone
               ? '-'
-              : getPhoneNumber(contracts?.timezone?.phone, contracts?.phone)
+              : getPhoneNumber(contacts?.timezone?.phone, contacts?.phone)
           }
           disabled={true}
         />
@@ -323,9 +325,9 @@ export default function RegisterClientForm({
           fullWidth
           placeholder='Mobile phone'
           value={
-            !contracts?.mobile
+            !contacts?.mobile
               ? '-'
-              : getPhoneNumber(contracts?.timezone?.phone, contracts?.mobile)
+              : getPhoneNumber(contacts?.timezone?.phone, contacts?.mobile)
           }
           disabled={true}
         />
@@ -335,9 +337,9 @@ export default function RegisterClientForm({
           fullWidth
           placeholder='Fax'
           value={
-            !contracts?.fax
+            !contacts?.fax
               ? '-'
-              : getPhoneNumber(contracts?.timezone?.phone, contracts?.fax)
+              : getPhoneNumber(contacts?.timezone?.phone, contacts?.fax)
           }
           disabled={true}
         />
@@ -346,7 +348,7 @@ export default function RegisterClientForm({
         <TextField
           fullWidth
           placeholder='Email'
-          value={!contracts?.email ? '-' : contracts?.email}
+          value={!contacts?.email ? '-' : contacts?.email}
           disabled={true}
         />
       </Grid>
@@ -371,20 +373,22 @@ export default function RegisterClientForm({
                 control={<Radio />}
                 onChange={(e, v) => field.onChange('shipping')}
                 checked={field.value === 'shipping'}
-                label={`Shipping address ${getAddress(
-                  contracts?.addresses,
-                  'shipping',
-                )}`}
+                label={`Shipping address ${
+                  contacts?.addresses && contacts?.addresses.length > 0
+                    ? getAddress(contacts?.addresses, 'shipping')
+                    : '-'
+                }`}
               />
               <FormControlLabel
                 value='billing'
                 onChange={(e, v) => field.onChange('billing')}
                 checked={field.value === 'billing'}
                 control={<Radio />}
-                label={`Billing address ${getAddress(
-                  contracts?.addresses,
-                  'billing',
-                )}`}
+                label={`Billing address ${
+                  contacts?.addresses && contacts?.addresses.length > 0
+                    ? getAddress(contacts?.addresses, 'billing')
+                    : '-'
+                }`}
               />
             </RadioGroup>
           )}
