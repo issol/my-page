@@ -478,7 +478,7 @@ export default function QuotesDetail() {
                 decimalPlace: item.initialPrice?.numberPlace!,
                 roundingProcedure:
                   RoundingProcedureList[item.initialPrice?.rounding!].label,
-                
+
                 languagePairs: [],
                 priceUnit: [],
                 catInterface: { memSource: [], memoQ: [] },
@@ -829,7 +829,7 @@ export default function QuotesDetail() {
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
-        name: item.itemName
+        name: item.itemName,
       }
     })
     const langs: LanguagePairsType[] = languagePairs.map(item => {
@@ -1572,7 +1572,6 @@ export default function QuotesDetail() {
                     control={clientControl}
                     setValue={setClientValue}
                     watch={clientWatch}
-                    setTax={setTax}
                     setTaxable={setTaxable}
                     type='quotes'
                     formType='edit'

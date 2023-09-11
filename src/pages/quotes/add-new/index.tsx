@@ -456,7 +456,7 @@ export default function AddNewQuote() {
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
-        name: item.itemName
+        name: item.itemName,
       }
     })
 
@@ -611,7 +611,6 @@ export default function AddNewQuote() {
                 control={clientControl}
                 setValue={setClientValue}
                 watch={clientWatch}
-                setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'quotes'}
                 formType='create'

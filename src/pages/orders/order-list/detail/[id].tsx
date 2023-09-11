@@ -891,7 +891,7 @@ const OrderDetail = () => {
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
-        name: item.itemName
+        name: item.itemName,
       }
     })
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
@@ -1771,7 +1771,6 @@ const OrderDetail = () => {
                         setValue={setClientValue}
                         getValue={getClientValue}
                         watch={clientWatch}
-                        setTax={setTax}
                         setTaxable={setTaxable}
                         type='order'
                         formType='edit'

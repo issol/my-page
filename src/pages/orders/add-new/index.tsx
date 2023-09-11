@@ -478,7 +478,7 @@ export default function AddNewOrder() {
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
-        name: item.itemName
+        name: item.itemName,
       }
     })
     const langs = languagePairs.map(item => {
@@ -832,7 +832,6 @@ export default function AddNewOrder() {
                 control={clientControl}
                 setValue={setClientValue}
                 watch={clientWatch}
-                setTax={(n: number | null) => setProjectInfo('tax', n)}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'order'}
                 formType={'create'}
