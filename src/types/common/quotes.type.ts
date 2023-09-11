@@ -183,4 +183,5 @@ export type QuoteDownloadData = {
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
   langItem: LanguageAndItemType | undefined
+  subtotal: string | number | undefined
 }

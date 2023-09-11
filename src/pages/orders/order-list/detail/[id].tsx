@@ -719,6 +719,7 @@ const OrderDetail = () => {
       contactPerson: client!.contactPerson,
       clientAddress: client!.clientAddress,
       langItem: langItem!,
+      subtotal: projectInfo!.subtotal,
     }
 
     setDownloadData(res)
