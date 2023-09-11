@@ -883,12 +883,11 @@ const ReceivableInvoiceDetail = () => {
                 )}
                 {isEditing ? null : (
                   <Button
-                    variant='outlined'
+                    variant='contained'
                     sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                     disabled={!isConfirmBtnVisible}
                     onClick={onClickConfirmInvoice}
                   >
-                    <Icon icon='mdi:download' fontSize={20} />
                     Confirm invoice
                   </Button>
                 )}
