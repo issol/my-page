@@ -433,13 +433,14 @@ export default function AddNewOrder() {
   }
 
   const onClickSaveOrder = () => {
+    console.log("name",getProjectInfoValues().projectName)
     openModal({
       type: 'SaveOrderModal',
       children: (
         <CustomModal
           onClick={onSubmit}
           onClose={() => closeModal('SaveOrderModal')}
-          title='Are you sure you want to create this order?'
+          title={`Are you sure you want to create this order? ${getProjectInfoValues().projectName}`}
           vary='successful'
           rightButtonText='Save'
         />
@@ -713,9 +714,10 @@ export default function AddNewOrder() {
             }),
           )
           const result = res?.items?.map(item => {
+            console.log("copy item",item)
             return {
               id: item.id,
-              name: item.itemName,
+              itemName: item.itemName,
               source: item.source,
               target: item.target,
               priceId: item.priceId,

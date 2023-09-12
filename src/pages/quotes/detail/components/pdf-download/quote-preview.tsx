@@ -108,7 +108,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                 fontWeight={lang === 'EN' ? 600 : 800}
                 fontSize={14}
               >
-                {data.adminCompanyName}
+                {data?.adminCompanyName}
               </Typography>
               <Typography variant='subtitle2'>
                 {columnName.companyAddress}
@@ -145,7 +145,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   {columnName.quoteDate}:
                 </Typography>
                 <Typography variant='subtitle1' fontSize={14}>
-                  {FullDateTimezoneHelper(data?.quoteDate.date, user?.timezone)}
+                  {FullDateTimezoneHelper(data?.quoteDate?.date, user?.timezone)}
                 </Typography>
               </Box>
               <Box
@@ -160,15 +160,15 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                 <Box display='flex' alignItems='center' gap='3px'>
                   <Typography variant='subtitle1' fontSize={14}>
                     {getLegalName({
-                      firstName: data?.pm.firstName,
-                      middleName: data?.pm.middleName,
-                      lastName: data?.pm.lastName,
+                      firstName: data?.pm?.firstName,
+                      middleName: data?.pm?.middleName,
+                      lastName: data?.pm?.lastName,
                     })}
                     &nbsp;
                   </Typography>
                   <Divider orientation='vertical' flexItem variant='middle' />
                   <Typography variant='subtitle1' fontSize={14}>
-                    &nbsp;{data?.pm.email}
+                    &nbsp;{data?.pm?.email}
                   </Typography>
                 </Box>
               </Box>
@@ -204,14 +204,14 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                 {data?.contactPerson ? (
                   <Typography variant='subtitle1' fontSize={14}>
                     {getLegalName({
-                      firstName: data?.contactPerson.firstName!,
-                      middleName: data?.contactPerson.middleName!,
-                      lastName: data?.contactPerson.lastName!,
+                      firstName: data?.contactPerson?.firstName!,
+                      middleName: data?.contactPerson?.middleName!,
+                      lastName: data?.contactPerson?.lastName!,
                     })}
                     &nbsp;
                   </Typography>
                 ) : null}
-                {data?.contactPerson && data.contactPerson?.jobTitle ? (
+                {data?.contactPerson && data?.contactPerson?.jobTitle ? (
                   <>
                     <Divider orientation='vertical' flexItem variant='middle' />
                     <Typography variant='subtitle1' fontSize={14}>
@@ -228,17 +228,17 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
 
               <Typography variant='subtitle1' fontSize={14}>
                 {data?.contactPerson
-                  ? data?.contactPerson.email
-                  : data?.client?.client.email}
+                  ? data?.contactPerson?.email
+                  : data?.client?.client?.email}
               </Typography>
               <Typography variant='subtitle1' fontSize={14}>
                 {getPhoneNumber(
                   data?.contactPerson !== null
                     ? data?.contactPerson?.mobile
-                    : data?.client?.client.mobile,
+                    : data?.client?.client?.mobile,
                   data?.contactPerson !== null
-                    ? data.contactPerson?.timezone.phone
-                    : data?.client?.client?.timezone.phone,
+                    ? data?.contactPerson?.timezone?.phone
+                    : data?.client?.client?.timezone?.phone,
                 )}
               </Typography>
             </Box>
@@ -265,10 +265,10 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                 {columnName.projectName}:
               </Typography>
               <Typography variant='subtitle1' fontSize={14}>
-                {data.projectName}
+                {data?.projectName}
               </Typography>
             </Box>
-            {data.estimatedDeliveryDate?.date ? (
+            {data?.estimatedDeliveryDate?.date ? (
               <Box display='flex' alignItems='center' gap='10px'>
                 <Typography
                   variant='subtitle1'
@@ -279,13 +279,13 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                 </Typography>
                 <Typography variant='subtitle1' fontSize={14}>
                   {FullDateTimezoneHelper(
-                    data?.estimatedDeliveryDate.date,
+                    data?.estimatedDeliveryDate?.date,
                     data?.estimatedDeliveryDate?.timezone,
                   )}
                 </Typography>
               </Box>
             ) : null}
-            {data.projectDueDate?.date ? (
+            {data?.projectDueDate?.date ? (
               <Box display='flex' alignItems='center' gap='10px'>
                 <Typography
                   variant='subtitle1'
@@ -296,7 +296,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                 </Typography>
                 <Typography variant='subtitle1' fontSize={14}>
                   {FullDateTimezoneHelper(
-                    data?.projectDueDate.date,
+                    data?.projectDueDate?.date,
                     data?.projectDueDate?.timezone,
                   )}
                 </Typography>
