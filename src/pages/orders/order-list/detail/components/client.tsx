@@ -63,7 +63,7 @@ const OrderDetailClient = ({
               height={110}
             />
           </Card>
-          <Typography variant='h6'>{client.client.name}</Typography>
+          <Typography variant='h6'>{client?.client?.name}</Typography>
         </Box>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -78,9 +78,9 @@ const OrderDetailClient = ({
             <Typography>
               {client.contactPerson !== null
                 ? getLegalName({
-                    firstName: client.contactPerson?.firstName!,
-                    middleName: client.contactPerson?.middleName!,
-                    lastName: client.contactPerson?.lastName!,
+                    firstName: client?.contactPerson?.firstName!,
+                    middleName: client?.contactPerson?.middleName!,
+                    lastName: client?.contactPerson?.lastName!,
                   })
                 : '-'}
             </Typography>
@@ -102,9 +102,9 @@ const OrderDetailClient = ({
                   </Typography>
                   <Typography variant='body2'>
                     {getGmtTimeEng(
-                      client.contactPerson !== null
-                        ? client.contactPerson.timezone.code
-                        : client.client.timezone.code,
+                      client?.contactPerson !== null
+                        ? client?.contactPerson?.timezone?.code
+                        : client?.client?.timezone?.code,
                     )}
                   </Typography>
                 </Box>
@@ -123,12 +123,12 @@ const OrderDetailClient = ({
                   </Typography>
                   <Typography variant='body2'>
                     {getPhoneNumber(
-                      client.contactPerson !== null
-                        ? client.contactPerson.phone!
-                        : client.client.phone,
-                      client.contactPerson !== null
-                        ? client.contactPerson.timezone.phone
-                        : client.client.timezone.phone,
+                      client?.contactPerson !== null
+                        ? client?.contactPerson?.phone!
+                        : client?.client?.phone,
+                      client?.contactPerson !== null
+                        ? client?.contactPerson?.timezone?.phone
+                        : client?.client?.timezone?.phone,
                     )}
                   </Typography>
                 </Box>
@@ -150,12 +150,12 @@ const OrderDetailClient = ({
                   </Typography>
                   <Typography variant='body2'>
                     {getPhoneNumber(
-                      client.contactPerson !== null
-                        ? client.contactPerson.mobile!
-                        : client.client.mobile,
-                      client.contactPerson !== null
-                        ? client.contactPerson.timezone.phone
-                        : client.client.timezone.phone,
+                      client?.contactPerson !== null
+                        ? client?.contactPerson?.mobile!
+                        : client?.client?.mobile,
+                      client?.contactPerson !== null
+                        ? client?.contactPerson?.timezone?.phone
+                        : client?.client?.timezone?.phone,
                     )}
                   </Typography>
                 </Box>
@@ -174,12 +174,12 @@ const OrderDetailClient = ({
                   </Typography>
                   <Typography variant='body2'>
                     {getPhoneNumber(
-                      client.contactPerson !== null
-                        ? client.contactPerson.fax!
-                        : client.client.fax,
-                      client.contactPerson !== null
-                        ? client.contactPerson.timezone.phone
-                        : client.client.timezone.phone,
+                      client?.contactPerson !== null
+                        ? client?.contactPerson?.fax!
+                        : client?.client?.fax,
+                      client?.contactPerson !== null
+                        ? client?.contactPerson?.timezone?.phone
+                        : client?.client?.timezone?.phone,
                     )}
                   </Typography>
                 </Box>
@@ -200,15 +200,15 @@ const OrderDetailClient = ({
                     Email:
                   </Typography>
                   <Typography variant='body2'>
-                    {client.contactPerson !== null
-                      ? client.contactPerson.email
-                      : client.client.email}
+                    {client?.contactPerson !== null
+                      ? client?.contactPerson?.email
+                      : client?.client?.email}
                   </Typography>
                 </Box>
               </Box>
             </Box>
             <Divider />
-            {client.clientAddress.length > 0 ? (
+            {client?.clientAddress?.length > 0 ? (
               <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <Typography
                   variant='subtitle1'
@@ -220,12 +220,12 @@ const OrderDetailClient = ({
                   }}
                 >
                   <Box sx={{ textTransform: 'capitalize' }}>
-                    {client.addressType}
+                    {client?.addressType}
                   </Box>
                   &nbsp;address
                 </Typography>
                 <Typography variant='body2'>
-                  {getAddress(client.clientAddress)}
+                  {getAddress(client?.clientAddress)}
                 </Typography>
               </Box>
             ) : null}
