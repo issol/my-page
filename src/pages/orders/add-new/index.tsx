@@ -466,6 +466,7 @@ export default function AddNewOrder() {
       ...rawProjectInfo,
       // isTaxable : taxable,
       tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
+      orderedAt: new Date(rawProjectInfo.orderedAt).toISOString(),
       subtotal: subPrice,
     }
 
@@ -500,6 +501,7 @@ export default function AddNewOrder() {
       ...projectInfo,
       requestId: requestId ?? null,
     }
+
     createOrderInfo(stepOneData)
       .then(res => {
         if (res.id) {
