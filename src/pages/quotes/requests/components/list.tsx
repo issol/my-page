@@ -13,7 +13,7 @@ import styled from 'styled-components'
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 
 // ** nextJS
-import { useRouter } from 'next/router'
+
 import {
   ClientRequestStatusChip,
   JobTypeChip,
@@ -25,7 +25,7 @@ import { RequestListType } from '@src/types/requests/list.type'
 import { RequestFilterType, SortType } from '@src/types/requests/filters.type'
 
 // ** contexts
-import { useContext } from 'react'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 

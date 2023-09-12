@@ -64,20 +64,20 @@ export default function List({
 
   const columns = [
     {
-      flex: 0.28,
+      flex: 0.064,
       field: 'corporationId',
-      minWidth: 80,
+      minWidth: 120,
       disableColumnMenu: true,
       renderHeader: () => <Box>No.</Box>,
       renderCell: ({ row }: CellType) => (
-        <Title title={row.corporationId} sx={{ cursor: 'pointer' }}>
+        <Typography variant='body1' fontSize={14} fontWeight={400}>
           {row.corporationId}
-        </Title>
+        </Typography>
       ),
     },
     {
-      flex: 0.15,
-      minWidth: 120,
+      flex: 0.1142,
+      minWidth: 214,
       field: 'status',
       disableColumnMenu: true,
       sortable: false,
@@ -86,8 +86,8 @@ export default function List({
     },
 
     {
-      flex: 0.15,
-      minWidth: 180,
+      flex: 0.208,
+      minWidth: 260,
       field: 'email',
       headerName: 'Client / Email',
       disableColumnMenu: true,
@@ -95,14 +95,16 @@ export default function List({
       renderHeader: () => <Box>Client / Email</Box>,
       renderCell: ({ row }: CellType) => (
         <Box>
-          <Typography fontWeight='bold'>{row.client.name}</Typography>
-          <Typography variant='body2'>{row.client.email}</Typography>
+          <Typography fontWeight='bold'>{row.client.name ?? '-'}</Typography>
+          <Typography variant='body2'>
+            {row.contactPerson.email ?? '-'}
+          </Typography>
         </Box>
       ),
     },
     {
-      flex: 0.3,
-      minWidth: 130,
+      flex: 0.1387,
+      minWidth: 340,
       field: 'name',
       disableColumnMenu: true,
       sortable: false,
@@ -123,8 +125,8 @@ export default function List({
       },
     },
     {
-      flex: 0.23,
-      minWidth: 120,
+      flex: 0.2241,
+      minWidth: 420,
       field: 'category',
       disableColumnMenu: true,
       sortable: false,
@@ -151,8 +153,8 @@ export default function List({
       },
     },
     {
-      flex: 0.23,
-      minWidth: 120,
+      flex: 0.1494,
+      minWidth: 280,
       field: 'requestedAt',
       disableColumnMenu: true,
       // sortable: false,
@@ -167,8 +169,8 @@ export default function List({
       ),
     },
     {
-      flex: 0.23,
-      minWidth: 120,
+      flex: 0.1281,
+      minWidth: 240,
       field: 'desiredDueDate',
       disableColumnMenu: true,
       // sortable: false,
