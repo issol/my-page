@@ -664,7 +664,7 @@ export default function AddNewOrder() {
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
             revenueFrom: undefined,
-            projectDueAt: res?.projectDueAt ?? '',
+            projectDueAt: res?.projectDueAt ?? null,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
               phone: '',
