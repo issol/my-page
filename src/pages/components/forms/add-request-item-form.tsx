@@ -238,6 +238,7 @@ export default function AddRequestForm({
                     <Autocomplete
                       autoHighlight
                       fullWidth
+                      limitTags={1}
                       multiple
                       disabled={!watchCategory}
                       options={ServiceTypePair[watchCategory] || []}
@@ -253,7 +254,7 @@ export default function AddRequestForm({
                           {...params}
                           error={Boolean(errors?.items?.[idx]?.serviceType)}
                           label='Service type*'
-                          placeholder='Service type*'
+                          // placeholder='Service type*'
                         />
                       )}
                     />
