@@ -192,6 +192,7 @@ export const getClient = async (id: number): Promise<ClientType> => {
         name: '',
         taxable: false,
         tax: null,
+        isEnrolledClient: false,
       },
       contactPerson: null,
       clientAddress: [],

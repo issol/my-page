@@ -53,7 +53,7 @@ import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { MemberType } from '@src/types/schema/project-team.schema'
 
 // ** components
-import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
+
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
@@ -62,7 +62,6 @@ import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-for
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 // ** context
 import { useRecoilValueLoadable } from 'recoil'
@@ -88,15 +87,8 @@ import {
   getProjectTeam as getQuoteProjectTeam,
 } from '@src/apis/quote/quotes.api'
 
-import {
-  getClient,
-  getLangItems,
-  getProjectInfo,
-  getProjectTeam,
-} from '@src/apis/order-detail.api'
-
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { getClientPriceList } from '@src/apis/company/company-price.api'
+
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import { findEarliestDate } from '@src/shared/helpers/date.helper'
@@ -159,8 +151,6 @@ export default function AddNewOrder() {
 
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
   const [isWarn, setIsWarn] = useState(true)
-
-  const { data: statusList } = useGetStatusList('Order')
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
 
@@ -433,14 +423,16 @@ export default function AddNewOrder() {
   }
 
   const onClickSaveOrder = () => {
-    console.log("name",getProjectInfoValues().projectName)
+    console.log('name', getProjectInfoValues().projectName)
     openModal({
       type: 'SaveOrderModal',
       children: (
         <CustomModal
           onClick={onSubmit}
           onClose={() => closeModal('SaveOrderModal')}
-          title={`Are you sure you want to create this order? ${getProjectInfoValues().projectName}`}
+          title={`Are you sure you want to create this order? ${
+            getProjectInfoValues().projectName
+          }`}
           vary='successful'
           rightButtonText='Save'
         />
@@ -652,6 +644,7 @@ export default function AddNewOrder() {
             contactPersonId: res?.contactPerson?.id ?? null,
             addressType:
               addressType === 'additional' ? 'shipping' : addressType,
+            isEnrolledClient: res.client.isEnrolledClient,
           })
         })
         .catch(e => {
@@ -714,7 +707,7 @@ export default function AddNewOrder() {
             }),
           )
           const result = res?.items?.map(item => {
-            console.log("copy item",item)
+            console.log('copy item', item)
             return {
               id: item.id,
               itemName: item.itemName,
@@ -840,6 +833,7 @@ export default function AddNewOrder() {
                 type={requestId ? 'request' : 'order'}
                 formType={'create'}
                 getValue={getClientValue}
+                fromQuote={!!quoteId}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

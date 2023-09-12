@@ -45,6 +45,7 @@ type Props = {
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'create' | 'edit'
   getValue: UseFormGetValues<ClientFormType>
+  fromQuote: boolean
 }
 
 export default function RegisterClientForm({
@@ -57,6 +58,7 @@ export default function RegisterClientForm({
   type,
   formType,
   getValue,
+  fromQuote,
 }: Props) {
   const [clientDetail, setClientDetail] = useState<ClientDetailType | null>(
     null,
@@ -194,8 +196,6 @@ export default function RegisterClientForm({
     }
   }
 
-  console.log(contacts)
-
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
@@ -226,7 +226,8 @@ export default function RegisterClientForm({
                 disabled={
                   type === 'request' ||
                   (formType === 'edit' && type === 'order') ||
-                  type === 'invoice'
+                  type === 'invoice' ||
+                  (fromQuote && getValue('isEnrolledClient'))
                 }
                 disableClearable={getValue('clientId') === null}
                 value={selectedClient || { value: -0, label: '' }}
@@ -275,7 +276,11 @@ export default function RegisterClientForm({
                   }
                 }}
                 disableClearable={getValue('contactPersonId') === null}
-                disabled={type === 'request' || getValue('clientId') === null}
+                disabled={
+                  type === 'request' ||
+                  getValue('clientId') === null ||
+                  (fromQuote && getValue('isEnrolledClient'))
+                }
                 value={selectedPerson || { value: '', label: '' }}
                 renderInput={params => (
                   <TextField

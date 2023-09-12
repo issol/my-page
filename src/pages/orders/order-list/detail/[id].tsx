@@ -355,36 +355,6 @@ const OrderDetail = () => {
     clientId: client?.client.clientId,
   })
 
-  function getPriceOptions(source: string, target: string) {
-    if (!isSuccess) return [defaultOption]
-    console.log(prices)
-
-    console.log(
-      prices.filter(item => {
-        const matchingPairs = item.languagePairs.filter(
-          pair => pair.source === source && pair.target === target,
-        )
-        return matchingPairs.length > 0
-      }),
-    )
-
-    const filteredList = prices
-      .filter(item => {
-        const matchingPairs = item.languagePairs.filter(
-          pair => pair.source === source && pair.target === target,
-        )
-        return matchingPairs.length > 0
-      })
-      .map(item => ({
-        groupName: item.isStandard ? 'Standard client price' : 'Matching price',
-        ...item,
-      }))
-
-    console.log([defaultOption].concat(filteredList))
-
-    return [defaultOption].concat(filteredList)
-  }
-
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
   function renderSubmitButton({
@@ -1784,6 +1754,7 @@ const OrderDetail = () => {
                         setTaxable={setTaxable}
                         type='order'
                         formType='edit'
+                        fromQuote={false}
                       />
                       {renderSubmitButton({
                         onCancel: () =>

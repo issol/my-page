@@ -459,59 +459,59 @@ export default function QuotesDetail() {
   useEffect(() => {
     if (!isItemLoading && itemsWithLang) {
       ;(async function () {
-          const priceList = await getClientPriceList({})
-          setLanguagePairs(
-            itemsWithLang?.items?.map(item => {
-              if (!item.initialPrice) throw new Error('NO_InitialPrice');
-              return {
-                id: String(item.id),
-                source: item.source,
-                target: item.target,
-                price: {
-                  id: item.initialPrice?.priceId!,
-                  isStandard: item.initialPrice?.isStandard!,
-                  priceName: item.initialPrice?.name!,
-                  groupName: 'Current price',
-                  category: item.initialPrice?.category!,
-                  serviceType: item.initialPrice?.serviceType!,
-                  currency: item.initialPrice?.currency!,
-                  catBasis: item.initialPrice?.calculationBasis!,
-                  decimalPlace: item.initialPrice?.numberPlace!,
-                  roundingProcedure:
-                    RoundingProcedureList[item.initialPrice?.rounding!].label,
-  
-                  languagePairs: [],
-                  priceUnit: [],
-                  catInterface: { memSource: [], memoQ: [] },
-                },
-              }
-            }),
-          )
-          const result = itemsWithLang?.items?.map(item => {
+        const priceList = await getClientPriceList({})
+        setLanguagePairs(
+          itemsWithLang?.items?.map(item => {
+            if (!item.initialPrice) throw new Error('NO_InitialPrice')
             return {
-              id: item.id,
-              name: item.itemName,
-              itemName: item.itemName,
+              id: String(item.id),
               source: item.source,
               target: item.target,
-              priceId: item.priceId,
-              detail: !item?.detail?.length ? [] : item.detail,
-              analysis: item.analysis ?? [],
-              totalPrice: item?.totalPrice ?? 0,
-              dueAt: item?.dueAt ?? '',
-              contactPerson: item?.contactPerson ?? {},
-              // initialPrice는 quote 생성시점에 선택한 price의 값을 담고 있음
-              // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
-              initialPrice: item.initialPrice ?? {},
-              description: item.description,
-              showItemDescription: item.showItemDescription,
-              minimumPrice: item.minimumPrice,
-              minimumPriceApplied: item.minimumPriceApplied,
-              priceFactor: 0,
+              price: {
+                id: item.initialPrice?.priceId!,
+                isStandard: item.initialPrice?.isStandard!,
+                priceName: item.initialPrice?.name!,
+                groupName: 'Current price',
+                category: item.initialPrice?.category!,
+                serviceType: item.initialPrice?.serviceType!,
+                currency: item.initialPrice?.currency!,
+                catBasis: item.initialPrice?.calculationBasis!,
+                decimalPlace: item.initialPrice?.numberPlace!,
+                roundingProcedure:
+                  RoundingProcedureList[item.initialPrice?.rounding!].label,
+
+                languagePairs: [],
+                priceUnit: [],
+                catInterface: { memSource: [], memoQ: [] },
+              },
             }
-          })
-          itemReset({ items: result })
-          itemTrigger()
+          }),
+        )
+        const result = itemsWithLang?.items?.map(item => {
+          return {
+            id: item.id,
+            name: item.itemName,
+            itemName: item.itemName,
+            source: item.source,
+            target: item.target,
+            priceId: item.priceId,
+            detail: !item?.detail?.length ? [] : item.detail,
+            analysis: item.analysis ?? [],
+            totalPrice: item?.totalPrice ?? 0,
+            dueAt: item?.dueAt ?? '',
+            contactPerson: item?.contactPerson ?? {},
+            // initialPrice는 quote 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: item.initialPrice ?? {},
+            description: item.description,
+            showItemDescription: item.showItemDescription,
+            minimumPrice: item.minimumPrice,
+            minimumPriceApplied: item.minimumPriceApplied,
+            priceFactor: 0,
+          }
+        })
+        itemReset({ items: result })
+        itemTrigger()
       })()
     }
   }, [isItemLoading, itemsWithLang])
@@ -1578,6 +1578,7 @@ export default function QuotesDetail() {
                     type='quotes'
                     formType='edit'
                     getValue={getClientValue}
+                    fromQuote={false}
                   />
                   <Grid item xs={12}>
                     {renderSubmitButton({

@@ -615,6 +615,7 @@ export default function AddNewQuote() {
                 type={requestId ? 'request' : 'quotes'}
                 formType='create'
                 getValue={getClientValue}
+                fromQuote={false}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

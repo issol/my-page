@@ -664,6 +664,7 @@ export default function AddNewInvoice() {
                 type='invoice'
                 formType='create'
                 getValue={getClientValue}
+                fromQuote={false}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

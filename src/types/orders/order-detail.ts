@@ -91,6 +91,7 @@ export type ClientType = {
     name: string
     taxable: boolean
     tax: number | null
+    isEnrolledClient: boolean
   }
 
   contactPerson: ContactPersonType | null
@@ -177,7 +178,7 @@ export type OrderDetailType = {
 }
 
 // Order의 Feature 사용 권한 체크를 위한 함수에서 사용
-export type OrderFeatureType = 
+export type OrderFeatureType =
   | 'tab-ProjectInfo'
   | 'tab-Languages&Items'
   | 'tab-Client'

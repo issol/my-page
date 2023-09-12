@@ -120,6 +120,7 @@ const InvoiceClient = ({
             type='order'
             formType='edit'
             getValue={getClientValue!}
+            fromQuote={false}
           />
           <Grid item xs={12}>
             <Box
