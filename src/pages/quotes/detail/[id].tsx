@@ -1009,9 +1009,9 @@ export default function QuotesDetail() {
     makePdfData()
     dispatch(setQuoteLang(lang))
     dispatch(setQuote(downloadData))
-    patchQuoteProjectInfo(Number(id), { downloadedAt: currentTime }).catch(e =>
-      onMutationError(),
-    )
+    // patchQuoteProjectInfo(Number(id), { downloadedAt: currentTime }).catch(e =>
+    //   onMutationError(),
+    // )
     closeModal('PreviewModal')
   }
 
