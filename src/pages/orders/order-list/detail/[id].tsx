@@ -891,7 +891,7 @@ const OrderDetail = () => {
     setLangItemsEdit(false)
     const items: PostItemType[] = getItem().items.map(item => {
       const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
-      console.log("save item",item)
+      console.log('save item', item)
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
@@ -968,11 +968,14 @@ const OrderDetail = () => {
         setClientEdit(false)
         setProjectTeamEdit(false)
         setLangItemsEdit(false)
-        queryClient.invalidateQueries({
-          queryKey: ['orderDetail'],
-        })
-        queryClient.invalidateQueries(['orderList'])
-        router.replace(`/orders/order-list/detail/${data.id}`)
+        if (data.id === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: ['orderDetail'],
+          })
+          queryClient.invalidateQueries(['orderList'])
+        } else {
+          router.replace(`/orders/order-list/detail/${data.id}`)
+        }
       },
       onError: () => onMutationError(),
     },
