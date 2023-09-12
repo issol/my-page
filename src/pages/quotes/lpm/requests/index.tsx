@@ -51,8 +51,8 @@ export default function LpmRequests() {
 
   const [menu, setMenu] = useState<MenuType>('list')
 
-  const [requestListPage, setrequestListPage] = useState<number>(0)
-  const [requestListPageSize, setrequestPageSize] = useState<number>(10)
+  const [requestListPage, setRequestListPage] = useState<number>(0)
+  const [requestListPageSize, setRequestPageSize] = useState<number>(10)
 
   // const [skip, setSkip] = useState(0)
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
@@ -60,13 +60,11 @@ export default function LpmRequests() {
   const [activeFilter, setActiveFilter] =
     useState<RequestFilterType>(initialFilter)
 
-  const { data: list, isLoading } = useGetClientRequestList(
-    {
-      ...activeFilter ,
-      skip: requestListPage * requestListPageSize,
-      take: requestListPageSize,
-    }
-  )
+  const { data: list, isLoading } = useGetClientRequestList({
+    ...activeFilter,
+    skip: requestListPage * requestListPageSize,
+    take: requestListPageSize,
+  })
 
   // function findServiceTypeFilter() {
   //   let category: Array<ConstType> = []
@@ -206,8 +204,8 @@ export default function LpmRequests() {
                 <List
                   skip={requestListPage}
                   pageSize={requestListPageSize}
-                  setSkip={setrequestListPage}
-                  setPageSize={setrequestPageSize}
+                  setSkip={setRequestListPage}
+                  setPageSize={setRequestPageSize}
                   filter={activeFilter}
                   setFilter={setActiveFilter}
                   list={list || { count: 0, data: [], totalCount: 0 }}
