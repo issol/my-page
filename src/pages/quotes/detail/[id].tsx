@@ -790,26 +790,34 @@ export default function QuotesDetail() {
   const updateProject = useMutation(
     (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
     {
-      onSuccess: () => {
+      onSuccess: data => {
         setEditProject(false)
         setEditClient(false)
         setEditTeam(false)
-        queryClient.invalidateQueries({
-          queryKey: ['quotesDetail'],
-        })
-        queryClient.invalidateQueries(['quotesList'])
+        if (data.id === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: ['quotesDetail'],
+          })
+          queryClient.invalidateQueries(['quotesList'])
+        } else {
+          router.push(`/quotes/detail/${data.id}`)
+        }
       },
       onError: () => onMutationError(),
     },
   )
 
   const confirmQuoteMutation = useMutation(() => confirmQuote(Number(id)), {
-    onSuccess: () => {
+    onSuccess: data => {
       closeModal('ConfirmQuoteModal')
-      queryClient.invalidateQueries({
-        queryKey: ['quotesDetail'],
-      })
-      queryClient.invalidateQueries(['quotesList'])
+      if (data.id === Number(id)) {
+        queryClient.invalidateQueries({
+          queryKey: ['quotesDetail'],
+        })
+        queryClient.invalidateQueries(['quotesList'])
+      } else {
+        router.push(`/quotes/detail/${data.id}`)
+      }
     },
     onError: () => onMutationError(),
   })

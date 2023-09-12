@@ -35,7 +35,7 @@ import { useAppDispatch } from '@src/hooks/useRedux'
 import { setIsReady } from '@src/store/quote'
 
 // ** apis
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import { patchQuoteProjectInfo } from '@src/apis/quote/quotes.api'
 
 // ** languages
@@ -59,19 +59,33 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
   const { closeModal } = useModal()
   const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
   const columnName = lang === 'EN' ? quoteEn : quoteKo
   const patchProjectInfoMutation = useMutation(
     (data: { id: number; form: { downloadedAt: string } }) =>
       patchQuoteProjectInfo(data.id, data.form),
-    {},
+    {
+      onSuccess: (data, variables) => {
+        console.log(data)
+
+        if (data.id === variables.id) {
+          queryClient.invalidateQueries({
+            queryKey: ['quotesDetail'],
+          })
+          queryClient.invalidateQueries(['quotesList'])
+        } else {
+          router.push(`/quotes/detail/${data.id}`)
+        }
+      },
+    },
   )
-  console.log('data', data)
+
   useEffect(() => {
     if (type === 'download') {
       setTimeout(() => {
         window.onafterprint = () => {
           router.back()
-          dispatch(setIsReady(''))
+          dispatch(setIsReady(false))
           closeModal('DownloadQuotesModal')
           patchProjectInfoMutation.mutate({
             id: data.quoteId,
@@ -145,7 +159,10 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   {columnName.quoteDate}:
                 </Typography>
                 <Typography variant='subtitle1' fontSize={14}>
-                  {FullDateTimezoneHelper(data?.quoteDate?.date, user?.timezone)}
+                  {FullDateTimezoneHelper(
+                    data?.quoteDate?.date,
+                    user?.timezone,
+                  )}
                 </Typography>
               </Box>
               <Box
@@ -347,7 +364,8 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                     <CustomTableCell
                       sx={{ flex: 0.1505, justifyContent: 'center' }}
                     >
-                      <Box>{`${columnName?.price} (${data?.langItem?.items[0].initialPrice?.currency!})`}</Box>
+                      <Box>{`${columnName?.price} (${data?.langItem?.items[0]
+                        ?.initialPrice?.currency!})`}</Box>
                     </CustomTableCell>
                     <CustomTableCell
                       align='center'
@@ -364,13 +382,14 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                         paddingLeft: '20px',
                       }}
                     >
-                      <Box>{`${columnName.totalPrice} (${data?.langItem?.items[0].initialPrice?.currency!})`}</Box>
+                      <Box>{`${columnName.totalPrice} (${data?.langItem
+                        ?.items[0]?.initialPrice?.currency!})`}</Box>
                     </CustomTableCell>
                   </CustomTableRow>
                 </TableHead>
                 <MakeTable
                   rows={data?.langItem?.items ?? []}
-                  currency={data?.langItem?.items[0].initialPrice?.currency!}
+                  currency={data?.langItem?.items[0]?.initialPrice?.currency!}
                 />
                 <TableBody>
                   <TableRow>
@@ -411,7 +430,8 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                             ? 0
                             : formatCurrency(
                                 Number(data?.subtotal),
-                                data?.langItem?.items[0].initialPrice?.currency! || 'USD',
+                                data?.langItem?.items[0]?.initialPrice
+                                  ?.currency! || 'USD',
                               )}
                         </Typography>
                       </Box>

@@ -192,10 +192,10 @@ export const getClient = async (id: number): Promise<ClientType> => {
         name: '',
         taxable: false,
         tax: null,
-        isEnrolledClient: false,
       },
       contactPerson: null,
       clientAddress: [],
+      isEnrolledClient: false,
     }
   }
 }
@@ -271,7 +271,8 @@ export const patchQuoteProjectInfo = async (
     | { downloadedAt: string }
     | { isConfirmed: boolean },
 ) => {
-  await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
+  const { data } = await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
+  return data
 }
 
 export const patchQuoteLanguagePairs = async (
@@ -306,7 +307,8 @@ export const patchQuoteItems = async (
 
 export const confirmQuote = async (id: number) => {
   try {
-    await axios.patch(`/api/enough/u/quote/${id}/confirm`)
+    const { data } = await axios.patch(`/api/enough/u/quote/${id}/confirm`)
+    return data
   } catch (e: any) {
     throw new Error(e)
   }
