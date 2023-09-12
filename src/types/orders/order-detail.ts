@@ -91,11 +91,11 @@ export type ClientType = {
     name: string
     taxable: boolean
     tax: number | null
-    isEnrolledClient: boolean
   }
 
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
+  isEnrolledClient: boolean
 }
 
 export type HistoryType = {

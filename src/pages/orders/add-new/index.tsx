@@ -644,7 +644,7 @@ export default function AddNewOrder() {
             contactPersonId: res?.contactPerson?.id ?? null,
             addressType:
               addressType === 'additional' ? 'shipping' : addressType,
-            isEnrolledClient: res.client.isEnrolledClient,
+            isEnrolledClient: res.isEnrolledClient,
           })
         })
         .catch(e => {
