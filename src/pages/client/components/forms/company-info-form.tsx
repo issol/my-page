@@ -45,7 +45,7 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { TaxTypeList } from '@src/shared/const/tax/tax-type'
 import { getTypeList } from '@src/shared/transformer/type.transformer'
 import styled from 'styled-components'
-import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
+import { DatePickerDefaultOptions } from '@src/shared/const/datePicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
@@ -376,8 +376,8 @@ export default function CompanyInfoForm({
             control={control}
             render={({ field: { value, onChange } }) => (
               <FullWidthDatePicker
-                {...DateTimePickerDefaultOptions}
-                selected={!value ? null : formattedNow(new Date(value))}
+                {...DatePickerDefaultOptions}
+                selected={!value ? null : new Date(value)}
                 onChange={onChange}
                 customInput={
                   <CustomInput

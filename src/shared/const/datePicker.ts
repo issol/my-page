@@ -4,3 +4,7 @@ export const DateTimePickerDefaultOptions = {
   timeIntervals: 30,
   dateFormat: 'MM/dd/yyyy h:mm aa',
 }
+
+export const DatePickerDefaultOptions = {
+  dateFormat: 'MM/dd/yyyy',
+}
