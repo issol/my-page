@@ -95,9 +95,9 @@ export default function List({
       renderHeader: () => <Box>Client / Email</Box>,
       renderCell: ({ row }: CellType) => (
         <Box>
-          <Typography fontWeight='bold'>{row.client.name ?? '-'}</Typography>
+          <Typography fontWeight='bold'>{row.client?.name ?? '-'}</Typography>
           <Typography variant='body2'>
-            {row.contactPerson.email ?? '-'}
+            {row.contactPerson?.email ?? '-'}
           </Typography>
         </Box>
       ),
@@ -160,10 +160,14 @@ export default function List({
       // sortable: false,
       renderHeader: () => <Box>Request date</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>
+        <Box>
           {FullDateTimezoneHelper(
             row.requestedAt,
-            auth.getValue().user?.timezone!,
+            auth.getValue().user?.timezone! ?? {
+              code: 'KR',
+              label: 'Korea, Republic of',
+              public: '82',
+            },
           )}
         </Box>
       ),
@@ -182,7 +186,7 @@ export default function List({
         const timezone =
           (row.items.length && row.items[0]?.desiredDueTimezone?.code) || ''
         return (
-          <Box sx={{ overflowX: 'scroll' }}>
+          <Box>
             {!dueDate ? '-' : FullDateTimezoneHelper(dueDate, timezone)}
           </Box>
         )
