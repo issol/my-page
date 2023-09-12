@@ -457,9 +457,8 @@ export default function QuotesDetail() {
   })
 
   useEffect(() => {
-    try {
-      if (!isItemLoading && itemsWithLang) {
-        ;(async function () {
+    if (!isItemLoading && itemsWithLang) {
+      ;(async function () {
           const priceList = await getClientPriceList({})
           setLanguagePairs(
             itemsWithLang?.items?.map(item => {
@@ -513,16 +512,8 @@ export default function QuotesDetail() {
           })
           itemReset({ items: result })
           itemTrigger()
-        })()
-      }
-    } catch(error: any) {
-      console.log("set item error",error)
-      toast.error('Data has been lost, please contact your administrator.', {
-        position: 'bottom-left',
-      })
-      router.push('/quotes/detail')
+      })()
     }
-    
   }, [isItemLoading, itemsWithLang])
 
   // ** 3. Client

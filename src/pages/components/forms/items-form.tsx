@@ -278,10 +278,15 @@ export default function ItemForm({
         <DeleteConfirmModal
           message='Are you sure you want to delete this item?'
           onClose={() => closeModal('delete-item')}
-          onDelete={() => remove(idx)}
+          onDelete={() => handleItemRemove(idx)}
         />
       ),
     })
+  }
+
+  function handleItemRemove(idx: number) {
+    remove(idx)
+    sumTotalPrice()
   }
 
   function findLangPairIndex(source: string, target: string) {
@@ -330,21 +335,6 @@ export default function ItemForm({
   }
 
   const Row = ({ idx }: { idx: number }) => {
-    const debounce = <F extends (...args: any[]) => void>(
-      func: F,
-      delay: number,
-    ) => {
-      let timerId: NodeJS.Timeout | null
-      return (...args: Parameters<F>) => {
-        if (timerId) {
-          clearTimeout(timerId)
-        }
-        timerId = setTimeout(() => {
-          func(...args)
-        }, delay)
-      }
-    }
-
     const [cardOpen, setCardOpen] = useState(true)
     const itemData = getValues(`items.${idx}`)
 
@@ -413,14 +403,18 @@ export default function ItemForm({
       const minimumPrice = getValues(`items.${idx}.minimumPrice`)
       const totalPrice = getValues(`items.${idx}.totalPrice`)
 
+      console.log("handleShowMinimum",value,minimumPrice,totalPrice)
+
       if (value) {
-        if (minimumPrice && minimumPrice > totalPrice) {
+        if (minimumPrice && minimumPrice >= totalPrice) {
           setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
         } else {
           setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
         }
-      } else if (!value)
-        setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
+      } else if (!value) setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
+
+      console.log("handleShowMinimum2",getValues(`items.${idx}.minimumPriceApplied`))
+      getTotalPrice()
     }
 
     // useEffect(() => {
@@ -457,6 +451,7 @@ export default function ItemForm({
     function onDeletePriceUnit(index: number) {
       remove(index)
       if (getValues(`items.${idx}.detail`)?.length === 0) {
+        console.log("onDeletePriceUnit,handleShowMinimum(true)")
         handleShowMinimum(true)
       }
     }
@@ -467,17 +462,24 @@ export default function ItemForm({
     }
 
     function getTotalPrice() {
+      const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
+      const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
+      console.log("getTotalPrice",showMinimum,itemMinimumPrice)
       let total = 0
       const data = getValues(itemName)
-
+      console.log("data",data)
       if (data?.length) {
         const price = data.reduce(
           (res, item) => (res += Number(item.prices)),
           0,
         )
+        
+        console.log("price",price)
         const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
-        const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
+        
 
+        console.log("itemMinimumPrice,showMinimum",itemMinimumPrice,showMinimum)
+        
         if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
@@ -489,11 +491,16 @@ export default function ItemForm({
           if (showMinimum === true) handleShowMinimum(false)
           // handleShowMinimum(false)
         }
+      } else if (!data?.length && showMinimum){
+        // 최초 상태, row는 없이 미니멈프라이스만 설정되어 있는 상태
+        total = itemMinimumPrice!
       }
       if (total === itemData.totalPrice) return
 
+      console.log("getValues(`items.${idx}.totalPrice`)",getValues(`items.${idx}.totalPrice`))
       setValue(`items.${idx}.totalPrice`, total, setValueOptions)
       itemTrigger(`items.${idx}.totalPrice`)
+      sumTotalPrice()
     }
 
     function getEachPrice(index: number, isNotApplicable?: boolean) {
@@ -671,6 +678,7 @@ export default function ItemForm({
     }
 
     const handleMinimumPrice = () => {
+      console.log("handleMinimumPrice",getValues(`items.${idx}.minimumPrice`),getValues(`items.${idx}.minimumPriceApplied`))
       const minimumPrice = getValues(`items.${idx}.minimumPrice`)
       const currency = getValues(`items.${idx}.initialPrice.currency`)
       if (minimumPrice && minimumPrice !== 0) {

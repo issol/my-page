@@ -272,7 +272,7 @@ export default function ItemPriceUnitForm({
       getTotalPrice()
       const newTotalPrice = getValues(`items.${index}.totalPrice`)
       setTotalPrice(newTotalPrice)
-      sumTotalPrice()
+      // sumTotalPrice()
     }
 
     const onClickDeletePriceUnit = (idx: number) => {

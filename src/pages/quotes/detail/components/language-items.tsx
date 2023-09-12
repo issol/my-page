@@ -149,7 +149,7 @@ export default function QuotesLanguageItemsDetail({
   }
   useEffect(() => {
     sumTotalPrice()
-  }, [items])
+  }, [items, setItem])
 
   function getPriceOptions(source: string, target: string, index?: number) {
     if (!isSuccess) return [defaultOption]
