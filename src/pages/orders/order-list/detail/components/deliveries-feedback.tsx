@@ -35,7 +35,7 @@ import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 import { updateOrderType } from '../[id]'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { v4 as uuidv4 } from 'uuid'
-import { formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -156,7 +156,7 @@ const DeliveriesFeedback = ({
               type: 'AlertMaximumFileSizeModal',
               children: (
                 <AlertModal
-                  title='The maximum file size you can upload is 2gb.'
+                  title={`The maximum file size you can upload is ${byteToGB(MAXIMUM_FILE_SIZE)}.`}
                   onClick={() => closeModal('AlertMaximumFileSizeModal')}
                   vary='error'
                   buttonText='Okay'
@@ -667,7 +667,7 @@ const DeliveriesFeedback = ({
                   Deliveries
                 </Typography>
                 <Typography variant='caption'>
-                  {formatFileSize(fileSize).toLowerCase()}/2 gb
+                  {formatFileSize(fileSize).toLowerCase()}/{byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
               {isSubmittable && currentRole && currentRole.name !== 'CLIENT' ? (
