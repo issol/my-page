@@ -95,8 +95,8 @@ export default function QuotesClientDetail({
                     <Typography variant='body2'>
                       {getGmtTimeEng(
                         client.contactPerson !== null
-                          ? client?.contactPerson?.timezone.code
-                          : client?.client?.timezone.code,
+                          ? client?.contactPerson?.timezone?.code
+                          : client?.client?.timezone?.code,
                       )}
                     </Typography>
                   </Box>
@@ -118,11 +118,11 @@ export default function QuotesClientDetail({
                     <Typography variant='body2'>
                       {getPhoneNumber(
                         client.contactPerson !== null
-                          ? client.contactPerson.phone!
-                          : client.client.phone,
+                          ? client?.contactPerson?.phone!
+                          : client?.client?.phone,
                         client.contactPerson !== null
-                          ? client.contactPerson.timezone.phone
-                          : client.client.timezone.phone,
+                          ? client?.contactPerson?.timezone?.phone
+                          : client?.client?.timezone?.phone,
                       )}
                     </Typography>
                   </Box>
@@ -147,11 +147,11 @@ export default function QuotesClientDetail({
                     <Typography variant='body2'>
                       {getPhoneNumber(
                         client.contactPerson !== null
-                          ? client.contactPerson.mobile!
-                          : client.client.mobile,
+                          ? client?.contactPerson?.mobile!
+                          : client?.client?.mobile,
                         client.contactPerson !== null
-                          ? client.contactPerson.timezone.phone
-                          : client.client.timezone.phone,
+                          ? client?.contactPerson?.timezone?.phone
+                          : client?.client?.timezone?.phone,
                       )}
                     </Typography>
                   </Box>
@@ -172,12 +172,12 @@ export default function QuotesClientDetail({
                     </Typography>
                     <Typography variant='body2'>
                       {getPhoneNumber(
-                        client.contactPerson !== null
-                          ? client.contactPerson.fax!
-                          : client.client.fax,
-                        client.contactPerson !== null
-                          ? client.contactPerson.timezone.phone
-                          : client.client.timezone.phone,
+                        client?.contactPerson !== null
+                          ? client?.contactPerson?.fax!
+                          : client?.client?.fax,
+                        client?.contactPerson !== null
+                          ? client?.contactPerson?.timezone?.phone
+                          : client?.client?.timezone?.phone,
                       )}
                     </Typography>
                   </Box>
