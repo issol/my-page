@@ -404,16 +404,20 @@ export default function ItemForm({
       const totalPrice = getValues(`items.${idx}.totalPrice`)
 
       console.log("handleShowMinimum",value,minimumPrice,totalPrice)
-
-      if (value) {
-        if (minimumPrice && minimumPrice >= totalPrice) {
-          setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
-        } else {
+      if (minimumPrice) {
+        if (value) {
+          if (minimumPrice && minimumPrice >= totalPrice) {
+            setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
+          } else {
+            setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
+          }
+        } else if (!value) {
           setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
         }
-      } else if (!value) setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
-
-      console.log("handleShowMinimum2",getValues(`items.${idx}.minimumPriceApplied`))
+      } else {
+        setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
+      }
+      itemTrigger(`items.${idx}.minimumPriceApplied`)
       getTotalPrice()
     }
 
@@ -472,12 +476,7 @@ export default function ItemForm({
         const price = data.reduce(
           (res, item) => (res += Number(item.prices)),
           0,
-        )
-        
-        console.log("price",price)
-        const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
-        
-
+        )       
         console.log("itemMinimumPrice,showMinimum",itemMinimumPrice,showMinimum)
         
         if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
@@ -486,18 +485,20 @@ export default function ItemForm({
           })
           // handleShowMinimum(true)
           total = itemMinimumPrice
+        } else if (itemMinimumPrice && price >= itemMinimumPrice && showMinimum){
+          total = price
+          // 아래 코드 활성화시 미니멈 프라이스가 활성화 되었으나 미니멈 프라이스 값이 없는 경우 무한루프에 빠짐
+          if (showMinimum === true) handleShowMinimum(false)
         } else {
           total = price
-          if (showMinimum === true) handleShowMinimum(false)
-          // handleShowMinimum(false)
         }
+
       } else if (!data?.length && showMinimum){
         // 최초 상태, row는 없이 미니멈프라이스만 설정되어 있는 상태
         total = itemMinimumPrice!
       }
       if (total === itemData.totalPrice) return
 
-      console.log("getValues(`items.${idx}.totalPrice`)",getValues(`items.${idx}.totalPrice`))
       setValue(`items.${idx}.totalPrice`, total, setValueOptions)
       itemTrigger(`items.${idx}.totalPrice`)
       sumTotalPrice()
