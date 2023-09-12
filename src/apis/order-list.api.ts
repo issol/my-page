@@ -101,12 +101,16 @@ export const getOrderListCalendar = async (
     // return data
     // console.log(data)
 
+    console.log(data)
+
     return {
       data: data?.map((item: OrderListType, idx: number) => {
+        console.log(item.status)
+
         return {
           ...item,
           extendedProps: {
-            calendar: getOrderStatusColor(item.status),
+            calendar: getOrderStatusColor(item.status, item.status),
           },
           allDay: true,
         }

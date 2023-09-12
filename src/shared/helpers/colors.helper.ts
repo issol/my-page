@@ -33,10 +33,12 @@ export function getReceivableStatusColor(status: InvoiceReceivableStatusType) {
   return color
 }
 
-export function getOrderStatusColor(status: OrderStatusType) {
-
+export function getOrderStatusColor(
+  status: OrderStatusType,
+  code?: OrderStatusType,
+) {
   const color =
-    status === 10000 || status === 'New'
+    code === 'New' || status === 10000
       ? '#666CFF'
       : status === 10100 || status === 'In preparation'
       ? '#F572D8'

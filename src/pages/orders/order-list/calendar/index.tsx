@@ -126,7 +126,10 @@ const OrderListCalendar = () => {
     if (statusList) {
       const res = statusList.map(value => ({
         ...value,
-        color: getOrderStatusColor(value.value as OrderStatusType),
+        color: getOrderStatusColor(
+          value.value as OrderStatusType,
+          value.label as OrderStatusType,
+        ),
       }))
       setStatuses(res)
     }
