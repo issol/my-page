@@ -347,8 +347,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                     <CustomTableCell
                       sx={{ flex: 0.1505, justifyContent: 'center' }}
                     >
-                      <Box>{`${columnName?.price} (${data?.langItem
-                        ?.languagePairs[0]?.price?.currency!})`}</Box>
+                      <Box>{`${columnName?.price} (${data?.langItem?.items[0].initialPrice?.currency!})`}</Box>
                     </CustomTableCell>
                     <CustomTableCell
                       align='center'
@@ -365,14 +364,13 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                         paddingLeft: '20px',
                       }}
                     >
-                      <Box>{`${columnName.totalPrice} (${data?.langItem
-                        ?.languagePairs[0]?.price?.currency!})`}</Box>
+                      <Box>{`${columnName.totalPrice} (${data?.langItem?.items[0].initialPrice?.currency!})`}</Box>
                     </CustomTableCell>
                   </CustomTableRow>
                 </TableHead>
                 <MakeTable
                   rows={data?.langItem?.items ?? []}
-                  currency={data?.langItem?.languagePairs[0]?.price?.currency!}
+                  currency={data?.langItem?.items[0].initialPrice?.currency!}
                 />
                 <TableBody>
                   <TableRow>
@@ -412,9 +410,8 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                           {!data.langItem
                             ? 0
                             : formatCurrency(
-                                calculateTotalPriceRows(data.langItem),
-                                data?.langItem?.languagePairs[0]?.price
-                                  ?.currency! || 'USD',
+                                Number(data?.subtotal),
+                                data?.langItem?.items[0].initialPrice?.currency! || 'USD',
                               )}
                         </Typography>
                       </Box>

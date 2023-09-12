@@ -94,6 +94,7 @@ const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisable
       contactPerson: history?.client!.contactPerson,
       clientAddress: history?.client!.clientAddress,
       langItem: history?.items!,
+      subtotal: history?.projectInfo!.subtotal
     }
 
     setDownloadData(res)

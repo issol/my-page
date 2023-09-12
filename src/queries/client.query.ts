@@ -1,4 +1,4 @@
-import { getClientList, getClientMemo } from '@src/apis/client.api'
+import { getClientList, getClientMemo, getWorkNameList } from '@src/apis/client.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
 import { FilterType } from 'src/pages/client'
@@ -40,6 +40,18 @@ export const useGetClientMemo = (
           position: 'bottom-left',
         })
       },
+    },
+  )
+}
+
+export const useGetWorkNameList = (id: number) => {
+  return useQuery(
+    ['get-client/workname',id],
+    () => {
+      return getWorkNameList(id)
+    },
+    {
+      suspense: true,
     },
   )
 }

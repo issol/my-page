@@ -58,11 +58,13 @@ export default function ClientDetail() {
   const auth = useRecoilValueLoadable(authState)
 
   const User = new client(auth.getValue().user?.id!)
+  
 
-  const isUpdatable = ability.can('update', User)
-  const isDeletable = ability.can('delete', User)
-  const isCreatable = ability.can('create', User)
+  // const isUpdatable = ability.can('update', User)
+  // const isDeletable = ability.can('delete', User)
+  // const isCreatable = ability.can('create', User)
 
+ 
   const [memoSkip, setMemoSkip] = useState(0)
   const MEMO_PAGESIZE = 3
 
@@ -70,11 +72,17 @@ export default function ClientDetail() {
     setValue(newValue)
   }
   const { data: userInfo, isError, isFetched } = useGetClientDetail(Number(id!))
+  
+  const Writer = new client(userInfo?.authorId!)
 
   const { data: memo } = useGetClientMemo(Number(id!), {
     skip: memoSkip * MEMO_PAGESIZE,
     take: MEMO_PAGESIZE,
   })
+
+  const isUpdatable = ability.can('update', Writer)
+  const isDeletable = ability.can('delete', Writer)
+  const isCreatable = ability.can('create', Writer)
 
   return (
     <Box sx={{ pb: '100px' }}>

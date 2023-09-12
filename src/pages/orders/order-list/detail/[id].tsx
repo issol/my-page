@@ -440,8 +440,11 @@ const OrderDetail = () => {
   }
 
   function onProjectInfoSave() {
-    const projectInfo = getProjectInfo()
-
+    const projectInfo = {
+      ...getProjectInfo(),
+      isTaxable: getProjectInfo().isTaxable ? '1' : '0',
+    }
+    
     onSave(() => updateProject.mutate(projectInfo))
   }
 
@@ -716,6 +719,7 @@ const OrderDetail = () => {
       contactPerson: client!.contactPerson,
       clientAddress: client!.clientAddress,
       langItem: langItem!,
+      subtotal: projectInfo!.subtotal,
     }
 
     setDownloadData(res)

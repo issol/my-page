@@ -130,6 +130,7 @@ export type OrderDownloadData = {
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
   langItem: LanguageAndItemType
+  subtotal: number | string
 }
 
 export type LanguageAndItemType = {

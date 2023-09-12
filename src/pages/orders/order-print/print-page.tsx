@@ -350,7 +350,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Box>{lang === 'EN' ? `Price (USD)` : `단가 (USD)`}</Box>
+                  <Box>{lang === 'EN' ? `Price (${data?.langItem?.items[0]?.initialPrice?.currency!})` : `단가 (${data?.langItem?.items[0]?.initialPrice?.currency!})`}</Box>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -375,7 +375,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                   }}
                 >
                   <Box>
-                    {lang === 'EN' ? `Total Price (USD)` : `금액 (USD)`}
+                    {lang === 'EN' ? `Total Price (${data?.langItem?.items[0]?.initialPrice?.currency!})` : `금액 (${data?.langItem?.items[0]?.initialPrice?.currency!})`}
                   </Box>
                 </TableCell>
               </TableRow>
@@ -415,8 +415,8 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                       {!data.langItem
                         ? 0
                         : formatCurrency(
-                            calculateTotalPriceRows(data.langItem),
-                            'USD',
+                            data?.subtotal,
+                            data?.langItem?.items[0]?.initialPrice?.currency!,
                           )}
                     </Typography>
                   </Box>
