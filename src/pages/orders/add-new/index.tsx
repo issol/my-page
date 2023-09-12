@@ -714,9 +714,10 @@ export default function AddNewOrder() {
             }),
           )
           const result = res?.items?.map(item => {
+            console.log("copy item",item)
             return {
               id: item.id,
-              name: item.itemName,
+              itemName: item.itemName,
               source: item.source,
               target: item.target,
               priceId: item.priceId,
