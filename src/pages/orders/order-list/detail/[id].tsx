@@ -891,6 +891,7 @@ const OrderDetail = () => {
     setLangItemsEdit(false)
     const items: PostItemType[] = getItem().items.map(item => {
       const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
+      console.log("save item",item)
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
