@@ -24,7 +24,7 @@ import {
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-import { FilterType } from '..'
+import { FilterType } from '.'
 
 import {
   Control,

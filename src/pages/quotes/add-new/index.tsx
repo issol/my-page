@@ -539,7 +539,7 @@ export default function AddNewQuote() {
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
     shouldWarn: isWarn,
-    toUrl: '/quotes',
+    toUrl: '/quotes/quote-list',
   })
 
   const [subPrice, setSubPrice] = useState(0)

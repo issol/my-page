@@ -939,7 +939,7 @@ export default function QuotesDetail() {
       queryClient.invalidateQueries({
         queryKey: ['quotesList'],
       })
-      router.push('/quotes')
+      router.push('/quotes/quote-list')
     },
     onError: () => onMutationError(),
   })
@@ -1231,7 +1231,7 @@ export default function QuotesDetail() {
             {editProject || editItems || editClient || editTeam ? null : (
               <IconButton
                 sx={{ padding: '0 !important', height: '24px' }}
-                onClick={() => router.push('/quotes')}
+                onClick={() => router.push('/quotes/quote-list')}
               >
                 <Icon icon='mdi:chevron-left' width={24} height={24} />
               </IconButton>

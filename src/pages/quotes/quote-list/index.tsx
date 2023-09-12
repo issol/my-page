@@ -10,9 +10,9 @@ import { StyledNextLink } from '@src/@core/components/customLink'
 import PageHeader from '@src/@core/components/page-header'
 
 // ** components
-import CalendarContainer from './calendar'
-import QuotesFilters from './list/filters'
-import QuotesList from './list/list'
+import CalendarContainer from '../calendar'
+import QuotesFilters from './filters'
+import QuotesList from './list'
 
 // ** hooks
 import { useForm } from 'react-hook-form'

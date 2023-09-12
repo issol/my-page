@@ -180,7 +180,7 @@ const navigation = (): HorizontalNavItemsType => {
         },
         {
           title: 'Quote List',
-          path: `/quotes`,
+          path: `/quotes/quote-list`,
           action: 'read',
           icon: 'material-symbols:request-quote-outline',
           subject: 'quote',

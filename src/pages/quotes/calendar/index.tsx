@@ -10,7 +10,7 @@ import { Typography } from '@mui/material'
 
 // ** components
 import Calendar from './calendar'
-import QuotesList from '../list/list'
+import QuotesList from '../quote-list/list'
 
 // ** Hooks
 import { useSettings } from 'src/@core/hooks/useSettings'
