@@ -138,7 +138,7 @@ const navigation = (): HorizontalNavItemsType => {
         {
           title: 'Standard Prices',
           path: `/company/price`,
-          action: 'read',
+          action: 'create',
           icon: 'solar:dollar-minimalistic-bold',
           subject: 'company_price',
         },
