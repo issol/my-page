@@ -1,4 +1,4 @@
-import { useContext, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -147,7 +147,10 @@ export default function AddNewRequest() {
     formState: { errors, isValid },
   } = useForm<RequestFormType>({
     mode: 'onChange',
-    defaultValues: getClientRequestDefaultValue(auth.getValue().user?.userId!),
+    defaultValues: getClientRequestDefaultValue(
+      auth.getValue().user?.userId!,
+      auth.getValue().user?.timezone!,
+    ),
     resolver: yupResolver(clientRequestSchema),
   })
 
@@ -169,11 +172,14 @@ export default function AddNewRequest() {
           firstName: item.firstName,
           middleName: item.middleName,
           lastName: item.lastName,
-        })} ${item.jobTitle ? '/ ' + item.jobTitle : ''}`,
+        })}`,
         timezone: item.timezone,
+        jobTitle: item.jobTitle,
       })) || []
     )
   }, [clientList])
+
+  console.log(clients)
 
   const createMutation = useMutation(
     (form: RequestFormType) => createClientRequest(form),
@@ -276,6 +282,8 @@ export default function AddNewRequest() {
     })
   }
 
+  console.log(getValues())
+
   return (
     <Grid container spacing={6}>
       <ConfirmLeaveModal />
@@ -306,30 +314,52 @@ export default function AddNewRequest() {
                 name='contactPersonId'
                 control={control}
                 render={({ field: { value, onChange } }) => {
+                  console.log(value)
+
                   const selectedPerson = clients.find(
                     item => item.value === value,
-                  )
+                  ) || {
+                    value: value,
+                    label: getLegalName({
+                      firstName: auth.getValue().user?.firstName,
+                      middleName: auth.getValue().user?.middleName,
+                      lastName: auth.getValue().user?.lastName,
+                    }),
+                    timezone: auth.getValue().user?.timezone!,
+                    jobTitle: auth.getValue().user?.jobTitle,
+                  }
+
+                  console.log(selectedPerson)
+
                   return (
                     <Autocomplete
                       autoHighlight
                       fullWidth
                       options={clients}
                       onChange={(e, v) => {
-                        onChange(v.value)
-                        fields.forEach((item, i) =>
-                          update(i, {
-                            ...item,
-                            desiredDueTimezone: v.timezone,
-                          }),
-                        )
-                      }}
-                      disableClearable
-                      value={
-                        selectedPerson || {
-                          value: -0,
-                          label: '',
-                          timezone: { phone: '', label: '', code: '' },
+                        if (v) {
+                          onChange(v.value)
+                          fields.forEach((item, i) =>
+                            setValue(
+                              `items.${i}.desiredDueTimezone`,
+                              v.timezone,
+                            ),
+                          )
+                        } else {
+                          onChange(null)
                         }
+                      }}
+                      isOptionEqualToValue={useCallback(
+                        (option: any, value: any) =>
+                          option.value === value.value,
+                        [],
+                      )}
+                      // disableClearable
+                      value={value ? selectedPerson : null}
+                      getOptionLabel={option =>
+                        `${option.label}${
+                          option.jobTitle ? ' / ' + option.jobTitle : ''
+                        }`
                       }
                       renderInput={params => (
                         <TextField

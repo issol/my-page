@@ -64,20 +64,20 @@ export default function List({
 
   const columns = [
     {
-      flex: 0.28,
+      flex: 0.064,
       field: 'corporationId',
-      minWidth: 80,
+      minWidth: 120,
       disableColumnMenu: true,
       renderHeader: () => <Box>No.</Box>,
       renderCell: ({ row }: CellType) => (
-        <Title title={row.corporationId} sx={{ cursor: 'pointer' }}>
+        <Typography variant='body1' fontSize={14} fontWeight={400}>
           {row.corporationId}
-        </Title>
+        </Typography>
       ),
     },
     {
-      flex: 0.15,
-      minWidth: 120,
+      flex: 0.1142,
+      minWidth: 214,
       field: 'status',
       disableColumnMenu: true,
       sortable: false,
@@ -85,8 +85,8 @@ export default function List({
       renderCell: ({ row }: CellType) => ClientRequestStatusChip(row.status),
     },
     {
-      flex: 0.15,
-      minWidth: 180,
+      flex: 0.208,
+      minWidth: 260,
       field: 'email',
       headerName: 'LSP / Email',
       disableColumnMenu: true,
@@ -100,8 +100,8 @@ export default function List({
       ),
     },
     {
-      flex: 0.3,
-      minWidth: 130,
+      flex: 0.1387,
+      minWidth: 340,
       field: 'name',
       disableColumnMenu: true,
       sortable: false,
@@ -122,8 +122,8 @@ export default function List({
       },
     },
     {
-      flex: 0.23,
-      minWidth: 120,
+      flex: 0.2241,
+      minWidth: 420,
       field: 'category',
       disableColumnMenu: true,
       sortable: false,
@@ -150,24 +150,28 @@ export default function List({
       },
     },
     {
-      flex: 0.23,
-      minWidth: 120,
+      flex: 0.1494,
+      minWidth: 280,
       field: 'requestedAt',
       disableColumnMenu: true,
       // sortable: false,
       renderHeader: () => <Box>Request date</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>
+        <Box>
           {FullDateTimezoneHelper(
             row.requestedAt,
-            auth.getValue().user?.timezone!,
+            auth.getValue().user?.timezone! ?? {
+              code: 'KR',
+              label: 'Korea, Republic of',
+              public: '82',
+            },
           )}
         </Box>
       ),
     },
     {
-      flex: 0.23,
-      minWidth: 120,
+      flex: 0.1281,
+      minWidth: 240,
       field: 'desiredDueDate',
       disableColumnMenu: true,
       // sortable: false,
@@ -179,7 +183,7 @@ export default function List({
         const timezone =
           (row.items.length && row.items[0]?.desiredDueTimezone?.code) || ''
         return (
-          <Box sx={{ overflowX: 'scroll' }}>
+          <Box>
             {!dueDate ? '-' : FullDateTimezoneHelper(dueDate, timezone)}
           </Box>
         )

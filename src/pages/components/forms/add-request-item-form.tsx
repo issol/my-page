@@ -51,6 +51,7 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
   control: Control<RequestFormType, any>
@@ -342,9 +343,10 @@ export default function AddRequestForm({
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
                     disableClearable
+                    getOptionLabel={option => getGmtTime(option.code)}
                     renderOption={(props, option) => (
                       <Box component='li' {...props}>
-                        {option.label} ({option.code}) +{option.phone}
+                        {getGmtTime(option.code)}
                       </Box>
                     )}
                     renderInput={params => (
