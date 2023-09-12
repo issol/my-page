@@ -444,7 +444,7 @@ const OrderDetail = () => {
       ...getProjectInfo(),
       isTaxable: getProjectInfo().isTaxable ? '1' : '0',
     }
-    
+
     onSave(() => updateProject.mutate(projectInfo))
   }
 
@@ -967,11 +967,11 @@ const OrderDetail = () => {
         setClientEdit(false)
         setProjectTeamEdit(false)
         setLangItemsEdit(false)
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail'],
+        })
+        queryClient.invalidateQueries(['orderList'])
         router.replace(`/orders/order-list/detail/${data.id}`)
-        // queryClient.invalidateQueries({
-        //   queryKey: ['orderDetail'],
-        // })
-        // queryClient.invalidateQueries(['orderList'])
       },
       onError: () => onMutationError(),
     },

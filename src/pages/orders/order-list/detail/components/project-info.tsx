@@ -401,6 +401,7 @@ const ProjectInfo = ({
                           onClick={() => {
                             project.reason && onClickReason()
                           }}
+                          sx={{ padding: 0 }}
                         >
                           <img
                             src='/images/icons/onboarding-icons/more-reason.svg'
