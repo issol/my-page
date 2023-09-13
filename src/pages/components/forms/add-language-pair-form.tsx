@@ -73,7 +73,7 @@ export default function AddLanguagePairForm({
   items,
 }: Props) {
   const { openModal, closeModal } = useModal()
-  console.log("items",items)
+
   const languageList = getGloLanguage()
   const defaultValue = { value: '', label: '' }
 
