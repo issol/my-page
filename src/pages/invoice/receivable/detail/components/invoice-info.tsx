@@ -345,7 +345,7 @@ const InvoiceInfo = ({
         infoType === 'basic'
           ? {
               invoicedAt: data.invoiceDate,
-              invoicedAtTimezone: data.invoiceDateTimezone,
+              invoicedTimezone: data.invoiceDateTimezone,
               payDueAt: data.paymentDueDate.date,
               payDueTimezone: data.paymentDueDate.timezone,
               invoiceDescription: data.invoiceDescription,
@@ -606,7 +606,7 @@ const InvoiceInfo = ({
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,
         invoiceDescription: invoiceInfo.description,
-        invoiceDateTimezone: invoiceInfo.invoicedAtTimezone,
+        invoiceDateTimezone: invoiceInfo.invoicedTimezone,
         invoiceDate: invoiceInfo.invoicedAt,
         taxInvoiceIssued: invoiceInfo.taxInvoiceIssued,
         showDescription: invoiceInfo.showDescription,
@@ -641,7 +641,7 @@ const InvoiceInfo = ({
         sendReminder: invoiceInfo.setReminder,
         tax: invoiceInfo.tax,
         isTaxable: invoiceInfo.isTaxable ?? true,
-        subtotal: invoiceInfo.subtotal
+        subtotal: invoiceInfo.subtotal,
       }
       invoiceInfoReset(res)
     }
@@ -970,7 +970,10 @@ const InvoiceInfo = ({
                               width: '100%',
                             }}
                           >
-                            {FullDateHelper(invoiceInfo.invoicedAt)}
+                            {FullDateTimezoneHelper(
+                              invoiceInfo.invoicedAt,
+                              invoiceInfo.invoicedTimezone,
+                            )}
                           </Typography>
                         </Box>
                       </Box>
@@ -1263,10 +1266,15 @@ const InvoiceInfo = ({
                               width: '73.45%',
                             }}
                           >
-                            <JobTypeChip
-                              label={invoiceInfo.category}
-                              type={invoiceInfo.category}
-                            />
+                            {' '}
+                            {invoiceInfo.category ? (
+                              <JobTypeChip
+                                label={invoiceInfo.category}
+                                type={invoiceInfo.category}
+                              />
+                            ) : (
+                              '-'
+                            )}
                           </Box>
                         </Box>
                       </Box>
@@ -1303,14 +1311,16 @@ const InvoiceInfo = ({
                             }}
                           >
                             {invoiceInfo.serviceType &&
-                              invoiceInfo.serviceType.map(value => {
-                                return (
-                                  <ServiceTypeChip
-                                    label={value}
-                                    key={uuidv4()}
-                                  />
-                                )
-                              })}
+                            invoiceInfo.serviceType.length > 0
+                              ? invoiceInfo.serviceType.map(value => {
+                                  return (
+                                    <ServiceTypeChip
+                                      label={value}
+                                      key={uuidv4()}
+                                    />
+                                  )
+                                })
+                              : '-'}
                           </Box>
                         </Box>
                         <Box sx={{ display: 'flex', flex: 1 }}>
@@ -1342,18 +1352,20 @@ const InvoiceInfo = ({
                             }}
                           >
                             {invoiceInfo.expertise &&
-                              invoiceInfo.expertise.map((value, idx) => {
-                                return (
-                                  <Typography
-                                    key={uuidv4()}
-                                    variant='subtitle2'
-                                  >
-                                    {invoiceInfo.expertise.length === idx + 1
-                                      ? value
-                                      : `${value}, `}
-                                  </Typography>
-                                )
-                              })}
+                            invoiceInfo.expertise.length > 0
+                              ? invoiceInfo.expertise.map((value, idx) => {
+                                  return (
+                                    <Typography
+                                      key={uuidv4()}
+                                      variant='subtitle2'
+                                    >
+                                      {invoiceInfo.expertise.length === idx + 1
+                                        ? value
+                                        : `${value}, `}
+                                    </Typography>
+                                  )
+                                })
+                              : '-'}
                           </Box>
                         </Box>
                       </Box>

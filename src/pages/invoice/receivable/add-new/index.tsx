@@ -393,6 +393,7 @@ export default function AddNewInvoice() {
       contactPersonId: clients.contactPersonId,
       orderId: Number(router.query.orderId),
       invoicedAt: projectInfo.invoiceDate,
+      invoicedTimezone: projectInfo.invoiceDateTimezone,
       payDueAt: projectInfo.paymentDueDate.date,
       description: projectInfo.invoiceDescription,
       payDueTimezone: projectInfo.paymentDueDate.timezone,
@@ -545,7 +546,7 @@ export default function AddNewInvoice() {
             },
             isTaxable: res.isTaxable ?? true,
             tax: res.tax ?? null,
-            subtotal: res.subtotal
+            subtotal: res.subtotal,
           })
         })
         .catch(e => {
@@ -570,7 +571,8 @@ export default function AddNewInvoice() {
                   catBasis: item.initialPrice?.calculationBasis!,
                   decimalPlace: item.initialPrice?.numberPlace!,
                   roundingProcedure:
-                    RoundingProcedureList[item.initialPrice?.rounding!].label ?? 0,
+                    RoundingProcedureList[item.initialPrice?.rounding!]
+                      ?.label ?? 0,
                   languagePairs: [],
                   priceUnit: [],
                   catInterface: { memSource: [], memoQ: [] },
@@ -875,7 +877,7 @@ export default function AddNewInvoice() {
                         ? formatCurrency(
                             formatByRoundingProcedure(
                               Number(getProjectInfoValues().subtotal) *
-                              (getProjectInfoValues().tax! / 100),
+                                (getProjectInfoValues().tax! / 100),
                               priceInfo?.decimalPlace!,
                               priceInfo?.roundingProcedure!,
                               priceInfo?.currency!,

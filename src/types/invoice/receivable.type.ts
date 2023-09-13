@@ -141,7 +141,7 @@ export type InvoiceReceivableDetailType = {
   setReminder: boolean
   reminderSentAt: string | null
   invoicedAt: string
-  invoicedAtTimezone: CountryType
+  invoicedTimezone: CountryType
   payDueAt: string
   payDueTimezone: CountryType
   invoiceConfirmedAt: string | null //TODO:추후 삭제 필요
@@ -226,7 +226,7 @@ export type InvoiceReceivablePatchParamsType = {
   orderId?: number
   invoiceStatus?: number
   invoicedAt?: string
-  invoicedAtTimezone?: CountryType
+  invoicedTimezone?: CountryType
   payDueAt?: string
   description?: string
   payDueTimezone?: CountryType
