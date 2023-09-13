@@ -270,7 +270,7 @@ const InvoiceInfo = ({
       onSave({
         id: invoiceInfo.id,
         form: {
-          ...data,
+          // ...data,
           invoiceStatus: value as InvoiceReceivableStatusType,
         },
       })
@@ -284,7 +284,7 @@ const InvoiceInfo = ({
       onSave({
         id: invoiceInfo.id,
         form: {
-          ...data,
+          // ...data,
           setReminder: event.target.checked ? '1' : '0',
         },
       })
@@ -299,8 +299,8 @@ const InvoiceInfo = ({
       onSave({
         id: invoiceInfo.id,
         form: {
-          ...data,
-          showDescription: event.target.checked,
+          // ...data,
+          showDescription: event.target.checked ? '1' : '0',
         },
       })
     }
@@ -313,8 +313,8 @@ const InvoiceInfo = ({
       onSave({
         id: invoiceInfo.id,
         form: {
-          ...data,
-          taxInvoiceIssued: event.target.checked,
+          // ...data,
+          taxInvoiceIssued: event.target.checked ? '1' : '0',
         },
       })
     }

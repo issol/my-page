@@ -183,9 +183,9 @@ export const patchInvoiceInfo = async (
       `/api/enough/u/invoice/receivable/${id}`,
       {
         ...form,
-        taxInvoiceIssued: form.taxInvoiceIssued ? '1' : '0',
-        showDescription: form.showDescription ? '1' : '0',
-        setReminder: form.setReminder ? '1' : '0',
+        // taxInvoiceIssued: form.taxInvoiceIssued ? '1' : '0',
+        // showDescription: form.showDescription ? '1' : '0',
+        // setReminder: form.setReminder ? '1' : '0',
       },
     )
 

@@ -243,9 +243,9 @@ export type InvoiceReceivablePatchParamsType = {
   salesCheckedAt?: string
   salesCheckedDateTimezone?: CountryType
   setReminder?: '1' | '0'
-  taxInvoiceIssued?: boolean
+  taxInvoiceIssued?: '1' | '0'
   salesCategory?: string
-  showDescription?: boolean
+  showDescription?: '1' | '0'
 }
 
 export type InvoiceDownloadData = {
