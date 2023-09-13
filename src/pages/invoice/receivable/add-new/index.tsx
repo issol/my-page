@@ -525,8 +525,6 @@ export default function AddNewInvoice() {
         })
       getProjectInfo(id)
         .then(res => {
-          console.log(res)
-
           projectInfoReset({
             invoiceDate: Date(),
             workName: res?.workName ?? '',
@@ -547,6 +545,7 @@ export default function AddNewInvoice() {
             },
             isTaxable: res.isTaxable ?? true,
             tax: res.tax ?? null,
+            subtotal: res.subtotal
           })
         })
         .catch(e => {
@@ -571,7 +570,7 @@ export default function AddNewInvoice() {
                   catBasis: item.initialPrice?.calculationBasis!,
                   decimalPlace: item.initialPrice?.numberPlace!,
                   roundingProcedure:
-                    RoundingProcedureList[item.initialPrice?.rounding!].label,
+                    RoundingProcedureList[item.initialPrice?.rounding!].label ?? 0,
                   languagePairs: [],
                   priceUnit: [],
                   catInterface: { memSource: [], memoQ: [] },
@@ -802,7 +801,7 @@ export default function AddNewInvoice() {
                     >
                       {formatCurrency(
                         formatByRoundingProcedure(
-                          subPrice,
+                          Number(getProjectInfoValues().subtotal),
                           priceInfo?.decimalPlace!,
                           priceInfo?.roundingProcedure!,
                           priceInfo?.currency!,
@@ -837,7 +836,8 @@ export default function AddNewInvoice() {
 
                 <Box display='flex' alignItems='center' gap='4px'>
                   <Box>
-                    {!getProjectInfoValues().isTaxable
+                    {/* {!getProjectInfoValues().isTaxable  //TODO 9/13일 시연용으로 임시 설정, 원복해야함 */} 
+                    {getProjectInfoValues().isTaxable 
                       ? '-'
                       : getProjectInfoValues().tax}
                   </Box>
@@ -872,13 +872,11 @@ export default function AddNewInvoice() {
                       variant='subtitle1'
                       sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
-                      {getProjectInfoValues().isTaxable
+                      {!getProjectInfoValues().isTaxable //TODO 9/13일 시연용으로 임시 설정, 원복해야함
                         ? formatCurrency(
                             formatByRoundingProcedure(
-                              items.reduce((acc, cur) => {
-                                return acc + cur.totalPrice
-                              }, 0) *
-                                (getProjectInfoValues().tax! / 100),
+                              Number(getProjectInfoValues().subtotal) *
+                              (getProjectInfoValues().tax! / 100),
                               priceInfo?.decimalPlace!,
                               priceInfo?.roundingProcedure!,
                               priceInfo?.currency!,
@@ -920,16 +918,12 @@ export default function AddNewInvoice() {
                       color={'#666CFF'}
                       sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
-                      {getProjectInfoValues().isTaxable
+                      {!getProjectInfoValues().isTaxable //TODO 9/13일 시연용으로 임시 설정, 원복해야함
                         ? formatCurrency(
                             formatByRoundingProcedure(
-                              items.reduce((acc, cur) => {
-                                return acc + cur.totalPrice
-                              }, 0) *
+                              Number(getProjectInfoValues().subtotal) *
                                 (getProjectInfoValues().tax! / 100) +
-                                items.reduce((acc, cur) => {
-                                  return acc + cur.totalPrice
-                                }, 0),
+                                Number(getProjectInfoValues().subtotal),
                               priceInfo?.decimalPlace!,
                               priceInfo?.roundingProcedure!,
                               priceInfo?.currency!,
@@ -938,9 +932,7 @@ export default function AddNewInvoice() {
                           )
                         : formatCurrency(
                             formatByRoundingProcedure(
-                              items.reduce((acc, cur) => {
-                                return acc + cur.totalPrice
-                              }, 0),
+                              Number(getProjectInfoValues().subtotal),
                               priceInfo?.decimalPlace!,
                               priceInfo?.roundingProcedure!,
                               priceInfo?.currency!,

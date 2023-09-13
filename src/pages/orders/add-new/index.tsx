@@ -458,6 +458,7 @@ export default function AddNewOrder() {
     const projectInfo = {
       ...rawProjectInfo,
       // isTaxable : taxable,
+      isTaxable: rawProjectInfo.isTaxable ? '1' : '0',
       tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
       orderedAt: new Date(rawProjectInfo.orderedAt).toISOString(),
       subtotal: subPrice,
