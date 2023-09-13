@@ -641,6 +641,7 @@ const InvoiceInfo = ({
         sendReminder: invoiceInfo.setReminder,
         tax: invoiceInfo.tax,
         isTaxable: invoiceInfo.isTaxable ?? true,
+        subtotal: invoiceInfo.subtotal
       }
       invoiceInfoReset(res)
     }

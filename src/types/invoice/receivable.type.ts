@@ -178,6 +178,7 @@ export type InvoiceReceivableDetailType = {
   //   id: number
   //   corporationId: string
   // }
+  subtotal: number | string
 }
 
 export type InvoiceHistoryType = {
