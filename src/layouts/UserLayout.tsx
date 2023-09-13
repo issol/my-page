@@ -29,8 +29,6 @@ import {
   TADMenu,
   PROMenu,
   CLIENTMenu,
-  LPMGeneralFilterMenu,
-  TADGeneralFilterMenu,
 } from '@src/shared/const/menu/menu'
 import { getCurrentRole } from 'src/shared/auth/storage'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
@@ -95,48 +93,14 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
     if (permission.state === 'hasValue' && current) {
       switch (current.name) {
         case 'TAD':
-          if (currentRole?.type !== 'General') {
-            setSortedMenu(
-              HorizontalNavItems().filter(value => TADMenu.includes(value.title)),
-            )
-          } else {
-            const filteredItems = HorizontalNavItems().filter((value) => {
-              if (TADMenu.includes(value.title)) {
-                if (value.children!) {
-                  value.children = value.children.filter(
-                    (child) => !TADGeneralFilterMenu.includes(child.title)
-                  );
-                  return value.children.length > 0;
-                }
-                return true;
-              }
-              return false;
-            });
-            setSortedMenu(filteredItems)
-          }
-
-
+          setSortedMenu(
+            HorizontalNavItems().filter(value => TADMenu.includes(value.title)),
+          )
           break
         case 'LPM':
-          if (currentRole?.type !== 'General') {
-            setSortedMenu(
-              HorizontalNavItems().filter(value => LPMMenu.includes(value.title)),
-            )
-          } else {
-            const filteredItems = HorizontalNavItems().filter((value) => {
-              if (LPMMenu.includes(value.title)) {
-                if (value.children!) {
-                  value.children = value.children.filter(
-                    (child) => !LPMGeneralFilterMenu.includes(child.title)
-                  );
-                  return value.children.length > 0;
-                }
-                return true;
-              }
-              return false;
-            });
-            setSortedMenu(filteredItems)
-          } 
+          setSortedMenu(
+            HorizontalNavItems().filter(value => LPMMenu.includes(value.title)),
+          )
           break
         case 'PRO':
           setSortedMenu(

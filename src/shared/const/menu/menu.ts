@@ -7,10 +7,6 @@ export const TADMenu = [
   'My page',
 ]
 
-export const TADGeneralFilterMenu = [
-  'Standard Prices',
-]
-
 export const LPMMenu = [
   'Quotes',
   'Orders',
@@ -19,10 +15,6 @@ export const LPMMenu = [
   'Clients',
   'Company',
   'Requests',
-]
-
-export const LPMGeneralFilterMenu = [
-  'Standard Prices',
 ]
 
 export const PROMenu = ['My page']

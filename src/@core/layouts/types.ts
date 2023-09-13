@@ -78,7 +78,6 @@ export type NavLink = {
     | 'error'
     | 'warning'
     | 'info'
-  children?: (NavGroup | NavLink)[]
 }
 
 export type VerticalNavItemsType = (NavLink | NavGroup | NavSectionTitle)[]
