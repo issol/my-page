@@ -836,8 +836,7 @@ export default function AddNewInvoice() {
 
                 <Box display='flex' alignItems='center' gap='4px'>
                   <Box>
-                    {/* {!getProjectInfoValues().isTaxable  //TODO 9/13일 시연용으로 임시 설정, 원복해야함 */} 
-                    {getProjectInfoValues().isTaxable 
+                    {!getProjectInfoValues().isTaxable
                       ? '-'
                       : getProjectInfoValues().tax}
                   </Box>
@@ -872,7 +871,7 @@ export default function AddNewInvoice() {
                       variant='subtitle1'
                       sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
-                      {!getProjectInfoValues().isTaxable //TODO 9/13일 시연용으로 임시 설정, 원복해야함
+                      {getProjectInfoValues().isTaxable
                         ? formatCurrency(
                             formatByRoundingProcedure(
                               Number(getProjectInfoValues().subtotal) *
@@ -918,7 +917,7 @@ export default function AddNewInvoice() {
                       color={'#666CFF'}
                       sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
-                      {!getProjectInfoValues().isTaxable //TODO 9/13일 시연용으로 임시 설정, 원복해야함
+                      {getProjectInfoValues().isTaxable
                         ? formatCurrency(
                             formatByRoundingProcedure(
                               Number(getProjectInfoValues().subtotal) *
