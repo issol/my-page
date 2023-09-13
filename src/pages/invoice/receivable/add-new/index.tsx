@@ -597,6 +597,7 @@ export default function AddNewInvoice() {
               description: item.description,
               showItemDescription: item.showItemDescription,
               minimumPrice: item.minimumPrice,
+              minimumPriceApplied: item.minimumPriceApplied,
             }
           })
           itemReset({ items: result })
@@ -750,6 +751,7 @@ export default function AddNewInvoice() {
                   setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}
                   onDeleteLanguagePair={onDeleteLanguagePair}
+                  items={items}
                 />
               </Grid>
               <Grid item xs={12} mt={6} mb={6}>

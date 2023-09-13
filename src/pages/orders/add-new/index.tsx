@@ -725,6 +725,7 @@ export default function AddNewOrder() {
               description: item.description,
               showItemDescription: item.showItemDescription,
               minimumPrice: item.minimumPrice,
+              minimumPriceApplied: item.minimumPriceApplied,
             }
           })
           itemReset({ items: result })
