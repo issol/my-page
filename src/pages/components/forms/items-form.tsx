@@ -403,7 +403,6 @@ export default function ItemForm({
       const minimumPrice = getValues(`items.${idx}.minimumPrice`)
       const totalPrice = getValues(`items.${idx}.totalPrice`)
 
-      console.log("handleShowMinimum",value,minimumPrice,totalPrice)
       if (minimumPrice) {
         if (value) {
           if (minimumPrice && minimumPrice >= totalPrice) {
@@ -455,7 +454,6 @@ export default function ItemForm({
     function onDeletePriceUnit(index: number) {
       remove(index)
       if (getValues(`items.${idx}.detail`)?.length === 0) {
-        console.log("onDeletePriceUnit,handleShowMinimum(true)")
         handleShowMinimum(true)
       }
     }
@@ -468,16 +466,15 @@ export default function ItemForm({
     function getTotalPrice() {
       const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
       const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
-      console.log("getTotalPrice",showMinimum,itemMinimumPrice)
+
       let total = 0
       const data = getValues(itemName)
-      console.log("data",data)
+
       if (data?.length) {
         const price = data.reduce(
           (res, item) => (res += Number(item.prices)),
           0,
         )       
-        console.log("itemMinimumPrice,showMinimum",itemMinimumPrice,showMinimum)
         
         if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
           data.forEach(item => {
@@ -679,7 +676,6 @@ export default function ItemForm({
     }
 
     const handleMinimumPrice = () => {
-      console.log("handleMinimumPrice",getValues(`items.${idx}.minimumPrice`),getValues(`items.${idx}.minimumPriceApplied`))
       const minimumPrice = getValues(`items.${idx}.minimumPrice`)
       const currency = getValues(`items.${idx}.initialPrice.currency`)
       if (minimumPrice && minimumPrice !== 0) {

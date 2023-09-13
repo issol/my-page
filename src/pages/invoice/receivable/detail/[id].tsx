@@ -99,6 +99,7 @@ import ClientInvoice from './components/client-invoice'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import PrintInvoicePage from './invoice-print/print-page'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 type MenuType =
   | 'invoice'
@@ -554,14 +555,27 @@ const ReceivableInvoiceDetail = () => {
       console.log(prices)
 
       setLanguagePairs(
-        langItem?.languagePairs?.map(item => {
+        langItem?.items?.map(item => {
           return {
             id: String(item.id),
             source: item.source,
             target: item.target,
-            price: !item.price
-              ? null
-              : prices?.find(price => price.id === item?.price?.id) || null,
+            price: {
+              id: item.initialPrice?.priceId!,
+              isStandard: item.initialPrice?.isStandard!,
+              priceName: item.initialPrice?.name!,
+              groupName: 'Current price',
+              category: item.initialPrice?.category!,
+              serviceType: item.initialPrice?.serviceType!,
+              currency: item.initialPrice?.currency!,
+              catBasis: item.initialPrice?.calculationBasis!,
+              decimalPlace: item.initialPrice?.numberPlace!,
+              roundingProcedure:
+                RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+              languagePairs: [],
+              priceUnit: [],
+              catInterface: { memSource: [], memoQ: [] },
+            },
           }
         }),
       )
@@ -578,6 +592,10 @@ const ReceivableInvoiceDetail = () => {
           analysis: item.analysis ?? [],
           totalPrice: item?.totalPrice ?? 0,
           dueAt: item?.dueAt,
+          showItemDescription: item.showItemDescription,
+          initialPrice: item.initialPrice,
+          minimumPrice: item.minimumPrice,
+          minimumPriceApplied: item.minimumPriceApplied,
         }
       })
       itemReset({ items: result })
