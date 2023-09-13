@@ -649,7 +649,7 @@ export default function ItemPriceUnitForm({
     >
       <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
         <Table stickyHeader aria-label='sticky table'>
-          <TableHead sx={{ position: 'sticky', top: 0 }}>
+          <TableHead sx={{ position: 'sticky', top: 0, zIndex: 10 }}>
             <TableRow>
               <HeaderCell
                 sx={{ width: '10%', textTransform: 'none' }}
