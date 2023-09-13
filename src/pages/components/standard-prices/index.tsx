@@ -61,9 +61,10 @@ type Props = {
   title: string
   page: 'pro' | 'client'
   used?: string
+  hasGeneralPermission?: boolean
 }
 
-const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
+const StandardPrices = ({ clientId, page, title, proId, used, hasGeneralPermission }: Props) => {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { data: priceUnit, refetch: priceUnitRefetch } = useGetPriceUnitList({
@@ -462,6 +463,8 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
           selected={selected}
           title={title}
           page={page}
+          hasGeneralPermission={hasGeneralPermission}
+          used={used}
         />
       </Grid>
       {selectedPriceData ? (
