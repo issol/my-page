@@ -913,7 +913,7 @@ const InvoiceInfo = ({
                     }}
                   >
                     <Typography variant='h6'>
-                      An Unexpected Proposal 1-10
+                      {invoiceInfo.projectName ?? '-'}
                     </Typography>
                     {type === 'detail' &&
                     isUpdatable &&
