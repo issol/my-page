@@ -507,6 +507,7 @@ const SignUpPage = () => {
                   <Typography color='primary'>Sign up with Google</Typography>
                 </Link>
                 <GoogleButton
+                  type='signup'
                 // handleCredentialResponse={handleCredentialResponse}
                 />
               </Box>
