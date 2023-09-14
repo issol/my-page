@@ -40,6 +40,9 @@ import { useGetClientList } from '@src/queries/client.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { useForm } from 'react-hook-form'
 import { CategoryList } from '@src/shared/const/category/categories'
+import { getInvoiceReceivableListColumns } from '@src/shared/const/columns/invoice-receivable'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 export type FilterType = {
   invoiceDate: Date[]
@@ -101,6 +104,7 @@ const defaultFilters: InvoiceReceivableFilterType = {
 }
 export default function Receivable() {
   const { openModal, closeModal } = useModal()
+  const auth = useRecoilValueLoadable(authState)
 
   const [menu, setMenu] = useState<ToggleMenuType>('list')
 
@@ -338,8 +342,13 @@ export default function Receivable() {
                 setPage={setInvoiceListPage}
                 setPageSize={setInvoiceListRowsPerPage}
                 role={currentRole!}
-                statusList={statusList!}
                 setFilters={setFilters}
+                columns={getInvoiceReceivableListColumns(
+                  statusList!,
+                  currentRole!,
+                  auth,
+                )}
+                type='list'
               />
             </Card>
           </Grid>

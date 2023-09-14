@@ -6,7 +6,7 @@ import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Switch from '@mui/material/Switch'
-import { Typography } from '@mui/material'
+import { Card, Typography } from '@mui/material'
 
 // ** components
 import ReceivableCalendar from './calendar'
@@ -34,6 +34,9 @@ import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
 // import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
+import { getInvoiceReceivableListColumns } from '@src/shared/const/columns/invoice-receivable'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const CalendarContainer = () => {
   // ** Hooks
@@ -47,6 +50,7 @@ const CalendarContainer = () => {
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const { data: statusList } = useGetStatusList('InvoiceReceivable')
+  const auth = useRecoilValueLoadable(authState)
 
   const statuses = statusList?.map(i => ({
     value: i.value,
@@ -171,7 +175,7 @@ const CalendarContainer = () => {
         </Box>
       </CalendarWrapper>
       {currentListId === null ? null : (
-        <Box mt={10} sx={{ background: 'white' }}>
+        <Card sx={{ background: 'white', marginTop: 10 }}>
           <ReceivableList
             isLoading={isLoading}
             page={skip}
@@ -179,7 +183,11 @@ const CalendarContainer = () => {
             pageSize={pageSize}
             setPageSize={setPageSize}
             setFilters={setFilter}
-            statusList={statusList!}
+            columns={getInvoiceReceivableListColumns(
+              statusList!,
+              currentRole!,
+              auth,
+            )}
             list={
               currentList?.length
                 ? {
@@ -190,8 +198,9 @@ const CalendarContainer = () => {
                 : { data: [], count: 0, totalCount: 0 }
             }
             role={currentRole!}
+            type='calendar'
           />
-        </Box>
+        </Card>
       )}
     </Box>
   )

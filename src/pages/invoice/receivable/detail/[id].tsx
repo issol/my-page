@@ -862,24 +862,35 @@ const ReceivableInvoiceDetail = () => {
                       <Icon icon='mdi:dots-vertical' />
                     </IconButton>
                     <Menu
-                      keepMounted
-                      id='link menu'
+                      elevation={8}
                       anchorEl={anchorEl}
+                      id='customized-menu'
                       onClose={handleMenuClose}
                       open={Boolean(anchorEl)}
-                      PaperProps={{
-                        style: {
-                          maxHeight: 48 * 4.5,
-                        },
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
                       }}
                     >
-                      <MenuItem onClick={handleMenuClose}>
-                        <StyledNextLink
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked order :
+                        <Link
                           href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
-                          color='black'
                         >
-                          Linked order : {invoiceInfo?.orderCorporationId}
-                        </StyledNextLink>
+                          {invoiceInfo?.orderCorporationId}
+                        </Link>
                       </MenuItem>
                     </Menu>
                   </div>
