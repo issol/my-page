@@ -52,6 +52,7 @@ import {
   editCommentOnPro,
   patchAppliedRole,
   patchTestStatus,
+  setCertifiedRole,
 } from 'src/apis/onboarding.api'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -242,6 +243,17 @@ function ProDetailOverview() {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
         queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(`proId:${userId}`)
+      },
+    },
+  )
+
+  const addRoleMutation = useMutation(
+    (jobInfo: AddRolePayloadType[]) => setCertifiedRole(jobInfo),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(`proId:${userInfo?.userId}`)
       },
     },
   )
@@ -253,6 +265,7 @@ function ProDetailOverview() {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
         queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(`proId:${userId}`)
       },
     },
   )
@@ -262,6 +275,7 @@ function ProDetailOverview() {
     {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(`applied-role-${variables[0].userId}`)
+        queryClient.invalidateQueries(`proId:${userId}`)
       },
     },
   )
@@ -616,6 +630,7 @@ function ProDetailOverview() {
   }
 
   const onClickAssignRole = (data: AddRoleType) => {
+    console.log("onClickAssignRole",data)
     setAssignRoleJobInfo(data)
     setAssignRoleModalOpen(true)
   }
@@ -624,7 +639,20 @@ function ProDetailOverview() {
   }
 
   const handelAssignRole = (jobInfo: AddRoleType) => {
-    // console.log(jobInfo)
+    const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
+      userId: userInfo!.userId,
+      userCompany: 'GloZ',
+      userEmail: userInfo!.email,
+      firstName: userInfo!.firstName,
+      middleName: userInfo!.middleName,
+      lastName: userInfo!.lastName,
+      jobType: value.jobType,
+      role: value.role,
+      source: value.source,
+      target: value.target,
+    }))
+
+    addRoleMutation.mutate(res)
   }
 
   const onCloseModal = (type: string) => {

@@ -38,8 +38,8 @@ export type InvoiceReceivableFilterType = {
   salesCheckedDateTo?: string
   search?: string
 
-  mine?: 0 | 1
-  hidePaid?: 0 | 1
+  mine?: '0' | '1'
+  hidePaid?: '0' | '1'
 
   skip: number
   take: number
@@ -141,7 +141,7 @@ export type InvoiceReceivableDetailType = {
   setReminder: boolean
   reminderSentAt: string | null
   invoicedAt: string
-  invoicedAtTimezone: CountryType
+  invoicedTimezone: CountryType
   payDueAt: string
   payDueTimezone: CountryType
   invoiceConfirmedAt: string | null //TODO:추후 삭제 필요
@@ -226,7 +226,7 @@ export type InvoiceReceivablePatchParamsType = {
   orderId?: number
   invoiceStatus?: number
   invoicedAt?: string
-  invoicedAtTimezone?: CountryType
+  invoicedTimezone?: CountryType
   payDueAt?: string
   description?: string
   payDueTimezone?: CountryType
@@ -243,9 +243,9 @@ export type InvoiceReceivablePatchParamsType = {
   salesCheckedAt?: string
   salesCheckedDateTimezone?: CountryType
   setReminder?: '1' | '0'
-  taxInvoiceIssued?: boolean
+  taxInvoiceIssued?: '1' | '0'
   salesCategory?: string
-  showDescription?: boolean
+  showDescription?: '1' | '0'
 }
 
 export type InvoiceDownloadData = {

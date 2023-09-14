@@ -10,7 +10,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Hooks
 
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 
 // ** third parties
 import toast from 'react-hot-toast'
@@ -63,6 +63,7 @@ export default function NewGeneralClientForm() {
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
+  const queryClient = useQueryClient()
 
   // const currentRole = getCurrentRole()
 
@@ -70,13 +71,15 @@ export default function NewGeneralClientForm() {
 
   const auth = useRecoilValueLoadable(authState)
   const role = useRecoilValueLoadable(roleState)
+  const setAuth = useAuth()
 
   useEffect(() => {
     if (
       (auth.state === 'hasValue' &&
         auth.getValue() &&
         auth.getValue().user?.firstName) ||
-      (role.contents[0].name !== 'CLIENT' && role.contents[0].type !== 'General')
+      (role.contents[0].name !== 'CLIENT' &&
+        role.contents[0].type !== 'General')
     ) {
       router.push('/')
     }
@@ -109,7 +112,15 @@ export default function NewGeneralClientForm() {
     ) => updateClientUserInfo(data),
     {
       onSuccess: () => {
-        router.push('/home')
+        const { userId, email, accessToken } = router.query
+        const accessTokenAsString: string = accessToken as string
+        setAuth.updateUserInfo({
+          userId: Number(auth.getValue().user?.userId!),
+          email: auth.getValue().user?.email!,
+          accessToken: accessTokenAsString,
+        }).then(() => {
+          router.push('/home')
+        })
       },
       onError: () => onError(),
     },
@@ -225,5 +236,5 @@ NewGeneralClientForm.getLayout = (page: ReactNode) => (
 
 NewGeneralClientForm.acl = {
   subject: 'client',
-  action: 'update',
+  action: 'read',
 }

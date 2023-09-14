@@ -1,11 +1,5 @@
 // ** React imports
-import {
-  Dispatch,
-  SetStateAction,
-  forwardRef,
-  useEffect,
-  useState,
-} from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 
 // ** MUI Imports
 import FormControl from '@mui/material/FormControl'
@@ -19,7 +13,6 @@ import {
   Card,
   CardHeader,
   Checkbox,
-  FormHelperText,
   Grid,
   IconButton,
   InputAdornment,
@@ -33,11 +26,7 @@ import Icon from 'src/@core/components/icon'
 import format from 'date-fns/format'
 import addDays from 'date-fns/addDays'
 import { FilterType } from '..'
-import { ClientStatus, WorkStatus } from '@src/shared/const/status/statuses'
-import {
-  ClientInvoiceFilterType,
-  ClientProjectFilterType,
-} from '@src/types/client/client-projects.type'
+
 import {
   Control,
   UseFormHandleSubmit,

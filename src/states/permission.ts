@@ -12,7 +12,6 @@ const sessionStorage =
 const sessionStorageEffect =
   (key: string) =>
   ({ setSelf, onSet }: any) => {
-    console.log("sessionStorageEffect",key)
     if (sessionStorage) {
       const savedValue = sessionStorage.getItem(key)
       // setSelf -> Callbacks to set or reset the value of the atom.

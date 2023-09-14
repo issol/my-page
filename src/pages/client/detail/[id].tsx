@@ -47,6 +47,7 @@ import PaymentInfo from '../components/payment-info'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { roleState } from '@src/states/permission'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -56,6 +57,7 @@ export default function ClientDetail() {
 
   const ability = useContext(AbilityContext)
   const auth = useRecoilValueLoadable(authState)
+  const role = useRecoilValueLoadable(roleState)
 
   const User = new client(auth.getValue().user?.id!)
   
@@ -83,7 +85,20 @@ export default function ClientDetail() {
   const isUpdatable = ability.can('update', Writer)
   const isDeletable = ability.can('delete', Writer)
   const isCreatable = ability.can('create', Writer)
-
+  const hasGeneralPermission = () => {
+    let flag = false
+    if (role.state === 'hasValue' && role.getValue()) {
+      role.getValue().map(item => {
+        if (
+          (item.name === 'LPM' ||
+            item.name === 'TAD') &&
+          item.type === 'General'
+        )
+          flag = true
+      })
+    }
+    return flag
+  }
   return (
     <Box sx={{ pb: '100px' }}>
       <ClientInfoCard
@@ -154,6 +169,7 @@ export default function ClientDetail() {
             clientId={userInfo?.clientId!}
             page='client'
             used='client'
+            hasGeneralPermission={hasGeneralPermission()}
           />
         </TabPanel>
         <TabPanel value='4'>

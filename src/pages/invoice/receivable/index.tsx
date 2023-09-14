@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** style components
 import {
@@ -16,9 +16,6 @@ import ToggleViewButton, {
   ToggleMenuType,
 } from '@src/@core/components/toggle-view-button'
 
-// ** contexts
-import { AbilityContext } from '@src/layouts/components/acl/Can'
-
 // ** types
 import { InvoiceReceivableFilterType } from '@src/types/invoice/receivable.type'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
@@ -32,10 +29,7 @@ import CalendarContainer from './components/calendar'
 import { useGetReceivableList } from '@src/queries/invoice/receivable.query'
 
 // ** values
-import {
-  ServiceTypeList,
-  ServiceTypePair,
-} from '@src/shared/const/service-type/service-types'
+import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -44,14 +38,53 @@ import { useGetCompanyOptions } from '@src/queries/options.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetStatusList } from '@src/queries/common.query'
+import { useForm } from 'react-hook-form'
+import { CategoryList } from '@src/shared/const/category/categories'
+import { getInvoiceReceivableListColumns } from '@src/shared/const/columns/invoice-receivable'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
-const initialFilter: InvoiceReceivableFilterType = {
+export type FilterType = {
+  invoiceDate: Date[]
+  payDueDate: Date[]
+  paidDueDate: Date[]
+  paidDate: Date[]
+  salesCheckedDate: Date[]
+
+  revenueFrom?: Array<{ label: string; value: string }>
+  salesCategory?: Array<{ label: string; value: string }>
+
+  invoiceStatus: Array<{ label: string; value: number }>
+  clientId?: Array<{ label: string; value: number }>
+  lsp?: Array<{ label: string; value: string }>
+  category: Array<{ label: string; value: string }>
+  serviceType: Array<{ label: string; value: string }>
+
+  search: string
+}
+
+const defaultValues: FilterType = {
+  invoiceDate: [],
+  payDueDate: [],
+  paidDueDate: [],
+  paidDate: [],
+  salesCheckedDate: [],
+  invoiceStatus: [],
+  clientId: [],
+  category: [],
+  serviceType: [],
+  lsp: [],
+  search: '',
+}
+
+const defaultFilters: InvoiceReceivableFilterType = {
   invoiceStatus: [],
   clientId: [],
   category: [],
   serviceType: [],
   revenueFrom: [],
   salesCategory: [],
+  lsp: [],
 
   invoicedDateFrom: '',
   invoicedDateTo: '',
@@ -63,17 +96,15 @@ const initialFilter: InvoiceReceivableFilterType = {
   salesCheckedDateTo: '',
   search: '',
 
-  mine: 0,
-  hidePaid: 0,
+  mine: '0',
+  hidePaid: '0',
 
   skip: 0,
   take: 10,
 }
-
 export default function Receivable() {
-  const ability = useContext(AbilityContext)
-
   const { openModal, closeModal } = useModal()
+  const auth = useRecoilValueLoadable(authState)
 
   const [menu, setMenu] = useState<ToggleMenuType>('list')
 
@@ -90,15 +121,25 @@ export default function Receivable() {
     }[]
   >([])
 
-  const [skip, setSkip] = useState(0)
-  const [filter, setFilter] =
-    useState<InvoiceReceivableFilterType>(initialFilter)
-  const [activeFilter, setActiveFilter] =
-    useState<InvoiceReceivableFilterType>(initialFilter)
-  const [serviceType, setServiceType] = useState<Array<ConstType>>([])
+  const [invoiceListPage, setInvoiceListPage] = useState(0)
+  const [invoiceListRowsPerPage, setInvoiceListRowsPerPage] = useState(10)
+
+  const [hidePaidInvoices, setHidePaidInvoices] = useState(false)
+  const [seeMyInvoices, setSeeMyInvoices] = useState(false)
+
+  const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
+    defaultValues,
+    mode: 'onSubmit',
+  })
+
+  const [filters, setFilters] =
+    useState<InvoiceReceivableFilterType>(defaultFilters)
+
+  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+  const [categoryList, setCategoryList] = useState(CategoryList)
   const currentRole = getCurrentRole()
 
-  const { data: list, isLoading } = useGetReceivableList(activeFilter)
+  const { data: list, isLoading } = useGetReceivableList(defaultFilters)
   const { data: statusList, isLoading: statusListLoading } =
     useGetStatusList('InvoiceReceivable')
 
@@ -107,59 +148,75 @@ export default function Receivable() {
     skip: 0,
   })
 
+  const handleHidePaidInvoices = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setHidePaidInvoices(event.target.checked)
+    setFilters(prevState => ({
+      ...prevState,
+      hidePaid: event.target.checked ? '1' : '0',
+    }))
+  }
+
+  const handleSeeMyInvoices = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSeeMyInvoices(event.target.checked)
+
+    setFilters(prevState => ({
+      ...prevState,
+      mine: event.target.checked ? '1' : '0',
+    }))
+  }
+
   const { data: companies, isLoading: companiesListLoading } =
     currentRole?.name === 'CLIENT'
       ? useGetCompanyOptions('LSP')
       : { data: [], isLoading: false }
 
-  function onSearch() {
-    setActiveFilter({
-      ...filter,
-      skip: skip * activeFilter.take,
-      take: activeFilter.take,
-    })
+  const onSubmit = (data: FilterType) => {
+    const {
+      invoiceDate,
+      payDueDate,
+      paidDueDate,
+      paidDate,
+      salesCheckedDate,
+      revenueFrom,
+      invoiceStatus,
+      clientId,
+      serviceType,
+      category,
+      lsp,
+      search,
+    } = data
+
+    const filter: InvoiceReceivableFilterType = {
+      revenueFrom: revenueFrom?.map(value => value.value) ?? [],
+      invoiceStatus: invoiceStatus.map(value => value.value),
+      clientId: clientId?.map(value => value.value) ?? [],
+      lsp: lsp?.map(value => value.label) ?? [],
+
+      serviceType: serviceType.map(value => value.value),
+      category: category.map(value => value.value),
+      invoicedDateFrom: invoiceDate[0]?.toISOString() ?? '',
+      invoicedDateTo: invoiceDate[1]?.toISOString() ?? '',
+      payDueDateFrom: payDueDate[0]?.toISOString() ?? '',
+      payDueDateTo: payDueDate[1]?.toISOString() ?? '',
+      paidDateFrom: paidDate[0]?.toISOString() ?? '',
+      paidDateTo: paidDate[1]?.toISOString() ?? '',
+      salesCheckedDateFrom: salesCheckedDate[0]?.toISOString() ?? '',
+      salesCheckedDateTo: salesCheckedDate[1]?.toISOString() ?? '',
+
+      search: search,
+      take: invoiceListRowsPerPage,
+      skip: invoiceListRowsPerPage * invoiceListPage,
+    }
+
+    setFilters(filter)
   }
 
   function onReset() {
-    setFilter({ ...initialFilter })
-    setActiveFilter({ ...initialFilter })
+    reset(defaultValues)
+    setFilters({ ...defaultFilters })
   }
-
-  function findServiceTypeFilter() {
-    let category: Array<ConstType> = []
-    if (filter.category?.length) {
-      filter.category.forEach(item => {
-        const key = item as keyof typeof ServiceTypePair
-        if (!ServiceTypePair[key]) return
-        category = category.concat(ServiceTypePair[key])
-      })
-    }
-
-    if (category?.length) {
-      const result = category.reduce(
-        (acc: Array<ConstType>, item: ConstType) => {
-          const found = acc.find(ac => ac.value === item.value)
-          if (!found) return acc.concat(item)
-          return acc
-        },
-        [],
-      )
-      return result
-    }
-    return ServiceTypeList
-  }
-
-  useEffect(() => {
-    const newFilter = findServiceTypeFilter()
-    setServiceType(newFilter)
-    if (newFilter.length)
-      setFilter({
-        ...filter,
-        serviceType: newFilter
-          .filter(item => filter.serviceType?.includes(item.value))
-          .map(item => item.value),
-      })
-  }, [filter.category])
 
   useEffect(() => {
     if (clients && !clientListLoading) {
@@ -218,11 +275,14 @@ export default function Receivable() {
         <Fragment>
           <Grid item xs={12}>
             <Filter
-              serviceType={serviceType}
-              filter={filter}
-              setFilter={setFilter}
+              serviceTypeList={serviceTypeList}
+              categoryList={categoryList}
+              setCategoryList={setCategoryList}
+              setServiceTypeList={setServiceTypeList}
+              filter={filters}
+              setFilter={setFilters}
               onReset={onReset}
-              search={onSearch}
+              onSubmit={onSubmit}
               role={currentRole!}
               clientList={clientList}
               clientListLoading={clientListLoading}
@@ -230,6 +290,9 @@ export default function Receivable() {
               companyListLoading={companiesListLoading}
               statusList={statusList || []}
               statusListLoading={statusListLoading}
+              handleSubmit={handleSubmit}
+              control={control}
+              trigger={trigger}
             />
           </Grid>
           <Grid
@@ -242,26 +305,13 @@ export default function Receivable() {
           >
             <Box display='flex' alignItems='center' gap='4px'>
               <Typography>See only my invoices</Typography>
-              <Switch
-                checked={activeFilter.mine === 1}
-                onChange={e =>
-                  setActiveFilter({
-                    ...activeFilter,
-                    mine: e.target.checked ? 1 : 0,
-                  })
-                }
-              />
+              <Switch checked={seeMyInvoices} onChange={handleSeeMyInvoices} />
             </Box>
             <Box display='flex' alignItems='center' gap='4px'>
               <Typography>Hide paid invoices</Typography>
               <Switch
-                checked={activeFilter.hidePaid === 1}
-                onChange={e =>
-                  setActiveFilter({
-                    ...activeFilter,
-                    hidePaid: e.target.checked ? 1 : 0,
-                  })
-                }
+                checked={hidePaidInvoices}
+                onChange={e => handleHidePaidInvoices}
               />
             </Box>
           </Grid>
@@ -287,19 +337,18 @@ export default function Receivable() {
               <ReceivableList
                 isLoading={isLoading}
                 list={list || { data: [], totalCount: 0, count: 0 }}
-                pageSize={activeFilter.take}
-                skip={skip}
-                setSkip={(n: number) => {
-                  setSkip(n)
-                  setActiveFilter({
-                    ...activeFilter,
-                    skip: n * activeFilter.take!,
-                  })
-                }}
-                setPageSize={(n: number) =>
-                  setActiveFilter({ ...activeFilter, take: n })
-                }
+                page={invoiceListPage}
+                pageSize={invoiceListRowsPerPage}
+                setPage={setInvoiceListPage}
+                setPageSize={setInvoiceListRowsPerPage}
                 role={currentRole!}
+                setFilters={setFilters}
+                columns={getInvoiceReceivableListColumns(
+                  statusList!,
+                  currentRole!,
+                  auth,
+                )}
+                type='list'
               />
             </Card>
           </Grid>
