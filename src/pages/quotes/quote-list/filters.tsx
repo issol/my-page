@@ -115,7 +115,7 @@ export default function QuotesFilters({
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
   const dateValue = (startDate: Date, endDate: Date) => {
-    return startDate.toDateString() === endDate?.toDateString()
+    return startDate?.toDateString() === endDate?.toDateString()
       ? dayjs(startDate).format('MM/DD/YYYY')
       : `${dayjs(startDate).format('MM/DD/YYYY')}${
           endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
@@ -377,12 +377,21 @@ export default function QuotesFilters({
                             shouldCloseOnSelect={false}
                             id='date-range-picker-months'
                             onChange={onChange}
+                            onCalendarClose={() => {
+                              if (value && value.length > 0) {
+                                if (value[1] === null) {
+                                  onChange([value[0], value[0]])
+                                }
+                              }
+                            }}
                             popperPlacement={popperPlacement}
                             customInput={
                               <Box>
                                 <CustomInput
                                   label='Quote date'
                                   icon='calendar'
+                                  placeholder='MM-DD-YYYY - MM-DD-YYYY'
+                                  readOnly
                                   value={
                                     value.length > 0
                                       ? dateValue(value[0], value[1])
@@ -415,6 +424,13 @@ export default function QuotesFilters({
                             selected={value && value![0]}
                             startDate={value && value![0]}
                             shouldCloseOnSelect={false}
+                            onCalendarClose={() => {
+                              if (value && value.length > 0) {
+                                if (value[1] === null) {
+                                  onChange([value[0], value[0]])
+                                }
+                              }
+                            }}
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
@@ -427,6 +443,8 @@ export default function QuotesFilters({
                                       : 'Quote deadline'
                                   }
                                   icon='calendar'
+                                  readOnly
+                                  placeholder='MM-DD-YYYY - MM-DD-YYYY'
                                   value={
                                     value && value.length > 0
                                       ? dateValue(value[0], value[1])
@@ -460,6 +478,13 @@ export default function QuotesFilters({
                               selected={value && value![0]}
                               startDate={value && value![0]}
                               shouldCloseOnSelect={false}
+                              onCalendarClose={() => {
+                                if (value && value.length > 0) {
+                                  if (value[1] === null) {
+                                    onChange([value[0], value[0]])
+                                  }
+                                }
+                              }}
                               id='date-range-picker-months'
                               onChange={onChange}
                               popperPlacement={popperPlacement}
@@ -472,6 +497,8 @@ export default function QuotesFilters({
                                         : 'Quote expiry date'
                                     }
                                     icon='calendar'
+                                    readOnly
+                                    placeholder='MM-DD-YYYY - MM-DD-YYYY'
                                     value={
                                       value && value.length > 0
                                         ? dateValue(value[0], value[1])
