@@ -27,6 +27,8 @@ import OrderListCalendar from './calendar'
 import { useGetStatusList } from '@src/queries/common.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
+import { useGetCompanyOptions } from '@src/queries/options.query'
+
 
 export type FilterType = {
   orderDate: Date[]
@@ -38,7 +40,7 @@ export type FilterType = {
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
 
-  lsp?: Array<{ label: string; value: number }>
+  lsp?: Array<{ label: string; value: string }>
 
   search: string
 }
@@ -70,6 +72,8 @@ const defaultFilters: OrderListFilterType = {
 type MenuType = 'list' | 'calendar'
 
 export default function OrderList() {
+  const currentRole = getCurrentRole()
+
   const { data: statusList } = useGetStatusList('Order')
   const [menu, setMenu] = useState<MenuType>('list')
   const router = useRouter()
@@ -89,6 +93,12 @@ export default function OrderList() {
       value: number
     }[]
   >([])
+  const [companiesList, setCompaniesList] = useState<
+    {
+      label: string
+      value: string
+    }[]
+  >([])
 
   const { data: orderList, isLoading } = useGetOrderList(filters, 'order')
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
@@ -96,7 +106,11 @@ export default function OrderList() {
     skip: 0,
   })
 
-  const currentRole = getCurrentRole()
+  const { data: companies, isLoading: companiesListLoading } =
+    currentRole?.name === 'CLIENT'
+      ? useGetCompanyOptions('LSP')
+      : { data: [], isLoading: false }
+
 
   const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
     defaultValues,
@@ -176,6 +190,18 @@ export default function OrderList() {
     }
   }, [clients, clientListLoading])
 
+  useEffect(() => {
+    if (currentRole?.name === 'CLIENT') {
+      if (companies && !companiesListLoading) {
+        const res = companies.map(company => ({
+          label: company.name,
+          value: company.id,
+        }))
+        setCompaniesList(res)
+      }
+    }
+  }, [companies, companiesListLoading])
+
   return (
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>
       <Box
@@ -219,6 +245,7 @@ export default function OrderList() {
               categoryList={categoryList}
               setCategoryList={setCategoryList}
               clientList={clientList}
+              companiesList={companiesList}
               statusList={statusList!}
               role={currentRole!}
             />
