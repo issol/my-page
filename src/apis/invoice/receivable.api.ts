@@ -225,14 +225,16 @@ export const confirmInvoiceFromClient = async (
 }
 export const confirmInvoiceByLpm = async (
   invoiceId: number,
-): Promise<boolean> => {
+): Promise<{ id: number }> => {
   try {
     const { data } = await axios.patch(
       `/api/enough/u/invoice/receivable/${invoiceId}/confirm`,
     )
     return data
   } catch (e: any) {
-    return false
+    return {
+      id: invoiceId,
+    }
   }
 }
 

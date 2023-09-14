@@ -514,8 +514,14 @@ const ReceivableInvoiceDetail = () => {
   }
 
   const confirmInvoice = useMutation((id: number) => confirmInvoiceByLpm(id), {
-    onSuccess: () => {
-      invalidateInvoiceDetail()
+    onSuccess: (data, variables) => {
+      closeModal('ConfirmInvoice')
+      if (data.id === variables) {
+        invalidateInvoiceDetail()
+        // invoiceInfoRefetch()
+      } else {
+        router.push(`/invoice/receivable/detail/${data.id}`)
+      }
     },
     onError: () => onError(),
   })
