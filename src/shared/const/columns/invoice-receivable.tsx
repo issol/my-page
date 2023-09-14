@@ -203,19 +203,19 @@ export const getInvoiceReceivableListColumns = (
           <Tooltip
             title={
               <Box>
-                <Typography color='#ffffff'>
+                <Typography color='#ffffff' fontSize={11}>
                   Revenue from : {row.order?.revenueFrom ?? '-'}
                 </Typography>
-                <Typography color='#ffffff'>
+                <Typography color='#ffffff' fontSize={11}>
                   Sales category : {row.salesCategory ?? '-'}
                 </Typography>
-                <Typography color='#ffffff'>
+                <Typography color='#ffffff' fontSize={11}>
                   Sales recognition date : {date}
                 </Typography>
               </Box>
             }
           >
-            <Typography fontWeight={600}>보류</Typography>
+            <Typography fontWeight={600}>{price}</Typography>
           </Tooltip>
         )
       },
