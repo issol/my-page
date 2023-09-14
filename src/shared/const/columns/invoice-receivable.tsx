@@ -114,16 +114,16 @@ export const getInvoiceReceivableListColumns = (
 
             {row.order?.serviceType?.length ? (
               <>
-                {row.order?.serviceType.length > 1 ? (
-                  <ExtraNumberChip
-                    size='small'
-                    label={row.order?.serviceType.slice(1).length}
-                  />
-                ) : null}
                 <ServiceTypeChip
                   size='small'
                   label={row.order.serviceType[0]}
                 />
+                {row.order?.serviceType.length > 1 ? (
+                  <ExtraNumberChip
+                    size='small'
+                    label={`+${row.order?.serviceType.slice(1).length}`}
+                  />
+                ) : null}
               </>
             ) : (
               '-'
