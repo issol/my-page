@@ -27,7 +27,10 @@ import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 // ** apis
 
 import { InvoiceReceivableFilterType } from '@src/types/invoice/receivable.type'
-import { CategoryList } from '@src/shared/const/category/categories'
+import {
+  CategoryList,
+  CategoryListPair,
+} from '@src/shared/const/category/categories'
 
 import { RevenueFrom } from '@src/shared/const/revenue-from'
 import { SalesCategory } from '@src/shared/const/sales-category'
