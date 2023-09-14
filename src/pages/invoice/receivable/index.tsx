@@ -52,7 +52,8 @@ export type FilterType = {
   salesCategory?: Array<{ label: string; value: string }>
 
   invoiceStatus: Array<{ label: string; value: number }>
-  clientId: Array<{ label: string; value: number }>
+  clientId?: Array<{ label: string; value: number }>
+  lsp?: Array<{ label: string; value: string }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
 
@@ -69,6 +70,7 @@ const defaultValues: FilterType = {
   clientId: [],
   category: [],
   serviceType: [],
+  lsp: [],
   search: '',
 }
 
@@ -79,6 +81,7 @@ const defaultFilters: InvoiceReceivableFilterType = {
   serviceType: [],
   revenueFrom: [],
   salesCategory: [],
+  lsp: [],
 
   invoicedDateFrom: '',
   invoicedDateTo: '',
@@ -177,13 +180,16 @@ export default function Receivable() {
       clientId,
       serviceType,
       category,
+      lsp,
       search,
     } = data
 
     const filter: InvoiceReceivableFilterType = {
       revenueFrom: revenueFrom?.map(value => value.value) ?? [],
       invoiceStatus: invoiceStatus.map(value => value.value),
-      clientId: clientId.map(value => value.value),
+      clientId: clientId?.map(value => value.value) ?? [],
+      lsp: lsp?.map(value => value.label) ?? [],
+
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
       invoicedDateFrom: invoiceDate[0]?.toISOString() ?? '',

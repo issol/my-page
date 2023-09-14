@@ -57,8 +57,8 @@ const CalendarContainer = () => {
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [filter, setFilter] = useState<InvoiceReceivableFilterType>({
-    mine: 0,
-    hidePaid: 0,
+    mine: '0',
+    hidePaid: '0',
     skip: 0,
     take: 10,
   })
@@ -142,18 +142,21 @@ const CalendarContainer = () => {
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <Typography>See only my invoices</Typography>
               <Switch
-                checked={filter.mine === 1}
+                checked={filter.mine === '1'}
                 onChange={e =>
-                  setFilter({ ...filter, mine: e.target.checked ? 1 : 0 })
+                  setFilter({ ...filter, mine: e.target.checked ? '1' : '0' })
                 }
               />
             </Box>
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <Typography>Hide paid invoices</Typography>
               <Switch
-                checked={filter.hidePaid === 1}
+                checked={filter.hidePaid === '1'}
                 onChange={e =>
-                  setFilter({ ...filter, hidePaid: e.target.checked ? 1 : 0 })
+                  setFilter({
+                    ...filter,
+                    hidePaid: e.target.checked ? '1' : '0',
+                  })
                 }
               />
             </Box>
@@ -171,13 +174,19 @@ const CalendarContainer = () => {
         <Box mt={10} sx={{ background: 'white' }}>
           <ReceivableList
             isLoading={isLoading}
-            skip={skip}
-            setSkip={setSkip}
+            page={skip}
+            setPage={setSkip}
             pageSize={pageSize}
             setPageSize={setPageSize}
+            setFilters={setFilter}
+            statusList={statusList!}
             list={
               currentList?.length
-                ? { data: currentList, count: pageSize, totalCount: currentList?.length }
+                ? {
+                    data: currentList,
+                    count: pageSize,
+                    totalCount: currentList?.length,
+                  }
                 : { data: [], count: 0, totalCount: 0 }
             }
             role={currentRole!}

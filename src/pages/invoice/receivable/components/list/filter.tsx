@@ -18,10 +18,11 @@ import {
   InputLabel,
   OutlinedInput,
   TextField,
+  useTheme,
 } from '@mui/material'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
-import DatePicker from 'react-datepicker'
+import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 
 // ** apis
 
@@ -120,7 +121,11 @@ export default function Filter({
   control,
   trigger,
 }: Props) {
+  const theme = useTheme()
+  const { direction } = theme
   const [collapsed, setCollapsed] = useState<boolean>(true)
+  const popperPlacement: ReactDatePickerProps['popperPlacement'] =
+    direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
   const commonOptions = {
     autoHighlight: true,
@@ -197,79 +202,69 @@ export default function Filter({
 
                   {/* client */}
                   <Grid item xs={6} sm={6} md={3}>
-                    <FormControl fullWidth>
-                      {role.name === 'CLIENT' ? (
-                        <Autocomplete
-                          {...commonOptions}
-                          multiple
-                          loading={companyListLoading}
-                          options={companyList || []}
-                          getOptionLabel={option => option.label}
-                          value={
-                            !companyList
-                              ? []
-                              : companyList?.filter(item =>
-                                  filter.lsp?.includes(item.value),
-                                )
-                          }
-                          limitTags={1}
-                          onChange={(e, v) =>
-                            setFilter({
-                              ...filter,
-                              lsp: v.map(item => item.value),
-                            })
-                          }
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              label='LSP'
-                              placeholder='Lsp'
-                            />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      ) : (
-                        <Autocomplete
-                          {...commonOptions}
-                          multiple
-                          loading={clientListLoading}
-                          options={clientList || []}
-                          getOptionLabel={option => option.label}
-                          value={
-                            !clientList
-                              ? []
-                              : clientList?.filter(item =>
-                                  filter.clientId?.includes(item.value),
-                                )
-                          }
-                          limitTags={1}
-                          onChange={(e, v) => {
-                            setFilter({
-                              ...filter,
-                              clientId: v.map(item => item.value),
-                            })
-                          }}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              label='Client'
-                              // placeholder='Client'
-                            />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      )}
-                    </FormControl>
+                    {role.name === 'CLIENT' ? (
+                      <Controller
+                        control={control}
+                        name='lsp'
+                        render={({ field: { onChange, value } }) => (
+                          <Autocomplete
+                            {...commonOptions}
+                            multiple
+                            loading={companyListLoading}
+                            options={companyList || []}
+                            getOptionLabel={option => option.label}
+                            value={value}
+                            limitTags={1}
+                            onChange={onChange}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                label='LSP'
+                                // placeholder='Lsp'
+                              />
+                            )}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                {option.label}
+                              </li>
+                            )}
+                          />
+                        )}
+                      />
+                    ) : (
+                      <Controller
+                        control={control}
+                        name='clientId'
+                        render={({ field: { onChange, value } }) => (
+                          <Autocomplete
+                            multiple
+                            fullWidth
+                            onChange={(event, item) => {
+                              onChange(item)
+                            }}
+                            value={value}
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.value === newValue.value
+                            }}
+                            disableCloseOnSelect
+                            limitTags={1}
+                            options={clientList}
+                            id='client'
+                            getOptionLabel={option => option.label}
+                            renderInput={params => (
+                              <TextField {...params} label='Client' />
+                            )}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                {option.label}
+                              </li>
+                            )}
+                          />
+                        )}
+                      />
+                    )}
                   </Grid>
 
                   {/* category */}
@@ -388,7 +383,7 @@ export default function Filter({
                           endDate={value[1]}
                           selected={value[0]}
                           startDate={value[0]}
-                          shouldCloseOnSelect={false}
+                          // shouldCloseOnSelect={false}
                           id='date-range-picker-months'
                           onChange={onChange}
                           popperPlacement={popperPlacement}
@@ -414,7 +409,7 @@ export default function Filter({
                   <Grid item xs={6} sm={6} md={3}>
                     <Controller
                       control={control}
-                      name='paymentDueDate'
+                      name='payDueDate'
                       render={({ field: { onChange, value } }) => (
                         <DatePicker
                           selectsRange
@@ -423,7 +418,7 @@ export default function Filter({
                           endDate={value[1]}
                           selected={value[0]}
                           startDate={value[0]}
-                          shouldCloseOnSelect={false}
+                          // shouldCloseOnSelect={false}
                           id='date-range-picker-months'
                           onChange={onChange}
                           popperPlacement={popperPlacement}
@@ -459,7 +454,7 @@ export default function Filter({
                             endDate={value[1]}
                             selected={value[0]}
                             startDate={value[0]}
-                            shouldCloseOnSelect={false}
+                            // shouldCloseOnSelect={false}
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
@@ -496,7 +491,7 @@ export default function Filter({
                             endDate={value[1]}
                             selected={value[0]}
                             startDate={value[0]}
-                            shouldCloseOnSelect={false}
+                            // shouldCloseOnSelect={false}
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
@@ -542,7 +537,7 @@ export default function Filter({
                               <TextField
                                 {...params}
                                 label='Revenue from'
-                                placeholder='Revenue from'
+                                // placeholder='Revenue from'
                               />
                             )}
                             renderOption={(props, option, { selected }) => (
@@ -575,7 +570,7 @@ export default function Filter({
                               <TextField
                                 {...params}
                                 label='Sales category'
-                                placeholder='Sales category'
+                                // placeholder='Sales category'
                               />
                             )}
                             renderOption={(props, option, { selected }) => (
