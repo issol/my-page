@@ -225,5 +225,5 @@ NewGeneralClientForm.getLayout = (page: ReactNode) => (
 
 NewGeneralClientForm.acl = {
   subject: 'client',
-  action: 'update',
+  action: 'read',
 }
