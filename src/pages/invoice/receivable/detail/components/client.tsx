@@ -102,6 +102,8 @@ const InvoiceClient = ({
           form: {
             ...data,
             contactPersonId: clients.contactPersonId,
+            taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
+            showDescription: data.showDescription ? '1' : '0',
           },
         })
       }
