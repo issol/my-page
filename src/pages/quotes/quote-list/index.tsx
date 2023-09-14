@@ -126,10 +126,11 @@ export default function Quotes({ id, user }: Props) {
       ? useGetCompanyOptions('LSP')
       : { data: [], isLoading: false }
 
-  const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
-    defaultValues,
-    mode: 'onSubmit',
-  })
+  const { control, handleSubmit, trigger, reset, watch, getValues } =
+    useForm<FilterType>({
+      defaultValues,
+      mode: 'onSubmit',
+    })
 
   const onClickResetButton = () => {
     reset({
@@ -203,6 +204,9 @@ export default function Quotes({ id, user }: Props) {
 
     setFilters(filter)
   }
+
+  console.log(getValues())
+
   useEffect(() => {
     if (clients && !clientListLoading) {
       const res = clients.data.map(client => ({
@@ -215,7 +219,7 @@ export default function Quotes({ id, user }: Props) {
 
   useEffect(() => {
     if (currentRole?.name === 'CLIENT') {
-      if (companies && !clientListLoading) {
+      if (companies && !companiesListLoading) {
         const res = companies.map(company => ({
           label: company.name,
           value: company.id,
@@ -223,7 +227,7 @@ export default function Quotes({ id, user }: Props) {
         setCompaniesList(res)
       }
     }
-  }, [companies, clientListLoading])
+  }, [companies, companiesListLoading])
 
   return (
     <Box display='flex' flexDirection='column'>

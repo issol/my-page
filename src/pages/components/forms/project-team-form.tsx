@@ -249,7 +249,7 @@ export default function ProjectTeamForm({
         </TableHead>
         <TableBody>
           {field.map((item, idx) => (
-            <TableRow hover role='checkbox' tabIndex={-1} key={item.id}>
+            <TableRow role='checkbox' tabIndex={-1} key={item.id}>
               <TableCell align='left'>
                 <Typography fontWeight='bold'>
                   {item.type === 'supervisorId'
