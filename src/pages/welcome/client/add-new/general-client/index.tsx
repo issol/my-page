@@ -76,7 +76,8 @@ export default function NewGeneralClientForm() {
       (auth.state === 'hasValue' &&
         auth.getValue() &&
         auth.getValue().user?.firstName) ||
-      (role.contents[0].name !== 'CLIENT' && role.contents[0].type !== 'General')
+      (role.contents[0].name !== 'CLIENT' &&
+        role.contents[0].type !== 'General')
     ) {
       router.push('/')
     }

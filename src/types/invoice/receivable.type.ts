@@ -38,8 +38,8 @@ export type InvoiceReceivableFilterType = {
   salesCheckedDateTo?: string
   search?: string
 
-  mine?: 0 | 1
-  hidePaid?: 0 | 1
+  mine?: '0' | '1'
+  hidePaid?: '0' | '1'
 
   skip: number
   take: number

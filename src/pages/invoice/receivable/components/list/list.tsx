@@ -12,14 +12,17 @@ import {
 } from '@src/@core/components/chips/chips'
 
 // ** types
-import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
+import {
+  InvoiceReceivableFilterType,
+  InvoiceReceivableListType,
+} from '@src/types/invoice/receivable.type'
 
 // ** helpers
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** contexts
-import { useContext } from 'react'
+import { Dispatch, SetStateAction, useContext } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useGetStatusList } from '@src/queries/common.query'
@@ -30,10 +33,11 @@ type CellType = {
 }
 
 type Props = {
-  skip: number
+  page: number
   pageSize: number
-  setSkip: (num: number) => void
-  setPageSize: (num: number) => void
+  setPage: Dispatch<SetStateAction<number>>
+  setPageSize: Dispatch<SetStateAction<number>>
+
   list: {
     data: Array<InvoiceReceivableListType> | []
     totalCount: number
@@ -41,20 +45,27 @@ type Props = {
   }
   isLoading: boolean
   role: UserRoleType
+
+  statusList: {
+    value: number
+    label: string
+  }[]
+  setFilters: Dispatch<SetStateAction<InvoiceReceivableFilterType>>
 }
 
 export default function ReceivableList({
-  skip,
+  page,
   pageSize,
-  setSkip,
+  setPage,
   setPageSize,
   list,
   isLoading,
   role,
+  statusList,
+  setFilters,
 }: Props) {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
-  const { data: statusList } = useGetStatusList('InvoiceReceivable')
 
   function NoList() {
     return (
@@ -296,12 +307,24 @@ export default function ReceivableList({
         }
         rowsPerPageOptions={[10, 25, 50]}
         pagination
-        page={skip}
+        page={page}
         pageSize={pageSize}
         paginationMode='server'
-        onPageChange={setSkip}
         disableSelectionOnClick
-        onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+        onPageChange={(newPage: number) => {
+          setFilters((prevState: InvoiceReceivableFilterType) => ({
+            ...prevState,
+            skip: newPage * pageSize!,
+          }))
+          setPage!(newPage)
+        }}
+        onPageSizeChange={(newPageSize: number) => {
+          setFilters((prevState: InvoiceReceivableFilterType) => ({
+            ...prevState,
+            take: newPageSize,
+          }))
+          setPageSize!(newPageSize)
+        }}
         getRowClassName={params =>
           role.name === 'CLIENT' && params.row.invoiceStatus === 30500
             ? 'disabled'
