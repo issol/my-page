@@ -237,14 +237,16 @@ export default function AddNewRequest() {
     // TODO Contact Person 드롭다운에서 값을 선택하지 않는 경우 contactPersonId가 아니라 userId가 들어감
     // TODO 초기값 설정할때 clients 값을 map 돌려서 contactPersonId를 추출하는게 로딩 시점상 맞지가 않아서 부득이하게 mutation 타이밍에 변경하는 코드를 추가함
     const contactPersonId = clients?.find(client => client?.userId! === auth.getValue().user?.userId!)
+    const { userId, ...filterData } = data
     const calData = {
-      ...data, 
+      ...filterData, 
       contactPersonId: 
         data.contactPersonId === auth.getValue().user?.userId!
         ? contactPersonId?.value! 
         : data.contactPersonId,
       items: dateFixedItem
     }
+    
     console.log("calData",calData)
     if (files.length) {
       const fileInfo: Array<{ fileName: string; fileSize: number }> = []
@@ -277,7 +279,7 @@ export default function AddNewRequest() {
           )
         })
     } else {
-      // createMutation.mutate(calData)
+      createMutation.mutate(calData)
     }
   }
   function onRequest() {
@@ -353,6 +355,7 @@ export default function AddNewRequest() {
                     item => item.value === value,
                   ) || {
                     value: value,
+                    userId: auth.getValue().user?.id!,
                     label: getLegalName({
                       firstName: auth.getValue().user?.firstName,
                       middleName: auth.getValue().user?.middleName,
