@@ -1104,7 +1104,14 @@ export default function ItemForm({
                 </Box>
                 {type === 'detail' || type === 'invoiceDetail' ? (
                   <Typography>
-                    {getValues(`items.${idx}.description`)}
+                    {currentRole?.name === 'CLIENT'
+                      ? getValues(`items.${idx}.showItemDescription`)
+                        ? getValues(`items.${idx}.description`)
+                        : '-'
+                      : getValues(`items.${idx}.description`) !== ''
+                        ? getValues(`items.${idx}.description`)
+                        : '-'
+                    }
                   </Typography>
                 ) : (
                   <Controller
