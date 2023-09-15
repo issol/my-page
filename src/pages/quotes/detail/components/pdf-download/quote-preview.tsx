@@ -66,13 +66,13 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
       patchQuoteProjectInfo(data.id, data.form),
     {
       onSuccess: (data, variables) => {
-        if (data === variables.id) {
+        if (data.id === variables.id) {
           queryClient.invalidateQueries({
             queryKey: ['quotesDetail'],
           })
           queryClient.invalidateQueries(['quotesList'])
         } else {
-          router.push(`/quotes/detail/${data}`)
+          router.push(`/quotes/detail/${data.id}`)
         }
       },
     },
