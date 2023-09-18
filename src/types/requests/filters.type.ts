@@ -1,7 +1,7 @@
 import { GridSortDirection } from '@mui/x-data-grid'
 
 export type RequestFilterType = {
-  status?: string[]
+  status?: number[]
   lsp?: string[]
   client?: number[]
   category?: string[]
@@ -11,8 +11,8 @@ export type RequestFilterType = {
   desiredDueDateFrom?: string
   desiredDueDateTo?: string
   search?: string
-  mine?: 0 | 1
-  hideCompleted?: 0 | 1
+  mine?: '0' | '1'
+  hideCompleted?: '0' | '1'
   take: number
   skip: number
   ordering?: GridSortDirection

@@ -1,7 +1,7 @@
 // ** mui
 import { Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import { DataGrid, GridSortDirection } from '@mui/x-data-grid'
+import { DataGrid, GridColumns, GridSortDirection } from '@mui/x-data-grid'
 
 // ** components
 import { ExtraNumberChip } from '@src/@core/components/chips/chips'
@@ -25,21 +25,22 @@ import { RequestListType } from '@src/types/requests/list.type'
 import { RequestFilterType, SortType } from '@src/types/requests/filters.type'
 
 // ** contexts
-import { useContext } from 'react'
+import { Dispatch, SetStateAction, useContext } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { UserRoleType } from '@src/context/types'
 
 type CellType = {
   row: RequestListType
 }
 
 type Props = {
-  skip: number
+  page: number
   pageSize: number
-  setSkip: (num: number) => void
+  setPage: (num: number) => void
   setPageSize: (num: number) => void
-  filter: RequestFilterType
-  setFilter: (n: RequestFilterType) => void
+
+  setFilters: Dispatch<SetStateAction<RequestFilterType>>
   list: {
     data: RequestListType[]
     count: number
@@ -47,153 +48,25 @@ type Props = {
   }
   isLoading: boolean
   onRowClick: (id: number) => void
+  role: UserRoleType
+  columns: GridColumns<RequestListType>
+  type: 'list' | 'calendar'
 }
 
 export default function List({
-  skip,
+  page,
   pageSize,
-  setSkip,
+  setPage,
   setPageSize,
-  filter,
-  setFilter,
+
+  setFilters,
   list,
   isLoading,
   onRowClick,
+  role,
+  columns,
+  type,
 }: Props) {
-  const auth = useRecoilValueLoadable(authState)
-
-  const columns = [
-    {
-      flex: 0.064,
-      field: 'corporationId',
-      minWidth: 120,
-      disableColumnMenu: true,
-      renderHeader: () => <Box>No.</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Typography variant='body1' fontSize={14} fontWeight={400}>
-          {row.corporationId}
-        </Typography>
-      ),
-    },
-    {
-      flex: 0.1142,
-      minWidth: 214,
-      field: 'status',
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => <Box>Status</Box>,
-      renderCell: ({ row }: CellType) => ClientRequestStatusChip(row.status),
-    },
-
-    {
-      flex: 0.208,
-      minWidth: 260,
-      field: 'email',
-      headerName: 'Client / Email',
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => <Box>Client / Email</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Box>
-          <Typography fontWeight='bold'>{row.client?.name ?? '-'}</Typography>
-          <Typography variant='body2'>
-            {row.contactPerson?.email ?? '-'}
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      flex: 0.1387,
-      minWidth: 340,
-      field: 'name',
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => <Box>Item name</Box>,
-      renderCell: ({ row }: CellType) => {
-        const itemName = row.items.length ? row.items[0].name : undefined
-        return (
-          <Box display='flex' alignItems='center' gap='8px'>
-            <Typography>{itemName}</Typography>
-            {row.items.length > 1 && (
-              <ExtraNumberChip
-                size='small'
-                label={`+ ${row.items.length - 1}`}
-              />
-            )}
-          </Box>
-        )
-      },
-    },
-    {
-      flex: 0.2241,
-      minWidth: 420,
-      field: 'category',
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => <Box>Category / Service type</Box>,
-      renderCell: ({ row }: CellType) => {
-        const category = row.items.length ? row.items[0]?.category : undefined
-        const serviceTypes = row.items.length ? row.items[0]?.serviceType : []
-        return (
-          <Box display='flex' alignItems='center' gap='8px'>
-            {category && (
-              <JobTypeChip size='small' type={category} label={category} />
-            )}
-            {serviceTypes.length ? (
-              <ServiceTypeChip size='small' label={serviceTypes[0]} />
-            ) : null}
-            {serviceTypes.length > 1 ? (
-              <ExtraNumberChip
-                size='small'
-                label={`${serviceTypes.length - 1}`}
-              />
-            ) : null}
-          </Box>
-        )
-      },
-    },
-    {
-      flex: 0.1494,
-      minWidth: 280,
-      field: 'requestedAt',
-      disableColumnMenu: true,
-      // sortable: false,
-      renderHeader: () => <Box>Request date</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Box>
-          {FullDateTimezoneHelper(
-            row.requestedAt,
-            auth.getValue().user?.timezone! ?? {
-              code: 'KR',
-              label: 'Korea, Republic of',
-              public: '82',
-            },
-          )}
-        </Box>
-      ),
-    },
-    {
-      flex: 0.1281,
-      minWidth: 240,
-      field: 'desiredDueDate',
-      disableColumnMenu: true,
-      // sortable: false,
-      renderHeader: () => <Box>Desired due date</Box>,
-      renderCell: ({ row }: CellType) => {
-        const dueDate = row.items.length
-          ? row.items[0]?.desiredDueDate
-          : undefined
-        const timezone =
-          (row.items.length && row.items[0]?.desiredDueTimezone?.code) || ''
-        return (
-          <Box>
-            {!dueDate ? '-' : FullDateTimezoneHelper(dueDate, timezone)}
-          </Box>
-        )
-      },
-    },
-  ]
-
   function noData() {
     return (
       <Box
@@ -221,7 +94,11 @@ export default function List({
       onSortModelChange={e => {
         if (e.length) {
           const value = e[0] as { field: SortType; sort: GridSortDirection }
-          setFilter({ ...filter, sort: value.field, ordering: value.sort })
+          setFilters((prevState: RequestFilterType) => ({
+            ...prevState,
+            sort: value.field,
+            ordering: value.sort,
+          }))
         }
       }}
       onRowClick={e => onRowClick(e.row.id)}
@@ -231,11 +108,24 @@ export default function List({
       loading={isLoading}
       rowsPerPageOptions={[10, 25, 50]}
       pagination
-      page={skip}
+      page={page}
+      hideFooter={type === 'calendar'}
       pageSize={pageSize}
       paginationMode='server'
-      onPageChange={setSkip}
-      onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+      onPageChange={(newPage: number) => {
+        setFilters((prevState: RequestFilterType) => ({
+          ...prevState,
+          skip: newPage * pageSize!,
+        }))
+        setPage!(newPage)
+      }}
+      onPageSizeChange={(newPageSize: number) => {
+        setFilters((prevState: RequestFilterType) => ({
+          ...prevState,
+          take: newPageSize,
+        }))
+        setPageSize!(newPageSize)
+      }}
       columns={columns}
     />
   )
