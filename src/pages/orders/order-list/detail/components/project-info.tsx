@@ -869,8 +869,7 @@ const ProjectInfo = ({
                     width: '100%',
                   }}
                 >
-                  {project.projectDescription &&
-                  project.projectDescription !== ''
+                  {project.projectDescription && project.showDescription && project.projectDescription !== ''
                     ? project.projectDescription
                     : '-'}
                 </Typography>
