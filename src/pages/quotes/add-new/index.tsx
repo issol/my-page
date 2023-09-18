@@ -243,7 +243,7 @@ export default function AddNewQuote() {
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: { items: [] },
     resolver: yupResolver(itemSchema),
   })

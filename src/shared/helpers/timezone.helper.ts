@@ -115,13 +115,19 @@ export const getTimezoneOffset = (timezone: string) => {
  * DatePicker에서 선택받은 Date값에서 날짜와 시간 값은 유지한 상태로 타임존만 교체할때 사용합니다.
  */
 export const changeTimezoneFromLocalTimezoneISOString = (localISOString: string, timezone: string) => {
-  const datetimePart = localISOString.slice(0, -6)
-  const timezoneCode = convertCountryCodeToTimezone(timezone)
-  const newOffset = getTimezoneOffset(timezoneCode)
-  if (newOffset) {
-    return `${datetimePart}${newOffset >= 0 ? "+" : "-"}${Math.abs(
-      newOffset
-    ).toString().padStart(2, "0")}:00`;
+  const datetimePart = localISOString.slice(0, -6);
+  const timezoneCode = convertCountryCodeToTimezone(timezone);
+  const newOffset = getTimezoneOffset(timezoneCode);
+
+  if (newOffset !== null) {
+    const sign = newOffset >= 0 ? "+" : "-";
+    const hours = Math.floor(Math.abs(newOffset));
+    const minutes = (Math.abs(newOffset) % 1) * 60;
+    const offsetString = `${sign}${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+    
+    return `${datetimePart}${offsetString}`;
   }
-  return localISOString
+  
+  return localISOString;
 }
+

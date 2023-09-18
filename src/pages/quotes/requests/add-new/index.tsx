@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useState } from 'react'
+import { useCallback, useContext, useMemo, useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -160,7 +160,7 @@ export default function AddNewRequest() {
   })
 
   // ** form options
-  const { data: clientList } = useGetContactPersonOptions()
+  const { data: clientList, isLoading: clientListLoading } = useGetContactPersonOptions()
 
   const { data: companies } = useGetCompanyOptions('LSP')
 
@@ -168,6 +168,7 @@ export default function AddNewRequest() {
     return (
       clientList?.map(item => ({
         value: item.id,
+        userId: item.userId,
         label: `${getLegalName({
           firstName: item.firstName,
           middleName: item.middleName,
@@ -180,6 +181,27 @@ export default function AddNewRequest() {
   }, [clientList])
 
   console.log(clients)
+
+  // useEffect(() => {
+  //   async function fetchDefaultValue() {
+  //     try {
+  //       const defaultValue = await getClientRequestDefaultValue(
+  //         clients?.find(client => client.userId === auth.getValue().user?.userId!)?.value!,
+  //         auth.getValue().user?.timezone!,
+  //       );
+
+  //       // 초기값 설정
+  //       setValue('contactPersonId', defaultValue.contactPersonId);
+  //       // 필요한 다른 초기값들도 설정 가능
+
+  //     } catch (error) {
+  //       // 오류 처리
+  //     }
+  //   }
+
+  //   // 컴포넌트 마운트 시 초기값 가져오기
+  //   fetchDefaultValue();
+  // }, []); // 빈 배열로 설정하여 한 번만 실행
 
   const createMutation = useMutation(
     (form: RequestFormType) => createClientRequest(form),
@@ -212,7 +234,20 @@ export default function AddNewRequest() {
       }
       return { ...item, desiredDueDate: newDesiredDueDate() }
     })
-    const calData = { ...data, items: dateFixedItem }
+    // TODO Contact Person 드롭다운에서 값을 선택하지 않는 경우 contactPersonId가 아니라 userId가 들어감
+    // TODO 초기값 설정할때 clients 값을 map 돌려서 contactPersonId를 추출하는게 로딩 시점상 맞지가 않아서 부득이하게 mutation 타이밍에 변경하는 코드를 추가함
+    const contactPersonId = clients?.find(client => client?.userId! === auth.getValue().user?.userId!)
+    const { userId, ...filterData } = data
+    const calData = {
+      ...filterData, 
+      contactPersonId: 
+        data.contactPersonId === auth.getValue().user?.userId!
+        ? contactPersonId?.value! 
+        : data.contactPersonId,
+      items: dateFixedItem
+    }
+    
+    console.log("calData",calData)
     if (files.length) {
       const fileInfo: Array<{ fileName: string; fileSize: number }> = []
       const paths: string[] = files?.map(file =>
@@ -320,6 +355,7 @@ export default function AddNewRequest() {
                     item => item.value === value,
                   ) || {
                     value: value,
+                    userId: auth.getValue().user?.id!,
                     label: getLegalName({
                       firstName: auth.getValue().user?.firstName,
                       middleName: auth.getValue().user?.middleName,

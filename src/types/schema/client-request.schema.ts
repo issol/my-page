@@ -10,6 +10,7 @@ export function getClientRequestDefaultValue(
   return {
     lspId: '',
     contactPersonId,
+    userId: null,
     items: [
       {
         name: '',

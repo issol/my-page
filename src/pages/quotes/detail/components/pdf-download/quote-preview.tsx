@@ -66,15 +66,21 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
       patchQuoteProjectInfo(data.id, data.form),
     {
       onSuccess: (data, variables) => {
-        console.log(data)
+        let res;
 
-        if (data.id === variables.id) {
+        if (typeof data === 'number' || typeof data === 'string') {
+          res = Number(data);
+        } else if (typeof data === 'object' && data !== null) {
+          res = Number(data.id);
+        }
+
+        if (res === variables.id) {
           queryClient.invalidateQueries({
             queryKey: ['quotesDetail'],
           })
           queryClient.invalidateQueries(['quotesList'])
         } else {
-          router.push(`/quotes/detail/${data.id}`)
+          router.push(`/quotes/detail/${res}`)
         }
       },
     },
@@ -89,7 +95,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
           closeModal('DownloadQuotesModal')
           patchProjectInfoMutation.mutate({
             id: data.quoteId,
-            form: { downloadedAt: Date() },
+            form: { downloadedAt: new Date().toISOString() },
           })
         }
         window.print()

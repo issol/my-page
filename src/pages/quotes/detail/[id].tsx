@@ -794,13 +794,22 @@ export default function QuotesDetail() {
         setEditProject(false)
         setEditClient(false)
         setEditTeam(false)
-        if (data.id === Number(id)) {
+
+        let res;
+
+        if (typeof data === 'number' || typeof data === 'string') {
+          res = Number(data);
+        } else if (typeof data === 'object' && data !== null) {
+          res = Number(data.id);
+        }
+
+        if (res === Number(id)) {
           queryClient.invalidateQueries({
             queryKey: ['quotesDetail'],
           })
           queryClient.invalidateQueries(['quotesList'])
         } else {
-          router.push(`/quotes/detail/${data.id}`)
+          router.push(`/quotes/detail/${res}`)
         }
       },
       onError: () => onMutationError(),
@@ -810,13 +819,22 @@ export default function QuotesDetail() {
   const confirmQuoteMutation = useMutation(() => confirmQuote(Number(id)), {
     onSuccess: data => {
       closeModal('ConfirmQuoteModal')
-      if (data.id === Number(id)) {
+
+      let res;
+
+      if (typeof data === 'number' || typeof data === 'string') {
+        res = Number(data);
+      } else if (typeof data === 'object' && data !== null) {
+        res = Number(data.id);
+      }
+
+      if (res === Number(id)) {
         queryClient.invalidateQueries({
           queryKey: ['quotesDetail'],
         })
         queryClient.invalidateQueries(['quotesList'])
       } else {
-        router.push(`/quotes/detail/${data.id}`)
+        router.push(`/quotes/detail/${res}`)
       }
     },
     onError: () => onMutationError(),

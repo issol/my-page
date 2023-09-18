@@ -219,7 +219,7 @@ export default function Quotes({ id, user }: Props) {
 
   useEffect(() => {
     if (currentRole?.name === 'CLIENT') {
-      if (companies && !clientListLoading) {
+      if (companies && !companiesListLoading) {
         const res = companies.map(company => ({
           label: company.name,
           value: company.id,
@@ -227,7 +227,7 @@ export default function Quotes({ id, user }: Props) {
         setCompaniesList(res)
       }
     }
-  }, [companies, clientListLoading])
+  }, [companies, companiesListLoading])
 
   return (
     <Box display='flex' flexDirection='column'>
