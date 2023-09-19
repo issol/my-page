@@ -112,6 +112,11 @@ export const getStatusList = async (
       label: item.status,
       value: item.statusCode,
     }))
+    // TODO: Order list에 status 추가 후 삭제
+    res.push({
+      label: 'Without invoice',
+      value: 101300
+    })
 
     return res
   } catch (e: any) {
