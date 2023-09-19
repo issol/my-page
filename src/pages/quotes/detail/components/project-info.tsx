@@ -120,6 +120,12 @@ export default function QuotesProjectInfoDetail({
             value.label === 'In preparation' ||
             value.label === 'Internal Review',
         )
+      } else {
+        return statusList?.filter(
+          value =>
+            value.label !== 'Changed into order' &&
+            value.label !== 'Canceled'
+        )
       }
     }
     return statusList!
