@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 import styled from 'styled-components'
 
@@ -50,7 +50,10 @@ export default function ContactPersonDetailModal({
                   lastName: data.lastName!,
                 })}
               </Typography>
-              <IconButton onClick={onClose} sx={{ position: 'absolute', top: '20px', right: '20px' }}>
+              <IconButton
+                onClick={onClose}
+                sx={{ position: 'absolute', top: '20px', right: '20px' }}
+              >
                 <Icon icon='material-symbols:close' />
               </IconButton>
             </Box>
@@ -77,7 +80,9 @@ export default function ContactPersonDetailModal({
             <InfoContainer>
               <Label>Time zone</Label>
               <Typography variant='body2'>
-                {data?.timezone?.code ? getGmtTime(data?.timezone.code) : '-'}
+                {data?.timezone?.code
+                  ? getGmtTimeEng(data?.timezone.code)
+                  : '-'}
               </Typography>
             </InfoContainer>
           </Grid>

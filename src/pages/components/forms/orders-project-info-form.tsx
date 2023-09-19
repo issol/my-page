@@ -68,7 +68,7 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
   control: Control<OrderProjectInfoFormType, any>
@@ -234,10 +234,10 @@ export default function ProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -558,10 +558,10 @@ export default function ProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (

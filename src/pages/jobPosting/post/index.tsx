@@ -73,7 +73,7 @@ import { RoleList } from 'src/shared/const/role/roles'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/experienced-years'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import FallbackSpinner from '@src/@core/components/spinner'
 
 export default function JobPostingPost() {
@@ -621,7 +621,7 @@ export default function JobPostingPost() {
                               disabled={!currDueDate}
                               renderOption={(props, option) => (
                                 <Box component='li' {...props}>
-                                  {getGmtTime(option.code)}
+                                  {getGmtTimeEng(option.code)}
                                 </Box>
                               )}
                               renderInput={params => (

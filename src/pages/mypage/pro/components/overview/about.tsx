@@ -9,7 +9,7 @@ import Icon from 'src/@core/components/icon'
 import { v4 as uuidv4 } from 'uuid'
 
 //** data */
-import { getGmtTime } from 'src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import {
   FullDateTimezoneHelper,
