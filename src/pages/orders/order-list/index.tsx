@@ -36,7 +36,7 @@ export type FilterType = {
   revenueFrom?: Array<{ label: string; value: string }>
 
   status: Array<{ label: string; value: number }>
-  client: Array<{ label: string; value: number }>
+  client?: Array<{ label: string; value: number }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
 
@@ -162,7 +162,7 @@ export default function OrderList() {
     const filter: OrderListFilterType = {
       revenueFrom: revenueFrom?.map(value => value.value) ?? [],
       status: status.map(value => value.value),
-      client: client.map(value => value.label),
+      client: client?.map(value => value.label) ?? [],
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
       orderDateFrom: orderDate[0]?.toISOString() ?? '',

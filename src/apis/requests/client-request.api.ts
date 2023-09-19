@@ -14,11 +14,16 @@ import { RequestFilterType } from '@src/types/requests/filters.type'
 import { RequestListType } from '@src/types/requests/list.type'
 
 export const getRequestStatusList = async (): Promise<
-  ClientRequestListType[]
+  Array<{ value: number; label: string }>
 > => {
   try {
     const { data } = await axios.get(`/api/enough/u/request/status/list`)
-    return data
+
+    const res = data.map((item: any) => ({
+      label: item.statusName,
+      value: item.statusCode,
+    }))
+    return res
   } catch (error: any) {
     return []
   }
@@ -76,6 +81,18 @@ export const getClientRequestCalendarData = async (
       `/api/enough/u/request/list?year=${year}&month=${month}&${makeQuery(
         filter,
       )}`,
+    )
+
+    console.log(
+      data.data?.map((item: RequestListType, idx: number) => {
+        return {
+          ...item,
+          extendedProps: {
+            calendar: getColor(item.status),
+          },
+          allDay: true,
+        }
+      }),
     )
 
     return {

@@ -17,22 +17,47 @@ import List from './components/list'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
 import { RequestFilterType } from '@src/types/requests/filters.type'
 
-// ** values
-// import {
-//   ServiceTypeList,
-//   ServiceTypePair,
-// } from '@src/shared/const/service-type/service-types'
-
 // ** apis
-import { useGetClientRequestList } from '@src/queries/requests/client-request.query'
+import {
+  useGetClientRequestList,
+  useGetClientRequestStatus,
+} from '@src/queries/requests/client-request.query'
 
 // ** hooks
 import { useRouter } from 'next/router'
 import CalendarContainer from './components/calendar'
+import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
+import { CategoryList } from '@src/shared/const/category/categories'
+import { useForm } from 'react-hook-form'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { useGetCompanyOptions } from '@src/queries/options.query'
+import { useGetClientList } from '@src/queries/client.query'
+import { getRequestListColumns } from '@src/shared/const/columns/requests'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** components
+export type FilterType = {
+  requestDate: Date[]
+  desiredDueDate: Date[]
+  lsp?: Array<{ label: string; value: string }>
+  client?: Array<{ label: string; value: number }>
+  status: Array<{ label: string; value: number }>
+  category: Array<{ label: string; value: string }>
+  serviceType: Array<{ label: string; value: string }>
+  search: string
+}
 
-export const initialFilter: RequestFilterType = {
+const defaultValues: FilterType = {
+  requestDate: [],
+  desiredDueDate: [],
+  status: [],
+  category: [],
+  serviceType: [],
+  search: '',
+}
+
+export const defaultFilters: RequestFilterType = {
   status: [],
   lsp: [],
   category: [],
@@ -42,8 +67,8 @@ export const initialFilter: RequestFilterType = {
   desiredDueDateFrom: '',
   desiredDueDateTo: '',
   search: '',
-  mine: 0,
-  hideCompleted: 0,
+  mine: '0',
+  hideCompleted: '0',
   skip: 0,
   take: 10,
 }
@@ -51,85 +76,135 @@ export const initialFilter: RequestFilterType = {
 type MenuType = 'list' | 'calendar'
 export default function Requests() {
   const router = useRouter()
-
+  const currentRole = getCurrentRole()
   const [menu, setMenu] = useState<MenuType>('list')
+  const auth = useRecoilValueLoadable(authState)
 
   const [requestListPage, setRequestListPage] = useState<number>(0)
   const [requestListPageSize, setRequestPageSize] = useState<number>(10)
 
-  // const [skip, setSkip] = useState(0)
-  const [serviceType, setServiceType] = useState<Array<ConstType>>([])
-  const [filter, setFilter] = useState<RequestFilterType>(initialFilter)
-  const [activeFilter, setActiveFilter] =
-    useState<RequestFilterType>(initialFilter)
+  const [hideCompletedRequests, setHideCompletedRequests] =
+    useState<boolean>(false)
+  const [seeMyRequests, setSeeMyRequests] = useState<boolean>(false)
 
-  const { data: list, isLoading } = useGetClientRequestList({
-    ...activeFilter,
-    skip: requestListPage * requestListPageSize,
-    take: requestListPageSize,
+  const [filters, setFilters] = useState<RequestFilterType>(defaultFilters)
+
+  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+  const [categoryList, setCategoryList] = useState(CategoryList)
+
+  const [clientList, setClientList] = useState<
+    {
+      label: string
+      value: number
+    }[]
+  >([])
+  const [companyList, setCompanyList] = useState<
+    {
+      label: string
+      value: string
+    }[]
+  >([])
+
+  const { data: companies, isLoading: companiesListLoading } =
+    currentRole?.name === 'CLIENT'
+      ? useGetCompanyOptions('LSP')
+      : { data: [], isLoading: false }
+
+  const { data: clients, isLoading: clientListLoading } = useGetClientList({
+    take: 1000,
+    skip: 0,
   })
 
-  // function findServiceTypeFilter() {
-  //   let category: Array<ConstType> = []
-  //   if (filter.category?.length) {
-  //     filter.category.forEach(item => {
-  //       if (!ServiceTypePair[item as keyof typeof ServiceTypePair]) return
-  //       category = category.concat(
-  //         ServiceTypePair[item as keyof typeof ServiceTypePair],
-  //       )
-  //     })
-  //   }
+  const { data: list, isLoading } = useGetClientRequestList(filters)
 
-  //   if (category?.length) {
-  //     const result = category.reduce(
-  //       (acc: Array<ConstType>, item: ConstType) => {
-  //         const found = acc.find(ac => ac.value === item.value)
-  //         if (!found) return acc.concat(item)
-  //         return acc
-  //       },
-  //       [],
-  //     )
-  //     return result
-  //   }
-  //   return ServiceTypeList
-  // }
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetClientRequestStatus()
 
-  // 기존 코드는 category의 변화에 따라 service type의 리스트가 변화하는게 아니라
-  // 변화된 service type을 필터에 추가하는 방식임. 필터의 리스트만 바껴야 하므로 사용하지 않음
-  // useEffect(() => {
-  //   const newFilter = findServiceTypeFilter()
-  //   setServiceType(newFilter)
-  //   if (newFilter.length)
-  //     setFilter({
-  //       ...filter,
-  //       serviceType: newFilter
-  //         .filter(item => filter.serviceType?.includes(item.value))
-  //         .map(item => item.value),
-  //     })
-  // }, [filter.category])
+  const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
+    defaultValues,
+    mode: 'onSubmit',
+  })
 
-  function onSearch() {
-    setActiveFilter({
-      ...filter,
-      mine: activeFilter.mine,
-      hideCompleted: activeFilter.hideCompleted,
-      skip: requestListPage * requestListPageSize,
+  const onSubmit = (data: FilterType) => {
+    const {
+      requestDate,
+      desiredDueDate,
+      client,
+      status,
+
+      serviceType,
+      category,
+      search,
+      lsp,
+    } = data
+
+    const filter: RequestFilterType = {
+      status: status.map(value => value.value),
+
+      serviceType: serviceType.map(value => value.value),
+      category: category.map(value => value.value),
+      requestDateFrom: requestDate[0]?.toISOString() ?? '',
+      requestDateTo: requestDate[1]?.toISOString() ?? '',
+      desiredDueDateFrom: desiredDueDate[0]?.toISOString() ?? '',
+      desiredDueDateTo: desiredDueDate[1]?.toISOString() ?? '',
+      lsp: lsp?.map(value => value.label),
+      search: search,
       take: requestListPageSize,
-    })
+      skip: requestListPageSize * requestListPage,
+      ordering: 'desc',
+      sort: 'corporationId',
+    }
+
+    setFilters(filter)
   }
 
   function onReset() {
-    setFilter({ ...initialFilter })
-    setActiveFilter({
-      ...initialFilter,
-      mine: activeFilter.mine,
-      hideCompleted: activeFilter.hideCompleted,
-    })
+    setFilters({ ...defaultFilters })
   }
 
   function onRowClick(id: number) {
     router.push(`/quotes/requests/${id}`)
   }
+
+  const handleCompletedRequests = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setHideCompletedRequests(event.target.checked)
+    setFilters(prevState => ({
+      ...prevState,
+      hideCompleted: event.target.checked ? '1' : '0',
+    }))
+  }
+
+  const handleSeeMyRequests = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSeeMyRequests(event.target.checked)
+
+    setFilters(prevState => ({
+      ...prevState,
+      mine: event.target.checked ? '1' : '0',
+    }))
+  }
+
+  useEffect(() => {
+    if (clients && !clientListLoading) {
+      const res = clients.data.map(client => ({
+        label: client.name,
+        value: client.clientId,
+      }))
+      setClientList(res)
+    }
+  }, [clients, clientListLoading])
+  useEffect(() => {
+    if (currentRole?.name === 'CLIENT') {
+      if (companies && !companiesListLoading) {
+        const res = companies.map(company => ({
+          label: company.name,
+          value: company.id,
+        }))
+        setCompanyList(res)
+      }
+    }
+  }, [companies, companiesListLoading])
 
   return (
     <Box display='flex' flexDirection='column'>
@@ -164,11 +239,23 @@ export default function Requests() {
         {menu === 'list' ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <Filter
-              // serviceType={serviceType}
-              filter={filter}
-              setFilter={setFilter}
+              serviceTypeList={serviceTypeList}
+              setServiceTypeList={setServiceTypeList}
+              categoryList={categoryList}
+              setCategoryList={setCategoryList}
+              filters={filters}
+              setFilters={setFilters}
               onReset={onReset}
-              search={onSearch}
+              onSubmit={onSubmit}
+              control={control}
+              handleSubmit={handleSubmit}
+              trigger={trigger}
+              clientList={clientList}
+              statusList={statusList!}
+              statusListLoading={statusListLoading}
+              companyList={companyList}
+              companyListLoading={companiesListLoading}
+              role={currentRole!}
             />
             <Box
               sx={{
@@ -180,25 +267,15 @@ export default function Requests() {
               <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                 <Typography>See only my requests</Typography>
                 <Switch
-                  checked={activeFilter.mine === 1}
-                  onChange={e =>
-                    setActiveFilter({
-                      ...activeFilter,
-                      mine: e.target.checked ? 1 : 0,
-                    })
-                  }
+                  checked={seeMyRequests}
+                  onChange={handleSeeMyRequests}
                 />
               </Box>
               <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                 <Typography>Hide completed requests</Typography>
                 <Switch
-                  checked={activeFilter.hideCompleted === 1}
-                  onChange={e =>
-                    setActiveFilter({
-                      ...activeFilter,
-                      hideCompleted: e.target.checked ? 1 : 0,
-                    })
-                  }
+                  checked={hideCompletedRequests}
+                  onChange={handleCompletedRequests}
                 />
               </Box>
             </Box>
@@ -227,15 +304,21 @@ export default function Requests() {
                 />
 
                 <List
-                  skip={requestListPage}
+                  page={requestListPage}
                   pageSize={requestListPageSize}
-                  setSkip={setRequestListPage}
+                  setPage={setRequestListPage}
                   setPageSize={setRequestPageSize}
-                  filter={activeFilter}
-                  setFilter={setActiveFilter}
+                  setFilters={setFilters}
                   list={list || { count: 0, data: [], totalCount: 0 }}
                   isLoading={isLoading}
+                  role={currentRole!}
                   onRowClick={onRowClick}
+                  columns={getRequestListColumns(
+                    statusList!,
+                    currentRole!,
+                    auth,
+                  )}
+                  type='list'
                 />
               </Card>
             </Grid>

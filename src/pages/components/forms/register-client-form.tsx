@@ -3,9 +3,14 @@ import { useEffect, useState } from 'react'
 // ** mui
 import {
   Autocomplete,
+  Box,
   Divider,
+  FormControl,
   FormControlLabel,
   Grid,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Radio,
   RadioGroup,
   TextField,
@@ -170,6 +175,8 @@ export default function RegisterClientForm({
       })
   }
 
+  console.log(contacts)
+
   function getPhoneNumber(
     code: string | undefined,
     phone: string | undefined | null,
@@ -305,55 +312,105 @@ export default function RegisterClientForm({
       <Grid item xs={6}>
         <TextField
           fullWidth
-          placeholder='Time zone'
+          label={contacts?.timezone ? 'Time zone' : null}
+          // label='Time zone'
+          // placeholder='Time zone'
           value={
-            !contacts?.timezone ? '-' : getGmtTime(contacts?.timezone?.code)
+            !contacts?.timezone ? null : getGmtTime(contacts?.timezone?.code)
           }
           disabled={true}
+          InputProps={{
+            startAdornment: (
+              <>
+                {contacts?.timezone ? null : (
+                  <Box sx={{ width: '100%' }}>Time zone</Box>
+                )}
+              </>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={6}>
         <TextField
           fullWidth
-          placeholder='Telephone'
+          label={contacts?.phone ? 'Telephone' : null}
+          // placeholder='Telephone'
+          // label='Telephone'
           value={
             !contacts?.phone
-              ? '-'
+              ? null
               : getPhoneNumber(contacts?.timezone?.phone, contacts?.phone)
           }
           disabled={true}
+          InputProps={{
+            startAdornment: (
+              <>
+                {contacts?.phone ? null : (
+                  <Box sx={{ width: '100%' }}>Telephone</Box>
+                )}
+              </>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={6}>
         <TextField
           fullWidth
-          placeholder='Mobile phone'
+          label={contacts?.mobile ? 'Mobile phone' : null}
+          // placeholder='Mobile phone'
           value={
             !contacts?.mobile
-              ? '-'
+              ? null
               : getPhoneNumber(contacts?.timezone?.phone, contacts?.mobile)
           }
           disabled={true}
+          InputProps={{
+            startAdornment: (
+              <>
+                {contacts?.mobile ? null : (
+                  <Box sx={{ width: '100%' }}>Mobile phone</Box>
+                )}
+              </>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={6}>
         <TextField
           fullWidth
-          placeholder='Fax'
+          label={contacts?.fax ? 'Fax' : null}
+          // placeholder='Fax'
           value={
             !contacts?.fax
-              ? '-'
+              ? null
               : getPhoneNumber(contacts?.timezone?.phone, contacts?.fax)
           }
           disabled={true}
+          InputProps={{
+            startAdornment: (
+              <>
+                {contacts?.fax ? null : <Box sx={{ width: '100%' }}>Fax</Box>}
+              </>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={12}>
         <TextField
           fullWidth
-          placeholder='Email'
-          value={!contacts?.email ? '-' : contacts?.email}
+          // placeholder='Email'
+          label={contacts?.email ? 'Email' : null}
+          value={!contacts?.email ? null : contacts?.email}
           disabled={true}
+          InputProps={{
+            startAdornment: (
+              <>
+                {contacts?.email ? null : (
+                  <Box sx={{ width: '100%' }}>Email</Box>
+                )}
+              </>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={12}>
@@ -378,9 +435,13 @@ export default function RegisterClientForm({
                 onChange={(e, v) => field.onChange('shipping')}
                 checked={field.value === 'shipping'}
                 label={`Shipping address ${
-                  contacts?.addresses && contacts?.addresses.length > 0
-                    ? getAddress(contacts?.addresses, 'shipping')
-                    : '-'
+                  contacts?.addresses && contacts?.addresses.length > 0 ? (
+                    <Typography variant='body1' fontWeight={600}>
+                      {getAddress(contacts?.addresses, 'shipping')}
+                    </Typography>
+                  ) : (
+                    '-'
+                  )
                 }`}
               />
               <FormControlLabel
@@ -389,9 +450,13 @@ export default function RegisterClientForm({
                 checked={field.value === 'billing'}
                 control={<Radio />}
                 label={`Billing address ${
-                  contacts?.addresses && contacts?.addresses.length > 0
-                    ? getAddress(contacts?.addresses, 'billing')
-                    : '-'
+                  contacts?.addresses && contacts?.addresses.length > 0 ? (
+                    <Typography variant='body1' fontWeight={600}>
+                      {getAddress(contacts?.addresses, 'billing')}
+                    </Typography>
+                  ) : (
+                    '-'
+                  )
                 }`}
               />
             </RadioGroup>

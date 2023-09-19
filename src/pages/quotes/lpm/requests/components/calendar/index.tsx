@@ -6,7 +6,7 @@ import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Switch from '@mui/material/Switch'
-import { Typography } from '@mui/material'
+import { Card, Typography } from '@mui/material'
 
 // ** components
 import List from '../list'
@@ -30,12 +30,21 @@ import { RequestFilterType } from '@src/types/requests/filters.type'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { RequestListType } from '@src/types/requests/list.type'
 import { useRouter } from 'next/router'
-import { useGetClientRequestCalendarData } from '@src/queries/requests/client-request.query'
+import {
+  useGetClientRequestCalendarData,
+  useGetClientRequestStatus,
+} from '@src/queries/requests/client-request.query'
+import { getRequestListColumns } from '@src/shared/const/columns/requests'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const CalendarContainer = () => {
   // ** Hooks
   const { settings } = useSettings()
   const router = useRouter()
+  const currentRole = getCurrentRole()
+  const auth = useRecoilValueLoadable(authState)
 
   // ** calendar values
   const leftSidebarWidth = 260
@@ -45,8 +54,8 @@ const CalendarContainer = () => {
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
   const [filter, setFilter] = useState<RequestFilterType>({
-    mine: 0,
-    hideCompleted: 0,
+    mine: '0',
+    hideCompleted: '0',
     skip: 0,
     take: 10,
   })
@@ -56,6 +65,9 @@ const CalendarContainer = () => {
     month,
     filter,
   )
+
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetClientRequestStatus()
   const [event, setEvent] = useState<Array<CalendarEventType<RequestListType>>>(
     [],
   )
@@ -95,6 +107,14 @@ const CalendarContainer = () => {
           ...(skin === 'bordered' && {
             border: theme => `1px solid ${theme.palette.divider}`,
           }),
+          '& .fc-daygrid-event-harness': {
+            '& .fc-event': {
+              padding: '0 !important',
+            },
+            '.fc-h-event': {
+              border: 'none',
+            },
+          },
         }}
       >
         <CalendarStatusSideBar
@@ -126,13 +146,14 @@ const CalendarContainer = () => {
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <Typography>Hide completed requests</Typography>
               <Switch
-                checked={filter.hideCompleted === 1}
-                onChange={e =>
+                checked={filter.hideCompleted === '1'}
+                onChange={e => {
+                  setCurrentListId(null)
                   setFilter({
                     ...filter,
-                    hideCompleted: e.target.checked ? 1 : 0,
+                    hideCompleted: e.target.checked ? '1' : '0',
                   })
-                }
+                }}
               />
             </Box>
           </Box>
@@ -146,27 +167,31 @@ const CalendarContainer = () => {
         </Box>
       </CalendarWrapper>
 
-      <Box mt={10} sx={{ background: 'white' }}>
-        <List
-          skip={skip}
-          setSkip={setSkip}
-          pageSize={pageSize}
-          setPageSize={setPageSize}
-          filter={filter}
-          setFilter={setFilter}
-          list={
-            currentList?.length
-              ? {
-                  data: currentList,
-                  count: currentList?.length,
-                  totalCount: currentList?.length,
-                }
-              : { data: [], count: 0, totalCount: 0 }
-          }
-          onRowClick={onRowClick}
-          isLoading={isLoading}
-        />
-      </Box>
+      {currentListId === null ? null : (
+        <Card sx={{ background: 'white', marginTop: 10 }}>
+          <List
+            page={skip}
+            setPage={setSkip}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            setFilters={setFilter}
+            list={
+              currentList?.length
+                ? {
+                    data: currentList,
+                    count: currentList?.length,
+                    totalCount: currentList?.length,
+                  }
+                : { data: [], count: 0, totalCount: 0 }
+            }
+            onRowClick={onRowClick}
+            isLoading={isLoading}
+            role={currentRole!}
+            columns={getRequestListColumns(statusList!, currentRole!, auth)}
+            type='calendar'
+          />
+        </Card>
+      )}
     </Box>
   )
 }

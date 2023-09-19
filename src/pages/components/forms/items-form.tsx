@@ -86,6 +86,7 @@ import {
 } from '@src/shared/helpers/price.helper'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -589,7 +590,7 @@ export default function ItemForm({
           quantity: newData.priceUnitQuantity,
           // priceUnit: newData.priceUnitTitle,
           unit: newData.priceUnitUnit,
-          currency: fields[idx]?.initialPrice?.currency! || 'USD',
+          currency: fields[idx]?.initialPrice?.currency! || 'KRW',
           unitPrice: newData.priceUnitPrice,
           prices: item.prices,
           priceFactor: getValues(`items.${idx}.priceFactor`)
@@ -621,6 +622,8 @@ export default function ItemForm({
         const minimumPrice = languagePairData?.minimumPrice
         const priceFactor = languagePairData?.priceFactor
         const currency = languagePairData?.currency
+        const rounding = priceData?.roundingProcedure
+        const numberPlace = priceData?.decimalPlace
 
         setValue(`items.${idx}.totalPrice`, 0, setValueOptions)
         setValue(
@@ -632,6 +635,17 @@ export default function ItemForm({
         setValue(
           `items.${idx}.initialPrice.currency`,
           currency!,
+          setValueOptions,
+        )
+        setValue(
+          `items.${idx}.initialPrice.numberPlace`,
+          numberPlace!,
+          setValueOptions,
+        )
+        setValue(
+          `items.${idx}.initialPrice.rounding`,
+          //@ts-ignore
+          RoundingProcedureObj[rounding!],
           setValueOptions,
         )
         itemTrigger(`items.${idx}`)
@@ -655,6 +669,8 @@ export default function ItemForm({
         const minimumPrice = languagePairData?.minimumPrice
         const priceFactor = languagePairData?.priceFactor
         const currency = languagePairData?.currency
+        const rounding = priceData?.roundingProcedure
+        const numberPlace = priceData?.decimalPlace
 
         setValue(`items.${idx}.totalPrice`, 0, setValueOptions)
         setValue(
@@ -666,6 +682,17 @@ export default function ItemForm({
         setValue(
           `items.${idx}.initialPrice.currency`,
           currency!,
+          setValueOptions,
+        )
+        setValue(
+          `items.${idx}.initialPrice.numberPlace`,
+          numberPlace!,
+          setValueOptions,
+        )
+        setValue(
+          `items.${idx}.initialPrice.rounding`,
+          //@ts-ignore
+          RoundingProcedureObj[rounding!],
           setValueOptions,
         )
         itemTrigger(`items.${idx}`)
