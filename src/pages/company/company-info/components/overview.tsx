@@ -386,7 +386,7 @@ const CompanyInfoOverview = ({
                           else onChange(v)
                         }}
                         renderOption={(props, option) => (
-                          <Box component='li' {...props}>
+                          <Box component='li' {...props} key={uuidv4()}>
                             {getGmtTimeEng(option.code)}
                           </Box>
                         )}
@@ -398,7 +398,7 @@ const CompanyInfoOverview = ({
                           />
                         )}
                         getOptionLabel={option =>
-                          option.code === '' ? '' : getGmtTimeEng(option.code)
+                          getGmtTimeEng(option.code) ?? ''
                         }
                       />
                     )}

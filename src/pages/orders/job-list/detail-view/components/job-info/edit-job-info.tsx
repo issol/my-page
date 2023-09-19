@@ -635,9 +635,9 @@ const EditJobInfo = ({
                     value={value}
                     options={countries as CountryType[]}
                     onChange={(e, v) => onChange(v)}
-                    getOptionLabel={option => getGmtTimeEng(option.code)}
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
+                      <Box component='li' {...props} key={uuidv4()}>
                         {getGmtTimeEng(option.code)}
                       </Box>
                     )}
@@ -700,7 +700,7 @@ const EditJobInfo = ({
                       else onChange(v)
                     }}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
+                      <Box component='li' {...props} key={uuidv4()}>
                         {getGmtTimeEng(option.code)}
                       </Box>
                     )}
@@ -711,9 +711,7 @@ const EditJobInfo = ({
                         error={Boolean(errors.dueTimezone)}
                       />
                     )}
-                    getOptionLabel={option =>
-                      option.code === '' ? '' : getGmtTimeEng(option.code)
-                    }
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                   />
                 )}
               />

@@ -16,6 +16,7 @@ import DatePicker from 'react-datepicker'
 
 // ** Custom Component Imports
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** react hook form
 import {
@@ -141,9 +142,9 @@ export default function InvoiceAccountingInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
+                <Box component='li' {...props} key={uuidv4()}>
                   {getGmtTimeEng(option.code)}
                 </Box>
               )}
@@ -199,9 +200,9 @@ export default function InvoiceAccountingInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
+                <Box component='li' {...props} key={uuidv4()}>
                   {getGmtTimeEng(option.code)}
                 </Box>
               )}
@@ -254,9 +255,9 @@ export default function InvoiceAccountingInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
+                <Box component='li' {...props} key={uuidv4()}>
                   {getGmtTimeEng(option.code)}
                 </Box>
               )}

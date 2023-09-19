@@ -26,6 +26,7 @@ import {
   UseFormWatch,
 } from 'react-hook-form'
 import styled from 'styled-components'
+import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   edit: boolean
@@ -203,7 +204,7 @@ const Contracts = ({
                       else onChange(v)
                     }}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
+                      <Box component='li' {...props} key={uuidv4()}>
                         {getGmtTimeEng(option.code)}
                       </Box>
                     )}
@@ -214,9 +215,7 @@ const Contracts = ({
                         // error={Boolean(errors.dueTimezone)}
                       />
                     )}
-                    getOptionLabel={option =>
-                      option.code === '' ? '' : getGmtTimeEng(option.code)
-                    }
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                   />
                 )}
               />

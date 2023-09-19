@@ -25,7 +25,7 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
-
+import { v4 as uuidv4 } from 'uuid'
 // ** Third Party Imports
 import { convertToRaw, EditorState } from 'draft-js'
 
@@ -631,7 +631,7 @@ export default function RecruitingPost() {
                             onChange={(e, v) => onChange(v)}
                             disableClearable
                             renderOption={(props, option) => (
-                              <Box component='li' {...props}>
+                              <Box component='li' {...props} key={uuidv4()}>
                                 {getGmtTimeEng(option.code)}
                               </Box>
                             )}

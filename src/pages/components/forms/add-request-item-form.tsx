@@ -12,6 +12,7 @@ import {
 } from '@mui/material'
 import styled from 'styled-components'
 import { Icon } from '@iconify/react'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** react hook form
 import {
@@ -344,9 +345,9 @@ export default function AddRequestForm({
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
                     disableClearable
-                    getOptionLabel={option => getGmtTimeEng(option.code)}
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
+                      <Box component='li' {...props} key={uuidv4()}>
                         {getGmtTimeEng(option.code)}
                       </Box>
                     )}
