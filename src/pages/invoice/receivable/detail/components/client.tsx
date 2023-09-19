@@ -36,7 +36,6 @@ import {
   UseFormWatch,
   useForm,
 } from 'react-hook-form'
-import { useMutation, useQueryClient } from 'react-query'
 
 type Props = {
   type: string

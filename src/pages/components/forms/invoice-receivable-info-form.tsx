@@ -55,7 +55,7 @@ import { countries } from 'src/@fake-db/autocomplete'
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import InformationModal from '@src/@core/components/common-modal/information-modal'
 import { ClientType } from '@src/types/orders/order-detail'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
@@ -208,10 +208,10 @@ export default function InvoiceProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -507,10 +507,10 @@ export default function InvoiceProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -592,10 +592,10 @@ export default function InvoiceProjectInfoForm({
                     disabled={!client ? false : isClientRegistered}
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
-                    getOptionLabel={option => getGmtTime(option.code)}
+                    getOptionLabel={option => getGmtTimeEng(option.code)}
                     renderOption={(props, option) => (
                       <Box component='li' {...props}>
-                        {getGmtTime(option.code)}
+                        {getGmtTimeEng(option.code)}
                       </Box>
                     )}
                     renderInput={params => (
@@ -673,10 +673,10 @@ export default function InvoiceProjectInfoForm({
                     }
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
-                    getOptionLabel={option => getGmtTime(option.code)}
+                    getOptionLabel={option => getGmtTimeEng(option.code)}
                     renderOption={(props, option) => (
                       <Box component='li' {...props}>
-                        {getGmtTime(option.code)}
+                        {getGmtTimeEng(option.code)}
                       </Box>
                     )}
                     renderInput={params => (

@@ -31,7 +31,7 @@ import { getClientDetail } from '@src/apis/client.api'
 
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 // ** types
 import { ClientFormType } from '@src/types/schema/client.schema'
@@ -316,7 +316,7 @@ export default function RegisterClientForm({
           // label='Time zone'
           // placeholder='Time zone'
           value={
-            !contacts?.timezone ? null : getGmtTime(contacts?.timezone?.code)
+            !contacts?.timezone ? null : getGmtTimeEng(contacts?.timezone?.code)
           }
           disabled={true}
           InputProps={{

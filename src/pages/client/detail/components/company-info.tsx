@@ -23,7 +23,7 @@ import styled from 'styled-components'
 // ** types & schema
 import { ClientDetailType } from '@src/types/client/client'
 import { TitleTypography } from '@src/@core/styles/typography'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { ClientStatus } from '@src/shared/const/status/statuses'
 import {
   CompanyInfoFormType,
@@ -315,7 +315,7 @@ export default function ClientInfo({
                 >
                   Time zone:&nbsp;
                   <Typography variant='body2' component={'span'}>
-                    {getGmtTime(clientInfo?.timezone?.code)}
+                    {getGmtTimeEng(clientInfo?.timezone?.code)}
                   </Typography>
                 </Typography>
               </InfoBox>

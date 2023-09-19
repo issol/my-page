@@ -26,7 +26,7 @@ import { TaxInfo } from '@src/shared/const/tax/tax-info'
 import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
 
 // ** helpers
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 // ** types & schema
 import {
@@ -121,7 +121,7 @@ export default function InvoiceDetailInfoForm({
         <TextField
           fullWidth
           disabled
-          value={getGmtTime(data?.invoicedAtTimezone?.code)}
+          value={getGmtTimeEng(data?.invoicedAtTimezone?.code)}
           label='Time zone*'
           placeholder='Time zone*'
         />
@@ -260,10 +260,10 @@ export default function InvoiceDetailInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -313,10 +313,10 @@ export default function InvoiceDetailInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (

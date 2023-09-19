@@ -75,7 +75,7 @@ import { RecruitingStatus } from 'src/shared/const/status/statuses'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import logger from '@src/@core/utils/logger'
 
 export default function RecruitingPost() {
@@ -632,7 +632,7 @@ export default function RecruitingPost() {
                             disableClearable
                             renderOption={(props, option) => (
                               <Box component='li' {...props}>
-                                {getGmtTime(option.code)}
+                                {getGmtTimeEng(option.code)}
                               </Box>
                             )}
                             renderInput={params => (

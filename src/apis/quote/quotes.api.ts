@@ -269,7 +269,10 @@ export const patchQuoteProjectInfo = async (
     | { tax: null | number; isTaxable: boolean }
     | { status: number; reason: CancelReasonType }
     | { downloadedAt: string }
-    | { isConfirmed: boolean },
+    | { isConfirmed: boolean }
+    | { languagePairs: Array<LanguagePairsType> }
+    | { items: Array<PostItemType> }
+    | { languagePairs: Array<LanguagePairsType>, items: Array<PostItemType> }
 ) => {
   const { data } = await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
   return data

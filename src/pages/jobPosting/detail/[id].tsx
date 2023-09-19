@@ -42,7 +42,7 @@ import {
   FullDateTimezoneHelper,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
-import { getGmtTime } from 'src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -341,7 +341,7 @@ const JobPostingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTime(auth.getValue().user?.timezone?.code),
+                      getGmtTimeEng(auth.getValue().user?.timezone?.code),
                     )}
                   </Grid>
                 </Grid>

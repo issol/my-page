@@ -35,7 +35,7 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 
 // ** helpers
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 type Props = {
@@ -141,10 +141,10 @@ export default function InvoiceAccountingInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -199,10 +199,10 @@ export default function InvoiceAccountingInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -254,10 +254,10 @@ export default function InvoiceAccountingInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
