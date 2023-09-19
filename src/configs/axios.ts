@@ -6,6 +6,7 @@ import {
   removeUserTokenFromBrowser,
   saveUserTokenToBrowser,
   removeUserDataFromBrowser,
+  removeCompanyDataFromBrowser,
 } from 'src/shared/auth/storage'
 
 export const BASEURL =
@@ -89,6 +90,7 @@ instance.interceptors.response.use(
             window.location.href = '/login'
 
             removeUserDataFromBrowser()
+            removeCompanyDataFromBrowser()
 
             return Promise.reject(error)
           } else {
@@ -103,6 +105,7 @@ instance.interceptors.response.use(
         } catch (e: any) {
           window.location.href = '/login'
           removeUserDataFromBrowser()
+          removeCompanyDataFromBrowser()
         }
       }
       const retryOriginalRequest = new Promise(resolve => {

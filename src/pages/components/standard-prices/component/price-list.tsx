@@ -36,6 +36,8 @@ type Props = {
   selected: number | null
   title: string
   page: 'pro' | 'client'
+  hasGeneralPermission?: boolean
+  used?: string
 }
 const PriceList = ({
   list,
@@ -54,6 +56,8 @@ const PriceList = ({
   selected,
   title,
   page,
+  hasGeneralPermission,
+  used,
 }: Props) => {
   return (
     <Card sx={{ padding: '20px 0' }}>
@@ -68,9 +72,13 @@ const PriceList = ({
         <Typography variant='h6'>
           {title} ({listCount ?? 0})
         </Typography>
-        <Button variant='contained' onClick={onClickAddNewPrice}>
-          Add new price
-        </Button>
+        {!used || (used && used !== 'client') || (used && used === 'client' && !hasGeneralPermission) ? (
+          <Button variant='contained' onClick={onClickAddNewPrice}>
+            Add new price
+          </Button>
+          ) : null
+        }
+
       </Box>
       {isLoading ? (
         <FallbackSpinner noImage={true} />

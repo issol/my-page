@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Dispatch, SetStateAction } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -18,61 +18,114 @@ import {
   InputLabel,
   OutlinedInput,
   TextField,
+  useTheme,
 } from '@mui/material'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
-import DatePicker from 'react-datepicker'
+import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 
 // ** apis
-import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
 
 // ** types
 import { RequestFilterType } from '@src/types/requests/filters.type'
-import { useGetProList } from '@src/queries/pro/pro-list.query'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { ConstType } from '@src/pages/onboarding/client-guideline'
-import { CategoryList, CategoryListPair } from '@src/shared/const/category/categories'
-import { ServiceTypeList, ServiceTypePair } from '@src/shared/const/service-type/service-types'
-import { useGetCompanyOptions } from '@src/queries/options.query'
-import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
+
+import {
+  CategoryList,
+  CategoryListPair,
+} from '@src/shared/const/category/categories'
+import {
+  ServiceTypeList,
+  ServiceTypePair,
+} from '@src/shared/const/service-type/service-types'
+
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import { Category } from '@src/shared/const/category/category.enum'
 
 import _ from 'lodash'
+import { FilterType } from '..'
+import {
+  Control,
+  Controller,
+  UseFormHandleSubmit,
+  UseFormTrigger,
+} from 'react-hook-form'
+import { UserRoleType } from '@src/context/types'
+import dayjs from 'dayjs'
 
 type Props = {
-  filter: RequestFilterType
-  setFilter: (n: RequestFilterType) => void
+  filters: RequestFilterType
+  setFilters: (n: RequestFilterType) => void
   // serviceType: Array<ConstType>
   onReset: () => void
-  search: () => void
+  onSubmit: (data: FilterType) => void
+  serviceTypeList: {
+    label: ServiceType
+    value: ServiceType
+  }[]
+  categoryList: {
+    label: Category
+    value: Category
+  }[]
+
+  setCategoryList: Dispatch<
+    SetStateAction<
+      {
+        label: Category
+        value: Category
+      }[]
+    >
+  >
+
+  setServiceTypeList: Dispatch<
+    SetStateAction<
+      {
+        label: ServiceType
+        value: ServiceType
+      }[]
+    >
+  >
+  handleSubmit: UseFormHandleSubmit<FilterType>
+  clientList: {
+    label: string
+    value: number
+  }[]
+  control: Control<FilterType, any>
+  trigger: UseFormTrigger<FilterType>
+  statusList: {
+    value: number
+    label: string
+  }[]
+  statusListLoading: boolean
+
+  companyList: Array<{ label: string; value: string }>
+  companyListLoading: boolean
+  role: UserRoleType
 }
 
-export default function Filter({ filter, setFilter, onReset, search }: Props) {
+export default function Filter({
+  filters,
+  setFilters,
+  onReset,
+  onSubmit,
+  categoryList,
+  setCategoryList,
+  serviceTypeList,
+  setServiceTypeList,
+  control,
+  handleSubmit,
+  trigger,
+  statusListLoading,
+  statusList,
+  clientList,
+  companyList,
+  companyListLoading,
+  role,
+}: Props) {
+  const theme = useTheme()
+  const { direction } = theme
   const [collapsed, setCollapsed] = useState<boolean>(true)
-  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
-  const [categoryList, setCategoryList] = useState(CategoryList)
-
-  const onFilterReset = () => {
-    setServiceTypeList(ServiceTypeList)
-    setCategoryList(CategoryList)
-    onReset()
-  }
-
-  function filterValue(
-    option: any,
-    keyName: keyof Pick<RequestFilterType, 'category' | 'serviceType'>,
-  ) {
-    return !filter[keyName]
-      ? option[0]
-      : option.filter((item: { value: string; label: string }) =>
-          filter[keyName]?.includes(item.value),
-        )
-  }
-
-  const { data: companies } = useGetCompanyOptions('LSP')
-
-  const { data: statusList, isLoading } = useGetClientRequestStatus()
+  const popperPlacement: ReactDatePickerProps['popperPlacement'] =
+    direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
   const commonOptions = {
     autoHighlight: true,
@@ -80,15 +133,15 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
     disableCloseOnSelect: true,
   }
 
-  const isSearchButtonDisable = () => {
-    if (filter.requestDateFrom) {
-      if (!filter.requestDateTo) return true
-    }
-    if (filter.desiredDueDateFrom) {
-      if (!filter.desiredDueDateTo) return true
-    }
-    return false
+  const dateValue = (startDate: Date, endDate: Date) => {
+    return startDate.toDateString() === endDate?.toDateString()
+      ? dayjs(startDate).format('MM/DD/YYYY')
+      : `${dayjs(startDate).format('MM/DD/YYYY')}${
+          endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
+        }`
   }
+
+  console.log(statusList)
 
   return (
     <DatePickerWrapper>
@@ -112,272 +165,320 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
           />
           <Collapse in={collapsed}>
             <CardContent>
-              <Grid container spacing={6} rowSpacing={4}>
-                <Grid item xs={12} sm={6} md={3}>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      {...commonOptions}
-                      multiple
-                      disableCloseOnSelect
-                      loading={isLoading}
-                      options={statusList || []}
-                      getOptionLabel={option => option.statusName}
-                      value={
-                        !statusList || !filter.status?.length
-                          ? []
-                          : statusList?.filter(item =>
-                              filter.status?.includes(item.statusName),
-                            )
-                      }
-                      limitTags={1}
-                      onChange={(e, v) =>
-                        setFilter({
-                          ...filter,
-                          status: v.map(item => item.statusName),
-                        })
-                      }
-                      id='status'
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Status'
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Grid container spacing={6} rowSpacing={4}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Controller
+                      control={control}
+                      name='status'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          {...commonOptions}
+                          multiple
+                          fullWidth
+                          disableCloseOnSelect
+                          loading={statusListLoading}
+                          options={statusList || []}
+                          getOptionLabel={option => option.label}
+                          value={value}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          limitTags={1}
+                          onChange={(event, item) => {
+                            onChange(item)
+                          }}
+                          id='status'
+                          renderInput={params => (
+                            <TextField {...params} label='Status' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
                         />
                       )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.statusName}
-                        </li>
-                      )}
                     />
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      {...commonOptions}
-                      multiple
-                      disableCloseOnSelect
-                      options={companies || []}
-                      getOptionLabel={option => option.name}
-                      value={
-                        !companies
-                          ? []
-                          : companies?.filter(lsp =>
-                              filter.lsp?.includes(lsp.id),
-                            )
-                      }
-                      limitTags={1}
-                      onChange={(e, v) =>
-                        setFilter({
-                          ...filter,
-                          lsp: v.map(i => i.id),
-                        })
-                      }
-                      renderInput={params => (
-                        <TextField {...params} label='LSP' />
-                      )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.name}
-                        </li>
-                      )}
-                    />
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      autoHighlight
-                      fullWidth
-                      multiple
-                      disableCloseOnSelect
-                      limitTags={1}
-                      options={categoryList}
-                      value={filterValue(categoryList, 'category')}
-                      onChange={(e, v) => {
-                        if (v.length){
-                          const arr: {
-                            label: ServiceType
-                            value: ServiceType
-                          }[] = []
-                          v.map(value => {
-                            /* @ts-ignore */
-                            const res = ServiceTypePair[value.value]
-                            arr.push(...res)
-                          })
-                          setServiceTypeList(_.uniqBy(arr, 'value'))
-                        } else {
-                          setServiceTypeList(ServiceTypeList)
-                        }
-                        setFilter({
-                          ...filter,
-                          category: v.map(item => item.value),
-                        })
-                      }}
-                      id='category'
-                      getOptionLabel={option => option.label}
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Category'
-                        />
-                      )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
-                        </li>
-                      )}
-                    />
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      autoHighlight
-                      fullWidth
-                      multiple
-                      limitTags={1}
-                      disableCloseOnSelect
-                      options={serviceTypeList}
-                      value={filterValue(serviceTypeList, 'serviceType')}
-                      onChange={(e, v) => {
-                        if (v.length){
-                          const arr: {
-                            label: Category
-                            value: Category
-                          }[] = []
-                          v.map(value => {
-                            /* @ts-ignore */
-                            const res = CategoryListPair[value.value]
-                            arr.push(...res)
-                          })
-                          setCategoryList(arr)
-                        } else {
-                          setCategoryList(CategoryList)
-                        }
-                      
-                        setFilter({
-                          ...filter,
-                          serviceType: v.map(item => item.value),
-                        })
-                      }}
-                      id='serviceType'
-                      getOptionLabel={option => option.label}
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Service type'
-                        />
-                      )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
-                        </li>
-                      )}
-                    />
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <FormControl fullWidth>
-                    <DatePicker
-                      selectsRange
-                      monthsShown={1}
-                      endDate={
-                        filter?.requestDateTo
-                          ? new Date(filter.requestDateTo)
-                          : null
-                      }
-                      startDate={
-                        filter?.requestDateFrom
-                          ? new Date(filter.requestDateFrom)
-                          : null
-                      }
-                      shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
-                        setFilter({
-                          ...filter,
-                          requestDateFrom: e[0]?.toISOString(),
-                          requestDateTo: e[1]?.toISOString(),
-                        })
-                      }}
-                      customInput={
-                        <CustomInput label='Request date' icon='calendar' />
-                      }
-                    />
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                  <FormControl fullWidth>
-                    <DatePicker
-                      selectsRange
-                      monthsShown={1}
-                      endDate={
-                        filter?.desiredDueDateTo
-                          ? new Date(filter.desiredDueDateTo)
-                          : null
-                      }
-                      startDate={
-                        filter?.desiredDueDateFrom
-                          ? new Date(filter.desiredDueDateFrom)
-                          : null
-                      }
-                      shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
-                        setFilter({
-                          ...filter,
-                          desiredDueDateFrom: e[0]?.toISOString(),
-                          desiredDueDateTo: e[1]?.toISOString(),
-                        })
-                      }}
-                      customInput={
-                        <CustomInput label='Desired due date' icon='calendar' />
-                      }
-                    />
-                  </FormControl>
-                </Grid>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    {role.name === 'CLIENT' ? (
+                      <Controller
+                        control={control}
+                        name='lsp'
+                        render={({ field: { onChange, value } }) => (
+                          <Autocomplete
+                            {...commonOptions}
+                            multiple
+                            loading={companyListLoading}
+                            options={companyList || []}
+                            getOptionLabel={option => option.label}
+                            value={value}
+                            limitTags={1}
+                            onChange={onChange}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                label='LSP'
+                                // placeholder='Lsp'
+                              />
+                            )}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                {option.label}
+                              </li>
+                            )}
+                          />
+                        )}
+                      />
+                    ) : (
+                      <Controller
+                        control={control}
+                        name='client'
+                        render={({ field: { onChange, value } }) => (
+                          <Autocomplete
+                            multiple
+                            fullWidth
+                            onChange={(event, item) => {
+                              onChange(item)
+                            }}
+                            value={value}
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.value === newValue.value
+                            }}
+                            disableCloseOnSelect
+                            limitTags={1}
+                            options={clientList}
+                            id='client'
+                            getOptionLabel={option => option.label}
+                            renderInput={params => (
+                              <TextField {...params} label='Client' />
+                            )}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                {option.label}
+                              </li>
+                            )}
+                          />
+                        )}
+                      />
+                    )}
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Controller
+                      control={control}
+                      name='category'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          fullWidth
+                          multiple
+                          limitTags={1}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          onChange={(event, item) => {
+                            onChange(item)
+                            if (item.length) {
+                              const arr: {
+                                label: ServiceType
+                                value: ServiceType
+                              }[] = []
 
-                <Grid item xs={12} sm={6} md={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Search Items</InputLabel>
-                    <OutlinedInput
-                      label='Search Items'
-                      value={filter.search}
-                      onChange={e =>
-                        setFilter({ ...filter, search: e.target.value })
-                      }
-                      endAdornment={
-                        <InputAdornment position='end'>
-                          <IconButton edge='end'>
-                            <Icon icon='mdi:magnify' />
-                          </IconButton>
-                        </InputAdornment>
-                      }
-                    />
-                  </FormControl>
-                </Grid>
+                              item.map(value => {
+                                /* @ts-ignore */
+                                const res = ServiceTypePair[value.value]
+                                arr.push(...res)
+                              })
 
-                <Grid item xs={12}>
-                  <Box display='flex' justifyContent='flex-end' gap='15px'>
-                    <Button
-                      variant='outlined'
-                      size='medium'
-                      color='secondary'
-                      onClick={onFilterReset}
-                    >
-                      Reset
-                    </Button>
-                    <Button variant='contained' size='medium' disabled={isSearchButtonDisable()} onClick={search}>
-                      Search
-                    </Button>
-                  </Box>
+                              setServiceTypeList(_.uniqBy(arr, 'value'))
+                              trigger('serviceType')
+                            } else {
+                              setServiceTypeList(ServiceTypeList)
+                              trigger('serviceType')
+                            }
+                          }}
+                          value={value}
+                          options={categoryList}
+                          id='category'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Category' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Controller
+                      control={control}
+                      name='serviceType'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          fullWidth
+                          multiple
+                          disableCloseOnSelect
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          onChange={(event, item) => {
+                            onChange(item)
+
+                            if (item.length) {
+                              const arr: {
+                                label: Category
+                                value: Category
+                              }[] = []
+
+                              item.map(value => {
+                                /* @ts-ignore */
+                                const res = CategoryListPair[value.value]
+                                arr.push(...res)
+                              })
+
+                              setCategoryList(arr)
+                              trigger('category')
+                            } else {
+                              setCategoryList(CategoryList)
+                              trigger('category')
+                            }
+                          }}
+                          value={value}
+                          options={serviceTypeList}
+                          id='ServiceType'
+                          limitTags={1}
+                          getOptionLabel={option => option.label || ''}
+                          renderInput={params => (
+                            <TextField {...params} label='Service type' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Controller
+                      control={control}
+                      name='requestDate'
+                      render={({ field: { onChange, value } }) => (
+                        <DatePicker
+                          selectsRange
+                          autoComplete='off'
+                          monthsShown={2}
+                          endDate={value[1]}
+                          selected={value[0]}
+                          startDate={value[0]}
+                          // shouldCloseOnSelect={false}
+                          id='date-range-picker-months'
+                          onChange={onChange}
+                          popperPlacement={popperPlacement}
+                          customInput={
+                            <Box>
+                              <CustomInput
+                                label='Request date'
+                                icon='calendar'
+                                value={
+                                  value.length > 0
+                                    ? dateValue(value[0], value[1])
+                                    : ''
+                                }
+                              />
+                            </Box>
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Controller
+                      control={control}
+                      name='desiredDueDate'
+                      render={({ field: { onChange, value } }) => (
+                        <DatePicker
+                          selectsRange
+                          autoComplete='off'
+                          monthsShown={2}
+                          endDate={value[1]}
+                          selected={value[0]}
+                          startDate={value[0]}
+                          // shouldCloseOnSelect={false}
+                          id='date-range-picker-months'
+                          onChange={onChange}
+                          popperPlacement={popperPlacement}
+                          customInput={
+                            <Box>
+                              <CustomInput
+                                label='Desired due date'
+                                icon='calendar'
+                                value={
+                                  value.length > 0
+                                    ? dateValue(value[0], value[1])
+                                    : ''
+                                }
+                              />
+                            </Box>
+                          }
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6} md={6}>
+                    <FormControl fullWidth>
+                      <Controller
+                        control={control}
+                        name='search'
+                        render={({ field: { onChange, value } }) => (
+                          <>
+                            <InputLabel>Search Pros</InputLabel>
+                            <OutlinedInput
+                              label='Search Items'
+                              value={value}
+                              onChange={onChange}
+                              endAdornment={
+                                <InputAdornment position='end'>
+                                  <IconButton edge='end'>
+                                    <Icon icon='mdi:magnify' />
+                                  </IconButton>
+                                </InputAdornment>
+                              }
+                            />
+                          </>
+                        )}
+                      />
+                    </FormControl>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Box display='flex' justifyContent='flex-end' gap='15px'>
+                      <Button
+                        variant='outlined'
+                        size='medium'
+                        color='secondary'
+                        onClick={onReset}
+                      >
+                        Reset
+                      </Button>
+                      <Button variant='contained' size='medium' type='submit'>
+                        Search
+                      </Button>
+                    </Box>
+                  </Grid>
                 </Grid>
-              </Grid>
+              </form>
             </CardContent>
           </Collapse>
         </Card>

@@ -11,7 +11,6 @@ import {
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
   UseFormGetValues,
-  UseFormHandleSubmit,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -27,7 +26,7 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
-import TablePagination from '@mui/material/TablePagination'
+
 import {
   Autocomplete,
   Box,
@@ -42,8 +41,7 @@ import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 import { getUserInfo } from '@src/apis/user.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { useState } from 'react'
-import { getCurrentRole } from '@src/shared/auth/storage'
+import { useEffect, useState } from 'react'
 
 type Props = {
   control: Control<ProjectTeamType, any>
@@ -60,6 +58,7 @@ type Props = {
     label: string
     jobTitle: string | undefined
   }>
+  getValue: UseFormGetValues<ProjectTeamType>
 }
 export default function ProjectTeamForm({
   control,
@@ -72,6 +71,7 @@ export default function ProjectTeamForm({
   isValid,
   watch,
   memberList,
+  getValue,
 }: Props) {
   const [list, setList] = useState<
     Array<{
@@ -80,9 +80,41 @@ export default function ProjectTeamForm({
       jobTitle: string | undefined
     }>
   >(memberList)
+
   const setValueOptions = { shouldValidate: true, shouldDirty: true }
 
-  const currentRole = getCurrentRole()
+  const [focusField, setFocusField] = useState<
+    { idx: number; isFocus: boolean }[]
+  >([
+    {
+      idx: 0,
+      isFocus: false,
+    },
+  ])
+
+  const handleFocusChange = (idx: number, isFocus: boolean) => {
+    setFocusField(prevFocusField => {
+      const newFocusField = [...prevFocusField]
+      const targetField = newFocusField.find(field => field.idx === idx)
+      if (targetField) {
+        targetField.isFocus = isFocus
+      }
+      return newFocusField
+    })
+  }
+
+  useEffect(() => {
+    setFocusField(
+      field.map((value, idx) => {
+        return {
+          idx: idx,
+          isFocus: false,
+        }
+      }),
+    )
+  }, [field])
+
+  console.log(focusField)
 
   function renderHeader(title: string) {
     return (
@@ -93,6 +125,8 @@ export default function ProjectTeamForm({
   }
 
   function findMemberValue(value: number | null) {
+    console.log(value)
+
     let findValue = list.find(item => item.value === value?.toString())
     if (!findValue && value) {
       getUserInfo(value!)
@@ -121,26 +155,45 @@ export default function ProjectTeamForm({
       <Controller
         name={name}
         control={control}
-        render={({ field }) => {
+        render={({ field: { onChange, value } }) => {
           return (
             <Autocomplete
               autoHighlight
               fullWidth
+              isOptionEqualToValue={(option, newValue) => {
+                return option.value === newValue.value
+              }}
               {...field}
               options={list.map(item => ({
                 value: item.value,
                 label: item.label,
               }))}
               onChange={(e, v) => {
-                field.onChange(v.value)
-                setValue(`teams.${idx}.name`, v.label, setValueOptions)
+                if (v) {
+                  onChange(Number(v.value))
+                  setValue(`teams.${idx}.name`, v.label, setValueOptions)
+                } else {
+                  onChange(null)
+                  handleFocusChange(idx, false)
+                  const { name, ...rest } = getValue('teams')[idx]
+                  update(idx, rest)
+                  // setValue(`teams.${idx}.name`, '', setValueOptions)
+                }
               }}
-              disableClearable
-              value={findMemberValue(field.value)}
+              disableClearable={
+                getValue('teams')[idx].name === '' ||
+                !getValue('teams')[idx].name
+              }
+              value={findMemberValue(value)}
+              onClickCapture={() => handleFocusChange(idx, true)}
+              onClose={() => handleFocusChange(idx, false)}
+              // onFocus={() => setFocusField(true)}
+              // onFocusCapture={() => setFocusField(true)}
               renderInput={params => (
                 <TextField
                   {...params}
-                  label='Member'
+                  // label='Member'
+                  placeholder={focusField[idx]?.isFocus ? '' : 'Member'}
                   inputProps={{
                     ...params.inputProps,
                   }}
@@ -196,7 +249,7 @@ export default function ProjectTeamForm({
         </TableHead>
         <TableBody>
           {field.map((item, idx) => (
-            <TableRow hover role='checkbox' tabIndex={-1} key={item.id}>
+            <TableRow role='checkbox' tabIndex={-1} key={item.id}>
               <TableCell align='left'>
                 <Typography fontWeight='bold'>
                   {item.type === 'supervisorId'

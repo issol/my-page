@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import {
@@ -17,7 +17,17 @@ export const getProjectTeamColumns = (role?: string) => {
       disableColumnMenu: true,
       renderHeader: () => <Box>Position</Box>,
       renderCell: ({ row }: ProjectTeamCellType) => {
-        return <Box>{row.position}</Box>
+        return (
+          <Typography variant='body1' fontWeight={600}>
+            {row.position === 'projectManager'
+              ? 'Project Manager'
+              : row.position === 'supervisor'
+              ? 'Supervisor'
+              : row.position === 'teamMember'
+              ? 'Team member'
+              : ''}
+          </Typography>
+        )
       },
     },
     {
@@ -79,7 +89,17 @@ export const getProjectTeamColumns = (role?: string) => {
       disableColumnMenu: true,
       renderHeader: () => <Box>Position</Box>,
       renderCell: ({ row }: ProjectTeamCellType) => {
-        return <Box>{row.position}</Box>
+        return (
+          <Typography variant='body1' fontWeight={600}>
+            {row.position === 'projectManager'
+              ? 'Project Manager'
+              : row.position === 'supervisor'
+              ? 'Supervisor'
+              : row.position === 'teamMember'
+              ? 'Team member'
+              : ''}
+          </Typography>
+        )
       },
     },
     {

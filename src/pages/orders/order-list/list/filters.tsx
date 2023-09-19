@@ -1,11 +1,5 @@
 // ** React imports
-import {
-  Dispatch,
-  SetStateAction,
-  forwardRef,
-  useEffect,
-  useState,
-} from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 
 // ** MUI Imports
 import FormControl from '@mui/material/FormControl'
@@ -19,7 +13,6 @@ import {
   Card,
   CardHeader,
   Checkbox,
-  FormHelperText,
   Grid,
   IconButton,
   InputAdornment,
@@ -33,11 +26,7 @@ import Icon from 'src/@core/components/icon'
 import format from 'date-fns/format'
 import addDays from 'date-fns/addDays'
 import { FilterType } from '..'
-import { ClientStatus, WorkStatus } from '@src/shared/const/status/statuses'
-import {
-  ClientInvoiceFilterType,
-  ClientProjectFilterType,
-} from '@src/types/client/client-projects.type'
+
 import {
   Control,
   UseFormHandleSubmit,
@@ -65,6 +54,7 @@ import { QuotesFilterType } from '@src/types/quotes/quote'
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import { UserRoleType } from '@src/context/types'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
+import dayjs from 'dayjs'
 
 type Props = {
   filter: OrderListFilterType
@@ -94,6 +84,7 @@ type Props = {
     label: string
     value: number
   }[]
+  companiesList?: Array<{ value: string; label: string }>
   setCategoryList: Dispatch<
     SetStateAction<
       {
@@ -119,6 +110,7 @@ export default function OrdersFilters({
   categoryList,
   setCategoryList,
   clientList,
+  companiesList,
   statusList,
   role,
 }: Props) {
@@ -127,6 +119,14 @@ export default function OrdersFilters({
   const [collapsed, setCollapsed] = useState<boolean>(true)
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
+
+  const dateValue = (startDate: Date, endDate: Date) => {
+    return startDate.toDateString() === endDate?.toDateString()
+      ? dayjs(startDate).format('MM/DD/YYYY')
+      : `${dayjs(startDate).format('MM/DD/YYYY')}${
+          endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
+        }`
+  }
 
   return (
     <DatePickerWrapper>
@@ -191,40 +191,78 @@ export default function OrdersFilters({
                     />
                   </Grid>
                   <Grid item xs={3}>
-                    <Controller
-                      control={control}
-                      name={role.name === 'CLIENT' ? 'lsp' : 'client'}
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          multiple
-                          fullWidth
-                          onChange={(event, item) => {
-                            onChange(item)
-                          }}
-                          value={value}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          disableCloseOnSelect
-                          limitTags={1}
-                          options={clientList}
-                          id='client'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              label={role.name === 'CLIENT' ? 'LSP' : 'Client'}
-                            />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      )}
-                    />
+                    {role.name !== 'CLIENT' ? (
+                      <Controller
+                        control={control}
+                        name='client'
+                        render={({ field: { onChange, value } }) => (
+                          <Autocomplete
+                            multiple
+                            fullWidth
+                            onChange={(event, item) => {
+                              onChange(item)
+                            }}
+                            value={value}
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.value === newValue.value
+                            }}
+                            disableCloseOnSelect
+                            limitTags={1}
+                            options={clientList}
+                            id='client'
+                            getOptionLabel={option => option.label}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                label='Client'
+                              />
+                            )}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                {option.label}
+                              </li>
+                            )}
+                          />
+                        )}
+                      />
+                    ) : (
+                      <Controller
+                        control={control}
+                        name='lsp'
+                        render={({ field: { onChange, value } }) => (
+                          <Autocomplete
+                            multiple
+                            fullWidth
+                            onChange={(event, item) => {
+                              onChange(item)
+                            }}
+                            value={value}
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.value === newValue.value
+                            }}
+                            disableCloseOnSelect
+                            limitTags={1}
+                            options={companiesList || []}
+                            id='lsp'
+                            getOptionLabel={option => option.label}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                label='LSP'
+                              />
+                            )}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                {option.label}
+                              </li>
+                            )}
+                          />
+                        )}
+                      />
+                    )}
+                    
                   </Grid>
                   <Grid item xs={3}>
                     <Controller
@@ -346,7 +384,17 @@ export default function OrdersFilters({
                             onChange={onChange}
                             popperPlacement={popperPlacement}
                             customInput={
-                              <CustomInput label='Order date' icon='calendar' />
+                              <Box>
+                                <CustomInput
+                                  label='Order date'
+                                  icon='calendar'
+                                  value={
+                                    value.length > 0
+                                      ? dateValue(value[0], value[1])
+                                      : ''
+                                  }
+                                />
+                              </Box>
                             }
                           />
                         </Box>
@@ -371,10 +419,17 @@ export default function OrdersFilters({
                             onChange={onChange}
                             popperPlacement={popperPlacement}
                             customInput={
-                              <CustomInput
-                                label='Project due date'
-                                icon='calendar'
-                              />
+                              <Box>
+                                <CustomInput
+                                  label='Project due date'
+                                  icon='calendar'
+                                  value={
+                                    value.length > 0
+                                      ? dateValue(value[0], value[1])
+                                      : ''
+                                  }
+                                />
+                              </Box>
                             }
                           />
                         </Box>
@@ -399,7 +454,13 @@ export default function OrdersFilters({
                             }}
                             disableCloseOnSelect
                             limitTags={1}
-                            options={RevenueFrom}
+                            options={RevenueFrom.sort((a, b) =>
+                              a.value > b.value
+                                ? 1
+                                : b.value > a.value
+                                ? -1
+                                : 0,
+                            )}
                             id='revenueFrom'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
@@ -426,14 +487,12 @@ export default function OrdersFilters({
                           <>
                             <InputLabel>Search projects</InputLabel>
                             <OutlinedInput
-                              label='Search invoice name'
+                              label='Search projects'
                               value={value}
                               onChange={onChange}
                               endAdornment={
                                 <InputAdornment position='end'>
-                                  <IconButton edge='end'>
-                                    <Icon icon='mdi:magnify' />
-                                  </IconButton>
+                                  <Icon icon='mdi:magnify' />
                                 </InputAdornment>
                               }
                             />

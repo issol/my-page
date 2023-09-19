@@ -1,5 +1,5 @@
 // ** React Imports
-import { Suspense, useContext, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -18,7 +18,10 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 import { Typography } from '@mui/material'
 
 import { OrderListCalendarEventType } from '@src/apis/order-list.api'
-import { OrderListType } from '@src/types/orders/order-list'
+import {
+  OrderListFilterType,
+  OrderListType,
+} from '@src/types/orders/order-list'
 import { useGetOrderListCalendar } from '@src/queries/order/order.query'
 import OrdersList from '../list/list'
 import { useRouter } from 'next/router'
@@ -31,12 +34,18 @@ import { CalendarEventType } from '@src/types/common/calendar.type'
 import Calendar from './order-list-calendar-view'
 import { OrderStatusType } from '@src/types/common/orders.type'
 import { getOrderStatusColor } from '@src/shared/helpers/colors.helper'
+import { hide } from '@popperjs/core'
+
+const defaultFilters: OrderListFilterType = {
+  hideCompleted: '0',
+  mine: '0',
+}
 
 const OrderListCalendar = () => {
   // ** States
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
-  const [hideFilter, setHideFilter] = useState(false)
+  const [hideCompletedOrders, setHideCompletedOrders] = useState(false)
   const [seeMyOrders, setSeeMyOrders] = useState(false)
+
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
   const currentRole = getCurrentRole()
@@ -52,7 +61,10 @@ const OrderListCalendar = () => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, isLoading } = useGetOrderListCalendar(year, month, {})
+  const { data, isLoading } = useGetOrderListCalendar(year, month, {
+    hideCompleted: hideCompletedOrders ? '1' : '0',
+    mine: seeMyOrders ? '1' : '0',
+  })
   const [event, setEvent] = useState<Array<CalendarEventType<OrderListType>>>(
     [],
   )
@@ -70,51 +82,58 @@ const OrderListCalendar = () => {
     router.push(`/orders/order-list/detail/${row.id}`)
   }
 
-  useEffect(() => {
-    if (currentListId && data?.data) {
-      setCurrentList(data?.data.filter(item => item.id === currentListId))
-    }
-  }, [currentListId])
+  const handleHideCompletedOrders = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setHideCompletedOrders(event.target.checked)
+  }
+
+  const handleSeeMyOrders = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSeeMyOrders(event.target.checked)
+  }
 
   useEffect(() => {
-    if (data?.data?.length) {
+    if (currentListId && data?.data?.length) {
+      setCurrentList(data?.data.filter(item => item.id === currentListId))
+    }
+  }, [currentListId, data])
+
+  useEffect(() => {
+    if (data?.data?.length && !isLoading) {
       setEvent([...data.data])
     } else {
       setEvent([])
     }
-  }, [data])
+  }, [data, isLoading])
 
-  useEffect(() => {
-    if (data?.data.length && hideFilter) {
-      setEvent(
-        data.data.filter(
-          item =>
-            item.status !== 10700 &&
-            item.status !== 101200 &&
-            item.status !== 101000 &&
-            item.status !== 101100,
-        ),
-      )
-    } else if (data?.data.length && !hideFilter) {
-      setEvent([...data.data])
-    }
-  }, [data, hideFilter])
-
-  const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
+  // useEffect(() => {
+  //   if (data?.data.length && hideCompletedOrders) {
+  //     setEvent(
+  //       data.data.filter(
+  //         item =>
+  //           item.status !== 10700 &&
+  //           item.status !== 101200 &&
+  //           item.status !== 101000 &&
+  //           item.status !== 101100,
+  //       ),
+  //     )
+  //   } else if (data?.data.length && !hideCompletedOrders) {
+  //     setEvent([...data.data])
+  //   }
+  // }, [data, hideCompletedOrders])
 
   useEffect(() => {
     if (statusList) {
       const res = statusList.map(value => ({
         ...value,
-        color: getOrderStatusColor(value.value as OrderStatusType),
+        color: getOrderStatusColor(
+          value.value as OrderStatusType,
+          value.label as OrderStatusType,
+        ),
       }))
       setStatuses(res)
     }
   }, [statusList])
-
-  useEffect(() => {
-    // console.log(event)
-  }, [event])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -167,16 +186,13 @@ const OrderListCalendar = () => {
           >
             <Box display='flex' alignItems='center' gap='8px'>
               <Typography>See only my orders</Typography>
-              <Switch
-                checked={hideFilter}
-                onChange={e => setHideFilter(e.target.checked)}
-              />
+              <Switch checked={seeMyOrders} onChange={handleSeeMyOrders} />
             </Box>
             <Box display='flex' alignItems='center' gap='8px'>
               <Typography>Hide completed orders</Typography>
               <Switch
-                checked={seeMyOrders}
-                onChange={e => setSeeMyOrders(e.target.checked)}
+                checked={hideCompletedOrders}
+                onChange={handleHideCompletedOrders}
               />
             </Box>
           </Box>

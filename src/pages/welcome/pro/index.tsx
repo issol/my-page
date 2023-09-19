@@ -63,8 +63,8 @@ import { FormErrors } from 'src/shared/const/formErrors'
 import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import { Pronunciation } from 'src/shared/const/pronunciation'
 import { AreaOfExpertiseList } from 'src/shared/const/area-of-expertise/area-of-expertise'
-import { JobList } from 'src/shared/const/job/jobs'
-import { ProRolePair } from 'src/shared/const/role/roles'
+import { JobList, ProJobPair } from 'src/shared/const/job/jobs'
+import { ProRolePair, RoleList } from 'src/shared/const/role/roles'
 
 import { getProfileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
@@ -90,6 +90,7 @@ import ClientBillingAddressesForm from '@src/pages/client/components/forms/clien
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import useAuth from '@src/hooks/useAuth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -151,6 +152,7 @@ const PersonalInfoPro = () => {
 
   // ** Hooks
   const auth = useRecoilValueLoadable(authState)
+  const setAuth = useAuth()
 
   // ** State
   const [files, setFiles] = useState<File[]>([])
@@ -253,14 +255,15 @@ const PersonalInfoPro = () => {
       updateConsumerUserInfo(data),
     {
       onSuccess: () => {
-        getUserInfo(auth.getValue().user?.id!).then(res => {
-          /* @ts-ignore */
-          auth.updateUserInfo({
-            userId: auth.getValue().user!.id,
-            email: auth.getValue().user!.email,
-          })
-          router.push('/home')
+        const { userId, email, accessToken } = router.query
+        const accessTokenAsString: string = accessToken as string
+        setAuth.updateUserInfo({
+          userId: auth.getValue().user!.id,
+          email: auth.getValue().user!.email,
+          accessToken: accessTokenAsString,
         })
+  
+        router.push('/home')
       },
       onError: () => {
         setModal(
@@ -903,44 +906,69 @@ const PersonalInfoPro = () => {
                             <Controller
                               name={`jobInfo.${idx}.jobType`}
                               control={control}
+                              // render={({ field }) => (
+                              //   <>
+                              //     <InputLabel
+                              //       id='jobType'
+                              //       error={
+                              //         errors.jobInfo?.length
+                              //           ? !!errors.jobInfo[idx]?.jobType
+                              //           : false
+                              //       }
+                              //     >
+                              //       Job type*
+                              //     </InputLabel>
+                              //     <Select
+                              //       label='Job type*'
+                              //       {...field}
+                              //       error={
+                              //         errors.jobInfo?.length
+                              //           ? !!errors.jobInfo[idx]?.jobType
+                              //           : false
+                              //       }
+                              //       value={item.jobType}
+                              //       placeholder='Job type *'
+                              //       onChange={e =>
+                              //         onChangeJobInfo(
+                              //           item.id,
+                              //           e.target.value,
+                              //           'jobType',
+                              //         )
+                              //       }
+                              //     >
+                              //       {JobList.map((item, idx) => (
+                              //         <MenuItem value={item.value} key={idx}>
+                              //           {item.label}
+                              //         </MenuItem>
+                              //       ))}
+                              //     </Select>
+                              //   </>
+                              // )
                               render={({ field }) => (
-                                <>
-                                  <InputLabel
-                                    id='jobType'
-                                    error={
-                                      errors.jobInfo?.length
-                                        ? !!errors.jobInfo[idx]?.jobType
-                                        : false
-                                    }
-                                  >
-                                    Job type*
-                                  </InputLabel>
-                                  <Select
-                                    label='Job type*'
-                                    {...field}
-                                    error={
-                                      errors.jobInfo?.length
-                                        ? !!errors.jobInfo[idx]?.jobType
-                                        : false
-                                    }
-                                    value={item.jobType}
-                                    placeholder='Job type *'
-                                    onChange={e =>
-                                      onChangeJobInfo(
-                                        item.id,
-                                        e.target.value,
-                                        'jobType',
-                                      )
-                                    }
-                                  >
-                                    {JobList.map((item, idx) => (
-                                      <MenuItem value={item.value} key={idx}>
-                                        {item.label}
-                                      </MenuItem>
-                                    ))}
-                                  </Select>
-                                </>
-                              )}
+                                <Autocomplete
+                                  fullWidth
+                                  options={
+                                    item.role && item.role !== '' 
+                                    /* @ts-ignore */
+                                    ? ProJobPair[item.role] 
+                                    : JobList
+                                  }
+                                  getOptionLabel={(option) => option.label}
+                                  value={{label: item.jobType, value: item.jobType}}
+                                  onChange={(e, newValue) =>
+                                    onChangeJobInfo(item.id, newValue?.value ?? '', 'jobType')
+                                  }
+                                  renderInput={(params) => (
+                                    <TextField
+                                      {...params}
+                                      label="Job type*"
+                                      placeholder="Job type *"
+                                      error={errors.jobInfo?.length ? !!errors.jobInfo[idx]?.jobType : false}
+                                    />
+                                  )}
+                                />
+                              )
+                            }
                             />
                             {errors.jobInfo?.length
                               ? errors.jobInfo[idx]?.jobType && (
@@ -955,48 +983,69 @@ const PersonalInfoPro = () => {
                               name={`jobInfo.${idx}.role`}
                               control={control}
                               render={({ field }) => (
-                                <>
-                                  <InputLabel
-                                    id='role'
-                                    error={
-                                      errors.jobInfo?.length
-                                        ? !!errors.jobInfo[idx]?.role
-                                        : false
-                                    }
-                                  >
-                                    Role*
-                                  </InputLabel>
-                                  <Select
-                                    label='Role*'
-                                    {...field}
-                                    error={
-                                      errors.jobInfo?.length
-                                        ? !!errors.jobInfo[idx]?.role
-                                        : false
-                                    }
-                                    value={item.role}
-                                    placeholder='Role *'
-                                    onChange={e =>
-                                      onChangeJobInfo(
-                                        item.id,
-                                        e.target.value,
-                                        'role',
-                                      )
-                                    }
-                                  >
-                                    {/* @ts-ignore */}
-                                    {ProRolePair[item.jobType]?.map(
-                                      (item: any, idx: number) => (
-                                        <MenuItem value={item.value} key={idx}>
-                                          {item.label}
-                                        </MenuItem>
-                                      ),
-                                    )}
-                                  </Select>
-                                </>
+                                <Autocomplete
+                                  fullWidth
+                                  options={
+                                    item.jobType && item.jobType !== '' 
+                                    /* @ts-ignore */
+                                    ? ProRolePair[item.jobType] 
+                                    : RoleList
+                                  }
+                                  getOptionLabel={(option) => option.label}
+                                  value={{label: item.role, value: item.role}}
+                                  onChange={(e, newValue) =>
+                                    onChangeJobInfo(item.id, newValue?.value ?? '', 'role')
+                                  }
+                                  renderInput={(params) => (
+                                    <TextField
+                                      {...params}
+                                      label="Role*"
+                                      placeholder="Role *"
+                                      error={errors.jobInfo?.length ? !!errors.jobInfo[idx]?.role : false}
+                                    />
+                                  )}
+                                />
+                                // <>
+                                //   <InputLabel
+                                //     id='role'
+                                //     error={
+                                //       errors.jobInfo?.length
+                                //         ? !!errors.jobInfo[idx]?.role
+                                //         : false
+                                //     }
+                                //   >
+                                //     Role*
+                                //   </InputLabel>
+                                //   <Select
+                                //     label='Role*'
+                                //     {...field}
+                                //     error={
+                                //       errors.jobInfo?.length
+                                //         ? !!errors.jobInfo[idx]?.role
+                                //         : false
+                                //     }
+                                //     value={item.role}
+                                //     placeholder='Role *'
+                                //     onChange={e =>
+                                //       onChangeJobInfo(
+                                //         item.id,
+                                //         e.target.value,
+                                //         'role',
+                                //       )
+                                //     }
+                                //   >
+                                //     {/* @ts-ignore */}
+                                //     {ProRolePair[item.jobType]?.map(
+                                //       (item: any, idx: number) => (
+                                //         <MenuItem value={item.value} key={idx}>
+                                //           {item.label}
+                                //         </MenuItem>
+                                //       ),
+                                //     )}
+                                //   </Select>
+                                // </>
                               )}
                             />
-
                             {errors.jobInfo?.length
                               ? errors.jobInfo[idx]?.role && (
                                   <FormHelperText sx={{ color: 'error.main' }}>
@@ -1158,28 +1207,46 @@ const PersonalInfoPro = () => {
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange, onBlur } }) => (
-                          <>
-                            <InputLabel
-                              id='experience'
-                              error={Boolean(errors.experience)}
-                            >
-                              Years of experience*
-                            </InputLabel>
-                            <Select
-                              label='experience'
-                              value={value}
-                              error={Boolean(errors.experience)}
-                              placeholder='Years of experience*'
-                              onBlur={onBlur}
-                              onChange={onChange}
-                            >
-                              {ExperiencedYears.map((item, idx) => (
-                                <MenuItem value={item.value} key={idx}>
-                                  {item.label}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </>
+                          <Autocomplete
+                            fullWidth
+                            options={ExperiencedYears}
+                            getOptionLabel={(option) => option.label}
+                            value={{label: value, value: value}}
+                            onChange={(event, item) => {
+                              console.log("event",event,item)
+                              onChange(item ? item.value : '')
+                            }}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                label="Years of experience*"
+                                placeholder="Years of experience *"
+                                error={Boolean(errors.experience)}
+                              />
+                            )}
+                          />
+                          // <>
+                          //   <InputLabel
+                          //     id='experience'
+                          //     error={Boolean(errors.experience)}
+                          //   >
+                          //     Years of experience*
+                          //   </InputLabel>
+                          //   <Select
+                          //     label='experience'
+                          //     value={value}
+                          //     error={Boolean(errors.experience)}
+                          //     placeholder='Years of experience*'
+                          //     onBlur={onBlur}
+                          //     onChange={onChange}
+                          //   >
+                          //     {ExperiencedYears.map((item, idx) => (
+                          //       <MenuItem value={item.value} key={idx}>
+                          //         {item.label}
+                          //       </MenuItem>
+                          //     ))}
+                          //   </Select>
+                          // </>
                         )}
                       />
                       {errors.experience && (

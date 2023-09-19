@@ -138,6 +138,8 @@ const InvoiceProjectTeam = ({
           projectManagerId: teams.projectManagerId,
           supervisorId: teams.supervisorId!,
           members: teams.member,
+          taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
+          showDescription: data.showDescription ? '1' : '0',
         },
       })
     }
@@ -155,6 +157,7 @@ const InvoiceProjectTeam = ({
               remove={removeMember!}
               update={updateMember!}
               setValue={setTeamValues!}
+              getValue={getTeamValues!}
               errors={teamErrors!}
               isValid={isTeamValid!}
               watch={teamWatch!}

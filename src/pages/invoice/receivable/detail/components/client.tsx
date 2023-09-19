@@ -102,6 +102,8 @@ const InvoiceClient = ({
           form: {
             ...data,
             contactPersonId: clients.contactPersonId,
+            taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
+            showDescription: data.showDescription ? '1' : '0',
           },
         })
       }
@@ -116,10 +118,11 @@ const InvoiceClient = ({
             control={clientControl!}
             setValue={setClientValue!}
             watch={clientWatch!}
-            setTax={setTax!}
             setTaxable={setTaxable!}
             type='order'
             formType='edit'
+            getValue={getClientValue!}
+            fromQuote={false}
           />
           <Grid item xs={12}>
             <Box

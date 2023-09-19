@@ -3,9 +3,14 @@ import { useEffect, useState } from 'react'
 // ** mui
 import {
   Autocomplete,
+  Box,
   Divider,
+  FormControl,
   FormControlLabel,
   Grid,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Radio,
   RadioGroup,
   TextField,
@@ -16,6 +21,7 @@ import {
 import {
   Control,
   Controller,
+  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -39,10 +45,12 @@ type Props = {
   setValue: UseFormSetValue<ClientFormType>
   watch: UseFormWatch<ClientFormType>
   clientList: Array<{ value: number; label: string }>
-  setTax: (n: number) => void
+
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'create' | 'edit'
+  getValue: UseFormGetValues<ClientFormType>
+  fromQuote: boolean
 }
 
 export default function RegisterClientForm({
@@ -50,10 +58,12 @@ export default function RegisterClientForm({
   setValue,
   watch,
   clientList,
-  setTax,
+
   setTaxable,
   type,
   formType,
+  getValue,
+  fromQuote,
 }: Props) {
   const [clientDetail, setClientDetail] = useState<ClientDetailType | null>(
     null,
@@ -79,7 +89,7 @@ export default function RegisterClientForm({
   ])
 
   const clientId = watch('clientId')
-  const contracts = watch('contacts')
+  const contacts = watch('contacts')
 
   useEffect(() => {
     if (!clientId) return
@@ -108,7 +118,6 @@ export default function RegisterClientForm({
       contracts.fax = clientDetail?.fax
       contracts.email = clientDetail?.email
       if (clientDetail?.isTaxable && clientDetail?.tax) {
-        setTax(clientDetail.tax)
         setTaxable(clientDetail.isTaxable)
       }
     } else {
@@ -166,6 +175,8 @@ export default function RegisterClientForm({
       })
   }
 
+  console.log(contacts)
+
   function getPhoneNumber(
     code: string | undefined,
     phone: string | undefined | null,
@@ -205,16 +216,27 @@ export default function RegisterClientForm({
                 autoHighlight
                 fullWidth
                 options={clientList}
-                onChange={(e, v) => {
-                  onChange(v ? v.value : '')
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
                 }}
-                disableClearable
+                onChange={(e, v) => {
+                  if (v) {
+                    onChange(v.value)
+                  } else {
+                    onChange(null)
+                    setValue('contactPersonId', null, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
+                }}
                 disabled={
                   type === 'request' ||
                   (formType === 'edit' && type === 'order') ||
-                  type === 'invoice'
+                  type === 'invoice' ||
+                  (fromQuote && getValue('isEnrolledClient'))
                 }
-                // disabled
+                disableClearable={getValue('clientId') === null}
                 value={selectedClient || { value: -0, label: '' }}
                 renderInput={params => (
                   <TextField
@@ -245,15 +267,27 @@ export default function RegisterClientForm({
                 autoHighlight
                 fullWidth
                 options={personList}
-                onChange={(e, v) => {
-                  onChange(v.value)
-                  const res = contactPersonList.filter(
-                    item => item.id === Number(v.value),
-                  )
-                  setContactPerson(res.length ? res[0] : v)
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
                 }}
-                disableClearable
-                disabled={type === 'request'}
+                onChange={(e, v) => {
+                  if (v) {
+                    onChange(v.value)
+                    const res = contactPersonList.filter(
+                      item => item.id === Number(v.value),
+                    )
+                    setContactPerson(res.length ? res[0] : v)
+                  } else {
+                    onChange(null)
+                    setContactPerson(null)
+                  }
+                }}
+                disableClearable={getValue('contactPersonId') === null}
+                disabled={
+                  type === 'request' ||
+                  getValue('clientId') === null ||
+                  (fromQuote && getValue('isEnrolledClient'))
+                }
                 value={selectedPerson || { value: '', label: '' }}
                 renderInput={params => (
                   <TextField
@@ -278,55 +312,105 @@ export default function RegisterClientForm({
       <Grid item xs={6}>
         <TextField
           fullWidth
-          placeholder='Time zone'
+          label={contacts?.timezone ? 'Time zone' : null}
+          // label='Time zone'
+          // placeholder='Time zone'
           value={
-            !contracts?.timezone ? '-' : getGmtTime(contracts?.timezone?.code)
+            !contacts?.timezone ? null : getGmtTime(contacts?.timezone?.code)
           }
           disabled={true}
+          InputProps={{
+            startAdornment: (
+              <>
+                {contacts?.timezone ? null : (
+                  <Box sx={{ width: '100%' }}>Time zone</Box>
+                )}
+              </>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={6}>
         <TextField
           fullWidth
-          placeholder='Telephone'
+          label={contacts?.phone ? 'Telephone' : null}
+          // placeholder='Telephone'
+          // label='Telephone'
           value={
-            !contracts?.phone
-              ? '-'
-              : getPhoneNumber(contracts?.timezone?.phone, contracts?.phone)
+            !contacts?.phone
+              ? null
+              : getPhoneNumber(contacts?.timezone?.phone, contacts?.phone)
           }
           disabled={true}
+          InputProps={{
+            startAdornment: (
+              <>
+                {contacts?.phone ? null : (
+                  <Box sx={{ width: '100%' }}>Telephone</Box>
+                )}
+              </>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={6}>
         <TextField
           fullWidth
-          placeholder='Mobile phone'
+          label={contacts?.mobile ? 'Mobile phone' : null}
+          // placeholder='Mobile phone'
           value={
-            !contracts?.mobile
-              ? '-'
-              : getPhoneNumber(contracts?.timezone?.phone, contracts?.mobile)
+            !contacts?.mobile
+              ? null
+              : getPhoneNumber(contacts?.timezone?.phone, contacts?.mobile)
           }
           disabled={true}
+          InputProps={{
+            startAdornment: (
+              <>
+                {contacts?.mobile ? null : (
+                  <Box sx={{ width: '100%' }}>Mobile phone</Box>
+                )}
+              </>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={6}>
         <TextField
           fullWidth
-          placeholder='Fax'
+          label={contacts?.fax ? 'Fax' : null}
+          // placeholder='Fax'
           value={
-            !contracts?.fax
-              ? '-'
-              : getPhoneNumber(contracts?.timezone?.phone, contracts?.fax)
+            !contacts?.fax
+              ? null
+              : getPhoneNumber(contacts?.timezone?.phone, contacts?.fax)
           }
           disabled={true}
+          InputProps={{
+            startAdornment: (
+              <>
+                {contacts?.fax ? null : <Box sx={{ width: '100%' }}>Fax</Box>}
+              </>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={12}>
         <TextField
           fullWidth
-          placeholder='Email'
-          value={!contracts?.email ? '-' : contracts?.email}
+          // placeholder='Email'
+          label={contacts?.email ? 'Email' : null}
+          value={!contacts?.email ? null : contacts?.email}
           disabled={true}
+          InputProps={{
+            startAdornment: (
+              <>
+                {contacts?.email ? null : (
+                  <Box sx={{ width: '100%' }}>Email</Box>
+                )}
+              </>
+            ),
+          }}
         />
       </Grid>
       <Grid item xs={12}>
@@ -350,20 +434,30 @@ export default function RegisterClientForm({
                 control={<Radio />}
                 onChange={(e, v) => field.onChange('shipping')}
                 checked={field.value === 'shipping'}
-                label={`Shipping address ${getAddress(
-                  contracts?.addresses,
-                  'shipping',
-                )}`}
+                label={`Shipping address ${
+                  contacts?.addresses && contacts?.addresses.length > 0 ? (
+                    <Typography variant='body1' fontWeight={600}>
+                      {getAddress(contacts?.addresses, 'shipping')}
+                    </Typography>
+                  ) : (
+                    '-'
+                  )
+                }`}
               />
               <FormControlLabel
                 value='billing'
                 onChange={(e, v) => field.onChange('billing')}
                 checked={field.value === 'billing'}
                 control={<Radio />}
-                label={`Billing address ${getAddress(
-                  contracts?.addresses,
-                  'billing',
-                )}`}
+                label={`Billing address ${
+                  contacts?.addresses && contacts?.addresses.length > 0 ? (
+                    <Typography variant='body1' fontWeight={600}>
+                      {getAddress(contacts?.addresses, 'billing')}
+                    </Typography>
+                  ) : (
+                    '-'
+                  )
+                }`}
               />
             </RadioGroup>
           )}

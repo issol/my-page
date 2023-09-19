@@ -1,13 +1,19 @@
 // ** Config
 
 import authConfig from 'src/configs/auth'
-import { UserDataType, UserRoleType } from 'src/context/types'
+import { ClientUserType, UserDataType, UserRoleType } from 'src/context/types'
 
 /* session, local storage에 저장/삭제하는 로직을 여기서 관리 */
 
-export function removeAllStorage() {
+export function removeAllLocalStorage() {
   if (typeof window === 'object') {
     window.localStorage.clear()
+  }
+}
+
+export function removeAllSessionStorage() {
+  if (typeof window === 'object') {
+    window.sessionStorage.clear()
   }
 }
 
@@ -27,6 +33,25 @@ export function saveUserDataToBrowser(userData: UserDataType) {
 export function removeUserDataFromBrowser() {
   if (typeof window === 'object') {
     window.sessionStorage.removeItem(authConfig.userInfo)
+  }
+}
+
+/* CompanyData */
+export function getCompanyDataFromBrowser() {
+  if (typeof window === 'object') {
+    return window.sessionStorage.getItem(authConfig.companyInfo)
+  }
+}
+
+export function saveCompanyDataToBrowser(companyInfo: ClientUserType) {
+  if (typeof window === 'object') {
+    window.sessionStorage.setItem(authConfig.companyInfo, JSON.stringify(companyInfo))
+  }
+}
+
+export function removeCompanyDataFromBrowser() {
+  if (typeof window === 'object') {
+    window.sessionStorage.removeItem(authConfig.companyInfo)
   }
 }
 

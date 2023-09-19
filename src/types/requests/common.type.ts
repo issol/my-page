@@ -10,6 +10,7 @@ export type RequestStatusType =
 export type RequestFormType = {
   lspId: string
   contactPersonId: number
+  userId?: number | null
   items: RequestItemFormType[]
   sampleFiles: Array<{
     fileName: string

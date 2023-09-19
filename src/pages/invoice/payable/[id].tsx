@@ -247,7 +247,7 @@ export default function PayableDetail() {
         companyAddress:
           lang === 'EN'
             ? '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010'
-            : '서울특별시 강남구 영동대로 106길 11, 3층(삼성동, 현성빌딩)',
+            : '서울특별시 금천구 가산디지털1로 204, 903호 (가산 반도아이비밸리) 08502',
         corporationId: data.corporationId,
         invoicedAt: data.invoicedAt,
         payDueAt: data.payDueAt,
@@ -256,7 +256,7 @@ export default function PayableDetail() {
         paidDateTimezone: data.paidDateTimezone,
         pro: { ...data.pro },
         jobList: jobList?.data || [],
-        subTotal: data.subtotal,
+        subtotal: data.subtotal,
         tax: data.tax,
         totalPrice: data.totalPrice,
         taxRate: data.taxRate,

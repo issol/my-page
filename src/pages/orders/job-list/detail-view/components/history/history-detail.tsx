@@ -124,13 +124,16 @@ export default function HistoryDetail({
       itemReset({ items: result })
     } else {
       appendItems({
-        name: '',
+        itemName: '',
         source: 'en',
         target: 'ko',
         contactPersonId: 0,
         priceId: null,
         detail: [],
         totalPrice: 0,
+        minimumPrice: null,
+        minimumPriceApplied: false,
+        priceFactor: 0,
       })
     }
   }, [jobPrices])

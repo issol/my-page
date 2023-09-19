@@ -23,14 +23,14 @@ import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   items: JobItemType[]
-
   onClickUpload: (selected: any) => void
+  onClose: any
 }
 
 const ImportFromJob = ({
   items,
-
   onClickUpload,
+  onClose,
 }: Props) => {
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
   const [selectedJobs, setSelectedJobs] = useState<DeliveryFileType[]>([])
@@ -197,9 +197,10 @@ const ImportFromJob = ({
   return (
     <Box
       sx={{
-        maxWidth: '1266px',
+        // maxWidth: '1266px',
+        maxWidth: '1100px',
         width: '100%',
-        maxHeight: '900px',
+        maxHeight: '450px',
         height: '100%',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
@@ -225,7 +226,9 @@ const ImportFromJob = ({
           </Box>
         </Card>
         <Box sx={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-          <Button variant='outlined' color='secondary'>
+          <Button variant='outlined' color='secondary'
+            onClick={onClose}
+          >
             Cancel
           </Button>
           <Button

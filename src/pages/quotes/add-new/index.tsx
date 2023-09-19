@@ -109,7 +109,7 @@ export const defaultOption: StandardPriceListType & {
   catInterface: { memSource: [], memoQ: [] },
 }
 
-export default function AddNewQuotes() {
+export default function AddNewQuote() {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
 
@@ -243,7 +243,7 @@ export default function AddNewQuotes() {
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: { items: [] },
     resolver: yupResolver(itemSchema),
   })
@@ -397,7 +397,7 @@ export default function AddNewQuotes() {
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      name: '',
+      itemName: '',
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
@@ -405,7 +405,9 @@ export default function AddNewQuotes() {
       detail: [],
       totalPrice: 0,
       showItemDescription: false,
-      minimumPrice: 0,
+      minimumPrice: null,
+      minimumPriceApplied: false,
+      priceFactor: 0,
     })
   }
 
@@ -435,24 +437,26 @@ export default function AddNewQuotes() {
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
-    const subTotal = getItem().items.reduce(
-      (acc, item) => acc + item.totalPrice,
-      0,
-    )
+    // const subtotal = getItem().items.reduce(
+    //   (acc, item) => acc + item.totalPrice,
+    //   0,
+    // )
     const projectInfo = {
       ...rawProjectInfo,
       tax: !rawProjectInfo.isTaxable ? null : tax,
-      subtotal: subTotal,
+      subtotal: subPrice,
     }
 
     const items: Array<PostItemType> = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, ...filterItem } = item;
+      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
       return {
         ...filterItem,
         contactPersonId: item.contactPerson?.id!,
         description: item.description || '',
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
+        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+        name: item.itemName,
       }
     })
 
@@ -535,7 +539,7 @@ export default function AddNewQuotes() {
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
     shouldWarn: isWarn,
-    toUrl: '/quotes',
+    toUrl: '/quotes/quote-list',
   })
 
   const [subPrice, setSubPrice] = useState(0)
@@ -587,6 +591,7 @@ export default function AddNewQuotes() {
                 errors={teamErrors}
                 isValid={isTeamValid}
                 watch={teamWatch}
+                getValue={getTeamValues}
               />
               <Grid item xs={12} display='flex' justifyContent='flex-end'>
                 <Button
@@ -606,10 +611,11 @@ export default function AddNewQuotes() {
                 control={clientControl}
                 setValue={setClientValue}
                 watch={clientWatch}
-                setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'quotes'}
                 formType='create'
+                getValue={getClientValue}
+                fromQuote={false}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -822,7 +828,7 @@ export default function AddNewQuotes() {
   )
 }
 
-AddNewQuotes.acl = {
+AddNewQuote.acl = {
   subject: 'quote',
   action: 'create',
 }

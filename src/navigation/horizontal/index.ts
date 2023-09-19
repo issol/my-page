@@ -145,7 +145,7 @@ const navigation = (): HorizontalNavItemsType => {
         {
           title: 'Standard Prices',
           path: `/company/price`,
-          action: 'read',
+          action: 'create',
           icon: 'solar:dollar-minimalistic-bold',
           subject: 'company_price',
         },
@@ -187,7 +187,7 @@ const navigation = (): HorizontalNavItemsType => {
         },
         {
           title: 'Quote List',
-          path: `/quotes`,
+          path: `/quotes/quote-list`,
           action: 'read',
           icon: 'material-symbols:request-quote-outline',
           subject: 'quote',

@@ -10,9 +10,9 @@ import { StyledNextLink } from '@src/@core/components/customLink'
 import PageHeader from '@src/@core/components/page-header'
 
 // ** components
-import CalendarContainer from './calendar'
-import QuotesFilters from './list/filters'
-import QuotesList from './list/list'
+import CalendarContainer from '../calendar'
+import QuotesFilters from './filters'
+import QuotesList from './list'
 
 // ** hooks
 import { useForm } from 'react-hook-form'
@@ -126,10 +126,11 @@ export default function Quotes({ id, user }: Props) {
       ? useGetCompanyOptions('LSP')
       : { data: [], isLoading: false }
 
-  const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
-    defaultValues,
-    mode: 'onSubmit',
-  })
+  const { control, handleSubmit, trigger, reset, watch, getValues } =
+    useForm<FilterType>({
+      defaultValues,
+      mode: 'onSubmit',
+    })
 
   const onClickResetButton = () => {
     reset({
@@ -183,16 +184,18 @@ export default function Quotes({ id, user }: Props) {
     } = data
 
     const filter: QuotesFilterType = {
-      quoteDate: quoteDate.map(value => value),
-      quoteDeadline: quoteDeadline?.map(value => value),
-      quoteExpiryDate: quoteExpiryDate?.map(value => value),
+      quoteDate: quoteDate.map(value => value.toISOString()),
+      quoteDeadline: quoteDeadline?.map(value => value.toISOString()),
+      quoteExpiryDate: quoteExpiryDate?.map(value => value.toISOString()),
       status: status.map(value => value.value),
       // client: client?.map(value => value.label),
       clientId: client?.map(value => value.value),
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
-      estimatedDeliveryDate: estimatedDeliveryDate?.map(value => value),
-      projectDueDate: projectDueDate?.map(value => value),
+      estimatedDeliveryDate: estimatedDeliveryDate?.map(value =>
+        value.toISOString(),
+      ),
+      projectDueDate: projectDueDate?.map(value => value.toISOString()),
       lsp: lsp?.map(value => value.label),
       search: search,
       take: quoteListPageSize,
@@ -201,6 +204,9 @@ export default function Quotes({ id, user }: Props) {
 
     setFilters(filter)
   }
+
+  console.log(getValues())
+
   useEffect(() => {
     if (clients && !clientListLoading) {
       const res = clients.data.map(client => ({
@@ -213,7 +219,7 @@ export default function Quotes({ id, user }: Props) {
 
   useEffect(() => {
     if (currentRole?.name === 'CLIENT') {
-      if (companies && !clientListLoading) {
+      if (companies && !companiesListLoading) {
         const res = companies.map(company => ({
           label: company.name,
           value: company.id,
@@ -221,7 +227,7 @@ export default function Quotes({ id, user }: Props) {
         setCompaniesList(res)
       }
     }
-  }, [companies, clientListLoading])
+  }, [companies, companiesListLoading])
 
   return (
     <Box display='flex' flexDirection='column'>
@@ -324,6 +330,7 @@ export default function Quotes({ id, user }: Props) {
                   filter={filters}
                   setFilter={setFilters}
                   role={currentRole!}
+                  type='list'
                 />
               </Card>
             </Grid>

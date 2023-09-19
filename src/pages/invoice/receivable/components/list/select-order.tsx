@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
+import { ChangeEventHandler, useEffect, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -64,6 +64,10 @@ export default function OrderList({ onClose, type = 'order' }: Props) {
     useState<OrderListFilterType>(initialFilter)
 
   const { data: orderList, isLoading } = useGetOrderList(activeFilter, type)
+
+  const onChangeSearch = (event: any) => {
+    setFilter({ ...filter, search: event.target.value as string })
+  }
 
   function onSearch() {
     setActiveFilter({
@@ -201,11 +205,12 @@ export default function OrderList({ onClose, type = 'order' }: Props) {
       </Grid>
       <Grid item xs={12}>
         <FormControl fullWidth>
-          <InputLabel>Search projects</InputLabel>
+          {/* <InputLabel>Search projects</InputLabel> */}
           <OutlinedInput
-            label='Search projects'
+            // label='Search projects'
+            placeholder='Search projects'
             value={filter.search}
-            onChange={e => setFilter({ ...filter, search: e.target.value })}
+            onChange={onChangeSearch}
             endAdornment={
               <InputAdornment position='end'>
                 <IconButton edge='end'>
@@ -269,7 +274,7 @@ export default function OrderList({ onClose, type = 'order' }: Props) {
             }}
             columns={columns}
             rows={orderList?.data ?? []}
-            rowCount={orderList?.count ?? 0}
+            rowCount={orderList?.totalCount ?? 0}
             loading={isLoading}
             onCellClick={params => setSelected(params.row)}
             rowsPerPageOptions={[10, 25, 50]}

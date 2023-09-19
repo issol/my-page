@@ -195,6 +195,7 @@ export const getClient = async (id: number): Promise<ClientType> => {
       },
       contactPerson: null,
       clientAddress: [],
+      isEnrolledClient: false,
     }
   }
 }
@@ -209,10 +210,11 @@ export const getLangItems = async (
       items: data.items.map((item: ItemResType) => ({
         ...item,
         name: item?.name,
+        itemName: item?.name,
         source: item?.sourceLanguage,
         target: item?.targetLanguage,
         totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-        initialPrice: item.initialPrice
+        initialPrice: item.initialPrice,
       })),
     }
   } catch (e: any) {
@@ -269,7 +271,8 @@ export const patchQuoteProjectInfo = async (
     | { downloadedAt: string }
     | { isConfirmed: boolean },
 ) => {
-  await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
+  const { data } = await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
+  return data
 }
 
 export const patchQuoteLanguagePairs = async (
@@ -296,6 +299,15 @@ export const patchQuoteItems = async (
       `/api/enough/u/quote/item?quoteId=${id}`,
       { items: form },
     )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const confirmQuote = async (id: number) => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/quote/${id}/confirm`)
     return data
   } catch (e: any) {
     throw new Error(e)

@@ -26,7 +26,7 @@ type OrderListCellType = {
 }
 
 type Props = {
-  pageSize?: number
+  page?: number
   rowsPerPage?: number
   setPageSize?: Dispatch<SetStateAction<number>>
   setRowsPerPage?: Dispatch<SetStateAction<number>>
@@ -41,7 +41,7 @@ type Props = {
 }
 
 export default function OrdersList({
-  pageSize,
+  page,
   rowsPerPage,
   setRowsPerPage,
   setPageSize,
@@ -93,7 +93,7 @@ export default function OrdersList({
           <OrderStatusChip
             size='small'
             status={row?.status}
-            label={statusList?.find(i => i.value === row?.status)?.label || ''}
+            label={row?.status}
           />
         )
       },
@@ -112,8 +112,8 @@ export default function OrdersList({
       renderCell: ({ row }: OrderListCellType) => {
         return (
           <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>{row?.client.name}</Typography>
-            <Typography variant='body2'>{row?.client.email}</Typography>
+            <Typography fontWeight='bold'>{role.name === 'CLIENT' ? row?.lsp?.name : row?.client.name}</Typography>
+            <Typography variant='body2'>{role.name === 'CLIENT' ? row?.lsp?.email : row?.client.email}</Typography>
           </Box>
         )
       },
@@ -273,9 +273,9 @@ export default function OrdersList({
               onCellClick={params => {
                 handleRowClick(params.row)
               }}
-              rowsPerPageOptions={[10, 25, 50]}
+              rowsPerPageOptions={[10, 25]}
               pagination
-              page={pageSize}
+              page={page}
               pageSize={rowsPerPage}
               paginationMode='server'
               onPageChange={(newPage: number) => {
@@ -333,13 +333,13 @@ export default function OrdersList({
 
                 handleRowClick(params.row)
               }}
-              rowsPerPageOptions={[10, 25, 50]}
+              rowsPerPageOptions={[10, 25]}
               pagination
-              page={pageSize}
-              pageSize={pageSize}
+              page={page}
+              pageSize={rowsPerPage}
               hideFooterPagination
               hideFooter
-              paginationMode='server'
+              // paginationMode='server'
               onPageChange={(newPage: number) => {
                 setFilters!((prevState: OrderListFilterType) => ({
                   ...prevState,
@@ -356,12 +356,12 @@ export default function OrdersList({
               }}
               disableSelectionOnClick
               getRowClassName={params =>
-                role.name === 'CLIENT' && params.row.status === 10500
+                role.name === 'CLIENT' && params.row.status === 'Under revision'
                   ? 'disabled'
                   : 'normal'
               }
               isRowSelectable={params =>
-                role.name === 'CLIENT' && params.row.status !== 10500
+                role.name === 'CLIENT' && params.row.status !== 'Under revision'
               }
             />
           </Box>

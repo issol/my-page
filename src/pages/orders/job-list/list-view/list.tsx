@@ -53,6 +53,8 @@ export default function JobsList({
   const auth = useRecoilValueLoadable(authState)
   const router = useRouter()
 
+  console.log(list)
+
   const columns: GridColumns<JobsListType> = [
     {
       field: 'corporationId',
@@ -243,8 +245,8 @@ export default function JobsList({
         }}
         sx={{ overflowX: 'scroll', cursor: 'pointer' }}
         columns={columns}
-        rows={list.data}
-        rowCount={list.totalCount}
+        rows={list.data ?? []}
+        rowCount={list.totalCount ?? 0}
         loading={isLoading}
         onCellClick={params => {
           router.push({

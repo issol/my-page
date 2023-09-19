@@ -121,6 +121,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
         contactPerson: client?.contactPerson ?? null,
         clientAddress: client?.clientAddress ?? [],
         langItem: items,
+        subtotal: projectInfo?.subtotal
       }
 
       setDownloadData(res)
@@ -278,7 +279,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                         <Typography fontWeight={500}>
                           {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}
                           &nbsp;
-                          {item.name}
+                          {item.itemName}
                         </Typography>
                       </Box>
                     </Grid>

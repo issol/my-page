@@ -23,7 +23,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { useRouter } from 'next/router'
 import { useMutation } from 'react-query'
 import { resetPassword } from 'src/apis/user.api'
-import { removeUserDataFromBrowser } from 'src/shared/auth/storage'
+import { removeCompanyDataFromBrowser, removeUserDataFromBrowser } from 'src/shared/auth/storage'
 
 const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -132,6 +132,7 @@ const ResetPassword = () => {
 
   useEffect(() => {
     removeUserDataFromBrowser()
+    removeCompanyDataFromBrowser()
   }, [])
 
   return (

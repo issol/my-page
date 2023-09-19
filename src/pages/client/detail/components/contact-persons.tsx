@@ -102,7 +102,7 @@ export default function ContactPersons({
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Company name / Email</Box>,
+      renderHeader: () => <Box>Name / Email</Box>,
       renderCell: ({ row }: { row: ContactPersonType }) => {
         return (
           <Box display='flex' flexDirection='column' maxWidth='300px'>

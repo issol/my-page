@@ -191,7 +191,7 @@ const InvoiceVersionHistoryModal = ({
       const result = history.items?.items?.map(item => {
         return {
           id: item.id,
-          name: item.name,
+          name: item.itemName,
           source: item.source,
           target: item.target,
           priceId: item.priceId,

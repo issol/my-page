@@ -1,19 +1,32 @@
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type OrderStatusType =
-  | 10000 //'New'
-  | 10100 //'In preparation'
-  | 10200 //'Internal review'
-  | 10300 //'Order sent'
-  | 10400 //'In progress'
-  | 10500 //'Under revision'
-  | 10600 //'Partially delivered'
-  | 10700 //'Delivery completed'
-  | 10800 //'Redelivery requested'
-  | 10900 //'Delivery confirmed'
-  | 101000 //'Invoiced'
-  | 101100 //'Paid'
-  | 101200 //'Canceled'
+  | 10000
+  | 'New'
+  | 10100
+  | 'In preparation'
+  | 10200
+  | 'Internal review'
+  | 10300
+  | 'Order sent'
+  | 10400
+  | 'In progress'
+  | 10500
+  | 'Under revision'
+  | 10600
+  | 'Partially delivered'
+  | 10700
+  | 'Delivery completed'
+  | 10800
+  | 'Redelivery requested'
+  | 10900
+  | 'Delivery confirmed'
+  | 101000
+  | 'Invoiced'
+  | 101100
+  | 'Paid'
+  | 101200
+  | 'Canceled'
 
 export type RevenueFormType = 'United States' | 'Korea' | 'Singapore' | 'Japan'
 
@@ -35,6 +48,7 @@ export type OrderProjectInfoFormType = {
   tax: number | null
   isTaxable: boolean
   showDescription: boolean
+  subtotal: number | string
 }
 
 export type QuotesProjectInfoType = {

@@ -166,7 +166,7 @@ const ViewPrices = ({
                 Price
               </Typography>
               <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                {fields[0].name}
+                {fields[0].itemName}
               </Typography>
             </Box>
           </Box>

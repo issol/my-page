@@ -1,5 +1,5 @@
 import { login, logout } from '@src/apis/sign.api'
-import { getUserInfo } from '@src/apis/user.api'
+import { getUserInfo, getClientUserInfo } from '@src/apis/user.api'
 import axios from '@src/configs/axios'
 import {
   ClientUserType,
@@ -11,9 +11,12 @@ import {
 import useModal from '@src/hooks/useModal'
 import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
 import {
+  removeAllSessionStorage,
+  removeCompanyDataFromBrowser,
   removeRememberMe,
   removeUserDataFromBrowser,
   removeUserTokenFromBrowser,
+  saveCompanyDataToBrowser,
   saveRememberMe,
   saveUserDataToBrowser,
   saveUserTokenToBrowser,
@@ -58,7 +61,19 @@ const useAuth = () => {
           timezone: profile.timezone,
         }
         saveUserDataToBrowser(userInfo)
-        setAuth(prev => ({ ...prev, user: userInfo }))
+
+        // 컴퍼니 데이터 패칭이 늦어 auth-provider에서 company 데이터가 도착하기 전에 로직체크가 됨
+        // user, company 데이터를 동시에 set 하도록 변경
+        if (value.roles && value.roles?.filter(role => role.name === 'CLIENT').length > 0) {
+          getClientUserInfo()
+          .then(companyData => {
+            saveCompanyDataToBrowser(companyData)
+            setAuth(prev => ({ ...prev, user: userInfo, company: companyData}))
+          })
+        } else {
+          setAuth(prev => ({ ...prev, user: userInfo}))
+        }
+        setCurrentRole(value?.roles && value?.roles.length > 0 ? value?.roles[0] : null)
       })
       .catch(e => {
         router.push('/login')
@@ -112,11 +127,13 @@ const useAuth = () => {
   }
 
   const handleLogout = () => {
-    setAuth(prev => ({ ...prev, user: null }))
-    setCurrentRole(null)
+    // setAuth(prev => ({ ...prev, user: null }))
+    // setCurrentRole(null)
 
     removeUserDataFromBrowser()
     removeUserTokenFromBrowser()
+    removeCompanyDataFromBrowser()
+    removeAllSessionStorage()
 
     logout()
     router.push('/login')

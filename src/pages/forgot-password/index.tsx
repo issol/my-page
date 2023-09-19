@@ -31,7 +31,7 @@ import { useForm } from 'react-hook-form'
 import useForgotPasswordSchema from './validation'
 import { useMutation } from 'react-query'
 import { sendResetEmail } from 'src/apis/user.api'
-import { removeUserDataFromBrowser } from 'src/shared/auth/storage'
+import { removeCompanyDataFromBrowser, removeUserDataFromBrowser } from 'src/shared/auth/storage'
 
 // Styled Components
 
@@ -96,6 +96,7 @@ const ForgotPassword = () => {
 
   useEffect(() => {
     removeUserDataFromBrowser()
+    removeCompanyDataFromBrowser()
   }, [])
 
   return (

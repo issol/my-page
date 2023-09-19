@@ -1,4 +1,10 @@
-import { useContext, useEffect, useState } from 'react'
+import {
+  ChangeEvent,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -20,7 +26,7 @@ import PageHeader from '@src/@core/components/page-header'
 import styled from 'styled-components'
 
 // ** react hook form
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Icon Imports
@@ -47,7 +53,7 @@ import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { MemberType } from '@src/types/schema/project-team.schema'
 
 // ** components
-import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
+
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
@@ -56,7 +62,6 @@ import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-for
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 // ** context
 import { useRecoilValueLoadable } from 'recoil'
@@ -82,15 +87,8 @@ import {
   getProjectTeam as getQuoteProjectTeam,
 } from '@src/apis/quote/quotes.api'
 
-import {
-  getClient,
-  getLangItems,
-  getProjectInfo,
-  getProjectTeam,
-} from '@src/apis/order-detail.api'
-
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { getClientPriceList } from '@src/apis/company/company-price.api'
+
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import { findEarliestDate } from '@src/shared/helpers/date.helper'
@@ -99,6 +97,8 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import { useGetStatusList } from '@src/queries/common.query'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 export type languageType = {
   id: number | string
@@ -152,14 +152,12 @@ export default function AddNewOrder() {
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
   const [isWarn, setIsWarn] = useState(true)
 
-  const { data: statusList } = useGetStatusList('Order')
-
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
 
   useEffect(() => {
     if (!router.isReady) return
     if (quoteId) {
-      onCopyOrder(Number(quoteId))
+      onCopyQuote(Number(quoteId))
     }
     if (requestId) {
       initializeFormWithRequest()
@@ -169,20 +167,6 @@ export default function AddNewOrder() {
   const { openModal, closeModal } = useModal()
 
   const [subPrice, setSubPrice] = useState(0)
-
-  function sumTotalPrice() {
-    const subPrice = getItem()?.items!
-    if (subPrice) {
-      const total = subPrice.reduce((accumulator, item) => {
-        return accumulator + item.totalPrice
-      }, 0)
-
-      setSubPrice(total)
-    }
-  }
-  useEffect(() => {
-    sumTotalPrice()
-  }, [])
 
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
@@ -213,13 +197,14 @@ export default function AddNewOrder() {
   ]
 
   // ** step1
-  const [tax, setTax] = useState<null | number>(null)
+
   const {
     control: teamControl,
     getValues: getTeamValues,
     setValue: setTeamValues,
     watch: teamWatch,
     reset: resetTeam,
+
     formState: { errors: teamErrors, isValid: isTeamValid },
   } = useForm<ProjectTeamType>({
     mode: 'onChange',
@@ -280,7 +265,7 @@ export default function AddNewOrder() {
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
   } = useForm<OrderProjectInfoFormType>({
     mode: 'onChange',
-    defaultValues: { ...orderProjectInfoDefaultValue, status: 100 },
+    defaultValues: { ...orderProjectInfoDefaultValue, status: 10000 },
     resolver: yupResolver(orderProjectInfoSchema),
   })
 
@@ -295,6 +280,7 @@ export default function AddNewOrder() {
     setValue: setItem,
     trigger: itemTrigger,
     reset: itemReset,
+    watch: itemWatch,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
     mode: 'onBlur',
@@ -312,6 +298,25 @@ export default function AddNewOrder() {
     name: 'items',
   })
 
+  function sumTotalPrice() {
+    const subPrice = getItem('items')
+
+    if (subPrice) {
+      const total = subPrice.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice
+      }, 0)
+
+      setSubPrice(total)
+    }
+  }
+  useEffect(() => {
+    console.log(getItem('items'))
+    const subscription = itemWatch((value, { name, type }) => {
+      sumTotalPrice()
+    })
+    return () => subscription.unsubscribe()
+  }, [itemWatch])
+
   function onDeleteLanguagePair(row: languageType) {
     const isDeletable = !getItem()?.items?.length
       ? true
@@ -322,14 +327,35 @@ export default function AddNewOrder() {
       openModal({
         type: 'delete-language',
         children: (
-          <DeleteConfirmModal
-            message='Are you sure you want to delete this language pair?'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
-              row.target,
-            )}`}
-            onDelete={deleteLanguage}
+          <CustomModal
+            title={
+              <>
+                Are you sure you want to delete this language pair? <br />
+                <Typography
+                  variant='body2'
+                  fontSize={16}
+                  fontWeight={600}
+                >{`${languageHelper(row.source)} -> ${languageHelper(
+                  row.target,
+                )}`}</Typography>
+              </>
+            }
             onClose={() => closeModal('delete-language')}
+            onClick={() => {
+              deleteLanguage()
+              closeModal('delete-language')
+            }}
+            vary='error'
+            rightButtonText='Delete'
           />
+          // <DeleteConfirmModal
+          //   message='Are you sure you want to delete this language pair?'
+          //   title={`${languageHelper(row.source)} -> ${languageHelper(
+          //     row.target,
+          //   )}`}
+          //   onDelete={deleteLanguage}
+          //   onClose={() => closeModal('delete-language')}
+          // />
         ),
       })
     } else {
@@ -382,7 +408,7 @@ export default function AddNewOrder() {
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      name: '',
+      itemName: '',
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
@@ -390,6 +416,27 @@ export default function AddNewOrder() {
       detail: [],
       totalPrice: 0,
       showItemDescription: false,
+      minimumPrice: null,
+      minimumPriceApplied: false,
+      priceFactor: 0,
+    })
+  }
+
+  const onClickSaveOrder = () => {
+    console.log('name', getProjectInfoValues().projectName)
+    openModal({
+      type: 'SaveOrderModal',
+      children: (
+        <CustomModal
+          onClick={onSubmit}
+          onClose={() => closeModal('SaveOrderModal')}
+          title={`Are you sure you want to create this order? ${
+            getProjectInfoValues().projectName
+          }`}
+          vary='successful'
+          rightButtonText='Save'
+        />
+      ),
     })
   }
 
@@ -404,22 +451,31 @@ export default function AddNewOrder() {
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
-    const subTotal = getItem().items.reduce(
-      (acc, item) => acc + item.totalPrice,
-      0,
-    )
+    // const subtotal = getItem().items.reduce(
+    //   (acc, item) => acc + item.totalPrice,
+    //   0,
+    // )
     const projectInfo = {
       ...rawProjectInfo,
       // isTaxable : taxable,
-      tax: !rawProjectInfo.isTaxable ? null : tax,
-      subtotal: subTotal,
+      isTaxable: rawProjectInfo.isTaxable ? '1' : '0',
+      tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
+      orderedAt: new Date(rawProjectInfo.orderedAt).toISOString(),
+      subtotal: subPrice,
     }
 
-    const items: Array<PostItemType> = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-      showItemDescription: item.showItemDescription ? '1' : '0',
-    }))
+    const items: Array<PostItemType> = getItem().items.map(item => {
+      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
+      return {
+        ...filterItem,
+        contactPersonId: item.contactPerson?.id!,
+        description: item.description || '',
+        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+        showItemDescription: item.showItemDescription ? '1' : '0',
+        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+        name: item.itemName,
+      }
+    })
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
@@ -439,6 +495,7 @@ export default function AddNewOrder() {
       ...projectInfo,
       requestId: requestId ?? null,
     }
+
     createOrderInfo(stepOneData)
       .then(res => {
         if (res.id) {
@@ -448,6 +505,7 @@ export default function AddNewOrder() {
           ])
             .then(() => {
               router.push(`/orders/order-list/detail/${res.id}`)
+              closeModal('onClickSaveOrder')
             })
             .catch(e => onRequestError())
         }
@@ -518,6 +576,7 @@ export default function AddNewOrder() {
         category: isCategoryNotSame ? '' : items[0].category,
         serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
         projectDescription: requestData?.notes ?? '',
+        status: 10000,
       })
       const itemLangPairs =
         items?.map(i => ({
@@ -530,8 +589,8 @@ export default function AddNewOrder() {
     }
   }
 
-  async function onCopyOrder(id: number | null) {
-    const priceList = await getClientPriceList({})
+  async function onCopyQuote(id: number | null) {
+    // const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
       getQuoteProjectTeam(id)
@@ -539,21 +598,37 @@ export default function AddNewOrder() {
           const teams: Array<{
             type: MemberType
             id: number | null
-            name: string
-          }> = res.map(item => ({
-            type:
-              item.position === 'projectManager'
-                ? 'projectManagerId'
-                : item.position === 'supervisor'
-                ? 'supervisorId'
-                : 'member',
-            id: item.userId,
-            name: getLegalName({
-              firstName: item?.firstName!,
-              middleName: item?.middleName,
-              lastName: item?.lastName!,
-            }),
-          }))
+            name?: string
+          }> = res.reduce(
+            (acc, item) => {
+              const type =
+                item.position === 'projectManager'
+                  ? 'projectManagerId'
+                  : item.position === 'supervisor'
+                  ? 'supervisorId'
+                  : 'member'
+              const id = item.userId
+              const name = getLegalName({
+                firstName: item?.firstName!,
+                middleName: item?.middleName,
+                lastName: item?.lastName!,
+              })
+              acc.push({ type, id, name })
+              return acc
+            },
+            [] as Array<{
+              type: MemberType
+              id: number | null
+              name?: string
+            }>,
+          )
+          if (!teams.find(value => value.type === 'supervisorId')) {
+            teams.unshift({ type: 'supervisorId', id: null })
+          }
+          if (!teams.find(value => value.type === 'member')) {
+            teams.push({ type: 'member', id: null })
+          }
+
           resetTeam({ teams })
         })
         .catch(e => {
@@ -570,6 +645,7 @@ export default function AddNewOrder() {
             contactPersonId: res?.contactPerson?.id ?? null,
             addressType:
               addressType === 'additional' ? 'shipping' : addressType,
+            isEnrolledClient: res.isEnrolledClient,
           })
         })
         .catch(e => {
@@ -582,14 +658,14 @@ export default function AddNewOrder() {
             orderedAt: Date(),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
-            showDescription: false,
+            showDescription: res?.showDescription ?? false,
             status: 10000, //초기값(New) 설정
-            projectDescription: '',
+            projectDescription: res?.projectDescription ?? '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
             revenueFrom: undefined,
-            projectDueAt: res?.projectDueAt ?? '',
+            projectDueAt: res?.projectDueAt ?? null,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
               phone: '',
@@ -597,8 +673,9 @@ export default function AddNewOrder() {
             },
 
             isTaxable: res.isTaxable,
+            tax: res.tax ?? null,
           })
-          setTax(res?.tax ?? null)
+          // setTax(res?.tax ?? null)
         })
         .catch(e => {
           return
@@ -606,28 +683,50 @@ export default function AddNewOrder() {
       getQuoteLangItems(id).then(res => {
         if (res) {
           setLanguagePairs(
-            res?.languagePairs?.map(item => {
+            res?.items?.map(item => {
               return {
                 id: String(item.id),
                 source: item.source,
                 target: item.target,
-                price: !item?.price
-                  ? null
-                  : priceList.find(price => price.id === item?.price?.id) ||
-                    null,
+                price: {
+                  id: item.initialPrice?.priceId!,
+                  isStandard: item.initialPrice?.isStandard!,
+                  priceName: item.initialPrice?.name!,
+                  groupName: 'Current price',
+                  category: item.initialPrice?.category!,
+                  serviceType: item.initialPrice?.serviceType!,
+                  currency: item.initialPrice?.currency!,
+                  catBasis: item.initialPrice?.calculationBasis!,
+                  decimalPlace: item.initialPrice?.numberPlace!,
+                  roundingProcedure:
+                    RoundingProcedureList[item.initialPrice?.rounding!].label,
+                  languagePairs: [],
+                  priceUnit: [],
+                  catInterface: { memSource: [], memoQ: [] },
+                },
               }
             }),
           )
           const result = res?.items?.map(item => {
+            console.log('copy item', item)
             return {
               id: item.id,
-              name: item.name,
+              itemName: item.itemName,
               source: item.source,
               target: item.target,
               priceId: item.priceId,
               detail: !item?.detail?.length ? [] : item.detail,
               analysis: item.analysis ?? [],
               totalPrice: item?.totalPrice ?? 0,
+              dueAt: item?.dueAt ?? '',
+              contactPerson: item?.contactPerson ?? {},
+              // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+              // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+              initialPrice: item.initialPrice ?? {},
+              description: item.description,
+              showItemDescription: item.showItemDescription,
+              minimumPrice: item.minimumPrice,
+              minimumPriceApplied: item.minimumPriceApplied,
             }
           })
           itemReset({ items: result })
@@ -677,7 +776,7 @@ export default function AddNewOrder() {
                   type: 'copy-order',
                   children: (
                     <CopyOrdersList
-                      onCopy={onCopyOrder}
+                      onCopy={onCopyQuote}
                       onClose={() => closeModal('copy-order')}
                     />
                   ),
@@ -712,6 +811,7 @@ export default function AddNewOrder() {
                 errors={teamErrors}
                 isValid={isTeamValid}
                 watch={teamWatch}
+                getValue={getTeamValues}
               />
               <Grid item xs={12} display='flex' justifyContent='flex-end'>
                 <Button
@@ -731,10 +831,11 @@ export default function AddNewOrder() {
                 control={clientControl}
                 setValue={setClientValue}
                 watch={clientWatch}
-                setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'order'}
                 formType={'create'}
+                getValue={getClientValue}
+                fromQuote={!!quoteId}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -889,33 +990,53 @@ export default function AddNewOrder() {
                 sx={{ background: '#F5F5F7', marginBottom: '24px' }}
               >
                 <Box display='flex' alignItems='center' gap='4px'>
-                  <Checkbox
-                    checked={getProjectInfoValues().isTaxable}
-                    onChange={e => {
-                      if (!e.target.checked) setTax(null)
-                      setProjectInfo('isTaxable', e.target.checked, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
+                  <Controller
+                    name='isTaxable'
+                    control={projectInfoControl}
+                    render={({ field: { value, onChange } }) => (
+                      <Checkbox
+                        checked={value}
+                        onChange={e => {
+                          if (!e.target.checked) setProjectInfo('tax', null)
+                          onChange(e.target.checked)
 
-                      triggerProjectInfo('isTaxable')
-                    }}
+                          triggerProjectInfo('isTaxable')
+                        }}
+                      />
+                    )}
                   />
+
                   <Typography>Tax</Typography>
                 </Box>
 
                 <Box display='flex' alignItems='center' gap='4px'>
-                  <TextField
-                    size='small'
-                    type='number'
-                    value={!getProjectInfoValues().isTaxable ? '-' : tax}
-                    disabled={!getProjectInfoValues().isTaxable}
-                    sx={{ maxWidth: '120px', padding: 0 }}
-                    inputProps={{ inputMode: 'decimal' }}
-                    onChange={e => {
-                      if (e.target.value.length > 10) return
-                      setTax(Number(e.target.value))
-                    }}
+                  <Controller
+                    name={'tax'}
+                    control={projectInfoControl}
+                    render={({ field: { value, onChange } }) => (
+                      <TextField
+                        size='small'
+                        type='number'
+                        value={
+                          !getProjectInfoValues().isTaxable || !value
+                            ? '-'
+                            : value
+                        }
+                        placeholder='-'
+                        error={
+                          getProjectInfoValues().isTaxable && value === null
+                        }
+                        // value={tax ?? null}
+                        disabled={!getProjectInfoValues().isTaxable}
+                        sx={{ maxWidth: '120px', padding: 0 }}
+                        inputProps={{ inputMode: 'decimal' }}
+                        onChange={e => {
+                          if (e.target.value.length > 10) return
+                          else if (e.target.value === '') onChange(null)
+                          else onChange(Number(e.target.value))
+                        }}
+                      />
+                    )}
                   />
                   %
                 </Box>
@@ -932,9 +1053,11 @@ export default function AddNewOrder() {
                 <Button
                   variant='contained'
                   disabled={
-                    !isItemValid && getProjectInfoValues('isTaxable') && !tax
+                    !isItemValid &&
+                    getProjectInfoValues('isTaxable') &&
+                    !getProjectInfoValues('tax')
                   }
-                  onClick={onSubmit}
+                  onClick={onClickSaveOrder}
                 >
                   Save
                 </Button>

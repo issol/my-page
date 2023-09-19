@@ -24,7 +24,11 @@ import { CancelReasonType } from '@src/types/requests/detail.type'
 
 export const getReceivableList = async (
   filter: InvoiceReceivableFilterType,
-): Promise<{ data: InvoiceReceivableListType[]; totalCount: number }> => {
+): Promise<{
+  data: InvoiceReceivableListType[]
+  totalCount: number
+  count: number
+}> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/invoice/receivable/list?${makeQuery(filter)}`,
@@ -34,6 +38,7 @@ export const getReceivableList = async (
     return {
       data: [],
       totalCount: 0,
+      count: 0,
     }
   }
 }
@@ -178,9 +183,9 @@ export const patchInvoiceInfo = async (
       `/api/enough/u/invoice/receivable/${id}`,
       {
         ...form,
-        taxInvoiceIssued: form.taxInvoiceIssued ? '1' : '0',
-        showDescription: form.showDescription ? '1' : '0',
-        setReminder: form.setReminder ? '1' : '0',
+        // taxInvoiceIssued: form.taxInvoiceIssued ? '1' : '0',
+        // showDescription: form.showDescription ? '1' : '0',
+        // setReminder: form.setReminder ? '1' : '0',
       },
     )
 
@@ -220,14 +225,16 @@ export const confirmInvoiceFromClient = async (
 }
 export const confirmInvoiceByLpm = async (
   invoiceId: number,
-): Promise<boolean> => {
+): Promise<{ id: number }> => {
   try {
     const { data } = await axios.patch(
-      `/api/enough/u/invoice/receivable/${invoiceId}/accept`,
+      `/api/enough/u/invoice/receivable/${invoiceId}/confirm`,
     )
     return data
   } catch (e: any) {
-    return false
+    return {
+      id: invoiceId,
+    }
   }
 }
 

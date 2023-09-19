@@ -25,9 +25,12 @@ import { useGetProfile } from '@src/queries/userInfo/userInfo-query'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { roleState } from '@src/states/permission'
+import { useRouter } from 'next/router'
 
 const MyAccount = () => {
+  const router = useRouter()
   const auth = useAuth()
+  const setAuth = useAuth()
   const [contractsEdit, setContractsEdit] = useState(false)
 
   function getProfileImg(role: RoleType) {
@@ -50,10 +53,13 @@ const MyAccount = () => {
         setContractsEdit(false)
         closeModal('SaveMyAccountModal')
         refetch()
+        const { userId, email, accessToken } = router.query
+        const accessTokenAsString: string = accessToken as string
         /* @ts-ignore */
-        auth.updateUserInfo({
+        setAuth.updateUserInfo({
           userId: Number(userInfo?.id),
           email: userInfo?.email!,
+          accessToken: accessTokenAsString,
         })
       },
     },

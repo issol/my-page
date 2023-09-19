@@ -56,7 +56,7 @@ export default function RequestDetailCard({
           <CustomTypo variant='body2'>
             {FullDateTimezoneHelper(
               data?.requestedAt,
-              data?.contactPerson?.timezone.code,
+              data?.contactPerson?.timezone?.code,
             )}
           </CustomTypo>
         </LabelContainer>
@@ -70,21 +70,21 @@ export default function RequestDetailCard({
                 loading={isLoading}
                 options={
                   statusList?.filter(
-                    status => status.statusName === 'In preparation',
+                    status => status.label === 'In preparation',
                   ) || []
                 }
                 size='small'
-                getOptionLabel={option => option.statusName}
+                getOptionLabel={option => option.label}
                 value={
                   !statusList || !data?.status
                     ? null
                     : statusList?.find(item =>
-                        data?.status?.includes(item.statusName),
+                        data?.status?.includes(item.label),
                       )
                 }
                 limitTags={1}
                 onChange={(e, v) => {
-                  if (v?.statusName) onStatusChange(v?.statusName)
+                  if (v?.label) onStatusChange(v?.label as RequestStatusType)
                 }}
                 id='status'
                 renderInput={params => (

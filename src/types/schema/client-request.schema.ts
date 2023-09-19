@@ -1,13 +1,16 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { RequestFormType } from '../requests/common.type'
+import { CountryType } from '../sign/personalInfoTypes'
 
 export function getClientRequestDefaultValue(
   contactPersonId: number,
+  timezone: CountryType,
 ): RequestFormType {
   return {
     lspId: '',
     contactPersonId,
+    userId: null,
     items: [
       {
         name: '',
@@ -16,11 +19,7 @@ export function getClientRequestDefaultValue(
         category: '',
         serviceType: [],
         desiredDueDate: '',
-        desiredDueTimezone: {
-          phone: '',
-          label: '',
-          code: '',
-        },
+        desiredDueTimezone: timezone,
       },
     ],
     sampleFiles: [],

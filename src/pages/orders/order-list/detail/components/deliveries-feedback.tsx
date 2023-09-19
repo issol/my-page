@@ -25,6 +25,7 @@ import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import { FileType } from '@src/types/common/file.type'
 import {
   DeliveryFileType,
+  OrderFeatureType,
   ProjectInfoType,
 } from '@src/types/orders/order-detail'
 import { useContext, useEffect, useState } from 'react'
@@ -34,7 +35,7 @@ import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 import { updateOrderType } from '../[id]'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { v4 as uuidv4 } from 'uuid'
-import { formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -59,6 +60,7 @@ type Props = {
   isSubmittable: boolean
   updateProject: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList: Array<{ value: number; label: string }>
+  canUseFeature: (v: OrderFeatureType) => boolean
 }
 
 const DeliveriesFeedback = ({
@@ -66,6 +68,7 @@ const DeliveriesFeedback = ({
   isSubmittable,
   updateProject,
   statusList,
+  canUseFeature,
 }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
   const { openModal, closeModal } = useModal()
@@ -138,6 +141,10 @@ const DeliveriesFeedback = ({
       'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
       'image/vnd.adobe.photoshop': ['.psd', '.psb'],
     },
+    disabled: !canUseFeature('button-Deliveries&Feedback-Upload'),
+    noKeyboard: true,
+    noDrag: true,
+
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files
         .concat(acceptedFiles)
@@ -149,7 +156,7 @@ const DeliveriesFeedback = ({
               type: 'AlertMaximumFileSizeModal',
               children: (
                 <AlertModal
-                  title='The maximum file size you can upload is 2gb.'
+                  title={`The maximum file size you can upload is ${byteToGB(MAXIMUM_FILE_SIZE)}.`}
                   onClick={() => closeModal('AlertMaximumFileSizeModal')}
                   vary='error'
                   buttonText='Okay'
@@ -250,6 +257,7 @@ const DeliveriesFeedback = ({
           <ImportFromJob
             items={jobDetails?.items}
             onClickUpload={onClickUploadJobFile}
+            onClose={() => closeModal('ImportFromJobModal')}
           />
         ),
       })
@@ -423,7 +431,13 @@ const DeliveriesFeedback = ({
           </Box>
         </Box>
         {files.length ? null : (
-          <IconButton onClick={() => downloadOneFile(file)}>
+          <IconButton
+            onClick={() => downloadOneFile(file)}
+            disabled={
+              currentRole?.name !== 'CLIENT' &&
+              !canUseFeature('button-Deliveries&Feedback-DownloadOnce')
+            }
+          >
             <Icon icon='mdi:download' fontSize={24} />
           </IconButton>
         )}
@@ -653,7 +667,7 @@ const DeliveriesFeedback = ({
                   Deliveries
                 </Typography>
                 <Typography variant='caption'>
-                  {formatFileSize(fileSize).toLowerCase()}/2 gb
+                  {formatFileSize(fileSize).toLowerCase()}/{byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
               {isSubmittable && currentRole && currentRole.name !== 'CLIENT' ? (
@@ -661,12 +675,11 @@ const DeliveriesFeedback = ({
                   <div {...getRootProps({ className: 'dropzone' })}>
                     <Button
                       variant='contained'
-                      sx={{ height: '34px' }}
+                      sx={{
+                        height: '34px',
+                      }}
                       disabled={
-                        project.status !== 10400 &&
-                        project.status !== 10600 &&
-                        project.status !== 10800 &&
-                        project.status !== 10300
+                        !canUseFeature('button-Deliveries&Feedback-Upload')
                       }
                     >
                       <input {...getInputProps()} />
@@ -679,9 +692,7 @@ const DeliveriesFeedback = ({
                     variant='contained'
                     sx={{ height: '34px' }}
                     disabled={
-                      project.status !== 10400 &&
-                      project.status !== 10600 &&
-                      project.status !== 10800
+                      !canUseFeature('button-Deliveries&Feedback-ImportFromJob')
                     }
                     onClick={onClickImportJob}
                   >
@@ -690,7 +701,10 @@ const DeliveriesFeedback = ({
                   </Button>
                   <Button
                     variant='outlined'
-                    disabled={savedFiles.length < 1}
+                    disabled={
+                      savedFiles.length < 1 ||
+                      !canUseFeature('button-Deliveries&Feedback-DownloadAll')
+                    }
                     sx={{
                       height: '34px',
                     }}
@@ -784,7 +798,11 @@ const DeliveriesFeedback = ({
                 <Button
                   variant='contained'
                   onClick={onClickConfirmDeliveries}
-                  disabled={project.status !== 10700}
+                  disabled={
+                    !canUseFeature(
+                      'button-Deliveries&Feedback-ConfirmDeliveries',
+                    )
+                  }
                 >
                   Confirm deliveries
                 </Button>
@@ -793,7 +811,9 @@ const DeliveriesFeedback = ({
                   onClick={onClickRequestRedelivery}
                   color='error'
                   disabled={
-                    project.status !== 10600 && project.status !== 10700
+                    !canUseFeature(
+                      'button-Deliveries&Feedback-RequestRedelivery',
+                    )
                   }
                 >
                   Request redelivery
@@ -810,6 +830,11 @@ const DeliveriesFeedback = ({
                     variant='contained'
                     color='success'
                     onClick={onClickDeliverToClient}
+                    disabled={
+                      !canUseFeature(
+                        'button-Deliveries&Feedback-DeliverToClient',
+                      )
+                    }
                   >
                     <Icon icon='ic:outline-send' fontSize={18} />
                     &nbsp;Deliver to client
@@ -825,10 +850,9 @@ const DeliveriesFeedback = ({
                     fullWidth
                     onClick={onClickCompleteDelivery}
                     disabled={
-                      (project.status !== 10500 &&
-                        project.status !== 10600 &&
-                        project.status !== 10800) ||
-                      project.deliveries?.length === 0
+                      !canUseFeature(
+                        'button-Deliveries&Feedback-CompleteDelivery',
+                      )
                     }
                   >
                     Complete delivery

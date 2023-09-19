@@ -40,9 +40,10 @@ type Props = {
   project: ProjectInfoType
   onClose: any
   onClick: any
+  canUseDisableButton?: boolean
 }
 
-const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
+const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisableButton }: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
     null,
@@ -93,6 +94,7 @@ const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
       contactPerson: history?.client!.contactPerson,
       clientAddress: history?.client!.clientAddress,
       langItem: history?.items!,
+      subtotal: history?.projectInfo!.subtotal
     }
 
     setDownloadData(res)
@@ -261,6 +263,7 @@ const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
               project={history.projectInfo}
               isUpdatable={false}
               role={currentRole!}
+              canUseFeature={() => false}
             />
           </TabPanel>
           <TabPanel
@@ -274,7 +277,6 @@ const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
             <OrderDetailClient
               type='history'
               client={history.client}
-              isUpdatable={false}
             />
           </TabPanel>
           <TabPanel
@@ -290,7 +292,6 @@ const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
               pageSize={pageSize}
               setPage={setPage}
               setPageSize={setPageSize}
-              isUpdatable={false}
             />
           </TabPanel>
         </TabContext>
@@ -310,16 +311,12 @@ const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
           >
             Close
           </Button>
-          {project.status === 10300 ||
-          project.status === 10400 ||
-          project.status === 10500 ||
-          project.status === 10600 ||
-          project.status === 10700 ||
-          project.status === 10800 ? (
+          {canUseDisableButton ? (
             <Button
               variant='contained'
               sx={{ width: '226px' }}
               onClick={onClick}
+              // disabled={canUseDisableButton}
             >
               Restore this version
             </Button>

@@ -83,6 +83,15 @@ export class quotes {
     })
   }
 }
+export class orders {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(orders.prototype.constructor, 'name', {
+      value: 'order',
+    })
+  }
+}
 export class invoice_payable {
   authorId: number
   constructor(authorId: number) {

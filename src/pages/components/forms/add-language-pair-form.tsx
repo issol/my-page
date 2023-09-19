@@ -20,6 +20,7 @@ import {
   Autocomplete,
   Box,
   Button,
+  Checkbox,
   Grid,
   IconButton,
   TextField,
@@ -84,6 +85,9 @@ export default function AddLanguagePairForm({
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
 
+  const [sourceFocused, setSourceFocused] = useState<boolean>(false)
+  const [targetFocused, setTargetFocused] = useState<boolean>(false)
+
   const header =
     type === 'detail'
       ? ['Language pair', 'Price']
@@ -120,32 +124,33 @@ export default function AddLanguagePairForm({
   const updateLanguagePairs = (languagePairs: languageType[]) => {
     let updatedLanguagePairs = { ...languagePairs }
     let isValidCondition = true
-    let type=0
+    let type = 0
     const targetCurrency = languagePairs[0]?.price?.currency! ?? null
     if (targetCurrency) {
       if (languagePairs[0].price) {
-        languagePairs.map((pair,index) => {
+        languagePairs.map((pair, index) => {
           if (pair.price && targetCurrency !== pair.price?.currency) {
             isValidCondition = false
-            type=1
+            type = 1
             // 첫번째 Language-pair를 기준으로 currency가 맞지 않는 price를 null로 변경
             updatedLanguagePairs = languagePairs.map(item => ({
               ...item,
-              price: item.price?.currency === targetCurrency ? item.price : null,
-            }));
+              price:
+                item.price?.currency === targetCurrency ? item.price : null,
+            }))
           }
         })
       }
     } else {
       // 첫번째 언어페어의가 null인 경우, 모든 Price를 null로 바꿈
       isValidCondition = false
-      type=2
+      type = 2
       updatedLanguagePairs = languagePairs.map(item => ({
         ...item,
         price: null,
-      }));
+      }))
     }
-    if(isValidCondition) setLanguagePairs(languagePairs)
+    if (isValidCondition) setLanguagePairs(languagePairs)
     else {
       selectCurrencyViolation(type)
       setLanguagePairs(updatedLanguagePairs)
@@ -167,7 +172,8 @@ export default function AddLanguagePairForm({
 
   const selectCurrencyViolation = (type: number) => {
     const message1 = `Please check the currency of the selected price. You can't use different currencies in a quote.`
-    const message2 = 'Please select the price for the first language pair first.'
+    const message2 =
+      'Please select the price for the first language pair first.'
     openModal({
       type: 'error-currency-violation',
       children: (
@@ -209,16 +215,33 @@ export default function AddLanguagePairForm({
               size='small'
               sx={{ width: 250 }}
               options={languageList}
-              onChange={(e, v) =>
-                setLanguagePair({ ...languagePair, source: v?.value ?? '' })
-              }
+              onChange={(e, v) => {
+                if (v) {
+                  setLanguagePair({ ...languagePair, source: v?.value })
+                } else {
+                  setLanguagePair({ ...languagePair, source: '' })
+                  setSourceFocused(false)
+                }
+              }}
               id='autocomplete-controlled'
+              onClickCapture={() => setSourceFocused(true)}
+              onClose={() => setSourceFocused(false)}
+              disableClearable={languagePair.source === ''}
               getOptionLabel={option => option.label}
-              renderInput={params => <TextField {...params} label='Source' />}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  placeholder={sourceFocused ? '' : 'Source'}
+                />
+              )}
             />
-            <IconButton>
-              <Icon icon='material-symbols:arrow-forward' />
-            </IconButton>
+
+            <Icon
+              icon='material-symbols:arrow-forward'
+              fontSize={24}
+              color='rgba(76, 78, 100, 0.54)'
+            />
+
             <Autocomplete
               value={
                 !languagePair?.target.length
@@ -228,6 +251,7 @@ export default function AddLanguagePairForm({
                     )
               }
               multiple
+              limitTags={1}
               size='small'
               sx={{ width: 250 }}
               options={languageList}
@@ -238,8 +262,27 @@ export default function AddLanguagePairForm({
                 })
               }
               id='autocomplete-controlled'
+              onClickCapture={() => setTargetFocused(true)}
+              onClose={() => setTargetFocused(false)}
+              disableClearable={languagePair.target.length === 0}
+              disableCloseOnSelect
               getOptionLabel={option => option.label}
-              renderInput={params => <TextField {...params} label='Target' />}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  placeholder={
+                    targetFocused || languagePair.target.length > 0
+                      ? ''
+                      : 'Target'
+                  }
+                />
+              )}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox checked={selected} sx={{ mr: 2 }} />
+                  {option.label}
+                </li>
+              )}
             />
             <Button
               size='small'
@@ -291,7 +334,7 @@ export default function AddLanguagePairForm({
                       updateLanguagePairs(copyPairs)
                     }
                     // row가 갑자기 여러번 리랜더링 되는 현상이 있음
-                    console.log("Re-rendering-row",row)
+                    console.log('Re-rendering-row', row)
                     return (
                       <TableRow hover tabIndex={-1} key={row.id}>
                         <TableCell>
@@ -328,14 +371,14 @@ export default function AddLanguagePairForm({
                                 //   ? options[0]
                                 //   : options.find(
                                 //       item => item.id === row.price?.id,
-                                //     ) || null              
+                                //     ) || null
                               }
                               size='small'
                               sx={{ width: 300 }}
                               options={options}
                               groupBy={option => option?.groupName ?? ''}
                               onChange={(e, v) => {
-                                if(v && v.id === -1) {
+                                if (v && v.id === -1) {
                                   selectNotApplicableOption()
                                 } else {
                                   const copyPairs = [...languagePairs]
@@ -344,7 +387,9 @@ export default function AddLanguagePairForm({
                                 }
                               }}
                               id='autocomplete-controlled'
-                              getOptionLabel={option => `${option.priceName} (${option.currency})`}
+                              getOptionLabel={option =>
+                                `${option.priceName} (${option.currency})`
+                              }
                               renderInput={params => (
                                 <TextField {...params} placeholder='Price' />
                               )}

@@ -32,6 +32,10 @@ export type OrderListType = {
     name: string
     email: string
   }
+  lsp?: {
+    name: string
+    email: string
+  }
   projectName: string
   category: string
   serviceType: string[]

@@ -325,7 +325,7 @@ const RecruitingDetail = () => {
                   style={{ cursor: 'pointer' }}
                   onClick={() => router.push('/recruiting')}
                 />
-                <Typography variant='h5'>Recruiting info</Typography>
+                <Typography variant='h5'>Recruiting Request</Typography>
               </Box>
             }
           />

@@ -113,12 +113,18 @@ export default function QuotesProjectInfoDetail({
 
   const filterStatusList = () => {
     if (client && statusList) {
-      if (client.contactPerson && client.contactPerson?.userId) {
+      if (client.isEnrolledClient) {
         return statusList?.filter(
           value =>
             value.label === 'New' ||
             value.label === 'In preparation' ||
             value.label === 'Internal Review',
+        )
+      } else {
+        return statusList?.filter(
+          value =>
+            value.label !== 'Changed into order' &&
+            value.label !== 'Canceled'
         )
       }
     }
@@ -213,7 +219,7 @@ export default function QuotesProjectInfoDetail({
                   project.status !== 'Rejected' &&
                   project.status !== 'Canceled') || 
                   // 연결된 Client가 없는 경우
-                  (!!!client?.contactPerson?.userId)
+                  (!client?.isEnrolledClient)
                 ) ? (
                 <Autocomplete
                   autoHighlight

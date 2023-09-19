@@ -34,33 +34,36 @@ export function getReceivableStatusColor(status: InvoiceReceivableStatusType) {
   return color
 }
 
-export function getOrderStatusColor(status: OrderStatusType) {
+export function getOrderStatusColor(
+  status: OrderStatusType,
+  code?: OrderStatusType,
+) {
   const color =
-    status === 10000
+    code === 'New' || status === 10000
       ? '#666CFF'
-      : status === 10100
+      : status === 10100 || status === 'In preparation'
       ? '#F572D8'
-      : status === 10200
+      : status === 10200 || status === 'Internal review'
       ? '#D8AF1D'
-      : status === 10300
+      : status === 10300 || status === 'Order sent'
       ? '#B06646'
-      : status === 10400
+      : status === 10400 || status === 'In progress'
       ? '#FDB528'
-      : status === 10500
+      : status === 10500 || status === 'Under revision'
       ? '#26C6F9'
-      : status === 10600
+      : status === 10600 || status === 'Partially delivered'
       ? '#BA971A'
-      : status === 10700
+      : status === 10700 || status === 'Delivery completed'
       ? '#1A6BBA'
-      : status === 10800
+      : status === 10800 || status === 'Redelivery requested'
       ? '#A81988'
-      : status === 10900
+      : status === 10900 || status === 'Delivery confirmed'
       ? '#64C623'
-      : status === 101000
+      : status === 101000 || status === 'Invoiced'
       ? '#9B6CD8'
-      : status === 101100
+      : status === 101100 || status === 'Paid'
       ? '#1B8332'
-      : status === 101200
+      : status === 101200 || status === 'Canceled'
       ? '#FF4D49'
       : ''
   return color

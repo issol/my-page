@@ -17,12 +17,13 @@ import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import {
   LanguageAndItemType,
+  OrderFeatureType,
   ProjectInfoType,
 } from '@src/types/orders/order-detail'
 
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
 
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useState, useEffect } from 'react'
 import {
   Control,
   FieldArrayWithId,
@@ -35,6 +36,10 @@ import {
 } from 'react-hook-form'
 import { UseMutationResult } from 'react-query'
 import { updateOrderType } from '../[id]'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 
 type Props = {
   langItem: LanguageAndItemType
@@ -104,6 +109,9 @@ type Props = {
   >
   splitReady?: boolean
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
+  updateStatus?: (status: number) => void
+  canUseSplit?: boolean
+  canUseFeature: (v: OrderFeatureType) => boolean
 }
 
 const LanguageAndItem = ({
@@ -135,16 +143,33 @@ const LanguageAndItem = ({
   setSelectedIds,
   splitReady,
   updateProject,
+  updateStatus,
+  canUseSplit,
+  canUseFeature,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
-
+  const isUpdatable = canUseFeature('tab-Languages&Items')
   const currentRole = getCurrentRole()
 
-  function getPriceOptions(source: string, target: string) {
+  const [subtotal, setSubTotal] = useState(0)
+  function sumTotalPrice() {
+    const subtotal = langItemsEdit ? getItem()?.items! : items
+    if (subtotal) {
+      const total = subtotal.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice
+      }, 0)
+      setSubTotal(total)
+    }
+  }
+  useEffect(() => {
+    sumTotalPrice()
+  }, [items])
+
+  function getPriceOptions(source: string, target: string, index?: number) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
       .filter(item => {
@@ -155,11 +180,32 @@ const LanguageAndItem = ({
       })
       .map(item => ({
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
-
         ...item,
       }))
 
-    return [defaultOption].concat(filteredList)
+    // Not Applicable Price 추가
+    const finalList = [defaultOption].concat(filteredList)
+
+    // // 기존 선택한 Price 값이 있다면 해당 값을 Current price 그룹으로 추가
+    // if(index !== undefined && index >= 0 && items[index]?.initialPrice) {
+    //   finalList.unshift({
+    //     groupName: 'Current price',
+    //     id: items[index].initialPrice?.priceId!,
+    //     isStandard: items[index].initialPrice?.isStandard!,
+    //     priceName: items[index].initialPrice?.name!,
+    //     category: items[index].initialPrice?.category!,
+    //     serviceType: items[index].initialPrice?.serviceType!,
+    //     currency: items[index].initialPrice?.currency!,
+    //     catBasis: items[index].initialPrice?.calculationBasis!,
+    //     decimalPlace: items[index].initialPrice?.numberPlace!,
+    //     roundingProcedure: String(items[index].initialPrice?.rounding),
+    //     memoForPrice: items[index].initialPrice?.memo!,
+    //     languagePairs: [],
+    //     priceUnit: [],
+    //   })
+    // }
+
+    return finalList
   }
 
   function isAddItemDisabled(): boolean {
@@ -175,7 +221,7 @@ const LanguageAndItem = ({
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      name: '',
+      itemName: '',
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
@@ -183,6 +229,9 @@ const LanguageAndItem = ({
       detail: [],
       totalPrice: 0,
       showItemDescription: false,
+      minimumPrice: null,
+      minimumPriceApplied: false,
+      priceFactor: 0,
     })
   }
 
@@ -229,10 +278,6 @@ const LanguageAndItem = ({
     }
   }
 
-  const sumTotalPrice = () => {
-    return true
-  }
-
   return (
     <>
       {!langItemsEdit && currentRole && currentRole.name !== 'CLIENT' ? (
@@ -248,22 +293,19 @@ const LanguageAndItem = ({
             variant='outlined'
             sx={{ display: 'flex', gap: '8px', mb: '24px' }}
             disabled={
-              items.length < 1 ||
-              project?.status === 101100 ||
-              project?.status === 101200
+              items.length <= 0 ||
+              !canUseFeature('button-Languages&Items-SplitOrder')
             }
             onClick={onClickSplitOrder}
           >
             <Icon icon='ic:baseline-splitscreen' />
             Split order
           </Button>
-          {project &&
-          project.status !== 101000 &&
-          project.status !== 101100 &&
-          project.status !== 101200 ? (
+          {isUpdatable ? (
             <IconButton
               onClick={() => {
-                updateProject && updateProject.mutate({ status: 105 })
+                if (canUseFeature('button-Edit-Set-Status-To-UnderRevision'))
+                  updateStatus && updateStatus(10500)
                 setLangItemsEdit(!langItemsEdit)
               }}
             >
@@ -280,6 +322,7 @@ const LanguageAndItem = ({
             getPriceOptions={getPriceOptions}
             type={langItemsEdit ? 'edit' : 'detail'}
             onDeleteLanguagePair={onDeleteLanguagePair}
+            items={items}
           />
         </Grid>
       )}
@@ -326,6 +369,49 @@ const LanguageAndItem = ({
           </Button>
         </Grid>
       ) : null}
+      {/* subtotal */}
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '20px',
+              borderBottom: '2px solid #666CFF',
+              justifyContent: 'center',
+              width: '257px',
+            }}
+          >
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                textAlign: 'right',
+              }}
+            >
+              Subtotal
+            </Typography>
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+            >
+              {getItem().items.length && getItem().items[0].initialPrice
+                ? formatCurrency(
+                    formatByRoundingProcedure(
+                      langItemsEdit ? subtotal : Number(project?.subtotal),
+                      getItem().items[0].initialPrice?.numberPlace!,
+                      getItem().items[0].initialPrice?.rounding!,
+                      getItem().items[0].initialPrice?.currency!,
+                    ),
+                    getItem().items[0].initialPrice?.currency!,
+                  )
+                : 0}
+            </Typography>
+          </Box>
+        </Box>
+      </Grid>
     </>
   )
 }

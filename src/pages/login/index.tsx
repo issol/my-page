@@ -194,7 +194,9 @@ const LoginPage = () => {
               <Link href='' style={{ textDecoration: 'none' }}>
                 <Typography color='primary'>Sign in with Google</Typography>
               </Link>
-              <GoogleButton />
+              <GoogleButton 
+                type='signin'
+              />
             </Box>
             <Box
               sx={{

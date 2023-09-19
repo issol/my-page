@@ -47,6 +47,7 @@ export const getLangItems = async (
       items: data.items.map((item: ItemResType) => ({
         ...item,
         name: item?.itemName,
+        itemName: item?.itemName,
         source: item?.sourceLanguage,
         target: item?.targetLanguage,
         totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
@@ -72,7 +73,9 @@ export const patchOrderProjectInfo = async (
   id: number,
   form: updateOrderType,
 ) => {
-  await axios.patch(`/api/enough/u/order/${id}`, { ...form })
+  const { data } = await axios.patch(`/api/enough/u/order/${id}`, { ...form })
+
+  return data
 }
 
 export const splitOrder = async (
@@ -104,6 +107,13 @@ export const completeDelivery = async (id: number) => {
   await axios.patch(`/api/enough/u/order/${id}/deliveries/complete`)
 }
 
+//TODO API 수정 필요
 export const confirmDelivery = async (id: number, feedback?: string) => {
-  await axios.patch(`/api/enough/u/order/${id}/confirm`, { feedback: feedback })
+  await axios.patch(`/api/enough/u/order/${id}/deliveries/confirm`, {
+    feedback: feedback,
+  })
+}
+
+export const confirmOrder = async (id: number) => {
+  await axios.patch(`/api/enough/u/order/${id}/confirm`)
 }

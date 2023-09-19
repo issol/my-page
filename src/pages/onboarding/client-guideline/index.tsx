@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** mui
 import { Grid, Typography } from '@mui/material'
@@ -103,7 +103,7 @@ export default function ClientGuidLines() {
           .filter(item => filter.serviceType?.includes(item.value))
           .map(item => item.value),
       })
-  }, [filter.category])
+  },[filter.category])
 
   return (
     <>
@@ -131,7 +131,7 @@ export default function ClientGuidLines() {
             setPageSize={(n: number) =>
               setActiveFilter({ ...activeFilter, take: n })
             }
-            list={list || { data: [], count: 0 }}
+            list={list || { data: [], count: 0, totalCount: 0 }}
             isLoading={isLoading}
             user={auth.getValue().user!}
             page={'onboarding'}

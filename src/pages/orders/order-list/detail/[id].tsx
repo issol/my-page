@@ -30,6 +30,7 @@ import ProjectInfo from './components/project-info'
 import OrderDetailClient from './components/client'
 import {
   OrderDownloadData,
+  OrderFeatureType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
 import { GridColumns } from '@mui/x-data-grid'
@@ -37,7 +38,10 @@ import ProjectTeam from './components/project-team'
 import VersionHistory from './components/version-history'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
+
 import { authState } from '@src/states/auth'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+
 import useModal from '@src/hooks/useModal'
 import VersionHistoryModal from './components/modal/version-history-modal'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
@@ -56,7 +60,11 @@ import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { setIsReady, setOrder, setOrderLang } from '@src/store/order'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { patchOrderProjectInfo, splitOrder } from '@src/apis/order-detail.api'
+import {
+  confirmOrder,
+  patchOrderProjectInfo,
+  splitOrder,
+} from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
@@ -104,6 +112,9 @@ import ReasonModal from '@src/@core/components/common-modal/reason-modal'
 import ClientOrder from './components/client-order'
 import PrintOrderPage from '../../order-print/print-page'
 
+import { orders } from '@src/shared/const/permission-class'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+
 interface Detail {
   id: number
   quantity: number
@@ -126,10 +137,11 @@ export type updateOrderType =
   | ProjectTeamFormType
   | ClientFormType
   | { status: number }
-  | { tax: null | number; isTaxable: '1' | '0' }
+  | { tax: null | number; isTaxable: '0' | '1'; subtotal: number }
   | { downloadedAt: string }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
+  | { isConfirmed: boolean }
   | { showDescription: boolean }
   | {
       deliveries: {
@@ -158,6 +170,7 @@ type MenuType =
   | 'deliveries-feedback'
 const OrderDetail = () => {
   const router = useRouter()
+  const ability = useContext(AbilityContext)
   const menuQuery = router.query.menu as MenuType
   const { id } = router.query
   const auth = useRecoilValueLoadable(authState)
@@ -202,6 +215,11 @@ const OrderDetail = () => {
     }
   }, [menuQuery])
 
+  const User = new orders(auth.getValue().user?.id!)
+
+  const isUpdatable = ability.can('update', User)
+  const isDeletable = ability.can('delete', User)
+
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
   const { data: projectTeam, isLoading: projectTeamLoading } =
@@ -213,7 +231,6 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
-
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
   const [taxable, setTaxable] = useState(projectInfo?.isTaxable ?? false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
@@ -275,7 +292,6 @@ const OrderDetail = () => {
     control: itemControl,
     name: 'items',
   })
-
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -321,7 +337,6 @@ const OrderDetail = () => {
   const [selectedIds, setSelectedIds] = useState<
     { id: number; selected: boolean }[]
   >(getItem('items').map(value => ({ id: value.id!, selected: false })))
-
   const order = useAppSelector(state => state.order)
 
   const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
@@ -339,36 +354,6 @@ const OrderDetail = () => {
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: client?.client.clientId,
   })
-
-  function getPriceOptions(source: string, target: string) {
-    if (!isSuccess) return [defaultOption]
-    console.log(prices)
-
-    console.log(
-      prices.filter(item => {
-        const matchingPairs = item.languagePairs.filter(
-          pair => pair.source === source && pair.target === target,
-        )
-        return matchingPairs.length > 0
-      }),
-    )
-
-    const filteredList = prices
-      .filter(item => {
-        const matchingPairs = item.languagePairs.filter(
-          pair => pair.source === source && pair.target === target,
-        )
-        return matchingPairs.length > 0
-      })
-      .map(item => ({
-        groupName: item.isStandard ? 'Standard client price' : 'Matching price',
-        ...item,
-      }))
-
-    console.log([defaultOption].concat(filteredList))
-
-    return [defaultOption].concat(filteredList)
-  }
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
@@ -425,28 +410,43 @@ const OrderDetail = () => {
   }
 
   function onProjectInfoSave() {
-    const projectInfo = getProjectInfo()
+    const projectInfo = {
+      ...getProjectInfo(),
+      isTaxable: getProjectInfo().isTaxable ? '1' : '0',
+    }
 
     onSave(() => updateProject.mutate(projectInfo))
   }
 
-  const initializeData = () => {
+  const initializeItemData = () => {
     setLanguagePairs(
-      langItem?.languagePairs?.map(item => ({
+      langItem?.items?.map(item => ({
         id: String(item.id),
         source: item.source,
         target: item.target,
-        price: !item?.price
-          ? null
-          : getPriceOptions(item.source, item.target).filter(
-              price => price.id === item?.price?.id!,
-            )[0],
+        price: {
+          id: item.initialPrice?.priceId!,
+          isStandard: item.initialPrice?.isStandard!,
+          priceName: item.initialPrice?.name!,
+          groupName: 'Current price',
+          category: item.initialPrice?.category!,
+          serviceType: item.initialPrice?.serviceType!,
+          currency: item.initialPrice?.currency!,
+          catBasis: item.initialPrice?.calculationBasis!,
+          decimalPlace: item.initialPrice?.numberPlace!,
+          roundingProcedure:
+            RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+          languagePairs: [],
+          priceUnit: [],
+          catInterface: { memSource: [], memoQ: [] },
+        },
       }))!,
     )
     const result = langItem?.items?.map(item => {
       return {
         id: item.id,
-        name: item.name,
+        name: item.itemName,
+        itemName: item.itemName,
         source: item.source,
         target: item.target,
         priceId: item.priceId,
@@ -457,28 +457,36 @@ const OrderDetail = () => {
         totalPrice: item?.totalPrice ?? 0,
         dueAt: item?.dueAt,
         showItemDescription: item.showItemDescription,
+        initialPrice: item.initialPrice,
+        minimumPrice: item.minimumPrice,
+        minimumPriceApplied: item.minimumPriceApplied,
       }
     })
     itemReset({ items: result })
-    const teams: Array<{
-      type: MemberType
-      id: number | null
-      name: string
-    }> = projectTeam!.map(item => ({
-      type:
-        item.position === 'projectManager'
-          ? 'projectManagerId'
-          : item.position === 'supervisor'
-          ? 'supervisorId'
-          : 'member',
-      id: item.userId,
-      name: getLegalName({
-        firstName: item?.firstName!,
-        middleName: item?.middleName,
-        lastName: item?.lastName!,
-      }),
-    }))
-    resetTeam({ teams })
+  }
+
+  const initializeTeamData = () => {
+    if (!projectTeamLoading && projectTeam) {
+      const teams: Array<{
+        type: MemberType
+        id: number | null
+        name: string
+      }> = projectTeam.map(item => ({
+        type:
+          item.position === 'projectManager'
+            ? 'projectManagerId'
+            : item.position === 'supervisor'
+            ? 'supervisorId'
+            : 'member',
+        id: item.userId,
+        name: getLegalName({
+          firstName: item?.firstName!,
+          middleName: item?.middleName,
+          lastName: item?.lastName!,
+        }),
+      }))
+      resetTeam({ teams })
+    }
   }
 
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
@@ -503,15 +511,16 @@ const OrderDetail = () => {
     }
 
     if (newValue === 'item') {
-      initializeData()
+      initializeItemData()
+      initializeTeamData()
     }
 
     setValue(newValue)
   }
 
   const handleRestoreVersion = () => {
-    // TODO API 연결
-    updateProject && updateProject.mutate({ status: 105 })
+    if (canUseFeature('button-Restore'))
+      updateProject && updateProject.mutate({ status: 10500 })
   }
 
   const onClickRestoreVersion = () => {
@@ -542,6 +551,7 @@ const OrderDetail = () => {
           project={projectInfo!}
           onClose={() => closeModal('VersionHistoryModal')}
           onClick={onClickRestoreVersion}
+          canUseDisableButton={canUseFeature('button-Restore')}
         />
       ),
     })
@@ -679,6 +689,7 @@ const OrderDetail = () => {
       contactPerson: client!.contactPerson,
       clientAddress: client!.clientAddress,
       langItem: langItem!,
+      subtotal: projectInfo!.subtotal,
     }
 
     setDownloadData(res)
@@ -750,21 +761,33 @@ const OrderDetail = () => {
   useEffect(() => {
     if (langItem) {
       setLanguagePairs(
-        langItem?.languagePairs?.map(item => ({
+        langItem?.items?.map(item => ({
           id: String(item.id),
           source: item.source,
           target: item.target,
-          price: item.price
-            ? getPriceOptions(item.source, item.target).find(
-                price => price.id === item?.price?.id!,
-              ) ?? null
-            : null,
+          price: {
+            id: item.initialPrice?.priceId!,
+            isStandard: item.initialPrice?.isStandard!,
+            priceName: item.initialPrice?.name!,
+            groupName: 'Current price',
+            category: item.initialPrice?.category!,
+            serviceType: item.initialPrice?.serviceType!,
+            currency: item.initialPrice?.currency!,
+            catBasis: item.initialPrice?.calculationBasis!,
+            decimalPlace: item.initialPrice?.numberPlace!,
+            roundingProcedure:
+              RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+            languagePairs: [],
+            priceUnit: [],
+            catInterface: { memSource: [], memoQ: [] },
+          },
         }))!,
       )
       const result = langItem?.items?.map(item => {
         return {
           id: item.id,
-          name: item.name,
+          name: item.itemName,
+          itemName: item.itemName,
           source: item.source,
           target: item.target,
           priceId: item.priceId,
@@ -774,6 +797,10 @@ const OrderDetail = () => {
           analysis: item.analysis ?? [],
           totalPrice: item?.totalPrice ?? 0,
           dueAt: item?.dueAt,
+          showItemDescription: item.showItemDescription,
+          initialPrice: item.initialPrice,
+          minimumPrice: item.minimumPrice,
+          minimumPriceApplied: item.minimumPriceApplied,
         }
       })
       itemReset({ items: result })
@@ -832,11 +859,18 @@ const OrderDetail = () => {
 
   const onSubmitItems = () => {
     setLangItemsEdit(false)
-    const items: PostItemType[] = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-      showItemDescription: item.showItemDescription ? '1' : '0',
-    }))
+    const items: PostItemType[] = getItem().items.map(item => {
+      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
+      console.log('save item', item)
+      return {
+        ...filterItem,
+        contactPersonId: Number(item.contactPerson?.id!),
+        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+        showItemDescription: item.showItemDescription ? '1' : '0',
+        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+        name: item.itemName,
+      }
+    })
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
@@ -853,35 +887,74 @@ const OrderDetail = () => {
       }
     })
 
-    patchLanguagePairs.mutate(
-      { id: Number(id!), langPair: langs },
-      {
-        onSuccess: () => {
-          patchItems.mutate(
-            { id: Number(id!), items: items },
-            {
-              onSuccess: () => {
-                setLangItemsEdit(false)
-                queryClient.invalidateQueries(`LangItem-${Number(id!)}`)
-                closeModal('LanguageAndItemEditModal')
-              },
+    const subtotal = items.reduce((accumulator, item) => {
+      return accumulator + item.totalPrice
+    }, 0)
+    onSave(async () => {
+      try {
+        patchLanguagePairs.mutate(
+          { id: Number(id!), langPair: langs },
+          {
+            onSuccess: () => {
+              patchItems.mutate(
+                { id: Number(id!), items: items },
+                {
+                  onSuccess: () => {
+                    updateProject.mutate(
+                      {
+                        isTaxable: taxable ? '1' : '0',
+                        tax,
+                        subtotal: subtotal,
+                      },
+                      {
+                        onSuccess: () => {
+                          setLangItemsEdit(false)
+                          queryClient.invalidateQueries(
+                            `LangItem-${Number(id!)}`,
+                          )
+                          closeModal('LanguageAndItemEditModal')
+                        },
+                      },
+                    )
+                  },
+                },
+              )
             },
-          )
-        },
-      },
-    )
-
-    updateProject.mutate({ isTaxable: taxable ? '1' : '0', tax })
+          },
+        )
+      } catch (e: any) {
+        onMutationError()
+      }
+    })
   }
 
   const updateProject = useMutation(
     (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
-      onSuccess: () => {
+      onSuccess: (data: any) => {
+        console.log(data)
+
         setProjectInfoEdit(false)
         setClientEdit(false)
         setProjectTeamEdit(false)
         setLangItemsEdit(false)
+        if (data.id === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: ['orderDetail'],
+          })
+          queryClient.invalidateQueries(['orderList'])
+        } else {
+          router.replace(`/orders/order-list/detail/${data.id}`)
+        }
+      },
+      onError: () => onMutationError(),
+    },
+  )
+
+  const updateProjectWithoutControlForm = useMutation(
+    (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
+    {
+      onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: ['orderDetail'],
         })
@@ -890,6 +963,17 @@ const OrderDetail = () => {
       onError: () => onMutationError(),
     },
   )
+
+  const confirmOrderMutation = useMutation(() => confirmOrder(Number(id)), {
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['orderDetail'],
+      })
+      queryClient.invalidateQueries(['orderList'])
+      closeModal('ConfirmOrderModal')
+    },
+    onError: () => onMutationError(),
+  })
 
   const splitOrderMutation = useMutation(
     (items: number[]) => splitOrder(Number(id!), items),
@@ -936,20 +1020,7 @@ const OrderDetail = () => {
         <CustomModal
           onClose={() => closeModal('ConfirmOrderModal')}
           onClick={() => {
-            updateProject.mutate(
-              {
-                isConfirmed: true,
-                status:
-                  projectInfo?.status === 10500
-                    ? projectInfo.previousStatus
-                    : 103,
-              },
-              {
-                onSuccess: () => {
-                  closeModal('ConfirmOrderModal')
-                },
-              },
-            )
+            confirmOrderMutation.mutate()
           }}
           title='Are you sure you want to confirm this order? It will be delivered to the client.'
           vary='successful'
@@ -1001,7 +1072,7 @@ const OrderDetail = () => {
             onClose={() => closeModal(`${projectInfo.status}ReasonModal`)}
             reason={projectInfo.reason}
             type={
-              projectInfo.status === 10800
+              projectInfo.status === 'Redelivery requested'
                 ? 'Requested'
                 : currentStatus?.label ?? ''
             }
@@ -1012,6 +1083,205 @@ const OrderDetail = () => {
     }
   }
 
+  // 여기서는 role, status, projectTeam 정보를 기반으로 기능을 쓸수 있는지만 체크함
+  // 해당 기능에 첨부된 파일이 있는지 등의 추가 조건은 해당 컴포넌트에서 별도로 체크할 것
+  const canUseFeature = (featureName: OrderFeatureType): boolean => {
+    let flag = false
+    if (currentRole! && currentRole.name !== 'CLIENT') {
+      switch (featureName) {
+        case 'button-ProjectInfo-CancelOrder':
+          flag =
+            isUpdatable &&
+            projectInfo?.status !== 'Invoiced' &&
+            projectInfo?.status !== 'Paid' &&
+            projectInfo?.status !== 'Canceled' &&
+            isIncludeProjectTeam() &&
+            // TODO: 함수 완성해야 함
+            canCancelJob()
+          break
+        case 'button-ProjectInfo-DeleteOrder':
+          flag =
+            isUpdatable &&
+            projectInfo?.status !== 'New' &&
+            projectInfo?.status !== 'In preparation' &&
+            projectInfo?.status !== 'Internal review' &&
+            !projectInfo?.linkedInvoiceReceivable &&
+            projectInfo?.linkedJobs.length === 0 &&
+            isIncludeProjectTeam()
+          break
+        case 'button-Languages&Items-SplitOrder':
+          flag =
+            isUpdatable &&
+            projectInfo?.status !== 'Paid' &&
+            projectInfo?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
+          break
+        case 'button-Restore':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Under revision' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam() &&
+            !projectInfo?.hasChildOrder
+          break
+        case 'button-Deliveries&Feedback-Upload':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam()
+          break
+        case 'button-Deliveries&Feedback-ImportFromJob':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam()
+          break
+        case 'button-Deliveries&Feedback-DownloadAll':
+        case 'button-Deliveries&Feedback-DownloadOnce':
+        case 'button-Deliveries&Feedback-DeliverToClient':
+        case 'checkBox-ProjectInfo-Description':
+          flag = isUpdatable && isIncludeProjectTeam()
+          break
+        case 'button-Deliveries&Feedback-CompleteDelivery':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'Under revision' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            projectInfo?.deliveries?.length > 0
+          isIncludeProjectTeam()
+          break
+        case 'button-Deliveries&Feedback-ConfirmDeliveries':
+          flag = projectInfo?.status === 'Delivery completed'
+          break
+        case 'button-Deliveries&Feedback-RequestRedelivery':
+          flag =
+            projectInfo?.status === 'Partially delivered' ||
+            projectInfo?.status === 'Delivery completed'
+          break
+        case 'tab-ProjectInfo':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'New' ||
+              projectInfo?.status === 'In preparation' ||
+              projectInfo?.status === 'Internal review' ||
+              projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Under revision' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam()
+          break
+        case 'tab-Languages&Items':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'New' ||
+              projectInfo?.status === 'In preparation' ||
+              projectInfo?.status === 'Internal review' ||
+              projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Under revision' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Redelivery requested') &&
+            isIncludeProjectTeam() &&
+            !splitReady
+          break
+        case 'tab-Client':
+          flag =
+            isUpdatable &&
+            projectInfo?.status !== 'Paid' &&
+            projectInfo?.status !== 'Canceled' &&
+            !!!client?.contactPerson?.userId &&
+            isIncludeProjectTeam()
+          break
+        case 'tab-ProjectTeam':
+          flag =
+            isUpdatable &&
+            projectInfo?.status !== 'Paid' &&
+            projectInfo?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
+          break
+        case 'button-DownloadOrder':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Redelivery requested' ||
+              projectInfo?.status === 'Delivery confirmed' ||
+              projectInfo?.status === 'Invoiced' ||
+              projectInfo?.status === 'Paid' ||
+              projectInfo?.status === 'Canceled') &&
+            isIncludeProjectTeam()
+          break
+        case 'button-CreateInvoice':
+          flag =
+            isUpdatable &&
+            !projectInfo?.linkedInvoiceReceivable &&
+            projectInfo?.status === 'Delivery confirmed' &&
+            isIncludeProjectTeam()
+          break
+        case 'button-ConfirmOrder':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'New' ||
+              projectInfo?.status === 'In preparation' ||
+              projectInfo?.status === 'Internal review' ||
+              projectInfo?.status === 'Under revision') &&
+            isIncludeProjectTeam()
+          break
+        case 'button-Edit-Set-Status-To-UnderRevision':
+          flag =
+            isUpdatable &&
+            (projectInfo?.status === 'Order sent' ||
+              projectInfo?.status === 'In progress' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Redelivery requested')
+          break
+      }
+    } else {
+      switch (featureName) {
+        case 'button-Deliveries&Feedback-ConfirmDeliveries':
+          flag = projectInfo?.status === 'Delivery completed'
+          break
+        case 'button-Deliveries&Feedback-RequestRedelivery':
+          flag =
+            projectInfo?.status === 'Partially delivered' ||
+            projectInfo?.status === 'Delivery completed'
+          break
+      }
+    }
+    return flag
+  }
+
+  // 로그인 한 유저가 project team에 속해있는지 체크, 만약 Master, Manager일 경우 true 리턴
+  const isIncludeProjectTeam = () => {
+    return Boolean(
+      (currentRole?.name !== 'CLIENT' &&
+        (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
+        (currentRole?.type === 'General' &&
+          projectTeam?.length &&
+          projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
+    )
+  }
+  // TODO: Order에 포함된 Job의 status를 체크하는 함수 필요
+  const canCancelJob = () => {
+    // 포함된 job중에서 status가 [Partially delivered], [Delivered], [Invoiced], [Paid], [Without invoice]가 있는 경우 false
+    return true
+  }
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1034,6 +1304,7 @@ const OrderDetail = () => {
                   gap: '8px',
                 }}
               >
+                {/* 뒤로가기 */}
                 {projectInfoEdit ||
                 projectTeamEdit ||
                 clientEdit ||
@@ -1139,25 +1410,6 @@ const OrderDetail = () => {
                     </Box>
                   ) : null}
                 </Box>
-                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <OrderStatusChip
-                    status={projectInfo?.status ?? ''}
-                    label={currentStatus?.label ?? ''}
-                  />
-                  {(projectInfo?.status === 10800 ||
-                    projectInfo?.status === 101200) && (
-                    <IconButton
-                      onClick={() => {
-                        projectInfo?.reason && onClickReason()
-                      }}
-                    >
-                      <img
-                        src='/images/icons/onboarding-icons/more-reason.svg'
-                        alt='more'
-                      />
-                    </IconButton>
-                  )}
-                </Box>
               </Box>
               {projectInfoEdit ||
               projectTeamEdit ||
@@ -1171,12 +1423,7 @@ const OrderDetail = () => {
                     variant='outlined'
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickDownloadOrder}
-                    disabled={
-                      projectInfo?.status === 10000 ||
-                      projectInfo?.status === 10100 ||
-                      projectInfo?.status === 10200 ||
-                      projectInfo?.status === 10500
-                    }
+                    disabled={!canUseFeature('button-DownloadOrder')}
                   >
                     <Icon icon='material-symbols:request-quote' />
                     Download order
@@ -1185,7 +1432,7 @@ const OrderDetail = () => {
                     variant='outlined'
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickCreateInvoice}
-                    disabled={projectInfo?.status !== 10900}
+                    disabled={!canUseFeature('button-CreateInvoice')}
                   >
                     Create invoice
                   </Button>
@@ -1193,11 +1440,7 @@ const OrderDetail = () => {
                     variant='contained'
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickConfirmOrder}
-                    disabled={
-                      projectInfo?.status !== 10000 &&
-                      projectInfo?.status !== 10100 &&
-                      projectInfo?.status !== 10500
-                    }
+                    disabled={!canUseFeature('button-ConfirmOrder')}
                   >
                     Confirm order
                   </Button>
@@ -1321,16 +1564,17 @@ const OrderDetail = () => {
                       type={'detail'}
                       project={projectInfo!}
                       setEditMode={setProjectInfoEdit}
-                      isUpdatable={
-                        currentRole! && currentRole.name !== 'CLIENT'
-                      }
+                      isUpdatable={canUseFeature('tab-ProjectInfo')}
                       updateStatus={(status: number) =>
-                        updateProject.mutate({ status: status })
+                        updateProjectWithoutControlForm.mutate({
+                          status: status,
+                        })
                       }
                       updateProject={updateProject}
                       client={client}
                       statusList={statusList!}
                       role={currentRole!}
+                      canUseFeature={canUseFeature}
                     />
                   </Fragment>
                 )}
@@ -1367,9 +1611,13 @@ const OrderDetail = () => {
                     selectedIds={selectedIds}
                     setSelectedIds={setSelectedIds}
                     splitReady={splitReady}
+                    updateStatus={(status: number) =>
+                      updateProjectWithoutControlForm.mutate({ status: status })
+                    }
+                    canUseFeature={canUseFeature}
                   />
 
-                  <Grid item xs={12}>
+                  {/* <Grid item xs={12}>
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <Box
                         sx={{
@@ -1400,7 +1648,7 @@ const OrderDetail = () => {
                         </Typography>
                       </Box>
                     </Box>
-                  </Grid>
+                  </Grid> */}
 
                   {currentRole?.name === 'CLIENT' ? null : (
                     <Grid
@@ -1455,10 +1703,15 @@ const OrderDetail = () => {
                     ? renderSubmitButton({
                         onCancel: () =>
                           onDiscard({
-                            callback: () => setLangItemsEdit(false),
+                            callback: () => {
+                              setLangItemsEdit(false), itemReset()
+                              setTax(projectInfo?.tax!)
+                              setTaxable(projectInfo?.isTaxable!)
+                            },
                           }),
                         onSave: () => onSubmitItems(),
-                        isValid: isItemValid || (taxable && tax! > 0),
+                        isValid:
+                          isItemValid || !taxable || (taxable && tax! > 0),
                       })
                     : null}
                   {splitReady && selectedIds ? (
@@ -1496,11 +1749,12 @@ const OrderDetail = () => {
                       <ClientQuotesFormContainer
                         control={clientControl}
                         setValue={setClientValue}
+                        getValue={getClientValue}
                         watch={clientWatch}
-                        setTax={setTax}
                         setTaxable={setTaxable}
                         type='order'
                         formType='edit'
+                        fromQuote={false}
                       />
                       {renderSubmitButton({
                         onCancel: () =>
@@ -1515,11 +1769,7 @@ const OrderDetail = () => {
                     type={'detail'}
                     client={client!}
                     setEdit={setClientEdit}
-                    isUpdatable={
-                      projectInfo?.status !== 101100 &&
-                      projectInfo?.status !== 101200 &&
-                      client?.contactPerson?.userId !== null
-                    }
+                    canUseFeature={canUseFeature}
                   />
                 )}
               </Suspense>
@@ -1539,6 +1789,7 @@ const OrderDetail = () => {
                         errors={teamErrors}
                         isValid={isTeamValid}
                         watch={teamWatch}
+                        getValue={getTeamValues}
                       />
                       {renderSubmitButton({
                         onCancel: () =>
@@ -1562,10 +1813,7 @@ const OrderDetail = () => {
                     setPageSize={setProjectTeamListPageSize}
                     setEdit={setProjectTeamEdit}
                     updateProject={updateProject}
-                    isUpdatable={
-                      projectInfo?.status !== 101100 &&
-                      projectInfo?.status !== 101200
-                    }
+                    canUseFeature={canUseFeature}
                   />
                 )}
               </Suspense>
@@ -1589,6 +1837,7 @@ const OrderDetail = () => {
                   isSubmittable={true}
                   updateProject={updateProject}
                   statusList={statusList!}
+                  canUseFeature={canUseFeature}
                 />
               </Suspense>
             </TabPanel>

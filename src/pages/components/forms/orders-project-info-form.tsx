@@ -23,7 +23,14 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 
 // ** types
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
-import { Fragment, ReactNode, useContext, useEffect, useState } from 'react'
+import {
+  Fragment,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react'
 
 // ** react hook form
 import {
@@ -36,7 +43,7 @@ import {
 } from 'react-hook-form'
 
 // ** fetch
-import { useGetWorkNameList } from '@src/queries/pro-project/project.query'
+import { useGetWorkNameList } from '@src/queries/client.query'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -89,20 +96,19 @@ export default function ProjectInfoForm({
   )
   const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
-    // console.log(minutes % 30)
 
     const formattedMinutes =
       minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
-    // console.log(formattedMinutes)
 
     const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
     const formattedTime = `${formattedHours}:${formattedMinutes
       .toString()
       .padStart(2, '0')}`
-    const formattedDate = new Date()
+    const formattedDate = new Date(now)
     formattedDate.setHours(parseInt(formattedTime.split(':')[0]))
     formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
 
@@ -145,6 +151,23 @@ export default function ProjectInfoForm({
   function onWorkNameInputChange(name: string) {
     setWorkNameError(workName?.some(item => item.value === name) || false)
   }
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setOpenPopper(false)
+      }
+    }
+
+    window.addEventListener('mousedown', handleOutsideClick)
+
+    return () => {
+      window.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [])
 
   function onAddWorkName() {
     openModal({
@@ -232,12 +255,15 @@ export default function ProjectInfoForm({
         />
       </Grid>
 
-      <Grid item xs={6}>
+      <Grid item xs={6} ref={containerRef}>
         <Controller
           name='workName'
           control={control}
           render={({ field: { value, onChange } }) => {
-            const finedValue = workName.find(item => item.value === value)
+            const finedValue = workName.find(item => item.value === value) || {
+              value: value,
+              label: value,
+            }
             return (
               <Autocomplete
                 disableClearable
@@ -407,6 +433,7 @@ export default function ProjectInfoForm({
                     ? ServiceTypeList
                     : ServiceTypePair[category]
                 }
+                limitTags={2}
                 onChange={(e, v) => {
                   onChange(v.map(item => item.value))
                 }}
@@ -417,7 +444,7 @@ export default function ProjectInfoForm({
                   <TextField
                     {...params}
                     label='Service type'
-                    placeholder='Service type'
+                    // placeholder='Service type'
                   />
                 )}
               />
@@ -439,6 +466,7 @@ export default function ProjectInfoForm({
                 fullWidth
                 disabled={!category}
                 multiple
+                limitTags={2}
                 options={
                   !category || !AreaOfExpertisePair[category]
                     ? AreaOfExpertiseList
@@ -454,7 +482,7 @@ export default function ProjectInfoForm({
                   <TextField
                     {...params}
                     label='Area of expertise'
-                    placeholder='Area of expertise'
+                    // placeholder='Area of expertise'
                   />
                 )}
               />
@@ -471,7 +499,9 @@ export default function ProjectInfoForm({
               <Autocomplete
                 autoHighlight
                 fullWidth
-                options={RevenueFrom}
+                options={RevenueFrom.sort((a, b) =>
+                  a.value > b.value ? 1 : b.value > a.value ? -1 : 0,
+                )}
                 onChange={(e, v) => {
                   onChange(v?.value ?? '')
                 }}

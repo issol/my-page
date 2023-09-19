@@ -1,11 +1,5 @@
 // ** React imports
-import {
-  Dispatch,
-  SetStateAction,
-  forwardRef,
-  useEffect,
-  useState,
-} from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 
 // ** MUI Imports
 import FormControl from '@mui/material/FormControl'
@@ -19,7 +13,6 @@ import {
   Card,
   CardHeader,
   Checkbox,
-  FormHelperText,
   Grid,
   IconButton,
   InputAdornment,
@@ -30,19 +23,9 @@ import {
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import format from 'date-fns/format'
-import addDays from 'date-fns/addDays'
-import { FilterType } from '..'
-import {
-  ClientQuoteStatus,
-  ClientStatus,
-  QuotesStatus,
-  WorkStatus,
-} from '@src/shared/const/status/statuses'
-import {
-  ClientInvoiceFilterType,
-  ClientProjectFilterType,
-} from '@src/types/client/client-projects.type'
+
+import { FilterType } from '.'
+
 import {
   Control,
   UseFormHandleSubmit,
@@ -68,6 +51,7 @@ import { Category } from '@src/shared/const/category/category.enum'
 import _ from 'lodash'
 import { QuotesFilterType } from '@src/types/quotes/quote'
 import { UserRoleType } from '@src/context/types'
+import dayjs from 'dayjs'
 
 type Props = {
   filter: QuotesFilterType
@@ -129,6 +113,14 @@ export default function QuotesFilters({
   const [collapsed, setCollapsed] = useState<boolean>(true)
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
+
+  const dateValue = (startDate: Date, endDate: Date) => {
+    return startDate?.toDateString() === endDate?.toDateString()
+      ? dayjs(startDate).format('MM/DD/YYYY')
+      : `${dayjs(startDate).format('MM/DD/YYYY')}${
+          endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
+        }`
+  }
 
   return (
     <DatePickerWrapper>
@@ -385,9 +377,28 @@ export default function QuotesFilters({
                             shouldCloseOnSelect={false}
                             id='date-range-picker-months'
                             onChange={onChange}
+                            onCalendarClose={() => {
+                              if (value && value.length > 0) {
+                                if (value[1] === null) {
+                                  onChange([value[0], value[0]])
+                                }
+                              }
+                            }}
                             popperPlacement={popperPlacement}
                             customInput={
-                              <CustomInput label='Quote date' icon='calendar' />
+                              <Box>
+                                <CustomInput
+                                  label='Quote date'
+                                  icon='calendar'
+                                  placeholder='MM-DD-YYYY - MM-DD-YYYY'
+                                  readOnly
+                                  value={
+                                    value.length > 0
+                                      ? dateValue(value[0], value[1])
+                                      : ''
+                                  }
+                                />
+                              </Box>
                             }
                           />
                         </Box>
@@ -413,18 +424,34 @@ export default function QuotesFilters({
                             selected={value && value![0]}
                             startDate={value && value![0]}
                             shouldCloseOnSelect={false}
+                            onCalendarClose={() => {
+                              if (value && value.length > 0) {
+                                if (value[1] === null) {
+                                  onChange([value[0], value[0]])
+                                }
+                              }
+                            }}
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
                             customInput={
-                              <CustomInput
-                                label={
-                                  role.name === 'CLIENT'
-                                    ? 'Estimated delivery date'
-                                    : 'Quote deadline'
-                                }
-                                icon='calendar'
-                              />
+                              <Box>
+                                <CustomInput
+                                  label={
+                                    role.name === 'CLIENT'
+                                      ? 'Estimated delivery date'
+                                      : 'Quote deadline'
+                                  }
+                                  icon='calendar'
+                                  readOnly
+                                  placeholder='MM-DD-YYYY - MM-DD-YYYY'
+                                  value={
+                                    value && value.length > 0
+                                      ? dateValue(value[0], value[1])
+                                      : ''
+                                  }
+                                />
+                              </Box>
                             }
                           />
                         </Box>
@@ -451,18 +478,34 @@ export default function QuotesFilters({
                               selected={value && value![0]}
                               startDate={value && value![0]}
                               shouldCloseOnSelect={false}
+                              onCalendarClose={() => {
+                                if (value && value.length > 0) {
+                                  if (value[1] === null) {
+                                    onChange([value[0], value[0]])
+                                  }
+                                }
+                              }}
                               id='date-range-picker-months'
                               onChange={onChange}
                               popperPlacement={popperPlacement}
                               customInput={
-                                <CustomInput
-                                  label={
-                                    role.name === 'CLIENT'
-                                      ? 'Project due date'
-                                      : 'Quote expiry date'
-                                  }
-                                  icon='calendar'
-                                />
+                                <Box>
+                                  <CustomInput
+                                    label={
+                                      role.name === 'CLIENT'
+                                        ? 'Project due date'
+                                        : 'Quote expiry date'
+                                    }
+                                    icon='calendar'
+                                    readOnly
+                                    placeholder='MM-DD-YYYY - MM-DD-YYYY'
+                                    value={
+                                      value && value.length > 0
+                                        ? dateValue(value[0], value[1])
+                                        : ''
+                                    }
+                                  />
+                                </Box>
                               }
                             />
                           )}
@@ -480,14 +523,12 @@ export default function QuotesFilters({
                           <>
                             <InputLabel>Search projects</InputLabel>
                             <OutlinedInput
-                              label='Search invoice name'
+                              label='Search projects'
                               value={value}
                               onChange={onChange}
                               endAdornment={
                                 <InputAdornment position='end'>
-                                  <IconButton edge='end'>
-                                    <Icon icon='mdi:magnify' />
-                                  </IconButton>
+                                  <Icon icon='mdi:magnify' />
                                 </InputAdornment>
                               }
                             />

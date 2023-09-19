@@ -53,3 +53,13 @@ export type ClientDetailType = Omit<CompanyInfoFormType, 'memo'> & {
     authorId: number
     isEnrolledClient: boolean
   } & ClientContactPersonType & { isReferred: boolean }
+
+export type CreateWorkNameType = {
+  label: string,
+  value: string
+}
+
+export type WorkNameResType = {
+  label: string,
+  value: string
+}

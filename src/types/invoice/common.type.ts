@@ -47,6 +47,7 @@ export type InvoiceProjectInfoFormType = {
   tax: number | null
   isTaxable: boolean
   notes?: string
+  subtotal: string | number
 }
 
 export type ProInvoiceListType = {

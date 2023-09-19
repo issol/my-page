@@ -215,6 +215,7 @@ const InvoiceLanguageAndItem = ({
             getPriceOptions={getPriceOptions}
             type={'detail'}
             onDeleteLanguagePair={onDeleteLanguagePair}
+            items={items}
           />
         </Grid>
       )}

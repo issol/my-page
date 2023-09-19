@@ -14,6 +14,7 @@ type Props = {
   textareaPlaceholder?: string
   leftButtonText?: string
   rightButtonText: string
+  soloButton?: boolean
 }
 
 const CustomModal = ({
@@ -27,6 +28,7 @@ const CustomModal = ({
   rightButtonText,
   textarea,
   textareaPlaceholder,
+  soloButton,
 }: Props) => {
   const [text, setText] = useState('')
 
@@ -110,9 +112,12 @@ const CustomModal = ({
             mt: '16px',
           }}
         >
-          <Button variant='outlined' onClick={onClose}>
-            {leftButtonText ?? 'Cancel'}
-          </Button>
+          {soloButton ? null : (
+            <Button variant='outlined' onClick={onClose}>
+              {leftButtonText ?? 'Cancel'}
+            </Button>
+          )}
+
           <Button
             variant='contained'
             onClick={() => (textarea ? onClick(text) : onClick())}

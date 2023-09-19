@@ -1,5 +1,5 @@
 // ** mui
-import { Button, Card, Chip, Grid, Typography } from '@mui/material'
+import { Button, Card, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
@@ -47,6 +47,7 @@ type Props = {
         }>
       | []
     count: number
+    totalCount: number
   }
   isLoading: boolean
   page: 'client' | 'onboarding'
@@ -163,7 +164,7 @@ export default function ClientGuideLineList({
           title={
             <Box display='flex' justifyContent='space-between'>
               <Typography variant='h6'>
-                Guidelines ({list?.count | 0})
+                Guidelines ({list?.totalCount | 0})
               </Typography>{' '}
               <Button variant='contained'>
                 <StyledNextLink
@@ -184,7 +185,7 @@ export default function ClientGuideLineList({
               NoResultsOverlay: () => noData(),
             }}
             rows={list.data}
-            rowCount={list.count}
+            rowCount={list.totalCount}
             loading={isLoading}
             rowsPerPageOptions={[10, 25, 50]}
             pagination

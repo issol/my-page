@@ -21,6 +21,7 @@ import {
   Control,
   UseFormSetValue,
   UseFormWatch,
+  UseFormGetValues,
 } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -62,20 +63,24 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 type Props = {
   control: Control<ClientFormType, any>
   setValue: UseFormSetValue<ClientFormType>
+  getValue: UseFormGetValues<ClientFormType>
   watch: UseFormWatch<ClientFormType>
-  setTax: (n: number | null) => void
+
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'edit' | 'create'
+  fromQuote: boolean
 }
 export default function ClientQuotesFormContainer({
   control,
   setValue,
   watch,
-  setTax,
+
   setTaxable,
   type,
   formType,
+  getValue,
+  fromQuote = false,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [openForm, setOpenForm] = useState(false)
@@ -104,6 +109,7 @@ export default function ClientQuotesFormContainer({
     getValues: getCompanyInfoValues,
     setValue: setCompanyInfoValues,
     watch: companyInfoWatch,
+    reset: resetCompanyInfo,
     formState: { errors: companyInfoErrors, isValid: isCompanyInfoValid },
   } = useForm<CompanyInfoFormType>({
     mode: 'onChange',
@@ -113,6 +119,7 @@ export default function ClientQuotesFormContainer({
   const {
     control: addressControl,
     getValues: getAddressValues,
+    reset: resetAddressControl,
     formState: { errors: addressErrors, isValid: isAddressValid },
   } = useForm<ClientAddressFormType>({
     defaultValues: clientAddressDefaultValue,
@@ -134,6 +141,7 @@ export default function ClientQuotesFormContainer({
     control: contactPersonControl,
     getValues: getContactPersonValues,
     watch: watchContactPerson,
+    reset: resetContactPersons,
     formState: { errors: contactPersonErrors, isValid: isContactPersonValid },
   } = useForm<ClientContactPersonType>({
     defaultValues: contactPersonDefaultValue,
@@ -145,6 +153,7 @@ export default function ClientQuotesFormContainer({
     fields: contactPersons,
     append: appendContactPersons,
     remove: removeContactPersons,
+   
   } = useFieldArray({
     control: contactPersonControl,
     name: 'contactPersons',
@@ -192,12 +201,21 @@ export default function ClientQuotesFormContainer({
         <CloseConfirmModal
           message='Are you sure? Changes you made may not be saved.'
           onClick={() => setOpenForm(false)}
-          onClose={() => closeModal('close-confirm')}
+          onClose={() => {
+            resetAddNewClientForm()
+            closeModal('close-confirm')
+          }}
         />
       ),
     })
   }
 
+  const resetAddNewClientForm = () => {
+    resetCompanyInfo()
+    resetAddressControl()
+    resetContactPersons()
+    setActiveStep(0)
+  }
   const setValueOptions = {
     shouldDirty: true,
     shouldValidate: true,
@@ -231,6 +249,7 @@ export default function ClientQuotesFormContainer({
       .finally(() => {
         setOpenForm(false)
         refetch()
+        resetAddNewClientForm()
       })
   }
   function onSaveClient() {
@@ -259,7 +278,10 @@ export default function ClientQuotesFormContainer({
               getContactPersonValues()?.contactPersons,
             )
           }
-          onClose={() => closeModal('create-client')}
+          onClose={() => {
+            resetAddNewClientForm()
+            closeModal('create-client')
+          }}
         />
       ),
     })
@@ -285,12 +307,13 @@ export default function ClientQuotesFormContainer({
         <RegisterClientForm
           control={control}
           setValue={setValue}
+          getValue={getValue}
           watch={watch}
           clientList={clients}
-          setTax={setTax}
           setTaxable={setTaxable}
           type={type}
           formType={formType}
+          fromQuote={fromQuote}
         />
       </Grid>
 

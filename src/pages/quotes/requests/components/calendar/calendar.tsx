@@ -78,11 +78,11 @@ export default Calendar
 
 const CustomEvent = styled(Box)<{ color: string }>`
   border-color: transparent !important;
-  border-radius: 4px;
+  // border-radius: 4px;
   padding: 1px 4px 4px;
   color: rgba(76, 78, 100, 0.87) !important;
   border-left: ${({ color }) => `6px solid ${color}`} !important;
-  border-right: ${({ color }) => `6px solid ${color}`} !important;
+  // border-right: ${({ color }) => `6px solid ${color}`} !important;
   background: ${({ color }) =>
     `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
 `

@@ -58,8 +58,7 @@ export type QuotesProjectInfoFormType = {
   showDescription: boolean
   tax: number | null
   isTaxable: boolean
-  // TODO: subTotal 타입 체크하기
-  subTotal: number
+  subtotal: number
 }
 
 export type QuotesProjectInfoAddNewType = {
@@ -78,7 +77,7 @@ export type QuotesProjectInfoAddNewType = {
   showDescription: boolean
   tax: number | null
   isTaxable: boolean
-  subTotal: number
+  subtotal: number
 }
 
 export type QuotesListType = {
@@ -88,6 +87,10 @@ export type QuotesListType = {
   projectName: string
   currency: CurrencyType
   client: {
+    name: string
+    email: string
+  }
+  lsp?: {
     name: string
     email: string
   }
@@ -118,6 +121,7 @@ export type ProjectInfoType = {
   expertise: string[]
   projectName: string
   projectDescription: string
+  showDescription: boolean
   projectDueAt: string
   projectDueTimezone: CountryType
   quoteDeadline: string
@@ -140,6 +144,7 @@ export type ProjectInfoType = {
     id: number
     corporationId: string
   } | null
+  subtotal: string | number
 }
 
 export type VersionHistoryType = HistoryType & {
@@ -178,4 +183,5 @@ export type QuoteDownloadData = {
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
   langItem: LanguageAndItemType | undefined
+  subtotal: string | number | undefined
 }
