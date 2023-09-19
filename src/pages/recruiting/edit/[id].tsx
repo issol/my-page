@@ -18,7 +18,7 @@ import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-
+import { v4 as uuidv4 } from 'uuid'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
@@ -716,7 +716,7 @@ export default function RecruitingEdit() {
                               onChange={(e, v) => onChange(v)}
                               disableClearable
                               renderOption={(props, option) => (
-                                <Box component='li' {...props}>
+                                <Box component='li' {...props} key={uuidv4()}>
                                   {getGmtTimeEng(option.code)}
                                 </Box>
                               )}

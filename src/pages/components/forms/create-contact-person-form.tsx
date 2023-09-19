@@ -24,6 +24,7 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 // ** components
 import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
+import { v4 as uuidv4 } from 'uuid'
 
 type Props<T extends number | string = number> = {
   control: Control<ContactPersonType, any>
@@ -137,7 +138,7 @@ export default function CreateContactPersonForm<
               onChange={(e, v) => field.onChange(v)}
               disableClearable
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
+                <Box component='li' {...props} key={uuidv4()}>
                   {option.label} ({option.code}) +{option.phone}
                 </Box>
               )}

@@ -13,8 +13,8 @@ import {
 } from '@mui/material'
 
 // ** components
-import { ModalContainer } from '@src/@core/components/modal'
 
+import { v4 as uuidv4 } from 'uuid'
 // ** helper
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 
@@ -221,7 +221,7 @@ export default function AddContactPersonForm<
                       onChange={(e, v) => field.onChange(v)}
                       disableClearable
                       renderOption={(props, option) => (
-                        <Box component='li' {...props}>
+                        <Box component='li' {...props} key={uuidv4()}>
                           {option.label} ({option.code}) +{option.phone}
                         </Box>
                       )}

@@ -21,6 +21,7 @@ import styled from 'styled-components'
 import DatePicker from 'react-datepicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** Data
 import { countries } from 'src/@fake-db/autocomplete'
@@ -190,7 +191,7 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
               onChange={(e, v) => field.onChange(v)}
               disableClearable
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
+                <Box component='li' {...props} key={uuidv4()}>
                   {option.label} ({option.code}) +{option.phone}
                 </Box>
               )}

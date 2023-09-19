@@ -16,6 +16,7 @@ import styled from 'styled-components'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import { countries } from '@src/@fake-db/autocomplete'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   onClose: any
@@ -113,9 +114,9 @@ const ConfirmInvoiceModal = ({ onClose, onClick }: Props) => {
                     taxInvoiceDueTimezone: v as CountryType,
                   })
                 }}
-                getOptionLabel={option => getGmtTimeEng(option.code)}
+                getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                 renderOption={(props, option) => (
-                  <Box component='li' {...props}>
+                  <Box component='li' {...props} key={uuidv4()}>
                     {getGmtTimeEng(option.code)}
                   </Box>
                 )}

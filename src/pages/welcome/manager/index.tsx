@@ -23,6 +23,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 // ** CleaveJS Imports
 import Cleave from 'cleave.js/react'
 import 'cleave.js/dist/addons/cleave-phone.us'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** Hooks
 
@@ -362,7 +363,7 @@ const PersonalInfoManager = () => {
                           onChange={(e, v) => field.onChange(v)}
                           disableClearable
                           renderOption={(props, option) => (
-                            <Box component='li' {...props}>
+                            <Box component='li' {...props} key={uuidv4()}>
                               {option.label} ({option.code}) +{option.phone}
                             </Box>
                           )}

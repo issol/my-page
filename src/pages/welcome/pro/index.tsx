@@ -30,7 +30,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 // ** CleaveJS Imports
 import Cleave from 'cleave.js/react'
 import 'cleave.js/dist/addons/cleave-phone.us'
-
+import { v4 as uuidv4 } from 'uuid'
 // ** Hooks
 
 // ** Layout Import
@@ -262,7 +262,7 @@ const PersonalInfoPro = () => {
           email: auth.getValue().user!.email,
           accessToken: accessTokenAsString,
         })
-  
+
         router.push('/home')
       },
       onError: () => {
@@ -750,7 +750,7 @@ const PersonalInfoPro = () => {
                             onChange={(e, v) => field.onChange(v)}
                             disableClearable
                             renderOption={(props, option) => (
-                              <Box component='li' {...props}>
+                              <Box component='li' {...props} key={uuidv4()}>
                                 {option.label} ({option.code}) +{option.phone}
                               </Box>
                             )}
@@ -948,27 +948,37 @@ const PersonalInfoPro = () => {
                                 <Autocomplete
                                   fullWidth
                                   options={
-                                    item.role && item.role !== '' 
-                                    /* @ts-ignore */
-                                    ? ProJobPair[item.role] 
-                                    : JobList
+                                    item.role && item.role !== ''
+                                      ? /* @ts-ignore */
+                                        ProJobPair[item.role]
+                                      : JobList
                                   }
-                                  getOptionLabel={(option) => option.label}
-                                  value={{label: item.jobType, value: item.jobType}}
+                                  getOptionLabel={option => option.label}
+                                  value={{
+                                    label: item.jobType,
+                                    value: item.jobType,
+                                  }}
                                   onChange={(e, newValue) =>
-                                    onChangeJobInfo(item.id, newValue?.value ?? '', 'jobType')
+                                    onChangeJobInfo(
+                                      item.id,
+                                      newValue?.value ?? '',
+                                      'jobType',
+                                    )
                                   }
-                                  renderInput={(params) => (
+                                  renderInput={params => (
                                     <TextField
                                       {...params}
-                                      label="Job type*"
-                                      placeholder="Job type *"
-                                      error={errors.jobInfo?.length ? !!errors.jobInfo[idx]?.jobType : false}
+                                      label='Job type*'
+                                      placeholder='Job type *'
+                                      error={
+                                        errors.jobInfo?.length
+                                          ? !!errors.jobInfo[idx]?.jobType
+                                          : false
+                                      }
                                     />
                                   )}
                                 />
-                              )
-                            }
+                              )}
                             />
                             {errors.jobInfo?.length
                               ? errors.jobInfo[idx]?.jobType && (
@@ -986,22 +996,30 @@ const PersonalInfoPro = () => {
                                 <Autocomplete
                                   fullWidth
                                   options={
-                                    item.jobType && item.jobType !== '' 
-                                    /* @ts-ignore */
-                                    ? ProRolePair[item.jobType] 
-                                    : RoleList
+                                    item.jobType && item.jobType !== ''
+                                      ? /* @ts-ignore */
+                                        ProRolePair[item.jobType]
+                                      : RoleList
                                   }
-                                  getOptionLabel={(option) => option.label}
-                                  value={{label: item.role, value: item.role}}
+                                  getOptionLabel={option => option.label}
+                                  value={{ label: item.role, value: item.role }}
                                   onChange={(e, newValue) =>
-                                    onChangeJobInfo(item.id, newValue?.value ?? '', 'role')
+                                    onChangeJobInfo(
+                                      item.id,
+                                      newValue?.value ?? '',
+                                      'role',
+                                    )
                                   }
-                                  renderInput={(params) => (
+                                  renderInput={params => (
                                     <TextField
                                       {...params}
-                                      label="Role*"
-                                      placeholder="Role *"
-                                      error={errors.jobInfo?.length ? !!errors.jobInfo[idx]?.role : false}
+                                      label='Role*'
+                                      placeholder='Role *'
+                                      error={
+                                        errors.jobInfo?.length
+                                          ? !!errors.jobInfo[idx]?.role
+                                          : false
+                                      }
                                     />
                                   )}
                                 />
@@ -1210,17 +1228,17 @@ const PersonalInfoPro = () => {
                           <Autocomplete
                             fullWidth
                             options={ExperiencedYears}
-                            getOptionLabel={(option) => option.label}
-                            value={{label: value, value: value}}
+                            getOptionLabel={option => option.label}
+                            value={{ label: value, value: value }}
                             onChange={(event, item) => {
-                              console.log("event",event,item)
+                              console.log('event', event, item)
                               onChange(item ? item.value : '')
                             }}
-                            renderInput={(params) => (
+                            renderInput={params => (
                               <TextField
                                 {...params}
-                                label="Years of experience*"
-                                placeholder="Years of experience *"
+                                label='Years of experience*'
+                                placeholder='Years of experience *'
                                 error={Boolean(errors.experience)}
                               />
                             )}

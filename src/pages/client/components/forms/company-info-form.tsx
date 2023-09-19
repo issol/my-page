@@ -21,6 +21,7 @@ import { ClientStatus } from '@src/shared/const/status/statuses'
 import { countries } from 'src/@fake-db/autocomplete'
 
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** react hook form
 import {
@@ -244,9 +245,9 @@ export default function CompanyInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTimeEng(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
+                <Box component='li' {...props} key={uuidv4()}>
                   {getGmtTimeEng(option.code)}
                 </Box>
               )}

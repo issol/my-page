@@ -17,6 +17,7 @@ import styled from 'styled-components'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** Custom Component Imports
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
@@ -208,9 +209,9 @@ export default function InvoiceProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
+                <Box component='li' {...props} key={uuidv4()}>
                   {getGmtTimeEng(option.code)}
                 </Box>
               )}
@@ -507,9 +508,9 @@ export default function InvoiceProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
+                <Box component='li' {...props} key={uuidv4()}>
                   {getGmtTimeEng(option.code)}
                 </Box>
               )}
@@ -592,9 +593,9 @@ export default function InvoiceProjectInfoForm({
                     disabled={!client ? false : isClientRegistered}
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
-                    getOptionLabel={option => getGmtTimeEng(option.code)}
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
+                      <Box component='li' {...props} key={uuidv4()}>
                         {getGmtTimeEng(option.code)}
                       </Box>
                     )}
@@ -673,9 +674,9 @@ export default function InvoiceProjectInfoForm({
                     }
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
-                    getOptionLabel={option => getGmtTimeEng(option.code)}
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
+                      <Box component='li' {...props} key={uuidv4()}>
                         {getGmtTimeEng(option.code)}
                       </Box>
                     )}

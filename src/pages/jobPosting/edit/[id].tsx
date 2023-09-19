@@ -702,7 +702,7 @@ export default function JobPostingEdit() {
                               onChange={(e, v) => onChange(v)}
                               disableClearable
                               renderOption={(props, option) => (
-                                <Box component='li' {...props}>
+                                <Box component='li' {...props} key={uuidv4()}>
                                   {getGmtTimeEng(option.code)}
                                 </Box>
                               )}
