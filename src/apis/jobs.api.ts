@@ -221,75 +221,32 @@ export const getProJobList = async (
 ): Promise<{
   data: ProJobListType[]
   totalCount: number
+  count: number
 }> => {
   try {
-    // const { data } = await axios.get(`/api/enough/u/job/pro?${makeQuery(filter)}`)
-    // return data
-    return {
-      data: [
-        {
-          id: 1,
-          corporationId: 'corporation1',
-          serviceType: 'service1',
-          name: 'job1',
-          jobDueDate: '2023-08-30T14:13:15Z',
-          status: 'Job overdue',
-          currency: 'USD',
-          totalPrice: '100',
-          message: {
-            unReadCount: 1,
-            contents: [
-              {
-                id: 1,
-                content: 'message1',
-                createdAt: '2023-08-31T14:13:15Z',
-                firstName: 'John',
-                middleName: null,
-                lastName: 'Doe',
-                email: 'john.doe@example.com',
-                role: 'role1',
-              },
-            ],
-          },
-        },
-        {
-          id: 2,
-          corporationId: 'corporation2',
-          serviceType: 'service2',
-          name: 'job2',
-          currency: 'KRW',
-          totalPrice: '1000',
-          jobDueDate: '2023-08-29T14:13:15Z',
-          status: 'Invoiced',
-          message: {
-            unReadCount: 2,
-            contents: [
-              {
-                id: 2,
-                content: 'message2',
-                createdAt: '2023-08-30T14:13:15Z',
-                firstName: 'Jane',
-                middleName: null,
-                lastName: 'Doe',
-                email: 'jane.doe@example.com',
-                role: 'role2',
-              },
-              {
-                id: 3,
-                content: 'message3',
-                createdAt: '2023-08-30T17:13:15Z',
-                firstName: 'Bob',
-                middleName: 'A.',
-                lastName: 'Smith',
-                email: 'bob.smith@example.com',
-                role: 'role3',
-              },
-            ],
-          },
-        },
-      ],
-      totalCount: 2,
-    }
+    const { data } = await axios.get(
+      `/api/enough/u/pro/job/list?${makeQuery(filter)}`,
+    )
+    return data
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const getProJobClientList = async (filter: {
+  filterType: 'client' | 'contactPerson'
+}): Promise<
+  {
+    id: number
+    name: string
+  }[]
+> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/pro/job/filter-option?${makeQuery(filter)}`,
+    )
+
+    return data
   } catch (error: any) {
     throw new Error(error)
   }

@@ -1,7 +1,10 @@
 import { Box } from '@mui/material'
 import { JobListFilterType } from '../requested-ongoing-list'
 import { useState } from 'react'
-import { useGetProJobList } from '@src/queries/jobs/jobs.query'
+import {
+  useGetProJobClientList,
+  useGetProJobList,
+} from '@src/queries/jobs/jobs.query'
 import { useForm } from 'react-hook-form'
 import Filters from './filters'
 import { useGetStatusList } from '@src/queries/common.query'
@@ -16,8 +19,8 @@ export type FilterType = {
   requestedDate: Date[]
   status: Array<{ label: string; value: number }>
 
-  client: Array<{ label: string; value: number }>
-  contactPerson: Array<{ label: string; value: number }>
+  client: { name: string; id: number } | null
+  contactPerson: { name: string; id: number } | null
 
   search: string
 }
@@ -26,9 +29,9 @@ const defaultValues: FilterType = {
   jobDueDate: [],
   requestedDate: [],
   status: [],
-  contactPerson: [],
+  contactPerson: null,
 
-  client: [],
+  client: null,
 
   search: '',
 }
@@ -38,13 +41,14 @@ const defaultFilters: JobListFilterType = {
   skip: 0,
   search: '',
 
-  client: [],
-  jobDueDateFrom: '',
-  jobDueDateTo: '',
+  client: null,
+  dueDateFrom: '',
+  dueDateTo: '',
   requestedDateFrom: '',
   requestedDateTo: '',
   status: [],
-  contactPerson: [],
+  contactPerson: null,
+  listType: 'completed',
 }
 
 const DeliveredInactiveList = () => {
@@ -57,19 +61,18 @@ const DeliveredInactiveList = () => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
 
+  const { data: contactPersonList, isLoading: contactPersonListLoading } =
+    useGetProJobClientList({
+      filterType: 'contactPerson',
+    })
+
+  const { data: clientList, isLoading: clientListLoading } =
+    useGetProJobClientList({
+      filterType: 'client',
+    })
+
   const { data: statusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
-
-  const [clientList, setClientList] = useState<
-    {
-      label: string
-      value: number
-    }[]
-  >([])
-
-  const [contactPersonList, setContactPersonList] = useState<
-    { label: string; value: number }[]
-  >([])
 
   const { control, handleSubmit, reset } = useForm<FilterType>({
     defaultValues,
@@ -94,16 +97,17 @@ const DeliveredInactiveList = () => {
     } = data
 
     const filter: JobListFilterType = {
-      client: client.map(value => value.label),
+      client: client?.id,
+      listType: 'completed',
 
-      jobDueDateFrom: jobDueDate[0]?.toISOString() ?? '',
-      jobDueDateTo: jobDueDate[1]?.toISOString() ?? '',
+      dueDateFrom: jobDueDate[0]?.toISOString() ?? '',
+      dueDateTo: jobDueDate[1]?.toISOString() ?? '',
 
       requestedDateFrom: requestedDate[0]?.toISOString() ?? '',
       requestedDateTo: requestedDate[1]?.toISOString() ?? '',
 
       status: status.map(value => value.value),
-      contactPerson: contactPerson.map(value => value.label),
+      contactPerson: contactPerson?.id,
 
       search: search,
       take: rowsPerPage,
@@ -127,14 +131,17 @@ const DeliveredInactiveList = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Filters
-        clientList={clientList}
-        contactPersonList={contactPersonList}
+        clientList={clientList!}
+        contactPersonList={contactPersonList!}
+        clientListLoading={clientListLoading}
+        contactPersonListLoading={contactPersonListLoading}
         handleSubmit={handleSubmit}
         control={control}
         onSubmit={onSubmit}
         onReset={onClickResetButton}
         statusList={statusList!}
       />
+
       <JobList
         type='delivered'
         columns={getProJobColumns()}

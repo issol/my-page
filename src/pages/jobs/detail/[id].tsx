@@ -10,6 +10,7 @@ import styled from 'styled-components'
 
 import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
+import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 type MenuType = 'jobInfo' | 'feedback'
 
 const ProJobsDetail = () => {
@@ -20,7 +21,9 @@ const ProJobsDetail = () => {
     setValue(newValue)
   }
 
-  const { data: jobDetail, isLoading } = useGetProJobDetail(Number(id)!)
+  const { data: jobDetail, isLoading } = useGetProJobDetail(Number(id))
+  const { data: jobPrices } = useGetJobPrices(Number(id), false)
+
   return (
     <Box>
       <Box
@@ -44,7 +47,7 @@ const ProJobsDetail = () => {
           <Typography variant='h5'>{jobDetail?.corporationId}</Typography>
         </Box>
       </Box>
-      {jobDetail && (
+      {jobDetail && jobPrices && (
         <TabContext value={value}>
           <TabList
             onChange={handleChange}
@@ -74,12 +77,12 @@ const ProJobsDetail = () => {
           </TabList>
           <TabPanel value='jobInfo' sx={{ pt: '24px' }}>
             <Suspense>
-              <ProJobInfo jobInfo={jobDetail} />
+              <ProJobInfo jobInfo={jobDetail} jobPrices={jobPrices} />
             </Suspense>
           </TabPanel>
           <TabPanel value='feedback' sx={{ pt: '24px' }}>
             <Suspense>
-              <DeliveriesFeedback jobInfo={jobDetail} />
+              {/* <DeliveriesFeedback jobInfo={jobDetail} /> */}
             </Suspense>
           </TabPanel>
         </TabContext>

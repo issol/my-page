@@ -22,14 +22,16 @@ import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { Icon } from '@iconify/react'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import dayjs from 'dayjs'
 
 type Props = {
   handleSubmit: UseFormHandleSubmit<FilterType>
   control: Control<FilterType, any>
   clientList: {
-    label: string
-    value: number
+    name: string
+    id: number
   }[]
+  clientListLoading: boolean
   onSubmit: (data: FilterType) => void
   onReset: () => void
 }
@@ -38,6 +40,7 @@ const JobFilters = ({
   control,
   onSubmit,
   clientList,
+  clientListLoading,
   onReset,
 }: Props) => {
   const theme = useTheme()
@@ -45,6 +48,14 @@ const JobFilters = ({
   const [collapsed, setCollapsed] = useState<boolean>(true)
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
+
+  const dateValue = (startDate: Date, endDate: Date) => {
+    return startDate.toDateString() === endDate?.toDateString()
+      ? dayjs(startDate).format('MM/DD/YYYY')
+      : `${dayjs(startDate).format('MM/DD/YYYY')}${
+          endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
+        }`
+  }
 
   return (
     <DatePickerWrapper>
@@ -85,27 +96,28 @@ const JobFilters = ({
                   name={'client'}
                   render={({ field: { onChange, value } }) => (
                     <Autocomplete
-                      multiple
+                      // multiple
                       fullWidth
+                      loading={clientListLoading}
                       onChange={(event, item) => {
                         onChange(item)
                       }}
                       value={value}
                       isOptionEqualToValue={(option, newValue) => {
-                        return option.value === newValue.value
+                        return option.id === newValue.id
                       }}
                       disableCloseOnSelect
                       limitTags={1}
                       options={clientList}
                       id='client'
-                      getOptionLabel={option => option.label}
+                      getOptionLabel={option => option.name}
                       renderInput={params => (
                         <TextField {...params} label={'Client'} />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
                           <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
+                          {option.name}
                         </li>
                       )}
                     />
@@ -130,7 +142,17 @@ const JobFilters = ({
                         onChange={onChange}
                         popperPlacement={popperPlacement}
                         customInput={
-                          <CustomInput label='Job due date' icon='calendar' />
+                          <Box>
+                            <CustomInput
+                              label='Job due date'
+                              icon='calendar'
+                              value={
+                                value.length > 0
+                                  ? dateValue(value[0], value[1])
+                                  : ''
+                              }
+                            />
+                          </Box>
                         }
                       />
                     </Box>

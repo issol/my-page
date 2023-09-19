@@ -30,9 +30,16 @@ export const getProJobColumns = () => {
   }
 
   const getJobDateDiff = (jobDueDate: string) => {
+    console.log(jobDueDate)
+
     const now = dayjs()
     const dueDate = dayjs(jobDueDate)
+    console.log(dueDate)
+
     const diff = dueDate.diff(now, 'second')
+
+    console.log(diff)
+
     const isPast = diff < 0
 
     const days = Math.abs(Math.floor(diff / 86400))
@@ -79,6 +86,12 @@ export const getProJobColumns = () => {
             .padStart(2, '0')} mins left`}</Typography>
         </>
       )
+    } else if (!isPast) {
+      return (
+        <Typography variant='body1' fontWeight={600} fontSize={14}>
+          {FullDateTimezoneHelper(jobDueDate, auth.getValue().user?.timezone)}
+        </Typography>
+      )
     }
   }
 
@@ -94,11 +107,15 @@ export const getProJobColumns = () => {
       hideSortIcons: true,
       renderCell: ({ row }: { row: ProJobListType }) => {
         return (
-          <Badge
-            variant='dot'
-            color='primary'
-            sx={{ marginLeft: '4px' }}
-          ></Badge>
+          <>
+            {row.lightUpDot ? (
+              <Badge
+                variant='dot'
+                color='primary'
+                sx={{ marginLeft: '4px' }}
+              ></Badge>
+            ) : null}
+          </>
         )
       },
     },
@@ -195,7 +212,7 @@ export const getProJobColumns = () => {
         return (
           <>
             {auth.state === 'hasValue' ? (
-              <Box>{getJobDateDiff(row.jobDueDate)}</Box>
+              <Box>{getJobDateDiff(row.dueAt)}</Box>
             ) : null}
           </>
         )

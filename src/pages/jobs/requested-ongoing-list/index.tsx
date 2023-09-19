@@ -4,13 +4,16 @@ import JobList from './list'
 import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
 import { FilterType } from '..'
 import { useState } from 'react'
-import { useGetProJobList } from '@src/queries/jobs/jobs.query'
+import {
+  useGetProJobClientList,
+  useGetProJobList,
+} from '@src/queries/jobs/jobs.query'
 import { useForm } from 'react-hook-form'
 
 const defaultValues: FilterType = {
   jobDueDate: [],
 
-  client: [],
+  client: null,
 
   search: '',
 }
@@ -20,13 +23,14 @@ export type JobListFilterType = {
   search?: string
   ordering?: 'desc' | 'asc'
   sort?: 'corporationId'
-  jobDueDateTo?: string
-  jobDueDateFrom?: string
+  dueDateTo?: string
+  dueDateFrom?: string
   requestedDateTo?: string
   requestedDateFrom?: string
   status?: number[]
-  contactPerson?: string[]
-  client?: string[]
+  contactPerson?: number | null
+  client?: number | null
+  listType: 'requested-ongoing' | 'completed'
 }
 
 const defaultFilters: JobListFilterType = {
@@ -34,25 +38,24 @@ const defaultFilters: JobListFilterType = {
   skip: 0,
   search: '',
 
-  client: [],
-  jobDueDateFrom: '',
-  jobDueDateTo: '',
+  client: null,
+  dueDateFrom: '',
+  dueDateTo: '',
+  listType: 'requested-ongoing',
 }
 
 const RequestedOngoingList = () => {
   const [filters, setFilters] = useState<JobListFilterType>(defaultFilters)
 
   const { data: jobList, isLoading } = useGetProJobList(filters)
+  const { data: clientList, isLoading: clientLoading } = useGetProJobClientList(
+    {
+      filterType: 'client',
+    },
+  )
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
-
-  const [clientList, setClientList] = useState<
-    {
-      label: string
-      value: number
-    }[]
-  >([])
 
   const { control, handleSubmit, reset } = useForm<FilterType>({
     defaultValues,
@@ -75,10 +78,11 @@ const RequestedOngoingList = () => {
     } = data
 
     const filter: JobListFilterType = {
-      client: client.map(value => value.label),
+      client: client?.id,
+      listType: 'requested-ongoing',
 
-      jobDueDateFrom: jobDueDate[0]?.toISOString() ?? '',
-      jobDueDateTo: jobDueDate[1]?.toISOString() ?? '',
+      dueDateFrom: jobDueDate[0]?.toISOString() ?? '',
+      dueDateTo: jobDueDate[1]?.toISOString() ?? '',
 
       search: search,
       take: rowsPerPage,
@@ -96,7 +100,8 @@ const RequestedOngoingList = () => {
         onSubmit={onSubmit}
         control={control}
         handleSubmit={handleSubmit}
-        clientList={clientList}
+        clientList={clientList!}
+        clientListLoading={clientLoading}
         onReset={onClickResetButton}
       />
       <JobList

@@ -1,4 +1,4 @@
-import { JobStatusType } from '../jobs/common.type'
+import { JobStatusType, ProJobStatusType } from '../jobs/common.type'
 import { JobPricesDetailType } from '../jobs/jobs.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
@@ -67,7 +67,7 @@ export type JobType = {
   order: { id: number }
   corporationId: string
   name: string
-  status: JobStatusType
+  status: JobStatusType | ProJobStatusType
   contactPersonId: number
   serviceType: string
   sourceLanguage: string

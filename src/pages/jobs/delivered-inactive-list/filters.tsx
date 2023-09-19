@@ -27,18 +27,21 @@ type Props = {
   handleSubmit: UseFormHandleSubmit<FilterType>
   control: Control<FilterType, any>
   clientList: {
-    label: string
-    value: number
+    name: string
+    id: number
   }[]
   contactPersonList: {
-    value: number
-    label: string
+    name: string
+    id: number
   }[]
 
   statusList: {
     value: number
     label: string
   }[]
+
+  clientListLoading: boolean
+  contactPersonListLoading: boolean
   onSubmit: (data: FilterType) => void
   onReset: () => void
 }
@@ -47,6 +50,8 @@ const Filters = ({
   control,
   clientList,
   contactPersonList,
+  clientListLoading,
+  contactPersonListLoading,
   onSubmit,
   onReset,
   statusList,
@@ -96,27 +101,27 @@ const Filters = ({
                   name={'contactPerson'}
                   render={({ field: { onChange, value } }) => (
                     <Autocomplete
-                      multiple
                       fullWidth
+                      loading={contactPersonListLoading}
                       onChange={(event, item) => {
                         onChange(item)
                       }}
                       value={value}
                       isOptionEqualToValue={(option, newValue) => {
-                        return option.value === newValue.value
+                        return option.id === newValue.id
                       }}
                       disableCloseOnSelect
                       limitTags={1}
                       options={contactPersonList}
                       id='contactPerson'
-                      getOptionLabel={option => option.label}
+                      getOptionLabel={option => option.name}
                       renderInput={params => (
                         <TextField {...params} label={'Contact person'} />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
                           <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
+                          {option.name}
                         </li>
                       )}
                     />
@@ -129,27 +134,28 @@ const Filters = ({
                   name={'client'}
                   render={({ field: { onChange, value } }) => (
                     <Autocomplete
-                      multiple
+                      // multiple
                       fullWidth
+                      loading={clientListLoading}
                       onChange={(event, item) => {
                         onChange(item)
                       }}
                       value={value}
                       isOptionEqualToValue={(option, newValue) => {
-                        return option.value === newValue.value
+                        return option.id === newValue.id
                       }}
                       disableCloseOnSelect
                       limitTags={1}
                       options={clientList}
                       id='client'
-                      getOptionLabel={option => option.label}
+                      getOptionLabel={option => option.name}
                       renderInput={params => (
                         <TextField {...params} label={'Client'} />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
                           <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
+                          {option.name}
                         </li>
                       )}
                     />

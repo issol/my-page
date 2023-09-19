@@ -17,7 +17,7 @@ export type ProJobStatusType =
   | 'Paid'
   | 'Unassigned'
   | 'Canceled'
-  | 'without invoice'
+  | 'Without invoice'
   | 'Requested from LPM'
   | 'Awaiting approval'
   | 'In progress'

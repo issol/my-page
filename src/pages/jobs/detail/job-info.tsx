@@ -33,7 +33,11 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { authState } from '@src/states/auth'
 import { FileType } from '@src/types/common/file.type'
-import { JobsFileType, ProJobDetailType } from '@src/types/jobs/jobs.type'
+import {
+  JobPricesDetailType,
+  JobsFileType,
+  ProJobDetailType,
+} from '@src/types/jobs/jobs.type'
 import { useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
@@ -47,9 +51,11 @@ import { useGetGuideLines } from '@src/queries/client-guideline.query'
 import PriceUnit from '@src/pages/components/standard-prices/component/price-unit'
 import dayjs from 'dayjs'
 import PriceUnitGuideline from './components/modal/price-unit-guideline'
+import { JobType } from '@src/types/common/item.type'
 
 type Props = {
   jobInfo: ProJobDetailType
+  jobPrices: JobPricesDetailType
 }
 
 const ClientGuidelineView = dynamic(
@@ -57,7 +63,7 @@ const ClientGuidelineView = dynamic(
   { ssr: false },
 )
 
-const ProJobInfo = ({ jobInfo }: Props) => {
+const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
   const auth = useRecoilValueLoadable(authState)
 
   const { openModal, closeModal } = useModal()
@@ -376,18 +382,20 @@ const ProJobInfo = ({ jobInfo }: Props) => {
   }
 
   const onClickClientGuidelineView = () => {
-    openModal({
-      type: 'ClientGuidelineViewModal',
-      isCloseable: false,
-      children: (
-        <ClientGuidelineView
-          onClose={() => closeModal('ClientGuidelineViewModal')}
-          downloadAllFiles={downloadAllFiles}
-          guideLines={jobInfo.guideLines}
-          downloadOneFile={downloadOneFile}
-        />
-      ),
-    })
+    if (jobInfo.guideLines) {
+      openModal({
+        type: 'ClientGuidelineViewModal',
+        isCloseable: false,
+        children: (
+          <ClientGuidelineView
+            onClose={() => closeModal('ClientGuidelineViewModal')}
+            downloadAllFiles={downloadAllFiles}
+            guideLines={jobInfo.guideLines}
+            downloadOneFile={downloadOneFile}
+          />
+        ),
+      })
+    }
   }
 
   const getJobDateDiff = (jobDueDate: string) => {
@@ -476,14 +484,16 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                       alignItems: 'center',
                     }}
                   >
-                    {ProJobStatusChip(jobInfo.status)}
+                    {ProJobStatusChip(jobInfo.status as ProJobStatusType)}
                     {jobInfo.status === 'Unassigned' ||
                     jobInfo.status === 'Canceled' ||
                     jobInfo.status === 'Job overdue' ? (
                       <IconButton
                         sx={{ padding: 0 }}
                         onClick={() =>
-                          onClickOnClickStatusMoreInfo(jobInfo.status)
+                          onClickOnClickStatusMoreInfo(
+                            jobInfo.status as ProJobStatusType,
+                          )
                         }
                       >
                         <Icon icon='fe:question' fontSize={18}></Icon>
@@ -575,7 +585,7 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                       }}
                     >
                       <Typography variant='body2'>
-                        {jobInfo.client.name}
+                        {jobInfo.order.client.name}
                       </Typography>
                     </Box>
                   </Box>
@@ -921,7 +931,7 @@ const ProJobInfo = ({ jobInfo }: Props) => {
                         }}
                       >
                         <Typography variant='body2'>
-                          ${jobInfo.price.totalPrice}
+                          ${jobPrices.totalPrice}
                         </Typography>
                       </Box>
                     </Box>

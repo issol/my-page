@@ -4,9 +4,11 @@ import {
   getJobsList,
   getJobsTrackerDetail,
   getJobsTrackerList,
+  getProJobClientList,
   getProJobList,
 } from '@src/apis/jobs.api'
-import { JobListFilterType } from '@src/pages/jobs'
+import { JobListFilterType } from '@src/pages/jobs/requested-ongoing-list'
+
 import { FilterType as ListFilterType } from '@src/pages/orders/job-list/list-view/list-view'
 import { DetailFilterType } from '@src/pages/orders/job-list/tracker-view/[id]'
 import toast from 'react-hot-toast'
@@ -67,4 +69,18 @@ export const useGetProJobDetail = (id: number) => {
     suspense: true,
     keepPreviousData: true,
   })
+}
+
+export const useGetProJobClientList = (filter: {
+  filterType: 'client' | 'contactPerson'
+}) => {
+  return useQuery(
+    ['proJobClientList', filter],
+    () => getProJobClientList(filter),
+    {
+      staleTime: 60 * 1000, // 1
+      suspense: true,
+      keepPreviousData: true,
+    },
+  )
 }

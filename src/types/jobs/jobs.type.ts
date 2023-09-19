@@ -91,6 +91,7 @@ export type JobPricesDetailType = {
   totalPrice: number
   currency: CurrencyType
   priceName: string
+  isUsedCAT: boolean
   datas: Array<{
     quantity: number
     priceUnitTitle: string
@@ -112,10 +113,10 @@ export type ProJobListType = {
   corporationId: string
   serviceType: string
   name: string
-  jobDueDate: string
+  dueAt: string
   status: ProJobStatusType
   currency: CurrencyType
-  totalPrice: string | null
+  lightUpDot: boolean
   message: {
     unReadCount: number
     contents:
@@ -147,16 +148,19 @@ export type ProJobDetailType = {
   corporationId: string
   name: string
   status: ProJobStatusType
-  client: {
-    clientId: number
-    email: string
-    fax: string | null
-    mobile: string | null
-    phone: string | null
-    timezone: CountryType
-    name: string
-    taxable: boolean
-    tax: number | null
+
+  order: {
+    client: {
+      clientId: number
+      email: string
+      fax: string | null
+      mobile: string | null
+      phone: string | null
+      timezone: CountryType
+      name: string
+      taxable: boolean
+      tax: number | null
+    }
   }
 
   contactPerson: ContactPersonType | null
@@ -172,7 +176,7 @@ export type ProJobDetailType = {
     totalPrice: number
     isUsedCAT: boolean
   }
-  guideLines: ProGuidelineType
+  guideLines: ProGuidelineType | null
   description: string
   files: Array<JobsFileType>
 

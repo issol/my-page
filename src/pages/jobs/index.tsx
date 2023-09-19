@@ -1,24 +1,22 @@
 import { Box, Tab, Typography } from '@mui/material'
-import JobFilters from './requested-ongoing-list/filters'
-import JobList from './requested-ongoing-list/list'
+
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import { Suspense, SyntheticEvent, useState, MouseEvent } from 'react'
 import styled from 'styled-components'
 import TabPanel from '@mui/lab/TabPanel'
 import { Icon } from '@iconify/react'
-import { useForm } from 'react-hook-form'
-import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
-import { useGetProJobList } from '@src/queries/jobs/jobs.query'
+
 import RequestedOngoingList from './requested-ongoing-list'
 import DeliveredInactiveList from './delivered-inactive-list'
+import { useGetProJobClientList } from '@src/queries/jobs/jobs.query'
 
 type MenuType = 'requested' | 'completed'
 
 export type FilterType = {
   jobDueDate: Date[]
 
-  client: Array<{ label: string; value: number }>
+  client: { name: string; id: number } | null
 
   search: string
 }
