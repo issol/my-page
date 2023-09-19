@@ -346,15 +346,15 @@ export default function QuotesLanguageItemsDetail({
               variant='subtitle1'
               sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
             >
-              {items.length && items[0].initialPrice
+              {getItem().items.length && getItem().items[0].initialPrice
                 ? formatCurrency(
                     formatByRoundingProcedure(
                       isEditMode ? subtotal : Number(project?.subtotal),
-                      items[0].initialPrice?.numberPlace!,
-                      items[0].initialPrice?.rounding!,
-                      items[0].initialPrice?.currency!,
+                      getItem().items[0].initialPrice?.numberPlace!,
+                      getItem().items[0].initialPrice?.rounding!,
+                      getItem().items[0].initialPrice?.currency!,
                     ),
-                    items[0].initialPrice?.currency!,
+                    getItem().items[0].initialPrice?.currency!,
                   )
                 : 0}
             </Typography>
