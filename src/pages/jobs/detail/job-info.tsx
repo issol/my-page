@@ -991,77 +991,80 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
       </Grid>
       <Grid item xs={2.75}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <Card>
-            <Box
-              sx={{
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              <Box display='flex' justifyContent='space-between'>
-                <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                  {jobInfo.status !== 'Requested from LPM' &&
-                  jobInfo.status !== 'Canceled' &&
-                  jobInfo.status !== 'Unassigned' &&
-                  jobInfo.status !== 'Awaiting approval' &&
-                  jobInfo.status !== 'Declined'
-                    ? 'Source files'
-                    : 'Sample files'}
-                </Typography>
-                <Typography variant='body2'>
-                  {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
-                </Typography>
-              </Box>
-              {fileList.length === 0 &&
-              jobInfo.status !== 'Requested from LPM' &&
-              jobInfo.status !== 'Canceled' &&
-              jobInfo.status !== 'Unassigned' &&
-              jobInfo.status !== 'Awaiting approval' &&
-              jobInfo.status !== 'Declined' ? null : fileList.length > 0 ? (
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  startIcon={<Icon icon='mdi:download' />}
-                  onClick={() => downloadAllFiles(jobInfo?.files)}
-                  disabled={
-                    fileList.length === 0 ||
-                    jobInfo.status === 'Declined' ||
-                    jobInfo.status === 'Canceled'
-                  }
-                >
-                  Download all
-                </Button>
-              ) : null}
-            </Box>
-            <Box
-              sx={{
-                padding: '0 20px',
-                overflow: 'scroll',
-                marginBottom: '12px',
-                maxHeight: '300px',
-                // height: '300px',
-
-                '&::-webkit-scrollbar': { display: 'none' },
-              }}
-            >
-              {fileList.length === 0 &&
-              jobInfo.status !== 'Requested from LPM' &&
-              jobInfo.status !== 'Canceled' &&
-              jobInfo.status !== 'Unassigned' &&
-              jobInfo.status !== 'Awaiting approval' &&
-              jobInfo.status !== 'Declined' ? (
-                <Card sx={{ background: '#F9F8F9', padding: '20px' }}>
-                  <Typography variant='body2'>
-                    The file is going to be uploaded shortly.
+          {fileList.length === 0 &&
+          jobInfo.status !== 'Requested from LPM' &&
+          jobInfo.status !== 'Canceled' &&
+          jobInfo.status !== 'Unassigned' &&
+          jobInfo.status !== 'Awaiting approval' &&
+          jobInfo.status !== 'Declined' ? null : (
+            <Card>
+              <Box
+                sx={{
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
+              >
+                <Box display='flex' justifyContent='space-between'>
+                  <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
+                    {jobInfo.status !== 'Requested from LPM' &&
+                    jobInfo.status !== 'Canceled' &&
+                    jobInfo.status !== 'Unassigned' &&
+                    jobInfo.status !== 'Awaiting approval' &&
+                    jobInfo.status !== 'Declined'
+                      ? 'Source files'
+                      : 'Sample files'}
                   </Typography>
-                </Card>
-              ) : fileList.length > 0 ? (
-                fileList
-              ) : null}
-            </Box>
-          </Card>
+                  <Typography variant='body2'>
+                    {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+                  </Typography>
+                </Box>
+                {fileList.length === 0 &&
+                jobInfo.status !== 'Requested from LPM' &&
+                jobInfo.status !== 'Canceled' &&
+                jobInfo.status !== 'Unassigned' &&
+                jobInfo.status !== 'Awaiting approval' &&
+                jobInfo.status !== 'Declined' ? null : fileList.length > 0 ? (
+                  <Button
+                    variant='outlined'
+                    fullWidth
+                    startIcon={<Icon icon='mdi:download' />}
+                    onClick={() => downloadAllFiles(jobInfo?.files)}
+                    disabled={
+                      fileList.length === 0 ||
+                      jobInfo.status === 'Declined' ||
+                      jobInfo.status === 'Canceled'
+                    }
+                  >
+                    Download all
+                  </Button>
+                ) : null}
+              </Box>
+              <Box
+                sx={{
+                  padding: '0 20px',
+                  overflow: 'scroll',
+                  marginBottom: '12px',
+                  maxHeight: '300px',
+                  // height: '300px',
+
+                  '&::-webkit-scrollbar': { display: 'none' },
+                }}
+              >
+                {fileList.length === 0 &&
+                jobInfo.status !== 'Requested from LPM' &&
+                jobInfo.status !== 'Canceled' &&
+                jobInfo.status !== 'Unassigned' &&
+                jobInfo.status !== 'Awaiting approval' &&
+                jobInfo.status !== 'Declined'
+                  ? null
+                  : fileList.length > 0
+                  ? fileList
+                  : null}
+              </Box>
+            </Card>
+          )}
 
           {jobInfo.status === 'Requested from LPM' ? (
             <Card sx={{ padding: '20px' }}>
