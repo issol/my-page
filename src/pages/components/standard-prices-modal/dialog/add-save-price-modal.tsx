@@ -616,7 +616,7 @@ const AddSavePriceModal = ({
                     onChange={(event, item) => {
                       onChange(item)
                     }}
-                    value={value || { value: null, label: '' }}
+                    value={value || { value: 0, label: 'Round (Round down to 0.5 - round up from 0.5)' }}
                     options={RoundingProcedureList}
                     id='RoundingProcedure'
                     getOptionLabel={option => option.label}
