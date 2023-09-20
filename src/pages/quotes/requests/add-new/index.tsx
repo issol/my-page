@@ -239,14 +239,14 @@ export default function AddNewRequest() {
     const contactPersonId = clients?.find(client => client?.userId! === auth.getValue().user?.userId!)
     const { userId, ...filterData } = data
     const calData = {
-      ...filterData, 
-      contactPersonId: 
+      ...filterData,
+      contactPersonId:
         data.contactPersonId === auth.getValue().user?.userId!
-        ? contactPersonId?.value! 
+        ? contactPersonId?.value!
         : data.contactPersonId,
       items: dateFixedItem
     }
-    
+
     console.log("calData",calData)
     if (files.length) {
       const fileInfo: Array<{ fileName: string; fileSize: number }> = []
@@ -515,7 +515,7 @@ export default function AddNewRequest() {
                       multiline
                       fullWidth
                       error={Boolean(errors.notes)}
-                      placeholder='Write down a note'
+                      placeholder='Write down a note.'
                       value={value ?? ''}
                       onChange={onChange}
                       inputProps={{ maxLength: 500 }}
