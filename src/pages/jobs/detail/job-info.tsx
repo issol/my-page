@@ -978,7 +978,9 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                     }}
                   >
                     <Typography variant='body2'>
-                      {jobInfo.description === '' ? '-' : jobInfo.description}
+                      {jobInfo.description === '' || !jobInfo.description
+                        ? '-'
+                        : jobInfo.description}
                     </Typography>
                   </Box>
                 </Box>
