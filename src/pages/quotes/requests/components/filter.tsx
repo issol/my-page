@@ -443,7 +443,7 @@ export default function Filter({
                         name='search'
                         render={({ field: { onChange, value } }) => (
                           <>
-                            <InputLabel>Search Pros</InputLabel>
+                            <InputLabel>Search items</InputLabel>
                             <OutlinedInput
                               label='Search Items'
                               value={value}
