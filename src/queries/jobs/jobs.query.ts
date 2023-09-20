@@ -1,4 +1,8 @@
-import { getProJobDetail, getProJobDetailDots } from '@src/apis/job-detail.api'
+import {
+  getProJobDeliveries,
+  getProJobDetail,
+  getProJobDetailDots,
+} from '@src/apis/job-detail.api'
 import {
   getJobHistory,
   getJobsList,
@@ -87,6 +91,14 @@ export const useGetProJobClientList = (filter: {
 
 export const useGetProJobDots = (id: number) => {
   return useQuery(['proJobDots', id], () => getProJobDetailDots(id), {
+    staleTime: 60 * 1000, // 1
+    suspense: true,
+    keepPreviousData: true,
+  })
+}
+
+export const useGetProJobDeliveries = (id: number) => {
+  return useQuery(['proJobDeliveries', id], () => getProJobDeliveries(id), {
     staleTime: 60 * 1000, // 1
     suspense: true,
     keepPreviousData: true,

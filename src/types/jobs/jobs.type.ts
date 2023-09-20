@@ -183,6 +183,8 @@ export type JobsFileType = {
   type: 'SAMPLE' | 'SOURCE' | 'TARGET'
   createdAt?: string
   updatedAt?: string
+  savedAt?: string
+  isDownloaded?: boolean
 }
 
 export type ProJobDetailType = {
@@ -222,24 +224,24 @@ export type ProJobDetailType = {
   description: string
   files: Array<JobsFileType>
 
-  deliveries: [
-    {
-      id: number
-      deliveredDate: string
-      files: JobsFileType[]
-      note: string
-    },
-  ]
-  feedbacks: [
-    {
-      id: number
-      isChecked: boolean
-      name: string
-      email: string
-      createdAt: string
-      feedback: string
-    },
-  ]
+  // deliveries: [
+  //   {
+  //     id: number
+  //     deliveredDate: string
+  //     files: JobsFileType[]
+  //     note: string
+  //   },
+  // ]
+  // feedbacks: [
+  //   {
+  //     id: number
+  //     isChecked: boolean
+  //     name: string
+  //     email: string
+  //     createdAt: string
+  //     feedback: string
+  //   },
+  // ]
 }
 
 export type ProGuidelineType = {
@@ -255,4 +257,13 @@ export type ProGuidelineType = {
   updatedAt: string
   content: any
   files: Array<FileType>
+}
+
+export type ProJobDeliveryType = {
+  id: number
+  createdAt: string
+  updatedAt: string
+  note: string
+  isWithoutFile: boolean
+  files: Array<JobsFileType>
 }

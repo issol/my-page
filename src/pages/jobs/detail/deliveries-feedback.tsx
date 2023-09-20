@@ -37,6 +37,7 @@ import { S3FileType } from '@src/shared/const/signedURLFileType'
 import toast from 'react-hot-toast'
 import Deliveries from './components/deliveries'
 import Feedbacks from './components/feedbacks'
+import { useGetProJobDeliveries } from '@src/queries/jobs/jobs.query'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -47,6 +48,8 @@ const DeliveriesFeedback = ({ jobInfo }: Props) => {
   const [withoutFiles, setWithoutFiles] = useState(false)
   const [note, setNote] = useState<string | null>(null)
   const auth = useRecoilValueLoadable(authState)
+
+  const { data: deliveries } = useGetProJobDeliveries(jobInfo.id)
 
   const { openModal, closeModal } = useModal()
 
@@ -285,7 +288,7 @@ const DeliveriesFeedback = ({ jobInfo }: Props) => {
                   {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
-              {jobInfo.status === 'Delivered to LPM' ? null : (
+              {jobInfo.status === 60900 ? null : (
                 <Box
                   sx={{
                     display: 'flex',
@@ -328,7 +331,7 @@ const DeliveriesFeedback = ({ jobInfo }: Props) => {
                 </Box>
               )}
             </Box>
-            {jobInfo.status === 'Delivered to LPM' ? null : (
+            {jobInfo.status === 60900 ? null : (
               <>
                 {fileList.length > 0 && (
                   <Box
@@ -370,7 +373,7 @@ const DeliveriesFeedback = ({ jobInfo }: Props) => {
               </>
             )}
           </Card>
-          {jobInfo.deliveries.length > 0
+          {/* {jobInfo.deliveries.length > 0
             ? jobInfo.deliveries.map(value => (
                 <Deliveries
                   key={uuidv4()}
@@ -389,13 +392,13 @@ const DeliveriesFeedback = ({ jobInfo }: Props) => {
 
               <Feedbacks feedbacks={jobInfo.feedbacks} />
             </Card>
-          ) : null}
+          ) : null} */}
         </Box>
       </Grid>
       <Grid item xs={3.25}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <Card sx={{ padding: '24px' }}>
-            {jobInfo.status === 'Delivered to LPM' ? (
+            {jobInfo.status === 60900 ? (
               <Box
                 sx={{
                   height: '38px',

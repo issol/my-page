@@ -95,7 +95,7 @@ const ProJobsDetail = () => {
           </TabPanel>
           <TabPanel value='feedback' sx={{ pt: '24px' }}>
             <Suspense>
-              {/* <DeliveriesFeedback jobInfo={jobDetail} /> */}
+              <DeliveriesFeedback jobInfo={jobDetail} />
             </Suspense>
           </TabPanel>
         </TabContext>

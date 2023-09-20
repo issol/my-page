@@ -5,6 +5,7 @@ import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import {
   JobPricesDetailType,
+  ProJobDeliveryType,
   ProJobDetailType,
 } from '@src/types/jobs/jobs.type'
 import {
@@ -351,6 +352,17 @@ export const patchProJobDetail = async (
 export const getProJobDetailDots = async (id: number): Promise<string[]> => {
   try {
     const { data } = await axios.get(`/api/enough/u/job/${id}/dot`)
+    return data
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const getProJobDeliveries = async (
+  id: number,
+): Promise<Array<ProJobDeliveryType>> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/job/${id}/delivery`)
     return data
   } catch (error: any) {
     throw new Error(error)
