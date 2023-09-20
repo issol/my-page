@@ -17,7 +17,7 @@ import Icon from 'src/@core/components/icon'
 import { v4 as uuidv4 } from 'uuid'
 
 //** data */
-import { getGmtTime } from 'src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { MMDDYYYYHelper } from '@src/shared/helpers/date.helper'
 import { ProStatus } from '@src/shared/const/status/statuses'
@@ -92,7 +92,7 @@ export default function About({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:earth' style={{ opacity: '0.7' }} />
           <LabelTitle>Timezone:</LabelTitle>
-          <Label>{getGmtTime(userInfo.timezone?.code) || '-'}</Label>
+          <Label>{getGmtTimeEng(userInfo.timezone?.code) || '-'}</Label>
         </Box>
         {type === 'pro' ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

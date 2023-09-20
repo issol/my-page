@@ -159,6 +159,9 @@ export type updateProjectInfoType =
   | { status: number }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
+  | { languagePairs: Array<LanguagePairsType> }
+  | { items: Array<PostItemType> }
+  | { languagePairs: Array<LanguagePairsType>, items: Array<PostItemType> }
 
 export default function QuotesDetail() {
   const router = useRouter()
@@ -878,13 +881,13 @@ export default function QuotesDetail() {
     const subtotal = items.reduce((accumulator, item) => {
       return accumulator + item.totalPrice
     }, 0)
+    console.log("save items",{ tax, isTaxable: taxable, subtotal: subtotal, languagePairs: langs, items: items })
     onSave(async () => {
       try {
-        await patchQuoteLanguagePairs(Number(id), langs)
-        await patchQuoteItems(Number(id), items)
-
+        // await patchQuoteLanguagePairs(Number(id), langs)
+        // await patchQuoteItems(Number(id), items)
         updateProject.mutate(
-          { tax, isTaxable: taxable, subtotal: subtotal },
+          { tax, isTaxable: taxable, subtotal: subtotal, languagePairs: langs, items: items },
           {
             onSuccess: () => {
               queryClient.invalidateQueries({

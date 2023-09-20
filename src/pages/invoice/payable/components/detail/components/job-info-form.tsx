@@ -16,7 +16,7 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { Control, Controller, FieldErrors } from 'react-hook-form'
 
 // ** helpers
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { FullDateHelper } from '@src/shared/helpers/date.helper'
 
@@ -145,7 +145,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
             <TextField
               disabled
               fullWidth
-              value={getGmtTime(row.startTimezone?.code)}
+              value={getGmtTimeEng(row.startTimezone?.code)}
               label='Timezone'
             />
           </Grid>
@@ -161,7 +161,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
             <TextField
               disabled
               fullWidth
-              value={getGmtTime(row.dueTimezone?.code)}
+              value={getGmtTimeEng(row.dueTimezone?.code)}
               label='Timezone*'
             />
           </Grid>

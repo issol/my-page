@@ -25,7 +25,7 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
-
+import { v4 as uuidv4 } from 'uuid'
 // ** Third Party Imports
 import { convertToRaw, EditorState } from 'draft-js'
 
@@ -75,7 +75,7 @@ import { RecruitingStatus } from 'src/shared/const/status/statuses'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import logger from '@src/@core/utils/logger'
 
 export default function RecruitingPost() {
@@ -631,8 +631,8 @@ export default function RecruitingPost() {
                             onChange={(e, v) => onChange(v)}
                             disableClearable
                             renderOption={(props, option) => (
-                              <Box component='li' {...props}>
-                                {getGmtTime(option.code)}
+                              <Box component='li' {...props} key={uuidv4()}>
+                                {getGmtTimeEng(option.code)}
                               </Box>
                             )}
                             renderInput={params => (

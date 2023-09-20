@@ -27,7 +27,7 @@ import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInpu
 import dayjs from 'dayjs'
 import { countries } from '@src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import CustomCheckbox from '@src/@core/components/custom-checkbox/basic'
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { FileType } from '@src/types/common/file.type'
@@ -635,10 +635,10 @@ const EditJobInfo = ({
                     value={value}
                     options={countries as CountryType[]}
                     onChange={(e, v) => onChange(v)}
-                    getOptionLabel={option => getGmtTime(option.code)}
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
-                        {getGmtTime(option.code)}
+                      <Box component='li' {...props} key={uuidv4()}>
+                        {getGmtTimeEng(option.code)}
                       </Box>
                     )}
                     renderInput={params => (
@@ -700,8 +700,8 @@ const EditJobInfo = ({
                       else onChange(v)
                     }}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
-                        {getGmtTime(option.code)}
+                      <Box component='li' {...props} key={uuidv4()}>
+                        {getGmtTimeEng(option.code)}
                       </Box>
                     )}
                     renderInput={params => (
@@ -711,9 +711,7 @@ const EditJobInfo = ({
                         error={Boolean(errors.dueTimezone)}
                       />
                     )}
-                    getOptionLabel={option =>
-                      option.code === '' ? '' : getGmtTime(option.code)
-                    }
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                   />
                 )}
               />

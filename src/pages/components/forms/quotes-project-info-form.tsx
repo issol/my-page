@@ -14,6 +14,7 @@ import {
   Typography,
 } from '@mui/material'
 import styled from 'styled-components'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
@@ -64,7 +65,7 @@ import {
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
   control: Control<QuotesProjectInfoAddNewType, any>
@@ -92,6 +93,8 @@ export default function ProjectInfoForm({
   )
   const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
+
+  console.log(countries)
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
@@ -219,10 +222,10 @@ export default function ProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -554,10 +557,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -606,10 +609,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -658,10 +661,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -710,10 +713,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (

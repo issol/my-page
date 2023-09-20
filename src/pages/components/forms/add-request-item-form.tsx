@@ -12,6 +12,7 @@ import {
 } from '@mui/material'
 import styled from 'styled-components'
 import { Icon } from '@iconify/react'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** react hook form
 import {
@@ -51,7 +52,7 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
   control: Control<RequestFormType, any>
@@ -344,10 +345,10 @@ export default function AddRequestForm({
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
                     disableClearable
-                    getOptionLabel={option => getGmtTime(option.code)}
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
-                        {getGmtTime(option.code)}
+                      <Box component='li' {...props} key={uuidv4()}>
+                        {getGmtTimeEng(option.code)}
                       </Box>
                     )}
                     renderInput={params => (

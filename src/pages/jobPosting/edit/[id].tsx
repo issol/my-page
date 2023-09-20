@@ -81,7 +81,7 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 export default function JobPostingEdit() {
   const router = useRouter()
@@ -702,8 +702,8 @@ export default function JobPostingEdit() {
                               onChange={(e, v) => onChange(v)}
                               disableClearable
                               renderOption={(props, option) => (
-                                <Box component='li' {...props}>
-                                  {getGmtTime(option.code)}
+                                <Box component='li' {...props} key={uuidv4()}>
+                                  {getGmtTimeEng(option.code)}
                                 </Box>
                               )}
                               renderInput={params => (

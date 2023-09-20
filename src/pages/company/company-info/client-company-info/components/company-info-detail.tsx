@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react'
 import { Box, Divider, IconButton, Typography } from '@mui/material'
 import { ClientUserType } from '@src/context/types'
 import { MMDDYYYYHelper } from '@src/shared/helpers/date.helper'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
   companyInfo: ClientUserType | null | undefined
@@ -94,7 +94,7 @@ export default function CompanyInfoDetail({ companyInfo }: Props) {
             Time zone:
           </Typography>
           <Typography variant='subtitle2' fontSize={16}>
-            {getGmtTime(companyInfo?.timezone?.code)}
+            {getGmtTimeEng(companyInfo?.timezone?.code)}
           </Typography>
         </Box>
       </Box>

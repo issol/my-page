@@ -18,7 +18,7 @@ import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-
+import { v4 as uuidv4 } from 'uuid'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
@@ -82,7 +82,7 @@ import { useMutation } from 'react-query'
 import JobPostingListModal from '../components/jobPosting-modal'
 import { useGetJobPostingList } from '@src/queries/jobs/jobPosting.query'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { recruiting } from '@src/shared/const/permission-class'
 import logger from '@src/@core/utils/logger'
 
@@ -716,8 +716,8 @@ export default function RecruitingEdit() {
                               onChange={(e, v) => onChange(v)}
                               disableClearable
                               renderOption={(props, option) => (
-                                <Box component='li' {...props}>
-                                  {getGmtTime(option.code)}
+                                <Box component='li' {...props} key={uuidv4()}>
+                                  {getGmtTimeEng(option.code)}
                                 </Box>
                               )}
                               renderInput={params => (

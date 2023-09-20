@@ -15,7 +15,7 @@ import {
 import { countries } from '@src/@fake-db/autocomplete'
 import { UserDataType } from '@src/context/types'
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
-import { getGmtTime, getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { CountryType, ManagerInfo } from '@src/types/sign/personalInfoTypes'
 import { Dispatch, SetStateAction } from 'react'
 import {
@@ -26,6 +26,7 @@ import {
   UseFormWatch,
 } from 'react-hook-form'
 import styled from 'styled-components'
+import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   edit: boolean
@@ -203,7 +204,7 @@ const Contracts = ({
                       else onChange(v)
                     }}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
+                      <Box component='li' {...props} key={uuidv4()}>
                         {getGmtTimeEng(option.code)}
                       </Box>
                     )}
@@ -214,9 +215,7 @@ const Contracts = ({
                         // error={Boolean(errors.dueTimezone)}
                       />
                     )}
-                    getOptionLabel={option =>
-                      option.code === '' ? '' : getGmtTimeEng(option.code)
-                    }
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                   />
                 )}
               />
@@ -387,7 +386,7 @@ const Contracts = ({
               >
                 <Icon icon='mdi:earth' style={{ opacity: '0.7' }} />
                 <LabelTitle>Timezone:</LabelTitle>
-                <Label>{getGmtTime(userInfo.timezone?.code) || '-'}</Label>
+                <Label>{getGmtTimeEng(userInfo.timezone?.code) || '-'}</Label>
               </Box>
             </Box>
             <Box sx={{ display: 'flex' }}>
