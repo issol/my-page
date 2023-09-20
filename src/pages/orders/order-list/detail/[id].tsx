@@ -154,6 +154,9 @@ export type updateOrderType =
     }
   | { feedback: string; status: number }
   | { feedback: string }
+  | { languagePairs: Array<LanguagePairsType> }
+  | { items: Array<PostItemType> }
+  | { tax: null | number; isTaxable: '0' | '1'; subtotal: number; languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
 
 type RenderSubmitButtonProps = {
   onCancel: () => void
@@ -898,36 +901,54 @@ const OrderDetail = () => {
     }, 0)
     onSave(async () => {
       try {
-        patchLanguagePairs.mutate(
-          { id: Number(id!), langPair: langs },
+        updateProject.mutate(
+          {
+            isTaxable: taxable ? '1' : '0',
+            tax,
+            subtotal: subtotal,
+            languagePairs: langs, 
+            items: items,
+          },
           {
             onSuccess: () => {
-              patchItems.mutate(
-                { id: Number(id!), items: items },
-                {
-                  onSuccess: () => {
-                    updateProject.mutate(
-                      {
-                        isTaxable: taxable ? '1' : '0',
-                        tax,
-                        subtotal: subtotal,
-                      },
-                      {
-                        onSuccess: () => {
-                          setLangItemsEdit(false)
-                          queryClient.invalidateQueries(
-                            `LangItem-${Number(id!)}`,
-                          )
-                          closeModal('LanguageAndItemEditModal')
-                        },
-                      },
-                    )
-                  },
-                },
+              setLangItemsEdit(false)
+              queryClient.invalidateQueries(
+                `LangItem-${Number(id!)}`,
               )
+              closeModal('LanguageAndItemEditModal')
             },
           },
         )
+        // patchLanguagePairs.mutate(
+        //   { id: Number(id!), langPair: langs },
+        //   {
+        //     onSuccess: () => {
+        //       patchItems.mutate(
+        //         { id: Number(id!), items: items },
+        //         {
+        //           onSuccess: () => {
+        //             updateProject.mutate(
+        //               {
+        //                 isTaxable: taxable ? '1' : '0',
+        //                 tax,
+        //                 subtotal: subtotal,
+        //               },
+        //               {
+        //                 onSuccess: () => {
+        //                   setLangItemsEdit(false)
+        //                   queryClient.invalidateQueries(
+        //                     `LangItem-${Number(id!)}`,
+        //                   )
+        //                   closeModal('LanguageAndItemEditModal')
+        //                 },
+        //               },
+        //             )
+        //           },
+        //         },
+        //       )
+        //     },
+        //   },
+        // )
       } catch (e: any) {
         onMutationError()
       }
