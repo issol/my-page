@@ -486,12 +486,12 @@ export function ClientRequestStatusChip(status: RequestStatusType) {
   )
 }
 
-export function ProJobStatusChip(status: ProJobStatusType) {
+export function ProJobStatusChip(label: string, status: ProJobStatusType) {
   const color = getProJobStatusColor(status)
 
   return (
     <CustomChip
-      label={status}
+      label={label}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,

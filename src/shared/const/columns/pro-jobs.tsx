@@ -14,7 +14,12 @@ import dayjs from 'dayjs'
 import { useRecoilValueLoadable } from 'recoil'
 import { MouseEvent } from 'react'
 
-export const getProJobColumns = () => {
+export const getProJobColumns = (
+  statusList: {
+    value: number
+    label: string
+  }[],
+) => {
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
 
@@ -154,7 +159,9 @@ export const getProJobColumns = () => {
         </Typography>
       ),
       renderCell: ({ row }: { row: ProJobListType }) => {
-        return <>{ProJobStatusChip(row.status)}</>
+        const statusLabel =
+          statusList?.find(i => i.value === row.status)?.label || ''
+        return <>{ProJobStatusChip(statusLabel, row.status)}</>
       },
     },
     {

@@ -3,7 +3,10 @@ import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import { Box, Card, Grid, IconButton, Tab, Typography } from '@mui/material'
-import { useGetProJobDetail } from '@src/queries/jobs/jobs.query'
+import {
+  useGetProJobDetail,
+  useGetProJobDots,
+} from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
 import { SyntheticEvent, useState, MouseEvent, Suspense } from 'react'
 import styled from 'styled-components'
@@ -11,6 +14,7 @@ import styled from 'styled-components'
 import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
+import { useGetStatusList } from '@src/queries/common.query'
 type MenuType = 'jobInfo' | 'feedback'
 
 const ProJobsDetail = () => {
@@ -23,6 +27,10 @@ const ProJobsDetail = () => {
 
   const { data: jobDetail, isLoading } = useGetProJobDetail(Number(id))
   const { data: jobPrices } = useGetJobPrices(Number(id), false)
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetStatusList('Job')
+
+  const { data: jobDetailDots } = useGetProJobDots(Number(id))
 
   return (
     <Box>
@@ -47,7 +55,7 @@ const ProJobsDetail = () => {
           <Typography variant='h5'>{jobDetail?.corporationId}</Typography>
         </Box>
       </Box>
-      {jobDetail && jobPrices && (
+      {jobDetail && jobPrices && statusList && jobDetailDots && (
         <TabContext value={value}>
           <TabList
             onChange={handleChange}
@@ -61,11 +69,11 @@ const ProJobsDetail = () => {
               icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
-            {jobDetail.status !== 'Requested from LPM' &&
-            jobDetail.status !== 'Canceled' &&
-            jobDetail.status !== 'Unassigned' &&
-            jobDetail.status !== 'Awaiting approval' &&
-            jobDetail.status !== 'Declined' ? (
+            {jobDetail.status !== 60100 &&
+            jobDetail.status !== 60400 &&
+            jobDetail.status !== 60600 &&
+            jobDetail.status !== 60200 &&
+            jobDetail.status !== 60300 ? (
               <CustomTab
                 value='feedback'
                 label='Deliveries & Feedback'
@@ -77,7 +85,12 @@ const ProJobsDetail = () => {
           </TabList>
           <TabPanel value='jobInfo' sx={{ pt: '24px' }}>
             <Suspense>
-              <ProJobInfo jobInfo={jobDetail} jobPrices={jobPrices} />
+              <ProJobInfo
+                jobInfo={jobDetail}
+                jobPrices={jobPrices}
+                statusList={statusList}
+                jobDetailDots={jobDetailDots}
+              />
             </Suspense>
           </TabPanel>
           <TabPanel value='feedback' sx={{ pt: '24px' }}>

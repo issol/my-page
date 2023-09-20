@@ -9,6 +9,7 @@ import {
   useGetProJobList,
 } from '@src/queries/jobs/jobs.query'
 import { useForm } from 'react-hook-form'
+import { useGetStatusList } from '@src/queries/common.query'
 
 const defaultValues: FilterType = {
   jobDueDate: [],
@@ -53,6 +54,9 @@ const RequestedOngoingList = () => {
       filterType: 'client',
     },
   )
+
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetStatusList('Job')
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -106,7 +110,7 @@ const RequestedOngoingList = () => {
       />
       <JobList
         type='requested'
-        columns={getProJobColumns()}
+        columns={getProJobColumns(statusList!)}
         list={jobList?.data!}
         listCount={jobList?.totalCount!}
         page={page}

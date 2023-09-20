@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react'
 import {
+  Badge,
   Box,
   Button,
   Card,
@@ -51,11 +52,19 @@ import { useGetGuideLines } from '@src/queries/client-guideline.query'
 import PriceUnit from '@src/pages/components/standard-prices/component/price-unit'
 import dayjs from 'dayjs'
 import PriceUnitGuideline from './components/modal/price-unit-guideline'
-import { JobType } from '@src/types/common/item.type'
+import CustomChip from 'src/@core/components/mui/chip'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
+import { useMutation, useQueryClient } from 'react-query'
+import { patchProJobDetail } from '@src/apis/job-detail.api'
 
 type Props = {
   jobInfo: ProJobDetailType
   jobPrices: JobPricesDetailType
+  statusList: { label: string; value: number }[]
+  jobDetailDots: string[]
 }
 
 const ClientGuidelineView = dynamic(
@@ -63,22 +72,39 @@ const ClientGuidelineView = dynamic(
   { ssr: false },
 )
 
-const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
+const ProJobInfo = ({
+  jobInfo,
+  jobPrices,
+  statusList,
+  jobDetailDots,
+}: Props) => {
   const auth = useRecoilValueLoadable(authState)
-
+  const queryClient = useQueryClient()
+  const statusLabel =
+    statusList?.find(i => i.value === jobInfo.status)?.label || ''
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
+
+  const updateJob = useMutation(
+    (status: ProJobStatusType) =>
+      patchProJobDetail(jobInfo.id, { status: status }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['proJobDetail'])
+      },
+    },
+  )
 
   const fileSize = useMemo(() => {
     if (jobInfo?.files.length > 0) {
       return jobInfo.files
         ?.filter(value => {
           if (
-            jobInfo.status !== 'Requested from LPM' &&
-            jobInfo.status !== 'Canceled' &&
-            jobInfo.status !== 'Unassigned' &&
-            jobInfo.status !== 'Awaiting approval' &&
-            jobInfo.status !== 'Declined'
+            jobInfo.status !== 60100 &&
+            jobInfo.status !== 60400 &&
+            jobInfo.status !== 60600 &&
+            jobInfo.status !== 60200 &&
+            jobInfo.status !== 60300
           ) {
             return value.type === 'SOURCE'
           } else {
@@ -136,11 +162,11 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
   const fileList = jobInfo.files
     ?.filter(value => {
       if (
-        jobInfo.status !== 'Requested from LPM' &&
-        jobInfo.status !== 'Canceled' &&
-        jobInfo.status !== 'Unassigned' &&
-        jobInfo.status !== 'Awaiting approval' &&
-        jobInfo.status !== 'Declined'
+        jobInfo.status !== 60100 &&
+        jobInfo.status !== 60400 &&
+        jobInfo.status !== 60600 &&
+        jobInfo.status !== 60200 &&
+        jobInfo.status !== 60300
       ) {
         return value.type === 'SOURCE'
       } else {
@@ -179,8 +205,7 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
               </Typography>
             </Box>
           </Box>
-          {jobInfo.status === 'Declined' ||
-          jobInfo.status === 'Canceled' ? null : (
+          {jobInfo.status === 60300 || jobInfo.status === 60400 ? null : (
             <IconButton
               onClick={() => downloadOneFile(file)}
               // disabled={jobInfo.status === 'Declined'}
@@ -192,10 +217,17 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
         </FileBox>
       </Box>
     ))
-  const handleNotifyAvailable = (response: 'Decline' | 'Notify') => {
+  const handleJobStatus = (response: 'Decline' | 'Notify') => {
     // TODO API 연결
-    closeModal('AvailableModal')
-    closeModal('DeclineModal')
+    updateJob.mutate(response === 'Decline' ? 60300 : 60200, {
+      onSuccess: () => {
+        if (response === 'Decline') {
+          closeModal('DeclineModal')
+        } else {
+          closeModal('AvailableModal')
+        }
+      },
+    })
   }
 
   const onClickAvailable = () => {
@@ -216,7 +248,7 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
             </>
           }
           rightButtonText='Notify'
-          onClick={() => handleNotifyAvailable('Notify')}
+          onClick={() => handleJobStatus('Notify')}
         />
       ),
     })
@@ -240,7 +272,7 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
             </>
           }
           rightButtonText='Decline'
-          onClick={() => handleNotifyAvailable('Decline')}
+          onClick={() => handleJobStatus('Decline')}
         />
       ),
     })
@@ -279,7 +311,7 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
       type: 'StatusMoreInfoModal',
       children: (
         <>
-          {status === 'Unassigned' ? (
+          {status === 60600 ? (
             <InformationModal
               vary='info'
               onClose={() => closeModal('StatusMoreInfoModal')}
@@ -299,7 +331,7 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                 </>
               }
             />
-          ) : status === 'Canceled' ? (
+          ) : status === 60400 ? (
             <PriceUnitGuideline
               vary='info'
               subtitle='We’re sorry to inform that O-000001-TRA-001 has been canceled due to internal circumstances.'
@@ -328,7 +360,7 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
               extra={`If you need any assistance related to this matter, please contact ${jobInfo.contactPerson?.email}.`}
             />
           ) : (
-            status === 'Job overdue' && (
+            status === 601000 && (
               <PriceUnitGuideline
                 subtitle={
                   <>
@@ -436,16 +468,24 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
 
   return (
     <Grid container xs={12} spacing={4}>
-      <Grid item xs={8.75}>
+      <Grid item xs={9.25}>
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
             <Box
               sx={{
                 display: 'flex',
-                justifyContent: 'space-between',
+                // justifyContent: 'space-between',
+                gap: '10px',
                 alignItems: 'center',
               }}
             >
+              {jobDetailDots.includes('name') ? (
+                <Badge
+                  variant='dot'
+                  color='primary'
+                  sx={{ marginLeft: '4px' }}
+                ></Badge>
+              ) : null}
               <Typography variant='h6'>{jobInfo.name}</Typography>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -453,11 +493,18 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                 <Box
                   sx={{
                     display: 'flex',
-                    gap: '8px',
+                    gap: '10px',
                     alignItems: 'center',
                     width: '38.5%',
                   }}
                 >
+                  {jobDetailDots.includes('status') ? (
+                    <Badge
+                      variant='dot'
+                      color='primary'
+                      sx={{ marginLeft: '4px' }}
+                    ></Badge>
+                  ) : null}
                   <Typography
                     variant='subtitle1'
                     sx={{
@@ -484,10 +531,13 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                       alignItems: 'center',
                     }}
                   >
-                    {ProJobStatusChip(jobInfo.status as ProJobStatusType)}
-                    {jobInfo.status === 'Unassigned' ||
-                    jobInfo.status === 'Canceled' ||
-                    jobInfo.status === 'Job overdue' ? (
+                    {ProJobStatusChip(
+                      statusLabel,
+                      jobInfo.status as ProJobStatusType,
+                    )}
+                    {jobInfo.status === 60600 ||
+                    jobInfo.status === 60400 ||
+                    jobInfo.status === 601000 ? (
                       <IconButton
                         sx={{ padding: 0 }}
                         onClick={() =>
@@ -507,11 +557,18 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                   <Box
                     sx={{
                       display: 'flex',
-                      gap: '8px',
+                      gap: '10px',
                       alignItems: 'center',
                       width: '38.5%',
                     }}
                   >
+                    {jobDetailDots.includes('contactPerson') ? (
+                      <Badge
+                        variant='dot'
+                        color='primary'
+                        sx={{ marginLeft: '4px' }}
+                      ></Badge>
+                    ) : null}
                     <Typography
                       variant='subtitle1'
                       sx={{
@@ -741,11 +798,11 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                         width: '100%',
                       }}
                     >
-                      {jobInfo.status !== 'Requested from LPM' &&
-                      jobInfo.status !== 'Canceled' &&
-                      jobInfo.status !== 'Unassigned' &&
-                      jobInfo.status !== 'Awaiting approval' &&
-                      jobInfo.status !== 'Declined'
+                      {jobInfo.status !== 60100 &&
+                      jobInfo.status !== 60400 &&
+                      jobInfo.status !== 60600 &&
+                      jobInfo.status !== 60200 &&
+                      jobInfo.status !== 60300
                         ? 'Job start date'
                         : 'Job due date'}
                     </Typography>
@@ -767,11 +824,11 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                     >
                       <Typography variant='body2'>
                         {FullDateTimezoneHelper(
-                          jobInfo.status !== 'Requested from LPM' &&
-                            jobInfo.status !== 'Canceled' &&
-                            jobInfo.status !== 'Unassigned' &&
-                            jobInfo.status !== 'Awaiting approval' &&
-                            jobInfo.status !== 'Declined'
+                          jobInfo.status !== 60100 &&
+                            jobInfo.status !== 60400 &&
+                            jobInfo.status !== 60600 &&
+                            jobInfo.status !== 60200 &&
+                            jobInfo.status !== 60300
                             ? jobInfo.startedAt
                             : jobInfo.dueAt,
                           auth.getValue()?.user?.timezone,
@@ -781,20 +838,29 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                   </Box>
                 </Box>
               </Box>
-              {jobInfo.status !== 'Requested from LPM' &&
-              jobInfo.status !== 'Canceled' &&
-              jobInfo.status !== 'Unassigned' &&
-              jobInfo.status !== 'Awaiting approval' &&
-              jobInfo.status !== 'Declined' ? (
+              {jobInfo.status !== 60100 &&
+              jobInfo.status !== 60400 &&
+              jobInfo.status !== 60600 &&
+              jobInfo.status !== 60200 &&
+              jobInfo.status !== 60300 ? (
                 <Box sx={{ display: 'flex', width: '50%', gap: '8px' }}>
                   <Box
                     sx={{
                       display: 'flex',
-                      gap: '8px',
+                      gap: '10px',
 
                       width: '38.5%',
+                      alignItems: 'center',
                     }}
                   >
+                    {jobDetailDots.includes('dueAt') ||
+                    jobDetailDots.includes('dueAtTimezone') ? (
+                      <Badge
+                        variant='dot'
+                        color='primary'
+                        sx={{ marginLeft: '4px' }}
+                      ></Badge>
+                    ) : null}
                     <Typography
                       variant='subtitle1'
                       sx={{
@@ -822,7 +888,7 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                         alignItems: 'center',
                       }}
                     >
-                      {jobInfo.status === 'Job overdue' ? (
+                      {jobInfo.status === 601000 ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                           {getJobDateDiff(jobInfo.dueAt)}
                         </Box>
@@ -839,19 +905,32 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                 </Box>
               ) : null}
               <Divider />
-              {jobInfo.status === 'Declined' ||
-              jobInfo.status === 'Unassigned' ||
-              jobInfo.status === 'Canceled' ? null : (
+              {jobInfo.status === 60300 ||
+              jobInfo.status === 60600 ||
+              jobInfo.status === 60400 ? null : (
                 <>
-                  <Box sx={{ display: 'flex', width: '50%', gap: '8px' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      width: '50%',
+                      gap: '8px',
+                    }}
+                  >
                     <Box
                       sx={{
                         display: 'flex',
-                        gap: '5px',
-                        alignItems: 'center',
+                        gap: '10px',
+                        alignItems: 'start',
                         width: '38.5%',
                       }}
                     >
+                      {jobDetailDots.includes('prices') ? (
+                        <Badge
+                          variant='dot'
+                          color='primary'
+                          sx={{ marginLeft: '4px' }}
+                        ></Badge>
+                      ) : null}
                       <Typography
                         variant='subtitle1'
                         sx={{
@@ -862,7 +941,7 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                         Quantity / price unit
                       </Typography>
                       <IconButton
-                        sx={{ padding: 0 }}
+                        sx={{ padding: '2px 0 0 0' }}
                         onClick={onClickQuantityPriceUnitMoreInfo}
                       >
                         <Icon
@@ -886,12 +965,49 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                           alignItems: 'center',
                         }}
                       >
-                        <Typography variant='body2'>
-                          {FullDateTimezoneHelper(
-                            jobInfo.requestedAt,
-                            auth.getValue()?.user?.timezone,
-                          )}
-                        </Typography>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '5px',
+                            'li::marker': {
+                              color: 'rgba(76, 78, 100, 0.60)',
+                            },
+                          }}
+                        >
+                          {jobPrices?.isUsedCAT ? (
+                            <>
+                              <CustomChip
+                                label='Involves CAT tool'
+                                size='small'
+                                sx={{ width: '130px' }}
+                              />
+                            </>
+                          ) : null}
+
+                          {jobPrices.datas.map(value => {
+                            if (jobPrices.datas.length === 1) {
+                              return (
+                                <Typography variant='body2' key={uuidv4()}>
+                                  {value.quantity} {value.unit}
+                                </Typography>
+                              )
+                            } else {
+                              return (
+                                <li key={uuidv4()}>
+                                  <Typography
+                                    variant='body2'
+                                    component={'span'}
+                                  >
+                                    {value.quantity} {value.unit} /{' '}
+                                    {jobPrices.currency} {value.unitPrice} per{' '}
+                                    {value.priceUnitTitle}
+                                  </Typography>
+                                </li>
+                              )
+                            }
+                          })}
+                        </Box>
                       </Box>
                     </Box>
                   </Box>
@@ -931,7 +1047,11 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                         }}
                       >
                         <Typography variant='body2'>
-                          ${jobPrices.totalPrice}
+                          {/* ${jobPrices.totalPrice} */}
+                          {formatCurrency(
+                            jobPrices.totalPrice,
+                            jobPrices.currency,
+                          )}
                         </Typography>
                       </Box>
                     </Box>
@@ -947,11 +1067,18 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                 <Box
                   sx={{
                     display: 'flex',
-                    gap: '8px',
+                    gap: '10px',
                     alignItems: 'center',
                     width: '38.5%',
                   }}
                 >
+                  {jobDetailDots.includes('description') ? (
+                    <Badge
+                      variant='dot'
+                      color='primary'
+                      sx={{ marginLeft: '4px' }}
+                    ></Badge>
+                  ) : null}
                   <Typography
                     variant='subtitle1'
                     sx={{
@@ -992,11 +1119,11 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
       <Grid item xs={2.75}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {fileList.length === 0 &&
-          jobInfo.status !== 'Requested from LPM' &&
-          jobInfo.status !== 'Canceled' &&
-          jobInfo.status !== 'Unassigned' &&
-          jobInfo.status !== 'Awaiting approval' &&
-          jobInfo.status !== 'Declined' ? null : (
+          (jobInfo.status === 60100 ||
+            jobInfo.status === 60400 ||
+            jobInfo.status === 60600 ||
+            jobInfo.status === 60200 ||
+            jobInfo.status === 60300) ? null : (
             <Card>
               <Box
                 sx={{
@@ -1008,11 +1135,11 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
               >
                 <Box display='flex' justifyContent='space-between'>
                   <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                    {jobInfo.status !== 'Requested from LPM' &&
-                    jobInfo.status !== 'Canceled' &&
-                    jobInfo.status !== 'Unassigned' &&
-                    jobInfo.status !== 'Awaiting approval' &&
-                    jobInfo.status !== 'Declined'
+                    {jobInfo.status !== 60100 &&
+                    jobInfo.status !== 60400 &&
+                    jobInfo.status !== 60600 &&
+                    jobInfo.status !== 60200 &&
+                    jobInfo.status !== 60300
                       ? 'Source files'
                       : 'Sample files'}
                   </Typography>
@@ -1021,11 +1148,11 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                   </Typography>
                 </Box>
                 {fileList.length === 0 &&
-                jobInfo.status !== 'Requested from LPM' &&
-                jobInfo.status !== 'Canceled' &&
-                jobInfo.status !== 'Unassigned' &&
-                jobInfo.status !== 'Awaiting approval' &&
-                jobInfo.status !== 'Declined' ? null : fileList.length > 0 ? (
+                jobInfo.status !== 60100 &&
+                jobInfo.status !== 60400 &&
+                jobInfo.status !== 60600 &&
+                jobInfo.status !== 60200 &&
+                jobInfo.status !== 60300 ? null : fileList.length > 0 ? (
                   <Button
                     variant='outlined'
                     fullWidth
@@ -1033,8 +1160,8 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                     onClick={() => downloadAllFiles(jobInfo?.files)}
                     disabled={
                       fileList.length === 0 ||
-                      jobInfo.status === 'Declined' ||
-                      jobInfo.status === 'Canceled'
+                      jobInfo.status === 60300 ||
+                      jobInfo.status === 60400
                     }
                   >
                     Download all
@@ -1052,21 +1179,12 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                   '&::-webkit-scrollbar': { display: 'none' },
                 }}
               >
-                {fileList.length === 0 &&
-                jobInfo.status !== 'Requested from LPM' &&
-                jobInfo.status !== 'Canceled' &&
-                jobInfo.status !== 'Unassigned' &&
-                jobInfo.status !== 'Awaiting approval' &&
-                jobInfo.status !== 'Declined'
-                  ? null
-                  : fileList.length > 0
-                  ? fileList
-                  : null}
+                {fileList.length > 0 ? fileList : null}
               </Box>
             </Card>
           )}
 
-          {jobInfo.status === 'Requested from LPM' ? (
+          {jobInfo.status === 60100 ? (
             <Card sx={{ padding: '20px' }}>
               <Box
                 sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
@@ -1079,7 +1197,9 @@ const ProJobInfo = ({ jobInfo, jobPrices }: Props) => {
                 </Button>
               </Box>
             </Card>
-          ) : jobInfo.status === 'In progress' ? (
+          ) : jobInfo.status === 60500 ||
+            jobInfo.status === 60700 ||
+            jobInfo.status === 60800 ? (
             <Card
               sx={{
                 padding: '20px',

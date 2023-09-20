@@ -227,6 +227,7 @@ export const getProJobList = async (
     const { data } = await axios.get(
       `/api/enough/u/pro/job/list?${makeQuery(filter)}`,
     )
+
     return data
   } catch (error: any) {
     throw new Error(error)

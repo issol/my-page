@@ -2,6 +2,7 @@ import axios from '@src/configs/axios'
 import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { ItemResType } from '@src/types/common/orders-and-quotes.type'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 import {
   JobPricesDetailType,
   ProJobDetailType,
@@ -109,14 +110,22 @@ export const getJobPrices = async (
 
     return {
       ...data,
-      datas:
-        data?.datas?.map((item: ItemResType) => ({
-          ...item,
-          name: item?.itemName,
-          source: item?.sourceLanguage,
-          target: item?.targetLanguage,
-          totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-        })) || [],
+      datas: data?.datas?.map((item: ItemResType) => ({
+        ...item,
+        name: item?.itemName,
+        source: item?.sourceLanguage,
+        target: item?.targetLanguage,
+        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+      })) || [
+        {
+          quantity: 1,
+          priceUnitTitle: 'CAT discount',
+          priceUnitId: 53,
+          unitPrice: 150,
+          prices: 150,
+          unit: 'Words',
+        },
+      ],
     }
   } catch (e: any) {
     throw new Error(e)
@@ -204,6 +213,144 @@ export const getProJobDetail = async (
   try {
     const { data } = await axios.get(`/api/enough/u/job/${id}/info`)
 
+    return {
+      ...data,
+      files: [
+        {
+          name: 'file1.txt',
+          size: 1024,
+          type: 'SOURCE',
+          file: 'https://example.com/files/file1.txt',
+          createdAt: '2023-08-30T17:13:15Z',
+        },
+        {
+          name: 'file2.jpg',
+          size: 2048,
+          type: 'TARGET',
+          file: 'https://example.com/files/file2.jpg',
+          createdAt: '2023-08-30T17:13:15Z',
+        },
+        {
+          name: 'file3.pdf',
+          size: 3072,
+          type: 'SOURCE',
+          file: 'https://example.com/files/file3.pdf',
+          createdAt: '2023-08-30T17:13:15Z',
+        },
+        {
+          name: 'file4.docx',
+          size: 4096,
+          type: 'SAMPLE',
+          file: 'https://example.com/files/file4.docx',
+          createdAt: '2023-08-30T17:13:15Z',
+        },
+        {
+          name: 'file5.xlsx',
+          size: 5120,
+          type: 'TARGET',
+          file: 'https://example.com/files/file5.xlsx',
+          createdAt: '2023-08-30T17:13:15Z',
+        },
+        {
+          name: 'file6.pptx',
+          size: 6144,
+          type: 'SAMPLE',
+          file: 'https://example.com/files/file6.pptx',
+          createdAt: '2023-08-30T17:13:15Z',
+        },
+        {
+          name: 'file7.zip',
+          size: 7168,
+          type: 'SAMPLE',
+          file: 'https://example.com/files/file7.zip',
+          createdAt: '2023-08-30T17:13:15Z',
+        },
+        {
+          name: 'file8.mp4',
+          size: 8192,
+          type: 'TARGET',
+          file: 'https://example.com/files/file8.mp4',
+          createdAt: '2023-08-30T17:13:15Z',
+        },
+        {
+          name: 'file9.png',
+          size: 9216,
+          type: 'SAMPLE',
+          file: 'https://example.com/files/file9.png',
+          createdAt: '2023-08-30T17:13:15Z',
+        },
+        {
+          name: 'file10.gif',
+          size: 10240,
+          type: 'SAMPLE',
+          file: 'https://example.com/files/file10.gif',
+          createdAt: '2023-08-30T17:13:15Z',
+        },
+      ],
+      guideLines: {
+        id: 1,
+        version: 1,
+        userId: 1,
+        title: 'Test Guideline',
+        writer: 'John Doe',
+        email: 'johndoe@example.com',
+        client: 'Example Client',
+        category: 'Translation',
+        serviceType: 'Document',
+        updatedAt: '2022-01-01T00:00:00.000Z',
+        content: {
+          blocks: [
+            {
+              key: '33kfr',
+              data: {},
+              text: 'TEST GUIDELINE',
+              type: 'unstyled',
+              depth: 0,
+              entityRanges: [],
+              inlineStyleRanges: [],
+            },
+          ],
+          entityMap: {},
+        },
+        files: [
+          {
+            id: 1,
+            name: 'file1.txt',
+            size: 1024,
+            type: 'text/plain',
+            file: 'https://example.com/files/file1.txt',
+            createdAt: '2022-01-01T00:00:00.000Z',
+          },
+          {
+            id: 2,
+            name: 'file2.jpg',
+            size: 2048,
+            type: 'image/jpeg',
+            file: 'https://example.com/files/file2.jpg',
+            createdAt: '2022-01-02T00:00:00.000Z',
+          },
+        ],
+      },
+    }
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const patchProJobDetail = async (
+  id: number,
+  params: { status: ProJobStatusType },
+) => {
+  try {
+    await axios.patch(`/api/enough/u/job/${id}`, { ...params })
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const getProJobDetailDots = async (id: number): Promise<string[]> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/job/${id}/dot`)
     return data
   } catch (error: any) {
     throw new Error(error)

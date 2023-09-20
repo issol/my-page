@@ -106,27 +106,25 @@ export function getQuoteStatusColor(status: QuotesStatusType) {
 
 export function getProJobStatusColor(status: ProJobStatusType) {
   const color =
-    status === 'Requested from LPM'
+    status === 60100
       ? '#A81988'
-      : status === 'Awaiting approval'
+      : status === 60200
       ? '#6D788D'
-      : status === 'In progress'
+      : status === 60500 || status === 60700 || status === 60800
       ? '#FDB528'
-      : status === 'Delivered to LPM'
+      : status === 60900
       ? '#1A6BBA'
-      : status === 'Approved'
+      : status === 601100
       ? '#64C623'
-      : status === 'Invoiced'
+      : status === 601200
       ? '#9B6CD8'
-      : status === 'Paid'
+      : status === 601400
       ? '#1B8332'
-      : status === 'Without invoice'
+      : status === 601300
       ? '#D8AF1D'
-      : status === 'Unassigned'
+      : status === 60600
       ? '#6D788D'
-      : status === 'Canceled' ||
-        status === 'Declined' ||
-        status === 'Job overdue'
+      : status === 60400 || status === 60300 || status === 601000
       ? '#FF4D49'
       : null
 

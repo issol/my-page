@@ -12,15 +12,18 @@ export type JobStatusType =
   | 'Canceled'
 
 export type ProJobStatusType =
-  | 'Approved'
-  | 'Invoiced'
-  | 'Paid'
-  | 'Unassigned'
-  | 'Canceled'
-  | 'Without invoice'
-  | 'Requested from LPM'
-  | 'Awaiting approval'
-  | 'In progress'
-  | 'Job overdue'
-  | 'Delivered to LPM'
-  | 'Declined'
+  | 60000
+  | 60100 //Requested from LPM
+  | 60200 //Awaiting approval
+  | 60300 //Declined
+  | 60400 //Canceled
+  | 60500 //In progress
+  | 60600 //Unassigned
+  | 60700 // In progress
+  | 60800 // In progress
+  | 60900 // Delivered to LPM
+  | 601000 //Job overdue
+  | 601100 //Approved
+  | 601200 //Invoiced
+  | 601300 //Without invoice
+  | 601400 //Paid
