@@ -8,10 +8,6 @@ import {
   Typography,
 } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
-import {
-  RejectQuoteReason,
-  RequestRevisionReason,
-} from '@src/shared/const/reason/reason'
 import { ChangeEvent, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -143,7 +139,7 @@ const SelectReasonModal = ({
             variant='body1'
             sx={{ fontWeight: 600, marginBottom: '0.5rem' }}
           >
-            Message to LSP
+            Message to client
           </Typography>
           <TextField
             fullWidth
@@ -156,7 +152,7 @@ const SelectReasonModal = ({
               messageToLsp === ''
                 ? rightButtonText === 'Request'
                   ? 'Write down a request for this quote.'
-                  : 'Write down a reason for rejecting this quote.'
+                  : 'Write down a reason for canceling this quote.'
                 : undefined
             }
             error={reason !== '' && messageToLsp === ''}
@@ -188,7 +184,7 @@ const SelectReasonModal = ({
           }}
         >
           <Button variant='outlined' onClick={onClose}>
-            {leftButtonText ?? 'Cancel'}
+            {leftButtonText ?? 'No'}
           </Button>
           <Button
             variant='contained'
