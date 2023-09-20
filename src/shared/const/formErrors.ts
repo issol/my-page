@@ -4,7 +4,7 @@ export const FormErrors = {
   notHTTPPrefixUrl: 'Please include http:// or https:// in the website address',
   registeredEmail: 'This email is already registered',
   invalidVerificationCode: 'Invalid verification code',
-  required: 'This field is required.',
+  required: 'This field is required',
   fileSizeExceed: 'The file size is too large',
   loginFailed: 'Your email or password was entered incorrectly',
   alreadyRegistered: 'This account is already registered',
