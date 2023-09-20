@@ -93,6 +93,7 @@ export default function JobList() {
         <JobListView
           clients={clients?.data || []}
           onCreateNewJob={onCreateNewJob}
+          statusList={statusList!}
         />
       ) : (
         <JobTrackerView

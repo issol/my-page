@@ -3,13 +3,14 @@ import * as yup from 'yup'
 
 export const addJobInfoFormSchema = yup.object().shape({
   name: yup.string().required(FormErrors.required),
-  status: yup
-    .object()
-    .shape({
-      label: yup.string().required(FormErrors.required),
-      value: yup.string().required(FormErrors.required),
-    })
-    .required(),
+  // status: yup
+  //   .object()
+  //   .shape({
+  //     label: yup.string().required(FormErrors.required),
+  //     value: yup.string().required(FormErrors.required),
+  //   })
+  //   .required(),
+  status: yup.number().required(FormErrors.required),
   contactPerson: yup
     .object()
     .shape({

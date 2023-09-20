@@ -28,6 +28,7 @@ import { useGetJobsList } from '@src/queries/jobs.query'
 
 // ** components
 import JobsList from './list'
+import { statusType } from '@src/types/common/status.type'
 
 export type FilterType = {
   status?: number[]
@@ -60,9 +61,10 @@ export const initialFilter: FilterType = {
 type Props = {
   clients: Array<ClientRowType>
   onCreateNewJob: () => void
+  statusList: Array<statusType>
 }
 
-export default function JobListView({ clients, onCreateNewJob }: Props) {
+export default function JobListView({ clients, onCreateNewJob, statusList }: Props) {
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
   const [activeFilter, setActiveFilter] = useState<FilterType>({
@@ -184,6 +186,7 @@ export default function JobListView({ clients, onCreateNewJob }: Props) {
             setPageSize={(n: number) =>
               setActiveFilter({ ...activeFilter, take: n })
             }
+            statusList={statusList!}
           />
         </Card>
       </Grid>

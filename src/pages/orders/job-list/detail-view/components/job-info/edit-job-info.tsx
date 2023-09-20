@@ -12,7 +12,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { JobStatus } from '@src/shared/const/status/statuses'
+
 import {
   AddJobInfoFormType,
   AddJobInfoType,
@@ -347,7 +347,7 @@ const EditJobInfo = ({
   useEffect(() => {
     setValue('name', row.name ?? '')
     setValue('description', row.description ?? '')
-    // setValue('status', row.status)
+    setValue('status', row.status)
     row.sourceLanguage && row.targetLanguage
       ? setValue('languagePair', {
           value: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
@@ -428,7 +428,8 @@ const EditJobInfo = ({
     setUploadedFiles(row.files ?? [])
     trigger()
   }, [row, item, setValue, languagePair, contactPersonList, trigger])
-
+  console.log("row",row)
+  console.log("job name",getValues().name)
   return (
     <>
       <DatePickerWrapper sx={{ width: '100%' }}>
@@ -464,21 +465,30 @@ const EditJobInfo = ({
                 </FormHelperText>
               )}
             </Grid>
-            {/* <Grid item xs={6}>
-              <Controller
+            <Grid item xs={6}>
+            <TextField 
+              disabled 
+              id='status' 
+              label='Status*'
+              fullWidth
+              defaultValue={statusList?.find(list => list.value === row.status)?.label!} 
+            />
+              {/* <Controller
                 control={control}
                 name='status'
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     fullWidth
+                    disabled
                     onChange={(event, item) => {
+                      console.log("item",item)
                       if (item) {
-                        onChange(item)
+                        onChange(item.value)
                       } else {
-                        onChange({ value: '', label: '' })
+                        onChange(null)
                       }
                     }}
-                    value={value.value}
+                    value={statusList?.find(list => list.value === value)!}
                     options={statusList!}
                     id='Status'
                     getOptionLabel={option => option.label}
@@ -494,11 +504,10 @@ const EditJobInfo = ({
               />
               {errors.status && (
                 <FormHelperText sx={{ color: 'error.main' }}>
-                  {errors.status?.label?.message ||
-                    errors.status?.value?.message}
+                  {errors.status?.message}
                 </FormHelperText>
-              )}
-            </Grid> */}
+              )} */}
+            </Grid>
             <Grid item xs={6}>
               <Controller
                 control={control}
@@ -566,6 +575,7 @@ const EditJobInfo = ({
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     fullWidth
+                    disabled={Boolean(row.name)}
                     isOptionEqualToValue={(option, newValue) => {
                       return option.value === newValue.value
                     }}
@@ -622,6 +632,7 @@ const EditJobInfo = ({
                       customInput={
                         <CustomInput label='Job start date' icon='calendar' />
                       }
+                      disabled={Boolean(row.name)}
                     />
                   </Box>
                 )}
@@ -634,7 +645,8 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
                     fullWidth
-                    value={value}
+                    disabled={Boolean(row.name)}
+                    value={value || { code: '', label: '', phone: '' }}
                     options={countries as CountryType[]}
                     onChange={(e, v) => onChange(v)}
                     getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}

@@ -45,6 +45,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
 import { createJob } from '@src/apis/jobs.api'
 import { deleteJob } from '@src/apis/job-detail.api'
+import { useGetStatusList } from '@src/queries/common.query'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -55,10 +56,12 @@ const JobDetails = () => {
 
   const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId!))
   const { data: orderDetail } = useGetProjectInfo(Number(orderId!))
+  const { data: statusList } = useGetStatusList('Job')
 
   const [serviceType, setServiceType] = useState<
     { label: string; value: string }[]
   >([])
+
 
   const createJobMutation = useMutation(
     (params: CreateJobParamsType) => createJob(params),
@@ -494,7 +497,7 @@ const JobDetails = () => {
                               }}
                               size='small'
                             >
-                              {JobsStatusChip(row.status)}
+                              {JobsStatusChip(row.status, statusList!)}
                             </TableCell>
                             {separateLine()}
 

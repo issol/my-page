@@ -1,44 +1,45 @@
 import { CurrencyType } from '../common/standard-price'
+import { statusType } from '../common/status.type'
 import { AssignProListType } from '../orders/job-detail'
 import { OrderDetailType } from '../orders/order-detail'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 // import { JobStatusType } from './common.type'
 
-export type JobStatusType =
-  | 60000
-  | "In preparation"
-  | 60100
-  | "Requested"
-  | 60200
-  | "Request accepted"
-  | 60300
-  | "Request rejected"
-  | 60400
-  | "Canceled"
-  | 60500
-  | "Assigned"
-  | 60700
-  | "In progress"
-  | 60800
-  | "Partially delivered"
-  | 60900
-  | "Delivered"
-  | 601000
-  | "Overdue"
-  | 601100
-  | "Approved"
-  | 601200
-  | "Invoiced"
-  | 601300
-  | "Without invoice"
-  | 601400
-  | "Paid"
+// export type JobStatusType =
+//   | 60000
+//   | "In preparation"
+//   | 60100
+//   | "Requested"
+//   | 60200
+//   | "Request accepted"
+//   | 60300
+//   | "Request rejected"
+//   | 60400
+//   | "Canceled"
+//   | 60500
+//   | "Assigned"
+//   | 60700
+//   | "In progress"
+//   | 60800
+//   | "Partially delivered"
+//   | 60900
+//   | "Delivered"
+//   | 601000
+//   | "Overdue"
+//   | 601100
+//   | "Approved"
+//   | 601200
+//   | "Invoiced"
+//   | 601300
+//   | "Without invoice"
+//   | 601400
+//   | "Paid"
 
 export type JobsListType = {
   id: number
   corporationId: string // O-000010-TRA-001
-  status: JobStatusType
+  status: Array<statusType>
   name: string
   jobName?: string
   category: string // order의 category
@@ -103,7 +104,7 @@ export type JobInfoDetailType = {
   id: number
   corporationId: string
   name: string
-  status: JobStatusType
+  status: Array<statusType>
   contactPersonId: number
   serviceType: string
   sourceLanguage: string

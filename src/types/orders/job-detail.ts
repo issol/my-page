@@ -1,7 +1,5 @@
 import { ItemDetailType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
-import { JobStatusType } from '../jobs/jobs.type'
-// import { JobStatusType } from '../jobs/common.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 

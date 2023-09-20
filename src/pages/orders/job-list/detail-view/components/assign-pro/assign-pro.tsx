@@ -117,7 +117,7 @@ const AssignPro = ({
     // sortId: 'DESC',
     // sortDate: 'DESC',
   })
-
+  console.log("orderDetail",orderDetail)
   const {
     data: AssignProList,
     isLoading,
@@ -217,7 +217,7 @@ const AssignPro = ({
     ])
     setValue(
       'expertise',
-      orderDetail.expertise.map(value => ({
+      orderDetail.expertise?.map(value => ({
         value: value,
         label: value,
       })),
