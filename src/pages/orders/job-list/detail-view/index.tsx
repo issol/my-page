@@ -90,6 +90,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const [editPrices, setEditPrices] = useState(false)
 
   const { data: jobInfo, isLoading } = useGetJobInfo(row.id, false)
+  // const { data: jobAssignProList } = useGetAssignProList(row.id, {}, false)
   const { data: jobPrices } = useGetJobPrices(row.id, false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
@@ -100,6 +101,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     setValue(newValue)
   }
 
+  console.log("jobInvfo",jobInfo)
   const {
     control: itemControl,
     getValues: getItem,

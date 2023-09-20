@@ -235,6 +235,7 @@ export const JobStatus = [
   { value: 601200, label: "Invoiced" },
   { value: 601300, label: "Without invoice" },
   { value: 601400, label: "Paid" },
+  { value: 601500, label: "Payment canceled" },
 ]
 
 export const AssignmentStatus = [

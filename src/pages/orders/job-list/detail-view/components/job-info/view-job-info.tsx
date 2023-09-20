@@ -31,7 +31,7 @@ import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import { PositionType } from '@src/types/orders/order-detail'
 import { ro } from 'date-fns/locale'
 import { f } from 'msw/lib/glossary-de6278a9'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import {
   QueryObserverResult,
@@ -42,6 +42,7 @@ import {
 } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { statusType } from '@src/types/common/status.type'
 
 type Props = {
   row: JobType
@@ -84,11 +85,11 @@ const ViewJobInfo = ({
   refetch,
   statusList,
 }: Props) => {
-  console.log("row",row)
-  const [jobStatus, setJobStatus] = useState<number>(row.status)
+  console.log("row",row, row.proId)
+  const [filteredJobStatus, setFilteredJobStatus] = useState<Array<statusType>>(statusList!)
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
   const queryClient = useQueryClient()
-  const MAXIMUM_FILE_SIZE = FILE_SIZE.CERTIFICATION_TEST
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
   const saveJobInfoMutation = useMutation(
     (data: { jobId: number; data: SaveJobInfoParamsType }) =>
@@ -206,11 +207,52 @@ const ViewJobInfo = ({
       },
       {
         onSuccess: () => {
-          setJobStatus(Number(event.target.value))
+          // setJobStatus(Number(event.target.value))
+          filterStatus(Number(event.target.value))
         },
       },
     )
   }
+  function filterStatus(statusCode: number) {
+    switch (statusCode) {
+      case 60000: //"In preparation" 
+        setFilteredJobStatus(statusList?.filter(list => [60000, 60400].includes(list.value))!) // Canceled
+        break;
+      case 60100: //"Requested"
+        setFilteredJobStatus(statusList?.filter(list => [60100, 60400].includes(list.value))!) // Canceled
+        break;
+      case 60700: //"In progress"
+        setFilteredJobStatus(statusList?.filter(list => [60700, 60400].includes(list.value))!) // Canceled
+        break;
+      case 601000: //"Overdue"
+        setFilteredJobStatus(statusList?.filter(list => [601100, 60400].includes(list.value))!) // Canceled
+        break;
+      case 60800: //"Partially delivered"
+        setFilteredJobStatus(statusList?.filter(list => [60800, 601100, 60400, 601300].includes(list.value))!) //Approved, Canceled, Without invoice
+        break;
+      case 60900: //"Delivered"
+        setFilteredJobStatus(statusList?.filter(list => [60900, 601100, 60400, 601300].includes(list.value))!) //Approved, Canceled, Without invoice
+        break;
+      case 601100: //Approved
+        setFilteredJobStatus(statusList?.filter(list => [601100, 60400, 601300].includes(list.value))!) //Canceled, Without invoice
+        break;
+      case 601200: //Invoiced
+        setFilteredJobStatus(statusList?.filter(list => [601200, 60400, 601300].includes(list.value))!) //Canceled, Without invoice
+        break;
+      case 601400:
+        setFilteredJobStatus(statusList?.filter(list => [601400, 601500].includes(list.value))!) //TODO Payment canceled 고도화때 반영 예정
+        break;
+      case 601300:
+        setFilteredJobStatus(statusList?.filter(list => [60400, 601100].includes(list.value))!) //Canceled, Approved
+        break;
+      default:
+        setFilteredJobStatus(statusList?.filter(list => list.value === statusCode)!)
+    }
+  }
+  
+  useEffect(() => {
+    if (row && statusList) filterStatus(row.status)
+  }, [])
 
   const fileList = (file: FileType[], type: string) => {
     return file.map((value: FileType) => {
@@ -246,7 +288,7 @@ const ViewJobInfo = ({
           }}
         >
           <Typography variant='subtitle2'>
-            *Changes will only be applied to new requests
+            {!row.proId ? '*Changes will only be applied to new requests' : null}
           </Typography>
           <Button
             variant='outlined'
@@ -254,7 +296,8 @@ const ViewJobInfo = ({
             onClick={() => setEditJobInfo && setEditJobInfo(true)}
           >
             <Icon icon='mdi:pencil-outline' fontSize={24} />
-            &nbsp; Edit before request
+            &nbsp;
+            {!row.proId ? 'Edit before request' : 'Edit'}
           </Button>
         </Box>
       )}
@@ -293,7 +336,7 @@ const ViewJobInfo = ({
                   size='small'
                   sx={{ width: '253px' }}
                 >
-                  {statusList?.map(status => {
+                  {filteredJobStatus?.map(status => {
                     return (
                       <MenuItem key={uuidv4()} value={status.value}>
                         {status.label}
@@ -359,7 +402,7 @@ const ViewJobInfo = ({
                 Job start date
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
-                {row.startedAt
+                {row.startedAt && row.startTimezone
                   ? FullDateTimezoneHelper(row.startedAt, row.startTimezone)
                   : '-'}
               </Typography>
@@ -389,7 +432,9 @@ const ViewJobInfo = ({
               Job description
             </Typography>
             <Typography variant='subtitle2' fontWeight={400}>
-              {row.description}
+              {row.description && row.description !== "" 
+                ? row.description
+                : '-'}
             </Typography>
           </Box>
         </Box>

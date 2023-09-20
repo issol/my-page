@@ -65,7 +65,7 @@ export const getJobInfo = async (
       order: { id: -1 },
       corporationId: '',
       name: '',
-      status: 'In preparation',
+      status: 60000,
       contactPersonId: 0,
       serviceType: '',
       sourceLanguage: '',
@@ -82,6 +82,7 @@ export const getJobInfo = async (
       description: '',
       isShowDescription: false,
       contactPerson: null,
+      proId: null,
     }
   }
 }
@@ -175,9 +176,12 @@ export const sendMessageToPro = async (
 
 export const uploadFile = async (file: {
   jobId: number
-  size: number
-  name: string
-  type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+  files: Array<{
+    jobId: number
+    size: number
+    name: string
+    type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+  }>
 }) => {
   await axios.post(`/api/enough/u/job/upload`, { ...file })
 }

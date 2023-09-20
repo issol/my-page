@@ -142,10 +142,13 @@ const EditJobInfo = ({
 
   const uploadFileMutation = useMutation(
     (file: {
-      jobId: number
-      size: number
-      name: string
-      type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      jobId: number,
+      files: Array<{
+        jobId: number
+        size: number
+        name: string
+        type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      }>
     }) => uploadFile(file),
     {
       onSuccess: () => {
@@ -255,12 +258,24 @@ const EditJobInfo = ({
   const onSubmit = () => {
     const data = getValues()
     if (files.length) {
-      const fileInfo: Array<{
+      // const fileInfo: Array<{
+      //   jobId: number
+      //   size: number
+      //   name: string
+      //   type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      // }> = []
+      const fileInfo: {
         jobId: number
-        size: number
-        name: string
-        type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-      }> = []
+        files: Array<{
+            jobId: number
+            size: number
+            name: string
+            type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+          }>
+      } = {
+        jobId: row.id,
+        files: []
+      }
       const paths: string[] = files.map(file => {
         return `project/${row.id}/${file.name}`
       })
@@ -271,7 +286,7 @@ const EditJobInfo = ({
       })
       Promise.all(s3URL).then(res => {
         const promiseArr = res.map((url: string, idx: number) => {
-          fileInfo.push({
+          fileInfo.files.push({
             jobId: row.id,
             size: files[idx].size,
             name: files[idx].name,
@@ -281,31 +296,34 @@ const EditJobInfo = ({
         })
         Promise.all(promiseArr)
           .then(res => {
-            res.map((value, idx) => {
-              uploadFileMutation.mutate(fileInfo[idx])
-              const jobInfo: SaveJobInfoParamsType = {
-                contactPersonId: data.contactPerson.userId,
-                description: data.description ?? null,
-                startDate: data.startedAt ? data.startedAt.toString() : null,
-                startTimezone: data.startTimezone ?? null,
+            uploadFileMutation.mutate(fileInfo)
+            const jobInfo: SaveJobInfoParamsType = {
+              contactPersonId: data.contactPerson.userId,
+              description: data.description ?? null,
+              startDate: data.startedAt ? data.startedAt.toString() : null,
+              startTimezone: data.startTimezone ?? null,
 
-                dueDate: data.dueAt.toString(),
-                dueTimezone: data.dueTimezone,
-                status: data.status,
-                sourceLanguage:
-                  data.languagePair.value === 'Language-independent'
-                    ? null
-                    : data.languagePair.source,
-                targetLanguage:
-                  data.languagePair.value === 'Language-independent'
-                    ? null
-                    : data.languagePair.target,
-                name: data.name,
-                isShowDescription: data.isShowDescription,
-              }
+              dueDate: data.dueAt.toString(),
+              dueTimezone: data.dueTimezone,
+              status: data.status,
+              sourceLanguage:
+                data.languagePair.value === 'Language-independent'
+                  ? null
+                  : data.languagePair.source,
+              targetLanguage:
+                data.languagePair.value === 'Language-independent'
+                  ? null
+                  : data.languagePair.target,
+              name: data.name,
+              isShowDescription: data.isShowDescription,
+            }
 
-              saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
-            })
+            saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
+
+            // res.map((value, idx) => {
+            //   uploadFileMutation.mutate(fileInfo[idx])
+              
+            // })
           })
           .catch(err =>
             toast.error(
@@ -797,89 +815,108 @@ const EditJobInfo = ({
               {description?.length ?? 0}/500
             </Box>
           </Box>
-          <Divider />
-          <Box
-            mt='20px'
-            mb='20px'
-            sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <Typography variant='body1' fontWeight={600}>
-                Sample files to pro
-              </Typography>
-              <div {...getRootProps({ className: 'dropzone' })}>
-                <Button variant='outlined' sx={{ height: '30px' }}>
-                  <input {...getInputProps()} />
-                  Upload files
-                </Button>
-              </div>
-            </Box>
-            {uploadedFiles && (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-
-                  width: '100%',
-                  gap: '20px',
-                }}
-              >
-                {uploadedFileList(uploadedFiles, 'SAMPLE')}
-              </Box>
-            )}
-            {fileList.length > 0 && (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-
-                  width: '100%',
-                  gap: '20px',
-                }}
-              >
-                {fileList}
-              </Box>
-            )}
-
+          {!row.proId ? (
             <Box>
-              <Typography variant='subtitle2'>
-                {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
-              </Typography>
+              <Divider />
+              <Box
+                mt='20px'
+                mb='20px'
+                sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <Typography variant='body1' fontWeight={600}>
+                    Sample files to pro
+                  </Typography>
+                  <div {...getRootProps({ className: 'dropzone' })}>
+                    <Button variant='outlined' sx={{ height: '30px' }}>
+                      <input {...getInputProps()} />
+                      Upload files
+                    </Button>
+                  </div>
+                </Box>
+                {uploadedFiles && (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+
+                      width: '100%',
+                      gap: '20px',
+                    }}
+                  >
+                    {uploadedFileList(uploadedFiles, 'SAMPLE')}
+                  </Box>
+                )}
+                {fileList.length > 0 && (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+
+                      width: '100%',
+                      gap: '20px',
+                    }}
+                  >
+                    {fileList}
+                  </Box>
+                )}
+
+                <Box>
+                  <Typography variant='subtitle2'>
+                    {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+                  </Typography>
+                </Box>
+              </Box>
+              <Divider />
+              <Box
+                mt='20px'
+                mb='20px'
+                sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <Typography variant='body1' fontWeight={600}>
+                    Target files from Pro
+                  </Typography>
+                </Box>
+                <Typography variant='subtitle2'>
+                  There are no files delivered from Pro
+                </Typography>
+              </Box>
+              <Divider />
+              <Box mt='20px' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button variant='contained' onClick={onSubmit} disabled={!isValid}>
+                  Save draft
+                </Button>
+              </Box>
             </Box>
-          </Box>
-          <Divider />
-          <Box
-            mt='20px'
-            mb='20px'
-            sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <Typography variant='body1' fontWeight={600}>
-                Target files from Pro
-              </Typography>
+          ) : (
+            <Box mt='20px' sx={{ 
+              display: 'flex', 
+              justifyContent: 'center',
+              gap: '16px',
+              mt: '16px', 
+            }}>
+              <Button variant='outlined' onClick={() => setEditJobInfo(false)} disabled={!isValid}>
+                Cancel
+              </Button>
+              <Button variant='contained' onClick={onSubmit} disabled={!isValid}>
+                Save
+              </Button>
             </Box>
-            <Typography variant='subtitle2'>
-              There are no files delivered from Pro
-            </Typography>
-          </Box>
-          <Divider />
-          <Box mt='20px' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button variant='contained' onClick={onSubmit} disabled={!isValid}>
-              Save draft
-            </Button>
-          </Box>
+          )}
+          
         </form>
         <div id='toast-container'></div>
       </DatePickerWrapper>

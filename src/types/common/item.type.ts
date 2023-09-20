@@ -103,4 +103,5 @@ export type JobType = {
     file: string // s3 key
     type: 'SAMPLE' | 'SOURCE' | 'TARGET'
   }>
+  proId: number | null
 }
