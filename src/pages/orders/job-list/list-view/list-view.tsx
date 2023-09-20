@@ -30,7 +30,7 @@ import JobsList from './list'
 import { useGetJobsList } from '@src/queries/jobs/jobs.query'
 
 export type FilterType = {
-  status?: string[]
+  status?: number[]
   client?: string[]
   category?: string[]
   serviceType?: string[]

@@ -3,7 +3,6 @@ import CustomChip from 'src/@core/components/mui/chip'
 import { Chip } from '@mui/material'
 import { StatusType } from '@src/apis/client.api'
 
-import { JobStatusType, ProJobStatusType } from '@src/types/jobs/common.type'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
 import {
   InvoicePayableStatusType,
@@ -17,6 +16,8 @@ import {
   getReceivableStatusColor,
 } from '@src/shared/helpers/colors.helper'
 import { OrderStatusType } from '@src/types/common/orders.type'
+import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -283,38 +284,67 @@ export const QuoteStatusChip = styled(Chip)<{
       ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #AD7028; color: #AD7028;'
       : status === 'Quote sent'
       ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #2B6603; color: #2B6603;'
+      : status === 'Without invoice'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #4C4E64; color: #4C4E64;'
       : null};
 `
 
+export const jobStatusLabelValueType = [
+  { label: 'In preparation', value: 60000 },
+  { label: 'Requested', value: 60100 },
+  { label: 'Request accepted', value: 60200 },
+  { label: 'Request rejected', value: 60300 },
+  { label: 'Canceled', value: 60400 },
+  { label: 'Assigned', value: 60500 },
+  { label: 'In progress', value: 60700 },
+  { label: 'Partially delivered', value: 60800 },
+  { label: 'Delivered', value: 60900 },
+  { label: 'Overdue', value: 601000 },
+  { label: 'Approved', value: 601100 },
+  { label: 'Invoiced', value: 601200 },
+  { label: 'Without invoice', value: 601300 },
+  { label: 'Paid', value: 601400 },
+]
+
 export function JobsStatusChip(status: JobStatusType) {
   const color =
-    status === 'In preparation'
+    status === 'In preparation' || 60000
       ? '#F572D8'
-      : status === 'Requested'
+      : status === 'Requested' || 60100
       ? '#A81988'
-      : status === 'Canceled'
+      : status === 'Request accepted' || 60200
+      ? '#A81988'
+      : status === 'Request rejected' || 60300
+      ? '#A81988'
+      : status === 'Canceled' || 60400
       ? '#FF4D49'
-      : status === 'Delivered'
+      : status === 'Assigned' || 60500
+      ? '#FF4D49'
+      : status === 'In progress' || 60700
+      ? '#FF4D49'
+      : status === 'Partially delivered' || 60800
+      ? '#FF4D49'
+      : status === 'Delivered' || 60900
       ? '#1A6BBA'
-      : status === 'In progress'
-      ? '#FDB528'
-      : status === 'Invoice accepted'
-      ? '#9B6CD8'
-      : status === 'Invoice created'
-      ? '#F572D8'
-      : status === 'Overdue'
+      : status === 'Overdue' || 601000
       ? '#FF4D49'
-      : status === 'Paid'
-      ? '#1B8332'
-      : status === 'Approved'
+      : status === 'Approved' || 601100
       ? '#64C623'
-      : status === 'Without invoice'
+      : status === 'Invoiced' || 601200
+      ? '#FF4D49'
+      : status === 'Without invoice' || 601300
       ? '#75571C'
+      : status === 'Paid' || 601400
+      ? '#1B8332'
       : ''
+  const jobStatusValue =
+    typeof status === 'string'
+      ? status
+      : jobStatusLabelValueType.find(list => list.value! === status)!.label
 
   return (
     <CustomChip
-      label={status === 'Overdue' ? `🔴 ${status}` : status}
+      label={status === 'Overdue' ? `🔴 ${jobStatusValue}` : jobStatusValue}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,

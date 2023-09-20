@@ -1,5 +1,6 @@
 import {
   getClient,
+  getJobInfo,
   getLangItems,
   getProjectInfo,
   getProjectTeam,
@@ -122,6 +123,18 @@ export const useGetVersionHistory = (id: number) => {
       staleTime: 60 * 1000, // 1
 
       suspense: true,
+    },
+  )
+}
+
+export const useGetJobInfo = (id: number) => {
+  return useQuery(
+    [`orderDetail`, { type: 'jobInfo' }, id],
+    () => getJobInfo(id),
+    {
+      staleTime: 60 * 1000, // 1
+
+      suspense: false,
     },
   )
 }

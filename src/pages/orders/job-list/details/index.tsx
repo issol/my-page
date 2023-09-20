@@ -183,6 +183,7 @@ const JobDetails = () => {
   }, [jobDetails])
 
   const Row = ({ info, index }: { info: JobItemType; index: number }) => {
+    console.log("info",info)
     const [open, setOpen] = useState<boolean>(true)
     const separateLine = () => {
       return (

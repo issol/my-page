@@ -200,3 +200,9 @@ export type OrderFeatureType =
   | 'button-Edit-Set-Status-To-UnderRevision'
   | 'button-Deliveries&Feedback-ConfirmDeliveries'
   | 'button-Deliveries&Feedback-RequestRedelivery'
+
+  export type JobInfoType = {
+    jobId: number,
+    jobName: string,
+    isProAssigned: boolean,
+  }

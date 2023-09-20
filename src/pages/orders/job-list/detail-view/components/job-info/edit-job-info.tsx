@@ -99,6 +99,7 @@ type Props = {
   success: boolean
   setSuccess: Dispatch<SetStateAction<boolean>>
   setEditJobInfo: Dispatch<SetStateAction<boolean>>
+  statusList: Array<{ value: number; label: string }>
 }
 
 const EditJobInfo = ({
@@ -111,6 +112,7 @@ const EditJobInfo = ({
   success,
   setSuccess,
   setEditJobInfo,
+  statusList,
 }: Props) => {
   const theme = useTheme()
   const { direction } = theme
@@ -290,7 +292,7 @@ const EditJobInfo = ({
 
                 dueDate: data.dueAt.toString(),
                 dueTimezone: data.dueTimezone,
-                status: data.status.value,
+                status: data.status,
                 sourceLanguage:
                   data.languagePair.value === 'Language-independent'
                     ? null
@@ -324,7 +326,7 @@ const EditJobInfo = ({
 
         dueDate: data.dueAt.toString(),
         dueTimezone: data.dueTimezone,
-        status: data.status.value,
+        status: data.status,
         sourceLanguage:
           data.languagePair.value === 'Language-independent'
             ? null
@@ -346,10 +348,7 @@ const EditJobInfo = ({
   useEffect(() => {
     setValue('name', row.name ?? '')
     setValue('description', row.description ?? '')
-    setValue('status', {
-      value: row.status as JobStatusType,
-      label: row.status as JobStatusType,
-    })
+    // setValue('status', row.status)
     row.sourceLanguage && row.targetLanguage
       ? setValue('languagePair', {
           value: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
@@ -466,7 +465,7 @@ const EditJobInfo = ({
                 </FormHelperText>
               )}
             </Grid>
-            <Grid item xs={6}>
+            {/* <Grid item xs={6}>
               <Controller
                 control={control}
                 name='status'
@@ -480,8 +479,8 @@ const EditJobInfo = ({
                         onChange({ value: '', label: '' })
                       }
                     }}
-                    value={value || { value: '', label: '' }}
-                    options={JobStatus}
+                    value={value.value}
+                    options={statusList!}
                     id='Status'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
@@ -500,7 +499,7 @@ const EditJobInfo = ({
                     errors.status?.value?.message}
                 </FormHelperText>
               )}
-            </Grid>
+            </Grid> */}
             <Grid item xs={6}>
               <Controller
                 control={control}

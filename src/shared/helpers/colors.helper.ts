@@ -5,6 +5,7 @@ import {
 } from '@src/types/common/quotes.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
+import { JobStatusType } from '@src/types/jobs/jobs.type'
 
 export function getReceivableStatusColor(status: InvoiceReceivableStatusType) {
   const color =
@@ -65,6 +66,8 @@ export function getOrderStatusColor(
       ? '#1B8332'
       : status === 101200 || status === 'Canceled'
       ? '#FF4D49'
+      : status === 10950 || status === 'Without invoice'
+      ? '#4C4E64'
       : ''
   return color
 }
@@ -117,7 +120,7 @@ export function getProJobStatusColor(status: ProJobStatusType) {
       ? '#9B6CD8'
       : status === 'Paid'
       ? '#1B8332'
-      : status === 'without invoice'
+      : status === 'Without invoice'
       ? '#D8AF1D'
       : status === 'Unassigned'
       ? '#6D788D'
@@ -127,5 +130,38 @@ export function getProJobStatusColor(status: ProJobStatusType) {
       ? '#FF4D49'
       : null
 
+  return color
+}
+export function getJobStatusColor(status: JobStatusType) {
+  const color =
+    status === 'In preparation'
+      ? '#F572D8'
+      : status === 'Requested'
+      ? '#A81988'
+      : status === 'Request accepted'
+      ? '#A81988'
+      : status === 'Request rejected'
+      ? '#A81988'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : status === 'Assigned'
+      ? '#FF4D49'
+      : status === 'In progress'
+      ? '#FF4D49'
+      : status === 'Partially delivered'
+      ? '#FF4D49'
+      : status === 'Delivered'
+      ? '#1A6BBA'
+      : status === 'Overdue'
+      ? '#FF4D49'
+      : status === 'Approved'
+      ? '#64C623'
+      : status === 'Invoiced'
+      ? '#FF4D49'
+      : status === 'Without invoice'
+      ? '#75571C'
+      : status === 'Paid'
+      ? '#1B8332'
+      : ''
   return color
 }

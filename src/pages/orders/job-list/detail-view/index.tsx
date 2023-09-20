@@ -74,6 +74,7 @@ import {
 } from 'react-query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { saveJobPrices } from '@src/apis/job-detail.api'
+import { useGetStatusList } from '@src/queries/common.query'
 
 const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { openModal, closeModal } = useModal()
@@ -93,6 +94,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
+  const { data: statusList } = useGetStatusList('Job')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -315,6 +317,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     success={success}
                     setSuccess={setSuccess}
                     setEditJobInfo={setEditJobInfo}
+                    statusList={statusList!}
                   />
                 ) : (
                   <ViewJobInfo
@@ -325,6 +328,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     item={item}
                     setSuccess={setSuccess}
                     refetch={refetch!}
+                    statusList={statusList}
                   />
                 )}
               </TabPanel>
@@ -401,6 +405,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                   priceUnitsList={priceUnitsList ?? []}
                   item={item}
                   projectTeam={projectTeam || []}
+                  statusList={statusList!}
                 />
               </TabPanel>
             </TabContext>
