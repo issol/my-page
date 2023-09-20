@@ -391,6 +391,7 @@ export default function Filter({
                               <CustomInput
                                 label='Request date'
                                 icon='calendar'
+                                placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                 value={
                                   value.length > 0
                                     ? dateValue(value[0], value[1])
@@ -424,6 +425,7 @@ export default function Filter({
                               <CustomInput
                                 label='Desired due date'
                                 icon='calendar'
+                                placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                 value={
                                   value.length > 0
                                     ? dateValue(value[0], value[1])

@@ -390,7 +390,7 @@ export default function QuotesFilters({
                                 <CustomInput
                                   label='Quote date'
                                   icon='calendar'
-                                  placeholder='MM-DD-YYYY - MM-DD-YYYY'
+                                  placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                   readOnly
                                   value={
                                     value.length > 0
@@ -444,7 +444,7 @@ export default function QuotesFilters({
                                   }
                                   icon='calendar'
                                   readOnly
-                                  placeholder='MM-DD-YYYY - MM-DD-YYYY'
+                                  placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                   value={
                                     value && value.length > 0
                                       ? dateValue(value[0], value[1])
@@ -498,7 +498,7 @@ export default function QuotesFilters({
                                     }
                                     icon='calendar'
                                     readOnly
-                                    placeholder='MM-DD-YYYY - MM-DD-YYYY'
+                                    placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                     value={
                                       value && value.length > 0
                                         ? dateValue(value[0], value[1])
