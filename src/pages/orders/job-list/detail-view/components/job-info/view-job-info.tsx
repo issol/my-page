@@ -13,6 +13,7 @@ import {
 import {
   JobsStatusChip,
   ServiceTypeChip,
+  jobStatusLabelValueType,
 } from '@src/@core/components/chips/chips'
 import FileItem from '@src/@core/components/fileItem'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
@@ -26,7 +27,7 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
-import { JobStatusType } from '@src/types/jobs/common.type'
+
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import { PositionType } from '@src/types/orders/order-detail'
 import { ro } from 'date-fns/locale'
@@ -42,6 +43,7 @@ import {
 } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { JobStatusType } from '@src/types/jobs/jobs.type'
 
 type Props = {
   row: JobType
@@ -71,6 +73,7 @@ type Props = {
       unknown
     >
   >
+  statusList: Array<{ value: number; label: string }> | undefined
 }
 const ViewJobInfo = ({
   row,
@@ -81,6 +84,7 @@ const ViewJobInfo = ({
 
   setSuccess,
   refetch,
+  statusList,
 }: Props) => {
   const [jobStatus, setJobStatus] = useState<JobStatusType>(row.status)
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
@@ -189,7 +193,8 @@ const ViewJobInfo = ({
 
       dueDate: row.dueAt.toString(),
       dueTimezone: row.dueTimezone,
-      status: event.target.value as JobStatusType,
+      // status: event.target.value as JobStatusType,
+      status: typeof event.target.value === 'string' ? jobStatusLabelValueType.find(list => list.label! === event.target.value)!.value! : event.target.value,
       sourceLanguage: row.sourceLanguage,
       targetLanguage: row.targetLanguage,
       name: row.name,
@@ -283,21 +288,21 @@ const ViewJobInfo = ({
               </Typography>
               {type === 'history' ? (
                 JobsStatusChip(row.status)
-              ) : (
-                <Select
-                  value={jobStatus}
-                  onChange={handleChange}
-                  size='small'
-                  sx={{ width: '253px' }}
-                >
-                  {JobStatus.map(status => {
-                    return (
-                      <MenuItem key={uuidv4()} value={status.value}>
-                        {status.label}
-                      </MenuItem>
-                    )
-                  })}
-                </Select>
+              ) : ( null
+                // <Select
+                //   value={statusList?.map(list => list.label)}
+                //   onChange={handleChange}
+                //   size='small'
+                //   sx={{ width: '253px' }}
+                // >
+                //   {statusList?.map(status => {
+                //     return (
+                //       <MenuItem key={uuidv4()} value={status.value}>
+                //         {status.label}
+                //       </MenuItem>
+                //     )
+                //   })}
+                // </Select>
               )}
             </Box>
             <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>

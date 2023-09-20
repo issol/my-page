@@ -366,7 +366,8 @@ const AssignPro = ({
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: { row: AssignProListType }) => {
-        return <ProStatusChip status={row.status} label={row.status} />
+        // return <ProStatusChip status={row.status} label={row.status} />
+        return row.status
       },
     },
     {
@@ -497,7 +498,8 @@ const AssignPro = ({
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: { row: AssignProListType }) => {
-        return <ProStatusChip status={row.status} label={row.status} />
+        // return <ProStatusChip status={row.status} label={row.status} />
+        return row.status
       },
     },
     {

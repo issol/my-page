@@ -2,13 +2,13 @@ import { Box, Button, Typography } from '@mui/material'
 import AlertIcon, { AlertType } from '@src/@core/components/alert-icon'
 import { SmallModalContainer } from '@src/@core/components/modal'
 import Dialog from '@mui/material/Dialog'
-import { TitleTypography } from '@src/@core/styles/typography'
 import { Fragment } from 'react'
+import styled from 'styled-components'
 
 type Props = {
   vary?: AlertType
   message: string
-  title?: string
+  title: string[]
   closeButtonText?: string
   confirmButtonText?: string
   onClose: () => void
@@ -23,7 +23,7 @@ type Props = {
  * title은 메세지와 버튼 사이에 굵은 글씨로 나타나는 텍스트임, \n으로 줄바꿈 설정 가능, 3번째 줄부터 ... 처리됨
  */
 
-export default function SimpleMultilineAlertModal({
+export default function SimpleMultilineAlertWithCumtomTitleModal({
   vary = 'error',
   message,
   title,
@@ -39,7 +39,11 @@ export default function SimpleMultilineAlertModal({
     </Fragment>
   ));
 
-  const newTitle = title?.split('\n').map((line, index) => (
+  let hiddenLineCount = title.length - 3 > 0 ? title.length - 3 : 0
+  const lengthFixedTitle = [...title]
+  if(lengthFixedTitle.length >= 3) lengthFixedTitle.length = 3
+  
+  const newTitle = lengthFixedTitle.map((line, index) => (
     <Fragment key={index}>
       {line}
       <br />
@@ -65,6 +69,9 @@ export default function SimpleMultilineAlertModal({
             {newTitle}
           </TitleTypography>
         ) : null}
+        {newTitle && hiddenLineCount>0 ? (
+          `+ ${hiddenLineCount} more`
+        ) : null}
         <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
           <Button variant={ onConfirm ? 'outlined' : 'contained'} onClick={onClose}>
             {closeButtonText ?? 'Okay'}
@@ -73,8 +80,8 @@ export default function SimpleMultilineAlertModal({
           <Button
             variant='contained'
             onClick={() => {
-              onConfirm()
               onClose()
+              onConfirm()
             }}
           >
             {confirmButtonText ?? 'Confirm'}
@@ -85,3 +92,12 @@ export default function SimpleMultilineAlertModal({
     </Dialog>
   )
 }
+
+export const TitleTypography = styled(Typography)`
+  overflow: hidden;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+`

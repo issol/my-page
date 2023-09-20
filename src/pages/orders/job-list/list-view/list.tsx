@@ -53,7 +53,7 @@ export default function JobsList({
   const auth = useRecoilValueLoadable(authState)
   const router = useRouter()
 
-  console.log(list)
+  console.log("list",list)
 
   const columns: GridColumns<JobsListType> = [
     {
@@ -97,18 +97,18 @@ export default function JobsList({
         return (
           <Box display='flex' flexDirection='column'>
             <Typography fontWeight='bold'>
-              {row.order.contactPerson
+              {row.contactPerson
                 ? getLegalName({
-                    firstName: row.order.contactPerson.firstName!,
-                    middleName: row.order.contactPerson.middleName,
-                    lastName: row.order.contactPerson.lastName!,
+                    firstName: row.contactPerson.firstName!,
+                    middleName: row.contactPerson.middleName,
+                    lastName: row.contactPerson.lastName!,
                   })
-                : row.order.client.name}
+                : row.client.name}
             </Typography>
             <Typography variant='body2'>
-              {row.order.contactPerson
-                ? row.order.contactPerson.email
-                : row.order.client.email}
+              {row.contactPerson
+                ? row.contactPerson.email
+                : row.client.email}
             </Typography>
           </Box>
         )
@@ -123,7 +123,7 @@ export default function JobsList({
       sortable: false,
       renderHeader: () => <Box>Job name</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Typography variant='body2'>{row.name ?? '-'}</Typography>
+        return <Typography variant='body2'>{row.jobName ?? '-'}</Typography>
       },
     },
     {
@@ -139,8 +139,8 @@ export default function JobsList({
           <Box display='flex' alignItems='center' gap='8px'>
             <JobTypeChip
               size='small'
-              type={row?.order.category}
-              label={row?.order.category}
+              type={row?.category}
+              label={row?.category}
             />
             <ServiceTypeChip size='small' label={row?.serviceType} />
           </Box>
@@ -251,7 +251,7 @@ export default function JobsList({
         onCellClick={params => {
           router.push({
             pathname: '/orders/job-list/details/',
-            query: { orderId: params.row.order.id, jobId: params.row.id },
+            query: { orderId: params.row.orderId, jobId: params.row.id },
           })
         }}
         rowsPerPageOptions={[10, 25, 50]}

@@ -1,5 +1,4 @@
-import { JobStatusType } from '../jobs/common.type'
-import { JobPricesDetailType } from '../jobs/jobs.type'
+import { JobPricesDetailType, JobStatusType } from '../jobs/jobs.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 import { PriceType, PriceUnitType } from './orders-and-quotes.type'
