@@ -60,6 +60,7 @@ import { FilePostType } from '@src/apis/client-guideline.api'
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { JobStatusType } from '@src/types/jobs/common.type'
 
 type Props = {
   row: JobType
@@ -345,7 +346,10 @@ const EditJobInfo = ({
   useEffect(() => {
     setValue('name', row.name ?? '')
     setValue('description', row.description ?? '')
-    setValue('status', { value: row.status, label: row.status })
+    setValue('status', {
+      value: row.status as JobStatusType,
+      label: row.status as JobStatusType,
+    })
     row.sourceLanguage && row.targetLanguage
       ? setValue('languagePair', {
           value: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(

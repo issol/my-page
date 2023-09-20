@@ -180,7 +180,7 @@ export const uploadFile = async (file: {
   jobId: number
   size: number
   name: string
-  type: 'SAMPLE' | 'SAMPLE' | 'TARGET'
+  type: 'SAMPLE' | 'SOURCE' | 'TARGET'
 }) => {
   await axios.post(`/api/enough/u/job/upload`, { ...file })
 }
