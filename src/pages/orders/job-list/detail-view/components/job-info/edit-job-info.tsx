@@ -277,7 +277,7 @@ const EditJobInfo = ({
         files: []
       }
       const paths: string[] = files.map(file => {
-        return `project/${row.id}/${file.name}`
+        return `project/${row.id}/sample/${file.name}`
       })
       const s3URL = paths.map(value => {
         return getUploadUrlforCommon('job', value).then(res => {
@@ -594,7 +594,7 @@ const EditJobInfo = ({
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     fullWidth
-                    disabled={Boolean(row.name)}
+                    disabled={Boolean(row.proId)}
                     isOptionEqualToValue={(option, newValue) => {
                       return option.value === newValue.value
                     }}
@@ -651,7 +651,7 @@ const EditJobInfo = ({
                       customInput={
                         <CustomInput label='Job start date' icon='calendar' />
                       }
-                      disabled={Boolean(row.name)}
+                      disabled={Boolean(row.proId)}
                     />
                   </Box>
                 )}
@@ -664,7 +664,7 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
                     fullWidth
-                    disabled={Boolean(row.name)}
+                    disabled={Boolean(row.proId)}
                     value={value || { code: '', label: '', phone: '' }}
                     options={countries as CountryType[]}
                     onChange={(e, v) => onChange(v)}

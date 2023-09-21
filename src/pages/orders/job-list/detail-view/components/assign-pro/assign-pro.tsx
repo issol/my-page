@@ -182,18 +182,37 @@ const AssignPro = ({
   }
 
   const onClickRequestJob = () => {
-    openModal({
-      type: 'AssignProRequestJobModal',
-      children: (
-        <CustomModal
-          onClose={() => closeModal('AssignProRequestJobModal')}
-          title='Are you sure you want to request the job to selected Pro(s)?'
-          vary='successful'
-          rightButtonText='Request'
-          onClick={handleRequestPro}
-        ></CustomModal>
-      ),
-    })
+    if (!!item.itemName) {
+      openModal({
+        type: 'AssignProRequestJobModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('AssignProRequestJobModal')}
+            title='Are you sure you want to request the job to selected Pro(s)?'
+            vary='successful'
+            rightButtonText='Request'
+            onClick={handleRequestPro}
+          ></CustomModal>
+        ),
+      })
+    } else {
+      openModal({
+        type: 'AssignDenyModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('AssignDenyModal')}
+            title='Please enter all required fields to make a request.'
+            vary='error'
+            soloButton={true}
+            rightButtonText='Okey'
+            onClick={() => {
+              //TODO Job info 탭으로 이동하는거 추가해야 함
+              closeModal('AssignDenyModal')
+            }}
+          ></CustomModal>
+        ),
+      })
+    }
   }
 
   useEffect(() => {
@@ -600,6 +619,7 @@ const AssignPro = ({
         handleSelectionModelChange={handleSelectionModelChange}
         onClickRequestJob={onClickRequestJob}
         type={type}
+        jobInfo={row}
       />
     </Box>
   )
