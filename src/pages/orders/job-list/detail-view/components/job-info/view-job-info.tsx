@@ -321,7 +321,7 @@ const ViewJobInfo = ({
                 }}
               >
                 <Typography variant='subtitle2'>
-                  {!row.proId ? '*Changes will only be applied to new requests' : null}
+                  {!row.proId ? '*Changes will only be applied to new requests' : '*Changes will also be applied to the Pro’s job detail page'}
                 </Typography>
                 <Button
                   variant='outlined'
