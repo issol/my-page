@@ -164,9 +164,11 @@ const InvoiceInfo = ({
   const [isReminder, setIsReminder] = useState(invoiceInfo.setReminder)
   const [issued, setIssued] = useState<boolean>(invoiceInfo.taxInvoiceIssued)
 
+  console.log("client?.isEnrolledClient",client?.isEnrolledClient)
   const statusLabel =
     statusList?.find(i => i.value === invoiceInfo.invoiceStatus)?.label || ''
 
+  // const statusOption = client?.isEnrolledClient
   const statusOption = client?.contactPerson?.userId
     ? statusList.filter(i => [30000, 30100, 30200].includes(i.value))
     : statusList.filter(
@@ -1011,9 +1013,8 @@ const InvoiceInfo = ({
                               invoiceInfo.invoiceStatus,
                             )
                           ) : (currentRole && currentRole.name === 'CLIENT') ||
-                            [30900, 301000, 301100, 301200].includes(
-                              invoiceInfo.invoiceStatus,
-                            ) ? (
+                              !statusOption.some(status => status.value === invoiceInfo.invoiceStatus) 
+                            ? (
                             <Box
                               sx={{
                                 display: 'flex',
