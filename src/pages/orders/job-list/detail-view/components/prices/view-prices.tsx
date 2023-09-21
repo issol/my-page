@@ -177,6 +177,7 @@ const ViewPrices = ({
             itemControl={itemControl}
             showMinimum={showMinimum}
             setItem={setItem}
+            itemTrigger={itemTrigger}
             setShowMinimum={setShowMinimum}
             openModal={openModal}
             closeModal={closeModal}

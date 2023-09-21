@@ -12,11 +12,13 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 // ** types
 import { JobType } from '@src/types/common/item.type'
+import { statusType } from '@src/types/common/status.type'
 
 type Props = {
   row: JobType
+  jobStatusList: Array<statusType>
 }
-const ViewJobInfo = ({ row }: Props) => {
+const ViewJobInfo = ({ row, jobStatusList }: Props) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Card sx={{ padding: '20px' }}>
@@ -44,7 +46,7 @@ const ViewJobInfo = ({ row }: Props) => {
               >
                 Status
               </Typography>
-              {JobsStatusChip(row.status)}
+              {JobsStatusChip(row.status, jobStatusList)}
             </Box>
             <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
               <Typography
