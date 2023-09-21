@@ -13,21 +13,17 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { Icon } from '@iconify/react'
+import { ProJobFeedbackType } from '@src/types/jobs/jobs.type'
+import { UseMutateFunction } from 'react-query'
 type Props = {
-  feedbacks: [
-    {
-      id: number
-      isChecked: boolean
-      name: string
-      email: string
-      createdAt: string
-      feedback: string
-    },
-  ]
+  feedbacks: Array<ProJobFeedbackType>
+  checkFeedback: UseMutateFunction<unknown, unknown, number, unknown>
 }
 
-const Feedbacks = ({ feedbacks }: Props) => {
+const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
   const auth = useRecoilValueLoadable(authState)
+
+  console.log(feedbacks)
 
   return (
     <>
@@ -111,6 +107,9 @@ const Feedbacks = ({ feedbacks }: Props) => {
                     name='size-small'
                     sx={{ padding: 0, outline: 'none' }}
                     value={value.isChecked}
+                    checked={value.isChecked}
+                    disabled={value.isChecked}
+                    onClick={() => checkFeedback(value.id)}
                     checkedIcon={
                       <Icon
                         icon='bi:check-circle-fill'

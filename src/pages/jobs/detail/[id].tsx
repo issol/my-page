@@ -2,7 +2,15 @@ import { Icon } from '@iconify/react'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import { Box, Card, Grid, IconButton, Tab, Typography } from '@mui/material'
+import {
+  Badge,
+  Box,
+  Card,
+  Grid,
+  IconButton,
+  Tab,
+  Typography,
+} from '@mui/material'
 import {
   useGetProJobDetail,
   useGetProJobDots,
@@ -76,7 +84,19 @@ const ProJobsDetail = () => {
             jobDetail.status !== 60300 ? (
               <CustomTab
                 value='feedback'
-                label='Deliveries & Feedback'
+                label={
+                  <>
+                    Deliveries & Feedback
+                    {jobDetailDots.includes('feedback') ||
+                    jobDetailDots.includes('sourceFile') ? (
+                      <Badge
+                        variant='dot'
+                        color='primary'
+                        sx={{ marginLeft: '4px' }}
+                      ></Badge>
+                    ) : null}
+                  </>
+                }
                 iconPosition='start'
                 icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
                 onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
@@ -95,7 +115,10 @@ const ProJobsDetail = () => {
           </TabPanel>
           <TabPanel value='feedback' sx={{ pt: '24px' }}>
             <Suspense>
-              <DeliveriesFeedback jobInfo={jobDetail} />
+              <DeliveriesFeedback
+                jobInfo={jobDetail}
+                jobDetailDots={jobDetailDots}
+              />
             </Suspense>
           </TabPanel>
         </TabContext>

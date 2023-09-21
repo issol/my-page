@@ -1,6 +1,7 @@
 import { Icon } from '@iconify/react'
 import { CheckBox } from '@mui/icons-material'
 import {
+  Badge,
   Box,
   Button,
   Card,
@@ -32,24 +33,71 @@ import FinalDeliveryModal from './components/modal/final-delivery-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { getDownloadUrlforCommon } from '@src/apis/common.api'
+import {
+  getDownloadUrlforCommon,
+  getUploadUrlforCommon,
+  uploadFileToS3,
+} from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import toast from 'react-hot-toast'
 import Deliveries from './components/deliveries'
 import Feedbacks from './components/feedbacks'
-import { useGetProJobDeliveries } from '@src/queries/jobs/jobs.query'
+import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
+import { getFilePath } from '@src/shared/transformer/filePath.transformer'
+import { useMutation, useQueryClient } from 'react-query'
+import {
+  patchProJobFeedbackCheck,
+  patchProJobSourceFileDownload,
+  postProJobDeliveries,
+} from '@src/apis/job-detail.api'
 
 type Props = {
   jobInfo: ProJobDetailType
+  jobDetailDots: string[]
 }
 
-const DeliveriesFeedback = ({ jobInfo }: Props) => {
+const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
+  const queryClient = useQueryClient()
   const [withoutFiles, setWithoutFiles] = useState(false)
   const [note, setNote] = useState<string | null>(null)
   const auth = useRecoilValueLoadable(authState)
 
-  const { data: deliveries } = useGetProJobDeliveries(jobInfo.id)
+  const { data, refetch } = useGetProJobDeliveriesFeedbacks(jobInfo.id)
+
+  const updateDeliveries = useMutation(
+    (params: {
+      jobId: number
+      deliveryType: 'partial' | 'final'
+      note?: string
+      isWithoutFile: boolean
+      files?: Array<{
+        size: number
+        name: string
+        type: 'TARGET' | 'SOURCE' | 'SAMPLE'
+      }>
+    }) => postProJobDeliveries(params),
+    {
+      onSuccess: () => {
+        refetch()
+        setFiles([])
+        setNote(null)
+        setWithoutFiles(false)
+        queryClient.invalidateQueries(['proJobDetail'])
+      },
+    },
+  )
+
+  const patchFeedbackCheckMutation = useMutation(
+    (feedbackId: number) => patchProJobFeedbackCheck(jobInfo.id, feedbackId),
+    {
+      onSuccess: () => {
+        refetch()
+        queryClient.invalidateQueries(['proJobDetail'])
+        queryClient.invalidateQueries(['proJobDots'])
+      },
+    },
+  )
 
   const { openModal, closeModal } = useModal()
 
@@ -68,10 +116,12 @@ const DeliveriesFeedback = ({ jobInfo }: Props) => {
 
   const handlePartialDelivery = () => {
     //TODO API 연결
+    onSubmit('partial')
   }
 
   const handleFinalDelivery = () => {
     // TODO API 연결
+    onSubmit('final')
   }
 
   const handleCancelDelivery = () => {
@@ -225,6 +275,69 @@ const DeliveriesFeedback = ({ jobInfo }: Props) => {
     setFileSize(result)
   }, [files])
 
+  const onSubmit = (deliveryType: 'final' | 'partial') => {
+    closeModal('DeliverToClientModal')
+    if (files.length) {
+      const fileInfo: Array<{
+        name: string
+        size: number
+        type: 'SAMPLE' | 'TARGET' | 'SOURCE'
+      }> = []
+      const paths: string[] = files.map(
+        file => {
+          return `project/${jobInfo.id}/delivery/${file.name}`
+        },
+        // getFilePath(['delivery', jobInfo.id.toString()], file.name),
+      )
+      const promiseArr = paths.map((url, idx) => {
+        return getUploadUrlforCommon(S3FileType.ORDER_DELIVERY, url).then(
+          res => {
+            fileInfo.push({
+              name: files[idx].name,
+              size: files[idx]?.size,
+              // filePath: url,
+              // fileExtension: splitFileNameAndExtension(files[idx].name)[1],
+              type: 'TARGET',
+            })
+            return uploadFileToS3(res.url, files[idx])
+          },
+        )
+      })
+      Promise.all(promiseArr)
+        .then(res => {
+          // logger.debug('upload client guideline file success :', res)
+
+          // updateProject.mutate({ deliveries: fileInfo })
+          updateDeliveries.mutate({
+            jobId: jobInfo.id,
+            deliveryType: deliveryType,
+            note: note ?? undefined,
+            isWithoutFile: withoutFiles,
+            files: fileInfo.length > 0 ? fileInfo : undefined,
+          })
+
+          // setImportedFiles([])
+        })
+        .catch(err =>
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          ),
+        )
+    } else {
+      updateDeliveries.mutate({
+        jobId: jobInfo.id,
+        deliveryType: deliveryType,
+        note: note ?? undefined,
+        isWithoutFile: withoutFiles,
+        files: [],
+        // files: fileInfo.length > 0 ? fileInfo : undefined,
+      })
+    }
+  }
+
   const fileList = files.map(file => (
     <Box key={uuidv4()}>
       <FileBox>
@@ -373,26 +486,26 @@ const DeliveriesFeedback = ({ jobInfo }: Props) => {
               </>
             )}
           </Card>
-          {/* {jobInfo.deliveries.length > 0
-            ? jobInfo.deliveries.map(value => (
-                <Deliveries
-                  key={uuidv4()}
-                  delivery={value}
-                  downloadAllFiles={downloadAllFiles}
-                  downloadOneFile={downloadOneFile}
-                />
-              ))
-            : null}
-          {jobInfo.feedbacks.length > 0 ? (
+          {data && data.deliveries.length > 0 ? (
+            <Deliveries
+              delivery={data.deliveries}
+              downloadAllFiles={downloadAllFiles}
+              downloadOneFile={downloadOneFile}
+            />
+          ) : null}
+          {data && data.feedbacks.length > 0 ? (
             <Card sx={{ padding: '20px' }}>
               <Box sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                 <img src='/images/icons/job-icons/feedback.png' alt='' />
                 <Typography variant='h6'>Feedback</Typography>
               </Box>
 
-              <Feedbacks feedbacks={jobInfo.feedbacks} />
+              <Feedbacks
+                feedbacks={data.feedbacks}
+                checkFeedback={patchFeedbackCheckMutation.mutate}
+              />
             </Card>
-          ) : null} */}
+          ) : null}
         </Box>
       </Grid>
       <Grid item xs={3.25}>
@@ -426,14 +539,14 @@ const DeliveriesFeedback = ({ jobInfo }: Props) => {
               >
                 <Button
                   variant='outlined'
-                  disabled={!withoutFiles}
+                  disabled={withoutFiles ? files.length > 0 : files.length < 1}
                   onClick={onClickPartialDelivery}
                 >
                   Partial delivery
                 </Button>
                 <Button
                   variant='contained'
-                  disabled={!withoutFiles}
+                  disabled={withoutFiles ? files.length > 0 : files.length < 1}
                   onClick={onClickFinalDelivery}
                 >
                   Final delivery
@@ -451,6 +564,22 @@ const DeliveriesFeedback = ({ jobInfo }: Props) => {
               >
                 Cancel delivery
               </Button>
+            </Card>
+          ) : null}
+
+          {jobDetailDots.includes('feedback') ? (
+            <Card sx={{ padding: '24px' }}>
+              <Box sx={{ display: 'flex', gap: '5px' }}>
+                <Badge
+                  variant='dot'
+                  color='primary'
+                  sx={{ marginLeft: '4px' }}
+                />
+                <Typography variant='body1' fontWeight={600} fontSize={14}>
+                  New feedback registered
+                </Typography>
+                <Icon icon='mdi:arrow-downward' fontSize={24} />
+              </Box>
             </Card>
           ) : null}
         </Box>

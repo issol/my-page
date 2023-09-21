@@ -58,7 +58,10 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import { useMutation, useQueryClient } from 'react-query'
-import { patchProJobDetail } from '@src/apis/job-detail.api'
+import {
+  patchProJobDetail,
+  patchProJobSourceFileDownload,
+} from '@src/apis/job-detail.api'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -91,6 +94,16 @@ const ProJobInfo = ({
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['proJobDetail'])
+      },
+    },
+  )
+
+  const patchProJobSourceFileDownloadMutation = useMutation(
+    (fileIds: number[]) => patchProJobSourceFileDownload(jobInfo.id, fileIds),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['proJobDetail'])
+        queryClient.invalidateQueries(['proJobDots'])
       },
     },
   )
@@ -133,6 +146,7 @@ const ProJobInfo = ({
             window.URL.revokeObjectURL(url)
           }, 60000)
           a.remove()
+          patchProJobSourceFileDownloadMutation.mutate([file.id!])
         })
         .catch(err =>
           toast.error(
@@ -175,17 +189,30 @@ const ProJobInfo = ({
     })
     .map((file: JobsFileType) => (
       <Box key={uuidv4()}>
-        <Typography
-          variant='body2'
-          fontSize={14}
-          fontWeight={400}
-          sx={{ mb: '5px' }}
+        <Box
+          sx={{ display: 'flex', gap: '10px', alignItems: 'center', mb: '5px' }}
         >
-          {FullDateTimezoneHelper(
-            file.createdAt,
-            auth.getValue().user?.timezone,
+          {file.isDownloaded ? null : (
+            <Badge
+              variant='dot'
+              color='primary'
+              sx={{ marginLeft: '4px' }}
+            ></Badge>
           )}
-        </Typography>
+
+          <Typography
+            variant='body2'
+            fontSize={14}
+            fontWeight={400}
+            color={file.isDownloaded ? 'rgba(76, 78, 100, 0.60)' : '#666CFF'}
+          >
+            {FullDateTimezoneHelper(
+              file.createdAt,
+              auth.getValue().user?.timezone,
+            )}
+          </Typography>
+        </Box>
+
         <FileBox>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Box sx={{ marginRight: '8px', display: 'flex' }}>
@@ -1199,7 +1226,11 @@ const ProJobInfo = ({
             </Card>
           ) : jobInfo.status === 60500 ||
             jobInfo.status === 60700 ||
-            jobInfo.status === 60800 ? (
+            jobInfo.status === 60800 ||
+            jobInfo.status === 60900 ||
+            jobInfo.status === 601100 ||
+            jobInfo.status === 601200 ||
+            jobInfo.status === 601300 ? (
             <Card
               sx={{
                 padding: '20px',

@@ -107,7 +107,7 @@ const FinalDeliveryModal = ({ onClose, onClick }: Props) => {
           <Button variant='outlined' onClick={onClose}>
             Cancel
           </Button>
-          <Button variant='contained' disabled={!checked}>
+          <Button variant='contained' disabled={!checked} onClick={onClick}>
             Complete
           </Button>
         </Box>

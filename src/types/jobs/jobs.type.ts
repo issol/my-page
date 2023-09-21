@@ -177,6 +177,7 @@ export type ProJobListType = {
 }
 
 export type JobsFileType = {
+  id: number
   name: string
   size: number
   file: string // s3 key
@@ -261,9 +262,17 @@ export type ProGuidelineType = {
 
 export type ProJobDeliveryType = {
   id: number
-  createdAt: string
-  updatedAt: string
+  deliveredDate: string
   note: string
   isWithoutFile: boolean
   files: Array<JobsFileType>
+}
+
+export type ProJobFeedbackType = {
+  id: number
+  isChecked: boolean
+  name: string
+  email: string
+  createdAt: string
+  feedback: string
 }

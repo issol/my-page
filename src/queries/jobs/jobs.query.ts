@@ -1,5 +1,5 @@
 import {
-  getProJobDeliveries,
+  getProJobDeliveriesFeedbacks,
   getProJobDetail,
   getProJobDetailDots,
 } from '@src/apis/job-detail.api'
@@ -97,10 +97,14 @@ export const useGetProJobDots = (id: number) => {
   })
 }
 
-export const useGetProJobDeliveries = (id: number) => {
-  return useQuery(['proJobDeliveries', id], () => getProJobDeliveries(id), {
-    staleTime: 60 * 1000, // 1
-    suspense: true,
-    keepPreviousData: true,
-  })
+export const useGetProJobDeliveriesFeedbacks = (id: number) => {
+  return useQuery(
+    ['proJobDeliveries', id],
+    () => getProJobDeliveriesFeedbacks(id),
+    {
+      staleTime: 60 * 1000, // 1
+      suspense: true,
+      keepPreviousData: true,
+    },
+  )
 }

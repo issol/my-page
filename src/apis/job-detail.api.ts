@@ -7,6 +7,7 @@ import {
   JobPricesDetailType,
   ProJobDeliveryType,
   ProJobDetailType,
+  ProJobFeedbackType,
 } from '@src/types/jobs/jobs.type'
 import {
   AssignProFilterPostType,
@@ -216,78 +217,7 @@ export const getProJobDetail = async (
 
     return {
       ...data,
-      files: [
-        {
-          name: 'file1.txt',
-          size: 1024,
-          type: 'SOURCE',
-          file: 'https://example.com/files/file1.txt',
-          createdAt: '2023-08-30T17:13:15Z',
-        },
-        {
-          name: 'file2.jpg',
-          size: 2048,
-          type: 'TARGET',
-          file: 'https://example.com/files/file2.jpg',
-          createdAt: '2023-08-30T17:13:15Z',
-        },
-        {
-          name: 'file3.pdf',
-          size: 3072,
-          type: 'SOURCE',
-          file: 'https://example.com/files/file3.pdf',
-          createdAt: '2023-08-30T17:13:15Z',
-        },
-        {
-          name: 'file4.docx',
-          size: 4096,
-          type: 'SAMPLE',
-          file: 'https://example.com/files/file4.docx',
-          createdAt: '2023-08-30T17:13:15Z',
-        },
-        {
-          name: 'file5.xlsx',
-          size: 5120,
-          type: 'TARGET',
-          file: 'https://example.com/files/file5.xlsx',
-          createdAt: '2023-08-30T17:13:15Z',
-        },
-        {
-          name: 'file6.pptx',
-          size: 6144,
-          type: 'SAMPLE',
-          file: 'https://example.com/files/file6.pptx',
-          createdAt: '2023-08-30T17:13:15Z',
-        },
-        {
-          name: 'file7.zip',
-          size: 7168,
-          type: 'SAMPLE',
-          file: 'https://example.com/files/file7.zip',
-          createdAt: '2023-08-30T17:13:15Z',
-        },
-        {
-          name: 'file8.mp4',
-          size: 8192,
-          type: 'TARGET',
-          file: 'https://example.com/files/file8.mp4',
-          createdAt: '2023-08-30T17:13:15Z',
-        },
-        {
-          name: 'file9.png',
-          size: 9216,
-          type: 'SAMPLE',
-          file: 'https://example.com/files/file9.png',
-          createdAt: '2023-08-30T17:13:15Z',
-        },
-        {
-          name: 'file10.gif',
-          size: 10240,
-          type: 'SAMPLE',
-          file: 'https://example.com/files/file10.gif',
-          createdAt: '2023-08-30T17:13:15Z',
-        },
-      ],
+
       guideLines: {
         id: 1,
         version: 1,
@@ -358,12 +288,79 @@ export const getProJobDetailDots = async (id: number): Promise<string[]> => {
   }
 }
 
-export const getProJobDeliveries = async (
+export const getProJobDeliveriesFeedbacks = async (
   id: number,
-): Promise<Array<ProJobDeliveryType>> => {
+): Promise<{
+  deliveries: Array<ProJobDeliveryType>
+  feedbacks: Array<ProJobFeedbackType>
+}> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/job/${id}/delivery`)
+    const { data } = await axios.get(
+      `/api/enough/u/job/${id}/deliveries-feedback`,
+    )
+
     return data
+    // return {
+    //   deliveries: data.deliveries,
+    //   feedbacks: [
+    //     {
+    //       id: 1,
+    //       isChecked: true,
+    //       name: 'Master (D) K',
+    //       email: 'd_master_1@glozinc.com',
+    //       createdAt: '2023-09-18T01:44:49.997Z',
+    //       feedback: 'rishatest',
+    //     },
+    //   ],
+    // }
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const postProJobDeliveries = async (params: {
+  jobId: number
+  deliveryType: 'partial' | 'final'
+  note?: string
+  isWithoutFile: boolean
+  files?: Array<{
+    size: number
+    name: string
+    type: 'TARGET' | 'SOURCE' | 'SAMPLE'
+  }>
+}) => {
+  try {
+    const { data } = await axios.post(`/api/enough/u/job/delivery`, {
+      ...params,
+    })
+
+    return data
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const patchProJobFeedbackCheck = async (
+  jobId: number,
+  feedbackId: number,
+) => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/job/${jobId}/feedback?feedbackId=${feedbackId}`,
+    )
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const patchProJobSourceFileDownload = async (
+  jobId: number,
+  fileIds: number[],
+) => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/job/download`, {
+      fileIds: fileIds,
+    })
   } catch (error: any) {
     throw new Error(error)
   }
