@@ -401,9 +401,11 @@ export default function ItemForm({
     // const showMinimum = itemData.minimumPriceApplied
 
     const handleShowMinimum = (value: boolean) => {
-      const minimumPrice = getValues(`items.${idx}.minimumPrice`)
-      const totalPrice = getValues(`items.${idx}.totalPrice`)
+      const minimumPrice = Number(getValues(`items.${idx}.minimumPrice`))
+      const totalPrice = Number(getValues(`items.${idx}.totalPrice`))
+      const minimumPriceApplied = getValues(`items.${idx}.minimumPriceApplied`)
 
+      if (minimumPriceApplied && minimumPrice < totalPrice) return //데이터가 잘못된 케이스
       if (minimumPrice) {
         if (value) {
           if (minimumPrice && minimumPrice >= totalPrice) {
@@ -465,7 +467,7 @@ export default function ItemForm({
     }
 
     function getTotalPrice() {
-      const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
+      const itemMinimumPrice = Number(getValues(`items.${idx}.minimumPrice`))
       const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
 
       let total = 0
@@ -476,7 +478,8 @@ export default function ItemForm({
           (res, item) => (res += Number(item.prices)),
           0,
         )       
-        
+        if (isNaN(price)) return
+
         if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0

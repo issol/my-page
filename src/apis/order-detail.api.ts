@@ -4,6 +4,7 @@ import { Row } from '@src/pages/orders/order-list/detail/components/rows'
 import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import {
   ClientType,
+  JobInfoType,
   LanguageAndItemType,
   ProjectInfoType,
   ProjectTeamListType,
@@ -117,3 +118,10 @@ export const confirmDelivery = async (id: number, feedback?: string) => {
 export const confirmOrder = async (id: number) => {
   await axios.patch(`/api/enough/u/order/${id}/confirm`)
 }
+
+export const getJobInfo = async (id: number): Promise<JobInfoType[]> => {
+  const { data } = await axios.get(`/api/enough/u/job/check-assigned-pro?orderId=${id}`)
+
+  return data
+}
+

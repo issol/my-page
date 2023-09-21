@@ -1,12 +1,13 @@
 import { ItemDetailType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
-import { JobStatusType } from '../jobs/common.type'
+import { JobStatusType } from '../jobs/jobs.type'
+// import { JobStatusType } from '../jobs/common.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type AddJobInfoType = {
   jobName: string
-  status: string
+  status: number
   contactPerson: string
   serviceType: string
   languagePair: string
@@ -20,7 +21,8 @@ export type AddJobInfoType = {
 
 export type AddJobInfoFormType = {
   name: string
-  status: { label: JobStatusType; value: JobStatusType }
+  // status: { label: JobStatusType; value: JobStatusType }
+  status: number
   contactPerson: { label: string; value: string; userId: number }
   serviceType: { label: string; value: string }
   languagePair: { label: string; value: string; source: string; target: string }
@@ -64,7 +66,7 @@ export type AssignProListType = {
   middleName: string | null
   lastName: string
   email: string
-  status: string
+  status: number
   responseRate: number | null
   assignmentStatus: string | null
   assignmentDate: string | null
@@ -100,7 +102,7 @@ export type SaveJobInfoParamsType = {
 
   dueDate?: string
   dueTimezone?: CountryType
-  status?: JobStatusType
+  status?: number
   sourceLanguage?: string | null
   targetLanguage?: string | null
   name?: string

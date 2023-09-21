@@ -264,6 +264,7 @@ const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisable
               isUpdatable={false}
               role={currentRole!}
               canUseFeature={() => false}
+              jobInfo={[]}
             />
           </TabPanel>
           <TabPanel

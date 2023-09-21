@@ -41,6 +41,8 @@ type Props = {
     email: string
     jobTitle: string
   }[]
+  statusList: Array<{ value: number; label: string }>
+
 }
 
 export default function JobHistory({
@@ -50,6 +52,7 @@ export default function JobHistory({
   priceUnitsList,
   item,
   projectTeam,
+  statusList,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
@@ -189,6 +192,7 @@ export default function JobHistory({
                           priceUnitsList={priceUnitsList}
                           item={item}
                           projectTeam={projectTeam}
+                          statusList={statusList}
                         />
                       </Box>
                     ),

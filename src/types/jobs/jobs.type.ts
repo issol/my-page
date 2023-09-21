@@ -1,22 +1,65 @@
 import { CurrencyType } from '../common/standard-price'
 import { AssignProListType } from '../orders/job-detail'
 import { OrderDetailType } from '../orders/order-detail'
+import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
-import { JobStatusType } from './common.type'
+// import { JobStatusType } from './common.type'
+
+export type JobStatusType =
+  | 60000
+  | "In preparation"
+  | 60100
+  | "Requested"
+  | 60200
+  | "Request accepted"
+  | 60300
+  | "Request rejected"
+  | 60400
+  | "Canceled"
+  | 60500
+  | "Assigned"
+  | 60700
+  | "In progress"
+  | 60800
+  | "Partially delivered"
+  | 60900
+  | "Delivered"
+  | 601000
+  | "Overdue"
+  | 601100
+  | "Approved"
+  | 601200
+  | "Invoiced"
+  | 601300
+  | "Without invoice"
+  | 601400
+  | "Paid"
 
 export type JobsListType = {
   id: number
   corporationId: string // O-000010-TRA-001
   status: JobStatusType
-
   name: string
+  jobName?: string
   category: string // order의 category
   serviceType: string // job의 serviceType
   startedAt: string
   dueAt: string
   totalPrice: number
   currency: CurrencyType
-  order: OrderDetailType
+  // order: OrderDetailType
+  orderId: number
+  client: {
+    clientId: number
+    email: string
+    fax: string | null
+    mobile: string | null
+    phone: string | null
+    timezone: CountryType
+    name: string
+  }
+  contactPerson: ContactPersonType | null
+
 }
 
 export type JobsTrackerListType = {

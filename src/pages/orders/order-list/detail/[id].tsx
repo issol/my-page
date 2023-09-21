@@ -48,6 +48,7 @@ import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { useRouter } from 'next/router'
 import {
   useGetClient,
+  useGetJobInfo,
   useGetLangItem,
   useGetProjectInfo,
   useGetProjectTeam,
@@ -153,6 +154,9 @@ export type updateOrderType =
     }
   | { feedback: string; status: number }
   | { feedback: string }
+  | { languagePairs: Array<LanguagePairsType> }
+  | { items: Array<PostItemType> }
+  | { tax: null | number; isTaxable: '0' | '1'; subtotal: number; languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
 
 type RenderSubmitButtonProps = {
   onCancel: () => void
@@ -231,6 +235,11 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
+
+  const { data: jobInfo, isLoading: jobInfoLoading } = useGetJobInfo(
+    Number(id!),
+  )
+
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
   const [taxable, setTaxable] = useState(projectInfo?.isTaxable ?? false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
@@ -892,36 +901,54 @@ const OrderDetail = () => {
     }, 0)
     onSave(async () => {
       try {
-        patchLanguagePairs.mutate(
-          { id: Number(id!), langPair: langs },
+        updateProject.mutate(
+          {
+            isTaxable: taxable ? '1' : '0',
+            tax,
+            subtotal: subtotal,
+            languagePairs: langs, 
+            items: items,
+          },
           {
             onSuccess: () => {
-              patchItems.mutate(
-                { id: Number(id!), items: items },
-                {
-                  onSuccess: () => {
-                    updateProject.mutate(
-                      {
-                        isTaxable: taxable ? '1' : '0',
-                        tax,
-                        subtotal: subtotal,
-                      },
-                      {
-                        onSuccess: () => {
-                          setLangItemsEdit(false)
-                          queryClient.invalidateQueries(
-                            `LangItem-${Number(id!)}`,
-                          )
-                          closeModal('LanguageAndItemEditModal')
-                        },
-                      },
-                    )
-                  },
-                },
+              setLangItemsEdit(false)
+              queryClient.invalidateQueries(
+                `LangItem-${Number(id!)}`,
               )
+              closeModal('LanguageAndItemEditModal')
             },
           },
         )
+        // patchLanguagePairs.mutate(
+        //   { id: Number(id!), langPair: langs },
+        //   {
+        //     onSuccess: () => {
+        //       patchItems.mutate(
+        //         { id: Number(id!), items: items },
+        //         {
+        //           onSuccess: () => {
+        //             updateProject.mutate(
+        //               {
+        //                 isTaxable: taxable ? '1' : '0',
+        //                 tax,
+        //                 subtotal: subtotal,
+        //               },
+        //               {
+        //                 onSuccess: () => {
+        //                   setLangItemsEdit(false)
+        //                   queryClient.invalidateQueries(
+        //                     `LangItem-${Number(id!)}`,
+        //                   )
+        //                   closeModal('LanguageAndItemEditModal')
+        //                 },
+        //               },
+        //             )
+        //           },
+        //         },
+        //       )
+        //     },
+        //   },
+        // )
       } catch (e: any) {
         onMutationError()
       }
@@ -1095,9 +1122,7 @@ const OrderDetail = () => {
             projectInfo?.status !== 'Invoiced' &&
             projectInfo?.status !== 'Paid' &&
             projectInfo?.status !== 'Canceled' &&
-            isIncludeProjectTeam() &&
-            // TODO: 함수 완성해야 함
-            canCancelJob()
+            isIncludeProjectTeam()
           break
         case 'button-ProjectInfo-DeleteOrder':
           flag =
@@ -1179,7 +1204,8 @@ const OrderDetail = () => {
               projectInfo?.status === 'Under revision' ||
               projectInfo?.status === 'Partially delivered' ||
               projectInfo?.status === 'Delivery completed' ||
-              projectInfo?.status === 'Redelivery requested') &&
+              projectInfo?.status === 'Redelivery requested' ||
+              projectInfo?.status === 'Delivery confirmed') &&
             isIncludeProjectTeam()
           break
         case 'tab-Languages&Items':
@@ -1277,11 +1303,7 @@ const OrderDetail = () => {
           projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
     )
   }
-  // TODO: Order에 포함된 Job의 status를 체크하는 함수 필요
-  const canCancelJob = () => {
-    // 포함된 job중에서 status가 [Partially delivered], [Delivered], [Invoiced], [Paid], [Without invoice]가 있는 경우 false
-    return true
-  }
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1575,6 +1597,7 @@ const OrderDetail = () => {
                       statusList={statusList!}
                       role={currentRole!}
                       canUseFeature={canUseFeature}
+                      jobInfo={jobInfo!}
                     />
                   </Fragment>
                 )}

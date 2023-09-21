@@ -225,7 +225,7 @@ export default function ItemPriceUnitForm({
   )
   // const [showMinimum, setShowMinimum] = useState(getValues(`items.${index}.minimumPriceApplied`))
 
-  
+
   const checkPriceId = () => {
     setIsNotApplicable(
       getValues(`items.${index}.priceId`) === NOT_APPLICABLE ? true : false,
@@ -296,7 +296,7 @@ export default function ItemPriceUnitForm({
           updateTotalPrice()
         }
       };
-  
+
       window.addEventListener('mousedown', handleOutsideClick);
 
       return () => {
@@ -517,7 +517,7 @@ export default function ItemPriceUnitForm({
               render={({ field: { value, onChange } }) => {
                 return (
                   <TextField
-                    placeholder='0.0012'
+                    placeholder='0.00'
                     inputProps={{ inputMode: 'decimal' }}
                     type='number'
                     value={savedValue.unit === 'Percent' ? '-' : value}

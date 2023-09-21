@@ -27,6 +27,8 @@ export type OrderStatusType =
   | 'Paid'
   | 101200
   | 'Canceled'
+  | 10950
+  | 'Without invoice'
 
 export type RevenueFormType = 'United States' | 'Korea' | 'Singapore' | 'Japan'
 

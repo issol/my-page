@@ -33,13 +33,14 @@ import Icon from 'src/@core/components/icon'
 
 // ** values
 import { CategoryList } from '@src/shared/const/category/categories'
-import { JobStatus } from '@src/shared/const/status/statuses'
+// import { JobStatus } from '@src/shared/const/status/statuses'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 
 // ** types
 import { FilterType } from './list-view'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
 import { ClientRowType } from '@src/apis/client.api'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type Props = {
   filter: FilterType
@@ -63,12 +64,13 @@ export default function Filters({
   const { direction } = theme
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
+  const { data: statusList } = useGetStatusList('Job')
 
   function filterValue(
     option: any,
     keyName: keyof Pick<
       FilterType,
-      'status' | 'client' | 'category' | 'serviceType'
+      'client' | 'category' | 'serviceType'
     >,
   ): Array<{ value: string; label: string }> {
     return !filter[keyName]
@@ -107,8 +109,9 @@ export default function Filters({
                         autoHighlight
                         fullWidth
                         multiple
-                        options={JobStatus}
-                        value={filterValue(JobStatus, 'status')}
+                        disableCloseOnSelect
+                        options={statusList!}
+                        value={statusList?.filter(status => filter.status?.includes(status.value!))}
                         onChange={(e, v) =>
                           setFilter({
                             ...filter,

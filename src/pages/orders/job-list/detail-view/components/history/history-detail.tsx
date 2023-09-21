@@ -44,6 +44,8 @@ type Props = {
     email: string
     jobTitle: string
   }[]
+  statusList: Array<{ value: number; label: string }>
+
 }
 
 /* TODO
@@ -61,6 +63,7 @@ export default function HistoryDetail({
   priceUnitsList,
   item,
   projectTeam,
+  statusList,
 }: Props) {
   const [value, setValue] = useState<string>('jobInfo')
   const { openModal, closeModal } = useModal()
@@ -236,6 +239,7 @@ export default function HistoryDetail({
                 type='history'
                 item={item}
                 projectTeam={projectTeam}
+                statusList={statusList}
               />
             )}
           </TabPanel>
