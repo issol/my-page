@@ -59,15 +59,21 @@ const JobDetails = () => {
   const { data: statusList } = useGetStatusList('Job')
 
   const [serviceType, setServiceType] = useState<
-    { label: string; value: string }[]
+    Array<{ label: string; value: string }[]>
   >([])
 
 
   const createJobMutation = useMutation(
     (params: CreateJobParamsType) => createJob(params),
     {
-      onSuccess: () => {
-        setServiceType([])
+      onSuccess: (data, variables) => {
+        if(variables.index) {
+          const newServiceType = [...serviceType]; 
+          newServiceType.splice(variables.index, 1)
+          setServiceType(newServiceType)
+        } else {
+          setServiceType([])
+        }
         refetch()
       },
     },
@@ -85,16 +91,19 @@ const JobDetails = () => {
       label: string
       value: string
     }[],
+    index: number
   ) => {
-    setServiceType(value)
+    const newSelections = [...serviceType];
+    newSelections[index] = value;
+    setServiceType(newSelections)
   }
 
-  const onClickAddJob = (itemId: number) => {
+  const onClickAddJob = (itemId: number, index: number) => {
     createJobMutation.mutate({
       orderId: Number(orderId),
       itemId: itemId,
-      serviceType: serviceType.map(value => value.value),
-      // serviceType: serviceType[0].value,
+      serviceType: serviceType[index].map(value => value.value),
+      index: index,
     })
   }
 
@@ -186,7 +195,6 @@ const JobDetails = () => {
   }, [jobDetails])
 
   const Row = ({ info, index }: { info: JobItemType; index: number }) => {
-    console.log("info",info)
     const [open, setOpen] = useState<boolean>(true)
     const separateLine = () => {
       return (
@@ -258,11 +266,11 @@ const JobDetails = () => {
                 return option.value === newValue.value
               }}
               onChange={(event, item) => {
-                handleChangeServiceType(event, item)
+                handleChangeServiceType(event, item, index)
 
                 // ServiceTypePair
               }}
-              value={serviceType || []}
+              value={serviceType[index] || []}
               options={ServiceTypeList}
               id='ServiceType'
               limitTags={1}
@@ -285,7 +293,7 @@ const JobDetails = () => {
               variant='contained'
               sx={{ height: '38px' }}
               disabled={serviceType.length === 0}
-              onClick={() => onClickAddJob(info.id)}
+              onClick={() => onClickAddJob(info.id, index)}
             >
               Add
             </Button>

@@ -145,4 +145,5 @@ export type CreateJobParamsType = {
   orderId: number
   itemId: number
   serviceType: string[]
+  index?: number
 }

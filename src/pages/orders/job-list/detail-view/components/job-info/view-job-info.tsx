@@ -43,6 +43,8 @@ import {
 import { v4 as uuidv4 } from 'uuid'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { statusType } from '@src/types/common/status.type'
+import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
+import { TroubleshootRounded } from '@mui/icons-material'
 
 type Props = {
   row: JobType
@@ -73,6 +75,12 @@ type Props = {
     >
   >
   statusList: Array<{ value: number; label: string }> | undefined
+  auth?: {
+    user: UserDataType | null
+    company: ClientUserType | null | undefined
+    loading: boolean
+  }
+  role?: Array<UserRoleType>
 }
 const ViewJobInfo = ({
   row,
@@ -84,8 +92,10 @@ const ViewJobInfo = ({
   setSuccess,
   refetch,
   statusList,
+  auth,
+  role,
 }: Props) => {
-  console.log("row",row, row.proId)
+  console.log("row",row, row.proId,projectTeam)
   const [filteredJobStatus, setFilteredJobStatus] = useState<Array<statusType>>(statusList!)
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
   const queryClient = useQueryClient()
@@ -276,31 +286,56 @@ const ViewJobInfo = ({
     return size
   }
 
+  const isJobMember = () => {
+    if (row.contactPerson?.userId === auth?.user?.id) return true
+    return false
+  }
+
+  const hasGeneralPermission = () => {
+    let flag = false
+    if (role) {
+      role.map(item => {
+        if (
+          (item.name === 'LPM' ||
+            item.name === 'TAD') &&
+          item.type === 'General'
+        )
+          flag = true
+      })
+    }
+    return flag
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {type === 'history' ? null : (
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            gap: '10px',
-          }}
-        >
-          <Typography variant='subtitle2'>
-            {!row.proId ? '*Changes will only be applied to new requests' : null}
-          </Typography>
-          <Button
-            variant='outlined'
-            // disabled={!!row.assignedPro}
-            onClick={() => setEditJobInfo && setEditJobInfo(true)}
-          >
-            <Icon icon='mdi:pencil-outline' fontSize={24} />
-            &nbsp;
-            {!row.proId ? 'Edit before request' : 'Edit'}
-          </Button>
-        </Box>
-      )}
+      {type === 'history' 
+        ? null 
+        : !hasGeneralPermission() || isJobMember() 
+          ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}
+              >
+                <Typography variant='subtitle2'>
+                  {!row.proId ? '*Changes will only be applied to new requests' : null}
+                </Typography>
+                <Button
+                  variant='outlined'
+                  // disabled={!!row.assignedPro}
+                  onClick={() => setEditJobInfo && setEditJobInfo(true)}
+                >
+                  <Icon icon='mdi:pencil-outline' fontSize={24} />
+                  &nbsp;
+                  {!row.proId ? 'Edit before request' : 'Edit'}
+                </Button>
+              </Box>
+            )
+          : null
+    }
 
       <Card sx={{ padding: '20px' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '18.5px' }}>

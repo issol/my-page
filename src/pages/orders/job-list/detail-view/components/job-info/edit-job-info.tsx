@@ -344,6 +344,7 @@ const EditJobInfo = ({
         dueDate: data.dueAt.toString(),
         dueTimezone: data.dueTimezone,
         status: data.status,
+        //TODO 'Language-independent'일 경우 null로 값을 보내는데 실제로 null인거와 'Language-independent'를 선택한것의 구분이 안됨
         sourceLanguage:
           data.languagePair.value === 'Language-independent'
             ? null
@@ -355,7 +356,7 @@ const EditJobInfo = ({
         name: data.name,
         isShowDescription: data.isShowDescription,
       }
-
+      console.log("jobInfo",jobInfo)
       saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
     }
 

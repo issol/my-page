@@ -36,6 +36,7 @@ import {
 } from '@src/queries/order/job.query'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { roleState } from '@src/states/permission'
 
 type Props = {
   tab?: string
@@ -82,6 +83,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const [value, setValue] = useState<string>(tab ?? 'jobInfo')
   const [success, setSuccess] = useState(false)
   const auth = useRecoilValueLoadable(authState)
+  const role = useRecoilValueLoadable(roleState)
+
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string; userId: any }[]
   >([])
@@ -101,7 +104,6 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     setValue(newValue)
   }
 
-  console.log("jobInvfo",jobInfo)
   const {
     control: itemControl,
     getValues: getItem,
@@ -130,17 +132,19 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
 
   useEffect(() => {
     if (jobPrices) {
-      // console.log(jobPrices)
+      console.log("jobPrices-init",jobPrices)
 
       const result = [
         {
           id: jobPrices.id!,
           name: jobPrices.priceName!,
+          itemName: jobPrices.priceName!,
           source: jobPrices.source!,
           target: jobPrices.target!,
           priceId: jobPrices.priceId!,
           detail: !jobPrices.datas.length ? [] : jobPrices.datas,
-
+          // minimumPrice: jobPrices.minimumPrice,
+          // minimumPriceApplied: jobPrices.minimumPriceApplied,
           totalPrice: Number(jobPrices?.totalPrice!),
         },
       ]
@@ -190,22 +194,23 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     }
   }, [success])
 
+  const saveJobPricesMutation = useMutation(
+    (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
+      saveJobPrices(data.jobId, data.prices),
+    {
+      onSuccess: () => {
+        setSuccess(true)
+        queryClient.invalidateQueries('jobPrices')
+      },
+    },
+  )
+  
   const onSubmit = () => {
     const data = getItem(`items.${0}`)
 
     // toast('Job info added successfully')
     // console.log('items', data)
-
-    const saveJobPricesMutation = useMutation(
-      (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
-        saveJobPrices(data.jobId, data.prices),
-      {
-        onSuccess: () => {
-          setSuccess(true)
-          queryClient.invalidateQueries('jobPrices')
-        },
-      },
-    )
+    console.log("onSubmit-data",data)
 
     const res: SaveJobPricesParamsType = {
       jobId: row.id,
@@ -218,6 +223,43 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   }
   // console.log(jobPrices)
 
+  const hasGeneralPermission = () => {
+    let flag = false
+    if (role.state === 'hasValue' && role.getValue()) {
+      role.getValue().map(item => {
+        if (
+          (item.name === 'LPM' ||
+            item.name === 'TAD') &&
+          item.type === 'General'
+        )
+          flag = true
+      })
+    }
+    return flag
+  }
+
+  // const isJobMember = () => {
+
+  // }
+
+  // export type JobFeatureType = [
+  //   | 'button-jobInfo-Edit'
+  //   | 'dropdown-jobInfo-Status'
+  // ]
+
+  // const canUseFeature = (featureName: JobFeatureType): boolean => {
+  //   let flag = false
+  
+  //   switch (featureName) {
+  //     case 'button-jobInfo-Edit':
+  //       if (!hasGeneralPermission() ||
+  //         (hasGeneralPermission() && )
+  //       )
+  //   }
+    
+  //   return flag
+  // }
+  console.log("role",role.getValue())
   return (
     <>
       {!isLoading && jobInfo ? (
@@ -331,6 +373,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     setSuccess={setSuccess}
                     refetch={refetch!}
                     statusList={statusList}
+                    auth={auth.getValue()}
+                    role={role.getValue()}
                   />
                 )}
               </TabPanel>

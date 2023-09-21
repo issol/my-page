@@ -286,7 +286,6 @@ export const QuoteStatusChip = styled(Chip)<{
 `
 
 export function JobsStatusChip(status: number, statusList: Array<statusType>) {
-  console.log("status",status,statusList)
   const color =
     status === 60000 //'In preparation' 
       ? '#F572D8'

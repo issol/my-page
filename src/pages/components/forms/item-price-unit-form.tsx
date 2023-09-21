@@ -112,6 +112,7 @@ export default function ItemPriceUnitForm({
   // checkMinimumPrice,
   fields,
 }: Props) {
+  console.log("isVaild",isValid)
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
@@ -282,6 +283,7 @@ export default function ItemPriceUnitForm({
 
     //init
     useEffect(() => {
+      console.log("여기인가?")
       // row init시에 동작하는 로직, 불필요한 리랜더링이 발생할 수 있다
       updatePrice()
       updateTotalPrice()

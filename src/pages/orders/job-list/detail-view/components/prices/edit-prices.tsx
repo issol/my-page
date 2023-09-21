@@ -43,6 +43,7 @@ import { saveJobPrices } from '@src/apis/job-detail.api'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   row: JobType
@@ -134,8 +135,8 @@ const EditPrices = ({
   }
 
   const options =
-    row.sourceLanguage && row.targetLanguage
-      ? getPriceOptions(row.sourceLanguage, row.targetLanguage)
+  jobPrices.source && jobPrices.target
+      ? getPriceOptions(jobPrices.source, jobPrices.target)
       : [proDefaultOption]
 
   useEffect(() => {
@@ -158,23 +159,33 @@ const EditPrices = ({
       setPrice(res!)
     }
   }, [jobPrices])
-
+  
   const openMinimumPriceModal = (value:any) => {
     const minimumPrice = formatCurrency(value?.languagePairs[0]?.minimumPrice, value?.currency)
     openModal({
       type: 'info-minimum',
       children: (
-        <SimpleMultilineAlertModal
-          onClose={() => {
-            closeModal('info-minimum')
-          }}
-          message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
-          vary="info"
+        <CustomModal
+          onClose={() => closeModal('info-minimum')}
+          vary='info'
+          title={
+            <>
+              The selected price includes a minimum price setting. <br />
+              <br /> Minimum price : {minimumPrice} <br />
+              <br />
+              If the amount of the added price unit is lower than the minimum
+              price, the minimum price will be automatically applied to the
+              total price.
+            </>
+          }
+          soloButton={true}
+          rightButtonText='Okay'
+          onClick={() => closeModal('info-minimum')}
         />
       ),
     })
   }
-
+  console.log("jobPrices",jobPrices)
   return (
     <>
       {success && (
@@ -207,14 +218,14 @@ const EditPrices = ({
                 return option.value === newValue.value
               }}
               value={
-                row.sourceLanguage && row.targetLanguage
+                jobPrices.source && jobPrices.target
                   ? {
                       value: `${languageHelper(
-                        row.sourceLanguage,
-                      )} -> ${languageHelper(row.targetLanguage)}`,
+                        jobPrices.source,
+                      )} -> ${languageHelper(jobPrices.target)}`,
                       label: `${languageHelper(
-                        row.sourceLanguage,
-                      )} -> ${languageHelper(row.targetLanguage)}`,
+                        jobPrices.source,
+                      )} -> ${languageHelper(jobPrices.target)}`,
                     }
                   : { value: '', label: '' }
               }
@@ -270,6 +281,7 @@ const EditPrices = ({
               openModal={openModal}
               closeModal={closeModal}
               priceUnitsList={priceUnitsList}
+              itemTrigger={itemTrigger}
               type='edit'
             />
           </Box>

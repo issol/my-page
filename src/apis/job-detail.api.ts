@@ -107,12 +107,14 @@ export const getJobPrices = async (
 
     return {
       ...data,
+      source: data.sourceLanguage,
+      target: data.targetLanguage,
       datas:
         data?.datas?.map((item: ItemResType) => ({
           ...item,
           name: item?.itemName,
-          source: item?.sourceLanguage,
-          target: item?.targetLanguage,
+          source: data.sourceLanguage,
+          target: data.sourceLanguage,
           totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
         })) || [],
     }
