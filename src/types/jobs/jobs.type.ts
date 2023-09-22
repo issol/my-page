@@ -1,40 +1,44 @@
+import { CurrentGuidelineType } from '@src/apis/client-guideline.api'
+import { FileType } from '../common/file.type'
+import { ItemDetailType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
 import { statusType } from '../common/status.type'
 import { AssignProListType } from '../orders/job-detail'
 import { OrderDetailType } from '../orders/order-detail'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
+import { ProJobStatusType } from './common.type'
 // import { JobStatusType } from './common.type'
 
-// export type JobStatusType =
-//   | 60000
-//   | "In preparation"
-//   | 60100
-//   | "Requested"
-//   | 60200
-//   | "Request accepted"
-//   | 60300
-//   | "Request rejected"
-//   | 60400
-//   | "Canceled"
-//   | 60500
-//   | "Assigned"
-//   | 60700
-//   | "In progress"
-//   | 60800
-//   | "Partially delivered"
-//   | 60900
-//   | "Delivered"
-//   | 601000
-//   | "Overdue"
-//   | 601100
-//   | "Approved"
-//   | 601200
-//   | "Invoiced"
-//   | 601300
-//   | "Without invoice"
-//   | 601400
-//   | "Paid"
+export type JobStatusType =
+  | 60000
+  | 'In preparation'
+  | 60100
+  | 'Requested'
+  | 60200
+  | 'Request accepted'
+  | 60300
+  | 'Request rejected'
+  | 60400
+  | 'Canceled'
+  | 60500
+  | 'Assigned'
+  | 60700
+  | 'In progress'
+  | 60800
+  | 'Partially delivered'
+  | 60900
+  | 'Delivered'
+  | 601000
+  | 'Overdue'
+  | 601100
+  | 'Approved'
+  | 601200
+  | 'Invoiced'
+  | 601300
+  | 'Without invoice'
+  | 601400
+  | 'Paid'
 
 export type JobsListType = {
   id: number
@@ -60,7 +64,6 @@ export type JobsListType = {
     name: string
   }
   contactPerson: ContactPersonType | null
-
 }
 
 export type JobsTrackerListType = {
@@ -131,6 +134,7 @@ export type JobPricesDetailType = {
   totalPrice: number
   currency: CurrencyType
   priceName: string
+  isUsedCAT: boolean
   datas: Array<{
     quantity: number
     priceUnitTitle: string
@@ -146,4 +150,132 @@ export type CreateJobParamsType = {
   itemId: number
   serviceType: string[]
   index?: number
+}
+
+export type ProJobListType = {
+  id: number
+  corporationId: string
+  serviceType: string
+  name: string
+  dueAt: string
+  status: ProJobStatusType
+  currency: CurrencyType
+  lightUpDot: boolean
+  totalPrice: string
+  message: {
+    unReadCount: number
+    contents:
+      | {
+          id: number
+          content: string
+          createdAt: string
+          firstName: string
+          middleName: string | null
+          lastName: string
+          email: string
+          role: string
+        }[]
+      | null
+  }
+}
+
+export type JobsFileType = {
+  id: number
+  name: string
+  size: number
+  file: string // s3 key
+  type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+  createdAt?: string
+  updatedAt?: string
+  savedAt?: string
+  isDownloaded?: boolean
+}
+
+export type ProJobDetailType = {
+  id: number
+  corporationId: string
+  name: string
+  status: ProJobStatusType
+
+  order: {
+    client: {
+      clientId: number
+      email: string
+      fax: string | null
+      mobile: string | null
+      phone: string | null
+      timezone: CountryType
+      name: string
+      taxable: boolean
+      tax: number | null
+    }
+  }
+
+  contactPerson: ContactPersonType | null
+  category: string
+  serviceType: string
+  sourceLanguage: string
+  targetLanguage: string
+  requestedAt: string
+  startedAt: string
+  dueAt: string
+  price: {
+    data: ItemDetailType[]
+    totalPrice: number
+    isUsedCAT: boolean
+  }
+  guideLines: ProGuidelineType | null
+  description: string
+  files: Array<JobsFileType>
+
+  // deliveries: [
+  //   {
+  //     id: number
+  //     deliveredDate: string
+  //     files: JobsFileType[]
+  //     note: string
+  //   },
+  // ]
+  // feedbacks: [
+  //   {
+  //     id: number
+  //     isChecked: boolean
+  //     name: string
+  //     email: string
+  //     createdAt: string
+  //     feedback: string
+  //   },
+  // ]
+}
+
+export type ProGuidelineType = {
+  id: number
+  version?: number
+  userId: number
+  title: string
+  writer: string
+  email: string
+  client: string
+  category: string
+  serviceType: string
+  updatedAt: string
+  content: any
+  files: Array<FileType>
+}
+
+export type ProJobDeliveryType = {
+  id: number
+  deliveredDate: string
+  note: string
+  isWithoutFile: boolean
+  files: Array<JobsFileType>
+}
+
+export type ProJobFeedbackType = {
+  id: number
+  isChecked: boolean
+  name: string
+  email: string
+  createdAt: string
+  feedback: string
 }

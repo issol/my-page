@@ -60,6 +60,7 @@ import { FilePostType } from '@src/apis/client-guideline.api'
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { JobStatusType } from '@src/types/jobs/common.type'
 
 type Props = {
   row: JobType

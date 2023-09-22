@@ -29,7 +29,7 @@ import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** apis
-import { useGetJobsTrackerDetail } from '@src/queries/jobs.query'
+import { useGetJobsTrackerDetail } from '@src/queries/jobs/jobs.query'
 import { updateIsDelivered } from '@src/apis/jobs.api'
 import { useMutation, useQueryClient } from 'react-query'
 

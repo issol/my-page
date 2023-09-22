@@ -42,7 +42,7 @@ import {
   useGetProjectTeam,
 } from '@src/queries/order/order.query'
 import { useMutation, useQueryClient } from 'react-query'
-import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
+import { CreateJobParamsType, JobStatusType } from '@src/types/jobs/jobs.type'
 import { createJob } from '@src/apis/jobs.api'
 import { deleteJob } from '@src/apis/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
@@ -62,13 +62,12 @@ const JobDetails = () => {
     Array<{ label: string; value: string }[]>
   >([])
 
-
   const createJobMutation = useMutation(
     (params: CreateJobParamsType) => createJob(params),
     {
       onSuccess: (data, variables) => {
-        if(variables.index) {
-          const newServiceType = [...serviceType]; 
+        if (variables.index) {
+          const newServiceType = [...serviceType]
           newServiceType.splice(variables.index, 1)
           setServiceType(newServiceType)
         } else {
@@ -91,10 +90,10 @@ const JobDetails = () => {
       label: string
       value: string
     }[],
-    index: number
+    index: number,
   ) => {
-    const newSelections = [...serviceType];
-    newSelections[index] = value;
+    const newSelections = [...serviceType]
+    newSelections[index] = value
     setServiceType(newSelections)
   }
 
@@ -505,7 +504,10 @@ const JobDetails = () => {
                               }}
                               size='small'
                             >
-                              {JobsStatusChip(row.status, statusList!)}
+                              {JobsStatusChip(
+                                row.status as JobStatusType,
+                                statusList!,
+                              )}
                             </TableCell>
                             {separateLine()}
 

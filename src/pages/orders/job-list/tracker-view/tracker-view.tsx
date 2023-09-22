@@ -14,10 +14,11 @@ import {
   ServiceTypeList,
   ServiceTypePair,
 } from '@src/shared/const/service-type/service-types'
-import { useGetJobsList, useGetJobsTrackerList } from '@src/queries/jobs.query'
+
 import { ClientRowType } from '@src/apis/client.api'
 import JobsTrackerList from './list'
 import { StyledNextLink } from '@src/@core/components/customLink'
+import { useGetJobsTrackerList } from '@src/queries/jobs/jobs.query'
 
 export type FilterType = {
   client?: string[]

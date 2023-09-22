@@ -16,6 +16,7 @@ import {
 } from '@src/shared/helpers/colors.helper'
 import { OrderStatusType } from '@src/types/common/orders.type'
 import { statusType } from '@src/types/common/status.type'
+import { JobStatusType } from '@src/types/jobs/jobs.type'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -137,6 +138,8 @@ export const ServiceTypeChip = styled(Chip)`
     ),
     #666cff;
   border: 1px solid rgba(102, 108, 255, 0.5);
+  font-size: 13px;
+  font-weight: 500;
 `
 
 export function WorkStatusChip(status: string) {
@@ -285,9 +288,12 @@ export const QuoteStatusChip = styled(Chip)<{
       : null};
 `
 
-export function JobsStatusChip(status: number, statusList: Array<statusType>) {
+export function JobsStatusChip(
+  status: JobStatusType,
+  statusList: statusType[],
+) {
   const color =
-    status === 60000 //'In preparation' 
+    status === 60000 //'In preparation'
       ? '#F572D8'
       : status === 60100 //'Requested'
       ? '#A81988'
@@ -319,7 +325,6 @@ export function JobsStatusChip(status: number, statusList: Array<statusType>) {
 
   const statusLabel = statusList.find(list => list.value === status)?.label!
   return (
-
     <CustomChip
       label={status === 601000 ? `🔴 ${statusLabel}` : statusLabel} // Status가 Overdue일 경우 아이콘 붙이기
       skin='light'
@@ -453,6 +458,22 @@ export function ClientRequestStatusChip(status: RequestStatusType) {
   return (
     <CustomChip
       label={status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function ProJobStatusChip(label: string, status: ProJobStatusType) {
+  const color = getProJobStatusColor(status)
+
+  return (
+    <CustomChip
+      label={label}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,

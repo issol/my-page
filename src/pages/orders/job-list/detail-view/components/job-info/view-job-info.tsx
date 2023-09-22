@@ -45,6 +45,7 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { statusType } from '@src/types/common/status.type'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import { TroubleshootRounded } from '@mui/icons-material'
+import { JobStatusType } from '@src/types/jobs/jobs.type'
 
 type Props = {
   row: JobType
@@ -95,8 +96,10 @@ const ViewJobInfo = ({
   auth,
   role,
 }: Props) => {
-  console.log("row",row, row.proId,projectTeam)
-  const [filteredJobStatus, setFilteredJobStatus] = useState<Array<statusType>>(statusList!)
+  console.log('row', row, row.proId, projectTeam)
+  const [filteredJobStatus, setFilteredJobStatus] = useState<Array<statusType>>(
+    statusList!,
+  )
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
   const queryClient = useQueryClient()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
@@ -225,41 +228,71 @@ const ViewJobInfo = ({
   }
   function filterStatus(statusCode: number) {
     switch (statusCode) {
-      case 60000: //"In preparation" 
-        setFilteredJobStatus(statusList?.filter(list => [60000, 60400].includes(list.value))!) // Canceled
-        break;
+      case 60000: //"In preparation"
+        setFilteredJobStatus(
+          statusList?.filter(list => [60000, 60400].includes(list.value))!,
+        ) // Canceled
+        break
       case 60100: //"Requested"
-        setFilteredJobStatus(statusList?.filter(list => [60100, 60400].includes(list.value))!) // Canceled
-        break;
+        setFilteredJobStatus(
+          statusList?.filter(list => [60100, 60400].includes(list.value))!,
+        ) // Canceled
+        break
       case 60700: //"In progress"
-        setFilteredJobStatus(statusList?.filter(list => [60700, 60400].includes(list.value))!) // Canceled
-        break;
+        setFilteredJobStatus(
+          statusList?.filter(list => [60700, 60400].includes(list.value))!,
+        ) // Canceled
+        break
       case 601000: //"Overdue"
-        setFilteredJobStatus(statusList?.filter(list => [601100, 60400].includes(list.value))!) // Canceled
-        break;
+        setFilteredJobStatus(
+          statusList?.filter(list => [601100, 60400].includes(list.value))!,
+        ) // Canceled
+        break
       case 60800: //"Partially delivered"
-        setFilteredJobStatus(statusList?.filter(list => [60800, 601100, 60400, 601300].includes(list.value))!) //Approved, Canceled, Without invoice
-        break;
+        setFilteredJobStatus(
+          statusList?.filter(list =>
+            [60800, 601100, 60400, 601300].includes(list.value),
+          )!,
+        ) //Approved, Canceled, Without invoice
+        break
       case 60900: //"Delivered"
-        setFilteredJobStatus(statusList?.filter(list => [60900, 601100, 60400, 601300].includes(list.value))!) //Approved, Canceled, Without invoice
-        break;
+        setFilteredJobStatus(
+          statusList?.filter(list =>
+            [60900, 601100, 60400, 601300].includes(list.value),
+          )!,
+        ) //Approved, Canceled, Without invoice
+        break
       case 601100: //Approved
-        setFilteredJobStatus(statusList?.filter(list => [601100, 60400, 601300].includes(list.value))!) //Canceled, Without invoice
-        break;
+        setFilteredJobStatus(
+          statusList?.filter(list =>
+            [601100, 60400, 601300].includes(list.value),
+          )!,
+        ) //Canceled, Without invoice
+        break
       case 601200: //Invoiced
-        setFilteredJobStatus(statusList?.filter(list => [601200, 60400, 601300].includes(list.value))!) //Canceled, Without invoice
-        break;
+        setFilteredJobStatus(
+          statusList?.filter(list =>
+            [601200, 60400, 601300].includes(list.value),
+          )!,
+        ) //Canceled, Without invoice
+        break
       case 601400:
-        setFilteredJobStatus(statusList?.filter(list => [601400, 601500].includes(list.value))!) //TODO Payment canceled 고도화때 반영 예정
-        break;
+        setFilteredJobStatus(
+          statusList?.filter(list => [601400, 601500].includes(list.value))!,
+        ) //TODO Payment canceled 고도화때 반영 예정
+        break
       case 601300:
-        setFilteredJobStatus(statusList?.filter(list => [60400, 601100].includes(list.value))!) //Canceled, Approved
-        break;
+        setFilteredJobStatus(
+          statusList?.filter(list => [60400, 601100].includes(list.value))!,
+        ) //Canceled, Approved
+        break
       default:
-        setFilteredJobStatus(statusList?.filter(list => list.value === statusCode)!)
+        setFilteredJobStatus(
+          statusList?.filter(list => list.value === statusCode)!,
+        )
     }
   }
-  
+
   useEffect(() => {
     if (row && statusList) filterStatus(row.status)
   }, [])
@@ -296,8 +329,7 @@ const ViewJobInfo = ({
     if (role) {
       role.map(item => {
         if (
-          (item.name === 'LPM' ||
-            item.name === 'TAD') &&
+          (item.name === 'LPM' || item.name === 'TAD') &&
           item.type === 'General'
         )
           flag = true
@@ -308,34 +340,31 @@ const ViewJobInfo = ({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {type === 'history' 
-        ? null 
-        : !hasGeneralPermission() || isJobMember() 
-          ? (
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                  gap: '10px',
-                }}
-              >
-                <Typography variant='subtitle2'>
-                  {!row.proId ? '*Changes will only be applied to new requests' : '*Changes will also be applied to the Pro’s job detail page'}
-                </Typography>
-                <Button
-                  variant='outlined'
-                  // disabled={!!row.assignedPro}
-                  onClick={() => setEditJobInfo && setEditJobInfo(true)}
-                >
-                  <Icon icon='mdi:pencil-outline' fontSize={24} />
-                  &nbsp;
-                  {!row.proId ? 'Edit before request' : 'Edit'}
-                </Button>
-              </Box>
-            )
-          : null
-    }
+      {type === 'history' ? null : !hasGeneralPermission() || isJobMember() ? (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: '10px',
+          }}
+        >
+          <Typography variant='subtitle2'>
+            {!row.proId
+              ? '*Changes will only be applied to new requests'
+              : '*Changes will also be applied to the Pro’s job detail page'}
+          </Typography>
+          <Button
+            variant='outlined'
+            // disabled={!!row.assignedPro}
+            onClick={() => setEditJobInfo && setEditJobInfo(true)}
+          >
+            <Icon icon='mdi:pencil-outline' fontSize={24} />
+            &nbsp;
+            {!row.proId ? 'Edit before request' : 'Edit'}
+          </Button>
+        </Box>
+      ) : null}
 
       <Card sx={{ padding: '20px' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '18.5px' }}>
@@ -363,7 +392,7 @@ const ViewJobInfo = ({
                 Status
               </Typography>
               {type === 'history' ? (
-                JobsStatusChip(row.status, statusList!)
+                JobsStatusChip(row.status as JobStatusType, statusList!)
               ) : (
                 <Select
                   value={String(row.status)}
@@ -467,7 +496,7 @@ const ViewJobInfo = ({
               Job description
             </Typography>
             <Typography variant='subtitle2' fontWeight={400}>
-              {row.description && row.description !== "" 
+              {row.description && row.description !== ''
                 ? row.description
                 : '-'}
             </Typography>
@@ -516,12 +545,8 @@ const ViewJobInfo = ({
 
         <Box>
           <Typography variant='subtitle2'>
-            {formatFileSize(
-              row.files
-                ? getFileSize(row?.files, 'SAMPLE')
-                : 0
-            )}
-            / {byteToGB(MAXIMUM_FILE_SIZE)}
+            {formatFileSize(row.files ? getFileSize(row?.files, 'SAMPLE') : 0)}/{' '}
+            {byteToGB(MAXIMUM_FILE_SIZE)}
           </Typography>
         </Box>
       </Box>
