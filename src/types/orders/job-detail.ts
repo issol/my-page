@@ -22,7 +22,7 @@ export type AddJobInfoFormType = {
   // status: { label: JobStatusType; value: JobStatusType }
   status: number
   contactPerson: { label: string; value: string; userId: number }
-  serviceType: { label: string; value: string }
+  serviceType: string
   // languagePair: { source: string; target: string }
   source: string | null
   target: string | null

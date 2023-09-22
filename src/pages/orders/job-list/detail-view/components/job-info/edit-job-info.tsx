@@ -362,7 +362,11 @@ const EditJobInfo = ({
     setValue('source', row.sourceLanguage)
     setValue('target', row.targetLanguage)
 
-    setValue('serviceType', { value: row.serviceType, label: row.serviceType })
+    setValue('serviceType', row.serviceType, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
     setValue('isShowDescription', row.isShowDescription, {
       shouldDirty: true,
       shouldValidate: true,
@@ -543,28 +547,32 @@ const EditJobInfo = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              <Controller
+              {/* <Controller
                 control={control}
                 name='serviceType'
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     fullWidth
                     disabled
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
-                    }}
                     onChange={(event, item) => {
                       onChange(item)
                     }}
-                    value={{ label: 'Translation', value: 'Translation' }}
+                    value={value}
                     options={[]}
                     id='serviceType'
-                    getOptionLabel={option => option.label}
+                    getOptionLabel={option => option}
                     renderInput={params => (
                       <TextField {...params} label='Service type*' />
                     )}
                   />
                 )}
+              /> */}
+              <TextField
+                disabled
+                id='serviceType'
+                label='Service type*'
+                fullWidth
+                defaultValue={row.serviceType}
               />
             </Grid>
             <Grid item xs={6}>
