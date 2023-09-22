@@ -27,6 +27,17 @@ import {
   FileName,
 } from '@src/pages/invoice/receivable/detail/components/invoice-info'
 import { JobsFileType, ProGuidelineType } from '@src/types/jobs/jobs.type'
+import {
+  Document,
+  Font,
+  Line,
+  PDFDownloadLink,
+  Page,
+  StyleSheet,
+  Svg,
+  Text,
+  View,
+} from '@react-pdf/renderer'
 
 type Props = {
   onClose: any
@@ -36,6 +47,46 @@ type Props = {
   downloadOneFile: (file: JobsFileType | FileType) => void
   guideLines: ProGuidelineType
 }
+
+const styles = StyleSheet.create({
+  body: {
+    padding: 20,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 600,
+    letterSpacing: 0.15,
+  },
+  section1: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  subject: {
+    width: 100,
+    fontSize: 14,
+    fontWeight: 600,
+  },
+  content: {
+    fontSize: 12,
+    fontWeight: 400,
+    color: '#4C4E6499',
+  },
+  section: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  guideline: {
+    fontSize: 14,
+    fontWeight: 400,
+    lineHeight: 1.5,
+    color: 'rgba(76, 78, 100, 0.87)',
+    marginTop: 20,
+  },
+})
 
 const ClientGuidelineView = ({
   onClose,
@@ -94,6 +145,39 @@ Props) => {
     }
   }, [guideLines])
 
+  const DownloadFile = () => (
+    <Document>
+      <Page size='A4' style={styles.body}>
+        <Text style={styles.title}>{guideLines.title}</Text>
+        <View style={styles.section1}>
+          <Text style={styles.subject}>Client</Text>
+          <Text style={styles.content}>{guideLines.client}</Text>
+        </View>
+        <View style={styles.section}>
+          <Text style={styles.subject}>Category</Text>
+          <Text style={styles.content}>{guideLines.category}</Text>
+        </View>
+        <View style={styles.section}>
+          <Text style={styles.subject}>Service type</Text>
+          <Text style={styles.content}>{guideLines.serviceType}</Text>
+        </View>
+        <Svg height='5' width='2000' style={{ marginTop: 20 }}>
+          <Line
+            x1='0'
+            y1='5'
+            x2='550'
+            y2='5'
+            strokeWidth={0.5}
+            stroke='#4C4E64'
+          />
+        </Svg>
+        <Text style={styles.guideline}>
+          {historyContent.getCurrentContent().getPlainText('\u0001')}
+        </Text>
+      </Page>
+    </Document>
+  )
+
   return (
     <Box
       sx={{
@@ -135,13 +219,24 @@ Props) => {
                   mt='10px'
                 >
                   <Typography variant='h6'>Naver webtoon guide</Typography>
-                  <Button
-                    startIcon={<Icon icon='mdi:download' />}
-                    variant='outlined'
-                    size='small'
+                  <PDFDownloadLink
+                    document={<DownloadFile />}
+                    fileName='somename.pdf'
                   >
-                    PDF Download
-                  </Button>
+                    {({ blob, url, loading, error }) =>
+                      loading ? (
+                        'Loading document...'
+                      ) : (
+                        <Button
+                          startIcon={<Icon icon='mdi:download' />}
+                          variant='outlined'
+                          size='small'
+                        >
+                          PDF Download
+                        </Button>
+                      )
+                    }
+                  </PDFDownloadLink>
                 </Box>
                 <Grid container>
                   <Grid item xs={2} mb='10px'>

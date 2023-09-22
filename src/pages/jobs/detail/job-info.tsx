@@ -589,7 +589,7 @@ const ProJobInfo = ({
                       width: '38.5%',
                     }}
                   >
-                    {jobDetailDots.includes('contactPerson') ? (
+                    {jobDetailDots.includes('contactPersonId') ? (
                       <Badge
                         variant='dot'
                         color='primary'
@@ -1224,13 +1224,14 @@ const ProJobInfo = ({
                 </Button>
               </Box>
             </Card>
-          ) : jobInfo.status === 60500 ||
-            jobInfo.status === 60700 ||
-            jobInfo.status === 60800 ||
-            jobInfo.status === 60900 ||
-            jobInfo.status === 601100 ||
-            jobInfo.status === 601200 ||
-            jobInfo.status === 601300 ? (
+          ) : (jobInfo.status === 60500 ||
+              jobInfo.status === 60700 ||
+              jobInfo.status === 60800 ||
+              jobInfo.status === 60900 ||
+              jobInfo.status === 601100 ||
+              jobInfo.status === 601200 ||
+              jobInfo.status === 601300) &&
+            jobInfo.guideLines ? (
             <Card
               sx={{
                 padding: '20px',
@@ -1239,11 +1240,18 @@ const ProJobInfo = ({
                 gap: '12px',
               }}
             >
-              <Typography variant='body1' fontSize={14} fontWeight={600}>
-                Client guidelines
-              </Typography>
+              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <Icon
+                  icon='fluent:book-information-20-regular'
+                  fontSize={20}
+                ></Icon>
+                <Typography variant='body1' fontSize={14} fontWeight={600}>
+                  Client guidelines
+                </Typography>
+              </Box>
+
               <Button
-                variant='outlined'
+                variant='contained'
                 fullWidth
                 onClick={onClickClientGuidelineView}
               >
