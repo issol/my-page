@@ -23,7 +23,9 @@ export type AddJobInfoFormType = {
   status: number
   contactPerson: { label: string; value: string; userId: number }
   serviceType: { label: string; value: string }
-  languagePair: { label: string; value: string; source: string; target: string }
+  // languagePair: { source: string; target: string }
+  source: string | null
+  target: string | null
   startedAt?: Date
   startTimezone?: CountryType
   dueAt: Date

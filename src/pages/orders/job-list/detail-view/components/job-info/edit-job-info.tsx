@@ -61,6 +61,7 @@ import { FilePostType } from '@src/apis/client-guideline.api'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { JobStatusType } from '@src/types/jobs/common.type'
+import { log } from 'npmlog'
 
 type Props = {
   row: JobType
@@ -143,7 +144,7 @@ const EditJobInfo = ({
 
   const uploadFileMutation = useMutation(
     (file: {
-      jobId: number,
+      jobId: number
       files: Array<{
         jobId: number
         size: number
@@ -157,6 +158,8 @@ const EditJobInfo = ({
       },
     },
   )
+
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   const {
     control,
@@ -268,14 +271,14 @@ const EditJobInfo = ({
       const fileInfo: {
         jobId: number
         files: Array<{
-            jobId: number
-            size: number
-            name: string
-            type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-          }>
+          jobId: number
+          size: number
+          name: string
+          type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+        }>
       } = {
         jobId: row.id,
-        files: []
+        files: [],
       }
       const paths: string[] = files.map(file => {
         return `project/${row.id}/sample/${file.name}`
@@ -307,14 +310,8 @@ const EditJobInfo = ({
               dueDate: data.dueAt.toString(),
               dueTimezone: data.dueTimezone,
               status: data.status,
-              sourceLanguage:
-                data.languagePair.value === 'Language-independent'
-                  ? null
-                  : data.languagePair.source,
-              targetLanguage:
-                data.languagePair.value === 'Language-independent'
-                  ? null
-                  : data.languagePair.target,
+              sourceLanguage: data.source !== ' ' ? data.source : null,
+              targetLanguage: data.target !== ' ' ? data.target : null,
               name: data.name,
               isShowDescription: data.isShowDescription,
             }
@@ -323,7 +320,7 @@ const EditJobInfo = ({
 
             // res.map((value, idx) => {
             //   uploadFileMutation.mutate(fileInfo[idx])
-              
+
             // })
           })
           .catch(err =>
@@ -346,18 +343,12 @@ const EditJobInfo = ({
         dueTimezone: data.dueTimezone,
         status: data.status,
         //TODO 'Language-independent'일 경우 null로 값을 보내는데 실제로 null인거와 'Language-independent'를 선택한것의 구분이 안됨
-        sourceLanguage:
-          data.languagePair.value === 'Language-independent'
-            ? null
-            : data.languagePair.source,
-        targetLanguage:
-          data.languagePair.value === 'Language-independent'
-            ? null
-            : data.languagePair.target,
+        sourceLanguage: data.source !== ' ' ? data.source : null,
+        targetLanguage: data.target !== ' ' ? data.target : null,
         name: data.name,
         isShowDescription: data.isShowDescription,
       }
-      console.log("jobInfo",jobInfo)
+      console.log('jobInfo', jobInfo)
       saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
     }
 
@@ -368,27 +359,9 @@ const EditJobInfo = ({
     setValue('name', row.name ?? '')
     setValue('description', row.description ?? '')
     setValue('status', row.status)
-    row.sourceLanguage && row.targetLanguage
-      ? setValue('languagePair', {
-          value: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
-            row.targetLanguage,
-          )}`,
-          label: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
-            row.targetLanguage,
-          )}`,
-          source: row.sourceLanguage,
-          target: row.targetLanguage,
-        })
-      : setValue('languagePair', {
-          value: `${languageHelper(item.sourceLanguage)} -> ${languageHelper(
-            item.targetLanguage,
-          )}`,
-          label: `${languageHelper(item.sourceLanguage)} -> ${languageHelper(
-            item.targetLanguage,
-          )}`,
-          source: item.sourceLanguage,
-          target: item.targetLanguage,
-        })
+    setValue('source', row.sourceLanguage)
+    setValue('target', row.targetLanguage)
+
     setValue('serviceType', { value: row.serviceType, label: row.serviceType })
     setValue('isShowDescription', row.isShowDescription, {
       shouldDirty: true,
@@ -434,22 +407,26 @@ const EditJobInfo = ({
         shouldValidate: true,
       })
 
-    const langPairList = languagePair.map((item, index) => ({
-      value: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
-      label: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
-    }))
-    setLanguageItemList([
-      {
-        value: 'Language-independent',
-        label: 'Language-independent',
-      },
-      ...langPairList,
-    ])
+    // const langPairList = languagePair.map((item, index) => ({
+    //   value: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
+    //   label: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
+    // }))
+    // setLanguageItemList([
+    //   {
+    //     value: 'Language-independent',
+    //     label: 'Language-independent',
+    //   },
+    //   ...langPairList,
+    // ])
     setUploadedFiles(row.files ?? [])
     trigger()
   }, [row, item, setValue, languagePair, contactPersonList, trigger])
-  console.log("row",row)
-  console.log("job name",getValues().name)
+  console.log('row', row)
+  console.log('job name', getValues().name)
+
+  console.log(getValues('target'))
+  console.log(getValues())
+
   return (
     <>
       <DatePickerWrapper sx={{ width: '100%' }}>
@@ -486,13 +463,15 @@ const EditJobInfo = ({
               )}
             </Grid>
             <Grid item xs={6}>
-            <TextField 
-              disabled 
-              id='status' 
-              label='Status*'
-              fullWidth
-              defaultValue={statusList?.find(list => list.value === row.status)?.label!} 
-            />
+              <TextField
+                disabled
+                id='status'
+                label='Status*'
+                fullWidth
+                defaultValue={
+                  statusList?.find(list => list.value === row.status)?.label!
+                }
+              />
               {/* <Controller
                 control={control}
                 name='status'
@@ -591,46 +570,82 @@ const EditJobInfo = ({
             <Grid item xs={6}>
               <Controller
                 control={control}
-                name='languagePair'
+                name='source'
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     fullWidth
                     disabled={Boolean(row.proId)}
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
-                    }}
+                    // isOptionEqualToValue={(option, newValue) => {
+                    //   return option.source === newValue.source
+                    // }}
                     onChange={(event, item) => {
+                      console.log(item, 'onChange')
                       if (item) {
-                        onChange(item)
+                        setValue('source', item?.source, setValueOptions)
+                        setValue('target', item?.target, setValueOptions)
+                        trigger('source')
+                        trigger('target')
                       } else {
-                        onChange({
-                          value: '',
-                          label: '',
-                          source: '',
-                          target: '',
-                        })
+                        setValue('source', null, setValueOptions)
+                        setValue('target', null, setValueOptions)
+                        trigger('source')
+                        trigger('target')
                       }
+                      // onChange(item)
                     }}
                     value={
-                      value || { value: '', label: '', source: '', target: '' }
+                      value === null
+                        ? null
+                        : [
+                            {
+                              source: ' ',
+                              target: ' ',
+                            },
+                            ...languagePair.map(value => ({
+                              source: value.source,
+                              target: value.target,
+                            })),
+                          ].find(
+                            item =>
+                              item.source === value &&
+                              item.target === getValues(`target`),
+                          )
                     }
-                    options={languageItemList}
+                    options={[
+                      {
+                        source: ' ',
+                        target: ' ',
+                      },
+                      ...languagePair
+                        .map(value => ({
+                          source: value.source,
+                          target: value.target,
+                        }))
+                        .sort((a, b) => a.source.localeCompare(b.source)),
+                    ]}
+                    getOptionLabel={option => {
+                      if (option.source === ' ' && option.target === ' ') {
+                        return 'Language-independent'
+                      } else {
+                        return `${languageHelper(
+                          option.source,
+                        )} -> ${languageHelper(option.target)}`
+                      }
+                    }}
                     id='languagePair'
-                    getOptionLabel={option => option.label}
                     renderInput={params => (
                       <TextField
                         {...params}
                         label='Language pair*'
-                        error={Boolean(errors.languagePair)}
+                        error={Boolean(errors.source)}
                       />
                     )}
                   />
                 )}
               />
-              {errors.languagePair && (
+              {errors.source && (
                 <FormHelperText sx={{ color: 'error.main' }}>
-                  {errors.languagePair?.label?.message ||
-                    errors.languagePair?.value?.message}
+                  {errors.source?.message || errors.target?.message}
                 </FormHelperText>
               )}
             </Grid>
@@ -897,28 +912,45 @@ const EditJobInfo = ({
                 </Typography>
               </Box>
               <Divider />
-              <Box mt='20px' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button variant='contained' onClick={onSubmit} disabled={!isValid}>
+              <Box
+                mt='20px'
+                sx={{ display: 'flex', justifyContent: 'flex-end' }}
+              >
+                <Button
+                  variant='contained'
+                  onClick={onSubmit}
+                  disabled={!isValid}
+                >
                   Save draft
                 </Button>
               </Box>
             </Box>
           ) : (
-            <Box mt='20px' sx={{ 
-              display: 'flex', 
-              justifyContent: 'center',
-              gap: '16px',
-              mt: '16px', 
-            }}>
-              <Button variant='outlined' onClick={() => setEditJobInfo(false)} disabled={!isValid}>
+            <Box
+              mt='20px'
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '16px',
+                mt: '16px',
+              }}
+            >
+              <Button
+                variant='outlined'
+                onClick={() => setEditJobInfo(false)}
+                disabled={!isValid}
+              >
                 Cancel
               </Button>
-              <Button variant='contained' onClick={onSubmit} disabled={!isValid}>
+              <Button
+                variant='contained'
+                onClick={onSubmit}
+                disabled={!isValid}
+              >
                 Save
               </Button>
             </Box>
           )}
-          
         </form>
         <div id='toast-container'></div>
       </DatePickerWrapper>
