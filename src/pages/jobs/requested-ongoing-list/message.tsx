@@ -14,8 +14,11 @@ import { authState } from '@src/states/auth'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 import CustomChip from 'src/@core/components/mui/chip'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
+import { useMutation } from 'react-query'
+import { sendMessageToPro } from '@src/apis/job-detail.api'
+import { useGetMessage } from '@src/queries/order/job.query'
 
 type Props = {
   row: ProJobListType
@@ -29,23 +32,33 @@ const ProJobsMessage = ({ row }: Props) => {
     setMessage(event.target.value)
   }
 
-  console.log(row)
+  const {
+    data: messageList,
+    isLoading,
+    refetch: messageRefetch,
+  } = useGetMessage(row.id, auth.getValue()?.user?.id!)
 
-  const messageList = {
-    unReadCount: 1,
-    contents: [
-      {
-        id: 1,
-        content: 'message1',
-        createdAt: '2023-08-31T14:13:15Z',
-        firstName: 'John',
-        middleName: null,
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        role: 'role1',
+  const sendMessageToProMutation = useMutation(
+    (data: { jobId: number; proId: number; message: string }) =>
+      sendMessageToPro(data.jobId, data.proId, data.message),
+    {
+      onSuccess: () => {
+        messageRefetch()
       },
-    ],
+    },
+  )
+
+  const handleSendMessage = () => {
+    sendMessageToProMutation.mutate({
+      jobId: row.id,
+      proId: auth.getValue()?.user?.id!,
+      message: message,
+    })
   }
+
+  useEffect(() => {
+    messageRefetch()
+  }, [messageRefetch])
 
   return (
     <Box
@@ -90,55 +103,75 @@ const ProJobsMessage = ({ row }: Props) => {
             <Typography variant='h5'>Message from LPM</Typography>
           </Box>
           <Divider />
-          {messageList?.contents &&
-            messageList?.contents.map((item, index) => (
-              <>
-                <Box
-                  key={uuidv4()}
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
-                >
+          {messageList?.contents && messageList.contents.length > 0
+            ? messageList?.contents.map((item, index) => (
+                <>
                   <Box
-                    sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    key={uuidv4()}
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '10px',
+                    }}
                   >
-                    {item.role === 'LPM' ? (
-                      <CustomChip
-                        label={item.role}
-                        skin='light'
-                        sx={{
-                          background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128`,
-                          color: '#72E128',
-                        }}
-                        size='small'
+                    <Box
+                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    >
+                      {item.role === 'LPM' ? (
+                        <CustomChip
+                          label={item.role}
+                          skin='light'
+                          sx={{
+                            background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128`,
+                            color: '#72E128',
+                          }}
+                          size='small'
+                        />
+                      ) : null}
+                      <Typography variant='subtitle1' fontWeight={500}>
+                        {getLegalName({
+                          firstName: item.firstName,
+                          middleName: item.middleName,
+                          lastName: item.lastName,
+                        })}
+                      </Typography>
+                      <Divider
+                        orientation='vertical'
+                        variant='middle'
+                        flexItem
                       />
-                    ) : null}
-                    <Typography variant='subtitle1' fontWeight={500}>
-                      {getLegalName({
-                        firstName: item.firstName,
-                        middleName: item.middleName,
-                        lastName: item.lastName,
-                      })}
+                      <Typography variant='body2' fontWeight={400}>
+                        {item.email}
+                      </Typography>
+                    </Box>
+                    <Typography variant='subtitle2'>
+                      {FullDateTimezoneHelper(
+                        item.createdAt,
+                        auth.getValue().user?.timezone,
+                      )}
                     </Typography>
-                    <Divider orientation='vertical' variant='middle' flexItem />
-                    <Typography variant='body2' fontWeight={400}>
-                      {item.email}
-                    </Typography>
+                    <Box>{item.content}</Box>
                   </Box>
-                  <Typography variant='subtitle2'>
-                    {FullDateTimezoneHelper(
-                      item.createdAt,
-                      auth.getValue().user?.timezone,
-                    )}
-                  </Typography>
-                  <Box>{item.content}</Box>
-                </Box>
-                {index !== messageList.contents.length - 1 && <Divider />}
-              </>
-            ))}
+                  {index !== messageList.contents!.length - 1 && <Divider />}
+                </>
+              ))
+            : null}
           {row.status === 601200 ||
           row.status === 601400 ||
           row.status === 60300 ||
           row.status === 60600 ||
-          row.status === 60400 ? null : (
+          row.status === 60400 ? (
+            <Box>
+              <Typography
+                variant='body1'
+                fontWeight={400}
+                sx={{ padding: '0 20px 20px 20px' }}
+              >
+                There are no message
+              </Typography>
+              <Divider />
+            </Box>
+          ) : (
             <>
               <Box>
                 <TextField
@@ -161,7 +194,7 @@ const ProJobsMessage = ({ row }: Props) => {
                 <Button
                   variant='contained'
                   disabled={message === ''}
-                  // onClick={handleSendMessage}
+                  onClick={handleSendMessage}
                 >
                   Send
                 </Button>

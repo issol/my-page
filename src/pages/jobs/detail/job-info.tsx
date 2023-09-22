@@ -48,8 +48,7 @@ import InformationModal from '@src/@core/components/common-modal/information-mod
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 import dynamic from 'next/dynamic'
-import { useGetGuideLines } from '@src/queries/client-guideline.query'
-import PriceUnit from '@src/pages/components/standard-prices/component/price-unit'
+
 import dayjs from 'dayjs'
 import PriceUnitGuideline from './components/modal/price-unit-guideline'
 import CustomChip from 'src/@core/components/mui/chip'
@@ -358,6 +357,19 @@ const ProJobInfo = ({
                 </>
               }
             />
+          ) : status === 601300 ? (
+            <InformationModal
+              vary='info'
+              onClose={() => closeModal('StatusMoreInfoModal')}
+              title=''
+              align='left'
+              subtitle={
+                <>
+                  This task is not being considered for the purpose of
+                  generating an invoice.
+                </>
+              }
+            />
           ) : status === 60400 ? (
             <PriceUnitGuideline
               vary='info'
@@ -564,7 +576,8 @@ const ProJobInfo = ({
                     )}
                     {jobInfo.status === 60600 ||
                     jobInfo.status === 60400 ||
-                    jobInfo.status === 601000 ? (
+                    jobInfo.status === 601000 ||
+                    jobInfo.status === 601300 ? (
                       <IconButton
                         sx={{ padding: 0 }}
                         onClick={() =>

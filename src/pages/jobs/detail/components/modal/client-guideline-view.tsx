@@ -218,7 +218,7 @@ Props) => {
                   mb='26px'
                   mt='10px'
                 >
-                  <Typography variant='h6'>Naver webtoon guide</Typography>
+                  <Typography variant='h6'>{guideLines.title}</Typography>
                   <PDFDownloadLink
                     document={<DownloadFile />}
                     fileName='somename.pdf'
@@ -245,7 +245,7 @@ Props) => {
                     </Typography>
                   </Grid>
                   <Grid item xs={2} mb='10px'>
-                    <Typography variant='body2'>Naver</Typography>
+                    <Typography variant='body2'>{guideLines.client}</Typography>
                   </Grid>
                 </Grid>
                 <Grid container mb='10px'>
@@ -255,7 +255,9 @@ Props) => {
                     </Typography>
                   </Grid>
                   <Grid item xs={2}>
-                    <Typography variant='body2'>Webcomics</Typography>
+                    <Typography variant='body2'>
+                      {guideLines.category}
+                    </Typography>
                   </Grid>
                 </Grid>
                 <Grid container mb='10px'>
@@ -265,7 +267,9 @@ Props) => {
                     </Typography>
                   </Grid>
                   <Grid item xs={2}>
-                    <Typography variant='body2'>Translation</Typography>
+                    <Typography variant='body2'>
+                      {guideLines.serviceType}
+                    </Typography>
                   </Grid>
                 </Grid>
                 <Divider />
@@ -298,7 +302,7 @@ Props) => {
                     variant='outlined'
                     startIcon={<Icon icon='mdi:download' />}
                     size='small'
-                    // onClick={() => downloadAllFiles(currentRow?.files)}
+                    onClick={() => downloadAllFiles(guideLines.files)}
                   >
                     Download all
                   </Button>

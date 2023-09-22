@@ -128,8 +128,17 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
           onClose={() => closeModal('ClickCreateInvoiceModal')}
           title={
             <>
-              Are you sure you want to create an invoice with{' '}
-              <Typography fontWeight={600}>${selectedJobs.length}</Typography>{' '}
+              Are you sure you want to create an
+              <br />
+              invoice with{' '}
+              <Typography
+                fontWeight={600}
+                variant='body2'
+                fontSize={16}
+                component={'span'}
+              >
+                {selectedJobs.length}
+              </Typography>{' '}
               selected job(s)?
             </>
           }
