@@ -42,7 +42,7 @@ import {
   useGetProjectTeam,
 } from '@src/queries/order/order.query'
 import { useMutation, useQueryClient } from 'react-query'
-import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
+import { CreateJobParamsType, JobStatusType } from '@src/types/jobs/jobs.type'
 import { createJob } from '@src/apis/jobs.api'
 import { deleteJob } from '@src/apis/job-detail.api'
 
@@ -183,7 +183,7 @@ const JobDetails = () => {
   }, [jobDetails])
 
   const Row = ({ info, index }: { info: JobItemType; index: number }) => {
-    console.log("info",info)
+    console.log('info', info)
     const [open, setOpen] = useState<boolean>(true)
     const separateLine = () => {
       return (
@@ -494,7 +494,7 @@ const JobDetails = () => {
                               }}
                               size='small'
                             >
-                              {JobsStatusChip(row.status)}
+                              {JobsStatusChip(row.status as JobStatusType)}
                             </TableCell>
                             {separateLine()}
 

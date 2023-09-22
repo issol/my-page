@@ -134,11 +134,11 @@ const ProJobsMessage = ({ row }: Props) => {
                 {index !== messageList.contents.length - 1 && <Divider />}
               </>
             ))}
-          {row.status === 'Invoiced' ||
-          row.status === 'Paid' ||
-          row.status === 'Declined' ||
-          row.status === 'Unassigned' ||
-          row.status === 'Canceled' ? null : (
+          {row.status === 601200 ||
+          row.status === 601400 ||
+          row.status === 60300 ||
+          row.status === 60600 ||
+          row.status === 60400 ? null : (
             <>
               <Box>
                 <TextField

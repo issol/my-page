@@ -13,6 +13,9 @@ import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
 import JobList from '../requested-ongoing-list/list'
 import useModal from '@src/hooks/useModal'
 import SelectJobModal from './components/select-job-modal'
+import { useMutation } from 'react-query'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { createInvoicePayable } from '@src/apis/invoice/payable.api'
 
 export type FilterType = {
   jobDueDate: Date[]
@@ -74,6 +77,23 @@ const DeliveredInactiveList = () => {
   const { data: statusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
 
+  const createInvoiceMutation = useMutation(
+    (params: {
+      invoiceStatus: string
+      description: string
+      taxInfo: string
+      taxRate: number
+      currency: string
+      totalPrice: number
+      subtotal: number
+      tax: number
+      jobIds: number[]
+      invoicedAt: string
+      invoicedTimezone: CountryType
+    }) => createInvoicePayable(params),
+    {},
+  )
+
   const { control, handleSubmit, reset } = useForm<FilterType>({
     defaultValues,
     mode: 'onSubmit',
@@ -119,11 +139,30 @@ const DeliveredInactiveList = () => {
     setFilters(filter)
   }
 
+  const handleCreateInvoice = (data: {
+    invoiceStatus: string
+    description: string
+    taxInfo: string
+    taxRate: number
+    currency: string
+    totalPrice: number
+    subtotal: number
+    tax: number
+    jobIds: number[]
+    invoicedAt: string
+    invoicedTimezone: CountryType
+  }) => {
+    createInvoiceMutation.mutate(data)
+  }
+
   const onClickCreateInvoice = () => {
     openModal({
       type: 'CreateInvoiceModal',
       children: (
-        <SelectJobModal onClose={() => closeModal('CreateInvoiceModal')} />
+        <SelectJobModal
+          onClose={() => closeModal('CreateInvoiceModal')}
+          onClick={handleCreateInvoice}
+        />
       ),
     })
   }
@@ -144,7 +183,7 @@ const DeliveredInactiveList = () => {
 
       <JobList
         type='delivered'
-        columns={getProJobColumns()}
+        columns={getProJobColumns(statusList!)}
         list={jobList?.data!}
         listCount={jobList?.totalCount!}
         page={page}

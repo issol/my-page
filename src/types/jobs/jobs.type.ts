@@ -159,6 +159,7 @@ export type ProJobListType = {
   status: ProJobStatusType
   currency: CurrencyType
   lightUpDot: boolean
+  totalPrice: string
   message: {
     unReadCount: number
     contents:

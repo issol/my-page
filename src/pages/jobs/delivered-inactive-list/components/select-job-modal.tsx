@@ -31,18 +31,34 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import useModal from '@src/hooks/useModal'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 type Props = {
   onClose: any
+  onClick: (data: {
+    invoiceStatus: string
+    description: string
+    taxInfo: string
+    taxRate: number
+    currency: string
+    totalPrice: number
+    subtotal: number
+    tax: number
+    jobIds: number[]
+    invoicedAt: string
+    invoicedTimezone: CountryType
+  }) => void
 }
 
 const defaultFilters: JobListFilterType = {
   take: 10,
   skip: 0,
   search: '',
+  listType: 'completed',
+  status: [601100],
 }
 
-const SelectJobModal = ({ onClose }: Props) => {
+const SelectJobModal = ({ onClose, onClick }: Props) => {
   const router = useRouter()
   const { openModal, closeModal } = useModal()
   const [filters, setFilters] = useState<JobListFilterType>(defaultFilters)
@@ -103,6 +119,8 @@ const SelectJobModal = ({ onClose }: Props) => {
   }
 
   const onClickCreateInvoice = () => {
+    console.log(selectedJobs)
+
     openModal({
       type: 'ClickCreateInvoiceModal',
       children: (
@@ -118,6 +136,7 @@ const SelectJobModal = ({ onClose }: Props) => {
           vary='successful'
           rightButtonText='Create'
           onClick={() => {
+            // onClick()
             closeModal('ClickCreateInvoiceModal')
           }}
         />
@@ -134,6 +153,7 @@ const SelectJobModal = ({ onClose }: Props) => {
       skip: rowsPerPage * page,
       ordering: 'desc',
       sort: 'corporationId',
+      listType: 'completed',
     }
 
     setFilters(filter)
@@ -224,7 +244,7 @@ const SelectJobModal = ({ onClose }: Props) => {
       sortable: false,
       renderCell: ({ row }: { row: ProJobListType }) => (
         <Typography fontWeight={600}>
-          {getCurrencyMark(row.currency)}
+          {getCurrencyMark(row.currency) ?? '$'}
           {Number(row.totalPrice).toLocaleString()}
         </Typography>
       ),

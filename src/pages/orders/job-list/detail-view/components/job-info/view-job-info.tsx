@@ -86,7 +86,9 @@ const ViewJobInfo = ({
   refetch,
   statusList,
 }: Props) => {
-  const [jobStatus, setJobStatus] = useState<JobStatusType>(row.status)
+  const [jobStatus, setJobStatus] = useState<JobStatusType>(
+    row.status as JobStatusType,
+  )
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
   const queryClient = useQueryClient()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.CERTIFICATION_TEST
@@ -194,7 +196,12 @@ const ViewJobInfo = ({
       dueDate: row.dueAt.toString(),
       dueTimezone: row.dueTimezone,
       // status: event.target.value as JobStatusType,
-      status: typeof event.target.value === 'string' ? jobStatusLabelValueType.find(list => list.label! === event.target.value)!.value! : event.target.value,
+      status:
+        typeof event.target.value === 'string'
+          ? jobStatusLabelValueType.find(
+              list => list.label! === event.target.value,
+            )!.value!
+          : event.target.value,
       sourceLanguage: row.sourceLanguage,
       targetLanguage: row.targetLanguage,
       name: row.name,
@@ -286,9 +293,10 @@ const ViewJobInfo = ({
               >
                 Status
               </Typography>
-              {type === 'history' ? (
-                JobsStatusChip(row.status)
-              ) : ( null
+              {
+                type === 'history'
+                  ? JobsStatusChip(row.status as JobStatusType)
+                  : null
                 // <Select
                 //   value={statusList?.map(list => list.label)}
                 //   onChange={handleChange}
@@ -303,7 +311,7 @@ const ViewJobInfo = ({
                 //     )
                 //   })}
                 // </Select>
-              )}
+              }
             </Box>
             <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
               <Typography
@@ -438,12 +446,8 @@ const ViewJobInfo = ({
 
         <Box>
           <Typography variant='subtitle2'>
-            {formatFileSize(
-              row.files
-                ? getFileSize(row?.files, 'SAMPLE')
-                : 0
-            )}
-            / {byteToGB(MAXIMUM_FILE_SIZE)}
+            {formatFileSize(row.files ? getFileSize(row?.files, 'SAMPLE') : 0)}/{' '}
+            {byteToGB(MAXIMUM_FILE_SIZE)}
           </Typography>
         </Box>
       </Box>
