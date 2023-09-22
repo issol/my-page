@@ -14,6 +14,7 @@ import {
   GridSelectionModel,
 } from '@mui/x-data-grid'
 import { JobType } from '@src/types/common/item.type'
+import { JobStatusType } from '@src/types/jobs/jobs.type'
 import {
   AssignProFilterPostType,
   AssignProListType,
@@ -109,28 +110,28 @@ const AssignProList = ({
                 </Box>
               )}
             </Box>
-            {type === 'history' 
-              ? null 
-              : !jobInfo?.proId
-                ? (<Button
-                    variant='contained'
-                    sx={{ height: '30px' }}
-                    disabled={selectionModel.length === 0}
-                    onClick={onClickRequestJob}
-                  >
-                    <Icon icon='ic:outline-send' fontSize='18px' />
-                    &nbsp; Request job
-                  </Button>
-                ) : (
-                  <Button
-                    variant='outlined'
-                    sx={{ height: '30px' }}
-                    disabled={[60800,60900,601100,601200,601300,601400,60400].includes(jobInfo.status)} //Partially delivered, delivered, Approved, Invoiced, without invoice, paid, canceled
-                    onClick={onClickRequestJob}
-                  >
-                    &nbsp; Re-assign
-                  </Button>
-                )}
+            {type === 'history' ? null : !jobInfo?.proId ? (
+              <Button
+                variant='contained'
+                sx={{ height: '30px' }}
+                disabled={selectionModel.length === 0}
+                onClick={onClickRequestJob}
+              >
+                <Icon icon='ic:outline-send' fontSize='18px' />
+                &nbsp; Request job
+              </Button>
+            ) : (
+              <Button
+                variant='outlined'
+                sx={{ height: '30px' }}
+                disabled={[
+                  60800, 60900, 601100, 601200, 601300, 601400, 60400,
+                ].includes(jobInfo.status as JobStatusType)} //Partially delivered, delivered, Approved, Invoiced, without invoice, paid, canceled
+                onClick={onClickRequestJob}
+              >
+                &nbsp; Re-assign
+              </Button>
+            )}
           </Box>
         }
         sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}

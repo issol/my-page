@@ -12,38 +12,24 @@ import { ProJobStatusType } from './common.type'
 
 export type JobStatusType =
   | 60000
-  | 'In preparation'
   | 60100
-  | 'Requested'
   | 60200
-  | 'Request accepted'
   | 60300
-  | 'Request rejected'
   | 60400
-  | 'Canceled'
   | 60500
-  | 'Assigned'
   | 60700
-  | 'In progress'
   | 60800
-  | 'Partially delivered'
   | 60900
-  | 'Delivered'
   | 601000
-  | 'Overdue'
   | 601100
-  | 'Approved'
   | 601200
-  | 'Invoiced'
   | 601300
-  | 'Without invoice'
   | 601400
-  | 'Paid'
 
 export type JobsListType = {
   id: number
   corporationId: string // O-000010-TRA-001
-  status: Array<statusType>
+  status: JobStatusType
   name: string
   jobName?: string
   category: string // order의 category

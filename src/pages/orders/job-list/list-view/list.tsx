@@ -1,4 +1,4 @@
-import { JobsListType } from '@src/types/jobs/jobs.type'
+import { JobStatusType, JobsListType } from '@src/types/jobs/jobs.type'
 
 // ** style components
 import { Tooltip, Typography } from '@mui/material'
@@ -56,7 +56,7 @@ export default function JobsList({
   const auth = useRecoilValueLoadable(authState)
   const router = useRouter()
 
-  console.log("list",list)
+  console.log('list', list)
 
   const columns: GridColumns<JobsListType> = [
     {
@@ -85,7 +85,7 @@ export default function JobsList({
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: CellType) => {
-        return JobsStatusChip(Number(row.status), statusList)
+        return JobsStatusChip(row.status as JobStatusType, statusList)
       },
     },
     {
@@ -109,9 +109,7 @@ export default function JobsList({
                 : row.client.name}
             </Typography>
             <Typography variant='body2'>
-              {row.contactPerson
-                ? row.contactPerson.email
-                : row.client.email}
+              {row.contactPerson ? row.contactPerson.email : row.client.email}
             </Typography>
           </Box>
         )
@@ -146,9 +144,9 @@ export default function JobsList({
                 type={row?.category}
                 label={row?.category}
               />
-            ) : 
+            ) : (
               '-'
-            }
+            )}
             <ServiceTypeChip size='small' label={row?.serviceType} />
           </Box>
         )

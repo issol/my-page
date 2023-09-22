@@ -12,11 +12,13 @@ import { RoleType, UserType } from '@src/context/types'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import {
   getOrderStatusColor,
+  getProJobStatusColor,
   getReceivableStatusColor,
 } from '@src/shared/helpers/colors.helper'
 import { OrderStatusType } from '@src/types/common/orders.type'
 import { statusType } from '@src/types/common/status.type'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 export function renderStatusChip(status: string) {
   const color =
