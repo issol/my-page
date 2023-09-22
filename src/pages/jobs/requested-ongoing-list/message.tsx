@@ -44,6 +44,7 @@ const ProJobsMessage = ({ row }: Props) => {
     {
       onSuccess: () => {
         messageRefetch()
+        setMessage('')
       },
     },
   )
