@@ -569,7 +569,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
 
           {jobDetailDots.includes('feedback') ? (
             <Card sx={{ padding: '24px' }}>
-              <Box sx={{ display: 'flex', gap: '5px' }}>
+              <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <Badge
                   variant='dot'
                   color='primary'
