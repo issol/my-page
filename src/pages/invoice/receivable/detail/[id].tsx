@@ -89,6 +89,7 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 import {
   account_manage,
   invoice_receivable,
+  invoice_receivable_accounting_info,
 } from '@src/shared/const/permission-class'
 import { useGetStatusList } from '@src/queries/common.query'
 import { StyledNextLink } from '@src/@core/components/customLink'
@@ -149,7 +150,10 @@ const ReceivableInvoiceDetail = () => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const User = new invoice_receivable(auth.getValue().user?.id!)
-  const AccountingTeam = new account_manage(auth.getValue().user?.id!)
+  // const AccountingTeam = new account_manage(auth.getValue().user?.id!)
+  const AccountingTeam = new invoice_receivable_accounting_info(
+    auth.getValue().user?.id!,
+  )
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
@@ -225,8 +229,11 @@ const ReceivableInvoiceDetail = () => {
     isFileUploading
 
   const patchInvoiceInfoMutation = useMutation(
-    (data: { id: number; form: InvoiceReceivablePatchParamsType }) =>
-      patchInvoiceInfo(data.id, data.form),
+    (data: {
+      id: number
+      form: InvoiceReceivablePatchParamsType
+      type: 'basic' | 'accounting'
+    }) => patchInvoiceInfo(data.id, data.form, data.type),
     {
       onSuccess: (data: { id: number }, variables) => {
         invalidateInvoiceDetail()
@@ -716,8 +723,6 @@ const ReceivableInvoiceDetail = () => {
     }
   }
 
-  console.log(downloadData)
-
   function handlePrint() {
     closeModal('DownloadInvoiceModal')
     router.push('/invoice/receivable/detail/invoice-print')
@@ -1010,7 +1015,6 @@ const ReceivableInvoiceDetail = () => {
                     setDownloadLanguage={setDownloadLanguage}
                     type='detail'
                     user={auth.getValue().user!}
-                    onSave={patchInvoiceInfoMutation.mutate}
                     onClickDownloadInvoice={onClickDownloadInvoice}
                   />
                 ) : null}

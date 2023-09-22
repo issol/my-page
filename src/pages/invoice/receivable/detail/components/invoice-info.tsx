@@ -107,6 +107,7 @@ type Props = {
   onSave?: (data: {
     id: number
     form: InvoiceReceivablePatchParamsType
+    type: 'basic' | 'accounting'
   }) => void
   clientTimezone?: CountryType
   invoiceInfoControl?: Control<InvoiceProjectInfoFormType, any>
@@ -164,7 +165,7 @@ const InvoiceInfo = ({
   const [isReminder, setIsReminder] = useState(invoiceInfo.setReminder)
   const [issued, setIssued] = useState<boolean>(invoiceInfo.taxInvoiceIssued)
 
-  console.log("client?.isEnrolledClient",client?.isEnrolledClient)
+  console.log('client?.isEnrolledClient', client?.isEnrolledClient)
   const statusLabel =
     statusList?.find(i => i.value === invoiceInfo.invoiceStatus)?.label || ''
 
@@ -275,6 +276,7 @@ const InvoiceInfo = ({
           // ...data,
           invoiceStatus: value as InvoiceReceivableStatusType,
         },
+        type: 'basic',
       })
     }
   }
@@ -289,6 +291,7 @@ const InvoiceInfo = ({
           // ...data,
           setReminder: event.target.checked ? '1' : '0',
         },
+        type: 'basic',
       })
     }
   }
@@ -304,20 +307,7 @@ const InvoiceInfo = ({
           // ...data,
           showDescription: event.target.checked ? '1' : '0',
         },
-      })
-    }
-  }
-
-  const handleChangeIssued = (event: ChangeEvent<HTMLInputElement>) => {
-    setIssued(event.target.checked)
-    const data = getInvoiceInfo && getInvoiceInfo()
-    if (onSave && data) {
-      onSave({
-        id: invoiceInfo.id,
-        form: {
-          // ...data,
-          taxInvoiceIssued: event.target.checked ? '1' : '0',
-        },
+        type: 'basic',
       })
     }
   }
@@ -369,7 +359,7 @@ const InvoiceInfo = ({
               salesCategory: data?.salesCategory,
             }
       if (onSave) {
-        onSave({ id: invoiceInfo.id, form: res })
+        onSave({ id: invoiceInfo.id, form: res, type: infoType })
       }
     }
   }
@@ -380,6 +370,7 @@ const InvoiceInfo = ({
       onSave({
         id: invoiceInfo.id,
         form: { contactPersonId: contactPersonId! },
+        type: 'basic',
       })
     }
   }
@@ -1013,8 +1004,10 @@ const InvoiceInfo = ({
                               invoiceInfo.invoiceStatus,
                             )
                           ) : (currentRole && currentRole.name === 'CLIENT') ||
-                              !statusOption.some(status => status.value === invoiceInfo.invoiceStatus) 
-                            ? (
+                            !statusOption.some(
+                              status =>
+                                status.value === invoiceInfo.invoiceStatus,
+                            ) ? (
                             <Box
                               sx={{
                                 display: 'flex',
@@ -1930,19 +1923,6 @@ const InvoiceInfo = ({
                             </Typography>
                           </Box>
                         </Box>
-                      </Box>
-                      <Divider />
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Checkbox
-                          value={issued}
-                          onChange={handleChangeIssued}
-                          checked={issued}
-                          // disabled={invoiceInfo.invoiceStatus === 'Paid'}
-                        />
-
-                        <Typography variant='body2'>
-                          Tax invoice issued
-                        </Typography>
                       </Box>
                     </Box>
                   </Box>

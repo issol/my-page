@@ -36,8 +36,11 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
   const dispatch = useAppDispatch()
 
   const patchInvoiceInfoMutation = useMutation(
-    (data: { id: number; form: { downloadedAt: string } }) =>
-      patchInvoiceInfo(data.id, data.form),
+    (data: {
+      id: number
+      form: { downloadedAt: string }
+      type: 'basic' | 'accounting'
+    }) => patchInvoiceInfo(data.id, data.form, data.type),
     {},
   )
   useEffect(() => {
@@ -49,6 +52,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           patchInvoiceInfoMutation.mutate({
             id: data.invoiceId,
             form: { downloadedAt: Date() },
+            type: 'basic',
           })
         }
         window.print()
