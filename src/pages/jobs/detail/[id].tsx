@@ -88,7 +88,7 @@ const ProJobsDetail = () => {
                   <>
                     Deliveries & Feedback
                     {jobDetailDots.includes('feedback') ||
-                    jobDetailDots.includes('sourceFile') ? (
+                    jobDetailDots.includes('download') ? (
                       <Badge
                         variant='dot'
                         color='primary'
