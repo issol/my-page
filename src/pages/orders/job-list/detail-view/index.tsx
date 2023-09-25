@@ -30,7 +30,7 @@ import {
   SaveJobPricesParamsType,
 } from '@src/types/orders/job-detail'
 import {
-  useGetAssignProList,
+  useGetAssignableProList,
   useGetJobInfo,
   useGetJobPrices,
 } from '@src/queries/order/job.query'
@@ -76,6 +76,7 @@ import {
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { saveJobPrices } from '@src/apis/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
+import { toast } from 'react-hot-toast'
 
 const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { openModal, closeModal } = useModal()
@@ -199,9 +200,17 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
       saveJobPrices(data.jobId, data.prices),
     {
       onSuccess: () => {
+        toast.success('Job info added successfully', {
+          position: 'bottom-left',
+        })
         setSuccess(true)
         queryClient.invalidateQueries('jobPrices')
       },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      }
     },
   )
   

@@ -17,7 +17,7 @@ import {
 } from '@src/types/orders/job-detail'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 
-export const getAssignProList = async (
+export const getAssignableProList = async (
   id: number,
   filters: AssignProFilterPostType,
   isHistory: boolean,
@@ -29,6 +29,18 @@ export const getAssignProList = async (
   const { data } = isHistory
     ? await axios.get(`/api/enough/u/job/${id}/request/history`)
     : await axios.get(`/api/enough/u/pro/job/${id}?${makeQuery(filters)}`)
+
+  return data
+}
+
+export const getContactProList = async (
+  id: number,
+): Promise<{
+  totalCount: number
+  data: AssignProListType[]
+  count: number
+}> => {
+  const { data } = await axios.get(`/api/enough/u/pro/job/${id}/assigned-pro`)
 
   return data
 }

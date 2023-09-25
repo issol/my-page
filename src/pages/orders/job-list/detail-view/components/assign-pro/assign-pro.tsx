@@ -12,7 +12,10 @@ import AssignProListPage from './list'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
-import { useGetAssignProList } from '@src/queries/order/job.query'
+import { 
+  useGetAssignableProList,
+  useGetContactProList,
+ } from '@src/queries/order/job.query'
 
 import {
   GridCallbackDetails,
@@ -102,6 +105,11 @@ const AssignPro = ({
 
   const { openModal, closeModal } = useModal()
 
+  const [proList, setProList] = useState<{
+    totalCount: number,
+    data: AssignProListType[],
+    count: number
+  } | undefined>()
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
 
   const [filters, setFilters] = useState<AssignProFilterPostType>({
@@ -119,21 +127,41 @@ const AssignPro = ({
   })
   console.log("orderDetail",orderDetail)
   const {
-    data: AssignProList,
-    isLoading,
-    refetch: refetchAssignProList,
-  } = useGetAssignProList(row.id, filters, type === 'history' ? true : false)
+    data: AssignableProList,
+    isLoading: isAssignableProListLoading,
+    refetch: refetchAssignableProList,
+  } = useGetAssignableProList(row.id, filters, type === 'history' ? true : false)
+
+  const {
+    data: contactProList,
+    isLoading: isContactProListLoading,
+    refetch: refetchContactProList,
+  } = useGetContactProList(row.id)
 
   const requestJobMutation = useMutation(
     (data: { ids: number[]; jobId: number }) =>
       requestJobToPro(data.ids, data.jobId),
     {
       onSuccess: () => {
-        refetchAssignProList()
+        refetchAssignableProList()
+        refetchContactProList()
       },
     },
   )
 
+  useEffect(() => {
+    if (
+      (AssignableProList && !isAssignableProListLoading) &&
+      (contactProList && !isContactProListLoading)
+    ) {
+      setProList({
+        data: [...contactProList.data, ...AssignableProList.data],
+        count: AssignableProList.count + contactProList.count,
+        totalCount: AssignableProList.totalCount + contactProList.totalCount
+      })
+    }
+    console.log("proList",proList)
+  }, [AssignableProList, isAssignableProListLoading, contactProList, isContactProListLoading])
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const languageList = getGloLanguage()
@@ -601,16 +629,15 @@ const AssignPro = ({
       <AssignProListPage
         listCount={
           isFiltersDifferent()
-            ? AssignProList?.count!
-            : AssignProList?.totalCount!
+            ? proList?.count!
+            : proList?.totalCount!
         }
-        // list={type === 'history' ? assignProList?.data! : AssignProList?.data!}
-        list={AssignProList?.data!}
+        list={proList?.data!}
         columns={type === 'history' ? historyColumns : columns}
         setFilters={setFilters}
         setPageSize={setProListPageSize}
         setPage={setProListPage}
-        isLoading={isLoading}
+        isLoading={isAssignableProListLoading}
         page={proListPage}
         pageSize={proListPageSize}
         hideOffBoard={hideOffBoard}
