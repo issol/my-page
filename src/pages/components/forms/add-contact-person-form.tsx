@@ -253,7 +253,7 @@ export default function AddContactPersonForm<
               </Grid>
 
               <Grid item xs={12}>
-                {renderTextFieldForm(idx, 'email', 'Email*', 100)}
+                {renderTextFieldForm(idx, 'email', 'Email*', 100, 'username@example.com')}
               </Grid>
               <Grid item xs={12}>
                 <Divider />
