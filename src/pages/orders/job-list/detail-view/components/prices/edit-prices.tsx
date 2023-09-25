@@ -82,6 +82,7 @@ type Props = {
     'id'
   >[]
   jobPrices: JobPricesDetailType
+  setJobId?: (n: number) => void
 }
 
 const EditPrices = ({
@@ -96,6 +97,7 @@ const EditPrices = ({
   fields,
   row,
   jobPrices,
+  setJobId,
 }: Props) => {
   const { data: prices, isSuccess } = useGetProPriceList({})
   const queryClient = useQueryClient()

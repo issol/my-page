@@ -89,13 +89,13 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string; userId: any }[]
   >([])
-
+  const [jobId, setJobId] = useState(row.id)
   const [editJobInfo, setEditJobInfo] = useState(false)
   const [editPrices, setEditPrices] = useState(false)
 
-  const { data: jobInfo, isLoading } = useGetJobInfo(row.id, false)
+  const { data: jobInfo, isLoading } = useGetJobInfo(jobId, false)
   // const { data: jobAssignProList } = useGetAssignProList(row.id, {}, false)
-  const { data: jobPrices } = useGetJobPrices(row.id, false)
+  const { data: jobPrices } = useGetJobPrices(jobId, false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
@@ -201,12 +201,16 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
       saveJobPrices(data.jobId, data.prices),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
         toast.success('Job info added successfully', {
           position: 'bottom-left',
         })
         setSuccess(true)
-        queryClient.invalidateQueries('jobPrices')
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries('jobPrices')
+        } else {
+          setJobId(data.id)
+        }
       },
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
@@ -371,6 +375,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     setSuccess={setSuccess}
                     setEditJobInfo={setEditJobInfo}
                     statusList={statusList!}
+                    setJobId={setJobId}
                   />
                 ) : (
                   <ViewJobInfo
@@ -404,6 +409,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                         fields={items}
                         row={jobInfo}
                         jobPrices={jobPrices!}
+                        setJobId={setJobId}
                       />
                       <Box
                         mt='20px'
