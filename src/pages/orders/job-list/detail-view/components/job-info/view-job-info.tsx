@@ -46,6 +46,7 @@ import { statusType } from '@src/types/common/status.type'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import { TroubleshootRounded } from '@mui/icons-material'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { useRouter } from 'next/router'
 
 type Props = {
   row: JobType
@@ -103,15 +104,20 @@ const ViewJobInfo = ({
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
   const queryClient = useQueryClient()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
-
+  
+  const router = useRouter()
   const saveJobInfoMutation = useMutation(
     (data: { jobId: number; data: SaveJobInfoParamsType }) =>
       saveJobInfo(data.jobId, data.data),
     {
-      onSuccess: () => {
-        setSuccess && setSuccess(true)
-        queryClient.invalidateQueries('jobInfo')
-        refetch && refetch()
+      onSuccess: (data, variables) => {
+        if (data.id === variables.jobId) {
+          setSuccess && setSuccess(true)
+          queryClient.invalidateQueries('jobInfo')
+          refetch && refetch()
+        } else {
+          router.push(`/invoice/receivable/detail/${data.id}`)
+        }
       },
     },
   )

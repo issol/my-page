@@ -324,6 +324,7 @@ const Row = ({
         setShowMinimum={(n) => true} //이거 쓰나?
         type={type}
         sumTotalPrice={sumTotalPrice}
+        showCurrency={true}
       />
       {/* price unit end */}
     </Box>

@@ -101,6 +101,7 @@ type Props = {
   setSuccess: Dispatch<SetStateAction<boolean>>
   setEditJobInfo: Dispatch<SetStateAction<boolean>>
   statusList: Array<{ value: number; label: string }>
+  setJobId?: (n: number) => void
 }
 
 const EditJobInfo = ({
@@ -114,6 +115,7 @@ const EditJobInfo = ({
   setSuccess,
   setEditJobInfo,
   statusList,
+  setJobId,
 }: Props) => {
   const theme = useTheme()
   const { direction } = theme
@@ -133,11 +135,14 @@ const EditJobInfo = ({
     (data: { jobId: number; data: SaveJobInfoParamsType }) =>
       saveJobInfo(data.jobId, data.data),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
         setSuccess(true)
-        queryClient.invalidateQueries('jobInfo')
-        queryClient.invalidateQueries('jobPrices')
-        refetch()
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries('jobInfo')
+          refetch()
+        } else {
+          setJobId && setJobId(data.id)
+        }
         setEditJobInfo(false)
       },
     },
@@ -154,8 +159,14 @@ const EditJobInfo = ({
       }>
     }) => uploadFile(file),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
         // console.log('success')
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries('jobInfo')
+          refetch()
+        } else {
+          setJobId && setJobId(data.id)
+        }
       },
     },
   )

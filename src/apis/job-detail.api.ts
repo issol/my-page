@@ -105,8 +105,20 @@ export const getJobInfo = async (
   }
 }
 
-export const saveJobInfo = async (id: number, data: SaveJobInfoParamsType) => {
-  await axios.patch(`/api/enough/u/job/${id}`, { ...data })
+export const saveJobInfo = async (
+  id: number, 
+  jobInfoData: SaveJobInfoParamsType,
+): Promise<{ id: number }> => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/job/${id}`, { ...jobInfoData }
+    )
+    return data
+  } catch (e: any) {
+    return {
+      id: id,
+    }
+  }
 }
 
 export const deleteJob = async (id: number) => {
@@ -143,9 +155,17 @@ export const getJobPrices = async (
 
 export const saveJobPrices = async (
   id: number,
-  data: SaveJobPricesParamsType,
-) => {
-  await axios.patch(`/api/enough/u/job/${id}/price`, { ...data })
+  jobPriceData: SaveJobPricesParamsType,
+): Promise<{ id: number }> => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/job/${id}/price`, { ...jobPriceData })
+    return data
+  } catch (e:any) {
+    return {
+      id: id
+    }
+  }
+  
 }
 
 export const requestJobToPro = async (ids: number[], jobId: number) => {
@@ -202,8 +222,15 @@ export const uploadFile = async (file: {
     name: string
     type: 'SAMPLE' | 'SOURCE' | 'TARGET'
   }>
-}) => {
-  await axios.post(`/api/enough/u/job/upload`, { ...file })
+}): Promise<{ id: number }> => {
+  try {
+    const { data } = await axios.post(`/api/enough/u/job/upload`, { ...file })
+    return data
+  } catch(e: any) {
+    return {
+      id: file.jobId
+    }
+  }
 }
 
 export const getSourceFileToPro = async (
