@@ -17,7 +17,7 @@ export type CompanyInfoFormType = {
   tax?: number | null
   memo?: string
   headquarter?: string
-  registrationNumber?: string
+  registrationNumber?: number
   representativeName?: string
   commencementDate?: string
 }
