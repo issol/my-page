@@ -535,8 +535,9 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
+              placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
-                <CustomInput label='Quote deadline' icon='calendar' />
+                <CustomInput label='Quote deadline' icon='calendar'/>
               }
             />
           )}
@@ -587,6 +588,7 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
+              placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
                 <CustomInput label='Quote expiry date' icon='calendar' />
               }
@@ -639,6 +641,7 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
+              placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
                 <CustomInput label='Estimated delivery date' icon='calendar' />
               }
@@ -691,6 +694,7 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
+              placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
                 <CustomInput label='Project due date' icon='calendar' />
               }
