@@ -136,6 +136,7 @@ const EditJobInfo = ({
       onSuccess: () => {
         setSuccess(true)
         queryClient.invalidateQueries('jobInfo')
+        queryClient.invalidateQueries('jobPrices')
         refetch()
         setEditJobInfo(false)
       },
