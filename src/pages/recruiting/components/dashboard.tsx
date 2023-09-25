@@ -36,7 +36,7 @@ export default function RecruitingDashboard({
     {
       stats: formatter(counts.onGoing),
       color: 'warning',
-      title: 'onGoing',
+      title: 'Ongoing',
       icon: <Icon icon='material-symbols:change-circle' />,
     },
     {
