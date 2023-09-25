@@ -307,6 +307,9 @@ export default function CompanyInfoForm({
         />
         {renderErrorMsg('websiteLink')}
       </Grid>
+      <Grid item xs={12}>
+        <Divider />
+      </Grid>
       <Grid item xs={6}>
         <Controller
           name='headquarter'
