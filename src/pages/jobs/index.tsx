@@ -70,7 +70,7 @@ const Jobs = () => {
 export default Jobs
 
 Jobs.acl = {
-  subject: 'jobs',
+  subject: 'job_list',
   action: 'read',
 }
 
