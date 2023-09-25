@@ -26,6 +26,7 @@ import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/lega
 import {
   AssignmentStatusChip,
   ProStatusChip,
+  assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
 import { Icon } from '@iconify/react'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
@@ -298,12 +299,12 @@ const AssignPro = ({
     const data = getValues()
 
     const res: AssignProFilterPostType = {
-      source: data.source.map(value => value.value),
-      target: data.target.map(value => value.value),
-      category: data.category.map(value => value.value),
-      serviceType: data.serviceType.map(value => value.value),
-      expertise: data.expertise.map(value => value.value),
-      client: data.client.map(value => value.value),
+      source: data.source?.map(value => value.value),
+      target: data.target?.map(value => value.value),
+      category: data.category?.map(value => value.value),
+      serviceType: data.serviceType?.map(value => value.value),
+      expertise: data.expertise?.map(value => value.value) ?? '',
+      client: data.client?.map(value => value.value),
       search: data.search,
       take: proListPageSize,
       skip: proListPage * proListPageSize,
@@ -469,10 +470,11 @@ const AssignPro = ({
         return (
           <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {row.assignmentStatus ? (
-              <AssignmentStatusChip
-                label={row.assignmentStatus}
-                status={row.assignmentStatus}
-              />
+              // <AssignmentStatusChip
+              //   label={row.assignmentStatus}
+              //   status={row.assignmentStatus}
+              // />
+              assignmentStatusChip(Number(row.assignmentStatus))
             ) : (
               '-'
             )}

@@ -339,6 +339,42 @@ export function JobsStatusChip(
   )
 }
 
+const assignmentStatusCode = [
+  {label: 'Requested', value: 60100},
+  {label: 'Request accepted', value: 60200},
+  {label: 'Request rejected', value: 60300},
+  {label: 'Canceled', value: 60400},
+  {label: 'Assigned', value: 60500},
+]
+
+export function assignmentStatusChip(status: number) {
+  const color = 
+    status === 60100
+      ? '#FDB528'
+      : status === 60200
+      ? '#64C623'
+      : status === 60300
+      ? '#FF4D49'
+      : status === 60400
+      ? '#FF4D49'
+      : status === 60500
+      ? '#666CFF'
+      : ''
+  const statusLabel = assignmentStatusCode.find(list => list.value === status)?.label!
+
+  return (
+    <CustomChip
+      label={statusLabel}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
 export const AssignmentStatusChip = styled(Chip)<{ status: string }>`
   border: none;
   ${({ status }) =>
