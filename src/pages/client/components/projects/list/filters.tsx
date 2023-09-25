@@ -206,7 +206,7 @@ export default function ClientProjectsFilter({
                           id='category'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Service type' />
+                            <TextField {...params} label='Category' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
