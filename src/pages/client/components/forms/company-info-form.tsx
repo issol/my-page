@@ -338,12 +338,12 @@ export default function CompanyInfoForm({
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='businessRegistrationNumber'
+          name='registrationNumber'
           control={control}
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              error={Boolean(errors.businessRegistrationNumber)}
+              error={Boolean(errors.registrationNumber)}
               label='Business registration number'
               value={value}
               onChange={onChange}
@@ -351,16 +351,16 @@ export default function CompanyInfoForm({
             />
           )}
         />
-        {renderErrorMsg('businessRegistrationNumber')}
+        {renderErrorMsg('registrationNumber')}
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='nameOfRepresentative'
+          name='representativeName'
           control={control}
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              error={Boolean(errors.nameOfRepresentative)}
+              error={Boolean(errors.representativeName)}
               label='Name of representative'
               value={value}
               onChange={onChange}
@@ -368,12 +368,12 @@ export default function CompanyInfoForm({
             />
           )}
         />
-        {renderErrorMsg('nameOfRepresentative')}
+        {renderErrorMsg('representativeName')}
       </Grid>
       <Grid item xs={6}>
         <DatePickerWrapper>
           <Controller
-            name='businessCommencementDate'
+            name='commencementDate'
             control={control}
             render={({ field: { value, onChange } }) => (
               <FullWidthDatePicker
@@ -391,7 +391,7 @@ export default function CompanyInfoForm({
           />
         </DatePickerWrapper>
 
-        {renderErrorMsg('businessCommencementDate')}
+        {renderErrorMsg('commencementDate')}
       </Grid>
       <Grid item xs={12}>
         <Divider />

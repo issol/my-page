@@ -185,7 +185,7 @@ const EditPrices = ({
       ),
     })
   }
-  console.log("jobPrices",jobPrices)
+
   return (
     <>
       {success && (
