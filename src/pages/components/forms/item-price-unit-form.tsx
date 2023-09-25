@@ -355,7 +355,7 @@ export default function ItemPriceUnitForm({
                     item =>
                       item.priceUnitId ===
                       getValues(`${detailName}.${idx}.priceUnitId`),
-                  )?.title
+                  )?.title ?? getValues(`${detailName}.${idx}.title`)
                 }
               </Typography>
             </Box>

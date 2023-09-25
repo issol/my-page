@@ -143,9 +143,10 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
           source: jobPrices.source!,
           target: jobPrices.target!,
           priceId: jobPrices.priceId!,
-          detail: !jobPrices.datas.length ? [] : jobPrices.datas,
-          // minimumPrice: jobPrices.minimumPrice,
-          // minimumPriceApplied: jobPrices.minimumPriceApplied,
+          detail: !jobPrices.detail?.length ? [] : jobPrices.detail,
+          minimumPrice: jobPrices.minimumPrice,
+          minimumPriceApplied: jobPrices.minimumPriceApplied,
+          initialPrice: jobPrices.initialPrice,
           totalPrice: Number(jobPrices?.totalPrice!),
         },
       ]
@@ -162,6 +163,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
         totalPrice: 0,
         minimumPrice: null,
         minimumPriceApplied: false,
+        initialPrice: null,
         priceFactor: 0,
       })
     }

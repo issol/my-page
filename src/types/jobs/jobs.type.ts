@@ -8,6 +8,7 @@ import { OrderDetailType } from '../orders/order-detail'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 import { ProJobStatusType } from './common.type'
+import { PriceType } from '../common/orders-and-quotes.type'
 // import { JobStatusType } from './common.type'
 
 export type JobStatusType =
@@ -121,7 +122,7 @@ export type JobPricesDetailType = {
   currency: CurrencyType
   priceName: string
   isUsedCAT: boolean
-  datas: Array<{
+  datas?: Array<{
     quantity: number
     priceUnitTitle: string
     priceUnitId: number
@@ -129,6 +130,10 @@ export type JobPricesDetailType = {
     prices: number
     unit: string
   }>
+  detail: ItemDetailType[]
+  minimumPrice: number | null | undefined
+  minimumPriceApplied: boolean
+  initialPrice: PriceType | null | undefined
 }
 
 export type CreateJobParamsType = {

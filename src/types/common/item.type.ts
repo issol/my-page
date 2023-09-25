@@ -51,6 +51,8 @@ export type ItemDetailType = {
   currency: CurrencyType
   priceFactor?: string | null
   initialPriceUnit?: PriceUnitType
+  title?: string
+  weighting?: string | number | undefined
 }
 
 export type JobItemType = {
