@@ -55,6 +55,7 @@ export const getRequestListColumns = (
       minWidth: 214,
       disableColumnMenu: true,
       sortable: false,
+      renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: CellType) => {
         const label = statusList?.find(i => i.label === row.status)?.label
         if (label) return <>{ClientRequestStatusChip(row.status)}</>
