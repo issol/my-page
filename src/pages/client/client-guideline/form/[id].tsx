@@ -388,8 +388,8 @@ const ClientGuidelineEdit = () => {
         email: auth.getValue().user?.email!,
         title: data.title,
         client: data.client.value,
-        category: data.category.value,
-        serviceType: data.serviceType.value,
+        category: data.category?.value ?? '',
+        serviceType: data.serviceType?.value ?? '',
         content: formContent,
         text: content.getCurrentContent().getPlainText('\u0001'),
       }
@@ -401,8 +401,8 @@ const ClientGuidelineEdit = () => {
           getFilePath(
             [
               data.client.value,
-              data.category.value,
-              data.serviceType.value,
+              data.category?.value ?? '',
+              data.serviceType?.value ?? '',
               `V${currentVersion?.version! + 1}`,
             ],
             file.name,
@@ -580,7 +580,7 @@ const ClientGuidelineEdit = () => {
                                 else onChange(v)
                               }}
                               id='category'
-                              getOptionLabel={option => option.label}
+                              getOptionLabel={option => option.label ?? ''}
                               renderInput={params => (
                                 <TextField
                                   {...params}
@@ -617,7 +617,7 @@ const ClientGuidelineEdit = () => {
                               else onChange(v)
                             }}
                             id='serviceType'
-                            getOptionLabel={option => option.label}
+                            getOptionLabel={option => option.label ?? ''}
                             renderInput={params => (
                               <TextField
                                 {...params}

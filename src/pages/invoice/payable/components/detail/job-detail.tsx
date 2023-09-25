@@ -139,7 +139,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
           source: jobPrices.source!,
           target: jobPrices.target!,
           priceId: jobPrices.priceId!,
-          detail: !jobPrices.datas.length ? [] : jobPrices.datas!,
+          detail: !jobPrices.detail?.length ? [] : jobPrices.detail!,
 
           totalPrice: Number(jobPrices?.totalPrice!),
         },

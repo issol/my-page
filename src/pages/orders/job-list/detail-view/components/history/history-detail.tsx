@@ -119,7 +119,7 @@ export default function HistoryDetail({
           source: jobPrices?.source!,
           target: jobPrices?.target!,
           priceId: jobPrices?.priceId!,
-          detail: !jobPrices?.datas.length ? [] : jobPrices?.datas!,
+          detail: !jobPrices?.detail?.length ? [] : jobPrices?.detail!,
           contactPersonId: 0,
           totalPrice: jobPrices?.totalPrice!,
         },

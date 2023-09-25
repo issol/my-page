@@ -1025,8 +1025,8 @@ const ProJobInfo = ({
                             </>
                           ) : null}
 
-                          {jobPrices.datas.map(value => {
-                            if (jobPrices.datas.length === 1) {
+                          {jobPrices.detail?.map(value => {
+                            if (jobPrices.detail?.length === 1) {
                               return (
                                 <Typography variant='body2' key={uuidv4()}>
                                   {value.quantity} {value.unit}
@@ -1041,7 +1041,7 @@ const ProJobInfo = ({
                                   >
                                     {value.quantity} {value.unit} /{' '}
                                     {jobPrices.currency} {value.unitPrice} per{' '}
-                                    {value.priceUnitTitle}
+                                    {value.title}
                                   </Typography>
                                 </li>
                               )
