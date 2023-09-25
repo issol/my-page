@@ -140,6 +140,7 @@ const EditJobInfo = ({
         setSuccess(true)
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries('jobInfo')
+          queryClient.invalidateQueries('jobPrices')
           refetch()
         } else {
           setJobId && setJobId(data.id)
