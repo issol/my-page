@@ -477,9 +477,11 @@ const AddSavePriceModal = ({
                           setValue('decimalPlace', 2)
                           trigger('decimalPlace')
                         }
+                      } else {
+                        onChange(null)
                       }
                     }}
-                    value={value || { label: '', value: '' }}
+                    value={value || null}
                     defaultValue={CurrencyList[0]}
                     options={CurrencyList}
                     id='Currency'
@@ -539,6 +541,7 @@ const AddSavePriceModal = ({
                       value={value || null}
                       onBlur={onBlur}
                       label={
+                        !getValues('currency') ||
                         watch('currency').value === 'USD' ||
                         watch('currency').value === 'SGD'
                           ? 'Number of decimal places*'
@@ -584,6 +587,7 @@ const AddSavePriceModal = ({
                       }}
                       error={Boolean(errors.decimalPlace)}
                       placeholder={
+                        !getValues('currency') ||
                         watch('currency').value === 'USD' ||
                         watch('currency').value === 'SGD'
                           ? '2'
@@ -616,7 +620,12 @@ const AddSavePriceModal = ({
                     onChange={(event, item) => {
                       onChange(item)
                     }}
-                    value={value || { value: 0, label: 'Round (Round down to 0.5 - round up from 0.5)' }}
+                    value={
+                      value || {
+                        value: 0,
+                        label: 'Round (Round down to 0.5 - round up from 0.5)',
+                      }
+                    }
                     options={RoundingProcedureList}
                     id='RoundingProcedure'
                     getOptionLabel={option => option.label}
