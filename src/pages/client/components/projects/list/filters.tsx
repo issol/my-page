@@ -321,6 +321,7 @@ export default function ClientProjectsFilter({
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
+                            placeholderText='MM/DD/YYYY - MM/DD/YYYY'
                             customInput={
                               <CustomInput
                                 label='Project due date'
