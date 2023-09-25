@@ -44,7 +44,7 @@ const navigation = (): HorizontalNavItemsType => {
       title: 'Jobs',
       icon: 'ic:baseline-people-outline',
       action: 'read',
-      subject: 'jobs',
+      subject: 'job_list',
       path: `/jobs`,
     },
     {
