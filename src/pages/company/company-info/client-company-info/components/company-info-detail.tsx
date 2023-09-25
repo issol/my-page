@@ -48,7 +48,7 @@ export default function CompanyInfoDetail({ companyInfo }: Props) {
                 fontSize={24}
               />
               <Typography variant='subtitle1' fontWeight={600}>
-                Name of representative::
+                Name of representative:
               </Typography>
               <Typography variant='subtitle2' fontSize={16}>
                 {companyInfo?.representativeName ?? '-'}
