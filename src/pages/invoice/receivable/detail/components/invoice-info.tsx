@@ -107,6 +107,7 @@ type Props = {
   onSave?: (data: {
     id: number
     form: InvoiceReceivablePatchParamsType
+    type: 'basic' | 'accounting'
   }) => void
   clientTimezone?: CountryType
   invoiceInfoControl?: Control<InvoiceProjectInfoFormType, any>
@@ -164,9 +165,11 @@ const InvoiceInfo = ({
   const [isReminder, setIsReminder] = useState(invoiceInfo.setReminder)
   const [issued, setIssued] = useState<boolean>(invoiceInfo.taxInvoiceIssued)
 
+  console.log('client?.isEnrolledClient', client?.isEnrolledClient)
   const statusLabel =
     statusList?.find(i => i.value === invoiceInfo.invoiceStatus)?.label || ''
 
+  // const statusOption = client?.isEnrolledClient
   const statusOption = client?.contactPerson?.userId
     ? statusList.filter(i => [30000, 30100, 30200].includes(i.value))
     : statusList.filter(
@@ -273,6 +276,7 @@ const InvoiceInfo = ({
           // ...data,
           invoiceStatus: value as InvoiceReceivableStatusType,
         },
+        type: 'basic',
       })
     }
   }
@@ -287,6 +291,7 @@ const InvoiceInfo = ({
           // ...data,
           setReminder: event.target.checked ? '1' : '0',
         },
+        type: 'basic',
       })
     }
   }
@@ -302,20 +307,7 @@ const InvoiceInfo = ({
           // ...data,
           showDescription: event.target.checked ? '1' : '0',
         },
-      })
-    }
-  }
-
-  const handleChangeIssued = (event: ChangeEvent<HTMLInputElement>) => {
-    setIssued(event.target.checked)
-    const data = getInvoiceInfo && getInvoiceInfo()
-    if (onSave && data) {
-      onSave({
-        id: invoiceInfo.id,
-        form: {
-          // ...data,
-          taxInvoiceIssued: event.target.checked ? '1' : '0',
-        },
+        type: 'basic',
       })
     }
   }
@@ -367,7 +359,7 @@ const InvoiceInfo = ({
               salesCategory: data?.salesCategory,
             }
       if (onSave) {
-        onSave({ id: invoiceInfo.id, form: res })
+        onSave({ id: invoiceInfo.id, form: res, type: infoType })
       }
     }
   }
@@ -378,6 +370,7 @@ const InvoiceInfo = ({
       onSave({
         id: invoiceInfo.id,
         form: { contactPersonId: contactPersonId! },
+        type: 'basic',
       })
     }
   }
@@ -1011,8 +1004,9 @@ const InvoiceInfo = ({
                               invoiceInfo.invoiceStatus,
                             )
                           ) : (currentRole && currentRole.name === 'CLIENT') ||
-                            [30900, 301000, 301100, 301200].includes(
-                              invoiceInfo.invoiceStatus,
+                            !statusOption.some(
+                              status =>
+                                status.value === invoiceInfo.invoiceStatus,
                             ) ? (
                             <Box
                               sx={{
@@ -1930,19 +1924,6 @@ const InvoiceInfo = ({
                           </Box>
                         </Box>
                       </Box>
-                      <Divider />
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Checkbox
-                          value={issued}
-                          onChange={handleChangeIssued}
-                          checked={issued}
-                          // disabled={invoiceInfo.invoiceStatus === 'Paid'}
-                        />
-
-                        <Typography variant='body2'>
-                          Tax invoice issued
-                        </Typography>
-                      </Box>
                     </Box>
                   </Box>
                 </Card>
@@ -2197,7 +2178,7 @@ const InvoiceInfo = ({
 
 export default InvoiceInfo
 
-const FileBox = styled(Box)`
+export const FileBox = styled(Box)`
   display: flex;
   margin-bottom: 8px;
   width: 100%;
@@ -2208,7 +2189,7 @@ const FileBox = styled(Box)`
   background: #f9f8f9;
 `
 
-const FileName = styled(Typography)`
+export const FileName = styled(Typography)`
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;

@@ -4,4 +4,5 @@ export type FileType = {
   size: number
   type?: string
   file?: string
+  createdAt?: string
 }

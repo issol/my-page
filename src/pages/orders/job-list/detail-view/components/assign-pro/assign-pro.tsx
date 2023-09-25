@@ -12,7 +12,10 @@ import AssignProListPage from './list'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
-import { useGetAssignProList } from '@src/queries/order/job.query'
+import { 
+  useGetAssignableProList,
+  useGetContactProList,
+ } from '@src/queries/order/job.query'
 
 import {
   GridCallbackDetails,
@@ -23,6 +26,7 @@ import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/lega
 import {
   AssignmentStatusChip,
   ProStatusChip,
+  assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
 import { Icon } from '@iconify/react'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
@@ -102,6 +106,11 @@ const AssignPro = ({
 
   const { openModal, closeModal } = useModal()
 
+  const [proList, setProList] = useState<{
+    totalCount: number,
+    data: AssignProListType[],
+    count: number
+  } | undefined>()
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
 
   const [filters, setFilters] = useState<AssignProFilterPostType>({
@@ -117,23 +126,43 @@ const AssignPro = ({
     // sortId: 'DESC',
     // sortDate: 'DESC',
   })
+  console.log("orderDetail",orderDetail)
+  const {
+    data: AssignableProList,
+    isLoading: isAssignableProListLoading,
+    refetch: refetchAssignableProList,
+  } = useGetAssignableProList(row.id, filters, type === 'history' ? true : false)
 
   const {
-    data: AssignProList,
-    isLoading,
-    refetch: refetchAssignProList,
-  } = useGetAssignProList(row.id, filters, type === 'history' ? true : false)
+    data: contactProList,
+    isLoading: isContactProListLoading,
+    refetch: refetchContactProList,
+  } = useGetContactProList(row.id)
 
   const requestJobMutation = useMutation(
     (data: { ids: number[]; jobId: number }) =>
       requestJobToPro(data.ids, data.jobId),
     {
       onSuccess: () => {
-        refetchAssignProList()
+        refetchAssignableProList()
+        refetchContactProList()
       },
     },
   )
 
+  useEffect(() => {
+    if (
+      (AssignableProList && !isAssignableProListLoading) &&
+      (contactProList && !isContactProListLoading)
+    ) {
+      setProList({
+        data: [...contactProList.data, ...AssignableProList.data],
+        count: AssignableProList.count + contactProList.count,
+        totalCount: AssignableProList.totalCount + contactProList.totalCount
+      })
+    }
+    console.log("proList",proList)
+  }, [AssignableProList, isAssignableProListLoading, contactProList, isContactProListLoading])
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const languageList = getGloLanguage()
@@ -182,18 +211,37 @@ const AssignPro = ({
   }
 
   const onClickRequestJob = () => {
-    openModal({
-      type: 'AssignProRequestJobModal',
-      children: (
-        <CustomModal
-          onClose={() => closeModal('AssignProRequestJobModal')}
-          title='Are you sure you want to request the job to selected Pro(s)?'
-          vary='successful'
-          rightButtonText='Request'
-          onClick={handleRequestPro}
-        ></CustomModal>
-      ),
-    })
+    if (!!item.itemName) {
+      openModal({
+        type: 'AssignProRequestJobModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('AssignProRequestJobModal')}
+            title='Are you sure you want to request the job to selected Pro(s)?'
+            vary='successful'
+            rightButtonText='Request'
+            onClick={handleRequestPro}
+          ></CustomModal>
+        ),
+      })
+    } else {
+      openModal({
+        type: 'AssignDenyModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('AssignDenyModal')}
+            title='Please enter all required fields to make a request.'
+            vary='error'
+            soloButton={true}
+            rightButtonText='Okey'
+            onClick={() => {
+              //TODO Job info 탭으로 이동하는거 추가해야 함
+              closeModal('AssignDenyModal')
+            }}
+          ></CustomModal>
+        ),
+      })
+    }
   }
 
   useEffect(() => {
@@ -217,7 +265,7 @@ const AssignPro = ({
     ])
     setValue(
       'expertise',
-      orderDetail.expertise.map(value => ({
+      orderDetail.expertise?.map(value => ({
         value: value,
         label: value,
       })),
@@ -251,12 +299,12 @@ const AssignPro = ({
     const data = getValues()
 
     const res: AssignProFilterPostType = {
-      source: data.source.map(value => value.value),
-      target: data.target.map(value => value.value),
-      category: data.category.map(value => value.value),
-      serviceType: data.serviceType.map(value => value.value),
-      expertise: data.expertise.map(value => value.value),
-      client: data.client.map(value => value.value),
+      source: data.source?.map(value => value.value),
+      target: data.target?.map(value => value.value),
+      category: data.category?.map(value => value.value),
+      serviceType: data.serviceType?.map(value => value.value),
+      expertise: data.expertise?.map(value => value.value) ?? '',
+      client: data.client?.map(value => value.value),
       search: data.search,
       take: proListPageSize,
       skip: proListPage * proListPageSize,
@@ -422,10 +470,11 @@ const AssignPro = ({
         return (
           <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {row.assignmentStatus ? (
-              <AssignmentStatusChip
-                label={row.assignmentStatus}
-                status={row.assignmentStatus}
-              />
+              // <AssignmentStatusChip
+              //   label={row.assignmentStatus}
+              //   status={row.assignmentStatus}
+              // />
+              assignmentStatusChip(Number(row.assignmentStatus))
             ) : (
               '-'
             )}
@@ -582,16 +631,15 @@ const AssignPro = ({
       <AssignProListPage
         listCount={
           isFiltersDifferent()
-            ? AssignProList?.count!
-            : AssignProList?.totalCount!
+            ? proList?.count!
+            : proList?.totalCount!
         }
-        // list={type === 'history' ? assignProList?.data! : AssignProList?.data!}
-        list={AssignProList?.data!}
+        list={proList?.data!}
         columns={type === 'history' ? historyColumns : columns}
         setFilters={setFilters}
         setPageSize={setProListPageSize}
         setPage={setProListPage}
-        isLoading={isLoading}
+        isLoading={isAssignableProListLoading}
         page={proListPage}
         pageSize={proListPageSize}
         hideOffBoard={hideOffBoard}
@@ -600,6 +648,7 @@ const AssignPro = ({
         handleSelectionModelChange={handleSelectionModelChange}
         onClickRequestJob={onClickRequestJob}
         type={type}
+        jobInfo={row}
       />
     </Box>
   )

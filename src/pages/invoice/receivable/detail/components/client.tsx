@@ -55,6 +55,7 @@ type Props = {
   onSave?: (data: {
     id: number
     form: InvoiceReceivablePatchParamsType
+    type: 'basic' | 'accounting'
   }) => void
   isUpdatable: boolean
 }
@@ -101,9 +102,10 @@ const InvoiceClient = ({
           form: {
             ...data,
             contactPersonId: clients.contactPersonId,
-            taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
+
             showDescription: data.showDescription ? '1' : '0',
           },
+          type: 'basic',
         })
       }
     }

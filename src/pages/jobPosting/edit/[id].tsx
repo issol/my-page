@@ -54,7 +54,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** fetches
-import { useGetJobPostingDetail } from '@src/queries/jobPosting.query'
+import { useGetJobPostingDetail } from '@src/queries/jobs/jobPosting.query'
 import {
   FormType,
   updateJobPosting,

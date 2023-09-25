@@ -83,7 +83,7 @@ export const createInvoice = async (
 ): Promise<CreateInvoiceReceivableRes> => {
   return await axios.post('/api/enough/u/invoice/receivable', {
     ...data,
-    taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
+
     showDescription: data.showDescription ? '1' : '0',
     setReminder: data.setReminder ? '1' : '0',
   })
@@ -177,17 +177,18 @@ export const getInvoiceVersionHistory = async (
 export const patchInvoiceInfo = async (
   id: number,
   form: InvoiceReceivablePatchParamsType,
+  type: 'basic' | 'accounting',
 ): Promise<{ id: number }> => {
   try {
-    const { data } = await axios.patch(
-      `/api/enough/u/invoice/receivable/${id}`,
-      {
-        ...form,
-        // taxInvoiceIssued: form.taxInvoiceIssued ? '1' : '0',
-        // showDescription: form.showDescription ? '1' : '0',
-        // setReminder: form.setReminder ? '1' : '0',
-      },
-    )
+    const { data } =
+      type === 'basic'
+        ? await axios.patch(`/api/enough/u/invoice/receivable/${id}`, {
+            ...form,
+          })
+        : await axios.patch(
+            `/api/enough/u/invoice/receivable/${id}/accounting-info`,
+            { ...form },
+          )
 
     return data
   } catch (e: any) {

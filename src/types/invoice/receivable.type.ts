@@ -243,7 +243,6 @@ export type InvoiceReceivablePatchParamsType = {
   salesCheckedAt?: string
   salesCheckedDateTimezone?: CountryType
   setReminder?: '1' | '0'
-  taxInvoiceIssued?: '1' | '0'
   salesCategory?: string
   showDescription?: '1' | '0'
 }

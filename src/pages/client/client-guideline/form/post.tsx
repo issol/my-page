@@ -48,9 +48,15 @@ import {
   ClientGuidelineType,
 } from 'src/types/schema/client-guideline.schema'
 
-import { CategoryList } from 'src/shared/const/category/categories'
+import {
+  CategoryList,
+  CategoryListPair,
+} from 'src/shared/const/category/categories'
 
-import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
+import {
+  ServiceTypeList,
+  ServiceTypePair,
+} from 'src/shared/const/service-type/service-types'
 
 // ** fetches
 import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
@@ -77,14 +83,19 @@ import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { useGetClientList } from '@src/queries/client.query'
 import FallbackSpinner from '@src/@core/components/spinner'
 
+import _ from 'lodash'
+import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
+import { Category } from '@src/shared/const/category/category.enum'
+
 const defaultValues = {
   title: '',
   client: { label: '', value: '' },
-  category: { label: '', value: '' },
-  serviceType: { label: '', value: '' },
+  category: null,
+  serviceType: null,
   // content: null,
   file: [],
 }
+const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
 const ClientGuidelineForm = () => {
   const router = useRouter()
@@ -102,6 +113,9 @@ const ClientGuidelineForm = () => {
   const [content, setContent] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
+
+  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+  const [categoryList, setCategoryList] = useState(CategoryList)
 
   // ** file values
   const MAXIMUM_FILE_SIZE = FILE_SIZE.CLIENT_GUIDELINE
@@ -233,7 +247,14 @@ const ClientGuidelineForm = () => {
 
   function checkGuideline() {
     const { category, client, serviceType } = getValues()
-    if (category.value && client.value && serviceType.value) {
+    if (
+      category &&
+      client &&
+      serviceType &&
+      category.value &&
+      client.value &&
+      serviceType.value
+    ) {
       checkGuidelineExistence(
         client.value,
         category.value,
@@ -262,7 +283,6 @@ const ClientGuidelineForm = () => {
     trigger,
     formState: { errors, isValid },
   } = useForm<ClientGuidelineType>({
-    defaultValues,
     mode: 'onChange',
     resolver: yupResolver(clientGuidelineSchema),
   })
@@ -381,8 +401,8 @@ const ClientGuidelineForm = () => {
         email: auth.getValue().user?.email!,
         title: data.title,
         client: data.client.value,
-        category: data.category.value,
-        serviceType: data.serviceType.value,
+        category: data.category?.value!,
+        serviceType: data.serviceType?.value!,
         content: formContent,
         text: content.getCurrentContent().getPlainText('\u0001'),
       }
@@ -393,8 +413,8 @@ const ClientGuidelineForm = () => {
           getFilePath(
             [
               data.client.value,
-              data.category.value,
-              data.serviceType.value,
+              data.category?.value!,
+              data.serviceType?.value!,
               'V1',
             ],
             file.name,
@@ -485,7 +505,6 @@ const ClientGuidelineForm = () => {
                         <>
                           <TextField
                             fullWidth
-                            autoFocus
                             value={value}
                             onBlur={onBlur}
                             onChange={onChange}
@@ -528,7 +547,7 @@ const ClientGuidelineForm = () => {
                                 {...params}
                                 error={Boolean(errors.client)}
                                 label='Client*'
-                                placeholder='Client*'
+                                // placeholder='Client*'
                               />
                             )}
                           />
@@ -546,27 +565,48 @@ const ClientGuidelineForm = () => {
                       <Controller
                         name='category'
                         control={control}
-                        rules={{ required: true }}
+                        // rules={{ required: true }}
                         render={({ field: { value, onChange, onBlur } }) => (
                           <Autocomplete
-                            autoHighlight
                             fullWidth
-                            options={CategoryList}
+                            options={categoryList}
                             value={value}
                             // filterSelectedOptions
                             onChange={(e, v) => {
-                              if (!v) onChange({ value: '', label: '' })
-                              else onChange(v)
+                              if (v) {
+                                const arr: {
+                                  label: ServiceType
+                                  value: ServiceType
+                                }[] = []
+                                /* @ts-ignore */
+                                const res = ServiceTypePair[v.value]
+
+                                arr.push(...res)
+
+                                setServiceTypeList(_.uniqBy(arr, 'value'))
+                                trigger('serviceType')
+                                onChange(v)
+                              } else {
+                                setServiceTypeList(ServiceTypeList)
+                                setCategoryList(CategoryList)
+                                setValue(
+                                  'serviceType',
+                                  null,
+                                  // setValueOptions,
+                                )
+                                // trigger('serviceType')
+                                onChange({ value: null, label: null })
+                              }
                               checkGuideline()
                             }}
                             id='category'
-                            getOptionLabel={option => option.label}
+                            getOptionLabel={option => option.label ?? ''}
                             renderInput={params => (
                               <TextField
                                 {...params}
                                 error={Boolean(errors.category)}
                                 label='Category*'
-                                placeholder='Category*'
+                                // placeholder='Category*'
                               />
                             )}
                           />
@@ -575,7 +615,8 @@ const ClientGuidelineForm = () => {
                       {errors.category && (
                         <FormHelperText sx={{ color: 'error.main' }}>
                           {errors.category?.label?.message ||
-                            errors.category?.value?.message}
+                            errors.category?.value?.message ||
+                            FormErrors.required}
                         </FormHelperText>
                       )}
                     </Grid>
@@ -585,38 +626,68 @@ const ClientGuidelineForm = () => {
                     <Controller
                       name='serviceType'
                       control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange, onBlur } }) => (
-                        <Autocomplete
-                          autoHighlight
-                          fullWidth
-                          options={ServiceTypeList}
-                          value={value}
-                          // filterSelectedOptions
-                          onChange={(e, v) => {
-                            if (!v) onChange({ value: '', label: '' })
-                            else onChange(v)
-                            checkGuideline()
-                          }}
-                          id='serviceType'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              error={Boolean(errors.serviceType)}
-                              label='Service type*'
-                              placeholder='Service type*'
-                            />
-                          )}
-                        />
-                      )}
+                      // rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => {
+                        return (
+                          <Autocomplete
+                            fullWidth
+                            options={serviceTypeList}
+                            value={value ? value : { value: null, label: null }}
+                            disabled={
+                              !getValues('category') ||
+                              (!getValues('category.label') &&
+                                !getValues('category.value'))
+                            }
+                            // filterSelectedOptions
+                            onChange={(e, v) => {
+                              if (v) {
+                                const arr: {
+                                  label: Category
+                                  value: Category
+                                }[] = []
+                                /* @ts-ignore */
+                                const res = CategoryListPair[v.value]
+                                arr.push(...res)
+                                setCategoryList(arr)
+                                trigger('category')
+                                onChange(v)
+                              } else {
+                                setCategoryList(CategoryList)
+                                trigger('category')
+                                onChange({ value: null, label: null })
+                                trigger('serviceType')
+                              }
+                              checkGuideline()
+                            }}
+                            id='serviceType'
+                            getOptionLabel={option => option.label ?? ''}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                error={
+                                  !!getValues('category') &&
+                                  !!getValues('category.label') &&
+                                  !!getValues('category.value') &&
+                                  Boolean(errors.serviceType)
+                                }
+                                label='Service type*'
+                                // placeholder='Service type*'
+                              />
+                            )}
+                          />
+                        )
+                      }}
                     />
-                    {errors.serviceType && (
-                      <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.serviceType?.label?.message ||
-                          errors.serviceType?.value?.message}
-                      </FormHelperText>
-                    )}
+                    {!!getValues('category') &&
+                      !!getValues('category.label') &&
+                      !!getValues('category.value') &&
+                      errors.serviceType && (
+                        <FormHelperText sx={{ color: 'error.main' }}>
+                          {errors.serviceType?.label?.message ||
+                            errors.serviceType?.value?.message ||
+                            FormErrors.required}
+                        </FormHelperText>
+                      )}
                   </Grid>
                   <Divider />
                   <ReactDraftWysiwyg

@@ -1,7 +1,5 @@
 import { ItemDetailType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
-import { JobStatusType } from '../jobs/jobs.type'
-// import { JobStatusType } from '../jobs/common.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 
@@ -24,8 +22,10 @@ export type AddJobInfoFormType = {
   // status: { label: JobStatusType; value: JobStatusType }
   status: number
   contactPerson: { label: string; value: string; userId: number }
-  serviceType: { label: string; value: string }
-  languagePair: { label: string; value: string; source: string; target: string }
+  serviceType: string
+  // languagePair: { source: string; target: string }
+  source: string | null
+  target: string | null
   startedAt?: Date
   startTimezone?: CountryType
   dueAt: Date

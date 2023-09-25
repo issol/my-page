@@ -12,10 +12,13 @@ import { RoleType, UserType } from '@src/context/types'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import {
   getOrderStatusColor,
+  getProJobStatusColor,
   getReceivableStatusColor,
 } from '@src/shared/helpers/colors.helper'
 import { OrderStatusType } from '@src/types/common/orders.type'
+import { statusType } from '@src/types/common/status.type'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -137,6 +140,8 @@ export const ServiceTypeChip = styled(Chip)`
     ),
     #666cff;
   border: 1px solid rgba(102, 108, 255, 0.5);
+  font-size: 13px;
+  font-weight: 500;
 `
 
 export function WorkStatusChip(status: string) {
@@ -285,60 +290,81 @@ export const QuoteStatusChip = styled(Chip)<{
       : null};
 `
 
-export const jobStatusLabelValueType = [
-  {label: 'In preparation', value: 60000},
+export function JobsStatusChip(
+  status: JobStatusType,
+  statusList: statusType[],
+) {
+  const color =
+    status === 60000 //'In preparation'
+      ? '#F572D8'
+      : status === 60100 //'Requested'
+      ? '#A81988'
+      : status === 60200 //'Request accepted'
+      ? '#A81988'
+      : status === 60300 //'Request rejected'
+      ? '#A81988'
+      : status === 60400 //'Canceled'
+      ? '#FF4D49'
+      : status === 60500 //'Assigned'
+      ? '#FF4D49'
+      : status === 60700 //'In progress'
+      ? '#FF4D49'
+      : status === 60800 //'Partially delivered'
+      ? '#FF4D49'
+      : status === 60900 //'Delivered'
+      ? '#1A6BBA'
+      : status === 601000 //'Overdue'
+      ? '#FF4D49'
+      : status === 601100 //'Approved'
+      ? '#64C623'
+      : status === 601200 //'Invoiced'
+      ? '#FF4D49'
+      : status === 601300 //'Without invoice'
+      ? '#75571C'
+      : status === 601400 //'Paid'
+      ? '#1B8332'
+      : ''
+
+  const statusLabel = statusList.find(list => list.value === status)?.label!
+  return (
+    <CustomChip
+      label={status === 601000 ? `🔴 ${statusLabel}` : statusLabel} // Status가 Overdue일 경우 아이콘 붙이기
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+const assignmentStatusCode = [
   {label: 'Requested', value: 60100},
   {label: 'Request accepted', value: 60200},
   {label: 'Request rejected', value: 60300},
   {label: 'Canceled', value: 60400},
   {label: 'Assigned', value: 60500},
-  {label: 'In progress', value: 60700},
-  {label: 'Partially delivered', value: 60800},
-  {label: 'Delivered', value: 60900},
-  {label: 'Overdue', value: 601000},
-  {label: 'Approved', value: 601100},
-  {label: 'Invoiced', value: 601200},
-  {label: 'Without invoice', value: 601300},
-  {label: 'Paid', value: 601400},
 ]
 
-export function JobsStatusChip(status: JobStatusType) {
-  const color =
-    status === 'In preparation' || 60000
-      ? '#F572D8'
-      : status === 'Requested' || 60100
-      ? '#A81988'
-      : status === 'Request accepted' || 60200
-      ? '#A81988'
-      : status === 'Request rejected' || 60300
-      ? '#A81988'
-      : status === 'Canceled' || 60400
-      ? '#FF4D49'
-      : status === 'Assigned' || 60500
-      ? '#FF4D49'
-      : status === 'In progress' || 60700
-      ? '#FF4D49'
-      : status === 'Partially delivered' || 60800
-      ? '#FF4D49'
-      : status === 'Delivered' || 60900
-      ? '#1A6BBA'
-      : status === 'Overdue' || 601000
-      ? '#FF4D49'
-      : status === 'Approved' || 601100
+export function assignmentStatusChip(status: number) {
+  const color = 
+    status === 60100
+      ? '#FDB528'
+      : status === 60200
       ? '#64C623'
-      : status === 'Invoiced' || 601200
+      : status === 60300
       ? '#FF4D49'
-      : status === 'Without invoice' || 601300
-      ? '#75571C'
-      : status === 'Paid' || 601400
-      ? '#1B8332'
+      : status === 60400
+      ? '#FF4D49'
+      : status === 60500
+      ? '#666CFF'
       : ''
-  const jobStatusValue = typeof status ==='string' ? status : jobStatusLabelValueType.find(list => list.value! === status)!.label
+  const statusLabel = assignmentStatusCode.find(list => list.value === status)?.label!
 
   return (
-
     <CustomChip
-      label={status === 'Overdue' ? `🔴 ${jobStatusValue}` : jobStatusValue}
+      label={statusLabel}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
@@ -470,6 +496,22 @@ export function ClientRequestStatusChip(status: RequestStatusType) {
   return (
     <CustomChip
       label={status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function ProJobStatusChip(label: string, status: ProJobStatusType) {
+  const color = getProJobStatusColor(status)
+
+  return (
+    <CustomChip
+      label={label}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,

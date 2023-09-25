@@ -44,6 +44,7 @@ import {
 import {
   formatByRoundingProcedure,
   formatCurrency,
+  getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
 
 // ** values
@@ -87,6 +88,7 @@ type Props = {
   sumTotalPrice: () => void
   // checkMinimumPrice: () => void
   fields?: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
+  showCurrency?: boolean
 }
 
 export default function ItemPriceUnitForm({
@@ -111,13 +113,13 @@ export default function ItemPriceUnitForm({
   sumTotalPrice,
   // checkMinimumPrice,
   fields,
+  showCurrency,
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
   const currentItem = getValues(`${detailName}`) || []
   const currentInitialItem = getValues(`${initialPriceName}`)
-
   type NestedPriceUnitType = PriceUnitListType & {
     subPriceUnits: PriceUnitListType[] | undefined
     groupName: string
@@ -127,7 +129,7 @@ export default function ItemPriceUnitForm({
     const nestedData: Array<NestedPriceUnitType> = []
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
       ...item,
-      quantity: item.quantity ?? 0,
+      quantity: Number(item.quantity) ?? 0,
       priceUnitId: item.id,
       subPriceUnits: [],
       groupName: 'Price unit',
@@ -319,7 +321,7 @@ export default function ItemPriceUnitForm({
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-                {getValues(`${detailName}.${idx}.quantity`)}
+                {Number(getValues(`${detailName}.${idx}.quantity`))}
               </Typography>
             </Box>
           ) : (
@@ -332,11 +334,11 @@ export default function ItemPriceUnitForm({
                     <TextField
                       placeholder='0'
                       type='number'
-                      value={value}
+                      value={Number(value)}
                       sx={{ maxWidth: '85px', padding: 0 }}
                       inputProps={{ inputMode: 'decimal' }}
                       onChange={e => {
-                        onChange(e)
+                        onChange(Number(e.target.value))
                         // updatePrice(e)
                       }}
                     />
@@ -356,7 +358,7 @@ export default function ItemPriceUnitForm({
                     item =>
                       item.priceUnitId ===
                       getValues(`${detailName}.${idx}.priceUnitId`),
-                  )?.title
+                  )?.title ?? getValues(`${detailName}.${idx}.title`)
                 }
               </Typography>
             </Box>
@@ -537,8 +539,8 @@ export default function ItemPriceUnitForm({
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-                {isNotApplicable
-                  ? getValues(`${detailName}.${idx}.currency`) ?? '-'
+                {isNotApplicable || showCurrency 
+                  ? `${getCurrencyMark(getValues(`${initialPriceName}.currency`))} ${getValues(`${initialPriceName}.currency`) ?? '-'}` 
                   : null}
               </Typography>
             </Box>
@@ -577,8 +579,8 @@ export default function ItemPriceUnitForm({
             <Typography fontSize={14}>
               {formatCurrency(
                 formatByRoundingProcedure(
-                  // Number(getValues(`${detailName}.${idx}.prices`)),
-                  Number(fields?.[index]?.detail?.[idx]?.prices) || 0,
+                  Number(getValues(`${detailName}.${idx}.prices`)),
+                  // Number(fields?.[index]?.detail?.[idx]?.prices) || 0,
                   getValues(`${initialPriceName}.numberPlace`),
                   getValues(`${initialPriceName}.rounding`),
                   getValues(`${initialPriceName}.currency`) || 'KRW',
@@ -807,8 +809,8 @@ export default function ItemPriceUnitForm({
                   formatByRoundingProcedure(
                     // getValues로 가져오면 폼에서 계산된 값이 반영됨
                     // fields에서 가져오면 서버에서 넘어온 값이 반영됨
-                    // Number(getValues(`${itemName}.totalPrice`)),
-                    fields?.[index].totalPrice! ?? 0,
+                    Number(getValues().items[index].totalPrice),
+                    // fields?.[index].totalPrice! ?? 0,
                     getValues(`${initialPriceName}.numberPlace`),
                     getValues(`${initialPriceName}.rounding`),
                     getValues(`${initialPriceName}.currency`) || 'KRW',

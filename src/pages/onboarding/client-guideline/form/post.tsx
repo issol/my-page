@@ -232,7 +232,7 @@ const ClientGuidelineForm = () => {
 
   function checkGuideline() {
     const { category, client, serviceType } = getValues()
-    if (category.value && client.value && serviceType.value) {
+    if (category?.value && client.value && serviceType?.value) {
       checkGuidelineExistence(
         client.value,
         category.value,
@@ -380,8 +380,8 @@ const ClientGuidelineForm = () => {
         email: auth.getValue().user?.email!,
         title: data.title,
         client: data.client.value,
-        category: data.category.value,
-        serviceType: data.serviceType.value,
+        category: data.category?.value ?? '',
+        serviceType: data.serviceType?.value ?? '',
         content: formContent,
         text: content.getCurrentContent().getPlainText('\u0001'),
       }
@@ -392,8 +392,8 @@ const ClientGuidelineForm = () => {
           getFilePath(
             [
               data.client.value,
-              data.category.value,
-              data.serviceType.value,
+              data.category?.value ?? '',
+              data.serviceType?.value ?? '',
               'V1',
             ],
             file.name,
@@ -549,7 +549,7 @@ const ClientGuidelineForm = () => {
                           checkGuideline()
                         }}
                         id='category'
-                        getOptionLabel={option => option.label}
+                        getOptionLabel={option => option.label ?? ''}
                         renderInput={params => (
                           <TextField
                             {...params}
@@ -588,7 +588,7 @@ const ClientGuidelineForm = () => {
                         checkGuideline()
                       }}
                       id='serviceType'
-                      getOptionLabel={option => option.label}
+                      getOptionLabel={option => option.label ?? ''}
                       renderInput={params => (
                         <TextField
                           {...params}

@@ -9,7 +9,7 @@ import { ProJobPair } from 'src/shared/const/job/jobs'
 import Filters from './components/filter'
 
 // ** fetch
-import { useGetJobPostingList } from 'src/queries/jobPosting.query'
+import { useGetJobPostingList } from '@src/queries/jobs/jobPosting.query'
 import JobPostingList from './components/list'
 
 export type FilterType = {

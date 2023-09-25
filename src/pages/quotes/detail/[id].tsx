@@ -161,7 +161,7 @@ export type updateProjectInfoType =
   | { status: number; isConfirmed: boolean }
   | { languagePairs: Array<LanguagePairsType> }
   | { items: Array<PostItemType> }
-  | { languagePairs: Array<LanguagePairsType>, items: Array<PostItemType> }
+  | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
 
 export default function QuotesDetail() {
   const router = useRouter()
@@ -297,20 +297,19 @@ export default function QuotesDetail() {
             isIncludeProjectTeam()
           break
         case 'button-DeleteQuote':
-          flag =
-            (isDeletable &&
-              !!client?.contactPerson?.userId &&
-              (project?.status === 'New' ||
+          flag = isDeletable
+            ? client?.isEnrolledClient
+              ? project?.status === 'New' ||
                 project?.status === 'In preparation' ||
                 project?.status === 'Internal Review' ||
-                (project?.status === 'Expired' &&
-                  project?.confirmedAt === null))) ||
-            (!!client?.contactPerson?.userId &&
-              (project?.status === 'New' ||
-                project?.status === 'In preparation' ||
-                project?.status === 'Internal Review' ||
-                project?.status === 'Expired') &&
-              isIncludeProjectTeam())
+                (project?.status === 'Expired' && project?.confirmedAt === null)
+              : (project?.status === 'New' ||
+                  project?.status === 'In preparation' ||
+                  project?.status === 'Internal Review' ||
+                  project?.status === 'Expired') &&
+                isIncludeProjectTeam()
+            : false
+
           break
       }
     }
@@ -798,12 +797,12 @@ export default function QuotesDetail() {
         setEditClient(false)
         setEditTeam(false)
 
-        let res;
+        let res
 
         if (typeof data === 'number' || typeof data === 'string') {
-          res = Number(data);
+          res = Number(data)
         } else if (typeof data === 'object' && data !== null) {
-          res = Number(data.id);
+          res = Number(data.id)
         }
 
         if (res === Number(id)) {
@@ -823,12 +822,12 @@ export default function QuotesDetail() {
     onSuccess: data => {
       closeModal('ConfirmQuoteModal')
 
-      let res;
+      let res
 
       if (typeof data === 'number' || typeof data === 'string') {
-        res = Number(data);
+        res = Number(data)
       } else if (typeof data === 'object' && data !== null) {
-        res = Number(data.id);
+        res = Number(data.id)
       }
 
       if (res === Number(id)) {
@@ -881,13 +880,25 @@ export default function QuotesDetail() {
     const subtotal = items.reduce((accumulator, item) => {
       return accumulator + item.totalPrice
     }, 0)
-    console.log("save items",{ tax, isTaxable: taxable, subtotal: subtotal, languagePairs: langs, items: items })
+    console.log('save items', {
+      tax,
+      isTaxable: taxable,
+      subtotal: subtotal,
+      languagePairs: langs,
+      items: items,
+    })
     onSave(async () => {
       try {
         // await patchQuoteLanguagePairs(Number(id), langs)
         // await patchQuoteItems(Number(id), items)
         updateProject.mutate(
-          { tax, isTaxable: taxable, subtotal: subtotal, languagePairs: langs, items: items },
+          {
+            tax,
+            isTaxable: taxable,
+            subtotal: subtotal,
+            languagePairs: langs,
+            items: items,
+          },
           {
             onSuccess: () => {
               queryClient.invalidateQueries({
@@ -1534,7 +1545,7 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={!canUseFeature('button-CancelQuote')}
+                            disabled={!canUseFeature('button-DeleteQuote')}
                             onClick={onClickDelete}
                           >
                             Delete this quote

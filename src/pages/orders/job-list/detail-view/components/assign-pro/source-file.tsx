@@ -68,9 +68,12 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
   const uploadFileMutation = useMutation(
     (file: {
       jobId: number
-      size: number
-      name: string
-      type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      files: Array<{
+        jobId: number
+        size: number
+        name: string
+        type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      }>
     }) => uploadFile(file),
     {
       onSuccess: () => {
@@ -171,16 +174,22 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
 
   const onSubmit = () => {
     if (files.length) {
-      const fileInfo: Array<{
+      const fileInfo: {
         jobId: number
-        size: number
-        name: string
-        type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-      }> = []
+        files: Array<{
+          jobId: number
+          size: number
+          name: string
+          type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+          }>
+        } = {
+          jobId: row.id,
+          files: []
+        }
       const paths: string[] = files.map(file => {
         // console.log(file.name)
 
-        return `project/${row.id}/${file.name}`
+        return `project/${row.id}/source/${file.name}`
       })
       // console.log(paths)
 
@@ -193,7 +202,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
 
       Promise.all(s3URL).then(res => {
         const promiseArr = res.map((url: string, idx: number) => {
-          fileInfo.push({
+          fileInfo.files.push({
             jobId: row.id,
             size: files[idx].size,
             name: files[idx].name,
@@ -203,9 +212,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
         })
         Promise.all(promiseArr)
           .then(res => {
-            res.map((value, idx) => {
-              uploadFileMutation.mutate(fileInfo[idx])
-            })
+            uploadFileMutation.mutate(fileInfo)
           })
           .catch(err =>
             toast.error(
@@ -342,7 +349,10 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
           }}
         >
           <div {...getRootProps({ className: 'dropzone' })}>
-            <Button variant='outlined'>
+            <Button 
+              variant='outlined'
+              disabled={[60900, 601100, 601200, 60400, 601400, 601300].includes(row.status)} // Delivered, Approved, invoiced, canceled, Paid, without invoice
+            >
               <input {...getInputProps()} />
               <Icon
                 icon='ic:baseline-attachment'

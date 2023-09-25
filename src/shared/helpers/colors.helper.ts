@@ -3,7 +3,9 @@ import {
   QuoteStatusType,
   QuotesStatusType,
 } from '@src/types/common/quotes.type'
+import { statusType } from '@src/types/common/status.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
 
 export function getReceivableStatusColor(status: InvoiceReceivableStatusType) {
@@ -103,35 +105,61 @@ export function getQuoteStatusColor(status: QuotesStatusType) {
   return color
 }
 
+export function getProJobStatusColor(status: ProJobStatusType) {
+  const color =
+    status === 60100
+      ? '#A81988'
+      : status === 60200
+      ? '#6D788D'
+      : status === 60500 || status === 60700 || status === 60800
+      ? '#FDB528'
+      : status === 60900
+      ? '#1A6BBA'
+      : status === 601100
+      ? '#64C623'
+      : status === 601200
+      ? '#9B6CD8'
+      : status === 601400
+      ? '#1B8332'
+      : status === 601300
+      ? '#D8AF1D'
+      : status === 60600
+      ? '#6D788D'
+      : status === 60400 || status === 60300 || status === 601000
+      ? '#FF4D49'
+      : null
+
+  return color
+}
 export function getJobStatusColor(status: JobStatusType) {
   const color =
-    status === 'In preparation'
+    status === 60000 //'In preparation'
       ? '#F572D8'
-      : status === 'Requested'
+      : status === 60100 //'Requested'
       ? '#A81988'
-      : status === 'Request accepted'
+      : status === 60200 //'Request accepted'
       ? '#A81988'
-      : status === 'Request rejected'
+      : status === 60300 //'Request rejected'
       ? '#A81988'
-      : status === 'Canceled'
+      : status === 60400 //'Canceled'
       ? '#FF4D49'
-      : status === 'Assigned'
+      : status === 60500 //'Assigned'
       ? '#FF4D49'
-      : status === 'In progress'
+      : status === 60700 //'In progress'
       ? '#FF4D49'
-      : status === 'Partially delivered'
+      : status === 60800 //'Partially delivered'
       ? '#FF4D49'
-      : status === 'Delivered'
+      : status === 60900 //'Delivered'
       ? '#1A6BBA'
-      : status === 'Overdue'
+      : status === 601000 //'Overdue'
       ? '#FF4D49'
-      : status === 'Approved'
+      : status === 601100 //'Approved'
       ? '#64C623'
-      : status === 'Invoiced'
+      : status === 601200 //'Invoiced'
       ? '#FF4D49'
-      : status === 'Without invoice'
+      : status === 601300 //'Without invoice'
       ? '#75571C'
-      : status === 'Paid'
+      : status === 601400 //'Paid'
       ? '#1B8332'
       : ''
   return color

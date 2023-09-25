@@ -159,3 +159,13 @@ export class client_payment {
     })
   }
 }
+
+export class invoice_receivable_accounting_info {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(account_manage.prototype.constructor, 'name', {
+      value: 'invoice_receivable_accounting_info',
+    })
+  }
+}

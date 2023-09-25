@@ -17,9 +17,9 @@ export type CompanyInfoFormType = {
   tax?: number | null
   memo?: string
   headquarter?: string
-  businessRegistrationNumber?: string
-  nameOfRepresentative?: string
-  businessCommencementDate?: string
+  registrationNumber?: number
+  representativeName?: string
+  commencementDate?: string
 }
 export const companyInfoSchema = yup.object().shape({
   clientType: yup
@@ -58,9 +58,9 @@ export const companyInfoSchema = yup.object().shape({
     ),
   memo: yup.string().nullable(),
   headquarter: yup.string().nullable(),
-  businessRegistrationNumber: yup.string().nullable(),
-  nameOfRepresentative: yup.string().nullable(),
-  businessCommencementDate: yup.date().nullable(),
+  registrationNumber: yup.string().nullable(),
+  representativeName: yup.string().nullable(),
+  commencementDate: yup.date().nullable(),
 })
 
 export const companyInfoDefaultValue: CompanyInfoFormType = {

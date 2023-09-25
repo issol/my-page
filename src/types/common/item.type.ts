@@ -1,3 +1,4 @@
+import { ProJobStatusType } from '../jobs/common.type'
 import { JobPricesDetailType, JobStatusType } from '../jobs/jobs.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
@@ -50,6 +51,8 @@ export type ItemDetailType = {
   currency: CurrencyType
   priceFactor?: string | null
   initialPriceUnit?: PriceUnitType
+  title?: string
+  weighting?: string | number | undefined
 }
 
 export type JobItemType = {
@@ -66,7 +69,7 @@ export type JobType = {
   order: { id: number }
   corporationId: string
   name: string
-  status: JobStatusType
+  status: JobStatusType | ProJobStatusType
   contactPersonId: number
   serviceType: string
   sourceLanguage: string
@@ -103,4 +106,5 @@ export type JobType = {
     file: string // s3 key
     type: 'SAMPLE' | 'SOURCE' | 'TARGET'
   }>
+  proId: number | null
 }

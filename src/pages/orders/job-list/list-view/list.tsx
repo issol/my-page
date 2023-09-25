@@ -1,4 +1,4 @@
-import { JobsListType } from '@src/types/jobs/jobs.type'
+import { JobStatusType, JobsListType } from '@src/types/jobs/jobs.type'
 
 // ** style components
 import { Tooltip, Typography } from '@mui/material'
@@ -25,6 +25,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useContext } from 'react'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { statusType } from '@src/types/common/status.type'
 
 type CellType = {
   row: JobsListType
@@ -40,6 +41,7 @@ type Props = {
     totalCount: number
   }
   isLoading: boolean
+  statusList: Array<statusType>
 }
 
 export default function JobsList({
@@ -49,11 +51,12 @@ export default function JobsList({
   setPageSize,
   list,
   isLoading,
+  statusList,
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
   const router = useRouter()
 
-  console.log("list",list)
+  console.log('list', list)
 
   const columns: GridColumns<JobsListType> = [
     {
@@ -82,7 +85,7 @@ export default function JobsList({
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: CellType) => {
-        return JobsStatusChip(row.status)
+        return JobsStatusChip(row.status as JobStatusType, statusList)
       },
     },
     {
@@ -106,9 +109,7 @@ export default function JobsList({
                 : row.client.name}
             </Typography>
             <Typography variant='body2'>
-              {row.contactPerson
-                ? row.contactPerson.email
-                : row.client.email}
+              {row.contactPerson ? row.contactPerson.email : row.client.email}
             </Typography>
           </Box>
         )
@@ -137,11 +138,15 @@ export default function JobsList({
       renderCell: ({ row }: CellType) => {
         return (
           <Box display='flex' alignItems='center' gap='8px'>
-            <JobTypeChip
-              size='small'
-              type={row?.category}
-              label={row?.category}
-            />
+            {row?.category ? (
+              <JobTypeChip
+                size='small'
+                type={row?.category}
+                label={row?.category}
+              />
+            ) : (
+              '-'
+            )}
             <ServiceTypeChip size='small' label={row?.serviceType} />
           </Box>
         )

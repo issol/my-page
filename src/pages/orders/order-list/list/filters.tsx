@@ -212,10 +212,7 @@ export default function OrdersFilters({
                             id='client'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
-                              <TextField
-                                {...params}
-                                label='Client'
-                              />
+                              <TextField {...params} label='Client' />
                             )}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>
@@ -247,10 +244,7 @@ export default function OrdersFilters({
                             id='lsp'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
-                              <TextField
-                                {...params}
-                                label='LSP'
-                              />
+                              <TextField {...params} label='LSP' />
                             )}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>
@@ -262,7 +256,6 @@ export default function OrdersFilters({
                         )}
                       />
                     )}
-                    
                   </Grid>
                   <Grid item xs={3}>
                     <Controller
@@ -388,6 +381,7 @@ export default function OrdersFilters({
                                 <CustomInput
                                   label='Order date'
                                   icon='calendar'
+                                  placeholder='MM/DD/YYYY'
                                   value={
                                     value.length > 0
                                       ? dateValue(value[0], value[1])
@@ -423,6 +417,7 @@ export default function OrdersFilters({
                                 <CustomInput
                                   label='Project due date'
                                   icon='calendar'
+                                  placeholder='MM/DD/YYYY'
                                   value={
                                     value.length > 0
                                       ? dateValue(value[0], value[1])

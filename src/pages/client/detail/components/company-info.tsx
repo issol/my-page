@@ -109,9 +109,9 @@ export default function ClientInfo({
       isTaxable: clientInfo.isTaxable,
       tax: clientInfo.tax,
       headquarter: clientInfo.headquarter,
-      businessRegistrationNumber: clientInfo.businessRegistrationNumber,
-      nameOfRepresentative: clientInfo.nameOfRepresentative,
-      businessCommencementDate: clientInfo.businessCommencementDate,
+      registrationNumber: clientInfo.registrationNumber,
+      representativeName: clientInfo.representativeName,
+      commencementDate: clientInfo.commencementDate,
     })
   }, [clientInfo])
 
@@ -232,7 +232,7 @@ export default function ClientInfo({
                 >
                   Business registration number:&nbsp;
                   <Typography variant='body2' component={'span'}>
-                    {clientInfo.businessRegistrationNumber ?? '-'}
+                    {clientInfo.registrationNumber ?? '-'}
                   </Typography>
                 </Typography>
               </InfoBox>
@@ -251,7 +251,7 @@ export default function ClientInfo({
                 >
                   Name of representative:&nbsp;
                   <Typography variant='body2' component={'span'}>
-                    {clientInfo.nameOfRepresentative ?? '-'}
+                    {clientInfo.representativeName ?? '-'}
                   </Typography>
                 </Typography>
               </InfoBox>
@@ -270,9 +270,9 @@ export default function ClientInfo({
                 >
                   Business commencement date:&nbsp;
                   <Typography variant='body2' component={'span'}>
-                    {clientInfo.businessCommencementDate
+                    {clientInfo.commencementDate
                       ? FullDateTimezoneHelper(
-                          clientInfo.businessCommencementDate,
+                          clientInfo.commencementDate,
                           auth.getValue().user?.timezone,
                         )
                       : '-'}

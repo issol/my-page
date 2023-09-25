@@ -57,7 +57,7 @@ const CalendarContainer = () => {
     mine: '0',
     hideCompleted: '0',
     skip: 0,
-    take: 10,
+    take: 100,
   })
 
   const { data, isLoading } = useGetClientRequestCalendarData(

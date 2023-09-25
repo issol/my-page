@@ -1,4 +1,5 @@
 import axios from '@src/configs/axios'
+import { JobListFilterType } from '@src/pages/jobs/requested-ongoing-list'
 
 import { FilterType } from '@src/pages/orders/job-list/list-view/list-view'
 import { DetailFilterType } from '@src/pages/orders/job-list/tracker-view/[id]'
@@ -9,6 +10,7 @@ import {
   JobsListType,
   JobsTrackerDetailType,
   JobsTrackerListType,
+  ProJobListType,
 } from '@src/types/jobs/jobs.type'
 
 export const getJobsList = async (
@@ -209,6 +211,43 @@ export const getJobHistory = async (
 export const createJob = async (params: CreateJobParamsType) => {
   try {
     await axios.post(`/api/enough/u/job`, { ...params })
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const getProJobList = async (
+  filter: JobListFilterType,
+): Promise<{
+  data: ProJobListType[]
+  totalCount: number
+  count: number
+}> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/pro/job/list?${makeQuery(filter)}`,
+    )
+
+    return data
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const getProJobClientList = async (filter: {
+  filterType: 'client' | 'contactPerson'
+}): Promise<
+  {
+    id: number
+    name: string
+  }[]
+> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/pro/job/filter-option?${makeQuery(filter)}`,
+    )
+
+    return data
   } catch (error: any) {
     throw new Error(error)
   }

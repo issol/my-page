@@ -16,6 +16,7 @@ import {
   UseFormGetValues,
   UseFormSetValue,
   useFieldArray,
+  UseFormTrigger,
 } from 'react-hook-form'
 
 type Props = {
@@ -49,6 +50,9 @@ type Props = {
   closeModal: (type: string) => void
   priceUnitsList: PriceUnitListType[]
   type: string
+  itemTrigger: UseFormTrigger<{
+    items: ItemType[]
+  }>
 }
 
 const Row = ({
@@ -62,10 +66,10 @@ const Row = ({
   closeModal,
   priceUnitsList,
   type,
+  itemTrigger,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
-
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   /* price unit */
@@ -146,39 +150,79 @@ const Row = ({
     remove(idx)
   }
 
+  const handleShowMinimum = (value: boolean) => {
+    const minimumPrice = Number(getItem(`items.${0}.minimumPrice`))
+    const totalPrice = Number(getItem(`items.${0}.totalPrice`))
+    const minimumPriceApplied = getItem(`items.${0}.minimumPriceApplied`)
+
+    if (minimumPriceApplied && minimumPrice < totalPrice) return //데이터가 잘못된 케이스
+    if (minimumPrice) {
+      if (value) {
+        if (minimumPrice && minimumPrice >= totalPrice) {
+          setItem(`items.${0}.minimumPriceApplied`, true, setValueOptions)
+        } else {
+          setItem(`items.${0}.minimumPriceApplied`, false, setValueOptions)
+        }
+      } else if (!value) {
+        setItem(`items.${0}.minimumPriceApplied`, false, setValueOptions)
+      }
+    } else {
+      setItem(`items.${0}.minimumPriceApplied`, false, setValueOptions)
+    }
+    itemTrigger(`items.${0}.minimumPriceApplied`)
+    getTotalPrice()
+  }
+
   function getTotalPrice() {
+    const itemMinimumPrice = Number(getItem(`items.${0}.minimumPrice`))
+    const showMinimum = getItem(`items.${0}.minimumPriceApplied`)
+
     let total = 0
     const data = getItem(itemName)
+
     if (data?.length) {
-      const price = data.reduce((res, item) => (res += Number(item.prices)), 0)
+      const price = data.reduce(
+        (res, item) => (res += Number(item.prices)),
+        0,
+      )       
+      if (isNaN(price)) return
 
-      const itemMinimumPrice = currentMinimumPrice()
-
-      if (itemMinimumPrice && price < itemMinimumPrice) {
+      if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
         data.forEach(item => {
           total += item.unit === 'Percent' ? Number(item.prices) : 0
         })
-        total += itemMinimumPrice
+        // handleShowMinimum(true)
+        total = itemMinimumPrice
+      } else if (itemMinimumPrice && price >= itemMinimumPrice && showMinimum){
+        total = price
+        // 아래 코드 활성화시 미니멈 프라이스가 활성화 되었으나 미니멈 프라이스 값이 없는 경우 무한루프에 빠짐
+        if (showMinimum === true) handleShowMinimum(false)
       } else {
         total = price
       }
+
+    } else if (!data?.length && showMinimum){
+      // 최초 상태, row는 없이 미니멈프라이스만 설정되어 있는 상태
+      total = itemMinimumPrice!
     }
     if (total === itemData.totalPrice) return
-    setItem(`items.${0}.totalPrice`, total, {
-      shouldDirty: true,
-      shouldValidate: false,
-    })
+
+    setItem(`items.${0}.totalPrice`, total, setValueOptions)
   }
 
-  function getEachPrice(index: number, showMinimum?:boolean, isNotApplicable?:boolean) {
+  function getEachPrice(index: number, isNotApplicable?: boolean) {
+    // setPriceData(getPriceData())
     const data = getItem(itemName)
     if (!data?.length) return
     let prices = 0
     const detail = data?.[index]
     if (detail && detail.unit === 'Percent') {
       const percentQuantity = data[index].quantity
-      if (currentMinimumPrice() && showMinimum) {
-        prices = (percentQuantity / 100) * currentMinimumPrice()!
+
+      const itemMinimumPrice = getItem(`items.${0}.minimumPrice`)
+      const showMinimum = getItem(`items.${0}.minimumPriceApplied`)
+      if (itemMinimumPrice && showMinimum) {
+        prices = (percentQuantity / 100) * itemMinimumPrice
       } else {
         const generalPrices = data.filter(item => item.unit !== 'Percent')
         generalPrices.forEach(item => {
@@ -191,28 +235,27 @@ const Row = ({
     }
 
     // if (prices === data[index].prices) return
-    const currentCurrency = () => {
-      if (isNotApplicable) return detail?.currency
-      return priceData()?.currency!
-    }
+    const currency = getItem(`items.${0}.initialPrice.currency`) ?? 'KRW'
     const roundingPrice = formatByRoundingProcedure(
       prices,
       priceData()?.decimalPlace!
-      ? priceData()?.decimalPlace!
-      : (currentCurrency() === 'USD' || currentCurrency() === 'SGD') 
-        ? 2 
+        ? priceData()?.decimalPlace!
+        : currency === 'USD' || currency === 'SGD'
+        ? 2
         : 1000,
       priceData()?.roundingProcedure! ?? 0,
-      currentCurrency(),
+      currency,
     )
-    setItem(`items.${0}.detail.${index}.currency`, currentCurrency(), {
+    // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
+    // 스탠다드 프라이스의 언어페어 정보 : languagePairs
+    setItem(`items.${0}.detail.${index}.currency`, currency, {
       shouldDirty: true,
       shouldValidate: false,
     })
     // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
-    setItem(`items.${0}.detail.${index}.prices`, prices, {
+    setItem(`items.${0}.detail.${index}.prices`, roundingPrice, {
       shouldDirty: true,
-      shouldValidate: true,
+      shouldValidate: false,
     })
   }
 
@@ -247,8 +290,7 @@ const Row = ({
     return true
   }
   
-  // console.log(details)
-
+  // console.log(details))
   return (
     <Box
       style={{
@@ -282,6 +324,7 @@ const Row = ({
         setShowMinimum={(n) => true} //이거 쓰나?
         type={type}
         sumTotalPrice={sumTotalPrice}
+        showCurrency={true}
       />
       {/* price unit end */}
     </Box>

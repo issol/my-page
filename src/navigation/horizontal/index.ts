@@ -41,6 +41,13 @@ const navigation = (): HorizontalNavItemsType => {
       path: `/pro`,
     },
     {
+      title: 'Jobs',
+      icon: 'ic:baseline-people-outline',
+      action: 'read',
+      subject: 'job_list',
+      path: `/jobs`,
+    },
+    {
       title: 'Clients',
       icon: 'mdi:account-star-outline',
       action: 'read',

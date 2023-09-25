@@ -7,6 +7,7 @@ import {
   PayableFormType,
   PayableHistoryType,
 } from '@src/types/invoice/payable.type'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 
@@ -210,6 +211,26 @@ export const restoreInvoicePayable = async (
       `/api/enough/u/invoice/payable/restore/${historyId}`,
     )
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const createInvoicePayable = async (params: {
+  invoiceStatus: string
+  description: string
+  taxInfo: string
+  taxRate: number
+  currency: string
+  totalPrice: number
+  subtotal: number
+  tax: number
+  jobIds: number[]
+  invoicedAt: string
+  invoicedTimezone: CountryType
+}) => {
+  try {
+    const { data } = await axios.post(`/api/enough/u/invoice/payable`, params)
   } catch (e: any) {
     throw new Error(e)
   }

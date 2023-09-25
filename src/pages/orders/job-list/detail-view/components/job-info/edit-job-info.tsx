@@ -12,7 +12,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { JobStatus } from '@src/shared/const/status/statuses'
+
 import {
   AddJobInfoFormType,
   AddJobInfoType,
@@ -60,6 +60,8 @@ import { FilePostType } from '@src/apis/client-guideline.api'
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { JobStatusType } from '@src/types/jobs/common.type'
+import { log } from 'npmlog'
 
 type Props = {
   row: JobType
@@ -99,6 +101,7 @@ type Props = {
   setSuccess: Dispatch<SetStateAction<boolean>>
   setEditJobInfo: Dispatch<SetStateAction<boolean>>
   statusList: Array<{ value: number; label: string }>
+  setJobId?: (n: number) => void
 }
 
 const EditJobInfo = ({
@@ -112,6 +115,7 @@ const EditJobInfo = ({
   setSuccess,
   setEditJobInfo,
   statusList,
+  setJobId,
 }: Props) => {
   const theme = useTheme()
   const { direction } = theme
@@ -131,10 +135,14 @@ const EditJobInfo = ({
     (data: { jobId: number; data: SaveJobInfoParamsType }) =>
       saveJobInfo(data.jobId, data.data),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
         setSuccess(true)
-        queryClient.invalidateQueries('jobInfo')
-        refetch()
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries('jobInfo')
+          refetch()
+        } else {
+          setJobId && setJobId(data.id)
+        }
         setEditJobInfo(false)
       },
     },
@@ -143,16 +151,27 @@ const EditJobInfo = ({
   const uploadFileMutation = useMutation(
     (file: {
       jobId: number
-      size: number
-      name: string
-      type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      files: Array<{
+        jobId: number
+        size: number
+        name: string
+        type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      }>
     }) => uploadFile(file),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
         // console.log('success')
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries('jobInfo')
+          refetch()
+        } else {
+          setJobId && setJobId(data.id)
+        }
       },
     },
   )
+
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   const {
     control,
@@ -170,7 +189,6 @@ const EditJobInfo = ({
 
     resolver: yupResolver(addJobInfoFormSchema),
   })
-
   const description = watch('description')
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
@@ -255,14 +273,26 @@ const EditJobInfo = ({
   const onSubmit = () => {
     const data = getValues()
     if (files.length) {
-      const fileInfo: Array<{
+      // const fileInfo: Array<{
+      //   jobId: number
+      //   size: number
+      //   name: string
+      //   type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      // }> = []
+      const fileInfo: {
         jobId: number
-        size: number
-        name: string
-        type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-      }> = []
+        files: Array<{
+          jobId: number
+          size: number
+          name: string
+          type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+        }>
+      } = {
+        jobId: row.id,
+        files: [],
+      }
       const paths: string[] = files.map(file => {
-        return `project/${row.id}/${file.name}`
+        return `project/${row.id}/sample/${file.name}`
       })
       const s3URL = paths.map(value => {
         return getUploadUrlforCommon('job', value).then(res => {
@@ -271,7 +301,7 @@ const EditJobInfo = ({
       })
       Promise.all(s3URL).then(res => {
         const promiseArr = res.map((url: string, idx: number) => {
-          fileInfo.push({
+          fileInfo.files.push({
             jobId: row.id,
             size: files[idx].size,
             name: files[idx].name,
@@ -281,31 +311,28 @@ const EditJobInfo = ({
         })
         Promise.all(promiseArr)
           .then(res => {
-            res.map((value, idx) => {
-              uploadFileMutation.mutate(fileInfo[idx])
-              const jobInfo: SaveJobInfoParamsType = {
-                contactPersonId: data.contactPerson.userId,
-                description: data.description ?? null,
-                startDate: data.startedAt ? data.startedAt.toString() : null,
-                startTimezone: data.startTimezone ?? null,
+            uploadFileMutation.mutate(fileInfo)
+            const jobInfo: SaveJobInfoParamsType = {
+              contactPersonId: data.contactPerson.userId,
+              description: data.description ?? null,
+              startDate: data.startedAt ? data.startedAt.toString() : null,
+              startTimezone: data.startTimezone ?? null,
 
-                dueDate: data.dueAt.toString(),
-                dueTimezone: data.dueTimezone,
-                status: data.status,
-                sourceLanguage:
-                  data.languagePair.value === 'Language-independent'
-                    ? null
-                    : data.languagePair.source,
-                targetLanguage:
-                  data.languagePair.value === 'Language-independent'
-                    ? null
-                    : data.languagePair.target,
-                name: data.name,
-                isShowDescription: data.isShowDescription,
-              }
+              dueDate: data.dueAt.toString(),
+              dueTimezone: data.dueTimezone,
+              status: data.status,
+              sourceLanguage: data.source !== ' ' ? data.source : null,
+              targetLanguage: data.target !== ' ' ? data.target : null,
+              name: data.name,
+              isShowDescription: data.isShowDescription,
+            }
 
-              saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
-            })
+            saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
+
+            // res.map((value, idx) => {
+            //   uploadFileMutation.mutate(fileInfo[idx])
+
+            // })
           })
           .catch(err =>
             toast.error(
@@ -326,18 +353,12 @@ const EditJobInfo = ({
         dueDate: data.dueAt.toString(),
         dueTimezone: data.dueTimezone,
         status: data.status,
-        sourceLanguage:
-          data.languagePair.value === 'Language-independent'
-            ? null
-            : data.languagePair.source,
-        targetLanguage:
-          data.languagePair.value === 'Language-independent'
-            ? null
-            : data.languagePair.target,
+        sourceLanguage: data.source !== ' ' ? data.source : null,
+        targetLanguage: data.target !== ' ' ? data.target : null,
         name: data.name,
         isShowDescription: data.isShowDescription,
       }
-
+      console.log('jobInfo', jobInfo)
       saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
     }
 
@@ -347,29 +368,15 @@ const EditJobInfo = ({
   useEffect(() => {
     setValue('name', row.name ?? '')
     setValue('description', row.description ?? '')
-    // setValue('status', row.status)
-    row.sourceLanguage && row.targetLanguage
-      ? setValue('languagePair', {
-          value: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
-            row.targetLanguage,
-          )}`,
-          label: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
-            row.targetLanguage,
-          )}`,
-          source: row.sourceLanguage,
-          target: row.targetLanguage,
-        })
-      : setValue('languagePair', {
-          value: `${languageHelper(item.sourceLanguage)} -> ${languageHelper(
-            item.targetLanguage,
-          )}`,
-          label: `${languageHelper(item.sourceLanguage)} -> ${languageHelper(
-            item.targetLanguage,
-          )}`,
-          source: item.sourceLanguage,
-          target: item.targetLanguage,
-        })
-    setValue('serviceType', { value: row.serviceType, label: row.serviceType })
+    setValue('status', row.status)
+    setValue('source', row.sourceLanguage)
+    setValue('target', row.targetLanguage)
+
+    setValue('serviceType', row.serviceType, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
     setValue('isShowDescription', row.isShowDescription, {
       shouldDirty: true,
       shouldValidate: true,
@@ -414,17 +421,17 @@ const EditJobInfo = ({
         shouldValidate: true,
       })
 
-    const langPairList = languagePair.map((item, index) => ({
-      value: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
-      label: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
-    }))
-    setLanguageItemList([
-      {
-        value: 'Language-independent',
-        label: 'Language-independent',
-      },
-      ...langPairList,
-    ])
+    // const langPairList = languagePair.map((item, index) => ({
+    //   value: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
+    //   label: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
+    // }))
+    // setLanguageItemList([
+    //   {
+    //     value: 'Language-independent',
+    //     label: 'Language-independent',
+    //   },
+    //   ...langPairList,
+    // ])
     setUploadedFiles(row.files ?? [])
     trigger()
   }, [row, item, setValue, languagePair, contactPersonList, trigger])
@@ -464,21 +471,32 @@ const EditJobInfo = ({
                 </FormHelperText>
               )}
             </Grid>
-            {/* <Grid item xs={6}>
-              <Controller
+            <Grid item xs={6}>
+              <TextField
+                disabled
+                id='status'
+                label='Status*'
+                fullWidth
+                defaultValue={
+                  statusList?.find(list => list.value === row.status)?.label!
+                }
+              />
+              {/* <Controller
                 control={control}
                 name='status'
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     fullWidth
+                    disabled
                     onChange={(event, item) => {
+                      console.log("item",item)
                       if (item) {
-                        onChange(item)
+                        onChange(item.value)
                       } else {
-                        onChange({ value: '', label: '' })
+                        onChange(null)
                       }
                     }}
-                    value={value.value}
+                    value={statusList?.find(list => list.value === value)!}
                     options={statusList!}
                     id='Status'
                     getOptionLabel={option => option.label}
@@ -494,11 +512,10 @@ const EditJobInfo = ({
               />
               {errors.status && (
                 <FormHelperText sx={{ color: 'error.main' }}>
-                  {errors.status?.label?.message ||
-                    errors.status?.value?.message}
+                  {errors.status?.message}
                 </FormHelperText>
-              )}
-            </Grid> */}
+              )} */}
+            </Grid>
             <Grid item xs={6}>
               <Controller
                 control={control}
@@ -535,72 +552,113 @@ const EditJobInfo = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              <Controller
+              {/* <Controller
                 control={control}
                 name='serviceType'
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     fullWidth
                     disabled
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
-                    }}
                     onChange={(event, item) => {
                       onChange(item)
                     }}
-                    value={{ label: 'Translation', value: 'Translation' }}
+                    value={value}
                     options={[]}
                     id='serviceType'
-                    getOptionLabel={option => option.label}
+                    getOptionLabel={option => option}
                     renderInput={params => (
                       <TextField {...params} label='Service type*' />
                     )}
                   />
                 )}
+              /> */}
+              <TextField
+                disabled
+                id='serviceType'
+                label='Service type*'
+                fullWidth
+                defaultValue={row.serviceType}
               />
             </Grid>
             <Grid item xs={6}>
               <Controller
                 control={control}
-                name='languagePair'
+                name='source'
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     fullWidth
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
-                    }}
+                    disabled={Boolean(row.proId)}
+                    // isOptionEqualToValue={(option, newValue) => {
+                    //   return option.source === newValue.source
+                    // }}
                     onChange={(event, item) => {
+                      console.log(item, 'onChange')
                       if (item) {
-                        onChange(item)
+                        setValue('source', item?.source, setValueOptions)
+                        setValue('target', item?.target, setValueOptions)
+                        trigger('source')
+                        trigger('target')
                       } else {
-                        onChange({
-                          value: '',
-                          label: '',
-                          source: '',
-                          target: '',
-                        })
+                        setValue('source', null, setValueOptions)
+                        setValue('target', null, setValueOptions)
+                        trigger('source')
+                        trigger('target')
                       }
+                      // onChange(item)
                     }}
                     value={
-                      value || { value: '', label: '', source: '', target: '' }
+                      value === null
+                        ? null
+                        : [
+                            {
+                              source: ' ',
+                              target: ' ',
+                            },
+                            ...languagePair.map(data => ({
+                              source: data.source,
+                              target: data.target,
+                            })),
+                          ].find(
+                            item =>
+                              item.source === value &&
+                              item.target === getValues(`target`),
+                          )
                     }
-                    options={languageItemList}
+                    options={[
+                      {
+                        source: ' ',
+                        target: ' ',
+                      },
+                      ...languagePair
+                        .map(value => ({
+                          source: value.source,
+                          target: value.target,
+                        }))
+                        .sort((a, b) => a.source.localeCompare(b.source)),
+                    ]}
+                    getOptionLabel={option => {
+                      if (option.source === ' ' && option.target === ' ') {
+                        return 'Language-independent'
+                      } else {
+                        return `${languageHelper(
+                          option.source,
+                        )} -> ${languageHelper(option.target)}`
+                      }
+                    }}
                     id='languagePair'
-                    getOptionLabel={option => option.label}
                     renderInput={params => (
                       <TextField
                         {...params}
                         label='Language pair*'
-                        error={Boolean(errors.languagePair)}
+                        error={Boolean(errors.source)}
                       />
                     )}
                   />
                 )}
               />
-              {errors.languagePair && (
+              {errors.source && (
                 <FormHelperText sx={{ color: 'error.main' }}>
-                  {errors.languagePair?.label?.message ||
-                    errors.languagePair?.value?.message}
+                  {errors.source?.message || errors.target?.message}
                 </FormHelperText>
               )}
             </Grid>
@@ -622,6 +680,7 @@ const EditJobInfo = ({
                       customInput={
                         <CustomInput label='Job start date' icon='calendar' />
                       }
+                      disabled={Boolean(row.proId)}
                     />
                   </Box>
                 )}
@@ -634,7 +693,8 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
                     fullWidth
-                    value={value}
+                    disabled={Boolean(row.proId)}
+                    value={value || { code: '', label: '', phone: '' }}
                     options={countries as CountryType[]}
                     onChange={(e, v) => onChange(v)}
                     getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
@@ -785,89 +845,125 @@ const EditJobInfo = ({
               {description?.length ?? 0}/500
             </Box>
           </Box>
-          <Divider />
-          <Box
-            mt='20px'
-            mb='20px'
-            sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <Typography variant='body1' fontWeight={600}>
-                Sample files to pro
-              </Typography>
-              <div {...getRootProps({ className: 'dropzone' })}>
-                <Button variant='outlined' sx={{ height: '30px' }}>
-                  <input {...getInputProps()} />
-                  Upload files
-                </Button>
-              </div>
-            </Box>
-            {uploadedFiles && (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-
-                  width: '100%',
-                  gap: '20px',
-                }}
-              >
-                {uploadedFileList(uploadedFiles, 'SAMPLE')}
-              </Box>
-            )}
-            {fileList.length > 0 && (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-
-                  width: '100%',
-                  gap: '20px',
-                }}
-              >
-                {fileList}
-              </Box>
-            )}
-
+          {!row.proId ? (
             <Box>
-              <Typography variant='subtitle2'>
-                {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
-              </Typography>
+              <Divider />
+              <Box
+                mt='20px'
+                mb='20px'
+                sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <Typography variant='body1' fontWeight={600}>
+                    Sample files to pro
+                  </Typography>
+                  <div {...getRootProps({ className: 'dropzone' })}>
+                    <Button variant='outlined' sx={{ height: '30px' }}>
+                      <input {...getInputProps()} />
+                      Upload files
+                    </Button>
+                  </div>
+                </Box>
+                {uploadedFiles && (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+
+                      width: '100%',
+                      gap: '20px',
+                    }}
+                  >
+                    {uploadedFileList(uploadedFiles, 'SAMPLE')}
+                  </Box>
+                )}
+                {fileList.length > 0 && (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+
+                      width: '100%',
+                      gap: '20px',
+                    }}
+                  >
+                    {fileList}
+                  </Box>
+                )}
+
+                <Box>
+                  <Typography variant='subtitle2'>
+                    {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+                  </Typography>
+                </Box>
+              </Box>
+              <Divider />
+              <Box
+                mt='20px'
+                mb='20px'
+                sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <Typography variant='body1' fontWeight={600}>
+                    Target files from Pro
+                  </Typography>
+                </Box>
+                <Typography variant='subtitle2'>
+                  There are no files delivered from Pro
+                </Typography>
+              </Box>
+              <Divider />
+              <Box
+                mt='20px'
+                sx={{ display: 'flex', justifyContent: 'flex-end' }}
+              >
+                <Button
+                  variant='contained'
+                  onClick={onSubmit}
+                  disabled={!isValid}
+                >
+                  Save draft
+                </Button>
+              </Box>
             </Box>
-          </Box>
-          <Divider />
-          <Box
-            mt='20px'
-            mb='20px'
-            sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-          >
+          ) : (
             <Box
+              mt='20px'
               sx={{
                 display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
+                justifyContent: 'center',
+                gap: '16px',
+                mt: '16px',
               }}
             >
-              <Typography variant='body1' fontWeight={600}>
-                Target files from Pro
-              </Typography>
+              <Button
+                variant='outlined'
+                onClick={() => setEditJobInfo(false)}
+                disabled={!isValid}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant='contained'
+                onClick={onSubmit}
+                disabled={!isValid}
+              >
+                Save
+              </Button>
             </Box>
-            <Typography variant='subtitle2'>
-              There are no files delivered from Pro
-            </Typography>
-          </Box>
-          <Divider />
-          <Box mt='20px' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button variant='contained' onClick={onSubmit} disabled={!isValid}>
-              Save draft
-            </Button>
-          </Box>
+          )}
         </form>
         <div id='toast-container'></div>
       </DatePickerWrapper>

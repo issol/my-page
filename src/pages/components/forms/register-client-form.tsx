@@ -200,7 +200,7 @@ export default function RegisterClientForm({
       } ${address?.state ?? ''} ${address?.country ?? ''} ${
         address.zipCode ?? '-'
       }`
-    }
+    } else return '-'
   }
 
   return (
@@ -434,30 +434,28 @@ export default function RegisterClientForm({
                 control={<Radio />}
                 onChange={(e, v) => field.onChange('shipping')}
                 checked={field.value === 'shipping'}
-                label={`Shipping address ${
-                  contacts?.addresses && contacts?.addresses.length > 0 ? (
-                    <Typography variant='body1' fontWeight={600}>
-                      {getAddress(contacts?.addresses, 'shipping')}
-                    </Typography>
-                  ) : (
-                    '-'
-                  )
-                }`}
+                label={
+                  <div style={{ whiteSpace: 'nowrap' }}>
+                    Shipping address{' '}
+                      <span style={{ fontWeight: 600 }}>
+                        {getAddress(contacts?.addresses, 'shipping')}
+                      </span>
+                  </div>
+                }
               />
               <FormControlLabel
                 value='billing'
                 onChange={(e, v) => field.onChange('billing')}
                 checked={field.value === 'billing'}
                 control={<Radio />}
-                label={`Billing address ${
-                  contacts?.addresses && contacts?.addresses.length > 0 ? (
-                    <Typography variant='body1' fontWeight={600}>
-                      {getAddress(contacts?.addresses, 'billing')}
-                    </Typography>
-                  ) : (
-                    '-'
-                  )
-                }`}
+                label={
+                  <div style={{ whiteSpace: 'nowrap' }}>
+                    Billing address{' '}
+                      <span style={{ fontWeight: 600 }}>
+                        {getAddress(contacts?.addresses, 'billing')}
+                      </span>
+                  </div>
+                }
               />
             </RadioGroup>
           )}
