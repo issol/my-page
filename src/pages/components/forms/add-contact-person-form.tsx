@@ -271,7 +271,7 @@ export default function AddContactPersonForm<
                         rows={4}
                         multiline
                         fullWidth
-                        placeholder='Write down some information to keep in mind about this contact person'
+                        placeholder='Write down some information to keep in mind about this contact person.'
                         value={value ?? ''}
                         onChange={onChange}
                         inputProps={{ maxLength: 500 }}
