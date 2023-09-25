@@ -196,7 +196,11 @@ export default function QuotesProjectInfoDetail({
             <LabelContainer style={{ height: '40px' }}>
               <CustomTypo fontWeight={600}>Quote date</CustomTypo>
               <CustomTypo variant='body2'>
-                {FullDateHelper(project.quoteDate)}
+                {/* {FullDateHelper(project.quoteDate)} */}
+                {FullDateTimezoneHelper(
+                  project.quoteDate,
+                  project.quoteDateTimezone,
+                )}
               </CustomTypo>
             </LabelContainer>
           </Grid>
