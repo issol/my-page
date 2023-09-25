@@ -221,7 +221,7 @@ Props) => {
                   <Typography variant='h6'>{guideLines.title}</Typography>
                   <PDFDownloadLink
                     document={<DownloadFile />}
-                    fileName='somename.pdf'
+                    fileName={`${guideLines.title}`}
                   >
                     {({ blob, url, loading, error }) =>
                       loading ? (
