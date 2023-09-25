@@ -32,7 +32,9 @@ import { Dispatch, SetStateAction, useEffect } from 'react'
 import {
   Control,
   UseFormGetValues,
+  UseFormReset,
   UseFormSetValue,
+  UseFormTrigger,
   UseFormWatch,
   useForm,
 } from 'react-hook-form'

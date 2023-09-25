@@ -424,6 +424,7 @@ const ReceivableInvoiceDetail = () => {
     setValue: setClientValue,
     watch: clientWatch,
     reset: clientReset,
+    trigger: clientTrigger,
     formState: { errors: clientErrors, isValid: isClientValid },
   } = useForm<ClientFormType>({
     mode: 'onChange',
