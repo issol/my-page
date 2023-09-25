@@ -426,7 +426,7 @@ export default function CompanyPaymentInfo() {
                   <Box display='flex' flexDirection='column'>
                     <Typography variant='h6'>Notes from LSP</Typography>
                     <Typography variant='caption'>
-                      {formatFileSize(fileSize).toLowerCase()}/ 50 mb
+                      {formatFileSize(fileSize).toLowerCase()}/ 50 MB
                     </Typography>
                   </Box>
 
