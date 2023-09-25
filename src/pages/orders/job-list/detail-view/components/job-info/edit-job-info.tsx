@@ -62,6 +62,7 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { JobStatusType } from '@src/types/jobs/common.type'
 import { log } from 'npmlog'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type Props = {
   row: JobType
@@ -269,6 +270,10 @@ const EditJobInfo = ({
     )
   })
 
+  const dateValue = (date: Date) => {
+    return dayjs(date).format('MM/DD/YYYY, hh:mm a')
+  }
+
   // console.log('data', getValues())
   const onSubmit = () => {
     const data = getValues()
@@ -366,11 +371,60 @@ const EditJobInfo = ({
   }
 
   useEffect(() => {
+    console.log(item)
+
+    // reset({
+    //   name: row.name ?? '',
+    //   description: row.description ?? '',
+    //   status: row.status,
+    //   source: row.name ? row.sourceLanguage : item.sourceLanguage,
+    //   target: row.name ? row.targetLanguage : item.targetLanguage,
+    //   serviceType: row.serviceType,
+    //   isShowDescription: row.isShowDescription,
+
+    //   contactPerson:
+    //     row.contactPerson &&
+    //     contactPersonList.find(
+    //       value => value.userId === row.contactPerson?.userId,
+    //     )
+    //       ? {
+    //           value: contactPersonList.find(
+    //             value => value.userId === row.contactPerson?.userId,
+    //           )?.value!,
+    //           label: contactPersonList.find(
+    //             value => value.userId === row.contactPerson?.userId,
+    //           )?.label!,
+    //           userId: row.contactPerson.userId,
+    //         }
+    //       : {
+    //           value: contactPersonList.find(
+    //             value => value.userId === item.contactPersonId,
+    //           )?.value!,
+    //           label: contactPersonList.find(
+    //             value => value.userId === item.contactPersonId,
+    //           )?.label!,
+    //           userId: item.contactPersonId,
+    //         },
+    //   startedAt: row.startedAt ? new Date(row.startedAt) : undefined,
+    //   startTimezone: row.startTimezone ?? null,
+    //   dueAt: new Date(row.dueAt),
+    //   dueTimezone: row.dueTimezone ?? null,
+    // })
+
     setValue('name', row.name ?? '')
     setValue('description', row.description ?? '')
     setValue('status', row.status)
-    setValue('source', row.sourceLanguage)
-    setValue('target', row.targetLanguage)
+    setValue('source', row.name ? row.sourceLanguage : item.sourceLanguage, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    setValue('target', row.name ? row.targetLanguage : item.targetLanguage, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
+    trigger('source')
+    trigger('target')
 
     setValue('serviceType', row.serviceType, {
       shouldDirty: true,
@@ -410,13 +464,13 @@ const EditJobInfo = ({
     row.startedAt && setValue('startedAt', new Date(row.startedAt))
 
     row.startTimezone &&
-      setValue('startTimezone', row.startTimezone, {
+      setValue('startTimezone', row.startTimezone ?? null, {
         shouldDirty: true,
         shouldValidate: true,
       })
     row.dueAt && setValue('dueAt', new Date(row.dueAt))
     row.dueTimezone &&
-      setValue('dueTimezone', row.dueTimezone, {
+      setValue('dueTimezone', row.dueTimezone ?? null, {
         shouldDirty: true,
         shouldValidate: true,
       })
@@ -434,7 +488,16 @@ const EditJobInfo = ({
     // ])
     setUploadedFiles(row.files ?? [])
     trigger()
-  }, [row, item, setValue, languagePair, contactPersonList, trigger])
+  }, [row, item])
+
+  console.log(getValues())
+  console.log(
+    languagePair.find(
+      item =>
+        item.source === getValues('source') &&
+        item.target === getValues('target'),
+    ),
+  )
 
   return (
     <>
@@ -581,81 +644,97 @@ const EditJobInfo = ({
               />
             </Grid>
             <Grid item xs={6}>
-              <Controller
-                control={control}
-                name='source'
-                render={({ field: { onChange, value } }) => (
-                  <Autocomplete
-                    fullWidth
-                    disabled={Boolean(row.proId)}
-                    // isOptionEqualToValue={(option, newValue) => {
-                    //   return option.source === newValue.source
-                    // }}
-                    onChange={(event, item) => {
-                      console.log(item, 'onChange')
-                      if (item) {
-                        setValue('source', item?.source, setValueOptions)
-                        setValue('target', item?.target, setValueOptions)
-                        trigger('source')
-                        trigger('target')
-                      } else {
-                        setValue('source', null, setValueOptions)
-                        setValue('target', null, setValueOptions)
-                        trigger('source')
-                        trigger('target')
-                      }
-                      // onChange(item)
-                    }}
-                    value={
-                      value === null
-                        ? null
-                        : [
+              {getValues('source') !== undefined &&
+                getValues('target') !== undefined && (
+                  <Controller
+                    control={control}
+                    name='source'
+                    render={({ field: { onChange, value } }) => {
+                      return (
+                        <Autocomplete
+                          fullWidth
+                          disabled={Boolean(row.proId)}
+                          // isOptionEqualToValue={(option, newValue) => {
+                          //   return option.source === newValue.source
+                          // }}
+                          onChange={(event, item) => {
+                            console.log(item, 'onChange')
+                            if (item) {
+                              setValue('source', item?.source, setValueOptions)
+                              setValue('target', item?.target, setValueOptions)
+                              trigger('source')
+                              trigger('target')
+                            } else {
+                              setValue('source', null, setValueOptions)
+                              setValue('target', null, setValueOptions)
+                              trigger('source')
+                              trigger('target')
+                            }
+                            // onChange(item)
+                          }}
+                          value={
+                            value === null
+                              ? null
+                              : [
+                                  {
+                                    source: ' ',
+                                    target: ' ',
+                                  },
+                                  ...languagePair.map(data => ({
+                                    source: data.source,
+                                    target: data.target,
+                                  })),
+                                ].find(
+                                  item =>
+                                    item.source === value &&
+                                    item.target === getValues(`target`),
+                                )
+                          }
+                          defaultValue={{
+                            source: getValues('source'),
+                            target: getValues('target'),
+                          }}
+                          options={[
                             {
                               source: ' ',
                               target: ' ',
                             },
-                            ...languagePair.map(data => ({
-                              source: data.source,
-                              target: data.target,
-                            })),
-                          ].find(
-                            item =>
-                              item.source === value &&
-                              item.target === getValues(`target`),
-                          )
-                    }
-                    options={[
-                      {
-                        source: ' ',
-                        target: ' ',
-                      },
-                      ...languagePair
-                        .map(value => ({
-                          source: value.source,
-                          target: value.target,
-                        }))
-                        .sort((a, b) => a.source.localeCompare(b.source)),
-                    ]}
-                    getOptionLabel={option => {
-                      if (option.source === ' ' && option.target === ' ') {
-                        return 'Language-independent'
-                      } else {
-                        return `${languageHelper(
-                          option.source,
-                        )} -> ${languageHelper(option.target)}`
-                      }
+                            ...languagePair
+                              .map(value => ({
+                                source: value.source,
+                                target: value.target,
+                              }))
+                              .sort((a, b) => a.source.localeCompare(b.source)),
+                          ]}
+                          getOptionLabel={option => {
+                            console.log(option)
+
+                            if (
+                              option.source === ' ' &&
+                              option.target === ' '
+                            ) {
+                              return 'Language-independent'
+                            } else {
+                              return `${languageHelper(
+                                option.source,
+                              )} -> ${languageHelper(option.target)}`
+                            }
+                          }}
+                          id='languagePair'
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              label='Language pair*'
+                              defaultValue={'hi'}
+                              error={Boolean(errors.source)}
+                            />
+                          )}
+                        />
+                      )
                     }}
-                    id='languagePair'
-                    renderInput={params => (
-                      <TextField
-                        {...params}
-                        label='Language pair*'
-                        error={Boolean(errors.source)}
-                      />
-                    )}
                   />
                 )}
-              />
+
               {errors.source && (
                 <FormHelperText sx={{ color: 'error.main' }}>
                   {errors.source?.message || errors.target?.message}
@@ -676,9 +755,17 @@ const EditJobInfo = ({
                       id='date-range-picker-months'
                       onChange={onChange}
                       popperPlacement={popperPlacement}
-                      placeholderText='MM/DD/YYYY, HH:MM'
                       customInput={
-                        <CustomInput label='Job start date' icon='calendar' />
+                        <Box>
+                          <CustomInput
+                            label='Job start date'
+                            icon='calendar'
+                            placeholder='MM/DD/YYYY, HH:MM'
+                            // placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                            readOnly
+                            value={value ? dateValue(value) : ''}
+                          />
+                        </Box>
                       }
                       disabled={Boolean(row.proId)}
                     />
@@ -694,7 +781,7 @@ const EditJobInfo = ({
                   <Autocomplete
                     fullWidth
                     disabled={Boolean(row.proId)}
-                    value={value || { code: '', label: '', phone: '' }}
+                    value={value || null}
                     options={countries as CountryType[]}
                     onChange={(e, v) => onChange(v)}
                     getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
@@ -707,7 +794,7 @@ const EditJobInfo = ({
                       <TextField
                         {...params}
                         label='Timezone'
-                        error={Boolean(errors.startTimezone)}
+                        // error={Boolean(errors.startTimezone)}
                       />
                     )}
                   />
@@ -721,6 +808,7 @@ const EditJobInfo = ({
                 render={({ field: { onChange, value } }) => (
                   <Box sx={{ width: '100%' }}>
                     <DatePicker
+                      autoComplete='off'
                       selected={value}
                       dateFormat='MM/dd/yyyy, hh:mm a'
                       showTimeSelect={true}
@@ -728,13 +816,17 @@ const EditJobInfo = ({
                       id='date-range-picker-months'
                       onChange={onChange}
                       popperPlacement={popperPlacement}
-                      placeholderText='MM/DD/YYYY, HH:MM'
                       customInput={
-                        <CustomInput
-                          label='Job due date*'
-                          icon='calendar'
-                          error={Boolean(errors.dueAt)}
-                        />
+                        <Box>
+                          <CustomInput
+                            label='Job due date*'
+                            placeholder='MM/DD/YYYY, HH:MM'
+                            icon='calendar'
+                            value={value ? dateValue(value) : ''}
+                            error={Boolean(errors.dueAt)}
+                            readOnly
+                          />
+                        </Box>
                       }
                     />
                   </Box>
@@ -753,7 +845,7 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
                     fullWidth
-                    value={value || { code: '', label: '', phone: '' }}
+                    value={value || null}
                     options={countries as CountryType[]}
                     onChange={(e, v) => {
                       // console.log(value)
@@ -777,10 +869,11 @@ const EditJobInfo = ({
                   />
                 )}
               />
-              {errors.dueTimezone && (
+              {(errors.dueTimezone || getValues('dueTimezone') === null) && (
                 <FormHelperText sx={{ color: 'error.main' }}>
                   {errors.dueTimezone?.label?.message ||
-                    errors.dueTimezone?.code?.message}
+                    errors.dueTimezone?.code?.message ||
+                    FormErrors.required}
                 </FormHelperText>
               )}
             </Grid>
