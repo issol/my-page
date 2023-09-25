@@ -226,6 +226,7 @@ export default function CompanyInfoForm({
               error={Boolean(errors.email)}
               label='Email*'
               value={value}
+              placeholder='client@example.com'
               onChange={onChange}
               inputProps={{ maxLength: 100 }}
             />
