@@ -20,12 +20,12 @@ export const addJobInfoFormSchema = yup.object().shape({
     })
     .required(),
   serviceType: yup
-    .object()
-    .shape({
-      label: yup.string().required(),
-      value: yup.string().required(),
-    })
-    .required(),
+    .string().required(),
+    // .shape({
+    //   label: yup.string().required(),
+    //   value: yup.string().required(),
+    // })
+    // .required(),
   source: yup.string().nullable().required(FormErrors.required),
   target: yup.string().nullable().required(FormErrors.required),
   isShowDescription: yup.boolean().required(),

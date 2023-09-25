@@ -177,7 +177,6 @@ const EditJobInfo = ({
 
     resolver: yupResolver(addJobInfoFormSchema),
   })
-
   const description = watch('description')
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
@@ -342,7 +341,6 @@ const EditJobInfo = ({
         dueDate: data.dueAt.toString(),
         dueTimezone: data.dueTimezone,
         status: data.status,
-        //TODO 'Language-independent'일 경우 null로 값을 보내는데 실제로 null인거와 'Language-independent'를 선택한것의 구분이 안됨
         sourceLanguage: data.source !== ' ' ? data.source : null,
         targetLanguage: data.target !== ' ' ? data.target : null,
         name: data.name,
@@ -425,11 +423,6 @@ const EditJobInfo = ({
     setUploadedFiles(row.files ?? [])
     trigger()
   }, [row, item, setValue, languagePair, contactPersonList, trigger])
-  console.log('row', row)
-  console.log('job name', getValues().name)
-
-  console.log(getValues('target'))
-  console.log(getValues())
 
   return (
     <>
@@ -609,9 +602,9 @@ const EditJobInfo = ({
                               source: ' ',
                               target: ' ',
                             },
-                            ...languagePair.map(value => ({
-                              source: value.source,
-                              target: value.target,
+                            ...languagePair.map(data => ({
+                              source: data.source,
+                              target: data.target,
                             })),
                           ].find(
                             item =>
