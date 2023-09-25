@@ -209,8 +209,6 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     const data = getItem(`items.${0}`)
 
     // toast('Job info added successfully')
-    // console.log('items', data)
-    console.log("onSubmit-data",data)
 
     const res: SaveJobPricesParamsType = {
       jobId: row.id,

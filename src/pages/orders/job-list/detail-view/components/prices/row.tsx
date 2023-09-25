@@ -70,7 +70,6 @@ const Row = ({
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
-
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   /* price unit */
@@ -291,9 +290,7 @@ const Row = ({
     return true
   }
   
-  // console.log(details)
-  console.log("type",type)
-  console.log("itemData",itemData)
+  // console.log(details))
   return (
     <Box
       style={{

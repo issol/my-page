@@ -112,13 +112,11 @@ export default function ItemPriceUnitForm({
   // checkMinimumPrice,
   fields,
 }: Props) {
-  console.log("isVaild",isValid)
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
   const currentItem = getValues(`${detailName}`) || []
   const currentInitialItem = getValues(`${initialPriceName}`)
-
   type NestedPriceUnitType = PriceUnitListType & {
     subPriceUnits: PriceUnitListType[] | undefined
     groupName: string
@@ -128,7 +126,7 @@ export default function ItemPriceUnitForm({
     const nestedData: Array<NestedPriceUnitType> = []
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
       ...item,
-      quantity: item.quantity ?? 0,
+      quantity: Number(item.quantity) ?? 0,
       priceUnitId: item.id,
       subPriceUnits: [],
       groupName: 'Price unit',
@@ -283,7 +281,6 @@ export default function ItemPriceUnitForm({
 
     //init
     useEffect(() => {
-      console.log("여기인가?")
       // row init시에 동작하는 로직, 불필요한 리랜더링이 발생할 수 있다
       updatePrice()
       updateTotalPrice()
@@ -321,7 +318,7 @@ export default function ItemPriceUnitForm({
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-                {getValues(`${detailName}.${idx}.quantity`)}
+                {Number(getValues(`${detailName}.${idx}.quantity`))}
               </Typography>
             </Box>
           ) : (
@@ -334,11 +331,11 @@ export default function ItemPriceUnitForm({
                     <TextField
                       placeholder='0'
                       type='number'
-                      value={value}
+                      value={Number(value)}
                       sx={{ maxWidth: '85px', padding: 0 }}
                       inputProps={{ inputMode: 'decimal' }}
                       onChange={e => {
-                        onChange(e)
+                        onChange(Number(e.target.value))
                         // updatePrice(e)
                       }}
                     />
