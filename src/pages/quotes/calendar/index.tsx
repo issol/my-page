@@ -73,7 +73,7 @@ const CalendarContainer = () => {
       ? '#666CFF'
       : status === 'In preparation'
       ? `#F572D8`
-      : status === 'Internal Review'
+      : status === 'Internal review'
       ? `#20B6E5`
       : status === 'Client review'
       ? `#FDB528`
