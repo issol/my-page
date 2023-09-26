@@ -616,6 +616,7 @@ export default function AddNewQuote() {
                 formType='create'
                 getValue={getClientValue}
                 fromQuote={false}
+                reset={clientReset}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
