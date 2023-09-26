@@ -6,8 +6,8 @@ export const CategoryList = [
   { label: Category.Interpretation, value: Category.Interpretation },
   { label: Category['Misc.'], value: Category['Misc.'] },
   { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-  { label: Category.Webnovel, value: Category.Webnovel },
   { label: Category.Webcomics, value: Category.Webcomics },
+  { label: Category.Webnovel, value: Category.Webnovel },
 ]
 
 export const CategoryListPair = {
@@ -17,23 +17,23 @@ export const CategoryListPair = {
   [ServiceType['Copywriting']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
     { label: Category['Misc.'], value: Category['Misc.'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['DTP']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['DTP QC']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['DTP file prep']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['Dubbing']]: [
     { value: Category.Dubbing, label: Category.Dubbing },
@@ -51,28 +51,28 @@ export const CategoryListPair = {
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
     { label: Category['Misc.'], value: Category['Misc.'] },
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['File preparation']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['Final check']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['In-person']]: [
     { label: Category.Interpretation, value: Category.Interpretation },
   ],
   [ServiceType['Localization engineering']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['Online']]: [
     { label: Category.Interpretation, value: Category.Interpretation },
@@ -88,8 +88,8 @@ export const CategoryListPair = {
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
     { label: Category.Dubbing, value: Category.Dubbing },
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['Rendering/TC editing']]: [
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
@@ -97,8 +97,8 @@ export const CategoryListPair = {
   [ServiceType['Revision(Rework)']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['Subtitle']]: [
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
@@ -106,21 +106,21 @@ export const CategoryListPair = {
   [ServiceType['TAE(Translator accept edits)']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['Transcription']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['Translation']]: [
     { label: Category['Documents/Text'], value: Category['Documents/Text'] },
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
     { label: Category.Dubbing, value: Category.Dubbing },
-    { label: Category.Webnovel, value: Category.Webnovel },
     { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['Video editing']]: [
     { label: Category['Misc.'], value: Category['Misc.'] },
