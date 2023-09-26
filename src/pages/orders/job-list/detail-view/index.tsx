@@ -133,7 +133,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
 
   useEffect(() => {
     if (jobPrices) {
-      console.log("jobPrices-init",jobPrices)
+      console.log('jobPrices-init', jobPrices)
 
       const result = [
         {
@@ -142,7 +142,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
           itemName: jobPrices.priceName!,
           source: jobPrices.source!,
           target: jobPrices.target!,
-          priceId: jobPrices.priceId!,
+          priceId: jobPrices.initialPrice?.priceId!,
           detail: !jobPrices.detail?.length ? [] : jobPrices.detail,
           minimumPrice: jobPrices.minimumPrice,
           minimumPriceApplied: jobPrices.minimumPriceApplied,
@@ -216,10 +216,10 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',
         })
-      }
+      },
     },
   )
-  
+
   const onSubmit = () => {
     const data = getItem(`items.${0}`)
 
@@ -241,8 +241,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     if (role.state === 'hasValue' && role.getValue()) {
       role.getValue().map(item => {
         if (
-          (item.name === 'LPM' ||
-            item.name === 'TAD') &&
+          (item.name === 'LPM' || item.name === 'TAD') &&
           item.type === 'General'
         )
           flag = true
@@ -262,17 +261,17 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
 
   // const canUseFeature = (featureName: JobFeatureType): boolean => {
   //   let flag = false
-  
+
   //   switch (featureName) {
   //     case 'button-jobInfo-Edit':
   //       if (!hasGeneralPermission() ||
   //         (hasGeneralPermission() && )
   //       )
   //   }
-    
+
   //   return flag
   // }
-  console.log("role",role.getValue())
+  console.log('role', role.getValue())
   return (
     <>
       {!isLoading && jobInfo ? (

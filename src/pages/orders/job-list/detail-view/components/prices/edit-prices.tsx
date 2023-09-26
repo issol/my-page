@@ -137,7 +137,7 @@ const EditPrices = ({
   }
 
   const options =
-  jobPrices.source && jobPrices.target
+    jobPrices.source && jobPrices.target
       ? getPriceOptions(jobPrices.source, jobPrices.target)
       : [proDefaultOption]
 
@@ -153,17 +153,20 @@ const EditPrices = ({
 
   useEffect(() => {
     if (jobPrices) {
-      // console.log(jobPrices)
+      console.log(jobPrices)
 
       const res = getPriceOptions(jobPrices.source, jobPrices.target).find(
-        value => value.id === jobPrices.priceId,
+        value => value.id === jobPrices.initialPrice?.priceId,
       )
       setPrice(res!)
     }
   }, [jobPrices])
-  
-  const openMinimumPriceModal = (value:any) => {
-    const minimumPrice = formatCurrency(value?.languagePairs[0]?.minimumPrice, value?.currency)
+
+  const openMinimumPriceModal = (value: any) => {
+    const minimumPrice = formatCurrency(
+      value?.languagePairs[0]?.minimumPrice,
+      value?.currency,
+    )
     openModal({
       type: 'info-minimum',
       children: (
@@ -187,6 +190,8 @@ const EditPrices = ({
       ),
     })
   }
+
+  console.log(price)
 
   return (
     <>
@@ -250,7 +255,8 @@ const EditPrices = ({
                 if (v) {
                   setPrice(v)
                   setItem(`items.${0}.priceId`, v.id)
-                  if (v?.languagePairs[0]?.minimumPrice) openMinimumPriceModal(v)
+                  if (v?.languagePairs[0]?.minimumPrice)
+                    openMinimumPriceModal(v)
                 } else {
                   setPrice(null)
                 }
