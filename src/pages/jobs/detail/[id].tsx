@@ -130,7 +130,7 @@ const ProJobsDetail = () => {
 export default ProJobsDetail
 
 ProJobsDetail.acl = {
-  subject: 'jobs',
+  subject: 'job_list',
   action: 'read',
 }
 
