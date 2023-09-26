@@ -228,7 +228,7 @@ export default function QuotesDetail() {
             isUpdatable &&
             (project?.status === 'New' ||
               project?.status === 'In preparation' ||
-              project?.status === 'Internal Review' ||
+              project?.status === 'Internal review' ||
               project?.status === 'Revision requested' ||
               project?.status === 'Under revision' ||
               (project?.status === 'Expired' &&
@@ -284,7 +284,7 @@ export default function QuotesDetail() {
           flag =
             project?.status === 'New' ||
             project?.status === 'In preparation' ||
-            project?.status === 'Internal Review' ||
+            project?.status === 'Internal review' ||
             project?.status === 'Under revision' ||
             (project?.status === 'Expired' &&
               project?.confirmedAt === null &&
@@ -301,11 +301,11 @@ export default function QuotesDetail() {
             ? client?.isEnrolledClient
               ? project?.status === 'New' ||
                 project?.status === 'In preparation' ||
-                project?.status === 'Internal Review' ||
+                project?.status === 'Internal review' ||
                 (project?.status === 'Expired' && project?.confirmedAt === null)
               : (project?.status === 'New' ||
                   project?.status === 'In preparation' ||
-                  project?.status === 'Internal Review' ||
+                  project?.status === 'Internal review' ||
                   project?.status === 'Expired') &&
                 isIncludeProjectTeam()
             : false
@@ -1233,7 +1233,7 @@ export default function QuotesDetail() {
         !isDeletable ||
         (project?.status !== 'New' &&
           project?.status !== 'In preparation' &&
-          project?.status !== 'Internal Review' &&
+          project?.status !== 'Internal review' &&
           project?.status !== 'Expired')
       )
     } else {
@@ -1241,7 +1241,7 @@ export default function QuotesDetail() {
         !isDeletable ||
         (project?.status !== 'New' &&
           project?.status !== 'In preparation' &&
-          project?.status !== 'Internal Review' &&
+          project?.status !== 'Internal review' &&
           project?.status === 'Expired' &&
           project?.confirmedAt !== null)
       )

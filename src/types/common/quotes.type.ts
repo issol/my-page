@@ -14,7 +14,7 @@ import { CurrencyType } from './standard-price'
 export type QuoteStatusType =
   | 'New'
   | 'In preparation'
-  | 'Internal Review'
+  | 'Internal review'
   | 'Client review'
   | 'Quote sent'
   | 'Expired'
