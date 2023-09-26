@@ -73,6 +73,7 @@ export default function ProjectTeamForm({
   memberList,
   getValue,
 }: Props) {
+  const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
   const [list, setList] = useState<
     Array<{
       value: string
@@ -82,6 +83,12 @@ export default function ProjectTeamForm({
   >(memberList)
 
   const setValueOptions = { shouldValidate: true, shouldDirty: true }
+
+  const sortedFields = field.sort((a, b) => {
+    const aIndex = fieldOrder.indexOf(a.type)
+    const bIndex = fieldOrder.indexOf(b.type)
+    return aIndex - bIndex
+  })
 
   const [focusField, setFocusField] = useState<
     { idx: number; isFocus: boolean }[]
@@ -226,9 +233,14 @@ export default function ProjectTeamForm({
   }
 
   function removeItem(id: string) {
+    // console.log(id)
+
     const idx = field.map(item => item.id as string).indexOf(id)
+
     idx !== -1 && remove(idx)
   }
+
+  console.log(getValue('teams'))
 
   return (
     <TableContainer
@@ -266,7 +278,7 @@ export default function ProjectTeamForm({
                 {renderJobTitleField(`teams.${idx}.id`)}
               </TableCell>
               <TableCell align='left'>
-                {idx > 2 ? (
+                {item.type === 'member' && idx > 2 ? (
                   <IconButton onClick={() => removeItem(item.id)}>
                     <Icon icon='mdi:trash-outline' />
                   </IconButton>

@@ -7,7 +7,6 @@ import {
 } from '@src/types/orders/order-detail'
 
 export const getProjectTeamColumns = (role?: string) => {
-  console.log('role', role)
   const columns: GridColumns<ProjectTeamListType> = [
     {
       field: 'position',
@@ -23,7 +22,7 @@ export const getProjectTeamColumns = (role?: string) => {
               ? 'Project Manager'
               : row.position === 'supervisor'
               ? 'Supervisor'
-              : row.position === 'teamMember'
+              : row.position === 'member'
               ? 'Team member'
               : ''}
           </Typography>
@@ -59,7 +58,9 @@ export const getProjectTeamColumns = (role?: string) => {
       sortable: false,
       renderHeader: () => <Box>Job title</Box>,
       renderCell: ({ row }: ProjectTeamCellType) => {
-        return <Box>{row.jobTitle}</Box>
+        return (
+          <Box>{row.jobTitle && row.jobTitle !== '' ? row.jobTitle : '-'}</Box>
+        )
       },
     },
 
@@ -95,7 +96,7 @@ export const getProjectTeamColumns = (role?: string) => {
               ? 'Project Manager'
               : row.position === 'supervisor'
               ? 'Supervisor'
-              : row.position === 'teamMember'
+              : row.position === 'member'
               ? 'Team member'
               : ''}
           </Typography>
