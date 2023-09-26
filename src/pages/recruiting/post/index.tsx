@@ -563,7 +563,7 @@ export default function RecruitingPost() {
                   sx={{ paddingTop: '10px' }}
                   rowSpacing={6}
                 >
-                  <Grid item xs={4}>
+                  <Grid item xs={2.2}>
                     <Controller
                       name='openings'
                       control={control}
@@ -593,7 +593,7 @@ export default function RecruitingPost() {
                     )}
                   </Grid>
                   {/* date & time */}
-                  <Grid item xs={4}>
+                  <Grid item xs={3.8}>
                     <Controller
                       name='dueDate'
                       control={control}
@@ -615,7 +615,7 @@ export default function RecruitingPost() {
                     )}
                   </Grid>
                   {/* timezone */}
-                  <Grid item xs={4}>
+                  <Grid item xs={6}>
                     <Controller
                       name='dueDateTimezone'
                       control={control}
@@ -656,7 +656,7 @@ export default function RecruitingPost() {
                   </Grid>
                   {/* jobpost link */}
                   <Grid item xs={12}>
-                    <Box display='flex' gap='8px'>
+                    <Box display='flex' gap='24px'>
                       <Select
                         id='job post link'
                         labelId='select job post link'
