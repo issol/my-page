@@ -1743,6 +1743,11 @@ export default function QuotesDetail() {
                     }}
                   >
                     <DataGrid
+                      sx={{
+                        '& .MuiDataGrid-row:hover': {
+                          backgroundColor: 'inherit',
+                        },
+                      }}
                       autoHeight
                       getRowId={row => row.userId}
                       columns={getProjectTeamColumns(
