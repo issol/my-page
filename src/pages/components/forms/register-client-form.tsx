@@ -89,14 +89,34 @@ export default function RegisterClientForm({
   const contacts = watch('contacts')
 
   useEffect(() => {
-    if (!clientId) return
+    console.log(clientId)
+
+    if (!clientId) {
+      reset &&
+        reset({
+          clientId: null,
+          contactPersonId: null,
+          contacts: {
+            timezone: { code: '', label: '', phone: '' },
+            phone: '',
+            mobile: '',
+            fax: '',
+            email: '',
+            addresses: [],
+          },
+        })
+      return
+    }
     getDetail(clientId!, false)
   }, [clientId])
+  console.log(getValue())
 
   function getDetail(id: number, resetClientId = true) {
     return getClientDetail(id)
       .then(res => {
         setClientDetail(res)
+        console.log(res)
+
         reset &&
           reset({
             clientId: id,
@@ -164,18 +184,6 @@ export default function RegisterClientForm({
       })
   }
 
-  console.log(getValue('contacts.phone'))
-
-  function getPhoneNumber(
-    code: string | undefined,
-    phone: string | undefined | null,
-  ) {
-    console.log(phone)
-
-    if (!code || !phone) return ''
-    return `+ ${code} ) ${phone}`
-  }
-
   function getAddress(
     addresses:
       | Array<ClientAddressType & { id?: string | undefined }>
@@ -215,10 +223,23 @@ export default function RegisterClientForm({
                     onChange(v.value)
                   } else {
                     onChange(null)
-                    setValue('contactPersonId', null, {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    })
+                    reset &&
+                      reset({
+                        clientId: null,
+                        contactPersonId: null,
+                        contacts: {
+                          timezone: { code: '', label: '', phone: '' },
+                          phone: '',
+                          mobile: '',
+                          fax: '',
+                          email: '',
+                          addresses: [],
+                        },
+                      })
+                    // setValue('contactPersonId', null, {
+                    //   shouldValidate: true,
+                    //   shouldDirty: true,
+                    // })
                   }
                 }}
                 disabled={
@@ -359,18 +380,26 @@ export default function RegisterClientForm({
           name='contacts.timezone'
           control={control}
           render={({ field: { value } }) => {
+            console.log(getGmtTimeEng(value?.code))
+
             return (
               <TextField
                 fullWidth
-                label={value ? 'Time zone' : null}
-                // label='Time zone'
-                // placeholder='Time zone'
-                value={!value ? null : getGmtTimeEng(value.code)}
+                label={
+                  value && getGmtTimeEng(value.code) !== '-'
+                    ? 'Time zone'
+                    : null
+                }
+                value={
+                  value && getGmtTimeEng(value.code) !== '-'
+                    ? getGmtTimeEng(value.code)
+                    : ''
+                }
                 disabled={true}
                 InputProps={{
                   startAdornment: (
                     <>
-                      {value ? null : (
+                      {value && getGmtTimeEng(value.code) !== '-' ? null : (
                         <Box sx={{ width: '100%' }}>Time zone</Box>
                       )}
                     </>
@@ -389,8 +418,6 @@ export default function RegisterClientForm({
             <TextField
               fullWidth
               label={value ? 'Telephone' : null}
-              // placeholder='Telephone'
-              // label='Telephone'
               value={
                 !value || value === ''
                   ? ''
@@ -448,12 +475,18 @@ export default function RegisterClientForm({
               label={value ? 'Fax' : null}
               // placeholder='Fax'
               value={
-                !value ? null : getPhoneNumber(contacts?.timezone?.phone, value)
+                !value || value === ''
+                  ? ''
+                  : `+ ${getValue('contacts.timezone.phone')} ) ${value}`
               }
               disabled={true}
               InputProps={{
                 startAdornment: (
-                  <>{value ? null : <Box sx={{ width: '100%' }}>Fax</Box>}</>
+                  <>
+                    {value || value !== '' ? null : (
+                      <Box sx={{ width: '100%' }}>Fax</Box>
+                    )}
+                  </>
                 ),
               }}
             />
@@ -469,11 +502,15 @@ export default function RegisterClientForm({
               fullWidth
               // placeholder='Email'
               label={value ? 'Email' : null}
-              value={!value ? null : value}
+              value={!value || value === '' ? '' : value}
               disabled={true}
               InputProps={{
                 startAdornment: (
-                  <>{value ? null : <Box sx={{ width: '100%' }}>Email</Box>}</>
+                  <>
+                    {value || value !== '' ? null : (
+                      <Box sx={{ width: '100%' }}>Email</Box>
+                    )}
+                  </>
                 ),
               }}
             />
