@@ -1,4 +1,11 @@
-import { Badge, Box, Button, IconButton, Tooltip } from '@mui/material'
+import {
+  Badge,
+  Box,
+  Button,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import {
   AssignProFilterPostType,
   AssignProFilterType,
@@ -12,10 +19,10 @@ import AssignProListPage from './list'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
-import { 
+import {
   useGetAssignableProList,
   useGetContactProList,
- } from '@src/queries/order/job.query'
+} from '@src/queries/order/job.query'
 
 import {
   GridCallbackDetails,
@@ -45,7 +52,9 @@ import {
   useMutation,
 } from 'react-query'
 import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
-import { requestJobToPro } from '@src/apis/job-detail.api'
+import { assignJob, requestJobToPro } from '@src/apis/job-detail.api'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import toast from 'react-hot-toast'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -103,14 +112,18 @@ const AssignPro = ({
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
   const [hideOffBoard, setHideOffBoard] = useState<boolean>(true)
+  const jobId = row.id
 
   const { openModal, closeModal } = useModal()
 
-  const [proList, setProList] = useState<{
-    totalCount: number,
-    data: AssignProListType[],
-    count: number
-  } | undefined>()
+  const [proList, setProList] = useState<
+    | {
+        totalCount: number
+        data: AssignProListType[]
+        count: number
+      }
+    | undefined
+  >()
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
 
   const [filters, setFilters] = useState<AssignProFilterPostType>({
@@ -126,12 +139,16 @@ const AssignPro = ({
     // sortId: 'DESC',
     // sortDate: 'DESC',
   })
-  console.log("orderDetail",orderDetail)
+  console.log('orderDetail', orderDetail)
   const {
     data: AssignableProList,
     isLoading: isAssignableProListLoading,
     refetch: refetchAssignableProList,
-  } = useGetAssignableProList(row.id, filters, type === 'history' ? true : false)
+  } = useGetAssignableProList(
+    row.id,
+    filters,
+    type === 'history' ? true : false,
+  )
 
   const {
     data: contactProList,
@@ -150,19 +167,37 @@ const AssignPro = ({
     },
   )
 
+  const assignJobMutation = useMutation(
+    (data: { jobId: number; proId: number }) =>
+      assignJob(data.jobId, data.proId),
+    {
+      onSuccess: () => {
+        refetchAssignableProList()
+        refetchContactProList()
+      },
+    },
+  )
+
   useEffect(() => {
     if (
-      (AssignableProList && !isAssignableProListLoading) &&
-      (contactProList && !isContactProListLoading)
+      AssignableProList &&
+      !isAssignableProListLoading &&
+      contactProList &&
+      !isContactProListLoading
     ) {
       setProList({
         data: [...contactProList.data, ...AssignableProList.data],
         count: AssignableProList.count + contactProList.count,
-        totalCount: AssignableProList.totalCount + contactProList.totalCount
+        totalCount: AssignableProList.totalCount + contactProList.totalCount,
       })
     }
-    console.log("proList",proList)
-  }, [AssignableProList, isAssignableProListLoading, contactProList, isContactProListLoading])
+    console.log('proList', proList)
+  }, [
+    AssignableProList,
+    isAssignableProListLoading,
+    contactProList,
+    isContactProListLoading,
+  ])
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const languageList = getGloLanguage()
@@ -208,6 +243,45 @@ const AssignPro = ({
 
     requestJobMutation.mutate({ ids: res, jobId: row.id })
     closeModal('AssignProRequestJobModal')
+  }
+
+  const handleAssignJob = (jobId: number, proId: number) => {
+    assignJobMutation.mutate(
+      { jobId: jobId, proId: proId },
+      {
+        onSuccess: () => {
+          closeModal('AssignProJobModal')
+        },
+        onError: () => {
+          closeModal('AssignProJobModal')
+          toast.error('Something went wrong. Please try again.', {
+            position: 'bottom-left',
+          })
+        },
+      },
+    )
+  }
+
+  const onClickAssignJob = (jobId: number, proId: number, name: string) => {
+    openModal({
+      type: 'AssignProJobModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('AssignProJobModal')}
+          title={
+            <>
+              Are you sure you want to assign the job to selected Pro?
+              <Typography variant='body2' fontSize={16} fontWeight={600}>
+                {name}
+              </Typography>
+            </>
+          }
+          onClick={() => handleAssignJob(jobId, proId)}
+          vary='successful'
+          rightButtonText='Assign'
+        />
+      ),
+    })
   }
 
   const onClickRequestJob = () => {
@@ -469,21 +543,34 @@ const AssignPro = ({
       renderCell: ({ row }: { row: AssignProListType }) => {
         return (
           <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {row.assignmentStatus ? (
-              // <AssignmentStatusChip
-              //   label={row.assignmentStatus}
-              //   status={row.assignmentStatus}
-              // />
-              assignmentStatusChip(Number(row.assignmentStatus))
-            ) : (
-              '-'
-            )}
-            {row.assignmentStatus === 'Request accepted' && (
-              <Button variant='outlined' sx={{ height: '30px' }} size='small'>
+            {row.assignmentStatus
+              ? // <AssignmentStatusChip
+                //   label={row.assignmentStatus}
+                //   status={row.assignmentStatus}
+                // />
+                assignmentStatusChip(Number(row.assignmentStatus))
+              : '-'}
+            {row.assignmentStatus === 60200 && (
+              <Button
+                variant='outlined'
+                sx={{ height: '30px' }}
+                size='small'
+                onClick={() =>
+                  onClickAssignJob(
+                    jobId,
+                    row.userId,
+                    getLegalName({
+                      firstName: row.firstName,
+                      middleName: row.middleName,
+                      lastName: row.lastName,
+                    }),
+                  )
+                }
+              >
                 Assign
               </Button>
             )}
-            {row.assignmentStatus === 'Assigned' && (
+            {row.assignmentStatus === 60500 && (
               <IconButton onClick={() => onClickSourceFileToPro(row)}>
                 <Icon icon='ic:outline-upload-file' color='#666cff' />
               </IconButton>
@@ -630,9 +717,7 @@ const AssignPro = ({
 
       <AssignProListPage
         listCount={
-          isFiltersDifferent()
-            ? proList?.count!
-            : proList?.totalCount!
+          isFiltersDifferent() ? proList?.count! : proList?.totalCount!
         }
         list={proList?.data!}
         columns={type === 'history' ? historyColumns : columns}

@@ -477,7 +477,7 @@ export default function ItemForm({
         const price = data.reduce(
           (res, item) => (res += Number(item.prices)),
           0,
-        )       
+        )
         if (isNaN(price)) return
 
         if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
@@ -822,6 +822,7 @@ export default function ItemForm({
                         {...DateTimePickerDefaultOptions}
                         selected={!value ? null : new Date(value)}
                         onChange={onChange}
+                        placeholderText='MM/DD/YYYY, HH:MM'
                         customInput={
                           <CustomInput label='Item due date*' icon='calendar' />
                         }

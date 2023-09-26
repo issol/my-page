@@ -226,6 +226,7 @@ export default function CompanyInfoForm({
               error={Boolean(errors.email)}
               label='Email*'
               value={value}
+              placeholder='client@example.com'
               onChange={onChange}
               inputProps={{ maxLength: 100 }}
             />
@@ -305,6 +306,9 @@ export default function CompanyInfoForm({
           )}
         />
         {renderErrorMsg('websiteLink')}
+      </Grid>
+      <Grid item xs={12}>
+        <Divider />
       </Grid>
       <Grid item xs={6}>
         <Controller

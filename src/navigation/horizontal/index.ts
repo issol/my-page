@@ -63,7 +63,7 @@ const navigation = (): HorizontalNavItemsType => {
           subject: 'client',
         },
         {
-          title: 'Client guidelines',
+          title: 'Client Guidelines',
           path: `/client/client-guideline`,
           action: 'read',
           icon: 'mdi:playlist-check',

@@ -135,6 +135,7 @@ export default function ClientInvoicesFilter({
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
+                            placeholderText='MM/DD/YYYY - MM/DD/YYYY'
                             customInput={
                               <CustomInput
                                 label='Invoice date'
@@ -163,9 +164,10 @@ export default function ClientInvoicesFilter({
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
+                            placeholderText='MM/DD/YYYY - MM/DD/YYYY'
                             customInput={
                               <CustomInput
-                                label='Payment date'
+                                label='Payment due'
                                 icon='calendar'
                               />
                             }

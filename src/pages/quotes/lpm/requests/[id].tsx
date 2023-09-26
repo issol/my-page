@@ -276,7 +276,7 @@ export default function RequestDetail() {
                 closeModal('requestNextStep')
               }}
               vary='successful'
-              rightButtonText='Request'
+              rightButtonText='Create'
             />
           ),
         })
@@ -297,7 +297,7 @@ export default function RequestDetail() {
                 closeModal('requestNextStep')
               }}
               vary='successful'
-              rightButtonText='Request'
+              rightButtonText='Create'
             />
           ),
         })

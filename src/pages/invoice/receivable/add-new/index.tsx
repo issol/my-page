@@ -254,6 +254,7 @@ export default function AddNewInvoice() {
     setValue: setClientValue,
     watch: clientWatch,
     reset: clientReset,
+    trigger: clientTrigger,
     formState: { errors: clientErrors, isValid: isClientValid },
   } = useForm<ClientFormType>({
     mode: 'onChange',
@@ -685,6 +686,8 @@ export default function AddNewInvoice() {
                 formType='create'
                 getValue={getClientValue}
                 fromQuote={false}
+                reset={clientReset}
+                trigger={clientTrigger}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

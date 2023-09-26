@@ -22,6 +22,8 @@ import {
   UseFormSetValue,
   UseFormWatch,
   UseFormGetValues,
+  UseFormTrigger,
+  UseFormReset,
 } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -65,22 +67,24 @@ type Props = {
   setValue: UseFormSetValue<ClientFormType>
   getValue: UseFormGetValues<ClientFormType>
   watch: UseFormWatch<ClientFormType>
-
+  trigger?: UseFormTrigger<ClientFormType>
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'edit' | 'create'
   fromQuote: boolean
+  reset?: UseFormReset<ClientFormType>
 }
 export default function ClientQuotesFormContainer({
   control,
   setValue,
   watch,
-
+  trigger,
   setTaxable,
   type,
   formType,
   getValue,
   fromQuote = false,
+  reset,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [openForm, setOpenForm] = useState(false)
@@ -153,7 +157,6 @@ export default function ClientQuotesFormContainer({
     fields: contactPersons,
     append: appendContactPersons,
     remove: removeContactPersons,
-   
   } = useFieldArray({
     control: contactPersonControl,
     name: 'contactPersons',
@@ -309,11 +312,13 @@ export default function ClientQuotesFormContainer({
           setValue={setValue}
           getValue={getValue}
           watch={watch}
+          trigger={trigger}
           clientList={clients}
           setTaxable={setTaxable}
           type={type}
           formType={formType}
           fromQuote={fromQuote}
+          reset={reset}
         />
       </Grid>
 

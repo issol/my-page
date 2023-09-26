@@ -22,7 +22,9 @@ import {
   Control,
   Controller,
   UseFormGetValues,
+  UseFormReset,
   UseFormSetValue,
+  UseFormTrigger,
   UseFormWatch,
 } from 'react-hook-form'
 
@@ -39,19 +41,24 @@ import { ClientDetailType } from '@src/types/client/client'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { id } from 'date-fns/locale'
 
 type Props = {
   control: Control<ClientFormType, any>
   setValue: UseFormSetValue<ClientFormType>
   watch: UseFormWatch<ClientFormType>
   clientList: Array<{ value: number; label: string }>
+  trigger?: UseFormTrigger<ClientFormType>
 
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'create' | 'edit'
   getValue: UseFormGetValues<ClientFormType>
   fromQuote: boolean
+  reset?: UseFormReset<ClientFormType>
 }
+
+const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
 export default function RegisterClientForm({
   control,
@@ -64,29 +71,19 @@ export default function RegisterClientForm({
   formType,
   getValue,
   fromQuote,
+  trigger,
+  reset,
 }: Props) {
-  const [clientDetail, setClientDetail] = useState<ClientDetailType | null>(
-    null,
-  )
-  const [contactPerson, setContactPerson] = useState<{
-    id: number
-    firstName: string
-    middleName: string | null
-    lastName: string
-    timezone: CountryType
-    phone: string | null
-    mobile: string | null
-    fax: string | null
-    email: string
-    label?: string
-  } | null>(null)
-
   const defaultFilter: Array<any> = [
     { value: NOT_APPLICABLE, label: 'Not applicable' },
   ]
   const [contactPersonList, setContactPersonList] = useState<Array<any>>([
     ...defaultFilter,
   ])
+
+  const [clientDetail, setClientDetail] = useState<ClientDetailType | null>(
+    null,
+  )
 
   const clientId = watch('clientId')
   const contacts = watch('contacts')
@@ -96,45 +93,37 @@ export default function RegisterClientForm({
     getDetail(clientId!, false)
   }, [clientId])
 
-  useEffect(() => {
-    const contracts: {
-      timezone?: CountryType
-      phone?: string | null
-      mobile?: string | null
-      fax?: string | null
-      email?: string | null
-      addresses?: ClientAddressType[]
-    } = {
-      timezone: { phone: '', label: '', code: '' },
-      phone: '',
-      mobile: '',
-      fax: '',
-      email: '',
-    }
-    if (!contactPerson?.label || contactPerson?.label === 'Not applicable') {
-      contracts.timezone = clientDetail?.timezone
-      contracts.phone = clientDetail?.phone
-      contracts.mobile = clientDetail?.mobile
-      contracts.fax = clientDetail?.fax
-      contracts.email = clientDetail?.email
-      if (clientDetail?.isTaxable && clientDetail?.tax) {
-        setTaxable(clientDetail.isTaxable)
-      }
-    } else {
-      contracts.timezone = contactPerson?.timezone
-      contracts.phone = contactPerson?.phone
-      contracts.mobile = contactPerson?.mobile
-      contracts.fax = contactPerson?.fax
-      contracts.email = contactPerson?.email
-    }
-    contracts.addresses = clientDetail?.clientAddresses
-    setValue('contacts', contracts)
-  }, [contactPerson, clientDetail])
-
   function getDetail(id: number, resetClientId = true) {
     return getClientDetail(id)
       .then(res => {
         setClientDetail(res)
+        reset &&
+          reset({
+            clientId: id,
+            contacts: {
+              timezone: res?.timezone,
+              phone: res?.phone ?? '',
+              mobile: res?.mobile ?? '',
+              fax: res?.fax ?? '',
+              email: res?.email ?? '',
+              addresses:
+                res?.clientAddresses?.filter(
+                  item => item.addressType !== 'additional',
+                ) || [],
+            },
+          })
+
+        // setValue('contacts.timezone', res.timezone, setValueOptions)
+        // setValue('contacts.email', res.email, setValueOptions)
+        // setValue('contacts.phone', res.phone, setValueOptions)
+        // setValue('contacts.mobile', res.mobile, setValueOptions)
+        // setValue('contacts.fax', res.fax, setValueOptions)
+        // setValue('contacts.addresses', res.clientAddresses, setValueOptions)
+        // trigger('contacts')
+
+        if (res.isTaxable && res.tax) {
+          setTaxable(res.isTaxable)
+        }
         if (res?.contactPersons?.length) {
           const result = res.contactPersons.map(item => ({
             ...item,
@@ -161,11 +150,11 @@ export default function RegisterClientForm({
         }
       })
       .catch(e => {
-        setClientDetail(null)
+        // setClientDetail(null)
         setContactPersonList(defaultFilter)
       })
       .finally(() => {
-        setContactPerson(null)
+        // setContactPerson(null)
         if (resetClientId) {
           setValue('contactPersonId', NOT_APPLICABLE, {
             shouldDirty: true,
@@ -175,14 +164,16 @@ export default function RegisterClientForm({
       })
   }
 
-  console.log(contacts)
+  console.log(getValue('contacts.phone'))
 
   function getPhoneNumber(
     code: string | undefined,
     phone: string | undefined | null,
   ) {
+    console.log(phone)
+
     if (!code || !phone) return ''
-    return `+ ${code} ) phone`
+    return `+ ${code} ) ${phone}`
   }
 
   function getAddress(
@@ -273,13 +264,67 @@ export default function RegisterClientForm({
                 onChange={(e, v) => {
                   if (v) {
                     onChange(v.value)
-                    const res = contactPersonList.filter(
+                    const res = contactPersonList.find(
                       item => item.id === Number(v.value),
                     )
-                    setContactPerson(res.length ? res[0] : v)
+                    // setContactPerson(res ? res : v)
+
+                    if (res) {
+                      reset &&
+                        reset({
+                          clientId: clientId,
+                          contactPersonId: res?.id,
+
+                          contacts: {
+                            timezone: res?.timezone,
+                            phone: res?.phone ?? '',
+                            mobile: res?.mobile ?? '',
+                            fax: res?.fax ?? '',
+                            email: res?.email ?? '',
+                            addresses: getValue('contacts.addresses'),
+                          },
+                        })
+                    } else {
+                      reset &&
+                        reset({
+                          clientId: clientId,
+                          contactPersonId: v.value,
+
+                          contacts: {
+                            timezone: clientDetail?.timezone,
+                            phone: clientDetail?.phone ?? '',
+                            mobile: clientDetail?.mobile ?? '',
+                            fax: clientDetail?.fax ?? '',
+                            email: clientDetail?.email ?? '',
+                            addresses:
+                              clientDetail?.clientAddresses?.filter(
+                                item => item.addressType !== 'additional',
+                              ) || [],
+                          },
+                        })
+                    }
                   } else {
                     onChange(null)
-                    setContactPerson(null)
+                    // setValue('clientId', clientId)
+                    console.log(clientDetail)
+
+                    reset &&
+                      reset({
+                        clientId: clientId,
+                        contactPersonId: null,
+                        contacts: {
+                          timezone: clientDetail?.timezone,
+                          phone: clientDetail?.phone ?? '',
+                          mobile: clientDetail?.mobile ?? '',
+                          fax: clientDetail?.fax ?? '',
+                          email: clientDetail?.email ?? '',
+                          addresses:
+                            clientDetail?.clientAddresses?.filter(
+                              item => item.addressType !== 'additional',
+                            ) || [],
+                        },
+                      })
+                    // setContactPerson(null)
                   }
                 }}
                 disableClearable={getValue('contactPersonId') === null}
@@ -310,107 +355,129 @@ export default function RegisterClientForm({
         <Typography variant='h6'>Contacts</Typography>
       </Grid>
       <Grid item xs={6}>
-        <TextField
-          fullWidth
-          label={contacts?.timezone ? 'Time zone' : null}
-          // label='Time zone'
-          // placeholder='Time zone'
-          value={
-            !contacts?.timezone ? null : getGmtTimeEng(contacts?.timezone?.code)
-          }
-          disabled={true}
-          InputProps={{
-            startAdornment: (
-              <>
-                {contacts?.timezone ? null : (
-                  <Box sx={{ width: '100%' }}>Time zone</Box>
-                )}
-              </>
-            ),
+        <Controller
+          name='contacts.timezone'
+          control={control}
+          render={({ field: { value } }) => {
+            return (
+              <TextField
+                fullWidth
+                label={value ? 'Time zone' : null}
+                // label='Time zone'
+                // placeholder='Time zone'
+                value={!value ? null : getGmtTimeEng(value.code)}
+                disabled={true}
+                InputProps={{
+                  startAdornment: (
+                    <>
+                      {value ? null : (
+                        <Box sx={{ width: '100%' }}>Time zone</Box>
+                      )}
+                    </>
+                  ),
+                }}
+              />
+            )
           }}
+        ></Controller>
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='contacts.phone'
+          control={control}
+          render={({ field: { value } }) => (
+            <TextField
+              fullWidth
+              label={value ? 'Telephone' : null}
+              // placeholder='Telephone'
+              // label='Telephone'
+              value={
+                !value || value === ''
+                  ? ''
+                  : `+ ${getValue('contacts.timezone.phone')} ) ${value}`
+              }
+              disabled={true}
+              InputProps={{
+                startAdornment: (
+                  <>
+                    {value || value !== '' ? null : (
+                      <Box sx={{ width: '100%' }}>Telephone</Box>
+                    )}
+                  </>
+                ),
+              }}
+            />
+          )}
         />
       </Grid>
       <Grid item xs={6}>
-        <TextField
-          fullWidth
-          label={contacts?.phone ? 'Telephone' : null}
-          // placeholder='Telephone'
-          // label='Telephone'
-          value={
-            !contacts?.phone
-              ? null
-              : getPhoneNumber(contacts?.timezone?.phone, contacts?.phone)
-          }
-          disabled={true}
-          InputProps={{
-            startAdornment: (
-              <>
-                {contacts?.phone ? null : (
-                  <Box sx={{ width: '100%' }}>Telephone</Box>
-                )}
-              </>
-            ),
-          }}
+        <Controller
+          name='contacts.mobile'
+          control={control}
+          render={({ field: { value } }) => (
+            <TextField
+              fullWidth
+              label={value ? 'Mobile phone' : null}
+              // placeholder='Mobile phone'
+              value={
+                !value || value === ''
+                  ? ''
+                  : `+ ${getValue('contacts.timezone.phone')} ) ${value}`
+              }
+              disabled={true}
+              InputProps={{
+                startAdornment: (
+                  <>
+                    {value || value !== '' ? null : (
+                      <Box sx={{ width: '100%' }}>Mobile phone</Box>
+                    )}
+                  </>
+                ),
+              }}
+            />
+          )}
         />
       </Grid>
       <Grid item xs={6}>
-        <TextField
-          fullWidth
-          label={contacts?.mobile ? 'Mobile phone' : null}
-          // placeholder='Mobile phone'
-          value={
-            !contacts?.mobile
-              ? null
-              : getPhoneNumber(contacts?.timezone?.phone, contacts?.mobile)
-          }
-          disabled={true}
-          InputProps={{
-            startAdornment: (
-              <>
-                {contacts?.mobile ? null : (
-                  <Box sx={{ width: '100%' }}>Mobile phone</Box>
-                )}
-              </>
-            ),
-          }}
-        />
-      </Grid>
-      <Grid item xs={6}>
-        <TextField
-          fullWidth
-          label={contacts?.fax ? 'Fax' : null}
-          // placeholder='Fax'
-          value={
-            !contacts?.fax
-              ? null
-              : getPhoneNumber(contacts?.timezone?.phone, contacts?.fax)
-          }
-          disabled={true}
-          InputProps={{
-            startAdornment: (
-              <>
-                {contacts?.fax ? null : <Box sx={{ width: '100%' }}>Fax</Box>}
-              </>
-            ),
-          }}
+        <Controller
+          name='contacts.fax'
+          control={control}
+          render={({ field: { value } }) => (
+            <TextField
+              fullWidth
+              label={value ? 'Fax' : null}
+              // placeholder='Fax'
+              value={
+                !value ? null : getPhoneNumber(contacts?.timezone?.phone, value)
+              }
+              disabled={true}
+              InputProps={{
+                startAdornment: (
+                  <>{value ? null : <Box sx={{ width: '100%' }}>Fax</Box>}</>
+                ),
+              }}
+            />
+          )}
         />
       </Grid>
       <Grid item xs={12}>
-        <TextField
-          fullWidth
-          // placeholder='Email'
-          label={contacts?.email ? 'Email' : null}
-          value={!contacts?.email ? null : contacts?.email}
-          disabled={true}
-          InputProps={{
-            startAdornment: (
-              <>
-                {contacts?.email ? null : (
-                  <Box sx={{ width: '100%' }}>Email</Box>
-                )}
-              </>
-            ),
-          }}
+        <Controller
+          name='contacts.email'
+          control={control}
+          render={({ field: { value } }) => (
+            <TextField
+              fullWidth
+              // placeholder='Email'
+              label={value ? 'Email' : null}
+              value={!value ? null : value}
+              disabled={true}
+              InputProps={{
+                startAdornment: (
+                  <>{value ? null : <Box sx={{ width: '100%' }}>Email</Box>}</>
+                ),
+              }}
+            />
+          )}
         />
       </Grid>
       <Grid item xs={12}>
@@ -437,9 +504,9 @@ export default function RegisterClientForm({
                 label={
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Shipping address{' '}
-                      <span style={{ fontWeight: 600 }}>
-                        {getAddress(contacts?.addresses, 'shipping')}
-                      </span>
+                    <span style={{ fontWeight: 600 }}>
+                      {getAddress(contacts?.addresses, 'shipping')}
+                    </span>
                   </div>
                 }
               />
@@ -451,9 +518,9 @@ export default function RegisterClientForm({
                 label={
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Billing address{' '}
-                      <span style={{ fontWeight: 600 }}>
-                        {getAddress(contacts?.addresses, 'billing')}
-                      </span>
+                    <span style={{ fontWeight: 600 }}>
+                      {getAddress(contacts?.addresses, 'billing')}
+                    </span>
                   </div>
                 }
               />

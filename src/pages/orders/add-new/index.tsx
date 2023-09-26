@@ -243,6 +243,7 @@ export default function AddNewOrder() {
     setValue: setClientValue,
     watch: clientWatch,
     reset: clientReset,
+    trigger: clientTrigger,
     formState: { errors: clientErrors, isValid: isClientValid },
   } = useForm<ClientFormType>({
     mode: 'onChange',
@@ -253,6 +254,8 @@ export default function AddNewOrder() {
     },
     resolver: yupResolver(clientSchema),
   })
+
+  console.log(getClientValue())
 
   // ** step3
   const {
@@ -836,6 +839,8 @@ export default function AddNewOrder() {
                 formType={'create'}
                 getValue={getClientValue}
                 fromQuote={!!quoteId}
+                trigger={clientTrigger}
+                reset={clientReset}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

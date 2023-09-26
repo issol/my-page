@@ -381,7 +381,7 @@ export default function OrdersFilters({
                                 <CustomInput
                                   label='Order date'
                                   icon='calendar'
-                                  placeholder='MM/DD/YYYY'
+                                  placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                   value={
                                     value.length > 0
                                       ? dateValue(value[0], value[1])
@@ -417,7 +417,7 @@ export default function OrdersFilters({
                                 <CustomInput
                                   label='Project due date'
                                   icon='calendar'
-                                  placeholder='MM/DD/YYYY'
+                                  placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                   value={
                                     value.length > 0
                                       ? dateValue(value[0], value[1])

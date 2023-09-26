@@ -253,7 +253,7 @@ export default function AddContactPersonForm<
               </Grid>
 
               <Grid item xs={12}>
-                {renderTextFieldForm(idx, 'email', 'Email*', 100)}
+                {renderTextFieldForm(idx, 'email', 'Email*', 100, 'username@example.com')}
               </Grid>
               <Grid item xs={12}>
                 <Divider />
@@ -271,7 +271,7 @@ export default function AddContactPersonForm<
                         rows={4}
                         multiline
                         fullWidth
-                        placeholder='Write down some information to keep in mind about this contact person'
+                        placeholder='Write down some information to keep in mind about this contact person.'
                         value={value ?? ''}
                         onChange={onChange}
                         inputProps={{ maxLength: 500 }}
