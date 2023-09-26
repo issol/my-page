@@ -601,6 +601,7 @@ export default function QuotesDetail() {
   }, [teams])
 
   const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
+  const teamOrder = ['supervisor', 'projectManager', 'member']
 
   useEffect(() => {
     if (!isTeamLoading && team) {
@@ -630,7 +631,13 @@ export default function QuotesDetail() {
         })
       }
 
-      if (viewTeams.length) setTeams(viewTeams)
+      const res = viewTeams.sort((a, b) => {
+        const aIndex = teamOrder.indexOf(a.position)
+        const bIndex = teamOrder.indexOf(b.position)
+        return aIndex - bIndex
+      })
+
+      if (viewTeams.length) setTeams(res)
 
       const teams: Array<{
         type: MemberType
@@ -1754,7 +1761,7 @@ export default function QuotesDetail() {
                         (currentRole && currentRole.name) ?? '',
                       )}
                       rows={teams ?? []}
-                      rowCount={team?.length ?? 0}
+                      rowCount={teams?.length ?? 0}
                       rowsPerPageOptions={[10, 25, 50]}
                       pagination
                       page={teamPage}

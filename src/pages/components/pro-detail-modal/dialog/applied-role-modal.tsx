@@ -40,6 +40,7 @@ import TextField from '@mui/material/TextField'
 import { FormControlLabel } from '@mui/material'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import _ from 'lodash'
+import { Job } from '@src/shared/const/job/job.enum'
 
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
@@ -240,7 +241,10 @@ export default function AppliedRoleModal({
                                       )
                                     }}
                                   >
-                                    {JobList.map((item, idx) => (
+                                    {JobList.filter(
+                                      value =>
+                                        value.label !== Job.Interpretation,
+                                    ).map((item, idx) => (
                                       <MenuItem value={item.value} key={idx}>
                                         {item.label}
                                       </MenuItem>

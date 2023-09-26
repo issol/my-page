@@ -371,7 +371,6 @@ export default function RecruitingPost() {
                     <Controller
                       name='client'
                       control={control}
-                      rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
                         <Autocomplete
                           autoHighlight
@@ -389,7 +388,7 @@ export default function RecruitingPost() {
                             <TextField
                               {...params}
                               error={Boolean(errors.client)}
-                              label='Client*'
+                              label='Client'
                               placeholder='Client*'
                             />
                           )}
