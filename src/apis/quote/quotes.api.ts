@@ -57,7 +57,7 @@ function getColor(status: QuoteStatusType) {
     ? '#666CFF'
     : status === 'In preparation'
     ? `#F572D8`
-    : status === 'Internal Review'
+    : status === 'Internal review'
     ? `#20B6E5`
     : status === 'Client review'
     ? `#FDB528`
@@ -272,7 +272,7 @@ export const patchQuoteProjectInfo = async (
     | { isConfirmed: boolean }
     | { languagePairs: Array<LanguagePairsType> }
     | { items: Array<PostItemType> }
-    | { languagePairs: Array<LanguagePairsType>, items: Array<PostItemType> }
+    | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> },
 ) => {
   const { data } = await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
   return data
