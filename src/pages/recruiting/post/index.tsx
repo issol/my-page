@@ -604,7 +604,7 @@ export default function RecruitingPost() {
                           id='dueDate'
                           onChange={onChange}
                           placeholderText='Due date'
-                          customInput={<CustomInput icon='calendar' />}
+                          customInput={<CustomInput label='Due date' icon='calendar' />}
                         />
                       )}
                     />
