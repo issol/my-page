@@ -340,15 +340,15 @@ export function JobsStatusChip(
 }
 
 const assignmentStatusCode = [
-  {label: 'Requested', value: 60100},
-  {label: 'Request accepted', value: 60200},
-  {label: 'Request rejected', value: 60300},
-  {label: 'Canceled', value: 60400},
-  {label: 'Assigned', value: 60500},
+  { label: 'Requested', value: 60100 },
+  { label: 'Request accepted', value: 60200 },
+  { label: 'Request rejected', value: 60300 },
+  { label: 'Canceled', value: 60400 },
+  { label: 'Assigned', value: 60500 },
 ]
 
 export function assignmentStatusChip(status: number) {
-  const color = 
+  const color =
     status === 60100
       ? '#FDB528'
       : status === 60200
@@ -360,7 +360,8 @@ export function assignmentStatusChip(status: number) {
       : status === 60500
       ? '#666CFF'
       : ''
-  const statusLabel = assignmentStatusCode.find(list => list.value === status)?.label!
+  const statusLabel = assignmentStatusCode.find(list => list.value === status)
+    ?.label!
 
   return (
     <CustomChip
@@ -375,18 +376,18 @@ export function assignmentStatusChip(status: number) {
   )
 }
 
-export const AssignmentStatusChip = styled(Chip)<{ status: string }>`
+export const AssignmentStatusChip = styled(Chip)<{ status: number }>`
   border: none;
   ${({ status }) =>
-    status === 'Request accepted'
+    status === 60200
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128; color: #64C623;`
-      : status === 'Request rejected'
+      : status === 60300
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
-      : status === 'Requested'
+      : status === 60100
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color: #FDB528;`
-      : status === 'Assigned'
+      : status === 60500
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
-      : status === 'Canceled'
+      : status === 60400
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
       : null};
 `

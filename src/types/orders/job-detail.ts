@@ -68,7 +68,7 @@ export type AssignProListType = {
   email: string
   status: number
   responseRate: number | null
-  assignmentStatus: string | null
+  assignmentStatus: number | null
   assignmentDate: string | null
   files?: Array<{
     name: string
