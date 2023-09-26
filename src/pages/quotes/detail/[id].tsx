@@ -556,6 +556,8 @@ export default function QuotesDetail() {
   const [teamPage, setTeamPage] = useState(0)
   const [teamPageSize, setTeamPageSize] = useState(10)
   const { data: team, isLoading: isTeamLoading } = useGetProjectTeam(Number(id))
+
+  const [teams, setTeams] = useState<ProjectTeamListType[]>([])
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -595,7 +597,41 @@ export default function QuotesDetail() {
   })
 
   useEffect(() => {
+    console.log(teams, 'team')
+  }, [teams])
+
+  const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
+
+  useEffect(() => {
     if (!isTeamLoading && team) {
+      const viewTeams: ProjectTeamListType[] = team
+      console.log(viewTeams, 'rendering')
+
+      if (!viewTeams.some(item => item.position === 'supervisor')) {
+        viewTeams.unshift({
+          position: 'supervisor',
+          userId: -1,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+      if (!viewTeams.some(item => item.position === 'member')) {
+        viewTeams.push({
+          position: 'member',
+          userId: 0,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+
+      if (viewTeams.length) setTeams(viewTeams)
+
       const teams: Array<{
         type: MemberType
         id: number | null
@@ -614,9 +650,24 @@ export default function QuotesDetail() {
           lastName: item?.lastName!,
         }),
       }))
-      if (teams.length) resetTeam({ teams })
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
+
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
     }
-  }, [isTeamLoading])
+  }, [isTeamLoading, team])
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
@@ -1697,7 +1748,7 @@ export default function QuotesDetail() {
                       columns={getProjectTeamColumns(
                         (currentRole && currentRole.name) ?? '',
                       )}
-                      rows={team ?? []}
+                      rows={teams ?? []}
                       rowCount={team?.length ?? 0}
                       rowsPerPageOptions={[10, 25, 50]}
                       pagination
