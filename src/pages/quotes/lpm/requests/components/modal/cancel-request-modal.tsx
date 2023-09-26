@@ -21,7 +21,7 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
   const [reason, setReason] = useState('')
   const options = [
     'The task/language is currently unavailable.',
-    'The due date needs to be feasible.',
+    'The current due date is not feasible.',
     'The request has been canceled upon the client’s request.',
     'Others',
   ]
