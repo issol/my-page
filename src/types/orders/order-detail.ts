@@ -8,7 +8,7 @@ import { ItemType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
 import { ReasonType } from '../quotes/quote'
 
-export type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
+export type PositionType = 'supervisor' | 'projectManager' | 'member'
 
 export type ProjectTeamListType = {
   userId: number
@@ -201,8 +201,8 @@ export type OrderFeatureType =
   | 'button-Deliveries&Feedback-ConfirmDeliveries'
   | 'button-Deliveries&Feedback-RequestRedelivery'
 
-  export type JobInfoType = {
-    jobId: number,
-    jobName: string,
-    isProAssigned: boolean,
-  }
+export type JobInfoType = {
+  jobId: number
+  jobName: string
+  isProAssigned: boolean
+}

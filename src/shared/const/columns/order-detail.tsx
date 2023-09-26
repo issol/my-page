@@ -23,7 +23,7 @@ export const getProjectTeamColumns = (role?: string) => {
               ? 'Project Manager'
               : row.position === 'supervisor'
               ? 'Supervisor'
-              : row.position === 'teamMember'
+              : row.position === 'member'
               ? 'Team member'
               : ''}
           </Typography>
@@ -95,7 +95,7 @@ export const getProjectTeamColumns = (role?: string) => {
               ? 'Project Manager'
               : row.position === 'supervisor'
               ? 'Supervisor'
-              : row.position === 'teamMember'
+              : row.position === 'member'
               ? 'Team member'
               : ''}
           </Typography>
