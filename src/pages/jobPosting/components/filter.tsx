@@ -269,7 +269,7 @@ export default function Filters({
                         setFilter({ ...filter, dueDate: date?.toString() })
                       }
                       placeholderText='Due date'
-                      customInput={<CustomInput icon='calendar' />}
+                      customInput={<CustomInput label='Due date' icon='calendar' />}
                     />
                   </DatePickerWrapper>
                 </FormControl>
