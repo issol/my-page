@@ -48,6 +48,7 @@ type Props = {
   setCompanyInfoValues: UseFormSetValue<CompanyInfoFormType>
   companyInfoErrors: FieldErrors<CompanyInfoFormType>
   companyInfoWatch: UseFormWatch<CompanyInfoFormType>
+  getCompanyInfoValues: UseFormGetValues<CompanyInfoFormType>
   isCompanyInfoValid: boolean
 
   // ** contact person
@@ -81,6 +82,7 @@ export default function AddNewClientModal({
   steps,
   companyInfoControl,
   setCompanyInfoValues,
+  getCompanyInfoValues,
   companyInfoErrors,
   companyInfoWatch,
   isCompanyInfoValid,
@@ -134,6 +136,7 @@ export default function AddNewClientModal({
               mode='create'
               control={companyInfoControl}
               setValue={setCompanyInfoValues}
+              getValue={getCompanyInfoValues}
               errors={companyInfoErrors}
               watch={companyInfoWatch}
             />
@@ -158,19 +161,18 @@ export default function AddNewClientModal({
               errors={contactPersonErrors}
               watch={watchContactPerson}
             />
-            {contactPersons.length < 1
-              ? (<Grid item xs={12}>
-                  <Button
-                    onClick={appendContactPerson}
-                    variant='contained'
-                    disabled={!isCompanyInfoValid || contactPersons.length >= 1}
-                    sx={{ p: 0.7, minWidth: 26 }}
-                  >
-                    <Icon icon='material-symbols:add' />
-                  </Button>
-                </Grid>)
-              : null
-            }
+            {contactPersons.length < 1 ? (
+              <Grid item xs={12}>
+                <Button
+                  onClick={appendContactPerson}
+                  variant='contained'
+                  disabled={!isCompanyInfoValid || contactPersons.length >= 1}
+                  sx={{ p: 0.7, minWidth: 26 }}
+                >
+                  <Icon icon='material-symbols:add' />
+                </Button>
+              </Grid>
+            ) : null}
             <Grid item xs={12}>
               <Divider />
             </Grid>

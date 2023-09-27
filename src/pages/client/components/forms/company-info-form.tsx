@@ -28,6 +28,7 @@ import {
   Control,
   Controller,
   FieldErrors,
+  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -49,11 +50,13 @@ import styled from 'styled-components'
 import { DatePickerDefaultOptions } from '@src/shared/const/datePicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type Props = {
   mode: 'create' | 'update'
   control: Control<CompanyInfoFormType, any>
   setValue: UseFormSetValue<CompanyInfoFormType>
+  getValue: UseFormGetValues<CompanyInfoFormType>
   errors: FieldErrors<CompanyInfoFormType>
   watch: UseFormWatch<CompanyInfoFormType>
 }
@@ -63,9 +66,14 @@ export default function CompanyInfoForm({
   setValue,
   errors,
   watch,
+  getValue,
 }: Props) {
   const clientType: Array<ClientType> = ['Company', 'Mr', 'Ms']
   const country = getTypeList('CountryCode')
+  const timezone = watch('timezone')
+
+  console.log(timezone)
+
   // console.log('errors', errors)
   function renderCompanyTypeBtn(
     type: ClientType,
@@ -105,7 +113,6 @@ export default function CompanyInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              autoFocus
               label={label}
               variant='outlined'
               value={value ?? ''}
@@ -150,6 +157,8 @@ export default function CompanyInfoForm({
     return formattedDate
   }
 
+  console.log(Boolean(errors.tax) && getValue('isTaxable'))
+
   return (
     <Fragment>
       <Grid item xs={6}>
@@ -173,7 +182,6 @@ export default function CompanyInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <Autocomplete
-              autoHighlight
               fullWidth
               options={ClientStatus}
               disableClearable
@@ -238,14 +246,18 @@ export default function CompanyInfoForm({
         <Controller
           name='timezone'
           control={control}
-          render={({ field }) => (
+          render={({ field: { onChange, value } }) => (
             <Autocomplete
-              autoHighlight
               fullWidth
-              {...field}
+              value={value ?? undefined}
               options={countries as CountryType[]}
-              onChange={(e, v) => field.onChange(v)}
-              disableClearable
+              onChange={(e, v) => {
+                if (v) {
+                  onChange(v)
+                } else {
+                  onChange(undefined)
+                }
+              }}
               getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
@@ -265,6 +277,11 @@ export default function CompanyInfoForm({
             />
           )}
         />
+        {errors.timezone && (
+          <FormHelperText sx={{ color: 'error.main' }}>
+            {errors.timezone.label?.message}
+          </FormHelperText>
+        )}
       </Grid>
 
       <Grid item xs={6}>
@@ -408,19 +425,16 @@ export default function CompanyInfoForm({
             const findValue = TaxTypeList.find(item => item.value === value)
             return (
               <Autocomplete
-                autoHighlight
                 fullWidth
                 options={TaxTypeList}
                 onChange={(e, v) => {
-                  if (!v) onChange({ value: '', label: '' })
+                  if (!v) onChange(null)
                   else {
                     onChange(v.value)
                     if (v.value === false) setValue('tax', null)
                   }
                 }}
-                value={
-                  !value && !findValue ? { value: '', label: '' } : findValue
-                }
+                value={!value && !findValue ? null : findValue}
                 renderInput={params => (
                   <TextField
                     {...params}
@@ -433,18 +447,25 @@ export default function CompanyInfoForm({
             )
           }}
         />
-        {renderErrorMsg('isTaxable')}
+        {errors.isTaxable && (
+          <FormHelperText sx={{ color: 'error.main' }}>
+            {FormErrors.required}
+          </FormHelperText>
+        )}
       </Grid>
       <Grid item xs={6}>
         <Controller
           name='tax'
           control={control}
           render={({ field: { value, onChange } }) => (
-            <FormControl fullWidth error={Boolean(errors.tax)}>
+            <FormControl
+              fullWidth
+              error={Boolean(errors.tax) && getValue('isTaxable')}
+            >
               <InputLabel>Tax rate*</InputLabel>
               <OutlinedInput
                 value={value ?? ''}
-                error={Boolean(errors.tax)}
+                error={Boolean(errors.tax) && getValue('isTaxable')}
                 onChange={onChange}
                 label='Tax rate*'
                 disabled={!watch('isTaxable')}
@@ -457,7 +478,11 @@ export default function CompanyInfoForm({
             </FormControl>
           )}
         />
-        {renderErrorMsg('isTaxable')}
+        {errors.tax && getValue('isTaxable') && (
+          <FormHelperText sx={{ color: 'error.main' }}>
+            {FormErrors.required}
+          </FormHelperText>
+        )}
       </Grid>
 
       {mode === 'create' ? (

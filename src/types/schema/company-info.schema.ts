@@ -12,7 +12,7 @@ export type CompanyInfoFormType = {
   mobile?: string
   fax?: string
   websiteLink?: string
-  timezone?: CountryType
+  timezone?: CountryType | null
   isTaxable?: boolean
   tax?: number | null
   memo?: string
@@ -39,8 +39,8 @@ export const companyInfoSchema = yup.object().shape({
   websiteLink: yup
     .string()
     .test('is-http-url', FormErrors.notHTTPPrefixUrl, value => {
-      if (!value) return true;  // Pass validation if value is empty
-      return value.startsWith('http://') || value.startsWith('https://');
+      if (!value) return true // Pass validation if value is empty
+      return value.startsWith('http://') || value.startsWith('https://')
     })
     .url(FormErrors.invalidUrl)
     .nullable(),
@@ -68,5 +68,4 @@ export const companyInfoDefaultValue: CompanyInfoFormType = {
   status: 'New',
   name: '',
   email: '',
-  timezone: { code: '', label: '', phone: '' },
 }

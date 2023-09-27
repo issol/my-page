@@ -15,11 +15,7 @@ export type ContactPersonType<T extends number | string = number> = {
   lastName?: string
   department?: string | null
   jobTitle?: string
-  timezone: {
-    phone: string
-    code: string
-    label: string
-  }
+  timezone: CountryType | null
   email?: string
   phone?: string | null
   mobile?: string | null

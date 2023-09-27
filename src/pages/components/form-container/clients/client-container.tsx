@@ -118,8 +118,12 @@ export default function ClientQuotesFormContainer({
   } = useForm<CompanyInfoFormType>({
     mode: 'onChange',
     defaultValues: companyInfoDefaultValue,
+
     resolver: yupResolver(companyInfoSchema),
   })
+
+  console.log(getCompanyInfoValues())
+
   const {
     control: addressControl,
     getValues: getAddressValues,
@@ -191,7 +195,7 @@ export default function ClientQuotesFormContainer({
       personType: 'Mr.',
       firstName: '',
       lastName: '',
-      timezone: companyInfo.timezone ?? { code: '', label: '', phone: '' },
+      timezone: companyInfo.timezone ?? null,
       email: '',
       userId: null,
     })
@@ -331,6 +335,7 @@ export default function ClientQuotesFormContainer({
             steps={steps}
             companyInfoControl={companyInfoControl}
             setCompanyInfoValues={setCompanyInfoValues}
+            getCompanyInfoValues={getCompanyInfoValues}
             companyInfoErrors={companyInfoErrors}
             companyInfoWatch={companyInfoWatch}
             isCompanyInfoValid={isCompanyInfoValid}
