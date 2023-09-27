@@ -139,7 +139,7 @@ const AssignPro = ({
     // sortId: 'DESC',
     // sortDate: 'DESC',
   })
-  console.log('orderDetail', orderDetail)
+
   const {
     data: AssignableProList,
     isLoading: isAssignableProListLoading,
@@ -198,6 +198,11 @@ const AssignPro = ({
     contactProList,
     isContactProListLoading,
   ])
+
+  useEffect(() => {
+    refetchAssignableProList()
+    refetchContactProList()
+  }, [refetchAssignableProList, refetchContactProList])
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const languageList = getGloLanguage()
