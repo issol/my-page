@@ -68,10 +68,7 @@ export default function Filters({
 
   function filterValue(
     option: any,
-    keyName: keyof Pick<
-      FilterType,
-      'client' | 'category' | 'serviceType'
-    >,
+    keyName: keyof Pick<FilterType, 'client' | 'category' | 'serviceType'>,
   ): Array<{ value: string; label: string }> {
     return !filter[keyName]
       ? option[0]
@@ -111,7 +108,9 @@ export default function Filters({
                         multiple
                         disableCloseOnSelect
                         options={statusList!}
-                        value={statusList?.filter(status => filter.status?.includes(status.value!))}
+                        value={statusList?.filter(status =>
+                          filter.status?.includes(status.value!),
+                        )}
                         onChange={(e, v) =>
                           setFilter({
                             ...filter,
