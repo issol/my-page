@@ -76,7 +76,7 @@ const defaultFilters: AssignProFilterPostType = {
   category: [],
   serviceType: [],
   client: [],
-  isOffBoard: true,
+  isOffBoard: '1',
 }
 
 type Props = {
@@ -135,7 +135,7 @@ const AssignPro = ({
     client: [],
     take: proListPageSize,
     skip: proListPage * proListPageSize,
-    isOffBoard: hideOffBoard,
+    isOffBoard: hideOffBoard ? '1' : '0',
     // sortId: 'DESC',
     // sortDate: 'DESC',
   })
@@ -185,13 +185,13 @@ const AssignPro = ({
       contactProList &&
       !isContactProListLoading
     ) {
+      console.log([...contactProList.data, ...AssignableProList.data])
       setProList({
         data: [...contactProList.data, ...AssignableProList.data],
         count: AssignableProList.count + contactProList.count,
         totalCount: AssignableProList.totalCount + contactProList.totalCount,
       })
     }
-    console.log('proList', proList)
   }, [
     AssignableProList,
     isAssignableProListLoading,
@@ -382,7 +382,7 @@ const AssignPro = ({
       search: data.search,
       take: proListPageSize,
       skip: proListPage * proListPageSize,
-      isOffBoard: hideOffBoard,
+      isOffBoard: hideOffBoard ? '1' : '0',
     }
 
     setFilters(res)
