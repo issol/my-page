@@ -51,7 +51,7 @@ const defaultFilters: JobListFilterType = {
   requestedDateTo: '',
   status: [],
   contactPerson: null,
-  listType: 'completed',
+  listType: 'completed-inactive',
 }
 
 const DeliveredInactiveList = () => {
@@ -118,7 +118,7 @@ const DeliveredInactiveList = () => {
 
     const filter: JobListFilterType = {
       client: client?.id,
-      listType: 'completed',
+      listType: 'completed-inactive',
 
       dueDateFrom: jobDueDate[0]?.toISOString() ?? '',
       dueDateTo: jobDueDate[1]?.toISOString() ?? '',
