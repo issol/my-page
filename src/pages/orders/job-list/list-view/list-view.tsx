@@ -38,8 +38,8 @@ export type FilterType = {
   startedAt?: Array<Date | null>
   dueAt?: Array<Date | null>
   search?: string //filter for Work name, Project name
-  isMyJobs?: boolean
-  isHidePaid?: boolean
+  isMyJobs?: '0' | '1'
+  isHidePaid?: '0' | '1'
   skip: number
   take: number
 }
@@ -52,8 +52,8 @@ export const initialFilter: FilterType = {
   startedAt: [null, null],
   dueAt: [null, null],
   search: '',
-  isMyJobs: false,
-  isHidePaid: false,
+  isMyJobs: '0',
+  isHidePaid: '0',
   skip: 0,
   take: 10,
 }
@@ -143,20 +143,23 @@ export default function JobListView({
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>See only my jobs</Typography>
           <Switch
-            checked={activeFilter.isMyJobs}
+            checked={activeFilter.isMyJobs === '1'}
             onChange={e =>
-              setActiveFilter({ ...activeFilter, isMyJobs: e.target.checked })
+              setActiveFilter({
+                ...activeFilter,
+                isMyJobs: e.target.checked ? '1' : '0',
+              })
             }
           />
         </Box>
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>Hide paid jobs</Typography>
           <Switch
-            checked={activeFilter.isHidePaid}
+            checked={activeFilter.isHidePaid === '1'}
             onChange={e =>
               setActiveFilter({
                 ...activeFilter,
-                isHidePaid: e.target.checked,
+                isHidePaid: e.target.checked ? '1' : '0',
               })
             }
           />
