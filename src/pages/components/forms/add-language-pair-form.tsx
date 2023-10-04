@@ -388,7 +388,9 @@ export default function AddLanguagePairForm({
                               }}
                               id='autocomplete-controlled'
                               getOptionLabel={option =>
-                                `${option.priceName} (${option.currency})`
+                                option.priceName === 'Not applicable' 
+                                ? `${option.priceName}`
+                                : `${option.priceName} (${option.currency})`
                               }
                               renderInput={params => (
                                 <TextField {...params} placeholder='Price' />
