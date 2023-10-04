@@ -26,6 +26,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import styled from 'styled-components'
 
 // ** value
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
@@ -333,6 +334,12 @@ export default function AddLanguagePairForm({
                       copyPairs[idx].price = matchingPrice[0]
                       updateLanguagePairs(copyPairs)
                     }
+                    let hasMatchingPrice = false
+                    let hasStandardPrice = false
+                    options.find(option => {
+                      if (option.groupName && option.groupName === 'Matching price') hasMatchingPrice = true
+                      if (option.groupName && option.groupName === 'Standard client price') hasStandardPrice = true
+                    })
                     // row가 갑자기 여러번 리랜더링 되는 현상이 있음
                     console.log('Re-rendering-row', row)
                     return (
@@ -387,13 +394,27 @@ export default function AddLanguagePairForm({
                                 }
                               }}
                               id='autocomplete-controlled'
-                              getOptionLabel={option =>
-                                option.priceName === 'Not applicable' 
-                                ? `${option.priceName}`
-                                : `${option.priceName} (${option.currency})`
-                              }
+                              getOptionLabel={option => option.priceName}
                               renderInput={params => (
                                 <TextField {...params} placeholder='Price' />
+                              )}
+                              renderGroup={(params) => (
+                                <li key={params.key}>
+                                  {!hasMatchingPrice && params.group
+                                    ? <GroupHeader>
+                                        Matching price <NoResultText>(No result)</NoResultText>
+                                      </GroupHeader>
+                                    : null
+                                   }
+                                  {!hasStandardPrice && params.group
+                                    ? <GroupHeader>
+                                        Standard client price <NoResultText>(No result)</NoResultText>
+                                      </GroupHeader>
+                                    : null
+                                   }
+                                  <GroupHeader>{params.group}</GroupHeader>
+                                  <GroupItems>{params.children}</GroupItems>
+                                </li>
                               )}
                             />
                           )}
@@ -426,3 +447,20 @@ export default function AddLanguagePairForm({
     </Fragment>
   )
 }
+
+const GroupHeader = styled('div')({
+  paddingTop: '6px',
+  paddingBottom: '6px',
+  paddingLeft: '20px',
+  fontWeight: 'bold',
+})
+
+const NoResultText = styled('span')({
+  fontWeight: 'normal',
+});
+
+const GroupItems = styled('ul')({
+  paddingTop: '0px',
+  paddingBottom: '0px',
+  paddingLeft: '5px',
+});
