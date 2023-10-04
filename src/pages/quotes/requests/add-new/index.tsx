@@ -372,7 +372,6 @@ export default function AddNewRequest() {
 
                   return (
                     <Autocomplete
-                      autoHighlight
                       fullWidth
                       options={clients}
                       onChange={(e, v) => {
@@ -472,7 +471,7 @@ export default function AddNewRequest() {
                 onClick={() => {
                   const contactPerson = getValues('contactPersonId')
                   const timezone = clients?.find(
-                    c => c.value === contactPerson,
+                    c => c.userId === contactPerson,
                   )?.timezone
 
                   append({
