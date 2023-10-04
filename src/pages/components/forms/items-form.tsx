@@ -1029,11 +1029,7 @@ export default function ItemForm({
                           isOptionEqualToValue={(option, newValue) => {
                             return option.priceName === newValue?.priceName
                           }}
-                          getOptionLabel={option =>
-                            option.priceName === 'Not applicable' 
-                              ? `${option.priceName}`
-                              : `${option.priceName} (${option.currency})`
-                          }
+                          getOptionLabel={option => option.priceName}
                           onChange={(e, v) => {
                             // Not Applicable 임시 막기
                             // currency 체크 로직
@@ -1265,12 +1261,6 @@ export default function ItemForm({
 
 const FullWidthDatePicker = styled(DatePicker)`
   width: 100%;
-`
-const StyledAutocomplete = styled(Autocomplete)`
-  && .MuiAutocomplete-groupLabel {
-    margin-left: 0;
-    font-weight: bold;
-  }
 `
 const GroupHeader = styled('div')({
   paddingTop: '6px',
