@@ -220,7 +220,7 @@ export default function AddNewQuote() {
       ...quotesProjectInfoDefaultValue,
       quoteDate: {
         date: Date(),
-        timezone: getClientValue().contacts?.timezone,
+        timezone: getClientValue().contacts?.timezone!,
         // JSON.parse(getUserDataFromBrowser()!).timezone,
       },
       status: 20000,

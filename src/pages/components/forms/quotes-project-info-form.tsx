@@ -72,7 +72,7 @@ type Props = {
   setValue: UseFormSetValue<QuotesProjectInfoAddNewType>
   watch: UseFormWatch<QuotesProjectInfoAddNewType>
   errors: FieldErrors<QuotesProjectInfoAddNewType>
-  clientTimezone?: CountryType | undefined
+  clientTimezone?: CountryType | undefined | null
   getClientValue: UseFormGetValues<ClientFormType>
   getValues: UseFormGetValues<QuotesProjectInfoAddNewType>
 }
@@ -537,7 +537,7 @@ export default function ProjectInfoForm({
               onChange={onChange}
               placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
-                <CustomInput label='Quote deadline' icon='calendar'/>
+                <CustomInput label='Quote deadline' icon='calendar' />
               }
             />
           )}

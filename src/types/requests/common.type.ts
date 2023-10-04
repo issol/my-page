@@ -28,5 +28,5 @@ export type RequestItemFormType = {
   unit?: string
   quantity?: number | null
   desiredDueDate: string
-  desiredDueTimezone: CountryType
+  desiredDueTimezone: CountryType | null
 }

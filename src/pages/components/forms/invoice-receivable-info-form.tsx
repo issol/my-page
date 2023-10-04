@@ -67,7 +67,7 @@ type Props = {
   setValue: UseFormSetValue<InvoiceProjectInfoFormType>
   watch: UseFormWatch<InvoiceProjectInfoFormType>
   errors: FieldErrors<InvoiceProjectInfoFormType>
-  clientTimezone?: CountryType | undefined
+  clientTimezone?: CountryType | undefined | null
   client?: ClientType
   invoiceInfo?: InvoiceReceivableDetailType
   type: 'create' | 'edit'

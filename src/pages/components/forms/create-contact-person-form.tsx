@@ -25,6 +25,7 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 // ** components
 import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
 import { v4 as uuidv4 } from 'uuid'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 type Props<T extends number | string = number> = {
   control: Control<ContactPersonType, any>
@@ -129,17 +130,50 @@ export default function CreateContactPersonForm<
         <Controller
           name={`timezone`}
           control={control}
-          render={({ field }) => (
+          render={({ field: { value, onChange } }) => (
+            // <Autocomplete
+            //   fullWidth
+            //   {...field}
+            //   options={countries as CountryType[]}
+            //   onChange={(e, v) => field.onChange(v)}
+            //   disableClearable
+            //   renderOption={(props, option) => (
+            //     <Box component='li' {...props} key={uuidv4()}>
+            //       {option.label} ({option.code}) +{option.phone}
+            //     </Box>
+            //   )}
+            //   renderInput={params => (
+            //     <TextField
+            //       {...params}
+            //       label='Time zone*'
+            //       error={Boolean(errors.timezone)}
+            //       inputProps={{
+            //         ...params.inputProps,
+            //       }}
+            //     />
+            //   )}
+            // />
             <Autocomplete
-              autoHighlight
               fullWidth
-              {...field}
+              value={value ?? undefined}
               options={countries as CountryType[]}
-              onChange={(e, v) => field.onChange(v)}
-              disableClearable
+              onChange={(e, v) => {
+                if (v) {
+                  onChange(v)
+                } else {
+                  onChange(undefined)
+                }
+              }}
+              getOptionLabel={option => {
+                if (typeof option !== 'string') {
+                  return getGmtTimeEng(option.code) ?? ''
+                } else {
+                  return ''
+                }
+              }}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {option.label} ({option.code}) +{option.phone}
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
