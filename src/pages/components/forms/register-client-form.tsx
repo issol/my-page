@@ -121,7 +121,7 @@ export default function RegisterClientForm({
           reset({
             clientId: id,
             contacts: {
-              timezone: res?.timezone,
+              timezone: res?.timezone!,
               phone: res?.phone ?? '',
               mobile: res?.mobile ?? '',
               fax: res?.fax ?? '',
@@ -312,7 +312,7 @@ export default function RegisterClientForm({
                           contactPersonId: v.value,
 
                           contacts: {
-                            timezone: clientDetail?.timezone,
+                            timezone: clientDetail?.timezone!,
                             phone: clientDetail?.phone ?? '',
                             mobile: clientDetail?.mobile ?? '',
                             fax: clientDetail?.fax ?? '',
@@ -334,7 +334,7 @@ export default function RegisterClientForm({
                         clientId: clientId,
                         contactPersonId: null,
                         contacts: {
-                          timezone: clientDetail?.timezone,
+                          timezone: clientDetail?.timezone!,
                           phone: clientDetail?.phone ?? '',
                           mobile: clientDetail?.mobile ?? '',
                           fax: clientDetail?.fax ?? '',
@@ -380,18 +380,21 @@ export default function RegisterClientForm({
           name='contacts.timezone'
           control={control}
           render={({ field: { value } }) => {
-            console.log(getGmtTimeEng(value?.code))
-
+            
             return (
               <TextField
                 fullWidth
                 label={
-                  value && getGmtTimeEng(value.code) !== '-'
+                  value && 
+                  getValue().contactPersonId && 
+                  getGmtTimeEng(value.code) !== '-'
                     ? 'Time zone'
                     : null
                 }
                 value={
-                  value && getGmtTimeEng(value.code) !== '-'
+                  value && 
+                  getValue().contactPersonId && 
+                  getGmtTimeEng(value.code) !== '-'
                     ? getGmtTimeEng(value.code)
                     : ''
                 }
@@ -399,7 +402,7 @@ export default function RegisterClientForm({
                 InputProps={{
                   startAdornment: (
                     <>
-                      {value && getGmtTimeEng(value.code) !== '-' ? null : (
+                      {value && getValue().contactPersonId && getGmtTimeEng(value.code) !== '-' ? null : (
                         <Box sx={{ width: '100%' }}>Time zone</Box>
                       )}
                     </>
@@ -419,7 +422,7 @@ export default function RegisterClientForm({
               fullWidth
               label={value ? 'Telephone' : null}
               value={
-                !value || value === ''
+                (!value || value === '') || !getValue().contactPersonId
                   ? ''
                   : `+ ${getValue('contacts.timezone.phone')} ) ${value}`
               }
@@ -427,7 +430,7 @@ export default function RegisterClientForm({
               InputProps={{
                 startAdornment: (
                   <>
-                    {value || value !== '' ? null : (
+                    {(value || value !== '') && getValue().contactPersonId ? null : (
                       <Box sx={{ width: '100%' }}>Telephone</Box>
                     )}
                   </>
@@ -447,7 +450,7 @@ export default function RegisterClientForm({
               label={value ? 'Mobile phone' : null}
               // placeholder='Mobile phone'
               value={
-                !value || value === ''
+                (!value || value === '') || !getValue().contactPersonId
                   ? ''
                   : `+ ${getValue('contacts.timezone.phone')} ) ${value}`
               }
@@ -455,7 +458,7 @@ export default function RegisterClientForm({
               InputProps={{
                 startAdornment: (
                   <>
-                    {value || value !== '' ? null : (
+                    {(value || value !== '') && getValue().contactPersonId ? null : (
                       <Box sx={{ width: '100%' }}>Mobile phone</Box>
                     )}
                   </>
@@ -475,7 +478,7 @@ export default function RegisterClientForm({
               label={value ? 'Fax' : null}
               // placeholder='Fax'
               value={
-                !value || value === ''
+                (!value || value === '') || !getValue().contactPersonId
                   ? ''
                   : `+ ${getValue('contacts.timezone.phone')} ) ${value}`
               }
@@ -483,7 +486,7 @@ export default function RegisterClientForm({
               InputProps={{
                 startAdornment: (
                   <>
-                    {value || value !== '' ? null : (
+                    {(value || value !== '') && getValue().contactPersonId ? null : (
                       <Box sx={{ width: '100%' }}>Fax</Box>
                     )}
                   </>
@@ -502,14 +505,14 @@ export default function RegisterClientForm({
               fullWidth
               // placeholder='Email'
               label={value ? 'Email' : null}
-              value={!value || value === '' ? '' : value}
+              value={(!value || value === '') || !getValue().contactPersonId ? '' : value}
               disabled={true}
               InputProps={{
                 startAdornment: (
                   <>
-                    {value || value !== '' ? null : (
+                    {(value || value !== '') && getValue().contactPersonId ? null : (
                       <Box sx={{ width: '100%' }}>Email</Box>
-                    )}
+                    )} {}
                   </>
                 ),
               }}
@@ -542,7 +545,10 @@ export default function RegisterClientForm({
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Shipping address{' '}
                     <span style={{ fontWeight: 600 }}>
-                      {getAddress(contacts?.addresses, 'shipping')}
+                      {getValue().contactPersonId 
+                        ? getAddress(contacts?.addresses, 'shipping')
+                        : '-'
+                      }
                     </span>
                   </div>
                 }
@@ -556,7 +562,9 @@ export default function RegisterClientForm({
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Billing address{' '}
                     <span style={{ fontWeight: 600 }}>
-                      {getAddress(contacts?.addresses, 'billing')}
+                      {getValue().contactPersonId
+                        ? getAddress(contacts?.addresses, 'billing')
+                        : '-'}
                     </span>
                   </div>
                 }
