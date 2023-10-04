@@ -157,7 +157,7 @@ export default function AddLanguagePairForm({
     }
   }
 
-  const selectNotApplicableOption = () => {
+  const selectNotApplicableModal = () => {
     openModal({
       type: 'info-not-applicable-unavailable',
       children: (
@@ -379,7 +379,7 @@ export default function AddLanguagePairForm({
                               groupBy={option => option?.groupName ?? ''}
                               onChange={(e, v) => {
                                 if (v && v.id === -1) {
-                                  selectNotApplicableOption()
+                                  selectNotApplicableModal()
                                 } else {
                                   const copyPairs = [...languagePairs]
                                   copyPairs[idx].price = v
