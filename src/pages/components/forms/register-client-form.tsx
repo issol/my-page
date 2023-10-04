@@ -420,7 +420,7 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
-              label={value ? 'Telephone' : null}
+              label={value && getValue().contactPersonId ? 'Telephone' : null}
               value={
                 (!value || value === '') || !getValue().contactPersonId
                   ? ''
@@ -447,7 +447,7 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
-              label={value ? 'Mobile phone' : null}
+              label={value && getValue().contactPersonId ? 'Mobile phone' : null}
               // placeholder='Mobile phone'
               value={
                 (!value || value === '') || !getValue().contactPersonId
@@ -475,7 +475,7 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
-              label={value ? 'Fax' : null}
+              label={value && getValue().contactPersonId ? 'Fax' : null}
               // placeholder='Fax'
               value={
                 (!value || value === '') || !getValue().contactPersonId
@@ -504,7 +504,7 @@ export default function RegisterClientForm({
             <TextField
               fullWidth
               // placeholder='Email'
-              label={value ? 'Email' : null}
+              label={value && getValue().contactPersonId ? 'Email' : null}
               value={(!value || value === '') || !getValue().contactPersonId ? '' : value}
               disabled={true}
               InputProps={{
