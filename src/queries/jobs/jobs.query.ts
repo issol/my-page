@@ -13,12 +13,15 @@ import {
 } from '@src/apis/jobs.api'
 import { JobListFilterType } from '@src/pages/jobs/requested-ongoing-list'
 
-import { FilterType as ListFilterType } from '@src/pages/orders/job-list/list-view/list-view'
+import {
+  FilterPostType,
+  FilterType as ListFilterType,
+} from '@src/pages/orders/job-list/list-view/list-view'
 import { DetailFilterType } from '@src/pages/orders/job-list/tracker-view/[id]'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
-export const useGetJobsList = (filter: ListFilterType) => {
+export const useGetJobsList = (filter: FilterPostType) => {
   return useQuery(['jobList', filter], () => getJobsList(filter), {
     staleTime: 60 * 1000, // 1
     suspense: false,

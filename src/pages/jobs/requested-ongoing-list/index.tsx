@@ -31,7 +31,7 @@ export type JobListFilterType = {
   status?: number[]
   contactPerson?: number | null
   client?: number | null
-  listType?: 'requested-ongoing' | 'completed'
+  listType?: 'requested-ongoing' | 'completed-inactive'
 }
 
 const defaultFilters: JobListFilterType = {

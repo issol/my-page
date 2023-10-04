@@ -75,7 +75,7 @@ type Props = {
   setValue: UseFormSetValue<OrderProjectInfoFormType>
   watch: UseFormWatch<OrderProjectInfoFormType>
   errors: FieldErrors<OrderProjectInfoFormType>
-  clientTimezone?: CountryType | undefined
+  clientTimezone?: CountryType | undefined | null
   getClientValue: UseFormGetValues<ClientFormType>
   getValues: UseFormGetValues<OrderProjectInfoFormType>
 }

@@ -54,7 +54,7 @@ const defaultFilters: JobListFilterType = {
   take: 10,
   skip: 0,
   search: '',
-  listType: 'completed',
+  listType: 'completed-inactive',
   status: [601100],
 }
 
@@ -162,7 +162,7 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
       skip: rowsPerPage * page,
       ordering: 'desc',
       sort: 'corporationId',
-      listType: 'completed',
+      listType: 'completed-inactive',
     }
 
     setFilters(filter)

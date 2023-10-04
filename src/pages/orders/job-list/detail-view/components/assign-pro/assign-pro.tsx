@@ -76,7 +76,7 @@ const defaultFilters: AssignProFilterPostType = {
   category: [],
   serviceType: [],
   client: [],
-  isOffBoard: true,
+  isOffBoard: '1',
 }
 
 type Props = {
@@ -135,11 +135,11 @@ const AssignPro = ({
     client: [],
     take: proListPageSize,
     skip: proListPage * proListPageSize,
-    isOffBoard: hideOffBoard,
+    isOffBoard: hideOffBoard ? '1' : '0',
     // sortId: 'DESC',
     // sortDate: 'DESC',
   })
-  console.log('orderDetail', orderDetail)
+
   const {
     data: AssignableProList,
     isLoading: isAssignableProListLoading,
@@ -185,19 +185,24 @@ const AssignPro = ({
       contactProList &&
       !isContactProListLoading
     ) {
+      console.log([...contactProList.data, ...AssignableProList.data])
       setProList({
         data: [...contactProList.data, ...AssignableProList.data],
         count: AssignableProList.count + contactProList.count,
         totalCount: AssignableProList.totalCount + contactProList.totalCount,
       })
     }
-    console.log('proList', proList)
   }, [
     AssignableProList,
     isAssignableProListLoading,
     contactProList,
     isContactProListLoading,
   ])
+
+  useEffect(() => {
+    refetchAssignableProList()
+    refetchContactProList()
+  }, [refetchAssignableProList, refetchContactProList])
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const languageList = getGloLanguage()
@@ -382,7 +387,7 @@ const AssignPro = ({
       search: data.search,
       take: proListPageSize,
       skip: proListPage * proListPageSize,
-      isOffBoard: hideOffBoard,
+      isOffBoard: hideOffBoard ? '1' : '0',
     }
 
     setFilters(res)

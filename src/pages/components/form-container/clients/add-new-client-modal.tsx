@@ -25,86 +25,160 @@ import {
   UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
+  useFieldArray,
+  useForm,
 } from 'react-hook-form'
 
-import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
-import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
-import { ClientContactPersonType } from '@src/types/schema/client-contact-person.schema'
+import {
+  CompanyInfoFormType,
+  companyInfoDefaultValue,
+  companyInfoSchema,
+} from '@src/types/schema/company-info.schema'
+import {
+  ClientAddressFormType,
+  clientAddressDefaultValue,
+  clientAddressSchema,
+} from '@src/types/schema/client-address.schema'
+import {
+  ClientContactPersonType,
+  ContactPersonType,
+  clientContactPersonSchema,
+  contactPersonDefaultValue,
+} from '@src/types/schema/client-contact-person.schema'
 
 // ** components
 import Stepper from '@src/pages/components/stepper'
 import CompanyInfoForm from '@src/pages/client/components/forms/company-info-form'
 import AddContactPersonForm from '@src/pages/components/forms/add-contact-person-form'
 import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
+import { useGetClientList } from '@src/queries/client.query'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { CreateClientBodyType } from '@src/apis/client.api'
 
 type Props = {
-  onClose: () => void
-  // ** stepper
-  activeStep: number
-  steps: Array<{ title: string }>
+  onClose: any
 
-  // ** company
-  companyInfoControl: Control<CompanyInfoFormType, any>
-  setCompanyInfoValues: UseFormSetValue<CompanyInfoFormType>
-  companyInfoErrors: FieldErrors<CompanyInfoFormType>
-  companyInfoWatch: UseFormWatch<CompanyInfoFormType>
-  isCompanyInfoValid: boolean
-
-  // ** contact person
-  contactPersons: FieldArrayWithId<
-    ClientContactPersonType,
-    'contactPersons',
-    'id'
-  >[]
-  contactPersonControl: Control<ClientContactPersonType, any>
-  contactPersonErrors: FieldErrors<ClientContactPersonType>
-  watchContactPerson: UseFormWatch<ClientContactPersonType>
-  appendContactPerson: () => void
-  removeContactPersons: UseFieldArrayRemove
-
-  // ** addresses
-  addressControl: Control<ClientAddressFormType, any>
-  getAddress: UseFormGetValues<ClientAddressFormType>
-  addresses: FieldArrayWithId<ClientAddressFormType, 'clientAddresses', 'id'>[]
-  appendAddress: UseFieldArrayAppend<ClientAddressFormType, 'clientAddresses'>
-  removeAddress: UseFieldArrayRemove
-  updateAddress: UseFieldArrayUpdate<ClientAddressFormType, 'clientAddresses'>
-  addressErrors: FieldErrors<ClientAddressFormType>
-  isAddressValid: boolean
-  onNextStep: () => void
-  handleBack: () => void
-  onSave: () => void
+  onSave: (
+    clientData: CreateClientBodyType,
+    contactPersonData: ContactPersonType[] | undefined,
+  ) => void
 }
-export default function AddNewClientModal({
-  onClose,
-  activeStep,
-  steps,
-  companyInfoControl,
-  setCompanyInfoValues,
-  companyInfoErrors,
-  companyInfoWatch,
-  isCompanyInfoValid,
-  contactPersons,
-  contactPersonControl,
-  contactPersonErrors,
-  watchContactPerson,
-  appendContactPerson,
-  removeContactPersons,
-  addressControl,
-  getAddress,
-  addresses,
-  appendAddress,
-  removeAddress,
-  updateAddress,
-  addressErrors,
-  isAddressValid,
-  onNextStep,
-  handleBack,
-  onSave,
-}: Props) {
+export default function AddNewClientModal({ onClose, onSave }: Props) {
   const [checked, setChecked] = useState(false)
+
+  const [activeStep, setActiveStep] = useState<number>(0)
+
+  const steps = [
+    {
+      title: 'Company info',
+    },
+    {
+      title: 'Addresses',
+    },
+  ]
+
+  const onClickBackStep = () => {
+    setActiveStep(prevActiveStep => prevActiveStep - 1)
+  }
+
+  const onClickNextStep = () => {
+    setActiveStep(activeStep + 1)
+  }
+
+  const {
+    control: companyInfoControl,
+    getValues: getCompanyInfoValues,
+    setValue: setCompanyInfoValues,
+    watch: companyInfoWatch,
+    reset: resetCompanyInfo,
+    formState: { errors: companyInfoErrors, isValid: isCompanyInfoValid },
+  } = useForm<CompanyInfoFormType>({
+    mode: 'onChange',
+    defaultValues: companyInfoDefaultValue,
+
+    resolver: yupResolver(companyInfoSchema),
+  })
+
+  console.log(getCompanyInfoValues())
+
+  const {
+    control: addressControl,
+    getValues: getAddressValues,
+    reset: resetAddressControl,
+    formState: { errors: addressErrors, isValid: isAddressValid },
+  } = useForm<ClientAddressFormType>({
+    defaultValues: clientAddressDefaultValue,
+    mode: 'onChange',
+    resolver: yupResolver(clientAddressSchema),
+  })
+
+  const {
+    fields: addresses,
+    append: appendAddress,
+    remove: removeAddress,
+    update: updateAddress,
+  } = useFieldArray({
+    control: addressControl,
+    name: 'clientAddresses',
+  })
+
+  const {
+    control: contactPersonControl,
+    getValues: getContactPersonValues,
+    watch: watchContactPerson,
+    reset: resetContactPersons,
+    formState: { errors: contactPersonErrors, isValid: isContactPersonValid },
+  } = useForm<ClientContactPersonType>({
+    defaultValues: contactPersonDefaultValue,
+    mode: 'onChange',
+    resolver: yupResolver(clientContactPersonSchema),
+  })
+
+  const {
+    fields: contactPersons,
+    append: appendContactPersons,
+    remove: removeContactPersons,
+  } = useFieldArray({
+    control: contactPersonControl,
+    name: 'contactPersons',
+  })
+
+  function appendContactPerson() {
+    const companyInfo = getCompanyInfoValues() ?? undefined
+    appendContactPersons({
+      personType: 'Mr.',
+      firstName: '',
+      lastName: '',
+      timezone: companyInfo.timezone ?? null,
+      email: '',
+      userId: null,
+    })
+  }
+
+  const resetAddNewClientForm = () => {
+    resetCompanyInfo()
+    resetAddressControl()
+    resetContactPersons()
+    setActiveStep(0)
+  }
+
   return (
-    <Fragment>
+    <Box
+      sx={{
+        maxWidth: '900px',
+        maxHeight: '90vh',
+        overflow: 'scroll',
+        width: '100%',
+        background: '#ffffff',
+        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+        borderRadius: '10px',
+        padding: '50px 60px',
+        position: 'relative',
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
+      }}
+    >
       <Grid container spacing={6}>
         <Grid item xs={12} display='flex' justifyContent='space-between'>
           <Box>
@@ -134,6 +208,7 @@ export default function AddNewClientModal({
               mode='create'
               control={companyInfoControl}
               setValue={setCompanyInfoValues}
+              getValue={getCompanyInfoValues}
               errors={companyInfoErrors}
               watch={companyInfoWatch}
             />
@@ -158,19 +233,18 @@ export default function AddNewClientModal({
               errors={contactPersonErrors}
               watch={watchContactPerson}
             />
-            {contactPersons.length < 1
-              ? (<Grid item xs={12}>
-                  <Button
-                    onClick={appendContactPerson}
-                    variant='contained'
-                    disabled={!isCompanyInfoValid || contactPersons.length >= 1}
-                    sx={{ p: 0.7, minWidth: 26 }}
-                  >
-                    <Icon icon='material-symbols:add' />
-                  </Button>
-                </Grid>)
-              : null
-            }
+            {contactPersons.length < 1 ? (
+              <Grid item xs={12}>
+                <Button
+                  onClick={appendContactPerson}
+                  variant='contained'
+                  disabled={!isCompanyInfoValid || contactPersons.length >= 1}
+                  sx={{ p: 0.7, minWidth: 26 }}
+                >
+                  <Icon icon='material-symbols:add' />
+                </Button>
+              </Grid>
+            ) : null}
             <Grid item xs={12}>
               <Divider />
             </Grid>
@@ -179,7 +253,7 @@ export default function AddNewClientModal({
             <Button
               variant='contained'
               disabled={!isCompanyInfoValid}
-              onClick={onNextStep}
+              onClick={onClickNextStep}
             >
               Next <Icon icon='material-symbols:arrow-forward-rounded' />
             </Button>
@@ -197,23 +271,32 @@ export default function AddNewClientModal({
             update={updateAddress}
             errors={addressErrors}
             isValid={isAddressValid}
-            getValues={getAddress}
+            getValues={getAddressValues}
           />
           <Grid item xs={12} display='flex' justifyContent='space-between'>
-            <Button variant='outlined' color='secondary' onClick={handleBack}>
+            <Button
+              variant='outlined'
+              color='secondary'
+              onClick={onClickBackStep}
+            >
               <Icon icon='material-symbols:arrow-back-rounded' />
               Previous
             </Button>
             <Button
               variant='contained'
               disabled={!isAddressValid}
-              onClick={onSave}
+              onClick={() =>
+                onSave(
+                  { ...getCompanyInfoValues(), ...getAddressValues() },
+                  contactPersons,
+                )
+              }
             >
               Save
             </Button>
           </Grid>
         </Grid>
       )}
-    </Fragment>
+    </Box>
   )
 }

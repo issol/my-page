@@ -103,7 +103,7 @@ const AssignProList = ({
                       setHideOffBoard(e.target.checked)
                       setFilters((prevState: AssignProFilterPostType) => ({
                         ...prevState,
-                        isOffBoard: e.target.checked,
+                        isOffBoard: e.target.checked ? '1' : '0',
                       }))
                     }}
                   />

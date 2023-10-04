@@ -252,7 +252,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                 ? data.contactPerson.mobile!
                 : data.client.client.mobile,
               data.contactPerson !== null
-                ? data.contactPerson.timezone.phone
+                ? data.contactPerson.timezone?.phone
                 : data.client.client.timezone.phone,
             )}
           </Typography>

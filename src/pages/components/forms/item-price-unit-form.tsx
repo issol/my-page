@@ -74,10 +74,7 @@ type Props = {
   append: UseFieldArrayAppend<{ items: ItemType[] }, `items.${number}.detail`>
   update: UseFieldArrayUpdate<{ items: ItemType[] }, `items.${number}.detail`>
   getTotalPrice: () => void
-  getEachPrice: (
-    idx: number,
-    isNotApplicable?: boolean,
-  ) => void
+  getEachPrice: (idx: number, isNotApplicable?: boolean) => void
   onDeletePriceUnit: (idx: number) => void
   // onItemBoxLeave: () => void
   isValid: boolean
@@ -127,6 +124,8 @@ export default function ItemPriceUnitForm({
   const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
   const nestSubPriceUnits = (idx: number) => {
     const nestedData: Array<NestedPriceUnitType> = []
+    console.log(priceUnitsList)
+
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
       ...item,
       quantity: Number(item.quantity) ?? 0,
@@ -146,7 +145,9 @@ export default function ItemPriceUnitForm({
         !matchingUnit.some(item1 => item1.priceUnitId === item2.priceUnitId),
     )
 
-    const data = matchingUnit?.concat(filteredPriceUnit)
+    // const data = matchingUnit?.concat(filteredPriceUnit)
+    const data = [...matchingUnit, ...priceUnit]
+    console.log(data)
 
     // const uniqueArray = Array.from(new Set(data.map(item => item.priceUnitId)))
     // .map(priceUnitId => data.find(item => item.priceUnitId === priceUnitId))
@@ -163,45 +164,14 @@ export default function ItemPriceUnitForm({
               item.subPriceUnits?.push(subItem)
             }
           })
+          const uniqueArray: PriceUnitListType[] = Array.from(
+            new Set(item.subPriceUnits?.map(subItem => subItem.id)),
+          ).map(id => item.subPriceUnits?.find(subItem => subItem.id === id)!)
+
+          item.subPriceUnits = uniqueArray
         }
       })
     }
-
-    // // quote 생성 시점에 선택한 price unit 값이 있다면 해당 값을 Initial price unit으로 추가
-    // if (currentInitialItem?.priceUnits?.[idx]) {
-    //   const initialUsePriceUnit = {
-    //     id: currentInitialItem?.priceUnits[idx].id!,
-    //     priceUnitId: currentInitialItem?.priceUnits[idx].id!,
-    //     isBase: false,
-    //     title: currentInitialItem?.priceUnits[idx].title,
-    //     unit: currentInitialItem?.priceUnits[idx].unit,
-    //     weighting: null,
-    //     quantity: currentInitialItem?.priceUnits[idx].quantity!,
-    //     price: currentInitialItem?.priceUnits[idx].price!,
-    //     subPriceUnits: [],
-    //     groupName: 'Initial price unit',
-    //   }
-    //   nestedData.unshift(initialUsePriceUnit)
-    //   data.unshift(initialUsePriceUnit)
-    // }
-
-    // // 현재 Row에 설정된 price unit 값이 있다면 해당 값을 Current price unit으로 추가
-    // if (currentItem?.[idx] && currentItem?.[idx].priceUnitId !== -1) {
-    //   const currentUsePriceUnit = {
-    //     id: currentItem?.[idx].priceUnitId,
-    //     priceUnitId: currentItem?.[idx].priceUnitId,
-    //     isBase: false,
-    //     title: currentItem?.[idx].initialPriceUnit?.title!,
-    //     unit: currentItem?.[idx].unit,
-    //     weighting: null,
-    //     quantity: currentItem?.[idx].quantity,
-    //     price: Number(currentItem?.[idx].prices),
-    //     subPriceUnits: [],
-    //     groupName: 'Current price unit',
-    //   }
-    //   nestedData.unshift(currentUsePriceUnit)
-    //   data.unshift(currentUsePriceUnit)
-    // }
 
     allPriceUnits.current = data
     return nestedData
@@ -226,7 +196,6 @@ export default function ItemPriceUnitForm({
     getValues(`items.${index}.priceId`) === NOT_APPLICABLE ? true : false,
   )
   // const [showMinimum, setShowMinimum] = useState(getValues(`items.${index}.minimumPriceApplied`))
-
 
   const checkPriceId = () => {
     setIsNotApplicable(
@@ -258,7 +227,7 @@ export default function ItemPriceUnitForm({
       currentItem[idx],
     )
     const [price, setPrice] = useState(savedValue.prices || 0)
-    const containerRef = useRef<HTMLDivElement | null>(null);
+    const containerRef = useRef<HTMLDivElement | null>(null)
 
     const updatePrice = () => {
       const newPrice = getValues(`${detailName}.${idx}`)
@@ -292,23 +261,28 @@ export default function ItemPriceUnitForm({
     useEffect(() => {
       // row 외부가 클릭될때 마다 액션을 준다
       const handleOutsideClick = (event: MouseEvent) => {
-        if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        if (
+          containerRef.current &&
+          !containerRef.current.contains(event.target as Node)
+        ) {
           // 필요한 액션
           updatePrice()
           updateTotalPrice()
         }
-      };
+      }
 
-      window.addEventListener('mousedown', handleOutsideClick);
+      window.addEventListener('mousedown', handleOutsideClick)
 
       return () => {
-        window.removeEventListener('mousedown', handleOutsideClick);
+        window.removeEventListener('mousedown', handleOutsideClick)
       }
     }, [])
 
     const [open, setOpen] = useState(false)
     const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
     const options = nestSubPriceUnits(idx)
+    console.log(options)
+
     return (
       <TableRow
         hover
@@ -353,13 +327,11 @@ export default function ItemPriceUnitForm({
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-                {
-                  allPriceUnits?.current?.find(
-                    item =>
-                      item.priceUnitId ===
-                      getValues(`${detailName}.${idx}.priceUnitId`),
-                  )?.title ?? getValues(`${detailName}.${idx}.title`)
-                }
+                {allPriceUnits?.current?.find(
+                  item =>
+                    item.priceUnitId ===
+                    getValues(`${detailName}.${idx}.priceUnitId`),
+                )?.title ?? getValues(`${detailName}.${idx}.title`)}
               </Typography>
             </Box>
           ) : (
@@ -539,8 +511,10 @@ export default function ItemPriceUnitForm({
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-                {isNotApplicable || showCurrency 
-                  ? `${getCurrencyMark(getValues(`${initialPriceName}.currency`))} ${getValues(`${initialPriceName}.currency`) ?? '-'}` 
+                {isNotApplicable || showCurrency
+                  ? `${getCurrencyMark(
+                      getValues(`${initialPriceName}.currency`),
+                    )} ${getValues(`${initialPriceName}.currency`) ?? '-'}`
                   : null}
               </Typography>
             </Box>
@@ -878,9 +852,11 @@ export default function ItemPriceUnitForm({
               </Typography>
             )}
             {type === 'detail' || type === 'invoiceDetail' ? null : (
-              <IconButton onClick={() => {
-                getTotalPrice()
-              }}>
+              <IconButton
+                onClick={() => {
+                  getTotalPrice()
+                }}
+              >
                 <Icon icon='material-symbols:refresh' />
               </IconButton>
             )}

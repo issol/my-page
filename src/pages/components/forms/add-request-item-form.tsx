@@ -337,15 +337,25 @@ export default function AddRequestForm({
               <Controller
                 name={`items.${idx}.desiredDueTimezone`}
                 control={control}
-                render={({ field }) => (
+                render={({ field: { value, onChange } }) => (
                   <Autocomplete
-                    autoHighlight
                     fullWidth
-                    {...field}
+                    value={value ?? undefined}
                     options={countries as CountryType[]}
-                    onChange={(e, v) => field.onChange(v)}
-                    disableClearable
-                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+                    onChange={(e, v) => {
+                      if (v) {
+                        onChange(v)
+                      } else {
+                        onChange(undefined)
+                      }
+                    }}
+                    getOptionLabel={option => {
+                      if (typeof option !== 'string') {
+                        return getGmtTimeEng(option.code) ?? ''
+                      } else {
+                        return ''
+                      }
+                    }}
                     renderOption={(props, option) => (
                       <Box component='li' {...props} key={uuidv4()}>
                         {getGmtTimeEng(option.code)}
@@ -355,9 +365,7 @@ export default function AddRequestForm({
                       <TextField
                         {...params}
                         label='Time zone*'
-                        error={Boolean(
-                          errors?.items?.[idx]?.desiredDueTimezone?.code,
-                        )}
+                        error={Boolean(errors.items?.[idx]?.desiredDueTimezone)}
                         inputProps={{
                           ...params.inputProps,
                         }}

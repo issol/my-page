@@ -44,6 +44,20 @@ export type FilterType = {
   take: number
 }
 
+export type FilterPostType = {
+  status?: number[]
+  client?: string[]
+  category?: string[]
+  serviceType?: string[]
+  startedAt?: Array<Date | null>
+  dueAt?: Array<Date | null>
+  search?: string //filter for Work name, Project name
+  isMyJobs?: '0' | '1'
+  isHidePaid?: '0' | '1'
+  skip: number
+  take: number
+}
+
 export const initialFilter: FilterType = {
   status: [],
   client: [],

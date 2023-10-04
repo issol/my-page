@@ -57,7 +57,7 @@ export type AssignProFilterPostType = {
   expertise?: string[]
   sortId?: string
   sortDate?: string
-  isOffBoard: boolean
+  isOffBoard: '0' | '1'
 }
 
 export type AssignProListType = {
