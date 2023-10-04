@@ -268,7 +268,7 @@ const InvoiceLanguageAndItem = ({
             >
               {formatCurrency(
                 formatByRoundingProcedure(
-                  subPrice,
+                  Number(invoiceInfo!.subtotal),
                   priceInfo?.decimalPlace!,
                   priceInfo?.roundingProcedure!,
                   priceInfo?.currency ?? 'USD',
@@ -331,9 +331,7 @@ const InvoiceLanguageAndItem = ({
               {invoiceInfo.isTaxable
                 ? formatCurrency(
                     formatByRoundingProcedure(
-                      items.reduce((acc, cur) => {
-                        return acc + cur.totalPrice
-                      }, 0) *
+                      Number(invoiceInfo!.subtotal!) *
                         (invoiceInfo.tax! / 100),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
@@ -378,9 +376,7 @@ const InvoiceLanguageAndItem = ({
               {invoiceInfo.isTaxable
                 ? formatCurrency(
                     formatByRoundingProcedure(
-                      items.reduce((acc, cur) => {
-                        return acc + cur.totalPrice
-                      }, 0) *
+                      Number(invoiceInfo!.subtotal!) *
                         (invoiceInfo.tax! / 100) +
                         items.reduce((acc, cur) => {
                           return acc + cur.totalPrice
@@ -393,9 +389,7 @@ const InvoiceLanguageAndItem = ({
                   )
                 : formatCurrency(
                     formatByRoundingProcedure(
-                      items.reduce((acc, cur) => {
-                        return acc + cur.totalPrice
-                      }, 0),
+                      Number(invoiceInfo!.subtotal!),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
                       priceInfo?.currency ?? 'USD',
