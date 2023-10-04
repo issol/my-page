@@ -47,6 +47,7 @@ export default function CompanyInfoContainer({
         mode='create'
         control={control}
         setValue={setValue}
+        getValue={getValues}
         errors={errors}
         watch={watch}
       />

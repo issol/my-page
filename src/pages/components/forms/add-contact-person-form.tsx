@@ -38,6 +38,7 @@ import {
 // ** Data
 import { countries } from 'src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 type Props<T extends number | string = number> = {
   fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
@@ -128,7 +129,6 @@ export default function AddContactPersonForm<
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              autoFocus
               label={label}
               variant='outlined'
               value={value ?? ''}
@@ -212,17 +212,28 @@ export default function AddContactPersonForm<
                 <Controller
                   name={`contactPersons.${idx}.timezone`}
                   control={control}
-                  render={({ field }) => (
+                  render={({ field: { value, onChange } }) => (
                     <Autocomplete
-                      autoHighlight
                       fullWidth
-                      {...field}
+                      value={value ?? undefined}
                       options={countries as CountryType[]}
-                      onChange={(e, v) => field.onChange(v)}
-                      disableClearable
+                      onChange={(e, v) => {
+                        if (v) {
+                          onChange(v)
+                        } else {
+                          onChange(undefined)
+                        }
+                      }}
+                      getOptionLabel={option => {
+                        if (typeof option !== 'string') {
+                          return getGmtTimeEng(option.code) ?? ''
+                        } else {
+                          return ''
+                        }
+                      }}
                       renderOption={(props, option) => (
                         <Box component='li' {...props} key={uuidv4()}>
-                          {option.label} ({option.code}) +{option.phone}
+                          {getGmtTimeEng(option.code)}
                         </Box>
                       )}
                       renderInput={params => (
@@ -230,7 +241,7 @@ export default function AddContactPersonForm<
                           {...params}
                           label='Time zone*'
                           error={Boolean(
-                            errors?.contactPersons?.[idx]?.timezone,
+                            errors.contactPersons?.[idx]?.timezone,
                           )}
                           inputProps={{
                             ...params.inputProps,
@@ -253,7 +264,13 @@ export default function AddContactPersonForm<
               </Grid>
 
               <Grid item xs={12}>
-                {renderTextFieldForm(idx, 'email', 'Email*', 100, 'username@example.com')}
+                {renderTextFieldForm(
+                  idx,
+                  'email',
+                  'Email*',
+                  100,
+                  'username@example.com',
+                )}
               </Grid>
               <Grid item xs={12}>
                 <Divider />

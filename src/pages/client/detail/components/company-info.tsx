@@ -493,6 +493,7 @@ export default function ClientInfo({
                   mode='update'
                   control={control}
                   setValue={setValue}
+                  getValue={getValues}
                   errors={errors}
                   watch={watch}
                 />

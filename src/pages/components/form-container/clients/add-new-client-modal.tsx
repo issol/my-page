@@ -166,12 +166,17 @@ export default function AddNewClientModal({ onClose, onSave }: Props) {
     <Box
       sx={{
         maxWidth: '900px',
+        maxHeight: '90vh',
+        overflow: 'scroll',
         width: '100%',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
         padding: '50px 60px',
         position: 'relative',
+        '&::-webkit-scrollbar': {
+          display: 'none',
+        },
       }}
     >
       <Grid container spacing={6}>

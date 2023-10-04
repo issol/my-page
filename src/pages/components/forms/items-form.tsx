@@ -243,7 +243,7 @@ export default function ItemForm({
     return true
   }
 
-  const selectNotApplicableOption = () => {
+  const selectNotApplicableModal = () => {
     openModal({
       type: 'info-not-applicable-unavailable',
       children: (
@@ -604,11 +604,13 @@ export default function ItemForm({
       getTotalPrice()
     }
 
-    const isNotApplicable = () => {
-      const value = getValues().items[idx]
-      if (value.priceId === NOT_APPLICABLE) return true
-      return false
-    }
+    // const isNotApplicable = (v: StandardPriceListType) => {
+    //   // const value = getValues().items[idx]
+    //   const value = v
+    //   console.log("isNotApplicable",value)
+    //   if (value.id === NOT_APPLICABLE) return true
+    //   return false
+    // }
 
     function onChangeLanguagePair(v: languageType | null, idx: number) {
       setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
@@ -1011,8 +1013,15 @@ export default function ItemForm({
                         getValues(`items.${idx}.target`),
                         idx,
                       )
+                      let hasMatchingPrice = false
+                      let hasStandardPrice = false
+                      options.find(option => {
+                        if (option.groupName && option.groupName === 'Matching price') hasMatchingPrice = true
+                        if (option.groupName && option.groupName === 'Standard client price') hasStandardPrice = true
+                      })
                       return (
                         <Autocomplete
+                        // <StyledAutocomplete
                           autoHighlight
                           fullWidth
                           options={options}
@@ -1021,34 +1030,38 @@ export default function ItemForm({
                             return option.priceName === newValue?.priceName
                           }}
                           getOptionLabel={option =>
-                            `${option.priceName} (${option.currency})`
+                            option.priceName === 'Not applicable' 
+                              ? `${option.priceName}`
+                              : `${option.priceName} (${option.currency})`
                           }
                           onChange={(e, v) => {
                             // Not Applicable 임시 막기
                             // currency 체크 로직
                             if (v) {
-                              if (checkPriceCurrency(v, idx)) {
-                                onChange(v?.id)
-                                const value = getValues().items[idx]
-                                const index = findLangPairIndex(
-                                  value?.source!,
-                                  value?.target!,
-                                )
-                                onChangePrice(v, idx)
-
-                                if (index !== -1) {
-                                  const copyLangPair = [...languagePairs]
-                                  copyLangPair[index].price = v
+                              if (v && v.id === -1) {
+                                selectNotApplicableModal()
+                              } else {
+                                if (checkPriceCurrency(v, idx)) {
+                                  onChange(v?.id)
+                                  const value = getValues().items[idx]
+                                  const index = findLangPairIndex(
+                                    value?.source!,
+                                    value?.target!,
+                                  )
+                                  onChangePrice(v, idx)
+  
+                                  if (index !== -1) {
+                                    const copyLangPair = [...languagePairs]
+                                    copyLangPair[index].price = v
+                                  }
+                                  getTotalPrice()
                                 }
-                                getTotalPrice()
                               }
                             }
                           }}
                           value={
                             value === null
                               ? null
-                              : options[0].groupName === 'Current price'
-                              ? options[0]
                               : options.find(item => item.id === value)
                           }
                           renderInput={params => (
@@ -1058,6 +1071,24 @@ export default function ItemForm({
                               label='Price*'
                               placeholder='Price*'
                             />
+                          )}
+                          renderGroup={(params) => (
+                            <li key={params.key}>
+                              {!hasMatchingPrice && params.group
+                                ? <GroupHeader>
+                                    Matching price <NoResultText>(No result)</NoResultText>
+                                  </GroupHeader>
+                                : null
+                               }
+                              {!hasStandardPrice && params.group
+                                ? <GroupHeader>
+                                    Standard client price <NoResultText>(No result)</NoResultText>
+                                  </GroupHeader>
+                                : null
+                               }
+                              <GroupHeader>{params.group}</GroupHeader>
+                              <GroupItems>{params.children}</GroupItems>
+                            </li>
                           )}
                         />
                       )
@@ -1235,3 +1266,25 @@ export default function ItemForm({
 const FullWidthDatePicker = styled(DatePicker)`
   width: 100%;
 `
+const StyledAutocomplete = styled(Autocomplete)`
+  && .MuiAutocomplete-groupLabel {
+    margin-left: 0;
+    font-weight: bold;
+  }
+`
+const GroupHeader = styled('div')({
+  paddingTop: '6px',
+  paddingBottom: '6px',
+  paddingLeft: '20px',
+  fontWeight: 'bold',
+})
+
+const NoResultText = styled('span')({
+  fontWeight: 'normal',
+});
+
+const GroupItems = styled('ul')({
+  paddingTop: '0px',
+  paddingBottom: '0px',
+  paddingLeft: '5px',
+});
