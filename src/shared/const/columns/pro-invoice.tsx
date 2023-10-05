@@ -1,0 +1,136 @@
+import { Box, Tooltip, Typography } from '@mui/material'
+import { GridColumns } from '@mui/x-data-grid'
+import {
+  InvoiceProChip,
+  InvoiceReceivableChip,
+} from '@src/@core/components/chips/chips'
+import { TableTitleTypography } from '@src/@core/styles/typography'
+import { ClientUserType, UserDataType } from '@src/context/types'
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { InvoiceProListType } from '@src/types/invoice/pro.type'
+import { Loadable } from 'recoil'
+
+type CellType = {
+  row: InvoiceProListType
+}
+
+export const getInvoiceProListColumns = (
+  statusList: {
+    value: number
+    label: string
+  }[],
+  auth: Loadable<{
+    user: UserDataType | null
+    company: ClientUserType | null | undefined
+    loading: boolean
+  }>,
+) => {
+  const columns: GridColumns<InvoiceProListType> = [
+    {
+      field: 'corporationId',
+      minWidth: 160,
+      flex: 0.128,
+      headerName: 'No.',
+      disableColumnMenu: true,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          No.
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Tooltip title={row.corporationId}>
+            <TableTitleTypography fontSize={14}>
+              {row.corporationId}
+            </TableTitleTypography>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'Status',
+      minWidth: 270,
+      flex: 0.216,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Status
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => {
+        const label = statusList?.find(
+          i => i.label === row.invoiceStatus,
+        )?.label
+        if (label) return <>{InvoiceProChip(label, row.invoiceStatus)}</>
+      },
+    },
+
+    {
+      field: 'invoicedAt',
+      minWidth: 310,
+      flex: 0.248,
+      disableColumnMenu: true,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Invoice date
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => {
+        const date = FullDateTimezoneHelper(
+          row.invoicedAt,
+          auth.getValue().user?.timezone.code,
+        )
+        return (
+          <Tooltip title={date}>
+            <Typography variant='body1'>{date}</Typography>
+          </Tooltip>
+        )
+      },
+    },
+
+    {
+      field: 'paidAt',
+      minWidth: 310,
+      flex: 0.248,
+      disableColumnMenu: true,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Payment date
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => {
+        const date = FullDateTimezoneHelper(
+          row.paidAt,
+          row.paidDateTimezone?.code,
+        )
+        return (
+          <Tooltip title={date}>
+            <Typography variant='body1'>{date}</Typography>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'totalPrice',
+      minWidth: 200,
+      flex: 0.16,
+      disableColumnMenu: true,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Total price
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => {
+        const price = `${getCurrencyMark(
+          row.currency,
+        )} ${row.totalPrice.toLocaleString('ko-KR')}`
+
+        return <Typography fontWeight={600}>{price}</Typography>
+      },
+    },
+  ]
+
+  return columns
+}
