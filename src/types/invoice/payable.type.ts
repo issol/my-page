@@ -1,5 +1,5 @@
 import { CurrencyType } from '@src/types/common/standard-price'
-import { InvoicePayableStatusType } from './common.type'
+import { InvoicePayableStatusType, InvoiceProStatusType } from './common.type'
 import { CountryType } from '../sign/personalInfoTypes'
 import { LanguageAndItemType } from '../orders/order-detail'
 
@@ -40,7 +40,7 @@ export type InvoicePayableListType = {
 export type PayableFormType = {
   taxInfo?: string
   taxRate?: number
-  invoiceStatus?: InvoicePayableStatusType
+  invoiceStatus?: InvoicePayableStatusType | InvoiceProStatusType
   payDueAt?: string
   payDueTimezone?: CountryType
   paidAt?: string | null
@@ -58,8 +58,9 @@ export type InvoicePayableDetailType = {
   corporationId: string
   invoicedAt: string
   invoicedAtTimezone: CountryType
-  invoiceStatus: InvoicePayableStatusType
-  pro: {
+  invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
+
+  pro?: {
     name: string
     email: string
     address?: {
@@ -75,8 +76,8 @@ export type InvoicePayableDetailType = {
   }
   taxInfo: string
   taxRate: number
-  payDueAt: string
-  payDueTimezone: CountryType
+  payDueAt?: string
+  payDueTimezone?: CountryType
   paidAt: string | null
   paidDateTimezone: CountryType | null
   description: string
@@ -140,13 +141,13 @@ export type InvoicePayableDownloadData = {
   companyAddress: string
   corporationId: string
   invoicedAt: string
-  payDueAt: string
-  payDueTimezone: CountryType
+  payDueAt?: string
+  payDueTimezone?: CountryType
   paidAt: string | null
   paidDateTimezone: CountryType | null
-  pro: {
-    email: string
+  pro?: {
     name: string
+    email: string
     address?: {
       baseAddress?: string | null //street1
       detailAddress?: string | null //street2

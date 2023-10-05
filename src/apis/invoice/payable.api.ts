@@ -77,8 +77,40 @@ export const getInvoicePayableCalendarData = async (
 export const getInvoicePayableDetail = async (
   id: number,
 ): Promise<InvoicePayableDetailType> => {
-  const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
-  return data
+  try {
+    const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
+
+    return data
+  } catch (e: any) {
+    // throw Error(e)
+    return {
+      id: 1,
+      corporationId: 'IP-000001',
+      invoicedAt: '2022-01-01',
+      invoicedAtTimezone: {
+        code: 'KR',
+        label: 'Korea, Republic of',
+        phone: '82',
+      },
+      invoiceStatus: 'Invoiced',
+
+      taxInfo: '123-45-67890',
+      taxRate: 10,
+
+      paidAt: '2022-01-15',
+      paidDateTimezone: {
+        code: 'KR',
+        label: 'Korea, Republic of',
+        phone: '82',
+      },
+      description: 'Consulting services',
+      currency: 'USD',
+      subtotal: 1000,
+      totalPrice: 1100,
+      tax: 100,
+      invoiceConfirmedAt: '2022-01-15',
+    }
+  }
 }
 
 export const getInvoicePayableJobList = async (
@@ -92,30 +124,33 @@ export const getInvoicePayableJobList = async (
     const { data } = await axios.get(
       `/api/enough/u/job/payable?${makeQuery({ payableId })}`,
     )
-    return data
-    // return {
-    //   totalCount: 1,
-    //   count: 1,
-    //   data: [
-    //     {
-    //       id: 1,
-    //       corporationId: 'KR-100',
-    //       serviceType: 'Editing',
-    //       name: 'bon',
-    //       totalPrice: 100000,
-    //       contactPerson: 'Bon',
-    //       deletedAt: null,
-    //       priceUnits: [
-    //         {
-    //           title: 'Price',
-    //           unitPrice: 1000,
-    //           quantity: 3,
-    //           prices: 100000,
-    //         },
-    //       ],
-    //     },
-    //   ],
-    // }
+    // return data
+    return {
+      totalCount: 1,
+      count: 1,
+      data: [
+        {
+          id: 1,
+          corporationId: 'KR-100',
+          serviceType: 'Editing',
+          name: 'bon',
+          totalPrice: 100000,
+          contactPerson: 'Bon',
+          isRemove: true,
+          sourceLanguage: 'ko',
+          targetLanguage: 'en',
+
+          prices: [
+            {
+              name: 'Price',
+              unitPrice: 1000,
+              quantity: 3,
+              prices: '100000',
+            },
+          ],
+        },
+      ],
+    }
   } catch (e) {
     return {
       totalCount: 0,

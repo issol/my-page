@@ -32,3 +32,23 @@ export type InvoiceProListType = {
   currency: CurrencyType
   statusUpdatedAt: string
 }
+
+export type InvoiceProDetailType = {
+  id: number
+  corporationId: string
+  invoicedAt: string
+  invoicedAtTimezone: CountryType
+  invoiceStatus: InvoiceProStatusType
+
+  taxInfo: string
+  taxRate: number
+
+  paidAt: string | null
+  paidDateTimezone: CountryType | null
+  description: string
+  currency: CurrencyType
+  subtotal: number
+  totalPrice: number
+  tax: number | null
+  invoiceConfirmedAt: string | null
+}

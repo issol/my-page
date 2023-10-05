@@ -17,6 +17,7 @@ import { InvoicePayableJobType } from '@src/types/invoice/payable.type'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import { CurrencyType } from '@src/types/common/standard-price'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   data: {
@@ -40,6 +41,8 @@ export default function InvoiceJobList({
 }: Props) {
   const { data: jobList } = data
 
+  const currentRole = getCurrentRole()
+
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [isAllSelected, setIsAllSelected] = useState(false)
@@ -54,48 +57,68 @@ export default function InvoiceJobList({
     return (
       <Fragment>
         <CustomTableRow $isDisabled={item.isRemove}>
-          <TableCell>
-            <Checkbox
-              disabled={!isUpdatable}
-              checked={selectedJobs.includes(item.id)}
-              onChange={() => setSelectedJobs([...selectedJobs, item.id])}
-            />
-          </TableCell>
-          <TableCell>
-            <IconButton onClick={() => setOpen(!open)}>
-              <Icon
-                icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'}
-                fontSize={18}
+          {currentRole && currentRole.name === 'PRO' ? null : (
+            <TableCell sx={{ width: '65px', maxWidth: '65px' }}>
+              <Checkbox
+                disabled={!isUpdatable}
+                checked={selectedJobs.includes(item.id)}
+                onChange={() => setSelectedJobs([...selectedJobs, item.id])}
               />
-            </IconButton>
+            </TableCell>
+          )}
+
+          <TableCell sx={{ width: '50px', maxWidth: '50px' }}>
+            <Box
+              sx={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <IconButton onClick={() => setOpen(!open)}>
+                <Icon
+                  icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'}
+                  fontSize={24}
+                />
+              </IconButton>
+            </Box>
           </TableCell>
           {/* No. */}
-          <TableCell sx={{ textDecoration: 'line-through' }}>
+          <TableCell sx={{ flex: 0.1639 }}>
             <Button
               variant='text'
               color='secondary'
-              onClick={() => onRowClick(9)}
+              onClick={() => onRowClick(item.id)}
             >
-              <Typography sx={disabledTextUi}>{item.id}</Typography>
+              <Typography sx={disabledTextUi}>{item.corporationId}</Typography>
             </Button>
           </TableCell>
           {/* Job (Service type) */}
-          <TableCell>
+          <TableCell sx={{ flex: 0.1967 }}>
             <ServiceTypeChip label={item.serviceType} size='small' />
           </TableCell>
           {/* Job name */}
-          <TableCell>
+          <TableCell sx={{ flex: 0.2705 }}>
             <Typography sx={disabledTextUi}>{item.name}</Typography>
           </TableCell>
           {/* Prices */}
-          <TableCell>
+          <TableCell sx={{ flex: 0.1148 }}>
             <Typography
               fontWeight={600}
               sx={disabledTextUi}
             >{`${currencyMark} ${item.totalPrice?.toLocaleString()}`}</Typography>
           </TableCell>
           {/* Contact person */}
-          <TableCell sx={disabledTextUi}>{item.contactPerson}</TableCell>
+          <TableCell
+            sx={{
+              textDecoration: item.isRemove ? 'line-through' : '',
+              flex: 0.2131,
+            }}
+          >
+            {item.contactPerson}
+          </TableCell>
         </CustomTableRow>
         {open ? (
           <TableRow>
@@ -151,51 +174,88 @@ export default function InvoiceJobList({
 
   return (
     <Fragment>
-      <TableContainer component={Paper}>
-        <Table aria-label='collapsible table'>
-          <TableHead style={{ background: '#F5F5F7', textTransform: 'none' }}>
-            <TableRow>
-              <HeaderCell width='18px'>
-                <Checkbox onChange={selectAll} />
-              </HeaderCell>
-              <HeaderCell width='18px'>
-                <Icon icon='mdi:chevron-down' fontSize={18} />
-              </HeaderCell>
-              <HeaderCell align='left' width='200px'>
-                No.
-              </HeaderCell>
-              <HeaderCell align='left' width='220px'>
-                Job
-              </HeaderCell>
-              <HeaderCell align='left' width='200px'>
-                Job name
-              </HeaderCell>
-              <HeaderCell align='left' width='200px'>
-                Prices
-              </HeaderCell>
-              <HeaderCell align='left' width='230px'>
-                Contact person for job
-              </HeaderCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {jobList
-              ?.slice(page * pageSize, page * pageSize + pageSize)
-              ?.map((item, idx) => (
-                <Row key={idx} item={item} />
-              ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        page={page}
-        component='div'
-        count={data.totalCount}
-        rowsPerPage={pageSize}
-        onPageChange={(e, page) => setPage(page)}
-        rowsPerPageOptions={[10, 25, 50]}
-        onRowsPerPageChange={e => setPageSize(Number(e.target.value))}
-      />
+      {currentRole ? (
+        <>
+          <TableContainer component={Paper}>
+            <Table aria-label='collapsible table'>
+              <TableHead
+                style={{
+                  background: '#F5F5F7',
+                  textTransform: 'none',
+                  width: '100%',
+                }}
+              >
+                <TableRow>
+                  {currentRole.name === 'PRO' ? null : (
+                    <HeaderCell>
+                      <Checkbox onChange={selectAll} />
+                    </HeaderCell>
+                  )}
+
+                  <HeaderCell>
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Icon
+                        icon='mdi:chevron-down'
+                        fontSize={24}
+                        color='#4C4E6499'
+                      />
+                    </Box>
+                  </HeaderCell>
+                  <HeaderCell align='left'>
+                    <Typography variant='subtitle1' fontSize={14}>
+                      No.
+                    </Typography>
+                  </HeaderCell>
+                  <HeaderCell align='left'>
+                    <Typography variant='subtitle1' fontSize={14}>
+                      Job
+                    </Typography>
+                  </HeaderCell>
+                  <HeaderCell align='left'>
+                    <Typography variant='subtitle1' fontSize={14}>
+                      Job name
+                    </Typography>
+                  </HeaderCell>
+                  <HeaderCell align='left'>
+                    <Typography variant='subtitle1' fontSize={14}>
+                      Prices
+                    </Typography>
+                  </HeaderCell>
+                  <HeaderCell align='left'>
+                    <Typography variant='subtitle1' fontSize={14}>
+                      Contact person for job
+                    </Typography>
+                  </HeaderCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {jobList
+                  ?.slice(page * pageSize, page * pageSize + pageSize)
+                  ?.map((item, idx) => (
+                    <Row key={idx} item={item} />
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            page={page}
+            component='div'
+            count={data.totalCount}
+            rowsPerPage={pageSize}
+            onPageChange={(e, page) => setPage(page)}
+            rowsPerPageOptions={[10, 25, 50]}
+            onRowsPerPageChange={e => setPageSize(Number(e.target.value))}
+          />
+        </>
+      ) : null}
     </Fragment>
   )
 }

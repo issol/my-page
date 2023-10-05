@@ -32,6 +32,7 @@ export default function InvoiceAmount({ data }: Props) {
           <Typography variant='body2'>{label}</Typography>
         </FlexBox>
         <Typography variant='body2' fontSize='1rem' fontWeight={600}>
+          {label === 'Tax' ? (Math.sign(price) === 1 ? '+' : '-') : ''}&nbsp;
           {`${currency} ${price.toLocaleString()}`}
         </Typography>
       </FlexBox>
@@ -70,15 +71,20 @@ export default function InvoiceAmount({ data }: Props) {
           >
             <FlexBox flexDirection='column' width='360px'>
               {renderRow('Subtotal', data?.subtotal ?? 0, true, '#B3B6FF')}
+
               {renderRow(
                 'Tax',
-                data?.taxRate ? -data?.taxRate : 0,
+                data?.taxRate ? data.subtotal * (data?.taxRate / 100) : 0,
                 true,
                 '#666CFF',
               )}
-              <Box width='360px'>
-                <Divider />
-              </Box>
+              <Divider
+                sx={{
+                  width: '100%',
+                  marginTop: '0 !important',
+                  marginBottom: '0 !important',
+                }}
+              />
               {renderRow('In total', data?.totalPrice ?? 0, false)}
             </FlexBox>
           </CardContent>
