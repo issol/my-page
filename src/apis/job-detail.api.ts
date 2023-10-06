@@ -33,18 +33,6 @@ export const getAssignableProList = async (
   return data
 }
 
-export const getContactProList = async (
-  id: number,
-): Promise<{
-  totalCount: number
-  data: AssignProListType[]
-  count: number
-}> => {
-  const { data } = await axios.get(`/api/enough/u/pro/job/${id}/assigned-pro`)
-
-  return data
-}
-
 export const getJobDetails = async (
   id: number,
 ): Promise<{
