@@ -33,6 +33,14 @@ code[class*='language-'] {
 .MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.Mui-disabled {
   background: rgba(76, 78, 100, 0.12) !important;
 }
+.MuiTabs-flexContainer {
+  height: 48px;
+}
+
+.MuiTab-root {
+  min-height: 48px !important;
+  padding: 12px 16px;
+}
 
 /* number type input에 number 화살표 제거 */
 input::-webkit-outer-spin-button,

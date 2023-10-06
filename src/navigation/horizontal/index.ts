@@ -48,6 +48,13 @@ const navigation = (): HorizontalNavItemsType => {
       path: `/jobs`,
     },
     {
+      title: 'Invoices',
+      icon: 'material-symbols:receipt-long',
+      action: 'read',
+      subject: 'invoice_pro',
+      path: '/invoice/pro',
+    },
+    {
       title: 'Clients',
       icon: 'mdi:account-star-outline',
       action: 'read',

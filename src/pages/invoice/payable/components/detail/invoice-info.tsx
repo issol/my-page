@@ -39,6 +39,8 @@ import { toast } from 'react-hot-toast'
 
 // ** contexts
 import { deleteInvoicePayableJobs } from '@src/apis/invoice/payable.api'
+import { UserRoleType } from '@src/context/types'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   payableId: number
@@ -59,6 +61,8 @@ export default function InvoiceInfo({
   jobList,
 }: Props) {
   const queryClient = useQueryClient()
+
+  const currentRole = getCurrentRole()
 
   const { openModal, closeModal } = useModal()
 
@@ -111,15 +115,23 @@ export default function InvoiceInfo({
     openModal({
       type: 'jobDetail',
       children: (
-        <Dialog open={true} onClose={onClose} maxWidth='lg'>
-          <DialogContent>
+        <Box
+          sx={{
+            maxWidth: '1180px',
+            width: '100%',
+            background: '#ffffff',
+            boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+            borderRadius: '10px',
+          }}
+        >
+          <Box sx={{ padding: '50px 60px' }}>
             <JobDetail
               id={id}
               onClose={onClose}
               priceUnitsList={priceUnitsList || []}
             />
-          </DialogContent>
-        </Dialog>
+          </Box>
+        </Box>
       ),
     })
 
@@ -158,15 +170,17 @@ export default function InvoiceInfo({
                 <Typography variant='h6'>
                   Jobs ({jobList.data?.length ?? 0})
                 </Typography>
-                <Button
-                  size='small'
-                  variant='contained'
-                  disabled={!selectedJobs.length || !isUpdatable}
-                  startIcon={<Icon icon='mdi:trash-outline' />}
-                  onClick={onRemoveJobs}
-                >
-                  Remove
-                </Button>
+                {currentRole && currentRole.name === 'PRO' ? null : (
+                  <Button
+                    size='small'
+                    variant='contained'
+                    disabled={!selectedJobs.length || !isUpdatable}
+                    startIcon={<Icon icon='mdi:trash-outline' />}
+                    onClick={onRemoveJobs}
+                  >
+                    Remove
+                  </Button>
+                )}
               </Box>
             }
           />

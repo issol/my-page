@@ -39,6 +39,7 @@ import InvoiceAmount from './invoice-amount'
 import InvoiceJobList from './job-list'
 import { toast } from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import NoList from '@src/pages/components/no-list'
 
 type Props = {
   invoiceId: number
@@ -60,6 +61,8 @@ export default function PayableHistory({
   const queryClient = useQueryClient()
 
   const { data } = useGetPayableHistory(invoiceId, invoiceCorporationId)
+
+  console.log(data)
 
   const { openModal, closeModal } = useModal()
 
@@ -101,20 +104,27 @@ export default function PayableHistory({
     openModal({
       type: 'detail',
       children: (
-        <Dialog open={true} onClose={() => closeModal('detail')} maxWidth='lg'>
-          <DialogContent>
+        <Box
+          sx={{
+            maxWidth: '1266Px',
+            width: '100%',
+            background: '#ffffff',
+            boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+            borderRadius: '10px',
+          }}
+        >
+          <Box sx={{ padding: '50px 60px' }}>
             <Grid container spacing={6}>
               <Grid item xs={12} display='flex' alignItems='center' gap='4px'>
-                <IconButton onClick={() => closeModal('detail')}>
-                  <Icon icon='mdi:chevron-left' />
-                </IconButton>
                 <img
                   src={'/images/icons/invoice/coin.png'}
                   width={50}
                   height={50}
                   alt='invoice detail'
                 />
-                <Typography variant='h5'>{data?.corporationId}</Typography>
+                <Typography variant='h5'>
+                  [Ver. {data.version}] {data?.corporationId}
+                </Typography>
               </Grid>
               <Grid item xs={12}>
                 <Card>
@@ -123,7 +133,7 @@ export default function PayableHistory({
                       isUpdatable={false}
                       data={{
                         ...data,
-                        invoicedAtTimezone: data.invoicedTimezone,
+                        invoicedAtTimezone: data.invoicedAtTimezone,
                       }}
                       editInfo={false}
                       setEditInfo={() => {
@@ -137,7 +147,7 @@ export default function PayableHistory({
                 <InvoiceAmount
                   data={{
                     ...data,
-                    invoicedAtTimezone: data.invoicedTimezone,
+                    invoicedAtTimezone: data.invoicedAtTimezone,
                   }}
                 />
               </Grid>
@@ -182,17 +192,10 @@ export default function PayableHistory({
                 >
                   Close
                 </Button>
-                <Button
-                  variant='contained'
-                  disabled={!isUpdatable}
-                  onClick={restoreVersion}
-                >
-                  Restore this version
-                </Button>
               </Grid>
             </Grid>
-          </DialogContent>
-        </Dialog>
+          </Box>
+        </Box>
       ),
     })
   }
@@ -200,39 +203,55 @@ export default function PayableHistory({
   const columns: GridColumns<PayableHistoryType> = [
     {
       field: 'version',
-      flex: 0.05,
-      minWidth: 120,
+      flex: 0.336,
+      minWidth: 420,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Typography>Version</Typography>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontSize={14} fontWeight={500}>
+          Version
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
-        return <Box>Ver.{row.version}</Box>
+        return <Typography variant='body1'>Ver.{row.version}</Typography>
       },
     },
     {
-      flex: 0.05,
-      minWidth: 214,
+      flex: 0.336,
+      minWidth: 420,
       field: 'account',
       headerName: 'Account',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Account</Box>,
-      renderCell: ({ row }: CellType) => <Typography>{row.account}</Typography>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontSize={14} fontWeight={500}>
+          Account
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => (
+        <Typography variant='body1'>
+          {row.account === '' ? '-' : row.account}
+        </Typography>
+      ),
     },
     {
-      flex: 0.1,
-      minWidth: 260,
+      flex: 0.328,
+      minWidth: 410,
       field: 'date',
       headerName: 'Date & Time',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Date & Time</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontSize={14} fontWeight={500}>
+          Date & Time
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         if (auth.state === 'hasValue' && auth.getValue().user)
           return (
-            <Typography>
+            <Typography variant='body1'>
               {FullDateTimezoneHelper(
                 row?.invoicedAt,
                 auth.getValue().user?.timezone?.code!,
@@ -243,21 +262,6 @@ export default function PayableHistory({
     },
   ]
 
-  function NoList() {
-    return (
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant='subtitle1'>There is no version history</Typography>
-      </Box>
-    )
-  }
   return (
     <>
       <CardHeader
@@ -272,10 +276,16 @@ export default function PayableHistory({
       <DataGrid
         autoHeight
         components={{
-          NoRowsOverlay: () => NoList(),
-          NoResultsOverlay: () => NoList(),
+          NoRowsOverlay: () => NoList('There is no version history'),
+          NoResultsOverlay: () => NoList('There is no version history'),
         }}
-        sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+        sx={{
+          overflowX: 'scroll',
+          '.MuiDataGrid-row': {
+            cursor: 'pointer',
+          },
+        }}
+        hideFooterSelectedRowCount
         columns={columns}
         pageSize={pageSize}
         onPageSizeChange={setPageSize}

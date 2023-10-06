@@ -1,6 +1,5 @@
 import {
   getAssignableProList,
-  getContactProList,
   getJobDetails,
   getJobInfo,
   getJobPrices,
@@ -17,28 +16,13 @@ export const useGetAssignableProList = (
   isHistory: boolean,
 ) => {
   return useQuery(
-    ['assignProList', filter],
+    ['assignProList', jobId, filter],
     () => getAssignableProList(jobId, filter, isHistory),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 0,
 
       suspense: false,
-      keepPreviousData: true,
-    },
-  )
-}
-
-export const useGetContactProList = (
-  jobId: number,
-) => {
-  return useQuery(
-    [`assignedProList-${jobId}`],
-    () => getContactProList(jobId),
-    {
-      staleTime: 60 * 1000, // 1
-
-      suspense: false,
-      keepPreviousData: true,
+      keepPreviousData: false,
     },
   )
 }

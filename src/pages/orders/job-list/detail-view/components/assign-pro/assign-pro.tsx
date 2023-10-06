@@ -21,7 +21,6 @@ import { CategoryList } from '@src/shared/const/category/categories'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import {
   useGetAssignableProList,
-  useGetContactProList,
 } from '@src/queries/order/job.query'
 
 import {
@@ -150,19 +149,12 @@ const AssignPro = ({
     type === 'history' ? true : false,
   )
 
-  const {
-    data: contactProList,
-    isLoading: isContactProListLoading,
-    refetch: refetchContactProList,
-  } = useGetContactProList(row.id)
-
   const requestJobMutation = useMutation(
     (data: { ids: number[]; jobId: number }) =>
       requestJobToPro(data.ids, data.jobId),
     {
       onSuccess: () => {
         refetchAssignableProList()
-        refetchContactProList()
       },
     },
   )
@@ -173,7 +165,6 @@ const AssignPro = ({
     {
       onSuccess: () => {
         refetchAssignableProList()
-        refetchContactProList()
       },
     },
   )
@@ -181,28 +172,19 @@ const AssignPro = ({
   useEffect(() => {
     if (
       AssignableProList &&
-      !isAssignableProListLoading &&
-      contactProList &&
-      !isContactProListLoading
+      !isAssignableProListLoading
     ) {
-      console.log([...contactProList.data, ...AssignableProList.data])
-      setProList({
-        data: [...contactProList.data, ...AssignableProList.data],
-        count: AssignableProList.count + contactProList.count,
-        totalCount: AssignableProList.totalCount + contactProList.totalCount,
-      })
+      setProList(AssignableProList)
     }
   }, [
     AssignableProList,
     isAssignableProListLoading,
-    contactProList,
-    isContactProListLoading,
   ])
 
   useEffect(() => {
     refetchAssignableProList()
-    refetchContactProList()
-  }, [refetchAssignableProList, refetchContactProList])
+  }, [refetchAssignableProList])
+
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const languageList = getGloLanguage()
@@ -353,7 +335,6 @@ const AssignPro = ({
     const serviceTypeToPro = ServiceTypeToProRole[row.serviceType].map(
       (value: any) => value.value,
     )
-    // console.log(serviceTypeToPro)
 
     setFilters(prevState => ({
       ...prevState,
@@ -361,7 +342,8 @@ const AssignPro = ({
       target: [row.targetLanguage],
       category: [orderDetail.category],
       //@ts-ignore
-      serviceType: serviceTypeToPro,
+      // serviceType: serviceTypeToPro,
+      serviceType: [row.serviceType],
       expertise: orderDetail.expertise,
     }))
   }, [row, orderDetail, setValue])

@@ -120,11 +120,11 @@ export default function RecruitingList({
       renderCell: ({ row }: CellType) => (
         <Tooltip
           placement='bottom'
-          title={`${row.targetLanguage?.toUpperCase()} → ${row.sourceLanguage?.toUpperCase()}`}
+          title={`${row.sourceLanguage?.toUpperCase()} → ${row.targetLanguage?.toUpperCase()}`}
         >
           <Typography sx={{ fontWeight: 'bold' }} variant='body2'>
-            {row.targetLanguage?.toUpperCase()} →{' '}
-            {row.sourceLanguage?.toUpperCase()}
+            {row.sourceLanguage?.toUpperCase()} →{' '}
+            {row.targetLanguage?.toUpperCase()}
           </Typography>
         </Tooltip>
       ),

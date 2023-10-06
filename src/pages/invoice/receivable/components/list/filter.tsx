@@ -395,6 +395,7 @@ export default function Filter({
                               <CustomInput
                                 label='Invoice date'
                                 icon='calendar'
+                                placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                 value={
                                   value.length > 0
                                     ? dateValue(value[0], value[1])
@@ -430,6 +431,7 @@ export default function Filter({
                               <CustomInput
                                 label='Payment due'
                                 icon='calendar'
+                                placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                 value={
                                   value.length > 0
                                     ? dateValue(value[0], value[1])
@@ -466,6 +468,7 @@ export default function Filter({
                                 <CustomInput
                                   label='Payment date'
                                   icon='calendar'
+                                  placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                   value={
                                     value.length > 0
                                       ? dateValue(value[0], value[1])
@@ -503,6 +506,7 @@ export default function Filter({
                                 <CustomInput
                                   label='Sales recognition date'
                                   icon='calendar'
+                                  placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                   value={
                                     value.length > 0
                                       ? dateValue(value[0], value[1])

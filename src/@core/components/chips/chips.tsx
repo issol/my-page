@@ -6,12 +6,14 @@ import { StatusType } from '@src/apis/client.api'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
 import {
   InvoicePayableStatusType,
+  InvoiceProStatusType,
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
 import { RoleType, UserType } from '@src/context/types'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import {
   getOrderStatusColor,
+  getProInvoiceStatusColor,
   getProJobStatusColor,
   getReceivableStatusColor,
 } from '@src/shared/helpers/colors.helper'
@@ -432,6 +434,22 @@ export function InvoiceReceivableChip(
           ? `🔴 ${label}`
           : label
       }
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function InvoiceProChip(label: string, status: InvoiceProStatusType) {
+  const color = getProInvoiceStatusColor(status)
+
+  return (
+    <CustomChip
+      label={label}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,

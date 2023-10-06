@@ -45,15 +45,18 @@ type Props<T extends number | string = number> = {
   control: Control<ClientContactPersonType<T>, any>
   errors: FieldErrors<ClientContactPersonType<T>>
   watch: UseFormWatch<ClientContactPersonType<T>>
+  index?: number
 }
 
 // ** TAD가 직접 contact person을 등록하는 경우에 사용되는 schema
 export default function AddContactPersonForm<
   T extends number | string = number,
 >(props: Props<T>) {
-  const { fields, control, errors, watch } = props
+  const { fields, control, errors, watch, index } = props
 
   const personType: Array<PersonType> = ['Mr.', 'Ms.']
+
+  const fieldIndex = index ? index : 0
 
   function renderErrorMsg(idx: number, key: keyof ContactPersonType) {
     if (errors?.contactPersons?.length) {
@@ -160,12 +163,12 @@ export default function AddContactPersonForm<
 
   return (
     <Fragment>
-      {fields.length
-        ? fields.map((item, idx) => (
+      {fields.length && fields[0] !== undefined
+        ? fields.map((item) => (
             <Fragment key={item.id}>
               <Grid item xs={12}>
                 <Controller
-                  name={`contactPersons.${idx}.personType`}
+                  name={`contactPersons.${fieldIndex}.personType`}
                   control={control}
                   render={({ field: { value, onChange } }) => {
                     return (
@@ -179,17 +182,17 @@ export default function AddContactPersonForm<
                 />
               </Grid>
               <Grid item xs={4}>
-                {renderTextFieldForm(idx, 'firstName', 'First name*', 50)}
+                {renderTextFieldForm(fieldIndex, 'firstName', 'First name*', 50)}
               </Grid>
               <Grid item xs={4}>
-                {renderTextFieldForm(idx, 'middleName', 'Middle name', 50)}
+                {renderTextFieldForm(fieldIndex, 'middleName', 'Middle name', 50)}
               </Grid>
               <Grid item xs={4}>
-                {renderTextFieldForm(idx, 'lastName', 'Last name*', 50)}
+                {renderTextFieldForm(fieldIndex, 'lastName', 'Last name*', 50)}
               </Grid>
               <Grid item xs={6}>
                 {renderTextFieldForm(
-                  idx,
+                  fieldIndex,
                   'department',
                   'Department',
                   50,
@@ -198,7 +201,7 @@ export default function AddContactPersonForm<
               </Grid>
               <Grid item xs={6}>
                 {renderTextFieldForm(
-                  idx,
+                  fieldIndex,
                   'jobTitle',
                   'Job title',
                   50,
@@ -210,7 +213,7 @@ export default function AddContactPersonForm<
               </Grid>
               <Grid item xs={6}>
                 <Controller
-                  name={`contactPersons.${idx}.timezone`}
+                  name={`contactPersons.${fieldIndex}.timezone`}
                   control={control}
                   render={({ field: { value, onChange } }) => (
                     <Autocomplete
@@ -241,7 +244,7 @@ export default function AddContactPersonForm<
                           {...params}
                           label='Time zone*'
                           error={Boolean(
-                            errors.contactPersons?.[idx]?.timezone,
+                            errors.contactPersons?.[fieldIndex]?.timezone,
                           )}
                           inputProps={{
                             ...params.inputProps,
@@ -251,21 +254,21 @@ export default function AddContactPersonForm<
                     />
                   )}
                 />
-                {renderErrorMsg(idx, 'timezone')}
+                {renderErrorMsg(fieldIndex, 'timezone')}
               </Grid>
               <Grid item xs={6}>
-                {renderPhoneField(idx, 'phone', 'Telephone')}
+                {renderPhoneField(fieldIndex, 'phone', 'Telephone')}
               </Grid>
               <Grid item xs={6}>
-                {renderPhoneField(idx, 'mobile', 'Mobile phone')}
+                {renderPhoneField(fieldIndex, 'mobile', 'Mobile phone')}
               </Grid>
               <Grid item xs={6}>
-                {renderPhoneField(idx, 'fax', 'Fax')}
+                {renderPhoneField(fieldIndex, 'fax', 'Fax')}
               </Grid>
 
               <Grid item xs={12}>
                 {renderTextFieldForm(
-                  idx,
+                  fieldIndex,
                   'email',
                   'Email*',
                   100,
@@ -280,7 +283,7 @@ export default function AddContactPersonForm<
                   Memo for contact person
                 </Typography>
                 <Controller
-                  name={`contactPersons.${idx}.memo`}
+                  name={`contactPersons.${fieldIndex}.memo`}
                   control={control}
                   render={({ field: { value, onChange } }) => (
                     <>

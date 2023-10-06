@@ -30,7 +30,10 @@ import {
   getInvoiceDetailInfoSchema,
   invoiceDetailInfoDefaultValue,
 } from '@src/types/schema/invoice-detail-info.schema'
-import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
+import {
+  InvoicePayableStatusType,
+  InvoiceProStatusType,
+} from '@src/types/invoice/common.type'
 
 // ** react hook form
 import { useForm } from 'react-hook-form'
@@ -50,6 +53,11 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 
 // ** values
 import { InvoicePayableStatus } from '@src/shared/const/status/statuses'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import {
+  InvoicePayableChip,
+  InvoiceProChip,
+} from '@src/@core/components/chips/chips'
 
 type Props = {
   isUpdatable: boolean
@@ -70,6 +78,8 @@ export default function InvoiceDetailCard({
 
   const ability = useContext(AbilityContext)
 
+  const currentRole = getCurrentRole()
+
   const isAccountManager = ability?.can('read', 'account_manage')
 
   const {
@@ -88,7 +98,7 @@ export default function InvoiceDetailCard({
       reset({
         taxInfo: data.taxInfo ?? '',
         taxRate: data.taxRate,
-        invoiceStatus: data.invoiceStatus,
+        invoiceStatus: data.invoiceStatus as InvoicePayableStatusType,
         payDueAt: data.payDueAt ?? '',
         payDueTimezone: data.payDueTimezone,
         paidAt: data.paidAt ?? '',
@@ -131,7 +141,7 @@ export default function InvoiceDetailCard({
         <ConfirmLeaveModal />
         {editInfo ? null : (
           <Grid item xs={12} display='flex' justifyContent='space-between'>
-            <Typography variant='h6'>Invoice detail</Typography>
+            <Typography variant='h6'>Invoice details</Typography>
             {(isUpdatable || isAccountManager) &&
             data?.invoiceStatus !== 'Paid' ? (
               <IconButton onClick={() => setEditInfo(!editInfo)}>
@@ -190,7 +200,12 @@ export default function InvoiceDetailCard({
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Invoice date</CustomTypo>
                 <CustomTypo variant='body2'>
-                  {data?.invoicedAt ?? '-'}
+                  {data?.invoicedAt
+                    ? FullDateTimezoneHelper(
+                        data.invoicedAt,
+                        data.invoicedAtTimezone,
+                      )
+                    : '-'}
                 </CustomTypo>
               </LabelContainer>
             </Grid>
@@ -219,23 +234,39 @@ export default function InvoiceDetailCard({
                       <TextField {...params} label='Status' />
                     )}
                   />
-                ) : (
-                  <CustomTypo variant='body2'>{data?.invoiceStatus}</CustomTypo>
-                )}
+                ) : currentRole && currentRole.name === 'LPM' ? (
+                  <Box sx={{ width: '50%' }}>
+                    {InvoicePayableChip(
+                      data?.invoiceStatus as InvoicePayableStatusType,
+                    )}
+                  </Box>
+                ) : currentRole && currentRole.name === 'PRO' ? (
+                  <Box sx={{ width: '50%' }}>
+                    {InvoiceProChip(
+                      data?.invoiceStatus as InvoiceProStatusType,
+                      data?.invoiceStatus as InvoiceProStatusType,
+                    )}
+                  </Box>
+                ) : null}
               </LabelContainer>
             </Grid>
             <Grid item xs={12}>
               <Divider />
             </Grid>
-            <Grid item xs={6}>
-              <LabelContainer>
-                <CustomTypo fontWeight={600}>Pro</CustomTypo>
-                <CustomTypo variant='body2'>
-                  {data?.pro?.name ?? '-'}
-                </CustomTypo>
-              </LabelContainer>
-            </Grid>
-            <Grid item xs={6}></Grid>
+            {currentRole && currentRole.name === 'PRO' ? null : (
+              <>
+                <Grid item xs={6}>
+                  <LabelContainer>
+                    <CustomTypo fontWeight={600}>Pro</CustomTypo>
+                    <CustomTypo variant='body2'>
+                      {data?.pro?.name ?? '-'}
+                    </CustomTypo>
+                  </LabelContainer>
+                </Grid>
+                <Grid item xs={6}></Grid>
+              </>
+            )}
+
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Tax info</CustomTypo>
@@ -245,23 +276,33 @@ export default function InvoiceDetailCard({
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Tax rate</CustomTypo>
-                <CustomTypo variant='body2'>{data?.taxRate ?? '-'}</CustomTypo>
-              </LabelContainer>
-            </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={6}>
-              <LabelContainer>
-                <CustomTypo fontWeight={600}>Payment due</CustomTypo>
                 <CustomTypo variant='body2'>
-                  {FullDateTimezoneHelper(
-                    data?.payDueAt,
-                    data?.payDueTimezone?.code,
-                  )}
+                  {data?.taxRate ? `${data.taxRate}%` : '-'}
                 </CustomTypo>
               </LabelContainer>
             </Grid>
+
+            {currentRole && currentRole.name === 'PRO' ? null : (
+              <>
+                <Grid item xs={12}>
+                  <Divider />
+                  <Grid item xs={6}>
+                    <LabelContainer>
+                      <CustomTypo fontWeight={600}>Payment due</CustomTypo>
+                      <CustomTypo variant='body2'>
+                        {data?.payDueAt
+                          ? FullDateTimezoneHelper(
+                              data?.payDueAt,
+                              data?.payDueTimezone?.code,
+                            )
+                          : '-'}
+                      </CustomTypo>
+                    </LabelContainer>
+                  </Grid>
+                </Grid>
+              </>
+            )}
+
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Payment date</CustomTypo>
@@ -273,17 +314,23 @@ export default function InvoiceDetailCard({
                 </CustomTypo>
               </LabelContainer>
             </Grid>
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12}>
-              <Box>
-                <CustomTypo fontWeight={600}>Invoice description</CustomTypo>
-                <CustomTypo variant='body2'>
-                  {data?.description ?? '-'}
-                </CustomTypo>
-              </Box>
-            </Grid>
+            {currentRole && currentRole.name === 'PRO' ? null : (
+              <>
+                <Grid item xs={12}>
+                  <Divider />
+                </Grid>
+                <Grid item xs={12}>
+                  <Box>
+                    <CustomTypo fontWeight={600}>
+                      Invoice description
+                    </CustomTypo>
+                    <CustomTypo variant='body2'>
+                      {data?.description ?? '-'}
+                    </CustomTypo>
+                  </Box>
+                </Grid>
+              </>
+            )}
           </Fragment>
         )}
       </Grid>
