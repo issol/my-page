@@ -192,7 +192,7 @@ const PersonalInfoManager = () => {
         timezone: data.timezone,
         jobTitle: data.jobTitle,
         mobilePhone: data.mobilePhone,
-        telePhone: data.telePhone,
+        telephone: data.telephone,
         fax: data.fax,
       },
     }
@@ -433,7 +433,7 @@ const PersonalInfoManager = () => {
                 <Box sx={{ display: 'flex', gap: '8px' }}>
                   <FormControl sx={{ mb: 2 }} fullWidth>
                     <Controller
-                      name='telePhone'
+                      name='telephone'
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
@@ -449,7 +449,7 @@ const PersonalInfoManager = () => {
                             onChange(e)
                           }}
                           inputProps={{ maxLength: 50 }}
-                          error={Boolean(errors.telePhone)}
+                          error={Boolean(errors.telephone)}
                           placeholder={
                             !watch('timezone').phone
                               ? `+ 1) 012 345 6789`
@@ -465,9 +465,9 @@ const PersonalInfoManager = () => {
                         />
                       )}
                     />
-                    {errors.telePhone && (
+                    {errors.telephone && (
                       <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.telePhone.message}
+                        {errors.telephone.message}
                       </FormHelperText>
                     )}
                   </FormControl>

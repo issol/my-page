@@ -255,7 +255,7 @@ const Contracts = ({
             </Grid>
             <Grid item xs={6}>
               <Controller
-                name='telePhone'
+                name='telephone'
                 control={control}
                 render={({ field: { onChange, value } }) => (
                   <TextField
@@ -420,9 +420,9 @@ const Contracts = ({
                 <Icon icon='mdi:phone' style={{ opacity: '0.7' }} />
                 <LabelTitle>Telephone:</LabelTitle>
                 <Label>
-                  {!userInfo.telePhone
+                  {!userInfo.telephone
                     ? '-'
-                    : '+' + userInfo.timezone.phone + ') ' + userInfo.telePhone}
+                    : '+' + userInfo.timezone.phone + ') ' + userInfo.telephone}
                 </Label>
               </Box>
             </Box>
