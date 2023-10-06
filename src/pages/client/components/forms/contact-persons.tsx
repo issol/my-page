@@ -339,7 +339,8 @@ export default function ContactPersonForm<T extends number | string = string>({
             disabled={!isValid}
             onClick={onClientDataSubmit}
           >
-            Save <Icon icon='material-symbols:arrow-forward-rounded' />
+            {/* TODO: general일때 save로 버튼명을 바꾸는거 였던거 같은데 지금은 아닌거 같음, 기획 확인 필요함 */}
+            Next <Icon icon='material-symbols:arrow-forward-rounded' />
           </Button>
         ) : (
           <Button variant='contained' disabled={!isValid} onClick={onNextStep}>
