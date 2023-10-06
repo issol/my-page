@@ -16,6 +16,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import Link from 'next/link'
+import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 
 type CellType = {
   row: InvoicePayableListType
@@ -90,7 +91,11 @@ export default function PayableList({
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
-        return <>{InvoicePayableChip(row.invoiceStatus)}</>
+        return (
+          <>
+            {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)}
+          </>
+        )
       },
     },
     {
@@ -101,8 +106,8 @@ export default function PayableList({
       renderCell: ({ row }: CellType) => {
         return (
           <Box>
-            <Typography fontWeight={600}>{row.pro.name}</Typography>
-            <Typography variant='body2'>{row.pro.email}</Typography>
+            <Typography fontWeight={600}>{row.pro?.name}</Typography>
+            <Typography variant='body2'>{row.pro?.email}</Typography>
           </Box>
         )
       },

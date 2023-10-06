@@ -1,4 +1,11 @@
-import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
+import {
+  getPayableColor,
+  getProInvoiceStatusColor,
+} from '@src/shared/helpers/colors.helper'
+import {
+  InvoicePayableStatusType,
+  InvoiceProStatusType,
+} from '@src/types/invoice/common.type'
 import {
   InvoicePayableDetailType,
   InvoicePayableFilterType,
@@ -13,7 +20,11 @@ import { makeQuery } from 'src/shared/transformer/query.transformer'
 
 export const getPayableList = async (
   filter: InvoicePayableFilterType,
-): Promise<{ data: InvoicePayableListType[]; totalCount: number }> => {
+): Promise<{
+  data: InvoicePayableListType[]
+  totalCount: number
+  count: number
+}> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/invoice/payable/list?${makeQuery(filter)}`,
@@ -23,28 +34,16 @@ export const getPayableList = async (
     return {
       data: [],
       totalCount: 0,
+      count: 0,
     }
   }
-}
-
-function getColor(status: InvoicePayableStatusType) {
-  return status === 'Invoice created'
-    ? '#F572D8'
-    : status === 'Invoice accepted'
-    ? '#9B6CD8'
-    : status === 'Paid'
-    ? '#FF4D49'
-    : status === 'Overdue'
-    ? '#FF4D49'
-    : status === 'Canceled'
-    ? '#FF4D49'
-    : ''
 }
 
 export const getInvoicePayableCalendarData = async (
   year: number,
   month: number,
   filter: InvoicePayableFilterType,
+  type: 'pro' | 'lpm',
 ): Promise<{ data: Array<InvoicePayableListType>; totalCount: number }> => {
   try {
     const { data } = await axios.get(
@@ -59,7 +58,14 @@ export const getInvoicePayableCalendarData = async (
           ...item,
           status: item.invoiceStatus,
           extendedProps: {
-            calendar: getColor(item.invoiceStatus),
+            calendar:
+              type === 'lpm'
+                ? getPayableColor(
+                    item.invoiceStatus as InvoicePayableStatusType,
+                  )
+                : getProInvoiceStatusColor(
+                    item.invoiceStatus as InvoiceProStatusType,
+                  ),
           },
           allDay: true,
         }
@@ -77,8 +83,40 @@ export const getInvoicePayableCalendarData = async (
 export const getInvoicePayableDetail = async (
   id: number,
 ): Promise<InvoicePayableDetailType> => {
-  const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
-  return data
+  try {
+    const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
+
+    return data
+  } catch (e: any) {
+    // throw Error(e)
+    return {
+      id: 1,
+      corporationId: 'IP-000001',
+      invoicedAt: '2022-01-01',
+      invoicedAtTimezone: {
+        code: 'KR',
+        label: 'Korea, Republic of',
+        phone: '82',
+      },
+      invoiceStatus: 'Invoiced',
+
+      taxInfo: '123-45-67890',
+      taxRate: 10,
+
+      paidAt: '2022-01-15',
+      paidDateTimezone: {
+        code: 'KR',
+        label: 'Korea, Republic of',
+        phone: '82',
+      },
+      description: 'Consulting services',
+      currency: 'USD',
+      subtotal: 1000,
+      totalPrice: 1100,
+      tax: 100,
+      invoiceConfirmedAt: '2022-01-15',
+    }
+  }
 }
 
 export const getInvoicePayableJobList = async (
@@ -92,30 +130,34 @@ export const getInvoicePayableJobList = async (
     const { data } = await axios.get(
       `/api/enough/u/job/payable?${makeQuery({ payableId })}`,
     )
-    return data
-    // return {
-    //   totalCount: 1,
-    //   count: 1,
-    //   data: [
-    //     {
-    //       id: 1,
-    //       corporationId: 'KR-100',
-    //       serviceType: 'Editing',
-    //       name: 'bon',
-    //       totalPrice: 100000,
-    //       contactPerson: 'Bon',
-    //       deletedAt: null,
-    //       priceUnits: [
-    //         {
-    //           title: 'Price',
-    //           unitPrice: 1000,
-    //           quantity: 3,
-    //           prices: 100000,
-    //         },
-    //       ],
-    //     },
-    //   ],
-    // }
+    // return data
+    return {
+      totalCount: 1,
+      count: 1,
+      data: [
+        {
+          id: 98,
+          corporationId: 'KR-100',
+          serviceType: 'Editing',
+          name: 'bon',
+          totalPrice: 100000,
+          contactPerson: 'Bon',
+          isRemove: true,
+          sourceLanguage: 'ko',
+          targetLanguage: 'en',
+
+          prices: [
+            {
+              name: 'Price',
+              unitPrice: 1000,
+              quantity: 3,
+              prices: '100000',
+              unit: 'Words',
+            },
+          ],
+        },
+      ],
+    }
   } catch (e) {
     return {
       totalCount: 0,
@@ -168,9 +210,68 @@ export const getPayableHistoryList = async (
   invoiceCorporationId: string,
 ): Promise<PayableHistoryType[]> => {
   try {
-    const { data } = await axios.get(
-      `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
-    )
+    // const { data } = await axios.get(
+    //   `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
+    // )
+
+    const temp: PayableHistoryType[] = [
+      {
+        id: 1,
+        version: 1,
+        account: 'leriel_lpm@glozinc.com',
+        corporationId: 'IP-000001',
+        invoicedAt: '2022-01-01',
+        invoicedAtTimezone: {
+          code: 'KR',
+          label: 'Korea, Republic of',
+          phone: '82',
+        },
+        invoiceStatus: 'Invoiced',
+
+        taxInfo: '123-45-67890',
+        taxRate: 10,
+
+        paidAt: '2022-01-15',
+        paidDateTimezone: {
+          code: 'KR',
+          label: 'Korea, Republic of',
+          phone: '82',
+        },
+        description: 'Consulting services',
+        currency: 'USD',
+        subtotal: 1000,
+        totalPrice: 1100,
+        tax: 100,
+        invoiceConfirmedAt: '2022-01-15',
+        jobs: {
+          totalCount: 1,
+          count: 1,
+          data: [
+            {
+              id: 98,
+              corporationId: 'KR-100',
+              serviceType: 'Editing',
+              name: 'bon',
+              totalPrice: 100000,
+              contactPerson: 'Bon',
+              isRemove: true,
+              sourceLanguage: 'ko',
+              targetLanguage: 'en',
+
+              prices: [
+                {
+                  name: 'Price',
+                  unitPrice: 1000,
+                  quantity: 3,
+                  prices: '100000',
+                  unit: 'Words',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ]
     // return data.map((history: any) => ({
     //   ...history,
     //   jobs: {
@@ -186,7 +287,8 @@ export const getPayableHistoryList = async (
     //     })),
     //   },
     // }))
-    return data
+    // return data
+    return temp
   } catch (e: any) {
     return []
   }

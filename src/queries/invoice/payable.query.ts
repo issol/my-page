@@ -26,11 +26,12 @@ export const useGetPayableCalendar = (
   year: number,
   month: number,
   filter: InvoicePayableFilterType,
+  type: 'pro' | 'lpm',
 ) => {
   return useQuery(
     ['invoice/payable/calendar', year, month, filter],
     () => {
-      return getInvoicePayableCalendarData(year, month, filter)
+      return getInvoicePayableCalendarData(year, month, filter, type)
     },
     {
       suspense: true,

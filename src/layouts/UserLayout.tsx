@@ -90,6 +90,10 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
     setCurrentRole(current)
     // console.log(current)
 
+    console.log(
+      HorizontalNavItems().filter(value => PROMenu.includes(value.title)),
+    )
+
     if (permission.state === 'hasValue' && current) {
       switch (current.name) {
         case 'TAD':

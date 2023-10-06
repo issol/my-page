@@ -403,6 +403,10 @@ export const permissionSelector = selector<PermissionObjectType>({
             can: 'delete',
           },
           {
+            subject: 'invoice_pro',
+            can: 'read',
+          },
+          {
             subject: 'invoice_receivable',
             can: 'read',
           },

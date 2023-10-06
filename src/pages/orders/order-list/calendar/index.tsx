@@ -160,6 +160,7 @@ const OrderListCalendar = () => {
             status={statuses!}
             mdAbove={mdAbove}
             leftSidebarWidth={leftSidebarWidth}
+            title='Order'
           />
         </Suspense>
         <Box

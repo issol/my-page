@@ -171,6 +171,7 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
             status={statuses!}
             mdAbove={mdAbove}
             leftSidebarWidth={leftSidebarWidth}
+            title='Invoice'
           />
         </Box>
 

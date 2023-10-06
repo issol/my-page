@@ -31,8 +31,22 @@ import PayableList from '../list/list'
 
 // ** values
 import { InvoicePayableCalendarStatus } from '@src/shared/const/status/statuses'
+import { useGetStatusList } from '@src/queries/common.query'
+import {
+  getPayableColor,
+  getProInvoiceStatusColor,
+} from '@src/shared/helpers/colors.helper'
+import {
+  InvoicePayableStatusType,
+  InvoiceProStatusType,
+  InvoiceReceivableStatusType,
+} from '@src/types/invoice/common.type'
 
-const CalendarContainer = () => {
+type Props = {
+  type: 'pro' | 'lpm'
+}
+
+const CalendarContainer = ({ type }: Props) => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
 
@@ -44,18 +58,30 @@ const CalendarContainer = () => {
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
+  const { data: statusList } = useGetStatusList('InvoicePayable')
+
+  //TODO label -> value로 수정필요
+  const statuses = statusList?.map(i => ({
+    value: i.value,
+    label: i.label,
+    color:
+      type === 'lpm'
+        ? getPayableColor(i.label as InvoicePayableStatusType)
+        : getProInvoiceStatusColor(i.label as InvoiceProStatusType),
+  }))
+
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [filter, setFilter] = useState<InvoicePayableFilterType>({
-    mine: 0,
-    hidePaid: 0,
+    mine: '0',
+    hidePaid: '0',
     skip: 0,
     take: 10,
   })
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, isLoading } = useGetPayableCalendar(year, month, filter)
+  const { data, isLoading } = useGetPayableCalendar(year, month, filter, type)
   const [event, setEvent] = useState<
     Array<CalendarEventType<InvoicePayableListType>>
   >([])
@@ -79,8 +105,6 @@ const CalendarContainer = () => {
     }
   }, [data])
 
-  const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
-
   return (
     <Box>
       <CalendarWrapper
@@ -102,9 +126,10 @@ const CalendarContainer = () => {
       >
         <CalendarStatusSideBar
           alertIconStatus='Canceled'
-          status={InvoicePayableCalendarStatus}
+          status={statuses || []}
           mdAbove={mdAbove}
           leftSidebarWidth={leftSidebarWidth}
+          title={'Invoice'}
         />
         <Box
           sx={{
@@ -126,21 +151,27 @@ const CalendarContainer = () => {
               gap: '24px',
             }}
           >
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>See only my invoices</Typography>
-              <Switch
-                checked={filter.mine === 1}
-                onChange={e =>
-                  setFilter({ ...filter, mine: e.target.checked ? 1 : 0 })
-                }
-              />
-            </Box>
+            {type === 'pro' ? null : (
+              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <Typography>See only my invoices</Typography>
+                <Switch
+                  checked={filter.mine === '1'}
+                  onChange={e =>
+                    setFilter({ ...filter, mine: e.target.checked ? '1' : '0' })
+                  }
+                />
+              </Box>
+            )}
+
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <Typography>Hide paid invoices</Typography>
               <Switch
-                checked={filter.hidePaid === 1}
+                checked={filter.hidePaid === '1'}
                 onChange={e =>
-                  setFilter({ ...filter, hidePaid: e.target.checked ? 1 : 0 })
+                  setFilter({
+                    ...filter,
+                    hidePaid: e.target.checked ? '1' : '0',
+                  })
                 }
               />
             </Box>

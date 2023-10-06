@@ -158,6 +158,7 @@ const CalendarContainer = () => {
             status={statuses!}
             mdAbove={mdAbove}
             leftSidebarWidth={leftSidebarWidth}
+            title='Quote'
           />
         </Suspense>
 

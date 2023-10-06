@@ -86,14 +86,14 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         !statusList
                           ? []
                           : statusList?.filter(item =>
-                              filter.invoiceStatus?.includes(item.statusName),
+                              filter.invoiceStatus?.includes(item.id),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          invoiceStatus: v.map(item => item.statusName),
+                          invoiceStatus: v.map(item => item.id),
                         })
                       }
                       id='status'
