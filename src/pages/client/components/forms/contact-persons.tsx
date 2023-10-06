@@ -40,12 +40,15 @@ import {
 // ** helper
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
 
+import useModal from '@src/hooks/useModal'
+
 // ** components
 import DiscardContactPersonModal from '../modals/discard-contact-person-modal'
 import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
 import ContactPersonList from '../list/contact-person-list'
 import AddContactPersonForm from '@src/pages/components/forms/add-contact-person-form'
 import AddContactPersonConfirmModal from '../modals/add-contact-person-confirm-modal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props<T extends number | string = string> = {
   isGeneral: boolean
@@ -90,6 +93,7 @@ export default function ContactPersonForm<T extends number | string = string>({
   const [openForm, setOpenForm] = useState(false)
   const [openAdd, setOpenAdd] = useState(false)
   const [openDiscard, setOpenDiscard] = useState(false)
+  const { openModal, closeModal } = useModal()
 
   const columns: GridColumns<ContactPersonType<T>> = [
     {
@@ -161,7 +165,7 @@ export default function ContactPersonForm<T extends number | string = string>({
             <IconButton onClick={() => updateContactPerson(String(row.id!))}>
               <Icon icon='mdi:pencil-outline' />
             </IconButton>
-            <IconButton onClick={() => removeContactPerson(String(row.id!))}>
+            <IconButton onClick={() => onClickRemove(String(row.id!))}>
               <Icon icon='mdi:trash-outline' />
             </IconButton>
           </Box>
@@ -213,6 +217,102 @@ export default function ContactPersonForm<T extends number | string = string>({
     setOpenForm(false)
   }
 
+  const onClickAdd = () => {
+    openModal({
+      type: 'ConfirmModal',
+      children: (
+        <CustomModal
+          title={'Are you sure you want to add this contact person?'}
+          onClose={() => closeModal('ConfirmModal')}
+          leftButtonText='Cancel'
+          rightButtonText='Add'
+          vary='successful'
+          onClick={() => {
+            onSubmit(getValues()) // Form Close는 onSubmit 안에 있음
+            closeModal('ConfirmModal')
+          }}
+        />
+      ),
+    })
+  }
+
+  const onClickDiscard = () => {
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <CustomModal
+          title={'Are you sure you want to discard this contact person?'}
+          onClose={() => closeModal('DiscardModal')}
+          leftButtonText='Cancel'
+          rightButtonText='Discard'
+          vary='error'
+          onClick={() => {
+            setOpenForm(false)
+            remove(idx)
+            closeModal('DiscardModal')
+          }}
+        />
+      ),
+    })
+  }
+
+  const onClickSave = () => {
+    openModal({
+      type: 'SaveModal',
+      children: (
+        <CustomModal
+          title={'Are you sure you want to save all changes?'}
+          onClose={() => closeModal('SaveModal')}
+          leftButtonText='Cancel'
+          rightButtonText='Save'
+          vary='successful'
+          onClick={() => {
+            onSubmit(getValues()) 
+            closeModal('SaveModal')
+          }}
+        />
+      ),
+    })
+  }
+
+  const onClickCancel = () => {
+    openModal({
+      type: 'CancelModal',
+      children: (
+        <CustomModal
+          title={'Are you sure you want to discard all changes?'}
+          onClose={() => closeModal('CancelModal')}
+          leftButtonText='Cancel'
+          rightButtonText='Discard'
+          vary='error'
+          onClick={() => {
+            cancelUpdateForm()
+            closeModal('CancelModal')
+          }}
+        />
+      ),
+    })
+  }
+
+  const onClickRemove = (id: string) => {
+    openModal({
+      type: 'RemoveModal',
+      children: (
+        <CustomModal
+          title={'Are you sure you want to delete this contact person?'}
+          onClose={() => closeModal('RemoveModal')}
+          leftButtonText='Cancel'
+          rightButtonText='Delete'
+          vary='error'
+          onClick={() => {
+            removeContactPerson(id)
+            closeModal('RemoveModal')
+          }}
+        />
+      ),
+    })
+  }
+
   return (
     <Grid item xs={12}>
       <ContactPersonList<T>
@@ -247,7 +347,10 @@ export default function ContactPersonForm<T extends number | string = string>({
           </Button>
         )}
       </Grid>
-      <Dialog open={openForm} maxWidth='lg'>
+      <Dialog
+        open={openForm}
+        maxWidth='lg'
+      >
         <DialogContent>
           <Grid container spacing={6}>
             {mode === 'create' ? (
@@ -260,6 +363,7 @@ export default function ContactPersonForm<T extends number | string = string>({
               control={control}
               errors={errors}
               watch={watch}
+              index={idx}
             />
             <Grid
               item
@@ -272,10 +376,7 @@ export default function ContactPersonForm<T extends number | string = string>({
                 <Button
                   variant='outlined'
                   color='secondary'
-                  onClick={() => {
-                    setOpenForm(false)
-                    setOpenDiscard(true)
-                  }}
+                  onClick={() => onClickDiscard()}
                 >
                   Discard
                 </Button>
@@ -283,7 +384,7 @@ export default function ContactPersonForm<T extends number | string = string>({
                 <Button
                   variant='outlined'
                   color='secondary'
-                  onClick={() => cancelUpdateForm()}
+                  onClick={() => onClickCancel()}
                 >
                   Cancel
                 </Button>
@@ -294,12 +395,17 @@ export default function ContactPersonForm<T extends number | string = string>({
                   variant='contained'
                   type='button'
                   disabled={!isValid}
-                  onClick={() => setOpenAdd(true)}
+                  onClick={() => onClickAdd()}
                 >
                   Add
                 </Button>
               ) : (
-                <Button variant='contained' type='submit' disabled={!isValid}>
+                <Button
+                  variant='contained'
+                  type='submit'
+                  disabled={!isValid}
+                  onClick={() => onClickSave()}
+                >
                   Save
                 </Button>
               )}
@@ -307,26 +413,6 @@ export default function ContactPersonForm<T extends number | string = string>({
           </Grid>
         </DialogContent>
       </Dialog>
-      <DiscardContactPersonModal
-        open={openDiscard}
-        onDiscard={() => {
-          remove(idx)
-        }}
-        onCancel={() => {
-          const data = watch('contactPersons')?.[idx]
-          data && update(idx, data)
-          setOpenForm(true)
-          setOpenDiscard(false)
-        }}
-        onClose={() => {
-          setOpenDiscard(false)
-        }}
-      />
-      <AddContactPersonConfirmModal
-        open={openAdd}
-        onAdd={() => onSubmit(getValues())}
-        onClose={() => setOpenAdd(false)}
-      />
     </Grid>
   )
 }
