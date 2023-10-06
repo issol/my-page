@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react'
-import TabContext from '@mui/lab/TabContext'
-import TabList from '@mui/lab/TabList'
+
+import Tabs from '@mui/material/Tabs'
 import TabPanel from '@mui/lab/TabPanel'
 import {
   Box,
@@ -42,6 +42,8 @@ import SelectTemplateLanguageModal from '@src/@core/components/common-modal/sele
 import { current } from '@reduxjs/toolkit'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import PayableHistory from '../../payable/components/detail/version-history'
+import TabContext from '@mui/lab/TabContext'
+import TabList from '@mui/lab/TabList'
 
 type MenuType = 'info' | 'history'
 
@@ -216,8 +218,6 @@ const ProInvoiceDetail = () => {
     }
   }, [invoicePayable.isReady])
 
-  console.log(auth.getValue())
-
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -255,20 +255,24 @@ const ProInvoiceDetail = () => {
           <TabList
             onChange={(e, v) => setMenu(v)}
             aria-label='Quote detail Tab menu'
-            style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
+            style={{
+              borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+            }}
           >
             <CustomTab
               value='info'
               label='Invoice info'
               iconPosition='start'
-              icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
+              icon={
+                <Icon icon='material-symbols:receipt-long' fontSize={'18px'} />
+              }
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
             <CustomTab
               value='history'
               label='Version history'
               iconPosition='start'
-              icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
+              icon={<Icon icon='ic:outline-history' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
           </TabList>
@@ -311,7 +315,8 @@ ProInvoiceDetail.acl = {
 
 const CustomTab = styled(Tab)`
   text-transform: none;
-  padding: 0px 27px;
+
   display: flex;
+
   gap: 1px;
 `
