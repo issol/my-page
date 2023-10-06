@@ -42,7 +42,7 @@ const navigation = (): HorizontalNavItemsType => {
     },
     {
       title: 'Jobs',
-      icon: 'ic:baseline-people-outline',
+      icon: 'ic:baseline-home-repair-service',
       action: 'read',
       subject: 'job_list',
       path: `/jobs`,

@@ -641,10 +641,10 @@ const ReceivableInvoiceDetail = () => {
     if (langItem) {
       const pm = projectTeam!.find(value => value.position === 'projectManager')
 
-      const subtotal = langItem.items.reduce((acc, cur) => {
-        return acc + cur.totalPrice
-      }, 0)
-
+      // const subtotal = langItem.items.reduce((acc, cur) => {
+      //   return acc + cur.totalPrice
+      // }, 0)
+      const subtotal = Number(invoiceInfo!.subtotal!)
       const tax = subtotal * (invoiceInfo!.tax! / 100)
 
       console.log(tax)

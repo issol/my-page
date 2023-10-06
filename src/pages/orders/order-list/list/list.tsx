@@ -265,14 +265,36 @@ export default function OrdersList({
                 NoRowsOverlay: () => NoList(),
                 NoResultsOverlay: () => NoList(),
               }}
-              sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              // sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              sx={{
+                overflowX: 'scroll',
+                cursor: 'pointer',
+                [`& .${gridClasses.row}.disabled`]: {
+                  opacity: 0.5,
+                  cursor: 'not-allowed',
+                  borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+                  // backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                },
+              }}
               columns={columns}
               rows={list ?? []}
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
+                if (
+                  role.name === 'CLIENT' &&
+                  params.row.status === 'Under revision'
+                ) return
                 handleRowClick(params.row)
               }}
+              getRowClassName={params => 
+                role.name === 'CLIENT' && params.row.status === 'Under revision'
+                  ? 'disabled'
+                  : 'normal'
+              }
+              isRowSelectable={params =>
+                role.name === 'CLIENT' && params.row.status !== 'Under revision'
+              }
               rowsPerPageOptions={[10, 25]}
               pagination
               page={page}
@@ -325,6 +347,7 @@ export default function OrdersList({
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
+                console.log("grid2",params)
                 if (
                   role.name === 'CLIENT' &&
                   params.row.status === 'Under revision'
@@ -355,7 +378,7 @@ export default function OrdersList({
                 setRowsPerPage!(newPageSize)
               }}
               disableSelectionOnClick
-              getRowClassName={params =>
+              getRowClassName={params => 
                 role.name === 'CLIENT' && params.row.status === 'Under revision'
                   ? 'disabled'
                   : 'normal'
