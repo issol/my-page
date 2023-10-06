@@ -8,11 +8,13 @@ import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
-import { InvoiceProListType } from '@src/types/invoice/pro.type'
+import { InvoiceProStatusType } from '@src/types/invoice/common.type'
+import { InvoicePayableListType } from '@src/types/invoice/payable.type'
+
 import { Loadable } from 'recoil'
 
 type CellType = {
-  row: InvoiceProListType
+  row: InvoicePayableListType
 }
 
 export const getInvoiceProListColumns = (
@@ -26,7 +28,7 @@ export const getInvoiceProListColumns = (
     loading: boolean
   }>,
 ) => {
-  const columns: GridColumns<InvoiceProListType> = [
+  const columns: GridColumns<InvoicePayableListType> = [
     {
       field: 'corporationId',
       minWidth: 160,
@@ -63,7 +65,12 @@ export const getInvoiceProListColumns = (
         const label = statusList?.find(
           i => i.label === row.invoiceStatus,
         )?.label
-        if (label) return <>{InvoiceProChip(label, row.invoiceStatus)}</>
+        if (label)
+          return (
+            <>
+              {InvoiceProChip(label, row.invoiceStatus as InvoiceProStatusType)}
+            </>
+          )
       },
     },
 

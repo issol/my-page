@@ -2,6 +2,7 @@ import { Box } from '@mui/material'
 import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
 
 import NoList from '@src/pages/components/no-list'
+import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 import { InvoiceProListType } from '@src/types/invoice/pro.type'
 
 import { useRouter } from 'next/router'
@@ -12,9 +13,9 @@ type Props = {
   setPage: (num: number) => void
   setPageSize: (num: number) => void
   isLoading: boolean
-  columns: GridColumns<InvoiceProListType>
+  columns: GridColumns<InvoicePayableListType>
   list: {
-    data: Array<InvoiceProListType> | []
+    data: Array<InvoicePayableListType> | []
     totalCount: number
     count: number
   }

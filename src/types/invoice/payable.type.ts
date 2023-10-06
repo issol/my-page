@@ -4,7 +4,7 @@ import { CountryType } from '../sign/personalInfoTypes'
 import { LanguageAndItemType } from '../orders/order-detail'
 
 export type InvoicePayableFilterType = {
-  invoiceStatus?: string[]
+  invoiceStatus?: number[]
   pro?: number[]
   invoicedDateFrom?: string
   invoicedDateTo?: string
@@ -14,8 +14,8 @@ export type InvoicePayableFilterType = {
   paidDateTo?: string
   search?: string
 
-  mine?: 0 | 1
-  hidePaid?: 0 | 1
+  mine?: '0' | '1'
+  hidePaid?: '0' | '1'
 
   skip: number
   take: number
@@ -25,11 +25,11 @@ export type InvoicePayableListType = {
   id: number
   adminCompanyName: string
   corporationId: string
-  invoiceStatus: InvoicePayableStatusType
-  pro: { name: string; email: string }
+  invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
+  pro?: { name: string; email: string }
   invoicedAt: string
-  payDueAt: string
-  payDueTimezone: CountryType | null
+  payDueAt?: string
+  payDueTimezone?: CountryType | null
   paidAt: string | null
   paidDateTimezone: CountryType | null
   totalPrice: number

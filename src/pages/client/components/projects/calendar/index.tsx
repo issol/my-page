@@ -236,6 +236,7 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
               status={statuses!}
               mdAbove={mdAbove}
               leftSidebarWidth={leftSidebarWidth}
+              title='Project'
             />
           </Box>
         </Suspense>

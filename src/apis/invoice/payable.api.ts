@@ -1,4 +1,11 @@
-import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
+import {
+  getPayableColor,
+  getProInvoiceStatusColor,
+} from '@src/shared/helpers/colors.helper'
+import {
+  InvoicePayableStatusType,
+  InvoiceProStatusType,
+} from '@src/types/invoice/common.type'
 import {
   InvoicePayableDetailType,
   InvoicePayableFilterType,
@@ -13,7 +20,11 @@ import { makeQuery } from 'src/shared/transformer/query.transformer'
 
 export const getPayableList = async (
   filter: InvoicePayableFilterType,
-): Promise<{ data: InvoicePayableListType[]; totalCount: number }> => {
+): Promise<{
+  data: InvoicePayableListType[]
+  totalCount: number
+  count: number
+}> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/invoice/payable/list?${makeQuery(filter)}`,
@@ -23,28 +34,16 @@ export const getPayableList = async (
     return {
       data: [],
       totalCount: 0,
+      count: 0,
     }
   }
-}
-
-function getColor(status: InvoicePayableStatusType) {
-  return status === 'Invoice created'
-    ? '#F572D8'
-    : status === 'Invoice accepted'
-    ? '#9B6CD8'
-    : status === 'Paid'
-    ? '#FF4D49'
-    : status === 'Overdue'
-    ? '#FF4D49'
-    : status === 'Canceled'
-    ? '#FF4D49'
-    : ''
 }
 
 export const getInvoicePayableCalendarData = async (
   year: number,
   month: number,
   filter: InvoicePayableFilterType,
+  type: 'pro' | 'lpm',
 ): Promise<{ data: Array<InvoicePayableListType>; totalCount: number }> => {
   try {
     const { data } = await axios.get(
@@ -59,7 +58,14 @@ export const getInvoicePayableCalendarData = async (
           ...item,
           status: item.invoiceStatus,
           extendedProps: {
-            calendar: getColor(item.invoiceStatus),
+            calendar:
+              type === 'lpm'
+                ? getPayableColor(
+                    item.invoiceStatus as InvoicePayableStatusType,
+                  )
+                : getProInvoiceStatusColor(
+                    item.invoiceStatus as InvoiceProStatusType,
+                  ),
           },
           allDay: true,
         }

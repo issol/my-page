@@ -25,6 +25,9 @@ import List from './components/list/list'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { getInvoiceProListColumns } from '@src/shared/const/columns/pro-invoice'
+import { useGetPayableList } from '@src/queries/invoice/payable.query'
+import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
+import CalendarContainer from '../payable/components/calendar'
 
 export type FilterType = {
   invoiceDate: Date[]
@@ -46,7 +49,7 @@ const defaultValues: FilterType = {
   search: '',
 }
 
-const defaultFilters: InvoiceProFilterType = {
+const defaultFilters: InvoicePayableFilterType = {
   invoiceStatus: [],
 
   invoicedDateFrom: '',
@@ -77,11 +80,13 @@ const ProInvoice = () => {
     mode: 'onSubmit',
   })
 
-  const [filters, setFilters] = useState<InvoiceProFilterType>(defaultFilters)
-  const { data: list, isLoading } = useGetProInvoiceList(defaultFilters)
+  const [filters, setFilters] =
+    useState<InvoicePayableFilterType>(defaultFilters)
+  // const { data: list, isLoading } = useGetProInvoiceList(defaultFilters)
+  const { data: list, isLoading } = useGetPayableList(filters)
 
   const { data: statusList, isLoading: statusListLoading } =
-    useGetStatusList('InvoiceReceivable')
+    useGetStatusList('InvoicePayable')
 
   const handleHidePaidInvoices = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -119,7 +124,7 @@ const ProInvoice = () => {
       search,
     } = data
 
-    const filter: InvoiceProFilterType = {
+    const filter: InvoicePayableFilterType = {
       invoiceStatus: invoiceStatus.map(value => value.value),
 
       invoicedDateFrom: invoiceDate[0]?.toISOString() ?? '',
@@ -293,7 +298,9 @@ const ProInvoice = () => {
           </Grid>
         </>
       ) : (
-        <Box>calendar</Box>
+        <Grid item xs={12}>
+          <CalendarContainer type='pro' />
+        </Grid>
       )}
     </Grid>
   )

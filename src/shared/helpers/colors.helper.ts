@@ -5,6 +5,7 @@ import {
 } from '@src/types/common/quotes.type'
 import { statusType } from '@src/types/common/status.type'
 import {
+  InvoicePayableStatusType,
   InvoiceProStatusType,
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
@@ -24,6 +25,20 @@ export function getProInvoiceStatusColor(status: InvoiceProStatusType) {
       : ''
 
   return color
+}
+
+export function getPayableColor(status: InvoicePayableStatusType) {
+  return status === 'Invoice created'
+    ? '#F572D8'
+    : status === 'Invoice accepted'
+    ? '#9B6CD8'
+    : status === 'Paid'
+    ? '#FF4D49'
+    : status === 'Overdue'
+    ? '#FF4D49'
+    : status === 'Canceled'
+    ? '#FF4D49'
+    : ''
 }
 
 export function getReceivableStatusColor(status: InvoiceReceivableStatusType) {
