@@ -41,6 +41,7 @@ import DownloadQuotesModal from '@src/pages/quotes/detail/components/pdf-downloa
 import SelectTemplateLanguageModal from '@src/@core/components/common-modal/select-template-language-modal'
 import { current } from '@reduxjs/toolkit'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import PayableHistory from '../../payable/components/detail/version-history'
 
 type MenuType = 'info' | 'history'
 
@@ -287,11 +288,11 @@ const ProInvoiceDetail = () => {
           <TabPanel value='history' sx={{ pt: '24px' }}>
             <Card>
               <Suspense>
-                {/* <PayableHistory
-                  isUpdatable={isUpdatable || false}
+                <PayableHistory
+                  isUpdatable={false}
                   invoiceId={Number(id)}
                   invoiceCorporationId={data?.corporationId!}
-                /> */}
+                />
               </Suspense>
             </Card>
           </TabPanel>
