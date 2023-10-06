@@ -498,7 +498,7 @@ export default function AddNewClient() {
       type: 'create-client',
       children: (
         <CustomModal
-          title={'Are you sure you want to discard all changes?'}
+          title={'Are you sure you want to add this client?'}
           subtitle={getCompanyInfoValues().name}
           onClose={() => closeModal('create-client')}
           leftButtonText='Cancel'
