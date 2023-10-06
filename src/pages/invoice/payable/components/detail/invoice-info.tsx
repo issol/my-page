@@ -115,15 +115,23 @@ export default function InvoiceInfo({
     openModal({
       type: 'jobDetail',
       children: (
-        <Dialog open={true} onClose={onClose} maxWidth='lg'>
-          <DialogContent>
+        <Box
+          sx={{
+            maxWidth: '1180px',
+            width: '100%',
+            background: '#ffffff',
+            boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+            borderRadius: '10px',
+          }}
+        >
+          <Box sx={{ padding: '50px 60px' }}>
             <JobDetail
               id={id}
               onClose={onClose}
               priceUnitsList={priceUnitsList || []}
             />
-          </DialogContent>
-        </Dialog>
+          </Box>
+        </Box>
       ),
     })
 

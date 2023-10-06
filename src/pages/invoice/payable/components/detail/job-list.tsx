@@ -77,23 +77,35 @@ export default function InvoiceJobList({
                 justifyContent: 'center',
               }}
             >
-              <IconButton onClick={() => setOpen(!open)}>
+              {item.isRemove ? (
                 <Icon
-                  icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'}
+                  icon='ic:sharp-remove-circle-outline'
                   fontSize={24}
+                  color='#FF4D49'
                 />
-              </IconButton>
+              ) : (
+                <IconButton onClick={() => setOpen(!open)}>
+                  <Icon
+                    icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'}
+                    fontSize={24}
+                  />
+                </IconButton>
+              )}
             </Box>
           </TableCell>
           {/* No. */}
           <TableCell sx={{ flex: 0.1639 }}>
-            <Button
-              variant='text'
+            <Typography
+              sx={{
+                textDecoration: item.isRemove ? 'line-through' : 'underline',
+                cursor: item.isRemove ? 'inherit' : 'pointer',
+              }}
+              variant='body1'
               color='secondary'
               onClick={() => onRowClick(item.id)}
             >
-              <Typography sx={disabledTextUi}>{item.corporationId}</Typography>
-            </Button>
+              {item.corporationId}
+            </Typography>
           </TableCell>
           {/* Job (Service type) */}
           <TableCell sx={{ flex: 0.1967 }}>

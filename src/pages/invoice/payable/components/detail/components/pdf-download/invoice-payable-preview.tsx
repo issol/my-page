@@ -33,8 +33,8 @@ import { useAppDispatch } from '@src/hooks/useRedux'
 import { setIsReady } from '@src/store/quote'
 
 // ** languages
-import quoteEn from '@src/shared/i18/invoice-payable/en.json'
-import quoteKo from '@src/shared/i18/invoice-payable/ko.json'
+import invoiceEn from '@src/shared/i18/invoice-payable/en.json'
+import invoiceKo from '@src/shared/i18/invoice-payable/ko.json'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -54,7 +54,9 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
   const { closeModal } = useModal()
   const dispatch = useAppDispatch()
-  const columnName = lang === 'EN' ? quoteEn : quoteKo
+  const columnName = lang === 'EN' ? invoiceEn : invoiceKo
+
+  console.log(data)
 
   useEffect(() => {
     if (type === 'download') {
@@ -181,13 +183,21 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
           </Box>
           <Box display='flex' flexDirection='column' gap='3px'>
             <Typography variant='subtitle1' fontSize={14}>
-              {`${data.pro?.address?.baseAddress ?? '-'}${
-                data.pro?.address?.detailAddress ?? '-'
-              }${data.pro?.address?.city ?? '-'}${
-                data.pro?.address?.state ?? '-'
-              }${data.pro?.address?.country ?? '-'}${
-                data.pro?.address?.zipCode ?? '-'
-              }`}
+              {`${
+                data.pro?.address?.baseAddress
+                  ? `${data.pro.address.baseAddress}, `
+                  : ''
+              }${
+                data.pro?.address?.detailAddress
+                  ? `${data.pro.address.detailAddress}, `
+                  : ''
+              }${data.pro?.address?.city ? `${data.pro.address.city}, ` : ''}${
+                data.pro?.address?.state ? `${data.pro.address.state}, ` : ''
+              }${
+                data.pro?.address?.country
+                  ? `${data.pro.address.country}, `
+                  : ''
+              }${data.pro?.address?.zipCode ? data.pro.address.zipCode : ''}`}
             </Typography>
 
             <Typography variant='subtitle1' fontSize={14}>
@@ -275,110 +285,98 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
               <tbody className='table-body'>
                 {data?.jobList?.map((job, idx) => {
                   return (
-                    <Box key={idx}>
-                      {idx === 0 ? (
-                        <Typography
-                          variant='subtitle1'
-                          sx={{
-                            fontWeight: 600,
-                            padding: '20px',
-                            width: '100%',
-                            fontSize: '14px',
-                          }}
-                        >
-                          [{languageHelper(job?.sourceLanguage)} &rarr;{' '}
-                          {languageHelper(job?.targetLanguage)}
-                          ]&nbsp;{job.name}
-                        </Typography>
-                      ) : null}
+                    <Box key={idx} className='table-item'>
+                      {job.prices?.map((value, index) => {
+                        return (
+                          <>
+                            {index === 0 ? (
+                              <Typography
+                                variant='subtitle1'
+                                sx={{
+                                  fontWeight: 600,
+                                  padding: '20px',
+                                  width: '100%',
+                                  fontSize: '14px',
+                                }}
+                              >
+                                [{languageHelper(job.sourceLanguage)} &rarr;{' '}
+                                {languageHelper(job.targetLanguage)}
+                                ]&nbsp;{job.name}
+                              </Typography>
+                            ) : null}
+                            <TableRow
+                              key={index}
+                              className='table-row'
+                              sx={{
+                                display: 'flex',
+                                background:
+                                  index % 2 === 0 ? '#ffffff' : '#F5F5F7',
+                                height: '30px',
+                              }}
+                            >
+                              <td className='table-row-first'>
+                                <ul style={{ paddingLeft: '20px' }}>
+                                  <li>
+                                    <h6 className='subtitle2'>{value.name}</h6>
+                                  </li>
+                                </ul>
+                              </td>
+                              <td className='table-row-divider'></td>
+                              <td className='table-row-second'>
+                                <div className='table-row-second-content'>
+                                  <h6 className='subtitle2'>
+                                    {value.quantity}
+                                  </h6>
+                                  <h6 className='subtitle3'>{value.unit}</h6>
+                                </div>
+                              </td>
 
-                      {job.prices?.map((i, d) => (
-                        <TableRow
-                          key={d}
-                          className='table-row'
-                          sx={{
-                            display: 'flex',
-                            background: idx % 2 === 0 ? '#ffffff' : '#F5F5F7',
-                          }}
-                        >
-                          <td
-                            className='table-row-first'
-                            style={{ height: '20px' }}
-                          >
-                            <ul style={{ paddingLeft: '20px', height: '20px' }}>
-                              <li key={d}>
-                                <h6 className='subtitle2'>{i.name}</h6>
-                              </li>
-                            </ul>
-                          </td>
-                          <td className='table-row-divider'></td>
-                          <td className='table-row-second'>
-                            <div className='table-row-second-content'>
-                              <h6 className='subtitle2'>
-                                {i.quantity} Minutes
-                              </h6>
-                            </div>
-                          </td>
-                          <td className='table-row-divider'></td>
-                          <td className='table-row-third'>
-                            <div className='center-box'>
-                              <h6 className='subtitle2'>
-                                {formatCurrency(i.prices, data.currency)}
-                              </h6>
-                            </div>
-                          </td>
-                          <td className='table-row-divider'></td>
-                          <td className='table-row-fourth'>
-                            <div className='table-row-fourth-content'>
-                              <h6 className='subtitle2'>
-                                {formatCurrency(
-                                  i.quantity * Number(i.prices),
-                                  data.currency,
-                                )}
-                              </h6>
-                            </div>
-                          </td>
-                        </TableRow>
-                      ))}
-                      <TableRow
-                        className='table-row'
-                        sx={{
-                          display: 'flex',
-                          background: idx % 2 === 0 ? '#ffffff' : '#F5F5F7',
-                        }}
-                      >
-                        <td
-                          className='table-row-first'
-                          style={{ height: '20px' }}
-                        >
-                          <ul
-                            style={{ paddingLeft: '20px', height: '20px' }}
-                          ></ul>
-                        </td>
-                        <td className='table-row-divider'></td>
-                        <td className='table-row-second'>
-                          <div className='table-row-second-content'>
-                            <h6 className='subtitle2'></h6>
-                          </div>
-                        </td>
-                        <td className='table-row-divider'></td>
-                        <td className='table-row-third'>
-                          <div className='center-box'>
-                            <h6 className='subtitle2'></h6>
-                          </div>
-                        </td>
-                        <td className='table-row-divider'></td>
-                        <td className='table-row-fourth'>
-                          <div className='table-row-fourth-content'>
-                            <Typography fontWeight={600}>
-                              {formatCurrency(
-                                calculateTotalPriceRows(job.prices),
-                                data.currency,
-                              )}
-                            </Typography>
-                          </div>
-                        </td>
-                      </TableRow>
+                              <td className='table-row-divider'></td>
+                              <td className='table-row-third'>
+                                <div className='flex-start-box'>
+                                  <h6 className='subtitle2'>
+                                    {formatCurrency(
+                                      value.prices,
+                                      data.currency,
+                                    )}
+                                  </h6>
+                                </div>
+                              </td>
+                              <td className='table-row-divider'></td>
+                              <td className='table-row-fourth'>
+                                <div className='table-row-fourth-content'>
+                                  <h6 className='subtitle2'>
+                                    {formatCurrency(
+                                      value.quantity * Number(value.prices),
+                                      data.currency,
+                                    )}
+                                  </h6>
+                                </div>
+                              </td>
+                            </TableRow>
+                            {index === job.prices.length - 1 ? (
+                              <tr className='table-row-total'>
+                                <td className='table-row-first'></td>
+                                <td className='table-row-divider'></td>
+                                <td className='table-row-second'></td>
+                                <td className='table-row-divider'></td>
+                                <td className='table-row-third'></td>
+                                <td className='table-row-divider'></td>
+                                <td className='table-row-fourth'>
+                                  <div className='table-row-fourth-content'>
+                                    <Typography fontWeight={600}>
+                                      {formatCurrency(
+                                        calculateTotalPriceRows(job.prices),
+                                        data.currency,
+                                      )}
+                                    </Typography>
+                                  </div>
+                                </td>
+                              </tr>
+                            ) : null}
+                          </>
+                        )
+                      })}
                     </Box>
                   )
                 })}

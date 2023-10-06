@@ -130,7 +130,7 @@ export const getInvoicePayableJobList = async (
       count: 1,
       data: [
         {
-          id: 1,
+          id: 98,
           corporationId: 'KR-100',
           serviceType: 'Editing',
           name: 'bon',
@@ -146,6 +146,7 @@ export const getInvoicePayableJobList = async (
               unitPrice: 1000,
               quantity: 3,
               prices: '100000',
+              unit: 'Words',
             },
           ],
         },

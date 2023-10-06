@@ -57,6 +57,8 @@ import {
 } from '@src/apis/invoice/payable.api'
 
 import { toast } from 'react-hot-toast'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type MenuType = 'info' | 'history'
 
@@ -255,6 +257,7 @@ export default function PayableDetail() {
         paidAt: data.paidAt,
         paidDateTimezone: data.paidDateTimezone,
         pro: data.pro,
+
         jobList: jobList?.data || [],
         subtotal: data.subtotal,
         tax: data.tax,

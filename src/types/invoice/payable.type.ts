@@ -103,6 +103,7 @@ export type InvoicePayableJobType = {
     unitPrice: number
     quantity: number
     prices: string
+    unit: string
   }[]
 }
 
