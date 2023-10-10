@@ -1,10 +1,26 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 
+const formattedNow = (now: Date) => {
+  const minutes = now.getMinutes()
+
+  const formattedMinutes = minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
+
+  const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
+  const formattedTime = `${formattedHours}:${formattedMinutes
+    .toString()
+    .padStart(2, '0')}`
+  const formattedDate = new Date(now)
+  formattedDate.setHours(parseInt(formattedTime.split(':')[0]))
+  formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
+
+  return formattedDate
+}
+
 export const orderProjectInfoDefaultValue = {
   projectName: '',
   showDescription: false,
-  orderedAt: new Date().toISOString(),
+  orderedAt: formattedNow(new Date()),
 }
 export const orderProjectInfoSchema = yup.object().shape({
   // status: yup.string().required(FormErrors.required),

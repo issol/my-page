@@ -91,7 +91,7 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
-import { findEarliestDate } from '@src/shared/helpers/date.helper'
+import { findEarliestDate, formattedNow } from '@src/shared/helpers/date.helper'
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -463,9 +463,11 @@ export default function AddNewOrder() {
       // isTaxable : taxable,
       isTaxable: rawProjectInfo.isTaxable ? '1' : '0',
       tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
-      orderedAt: new Date(rawProjectInfo.orderedAt).toISOString(),
+      orderedAt: rawProjectInfo.orderedAt.toISOString(),
       subtotal: subPrice,
     }
+
+    console.log(projectInfo)
 
     const items: Array<PostItemType> = getItem().items.map(item => {
       const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
@@ -499,21 +501,21 @@ export default function AddNewOrder() {
       requestId: requestId ?? null,
     }
 
-    createOrderInfo(stepOneData)
-      .then(res => {
-        if (res.id) {
-          Promise.all([
-            createLangPairForOrder(res.id, langs),
-            createItemsForOrder(res.id, items),
-          ])
-            .then(() => {
-              router.push(`/orders/order-list/detail/${res.id}`)
-              closeModal('onClickSaveOrder')
-            })
-            .catch(e => onRequestError())
-        }
-      })
-      .catch(e => onRequestError())
+    // createOrderInfo(stepOneData)
+    //   .then(res => {
+    //     if (res.id) {
+    //       Promise.all([
+    //         createLangPairForOrder(res.id, langs),
+    //         createItemsForOrder(res.id, items),
+    //       ])
+    //         .then(() => {
+    //           router.push(`/orders/order-list/detail/${res.id}`)
+    //           closeModal('onClickSaveOrder')
+    //         })
+    //         .catch(e => onRequestError())
+    //     }
+    //   })
+    //   .catch(e => onRequestError())
   }
 
   function onRequestError() {
@@ -658,7 +660,7 @@ export default function AddNewOrder() {
         .then(res => {
           projectInfoReset({
             // status: 'In preparation' as OrderStatusType,
-            orderedAt: Date(),
+            orderedAt: formattedNow(new Date()),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
             showDescription: res?.showDescription ?? false,

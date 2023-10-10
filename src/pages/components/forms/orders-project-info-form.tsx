@@ -69,6 +69,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import dayjs from 'dayjs'
 
 type Props = {
   control: Control<OrderProjectInfoFormType, any>
@@ -202,6 +203,9 @@ export default function ProjectInfoForm({
       </>
     )
   }
+  const dateValue = (date: Date) => {
+    return dayjs(date).format('MM/DD/YYYY, hh:mm A')
+  }
 
   return (
     <Fragment>
@@ -213,8 +217,23 @@ export default function ProjectInfoForm({
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : formattedNow(new Date(value))}
-              onChange={onChange}
-              customInput={<CustomInput label='Order date*' icon='calendar' />}
+              onChange={e => {
+                console.log(e)
+
+                onChange(e)
+              }}
+              customInput={
+                <Box>
+                  <CustomInput
+                    label='Order date*'
+                    icon='calendar'
+                    readOnly
+                    value={
+                      value ? dateValue(formattedNow(new Date(value))) : ''
+                    }
+                  />
+                </Box>
+              }
             />
           )}
         />

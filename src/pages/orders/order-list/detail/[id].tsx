@@ -156,7 +156,13 @@ export type updateOrderType =
   | { feedback: string }
   | { languagePairs: Array<LanguagePairsType> }
   | { items: Array<PostItemType> }
-  | { tax: null | number; isTaxable: '0' | '1'; subtotal: number; languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
+  | {
+      tax: null | number
+      isTaxable: '0' | '1'
+      subtotal: number
+      languagePairs: Array<LanguagePairsType>
+      items: Array<PostItemType>
+    }
 
 type RenderSubmitButtonProps = {
   onCancel: () => void
@@ -841,6 +847,7 @@ const OrderDetail = () => {
     if (projectInfo) {
       const res = {
         ...projectInfo,
+        orderedAt: new Date(projectInfo?.orderedAt),
         status: currentStatus?.value ?? 100,
       }
       projectInfoReset(res)
@@ -906,15 +913,13 @@ const OrderDetail = () => {
             isTaxable: taxable ? '1' : '0',
             tax,
             subtotal: subtotal,
-            languagePairs: langs, 
+            languagePairs: langs,
             items: items,
           },
           {
             onSuccess: () => {
               setLangItemsEdit(false)
-              queryClient.invalidateQueries(
-                `LangItem-${Number(id!)}`,
-              )
+              queryClient.invalidateQueries(`LangItem-${Number(id!)}`)
               closeModal('LanguageAndItemEditModal')
             },
           },
