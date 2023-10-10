@@ -205,8 +205,6 @@ export default function Quotes({ id, user }: Props) {
     setFilters(filter)
   }
 
-  console.log(getValues())
-
   useEffect(() => {
     if (clients && !clientListLoading) {
       const res = clients.data.map(client => ({

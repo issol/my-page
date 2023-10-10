@@ -596,9 +596,9 @@ export default function QuotesDetail() {
     name: 'teams',
   })
 
-  useEffect(() => {
-    console.log(teams, 'team')
-  }, [teams])
+  // useEffect(() => {
+  //   console.log(teams, 'team')
+  // }, [teams])
 
   const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
   const teamOrder = ['supervisor', 'projectManager', 'member']
@@ -606,7 +606,6 @@ export default function QuotesDetail() {
   useEffect(() => {
     if (!isTeamLoading && team) {
       const viewTeams: ProjectTeamListType[] = team
-      console.log(viewTeams, 'rendering')
 
       if (!viewTeams.some(item => item.position === 'supervisor')) {
         viewTeams.unshift({
@@ -938,13 +937,7 @@ export default function QuotesDetail() {
     const subtotal = items.reduce((accumulator, item) => {
       return accumulator + item.totalPrice
     }, 0)
-    console.log('save items', {
-      tax,
-      isTaxable: taxable,
-      subtotal: subtotal,
-      languagePairs: langs,
-      items: items,
-    })
+
     onSave(async () => {
       try {
         // await patchQuoteLanguagePairs(Number(id), langs)
