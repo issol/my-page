@@ -763,6 +763,168 @@ export default function AddNewOrder() {
     }
   }
 
+  async function onCopyOrder(id: number | null) {
+    // const priceList = await getClientPriceList({})
+    closeModal('copy-order')
+    if (id) {
+      getProjectTeam(id)
+        .then(res => {
+          const teams: Array<{
+            type: MemberType
+            id: number | null
+            name?: string
+          }> = res.reduce(
+            (acc, item) => {
+              const type =
+                item.position === 'projectManager'
+                  ? 'projectManagerId'
+                  : item.position === 'supervisor'
+                  ? 'supervisorId'
+                  : 'member'
+              const id = item.userId
+              const name = getLegalName({
+                firstName: item?.firstName!,
+                middleName: item?.middleName,
+                lastName: item?.lastName!,
+              })
+              acc.push({ type, id, name })
+              return acc
+            },
+            [] as Array<{
+              type: MemberType
+              id: number | null
+              name?: string
+            }>,
+          )
+          if (!teams.find(value => value.type === 'supervisorId')) {
+            teams.unshift({ type: 'supervisorId', id: null })
+          }
+          if (!teams.find(value => value.type === 'member')) {
+            teams.push({ type: 'member', id: null })
+          }
+
+          resetTeam({ teams })
+        })
+        .catch(e => {
+          return
+        })
+
+      getClient(id)
+        .then(res => {
+          console.log(res)
+
+          getClientDetail(res.client.clientId).then(data => {
+            const addressType = res.clientAddress.find(
+              address => address.isSelected,
+            )?.addressType
+            clientReset({
+              clientId: res.client.clientId,
+              contactPersonId: res?.contactPerson?.id ?? null,
+              addressType:
+                addressType === 'additional' ? 'shipping' : addressType,
+              isEnrolledClient: res.isEnrolledClient,
+              contacts: {
+                timezone: data?.timezone!,
+                phone: data?.phone ?? '',
+                mobile: data?.mobile ?? '',
+                fax: data?.fax ?? '',
+                email: data?.email ?? '',
+                addresses:
+                  data?.clientAddresses?.filter(
+                    item => item.addressType !== 'additional',
+                  ) || [],
+              },
+            })
+          })
+        })
+        .catch(e => {
+          return
+        })
+      getProjectInfo(id)
+        .then(res => {
+          projectInfoReset({
+            // status: 'In preparation' as OrderStatusType,
+            orderedAt: formattedNow(new Date()),
+            workName: res?.workName ?? '',
+            projectName: res?.projectName ?? '',
+            showDescription: res?.showDescription ?? false,
+            status: 10000, //초기값(New) 설정
+            projectDescription: res?.projectDescription ?? '',
+            category: res?.category ?? '',
+            serviceType: res?.serviceType ?? [],
+            expertise: res?.expertise ?? [],
+            revenueFrom: undefined,
+            projectDueAt: res?.projectDueAt ?? null,
+            projectDueTimezone: res?.projectDueTimezone ?? {
+              label: '',
+              phone: '',
+              code: '',
+            },
+
+            isTaxable: res.isTaxable,
+            tax: res.tax ?? null,
+          })
+          // setTax(res?.tax ?? null)
+        })
+        .catch(e => {
+          return
+        })
+      getLangItems(id).then(res => {
+        if (res) {
+          setLanguagePairs(
+            res?.items?.map(item => {
+              return {
+                id: String(item.id),
+                source: item.source,
+                target: item.target,
+                price: {
+                  id: item.initialPrice?.priceId!,
+                  isStandard: item.initialPrice?.isStandard!,
+                  priceName: item.initialPrice?.name!,
+                  groupName: 'Current price',
+                  category: item.initialPrice?.category!,
+                  serviceType: item.initialPrice?.serviceType!,
+                  currency: item.initialPrice?.currency!,
+                  catBasis: item.initialPrice?.calculationBasis!,
+                  decimalPlace: item.initialPrice?.numberPlace!,
+                  roundingProcedure:
+                    RoundingProcedureList[item.initialPrice?.rounding!].label,
+                  languagePairs: [],
+                  priceUnit: [],
+                  catInterface: { memSource: [], memoQ: [] },
+                },
+              }
+            }),
+          )
+          const result = res?.items?.map(item => {
+            console.log('copy item', item)
+            return {
+              id: item.id,
+              itemName: item.itemName,
+              source: item.source,
+              target: item.target,
+              priceId: item.priceId,
+              detail: !item?.detail?.length ? [] : item.detail,
+              analysis: item.analysis ?? [],
+              totalPrice: item?.totalPrice ?? 0,
+              dueAt: item?.dueAt ?? '',
+              contactPerson: item?.contactPerson ?? {},
+              // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+              // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+              initialPrice: item.initialPrice ?? {},
+              description: item.description,
+              showItemDescription: item.showItemDescription,
+              minimumPrice: item.minimumPrice,
+              minimumPriceApplied: item.minimumPriceApplied,
+            }
+          })
+          itemReset({ items: result })
+          itemTrigger()
+        }
+      })
+    }
+  }
+
   useEffect(() => {
     if (languagePairs && prices) {
       const priceInfo =
@@ -803,7 +965,7 @@ export default function AddNewOrder() {
                   type: 'copy-order',
                   children: (
                     <CopyOrdersList
-                      onCopy={onCopyQuote}
+                      onCopy={onCopyOrder}
                       onClose={() => closeModal('copy-order')}
                     />
                   ),
