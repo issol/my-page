@@ -4,7 +4,7 @@ type RowType = {
   lastName?: string
 }
 export const getLegalName = (row: RowType) => {
-  return !row.firstName || !row.lastName
+  return !row || !row.firstName || !row.lastName
     ? '-'
     : row.firstName +
         (row.middleName ? ' (' + row.middleName + ')' : '') +

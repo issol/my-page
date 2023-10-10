@@ -87,6 +87,7 @@ import {
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -710,6 +711,12 @@ export default function ItemForm({
       }
     }
 
+    console.log("value",getValues(
+      `items.${idx}.contactPerson`,
+    ))
+    console.log("contactPersonList",contactPersonList)
+    // TODO: 네임 헬퍼 써야 함
+
     const handleMinimumPrice = () => {
       const minimumPrice = getValues(`items.${idx}.minimumPrice`)
       const currency = getValues(`items.${idx}.initialPrice.currency`)
@@ -861,13 +868,14 @@ export default function ItemForm({
                     </Typography>
                     <Typography variant='body1' fontSize={14}>
                       {
-                        contactPersonList.find(
-                          item =>
-                            item.value ===
-                            getValues(
-                              `items.${idx}.contactPerson.id`,
-                            )?.toString(),
-                        )?.label
+                        getLegalName(getValues(`items.${idx}.contactPerson`)!)
+                        // contactPersonList.find(
+                        //   item =>
+                        //     item.value ===
+                        //     getValues(
+                        //       `items.${idx}.contactPerson.id`,
+                        //     )?.toString(),
+                        // )?.label
                       }
                     </Typography>
                   </Box>
