@@ -274,6 +274,7 @@ const AddSavePriceModal = ({
           open={true}
           onSubmit={onAddCopiedPrice}
           onClose={() => closeModal('copy-price')}
+          page={'client'}
         />
       ),
     })
@@ -322,7 +323,7 @@ const AddSavePriceModal = ({
                 startIcon={<Icon icon='ic:baseline-file-download' />}
                 onClick={openCopyPriceModal}
               >
-                Copy price
+                {page === 'client' ? 'Import ' : 'Copy '}price
               </Button>
             ) : null}
           </Box>

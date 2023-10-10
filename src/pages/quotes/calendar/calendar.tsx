@@ -20,8 +20,6 @@ type Props = {
 const Calendar = (props: Props) => {
   // ** Props
   const { event, setYear, setMonth, direction, setCurrentListId } = props
-  // console.log(event)
-
   const finalEvent = event.map(item => {
     return {
       ...item,
