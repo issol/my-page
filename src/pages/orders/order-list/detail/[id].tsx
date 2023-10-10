@@ -251,7 +251,7 @@ const OrderDetail = () => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const currentStatus = useMemo(
-    () => statusList?.find(item => item.value === projectInfo?.status),
+    () => statusList?.find(item => item.label === projectInfo?.status),
     [statusList, projectInfo],
   )
 
@@ -844,6 +844,7 @@ const OrderDetail = () => {
       }))
       resetTeam({ teams })
     }
+    console.log("projectInfo",projectInfo,currentStatus)
     if (projectInfo) {
       const res = {
         ...projectInfo,
