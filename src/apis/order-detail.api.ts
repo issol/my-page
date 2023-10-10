@@ -33,9 +33,12 @@ export const getProjectTeam = async (
 }
 
 export const getClient = async (id: number): Promise<ClientType> => {
-  const { data } = await axios.get(`/api/enough/u/order/${id}/client`)
-
-  return data
+  try {
+    const { data } = await axios.get(`/api/enough/u/order/${id}/client`)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
 }
 
 export const getLangItems = async (
@@ -120,8 +123,9 @@ export const confirmOrder = async (id: number) => {
 }
 
 export const getJobInfo = async (id: number): Promise<JobInfoType[]> => {
-  const { data } = await axios.get(`/api/enough/u/job/check-assigned-pro?orderId=${id}`)
+  const { data } = await axios.get(
+    `/api/enough/u/job/check-assigned-pro?orderId=${id}`,
+  )
 
   return data
 }
-

@@ -49,7 +49,8 @@ export default function CopyOrdersList({ onClose, onCopy }: Props) {
       field: 'radiobutton',
       headerName: '',
       sortable: false,
-      renderHeader: () => <Radio size='small' sx={{ padding: 0 }} />,
+      disableColumnMenu: true,
+      renderHeader: () => <></>,
       renderCell: ({ row }: OrderListCellType) => {
         return (
           <Radio
@@ -68,6 +69,7 @@ export default function CopyOrdersList({ onClose, onCopy }: Props) {
       minWidth: 120,
       headerName: 'No.',
       disableColumnMenu: true,
+      sortable: false,
       renderHeader: () => (
         <Box
           sx={{
@@ -116,17 +118,26 @@ export default function CopyOrdersList({ onClose, onCopy }: Props) {
   }
 
   return (
-    <Dialog open={true} maxWidth='md'>
-      <DialogContent>
+    <Box
+      sx={{
+        maxWidth: '940px',
+        width: '100%',
+        background: '#ffffff',
+        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+        borderRadius: '10px',
+      }}
+    >
+      <Box sx={{ padding: '50px 60px' }}>
         <Grid container spacing={6}>
           <Grid item xs={12}>
-            <CardHeader title='Copy order' />
+            <Typography variant='h5'>Copy order</Typography>
           </Grid>
           <Grid item xs={12}>
             <OutlinedInput
               value={search}
               onChange={e => setSearch(e.target.value)}
               fullWidth
+              placeholder='Search projects'
               aria-describedby='icons-weight-helper-text'
               endAdornment={
                 <InputAdornment position='end'>
@@ -172,10 +183,15 @@ export default function CopyOrdersList({ onClose, onCopy }: Props) {
                 NoRowsOverlay: () => NoList(),
                 NoResultsOverlay: () => NoList(),
               }}
-              sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              sx={{
+                overflowX: 'scroll',
+                '.MuiDataGrid-row': {
+                  cursor: 'pointer',
+                },
+              }}
               columns={columns}
               rows={orderList?.data ?? []}
-              rowCount={orderList?.count ?? 0}
+              rowCount={orderList?.totalCount ?? 0}
               loading={isLoading}
               onCellClick={params => setSelected(params.row.id)}
               rowsPerPageOptions={[10, 25, 50]}
@@ -209,7 +225,7 @@ export default function CopyOrdersList({ onClose, onCopy }: Props) {
             </Button>
           </Grid>
         </Grid>
-      </DialogContent>
-    </Dialog>
+      </Box>
+    </Box>
   )
 }
