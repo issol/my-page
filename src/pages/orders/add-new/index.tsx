@@ -99,6 +99,13 @@ import {
 import { useGetStatusList } from '@src/queries/common.query'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import {
+  getClient,
+  getLangItems,
+  getProjectInfo,
+  getProjectTeam,
+} from '@src/apis/order-detail.api'
+import { getClientDetail } from '@src/apis/client.api'
 
 export type languageType = {
   id: number | string
@@ -598,7 +605,7 @@ export default function AddNewOrder() {
     // const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
-      getQuoteProjectTeam(id)
+      getProjectTeam(id)
         .then(res => {
           const teams: Array<{
             type: MemberType
@@ -640,23 +647,38 @@ export default function AddNewOrder() {
           return
         })
 
-      getQuoteClient(id)
+      getClient(id)
         .then(res => {
-          const addressType = res.clientAddress.find(
-            address => address.isSelected,
-          )?.addressType
-          clientReset({
-            clientId: res.client.clientId,
-            contactPersonId: res?.contactPerson?.id ?? null,
-            addressType:
-              addressType === 'additional' ? 'shipping' : addressType,
-            isEnrolledClient: res.isEnrolledClient,
+          console.log(res)
+
+          getClientDetail(res.client.clientId).then(data => {
+            const addressType = res.clientAddress.find(
+              address => address.isSelected,
+            )?.addressType
+            clientReset({
+              clientId: res.client.clientId,
+              contactPersonId: res?.contactPerson?.id ?? null,
+              addressType:
+                addressType === 'additional' ? 'shipping' : addressType,
+              isEnrolledClient: res.isEnrolledClient,
+              contacts: {
+                timezone: data?.timezone!,
+                phone: data?.phone ?? '',
+                mobile: data?.mobile ?? '',
+                fax: data?.fax ?? '',
+                email: data?.email ?? '',
+                addresses:
+                  data?.clientAddresses?.filter(
+                    item => item.addressType !== 'additional',
+                  ) || [],
+              },
+            })
           })
         })
         .catch(e => {
           return
         })
-      getQuoteProjectInfo(id)
+      getProjectInfo(id)
         .then(res => {
           projectInfoReset({
             // status: 'In preparation' as OrderStatusType,
@@ -685,7 +707,7 @@ export default function AddNewOrder() {
         .catch(e => {
           return
         })
-      getQuoteLangItems(id).then(res => {
+      getLangItems(id).then(res => {
         if (res) {
           setLanguagePairs(
             res?.items?.map(item => {

@@ -106,12 +106,15 @@ export default function RegisterClientForm({
           },
         })
       return
+    } else {
+      getDetail(clientId, false)
     }
-    getDetail(clientId!, false)
   }, [clientId])
   console.log(getValue())
 
   function getDetail(id: number, resetClientId = true) {
+    console.log(id)
+
     return getClientDetail(id)
       .then(res => {
         setClientDetail(res)
@@ -119,6 +122,7 @@ export default function RegisterClientForm({
 
         reset &&
           reset({
+            ...getValue(),
             clientId: id,
             contacts: {
               timezone: res?.timezone!,
@@ -132,14 +136,6 @@ export default function RegisterClientForm({
                 ) || [],
             },
           })
-
-        // setValue('contacts.timezone', res.timezone, setValueOptions)
-        // setValue('contacts.email', res.email, setValueOptions)
-        // setValue('contacts.phone', res.phone, setValueOptions)
-        // setValue('contacts.mobile', res.mobile, setValueOptions)
-        // setValue('contacts.fax', res.fax, setValueOptions)
-        // setValue('contacts.addresses', res.clientAddresses, setValueOptions)
-        // trigger('contacts')
 
         if (res.isTaxable && res.tax) {
           setTaxable(res.isTaxable)
