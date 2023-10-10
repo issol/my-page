@@ -10829,13 +10829,12 @@
   "resolved" "https://registry.npmjs.org/nested-error-stacks/-/nested-error-stacks-2.1.1.tgz"
   "version" "2.1.1"
 
-"next-transpile-modules@^9.1.0":
-  "integrity" "sha512-yzJji65xDqcIqjvx5vPJcs1M+MYQTzLM1pXH/qf8Q88ohx+bwVGDc1AeV+HKr1NwvMCNTpwVPSFI7cA5WdyeWA=="
-  "resolved" "https://registry.npmjs.org/next-transpile-modules/-/next-transpile-modules-9.1.0.tgz"
-  "version" "9.1.0"
+"next-transpile-modules@^10.0.1":
+  "integrity" "sha512-4VX/LCMofxIYAVV58UmD+kr8jQflpLWvas/BQ4Co0qWLWzVh06FoZkECkrX5eEZT6oJFqie6+kfbTA3EZCVtdQ=="
+  "resolved" "https://registry.npmjs.org/next-transpile-modules/-/next-transpile-modules-10.0.1.tgz"
+  "version" "10.0.1"
   dependencies:
     "enhanced-resolve" "^5.10.0"
-    "escalade" "^3.1.1"
 
 "next@13.0.0":
   "integrity" "sha512-puH1WGM6rGeFOoFdXXYfUxN9Sgi4LMytCV5HkQJvVUOhHfC1DoVqOfvzaEteyp6P04IW+gbtK2Q9pInVSrltPA=="
