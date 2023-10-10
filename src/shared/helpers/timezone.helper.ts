@@ -44,10 +44,6 @@ export const getGmtTimeEng = (code: string | null | undefined) => {
     .formatToParts(new Date())
     .find(part => part.type === 'timeZoneName')!.value
 
-  console.log(timeZone)
-
-  console.log(moment.tz('Asia/Seoul').format('Z'))
-
   const formattedTimeZone = `GMT(${moment
     .tz(timeZone)
     .format('Z')}) ${timeZoneName} - ${timeZone}`
