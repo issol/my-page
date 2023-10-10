@@ -834,9 +834,12 @@ export default function QuotesDetail() {
           .catch(e => onMutationError())
       }
     }
-    // TODO: TAD, LPM role을 둘다 가지고 있는 경우 롤 스위치 상황에 따라 이 조건이 동작하지 않을 수 있음
+    // LPM에서 status가 Revision requested일때 quote의 편집화면에 진입하면 status를 Under revision(20600) 으로 패치한다.
+    console.log("currentRole",currentRole)
     if (currentRole && currentRole.name === 'LPM') {
-      if (project && project.status === 'Revision requested') {
+      if (project && project.status === 'Revision requested' &&
+        (editProject || editItems || editClient || editTeam)
+      ) {
         patchQuoteProjectInfo(Number(id), { status: 20600 })
           .then(res => {
             refetch()
@@ -844,7 +847,7 @@ export default function QuotesDetail() {
           .catch(e => onMutationError())
       }
     }
-  }, [])
+  }, [currentRole, project, editProject, editItems, editClient, editTeam])
 
   const updateProject = useMutation(
     (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
