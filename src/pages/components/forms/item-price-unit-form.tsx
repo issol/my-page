@@ -124,11 +124,12 @@ export default function ItemPriceUnitForm({
   const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
   const nestSubPriceUnits = (idx: number) => {
     const nestedData: Array<NestedPriceUnitType> = []
-    console.log(priceUnitsList)
+    console.log("priceUnitsList",priceUnitsList)
 
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
       ...item,
-      quantity: Number(item.quantity) ?? 0,
+      quantity: 0,
+      price: 0,
       priceUnitId: item.id,
       subPriceUnits: [],
       groupName: 'Price unit',
