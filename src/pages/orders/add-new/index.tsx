@@ -605,7 +605,7 @@ export default function AddNewOrder() {
     // const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
-      getProjectTeam(id)
+      getQuoteProjectTeam(id)
         .then(res => {
           const teams: Array<{
             type: MemberType
@@ -647,7 +647,7 @@ export default function AddNewOrder() {
           return
         })
 
-      getClient(id)
+      getQuoteClient(id)
         .then(res => {
           console.log(res)
 
@@ -678,7 +678,7 @@ export default function AddNewOrder() {
         .catch(e => {
           return
         })
-      getProjectInfo(id)
+      getQuoteProjectInfo(id)
         .then(res => {
           projectInfoReset({
             // status: 'In preparation' as OrderStatusType,
@@ -707,7 +707,7 @@ export default function AddNewOrder() {
         .catch(e => {
           return
         })
-      getLangItems(id).then(res => {
+      getQuoteLangItems(id).then(res => {
         if (res) {
           setLanguagePairs(
             res?.items?.map(item => {
