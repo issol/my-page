@@ -501,21 +501,21 @@ export default function AddNewOrder() {
       quoteId: quoteId ?? null,
     }
 
-    // createOrderInfo(stepOneData)
-    //   .then(res => {
-    //     if (res.id) {
-    //       Promise.all([
-    //         createLangPairForOrder(res.id, langs),
-    //         createItemsForOrder(res.id, items),
-    //       ])
-    //         .then(() => {
-    //           router.push(`/orders/order-list/detail/${res.id}`)
-    //           closeModal('onClickSaveOrder')
-    //         })
-    //         .catch(e => onRequestError())
-    //     }
-    //   })
-    //   .catch(e => onRequestError())
+    createOrderInfo(stepOneData)
+      .then(res => {
+        if (res.id) {
+          Promise.all([
+            createLangPairForOrder(res.id, langs),
+            createItemsForOrder(res.id, items),
+          ])
+            .then(() => {
+              router.push(`/orders/order-list/detail/${res.id}`)
+              closeModal('onClickSaveOrder')
+            })
+            .catch(e => onRequestError())
+        }
+      })
+      .catch(e => onRequestError())
   }
 
   function onRequestError() {
