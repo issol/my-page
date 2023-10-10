@@ -152,6 +152,17 @@ const clientSideEmotionCache = createEmotionCache()
 //   { ssr: false },
 // )
 
+const BeusableScriptsDynamic = dynamic(
+  () => import('@src/shared/scripts/beusable'),
+  {
+    suspense: true,
+  },
+)
+
+const GAScriptsDynamic = dynamic(() => import('@src/shared/scripts/ga'), {
+  suspense: true,
+})
+
 // ** Pace Loader
 if (themeConfig.routingLoader) {
   Router.events.on('routeChangeStart', () => {
@@ -293,6 +304,8 @@ const App = (props: ExtendedAppProps) => {
                                       }
                                     }}
                                   >
+                                    <BeusableScriptsDynamic />
+                                    <GAScriptsDynamic />
                                     {getLayout(<Component {...pageProps} />)}
                                   </ErrorBoundary>
                                 </Suspense>
