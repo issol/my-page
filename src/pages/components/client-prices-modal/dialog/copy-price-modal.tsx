@@ -12,12 +12,13 @@ type Props = {
   open: boolean
   onClose: any
   onSubmit: (data: StandardPriceListType) => void
+  page?: 'client' | 'pro'
 }
 
 type CellType = {
   row: StandardPriceListType
 }
-const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
+const CopyPriceModal = ({ list, open, onClose, onSubmit, page }: Props) => {
   const [pageSize, setPageSize] = useState(10)
   const [selected, setSelected] = useState<StandardPriceListType | null>(null)
 
@@ -107,7 +108,7 @@ const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
         }}
       >
         <Typography variant='h6' mb='30px'>
-          Copy price
+          {page === 'client' ? 'Import ' : 'Copy '}price
         </Typography>
         <DataGrid
           autoHeight

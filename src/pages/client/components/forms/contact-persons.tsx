@@ -351,6 +351,7 @@ export default function ContactPersonForm<T extends number | string = string>({
       <Dialog
         open={openForm}
         maxWidth='lg'
+        sx={{ zIndex: 1299 }}
       >
         <DialogContent>
           <Grid container spacing={6}>
