@@ -118,7 +118,7 @@ export default function QuotesProjectInfoDetail({
           value =>
             value.label === 'New' ||
             value.label === 'In preparation' ||
-            value.label === 'Internal Review',
+            value.label === 'Internal review',
         )
       } else {
         return statusList?.filter(
