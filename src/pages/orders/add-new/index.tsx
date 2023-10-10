@@ -498,7 +498,7 @@ export default function AddNewOrder() {
       ...teams,
       ...clients,
       ...projectInfo,
-      requestId: requestId ?? null,
+      quoteId: quoteId ?? null,
     }
 
     // createOrderInfo(stepOneData)
