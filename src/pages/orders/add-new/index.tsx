@@ -286,7 +286,7 @@ export default function AddNewOrder() {
     watch: itemWatch,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: { items: [] },
     resolver: yupResolver(itemSchema),
   })
@@ -411,7 +411,7 @@ export default function AddNewOrder() {
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      itemName: '',
+      itemName: null,
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,

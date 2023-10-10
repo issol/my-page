@@ -28,7 +28,7 @@ export type AnalysisFileType = {
 }
 export type PostItemType = {
   id?: number
-  itemName: string
+  itemName: string | null
   dueAt?: string
   contactPersonId?: number
   source: string

@@ -486,15 +486,18 @@ export default function ItemForm({
           })
           // handleShowMinimum(true)
           total = itemMinimumPrice
-        } else if (itemMinimumPrice && price >= itemMinimumPrice && showMinimum){
+        } else if (
+          itemMinimumPrice &&
+          price >= itemMinimumPrice &&
+          showMinimum
+        ) {
           total = price
           // 아래 코드 활성화시 미니멈 프라이스가 활성화 되었으나 미니멈 프라이스 값이 없는 경우 무한루프에 빠짐
           if (showMinimum === true) handleShowMinimum(false)
         } else {
           total = price
         }
-
-      } else if (!data?.length && showMinimum){
+      } else if (!data?.length && showMinimum) {
         // 최초 상태, row는 없이 미니멈프라이스만 설정되어 있는 상태
         total = itemMinimumPrice!
       }
@@ -781,13 +784,20 @@ export default function ItemForm({
                   <Controller
                     name={`items.${idx}.itemName`}
                     control={control}
-                    render={({ field: { value, onChange } }) => (
+                    render={({ field: { value, onChange, onBlur } }) => (
                       <TextField
                         fullWidth
+                        autoFocus={value !== null && value.length < 2}
                         label='Item name*'
                         variant='outlined'
                         value={value ?? ''}
-                        onChange={onChange}
+                        onChange={(e: any) => {
+                          if (e.target.value) {
+                            onChange(e.target.value)
+                          } else {
+                            onChange('')
+                          }
+                        }}
                         inputProps={{ maxLength: 200 }}
                         error={Boolean(errors?.items?.[idx]?.itemName)}
                       />
@@ -1016,12 +1026,20 @@ export default function ItemForm({
                       let hasMatchingPrice = false
                       let hasStandardPrice = false
                       options.find(option => {
-                        if (option.groupName && option.groupName === 'Matching price') hasMatchingPrice = true
-                        if (option.groupName && option.groupName === 'Standard client price') hasStandardPrice = true
+                        if (
+                          option.groupName &&
+                          option.groupName === 'Matching price'
+                        )
+                          hasMatchingPrice = true
+                        if (
+                          option.groupName &&
+                          option.groupName === 'Standard client price'
+                        )
+                          hasStandardPrice = true
                       })
                       return (
                         <Autocomplete
-                        // <StyledAutocomplete
+                          // <StyledAutocomplete
                           autoHighlight
                           fullWidth
                           options={options}
@@ -1045,7 +1063,7 @@ export default function ItemForm({
                                     value?.target!,
                                   )
                                   onChangePrice(v, idx)
-  
+
                                   if (index !== -1) {
                                     const copyLangPair = [...languagePairs]
                                     copyLangPair[index].price = v
@@ -1068,20 +1086,20 @@ export default function ItemForm({
                               placeholder='Price*'
                             />
                           )}
-                          renderGroup={(params) => (
+                          renderGroup={params => (
                             <li key={params.key}>
-                              {!hasMatchingPrice && params.group
-                                ? <GroupHeader>
-                                    Matching price <NoResultText>(No result)</NoResultText>
-                                  </GroupHeader>
-                                : null
-                               }
-                              {!hasStandardPrice && params.group
-                                ? <GroupHeader>
-                                    Standard client price <NoResultText>(No result)</NoResultText>
-                                  </GroupHeader>
-                                : null
-                               }
+                              {!hasMatchingPrice && params.group ? (
+                                <GroupHeader>
+                                  Matching price{' '}
+                                  <NoResultText>(No result)</NoResultText>
+                                </GroupHeader>
+                              ) : null}
+                              {!hasStandardPrice && params.group ? (
+                                <GroupHeader>
+                                  Standard client price{' '}
+                                  <NoResultText>(No result)</NoResultText>
+                                </GroupHeader>
+                              ) : null}
                               <GroupHeader>{params.group}</GroupHeader>
                               <GroupItems>{params.children}</GroupItems>
                             </li>
@@ -1167,9 +1185,8 @@ export default function ItemForm({
                         ? getValues(`items.${idx}.description`)
                         : '-'
                       : getValues(`items.${idx}.description`) !== ''
-                        ? getValues(`items.${idx}.description`)
-                        : '-'
-                    }
+                      ? getValues(`items.${idx}.description`)
+                      : '-'}
                   </Typography>
                 ) : (
                   <Controller
@@ -1271,10 +1288,10 @@ const GroupHeader = styled('div')({
 
 const NoResultText = styled('span')({
   fontWeight: 'normal',
-});
+})
 
 const GroupItems = styled('ul')({
   paddingTop: '0px',
   paddingBottom: '0px',
   paddingLeft: '5px',
-});
+})
