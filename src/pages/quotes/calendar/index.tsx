@@ -101,25 +101,33 @@ const CalendarContainer = () => {
   }
 
   useEffect(() => {
-    if (currentListId && data?.data) {
-      setCurrentList(data?.data.filter(item => item.id === currentListId))
-    }
-  }, [currentListId])
-
-  useEffect(() => {
-    if (data?.data?.length) {
-      setEvent(
-        data.data.filter(
-          item =>
-            item.status !== 'Changed into order' &&
-            item.status !== 'Canceled' &&
-            item.status !== 'Rejected',
-        ),
-      )
+    if (data?.data?.length && !isLoading) {
+      setEvent([...data.data])
     } else {
       setEvent([])
     }
-  }, [data])
+  }, [data, isLoading])
+  
+  // useEffect(() => {
+  //   if (currentListId && data?.data) {
+  //     setCurrentList(data?.data.filter(item => item.id === currentListId))
+  //   }
+  // }, [currentListId])
+
+  // useEffect(() => {
+  //   if (data?.data?.length) {
+  //     setEvent(
+  //       data.data.filter(
+  //         item =>
+  //           item.status !== 'Changed into order' &&
+  //           item.status !== 'Canceled' &&
+  //           item.status !== 'Rejected',
+  //       ),
+  //     )
+  //   } else {
+  //     setEvent([])
+  //   }
+  // }, [data])
 
   useEffect(() => {
     if (statusList) {
