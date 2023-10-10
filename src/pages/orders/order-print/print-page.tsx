@@ -90,7 +90,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
           <Typography variant='subtitle2'>
             {lang === 'EN'
               ? '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010'
-              : '서울특별시 강남구 영동대로 106길 11, 3층(삼성동, 현성빌딩)'}
+              : '서울특별시 금천구 가산디지털1로 204, 903호 (가산 반도아이비밸리) 08502'}
           </Typography>
         </Box>
         <Box>
@@ -136,8 +136,8 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
             </Typography>
             <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
               {FullDateTimezoneHelper(
-                data.projectDueAt.date,
-                data.projectDueAt.timezone,
+                data.projectDueAt?.date,
+                data.projectDueAt?.timezone,
               )}
             </Typography>
           </Box>
@@ -204,18 +204,18 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
             {data.contactPerson ? (
               <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
                 {getLegalName({
-                  firstName: data.contactPerson.firstName!,
-                  middleName: data.contactPerson.middleName!,
-                  lastName: data.contactPerson.lastName!,
+                  firstName: data.contactPerson?.firstName!,
+                  middleName: data.contactPerson?.middleName!,
+                  lastName: data.contactPerson?.lastName!,
                 })}
                 &nbsp;
               </Typography>
             ) : null}
-            {data.contactPerson && data.contactPerson.jobTitle ? (
+            {data.contactPerson && data.contactPerson?.jobTitle ? (
               <>
                 <Divider orientation='vertical' flexItem variant='middle' />
                 <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-                  &nbsp;{data.contactPerson.jobTitle}
+                  &nbsp;{data.contactPerson?.jobTitle}
                 </Typography>
               </>
             ) : null}
@@ -228,17 +228,17 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
 
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
             {data.contactPerson
-              ? data.contactPerson.email
-              : data.client.client.email}
+              ? data.contactPerson?.email
+              : data.client?.client?.email}
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
             {getPhoneNumber(
               data.contactPerson !== null
-                ? data.contactPerson.mobile!
-                : data.client.client.mobile,
+                ? data.contactPerson?.mobile!
+                : data.client.client?.mobile,
               data.contactPerson !== null
-                ? data.contactPerson.timezone.phone
-                : data.client.client.timezone.phone,
+                ? data.contactPerson?.timezone?.phone
+                : data.client?.client?.timezone?.phone,
             )}
           </Typography>
         </Box>
@@ -350,7 +350,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Box>{lang === 'EN' ? `Price (USD)` : `단가 (USD)`}</Box>
+                  <Box>{lang === 'EN' ? `Price (${data?.langItem?.items[0]?.initialPrice?.currency!})` : `단가 (${data?.langItem?.items[0]?.initialPrice?.currency!})`}</Box>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -375,7 +375,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                   }}
                 >
                   <Box>
-                    {lang === 'EN' ? `Total Price (USD)` : `금액 (USD)`}
+                    {lang === 'EN' ? `Total Price (${data?.langItem?.items[0]?.initialPrice?.currency!})` : `금액 (${data?.langItem?.items[0]?.initialPrice?.currency!})`}
                   </Box>
                 </TableCell>
               </TableRow>
@@ -415,8 +415,8 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                       {!data.langItem
                         ? 0
                         : formatCurrency(
-                            calculateTotalPriceRows(data.langItem),
-                            'USD',
+                            data?.subtotal,
+                            data?.langItem?.items[0]?.initialPrice?.currency!,
                           )}
                     </Typography>
                   </Box>

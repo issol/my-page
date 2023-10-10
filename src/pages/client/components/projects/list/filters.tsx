@@ -206,7 +206,7 @@ export default function ClientProjectsFilter({
                           id='category'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Service type' />
+                            <TextField {...params} label='Category' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -321,6 +321,7 @@ export default function ClientProjectsFilter({
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
+                            placeholderText='MM/DD/YYYY - MM/DD/YYYY'
                             customInput={
                               <CustomInput
                                 label='Project due date'

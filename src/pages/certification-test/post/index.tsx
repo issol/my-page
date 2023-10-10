@@ -47,7 +47,8 @@ import styled from 'styled-components'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** form
 import { useForm, Controller } from 'react-hook-form'
@@ -115,7 +116,7 @@ interface FileProp {
 const TestMaterialPost = () => {
   const router = useRouter()
   // ** contexts
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const { edit } = router.query
   const { id } = router.query
   const queryClient = useQueryClient()
@@ -622,115 +623,119 @@ const TestMaterialPost = () => {
   }, [watch])
 
   const onSubmit = (edit: boolean) => {
-    const data = getValues()
-    //** data to send to server */
-    const formContent = convertToRaw(content.getCurrentContent())
-    const finalValue: TestFormType = {
-      company: 'GloZ',
-      writer: user?.username!,
-      email: user?.email!,
-      testPaperFormUrl: data.googleFormLink,
-      source: data.source.value === '' ? data.target.value : data.source.value,
-      target: data.target.value,
-      testType: data.testType === 'Basic test' ? 'basic' : 'skill',
-      jobType: data.jobType.value,
-      role: data.role.value,
-      content: formContent,
-      text: content.getCurrentContent().getPlainText('\u0001'),
-    }
+    if (auth.state === 'hasValue') {
+      const data = getValues()
+      //** data to send to server */
+      const formContent = convertToRaw(content.getCurrentContent())
+      const finalValue: TestFormType = {
+        company: 'GloZ',
+        writer: auth.getValue().user?.username!,
+        email: auth.getValue().user?.email!,
+        testPaperFormUrl: data.googleFormLink,
+        source:
+          data.source.value === '' ? data.target.value : data.source.value,
+        target: data.target.value,
+        testType: data.testType === 'Basic test' ? 'basic' : 'skill',
+        jobType: data.jobType.value,
+        role: data.role.value,
+        content: formContent,
+        text: content.getCurrentContent().getPlainText('\u0001'),
+      }
 
-    const patchValue: PatchFormType = {
-      writer: user?.username!,
-      email: user?.email!,
-      testPaperFormUrl: data.googleFormLink,
-      content: formContent,
-      text: content.getCurrentContent().getPlainText(`\u0001`),
-    }
+      const patchValue: PatchFormType = {
+        writer: auth.getValue().user?.username!,
+        email: auth.getValue().user?.email!,
+        testPaperFormUrl: data.googleFormLink,
+        content: formContent,
+        text: content.getCurrentContent().getPlainText(`\u0001`),
+      }
 
-    const fileInfo: Array<{ name: string; size: number; fileKey: string }> = []
-    const language =
-      data.testType === 'Basic test'
-        ? `${data.target.value}`
-        : `${data.source.value}-${data.target.value}`
-
-    isFetched
-      ? savedFiles?.map(file => {
-          fileInfo.push({
-            name: file.name,
-            size: file.size,
-            fileKey: getFilePath(
-              [
-                'testPaper',
-                data.testType === 'Basic test' ? 'basic' : 'skill',
-                data.jobType.value,
-                data.role.value,
-                language,
-                `V${testDetail?.currentVersion.version!}`,
-              ],
-              file.name,
-            ),
-          })
-        })
-      : null
-
-    // file upload
-    if (data.file?.length) {
       const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
         []
       const language =
         data.testType === 'Basic test'
           ? `${data.target.value}`
           : `${data.source.value}-${data.target.value}`
-      const paths: string[] = data?.file?.map(file =>
-        getFilePath(
-          [
-            'testPaper',
-            data.testType === 'Basic test' ? 'basic' : 'skill',
-            data.jobType.value,
-            data.role.value,
-            language,
-            isFetched ? `V${testDetail?.currentVersion.version!}` : 'V1',
-          ],
-          file.name,
-        ),
-      )
-      const promiseArr = paths.map((url, idx) => {
-        return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url).then(
-          res => {
-            fileInfo.push({
-              name: data.file[idx].name,
-              size: data.file[idx]?.size,
-              fileKey: url,
-            })
-            return uploadFileToS3(res.url, data.file[idx])
-          },
-        )
-      })
-      Promise.all(promiseArr)
-        .then(res => {
-          finalValue.files = fileInfo
-          patchValue.files = fileInfo
 
-          isFetched
-            ? patchTestMutation.mutate(patchValue)
-            : postTestMutation.mutate(finalValue)
-        })
-        .catch(err => {
-          isFetched
-            ? patchTestMutation.mutate(patchValue)
-            : postTestMutation.mutate(finalValue)
-          toast.error(
-            'Something went wrong while uploading files. Please try again.',
-            {
-              position: 'bottom-left',
+      isFetched
+        ? savedFiles?.map(file => {
+            fileInfo.push({
+              name: file.name,
+              size: file.size,
+              fileKey: getFilePath(
+                [
+                  'testPaper',
+                  data.testType === 'Basic test' ? 'basic' : 'skill',
+                  data.jobType.value,
+                  data.role.value,
+                  language,
+                  `V${testDetail?.currentVersion.version!}`,
+                ],
+                file.name,
+              ),
+            })
+          })
+        : null
+
+      // file upload
+      if (data.file?.length) {
+        const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
+          []
+        const language =
+          data.testType === 'Basic test'
+            ? `${data.target.value}`
+            : `${data.source.value}-${data.target.value}`
+        const paths: string[] = data?.file?.map(file =>
+          getFilePath(
+            [
+              'testPaper',
+              data.testType === 'Basic test' ? 'basic' : 'skill',
+              data.jobType.value,
+              data.role.value,
+              language,
+              isFetched ? `V${testDetail?.currentVersion.version!}` : 'V1',
+            ],
+            file.name,
+          ),
+        )
+        const promiseArr = paths.map((url, idx) => {
+          return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url).then(
+            res => {
+              fileInfo.push({
+                name: data.file[idx].name,
+                size: data.file[idx]?.size,
+                fileKey: url,
+              })
+              return uploadFileToS3(res.url, data.file[idx])
             },
           )
         })
-    } else {
-      patchValue.files = fileInfo
-      isFetched
-        ? patchTestMutation.mutate(patchValue)
-        : postTestMutation.mutate(finalValue)
+        Promise.all(promiseArr)
+          .then(res => {
+            finalValue.files = fileInfo
+            patchValue.files = fileInfo
+
+            isFetched
+              ? patchTestMutation.mutate(patchValue)
+              : postTestMutation.mutate(finalValue)
+          })
+          .catch(err => {
+            isFetched
+              ? patchTestMutation.mutate(patchValue)
+              : postTestMutation.mutate(finalValue)
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            )
+          })
+      } else {
+        patchValue.files = fileInfo
+        isFetched
+          ? patchTestMutation.mutate(patchValue)
+          : postTestMutation.mutate(finalValue)
+      }
     }
   }
 
@@ -790,7 +795,9 @@ const TestMaterialPost = () => {
 
   return (
     <>
-      {patchTestMutation.isLoading || postTestMutation.isLoading ? (
+      {patchTestMutation.isLoading ||
+      postTestMutation.isLoading ||
+      auth.state === 'loading' ? (
         <OverlaySpinner />
       ) : (
         <Box sx={{ display: 'flex', gap: 4, flexDirection: 'column' }}>
@@ -1095,14 +1102,16 @@ const TestMaterialPost = () => {
                           sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                           color='primary'
                         >
-                          {user?.username}
+                          {auth.getValue().user?.username}
                         </Typography>
                         <Divider
                           orientation='vertical'
                           variant='middle'
                           flexItem
                         />
-                        <Typography variant='body2'>{user?.email}</Typography>
+                        <Typography variant='body2'>
+                          {auth.getValue().user?.email}
+                        </Typography>
                       </Box>
                     </Box>
                     <Divider sx={{ mb: 2 }} />

@@ -21,6 +21,9 @@ import {
   Control,
   UseFormSetValue,
   UseFormWatch,
+  UseFormGetValues,
+  UseFormTrigger,
+  UseFormReset,
 } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -58,97 +61,39 @@ import useModal from '@src/hooks/useModal'
 
 // ** values
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   control: Control<ClientFormType, any>
   setValue: UseFormSetValue<ClientFormType>
+  getValue: UseFormGetValues<ClientFormType>
   watch: UseFormWatch<ClientFormType>
-  setTax: (n: number | null) => void
+  trigger?: UseFormTrigger<ClientFormType>
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'edit' | 'create'
+  fromQuote: boolean
+  reset?: UseFormReset<ClientFormType>
 }
 export default function ClientQuotesFormContainer({
   control,
   setValue,
   watch,
-  setTax,
+  trigger,
   setTaxable,
   type,
   formType,
+  getValue,
+  fromQuote = false,
+  reset,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [openForm, setOpenForm] = useState(false)
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(0)
-
-  const steps = [
-    {
-      title: 'Company info',
-    },
-    {
-      title: 'Addresses',
-    },
-  ]
-
-  const handleModalBack = () => {
-    setActiveStep(prevActiveStep => prevActiveStep - 1)
+  const setValueOptions = {
+    shouldDirty: true,
+    shouldValidate: true,
   }
-
-  const onModalNextStep = () => {
-    setActiveStep(activeStep + 1)
-  }
-
-  const {
-    control: companyInfoControl,
-    getValues: getCompanyInfoValues,
-    setValue: setCompanyInfoValues,
-    watch: companyInfoWatch,
-    formState: { errors: companyInfoErrors, isValid: isCompanyInfoValid },
-  } = useForm<CompanyInfoFormType>({
-    mode: 'onChange',
-    defaultValues: companyInfoDefaultValue,
-    resolver: yupResolver(companyInfoSchema),
-  })
-  const {
-    control: addressControl,
-    getValues: getAddressValues,
-    formState: { errors: addressErrors, isValid: isAddressValid },
-  } = useForm<ClientAddressFormType>({
-    defaultValues: clientAddressDefaultValue,
-    mode: 'onChange',
-    resolver: yupResolver(clientAddressSchema),
-  })
-
-  const {
-    fields: addresses,
-    append: appendAddress,
-    remove: removeAddress,
-    update: updateAddress,
-  } = useFieldArray({
-    control: addressControl,
-    name: 'clientAddresses',
-  })
-
-  const {
-    control: contactPersonControl,
-    getValues: getContactPersonValues,
-    watch: watchContactPerson,
-    formState: { errors: contactPersonErrors, isValid: isContactPersonValid },
-  } = useForm<ClientContactPersonType>({
-    defaultValues: contactPersonDefaultValue,
-    mode: 'onChange',
-    resolver: yupResolver(clientContactPersonSchema),
-  })
-
-  const {
-    fields: contactPersons,
-    append: appendContactPersons,
-    remove: removeContactPersons,
-  } = useFieldArray({
-    control: contactPersonControl,
-    name: 'contactPersons',
-  })
 
   const [clients, setClients] = useState<
     Array<{ value: number; label: string }>
@@ -173,34 +118,29 @@ export default function ClientQuotesFormContainer({
     }
   }, [clientList, isSuccess])
 
-  function appendContactPerson() {
-    const companyInfo = getCompanyInfoValues() ?? undefined
-    appendContactPersons({
-      personType: 'Mr.',
-      firstName: '',
-      lastName: '',
-      timezone: companyInfo.timezone ?? { code: '', label: '', phone: '' },
-      email: '',
-      userId: null,
-    })
-  }
-
   function onCloseFormModal() {
     openModal({
       type: 'close-confirm',
       children: (
-        <CloseConfirmModal
-          message='Are you sure? Changes you made may not be saved.'
-          onClick={() => setOpenForm(false)}
-          onClose={() => closeModal('close-confirm')}
+        <CustomModal
+          title='Are you sure? Changes you made may not be saved.'
+          vary='error'
+          rightButtonText='Close'
+          onClick={() => {
+            closeModal('add-new-client')
+            closeModal('close-confirm')
+          }}
+          onClose={() => {
+            // resetAddNewClientForm()
+            closeModal('close-confirm')
+          }}
         />
+        // <CloseConfirmModal
+        //   message='Are you sure? Changes you made may not be saved.'
+
+        // />
       ),
     })
-  }
-
-  const setValueOptions = {
-    shouldDirty: true,
-    shouldValidate: true,
   }
 
   function mutateClientData(
@@ -211,7 +151,7 @@ export default function ClientQuotesFormContainer({
       .then(res => {
         setValue('clientId', res.clientId, setValueOptions)
         if (!contactPersonData || !contactPersonData?.length) {
-          setOpenForm(false)
+          closeModal('add-new-client')
           return
         }
         createContactPerson([
@@ -225,41 +165,56 @@ export default function ClientQuotesFormContainer({
             )
           }
 
-          setOpenForm(false)
+          closeModal('add-new-client')
         })
       })
       .finally(() => {
-        setOpenForm(false)
+        closeModal('add-new-client')
         refetch()
+        // resetAddNewClientForm()
       })
   }
-  function onSaveClient() {
-    const address = getAddressValues()?.clientAddresses?.map(item => {
+  const onSaveClient = (
+    clientData: CreateClientBodyType,
+    contactPersonData: ContactPersonType[] | undefined,
+  ) => {
+    console.log(clientData, contactPersonData)
+
+    const address = clientData.clientAddresses?.map(item => {
       delete item.id
       return item
     })
-
-    const data: CreateClientBodyType = {
-      ...getCompanyInfoValues(),
-      clientAddresses: address,
-      ...getContactPersonValues()!,
-    }
     openModal({
       type: 'create-client',
       children: (
         <AddConfirmModal
           message='Are you sure you want to add this client?'
-          title={getCompanyInfoValues().name}
+          title={clientData.name}
           onClick={() =>
             mutateClientData(
               {
-                ...getCompanyInfoValues(),
+                ...clientData,
                 clientAddresses: address,
               },
-              getContactPersonValues()?.contactPersons,
+              contactPersonData,
             )
           }
-          onClose={() => closeModal('create-client')}
+          onClose={() => {
+            // resetAddNewClientForm()
+            closeModal('create-client')
+          }}
+        />
+      ),
+    })
+  }
+
+  const onClickAddNewClient = () => {
+    openModal({
+      type: 'add-new-client',
+      children: (
+        <AddNewClientModal
+          onSave={onSaveClient}
+          onClose={() => onCloseFormModal()}
         />
       ),
     })
@@ -276,7 +231,7 @@ export default function ClientQuotesFormContainer({
       >
         <Typography variant='h6'>Select client</Typography>
         {type === 'invoice' || type === 'request' ? null : (
-          <Button variant='contained' onClick={() => setOpenForm(true)}>
+          <Button variant='contained' onClick={() => onClickAddNewClient()}>
             Add new client
           </Button>
         )}
@@ -285,47 +240,17 @@ export default function ClientQuotesFormContainer({
         <RegisterClientForm
           control={control}
           setValue={setValue}
+          getValue={getValue}
           watch={watch}
+          trigger={trigger}
           clientList={clients}
-          setTax={setTax}
           setTaxable={setTaxable}
           type={type}
           formType={formType}
+          fromQuote={fromQuote}
+          reset={reset}
         />
       </Grid>
-
-      {/* Add new client modal */}
-      <Dialog open={openForm} maxWidth='lg'>
-        <DialogContent style={{ padding: '40px' }}>
-          <AddNewClientModal
-            onClose={onCloseFormModal}
-            activeStep={activeStep}
-            steps={steps}
-            companyInfoControl={companyInfoControl}
-            setCompanyInfoValues={setCompanyInfoValues}
-            companyInfoErrors={companyInfoErrors}
-            companyInfoWatch={companyInfoWatch}
-            isCompanyInfoValid={isCompanyInfoValid}
-            contactPersons={contactPersons}
-            contactPersonControl={contactPersonControl}
-            contactPersonErrors={contactPersonErrors}
-            watchContactPerson={watchContactPerson}
-            appendContactPerson={appendContactPerson}
-            removeContactPersons={removeContactPersons}
-            addressControl={addressControl}
-            getAddress={getAddressValues}
-            addresses={addresses}
-            appendAddress={appendAddress}
-            removeAddress={removeAddress}
-            updateAddress={updateAddress}
-            addressErrors={addressErrors}
-            isAddressValid={isAddressValid}
-            onNextStep={onModalNextStep}
-            handleBack={handleModalBack}
-            onSave={onSaveClient}
-          />
-        </DialogContent>
-      </Dialog>
     </Fragment>
   )
 }

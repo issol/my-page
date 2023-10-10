@@ -17,7 +17,11 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
-import { FullDateTimezoneHelper, convertDateByTimezone, convertUTCISOStringToLocalTimezoneISOString } from '@src/shared/helpers/date.helper'
+import {
+  FullDateTimezoneHelper,
+  convertDateByTimezone,
+  convertUTCISOStringToLocalTimezoneISOString,
+} from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
@@ -52,7 +56,7 @@ export default function RequestDetailCard({
           <CustomTypo variant='body2'>
             {FullDateTimezoneHelper(
               data?.requestedAt,
-              data?.contactPerson?.timezone.code,
+              data?.contactPerson?.timezone?.code,
             )}
           </CustomTypo>
         </LabelContainer>
@@ -66,21 +70,21 @@ export default function RequestDetailCard({
                 loading={isLoading}
                 options={
                   statusList?.filter(
-                    status => status.statusName === 'In preparation',
+                    status => status.label === 'In preparation',
                   ) || []
                 }
                 size='small'
-                getOptionLabel={option => option.statusName}
+                getOptionLabel={option => option.label}
                 value={
                   !statusList || !data?.status
                     ? null
                     : statusList?.find(item =>
-                        data?.status?.includes(item.statusName),
+                        data?.status?.includes(item.label),
                       )
                 }
                 limitTags={1}
                 onChange={(e, v) => {
-                  if (v?.statusName) onStatusChange(v?.statusName)
+                  if (v?.label) onStatusChange(v?.label as RequestStatusType)
                 }}
                 id='status'
                 renderInput={params => (
@@ -182,7 +186,10 @@ export default function RequestDetailCard({
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Language pair</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {convertLanguageCodeToPair(item?.sourceLanguage, item?.targetLanguage)}
+                      {convertLanguageCodeToPair(
+                        item?.sourceLanguage,
+                        item?.targetLanguage,
+                      )}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>
@@ -192,19 +199,19 @@ export default function RequestDetailCard({
                     <CustomTypo variant='body2'>
                       {/* {FullDateTimezoneHelper(
                         item.desiredDueDate,
-                        user?.timezone.code,
+                        auth.getValue().timezone.code,
                       )} */}
                       {/* {
                         convertDateByTimezone(
                           item.desiredDueDate,
                           item.desiredDueTimezone.code,
-                          user?.timezone.code!
+                          auth.getValue().timezone.code!
                         )
                       } */}
                       {
                         convertUTCISOStringToLocalTimezoneISOString(
                           item.desiredDueDate,
-                          user?.timezone.code!
+                          user?.timezone.code!,
                         )!
                       }
                     </CustomTypo>

@@ -20,7 +20,8 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** contexts
 import { useContext } from 'react'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { ProInvoiceListType } from '@src/types/invoice/common.type'
 import { useGetStatusList } from '@src/queries/common.query'
 
@@ -50,7 +51,7 @@ export default function ProInvoiceList({
   isLoading,
 }: Props) {
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const { data: statusList } = useGetStatusList('InvoiceReceivable')
   function NoList() {
     return (
@@ -102,7 +103,10 @@ export default function ProInvoiceList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Invoice date</Box>,
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(row.invoicedAt, user?.timezone.code)
+        const date = FullDateTimezoneHelper(
+          row.invoicedAt,
+          auth.getValue().user?.timezone.code,
+        )
         return (
           <Tooltip title={date}>
             <Typography variant='body2'>{date}</Typography>

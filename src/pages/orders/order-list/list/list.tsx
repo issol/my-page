@@ -26,7 +26,7 @@ type OrderListCellType = {
 }
 
 type Props = {
-  pageSize?: number
+  page?: number
   rowsPerPage?: number
   setPageSize?: Dispatch<SetStateAction<number>>
   setRowsPerPage?: Dispatch<SetStateAction<number>>
@@ -41,7 +41,7 @@ type Props = {
 }
 
 export default function OrdersList({
-  pageSize,
+  page,
   rowsPerPage,
   setRowsPerPage,
   setPageSize,
@@ -93,7 +93,7 @@ export default function OrdersList({
           <OrderStatusChip
             size='small'
             status={row?.status}
-            label={statusList?.find(i => i.value === row?.status)?.label || ''}
+            label={row?.status}
           />
         )
       },
@@ -112,8 +112,8 @@ export default function OrdersList({
       renderCell: ({ row }: OrderListCellType) => {
         return (
           <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>{row?.client.name}</Typography>
-            <Typography variant='body2'>{row?.client.email}</Typography>
+            <Typography fontWeight='bold'>{role.name === 'CLIENT' ? row?.lsp?.name : row?.client.name}</Typography>
+            <Typography variant='body2'>{role.name === 'CLIENT' ? row?.lsp?.email : row?.client.email}</Typography>
           </Box>
         )
       },
@@ -265,17 +265,39 @@ export default function OrdersList({
                 NoRowsOverlay: () => NoList(),
                 NoResultsOverlay: () => NoList(),
               }}
-              sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              // sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              sx={{
+                overflowX: 'scroll',
+                cursor: 'pointer',
+                [`& .${gridClasses.row}.disabled`]: {
+                  opacity: 0.5,
+                  cursor: 'not-allowed',
+                  borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+                  // backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                },
+              }}
               columns={columns}
               rows={list ?? []}
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
+                if (
+                  role.name === 'CLIENT' &&
+                  params.row.status === 'Under revision'
+                ) return
                 handleRowClick(params.row)
               }}
-              rowsPerPageOptions={[10, 25, 50]}
+              getRowClassName={params => 
+                role.name === 'CLIENT' && params.row.status === 'Under revision'
+                  ? 'disabled'
+                  : 'normal'
+              }
+              isRowSelectable={params =>
+                role.name === 'CLIENT' && params.row.status !== 'Under revision'
+              }
+              rowsPerPageOptions={[10, 25]}
               pagination
-              page={pageSize}
+              page={page}
               pageSize={rowsPerPage}
               paginationMode='server'
               onPageChange={(newPage: number) => {
@@ -325,6 +347,7 @@ export default function OrdersList({
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
+                console.log("grid2",params)
                 if (
                   role.name === 'CLIENT' &&
                   params.row.status === 'Under revision'
@@ -333,13 +356,13 @@ export default function OrdersList({
 
                 handleRowClick(params.row)
               }}
-              rowsPerPageOptions={[10, 25, 50]}
+              rowsPerPageOptions={[10, 25]}
               pagination
-              page={pageSize}
-              pageSize={pageSize}
+              page={page}
+              pageSize={rowsPerPage}
               hideFooterPagination
               hideFooter
-              paginationMode='server'
+              // paginationMode='server'
               onPageChange={(newPage: number) => {
                 setFilters!((prevState: OrderListFilterType) => ({
                   ...prevState,
@@ -355,13 +378,13 @@ export default function OrdersList({
                 setRowsPerPage!(newPageSize)
               }}
               disableSelectionOnClick
-              getRowClassName={params =>
-                role.name === 'CLIENT' && params.row.status === 10500
+              getRowClassName={params => 
+                role.name === 'CLIENT' && params.row.status === 'Under revision'
                   ? 'disabled'
                   : 'normal'
               }
               isRowSelectable={params =>
-                role.name === 'CLIENT' && params.row.status !== 10500
+                role.name === 'CLIENT' && params.row.status !== 'Under revision'
               }
             />
           </Box>

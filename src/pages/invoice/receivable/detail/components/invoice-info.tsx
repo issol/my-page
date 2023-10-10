@@ -87,7 +87,8 @@ import {
   uploadFileToS3,
 } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { toast } from 'react-hot-toast'
 import { useDropzone } from 'react-dropzone'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
@@ -106,6 +107,7 @@ type Props = {
   onSave?: (data: {
     id: number
     form: InvoiceReceivablePatchParamsType
+    type: 'basic' | 'accounting'
   }) => void
   clientTimezone?: CountryType
   invoiceInfoControl?: Control<InvoiceProjectInfoFormType, any>
@@ -163,9 +165,11 @@ const InvoiceInfo = ({
   const [isReminder, setIsReminder] = useState(invoiceInfo.setReminder)
   const [issued, setIssued] = useState<boolean>(invoiceInfo.taxInvoiceIssued)
 
+  console.log('client?.isEnrolledClient', client?.isEnrolledClient)
   const statusLabel =
     statusList?.find(i => i.value === invoiceInfo.invoiceStatus)?.label || ''
 
+  // const statusOption = client?.isEnrolledClient
   const statusOption = client?.contactPerson?.userId
     ? statusList.filter(i => [30000, 30100, 30200].includes(i.value))
     : statusList.filter(
@@ -176,7 +180,7 @@ const InvoiceInfo = ({
   const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
 
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   const isInvoiceInfoUpdatable =
     ![30900, 301200].includes(invoiceInfo.invoiceStatus) && isUpdatable
@@ -269,9 +273,10 @@ const InvoiceInfo = ({
       onSave({
         id: invoiceInfo.id,
         form: {
-          ...data,
+          // ...data,
           invoiceStatus: value as InvoiceReceivableStatusType,
         },
+        type: 'basic',
       })
     }
   }
@@ -283,9 +288,10 @@ const InvoiceInfo = ({
       onSave({
         id: invoiceInfo.id,
         form: {
-          ...data,
-          setReminder: event.target.checked,
+          // ...data,
+          setReminder: event.target.checked ? '1' : '0',
         },
+        type: 'basic',
       })
     }
   }
@@ -298,23 +304,10 @@ const InvoiceInfo = ({
       onSave({
         id: invoiceInfo.id,
         form: {
-          ...data,
-          showDescription: event.target.checked,
+          // ...data,
+          showDescription: event.target.checked ? '1' : '0',
         },
-      })
-    }
-  }
-
-  const handleChangeIssued = (event: ChangeEvent<HTMLInputElement>) => {
-    setIssued(event.target.checked)
-    const data = getInvoiceInfo && getInvoiceInfo()
-    if (onSave && data) {
-      onSave({
-        id: invoiceInfo.id,
-        form: {
-          ...data,
-          taxInvoiceIssued: event.target.checked,
-        },
+        type: 'basic',
       })
     }
   }
@@ -344,7 +337,7 @@ const InvoiceInfo = ({
         infoType === 'basic'
           ? {
               invoicedAt: data.invoiceDate,
-              invoicedAtTimezone: data.invoiceDateTimezone,
+              invoicedTimezone: data.invoiceDateTimezone,
               payDueAt: data.paymentDueDate.date,
               payDueTimezone: data.paymentDueDate.timezone,
               invoiceDescription: data.invoiceDescription,
@@ -366,7 +359,7 @@ const InvoiceInfo = ({
               salesCategory: data?.salesCategory,
             }
       if (onSave) {
-        onSave({ id: invoiceInfo.id, form: res })
+        onSave({ id: invoiceInfo.id, form: res, type: infoType })
       }
     }
   }
@@ -377,6 +370,7 @@ const InvoiceInfo = ({
       onSave({
         id: invoiceInfo.id,
         form: { contactPersonId: contactPersonId! },
+        type: 'basic',
       })
     }
   }
@@ -592,7 +586,7 @@ const InvoiceInfo = ({
         fontWeight={400}
         sx={{ mb: '5px' }}
       >
-        {FullDateTimezoneHelper(file.createdAt, user?.timezone)}
+        {FullDateTimezoneHelper(file.createdAt, auth.getValue().user?.timezone)}
       </Typography>
     </Box>
   ))
@@ -605,7 +599,7 @@ const InvoiceInfo = ({
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,
         invoiceDescription: invoiceInfo.description,
-        invoiceDateTimezone: invoiceInfo.invoicedAtTimezone,
+        invoiceDateTimezone: invoiceInfo.invoicedTimezone,
         invoiceDate: invoiceInfo.invoicedAt,
         taxInvoiceIssued: invoiceInfo.taxInvoiceIssued,
         showDescription: invoiceInfo.showDescription,
@@ -640,6 +634,7 @@ const InvoiceInfo = ({
         sendReminder: invoiceInfo.setReminder,
         tax: invoiceInfo.tax,
         isTaxable: invoiceInfo.isTaxable ?? true,
+        subtotal: invoiceInfo.subtotal,
       }
       invoiceInfoReset(res)
     }
@@ -754,24 +749,26 @@ const InvoiceInfo = ({
   )
 
   const onMarkAsPaidClick = () => {
-    openModal({
-      type: 'markAsPaid',
-      children: (
-        <CustomModal
-          onClose={() => closeModal('markAsPaid')}
-          onClick={() => {
-            closeModal('markAsPaid')
-            makeInvoiceMarked.mutate({
-              paidAt: Date(),
-              paidDateTimezone: user?.timezone!,
-            })
-          }}
-          title='Are you sure you want to mark this invoice as paid?'
-          vary='successful'
-          rightButtonText='Mark as paid'
-        />
-      ),
-    })
+    if (auth.state === 'hasValue' && auth.getValue().user) {
+      openModal({
+        type: 'markAsPaid',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('markAsPaid')}
+            onClick={() => {
+              closeModal('markAsPaid')
+              makeInvoiceMarked.mutate({
+                paidAt: Date(),
+                paidDateTimezone: auth.getValue().user?.timezone!,
+              })
+            }}
+            title='Are you sure you want to mark this invoice as paid?'
+            vary='successful'
+            rightButtonText='Mark as paid'
+          />
+        ),
+      })
+    }
   }
 
   return (
@@ -790,6 +787,7 @@ const InvoiceInfo = ({
                     clientTimezone={clientTimezone}
                     client={client}
                     invoiceInfo={invoiceInfo}
+                    type='edit'
                   />
                   <Grid item xs={12}>
                     <Box
@@ -908,7 +906,7 @@ const InvoiceInfo = ({
                     }}
                   >
                     <Typography variant='h6'>
-                      An Unexpected Proposal 1-10
+                      {invoiceInfo.projectName ?? '-'}
                     </Typography>
                     {type === 'detail' &&
                     isUpdatable &&
@@ -965,7 +963,10 @@ const InvoiceInfo = ({
                               width: '100%',
                             }}
                           >
-                            {FullDateHelper(invoiceInfo.invoicedAt)}
+                            {FullDateTimezoneHelper(
+                              invoiceInfo.invoicedAt,
+                              invoiceInfo.invoicedTimezone,
+                            )}
                           </Typography>
                         </Box>
                       </Box>
@@ -1003,8 +1004,9 @@ const InvoiceInfo = ({
                               invoiceInfo.invoiceStatus,
                             )
                           ) : (currentRole && currentRole.name === 'CLIENT') ||
-                            [30900, 301000, 301100, 301200].includes(
-                              invoiceInfo.invoiceStatus,
+                            !statusOption.some(
+                              status =>
+                                status.value === invoiceInfo.invoiceStatus,
                             ) ? (
                             <Box
                               sx={{
@@ -1258,10 +1260,15 @@ const InvoiceInfo = ({
                               width: '73.45%',
                             }}
                           >
-                            <JobTypeChip
-                              label={invoiceInfo.category}
-                              type={invoiceInfo.category}
-                            />
+                            {' '}
+                            {invoiceInfo.category ? (
+                              <JobTypeChip
+                                label={invoiceInfo.category}
+                                type={invoiceInfo.category}
+                              />
+                            ) : (
+                              '-'
+                            )}
                           </Box>
                         </Box>
                       </Box>
@@ -1298,14 +1305,16 @@ const InvoiceInfo = ({
                             }}
                           >
                             {invoiceInfo.serviceType &&
-                              invoiceInfo.serviceType.map(value => {
-                                return (
-                                  <ServiceTypeChip
-                                    label={value}
-                                    key={uuidv4()}
-                                  />
-                                )
-                              })}
+                            invoiceInfo.serviceType.length > 0
+                              ? invoiceInfo.serviceType.map(value => {
+                                  return (
+                                    <ServiceTypeChip
+                                      label={value}
+                                      key={uuidv4()}
+                                    />
+                                  )
+                                })
+                              : '-'}
                           </Box>
                         </Box>
                         <Box sx={{ display: 'flex', flex: 1 }}>
@@ -1337,18 +1346,20 @@ const InvoiceInfo = ({
                             }}
                           >
                             {invoiceInfo.expertise &&
-                              invoiceInfo.expertise.map((value, idx) => {
-                                return (
-                                  <Typography
-                                    key={uuidv4()}
-                                    variant='subtitle2'
-                                  >
-                                    {invoiceInfo.expertise.length === idx + 1
-                                      ? value
-                                      : `${value}, `}
-                                  </Typography>
-                                )
-                              })}
+                            invoiceInfo.expertise.length > 0
+                              ? invoiceInfo.expertise.map((value, idx) => {
+                                  return (
+                                    <Typography
+                                      key={uuidv4()}
+                                      variant='subtitle2'
+                                    >
+                                      {invoiceInfo.expertise.length === idx + 1
+                                        ? value
+                                        : `${value}, `}
+                                    </Typography>
+                                  )
+                                })
+                              : '-'}
                           </Box>
                         </Box>
                       </Box>
@@ -1913,19 +1924,6 @@ const InvoiceInfo = ({
                           </Box>
                         </Box>
                       </Box>
-                      <Divider />
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Checkbox
-                          value={issued}
-                          onChange={handleChangeIssued}
-                          checked={issued}
-                          // disabled={invoiceInfo.invoiceStatus === 'Paid'}
-                        />
-
-                        <Typography variant='body2'>
-                          Tax invoice issued
-                        </Typography>
-                      </Box>
                     </Box>
                   </Box>
                 </Card>
@@ -2180,7 +2178,7 @@ const InvoiceInfo = ({
 
 export default InvoiceInfo
 
-const FileBox = styled(Box)`
+export const FileBox = styled(Box)`
   display: flex;
   margin-bottom: 8px;
   width: 100%;
@@ -2191,7 +2189,7 @@ const FileBox = styled(Box)`
   background: #f9f8f9;
 `
 
-const FileName = styled(Typography)`
+export const FileName = styled(Typography)`
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;

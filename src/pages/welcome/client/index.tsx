@@ -13,7 +13,6 @@ import { Grid, OutlinedInput, Radio } from '@mui/material'
 import { Icon } from '@iconify/react'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
 
 // ** layout
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -33,11 +32,22 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { requestJoinToCompany } from '@src/apis/user.api'
 import { toast } from 'react-hot-toast'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import useAuth from '@src/hooks/useAuth'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import {
+  currentRoleSelector,
+  roleSelector,
+  roleState,
+} from '@src/states/permission'
 
 export default function ClientInformationHome() {
-  const { company, logout, user } = useAuth()
+  const { logout } = useAuth()
 
-  const roles = getCurrentRole()
+  const auth = useRecoilValueLoadable(authState)
+
+  const role = useRecoilValueLoadable(roleState)
+  // const roles = getCurrentRole()
 
   const { openModal, closeModal } = useModal()
 
@@ -53,13 +63,18 @@ export default function ClientInformationHome() {
   )
 
   useEffect(() => {
-    if (company?.name || roles?.name !== 'CLIENT') {
+    if (
+      (auth.state === 'hasValue' &&
+        auth.getValue() &&
+        auth.getValue().company?.name) ||
+      role.contents[0].name !== 'CLIENT'
+    ) {
       router.push('/')
     }
-  }, [company])
+  }, [auth])
 
   function requestJoin() {
-    if (!!selected && user) {
+    if (!!selected && auth.state === 'hasValue' && auth.getValue().user) {
       openModal({
         type: 'request',
         children: (
@@ -72,8 +87,8 @@ export default function ClientInformationHome() {
             onClick={() => {
               closeModal('request')
               requestJoinToCompany({
-                userId: user.userId,
-                email: user.email,
+                userId: auth.getValue().user?.userId!,
+                email: auth.getValue().user?.email!,
                 companyId: selected.id,
               })
                 .then(() => {
@@ -310,5 +325,5 @@ ClientInformationHome.getLayout = (page: ReactNode) => (
 
 ClientInformationHome.acl = {
   subject: 'client',
-  action: 'update',
+  action: 'read',
 }

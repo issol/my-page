@@ -65,7 +65,8 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { findEarliestDate } from '@src/shared/helpers/date.helper'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** apis
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
@@ -96,10 +97,10 @@ export const defaultOption: StandardPriceListType & {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
-  groupName: 'Not applicable',
+  groupName: '',
   category: '',
   serviceType: [],
-  currency: 'USD',
+  currency: 'KRW',
   catBasis: '',
   decimalPlace: 0,
   roundingProcedure: '',
@@ -108,9 +109,9 @@ export const defaultOption: StandardPriceListType & {
   catInterface: { memSource: [], memoQ: [] },
 }
 
-export default function AddNewQuotes() {
+export default function AddNewQuote() {
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   const requestId = router.query?.requestId
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
@@ -164,11 +165,11 @@ export default function AddNewQuotes() {
         { type: 'supervisorId', id: null },
         {
           type: 'projectManagerId',
-          id: user?.userId!,
+          id: auth.getValue().user?.userId!,
           name: getLegalName({
-            firstName: user?.firstName!,
-            middleName: user?.middleName,
-            lastName: user?.lastName!,
+            firstName: auth.getValue().user?.firstName!,
+            middleName: auth.getValue().user?.middleName,
+            lastName: auth.getValue().user?.lastName!,
           }),
         },
         { type: 'member', id: null },
@@ -219,7 +220,7 @@ export default function AddNewQuotes() {
       ...quotesProjectInfoDefaultValue,
       quoteDate: {
         date: Date(),
-        timezone: getClientValue().contacts?.timezone,
+        timezone: getClientValue().contacts?.timezone!,
         // JSON.parse(getUserDataFromBrowser()!).timezone,
       },
       status: 20000,
@@ -242,7 +243,7 @@ export default function AddNewQuotes() {
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: { items: [] },
     resolver: yupResolver(itemSchema),
   })
@@ -396,7 +397,7 @@ export default function AddNewQuotes() {
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      name: '',
+      itemName: '',
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
@@ -404,6 +405,9 @@ export default function AddNewQuotes() {
       detail: [],
       totalPrice: 0,
       showItemDescription: false,
+      minimumPrice: null,
+      minimumPriceApplied: false,
+      priceFactor: 0,
     })
   }
 
@@ -433,20 +437,28 @@ export default function AddNewQuotes() {
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
-    const subTotal = getItem().items.reduce(
-      (acc, item) => acc + item.totalPrice,
-      0,
-    )
+    // const subtotal = getItem().items.reduce(
+    //   (acc, item) => acc + item.totalPrice,
+    //   0,
+    // )
     const projectInfo = {
       ...rawProjectInfo,
       tax: !rawProjectInfo.isTaxable ? null : tax,
-      subtotal: subTotal,
+      subtotal: subPrice,
     }
-    const items: Array<PostItemType> = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-      showItemDescription: item.showItemDescription ? '1' : '0',
-    }))
+
+    const items: Array<PostItemType> = getItem().items.map(item => {
+      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
+      return {
+        ...filterItem,
+        contactPersonId: item.contactPerson?.id!,
+        description: item.description || '',
+        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+        showItemDescription: item.showItemDescription ? '1' : '0',
+        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+        name: item.itemName,
+      }
+    })
 
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {
@@ -527,7 +539,7 @@ export default function AddNewQuotes() {
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
     shouldWarn: isWarn,
-    toUrl: '/quotes',
+    toUrl: '/quotes/quote-list',
   })
 
   const [subPrice, setSubPrice] = useState(0)
@@ -579,6 +591,7 @@ export default function AddNewQuotes() {
                 errors={teamErrors}
                 isValid={isTeamValid}
                 watch={teamWatch}
+                getValue={getTeamValues}
               />
               <Grid item xs={12} display='flex' justifyContent='flex-end'>
                 <Button
@@ -598,10 +611,12 @@ export default function AddNewQuotes() {
                 control={clientControl}
                 setValue={setClientValue}
                 watch={clientWatch}
-                setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'quotes'}
                 formType='create'
+                getValue={getClientValue}
+                fromQuote={false}
+                reset={clientReset}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -814,7 +829,7 @@ export default function AddNewQuotes() {
   )
 }
 
-AddNewQuotes.acl = {
+AddNewQuote.acl = {
   subject: 'quote',
   action: 'create',
 }

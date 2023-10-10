@@ -5,11 +5,14 @@ import { ReactNode, ReactElement, useEffect } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Hooks Import
-import { useAuth } from 'src/hooks/useAuth'
-import { 
+
+import {
   getUserDataFromBrowser,
-  setRedirectPath
+  setRedirectPath,
 } from 'src/shared/auth/storage'
+
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 interface AuthGuardProps {
   children: ReactNode
@@ -18,7 +21,7 @@ interface AuthGuardProps {
 
 const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props
-  const auth = useAuth()
+  const auth = useRecoilValueLoadable(authState)
   const router = useRouter()
 
   useEffect(
@@ -28,7 +31,11 @@ const AuthGuard = (props: AuthGuardProps) => {
       //   return
       // }
 
-      if (auth.user === null && !getUserDataFromBrowser()) {
+      if (
+        auth.state === 'hasValue' &&
+        auth.getValue().user === null &&
+        !getUserDataFromBrowser()
+      ) {
         if (router.asPath !== '/') {
           router.push('/login')
         } else {
@@ -40,24 +47,29 @@ const AuthGuard = (props: AuthGuardProps) => {
     [router.route],
   )
 
-  useEffect(
-    () => {
-      if (auth.user === null && !getUserDataFromBrowser()) {
-        if (router.asPath !== '/') {
-          const parsePath = () => {
-            if (router.asPath.includes('[id]')) {
-              const { id } = router.query
-              return `${router.asPath.replace('[id]','')}${id}`
-            }
-            return router.asPath
+  useEffect(() => {
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue().user === null &&
+      !getUserDataFromBrowser()
+    ) {
+      if (router.asPath !== '/') {
+        const parsePath = () => {
+          if (router.asPath.includes('[id]')) {
+            const { id } = router.query
+            return `${router.asPath.replace('[id]', '')}${id}`
           }
-          setRedirectPath(parsePath())
+          return router.asPath
         }
+        setRedirectPath(parsePath())
       }
-    },
-    [router.query],
-  )
-  if (auth.loading || auth.user === null) {
+    }
+  }, [router.query])
+  if (
+    auth.state === 'loading' ||
+    auth.getValue().loading ||
+    auth.getValue().user === null
+  ) {
     return fallback
   }
 

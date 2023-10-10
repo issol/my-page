@@ -2,7 +2,7 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import dayjs from 'dayjs'
 import { convertCountryCodeToTimezone, getTimezone } from './timezone.helper'
 
-import { DateTime, IANAZone } from "luxon";
+import { DateTime, IANAZone } from 'luxon'
 
 export function convertDateByTimezone(date: string, from: string, to: string) {
   /**
@@ -65,6 +65,20 @@ export function FullDateHelper(value: any): string | undefined {
   return rtn
 }
 
+// output ex : 20180913
+// 사업자등록증 조회시 날짜 포맷
+export const formatDateToYYYYMMDD = (date?: string) => {
+  console.log('date', date)
+  if (date) {
+    const currentDate = new Date(date)
+    const year = currentDate.getFullYear()
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0')
+    const day = String(currentDate.getDate()).padStart(2, '0')
+    return `${year}${month}${day}`
+  }
+  return
+}
+
 export function findEarliestDate(dateStrings: string[]) {
   if (!dateStrings || dateStrings.length === 0) {
     return ''
@@ -103,7 +117,7 @@ export function addOneDay(date: string): string {
   return res
 }
 
-/* getWeekends output : 
+/* getWeekends output :
   [
     {
       reason: '',
@@ -139,39 +153,58 @@ export function getWeekends(
   return weekends
 }
 
-export const convertLocalTimezoneToUTC = (date:Date):Date => {
-  return new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
+export const convertLocalTimezoneToUTC = (date: Date): Date => {
+  return new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000)
 }
 
-export const formatDateToISOString = (date:Date) => {
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const hours = String(date.getUTCHours()).padStart(2, '0');
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-  const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-  const milliseconds = String(date.getUTCMilliseconds()).padStart(3, '0');
+export const formatDateToISOString = (date: Date) => {
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  const hours = String(date.getUTCHours()).padStart(2, '0')
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+  const seconds = String(date.getUTCSeconds()).padStart(2, '0')
+  const milliseconds = String(date.getUTCMilliseconds()).padStart(3, '0')
 
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`
 }
 
 /**
  * 입력받은 date 객체를 로컬 타임존이 포함된 ISOString으로 변환
- * 예 : Thu Aug 10 2023 00:00:00 GMT+0900 (한국 표준시) -> 2023-08-10T00:00:00.000+09:00 
-*/
-export const convertDateToLocalTimezoneISOString = (date:Date) => {
+ * 예 : Thu Aug 10 2023 00:00:00 GMT+0900 (한국 표준시) -> 2023-08-10T00:00:00.000+09:00
+ */
+export const convertDateToLocalTimezoneISOString = (date: Date) => {
   return DateTime.fromJSDate(date).toLocal().toISO()
 }
 
 /**
  * 2023-08-31T04:00:00.000Z, US -> 2023-08-31T00:00:00.000-04:00
  */
-export const convertUTCISOStringToLocalTimezoneISOString = (UTCISOString: string, timezoneCode: string) => {
+export const convertUTCISOStringToLocalTimezoneISOString = (
+  UTCISOString: string,
+  timezoneCode: string,
+) => {
   const timezone = convertCountryCodeToTimezone(timezoneCode)
-  const utcDateTime = DateTime.fromISO(UTCISOString, { zone: 'utc' });
+  const utcDateTime = DateTime.fromISO(UTCISOString, { zone: 'utc' })
   if (utcDateTime.isValid && timezone) {
     const localDateTime = utcDateTime.setZone(timezone)
-    return localDateTime.toISO();
+    return localDateTime.toISO()
   }
-  return utcDateTime.toISO();
+  return utcDateTime.toISO()
+}
+
+export const formattedNow = (now: Date) => {
+  const minutes = now.getMinutes()
+
+  const formattedMinutes = minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
+
+  const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
+  const formattedTime = `${formattedHours}:${formattedMinutes
+    .toString()
+    .padStart(2, '0')}`
+  const formattedDate = new Date(now)
+  formattedDate.setHours(parseInt(formattedTime.split(':')[0]))
+  formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
+
+  return formattedDate
 }

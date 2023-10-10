@@ -1,6 +1,7 @@
 import { ReactNode, useContext } from 'react'
 
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 import { useAppSelector } from '@src/hooks/useRedux'
 
@@ -13,16 +14,16 @@ const InvoicePayablePrint = () => {
     state => state.invoicePayable.invoicePayableData,
   )
   const lang = useAppSelector(state => state.invoicePayable.lang)
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   if (!invoicePayable) {
     return <Error404 />
-  } else {
+  } else if (auth.state === 'hasValue' && auth.getValue().user) {
     return (
       <div className='page'>
         <PrintInvoicePayablePreview
           data={invoicePayable}
           type='download'
-          user={user!}
+          user={auth.getValue().user!}
           lang={lang}
         />
       </div>

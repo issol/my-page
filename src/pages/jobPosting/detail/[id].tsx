@@ -33,7 +33,8 @@ import Icon from 'src/@core/components/icon'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** helpers
 import {
@@ -41,13 +42,13 @@ import {
   FullDateTimezoneHelper,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
-import { getGmtTime } from 'src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
 
 // ** fetches
-import { useGetJobPostingDetail } from 'src/queries/jobPosting.query'
+import { useGetJobPostingDetail } from '@src/queries/jobs/jobPosting.query'
 import { deleteJobPosting } from 'src/apis/jobPosting.api'
 import { useMutation } from 'react-query'
 
@@ -69,7 +70,7 @@ const JobPostingDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
 
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   const { data, refetch, isSuccess, isError } = useGetJobPostingDetail(
     id,
@@ -175,11 +176,16 @@ const JobPostingDetail = () => {
       headerName: 'Date & Time',
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => {
-        return (
-          <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(row.createdAt, user?.timezone!)}
-          </Box>
-        )
+        if (auth.state === 'hasValue' && auth.getValue().user) {
+          return (
+            <Box sx={{ overflowX: 'scroll' }}>
+              {FullDateTimezoneHelper(
+                row.createdAt,
+                auth.getValue().user?.timezone!,
+              )}
+            </Box>
+          )
+        }
       },
     },
   ]
@@ -206,11 +212,11 @@ const JobPostingDetail = () => {
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               deleteMutation.mutate(id)
@@ -229,9 +235,9 @@ const JobPostingDetail = () => {
 
   return (
     <>
-      {!data ? (
+      {!data || auth.state === 'loading' ? (
         <FallbackSpinner />
-      ) : isError ? (
+      ) : isError || auth.state === 'hasError' ? (
         <EmptyPost />
       ) : (
         <StyledViewer style={{ margin: '0 70px' }}>
@@ -274,7 +280,9 @@ const JobPostingDetail = () => {
                       <Typography
                         sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                         color={`${
-                          user?.email === data?.email ? 'primary' : ''
+                          auth.getValue().user?.email === data?.email
+                            ? 'primary'
+                            : ''
                         }`}
                       >
                         {data?.writer}
@@ -287,7 +295,10 @@ const JobPostingDetail = () => {
                       <Typography variant='body2'>{data?.email}</Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(data?.createdAt, user?.timezone!)}
+                      {FullDateTimezoneHelper(
+                        data?.createdAt,
+                        auth.getValue().user?.timezone!,
+                      )}
                     </Typography>
                   </Box>
                 </Box>
@@ -318,7 +329,7 @@ const JobPostingDetail = () => {
                       convertDateByTimezone(
                         data?.dueDate,
                         data?.dueDateTimezone!,
-                        user?.timezone.code!,
+                        auth.getValue().user?.timezone.code!,
                       ),
                     )}
                     {renderTable('Job post link', data?.jobPostLink)}
@@ -330,7 +341,7 @@ const JobPostingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTime(user?.timezone?.code),
+                      getGmtTimeEng(auth.getValue().user?.timezone?.code),
                     )}
                   </Grid>
                 </Grid>
@@ -377,35 +388,37 @@ const JobPostingDetail = () => {
                 </Box>
               </Card>
               <Card style={{ marginTop: '24px' }}>
-                {isDeletable || isUpdatable ? (<Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
-                >
-                  {isDeletable && (
-                    <Button
-                      variant='outlined'
-                      color='secondary'
-                      startIcon={<Icon icon='mdi:delete-outline' />}
-                      onClick={onDelete}
-                    >
-                      Delete
-                    </Button>
-                  )}
+                {isDeletable || isUpdatable ? (
+                  <Box
+                    sx={{
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    {isDeletable && (
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='mdi:delete-outline' />}
+                        onClick={onDelete}
+                      >
+                        Delete
+                      </Button>
+                    )}
 
-                  {isUpdatable ? (
-                    <Button
-                      variant='contained'
-                      startIcon={<Icon icon='mdi:pencil-outline' />}
-                      onClick={onEdit}
-                    >
-                      Edit
-                    </Button>
-                  ) : null}
-                </Box>) : null}
+                    {isUpdatable ? (
+                      <Button
+                        variant='contained'
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                        onClick={onEdit}
+                      >
+                        Edit
+                      </Button>
+                    ) : null}
+                  </Box>
+                ) : null}
               </Card>
             </Grid>
           </Grid>

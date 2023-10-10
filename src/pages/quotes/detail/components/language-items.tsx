@@ -51,6 +51,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import { ProjectInfoType } from '@src/types/common/quotes.type'
 
 type Props = {
   languagePairs: Array<languageType>
@@ -100,6 +101,7 @@ type Props = {
   setIsEditMode: (n: boolean) => void
   isUpdatable: boolean
   role: UserRoleType
+  project?: ProjectInfoType
 }
 
 export default function QuotesLanguageItemsDetail({
@@ -125,6 +127,7 @@ export default function QuotesLanguageItemsDetail({
   isUpdatable,
   role,
   itemTrigger,
+  project,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -132,21 +135,23 @@ export default function QuotesLanguageItemsDetail({
   })
   // TODO: Item 처음 등록 후 Languages&Items 로딩시 items[0].priceId가 null인 경우가 있음
   const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
-  const [subPrice, setSubPrice] = useState(0)
+  const [subtotal, setSubTotal] = useState(0)
   function sumTotalPrice() {
-    const subPrice = getItem()?.items!
-    if (subPrice) {
-      const total = subPrice.reduce((accumulator, item) => {
-        return accumulator + item.totalPrice;
+    // const subtotal = getItem()?.items!
+    // const subtotal = items
+    const subtotal = isEditMode ? getItem()?.items! : items
+    if (subtotal) {
+      const total = subtotal.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice
       }, 0)
-      setSubPrice(total)
+      setSubTotal(total)
     }
   }
   useEffect(() => {
     sumTotalPrice()
-  },[])
+  }, [items, setItem])
 
-  function getPriceOptions(source: string, target: string) {
+  function getPriceOptions(source: string, target: string, index?: number) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
       .filter(item => {
@@ -159,7 +164,30 @@ export default function QuotesLanguageItemsDetail({
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
         ...item,
       }))
-    return [defaultOption].concat(filteredList)
+
+    // Not Applicable Price 추가
+    const finalList = [defaultOption].concat(filteredList)
+
+    // // 기존 선택한 Price 값이 있다면 해당 값을 Current price 그룹으로 추가
+    // if(index !== undefined && index >= 0 && items[index]?.initialPrice) {
+    //   finalList.unshift({
+    //     groupName: 'Current price',
+    //     id: items[index].initialPrice?.priceId!,
+    //     isStandard: items[index].initialPrice?.isStandard!,
+    //     priceName: items[index].initialPrice?.name!,
+    //     category: items[index].initialPrice?.category!,
+    //     serviceType: items[index].initialPrice?.serviceType!,
+    //     currency: items[index].initialPrice?.currency!,
+    //     catBasis: items[index].initialPrice?.calculationBasis!,
+    //     decimalPlace: items[index].initialPrice?.numberPlace!,
+    //     roundingProcedure: String(items[index].initialPrice?.rounding),
+    //     memoForPrice: items[index].initialPrice?.memo!,
+    //     languagePairs: [],
+    //     priceUnit: [],
+    //   })
+    // }
+
+    return finalList
   }
 
   function onDeleteLanguagePair(row: languageType) {
@@ -216,13 +244,17 @@ export default function QuotesLanguageItemsDetail({
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      name: '',
+      itemName: '',
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
       priceId: null,
       detail: [],
       totalPrice: 0,
+      showItemDescription: false,
+      minimumPrice: null,
+      minimumPriceApplied: false,
+      priceFactor: 0,
     })
   }
   // console.log(isEditMode)
@@ -245,6 +277,7 @@ export default function QuotesLanguageItemsDetail({
             getPriceOptions={getPriceOptions}
             type={isEditMode ? 'edit' : 'detail'}
             onDeleteLanguagePair={onDeleteLanguagePair}
+            items={items}
           />
         </Grid>
       )}
@@ -285,7 +318,7 @@ export default function QuotesLanguageItemsDetail({
           </Button>
         </Grid>
       ) : null}
-      {/* subTotal */}
+      {/* subtotal */}
       <Grid item xs={12}>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
           <Box
@@ -313,23 +346,23 @@ export default function QuotesLanguageItemsDetail({
               variant='subtitle1'
               sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
             >
-              {formatCurrency(
-                formatByRoundingProcedure(
-                  subPrice,
-                  priceInfo?.decimalPlace!,
-                  priceInfo?.roundingProcedure!,
-                  priceInfo?.currency ?? 'USD',
-                ),
-                priceInfo?.currency ?? 'USD',
-              )}
+              {getItem().items.length && getItem().items[0].initialPrice
+                ? formatCurrency(
+                    formatByRoundingProcedure(
+                      isEditMode ? subtotal : Number(project?.subtotal),
+                      getItem().items[0].initialPrice?.numberPlace!,
+                      getItem().items[0].initialPrice?.rounding!,
+                      getItem().items[0].initialPrice?.currency!,
+                    ),
+                    getItem().items[0].initialPrice?.currency!,
+                  )
+                : 0}
             </Typography>
           </Box>
         </Box>
       </Grid>
       {/* tax */}
-      {role.name === 'CLIENT' ? (
-        null
-      ) : (
+      {role.name === 'CLIENT' ? null : (
         <Grid
           item
           xs={12}

@@ -8,16 +8,15 @@ import { useRouter } from 'next/router'
 import Spinner from 'src/@core/components/spinner'
 
 // ** Hook Imports
-import { useAuth } from 'src/hooks/useAuth'
+
 import UserLayout from '@src/layouts/UserLayout'
 import { useAppSelector } from '@src/hooks/useRedux'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 
 const Home = () => {
   // ** Hooks
-  const auth = useAuth()
+
   const router = useRouter()
-  const { permission, isLoading } = useAppSelector(state => state.userAccess)
 
   useEffect(() => {
     router.replace('/home')

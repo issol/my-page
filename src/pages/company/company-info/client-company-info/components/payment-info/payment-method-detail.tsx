@@ -20,12 +20,12 @@ import { Fragment, useMemo } from 'react'
 
 type Props = {
   office: OfficeType
-  paymentInfo: ClientPaymentInfoDetail[] | undefined
+  paymentInfo: ClientPaymentInfoDetail | undefined
 }
 
 export default function PaymentMethodDetail({ office, paymentInfo }: Props) {
   const currentPaymentInfo = useMemo(
-    () => paymentInfo?.find(i => i.office === office),
+    () => paymentInfo,
     [office, paymentInfo],
   )
 

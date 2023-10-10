@@ -42,11 +42,11 @@ export type TestMaterialListType = {
 
 export const TestType: SelectType[] = [
   {
-    value: 'Skill test',
-    label: 'Skill test',
-  },
-  {
     value: 'Basic test',
     label: 'Basic test',
+  },
+  {
+    value: 'Skill test',
+    label: 'Skill test',
   },
 ]

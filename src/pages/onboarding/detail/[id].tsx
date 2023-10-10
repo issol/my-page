@@ -48,7 +48,8 @@ import {
   patchTestStatus,
   setCertifiedRole,
 } from 'src/apis/onboarding.api'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import modal from '@src/@core/components/modal'
 
 import About from '@src/pages/components/pro-detail-component/about'
@@ -106,7 +107,7 @@ function OnboardingDetail() {
   const { data: appliedRole } = useGetAppliedRole(Number(id!))
   const { data: certifiedRole } = useGetCertifiedRole(Number(id!))
 
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
 
   const [hideFailedTest, setHideFailedTest] = useState(false)
@@ -569,7 +570,7 @@ function OnboardingDetail() {
         // reviewerList={reviewerList!}
         // history={history!}
         type={type}
-        user={user!}
+        user={auth.getValue().user!}
       />,
     )
   }
@@ -1027,7 +1028,7 @@ function OnboardingDetail() {
               <Grid item xs={12}>
                 <CommentsAboutPro
                   userInfo={userInfo!}
-                  user={user!}
+                  user={auth.getValue().user!}
                   page={commentsProPage}
                   rowsPerPage={commentsProRowsPerPage}
                   handleChangePage={handleChangeCommentsProPage}

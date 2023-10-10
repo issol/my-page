@@ -1,4 +1,5 @@
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { Fragment, useContext, useEffect, useState } from 'react'
 
@@ -50,6 +51,7 @@ import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal
 
 // ** permission class
 import { client_comment } from '@src/shared/const/permission-class'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 type Props = {
   clientId: number
@@ -59,8 +61,8 @@ type Props = {
 export default function ClientMemo({ clientId, memo }: Props) {
   const ability = useContext(AbilityContext)
 
-  const { user } = useContext(AuthContext)
-  const User = new client_comment(user?.id!)
+  const auth = useRecoilValueLoadable(authState)
+  const User = new client_comment(auth.getValue().user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
@@ -155,7 +157,7 @@ export default function ClientMemo({ clientId, memo }: Props) {
   }
 
   function onConfirm() {
-    if (isCreate) {
+    if (isCreate && auth.state === 'hasValue') {
       openModal({
         type: modalType.confirmCreate,
         children: (
@@ -164,11 +166,11 @@ export default function ClientMemo({ clientId, memo }: Props) {
             saveComment={() => {
               createClientMemoMutation.mutate({
                 clientId,
-                writerId: user?.id!,
-                writerFirstName: user?.firstName!,
-                writerMiddleName: user?.middleName!,
-                writerLastName: user?.lastName!,
-                writerEmail: user?.email!,
+                writerId: auth.getValue().user?.id!,
+                writerFirstName: auth.getValue().user?.firstName!,
+                writerMiddleName: auth.getValue().user?.middleName!,
+                writerLastName: auth.getValue().user?.lastName!,
+                writerEmail: auth.getValue().user?.email!,
                 memo: newMemo,
               })
             }}
@@ -236,90 +238,32 @@ export default function ClientMemo({ clientId, memo }: Props) {
   }
 
   return (
-    <Card>
-      <CardHeader
-        title={
-          <Box
-            display='flex'
-            alignItems='center'
-            justifyContent='space-between'
-          >
-            <Typography variant='h6'>Memo for client</Typography>
-            <Button
-              variant='contained'
-              disabled={!!currentMemo.memoId || isCreate}
-              onClick={() => setIsCreate(true)}
-            >
-              Add comment
-            </Button>
-          </Box>
-        }
-      />
-      <CardContent>
-        {!isCreate ? null : (
-          <Box display='flex' flexDirection='column' gap='10px'>
-            <Divider />
-            <Box
-              display='flex'
-              alignItems='center'
-              justifyContent='space-between'
-            >
-              <Box display='flex' gap='8px' height={20} alignItems='center'>
-                <CustomChip
-                  skin='light'
-                  color='error'
-                  size='small'
-                  label='Writer'
-                />
-                <Typography variant='subtitle1' color='#666CFF'>
-                  {getLegalName({
-                    firstName: user?.firstName!,
-                    middleName: user?.middleName,
-                    lastName: user?.lastName!,
-                  })}
-                </Typography>
-                <Divider
-                  component='div'
-                  role='presentation'
-                  orientation='vertical'
-                  variant='middle'
-                />
-                <Typography variant='body2'>{user?.email}</Typography>
-              </Box>
-            </Box>
-            <Box display='flex' flexDirection='column'>
-              <TextField
-                sx={{ margin: '16px 0' }}
-                multiline
-                maxRows={4}
-                value={newMemo}
-                onChange={e => setNewMemo(e.target.value)}
-                id='textarea-outlined-controlled'
-              />
-              <Box display='flex' gap='8px' justifyContent='flex-end' mb='16px'>
-                <Button
-                  color='secondary'
-                  variant='outlined'
-                  onClick={onSaveCancel}
-                >
-                  Cancel
-                </Button>
-                <Button variant='contained' onClick={onConfirm}>
-                  Confirm
-                </Button>
-              </Box>
-            </Box>
-          </Box>
-        )}
-        {!currentMemoList?.length
-          ? '-'
-          : currentMemoList.map(item => (
+    <>
+      {auth.state === 'loading' ? (
+        <FallbackSpinner />
+      ) : auth.state === 'hasValue' ? (
+        <Card>
+          <CardHeader
+            title={
               <Box
-                key={item.id}
                 display='flex'
-                flexDirection='column'
-                gap='10px'
+                alignItems='center'
+                justifyContent='space-between'
               >
+                <Typography variant='h6'>Memo for client</Typography>
+                <Button
+                  variant='contained'
+                  disabled={!!currentMemo.memoId || isCreate}
+                  onClick={() => setIsCreate(true)}
+                >
+                  Add comment
+                </Button>
+              </Box>
+            }
+          />
+          <CardContent>
+            {!isCreate ? null : (
+              <Box display='flex' flexDirection='column' gap='10px'>
                 <Divider />
                 <Box
                   display='flex'
@@ -333,14 +277,11 @@ export default function ClientMemo({ clientId, memo }: Props) {
                       size='small'
                       label='Writer'
                     />
-                    <Typography
-                      variant='subtitle1'
-                      color={user?.id === item.writerId ? '#666CFF' : ''}
-                    >
+                    <Typography variant='subtitle1' color='#666CFF'>
                       {getLegalName({
-                        firstName: item.writerFirstName,
-                        middleName: item?.writerMiddleName,
-                        lastName: item.writerLastName,
+                        firstName: auth.getValue().user?.firstName!,
+                        middleName: auth.getValue().user?.middleName,
+                        lastName: auth.getValue().user?.lastName!,
                       })}
                     </Typography>
                     <Divider
@@ -349,81 +290,169 @@ export default function ClientMemo({ clientId, memo }: Props) {
                       orientation='vertical'
                       variant='middle'
                     />
-                    <Typography variant='body2'>{item.writerEmail}</Typography>
-                  </Box>
-
-                  {currentMemo.memoId !== item.id ? (
-                    <Box>
-                      {isUpdatable ? (
-                        <IconButton
-                          onClick={() => setEditor(item)}
-                          disabled={!!currentMemo.memoId || isCreate}
-                        >
-                          <Icon icon='mdi:pencil-outline' />
-                        </IconButton>
-                      ) : null}
-                      {isDeletable ? (
-                        <IconButton
-                          onClick={() => onDelete(item)}
-                          disabled={!!currentMemo.memoId || isCreate}
-                        >
-                          <Icon icon='mdi:trash-outline' />
-                        </IconButton>
-                      ) : null}
-                    </Box>
-                  ) : null}
-                </Box>
-                {currentMemo.memoId !== item.id ? (
-                  <Fragment>
                     <Typography variant='body2'>
-                      {FullDateTimezoneHelper(
-                        item.createdAt,
-                        user?.timezone.code!,
-                      )}
+                      {auth.getValue().user?.email}
                     </Typography>
-                    <Typography>{item.memo}</Typography>
-                  </Fragment>
-                ) : (
-                  <Box display='flex' flexDirection='column'>
-                    <TextField
-                      sx={{ margin: '16px 0' }}
-                      multiline
-                      maxRows={4}
-                      value={currentMemo.memo}
-                      onChange={e =>
-                        setCurrentMemo({ ...currentMemo, memo: e.target.value })
-                      }
-                      id='textarea-outlined-controlled'
-                    />
+                  </Box>
+                </Box>
+                <Box display='flex' flexDirection='column'>
+                  <TextField
+                    sx={{ margin: '16px 0' }}
+                    multiline
+                    maxRows={4}
+                    value={newMemo}
+                    onChange={e => setNewMemo(e.target.value)}
+                    id='textarea-outlined-controlled'
+                  />
+                  <Box
+                    display='flex'
+                    gap='8px'
+                    justifyContent='flex-end'
+                    mb='16px'
+                  >
+                    <Button
+                      color='secondary'
+                      variant='outlined'
+                      onClick={onSaveCancel}
+                    >
+                      Cancel
+                    </Button>
+                    <Button variant='contained' onClick={onConfirm}>
+                      Confirm
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            )}
+            {!currentMemoList?.length
+              ? '-'
+              : currentMemoList.map(item => (
+                  <Box
+                    key={item.id}
+                    display='flex'
+                    flexDirection='column'
+                    gap='10px'
+                  >
+                    <Divider />
                     <Box
                       display='flex'
-                      gap='8px'
-                      justifyContent='flex-end'
-                      mb='16px'
+                      alignItems='center'
+                      justifyContent='space-between'
                     >
-                      <Button
-                        color='secondary'
-                        variant='outlined'
-                        onClick={onSaveCancel}
+                      <Box
+                        display='flex'
+                        gap='8px'
+                        height={20}
+                        alignItems='center'
                       >
-                        Cancel
-                      </Button>
-                      <Button variant='contained' onClick={onConfirm}>
-                        Confirm
-                      </Button>
+                        <CustomChip
+                          skin='light'
+                          color='error'
+                          size='small'
+                          label='Writer'
+                        />
+                        <Typography
+                          variant='subtitle1'
+                          color={
+                            auth.getValue().user?.id === item.writerId
+                              ? '#666CFF'
+                              : ''
+                          }
+                        >
+                          {getLegalName({
+                            firstName: item.writerFirstName,
+                            middleName: item?.writerMiddleName,
+                            lastName: item.writerLastName,
+                          })}
+                        </Typography>
+                        <Divider
+                          component='div'
+                          role='presentation'
+                          orientation='vertical'
+                          variant='middle'
+                        />
+                        <Typography variant='body2'>
+                          {item.writerEmail}
+                        </Typography>
+                      </Box>
+
+                      {currentMemo.memoId !== item.id ? (
+                        <Box>
+                          {isUpdatable ? (
+                            <IconButton
+                              onClick={() => setEditor(item)}
+                              disabled={!!currentMemo.memoId || isCreate}
+                            >
+                              <Icon icon='mdi:pencil-outline' />
+                            </IconButton>
+                          ) : null}
+                          {isDeletable ? (
+                            <IconButton
+                              onClick={() => onDelete(item)}
+                              disabled={!!currentMemo.memoId || isCreate}
+                            >
+                              <Icon icon='mdi:trash-outline' />
+                            </IconButton>
+                          ) : null}
+                        </Box>
+                      ) : null}
                     </Box>
+                    {currentMemo.memoId !== item.id ? (
+                      <Fragment>
+                        <Typography variant='body2'>
+                          {FullDateTimezoneHelper(
+                            item.createdAt,
+                            auth.getValue().user?.timezone.code!,
+                          )}
+                        </Typography>
+                        <Typography>{item.memo}</Typography>
+                      </Fragment>
+                    ) : (
+                      <Box display='flex' flexDirection='column'>
+                        <TextField
+                          sx={{ margin: '16px 0' }}
+                          multiline
+                          maxRows={4}
+                          value={currentMemo.memo}
+                          onChange={e =>
+                            setCurrentMemo({
+                              ...currentMemo,
+                              memo: e.target.value,
+                            })
+                          }
+                          id='textarea-outlined-controlled'
+                        />
+                        <Box
+                          display='flex'
+                          gap='8px'
+                          justifyContent='flex-end'
+                          mb='16px'
+                        >
+                          <Button
+                            color='secondary'
+                            variant='outlined'
+                            onClick={onSaveCancel}
+                          >
+                            Cancel
+                          </Button>
+                          <Button variant='contained' onClick={onConfirm}>
+                            Confirm
+                          </Button>
+                        </Box>
+                      </Box>
+                    )}
                   </Box>
-                )}
-              </Box>
-            ))}
-        <CustomPagination
-          listCount={memo?.data?.length ?? 0}
-          page={page}
-          handleChangePage={handlePageChange}
-          rowsPerPage={ROWS_PER_PAGE}
-        />
-        <Divider />
-      </CardContent>
-    </Card>
+                ))}
+            <CustomPagination
+              listCount={memo?.data?.length ?? 0}
+              page={page}
+              handleChangePage={handlePageChange}
+              rowsPerPage={ROWS_PER_PAGE}
+            />
+            <Divider />
+          </CardContent>
+        </Card>
+      ) : null}
+    </>
   )
 }

@@ -8,7 +8,6 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 // ** context
-import { useAuth } from 'src/hooks/useAuth'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -27,8 +26,13 @@ import { googleAuth } from 'src/apis/sign.api'
 import jwt_decode from 'jwt-decode'
 import { toast } from 'react-hot-toast'
 import logger from '@src/@core/utils/logger'
+import useAuth from '@src/hooks/useAuth'
 
-export default function GoogleButton() {
+type Props = {
+  type: 'signin' | 'signup'
+}
+
+export default function GoogleButton({ type }:Props) {
   const router = useRouter()
   const emailRef = useRef('')
 
@@ -60,24 +64,43 @@ export default function GoogleButton() {
         }
       },
       onError: err => {
-        logger.debug("Fail Google login",err)
+        logger.debug('Fail Google login', err)
         if (err === 'NOT_A_MEMBER') {
-          openModal({
-            type: 'move-signup-modal',
-            children: (
-              <MoveSignupModal
-                onClose={() => closeModal('move-signup-modal')}
-                onConfirm={() =>        
-                  router.replace(
-                  {
-                    pathname: '/signup/',
-                    query: { email: emailRef.current },
-                  },
-                  '/signup/',
-                )}
-              />
-            ),
-          })
+          router.replace(
+            {
+              pathname: '/signup/',
+              query: { email: emailRef.current },
+            },
+            '/signup/',
+          )
+          // TODO 기획에서 검토되지 않은 내용이라 주석 처리함, 추후 방향 잡히면 적용
+          // if (type === 'signin') {
+          //   openModal({
+          //     type: 'move-signup-modal',
+          //     children: (
+          //       <MoveSignupModal
+          //         onClose={() => closeModal('move-signup-modal')}
+          //         onConfirm={() =>
+          //           router.replace(
+          //             {
+          //               pathname: '/signup/',
+          //               query: { email: emailRef.current },
+          //             },
+          //             '/signup/',
+          //           )
+          //         }
+          //       />
+          //     ),
+          //   })
+          // } else if (type === 'signup') {
+          //   router.replace(
+          //     {
+          //       pathname: '/signup/',
+          //       query: { email: emailRef.current },
+          //     },
+          //     '/signup/',
+          //   )
+          // }
         } else if (err === 'SERVER_ERROR') {
           openModal({
             type: 'server-error-modal',
@@ -130,7 +153,7 @@ export default function GoogleButton() {
         onReady={generateGoogleLoginButton}
       />
       <GoogleButtonWrapper>
-        <div id='buttonDiv'></div>
+        <div id='buttonDiv' data-type="icon"></div>
       </GoogleButtonWrapper>
     </>
   )

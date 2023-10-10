@@ -7,9 +7,10 @@ export type ClientFormType = {
   clientId?: number | null
   contactPersonId?: number | null
   addressType?: AddressType
+  isEnrolledClient?: boolean
   /* contacts값은 서버에는 보내지 않고 보여주기용 데이터 */
   contacts?: {
-    timezone?: CountryType
+    timezone?: CountryType | null
     phone?: string | null
     mobile?: string | null
     fax?: string | null

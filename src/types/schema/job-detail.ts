@@ -3,13 +3,14 @@ import * as yup from 'yup'
 
 export const addJobInfoFormSchema = yup.object().shape({
   name: yup.string().required(FormErrors.required),
-  status: yup
-    .object()
-    .shape({
-      label: yup.string().required(FormErrors.required),
-      value: yup.string().required(FormErrors.required),
-    })
-    .required(),
+  // status: yup
+  //   .object()
+  //   .shape({
+  //     label: yup.string().required(FormErrors.required),
+  //     value: yup.string().required(FormErrors.required),
+  //   })
+  //   .required(),
+  status: yup.number().required(FormErrors.required),
   contactPerson: yup
     .object()
     .shape({
@@ -18,22 +19,14 @@ export const addJobInfoFormSchema = yup.object().shape({
       userId: yup.number().required(),
     })
     .required(),
-  serviceType: yup
-    .object()
-    .shape({
-      label: yup.string().required(),
-      value: yup.string().required(),
-    })
-    .required(),
-  languagePair: yup
-    .object()
-    .shape({
-      label: yup.string().required(FormErrors.required),
-      value: yup.string().required(FormErrors.required),
-      source: yup.string(),
-      target: yup.string(),
-    })
-    .required(),
+  serviceType: yup.string().required(),
+  // .shape({
+  //   label: yup.string().required(),
+  //   value: yup.string().required(),
+  // })
+  // .required(),
+  source: yup.string().nullable().required(FormErrors.required),
+  target: yup.string().nullable().required(FormErrors.required),
   isShowDescription: yup.boolean().required(),
   startedAt: yup.date().nullable(),
   startTimezone: yup.object().shape({

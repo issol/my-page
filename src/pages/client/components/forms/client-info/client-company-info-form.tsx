@@ -12,6 +12,7 @@ import {
   TextField,
 } from '@mui/material'
 import { Fragment } from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** data
 import { countries } from 'src/@fake-db/autocomplete'
@@ -130,7 +131,7 @@ export default function ClientCompanyInfoForm({
               onChange={(e, v) => field.onChange(v)}
               disableClearable
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
+                <Box component='li' {...props} key={uuidv4()}>
                   {option.label} ({option.code}) +{option.phone}
                 </Box>
               )}

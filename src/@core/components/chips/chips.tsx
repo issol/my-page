@@ -3,19 +3,24 @@ import CustomChip from 'src/@core/components/mui/chip'
 import { Chip } from '@mui/material'
 import { StatusType } from '@src/apis/client.api'
 
-import { JobStatusType } from '@src/types/jobs/common.type'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
 import {
   InvoicePayableStatusType,
+  InvoiceProStatusType,
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
 import { RoleType, UserType } from '@src/context/types'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import {
   getOrderStatusColor,
+  getProInvoiceStatusColor,
+  getProJobStatusColor,
   getReceivableStatusColor,
 } from '@src/shared/helpers/colors.helper'
 import { OrderStatusType } from '@src/types/common/orders.type'
+import { statusType } from '@src/types/common/status.type'
+import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -137,6 +142,8 @@ export const ServiceTypeChip = styled(Chip)`
     ),
     #666cff;
   border: 1px solid rgba(102, 108, 255, 0.5);
+  font-size: 13px;
+  font-weight: 500;
 `
 
 export function WorkStatusChip(status: string) {
@@ -244,7 +251,8 @@ export const OrderStatusChip = styled(Chip)<{
       rgba(255, 255, 255, 0.88),
       rgba(255, 255, 255, 0.88)
     ),
-    ${({ status }) => getOrderStatusColor(status)};
+    ${({ status }) => getOrderStatusColor(status, status)};
+  color: ${({ status }) => getOrderStatusColor(status, status)};
 `
 
 export const QuoteStatusChip = styled(Chip)<{
@@ -257,7 +265,7 @@ export const QuoteStatusChip = styled(Chip)<{
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
       : status === 'In preparation'
       ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #F572D8; color :#F572D8;`
-      : status === 'Internal Review'
+      : status === 'Internal review'
       ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #20B6E5; color :#20B6E5;`
       : status === 'Client review' || status === 'Under review'
       ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color: #FDB528;`
@@ -279,38 +287,50 @@ export const QuoteStatusChip = styled(Chip)<{
       ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #AD7028; color: #AD7028;'
       : status === 'Quote sent'
       ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #2B6603; color: #2B6603;'
+      : status === 'Without invoice'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #4C4E64; color: #4C4E64;'
       : null};
 `
 
-export function JobsStatusChip(status: JobStatusType) {
+export function JobsStatusChip(
+  status: JobStatusType,
+  statusList: statusType[],
+) {
   const color =
-    status === 'In preparation'
+    status === 60000 //'In preparation'
       ? '#F572D8'
-      : status === 'Requested'
+      : status === 60100 //'Requested'
       ? '#A81988'
-      : status === 'Canceled'
+      : status === 60200 //'Request accepted'
+      ? '#A81988'
+      : status === 60300 //'Request rejected'
+      ? '#A81988'
+      : status === 60400 //'Canceled'
       ? '#FF4D49'
-      : status === 'Delivered'
+      : status === 60500 //'Assigned'
+      ? '#FF4D49'
+      : status === 60700 //'In progress'
+      ? '#FF4D49'
+      : status === 60800 //'Partially delivered'
+      ? '#FF4D49'
+      : status === 60900 //'Delivered'
       ? '#1A6BBA'
-      : status === 'In progress'
-      ? '#FDB528'
-      : status === 'Invoice accepted'
-      ? '#9B6CD8'
-      : status === 'Invoice created'
-      ? '#F572D8'
-      : status === 'Overdue'
+      : status === 601000 //'Overdue'
       ? '#FF4D49'
-      : status === 'Paid'
-      ? '#1B8332'
-      : status === 'Approved'
+      : status === 601100 //'Approved'
       ? '#64C623'
-      : status === 'Without invoice'
+      : status === 601200 //'Invoiced'
+      ? '#FF4D49'
+      : status === 601300 //'Without invoice'
       ? '#75571C'
+      : status === 601400 //'Paid'
+      ? '#1B8332'
       : ''
 
+  const statusLabel = statusList.find(list => list.value === status)?.label!
   return (
     <CustomChip
-      label={status === 'Overdue' ? `🔴 ${status}` : status}
+      label={status === 601000 ? `🔴 ${statusLabel}` : statusLabel} // Status가 Overdue일 경우 아이콘 붙이기
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
@@ -321,18 +341,55 @@ export function JobsStatusChip(status: JobStatusType) {
   )
 }
 
-export const AssignmentStatusChip = styled(Chip)<{ status: string }>`
+const assignmentStatusCode = [
+  { label: 'Requested', value: 60100 },
+  { label: 'Request accepted', value: 60200 },
+  { label: 'Request rejected', value: 60300 },
+  { label: 'Canceled', value: 60400 },
+  { label: 'Assigned', value: 60500 },
+]
+
+export function assignmentStatusChip(status: number) {
+  const color =
+    status === 60100
+      ? '#FDB528'
+      : status === 60200
+      ? '#64C623'
+      : status === 60300
+      ? '#FF4D49'
+      : status === 60400
+      ? '#FF4D49'
+      : status === 60500
+      ? '#666CFF'
+      : ''
+  const statusLabel = assignmentStatusCode.find(list => list.value === status)
+    ?.label!
+
+  return (
+    <CustomChip
+      label={statusLabel}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export const AssignmentStatusChip = styled(Chip)<{ status: number }>`
   border: none;
   ${({ status }) =>
-    status === 'Request accepted'
+    status === 60200
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128; color: #64C623;`
-      : status === 'Request rejected'
+      : status === 60300
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
-      : status === 'Requested'
+      : status === 60100
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color: #FDB528;`
-      : status === 'Assigned'
+      : status === 60500
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
-      : status === 'Canceled'
+      : status === 60400
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
       : null};
 `
@@ -377,6 +434,22 @@ export function InvoiceReceivableChip(
           ? `🔴 ${label}`
           : label
       }
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function InvoiceProChip(label: string, status: InvoiceProStatusType) {
+  const color = getProInvoiceStatusColor(status)
+
+  return (
+    <CustomChip
+      label={label}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
@@ -442,6 +515,22 @@ export function ClientRequestStatusChip(status: RequestStatusType) {
   return (
     <CustomChip
       label={status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function ProJobStatusChip(label: string, status: ProJobStatusType) {
+  const color = getProJobStatusColor(status)
+
+  return (
+    <CustomChip
+      label={label}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,

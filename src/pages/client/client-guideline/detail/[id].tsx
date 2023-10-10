@@ -33,7 +33,8 @@ import Icon from 'src/@core/components/icon'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** helpers
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
@@ -107,7 +108,7 @@ const ClientGuidelineDetail = () => {
 
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   const { data, refetch, isError } = useGetGuideLineDetail(id)
   const MAXIMUM_FILE_SIZE = FILE_SIZE.CLIENT_GUIDELINE
@@ -192,11 +193,16 @@ const ClientGuidelineDetail = () => {
       headerName: 'Date & Time',
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => {
-        return (
-          <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(row.updatedAt, user?.timezone!)}
-          </Box>
-        )
+        if (auth.state === 'hasValue') {
+          return (
+            <Box sx={{ overflowX: 'scroll' }}>
+              {FullDateTimezoneHelper(
+                row.updatedAt,
+                auth.getValue().user?.timezone!,
+              )}
+            </Box>
+          )
+        }
       },
     },
   ]
@@ -397,9 +403,9 @@ const ClientGuidelineDetail = () => {
 
   return (
     <>
-      {!data ? (
+      {!data || auth.state === 'loading' ? (
         <FallbackSpinner />
-      ) : isError ? (
+      ) : isError || auth.state === 'hasError' ? (
         <EmptyPost />
       ) : (
         <StyledViewer style={{ margin: '0 70px' }}>
@@ -430,7 +436,9 @@ const ClientGuidelineDetail = () => {
                       <Typography
                         sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                         color={`${
-                          user?.id === currentVersion?.userId ? 'primary' : ''
+                          auth.getValue().user?.id === currentVersion?.userId
+                            ? 'primary'
+                            : ''
                         }`}
                       >
                         {currentVersion?.writer}
@@ -447,7 +455,7 @@ const ClientGuidelineDetail = () => {
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
                       {FullDateTimezoneHelper(
                         currentVersion?.updatedAt,
-                        user?.timezone!,
+                        auth.getValue().user?.timezone!,
                       )}
                     </Typography>
                   </Box>
@@ -638,7 +646,7 @@ const ClientGuidelineDetail = () => {
                           >
                             {FullDateTimezoneHelper(
                               new Date(),
-                              user?.timezone!,
+                              auth.getValue().user?.timezone!,
                             )}
                           </Typography>
                         </Box>

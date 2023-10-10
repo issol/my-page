@@ -40,7 +40,8 @@ import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import ItemDetail from '@src/pages/components/item-detail'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import ClientQuote from './client-quote'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -74,7 +75,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
   )
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   useEffect(() => {
     if (history) {
@@ -120,6 +121,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
         contactPerson: client?.contactPerson ?? null,
         clientAddress: client?.clientAddress ?? [],
         langItem: items,
+        subtotal: projectInfo?.subtotal
       }
 
       setDownloadData(res)
@@ -206,7 +208,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
             {downloadData ? (
               <ClientQuote
                 downloadData={downloadData!}
-                user={user!}
+                user={auth.getValue().user!}
                 downloadLanguage={downloadLanguage}
                 setDownloadLanguage={setDownloadLanguage}
                 type='history'
@@ -277,7 +279,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                         <Typography fontWeight={500}>
                           {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}
                           &nbsp;
-                          {item.name}
+                          {item.itemName}
                         </Typography>
                       </Box>
                     </Grid>

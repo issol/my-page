@@ -8,9 +8,10 @@ import {
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import useModal from '@src/hooks/useModal'
-import { useGetJobHistory } from '@src/queries/jobs.query'
+import { useGetJobHistory } from '@src/queries/jobs/jobs.query'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { JobHistoryType } from '@src/types/jobs/jobs.type'
 import { useContext, useState } from 'react'
@@ -40,6 +41,8 @@ type Props = {
     email: string
     jobTitle: string
   }[]
+  statusList: Array<{ value: number; label: string }>
+
 }
 
 export default function JobHistory({
@@ -49,9 +52,10 @@ export default function JobHistory({
   priceUnitsList,
   item,
   projectTeam,
+  statusList,
 }: Props) {
   const { openModal, closeModal } = useModal()
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
 
@@ -99,7 +103,10 @@ export default function JobHistory({
       renderCell: ({ row }: CellType) => {
         return (
           <Typography>
-            {FullDateTimezoneHelper(row.requestedAt, user?.timezone?.code!)}
+            {FullDateTimezoneHelper(
+              row.requestedAt,
+              auth.getValue().user?.timezone?.code!,
+            )}
           </Typography>
         )
       },
@@ -185,6 +192,7 @@ export default function JobHistory({
                           priceUnitsList={priceUnitsList}
                           item={item}
                           projectTeam={projectTeam}
+                          statusList={statusList}
                         />
                       </Box>
                     ),

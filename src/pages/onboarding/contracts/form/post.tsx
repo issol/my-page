@@ -27,7 +27,8 @@ import CustomChip from 'src/@core/components/mui/chip'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { useRouter } from 'next/router'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** values
 import { FormErrors } from 'src/shared/const/formErrors'
@@ -49,7 +50,7 @@ const ContractForm = () => {
   const language = router.query.language as LangType
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
   useEffect(() => {
@@ -176,8 +177,8 @@ const ContractForm = () => {
       type,
       language,
       title: getTitle(),
-      writer: user?.username!,
-      email: user?.email!,
+      writer: auth.getValue().user?.username!,
+      email: auth.getValue().user?.email!,
       content: data,
       text: value.getCurrentContent().getPlainText('\u0001'),
     })
@@ -206,10 +207,12 @@ const ContractForm = () => {
                     sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                     color='primary'
                   >
-                    {user?.username}
+                    {auth.getValue().user?.username}
                   </Typography>
                   <Divider orientation='vertical' variant='middle' flexItem />
-                  <Typography variant='body2'>{user?.email}</Typography>
+                  <Typography variant='body2'>
+                    {auth.getValue().user?.email}
+                  </Typography>
                 </Box>
               </Box>
               <Divider />

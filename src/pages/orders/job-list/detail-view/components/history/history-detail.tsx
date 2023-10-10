@@ -21,7 +21,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { jobItemSchema } from '@src/types/schema/item.schema'
 import ViewPrices from '../prices/view-prices'
 import AssignPro from '../assign-pro/assign-pro'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 
 type Props = {
@@ -43,6 +44,8 @@ type Props = {
     email: string
     jobTitle: string
   }[]
+  statusList: Array<{ value: number; label: string }>
+
 }
 
 /* TODO
@@ -60,10 +63,11 @@ export default function HistoryDetail({
   priceUnitsList,
   item,
   projectTeam,
+  statusList,
 }: Props) {
   const [value, setValue] = useState<string>('jobInfo')
   const { openModal, closeModal } = useModal()
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   const [proListSkip, setProListSkip] = useState(0)
   const [proPageSize, setProPageSize] = useState(10)
@@ -115,7 +119,7 @@ export default function HistoryDetail({
           source: jobPrices?.source!,
           target: jobPrices?.target!,
           priceId: jobPrices?.priceId!,
-          detail: !jobPrices?.datas.length ? [] : jobPrices?.datas!,
+          detail: !jobPrices?.detail?.length ? [] : jobPrices?.detail!,
           contactPersonId: 0,
           totalPrice: jobPrices?.totalPrice!,
         },
@@ -123,13 +127,16 @@ export default function HistoryDetail({
       itemReset({ items: result })
     } else {
       appendItems({
-        name: '',
+        itemName: '',
         source: 'en',
         target: 'ko',
         contactPersonId: 0,
         priceId: null,
         detail: [],
         totalPrice: 0,
+        minimumPrice: null,
+        minimumPriceApplied: false,
+        priceFactor: 0,
       })
     }
   }, [jobPrices])
@@ -232,6 +239,7 @@ export default function HistoryDetail({
                 type='history'
                 item={item}
                 projectTeam={projectTeam}
+                statusList={statusList}
               />
             )}
           </TabPanel>
@@ -253,7 +261,7 @@ export default function HistoryDetail({
           </TabPanel>
           <TabPanel value='assignPro'>
             <AssignPro
-              user={user!}
+              user={auth.getValue().user!}
               row={jobInfo!}
               orderDetail={orderDetail}
               type='history'

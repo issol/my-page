@@ -44,7 +44,8 @@ import { lpm_request } from '@src/shared/const/permission-class'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
 // ** types
@@ -65,10 +66,10 @@ export default function RequestDetail() {
   const { openModal, closeModal } = useModal()
 
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const currentRole = getCurrentRole()
 
-  const User = new lpm_request(user?.id!)
+  const User = new lpm_request(auth.getValue().user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
@@ -275,7 +276,7 @@ export default function RequestDetail() {
                 closeModal('requestNextStep')
               }}
               vary='successful'
-              rightButtonText='Request'
+              rightButtonText='Create'
             />
           ),
         })
@@ -296,7 +297,7 @@ export default function RequestDetail() {
                 closeModal('requestNextStep')
               }}
               vary='successful'
-              rightButtonText='Request'
+              rightButtonText='Create'
             />
           ),
         })
@@ -360,7 +361,7 @@ export default function RequestDetail() {
                   {data?.linkedOrder && (
                     <MenuItem onClick={handleClose}>
                       <StyledNextLink
-                        href={`/quotes/detail/${data?.linkedOrder.id}`}
+                        href={`/orders/order-list/detail/${data?.linkedOrder.id}`}
                         color='black'
                       >
                         Linked order : <u>{data?.linkedOrder.corporationId}</u>
@@ -401,25 +402,27 @@ export default function RequestDetail() {
         <Card sx={{ padding: '24px' }}>
           <RequestDetailCard
             data={data}
-            user={user}
+            user={auth.getValue().user}
             currentRole={currentRole}
             openReasonModal={openReasonModal}
             onStatusChange={onStatusChange}
           />
         </Card>
-        <Grid item xs={4} mt='24px'>
-          <Card sx={{ padding: '24px' }}>
-            <Button
-              fullWidth
-              variant='outlined'
-              color='error'
-              disabled={isNotCancelable()}
-              onClick={onCancelRequest}
-            >
-              Cancel this request
-            </Button>
-          </Card>
-        </Grid>
+        {isNotCancelable() ? null : (
+          <Grid item xs={4} mt='24px'>
+            <Card sx={{ padding: '24px' }}>
+              <Button
+                fullWidth
+                variant='outlined'
+                color='error'
+                disabled={isNotCancelable()}
+                onClick={onCancelRequest}
+              >
+                Cancel this request
+              </Button>
+            </Card>
+          </Grid>
+        )}
       </Grid>
       <Grid item xs={3}>
         <Box display='flex' flexDirection='column' gap='24px'>

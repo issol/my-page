@@ -1,4 +1,11 @@
-import { Badge, Box, Button, IconButton, Tooltip } from '@mui/material'
+import {
+  Badge,
+  Box,
+  Button,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import {
   AssignProFilterPostType,
   AssignProFilterType,
@@ -12,7 +19,9 @@ import AssignProListPage from './list'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
-import { useGetAssignProList } from '@src/queries/order/job.query'
+import {
+  useGetAssignableProList,
+} from '@src/queries/order/job.query'
 
 import {
   GridCallbackDetails,
@@ -23,6 +32,7 @@ import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/lega
 import {
   AssignmentStatusChip,
   ProStatusChip,
+  assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
 import { Icon } from '@iconify/react'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
@@ -41,7 +51,9 @@ import {
   useMutation,
 } from 'react-query'
 import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
-import { requestJobToPro } from '@src/apis/job-detail.api'
+import { assignJob, requestJobToPro } from '@src/apis/job-detail.api'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import toast from 'react-hot-toast'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -63,7 +75,7 @@ const defaultFilters: AssignProFilterPostType = {
   category: [],
   serviceType: [],
   client: [],
-  isOffBoard: true,
+  isOffBoard: '1',
 }
 
 type Props = {
@@ -99,9 +111,18 @@ const AssignPro = ({
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
   const [hideOffBoard, setHideOffBoard] = useState<boolean>(true)
+  const jobId = row.id
 
   const { openModal, closeModal } = useModal()
 
+  const [proList, setProList] = useState<
+    | {
+        totalCount: number
+        data: AssignProListType[]
+        count: number
+      }
+    | undefined
+  >()
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
 
   const [filters, setFilters] = useState<AssignProFilterPostType>({
@@ -113,26 +134,56 @@ const AssignPro = ({
     client: [],
     take: proListPageSize,
     skip: proListPage * proListPageSize,
-    isOffBoard: hideOffBoard,
+    isOffBoard: hideOffBoard ? '1' : '0',
     // sortId: 'DESC',
     // sortDate: 'DESC',
   })
 
   const {
-    data: AssignProList,
-    isLoading,
-    refetch: refetchAssignProList,
-  } = useGetAssignProList(row.id, filters, type === 'history' ? true : false)
+    data: AssignableProList,
+    isLoading: isAssignableProListLoading,
+    refetch: refetchAssignableProList,
+  } = useGetAssignableProList(
+    row.id,
+    filters,
+    type === 'history' ? true : false,
+  )
 
   const requestJobMutation = useMutation(
     (data: { ids: number[]; jobId: number }) =>
       requestJobToPro(data.ids, data.jobId),
     {
       onSuccess: () => {
-        refetchAssignProList()
+        refetchAssignableProList()
       },
     },
   )
+
+  const assignJobMutation = useMutation(
+    (data: { jobId: number; proId: number }) =>
+      assignJob(data.jobId, data.proId),
+    {
+      onSuccess: () => {
+        refetchAssignableProList()
+      },
+    },
+  )
+
+  useEffect(() => {
+    if (
+      AssignableProList &&
+      !isAssignableProListLoading
+    ) {
+      setProList(AssignableProList)
+    }
+  }, [
+    AssignableProList,
+    isAssignableProListLoading,
+  ])
+
+  useEffect(() => {
+    refetchAssignableProList()
+  }, [refetchAssignableProList])
 
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
@@ -181,19 +232,77 @@ const AssignPro = ({
     closeModal('AssignProRequestJobModal')
   }
 
-  const onClickRequestJob = () => {
+  const handleAssignJob = (jobId: number, proId: number) => {
+    assignJobMutation.mutate(
+      { jobId: jobId, proId: proId },
+      {
+        onSuccess: () => {
+          closeModal('AssignProJobModal')
+        },
+        onError: () => {
+          closeModal('AssignProJobModal')
+          toast.error('Something went wrong. Please try again.', {
+            position: 'bottom-left',
+          })
+        },
+      },
+    )
+  }
+
+  const onClickAssignJob = (jobId: number, proId: number, name: string) => {
     openModal({
-      type: 'AssignProRequestJobModal',
+      type: 'AssignProJobModal',
       children: (
         <CustomModal
-          onClose={() => closeModal('AssignProRequestJobModal')}
-          title='Are you sure you want to request the job to selected Pro(s)?'
+          onClose={() => closeModal('AssignProJobModal')}
+          title={
+            <>
+              Are you sure you want to assign the job to selected Pro?
+              <Typography variant='body2' fontSize={16} fontWeight={600}>
+                {name}
+              </Typography>
+            </>
+          }
+          onClick={() => handleAssignJob(jobId, proId)}
           vary='successful'
-          rightButtonText='Request'
-          onClick={handleRequestPro}
-        ></CustomModal>
+          rightButtonText='Assign'
+        />
       ),
     })
+  }
+
+  const onClickRequestJob = () => {
+    if (!!item.itemName) {
+      openModal({
+        type: 'AssignProRequestJobModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('AssignProRequestJobModal')}
+            title='Are you sure you want to request the job to selected Pro(s)?'
+            vary='successful'
+            rightButtonText='Request'
+            onClick={handleRequestPro}
+          ></CustomModal>
+        ),
+      })
+    } else {
+      openModal({
+        type: 'AssignDenyModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('AssignDenyModal')}
+            title='Please enter all required fields to make a request.'
+            vary='error'
+            soloButton={true}
+            rightButtonText='Okey'
+            onClick={() => {
+              //TODO Job info 탭으로 이동하는거 추가해야 함
+              closeModal('AssignDenyModal')
+            }}
+          ></CustomModal>
+        ),
+      })
+    }
   }
 
   useEffect(() => {
@@ -217,7 +326,7 @@ const AssignPro = ({
     ])
     setValue(
       'expertise',
-      orderDetail.expertise.map(value => ({
+      orderDetail.expertise?.map(value => ({
         value: value,
         label: value,
       })),
@@ -226,7 +335,6 @@ const AssignPro = ({
     const serviceTypeToPro = ServiceTypeToProRole[row.serviceType].map(
       (value: any) => value.value,
     )
-    // console.log(serviceTypeToPro)
 
     setFilters(prevState => ({
       ...prevState,
@@ -234,7 +342,8 @@ const AssignPro = ({
       target: [row.targetLanguage],
       category: [orderDetail.category],
       //@ts-ignore
-      serviceType: serviceTypeToPro,
+      // serviceType: serviceTypeToPro,
+      serviceType: [row.serviceType],
       expertise: orderDetail.expertise,
     }))
   }, [row, orderDetail, setValue])
@@ -251,16 +360,16 @@ const AssignPro = ({
     const data = getValues()
 
     const res: AssignProFilterPostType = {
-      source: data.source.map(value => value.value),
-      target: data.target.map(value => value.value),
-      category: data.category.map(value => value.value),
-      serviceType: data.serviceType.map(value => value.value),
-      expertise: data.expertise.map(value => value.value),
-      client: data.client.map(value => value.value),
+      source: data.source?.map(value => value.value),
+      target: data.target?.map(value => value.value),
+      category: data.category?.map(value => value.value),
+      serviceType: data.serviceType?.map(value => value.value),
+      expertise: data.expertise?.map(value => value.value) ?? '',
+      client: data.client?.map(value => value.value),
       search: data.search,
       take: proListPageSize,
       skip: proListPage * proListPageSize,
-      isOffBoard: hideOffBoard,
+      isOffBoard: hideOffBoard ? '1' : '0',
     }
 
     setFilters(res)
@@ -366,7 +475,8 @@ const AssignPro = ({
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: { row: AssignProListType }) => {
-        return <ProStatusChip status={row.status} label={row.status} />
+        // return <ProStatusChip status={row.status} label={row.status} />
+        return row.status
       },
     },
     {
@@ -420,20 +530,34 @@ const AssignPro = ({
       renderCell: ({ row }: { row: AssignProListType }) => {
         return (
           <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {row.assignmentStatus ? (
-              <AssignmentStatusChip
-                label={row.assignmentStatus}
-                status={row.assignmentStatus}
-              />
-            ) : (
-              '-'
-            )}
-            {row.assignmentStatus === 'Request accepted' && (
-              <Button variant='outlined' sx={{ height: '30px' }} size='small'>
+            {row.assignmentStatus
+              ? // <AssignmentStatusChip
+                //   label={row.assignmentStatus}
+                //   status={row.assignmentStatus}
+                // />
+                assignmentStatusChip(Number(row.assignmentStatus))
+              : '-'}
+            {row.assignmentStatus === 60200 && (
+              <Button
+                variant='outlined'
+                sx={{ height: '30px' }}
+                size='small'
+                onClick={() =>
+                  onClickAssignJob(
+                    jobId,
+                    row.userId,
+                    getLegalName({
+                      firstName: row.firstName,
+                      middleName: row.middleName,
+                      lastName: row.lastName,
+                    }),
+                  )
+                }
+              >
                 Assign
               </Button>
             )}
-            {row.assignmentStatus === 'Assigned' && (
+            {row.assignmentStatus === 60500 && (
               <IconButton onClick={() => onClickSourceFileToPro(row)}>
                 <Icon icon='ic:outline-upload-file' color='#666cff' />
               </IconButton>
@@ -497,7 +621,8 @@ const AssignPro = ({
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: { row: AssignProListType }) => {
-        return <ProStatusChip status={row.status} label={row.status} />
+        // return <ProStatusChip status={row.status} label={row.status} />
+        return row.status
       },
     },
     {
@@ -579,17 +704,14 @@ const AssignPro = ({
 
       <AssignProListPage
         listCount={
-          isFiltersDifferent()
-            ? AssignProList?.count!
-            : AssignProList?.totalCount!
+          isFiltersDifferent() ? proList?.count! : proList?.totalCount!
         }
-        // list={type === 'history' ? assignProList?.data! : AssignProList?.data!}
-        list={AssignProList?.data!}
+        list={proList?.data!}
         columns={type === 'history' ? historyColumns : columns}
         setFilters={setFilters}
         setPageSize={setProListPageSize}
         setPage={setProListPage}
-        isLoading={isLoading}
+        isLoading={isAssignableProListLoading}
         page={proListPage}
         pageSize={proListPageSize}
         hideOffBoard={hideOffBoard}
@@ -598,6 +720,7 @@ const AssignPro = ({
         handleSelectionModelChange={handleSelectionModelChange}
         onClickRequestJob={onClickRequestJob}
         type={type}
+        jobInfo={row}
       />
     </Box>
   )

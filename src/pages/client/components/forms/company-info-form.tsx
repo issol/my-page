@@ -21,12 +21,14 @@ import { ClientStatus } from '@src/shared/const/status/statuses'
 import { countries } from 'src/@fake-db/autocomplete'
 
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** react hook form
 import {
   Control,
   Controller,
   FieldErrors,
+  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -45,14 +47,16 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { TaxTypeList } from '@src/shared/const/tax/tax-type'
 import { getTypeList } from '@src/shared/transformer/type.transformer'
 import styled from 'styled-components'
-import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
+import { DatePickerDefaultOptions } from '@src/shared/const/datePicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type Props = {
   mode: 'create' | 'update'
   control: Control<CompanyInfoFormType, any>
   setValue: UseFormSetValue<CompanyInfoFormType>
+  getValue: UseFormGetValues<CompanyInfoFormType>
   errors: FieldErrors<CompanyInfoFormType>
   watch: UseFormWatch<CompanyInfoFormType>
 }
@@ -62,9 +66,14 @@ export default function CompanyInfoForm({
   setValue,
   errors,
   watch,
+  getValue,
 }: Props) {
   const clientType: Array<ClientType> = ['Company', 'Mr', 'Ms']
   const country = getTypeList('CountryCode')
+  const timezone = watch('timezone')
+
+  console.log(timezone)
+
   // console.log('errors', errors)
   function renderCompanyTypeBtn(
     type: ClientType,
@@ -104,7 +113,6 @@ export default function CompanyInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              autoFocus
               label={label}
               variant='outlined'
               value={value ?? ''}
@@ -149,6 +157,8 @@ export default function CompanyInfoForm({
     return formattedDate
   }
 
+  console.log(Boolean(errors.tax) && getValue('isTaxable'))
+
   return (
     <Fragment>
       <Grid item xs={6}>
@@ -172,7 +182,6 @@ export default function CompanyInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <Autocomplete
-              autoHighlight
               fullWidth
               options={ClientStatus}
               disableClearable
@@ -225,6 +234,7 @@ export default function CompanyInfoForm({
               error={Boolean(errors.email)}
               label='Email*'
               value={value}
+              placeholder='client@example.com'
               onChange={onChange}
               inputProps={{ maxLength: 100 }}
             />
@@ -236,18 +246,22 @@ export default function CompanyInfoForm({
         <Controller
           name='timezone'
           control={control}
-          render={({ field }) => (
+          render={({ field: { onChange, value } }) => (
             <Autocomplete
-              autoHighlight
               fullWidth
-              {...field}
+              value={value ?? undefined}
               options={countries as CountryType[]}
-              onChange={(e, v) => field.onChange(v)}
-              disableClearable
-              getOptionLabel={option => getGmtTime(option.code)}
+              onChange={(e, v) => {
+                if (v) {
+                  onChange(v)
+                } else {
+                  onChange(undefined)
+                }
+              }}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -263,6 +277,11 @@ export default function CompanyInfoForm({
             />
           )}
         />
+        {errors.timezone && (
+          <FormHelperText sx={{ color: 'error.main' }}>
+            {errors.timezone.label?.message}
+          </FormHelperText>
+        )}
       </Grid>
 
       <Grid item xs={6}>
@@ -305,6 +324,9 @@ export default function CompanyInfoForm({
         />
         {renderErrorMsg('websiteLink')}
       </Grid>
+      <Grid item xs={12}>
+        <Divider />
+      </Grid>
       <Grid item xs={6}>
         <Controller
           name='headquarter'
@@ -337,12 +359,12 @@ export default function CompanyInfoForm({
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='businessRegistrationNumber'
+          name='registrationNumber'
           control={control}
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              error={Boolean(errors.businessRegistrationNumber)}
+              error={Boolean(errors.registrationNumber)}
               label='Business registration number'
               value={value}
               onChange={onChange}
@@ -350,16 +372,16 @@ export default function CompanyInfoForm({
             />
           )}
         />
-        {renderErrorMsg('businessRegistrationNumber')}
+        {renderErrorMsg('registrationNumber')}
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='nameOfRepresentative'
+          name='representativeName'
           control={control}
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              error={Boolean(errors.nameOfRepresentative)}
+              error={Boolean(errors.representativeName)}
               label='Name of representative'
               value={value}
               onChange={onChange}
@@ -367,21 +389,21 @@ export default function CompanyInfoForm({
             />
           )}
         />
-        {renderErrorMsg('nameOfRepresentative')}
+        {renderErrorMsg('representativeName')}
       </Grid>
       <Grid item xs={6}>
         <DatePickerWrapper>
           <Controller
-            name='businessCommencementDate'
+            name='commencementDate'
             control={control}
             render={({ field: { value, onChange } }) => (
               <FullWidthDatePicker
-                {...DateTimePickerDefaultOptions}
-                selected={!value ? null : formattedNow(new Date(value))}
+                {...DatePickerDefaultOptions}
+                selected={!value ? null : new Date(value)}
                 onChange={onChange}
                 customInput={
                   <CustomInput
-                    label='Business commencement Date'
+                    label='Business commencement date'
                     icon='calendar'
                   />
                 }
@@ -390,7 +412,7 @@ export default function CompanyInfoForm({
           />
         </DatePickerWrapper>
 
-        {renderErrorMsg('businessCommencementDate')}
+        {renderErrorMsg('commencementDate')}
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -403,19 +425,16 @@ export default function CompanyInfoForm({
             const findValue = TaxTypeList.find(item => item.value === value)
             return (
               <Autocomplete
-                autoHighlight
                 fullWidth
                 options={TaxTypeList}
                 onChange={(e, v) => {
-                  if (!v) onChange({ value: '', label: '' })
+                  if (!v) onChange(null)
                   else {
                     onChange(v.value)
                     if (v.value === false) setValue('tax', null)
                   }
                 }}
-                value={
-                  !value && !findValue ? { value: '', label: '' } : findValue
-                }
+                value={!value && !findValue ? null : findValue}
                 renderInput={params => (
                   <TextField
                     {...params}
@@ -428,18 +447,25 @@ export default function CompanyInfoForm({
             )
           }}
         />
-        {renderErrorMsg('isTaxable')}
+        {errors.isTaxable && (
+          <FormHelperText sx={{ color: 'error.main' }}>
+            {FormErrors.required}
+          </FormHelperText>
+        )}
       </Grid>
       <Grid item xs={6}>
         <Controller
           name='tax'
           control={control}
           render={({ field: { value, onChange } }) => (
-            <FormControl fullWidth error={Boolean(errors.tax)}>
+            <FormControl
+              fullWidth
+              error={Boolean(errors.tax) && getValue('isTaxable')}
+            >
               <InputLabel>Tax rate*</InputLabel>
               <OutlinedInput
                 value={value ?? ''}
-                error={Boolean(errors.tax)}
+                error={Boolean(errors.tax) && getValue('isTaxable')}
                 onChange={onChange}
                 label='Tax rate*'
                 disabled={!watch('isTaxable')}
@@ -452,7 +478,11 @@ export default function CompanyInfoForm({
             </FormControl>
           )}
         />
-        {renderErrorMsg('isTaxable')}
+        {errors.tax && getValue('isTaxable') && (
+          <FormHelperText sx={{ color: 'error.main' }}>
+            {FormErrors.required}
+          </FormHelperText>
+        )}
       </Grid>
 
       {mode === 'create' ? (

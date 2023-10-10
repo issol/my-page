@@ -1,5 +1,5 @@
 import {
-  getAssignProList,
+  getAssignableProList,
   getJobDetails,
   getJobInfo,
   getJobPrices,
@@ -10,19 +10,19 @@ import { AssignProFilterPostType } from '@src/types/orders/job-detail'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
-export const useGetAssignProList = (
+export const useGetAssignableProList = (
   jobId: number,
   filter: AssignProFilterPostType,
   isHistory: boolean,
 ) => {
   return useQuery(
-    ['assignProList', filter],
-    () => getAssignProList(jobId, filter, isHistory),
+    ['assignProList', jobId, filter],
+    () => getAssignableProList(jobId, filter, isHistory),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 0,
 
       suspense: false,
-      keepPreviousData: true,
+      keepPreviousData: false,
     },
   )
 }

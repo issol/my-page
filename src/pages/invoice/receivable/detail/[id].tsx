@@ -46,7 +46,8 @@ import {
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import InvoiceClient from './components/client'
 import InvoiceProjectTeam from './components/project-team'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
@@ -88,6 +89,7 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 import {
   account_manage,
   invoice_receivable,
+  invoice_receivable_accounting_info,
 } from '@src/shared/const/permission-class'
 import { useGetStatusList } from '@src/queries/common.query'
 import { StyledNextLink } from '@src/@core/components/customLink'
@@ -98,6 +100,7 @@ import ClientInvoice from './components/client-invoice'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import PrintInvoicePage from './invoice-print/print-page'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 type MenuType =
   | 'invoice'
@@ -109,7 +112,7 @@ type MenuType =
 const ReceivableInvoiceDetail = () => {
   const router = useRouter()
   const { id } = router.query
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
   const dispatch = useAppDispatch()
   const currentRole = getCurrentRole()
@@ -146,8 +149,11 @@ const ReceivableInvoiceDetail = () => {
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
-  const User = new invoice_receivable(user?.id!)
-  const AccountingTeam = new account_manage(user?.id!)
+  const User = new invoice_receivable(auth.getValue().user?.id!)
+  // const AccountingTeam = new account_manage(auth.getValue().user?.id!)
+  const AccountingTeam = new invoice_receivable_accounting_info(
+    auth.getValue().user?.id!,
+  )
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
@@ -223,8 +229,11 @@ const ReceivableInvoiceDetail = () => {
     isFileUploading
 
   const patchInvoiceInfoMutation = useMutation(
-    (data: { id: number; form: InvoiceReceivablePatchParamsType }) =>
-      patchInvoiceInfo(data.id, data.form),
+    (data: {
+      id: number
+      form: InvoiceReceivablePatchParamsType
+      type: 'basic' | 'accounting'
+    }) => patchInvoiceInfo(data.id, data.form, data.type),
     {
       onSuccess: (data: { id: number }, variables) => {
         invalidateInvoiceDetail()
@@ -315,23 +324,25 @@ const ReceivableInvoiceDetail = () => {
   }
 
   const onClickVersionHistoryRow = (history: InvoiceVersionHistoryType) => {
-    openModal({
-      type: 'InvoiceVersionHistoryModal',
-      children: (
-        <InvoiceVersionHistoryModal
-          invoiceInfo={invoiceInfo!}
-          history={history}
-          onClose={() => closeModal('InvoiceVersionHistoryModal')}
-          onClick={handleRestoreVersion}
-          user={user!}
-          prices={prices!}
-          pricesSuccess={isSuccess}
-          statusList={statusList || []}
-          isUpdatable={isUpdatable}
-          isDeletable={isDeletable}
-        />
-      ),
-    })
+    if (auth.state === 'hasValue' && auth.getValue().user) {
+      openModal({
+        type: 'InvoiceVersionHistoryModal',
+        children: (
+          <InvoiceVersionHistoryModal
+            invoiceInfo={invoiceInfo!}
+            history={history}
+            onClose={() => closeModal('InvoiceVersionHistoryModal')}
+            onClick={handleRestoreVersion}
+            user={auth.getValue().user!}
+            prices={prices!}
+            pricesSuccess={isSuccess}
+            statusList={statusList || []}
+            isUpdatable={isUpdatable}
+            isDeletable={isDeletable}
+          />
+        ),
+      })
+    }
   }
 
   const {
@@ -384,11 +395,11 @@ const ReceivableInvoiceDetail = () => {
         { type: 'supervisorId', id: null },
         {
           type: 'projectManagerId',
-          id: user?.userId!,
+          id: auth.getValue().user?.userId!,
           name: getLegalName({
-            firstName: user?.firstName!,
-            middleName: user?.middleName,
-            lastName: user?.lastName!,
+            firstName: auth.getValue().user?.firstName!,
+            middleName: auth.getValue().user?.middleName,
+            lastName: auth.getValue().user?.lastName!,
           }),
         },
         { type: 'member', id: null },
@@ -413,6 +424,7 @@ const ReceivableInvoiceDetail = () => {
     setValue: setClientValue,
     watch: clientWatch,
     reset: clientReset,
+    trigger: clientTrigger,
     formState: { errors: clientErrors, isValid: isClientValid },
   } = useForm<ClientFormType>({
     mode: 'onChange',
@@ -510,8 +522,14 @@ const ReceivableInvoiceDetail = () => {
   }
 
   const confirmInvoice = useMutation((id: number) => confirmInvoiceByLpm(id), {
-    onSuccess: () => {
-      invalidateInvoiceDetail()
+    onSuccess: (data, variables) => {
+      closeModal('ConfirmInvoice')
+      if (data.id === variables) {
+        invalidateInvoiceDetail()
+        // invoiceInfoRefetch()
+      } else {
+        router.push(`/invoice/receivable/detail/${data.id}`)
+      }
     },
     onError: () => onError(),
   })
@@ -551,21 +569,34 @@ const ReceivableInvoiceDetail = () => {
       console.log(prices)
 
       setLanguagePairs(
-        langItem?.languagePairs?.map(item => {
+        langItem?.items?.map(item => {
           return {
             id: String(item.id),
             source: item.source,
             target: item.target,
-            price: !item.price
-              ? null
-              : prices?.find(price => price.id === item?.price?.id) || null,
+            price: {
+              id: item.initialPrice?.priceId!,
+              isStandard: item.initialPrice?.isStandard!,
+              priceName: item.initialPrice?.name!,
+              groupName: 'Current price',
+              category: item.initialPrice?.category!,
+              serviceType: item.initialPrice?.serviceType!,
+              currency: item.initialPrice?.currency!,
+              catBasis: item.initialPrice?.calculationBasis!,
+              decimalPlace: item.initialPrice?.numberPlace!,
+              roundingProcedure:
+                RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+              languagePairs: [],
+              priceUnit: [],
+              catInterface: { memSource: [], memoQ: [] },
+            },
           }
         }),
       )
       const result = langItem?.items?.map(item => {
         return {
           id: item.id,
-          name: item.name,
+          name: item.itemName,
           source: item.source,
           target: item.target,
           priceId: item.priceId,
@@ -575,6 +606,10 @@ const ReceivableInvoiceDetail = () => {
           analysis: item.analysis ?? [],
           totalPrice: item?.totalPrice ?? 0,
           dueAt: item?.dueAt,
+          showItemDescription: item.showItemDescription,
+          initialPrice: item.initialPrice,
+          minimumPrice: item.minimumPrice,
+          minimumPriceApplied: item.minimumPriceApplied,
         }
       })
       itemReset({ items: result })
@@ -606,10 +641,10 @@ const ReceivableInvoiceDetail = () => {
     if (langItem) {
       const pm = projectTeam!.find(value => value.position === 'projectManager')
 
-      const subtotal = langItem.items.reduce((acc, cur) => {
-        return acc + cur.totalPrice
-      }, 0)
-
+      // const subtotal = langItem.items.reduce((acc, cur) => {
+      //   return acc + cur.totalPrice
+      // }, 0)
+      const subtotal = Number(invoiceInfo!.subtotal!)
       const tax = subtotal * (invoiceInfo!.tax! / 100)
 
       console.log(tax)
@@ -689,8 +724,6 @@ const ReceivableInvoiceDetail = () => {
     }
   }
 
-  console.log(downloadData)
-
   function handlePrint() {
     closeModal('DownloadInvoiceModal')
     router.push('/invoice/receivable/detail/invoice-print')
@@ -711,7 +744,12 @@ const ReceivableInvoiceDetail = () => {
   }, [prices, languagePairs])
 
   useEffect(() => {
-    if (invoice.isReady && invoice.invoiceTotalData) {
+    if (
+      invoice.isReady &&
+      invoice.invoiceTotalData &&
+      auth.state === 'hasValue' &&
+      auth.getValue().user
+    ) {
       openModal({
         type: 'PreviewModal',
         isCloseable: false,
@@ -734,7 +772,7 @@ const ReceivableInvoiceDetail = () => {
               <PrintInvoicePage
                 data={invoice.invoiceTotalData}
                 type='preview'
-                user={user!}
+                user={auth.getValue().user!}
                 lang={invoice.lang}
               />
             </div>
@@ -776,7 +814,10 @@ const ReceivableInvoiceDetail = () => {
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        {invoiceInfo && !invoiceInfoIsLoading ? (
+        {invoiceInfo &&
+        !invoiceInfoIsLoading &&
+        auth.state === 'hasValue' &&
+        auth.getValue() ? (
           <Box display='flex'>
             <Box
               sx={{
@@ -827,24 +868,35 @@ const ReceivableInvoiceDetail = () => {
                       <Icon icon='mdi:dots-vertical' />
                     </IconButton>
                     <Menu
-                      keepMounted
-                      id='link menu'
+                      elevation={8}
                       anchorEl={anchorEl}
+                      id='customized-menu'
                       onClose={handleMenuClose}
                       open={Boolean(anchorEl)}
-                      PaperProps={{
-                        style: {
-                          maxHeight: 48 * 4.5,
-                        },
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
                       }}
                     >
-                      <MenuItem onClick={handleMenuClose}>
-                        <StyledNextLink
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked order :
+                        <Link
                           href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
-                          color='black'
                         >
-                          Linked order : {invoiceInfo?.orderCorporationId}
-                        </StyledNextLink>
+                          {invoiceInfo?.orderCorporationId}
+                        </Link>
                       </MenuItem>
                     </Menu>
                   </div>
@@ -872,12 +924,11 @@ const ReceivableInvoiceDetail = () => {
                 )}
                 {isEditing ? null : (
                   <Button
-                    variant='outlined'
+                    variant='contained'
                     sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                     disabled={!isConfirmBtnVisible}
                     onClick={onClickConfirmInvoice}
                   >
-                    <Icon icon='mdi:download' fontSize={20} />
                     Confirm invoice
                   </Button>
                 )}
@@ -964,8 +1015,7 @@ const ReceivableInvoiceDetail = () => {
                     downloadLanguage={downloadLanguage}
                     setDownloadLanguage={setDownloadLanguage}
                     type='detail'
-                    user={user!}
-                    onSave={patchInvoiceInfoMutation.mutate}
+                    user={auth.getValue().user!}
                     onClickDownloadInvoice={onClickDownloadInvoice}
                   />
                 ) : null}
@@ -990,7 +1040,8 @@ const ReceivableInvoiceDetail = () => {
                   invoiceInfoErrors={invoiceInfoErrors}
                   isInvoiceInfoValid={isInvoiceInfoValid}
                   clientTimezone={
-                    getClientValue('contacts.timezone') ?? user?.timezone!
+                    getClientValue('contacts.timezone') ??
+                    auth.getValue().user?.timezone!
                   }
                   statusList={statusList || []}
                   isUpdatable={isUpdatable}

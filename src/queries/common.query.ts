@@ -10,20 +10,20 @@ export const useGetStatusList = (type: StatusType) => {
     },
     {
       suspense: true,
-      staleTime: 60 * 10000, //status는 자주 업데이트 되는 정보가 아니므로 staleTime을 늘려둠.
+      staleTime: 60 * 30000, //status는 자주 업데이트 되는 정보가 아니므로 staleTime을 늘려둠.
       keepPreviousData: true,
     },
   )
 }
 
-export const useGetClientUserInfo = (fetchClient: boolean) => {
+export const useGetClientUserInfo = () => {
   return useQuery(
-    [`clientUserInfo`, fetchClient],
+    [`clientUserInfo`],
     () => {
       return getClientUserInfo()
     },
     {
-      enabled: !!fetchClient,
+      enabled: false,
       suspense: true,
       staleTime: 60 * 10000,
       keepPreviousData: true,

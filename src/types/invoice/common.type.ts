@@ -1,6 +1,12 @@
 import { RevenueFormType } from '../common/orders.type'
 import { CountryType } from '../sign/personalInfoTypes'
 
+export type InvoiceProStatusType =
+  | 'Invoiced'
+  | 'Under revision'
+  | 'Revised'
+  | 'Paid'
+
 export type InvoicePayableStatusType =
   | 'Invoice created'
   | 'Invoice accepted'
@@ -47,6 +53,7 @@ export type InvoiceProjectInfoFormType = {
   tax: number | null
   isTaxable: boolean
   notes?: string
+  subtotal: string | number
 }
 
 export type ProInvoiceListType = {

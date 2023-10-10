@@ -184,7 +184,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
         preferredName: userInfo.preferredName ?? '',
         pronounce: userInfo.pronounce,
         preferredNamePronunciation: userInfo.preferredNamePronunciation ?? '',
-        havePreferred: user?.havePreferred ?? false,
+        havePreferred: user.havePreferred ?? false,
         dateOfBirth: userInfo.dateOfBirth,
         mobile: user.mobilePhone,
         timezone: userInfo.timezone!,
@@ -244,7 +244,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
 
   const createOffDay = useMutation(
     (data: { start: string; end: string; reason?: string }) =>
-      createMyOffDays(user?.userId!, data.start, data.end, data.reason),
+      createMyOffDays(user.userId!, data.start, data.end, data.reason),
     {
       onSuccess: () => invalidateOffDay(),
       onError: (e: any) => {
@@ -301,7 +301,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   }
 
   const updateWeekendsMutation = useMutation(
-    (offOnWeekends: 0 | 1) => updateWeekends(user?.userId!, offOnWeekends),
+    (offOnWeekends: 0 | 1) => updateWeekends(user.userId!, offOnWeekends),
     {
       onSuccess: () => {
         invalidateOffDay()
@@ -410,7 +410,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
       const promiseArr = files.map((file, idx) => {
         return getUploadUrlforCommon(
           S3FileType.RESUME,
-          getResumeFilePath(user?.id as number, file.name),
+          getResumeFilePath(user.id as number, file.name),
         ).then(res => {
           return uploadFileToS3(res.url, file)
         })

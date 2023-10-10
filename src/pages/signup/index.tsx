@@ -28,7 +28,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import PinInput from 'react-pin-input'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -62,6 +61,7 @@ import GoogleButton from '../components/google-button'
 
 // ** types
 import { loginResType } from 'src/types/sign/signInTypes'
+import useAuth from '@src/hooks/useAuth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -507,6 +507,7 @@ const SignUpPage = () => {
                   <Typography color='primary'>Sign up with Google</Typography>
                 </Link>
                 <GoogleButton
+                  type='signup'
                 // handleCredentialResponse={handleCredentialResponse}
                 />
               </Box>

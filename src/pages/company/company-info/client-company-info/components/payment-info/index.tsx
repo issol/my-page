@@ -26,7 +26,8 @@ import PaymentMethodForm from './payment-method-form'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** hooks
@@ -85,17 +86,24 @@ export default function CompanyPaymentInfo() {
   const queryClient = useQueryClient()
 
   const ability = useContext(AbilityContext)
-  const { user, company } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
-  const User = new client_payment(user?.id!)
+  const User = new client_payment(auth.getValue().user?.id!)
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
+  const isAccountManager = ability.can('read', 'account_manage')
 
-  const { data: paymentInfo } = useGetClientPaymentInfo(company?.clientId!)
-  const { data: billingAddress } = useGetClientBillingAddress(
-    company?.clientId!,
+  const { data: paymentInfo } = useGetClientPaymentInfo(
+    auth.getValue().company?.clientId!,
+    isAccountManager,
   )
-  const { data: fileList } = useGetClientPaymentFile(company?.clientId!)
+  const { data: billingAddress } = useGetClientBillingAddress(
+    auth.getValue().company?.clientId!,
+    isAccountManager,
+  )
+  const { data: fileList } = useGetClientPaymentFile(
+    auth.getValue().company?.clientId!,
+  )
 
   const [editInfo, setEditInfo] = useState(false)
   const [editAddress, setEditAddress] = useState(false)
@@ -105,13 +113,13 @@ export default function CompanyPaymentInfo() {
   const [fileSize, setFileSize] = useState(0)
 
   const isLSPReviewedPaymentMethod = useMemo(
-    () => !!paymentInfo?.length,
+    () => !!paymentInfo?.office,
     [paymentInfo],
   )
 
   const office: OfficeType | null = useMemo(() => {
-    if (!paymentInfo?.length) return null
-    return paymentInfo[0].office
+    if (!paymentInfo) return null
+    return paymentInfo?.office
   }, [paymentInfo])
 
   const {
@@ -157,7 +165,7 @@ export default function CompanyPaymentInfo() {
   }
 
   function onDeleteFile(file: FileItemType) {
-    if (file.id) {
+    if (file.id && auth.state === 'hasValue' && auth.getValue()) {
       openModal({
         type: 'deleteFile',
         children: (
@@ -167,7 +175,10 @@ export default function CompanyPaymentInfo() {
             subtitle={file.fileName}
             onClick={() => {
               closeModal('deleteFile')
-              deleteClientPaymentFile(company?.clientId!, file.id!)
+              deleteClientPaymentFile(
+                auth.getValue().company?.clientId!,
+                file.id!,
+              )
                 .then(() => {
                   toast.success('Success', {
                     position: 'bottom-left',
@@ -187,11 +198,19 @@ export default function CompanyPaymentInfo() {
   }
 
   function uploadFiles(files: File[]) {
-    if (files.length && company?.clientId) {
+    if (
+      files.length &&
+      auth.state === 'hasValue' &&
+      auth.getValue() &&
+      auth.getValue().company?.clientId
+    ) {
       const promiseArr = files.map(i => {
         const formData = new FormData()
         formData.append('file', i)
-        return uploadClientPaymentFile(company?.clientId, formData)
+        return uploadClientPaymentFile(
+          auth.getValue().company?.clientId!,
+          formData,
+        )
       })
 
       Promise.all(promiseArr)
@@ -271,10 +290,15 @@ export default function CompanyPaymentInfo() {
     paymentData: PaymentMethodUnionType,
     taxData: OfficeTaxType,
   ) {
-    if (!company?.clientId) return
-    const existData = paymentInfo?.find(info => info.office === office)
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue() &&
+      !auth.getValue().company?.clientId
+    )
+      return
+    const existData = paymentInfo
     let data = {
-      clientId: company.clientId,
+      clientId: auth.getValue().company?.clientId!,
       office,
       paymentMethod,
       paymentData,
@@ -376,7 +400,7 @@ export default function CompanyPaymentInfo() {
               ) : (
                 <PaymentMethodDetail
                   office={office}
-                  paymentInfo={paymentInfo}
+                  paymentInfo={paymentInfo!}
                 />
               )}
             </Card>
@@ -402,7 +426,7 @@ export default function CompanyPaymentInfo() {
                   <Box display='flex' flexDirection='column'>
                     <Typography variant='h6'>Notes from LSP</Typography>
                     <Typography variant='caption'>
-                      {formatFileSize(fileSize).toLowerCase()}/ 50 mb
+                      {formatFileSize(fileSize).toLowerCase()}/ 50 MB
                     </Typography>
                   </Box>
 
@@ -490,7 +514,7 @@ export default function CompanyPaymentInfo() {
                 office={office}
                 cancel={() => setEditInfo(false)}
                 onSave={onSavePaymentInfo}
-                paymentInfo={paymentInfo}
+                paymentInfo={paymentInfo!}
                 openDiscardModal={openDiscardModal}
               />
             </Card>

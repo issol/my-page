@@ -1,5 +1,6 @@
 import {
   getClient,
+  getJobInfo,
   getLangItems,
   getProjectInfo,
   getProjectTeam,
@@ -43,14 +44,14 @@ export const useGetOrderListInJob = (filter: OrderListFilterType) => {
 export const useGetOrderListCalendar = (
   year: number,
   month: number,
-  filter: OrderListFilterType,
+  filter: { mine: '0' | '1'; hideCompleted: '0' | '1' },
 ) => {
   return useQuery(
-    ['orderList', { type: 'calendar' }, filter],
-    () => {
-      return getOrderListCalendar(year, month, filter)
-    },
+    ['orderList', filter, year, month],
+    () => getOrderListCalendar(year, month, filter),
+
     {
+      staleTime: 60 * 1000,
       suspense: true,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
@@ -122,6 +123,18 @@ export const useGetVersionHistory = (id: number) => {
       staleTime: 60 * 1000, // 1
 
       suspense: true,
+    },
+  )
+}
+
+export const useGetJobInfo = (id: number) => {
+  return useQuery(
+    [`orderDetail`, { type: 'jobInfo' }, id],
+    () => getJobInfo(id),
+    {
+      staleTime: 60 * 1000, // 1
+
+      suspense: false,
     },
   )
 }

@@ -23,9 +23,9 @@ import { yupResolver } from '@hookform/resolvers/yup'
 // ** CleaveJS Imports
 import Cleave from 'cleave.js/react'
 import 'cleave.js/dist/addons/cleave-phone.us'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -46,6 +46,9 @@ import { ModalContext } from 'src/context/ModalContext'
 
 import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
 import { useAppSelector } from 'src/hooks/useRedux'
+import useAuth from '@src/hooks/useAuth'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -94,7 +97,8 @@ const PersonalInfoManager = () => {
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
   // ** Hooks
-  const auth = useAuth()
+  const auth = useRecoilValueLoadable(authState)
+  const setAuth = useAuth()
 
   function isInvalidPhoneNumber(str: string) {
     const regex = /^[0-9]+$/
@@ -102,7 +106,11 @@ const PersonalInfoManager = () => {
   }
 
   useEffect(() => {
-    if (auth.user?.firstName) {
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue() &&
+      auth.getValue().user?.firstName
+    ) {
       router.replace(`/`)
     }
   }, [auth])
@@ -125,14 +133,14 @@ const PersonalInfoManager = () => {
       updateManagerUserInfo({ ...data, company: 'GloZ' }),
     {
       onSuccess: () => {
-        getUserInfo(auth.user?.id!).then(res => {
-          /* @ts-ignore */
-          auth.updateUserInfo({
-            userId: auth?.user!.id,
-            email: auth?.user!.email,
-          })
-          router.push('/home')
+        const { userId, email, accessToken } = router.query
+        const accessTokenAsString: string = accessToken as string
+        setAuth.updateUserInfo({
+          userId: auth.getValue().user!.id,
+          email: auth.getValue().user!.email,
+          accessToken: accessTokenAsString,
         })
+        router.push('/home')
       },
       onError: () => {
         setModal(
@@ -175,7 +183,7 @@ const PersonalInfoManager = () => {
 
   const onSubmit = (data: ManagerInfo) => {
     const finalData: ManagerUserInfoType & { userId: number } = {
-      userId: auth.user?.id || 0,
+      userId: auth.getValue().user?.id || 0,
       firstName: data.firstName,
       middleName: data.middleName,
       lastName: data.lastName,
@@ -184,7 +192,7 @@ const PersonalInfoManager = () => {
         timezone: data.timezone,
         jobTitle: data.jobTitle,
         mobilePhone: data.mobilePhone,
-        telePhone: data.telePhone,
+        telephone: data.telephone,
         fax: data.fax,
       },
     }
@@ -355,7 +363,7 @@ const PersonalInfoManager = () => {
                           onChange={(e, v) => field.onChange(v)}
                           disableClearable
                           renderOption={(props, option) => (
-                            <Box component='li' {...props}>
+                            <Box component='li' {...props} key={uuidv4()}>
                               {option.label} ({option.code}) +{option.phone}
                             </Box>
                           )}
@@ -425,7 +433,7 @@ const PersonalInfoManager = () => {
                 <Box sx={{ display: 'flex', gap: '8px' }}>
                   <FormControl sx={{ mb: 2 }} fullWidth>
                     <Controller
-                      name='telePhone'
+                      name='telephone'
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
@@ -441,7 +449,7 @@ const PersonalInfoManager = () => {
                             onChange(e)
                           }}
                           inputProps={{ maxLength: 50 }}
-                          error={Boolean(errors.telePhone)}
+                          error={Boolean(errors.telephone)}
                           placeholder={
                             !watch('timezone').phone
                               ? `+ 1) 012 345 6789`
@@ -457,9 +465,9 @@ const PersonalInfoManager = () => {
                         />
                       )}
                     />
-                    {errors.telePhone && (
+                    {errors.telephone && (
                       <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.telePhone.message}
+                        {errors.telephone.message}
                       </FormHelperText>
                     )}
                   </FormControl>

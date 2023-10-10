@@ -52,8 +52,10 @@ import {
   editCommentOnPro,
   patchAppliedRole,
   patchTestStatus,
+  setCertifiedRole,
 } from 'src/apis/onboarding.api'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
 import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certify-role-modal'
 import ResumeTestModal from '@src/pages/components/pro-detail-modal/modal/resume-test-modal'
@@ -118,7 +120,7 @@ function ProDetailOverview() {
   const userId = isFetched && !isError ? userInfo!.userId : undefined
   // const { data: appliedRole } = useGetAppliedRole(userId!)
 
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   const [hideFailedTest, setHideFailedTest] = useState(false)
 
@@ -241,6 +243,17 @@ function ProDetailOverview() {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
         queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(`proId:${userId}`)
+      },
+    },
+  )
+
+  const addRoleMutation = useMutation(
+    (jobInfo: AddRolePayloadType[]) => setCertifiedRole(jobInfo),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(`proId:${userInfo?.userId}`)
       },
     },
   )
@@ -252,6 +265,7 @@ function ProDetailOverview() {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
         queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(`proId:${userId}`)
       },
     },
   )
@@ -261,6 +275,7 @@ function ProDetailOverview() {
     {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(`applied-role-${variables[0].userId}`)
+        queryClient.invalidateQueries(`proId:${userId}`)
       },
     },
   )
@@ -584,7 +599,7 @@ function ProDetailOverview() {
         // reviewerList={reviewerList!}
         // history={history!}
         type={type}
-        user={user!}
+        user={auth.getValue().user!}
       />,
     )
   }
@@ -615,6 +630,7 @@ function ProDetailOverview() {
   }
 
   const onClickAssignRole = (data: AddRoleType) => {
+    console.log("onClickAssignRole",data)
     setAssignRoleJobInfo(data)
     setAssignRoleModalOpen(true)
   }
@@ -623,7 +639,20 @@ function ProDetailOverview() {
   }
 
   const handelAssignRole = (jobInfo: AddRoleType) => {
-    // console.log(jobInfo)
+    const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
+      userId: userInfo!.userId,
+      userCompany: 'GloZ',
+      userEmail: userInfo!.email,
+      firstName: userInfo!.firstName,
+      middleName: userInfo!.middleName,
+      lastName: userInfo!.lastName,
+      jobType: value.jobType,
+      role: value.role,
+      source: value.source,
+      target: value.target,
+    }))
+
+    addRoleMutation.mutate(res)
   }
 
   const onCloseModal = (type: string) => {
@@ -1021,7 +1050,7 @@ function ProDetailOverview() {
                 <CommentsAboutPro
                   ability={ability}
                   userInfo={userInfo!}
-                  user={user!}
+                  user={auth.getValue().user!}
                   page={commentsProPage}
                   rowsPerPage={commentsProRowsPerPage}
                   handleChangePage={handleChangeCommentsProPage}

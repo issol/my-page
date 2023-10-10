@@ -139,9 +139,9 @@ export default function MyAccount({ user }: Props) {
                 </LabelContainer>
                 <LabelContainer>
                   <Typography fontWeight={600}>Password</Typography>
-                  {user?.fromSNS !== null ? (
+                  {user.fromSNS !== null ? (
                     <img
-                      src={`/images/logos/${user?.fromSNS?.toLowerCase()}.png`}
+                      src={`/images/logos/${user.fromSNS?.toLowerCase()}.png`}
                       alt='linked in'
                       width='24px'
                       height='24px'

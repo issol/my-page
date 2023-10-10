@@ -58,6 +58,7 @@ import { jobItemSchema } from '@src/types/schema/item.schema'
 import ViewPrices from './components/prices'
 import EditPrices from '@src/pages/orders/job-list/detail-view/components/prices/edit-prices'
 import { PriceUnitListType } from '@src/types/common/standard-price'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type Props = {
   id: number
@@ -81,6 +82,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
   const { data: jobInfo, isLoading } = useGetJobInfo(id, false)
   const { data: jobPrices } = useGetJobPrices(id, false)
   const { data: projectTeam } = useGetProjectTeam(jobInfo?.order.id!)
+  const { data: statusList } = useGetStatusList('Job')
 
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
@@ -137,7 +139,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
           source: jobPrices.source!,
           target: jobPrices.target!,
           priceId: jobPrices.priceId!,
-          detail: !jobPrices.datas.length ? [] : jobPrices.datas!,
+          detail: !jobPrices.detail?.length ? [] : jobPrices.detail!,
 
           totalPrice: Number(jobPrices?.totalPrice!),
         },
@@ -147,12 +149,15 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
       itemReset({ items: result })
     } else {
       appendItems({
-        name: '',
+        itemName: '',
         source: 'en',
         target: 'ko',
         priceId: null,
         detail: [],
         totalPrice: 0,
+        minimumPrice: null,
+        minimumPriceApplied: false,
+        priceFactor: 0,
       })
     }
   }, [jobPrices])
@@ -366,7 +371,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
                 <Fragment>
                   {renderEditButton()}
                   <Grid item xs={12}>
-                    {jobInfo && <ViewJobInfo row={jobInfo} />}
+                    {jobInfo && <ViewJobInfo row={jobInfo} jobStatusList={statusList!} />}
                   </Grid>
                 </Fragment>
               )}

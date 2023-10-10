@@ -22,7 +22,7 @@ import AddressesForm from '../components/forms/addresses-container'
 import ContactPersonForm from '../components/forms/contact-persons'
 import ClientPrices from '../components/forms/client-prices'
 import PriceActionModal from '@src/pages/components/standard-prices-modal/modal/price-action-modal'
-// import AddSavePriceModal from '@src/pages/components/client-prices-modal/dialog/add-save-price-modal'
+
 import AddSavePriceModal from '@src/pages/components/standard-prices-modal/dialog/add-save-price-modal'
 import NoPriceUnitModal from '@src/pages/components/standard-prices-modal/modal/no-price-unit-modal'
 import AddConfirmModal from '../components/modals/add-confirm-with-title-modal'
@@ -30,7 +30,7 @@ import AddNewLanguagePairModal from '@src/pages/components/client-prices-modal/d
 import SetPriceUnitModal from '@src/pages/components/client-prices-modal/dialog/set-price-unit-modal'
 
 // ** react hook form
-import { useForm, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** validation values & types
@@ -55,7 +55,6 @@ import {
   LanguagePairListType,
   PriceUnitListType,
   SetPriceUnitPair,
-  CatInterfaceParams,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
@@ -78,6 +77,9 @@ import {
 // ** third parties
 import { toast } from 'react-hot-toast'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
+import { useRecoilValueLoadable } from 'recoil'
+import { roleSelector } from '@src/states/permission'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type PriceListCopyRowType = Omit<
   StandardPriceListType,
@@ -90,7 +92,7 @@ type PriceListCopyRowType = Omit<
 export default function AddNewClient() {
   const router = useRouter()
 
-  const { role, isLoading } = useAppSelector(state => state.userAccess)
+  const role = useRecoilValueLoadable(roleSelector)
   const [isGeneral, setIsGeneral] = useState(true)
 
   const { openModal, closeModal } = useModal()
@@ -98,25 +100,12 @@ export default function AddNewClient() {
 
   // ** confirm page leaving
 
-  // router.beforePopState(() => {
-  //   openModal({
-  //     type: 'alert-modal',
-  //     children: (
-  //       <PageLeaveModal
-  //         onClose={() => closeModal('alert-modal')}
-  //         onClick={() => router.push('/client')}
-  //       />
-  //     ),
-  //   })
-  //   return false
-  // })
-
   const generalSteps = [
     {
       title: 'Company info',
     },
     {
-      title: 'AddressesForm',
+      title: 'Addresses',
     },
     {
       title: 'Contact person',
@@ -128,9 +117,10 @@ export default function AddNewClient() {
   })
 
   useEffect(() => {
-    if (role.length) {
+    if (role.state === 'hasValue' && role.getValue().length) {
       const isGeneral =
-        role.filter(item => item.name === 'LPM')[0]?.type === 'General'
+        role.getValue().filter(item => item.name === 'LPM')[0]?.type ===
+        'General'
       setIsGeneral(isGeneral)
     }
   }, [role])
@@ -504,18 +494,21 @@ export default function AddNewClient() {
       clientAddresses: address,
       ...getContactPersonValues()!,
     }
-
     openModal({
       type: 'create-client',
       children: (
-        <AddConfirmModal
-          message='Are you sure you want to add this client?'
-          title={getCompanyInfoValues().name}
+        <CustomModal
+          title={'Are you sure you want to add this client?'}
+          subtitle={getCompanyInfoValues().name}
+          onClose={() => closeModal('create-client')}
+          leftButtonText='Cancel'
+          rightButtonText='Add'
+          vary='successful'
           onClick={() => {
             setIsWarn(false)
             createClientMutation.mutate(data)
+            closeModal('create-client')
           }}
-          onClose={() => closeModal('create-client')}
         />
       ),
     })

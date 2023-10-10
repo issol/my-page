@@ -46,14 +46,15 @@ import styled from 'styled-components'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** form
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** fetches
-import { useGetJobPostingDetail } from '@src/queries/jobPosting.query'
+import { useGetJobPostingDetail } from '@src/queries/jobs/jobPosting.query'
 import {
   FormType,
   updateJobPosting,
@@ -80,7 +81,7 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 export default function JobPostingEdit() {
   const router = useRouter()
@@ -89,7 +90,7 @@ export default function JobPostingEdit() {
   const languageList = getGloLanguage()
 
   // ** contexts
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
   const { data, refetch, isSuccess, isError } = useGetJobPostingDetail(
@@ -142,8 +143,17 @@ export default function JobPostingEdit() {
         { code: '', label: '', phone: '' },
         setValueOptions,
       )
-    } else if (currDueDate && !watch('dueDateTimezone')?.code) {
-      setValue('dueDateTimezone', user?.timezone, setValueOptions)
+    } else if (
+      currDueDate &&
+      !watch('dueDateTimezone')?.code &&
+      auth.state === 'hasValue' &&
+      auth.getValue().user
+    ) {
+      setValue(
+        'dueDateTimezone',
+        auth.getValue().user?.timezone,
+        setValueOptions,
+      )
     }
   }, [currDueDate])
 
@@ -346,9 +356,9 @@ export default function JobPostingEdit() {
 
   return (
     <>
-      {!data ? (
+      {!data || auth.state === 'loading' ? (
         <FallbackSpinner />
-      ) : isError ? (
+      ) : isError || auth.state === 'hasError' ? (
         <EmptyPost />
       ) : (
         <DatePickerWrapper>
@@ -385,14 +395,16 @@ export default function JobPostingEdit() {
                           sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                           color='primary'
                         >
-                          {user?.username}
+                          {auth.getValue().user?.username}
                         </Typography>
                         <Divider
                           orientation='vertical'
                           variant='middle'
                           flexItem
                         />
-                        <Typography variant='body2'>{user?.email}</Typography>
+                        <Typography variant='body2'>
+                          {auth.getValue().user?.email}
+                        </Typography>
                       </Box>
                     </Box>
                     <Grid container spacing={6} mb='20px'>
@@ -690,8 +702,8 @@ export default function JobPostingEdit() {
                               onChange={(e, v) => onChange(v)}
                               disableClearable
                               renderOption={(props, option) => (
-                                <Box component='li' {...props}>
-                                  {getGmtTime(option.code)}
+                                <Box component='li' {...props} key={uuidv4()}>
+                                  {getGmtTimeEng(option.code)}
                                 </Box>
                               )}
                               renderInput={params => (

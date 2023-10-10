@@ -19,7 +19,8 @@ import styled from 'styled-components'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** hooks
 import { useRouter } from 'next/router'
@@ -56,6 +57,8 @@ import {
 } from '@src/apis/invoice/payable.api'
 
 import { toast } from 'react-hot-toast'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type MenuType = 'info' | 'history'
 
@@ -64,7 +67,7 @@ export default function PayableDetail() {
   const router = useRouter()
   const { id } = router.query
 
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
 
   const queryClient = useQueryClient()
@@ -108,24 +111,25 @@ export default function PayableDetail() {
   )
 
   function onConfirmInvoice() {
-    openModal({
-      type: 'confirm',
-      children: (
-        <CustomModal
-          vary='successful'
-          title='Are you sure you want to confirm the invoice? It will be notified to Pro as well.'
-          rightButtonText='Confirm'
-          onClose={() => closeModal('confirm')}
-          onClick={() => {
-            updateMutation.mutate({
-              invoiceConfirmedAt: Date(),
-              invoiceConfirmTimezone: user?.timezone!,
-            })
-            closeModal('confirm')
-          }}
-        />
-      ),
-    })
+    if (auth.state === 'hasValue' && auth.getValue().user)
+      openModal({
+        type: 'confirm',
+        children: (
+          <CustomModal
+            vary='successful'
+            title='Are you sure you want to confirm the invoice? It will be notified to Pro as well.'
+            rightButtonText='Confirm'
+            onClose={() => closeModal('confirm')}
+            onClick={() => {
+              updateMutation.mutate({
+                invoiceConfirmedAt: Date(),
+                invoiceConfirmTimezone: auth.getValue().user?.timezone!,
+              })
+              closeModal('confirm')
+            }}
+          />
+        ),
+      })
   }
 
   // ** Download pdf
@@ -166,7 +170,12 @@ export default function PayableDetail() {
 
   /* Open pdf download modal */
   useEffect(() => {
-    if (invoicePayable.isReady && invoicePayable.invoicePayableData) {
+    if (
+      invoicePayable.isReady &&
+      invoicePayable.invoicePayableData &&
+      auth.state === 'hasValue' &&
+      auth.getValue().user
+    ) {
       openModal({
         type: 'PreviewModal',
         isCloseable: false,
@@ -185,7 +194,7 @@ export default function PayableDetail() {
               <PrintInvoicePayablePreview
                 data={invoicePayable.invoicePayableData}
                 type='preview'
-                user={user!}
+                user={auth.getValue().user!}
                 lang={invoicePayable.lang}
               />
             </div>
@@ -240,16 +249,17 @@ export default function PayableDetail() {
         companyAddress:
           lang === 'EN'
             ? '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010'
-            : '서울특별시 강남구 영동대로 106길 11, 3층(삼성동, 현성빌딩)',
+            : '서울특별시 금천구 가산디지털1로 204, 903호 (가산 반도아이비밸리) 08502',
         corporationId: data.corporationId,
         invoicedAt: data.invoicedAt,
         payDueAt: data.payDueAt,
         payDueTimezone: data.payDueTimezone,
         paidAt: data.paidAt,
         paidDateTimezone: data.paidDateTimezone,
-        pro: { ...data.pro },
+        pro: data.pro,
+
         jobList: jobList?.data || [],
-        subTotal: data.subtotal,
+        subtotal: data.subtotal,
         tax: data.tax,
         totalPrice: data.totalPrice,
         taxRate: data.taxRate,

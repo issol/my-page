@@ -20,12 +20,14 @@ import { useGetClientList } from '@src/queries/client.query'
 // ** NextJs
 import { useRouter } from 'next/router'
 import OrderList from './components/order-list'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type MenuType = 'list' | 'tracker'
 
 export default function JobList() {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
+  const { data: statusList } = useGetStatusList('Job')
 
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('list')
@@ -91,6 +93,7 @@ export default function JobList() {
         <JobListView
           clients={clients?.data || []}
           onCreateNewJob={onCreateNewJob}
+          statusList={statusList!}
         />
       ) : (
         <JobTrackerView

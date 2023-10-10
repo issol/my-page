@@ -13,8 +13,8 @@ import {
 } from '@mui/material'
 
 // ** components
-import { ModalContainer } from '@src/@core/components/modal'
 
+import { v4 as uuidv4 } from 'uuid'
 // ** helper
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 
@@ -38,21 +38,25 @@ import {
 // ** Data
 import { countries } from 'src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 type Props<T extends number | string = number> = {
   fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
   control: Control<ClientContactPersonType<T>, any>
   errors: FieldErrors<ClientContactPersonType<T>>
   watch: UseFormWatch<ClientContactPersonType<T>>
+  index?: number
 }
 
 // ** TAD가 직접 contact person을 등록하는 경우에 사용되는 schema
 export default function AddContactPersonForm<
   T extends number | string = number,
 >(props: Props<T>) {
-  const { fields, control, errors, watch } = props
+  const { fields, control, errors, watch, index } = props
 
   const personType: Array<PersonType> = ['Mr.', 'Ms.']
+
+  const fieldIndex = index ? index : 0
 
   function renderErrorMsg(idx: number, key: keyof ContactPersonType) {
     if (errors?.contactPersons?.length) {
@@ -128,7 +132,6 @@ export default function AddContactPersonForm<
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              autoFocus
               label={label}
               variant='outlined'
               value={value ?? ''}
@@ -160,12 +163,12 @@ export default function AddContactPersonForm<
 
   return (
     <Fragment>
-      {fields.length
-        ? fields.map((item, idx) => (
+      {fields.length && fields[0] !== undefined
+        ? fields.map((item) => (
             <Fragment key={item.id}>
               <Grid item xs={12}>
                 <Controller
-                  name={`contactPersons.${idx}.personType`}
+                  name={`contactPersons.${fieldIndex}.personType`}
                   control={control}
                   render={({ field: { value, onChange } }) => {
                     return (
@@ -179,17 +182,17 @@ export default function AddContactPersonForm<
                 />
               </Grid>
               <Grid item xs={4}>
-                {renderTextFieldForm(idx, 'firstName', 'First name*', 50)}
+                {renderTextFieldForm(fieldIndex, 'firstName', 'First name*', 50)}
               </Grid>
               <Grid item xs={4}>
-                {renderTextFieldForm(idx, 'middleName', 'Middle name', 50)}
+                {renderTextFieldForm(fieldIndex, 'middleName', 'Middle name', 50)}
               </Grid>
               <Grid item xs={4}>
-                {renderTextFieldForm(idx, 'lastName', 'Last name*', 50)}
+                {renderTextFieldForm(fieldIndex, 'lastName', 'Last name*', 50)}
               </Grid>
               <Grid item xs={6}>
                 {renderTextFieldForm(
-                  idx,
+                  fieldIndex,
                   'department',
                   'Department',
                   50,
@@ -198,7 +201,7 @@ export default function AddContactPersonForm<
               </Grid>
               <Grid item xs={6}>
                 {renderTextFieldForm(
-                  idx,
+                  fieldIndex,
                   'jobTitle',
                   'Job title',
                   50,
@@ -210,19 +213,30 @@ export default function AddContactPersonForm<
               </Grid>
               <Grid item xs={6}>
                 <Controller
-                  name={`contactPersons.${idx}.timezone`}
+                  name={`contactPersons.${fieldIndex}.timezone`}
                   control={control}
-                  render={({ field }) => (
+                  render={({ field: { value, onChange } }) => (
                     <Autocomplete
-                      autoHighlight
                       fullWidth
-                      {...field}
+                      value={value ?? undefined}
                       options={countries as CountryType[]}
-                      onChange={(e, v) => field.onChange(v)}
-                      disableClearable
+                      onChange={(e, v) => {
+                        if (v) {
+                          onChange(v)
+                        } else {
+                          onChange(undefined)
+                        }
+                      }}
+                      getOptionLabel={option => {
+                        if (typeof option !== 'string') {
+                          return getGmtTimeEng(option.code) ?? ''
+                        } else {
+                          return ''
+                        }
+                      }}
                       renderOption={(props, option) => (
-                        <Box component='li' {...props}>
-                          {option.label} ({option.code}) +{option.phone}
+                        <Box component='li' {...props} key={uuidv4()}>
+                          {getGmtTimeEng(option.code)}
                         </Box>
                       )}
                       renderInput={params => (
@@ -230,7 +244,7 @@ export default function AddContactPersonForm<
                           {...params}
                           label='Time zone*'
                           error={Boolean(
-                            errors?.contactPersons?.[idx]?.timezone,
+                            errors.contactPersons?.[fieldIndex]?.timezone,
                           )}
                           inputProps={{
                             ...params.inputProps,
@@ -240,20 +254,26 @@ export default function AddContactPersonForm<
                     />
                   )}
                 />
-                {renderErrorMsg(idx, 'timezone')}
+                {renderErrorMsg(fieldIndex, 'timezone')}
               </Grid>
               <Grid item xs={6}>
-                {renderPhoneField(idx, 'phone', 'Telephone')}
+                {renderPhoneField(fieldIndex, 'phone', 'Telephone')}
               </Grid>
               <Grid item xs={6}>
-                {renderPhoneField(idx, 'mobile', 'Mobile phone')}
+                {renderPhoneField(fieldIndex, 'mobile', 'Mobile phone')}
               </Grid>
               <Grid item xs={6}>
-                {renderPhoneField(idx, 'fax', 'Fax')}
+                {renderPhoneField(fieldIndex, 'fax', 'Fax')}
               </Grid>
 
               <Grid item xs={12}>
-                {renderTextFieldForm(idx, 'email', 'Email*', 100)}
+                {renderTextFieldForm(
+                  fieldIndex,
+                  'email',
+                  'Email*',
+                  100,
+                  'username@example.com',
+                )}
               </Grid>
               <Grid item xs={12}>
                 <Divider />
@@ -263,7 +283,7 @@ export default function AddContactPersonForm<
                   Memo for contact person
                 </Typography>
                 <Controller
-                  name={`contactPersons.${idx}.memo`}
+                  name={`contactPersons.${fieldIndex}.memo`}
                   control={control}
                   render={({ field: { value, onChange } }) => (
                     <>
@@ -271,7 +291,7 @@ export default function AddContactPersonForm<
                         rows={4}
                         multiline
                         fullWidth
-                        placeholder='Write down some information to keep in mind about this contact person'
+                        placeholder='Write down some information to keep in mind about this contact person.'
                         value={value ?? ''}
                         onChange={onChange}
                         inputProps={{ maxLength: 500 }}

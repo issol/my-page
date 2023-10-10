@@ -57,7 +57,7 @@ function getColor(status: QuoteStatusType) {
     ? '#666CFF'
     : status === 'In preparation'
     ? `#F572D8`
-    : status === 'Internal Review'
+    : status === 'Internal review'
     ? `#20B6E5`
     : status === 'Client review'
     ? `#FDB528`
@@ -153,7 +153,7 @@ export const createItemsForQuotes = async (
 ): Promise<any> => {
   try {
     const { data } = await axios.post(
-      `/api/enough/u/order/item?orderId=${orderId}`,
+      `/api/enough/u/quote/item?quoteId=${orderId}`,
       { items: form },
     )
     return data
@@ -195,6 +195,7 @@ export const getClient = async (id: number): Promise<ClientType> => {
       },
       contactPerson: null,
       clientAddress: [],
+      isEnrolledClient: false,
     }
   }
 }
@@ -209,9 +210,11 @@ export const getLangItems = async (
       items: data.items.map((item: ItemResType) => ({
         ...item,
         name: item?.name,
+        itemName: item?.name,
         source: item?.sourceLanguage,
         target: item?.targetLanguage,
         totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+        initialPrice: item.initialPrice,
       })),
     }
   } catch (e: any) {
@@ -266,9 +269,13 @@ export const patchQuoteProjectInfo = async (
     | { tax: null | number; isTaxable: boolean }
     | { status: number; reason: CancelReasonType }
     | { downloadedAt: string }
-    | { isConfirmed: boolean },
+    | { isConfirmed: boolean }
+    | { languagePairs: Array<LanguagePairsType> }
+    | { items: Array<PostItemType> }
+    | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> },
 ) => {
-  await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
+  const { data } = await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
+  return data
 }
 
 export const patchQuoteLanguagePairs = async (
@@ -295,6 +302,15 @@ export const patchQuoteItems = async (
       `/api/enough/u/quote/item?quoteId=${id}`,
       { items: form },
     )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const confirmQuote = async (id: number) => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/quote/${id}/confirm`)
     return data
   } catch (e: any) {
     throw new Error(e)

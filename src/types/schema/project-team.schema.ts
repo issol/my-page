@@ -6,7 +6,7 @@ export type ProjectTeamType = {
   teams: Array<{
     type: MemberType
     id: number | null
-    name: string
+    name?: string
   }>
 }
 

@@ -84,7 +84,7 @@ export default function CATInterfaceChipDuplicationModal({
               onClose()
             }}
           >
-            Okey
+            Okay
           </Button>
         </Box>
       </DialogContent>

@@ -12,12 +12,14 @@ type Props = {
 
   mdAbove: boolean
   leftSidebarWidth: number
+  title: string
 }
 export default function CalendarStatusSideBar({
   alertIconStatus,
   status,
   mdAbove,
   leftSidebarWidth,
+  title,
 }: Props) {
   return (
     <Drawer
@@ -43,6 +45,14 @@ export default function CalendarStatusSideBar({
         },
       }}
     >
+      {title === 'Project' ? null : (
+        <Box sx={{ paddingTop: '12px', paddingBottom: '10px' }}>
+          <Typography variant='body2' fontWeight={600}>
+            {title} status
+          </Typography>
+        </Box>
+      )}
+
       {status.length
         ? status?.map(
             (item: {

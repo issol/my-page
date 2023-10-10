@@ -14,12 +14,13 @@ import { OrderDownloadData } from '@src/types/orders/order-detail'
 import BlankLayout from '@src/@core/layouts/BlankLayout'
 import Error404 from '@src/pages/404'
 import { Box } from '@mui/material'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const OrderPrint = () => {
   const order = useAppSelector(state => state.order.orderTotalData)
   const lang = useAppSelector(state => state.order.lang)
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   if (!order) {
     return <Error404 />
   } else {
@@ -28,7 +29,7 @@ const OrderPrint = () => {
         <PrintOrderPage
           data={order!}
           type='download'
-          user={user!}
+          user={auth.getValue().user!}
           lang={lang}
         />
       </div>

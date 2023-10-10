@@ -78,7 +78,7 @@ export const Default = ({
     mode: 'onChange',
     resolver: yupResolver(clientSchema),
   })
-  const [tax, setTax] = useState(0)
+
   const [taxable, setTaxable] = useState(false)
   const [clientList, setClientList] = useState<
     {
@@ -91,11 +91,12 @@ export const Default = ({
       control={control}
       setValue={setValue}
       watch={watch}
-      setTax={setTax}
       clientList={clientList}
       setTaxable={setTaxable}
       type={type}
       formType='create'
+      getValue={getValues}
+      fromQuote={false}
     />
   )
 }

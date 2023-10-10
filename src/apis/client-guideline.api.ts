@@ -19,6 +19,7 @@ export const getGuidelines = async (
       }>
     | []
   count: number
+  totalCount: number
 }> => {
   try {
     const { data } = await axios.get(
@@ -29,6 +30,7 @@ export const getGuidelines = async (
     return {
       data: [],
       count: 0,
+      totalCount: 0,
     }
   }
 }

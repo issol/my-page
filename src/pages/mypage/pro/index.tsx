@@ -10,9 +10,10 @@ import { Grid } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
 // ** nextJS
-import { useRouter } from 'next/router'
-import { Suspense, useContext, useState } from 'react'
-import { AuthContext } from '@src/context/AuthContext'
+
+import { Suspense, useState } from 'react'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** components
 import Header from '../components/header'
@@ -26,14 +27,12 @@ import { useGetMyOverview } from '@src/queries/pro/pro-details.query'
 
 type MenuType = 'overview' | 'paymentInfo' | 'myAccount'
 export default function ProMyPage() {
-  const router = useRouter()
-
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const {
     data: userInfo,
     isError,
     isFetched,
-  } = useGetMyOverview(Number(user?.userId!))
+  } = useGetMyOverview(Number(auth.getValue().user?.userId!))
 
   const [value, setValue] = useState<MenuType>('overview')
 
@@ -42,57 +41,66 @@ export default function ProMyPage() {
   }
 
   return (
-    <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <Header userInfo={userInfo!} />
-      </Grid>
-      <Grid item xs={12}>
-        <TabContext value={value}>
-          <TabList
-            onChange={handleChange}
-            aria-label='Pro detail Tab menu'
-            style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
-          >
-            <CustomTap
-              value='overview'
-              label='Overview'
-              iconPosition='start'
-              icon={<Icon icon='material-symbols:person-outline' />}
-              onClick={e => e.preventDefault()}
-            />
-            <CustomTap
-              value='paymentInfo'
-              label='Payment info'
-              iconPosition='start'
-              icon={<Icon icon='carbon:currency-dollar' />}
-              onClick={e => e.preventDefault()}
-            />
-            <CustomTap
-              value='myAccount'
-              label='My account'
-              iconPosition='start'
-              icon={<Icon icon='material-symbols:security' />}
-              onClick={e => e.preventDefault()}
-            />
-          </TabList>
-          <TabPanel value='overview'>
-            <Suspense fallback={<FallbackSpinner />}>
-              <MyPageOverview userInfo={userInfo!} user={user!} />
-            </Suspense>
-          </TabPanel>
-          <TabPanel value='paymentInfo'>
-            <Suspense fallback={<FallbackSpinner />}>
-              <ProPaymentInfo user={user!} />
-            </Suspense>
-          </TabPanel>
-          <TabPanel value='myAccount'>
-            <Suspense fallback={<FallbackSpinner />}>
-              <MyAccount user={user!} />
-            </Suspense>
-          </TabPanel>
-        </TabContext>
-      </Grid>
-    </Grid>
+    <>
+      {auth.state === 'loading' ? (
+        <FallbackSpinner />
+      ) : auth.state === 'hasValue' ? (
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
+            <Header userInfo={userInfo!} />
+          </Grid>
+          <Grid item xs={12}>
+            <TabContext value={value}>
+              <TabList
+                onChange={handleChange}
+                aria-label='Pro detail Tab menu'
+                style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
+              >
+                <CustomTap
+                  value='overview'
+                  label='Overview'
+                  iconPosition='start'
+                  icon={<Icon icon='material-symbols:person-outline' />}
+                  onClick={e => e.preventDefault()}
+                />
+                <CustomTap
+                  value='paymentInfo'
+                  label='Payment info'
+                  iconPosition='start'
+                  icon={<Icon icon='carbon:currency-dollar' />}
+                  onClick={e => e.preventDefault()}
+                />
+                <CustomTap
+                  value='myAccount'
+                  label='My account'
+                  iconPosition='start'
+                  icon={<Icon icon='material-symbols:security' />}
+                  onClick={e => e.preventDefault()}
+                />
+              </TabList>
+              <TabPanel value='overview'>
+                <Suspense fallback={<FallbackSpinner />}>
+                  <MyPageOverview
+                    userInfo={userInfo!}
+                    user={auth.getValue().user!}
+                  />
+                </Suspense>
+              </TabPanel>
+              <TabPanel value='paymentInfo'>
+                <Suspense fallback={<FallbackSpinner />}>
+                  <ProPaymentInfo user={auth.getValue().user!} />
+                </Suspense>
+              </TabPanel>
+              <TabPanel value='myAccount'>
+                <Suspense fallback={<FallbackSpinner />}>
+                  <MyAccount user={auth.getValue().user!} />
+                </Suspense>
+              </TabPanel>
+            </TabContext>
+          </Grid>
+        </Grid>
+      ) : null}
+    </>
   )
 }
 

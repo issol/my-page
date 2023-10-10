@@ -59,6 +59,7 @@ type Props = {
   onSave?: (data: {
     id: number
     form: InvoiceReceivablePatchParamsType
+    type: 'basic' | 'accounting'
   }) => void
   isUpdatable: boolean
 }
@@ -138,7 +139,10 @@ const InvoiceProjectTeam = ({
           projectManagerId: teams.projectManagerId,
           supervisorId: teams.supervisorId!,
           members: teams.member,
+
+          showDescription: data.showDescription ? '1' : '0',
         },
+        type: 'basic',
       })
     }
   }
@@ -155,6 +159,7 @@ const InvoiceProjectTeam = ({
               remove={removeMember!}
               update={updateMember!}
               setValue={setTeamValues!}
+              getValue={getTeamValues!}
               errors={teamErrors!}
               isValid={isTeamValid!}
               watch={teamWatch!}

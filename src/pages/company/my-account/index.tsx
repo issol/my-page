@@ -1,6 +1,6 @@
 import { Box, Button, Card, Typography, styled } from '@mui/material'
 import { MemberChip, PermissionChip } from '@src/@core/components/chips/chips'
-import { AuthContext } from '@src/context/AuthContext'
+
 import { RoleType } from '@src/context/types'
 import { useAppSelector } from '@src/hooks/useRedux'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -20,11 +20,17 @@ import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import { useMutation } from 'react-query'
 import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
-import { useAuth } from '@src/hooks/useAuth'
+import useAuth from '@src/hooks/useAuth'
 import { useGetProfile } from '@src/queries/userInfo/userInfo-query'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import { roleState } from '@src/states/permission'
+import { useRouter } from 'next/router'
 
 const MyAccount = () => {
+  const router = useRouter()
   const auth = useAuth()
+  const setAuth = useAuth()
   const [contractsEdit, setContractsEdit] = useState(false)
 
   function getProfileImg(role: RoleType) {
@@ -33,9 +39,11 @@ const MyAccount = () => {
 
   const { openModal, closeModal } = useModal()
 
-  const { user } = useContext(AuthContext)
-  const { data: userInfo, refetch } = useGetProfile(user?.id! ?? 0)
-  const role = useAppSelector(state => state.userAccess.role)
+  const userAuth = useRecoilValueLoadable(authState)
+  const { data: userInfo, refetch } = useGetProfile(
+    userAuth.getValue().user?.id! ?? 0,
+  )
+  const role = useRecoilValueLoadable(roleState)
 
   const saveUserInfoMutation = useMutation(
     (data: ManagerUserInfoType & { userId: number }) =>
@@ -45,10 +53,13 @@ const MyAccount = () => {
         setContractsEdit(false)
         closeModal('SaveMyAccountModal')
         refetch()
+        const { userId, email, accessToken } = router.query
+        const accessTokenAsString: string = accessToken as string
         /* @ts-ignore */
-        auth.updateUserInfo({
+        setAuth.updateUserInfo({
           userId: Number(userInfo?.id),
           email: userInfo?.email!,
+          accessToken: accessTokenAsString,
         })
       },
     },
@@ -73,7 +84,7 @@ const MyAccount = () => {
         lastName: userInfo.lastName,
         middleName: userInfo.middleName,
         email: userInfo.email,
-        telePhone: userInfo.telePhone,
+        telephone: userInfo.telephone,
         department: userInfo.department,
         jobTitle: userInfo.jobTitle,
         fax: userInfo.fax,
@@ -96,7 +107,7 @@ const MyAccount = () => {
         timezone: data.timezone,
         jobTitle: data.jobTitle,
         mobilePhone: data.mobilePhone,
-        telePhone: data.telePhone,
+        telephone: data.telephone,
         department: data.department,
         fax: data.fax,
       },
@@ -171,16 +182,18 @@ const MyAccount = () => {
                       middleName: userInfo?.middleName,
                     })}
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: '8px' }}>
-                    {role.map(value => {
-                      return (
-                        <Fragment key={uuidv4()}>
-                          {MemberChip(value.name)}
-                        </Fragment>
-                      )
-                    })}
-                    {PermissionChip(role[0]?.type)}
-                  </Box>
+                  {role.state === 'hasValue' && role.getValue() && (
+                    <Box sx={{ display: 'flex', gap: '8px' }}>
+                      {role.getValue().map(value => {
+                        return (
+                          <Fragment key={uuidv4()}>
+                            {MemberChip(value.name)}
+                          </Fragment>
+                        )
+                      })}
+                      {PermissionChip(role.getValue()[0]?.type)}
+                    </Box>
+                  )}
                 </Box>
 
                 <Box

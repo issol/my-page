@@ -33,7 +33,8 @@ import Icon from 'src/@core/components/icon'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** helpers
 import {
@@ -41,7 +42,7 @@ import {
   FullDateTimezoneHelper,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
-import { getGmtTime } from 'src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -100,7 +101,7 @@ const RecruitingDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
 
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
     id,
@@ -210,7 +211,10 @@ const RecruitingDetail = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(row.createdAt, user?.timezone!)}
+            {FullDateTimezoneHelper(
+              row.createdAt,
+              auth.getValue().user?.timezone!,
+            )}
           </Box>
         )
       },
@@ -321,7 +325,7 @@ const RecruitingDetail = () => {
                   style={{ cursor: 'pointer' }}
                   onClick={() => router.push('/recruiting')}
                 />
-                <Typography variant='h5'>Recruiting info</Typography>
+                <Typography variant='h5'>Recruiting Request</Typography>
               </Box>
             }
           />
@@ -348,7 +352,9 @@ const RecruitingDetail = () => {
                       <Typography
                         sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                         color={`${
-                          user?.email === currentVersion?.email ? 'primary' : ''
+                          auth.getValue().user?.email === currentVersion?.email
+                            ? 'primary'
+                            : ''
                         }`}
                       >
                         {currentVersion?.writer}
@@ -365,7 +371,7 @@ const RecruitingDetail = () => {
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
                       {FullDateTimezoneHelper(
                         currentVersion?.createdAt,
-                        user?.timezone!,
+                        auth.getValue().user?.timezone!,
                       )}
                     </Typography>
                   </Box>
@@ -404,7 +410,7 @@ const RecruitingDetail = () => {
                         ? convertDateByTimezone(
                             currentVersion?.dueDate,
                             currentVersion?.dueDateTimezone!,
-                            user?.timezone?.code!,
+                            auth.getValue().user?.timezone?.code!,
                           )
                         : '',
                     )}
@@ -416,7 +422,7 @@ const RecruitingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTime(user?.timezone?.code),
+                      getGmtTimeEng(auth.getValue().user?.timezone?.code),
                     )}
                   </Grid>
                 </Grid>
@@ -449,47 +455,49 @@ const RecruitingDetail = () => {
             </Grid>
             <Grid item md={3} xs={12}>
               <Card>
-                {isWriter || isMaster ? (<Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
-                >
-                  {isWriter && (
-                    <Button
-                      variant='outlined'
-                      color='secondary'
-                      startIcon={<Icon icon='clarity:eye-hide-line' />}
-                      onClick={onHide}
-                    >
-                      {currentVersion?.isHide ? 'Re-post' : 'Hide'}
-                    </Button>
-                  )}
-                  {isMaster && (
-                    <Button
-                      variant='outlined'
-                      color='secondary'
-                      startIcon={<Icon icon='mdi:delete-outline' />}
-                      onClick={onDelete}
-                    >
-                      Delete
-                    </Button>
-                  )}
+                {isWriter || isMaster ? (
+                  <Box
+                    sx={{
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    {isWriter && (
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='clarity:eye-hide-line' />}
+                        onClick={onHide}
+                      >
+                        {currentVersion?.isHide ? 'Re-post' : 'Hide'}
+                      </Button>
+                    )}
+                    {isMaster && (
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='mdi:delete-outline' />}
+                        onClick={onDelete}
+                      >
+                        Delete
+                      </Button>
+                    )}
 
-                  {isMaster || isWriter ? (
-                    <Button
-                      variant='contained'
-                      startIcon={<Icon icon='mdi:pencil-outline' />}
-                      onClick={onEdit}
-                    >
-                      Edit
-                    </Button>
-                  ) : (
-                    ''
-                  )}
-                </Box>) : null}
+                    {isMaster || isWriter ? (
+                      <Button
+                        variant='contained'
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                        onClick={onEdit}
+                      >
+                        Edit
+                      </Button>
+                    ) : (
+                      ''
+                    )}
+                  </Box>
+                ) : null}
               </Card>
             </Grid>
           </Grid>
@@ -547,7 +555,7 @@ const RecruitingDetail = () => {
                           >
                             {FullDateTimezoneHelper(
                               new Date(),
-                              user?.timezone!,
+                              auth.getValue().user?.timezone!,
                             )}
                           </Typography>
                         </Box>
@@ -589,7 +597,7 @@ const RecruitingDetail = () => {
                               ? convertDateByTimezone(
                                   currentRow?.dueDate,
                                   currentRow?.dueDateTimezone!,
-                                  user?.timezone?.code!,
+                                  auth.getValue().user?.timezone?.code!,
                                 )
                               : '',
                           )}
@@ -601,7 +609,7 @@ const RecruitingDetail = () => {
                           )}
                           {renderTable(
                             'Due date timezone',
-                            getGmtTime(user?.timezone?.code),
+                            getGmtTimeEng(auth.getValue().user?.timezone?.code),
                           )}
                         </Grid>
                       </Grid>

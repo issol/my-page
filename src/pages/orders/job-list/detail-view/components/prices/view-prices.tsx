@@ -166,7 +166,7 @@ const ViewPrices = ({
                 Price
               </Typography>
               <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                {fields[0].name}
+                {fields[0].initialPrice?.name}
               </Typography>
             </Box>
           </Box>
@@ -177,6 +177,7 @@ const ViewPrices = ({
             itemControl={itemControl}
             showMinimum={showMinimum}
             setItem={setItem}
+            itemTrigger={itemTrigger}
             setShowMinimum={setShowMinimum}
             openModal={openModal}
             closeModal={closeModal}

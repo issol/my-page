@@ -1,7 +1,8 @@
-import { JobStatusType } from '../jobs/common.type'
-import { JobPricesDetailType } from '../jobs/jobs.type'
+import { ProJobStatusType } from '../jobs/common.type'
+import { JobPricesDetailType, JobStatusType } from '../jobs/jobs.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
+import { PriceType, PriceUnitType } from './orders-and-quotes.type'
 import { CurrencyType } from './standard-price'
 import { MemSourceType, MemoQType } from './tm-analysis.type'
 
@@ -13,6 +14,10 @@ export type ItemType = Omit<
   showItemDescription?: boolean
 } & {
   contactPerson?: ContactPersonType | null
+  initialPrice?: PriceType | null
+  minimumPrice: number | null
+  minimumPriceApplied: boolean
+  priceFactor: number
 }
 
 export type AnalysisFileType = {
@@ -23,7 +28,7 @@ export type AnalysisFileType = {
 }
 export type PostItemType = {
   id?: number
-  name: string
+  itemName: string | null
   dueAt?: string
   contactPersonId?: number
   source: string
@@ -45,6 +50,9 @@ export type ItemDetailType = {
   unit: string
   currency: CurrencyType
   priceFactor?: string | null
+  initialPriceUnit?: PriceUnitType
+  title?: string
+  weighting?: string | number | undefined
 }
 
 export type JobItemType = {
@@ -61,7 +69,7 @@ export type JobType = {
   order: { id: number }
   corporationId: string
   name: string
-  status: JobStatusType
+  status: JobStatusType | ProJobStatusType
   contactPersonId: number
   serviceType: string
   sourceLanguage: string
@@ -98,4 +106,5 @@ export type JobType = {
     file: string // s3 key
     type: 'SAMPLE' | 'SOURCE' | 'TARGET'
   }>
+  proId: number | null
 }

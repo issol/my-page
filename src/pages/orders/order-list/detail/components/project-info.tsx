@@ -21,7 +21,12 @@ import {
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
 
-import { ClientType, ProjectInfoType } from '@src/types/orders/order-detail'
+import {
+  ClientType,
+  JobInfoType,
+  OrderFeatureType,
+  ProjectInfoType,
+} from '@src/types/orders/order-detail'
 
 import { v4 as uuidv4 } from 'uuid'
 
@@ -42,9 +47,12 @@ import { CancelReasonType } from '@src/types/requests/detail.type'
 import { CancelOrderReason } from '@src/shared/const/reason/reason'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import ReasonModal from '@src/@core/components/common-modal/reason-modal'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 import { getClientDetail } from '@src/apis/client.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import SimpleMultilineAlertWithCumtomTitleModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-with-custom-title-modal'
 
 type Props = {
   project: ProjectInfoType
@@ -56,6 +64,8 @@ type Props = {
   type: 'detail' | 'history'
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList?: Array<{ value: number; label: string }>
+  canUseFeature: (v: OrderFeatureType) => boolean
+  jobInfo: Array<JobInfoType>
 }
 const ProjectInfo = ({
   project,
@@ -67,11 +77,12 @@ const ProjectInfo = ({
   type,
   updateProject,
   statusList,
+  canUseFeature,
+  jobInfo,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()
-
   const [contactPersonEdit, setContactPersonEdit] = useState(false)
   const [contactPersonId, setContactPersonId] = useState<number | null>(null)
   const [contactPersonList, setContactPersonList] = useState<
@@ -174,7 +185,7 @@ const ProjectInfo = ({
           onClose={() => closeModal(`${project.status}ReasonModal`)}
           reason={project.reason}
           type={
-            project.status === 10800
+            project.status === 'Redelivery requested'
               ? 'Requested'
               : statusList?.find(i => i.value === project?.status)?.label || ''
           }
@@ -184,22 +195,55 @@ const ProjectInfo = ({
     })
   }
 
+  const onChangeStatus = (status: number) => {
+    if (status === 10950) {
+      openModal({
+        type: `ChangeWithoutInvoiceStatusModal`,
+        children: (
+          <SimpleMultilineAlertModal
+            onClose={() => closeModal('ChangeWithoutInvoiceStatusModal')}
+            onConfirm={() => updateStatus && updateStatus(status)}
+            closeButtonText='Cancel'
+            confirmButtonText='Proceed'
+            message={`Are you sure you want to change the status to Without invoice?\n\nThe client's status will also be updated accordingly.`}
+            vary='error'
+          />
+        ),
+      })
+    } else {
+      updateStatus && updateStatus(status)
+    }
+  }
+
   const filterStatusList = () => {
     if (client && statusList) {
-      if (client.contactPerson && client.contactPerson?.userId) {
-        return statusList?.filter(
-          value =>
-            value.label !== 'Invoiced' &&
-            value.label !== 'Paid' &&
-            value.label !== 'Canceled',
-        )
+      if (!client.isEnrolledClient) {
+        if (project.status === 'Delivery confirmed') {
+          return statusList?.filter(
+            value => value.label === 'Without invoice'
+          )
+        } else {
+          return statusList?.filter(
+            value =>
+              value.label !== 'Invoiced' &&
+              value.label !== 'Paid' &&
+              value.label !== 'Canceled',
+          )
+        }
       } else {
-        return statusList?.filter(
-          value =>
-            value.label === 'New' ||
-            value.label === 'In preparation' ||
-            value.label === 'Internal review',
-        )
+        if (project.status === 'Delivery confirmed') {
+          return statusList?.filter(
+            value => value.label === 'Without invoice'
+          )
+        } else {
+          return statusList?.filter(
+            value =>
+              value.label === 'New' ||
+              value.label === 'In preparation' ||
+              value.label === 'Internal review' ||
+              value.label === 'Without invoice'
+          )
+        }
       }
     } else {
       return statusList!
@@ -218,6 +262,49 @@ const ProjectInfo = ({
         },
       )
   }
+
+    // TODO: Order에 포함된 Job의 status를 체크하는 함수 필요
+    function handleCancelJob() {
+      // 포함된 job이 없는 경우 => 기본 캔슬 모달
+      if (!jobInfo || jobInfo?.length === 0) onClickCancel()
+      else {
+        const filteredJob = jobInfo.filter(job => job.isProAssigned)
+
+        // 포함된 job중에서 pro가 assign된 job이 없는 경우 => cancel 가능 + 경고모달
+        if (!filteredJob || filteredJob.length === 0) {
+          const jobTitle = jobInfo.map(job => job.jobName)
+          openModal({
+            type: `CancelJobInfoModal`,
+            children: (
+              <SimpleMultilineAlertWithCumtomTitleModal
+                onClose={() => closeModal('CancelJobInfoModal')}
+                onConfirm={() => onClickCancel()}
+                closeButtonText='Cancel'
+                confirmButtonText='Proceed'
+                title={jobTitle}
+                message={`Are you sure you want to cancel the order?\n\nThe following jobs will be canceled.`}
+                vary='error'
+              />
+            ),
+          })
+        } else {
+          // 포함된 job중에서 pro가 assign된 job이 있는 경우 => cancel 불가
+          const jobTitle = filteredJob.map(job => job.jobName)
+          openModal({
+            type: `DenyCancelModal`,
+            children: (
+              <SimpleMultilineAlertWithCumtomTitleModal
+                onClose={() => closeModal('DenyCancelModal')}
+                closeButtonText='Okey'
+                title={jobTitle}
+                message={`The following jobs are currently assigned to Pro and require manual cancellation.`}
+                vary='error'
+              />
+            ),
+          })
+        }
+      }
+    }
 
   useEffect(() => {
     if (client) {
@@ -256,7 +343,7 @@ const ProjectInfo = ({
         })
     }
   }, [client])
-
+  console.log("project status",project.status, type, isUpdatable)
   return (
     <>
       <Card sx={{ padding: '24px' }}>
@@ -272,7 +359,8 @@ const ProjectInfo = ({
             {type === 'detail' && isUpdatable ? (
               <IconButton
                 onClick={() => {
-                  updateProject && updateProject.mutate({ status: 105 })
+                  if (canUseFeature('button-Edit-Set-Status-To-UnderRevision'))
+                    updateStatus && updateStatus(10500)
                   setEditMode!(true)
                 }}
               >
@@ -350,17 +438,19 @@ const ProjectInfo = ({
                 >
                   {type === 'detail' &&
                   isUpdatable &&
-                  (project.status === 10000 ||
-                    project.status === 10100 ||
-                    project.status === 10200) ? (
+                  (project.status === 'New' ||
+                    project.status === 'In preparation' ||
+                    project.status === 'Internal review' ||
+                    project.status === 'Delivery confirmed') ? (
                     <Autocomplete
                       autoHighlight
                       fullWidth
+                      autoComplete={false}
                       disableClearable={true}
                       options={filterStatusList() ?? []}
                       onChange={(e, v) => {
-                        if (updateStatus && v?.value) {
-                          updateStatus(v.value as number)
+                        if (v?.value) {
+                          onChangeStatus(v.value as number)
                         }
                       }}
                       isOptionEqualToValue={(option, newValue) => {
@@ -368,13 +458,14 @@ const ProjectInfo = ({
                       }}
                       value={
                         statusList &&
-                        statusList.find(item => item.value === project.status)
+                        statusList.find(item => item.label === project.status)
                       }
                       renderInput={params => (
                         <TextField
                           {...params}
                           placeholder='Status'
                           size='small'
+                          autoComplete='off'
                           sx={{ maxWidth: '300px' }}
                         />
                       )}
@@ -385,18 +476,15 @@ const ProjectInfo = ({
                     >
                       <OrderStatusChip
                         status={project.status}
-                        label={
-                          statusList?.find(
-                            item => item.value === project.status,
-                          )?.label || ''
-                        }
+                        label={project.status}
                       />
-                      {(project.status === 10800 ||
-                        project.status === 101200) && (
+                      {(project.status === 'Redelivery requested' ||
+                        project.status === 'Canceled') && (
                         <IconButton
                           onClick={() => {
                             project.reason && onClickReason()
                           }}
+                          sx={{ padding: 0 }}
                         >
                           <img
                             src='/images/icons/onboarding-icons/more-reason.svg'
@@ -814,10 +902,10 @@ const ProjectInfo = ({
                       display: 'flex',
                       alignItems: 'center',
                       opacity:
-                        project?.status === 10900 ||
-                        project.status === 101100 ||
-                        project.status === 101000 ||
-                        project.status === 101200
+                        project?.status === 'Delivery confirmed' ||
+                        project.status === 'Invoiced' ||
+                        project.status === 'Paid' ||
+                        project.status === 'Canceled'
                           ? 0.5
                           : 1,
                     }}
@@ -833,10 +921,7 @@ const ProjectInfo = ({
                       }}
                       checked={showDescription}
                       disabled={
-                        project?.status === 10700 ||
-                        project.status === 101100 ||
-                        project.status === 101000 ||
-                        project.status === 101200
+                        !canUseFeature('checkBox-ProjectInfo-Description')
                       }
                     />
 
@@ -867,8 +952,7 @@ const ProjectInfo = ({
                     width: '100%',
                   }}
                 >
-                  {project.projectDescription &&
-                  project.projectDescription === ''
+                  {project.projectDescription && project.showDescription && project.projectDescription !== ''
                     ? project.projectDescription
                     : '-'}
                 </Typography>
@@ -886,12 +970,8 @@ const ProjectInfo = ({
                 fullWidth
                 color='error'
                 size='large'
-                disabled={
-                  project?.status === 101000 ||
-                  project?.status === 101200 ||
-                  project?.status === 101100
-                }
-                onClick={onClickCancel}
+                disabled={!canUseFeature('button-ProjectInfo-CancelOrder')}
+                onClick={handleCancelJob}
               >
                 Cancel this order
               </Button>
@@ -904,11 +984,7 @@ const ProjectInfo = ({
                 fullWidth
                 color='error'
                 size='large'
-                disabled={
-                  project?.status !== 10000 &&
-                  project?.status !== 10100 &&
-                  project?.status !== 10200
-                }
+                disabled={!canUseFeature('button-ProjectInfo-DeleteOrder')}
                 onClick={onClickDelete}
               >
                 Delete this order

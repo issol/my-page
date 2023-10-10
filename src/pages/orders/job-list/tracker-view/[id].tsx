@@ -24,11 +24,12 @@ import {
 } from '@src/@core/styles/typography'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** apis
-import { useGetJobsTrackerDetail } from '@src/queries/jobs.query'
+import { useGetJobsTrackerDetail } from '@src/queries/jobs/jobs.query'
 import { updateIsDelivered } from '@src/apis/jobs.api'
 import { useMutation, useQueryClient } from 'react-query'
 
@@ -73,10 +74,10 @@ export default function JobTrackerDetail() {
   const router = useRouter()
   const workName = router.query.workName
 
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
 
-  const User = new job_list(user?.id!)
+  const User = new job_list(auth.getValue().user?.id!)
   const isUpdatable = ability.can('update', User)
 
   const queryClient = useQueryClient()
@@ -162,11 +163,14 @@ export default function JobTrackerDetail() {
           <Tooltip
             title={FullDateTimezoneHelper(
               row?.itemDueDate,
-              user?.timezone?.code!,
+              auth.getValue().user?.timezone?.code!,
             )}
           >
             <div>
-              {FullDateTimezoneHelper(row?.itemDueDate, user?.timezone?.code!)}
+              {FullDateTimezoneHelper(
+                row?.itemDueDate,
+                auth.getValue().user?.timezone?.code!,
+              )}
             </div>
           </Tooltip>
         )
@@ -204,11 +208,14 @@ export default function JobTrackerDetail() {
           <Tooltip
             title={FullDateTimezoneHelper(
               row?.jobDueDate,
-              user?.timezone?.code!,
+              auth.getValue().user?.timezone?.code!,
             )}
           >
             <div style={{ overflow: 'scroll' }}>
-              {FullDateTimezoneHelper(row?.jobDueDate, user?.timezone?.code!)}
+              {FullDateTimezoneHelper(
+                row?.jobDueDate,
+                auth.getValue().user?.timezone?.code!,
+              )}
             </div>
           </Tooltip>
         )

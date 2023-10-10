@@ -30,11 +30,13 @@ import {
   SaveJobPricesParamsType,
 } from '@src/types/orders/job-detail'
 import {
-  useGetAssignProList,
+  useGetAssignableProList,
   useGetJobInfo,
   useGetJobPrices,
 } from '@src/queries/order/job.query'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import { roleState } from '@src/states/permission'
 
 type Props = {
   tab?: string
@@ -73,25 +75,31 @@ import {
 } from 'react-query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { saveJobPrices } from '@src/apis/job-detail.api'
+import { useGetStatusList } from '@src/queries/common.query'
+import { toast } from 'react-hot-toast'
 
 const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
   const [value, setValue] = useState<string>(tab ?? 'jobInfo')
   const [success, setSuccess] = useState(false)
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
+  const role = useRecoilValueLoadable(roleState)
+
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string; userId: any }[]
   >([])
-
+  const [jobId, setJobId] = useState(row.id)
   const [editJobInfo, setEditJobInfo] = useState(false)
   const [editPrices, setEditPrices] = useState(false)
 
-  const { data: jobInfo, isLoading } = useGetJobInfo(row.id, false)
-  const { data: jobPrices } = useGetJobPrices(row.id, false)
+  const { data: jobInfo, isLoading } = useGetJobInfo(jobId, false)
+  // const { data: jobAssignProList } = useGetAssignProList(row.id, {}, false)
+  const { data: jobPrices } = useGetJobPrices(jobId, false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
+  const { data: statusList } = useGetStatusList('Job')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -125,17 +133,20 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
 
   useEffect(() => {
     if (jobPrices) {
-      // console.log(jobPrices)
+      console.log('jobPrices-init', jobPrices)
 
       const result = [
         {
           id: jobPrices.id!,
           name: jobPrices.priceName!,
+          itemName: jobPrices.priceName!,
           source: jobPrices.source!,
           target: jobPrices.target!,
-          priceId: jobPrices.priceId!,
-          detail: !jobPrices.datas.length ? [] : jobPrices.datas,
-
+          priceId: jobPrices.initialPrice?.priceId!,
+          detail: !jobPrices.detail?.length ? [] : jobPrices.detail,
+          minimumPrice: jobPrices.minimumPrice,
+          minimumPriceApplied: jobPrices.minimumPriceApplied,
+          initialPrice: jobPrices.initialPrice,
           totalPrice: Number(jobPrices?.totalPrice!),
         },
       ]
@@ -144,12 +155,16 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
       itemReset({ items: result })
     } else {
       appendItems({
-        name: '',
+        itemName: '',
         source: 'en',
         target: 'ko',
         priceId: null,
         detail: [],
         totalPrice: 0,
+        minimumPrice: null,
+        minimumPriceApplied: false,
+        initialPrice: null,
+        priceFactor: 0,
       })
     }
   }, [jobPrices])
@@ -182,22 +197,33 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     }
   }, [success])
 
+  const saveJobPricesMutation = useMutation(
+    (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
+      saveJobPrices(data.jobId, data.prices),
+    {
+      onSuccess: (data, variables) => {
+        toast.success('Job info added successfully', {
+          position: 'bottom-left',
+        })
+        setSuccess(true)
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries('jobPrices')
+        } else {
+          setJobId(data.id)
+        }
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
   const onSubmit = () => {
     const data = getItem(`items.${0}`)
 
     // toast('Job info added successfully')
-    // console.log('items', data)
-
-    const saveJobPricesMutation = useMutation(
-      (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
-        saveJobPrices(data.jobId, data.prices),
-      {
-        onSuccess: () => {
-          setSuccess(true)
-          queryClient.invalidateQueries('jobPrices')
-        },
-      },
-    )
 
     const res: SaveJobPricesParamsType = {
       jobId: row.id,
@@ -210,6 +236,42 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   }
   // console.log(jobPrices)
 
+  const hasGeneralPermission = () => {
+    let flag = false
+    if (role.state === 'hasValue' && role.getValue()) {
+      role.getValue().map(item => {
+        if (
+          (item.name === 'LPM' || item.name === 'TAD') &&
+          item.type === 'General'
+        )
+          flag = true
+      })
+    }
+    return flag
+  }
+
+  // const isJobMember = () => {
+
+  // }
+
+  // export type JobFeatureType = [
+  //   | 'button-jobInfo-Edit'
+  //   | 'dropdown-jobInfo-Status'
+  // ]
+
+  // const canUseFeature = (featureName: JobFeatureType): boolean => {
+  //   let flag = false
+
+  //   switch (featureName) {
+  //     case 'button-jobInfo-Edit':
+  //       if (!hasGeneralPermission() ||
+  //         (hasGeneralPermission() && )
+  //       )
+  //   }
+
+  //   return flag
+  // }
+  console.log('role', role.getValue())
   return (
     <>
       {!isLoading && jobInfo ? (
@@ -311,6 +373,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     success={success}
                     setSuccess={setSuccess}
                     setEditJobInfo={setEditJobInfo}
+                    statusList={statusList!}
+                    setJobId={setJobId}
                   />
                 ) : (
                   <ViewJobInfo
@@ -321,6 +385,9 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     item={item}
                     setSuccess={setSuccess}
                     refetch={refetch!}
+                    statusList={statusList}
+                    auth={auth.getValue()}
+                    role={role.getValue()}
                   />
                 )}
               </TabPanel>
@@ -341,6 +408,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                         fields={items}
                         row={jobInfo}
                         jobPrices={jobPrices!}
+                        setJobId={setJobId}
                       />
                       <Box
                         mt='20px'
@@ -380,7 +448,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
               </TabPanel>
               <TabPanel value='assignPro' sx={{ pt: '30px' }}>
                 <AssignPro
-                  user={user!}
+                  user={auth.getValue().user!}
                   row={jobInfo}
                   orderDetail={orderDetail}
                   type='view'
@@ -397,6 +465,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                   priceUnitsList={priceUnitsList ?? []}
                   item={item}
                   projectTeam={projectTeam || []}
+                  statusList={statusList!}
                 />
               </TabPanel>
             </TabContext>

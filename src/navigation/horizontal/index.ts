@@ -41,6 +41,20 @@ const navigation = (): HorizontalNavItemsType => {
       path: `/pro`,
     },
     {
+      title: 'Jobs',
+      icon: 'ic:baseline-home-repair-service',
+      action: 'read',
+      subject: 'job_list',
+      path: `/jobs`,
+    },
+    {
+      title: 'Invoices',
+      icon: 'material-symbols:receipt-long',
+      action: 'read',
+      subject: 'invoice_pro',
+      path: '/invoice/pro',
+    },
+    {
       title: 'Clients',
       icon: 'mdi:account-star-outline',
       action: 'read',
@@ -56,7 +70,7 @@ const navigation = (): HorizontalNavItemsType => {
           subject: 'client',
         },
         {
-          title: 'Client guidelines',
+          title: 'Client Guidelines',
           path: `/client/client-guideline`,
           action: 'read',
           icon: 'mdi:playlist-check',
@@ -138,7 +152,7 @@ const navigation = (): HorizontalNavItemsType => {
         {
           title: 'Standard Prices',
           path: `/company/price`,
-          action: 'read',
+          action: 'create',
           icon: 'solar:dollar-minimalistic-bold',
           subject: 'company_price',
         },
@@ -180,7 +194,7 @@ const navigation = (): HorizontalNavItemsType => {
         },
         {
           title: 'Quote List',
-          path: `/quotes`,
+          path: `/quotes/quote-list`,
           action: 'read',
           icon: 'material-symbols:request-quote-outline',
           subject: 'quote',

@@ -27,7 +27,7 @@ export default function AddConfirmModal({
         <Typography variant='body1' textAlign='center' mt='10px'>
           {message}
         </Typography>
-        {title ? <TitleTypography>{title}</TitleTypography> : null}
+        {title ? <TitleTypography fontWeight={'bold'}>{title}</TitleTypography> : null}
         <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
           <Button variant='outlined' onClick={onClose}>
             Cancel

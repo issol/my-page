@@ -1,6 +1,10 @@
 import axios from '@src/configs/axios'
+import { JobListFilterType } from '@src/pages/jobs/requested-ongoing-list'
 
-import { FilterType } from '@src/pages/orders/job-list/list-view/list-view'
+import {
+  FilterPostType,
+  FilterType,
+} from '@src/pages/orders/job-list/list-view/list-view'
 import { DetailFilterType } from '@src/pages/orders/job-list/tracker-view/[id]'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
@@ -9,13 +13,29 @@ import {
   JobsListType,
   JobsTrackerDetailType,
   JobsTrackerListType,
+  ProJobListType,
 } from '@src/types/jobs/jobs.type'
 
 export const getJobsList = async (
-  filter: FilterType,
+  filter: FilterPostType,
 ): Promise<{ data: JobsListType[]; totalCount: number }> => {
+  console.log(filter)
+
   try {
-    const { data } = await axios.get(`/api/enough/u/job?${makeQuery(filter)}`)
+    const res =
+      filter.startedAt && filter.startedAt[0] !== null
+        ? {
+            ...filter,
+            startedAt: filter.startedAt.map(value => value?.toISOString()),
+          }
+        : filter.dueAt && filter.dueAt[0] !== null
+        ? {
+            ...filter,
+            dueAt: filter.dueAt.map(value => value?.toISOString()),
+          }
+        : filter
+
+    const { data } = await axios.get(`/api/enough/u/job?${makeQuery(res)}`)
     return data
   } catch (error) {
     return {
@@ -209,6 +229,43 @@ export const getJobHistory = async (
 export const createJob = async (params: CreateJobParamsType) => {
   try {
     await axios.post(`/api/enough/u/job`, { ...params })
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const getProJobList = async (
+  filter: JobListFilterType,
+): Promise<{
+  data: ProJobListType[]
+  totalCount: number
+  count: number
+}> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/pro/job/list?${makeQuery(filter)}`,
+    )
+
+    return data
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+export const getProJobClientList = async (filter: {
+  filterType: 'client' | 'contactPerson'
+}): Promise<
+  {
+    id: number
+    name: string
+  }[]
+> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/pro/job/filter-option?${makeQuery(filter)}`,
+    )
+
+    return data
   } catch (error: any) {
     throw new Error(error)
   }

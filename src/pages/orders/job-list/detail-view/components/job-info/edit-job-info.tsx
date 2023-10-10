@@ -12,7 +12,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material'
-import { JobStatus } from '@src/shared/const/status/statuses'
+
 import {
   AddJobInfoFormType,
   AddJobInfoType,
@@ -27,7 +27,7 @@ import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInpu
 import dayjs from 'dayjs'
 import { countries } from '@src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import CustomCheckbox from '@src/@core/components/custom-checkbox/basic'
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { FileType } from '@src/types/common/file.type'
@@ -60,6 +60,9 @@ import { FilePostType } from '@src/apis/client-guideline.api'
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { JobStatusType } from '@src/types/jobs/common.type'
+import { log } from 'npmlog'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type Props = {
   row: JobType
@@ -98,6 +101,8 @@ type Props = {
   success: boolean
   setSuccess: Dispatch<SetStateAction<boolean>>
   setEditJobInfo: Dispatch<SetStateAction<boolean>>
+  statusList: Array<{ value: number; label: string }>
+  setJobId?: (n: number) => void
 }
 
 const EditJobInfo = ({
@@ -110,6 +115,8 @@ const EditJobInfo = ({
   success,
   setSuccess,
   setEditJobInfo,
+  statusList,
+  setJobId,
 }: Props) => {
   const theme = useTheme()
   const { direction } = theme
@@ -129,10 +136,15 @@ const EditJobInfo = ({
     (data: { jobId: number; data: SaveJobInfoParamsType }) =>
       saveJobInfo(data.jobId, data.data),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
         setSuccess(true)
-        queryClient.invalidateQueries('jobInfo')
-        refetch()
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries('jobInfo')
+          queryClient.invalidateQueries('jobPrices')
+          refetch()
+        } else {
+          setJobId && setJobId(data.id)
+        }
         setEditJobInfo(false)
       },
     },
@@ -141,16 +153,27 @@ const EditJobInfo = ({
   const uploadFileMutation = useMutation(
     (file: {
       jobId: number
-      size: number
-      name: string
-      type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      files: Array<{
+        jobId: number
+        size: number
+        name: string
+        type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      }>
     }) => uploadFile(file),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
         // console.log('success')
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries('jobInfo')
+          refetch()
+        } else {
+          setJobId && setJobId(data.id)
+        }
       },
     },
   )
+
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   const {
     control,
@@ -168,7 +191,6 @@ const EditJobInfo = ({
 
     resolver: yupResolver(addJobInfoFormSchema),
   })
-
   const description = watch('description')
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
@@ -249,18 +271,34 @@ const EditJobInfo = ({
     )
   })
 
+  const dateValue = (date: Date) => {
+    return dayjs(date).format('MM/DD/YYYY, hh:mm a')
+  }
+
   // console.log('data', getValues())
   const onSubmit = () => {
     const data = getValues()
     if (files.length) {
-      const fileInfo: Array<{
+      // const fileInfo: Array<{
+      //   jobId: number
+      //   size: number
+      //   name: string
+      //   type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      // }> = []
+      const fileInfo: {
         jobId: number
-        size: number
-        name: string
-        type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-      }> = []
+        files: Array<{
+          jobId: number
+          size: number
+          name: string
+          type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+        }>
+      } = {
+        jobId: row.id,
+        files: [],
+      }
       const paths: string[] = files.map(file => {
-        return `project/${row.id}/${file.name}`
+        return `project/${row.id}/sample/${file.name}`
       })
       const s3URL = paths.map(value => {
         return getUploadUrlforCommon('job', value).then(res => {
@@ -269,7 +307,7 @@ const EditJobInfo = ({
       })
       Promise.all(s3URL).then(res => {
         const promiseArr = res.map((url: string, idx: number) => {
-          fileInfo.push({
+          fileInfo.files.push({
             jobId: row.id,
             size: files[idx].size,
             name: files[idx].name,
@@ -279,31 +317,28 @@ const EditJobInfo = ({
         })
         Promise.all(promiseArr)
           .then(res => {
-            res.map((value, idx) => {
-              uploadFileMutation.mutate(fileInfo[idx])
-              const jobInfo: SaveJobInfoParamsType = {
-                contactPersonId: data.contactPerson.userId,
-                description: data.description ?? null,
-                startDate: data.startedAt ? data.startedAt.toString() : null,
-                startTimezone: data.startTimezone ?? null,
+            uploadFileMutation.mutate(fileInfo)
+            const jobInfo: SaveJobInfoParamsType = {
+              contactPersonId: data.contactPerson.userId,
+              description: data.description ?? null,
+              startDate: data.startedAt ? data.startedAt.toString() : null,
+              startTimezone: data.startTimezone ?? null,
 
-                dueDate: data.dueAt.toString(),
-                dueTimezone: data.dueTimezone,
-                status: data.status.value,
-                sourceLanguage:
-                  data.languagePair.value === 'Language-independent'
-                    ? null
-                    : data.languagePair.source,
-                targetLanguage:
-                  data.languagePair.value === 'Language-independent'
-                    ? null
-                    : data.languagePair.target,
-                name: data.name,
-                isShowDescription: data.isShowDescription,
-              }
+              dueDate: data.dueAt.toString(),
+              dueTimezone: data.dueTimezone,
+              status: data.status,
+              sourceLanguage: data.source !== ' ' ? data.source : null,
+              targetLanguage: data.target !== ' ' ? data.target : null,
+              name: data.name,
+              isShowDescription: data.isShowDescription,
+            }
 
-              saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
-            })
+            saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
+
+            // res.map((value, idx) => {
+            //   uploadFileMutation.mutate(fileInfo[idx])
+
+            // })
           })
           .catch(err =>
             toast.error(
@@ -323,19 +358,13 @@ const EditJobInfo = ({
 
         dueDate: data.dueAt.toString(),
         dueTimezone: data.dueTimezone,
-        status: data.status.value,
-        sourceLanguage:
-          data.languagePair.value === 'Language-independent'
-            ? null
-            : data.languagePair.source,
-        targetLanguage:
-          data.languagePair.value === 'Language-independent'
-            ? null
-            : data.languagePair.target,
+        status: data.status,
+        sourceLanguage: data.source !== ' ' ? data.source : null,
+        targetLanguage: data.target !== ' ' ? data.target : null,
         name: data.name,
         isShowDescription: data.isShowDescription,
       }
-
+      console.log('jobInfo', jobInfo)
       saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
     }
 
@@ -343,31 +372,66 @@ const EditJobInfo = ({
   }
 
   useEffect(() => {
+    console.log(item)
+
+    // reset({
+    //   name: row.name ?? '',
+    //   description: row.description ?? '',
+    //   status: row.status,
+    //   source: row.name ? row.sourceLanguage : item.sourceLanguage,
+    //   target: row.name ? row.targetLanguage : item.targetLanguage,
+    //   serviceType: row.serviceType,
+    //   isShowDescription: row.isShowDescription,
+
+    //   contactPerson:
+    //     row.contactPerson &&
+    //     contactPersonList.find(
+    //       value => value.userId === row.contactPerson?.userId,
+    //     )
+    //       ? {
+    //           value: contactPersonList.find(
+    //             value => value.userId === row.contactPerson?.userId,
+    //           )?.value!,
+    //           label: contactPersonList.find(
+    //             value => value.userId === row.contactPerson?.userId,
+    //           )?.label!,
+    //           userId: row.contactPerson.userId,
+    //         }
+    //       : {
+    //           value: contactPersonList.find(
+    //             value => value.userId === item.contactPersonId,
+    //           )?.value!,
+    //           label: contactPersonList.find(
+    //             value => value.userId === item.contactPersonId,
+    //           )?.label!,
+    //           userId: item.contactPersonId,
+    //         },
+    //   startedAt: row.startedAt ? new Date(row.startedAt) : undefined,
+    //   startTimezone: row.startTimezone ?? null,
+    //   dueAt: new Date(row.dueAt),
+    //   dueTimezone: row.dueTimezone ?? null,
+    // })
+
     setValue('name', row.name ?? '')
     setValue('description', row.description ?? '')
-    setValue('status', { value: row.status, label: row.status })
-    row.sourceLanguage && row.targetLanguage
-      ? setValue('languagePair', {
-          value: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
-            row.targetLanguage,
-          )}`,
-          label: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
-            row.targetLanguage,
-          )}`,
-          source: row.sourceLanguage,
-          target: row.targetLanguage,
-        })
-      : setValue('languagePair', {
-          value: `${languageHelper(item.sourceLanguage)} -> ${languageHelper(
-            item.targetLanguage,
-          )}`,
-          label: `${languageHelper(item.sourceLanguage)} -> ${languageHelper(
-            item.targetLanguage,
-          )}`,
-          source: item.sourceLanguage,
-          target: item.targetLanguage,
-        })
-    setValue('serviceType', { value: row.serviceType, label: row.serviceType })
+    setValue('status', row.status)
+    setValue('source', row.name ? row.sourceLanguage : item.sourceLanguage, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    setValue('target', row.name ? row.targetLanguage : item.targetLanguage, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
+    trigger('source')
+    trigger('target')
+
+    setValue('serviceType', row.serviceType, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+
     setValue('isShowDescription', row.isShowDescription, {
       shouldDirty: true,
       shouldValidate: true,
@@ -401,31 +465,40 @@ const EditJobInfo = ({
     row.startedAt && setValue('startedAt', new Date(row.startedAt))
 
     row.startTimezone &&
-      setValue('startTimezone', row.startTimezone, {
+      setValue('startTimezone', row.startTimezone ?? null, {
         shouldDirty: true,
         shouldValidate: true,
       })
     row.dueAt && setValue('dueAt', new Date(row.dueAt))
     row.dueTimezone &&
-      setValue('dueTimezone', row.dueTimezone, {
+      setValue('dueTimezone', row.dueTimezone ?? null, {
         shouldDirty: true,
         shouldValidate: true,
       })
 
-    const langPairList = languagePair.map((item, index) => ({
-      value: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
-      label: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
-    }))
-    setLanguageItemList([
-      {
-        value: 'Language-independent',
-        label: 'Language-independent',
-      },
-      ...langPairList,
-    ])
+    // const langPairList = languagePair.map((item, index) => ({
+    //   value: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
+    //   label: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
+    // }))
+    // setLanguageItemList([
+    //   {
+    //     value: 'Language-independent',
+    //     label: 'Language-independent',
+    //   },
+    //   ...langPairList,
+    // ])
     setUploadedFiles(row.files ?? [])
     trigger()
-  }, [row, item, setValue, languagePair, contactPersonList, trigger])
+  }, [row, item])
+
+  console.log(getValues())
+  console.log(
+    languagePair.find(
+      item =>
+        item.source === getValues('source') &&
+        item.target === getValues('target'),
+    ),
+  )
 
   return (
     <>
@@ -463,21 +536,32 @@ const EditJobInfo = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              <Controller
+              <TextField
+                disabled
+                id='status'
+                label='Status*'
+                fullWidth
+                defaultValue={
+                  statusList?.find(list => list.value === row.status)?.label!
+                }
+              />
+              {/* <Controller
                 control={control}
                 name='status'
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     fullWidth
+                    disabled
                     onChange={(event, item) => {
+                      console.log("item",item)
                       if (item) {
-                        onChange(item)
+                        onChange(item.value)
                       } else {
-                        onChange({ value: '', label: '' })
+                        onChange(null)
                       }
                     }}
-                    value={value || { value: '', label: '' }}
-                    options={JobStatus}
+                    value={statusList?.find(list => list.value === value)!}
+                    options={statusList!}
                     id='Status'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
@@ -492,10 +576,9 @@ const EditJobInfo = ({
               />
               {errors.status && (
                 <FormHelperText sx={{ color: 'error.main' }}>
-                  {errors.status?.label?.message ||
-                    errors.status?.value?.message}
+                  {errors.status?.message}
                 </FormHelperText>
-              )}
+              )} */}
             </Grid>
             <Grid item xs={6}>
               <Controller
@@ -533,72 +616,129 @@ const EditJobInfo = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              <Controller
+              {/* <Controller
                 control={control}
                 name='serviceType'
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
                     fullWidth
                     disabled
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
-                    }}
                     onChange={(event, item) => {
                       onChange(item)
                     }}
-                    value={{ label: 'Translation', value: 'Translation' }}
+                    value={value}
                     options={[]}
                     id='serviceType'
-                    getOptionLabel={option => option.label}
+                    getOptionLabel={option => option}
                     renderInput={params => (
                       <TextField {...params} label='Service type*' />
                     )}
                   />
                 )}
+              /> */}
+              <TextField
+                disabled
+                id='serviceType'
+                label='Service type*'
+                fullWidth
+                defaultValue={row.serviceType}
               />
             </Grid>
             <Grid item xs={6}>
-              <Controller
-                control={control}
-                name='languagePair'
-                render={({ field: { onChange, value } }) => (
-                  <Autocomplete
-                    fullWidth
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
+              {getValues('source') !== undefined &&
+                getValues('target') !== undefined && (
+                  <Controller
+                    control={control}
+                    name='source'
+                    render={({ field: { onChange, value } }) => {
+                      return (
+                        <Autocomplete
+                          fullWidth
+                          disabled={Boolean(row.proId)}
+                          // isOptionEqualToValue={(option, newValue) => {
+                          //   return option.source === newValue.source
+                          // }}
+                          onChange={(event, item) => {
+                            console.log(item, 'onChange')
+                            if (item) {
+                              setValue('source', item?.source, setValueOptions)
+                              setValue('target', item?.target, setValueOptions)
+                              trigger('source')
+                              trigger('target')
+                            } else {
+                              setValue('source', null, setValueOptions)
+                              setValue('target', null, setValueOptions)
+                              trigger('source')
+                              trigger('target')
+                            }
+                            // onChange(item)
+                          }}
+                          value={
+                            value === null
+                              ? null
+                              : [
+                                  {
+                                    source: ' ',
+                                    target: ' ',
+                                  },
+                                  ...languagePair.map(data => ({
+                                    source: data.source,
+                                    target: data.target,
+                                  })),
+                                ].find(
+                                  item =>
+                                    item.source === value &&
+                                    item.target === getValues(`target`),
+                                )
+                          }
+                          defaultValue={{
+                            source: getValues('source'),
+                            target: getValues('target'),
+                          }}
+                          options={[
+                            {
+                              source: ' ',
+                              target: ' ',
+                            },
+                            ...languagePair
+                              .map(value => ({
+                                source: value.source,
+                                target: value.target,
+                              }))
+                              .sort((a, b) => a.source.localeCompare(b.source)),
+                          ]}
+                          getOptionLabel={option => {
+                            console.log(option)
+
+                            if (
+                              option.source === ' ' &&
+                              option.target === ' '
+                            ) {
+                              return 'Language-independent'
+                            } else {
+                              return `${languageHelper(
+                                option.source,
+                              )} -> ${languageHelper(option.target)}`
+                            }
+                          }}
+                          id='languagePair'
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              label='Language pair*'
+                              defaultValue={'hi'}
+                              error={Boolean(errors.source)}
+                            />
+                          )}
+                        />
+                      )
                     }}
-                    onChange={(event, item) => {
-                      if (item) {
-                        onChange(item)
-                      } else {
-                        onChange({
-                          value: '',
-                          label: '',
-                          source: '',
-                          target: '',
-                        })
-                      }
-                    }}
-                    value={
-                      value || { value: '', label: '', source: '', target: '' }
-                    }
-                    options={languageItemList}
-                    id='languagePair'
-                    getOptionLabel={option => option.label}
-                    renderInput={params => (
-                      <TextField
-                        {...params}
-                        label='Language pair*'
-                        error={Boolean(errors.languagePair)}
-                      />
-                    )}
                   />
                 )}
-              />
-              {errors.languagePair && (
+
+              {errors.source && (
                 <FormHelperText sx={{ color: 'error.main' }}>
-                  {errors.languagePair?.label?.message ||
-                    errors.languagePair?.value?.message}
+                  {errors.source?.message || errors.target?.message}
                 </FormHelperText>
               )}
             </Grid>
@@ -616,10 +756,19 @@ const EditJobInfo = ({
                       id='date-range-picker-months'
                       onChange={onChange}
                       popperPlacement={popperPlacement}
-                      placeholderText='MM/DD/YYYY, HH:MM'
                       customInput={
-                        <CustomInput label='Job start date' icon='calendar' />
+                        <Box>
+                          <CustomInput
+                            label='Job start date'
+                            icon='calendar'
+                            placeholder='MM/DD/YYYY, HH:MM'
+                            // placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                            readOnly
+                            value={value ? dateValue(value) : ''}
+                          />
+                        </Box>
                       }
+                      disabled={Boolean(row.proId)}
                     />
                   </Box>
                 )}
@@ -632,20 +781,21 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
                     fullWidth
-                    value={value}
+                    disabled={Boolean(row.proId)}
+                    value={value || null}
                     options={countries as CountryType[]}
                     onChange={(e, v) => onChange(v)}
-                    getOptionLabel={option => getGmtTime(option.code)}
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
-                        {getGmtTime(option.code)}
+                      <Box component='li' {...props} key={uuidv4()}>
+                        {getGmtTimeEng(option.code)}
                       </Box>
                     )}
                     renderInput={params => (
                       <TextField
                         {...params}
                         label='Timezone'
-                        error={Boolean(errors.startTimezone)}
+                        // error={Boolean(errors.startTimezone)}
                       />
                     )}
                   />
@@ -659,6 +809,7 @@ const EditJobInfo = ({
                 render={({ field: { onChange, value } }) => (
                   <Box sx={{ width: '100%' }}>
                     <DatePicker
+                      autoComplete='off'
                       selected={value}
                       dateFormat='MM/dd/yyyy, hh:mm a'
                       showTimeSelect={true}
@@ -666,13 +817,17 @@ const EditJobInfo = ({
                       id='date-range-picker-months'
                       onChange={onChange}
                       popperPlacement={popperPlacement}
-                      placeholderText='MM/DD/YYYY, HH:MM'
                       customInput={
-                        <CustomInput
-                          label='Job due date*'
-                          icon='calendar'
-                          error={Boolean(errors.dueAt)}
-                        />
+                        <Box>
+                          <CustomInput
+                            label='Job due date*'
+                            placeholder='MM/DD/YYYY, HH:MM'
+                            icon='calendar'
+                            value={value ? dateValue(value) : ''}
+                            error={Boolean(errors.dueAt)}
+                            readOnly
+                          />
+                        </Box>
                       }
                     />
                   </Box>
@@ -691,7 +846,7 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
                     fullWidth
-                    value={value || { code: '', label: '', phone: '' }}
+                    value={value || null}
                     options={countries as CountryType[]}
                     onChange={(e, v) => {
                       // console.log(value)
@@ -700,8 +855,8 @@ const EditJobInfo = ({
                       else onChange(v)
                     }}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
-                        {getGmtTime(option.code)}
+                      <Box component='li' {...props} key={uuidv4()}>
+                        {getGmtTimeEng(option.code)}
                       </Box>
                     )}
                     renderInput={params => (
@@ -711,16 +866,15 @@ const EditJobInfo = ({
                         error={Boolean(errors.dueTimezone)}
                       />
                     )}
-                    getOptionLabel={option =>
-                      option.code === '' ? '' : getGmtTime(option.code)
-                    }
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
                   />
                 )}
               />
-              {errors.dueTimezone && (
+              {(errors.dueTimezone || getValues('dueTimezone') === null) && (
                 <FormHelperText sx={{ color: 'error.main' }}>
                   {errors.dueTimezone?.label?.message ||
-                    errors.dueTimezone?.code?.message}
+                    errors.dueTimezone?.code?.message ||
+                    FormErrors.required}
                 </FormHelperText>
               )}
             </Grid>
@@ -785,89 +939,125 @@ const EditJobInfo = ({
               {description?.length ?? 0}/500
             </Box>
           </Box>
-          <Divider />
-          <Box
-            mt='20px'
-            mb='20px'
-            sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <Typography variant='body1' fontWeight={600}>
-                Sample files to pro
-              </Typography>
-              <div {...getRootProps({ className: 'dropzone' })}>
-                <Button variant='outlined' sx={{ height: '30px' }}>
-                  <input {...getInputProps()} />
-                  Upload files
-                </Button>
-              </div>
-            </Box>
-            {uploadedFiles && (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-
-                  width: '100%',
-                  gap: '20px',
-                }}
-              >
-                {uploadedFileList(uploadedFiles, 'SAMPLE')}
-              </Box>
-            )}
-            {fileList.length > 0 && (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-
-                  width: '100%',
-                  gap: '20px',
-                }}
-              >
-                {fileList}
-              </Box>
-            )}
-
+          {!row.proId ? (
             <Box>
-              <Typography variant='subtitle2'>
-                {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
-              </Typography>
+              <Divider />
+              <Box
+                mt='20px'
+                mb='20px'
+                sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <Typography variant='body1' fontWeight={600}>
+                    Sample files to pro
+                  </Typography>
+                  <div {...getRootProps({ className: 'dropzone' })}>
+                    <Button variant='outlined' sx={{ height: '30px' }}>
+                      <input {...getInputProps()} />
+                      Upload files
+                    </Button>
+                  </div>
+                </Box>
+                {uploadedFiles && (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+
+                      width: '100%',
+                      gap: '20px',
+                    }}
+                  >
+                    {uploadedFileList(uploadedFiles, 'SAMPLE')}
+                  </Box>
+                )}
+                {fileList.length > 0 && (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+
+                      width: '100%',
+                      gap: '20px',
+                    }}
+                  >
+                    {fileList}
+                  </Box>
+                )}
+
+                <Box>
+                  <Typography variant='subtitle2'>
+                    {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+                  </Typography>
+                </Box>
+              </Box>
+              <Divider />
+              <Box
+                mt='20px'
+                mb='20px'
+                sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  <Typography variant='body1' fontWeight={600}>
+                    Target files from Pro
+                  </Typography>
+                </Box>
+                <Typography variant='subtitle2'>
+                  There are no files delivered from Pro
+                </Typography>
+              </Box>
+              <Divider />
+              <Box
+                mt='20px'
+                sx={{ display: 'flex', justifyContent: 'flex-end' }}
+              >
+                <Button
+                  variant='contained'
+                  onClick={onSubmit}
+                  disabled={!isValid}
+                >
+                  Save draft
+                </Button>
+              </Box>
             </Box>
-          </Box>
-          <Divider />
-          <Box
-            mt='20px'
-            mb='20px'
-            sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-          >
+          ) : (
             <Box
+              mt='20px'
               sx={{
                 display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
+                justifyContent: 'center',
+                gap: '16px',
+                mt: '16px',
               }}
             >
-              <Typography variant='body1' fontWeight={600}>
-                Target files from Pro
-              </Typography>
+              <Button
+                variant='outlined'
+                onClick={() => setEditJobInfo(false)}
+                disabled={!isValid}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant='contained'
+                onClick={onSubmit}
+                disabled={!isValid}
+              >
+                Save
+              </Button>
             </Box>
-            <Typography variant='subtitle2'>
-              There are no files delivered from Pro
-            </Typography>
-          </Box>
-          <Divider />
-          <Box mt='20px' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button variant='contained' onClick={onSubmit} disabled={!isValid}>
-              Save draft
-            </Button>
-          </Box>
+          )}
         </form>
         <div id='toast-container'></div>
       </DatePickerWrapper>

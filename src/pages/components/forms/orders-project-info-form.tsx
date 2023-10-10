@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@mui/material'
 import styled from 'styled-components'
-
+import { v4 as uuidv4 } from 'uuid'
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
 
@@ -23,7 +23,14 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 
 // ** types
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
-import { Fragment, ReactNode, useContext, useEffect, useState } from 'react'
+import {
+  Fragment,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react'
 
 // ** react hook form
 import {
@@ -36,7 +43,7 @@ import {
 } from 'react-hook-form'
 
 // ** fetch
-import { useGetWorkNameList } from '@src/queries/pro-project/project.query'
+import { useGetWorkNameList } from '@src/queries/client.query'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -58,16 +65,18 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import dayjs from 'dayjs'
 
 type Props = {
   control: Control<OrderProjectInfoFormType, any>
   setValue: UseFormSetValue<OrderProjectInfoFormType>
   watch: UseFormWatch<OrderProjectInfoFormType>
   errors: FieldErrors<OrderProjectInfoFormType>
-  clientTimezone?: CountryType | undefined
+  clientTimezone?: CountryType | undefined | null
   getClientValue: UseFormGetValues<ClientFormType>
   getValues: UseFormGetValues<OrderProjectInfoFormType>
 }
@@ -86,22 +95,21 @@ export default function ProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
-    // console.log(minutes % 30)
 
     const formattedMinutes =
       minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
-    // console.log(formattedMinutes)
 
     const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
     const formattedTime = `${formattedHours}:${formattedMinutes
       .toString()
       .padStart(2, '0')}`
-    const formattedDate = new Date()
+    const formattedDate = new Date(now)
     formattedDate.setHours(parseInt(formattedTime.split(':')[0]))
     formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
 
@@ -111,7 +119,7 @@ export default function ProjectInfoForm({
   const defaultValue = { value: '', label: '' }
 
   const { openModal, closeModal } = useModal()
-  const { data, isSuccess } = useGetWorkNameList(user!.userId)
+  const { data, isSuccess } = useGetWorkNameList(auth.getValue().user!.userId)
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -144,6 +152,23 @@ export default function ProjectInfoForm({
   function onWorkNameInputChange(name: string) {
     setWorkNameError(workName?.some(item => item.value === name) || false)
   }
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setOpenPopper(false)
+      }
+    }
+
+    window.addEventListener('mousedown', handleOutsideClick)
+
+    return () => {
+      window.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [])
 
   function onAddWorkName() {
     openModal({
@@ -178,6 +203,9 @@ export default function ProjectInfoForm({
       </>
     )
   }
+  const dateValue = (date: Date) => {
+    return dayjs(date).format('MM/DD/YYYY, hh:mm A')
+  }
 
   return (
     <Fragment>
@@ -189,8 +217,23 @@ export default function ProjectInfoForm({
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : formattedNow(new Date(value))}
-              onChange={onChange}
-              customInput={<CustomInput label='Order date*' icon='calendar' />}
+              onChange={e => {
+                console.log(e)
+
+                onChange(e)
+              }}
+              customInput={
+                <Box>
+                  <CustomInput
+                    label='Order date*'
+                    icon='calendar'
+                    readOnly
+                    value={
+                      value ? dateValue(formattedNow(new Date(value))) : ''
+                    }
+                  />
+                </Box>
+              }
             />
           )}
         />
@@ -210,10 +253,10 @@ export default function ProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -231,12 +274,15 @@ export default function ProjectInfoForm({
         />
       </Grid>
 
-      <Grid item xs={6}>
+      <Grid item xs={6} ref={containerRef}>
         <Controller
           name='workName'
           control={control}
           render={({ field: { value, onChange } }) => {
-            const finedValue = workName.find(item => item.value === value)
+            const finedValue = workName.find(item => item.value === value) || {
+              value: value,
+              label: value,
+            }
             return (
               <Autocomplete
                 disableClearable
@@ -406,6 +452,7 @@ export default function ProjectInfoForm({
                     ? ServiceTypeList
                     : ServiceTypePair[category]
                 }
+                limitTags={2}
                 onChange={(e, v) => {
                   onChange(v.map(item => item.value))
                 }}
@@ -416,7 +463,7 @@ export default function ProjectInfoForm({
                   <TextField
                     {...params}
                     label='Service type'
-                    placeholder='Service type'
+                    // placeholder='Service type'
                   />
                 )}
               />
@@ -438,6 +485,7 @@ export default function ProjectInfoForm({
                 fullWidth
                 disabled={!category}
                 multiple
+                limitTags={2}
                 options={
                   !category || !AreaOfExpertisePair[category]
                     ? AreaOfExpertiseList
@@ -453,7 +501,7 @@ export default function ProjectInfoForm({
                   <TextField
                     {...params}
                     label='Area of expertise'
-                    placeholder='Area of expertise'
+                    // placeholder='Area of expertise'
                   />
                 )}
               />
@@ -470,7 +518,9 @@ export default function ProjectInfoForm({
               <Autocomplete
                 autoHighlight
                 fullWidth
-                options={RevenueFrom}
+                options={RevenueFrom.sort((a, b) =>
+                  a.value > b.value ? 1 : b.value > a.value ? -1 : 0,
+                )}
                 onChange={(e, v) => {
                   onChange(v?.value ?? '')
                 }}
@@ -527,10 +577,10 @@ export default function ProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (

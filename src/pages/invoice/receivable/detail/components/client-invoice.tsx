@@ -35,10 +35,6 @@ type Props = {
   setDownloadLanguage?: Dispatch<SetStateAction<'EN' | 'KO'>>
   onClickDownloadInvoice?: () => void
   type: 'detail' | 'history'
-  onSave?: (data: {
-    id: number
-    form: InvoiceReceivablePatchParamsType
-  }) => void
 }
 
 const ClientInvoice = ({
@@ -48,7 +44,7 @@ const ClientInvoice = ({
   downloadLanguage,
   setDownloadLanguage,
   type,
-  onSave,
+
   onClickDownloadInvoice,
 }: // statusList,
 // project,

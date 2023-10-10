@@ -81,6 +81,7 @@ export const Default = ({ type }: { type: 'create' | 'update' }) => {
         setValue={setValue}
         errors={errors}
         watch={watch}
+        getValue={getValues}
       />
     </Grid>
   )

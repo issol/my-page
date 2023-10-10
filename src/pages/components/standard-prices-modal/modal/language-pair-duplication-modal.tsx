@@ -84,7 +84,7 @@ export default function LanguagePairDuplicationModal({
               onClose()
             }}
           >
-            Okey
+            Okay
           </Button>
         </Box>
       </DialogContent>

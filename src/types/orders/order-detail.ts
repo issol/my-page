@@ -8,7 +8,7 @@ import { ItemType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
 import { ReasonType } from '../quotes/quote'
 
-export type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
+export type PositionType = 'supervisor' | 'projectManager' | 'member'
 
 export type ProjectTeamListType = {
   userId: number
@@ -45,6 +45,8 @@ export type ProjectInfoType = {
   serviceType: string[]
   expertise: string[]
   revenueFrom: RevenueFormType
+  parentOrderId: number
+  hasChildOrder: boolean
   projectName: string
   projectDueAt: string
   projectDueTimezone: CountryType
@@ -93,6 +95,7 @@ export type ClientType = {
 
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
+  isEnrolledClient: boolean
 }
 
 export type HistoryType = {
@@ -128,6 +131,7 @@ export type OrderDownloadData = {
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
   langItem: LanguageAndItemType
+  subtotal: number | string
 }
 
 export type LanguageAndItemType = {
@@ -152,6 +156,9 @@ export type LanguagePairTypeInItem = {
     numberPlace: number
     authorId: number
   } | null
+  minimumPrice?: string | null
+  minimumPriceApplied?: boolean | null
+  currency?: string | null
 }
 
 export type OrderDetailType = {
@@ -168,4 +175,34 @@ export type OrderDetailType = {
     name: string
   }
   contactPerson: ContactPersonType | null
+}
+
+// Order의 Feature 사용 권한 체크를 위한 함수에서 사용
+export type OrderFeatureType =
+  | 'tab-ProjectInfo'
+  | 'tab-Languages&Items'
+  | 'tab-Client'
+  | 'tab-ProjectTeam'
+  | 'button-ProjectInfo-CancelOrder'
+  | 'button-ProjectInfo-DeleteOrder'
+  | 'checkBox-ProjectInfo-Description'
+  | 'button-Languages&Items-SplitOrder'
+  | 'button-DownloadOrder'
+  | 'button-CreateInvoice'
+  | 'button-ConfirmOrder'
+  | 'button-Restore'
+  | 'button-Deliveries&Feedback-Upload'
+  | 'button-Deliveries&Feedback-ImportFromJob'
+  | 'button-Deliveries&Feedback-DownloadAll'
+  | 'button-Deliveries&Feedback-DownloadOnce'
+  | 'button-Deliveries&Feedback-DeliverToClient'
+  | 'button-Deliveries&Feedback-CompleteDelivery'
+  | 'button-Edit-Set-Status-To-UnderRevision'
+  | 'button-Deliveries&Feedback-ConfirmDeliveries'
+  | 'button-Deliveries&Feedback-RequestRedelivery'
+
+export type JobInfoType = {
+  jobId: number
+  jobName: string
+  isProAssigned: boolean
 }

@@ -37,7 +37,8 @@ import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { useGetProOverview } from '@src/queries/pro/pro-details.query'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { pro_payment } from '@src/shared/const/permission-class'
 import { useQueryClient } from 'react-query'
 
@@ -48,9 +49,9 @@ type Props = {
 
 export default function PaymentInfo({ id, userRole }: Props) {
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
-  const User = new pro_payment(user?.id!)
+  const User = new pro_payment(auth.getValue().user?.id!)
   const isAccountManager = ability.can('read', 'account_manage')
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)

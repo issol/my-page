@@ -34,7 +34,8 @@ import styled from 'styled-components'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** store
@@ -107,6 +108,7 @@ import {
   useGetVersionHistory,
 } from '@src/queries/quotes.query'
 import {
+  confirmQuote,
   deleteQuotes,
   patchQuoteItems,
   patchQuoteLanguagePairs,
@@ -144,6 +146,7 @@ import { CancelOrderReason } from '@src/shared/const/reason/reason'
 import { UserRoleType } from '@src/context/types'
 import { ProjectInfoType } from '@src/types/common/quotes.type'
 import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -152,15 +155,19 @@ export type updateProjectInfoType =
   | ProjectTeamFormType
   | ClientPostType
   | { tax: null | number; isTaxable: boolean }
+  | { tax: null | number; isTaxable: boolean; subtotal: number }
   | { status: number }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
+  | { languagePairs: Array<LanguagePairsType> }
+  | { items: Array<PostItemType> }
+  | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
 
 export default function QuotesDetail() {
   const router = useRouter()
   const { data: statusList } = useGetStatusList('Quote')
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const currentRole = getCurrentRole()
   const { id } = router.query
 
@@ -187,7 +194,7 @@ export default function QuotesDetail() {
 
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
-  const User = new quotes(user?.id!)
+  const User = new quotes(auth.getValue().user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
@@ -221,7 +228,7 @@ export default function QuotesDetail() {
             isUpdatable &&
             (project?.status === 'New' ||
               project?.status === 'In preparation' ||
-              project?.status === 'Internal Review' ||
+              project?.status === 'Internal review' ||
               project?.status === 'Revision requested' ||
               project?.status === 'Under revision' ||
               (project?.status === 'Expired' &&
@@ -254,49 +261,55 @@ export default function QuotesDetail() {
           break
         case 'button-DownloadQuote':
           flag =
-            project?.status === 'Quote sent' ||
-            project?.status === 'Client review' ||
-            project?.status === 'Revision requested' ||
-            project?.status === 'Revised' ||
-            project?.status === 'Accepted' ||
-            project?.status === 'Changed into order' ||
-            project?.status === 'Expired' ||
-            project?.status === 'Rejected'
+            (project?.status === 'Quote sent' ||
+              project?.status === 'Client review' ||
+              project?.status === 'Revision requested' ||
+              project?.status === 'Revised' ||
+              project?.status === 'Accepted' ||
+              project?.status === 'Changed into order' ||
+              project?.status === 'Expired' ||
+              project?.status === 'Rejected') &&
+            isIncludeProjectTeam()
+          break
         case 'button-CreateOrder':
           flag =
             !project?.linkedOrder &&
             (project?.status === 'Revision requested' ||
               project?.status === 'Revised' ||
               project?.status === 'Accepted' ||
-              project?.status === 'Expired')
+              project?.status === 'Expired') &&
+            isIncludeProjectTeam()
           break
         case 'button-ConfirmQuote':
           flag =
             project?.status === 'New' ||
             project?.status === 'In preparation' ||
-            project?.status === 'Internal Review' ||
+            project?.status === 'Internal review' ||
             project?.status === 'Under revision' ||
-            (project?.status === 'Expired' && project?.confirmedAt === null)
+            (project?.status === 'Expired' &&
+              project?.confirmedAt === null &&
+              isIncludeProjectTeam())
           break
         case 'button-CancelQuote':
           flag =
             project?.status !== 'Changed into order' &&
-            project?.status !== 'Canceled'
+            project?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
           break
         case 'button-DeleteQuote':
-          flag =
-            (isDeletable &&
-              !!client?.contactPerson?.userId &&
-              (project?.status === 'New' ||
+          flag = isDeletable
+            ? client?.isEnrolledClient
+              ? project?.status === 'New' ||
                 project?.status === 'In preparation' ||
-                project?.status === 'Internal Review' ||
-                (project?.status === 'Expired' &&
-                  project?.confirmedAt === null))) ||
-            (!!client?.contactPerson?.userId &&
-              (project?.status === 'New' ||
-                project?.status === 'In preparation' ||
-                project?.status === 'Internal Review' ||
-                project?.status === 'Expired'))
+                project?.status === 'Internal review' ||
+                (project?.status === 'Expired' && project?.confirmedAt === null)
+              : (project?.status === 'New' ||
+                  project?.status === 'In preparation' ||
+                  project?.status === 'Internal review' ||
+                  project?.status === 'Expired') &&
+                isIncludeProjectTeam()
+            : false
+
           break
       }
     }
@@ -310,7 +323,7 @@ export default function QuotesDetail() {
         (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
         (currentRole?.type === 'General' &&
           team?.length &&
-          team.some(item => item.userId === user?.id!)),
+          team.some(item => item.userId === auth.getValue().user?.id!)),
     )
   }
 
@@ -450,21 +463,37 @@ export default function QuotesDetail() {
       ;(async function () {
         const priceList = await getClientPriceList({})
         setLanguagePairs(
-          itemsWithLang?.languagePairs?.map(item => {
+          itemsWithLang?.items?.map(item => {
+            if (!item.initialPrice) throw new Error('NO_InitialPrice')
             return {
               id: String(item.id),
               source: item.source,
               target: item.target,
-              price: !item?.price
-                ? null
-                : priceList.find(price => price.id === item?.price?.id) || null,
+              price: {
+                id: item.initialPrice?.priceId!,
+                isStandard: item.initialPrice?.isStandard!,
+                priceName: item.initialPrice?.name!,
+                groupName: 'Current price',
+                category: item.initialPrice?.category!,
+                serviceType: item.initialPrice?.serviceType!,
+                currency: item.initialPrice?.currency!,
+                catBasis: item.initialPrice?.calculationBasis!,
+                decimalPlace: item.initialPrice?.numberPlace!,
+                roundingProcedure:
+                  RoundingProcedureList[item.initialPrice?.rounding!].label,
+
+                languagePairs: [],
+                priceUnit: [],
+                catInterface: { memSource: [], memoQ: [] },
+              },
             }
           }),
         )
         const result = itemsWithLang?.items?.map(item => {
           return {
             id: item.id,
-            name: item.name,
+            name: item.itemName,
+            itemName: item.itemName,
             source: item.source,
             target: item.target,
             priceId: item.priceId,
@@ -473,13 +502,21 @@ export default function QuotesDetail() {
             totalPrice: item?.totalPrice ?? 0,
             dueAt: item?.dueAt ?? '',
             contactPerson: item?.contactPerson ?? {},
+            // initialPrice는 quote 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: item.initialPrice ?? {},
+            description: item.description,
+            showItemDescription: item.showItemDescription,
+            minimumPrice: item.minimumPrice,
+            minimumPriceApplied: item.minimumPriceApplied,
+            priceFactor: 0,
           }
         })
         itemReset({ items: result })
         itemTrigger()
       })()
     }
-  }, [isItemLoading])
+  }, [isItemLoading, itemsWithLang])
 
   // ** 3. Client
   const [editClient, setEditClient] = useState(false)
@@ -519,6 +556,8 @@ export default function QuotesDetail() {
   const [teamPage, setTeamPage] = useState(0)
   const [teamPageSize, setTeamPageSize] = useState(10)
   const { data: team, isLoading: isTeamLoading } = useGetProjectTeam(Number(id))
+
+  const [teams, setTeams] = useState<ProjectTeamListType[]>([])
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -534,11 +573,11 @@ export default function QuotesDetail() {
         { type: 'supervisorId', id: null },
         {
           type: 'projectManagerId',
-          id: user?.userId!,
+          id: auth.getValue().user?.userId!,
           name: getLegalName({
-            firstName: user?.firstName!,
-            middleName: user?.middleName,
-            lastName: user?.lastName!,
+            firstName: auth.getValue().user?.firstName!,
+            middleName: auth.getValue().user?.middleName,
+            lastName: auth.getValue().user?.lastName!,
           }),
         },
         { type: 'member', id: null },
@@ -557,8 +596,48 @@ export default function QuotesDetail() {
     name: 'teams',
   })
 
+  // useEffect(() => {
+  //   console.log(teams, 'team')
+  // }, [teams])
+
+  const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
+  const teamOrder = ['supervisor', 'projectManager', 'member']
+
   useEffect(() => {
     if (!isTeamLoading && team) {
+      const viewTeams: ProjectTeamListType[] = team
+
+      if (!viewTeams.some(item => item.position === 'supervisor')) {
+        viewTeams.unshift({
+          position: 'supervisor',
+          userId: -1,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+      if (!viewTeams.some(item => item.position === 'member')) {
+        viewTeams.push({
+          position: 'member',
+          userId: 0,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+
+      const res = viewTeams.sort((a, b) => {
+        const aIndex = teamOrder.indexOf(a.position)
+        const bIndex = teamOrder.indexOf(b.position)
+        return aIndex - bIndex
+      })
+
+      if (viewTeams.length) setTeams(res)
+
       const teams: Array<{
         type: MemberType
         id: number | null
@@ -577,9 +656,24 @@ export default function QuotesDetail() {
           lastName: item?.lastName!,
         }),
       }))
-      if (teams.length) resetTeam({ teams })
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
+
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
     }
-  }, [isTeamLoading])
+  }, [isTeamLoading, team])
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
@@ -625,7 +719,12 @@ export default function QuotesDetail() {
       renderHeader: () => <Box>Date&Time</Box>,
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.downloadedAt, user?.timezone!)}</Box>
+          <Box>
+            {FullDateTimezoneHelper(
+              row.downloadedAt,
+              auth.getValue().user?.timezone!,
+            )}
+          </Box>
         )
       },
     },
@@ -735,9 +834,12 @@ export default function QuotesDetail() {
           .catch(e => onMutationError())
       }
     }
-    // TODO: TAD, LPM role을 둘다 가지고 있는 경우 롤 스위치 상황에 따라 이 조건이 동작하지 않을 수 있음
+    // LPM에서 status가 Revision requested일때 quote의 편집화면에 진입하면 status를 Under revision(20600) 으로 패치한다.
+    console.log("currentRole",currentRole)
     if (currentRole && currentRole.name === 'LPM') {
-      if (project && project.status === 'Revision requested') {
+      if (project && project.status === 'Revision requested' &&
+        (editProject || editItems || editClient || editTeam)
+      ) {
         patchQuoteProjectInfo(Number(id), { status: 20600 })
           .then(res => {
             refetch()
@@ -745,23 +847,60 @@ export default function QuotesDetail() {
           .catch(e => onMutationError())
       }
     }
-  }, [])
+  }, [currentRole, project, editProject, editItems, editClient, editTeam])
 
   const updateProject = useMutation(
     (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
     {
-      onSuccess: () => {
+      onSuccess: data => {
         setEditProject(false)
         setEditClient(false)
         setEditTeam(false)
-        queryClient.invalidateQueries({
-          queryKey: ['quotesDetail'],
-        })
-        queryClient.invalidateQueries(['quotesList'])
+
+        let res
+
+        if (typeof data === 'number' || typeof data === 'string') {
+          res = Number(data)
+        } else if (typeof data === 'object' && data !== null) {
+          res = Number(data.id)
+        }
+
+        if (res === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: ['quotesDetail'],
+          })
+          queryClient.invalidateQueries(['quotesList'])
+        } else {
+          router.push(`/quotes/detail/${res}`)
+        }
       },
       onError: () => onMutationError(),
     },
   )
+
+  const confirmQuoteMutation = useMutation(() => confirmQuote(Number(id)), {
+    onSuccess: data => {
+      closeModal('ConfirmQuoteModal')
+
+      let res
+
+      if (typeof data === 'number' || typeof data === 'string') {
+        res = Number(data)
+      } else if (typeof data === 'object' && data !== null) {
+        res = Number(data.id)
+      }
+
+      if (res === Number(id)) {
+        queryClient.invalidateQueries({
+          queryKey: ['quotesDetail'],
+        })
+        queryClient.invalidateQueries(['quotesList'])
+      } else {
+        router.push(`/quotes/detail/${res}`)
+      }
+    },
+    onError: () => onMutationError(),
+  })
 
   function onProjectInfoSave() {
     const projectInfo = getProjectInfoValues()
@@ -770,11 +909,18 @@ export default function QuotesDetail() {
   }
 
   async function onItemSave() {
-    const items: PostItemType[] = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-      showItemDescription: item.showItemDescription ? '1' : '0',
-    }))
+    const items: PostItemType[] = getItem().items.map(item => {
+      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
+      return {
+        ...filterItem,
+        contactPersonId: Number(item.contactPerson?.id!),
+        description: item.description || '',
+        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+        showItemDescription: item.showItemDescription ? '1' : '0',
+        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+        name: item.itemName,
+      }
+    })
     const langs: LanguagePairsType[] = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
@@ -791,16 +937,31 @@ export default function QuotesDetail() {
         target: item.target,
       }
     })
+    const subtotal = items.reduce((accumulator, item) => {
+      return accumulator + item.totalPrice
+    }, 0)
 
     onSave(async () => {
       try {
-        await patchQuoteLanguagePairs(Number(id), langs)
-        await patchQuoteItems(Number(id), items)
-        updateProject.mutate({ tax, isTaxable: taxable })
-        setEditItems(false)
-        queryClient.invalidateQueries({
-          queryKey: ['quotesDetailItems'],
-        })
+        // await patchQuoteLanguagePairs(Number(id), langs)
+        // await patchQuoteItems(Number(id), items)
+        updateProject.mutate(
+          {
+            tax,
+            isTaxable: taxable,
+            subtotal: subtotal,
+            languagePairs: langs,
+            items: items,
+          },
+          {
+            onSuccess: () => {
+              queryClient.invalidateQueries({
+                queryKey: ['quotesDetailItems'],
+              })
+              setEditItems(false)
+            },
+          },
+        )
       } catch (e: any) {
         onMutationError()
       }
@@ -872,7 +1033,7 @@ export default function QuotesDetail() {
       queryClient.invalidateQueries({
         queryKey: ['quotesList'],
       })
-      router.push('/quotes')
+      router.push('/quotes/quote-list')
     },
     onError: () => onMutationError(),
   })
@@ -934,9 +1095,9 @@ export default function QuotesDetail() {
     makePdfData()
     dispatch(setQuoteLang(lang))
     dispatch(setQuote(downloadData))
-    patchQuoteProjectInfo(Number(id), { downloadedAt: currentTime }).catch(e =>
-      onMutationError(),
-    )
+    // patchQuoteProjectInfo(Number(id), { downloadedAt: currentTime }).catch(e =>
+    //   onMutationError(),
+    // )
     closeModal('PreviewModal')
   }
 
@@ -989,7 +1150,7 @@ export default function QuotesDetail() {
               <PrintQuotePage
                 data={quote.quoteTotalData}
                 type='preview'
-                user={user!}
+                user={auth.getValue().user!}
                 lang={quote.lang}
               />
             </div>
@@ -1053,14 +1214,15 @@ export default function QuotesDetail() {
         <CustomModal
           onClose={() => closeModal('ConfirmQuoteModal')}
           onClick={() =>
-            updateProject.mutate(
-              { isConfirmed: true, status: projectStatus() },
-              {
-                onSuccess: () => {
-                  closeModal('ConfirmQuoteModal')
-                },
-              },
-            )
+            // updateProject.mutate(
+            //   { isConfirmed: true, status: projectStatus() },
+            //   {
+            //     onSuccess: () => {
+            //       closeModal('ConfirmQuoteModal')
+            //     },
+            //   },
+            // )
+            confirmQuoteMutation.mutate()
           }
           title='Are you sure you want to confirm this quote? It will be delivered to the client.'
           vary='successful'
@@ -1110,6 +1272,7 @@ export default function QuotesDetail() {
       contactPerson: client?.contactPerson ?? null,
       clientAddress: client?.clientAddress ?? [],
       langItem: itemsWithLang,
+      subtotal: project?.subtotal,
     }
 
     setDownloadData(res)
@@ -1124,7 +1287,7 @@ export default function QuotesDetail() {
         !isDeletable ||
         (project?.status !== 'New' &&
           project?.status !== 'In preparation' &&
-          project?.status !== 'Internal Review' &&
+          project?.status !== 'Internal review' &&
           project?.status !== 'Expired')
       )
     } else {
@@ -1132,7 +1295,7 @@ export default function QuotesDetail() {
         !isDeletable ||
         (project?.status !== 'New' &&
           project?.status !== 'In preparation' &&
-          project?.status !== 'Internal Review' &&
+          project?.status !== 'Internal review' &&
           project?.status === 'Expired' &&
           project?.confirmedAt !== null)
       )
@@ -1162,7 +1325,7 @@ export default function QuotesDetail() {
             {editProject || editItems || editClient || editTeam ? null : (
               <IconButton
                 sx={{ padding: '0 !important', height: '24px' }}
-                onClick={() => router.push('/quotes')}
+                onClick={() => router.push('/quotes/quote-list')}
               >
                 <Icon icon='mdi:chevron-left' width={24} height={24} />
               </IconButton>
@@ -1271,7 +1434,7 @@ export default function QuotesDetail() {
                   onClick={() =>
                     router.push({
                       pathname: `/orders/add-new`,
-                      query: { orderId: id },
+                      query: { quoteId: id },
                     })
                   }
                   disabled={!canUseFeature('button-CreateOrder')}
@@ -1358,7 +1521,7 @@ export default function QuotesDetail() {
               {downloadData ? (
                 <ClientQuote
                   downloadData={downloadData!}
-                  user={user!}
+                  user={auth.getValue().user!}
                   downloadLanguage={downloadLanguage}
                   setDownloadLanguage={setDownloadLanguage}
                   onClickDownloadQuotes={onClickDownloadQuotes}
@@ -1436,7 +1599,7 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={!canUseFeature('button-CancelQuote')}
+                            disabled={!canUseFeature('button-DeleteQuote')}
                             onClick={onClickDelete}
                           >
                             Delete this quote
@@ -1477,11 +1640,17 @@ export default function QuotesDetail() {
                   isUpdatable={canUseFeature('tab-Languages&Items')}
                   role={currentRole!}
                   itemTrigger={itemTrigger}
+                  project={project}
                 />
                 {editItems
                   ? renderSubmitButton({
                       onCancel: () =>
-                        onDiscard({ callback: () => setEditItems(false) }),
+                        onDiscard({
+                          callback: () => {
+                            setEditItems(false)
+                            itemReset()
+                          },
+                        }),
                       onSave: () => onItemSave(),
                       isValid: isItemValid || !taxable || (taxable && tax! > 0),
                     })
@@ -1499,10 +1668,11 @@ export default function QuotesDetail() {
                     control={clientControl}
                     setValue={setClientValue}
                     watch={clientWatch}
-                    setTax={setTax}
                     setTaxable={setTaxable}
                     type='quotes'
                     formType='edit'
+                    getValue={getClientValue}
+                    fromQuote={false}
                   />
                   <Grid item xs={12}>
                     {renderSubmitButton({
@@ -1539,6 +1709,7 @@ export default function QuotesDetail() {
                       errors={teamErrors}
                       isValid={isTeamValid}
                       watch={teamWatch}
+                      getValue={getTeamValues}
                     />
                     {renderSubmitButton({
                       onCancel: () =>
@@ -1575,13 +1746,18 @@ export default function QuotesDetail() {
                     }}
                   >
                     <DataGrid
+                      sx={{
+                        '& .MuiDataGrid-row:hover': {
+                          backgroundColor: 'inherit',
+                        },
+                      }}
                       autoHeight
                       getRowId={row => row.userId}
                       columns={getProjectTeamColumns(
                         (currentRole && currentRole.name) ?? '',
                       )}
-                      rows={team ?? []}
-                      rowCount={team?.length ?? 0}
+                      rows={teams ?? []}
+                      rowCount={teams?.length ?? 0}
                       rowsPerPageOptions={[10, 25, 50]}
                       pagination
                       page={teamPage}

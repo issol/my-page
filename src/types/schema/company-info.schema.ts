@@ -12,14 +12,14 @@ export type CompanyInfoFormType = {
   mobile?: string
   fax?: string
   websiteLink?: string
-  timezone?: CountryType
+  timezone?: CountryType | null
   isTaxable?: boolean
   tax?: number | null
   memo?: string
   headquarter?: string
-  businessRegistrationNumber?: string
-  nameOfRepresentative?: string
-  businessCommencementDate?: string
+  registrationNumber?: number
+  representativeName?: string
+  commencementDate?: string
 }
 export const companyInfoSchema = yup.object().shape({
   clientType: yup
@@ -39,8 +39,8 @@ export const companyInfoSchema = yup.object().shape({
   websiteLink: yup
     .string()
     .test('is-http-url', FormErrors.notHTTPPrefixUrl, value => {
-      if (!value) return true;  // Pass validation if value is empty
-      return value.startsWith('http://') || value.startsWith('https://');
+      if (!value) return true // Pass validation if value is empty
+      return value.startsWith('http://') || value.startsWith('https://')
     })
     .url(FormErrors.invalidUrl)
     .nullable(),
@@ -58,15 +58,14 @@ export const companyInfoSchema = yup.object().shape({
     ),
   memo: yup.string().nullable(),
   headquarter: yup.string().nullable(),
-  businessRegistrationNumber: yup.string().nullable(),
-  nameOfRepresentative: yup.string().nullable(),
-  businessCommencementDate: yup.date().nullable(),
+  registrationNumber: yup.string().nullable(),
+  representativeName: yup.string().nullable(),
+  commencementDate: yup.date().nullable(),
 })
 
 export const companyInfoDefaultValue: CompanyInfoFormType = {
   clientType: 'Company',
-  status: '',
+  status: 'New',
   name: '',
   email: '',
-  timezone: { code: '', label: '', phone: '' },
 }

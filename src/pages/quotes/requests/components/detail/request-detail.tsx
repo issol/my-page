@@ -14,7 +14,11 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
-import { FullDateTimezoneHelper, convertDateByTimezone, convertUTCISOStringToLocalTimezoneISOString } from '@src/shared/helpers/date.helper'
+import {
+  FullDateTimezoneHelper,
+  convertDateByTimezone,
+  convertUTCISOStringToLocalTimezoneISOString,
+} from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
@@ -129,7 +133,10 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Language pair</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {convertLanguageCodeToPair(item?.sourceLanguage, item?.targetLanguage)}
+                      {convertLanguageCodeToPair(
+                        item?.sourceLanguage,
+                        item?.targetLanguage,
+                      )}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>
@@ -138,14 +145,14 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                     <CustomTypo fontWeight={600}>Desired due date</CustomTypo>
                     <CustomTypo variant='body2'>
                       {/* {FullDateTimezoneHelper(
-                          item?.desiredDueDate, 
+                          item?.desiredDueDate,
                           item?.desiredDueTimezone.code
                         )
                       } */}
                       {
                         convertUTCISOStringToLocalTimezoneISOString(
                           item.desiredDueDate,
-                          item?.desiredDueTimezone.code
+                          item?.desiredDueTimezone?.code!,
                         )!
                       }
                     </CustomTypo>

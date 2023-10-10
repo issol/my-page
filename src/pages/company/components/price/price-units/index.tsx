@@ -3,7 +3,8 @@ import { useState, useContext } from 'react'
 
 // ** context
 import { ModalContext } from '@src/context/ModalContext'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** mui
@@ -18,7 +19,7 @@ import logger from '@src/@core/utils/logger'
 import {
   PriceUnitFormType,
   PriceUnitType,
-  PriceUnitDataType
+  PriceUnitDataType,
 } from '@src/types/common/standard-price'
 
 // ** components
@@ -35,6 +36,7 @@ import {
   postPriceUnit,
   updatePriceUnit,
 } from '@src/apis/price-units.api'
+import FallbackSpinner from '@src/@core/components/spinner'
 type Props = {
   list: PriceUnitDataType
   refetch: (
@@ -53,7 +55,7 @@ export default function PriceUnits({
   pageSize,
   setPageSize,
 }: Props) {
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
 
   const [editModeRow, setEditModeRow] = useState<PriceUnitType>()
@@ -185,40 +187,46 @@ export default function PriceUnits({
   }
 
   return (
-    <Grid item xs={12}>
-      <Card>
-        <CardHeader
-          title={
-            <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>
-                Price units ({list?.totalCount || 0})
-              </Typography>
-            </Box>
-          }
-        />
-        <PriceUnitTable
-          skip={skip}
-          setSkip={setSkip}
-          pageSize={pageSize}
-          setPageSize={setPageSize}
-          list={list ?? { data: [], count: 0, totalCount: 0 }}
-          onEditClick={onEditClick}
-          onDeleteClick={onDeleteClick}
-          onBasePriceClick={onBasePriceClick}
-          addMutation={addMutation}
-          saveMutation={saveMutation}
-          editModeRow={editModeRow}
-          cancelEditing={cancelEditing}
-          onToggleActive={onToggleActive}
-          abilityCheck={abilityCheck}
-          user={user}
-        />
-      </Card>
-      <CancelModal
-        open={open}
-        onCancelBasePrice={onCancelBasePrice}
-        onClose={closeModal}
-      />
-    </Grid>
+    <>
+      {auth.state === 'loading' ? (
+        <FallbackSpinner />
+      ) : auth.state === 'hasValue' ? (
+        <Grid item xs={12}>
+          <Card>
+            <CardHeader
+              title={
+                <Box display='flex' justifyContent='space-between'>
+                  <Typography variant='h6'>
+                    Price units ({list?.totalCount || 0})
+                  </Typography>
+                </Box>
+              }
+            />
+            <PriceUnitTable
+              skip={skip}
+              setSkip={setSkip}
+              pageSize={pageSize}
+              setPageSize={setPageSize}
+              list={list ?? { data: [], count: 0, totalCount: 0 }}
+              onEditClick={onEditClick}
+              onDeleteClick={onDeleteClick}
+              onBasePriceClick={onBasePriceClick}
+              addMutation={addMutation}
+              saveMutation={saveMutation}
+              editModeRow={editModeRow}
+              cancelEditing={cancelEditing}
+              onToggleActive={onToggleActive}
+              abilityCheck={abilityCheck}
+              user={auth.getValue().user}
+            />
+          </Card>
+          <CancelModal
+            open={open}
+            onCancelBasePrice={onCancelBasePrice}
+            onClose={closeModal}
+          />
+        </Grid>
+      ) : null}
+    </>
   )
 }

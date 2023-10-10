@@ -14,6 +14,7 @@ import {
   Typography,
 } from '@mui/material'
 import styled from 'styled-components'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
@@ -35,7 +36,7 @@ import {
 } from 'react-hook-form'
 
 // ** fetch
-import { useGetWorkNameList } from '@src/queries/pro-project/project.query'
+import { useGetWorkNameList } from '@src/queries/client.query'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -61,16 +62,17 @@ import {
   QuotesProjectInfoAddNewType,
   QuotesProjectInfoFormType,
 } from '@src/types/common/quotes.type'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
   control: Control<QuotesProjectInfoAddNewType, any>
   setValue: UseFormSetValue<QuotesProjectInfoAddNewType>
   watch: UseFormWatch<QuotesProjectInfoAddNewType>
   errors: FieldErrors<QuotesProjectInfoAddNewType>
-  clientTimezone?: CountryType | undefined
+  clientTimezone?: CountryType | undefined | null
   getClientValue: UseFormGetValues<ClientFormType>
   getValues: UseFormGetValues<QuotesProjectInfoAddNewType>
 }
@@ -89,8 +91,10 @@ export default function ProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
+
+  console.log(countries)
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
@@ -112,7 +116,7 @@ export default function ProjectInfoForm({
   const defaultValue = { value: '', label: '' }
 
   const { openModal, closeModal } = useModal()
-  const { data, isSuccess } = useGetWorkNameList(user!.userId)
+  const { data, isSuccess } = useGetWorkNameList(auth.getValue().user!.userId)
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -218,10 +222,10 @@ export default function ProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -531,6 +535,7 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
+              placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
                 <CustomInput label='Quote deadline' icon='calendar' />
               }
@@ -553,10 +558,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -583,6 +588,7 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
+              placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
                 <CustomInput label='Quote expiry date' icon='calendar' />
               }
@@ -605,10 +611,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -635,6 +641,7 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
+              placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
                 <CustomInput label='Estimated delivery date' icon='calendar' />
               }
@@ -657,10 +664,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -687,6 +694,7 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
+              placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
                 <CustomInput label='Project due date' icon='calendar' />
               }
@@ -709,10 +717,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (

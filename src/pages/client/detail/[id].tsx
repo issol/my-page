@@ -39,12 +39,15 @@ import ClientProjects from '../components/projects'
 import { client } from '@src/shared/const/permission-class'
 import { useGetClientMemo } from '@src/queries/client.query'
 import ClientProfile from './components/profile'
-import { AuthContext } from '@src/context/AuthContext'
+
 import { Box } from '@mui/material'
 import ClientInvoices from '../components/invoices'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import PaymentInfo from '../components/payment-info'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import { roleState } from '@src/states/permission'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -53,14 +56,17 @@ export default function ClientDetail() {
   const [value, setValue] = useState<string>('1')
 
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
+  const role = useRecoilValueLoadable(roleState)
 
-  const User = new client(user?.id!)
+  const User = new client(auth.getValue().user?.id!)
+  
 
-  const isUpdatable = ability.can('update', User)
-  const isDeletable = ability.can('delete', User)
-  const isCreatable = ability.can('create', User)
+  // const isUpdatable = ability.can('update', User)
+  // const isDeletable = ability.can('delete', User)
+  // const isCreatable = ability.can('create', User)
 
+ 
   const [memoSkip, setMemoSkip] = useState(0)
   const MEMO_PAGESIZE = 3
 
@@ -68,12 +74,31 @@ export default function ClientDetail() {
     setValue(newValue)
   }
   const { data: userInfo, isError, isFetched } = useGetClientDetail(Number(id!))
+  
+  const Writer = new client(userInfo?.authorId!)
 
   const { data: memo } = useGetClientMemo(Number(id!), {
     skip: memoSkip * MEMO_PAGESIZE,
     take: MEMO_PAGESIZE,
   })
 
+  const isUpdatable = ability.can('update', Writer)
+  const isDeletable = ability.can('delete', Writer)
+  const isCreatable = ability.can('create', Writer)
+  const hasGeneralPermission = () => {
+    let flag = false
+    if (role.state === 'hasValue' && role.getValue()) {
+      role.getValue().map(item => {
+        if (
+          (item.name === 'LPM' ||
+            item.name === 'TAD') &&
+          item.type === 'General'
+        )
+          flag = true
+      })
+    }
+    return flag
+  }
   return (
     <Box sx={{ pb: '100px' }}>
       <ClientInfoCard
@@ -130,12 +155,12 @@ export default function ClientDetail() {
         </TabList>
         <TabPanel value='1'>
           <Suspense>
-            <ClientProjects id={Number(id)} user={user!} />
+            <ClientProjects id={Number(id)} user={auth.getValue().user!} />
           </Suspense>
         </TabPanel>
         <TabPanel value='2'>
           <Suspense>
-            <ClientInvoices id={Number(id)} user={user!} />
+            <ClientInvoices id={Number(id)} user={auth.getValue().user!} />
           </Suspense>
         </TabPanel>
         <TabPanel value='3'>
@@ -144,6 +169,7 @@ export default function ClientDetail() {
             clientId={userInfo?.clientId!}
             page='client'
             used='client'
+            hasGeneralPermission={hasGeneralPermission()}
           />
         </TabPanel>
         <TabPanel value='4'>

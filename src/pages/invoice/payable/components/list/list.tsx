@@ -1,5 +1,3 @@
-import { useRouter } from 'next/router'
-
 // ** style components
 import { Box, Tooltip, Typography } from '@mui/material'
 import { DataGrid, GridColumns, GridRowParams } from '@mui/x-data-grid'
@@ -14,9 +12,11 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** contexts
-import { useContext } from 'react'
-import { AuthContext } from '@src/context/AuthContext'
+
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import Link from 'next/link'
+import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 
 type CellType = {
   row: InvoicePayableListType
@@ -48,8 +48,7 @@ export default function PayableList({
   list,
   isLoading,
 }: Props) {
-  const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   function NoList() {
     return (
@@ -92,7 +91,11 @@ export default function PayableList({
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
-        return <>{InvoicePayableChip(row.invoiceStatus)}</>
+        return (
+          <>
+            {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)}
+          </>
+        )
       },
     },
     {
@@ -103,8 +106,8 @@ export default function PayableList({
       renderCell: ({ row }: CellType) => {
         return (
           <Box>
-            <Typography fontWeight={600}>{row.pro.name}</Typography>
-            <Typography variant='body2'>{row.pro.email}</Typography>
+            <Typography fontWeight={600}>{row.pro?.name}</Typography>
+            <Typography variant='body2'>{row.pro?.email}</Typography>
           </Box>
         )
       },
@@ -115,12 +118,17 @@ export default function PayableList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Invoice date</Box>,
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(row.invoicedAt, user?.timezone.code)
-        return (
-          <Tooltip title={date}>
-            <Typography variant='body2'>{date}</Typography>
-          </Tooltip>
-        )
+        if (auth.state === 'hasValue' && auth.getValue().user) {
+          const date = FullDateTimezoneHelper(
+            row.invoicedAt,
+            auth.getValue().user?.timezone.code,
+          )
+          return (
+            <Tooltip title={date}>
+              <Typography variant='body2'>{date}</Typography>
+            </Tooltip>
+          )
+        }
       },
     },
     {

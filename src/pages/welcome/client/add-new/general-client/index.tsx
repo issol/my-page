@@ -9,18 +9,13 @@ import { Button, Grid, Typography, useMediaQuery } from '@mui/material'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
-import { useMutation } from 'react-query'
+
+import { useMutation, useQueryClient } from 'react-query'
 
 // ** third parties
 import toast from 'react-hot-toast'
 
 // ** types
-import {
-  ClientClassificationType,
-  ClientCompanyInfoType,
-  CorporateClientInfoType,
-} from '@src/context/types'
 
 // ** components
 
@@ -36,6 +31,14 @@ import {
 } from '@src/types/schema/client-contact-person.schema'
 import CreateContactPersonForm from '@src/pages/components/forms/create-contact-person-form'
 import { updateClientUserInfo } from '@src/apis/user.api'
+import useAuth from '@src/hooks/useAuth'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import {
+  currentRoleSelector,
+  roleSelector,
+  roleState,
+} from '@src/states/permission'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -60,20 +63,27 @@ export default function NewGeneralClientForm() {
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
+  const queryClient = useQueryClient()
 
-  const currentRole = getCurrentRole()
+  // const currentRole = getCurrentRole()
 
   // ** Hooks
-  const { company, user } = useAuth()
+
+  const auth = useRecoilValueLoadable(authState)
+  const role = useRecoilValueLoadable(roleState)
+  const setAuth = useAuth()
 
   useEffect(() => {
     if (
-      user?.firstName ||
-      (currentRole?.name !== 'CLIENT' && currentRole?.type !== 'General')
+      (auth.state === 'hasValue' &&
+        auth.getValue() &&
+        auth.getValue().user?.firstName) ||
+      (role.contents[0].name !== 'CLIENT' &&
+        role.contents[0].type !== 'General')
     ) {
       router.push('/')
     }
-  }, [user])
+  }, [auth])
 
   const {
     control,
@@ -102,22 +112,36 @@ export default function NewGeneralClientForm() {
     ) => updateClientUserInfo(data),
     {
       onSuccess: () => {
-        router.push('/home')
+        const { userId, email, accessToken } = router.query
+        const accessTokenAsString: string = accessToken as string
+        setAuth.updateUserInfo({
+          userId: Number(auth.getValue().user?.userId!),
+          email: auth.getValue().user?.email!,
+          accessToken: accessTokenAsString,
+        }).then(() => {
+          router.push('/home')
+        })
       },
       onError: () => onError(),
     },
   )
 
   function updateClientInformation() {
-    if (company && company.companyId) {
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue() &&
+      auth.getValue().company &&
+      auth.getValue().user &&
+      auth.getValue().company?.companyId
+    ) {
       const data: ContactPersonType & { userId: number } & {
         clientId: number
         companyId: string
       } = {
         ...getValues(),
-        userId: user?.userId!,
-        clientId: company.clientId,
-        companyId: company?.companyId,
+        userId: auth.getValue().user?.userId!,
+        clientId: auth.getValue().company?.clientId!,
+        companyId: auth.getValue().company?.companyId!,
       }
       createClientMutation.mutate(data)
     }
@@ -212,5 +236,5 @@ NewGeneralClientForm.getLayout = (page: ReactNode) => (
 
 NewGeneralClientForm.acl = {
   subject: 'client',
-  action: 'update',
+  action: 'read',
 }

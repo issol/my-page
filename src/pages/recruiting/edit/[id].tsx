@@ -18,7 +18,7 @@ import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-
+import { v4 as uuidv4 } from 'uuid'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
@@ -49,7 +49,8 @@ import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** form
 import { useForm, Controller } from 'react-hook-form'
@@ -79,9 +80,9 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { useMutation } from 'react-query'
 import JobPostingListModal from '../components/jobPosting-modal'
-import { useGetJobPostingList } from '@src/queries/jobPosting.query'
+import { useGetJobPostingList } from '@src/queries/jobs/jobPosting.query'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { recruiting } from '@src/shared/const/permission-class'
 import logger from '@src/@core/utils/logger'
 
@@ -101,7 +102,7 @@ export default function RecruitingEdit() {
   })
 
   // ** contexts
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
@@ -234,7 +235,11 @@ export default function RecruitingEdit() {
         setValueOptions,
       )
     } else if (currDueDate && !watch('dueDateTimezone')?.code) {
-      setValue('dueDateTimezone', user?.timezone, setValueOptions)
+      setValue(
+        'dueDateTimezone',
+        auth.getValue().user?.timezone,
+        setValueOptions,
+      )
     }
   }, [currDueDate])
 
@@ -391,7 +396,7 @@ export default function RecruitingEdit() {
                         <Typography
                           sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                           color={
-                            user?.email === currData?.email
+                            auth.getValue().user?.email === currData?.email
                               ? 'primary'
                               : 'secondary'
                           }
@@ -711,8 +716,8 @@ export default function RecruitingEdit() {
                               onChange={(e, v) => onChange(v)}
                               disableClearable
                               renderOption={(props, option) => (
-                                <Box component='li' {...props}>
-                                  {getGmtTime(option.code)}
+                                <Box component='li' {...props} key={uuidv4()}>
+                                  {getGmtTimeEng(option.code)}
                                 </Box>
                               )}
                               renderInput={params => (

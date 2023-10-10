@@ -24,21 +24,36 @@ import {
 } from '@src/shared/const/service-type/service-types'
 
 // ** apis
-import { useGetJobsList } from '@src/queries/jobs.query'
 
 // ** components
 import JobsList from './list'
+import { statusType } from '@src/types/common/status.type'
+import { useGetJobsList } from '@src/queries/jobs/jobs.query'
 
 export type FilterType = {
-  status?: string[]
+  status?: number[]
   client?: string[]
   category?: string[]
   serviceType?: string[]
   startedAt?: Array<Date | null>
   dueAt?: Array<Date | null>
   search?: string //filter for Work name, Project name
-  isMyJobs?: boolean
-  isHidePaid?: boolean
+  isMyJobs?: '0' | '1'
+  isHidePaid?: '0' | '1'
+  skip: number
+  take: number
+}
+
+export type FilterPostType = {
+  status?: number[]
+  client?: string[]
+  category?: string[]
+  serviceType?: string[]
+  startedAt?: Array<Date | null>
+  dueAt?: Array<Date | null>
+  search?: string //filter for Work name, Project name
+  isMyJobs?: '0' | '1'
+  isHidePaid?: '0' | '1'
   skip: number
   take: number
 }
@@ -51,8 +66,8 @@ export const initialFilter: FilterType = {
   startedAt: [null, null],
   dueAt: [null, null],
   search: '',
-  isMyJobs: false,
-  isHidePaid: false,
+  isMyJobs: '0',
+  isHidePaid: '0',
   skip: 0,
   take: 10,
 }
@@ -60,9 +75,14 @@ export const initialFilter: FilterType = {
 type Props = {
   clients: Array<ClientRowType>
   onCreateNewJob: () => void
+  statusList: Array<statusType>
 }
 
-export default function JobListView({ clients, onCreateNewJob }: Props) {
+export default function JobListView({
+  clients,
+  onCreateNewJob,
+  statusList,
+}: Props) {
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
   const [activeFilter, setActiveFilter] = useState<FilterType>({
@@ -137,20 +157,23 @@ export default function JobListView({ clients, onCreateNewJob }: Props) {
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>See only my jobs</Typography>
           <Switch
-            checked={activeFilter.isMyJobs}
+            checked={activeFilter.isMyJobs === '1'}
             onChange={e =>
-              setActiveFilter({ ...activeFilter, isMyJobs: e.target.checked })
+              setActiveFilter({
+                ...activeFilter,
+                isMyJobs: e.target.checked ? '1' : '0',
+              })
             }
           />
         </Box>
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>Hide paid jobs</Typography>
           <Switch
-            checked={activeFilter.isHidePaid}
+            checked={activeFilter.isHidePaid === '1'}
             onChange={e =>
               setActiveFilter({
                 ...activeFilter,
-                isHidePaid: e.target.checked,
+                isHidePaid: e.target.checked ? '1' : '0',
               })
             }
           />
@@ -184,6 +207,7 @@ export default function JobListView({ clients, onCreateNewJob }: Props) {
             setPageSize={(n: number) =>
               setActiveFilter({ ...activeFilter, take: n })
             }
+            statusList={statusList!}
           />
         </Card>
       </Grid>

@@ -12,7 +12,7 @@ type Props = {
 const ViewPrices = ({ jobInfo, prices }: Props) => {
   const itemDetail: ItemDetailType[] = useMemo(
     () =>
-      prices?.datas?.map(
+      prices?.detail?.map(
         item =>
           ({
             priceUnitId: item.priceUnitId,
@@ -55,7 +55,7 @@ const ViewPrices = ({ jobInfo, prices }: Props) => {
               Price
             </Typography>
             <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-              {prices?.datas[0]?.priceUnitTitle}
+              {prices?.detail[0]?.title}
             </Typography>
           </Box>
         </Box>

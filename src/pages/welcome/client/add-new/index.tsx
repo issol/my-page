@@ -9,7 +9,7 @@ import { useMediaQuery } from '@mui/material'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
+
 import { useMutation } from 'react-query'
 
 // ** third parties
@@ -31,6 +31,13 @@ import IndividualClientForm from './components/individual-client-form'
 // ** apis
 import { createClient } from '@src/apis/client.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import {
+  currentRoleSelector,
+  roleSelector,
+  roleState,
+} from '@src/states/permission'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -63,19 +70,22 @@ export default function NewClientProfileForm() {
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
-  const currentRole = getCurrentRole()
+  // const currentRole = getCurrentRole()
+  const role = useRecoilValueLoadable(roleState)
 
   // ** Hooks
-  const { company } = useAuth()
+  const auth = useRecoilValueLoadable(authState)
 
   useEffect(() => {
     if (
-      company?.name ||
-      currentRole?.name !== 'CLIENT'
+      (auth.state === 'hasValue' &&
+        auth.getValue() &&
+        auth.getValue().company?.name) ||
+      role.contents[0].name !== 'CLIENT'
     ) {
       router.push('/')
     }
-  }, [company])
+  }, [auth])
 
   function onError() {
     toast.error('Something went wrong. Please try again.', {
@@ -209,5 +219,5 @@ NewClientProfileForm.getLayout = (page: ReactNode) => (
 
 NewClientProfileForm.acl = {
   subject: 'client',
-  action: 'update',
+  action: 'read',
 }

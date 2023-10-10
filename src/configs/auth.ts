@@ -6,7 +6,8 @@ export default {
   onTokenExpiration: 'refreshToken', // logout | refreshToken
   rememberId: 'rememberId',
   userInfo: 'userData',
+  companyInfo: 'companyInfo',
   permission: 'enough_permission',
   redirectPath: 'redirectPath',
-  currentRole: 'currentRole'
+  currentRole: 'currentRole',
 }

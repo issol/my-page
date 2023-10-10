@@ -1,12 +1,11 @@
 import { ItemDetailType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
-import { JobStatusType } from '../jobs/common.type'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type AddJobInfoType = {
   jobName: string
-  status: string
+  status: number
   contactPerson: string
   serviceType: string
   languagePair: string
@@ -20,10 +19,13 @@ export type AddJobInfoType = {
 
 export type AddJobInfoFormType = {
   name: string
-  status: { label: JobStatusType; value: JobStatusType }
+  // status: { label: JobStatusType; value: JobStatusType }
+  status: number
   contactPerson: { label: string; value: string; userId: number }
-  serviceType: { label: string; value: string }
-  languagePair: { label: string; value: string; source: string; target: string }
+  serviceType: string
+  // languagePair: { source: string; target: string }
+  source: string | null
+  target: string | null
   startedAt?: Date
   startTimezone?: CountryType
   dueAt: Date
@@ -55,7 +57,7 @@ export type AssignProFilterPostType = {
   expertise?: string[]
   sortId?: string
   sortDate?: string
-  isOffBoard: boolean
+  isOffBoard: '0' | '1'
 }
 
 export type AssignProListType = {
@@ -64,9 +66,9 @@ export type AssignProListType = {
   middleName: string | null
   lastName: string
   email: string
-  status: string
+  status: number
   responseRate: number | null
-  assignmentStatus: string | null
+  assignmentStatus: number | null
   assignmentDate: string | null
   files?: Array<{
     name: string
@@ -100,7 +102,7 @@ export type SaveJobInfoParamsType = {
 
   dueDate?: string
   dueTimezone?: CountryType
-  status?: JobStatusType
+  status?: number
   sourceLanguage?: string | null
   targetLanguage?: string | null
   name?: string

@@ -32,11 +32,12 @@ import { Dispatch, SetStateAction, useEffect } from 'react'
 import {
   Control,
   UseFormGetValues,
+  UseFormReset,
   UseFormSetValue,
+  UseFormTrigger,
   UseFormWatch,
   useForm,
 } from 'react-hook-form'
-import { useMutation, useQueryClient } from 'react-query'
 
 type Props = {
   type: string
@@ -56,6 +57,7 @@ type Props = {
   onSave?: (data: {
     id: number
     form: InvoiceReceivablePatchParamsType
+    type: 'basic' | 'accounting'
   }) => void
   isUpdatable: boolean
 }
@@ -102,7 +104,10 @@ const InvoiceClient = ({
           form: {
             ...data,
             contactPersonId: clients.contactPersonId,
+
+            showDescription: data.showDescription ? '1' : '0',
           },
+          type: 'basic',
         })
       }
     }
@@ -116,10 +121,11 @@ const InvoiceClient = ({
             control={clientControl!}
             setValue={setClientValue!}
             watch={clientWatch!}
-            setTax={setTax!}
             setTaxable={setTaxable!}
             type='order'
             formType='edit'
+            getValue={getClientValue!}
+            fromQuote={false}
           />
           <Grid item xs={12}>
             <Box
@@ -236,7 +242,7 @@ const InvoiceClient = ({
                     <Typography variant='body2'>
                       {getGmtTimeEng(
                         client.contactPerson !== null
-                          ? client.contactPerson.timezone.code
+                          ? client.contactPerson.timezone?.code
                           : client.client.timezone.code,
                       )}
                     </Typography>
@@ -262,7 +268,7 @@ const InvoiceClient = ({
                           ? client.contactPerson.phone!
                           : client.client.phone,
                         client.contactPerson !== null
-                          ? client.contactPerson.timezone.phone
+                          ? client.contactPerson.timezone?.phone
                           : client.client.timezone.phone,
                       )}
                     </Typography>
@@ -291,7 +297,7 @@ const InvoiceClient = ({
                           ? client.contactPerson.mobile!
                           : client.client.mobile,
                         client.contactPerson !== null
-                          ? client.contactPerson.timezone.phone
+                          ? client.contactPerson.timezone?.phone
                           : client.client.timezone.phone,
                       )}
                     </Typography>
@@ -317,7 +323,7 @@ const InvoiceClient = ({
                           ? client.contactPerson.fax!
                           : client.client.fax,
                         client.contactPerson !== null
-                          ? client.contactPerson.timezone.phone
+                          ? client.contactPerson.timezone?.phone
                           : client.client.timezone.phone,
                       )}
                     </Typography>

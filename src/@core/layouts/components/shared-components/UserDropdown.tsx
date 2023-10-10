@@ -18,7 +18,6 @@ import Typography from '@mui/material/Typography'
 import Icon from 'src/@core/components/icon'
 
 // ** Context
-import { useAuth } from 'src/hooks/useAuth'
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
@@ -27,8 +26,22 @@ import { RoleType, UserRoleType } from 'src/context/types'
 // ** hooks
 import { useAppDispatch, useAppSelector } from 'src/hooks/useRedux'
 import { Switch } from '@mui/material'
-// import { setCurrentRole } from '@src/store/permission'
-import { setCurrentRole, getCurrentRole } from 'src/shared/auth/storage'
+
+import { getCurrentRole } from 'src/shared/auth/storage'
+import {
+  useRecoilState,
+  useRecoilStateLoadable,
+  useRecoilValueLoadable,
+  useSetRecoilState,
+} from 'recoil'
+
+import { authState } from '@src/states/auth'
+import useAuth from '@src/hooks/useAuth'
+import {
+  currentRoleSelector,
+  roleSelector,
+  roleState,
+} from '@src/states/permission'
 
 interface Props {
   settings: Settings
@@ -47,19 +60,20 @@ const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props
   const [checked, setChecked] = useState<boolean>(false)
-  const dispatch = useAppDispatch()
+  const [currentRole, setCurrentRole] =
+    useRecoilStateLoadable(currentRoleSelector)
+  const role = useRecoilValueLoadable(roleState)
 
   // ** redux
-  const { role } = useAppSelector(state => state.userAccess)
 
-  const auth = useAuth()
+  const user = useRecoilValueLoadable(authState)
 
   // ** States
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
 
   // ** Hooks
   const router = useRouter()
-  const { logout } = useAuth()
+  const auth = useAuth()
 
   // ** Vars
   const { direction } = settings
@@ -76,10 +90,17 @@ const UserDropdown = (props: Props) => {
   }
 
   useEffect(() => {
-    if (role && hasTadAndLpm(role)) {
-      const currentRole = getCurrentRole()
-      if (currentRole?.name === 'TAD') setChecked(false)
-      else if (currentRole?.name === 'LPM') setChecked(true)
+    if (role.state === 'hasValue' && hasTadAndLpm(role.getValue())) {
+      if (
+        currentRole.state === 'hasValue' &&
+        currentRole.getValue()?.name === 'TAD'
+      )
+        setChecked(false)
+      else if (
+        currentRole.state === 'hasValue' &&
+        currentRole.getValue()?.name === 'LPM'
+      )
+        setChecked(true)
       else setChecked(false)
     }
   }, [role])
@@ -87,12 +108,14 @@ const UserDropdown = (props: Props) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked)
     // 스위치가 바뀔때 Role을 세션 스토리지에 저장
-    if (hasTadAndLpm(role)) {
-      setCurrentRole(
-        event.target.checked
-          ? role.find(item => item.name === 'LPM')
-          : role.find(item => item.name === 'TAD'),
-      )
+    if (role.state === 'hasValue' && hasTadAndLpm(role.getValue())) {
+      const switchedRole: UserRoleType | undefined = event.target.checked
+        ? role.getValue().find(item => item.name === 'LPM')
+        : role.getValue().find(item => item.name === 'TAD')
+
+      console.log(switchedRole)
+
+      setCurrentRole(switchedRole!)
     }
     router.push('/home')
   }
@@ -120,7 +143,7 @@ const UserDropdown = (props: Props) => {
   }
 
   const handleLogout = () => {
-    logout()
+    auth.logout()
     handleDropdownClose()
   }
 
@@ -182,12 +205,13 @@ const UserDropdown = (props: Props) => {
               }}
             >
               <Typography sx={{ fontWeight: 600 }}>
-                {auth?.user?.username?.includes('undefined')
+                {user.state === 'hasValue' &&
+                user.getValue().user?.username?.includes('undefined')
                   ? 'anonymous'
-                  : auth?.user?.username}
+                  : user.getValue().user?.username}
               </Typography>
 
-              {role && hasTadAndLpm(role) ? (
+              {role.state === 'hasValue' && hasTadAndLpm(role.getValue()) ? (
                 <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                   <Typography
                     fontSize={14}
@@ -221,7 +245,7 @@ const UserDropdown = (props: Props) => {
                   </Typography>
                 </Box>
               ) : (
-                role?.map((value, index) => {
+                role.getValue()?.map((value, index) => {
                   return (
                     <Typography
                       key={index}

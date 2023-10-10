@@ -31,7 +31,7 @@ export default function ServerErrorModal({ onClose }: Props) {
           <Button
             variant='contained'
             onClick={() => {onClose()}}>
-            Okey
+            Okay
           </Button>
       </Box>
     </SmallModalContainer>

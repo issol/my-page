@@ -36,7 +36,8 @@ import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** form
 import { useForm, Controller } from 'react-hook-form'
@@ -47,9 +48,15 @@ import {
   ClientGuidelineType,
 } from 'src/types/schema/client-guideline.schema'
 
-import { CategoryList } from 'src/shared/const/category/categories'
+import {
+  CategoryList,
+  CategoryListPair,
+} from 'src/shared/const/category/categories'
 
-import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
+import {
+  ServiceTypeList,
+  ServiceTypePair,
+} from 'src/shared/const/service-type/service-types'
 
 // ** fetches
 import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
@@ -74,20 +81,26 @@ import logger from '@src/@core/utils/logger'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { useGetClientList } from '@src/queries/client.query'
+import FallbackSpinner from '@src/@core/components/spinner'
+
+import _ from 'lodash'
+import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
+import { Category } from '@src/shared/const/category/category.enum'
 
 const defaultValues = {
   title: '',
   client: { label: '', value: '' },
-  category: { label: '', value: '' },
-  serviceType: { label: '', value: '' },
+  category: null,
+  serviceType: null,
   // content: null,
   file: [],
 }
+const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
 const ClientGuidelineForm = () => {
   const router = useRouter()
   // ** contexts
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
@@ -100,6 +113,9 @@ const ClientGuidelineForm = () => {
   const [content, setContent] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
+
+  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+  const [categoryList, setCategoryList] = useState(CategoryList)
 
   // ** file values
   const MAXIMUM_FILE_SIZE = FILE_SIZE.CLIENT_GUIDELINE
@@ -231,7 +247,14 @@ const ClientGuidelineForm = () => {
 
   function checkGuideline() {
     const { category, client, serviceType } = getValues()
-    if (category.value && client.value && serviceType.value) {
+    if (
+      category &&
+      client &&
+      serviceType &&
+      category.value &&
+      client.value &&
+      serviceType.value
+    ) {
       checkGuidelineExistence(
         client.value,
         category.value,
@@ -260,7 +283,6 @@ const ClientGuidelineForm = () => {
     trigger,
     formState: { errors, isValid },
   } = useForm<ClientGuidelineType>({
-    defaultValues,
     mode: 'onChange',
     resolver: yupResolver(clientGuidelineSchema),
   })
@@ -370,336 +392,404 @@ const ClientGuidelineForm = () => {
   )
 
   const onSubmit = () => {
-    const data = getValues()
-    //** data to send to server */
-    const formContent = convertToRaw(content.getCurrentContent())
-    const finalValue: FormType = {
-      writer: user?.username!,
-      email: user?.email!,
-      title: data.title,
-      client: data.client.value,
-      category: data.category.value,
-      serviceType: data.serviceType.value,
-      content: formContent,
-      text: content.getCurrentContent().getPlainText('\u0001'),
-    }
-    // file upload
-    if (data.file.length) {
-      const fileInfo: Array<FilePostType> = []
-      const paths: string[] = data?.file?.map(file =>
-        getFilePath(
-          [
-            data.client.value,
-            data.category.value,
-            data.serviceType.value,
-            'V1',
-          ],
-          file.name,
-        ),
-      )
-      const promiseArr = paths.map((url, idx) => {
-        return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url).then(
-          res => {
-            fileInfo.push({
-              name: data.file[idx].name,
-              size: data.file[idx]?.size,
-              fileUrl: url,
-            })
-            return uploadFileToS3(res.url, data.file[idx])
-          },
-        )
-      })
-      Promise.all(promiseArr)
-        .then(res => {
-          logger.debug('upload client guideline file success :', res)
-          finalValue.files = fileInfo
-          guidelineMutation.mutate(finalValue)
-        })
-        .catch(err =>
-          toast.error(
-            'Something went wrong while uploading files. Please try again.',
-            {
-              position: 'bottom-left',
-            },
+    if (auth.state === 'hasValue') {
+      const data = getValues()
+      //** data to send to server */
+      const formContent = convertToRaw(content.getCurrentContent())
+      const finalValue: FormType = {
+        writer: auth.getValue().user?.username!,
+        email: auth.getValue().user?.email!,
+        title: data.title,
+        client: data.client.value,
+        category: data.category?.value!,
+        serviceType: data.serviceType?.value!,
+        content: formContent,
+        text: content.getCurrentContent().getPlainText('\u0001'),
+      }
+      // file upload
+      if (data.file.length) {
+        const fileInfo: Array<FilePostType> = []
+        const paths: string[] = data?.file?.map(file =>
+          getFilePath(
+            [
+              data.client.value,
+              data.category?.value!,
+              data.serviceType?.value!,
+              'V1',
+            ],
+            file.name,
           ),
         )
-    } else {
-      guidelineMutation.mutate(finalValue)
+        const promiseArr = paths.map((url, idx) => {
+          return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url).then(
+            res => {
+              fileInfo.push({
+                name: data.file[idx].name,
+                size: data.file[idx]?.size,
+                fileUrl: url,
+              })
+              return uploadFileToS3(res.url, data.file[idx])
+            },
+          )
+        })
+        Promise.all(promiseArr)
+          .then(res => {
+            logger.debug('upload client guideline file success :', res)
+            finalValue.files = fileInfo
+            guidelineMutation.mutate(finalValue)
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      } else {
+        guidelineMutation.mutate(finalValue)
+      }
     }
   }
 
   return (
-    <form>
-      <StyledEditor
-        style={{ margin: '0 70px' }}
-        error={!content.getCurrentContent().getPlainText('\u0001') && showError}
-      >
-        <Typography variant='h6' mb='24px'>
-          New client guidelines
-        </Typography>
+    <>
+      {auth.state === 'loading' ? (
+        <FallbackSpinner />
+      ) : auth.state === 'hasValue' ? (
+        <form>
+          <StyledEditor
+            style={{ margin: '0 70px' }}
+            error={
+              !content.getCurrentContent().getPlainText('\u0001') && showError
+            }
+          >
+            <Typography variant='h6' mb='24px'>
+              New client guidelines
+            </Typography>
 
-        <Grid container spacing={6} className='match-height'>
-          <Grid item xs={12} md={8}>
-            <Card sx={{ padding: '30px 20px 20px' }}>
-              <Box display='flex' justifyContent='flex-end' mb='26px'>
-                <Box display='flex' alignItems='center' gap='8px'>
-                  <CustomChip
-                    label='Writer'
-                    skin='light'
-                    color='error'
-                    size='small'
-                  />
-                  <Typography
-                    sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                    color='primary'
-                  >
-                    {user?.username}
-                  </Typography>
-                  <Divider orientation='vertical' variant='middle' flexItem />
-                  <Typography variant='body2'>{user?.email}</Typography>
-                </Box>
-              </Box>
-              {/* title */}
-              <Grid item xs={12} mb='20px'>
-                <Controller
-                  name='title'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <>
-                      <TextField
-                        fullWidth
-                        autoFocus
-                        value={value}
-                        onBlur={onBlur}
-                        onChange={onChange}
-                        inputProps={{ maxLength: 100 }}
-                        error={Boolean(errors.title)}
-                        label='Title*'
-                        placeholder='Tappytoon webnovel styleguide #1'
+            <Grid container spacing={6} className='match-height'>
+              <Grid item xs={12} md={8}>
+                <Card sx={{ padding: '30px 20px 20px' }}>
+                  <Box display='flex' justifyContent='flex-end' mb='26px'>
+                    <Box display='flex' alignItems='center' gap='8px'>
+                      <CustomChip
+                        label='Writer'
+                        skin='light'
+                        color='error'
+                        size='small'
                       />
-                    </>
-                  )}
-                />
-                {errors.title && (
-                  <FormHelperText sx={{ color: 'error.main' }}>
-                    {errors.title?.message}
-                  </FormHelperText>
-                )}
-              </Grid>
-              {/* client */}
-              <Box display='flex' gap='20px'>
-                <Grid item xs={6} mb='20px'>
-                  <Controller
-                    name='client'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <Autocomplete
-                        autoHighlight
-                        fullWidth
-                        options={clientList}
-                        onChange={(e, v) => {
-                          if (!v) onChange({ value: '', label: '' })
-                          else onChange(v)
-                          checkGuideline()
-                        }}
-                        value={value}
-                        id='client'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
+                      <Typography
+                        sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                        color='primary'
+                      >
+                        {auth.getValue().user?.username}
+                      </Typography>
+                      <Divider
+                        orientation='vertical'
+                        variant='middle'
+                        flexItem
+                      />
+                      <Typography variant='body2'>
+                        {auth.getValue().user?.email}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  {/* title */}
+                  <Grid item xs={12} mb='20px'>
+                    <Controller
+                      name='title'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <>
                           <TextField
-                            {...params}
-                            error={Boolean(errors.client)}
-                            label='Client*'
-                            placeholder='Client*'
+                            fullWidth
+                            value={value}
+                            onBlur={onBlur}
+                            onChange={onChange}
+                            inputProps={{ maxLength: 100 }}
+                            error={Boolean(errors.title)}
+                            label='Title*'
+                            placeholder='Tappytoon webnovel styleguide #1'
                           />
-                        )}
-                      />
-                    )}
-                  />
-                  {errors.client && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.client?.label?.message ||
-                        errors.client?.value?.message}
-                    </FormHelperText>
-                  )}
-                </Grid>
-                {/* category */}
-                <Grid item xs={6} mb='20px'>
-                  <Controller
-                    name='category'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <Autocomplete
-                        autoHighlight
-                        fullWidth
-                        options={CategoryList}
-                        value={value}
-                        // filterSelectedOptions
-                        onChange={(e, v) => {
-                          if (!v) onChange({ value: '', label: '' })
-                          else onChange(v)
-                          checkGuideline()
-                        }}
-                        id='category'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            error={Boolean(errors.category)}
-                            label='Category*'
-                            placeholder='Category*'
-                          />
-                        )}
-                      />
-                    )}
-                  />
-                  {errors.category && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.category?.label?.message ||
-                        errors.category?.value?.message}
-                    </FormHelperText>
-                  )}
-                </Grid>
-              </Box>
-              {/* service type */}
-              <Grid item xs={12} mb='20px'>
-                <Controller
-                  name='serviceType'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <Autocomplete
-                      autoHighlight
-                      fullWidth
-                      options={ServiceTypeList}
-                      value={value}
-                      // filterSelectedOptions
-                      onChange={(e, v) => {
-                        if (!v) onChange({ value: '', label: '' })
-                        else onChange(v)
-                        checkGuideline()
-                      }}
-                      id='serviceType'
-                      getOptionLabel={option => option.label}
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          error={Boolean(errors.serviceType)}
-                          label='Service type*'
-                          placeholder='Service type*'
-                        />
+                        </>
                       )}
                     />
+                    {errors.title && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.title?.message}
+                      </FormHelperText>
+                    )}
+                  </Grid>
+                  {/* client */}
+                  <Box display='flex' gap='20px'>
+                    <Grid item xs={6} mb='20px'>
+                      <Controller
+                        name='client'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange, onBlur } }) => (
+                          <Autocomplete
+                            autoHighlight
+                            fullWidth
+                            options={clientList}
+                            onChange={(e, v) => {
+                              if (!v) onChange({ value: '', label: '' })
+                              else onChange(v)
+                              checkGuideline()
+                            }}
+                            value={value}
+                            id='client'
+                            getOptionLabel={option => option.label}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                error={Boolean(errors.client)}
+                                label='Client*'
+                                // placeholder='Client*'
+                              />
+                            )}
+                          />
+                        )}
+                      />
+                      {errors.client && (
+                        <FormHelperText sx={{ color: 'error.main' }}>
+                          {errors.client?.label?.message ||
+                            errors.client?.value?.message}
+                        </FormHelperText>
+                      )}
+                    </Grid>
+                    {/* category */}
+                    <Grid item xs={6} mb='20px'>
+                      <Controller
+                        name='category'
+                        control={control}
+                        // rules={{ required: true }}
+                        render={({ field: { value, onChange, onBlur } }) => (
+                          <Autocomplete
+                            fullWidth
+                            options={categoryList}
+                            value={value}
+                            // filterSelectedOptions
+                            onChange={(e, v) => {
+                              if (v) {
+                                const arr: {
+                                  label: ServiceType
+                                  value: ServiceType
+                                }[] = []
+                                /* @ts-ignore */
+                                const res = ServiceTypePair[v.value]
+
+                                arr.push(...res)
+
+                                setServiceTypeList(_.uniqBy(arr, 'value'))
+                                trigger('serviceType')
+                                onChange(v)
+                              } else {
+                                setServiceTypeList(ServiceTypeList)
+                                setCategoryList(CategoryList)
+                                setValue(
+                                  'serviceType',
+                                  null,
+                                  // setValueOptions,
+                                )
+                                // trigger('serviceType')
+                                onChange({ value: null, label: null })
+                              }
+                              checkGuideline()
+                            }}
+                            id='category'
+                            getOptionLabel={option => option.label ?? ''}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                error={Boolean(errors.category)}
+                                label='Category*'
+                                // placeholder='Category*'
+                              />
+                            )}
+                          />
+                        )}
+                      />
+                      {errors.category && (
+                        <FormHelperText sx={{ color: 'error.main' }}>
+                          {errors.category?.label?.message ||
+                            errors.category?.value?.message ||
+                            FormErrors.required}
+                        </FormHelperText>
+                      )}
+                    </Grid>
+                  </Box>
+                  {/* service type */}
+                  <Grid item xs={12} mb='20px'>
+                    <Controller
+                      name='serviceType'
+                      control={control}
+                      // rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => {
+                        return (
+                          <Autocomplete
+                            fullWidth
+                            options={serviceTypeList}
+                            value={value ? value : { value: null, label: null }}
+                            disabled={
+                              !getValues('category') ||
+                              (!getValues('category.label') &&
+                                !getValues('category.value'))
+                            }
+                            // filterSelectedOptions
+                            onChange={(e, v) => {
+                              if (v) {
+                                const arr: {
+                                  label: Category
+                                  value: Category
+                                }[] = []
+                                /* @ts-ignore */
+                                const res = CategoryListPair[v.value]
+                                arr.push(...res)
+                                setCategoryList(arr)
+                                trigger('category')
+                                onChange(v)
+                              } else {
+                                setCategoryList(CategoryList)
+                                trigger('category')
+                                onChange({ value: null, label: null })
+                                trigger('serviceType')
+                              }
+                              checkGuideline()
+                            }}
+                            id='serviceType'
+                            getOptionLabel={option => option.label ?? ''}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                error={
+                                  !!getValues('category') &&
+                                  !!getValues('category.label') &&
+                                  !!getValues('category.value') &&
+                                  Boolean(errors.serviceType)
+                                }
+                                label='Service type*'
+                                // placeholder='Service type*'
+                              />
+                            )}
+                          />
+                        )
+                      }}
+                    />
+                    {!!getValues('category') &&
+                      !!getValues('category.label') &&
+                      !!getValues('category.value') &&
+                      errors.serviceType && (
+                        <FormHelperText sx={{ color: 'error.main' }}>
+                          {errors.serviceType?.label?.message ||
+                            errors.serviceType?.value?.message ||
+                            FormErrors.required}
+                        </FormHelperText>
+                      )}
+                  </Grid>
+                  <Divider />
+                  <ReactDraftWysiwyg
+                    editorState={content}
+                    placeholder='Write down a guideline or attach it as a file.'
+                    onEditorStateChange={data => {
+                      setShowError(true)
+                      setContent(data)
+                    }}
+                  />
+                  {!content.getCurrentContent().getPlainText('\u0001') &&
+                  showError ? (
+                    <Typography
+                      color='error'
+                      sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
+                      mt='8px'
+                    >
+                      {FormErrors.required}
+                    </Typography>
+                  ) : (
+                    ''
                   )}
-                />
-                {errors.serviceType && (
-                  <FormHelperText sx={{ color: 'error.main' }}>
-                    {errors.serviceType?.label?.message ||
-                      errors.serviceType?.value?.message}
+                </Card>
+              </Grid>
+
+              <Grid
+                item
+                xs={12}
+                md={4}
+                className='match-height'
+                sx={{ height: '152px' }}
+              >
+                <Card style={{ height: '565px', overflow: 'scroll' }}>
+                  <Box
+                    sx={{
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    <Box display='flex' justifyContent='space-between'>
+                      <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
+                        Attached file
+                      </Typography>
+                      <Typography variant='body2'>
+                        {formatFileSize(fileSize)}/{' '}
+                        {byteToMB(MAXIMUM_FILE_SIZE)}
+                      </Typography>
+                    </Box>
+                    <div {...getRootProps({ className: 'dropzone' })}>
+                      <Button variant='outlined' fullWidth>
+                        <input {...getInputProps()} />
+                        Upload files
+                      </Button>
+                    </div>
+                    {files.length ? (
+                      <Fragment>
+                        <List>{fileList}</List>
+                      </Fragment>
+                    ) : null}
+                  </Box>
+                </Card>
+                {errors.file && (
+                  <FormHelperText sx={{ color: 'error.main' }} id=''>
+                    {errors.file.message}
                   </FormHelperText>
                 )}
+                <Card style={{ marginTop: '24px' }}>
+                  <Box
+                    sx={{
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      onClick={onDiscard}
+                    >
+                      Discard
+                    </Button>
+                    <Button
+                      variant='contained'
+                      onClick={onUpload}
+                      disabled={
+                        !isValid ||
+                        !content.getCurrentContent().getPlainText('\u0001')
+                      }
+                    >
+                      Upload
+                    </Button>
+                  </Box>
+                </Card>
               </Grid>
-              <Divider />
-              <ReactDraftWysiwyg
-                editorState={content}
-                placeholder='Write down a guideline or attach it as a file.'
-                onEditorStateChange={data => {
-                  setShowError(true)
-                  setContent(data)
-                }}
-              />
-              {!content.getCurrentContent().getPlainText('\u0001') &&
-              showError ? (
-                <Typography
-                  color='error'
-                  sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
-                  mt='8px'
-                >
-                  {FormErrors.required}
-                </Typography>
-              ) : (
-                ''
-              )}
-            </Card>
-          </Grid>
-
-          <Grid
-            item
-            xs={12}
-            md={4}
-            className='match-height'
-            sx={{ height: '152px' }}
-          >
-            <Card style={{ height: '565px', overflow: 'scroll' }}>
-              <Box
-                sx={{
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
-              >
-                <Box display='flex' justifyContent='space-between'>
-                  <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                    Attached file
-                  </Typography>
-                  <Typography variant='body2'>
-                    {formatFileSize(fileSize)}/ {byteToMB(MAXIMUM_FILE_SIZE)}
-                  </Typography>
-                </Box>
-                <div {...getRootProps({ className: 'dropzone' })}>
-                  <Button variant='outlined' fullWidth>
-                    <input {...getInputProps()} />
-                    Upload files
-                  </Button>
-                </div>
-                {files.length ? (
-                  <Fragment>
-                    <List>{fileList}</List>
-                  </Fragment>
-                ) : null}
-              </Box>
-            </Card>
-            {errors.file && (
-              <FormHelperText sx={{ color: 'error.main' }} id=''>
-                {errors.file.message}
-              </FormHelperText>
-            )}
-            <Card style={{ marginTop: '24px' }}>
-              <Box
-                sx={{
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
-              >
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  onClick={onDiscard}
-                >
-                  Discard
-                </Button>
-                <Button
-                  variant='contained'
-                  onClick={onUpload}
-                  disabled={
-                    !isValid ||
-                    !content.getCurrentContent().getPlainText('\u0001')
-                  }
-                >
-                  Upload
-                </Button>
-              </Box>
-            </Card>
-          </Grid>
-        </Grid>
-      </StyledEditor>
-    </form>
+            </Grid>
+          </StyledEditor>
+        </form>
+      ) : null}
+    </>
   )
 }
 

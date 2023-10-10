@@ -14,7 +14,7 @@ import { CurrencyType } from './standard-price'
 export type QuoteStatusType =
   | 'New'
   | 'In preparation'
-  | 'Internal Review'
+  | 'Internal review'
   | 'Client review'
   | 'Quote sent'
   | 'Expired'
@@ -58,6 +58,7 @@ export type QuotesProjectInfoFormType = {
   showDescription: boolean
   tax: number | null
   isTaxable: boolean
+  subtotal: number
 }
 
 export type QuotesProjectInfoAddNewType = {
@@ -76,6 +77,7 @@ export type QuotesProjectInfoAddNewType = {
   showDescription: boolean
   tax: number | null
   isTaxable: boolean
+  subtotal: number
 }
 
 export type QuotesListType = {
@@ -85,6 +87,10 @@ export type QuotesListType = {
   projectName: string
   currency: CurrencyType
   client: {
+    name: string
+    email: string
+  }
+  lsp?: {
     name: string
     email: string
   }
@@ -115,6 +121,7 @@ export type ProjectInfoType = {
   expertise: string[]
   projectName: string
   projectDescription: string
+  showDescription: boolean
   projectDueAt: string
   projectDueTimezone: CountryType
   quoteDeadline: string
@@ -137,6 +144,7 @@ export type ProjectInfoType = {
     id: number
     corporationId: string
   } | null
+  subtotal: string | number
 }
 
 export type VersionHistoryType = HistoryType & {
@@ -175,4 +183,5 @@ export type QuoteDownloadData = {
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
   langItem: LanguageAndItemType | undefined
+  subtotal: string | number | undefined
 }

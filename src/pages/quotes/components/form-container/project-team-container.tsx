@@ -1,14 +1,13 @@
-import { useContext } from 'react'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** mui
-import { Box, Button, Grid } from '@mui/material'
+import { Grid } from '@mui/material'
 
 // ** types
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
 
 // ** react hook form
 import {
@@ -38,14 +37,12 @@ type Props = {
   append: UseFieldArrayAppend<ProjectTeamType, 'teams'>
   remove: UseFieldArrayRemove
   update: UseFieldArrayUpdate<ProjectTeamType, 'teams'>
-  // getValues: UseFormGetValues<ProjectTeamType>
+
   setValue: UseFormSetValue<ProjectTeamType>
   errors: FieldErrors<ProjectTeamType>
   isValid: boolean
   watch: UseFormWatch<ProjectTeamType>
-  // onNextStep: () => void
-  // handleCancel?: () => void
-  // type: string
+  getValue: UseFormGetValues<ProjectTeamType>
 }
 
 export default function ProjectTeamFormContainer({
@@ -54,16 +51,14 @@ export default function ProjectTeamFormContainer({
   append,
   remove,
   update,
-  // getValues,
+
   setValue,
   errors,
   isValid,
   watch,
-}: // onNextStep,
-// handleCancel,
-// type,
-Props) {
-  const { user } = useContext(AuthContext)
+  getValue,
+}: Props) {
+  const auth = useRecoilValueLoadable(authState)
   const { data } = useGetMemberList()
 
   return (
@@ -78,15 +73,16 @@ Props) {
         errors={errors}
         isValid={isValid}
         watch={watch}
+        getValue={getValue}
         memberList={
           data?.concat({
-            value: user?.userId.toString()!,
+            value: auth.getValue().user?.userId.toString()!,
             label: getLegalName({
-              firstName: user?.firstName!,
-              middleName: user?.middleName,
-              lastName: user?.lastName!,
+              firstName: auth.getValue().user?.firstName!,
+              middleName: auth.getValue().user?.middleName,
+              lastName: auth.getValue().user?.lastName!,
             }),
-            jobTitle: user?.jobTitle ?? '',
+            jobTitle: auth.getValue().user?.jobTitle ?? '',
           }) || []
         }
       />

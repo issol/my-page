@@ -50,7 +50,7 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 // ** types & validation
 import { MemberType } from '@src/types/schema/project-team.schema'
-import { languageType } from '@src/pages/orders/add-new'
+import { languageType } from '@src/pages/quotes/add-new'
 import {
   PriceUnitListType,
   StandardPriceListType,
@@ -85,6 +85,9 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -99,6 +102,7 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
+    idx?: number,
   ) => Array<StandardPriceListType & { groupName?: string }>
   priceUnitsList: Array<PriceUnitListType>
   type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
@@ -197,20 +201,25 @@ export default function ItemForm({
     )
     return options
   }
-  // Language pair에 price가 변경된 경우 0번째 language-pair의 currency와 모든 item의 price의 currency를 비교하여
+  // Language pair에 price가 변경된 경우 field(item)의 initialPrice.currency와 모든 item의 price의 currency를 비교하여
   // currency가 다른 경우 해당 item의 price를 null 처리한다.
   // 모달은 등록한 Language pair가 1개인 경우에만 발생시킨다.
   // (등록한 Language pair가 여러개인 경우 AddLanguagePairForm 폼에서 처리된다.)
   useEffect(() => {
-    const targetCurrency = languagePairs[0]?.price?.currency ?? null
+    const targetCurrency = fields[0]?.initialPrice?.currency ?? null
     let items = getValues('items')
     let isUpdate = false
     if (items.length && targetCurrency) {
-      items.map((item,idx) => {
+      items.map((item, idx) => {
         const matchPriceList = getPricebyPairs(idx)
         const itemPriceId = item.priceId
-        const itemPrice = matchPriceList.filter(pair => itemPriceId === pair.id!)
-        if (itemPrice[0]?.currency && targetCurrency !== itemPrice[0]?.currency) {
+        const itemPrice = matchPriceList.filter(
+          pair => itemPriceId === pair.id!,
+        )
+        if (
+          itemPrice[0]?.currency &&
+          targetCurrency !== itemPrice[0]?.currency
+        ) {
           setValue(`items.${idx}.priceId`, null, setValueOptions)
           isUpdate = true
         }
@@ -219,12 +228,12 @@ export default function ItemForm({
         selectCurrencyViolation(1)
       }
     }
-  }, [languagePairs])
+  }, [languagePairs, fields])
 
-  // item의 Price currency와 0번째 Language pair price의 currency를 비교한다.
+  // item의 Price currency와 field(item)의 initialPrice.currency를 비교한다.
   // 값이 다르면 item의 price를 null 처리한다.
   const checkPriceCurrency = (price: StandardPriceListType, index: number) => {
-    const targetCurrency = languagePairs[0]?.price?.currency ?? null
+    const targetCurrency = fields[0]?.initialPrice?.currency ?? null
     if (targetCurrency) {
       if (price?.currency !== targetCurrency) {
         setValue(`items.${index}.priceId`, null, setValueOptions)
@@ -235,13 +244,7 @@ export default function ItemForm({
     return true
   }
 
-  const controlMinimumPriceModal = (price:StandardPriceListType) => {
-    if (price.languagePairs[0]?.minimumPrice) {
-      openMinimumPriceModal(price)
-    }
-  }
-
-  const selectNotApplicableOption = () => {
+  const selectNotApplicableModal = () => {
     openModal({
       type: 'info-not-applicable-unavailable',
       children: (
@@ -256,7 +259,8 @@ export default function ItemForm({
 
   const selectCurrencyViolation = (type: number) => {
     const message1 = `Please check the currency of the selected price. You can't use different currencies in a quote.`
-    const message2 = 'Please select the price for the first language pair first.'
+    const message2 =
+      'Please select the price for the first language pair first.'
     openModal({
       type: 'error-currency-violation',
       children: (
@@ -269,15 +273,6 @@ export default function ItemForm({
     })
   }
 
-  function onChangeLanguagePair(v: languageType | null, idx: number) {
-    setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
-    setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
-    if (v?.price) {
-      setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
-      controlMinimumPriceModal(v?.price)
-    }
-  }
-
   function onItemRemove(idx: number) {
     openModal({
       type: 'delete-item',
@@ -285,10 +280,15 @@ export default function ItemForm({
         <DeleteConfirmModal
           message='Are you sure you want to delete this item?'
           onClose={() => closeModal('delete-item')}
-          onDelete={() => remove(idx)}
+          onDelete={() => handleItemRemove(idx)}
         />
       ),
     })
+  }
+
+  function handleItemRemove(idx: number) {
+    remove(idx)
+    sumTotalPrice()
   }
 
   function findLangPairIndex(source: string, target: string) {
@@ -304,41 +304,146 @@ export default function ItemForm({
   }
 
   const openMinimumPriceModal = (value: any) => {
-    const minimumPrice = formatCurrency(
-      value?.languagePairs[0]?.minimumPrice,
-      value?.currency,
-    )
+    const minimumPrice = formatCurrency(value.minimumPrice, value.currency)
     openModal({
       type: 'info-minimum',
       children: (
-        <SimpleMultilineAlertModal
-          onClose={() => {
-            closeModal('info-minimum')
-          }}
-          message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
+        <CustomModal
+          onClose={() => closeModal('info-minimum')}
           vary='info'
+          title={
+            <>
+              The selected price includes a minimum price setting. <br />
+              <br /> Minimum price : {minimumPrice} <br />
+              <br />
+              If the amount of the added price unit is lower than the minimum
+              price, the minimum price will be automatically applied to the
+              total price.
+            </>
+          }
+          soloButton={true}
+          rightButtonText='Okay'
+          onClick={() => closeModal('info-minimum')}
         />
+        // <SimpleMultilineAlertModal
+        //   onClose={() => {
+        //     closeModal('info-minimum')
+        //   }}
+        //   message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
+        //   vary='info'
+        // />
       ),
     })
   }
 
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
-
     const itemData = getValues(`items.${idx}`)
+
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
-    const priceData =
-      getPriceOptions(itemData.source, itemData.target).find(
-        price => price.id === itemData.priceId,
-      ) || null
-    const sourceLanguage = itemData.source
-    const targetLanguage = itemData.target
-    const languagePairData = priceData?.languagePairs?.find(
-      i => i.source === sourceLanguage && i.target === targetLanguage,
-    )
-    const minimumPrice = languagePairData?.minimumPrice
-    const priceFactor = languagePairData?.priceFactor
+
+    // standard price에 등록된 데이터중 매칭된 데이터
+
+    const priceData = () => {
+      return (
+        getPriceOptions(itemData.source, itemData.target).find(
+          price => price.id === itemData.priceId,
+        ) || null
+      )
+    }
+    // const languagePairData = () => priceData()?.languagePairs?.find(
+    //   i => i.source === itemData.source && i.target === itemData.target,
+    // )
+    // const minimumPrice = () => languagePairData()?.minimumPrice
+    // const priceFactor = () => languagePairData()?.priceFactor
+    // 여기까지
+
+    // 현재 row의 프라이스 유닛에 적용될 minimumPrice 값
+    // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 minimumPrice 추출
+    // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 minimumPrice 값 추출
+    // const currentMinimumPrice = () => {
+    //   console.log("minimum check",itemData.minimumPrice,priceData())
+    //   // 기존 item에서 price 변경, 이때는 Standard price의 minimum price 값을 줘야 함
+    //   if (
+    //     itemData?.id &&
+    //     itemData?.id !== -1 &&
+    //     priceData() &&
+    //     itemData?.initialPrice?.priceId !== priceData()?.id
+    //   ) {
+    //     console.log("#1",minimumPrice())
+    //     return minimumPrice()
+    //   }
+
+    //   // 기존 아이템에서 변경되었으나, 기존과 priceId가 같은 경우, 어쨋든 변경된 케이스이므로 Standard price의 minimum price를 줘야 함
+    //   if (itemData?.initialPrice?.priceId === priceData()?.id && type === 'edit') {
+    //     console.log("#2",minimumPrice())
+    //     return minimumPrice()
+    //   }
+    //   // 기존 item
+    //   // standard price 데이터가 없다면 쿼츠 작성 후 standard price가 삭제된 케이스이므로 여기서 처리
+    //   else if (
+    //     (itemData?.id && itemData?.id !== -1) ||
+    //     (itemData?.id && itemData?.id !== -1) ||
+    //     !priceData()
+    //   ) {
+    //     console.log("#3",itemData?.minimumPrice!)
+    //     return itemData?.minimumPrice!
+    //   }
+    //   // Not Applicable(재설계 필요)
+    //   else if (itemData?.id && itemData?.id === -1) return 0
+    //   // 신규 item
+    //   else {
+    //     console.log("#4", minimumPrice())
+    //     return minimumPrice()
+    //   }
+    // }
+
+    // const showMinimum = itemData.minimumPriceApplied
+
+    const handleShowMinimum = (value: boolean) => {
+      const minimumPrice = Number(getValues(`items.${idx}.minimumPrice`))
+      const totalPrice = Number(getValues(`items.${idx}.totalPrice`))
+      const minimumPriceApplied = getValues(`items.${idx}.minimumPriceApplied`)
+
+      if (minimumPriceApplied && minimumPrice < totalPrice) return //데이터가 잘못된 케이스
+      if (minimumPrice) {
+        if (value) {
+          if (minimumPrice && minimumPrice >= totalPrice) {
+            setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
+          } else {
+            setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
+          }
+        } else if (!value) {
+          setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
+        }
+      } else {
+        setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
+      }
+      itemTrigger(`items.${idx}.minimumPriceApplied`)
+      getTotalPrice()
+    }
+
+    // useEffect(() => {
+    //   const minimumPrice = getValues(`items.${idx}.minimumPrice`)
+    //   const totalPrice = getValues(`items.${idx}.totalPrice`)
+    //   setValue(`items.${idx}.minimumPriceApplied`, totalPrice < minimumPrice! ? true : false, setValueOptions)
+
+    // }, [getValues, setValue])
+
+    // 현재 row의 프라이스 유닛에 적용될 currency 값
+    // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 currency 추출
+    // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 currency 값 추출
+    // const currentCurrency = () => {
+    //   // setPriceData(getPriceData())
+    //   // 기존 item
+    //   if (itemData?.id && itemData?.id !== -1)
+    //     return itemData?.initialPrice?.currency!
+    //   // Not Applicable(재설계 필요)
+    //   else if (itemData?.id && itemData?.id === -1) return 'USD'
+    //   // 신규 item
+    //   else return priceData()?.currency!
+    // }
 
     const {
       fields: details,
@@ -350,41 +455,62 @@ export default function ItemForm({
       name: itemName,
     })
 
-    function onDeletePriceUnit(idx: number) {
-      remove(idx)
+    function onDeletePriceUnit(index: number) {
+      remove(index)
+      if (getValues(`items.${idx}.detail`)?.length === 0) {
+        handleShowMinimum(true)
+      }
+    }
+
+    function onDeleteAllPriceUnit() {
+      details.map((unit, idx) => remove(idx))
+      handleShowMinimum(true)
     }
 
     function getTotalPrice() {
+      const itemMinimumPrice = Number(getValues(`items.${idx}.minimumPrice`))
+      const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
+
       let total = 0
       const data = getValues(itemName)
+
       if (data?.length) {
         const price = data.reduce(
           (res, item) => (res += Number(item.prices)),
           0,
         )
+        if (isNaN(price)) return
 
-        if (minimumPrice && price < minimumPrice) {
+        if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
           })
-          total += minimumPrice
+          // handleShowMinimum(true)
+          total = itemMinimumPrice
+        } else if (
+          itemMinimumPrice &&
+          price >= itemMinimumPrice &&
+          showMinimum
+        ) {
+          total = price
+          // 아래 코드 활성화시 미니멈 프라이스가 활성화 되었으나 미니멈 프라이스 값이 없는 경우 무한루프에 빠짐
+          if (showMinimum === true) handleShowMinimum(false)
         } else {
           total = price
         }
+      } else if (!data?.length && showMinimum) {
+        // 최초 상태, row는 없이 미니멈프라이스만 설정되어 있는 상태
+        total = itemMinimumPrice!
       }
-
       if (total === itemData.totalPrice) return
-      setValue(`items.${idx}.totalPrice`, total, {
-        shouldDirty: true,
-        shouldValidate: false,
-      })
+
+      setValue(`items.${idx}.totalPrice`, total, setValueOptions)
+      itemTrigger(`items.${idx}.totalPrice`)
+      sumTotalPrice()
     }
 
-    function getEachPrice(
-      index: number,
-      showMinimum?: boolean,
-      isNotApplicable?: boolean,
-    ) {
+    function getEachPrice(index: number, isNotApplicable?: boolean) {
+      // setPriceData(getPriceData())
       const data = getValues(itemName)
       if (!data?.length) return
       let prices = 0
@@ -392,8 +518,10 @@ export default function ItemForm({
       if (detail && detail.unit === 'Percent') {
         const percentQuantity = data[index].quantity
 
-        if (minimumPrice && showMinimum) {
-          prices = (percentQuantity / 100) * minimumPrice
+        const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
+        const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
+        if (itemMinimumPrice && showMinimum) {
+          prices = (percentQuantity / 100) * itemMinimumPrice
         } else {
           const generalPrices = data.filter(item => item.unit !== 'Percent')
           generalPrices.forEach(item => {
@@ -406,22 +534,20 @@ export default function ItemForm({
       }
 
       // if (prices === data[index].prices) return
-      const currentCurrency = () => {
-        if (isNotApplicable) return detail?.currency
-        return priceData?.currency!
-      }
+      const currency = getValues(`items.${idx}.initialPrice.currency`) ?? 'KRW'
       const roundingPrice = formatByRoundingProcedure(
         prices,
-        priceData?.decimalPlace!
-          ? priceData?.decimalPlace!
-          : currentCurrency() === 'USD' || currentCurrency() === 'SGD'
+        priceData()?.decimalPlace!
+          ? priceData()?.decimalPlace!
+          : currency === 'USD' || currency === 'SGD'
           ? 2
           : 1000,
-        priceData?.roundingProcedure! ?? 0,
-        currentCurrency(),
+        priceData()?.roundingProcedure! ?? 0,
+        currency,
       )
-
-      setValue(`items.${idx}.detail.${index}.currency`, currentCurrency(), {
+      // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
+      // 스탠다드 프라이스의 언어페어 정보 : languagePairs
+      setValue(`items.${idx}.detail.${index}.currency`, currency, {
         shouldDirty: true,
         shouldValidate: false,
       })
@@ -471,21 +597,137 @@ export default function ItemForm({
           quantity: newData.priceUnitQuantity,
           // priceUnit: newData.priceUnitTitle,
           unit: newData.priceUnitUnit,
-          currency: priceData?.currency || 'USD',
+          currency: fields[idx]?.initialPrice?.currency! || 'KRW',
           unitPrice: newData.priceUnitPrice,
           prices: item.prices,
-          priceFactor: priceFactor ? String(priceFactor) : null,
+          priceFactor: getValues(`items.${idx}.priceFactor`)
+            ? String(getValues(`items.${idx}.priceFactor`))
+            : null,
         })
       })
       getTotalPrice()
     }
 
-    const isNotApplicable = () => {
-      const value = getValues().items[idx]
-      if (value.priceId === NOT_APPLICABLE) return true
-      return false
+    // const isNotApplicable = (v: StandardPriceListType) => {
+    //   // const value = getValues().items[idx]
+    //   const value = v
+    //   console.log("isNotApplicable",value)
+    //   if (value.id === NOT_APPLICABLE) return true
+    //   return false
+    // }
+
+    function onChangeLanguagePair(v: languageType | null, idx: number) {
+      setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
+      setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
+
+      if (v?.price) {
+        setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
+        const priceData = getPriceOptions(v?.source, v?.target).find(
+          price => price.id === v?.price?.id,
+        )
+        const languagePairData = priceData?.languagePairs?.find(
+          i => i.source === v?.source && i.target === v?.target,
+        )
+        const minimumPrice = languagePairData?.minimumPrice
+        const priceFactor = languagePairData?.priceFactor
+        const currency = languagePairData?.currency
+        const rounding = priceData?.roundingProcedure
+        const numberPlace = priceData?.decimalPlace
+
+        setValue(`items.${idx}.totalPrice`, 0, setValueOptions)
+        setValue(
+          `items.${idx}.minimumPrice`,
+          minimumPrice ?? 0,
+          setValueOptions,
+        )
+        setValue(`items.${idx}.priceFactor`, priceFactor ?? 0, setValueOptions)
+        setValue(
+          `items.${idx}.initialPrice.currency`,
+          currency!,
+          setValueOptions,
+        )
+        setValue(
+          `items.${idx}.initialPrice.numberPlace`,
+          numberPlace!,
+          setValueOptions,
+        )
+        setValue(
+          `items.${idx}.initialPrice.rounding`,
+          //@ts-ignore
+          RoundingProcedureObj[rounding!],
+          setValueOptions,
+        )
+        itemTrigger(`items.${idx}`)
+        getTotalPrice()
+
+        handleMinimumPrice()
+      }
     }
 
+    function onChangePrice(v: StandardPriceListType, idx: number) {
+      if (v?.id) {
+        const source = getValues(`items.${idx}.source`)
+        const target = getValues(`items.${idx}.target`)
+        setValue(`items.${idx}.priceId`, v?.id, setValueOptions)
+        const priceData = getPriceOptions(source, target).find(
+          price => price.id === v?.id,
+        )
+        const languagePairData = priceData?.languagePairs?.find(
+          i => i.source === source && i.target === target,
+        )
+        const minimumPrice = languagePairData?.minimumPrice
+        const priceFactor = languagePairData?.priceFactor
+        const currency = languagePairData?.currency
+        const rounding = priceData?.roundingProcedure
+        const numberPlace = priceData?.decimalPlace
+
+        setValue(`items.${idx}.totalPrice`, 0, setValueOptions)
+        setValue(
+          `items.${idx}.minimumPrice`,
+          minimumPrice ?? 0,
+          setValueOptions,
+        )
+        setValue(`items.${idx}.priceFactor`, priceFactor ?? 0, setValueOptions)
+        setValue(
+          `items.${idx}.initialPrice.currency`,
+          currency!,
+          setValueOptions,
+        )
+        setValue(
+          `items.${idx}.initialPrice.numberPlace`,
+          numberPlace!,
+          setValueOptions,
+        )
+        setValue(
+          `items.${idx}.initialPrice.rounding`,
+          //@ts-ignore
+          RoundingProcedureObj[rounding!],
+          setValueOptions,
+        )
+        itemTrigger(`items.${idx}`)
+        getTotalPrice()
+
+        handleMinimumPrice()
+      }
+    }
+
+    console.log("value",getValues(
+      `items.${idx}.contactPerson`,
+    ))
+    console.log("contactPersonList",contactPersonList)
+    // TODO: 네임 헬퍼 써야 함
+
+    const handleMinimumPrice = () => {
+      const minimumPrice = getValues(`items.${idx}.minimumPrice`)
+      const currency = getValues(`items.${idx}.initialPrice.currency`)
+      if (minimumPrice && minimumPrice !== 0) {
+        handleShowMinimum(true)
+        openMinimumPriceModal({
+          minimumPrice: minimumPrice,
+          currency: currency,
+        })
+      } else handleShowMinimum(false)
+    }
     return (
       <Box
         style={{
@@ -531,7 +773,7 @@ export default function ItemForm({
                 <Typography fontWeight={500}>
                   {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}&nbsp;
                   {type === 'detail' || type === 'invoiceDetail'
-                    ? getValues(`items.${idx}.name`)
+                    ? getValues(`items.${idx}.itemName`)
                     : null}
                 </Typography>
               </Box>
@@ -547,17 +789,24 @@ export default function ItemForm({
               {type === 'detail' || type === 'invoiceDetail' ? null : (
                 <Grid item xs={12}>
                   <Controller
-                    name={`items.${idx}.name`}
+                    name={`items.${idx}.itemName`}
                     control={control}
-                    render={({ field: { value, onChange } }) => (
+                    render={({ field: { value, onChange, onBlur } }) => (
                       <TextField
                         fullWidth
+                        autoFocus={value !== null && value.length < 2}
                         label='Item name*'
                         variant='outlined'
                         value={value ?? ''}
-                        onChange={onChange}
+                        onChange={(e: any) => {
+                          if (e.target.value) {
+                            onChange(e.target.value)
+                          } else {
+                            onChange('')
+                          }
+                        }}
                         inputProps={{ maxLength: 200 }}
-                        error={Boolean(errors?.items?.[idx]?.name)}
+                        error={Boolean(errors?.items?.[idx]?.itemName)}
                       />
                     )}
                   />
@@ -592,6 +841,7 @@ export default function ItemForm({
                         {...DateTimePickerDefaultOptions}
                         selected={!value ? null : new Date(value)}
                         onChange={onChange}
+                        placeholderText='MM/DD/YYYY, HH:MM'
                         customInput={
                           <CustomInput label='Item due date*' icon='calendar' />
                         }
@@ -618,13 +868,14 @@ export default function ItemForm({
                     </Typography>
                     <Typography variant='body1' fontSize={14}>
                       {
-                        contactPersonList.find(
-                          item =>
-                            item.value ===
-                            getValues(
-                              `items.${idx}.contactPerson.id`,
-                            )?.toString(),
-                        )?.label
+                        getLegalName(getValues(`items.${idx}.contactPerson`)!)
+                        // contactPersonList.find(
+                        //   item =>
+                        //     item.value ===
+                        //     getValues(
+                        //       `items.${idx}.contactPerson.id`,
+                        //     )?.toString(),
+                        // )?.label
                       }
                     </Typography>
                   </Box>
@@ -679,21 +930,23 @@ export default function ItemForm({
                       Language pair
                     </Typography>
                     <Typography variant='body1' fontSize={14}>
-                      {languageHelper(
+                      {/* {languageHelper(
                         languagePairs.find(
                           item =>
                             item.source === getValues(`items.${idx}.source`) &&
                             item.target === getValues(`items.${idx}.target`),
                         )?.source,
-                      )}
+                      )} */}
+                      {languageHelper(getValues(`items.${idx}.source`))}
                       &nbsp;&rarr;&nbsp;
-                      {languageHelper(
+                      {/* {languageHelper(
                         languagePairs.find(
                           item =>
                             item.source === getValues(`items.${idx}.source`) &&
                             item.target === getValues(`items.${idx}.target`),
                         )?.target,
-                      )}
+                      )} */}
+                      {languageHelper(getValues(`items.${idx}.target`))}
                     </Typography>
                   </Box>
                 ) : (
@@ -758,12 +1011,13 @@ export default function ItemForm({
                     </Typography>
                     <Typography variant='body1' fontSize={14}>
                       {
-                        getPriceOptions(
-                          getValues(`items.${idx}.source`),
-                          getValues(`items.${idx}.target`),
-                        ).find(
-                          item => item.id === getValues(`items.${idx}.priceId`),
-                        )?.priceName
+                        // getPriceOptions(
+                        //   getValues(`items.${idx}.source`),
+                        //   getValues(`items.${idx}.target`),
+                        // ).find(
+                        //   item => item.id === getValues(`items.${idx}.priceId`),
+                        // )?.priceName
+                        itemData.initialPrice?.name
                       }
                     </Typography>
                   </Box>
@@ -775,32 +1029,54 @@ export default function ItemForm({
                       const options = getPriceOptions(
                         getValues(`items.${idx}.source`),
                         getValues(`items.${idx}.target`),
+                        idx,
                       )
+                      let hasMatchingPrice = false
+                      let hasStandardPrice = false
+                      options.find(option => {
+                        if (
+                          option.groupName &&
+                          option.groupName === 'Matching price'
+                        )
+                          hasMatchingPrice = true
+                        if (
+                          option.groupName &&
+                          option.groupName === 'Standard client price'
+                        )
+                          hasStandardPrice = true
+                      })
                       return (
                         <Autocomplete
+                          // <StyledAutocomplete
                           autoHighlight
                           fullWidth
                           options={options}
                           groupBy={option => option?.groupName ?? ''}
                           isOptionEqualToValue={(option, newValue) => {
-                            return option.priceName === newValue.priceName
+                            return option.priceName === newValue?.priceName
                           }}
-                          getOptionLabel={option => `${option.priceName} (${option.currency})`}
+                          getOptionLabel={option => option.priceName}
                           onChange={(e, v) => {
                             // Not Applicable 임시 막기
                             // currency 체크 로직
                             if (v) {
-                              if (checkPriceCurrency(v, idx)) {
-                                onChange(v?.id)
-                                const value = getValues().items[idx]
-                                const index = findLangPairIndex(
-                                  value?.source!,
-                                  value?.target!,
-                                )
-                                controlMinimumPriceModal(v)
-                                if (index !== -1) {
-                                  const copyLangPair = [...languagePairs]
-                                  copyLangPair[index].price = v
+                              if (v && v.id === -1) {
+                                selectNotApplicableModal()
+                              } else {
+                                if (checkPriceCurrency(v, idx)) {
+                                  onChange(v?.id)
+                                  const value = getValues().items[idx]
+                                  const index = findLangPairIndex(
+                                    value?.source!,
+                                    value?.target!,
+                                  )
+                                  onChangePrice(v, idx)
+
+                                  if (index !== -1) {
+                                    const copyLangPair = [...languagePairs]
+                                    copyLangPair[index].price = v
+                                  }
+                                  getTotalPrice()
                                 }
                               }
                             }
@@ -818,6 +1094,24 @@ export default function ItemForm({
                               placeholder='Price*'
                             />
                           )}
+                          renderGroup={params => (
+                            <li key={params.key}>
+                              {!hasMatchingPrice && params.group ? (
+                                <GroupHeader>
+                                  Matching price{' '}
+                                  <NoResultText>(No result)</NoResultText>
+                                </GroupHeader>
+                              ) : null}
+                              {!hasStandardPrice && params.group ? (
+                                <GroupHeader>
+                                  Standard client price{' '}
+                                  <NoResultText>(No result)</NoResultText>
+                                </GroupHeader>
+                              ) : null}
+                              <GroupHeader>{params.group}</GroupHeader>
+                              <GroupItems>{params.children}</GroupItems>
+                            </li>
+                          )}
                         />
                       )
                     }}
@@ -828,9 +1122,9 @@ export default function ItemForm({
               <ItemPriceUnitForm
                 control={control}
                 index={idx}
-                minimumPrice={minimumPrice}
+                minimumPrice={getValues(`items.${idx}.minimumPrice`)!}
                 details={details}
-                priceData={priceData}
+                priceData={priceData()}
                 getValues={getValues}
                 append={append}
                 update={update}
@@ -845,10 +1139,11 @@ export default function ItemForm({
                 }
                 // isNotApplicable={isNotApplicable()}
                 priceUnitsList={priceUnitsList}
-                // showMinimum={showMinimum}
-                // setShowMinimum={setShowMinimum}
+                showMinimum={getValues(`items.${idx}.minimumPriceApplied`)}
+                setShowMinimum={handleShowMinimum}
                 type={type}
                 sumTotalPrice={sumTotalPrice}
+                fields={fields}
               />
               {/* price unit end */}
               <Grid item xs={12}>
@@ -893,7 +1188,13 @@ export default function ItemForm({
                 </Box>
                 {type === 'detail' || type === 'invoiceDetail' ? (
                   <Typography>
-                    {getValues(`items.${idx}.description`)}
+                    {currentRole?.name === 'CLIENT'
+                      ? getValues(`items.${idx}.showItemDescription`)
+                        ? getValues(`items.${idx}.description`)
+                        : '-'
+                      : getValues(`items.${idx}.description`) !== ''
+                      ? getValues(`items.${idx}.description`)
+                      : '-'}
                   </Typography>
                 ) : (
                   <Controller
@@ -935,8 +1236,8 @@ export default function ItemForm({
                     control={control}
                     index={idx}
                     details={details}
-                    priceData={priceData}
-                    priceFactor={priceFactor}
+                    priceData={priceData()}
+                    priceFactor={getValues(`items.${idx}.priceFactor`)}
                     onCopyAnalysis={onCopyAnalysis}
                     type={type}
                   />
@@ -986,3 +1287,19 @@ export default function ItemForm({
 const FullWidthDatePicker = styled(DatePicker)`
   width: 100%;
 `
+const GroupHeader = styled('div')({
+  paddingTop: '6px',
+  paddingBottom: '6px',
+  paddingLeft: '20px',
+  fontWeight: 'bold',
+})
+
+const NoResultText = styled('span')({
+  fontWeight: 'normal',
+})
+
+const GroupItems = styled('ul')({
+  paddingTop: '0px',
+  paddingBottom: '0px',
+  paddingLeft: '5px',
+})

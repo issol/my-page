@@ -4,9 +4,8 @@ import { FormErrors } from 'src/shared/const/formErrors'
 export type ClientGuidelineType = {
   title: string
   client: { label: string; value: string }
-  category: { label: string; value: string }
-  serviceType: { label: string; value: string }
-  // content: any
+  category: { label: string | null; value: string | null } | null
+  serviceType: { label: string | null; value: string | null } | null
   file: Array<File>
 }
 export const clientGuidelineSchema = yup.object().shape({
@@ -17,12 +16,12 @@ export const clientGuidelineSchema = yup.object().shape({
   }),
 
   category: yup.object().shape({
-    label: yup.string().required(FormErrors.required),
-    value: yup.string().required(FormErrors.required),
+    label: yup.string().nullable().required(FormErrors.required),
+    value: yup.string().nullable().required(FormErrors.required),
   }),
   serviceType: yup.object().shape({
-    label: yup.string().required(FormErrors.required),
-    value: yup.string().required(FormErrors.required),
+    label: yup.string().nullable().required(FormErrors.required),
+    value: yup.string().nullable().required(FormErrors.required),
   }),
   // content: yup.string().required(errorMsg.required),
   resume: yup.array().nullable(),

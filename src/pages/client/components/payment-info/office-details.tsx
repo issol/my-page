@@ -48,7 +48,7 @@ import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
-  paymentInfo: ClientPaymentInfoDetail[]
+  paymentInfo: ClientPaymentInfoDetail | null
   clientId: number
   isEnrolledClient: boolean
   isUpdatable: boolean
@@ -65,26 +65,9 @@ export default function OfficeDetails({
   const { openModal, closeModal } = useModal()
 
   const officeList: OfficeType[] = ['Japan', 'Korea', 'Singapore', 'US'] //TODO: 임시데이터.
-  const earliestData = paymentInfo
-    ? [...paymentInfo]
-        .filter(item => item?.updatedAt)
-        .sort((a, b) => {
-          if (a.updatedAt && b.updatedAt) {
-            return (
-              new Date(b.updatedAt)?.getTime() -
-              new Date(a.updatedAt)?.getTime()
-            )
-          }
-          return -1
-        })
-    : []
 
-  const [office, setOffice] = useState<OfficeType>(
-    paymentInfo?.length && paymentInfo?.length <= 1
-      ? paymentInfo[0].office
-      : earliestData.length
-      ? earliestData[0].office
-      : 'Korea',
+  const [office, setOffice] = useState<OfficeType | null>(
+    paymentInfo?.office ?? null,
   )
 
   const queryClient = useQueryClient()
@@ -139,7 +122,7 @@ export default function OfficeDetails({
     paymentData: PaymentMethodUnionType,
     taxData: OfficeTaxType,
   ) {
-    const existData = paymentInfo?.find(info => info.office === office)
+    // const existData = paymentInfo?.find(info => info.office === office)
     const data = {
       clientId,
       office,
@@ -148,9 +131,7 @@ export default function OfficeDetails({
       taxData,
     }
 
-    updatePaymentInfo.mutate(
-      !existData ? data : { ...data, paymentId: existData.id },
-    )
+    updatePaymentInfo.mutate(data)
     setEditForm(false)
   }
 
@@ -177,7 +158,7 @@ export default function OfficeDetails({
               <FormControl sx={{ m: 1, minWidth: 80 }}>
                 <Select
                   labelId='select office'
-                  value={office}
+                  value={office ?? ''}
                   size='small'
                   onChange={onClickChangeOffice}
                 >
@@ -204,15 +185,15 @@ export default function OfficeDetails({
         }
       />
       <CardContent>
-        <PaymentMethod office={office} paymentInfo={paymentInfo} />
+        <PaymentMethod office={office!} paymentInfo={paymentInfo!} />
       </CardContent>
       <Dialog open={editForm} maxWidth='md'>
         <DialogContent sx={{ padding: '50px' }}>
           <PaymentMethodForm
-            office={office}
+            office={office!}
             open={editForm}
             onSave={onSave}
-            paymentInfo={paymentInfo}
+            paymentInfo={paymentInfo!}
             onClose={() => setEditForm(false)}
           />
         </DialogContent>

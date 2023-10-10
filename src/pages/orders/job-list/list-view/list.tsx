@@ -1,4 +1,4 @@
-import { JobsListType } from '@src/types/jobs/jobs.type'
+import { JobStatusType, JobsListType } from '@src/types/jobs/jobs.type'
 
 // ** style components
 import { Tooltip, Typography } from '@mui/material'
@@ -21,9 +21,11 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** context
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { useContext } from 'react'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { statusType } from '@src/types/common/status.type'
 
 type CellType = {
   row: JobsListType
@@ -39,6 +41,7 @@ type Props = {
     totalCount: number
   }
   isLoading: boolean
+  statusList: Array<statusType>
 }
 
 export default function JobsList({
@@ -48,9 +51,12 @@ export default function JobsList({
   setPageSize,
   list,
   isLoading,
+  statusList,
 }: Props) {
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const router = useRouter()
+
+  console.log('list', list)
 
   const columns: GridColumns<JobsListType> = [
     {
@@ -79,7 +85,7 @@ export default function JobsList({
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: CellType) => {
-        return JobsStatusChip(row.status)
+        return JobsStatusChip(row.status as JobStatusType, statusList)
       },
     },
     {
@@ -94,18 +100,16 @@ export default function JobsList({
         return (
           <Box display='flex' flexDirection='column'>
             <Typography fontWeight='bold'>
-              {row.order.contactPerson
+              {row.contactPerson
                 ? getLegalName({
-                    firstName: row.order.contactPerson.firstName!,
-                    middleName: row.order.contactPerson.middleName,
-                    lastName: row.order.contactPerson.lastName!,
+                    firstName: row.contactPerson.firstName!,
+                    middleName: row.contactPerson.middleName,
+                    lastName: row.contactPerson.lastName!,
                   })
-                : row.order.client.name}
+                : row.client.name}
             </Typography>
             <Typography variant='body2'>
-              {row.order.contactPerson
-                ? row.order.contactPerson.email
-                : row.order.client.email}
+              {row.contactPerson ? row.contactPerson.email : row.client.email}
             </Typography>
           </Box>
         )
@@ -120,7 +124,7 @@ export default function JobsList({
       sortable: false,
       renderHeader: () => <Box>Job name</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Typography variant='body2'>{row.name ?? '-'}</Typography>
+        return <Typography variant='body2'>{row.jobName ?? '-'}</Typography>
       },
     },
     {
@@ -134,11 +138,15 @@ export default function JobsList({
       renderCell: ({ row }: CellType) => {
         return (
           <Box display='flex' alignItems='center' gap='8px'>
-            <JobTypeChip
-              size='small'
-              type={row?.order.category}
-              label={row?.order.category}
-            />
+            {row?.category ? (
+              <JobTypeChip
+                size='small'
+                type={row?.category}
+                label={row?.category}
+              />
+            ) : (
+              '-'
+            )}
             <ServiceTypeChip size='small' label={row?.serviceType} />
           </Box>
         )
@@ -155,11 +163,14 @@ export default function JobsList({
           <Tooltip
             title={FullDateTimezoneHelper(
               row?.startedAt,
-              user?.timezone?.code!,
+              auth.getValue().user?.timezone?.code!,
             )}
           >
             <div>
-              {FullDateTimezoneHelper(row?.startedAt, user?.timezone?.code!)}
+              {FullDateTimezoneHelper(
+                row?.startedAt,
+                auth.getValue().user?.timezone?.code!,
+              )}
             </div>
           </Tooltip>
         )
@@ -174,10 +185,16 @@ export default function JobsList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip
-            title={FullDateTimezoneHelper(row?.dueAt, user?.timezone?.code!)}
+            title={FullDateTimezoneHelper(
+              row?.dueAt,
+              auth.getValue().user?.timezone?.code!,
+            )}
           >
             <div>
-              {FullDateTimezoneHelper(row?.dueAt, user?.timezone?.code!)}
+              {FullDateTimezoneHelper(
+                row?.dueAt,
+                auth.getValue().user?.timezone?.code!,
+              )}
             </div>
           </Tooltip>
         )
@@ -233,13 +250,13 @@ export default function JobsList({
         }}
         sx={{ overflowX: 'scroll', cursor: 'pointer' }}
         columns={columns}
-        rows={list.data}
-        rowCount={list.totalCount}
+        rows={list.data ?? []}
+        rowCount={list.totalCount ?? 0}
         loading={isLoading}
         onCellClick={params => {
           router.push({
             pathname: '/orders/job-list/details/',
-            query: { orderId: params.row.order.id, jobId: params.row.id },
+            query: { orderId: params.row.orderId, jobId: params.row.id },
           })
         }}
         rowsPerPageOptions={[10, 25, 50]}

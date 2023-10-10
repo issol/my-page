@@ -15,7 +15,8 @@ import { useGetTestMaterialList } from 'src/queries/certification-test/ceritific
 import TestMaterialFilters from './components/list/filters'
 import { useRouter } from 'next/router'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const defaultValues: TestMaterialFilterType = {
   testType: [],
@@ -27,7 +28,8 @@ const defaultValues: TestMaterialFilterType = {
 
 const CertificationTest = () => {
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
+
   const [testMaterialListPage, setTestMaterialListPage] = useState<number>(0)
 
   const [testMaterialListPageSize, setTestMaterialListPageSize] =
@@ -42,7 +44,7 @@ const CertificationTest = () => {
     take: testMaterialListPageSize,
     skip: testMaterialListPageSize * testMaterialListPage,
     userCompany: 'GloZ',
-    sort: 'desc',
+    sort: 'asc',
   })
 
   const { data: testMaterialList } = useGetTestMaterialList(filters)
@@ -82,7 +84,7 @@ const CertificationTest = () => {
       take: testMaterialListPageSize,
       skip: testMaterialListPageSize * testMaterialListPage,
       userCompany: 'GloZ',
-      sort: 'desc',
+      sort: 'asc',
     })
   }
 
@@ -100,7 +102,7 @@ const CertificationTest = () => {
       userCompany: 'GloZ',
       take: testMaterialListPageSize,
       skip: testMaterialListPageSize * testMaterialListPage,
-      sort: 'desc',
+      sort: 'asc',
     }
 
     setFilters(filter)
@@ -111,32 +113,36 @@ const CertificationTest = () => {
       setExpanded(isExpanded ? panel : false)
     }
   return (
-    <Grid container spacing={6}>
-      <TestMaterialFilters
-        control={control}
-        handleSubmit={handleSubmit}
-        onSubmit={onSubmit}
-        onClickResetButton={onClickResetButton}
-        trigger={trigger}
-        setJobTypeOptions={setJobTypeOptions}
-        setRoleOptions={setRoleOptions}
-        jobTypeOptions={jobTypeOptions}
-        roleOptions={roleOptions}
-        languageList={languageList}
-        handleFilterStateChange={handleFilterStateChange}
-        expanded={expanded}
-      />
-      <TestMaterialList
-        testMaterialList={testMaterialList!}
-        testMaterialListPage={testMaterialListPage}
-        setTestMaterialListPage={setTestMaterialListPage}
-        testMaterialListPageSize={testMaterialListPageSize}
-        setTestMaterialListPageSize={setTestMaterialListPageSize}
-        setFilters={setFilters}
-        router={router}
-        user={user!}
-      />
-    </Grid>
+    <>
+      {auth.state === 'hasValue' && (
+        <Grid container spacing={6}>
+          <TestMaterialFilters
+            control={control}
+            handleSubmit={handleSubmit}
+            onSubmit={onSubmit}
+            onClickResetButton={onClickResetButton}
+            trigger={trigger}
+            setJobTypeOptions={setJobTypeOptions}
+            setRoleOptions={setRoleOptions}
+            jobTypeOptions={jobTypeOptions}
+            roleOptions={roleOptions}
+            languageList={languageList}
+            handleFilterStateChange={handleFilterStateChange}
+            expanded={expanded}
+          />
+          <TestMaterialList
+            testMaterialList={testMaterialList!}
+            testMaterialListPage={testMaterialListPage}
+            setTestMaterialListPage={setTestMaterialListPage}
+            testMaterialListPageSize={testMaterialListPageSize}
+            setTestMaterialListPageSize={setTestMaterialListPageSize}
+            setFilters={setFilters}
+            router={router}
+            user={auth.getValue().user!}
+          />
+        </Grid>
+      )}
+    </>
   )
 }
 

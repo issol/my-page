@@ -17,6 +17,7 @@ import styled from 'styled-components'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** Custom Component Imports
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
@@ -55,19 +56,21 @@ import { countries } from 'src/@fake-db/autocomplete'
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import InformationModal from '@src/@core/components/common-modal/information-modal'
 import { ClientType } from '@src/types/orders/order-detail'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
+import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
 
 type Props = {
   control: Control<InvoiceProjectInfoFormType, any>
   setValue: UseFormSetValue<InvoiceProjectInfoFormType>
   watch: UseFormWatch<InvoiceProjectInfoFormType>
   errors: FieldErrors<InvoiceProjectInfoFormType>
-  clientTimezone?: CountryType | undefined
+  clientTimezone?: CountryType | undefined | null
   client?: ClientType
   invoiceInfo?: InvoiceReceivableDetailType
+  type: 'create' | 'edit'
 }
 export default function InvoiceProjectInfoForm({
   control,
@@ -77,6 +80,7 @@ export default function InvoiceProjectInfoForm({
   clientTimezone,
   client,
   invoiceInfo,
+  type,
 }: Props) {
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
@@ -89,6 +93,23 @@ export default function InvoiceProjectInfoForm({
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   const isClientRegistered = client?.contactPerson?.userId !== null
+
+  const formattedNow = (now: Date) => {
+    const minutes = now.getMinutes()
+
+    const formattedMinutes =
+      minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
+
+    const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
+    const formattedTime = `${formattedHours}:${formattedMinutes
+      .toString()
+      .padStart(2, '0')}`
+    const formattedDate = new Date(now)
+    formattedDate.setHours(parseInt(formattedTime.split(':')[0]))
+    formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
+
+    return formattedDate
+  }
 
   useEffect(() => {
     if (clientTimezone) {
@@ -163,11 +184,8 @@ export default function InvoiceProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={30}
-              selected={new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
+              {...DateTimePickerDefaultOptions}
+              selected={!value ? null : formattedNow(new Date(value))}
               onChange={onChange}
               customInput={
                 <CustomInput label='Invoice date*' icon='calendar' />
@@ -191,10 +209,10 @@ export default function InvoiceProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -490,10 +508,10 @@ export default function InvoiceProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTime(option.code)}
+              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
-                <Box component='li' {...props}>
-                  {getGmtTime(option.code)}
+                <Box component='li' {...props} key={uuidv4()}>
+                  {getGmtTimeEng(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -510,163 +528,176 @@ export default function InvoiceProjectInfoForm({
           )}
         />
       </Grid>
-      <Grid item xs={6}>
-        <Controller
-          name='invoiceConfirmDate.date'
-          control={control}
-          render={({ field: { value, onChange } }) => {
-            const selected = !value ? null : new Date(value)
-            const clientConfirmedDate = !invoiceInfo?.clientConfirmedAt
-              ? null
-              : new Date(invoiceInfo?.clientConfirmedAt)
-            return (
-              <FullWidthDatePicker
-                showTimeSelect
-                timeFormat='HH:mm'
-                timeIntervals={30}
-                selected={
-                  !client
-                    ? selected
-                    : isClientRegistered
-                    ? clientConfirmedDate
-                    : selected
-                }
-                disabled={!client ? false : isClientRegistered}
-                dateFormat='MM/dd/yyyy h:mm aa'
-                onChange={onChange}
-                customInput={
-                  <CustomInput label='Invoice confirm date' icon='calendar' />
-                }
-              />
-            )
-          }}
-        />
-      </Grid>
-      <Grid item xs={6}>
-        <Controller
-          name='invoiceConfirmDate.timezone'
-          control={control}
-          render={({ field }) => {
-            const selected = !field.value
-              ? { code: '', phone: '', label: '' }
-              : field.value
-            const clientConfirmedTimezone = !invoiceInfo?.clientConfirmTimezone
-              ? { code: '', phone: '', label: '' }
-              : invoiceInfo?.clientConfirmTimezone
+      {type === 'edit' && (
+        <>
+          <Grid item xs={6}>
+            <Controller
+              name='invoiceConfirmDate.date'
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                const selected = !value ? null : new Date(value)
+                const clientConfirmedDate = !invoiceInfo?.clientConfirmedAt
+                  ? null
+                  : new Date(invoiceInfo?.clientConfirmedAt)
+                return (
+                  <FullWidthDatePicker
+                    showTimeSelect
+                    timeFormat='HH:mm'
+                    timeIntervals={30}
+                    selected={
+                      !client
+                        ? selected
+                        : isClientRegistered
+                        ? clientConfirmedDate
+                        : selected
+                    }
+                    disabled={!client ? false : isClientRegistered}
+                    dateFormat='MM/dd/yyyy h:mm aa'
+                    onChange={onChange}
+                    customInput={
+                      <CustomInput
+                        label='Invoice confirm date'
+                        icon='calendar'
+                      />
+                    }
+                  />
+                )
+              }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Controller
+              name='invoiceConfirmDate.timezone'
+              control={control}
+              render={({ field }) => {
+                const selected = !field.value
+                  ? { code: '', phone: '', label: '' }
+                  : field.value
+                const clientConfirmedTimezone =
+                  !invoiceInfo?.clientConfirmTimezone
+                    ? { code: '', phone: '', label: '' }
+                    : invoiceInfo?.clientConfirmTimezone
 
-            return (
-              <Autocomplete
-                autoHighlight
-                fullWidth
-                {...field}
-                value={
-                  !client
-                    ? selected
-                    : isClientRegistered
-                    ? clientConfirmedTimezone
-                    : selected
-                }
-                disabled={!client ? false : isClientRegistered}
-                options={countries as CountryType[]}
-                onChange={(e, v) => field.onChange(v)}
-                getOptionLabel={option => getGmtTime(option.code)}
-                renderOption={(props, option) => (
-                  <Box component='li' {...props}>
-                    {getGmtTime(option.code)}
-                  </Box>
-                )}
-                renderInput={params => (
-                  <TextField
-                    {...params}
-                    label='Time zone'
-                    error={Boolean(errors?.invoiceConfirmDate?.timezone)}
-                    inputProps={{
-                      ...params.inputProps,
-                    }}
+                return (
+                  <Autocomplete
+                    autoHighlight
+                    fullWidth
+                    {...field}
+                    value={
+                      !client
+                        ? selected
+                        : isClientRegistered
+                        ? clientConfirmedTimezone
+                        : selected
+                    }
+                    disabled={!client ? false : isClientRegistered}
+                    options={countries as CountryType[]}
+                    onChange={(e, v) => field.onChange(v)}
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+                    renderOption={(props, option) => (
+                      <Box component='li' {...props} key={uuidv4()}>
+                        {getGmtTimeEng(option.code)}
+                      </Box>
+                    )}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Time zone'
+                        error={Boolean(errors?.invoiceConfirmDate?.timezone)}
+                        inputProps={{
+                          ...params.inputProps,
+                        }}
+                      />
+                    )}
                   />
-                )}
-              />
-            )
-          }}
-        />
-      </Grid>
-      <Grid item xs={6}>
-        <Controller
-          name='taxInvoiceDueDate.date'
-          control={control}
-          render={({ field: { value, onChange } }) => {
-            const selected = !value ? null : new Date(value)
-            const clientConfirmedDate = !invoiceInfo?.clientConfirmedAt
-              ? null
-              : new Date(invoiceInfo?.clientConfirmedAt)
-            return (
-              <FullWidthDatePicker
-                showTimeSelect
-                timeFormat='HH:mm'
-                timeIntervals={30}
-                dateFormat='MM/dd/yyyy h:mm aa'
-                selected={
-                  !client
-                    ? selected
-                    : isClientRegistered
-                    ? clientConfirmedDate
-                    : selected
-                }
-                onChange={onChange}
-                customInput={
-                  <CustomInput label='Tax invoice due date' icon='calendar' />
-                }
-              />
-            )
-          }}
-        />
-      </Grid>
-      <Grid item xs={6}>
-        <Controller
-          name='taxInvoiceDueDate.timezone'
-          control={control}
-          render={({ field }) => {
-            const selected = !field.value
-              ? { code: '', phone: '', label: '' }
-              : field.value
-            const clientConfirmedTimezone = !invoiceInfo?.clientConfirmTimezone
-              ? { code: '', phone: '', label: '' }
-              : invoiceInfo?.clientConfirmTimezone
-            return (
-              <Autocomplete
-                autoHighlight
-                fullWidth
-                {...field}
-                value={
-                  !client
-                    ? selected
-                    : isClientRegistered
-                    ? clientConfirmedTimezone
-                    : selected
-                }
-                options={countries as CountryType[]}
-                onChange={(e, v) => field.onChange(v)}
-                getOptionLabel={option => getGmtTime(option.code)}
-                renderOption={(props, option) => (
-                  <Box component='li' {...props}>
-                    {getGmtTime(option.code)}
-                  </Box>
-                )}
-                renderInput={params => (
-                  <TextField
-                    {...params}
-                    label='Time zone'
-                    error={Boolean(errors?.taxInvoiceDueDate?.timezone)}
-                    inputProps={{
-                      ...params.inputProps,
-                    }}
+                )
+              }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Controller
+              name='taxInvoiceDueDate.date'
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                const selected = !value ? null : new Date(value)
+                const clientConfirmedDate = !invoiceInfo?.clientConfirmedAt
+                  ? null
+                  : new Date(invoiceInfo?.clientConfirmedAt)
+                return (
+                  <FullWidthDatePicker
+                    showTimeSelect
+                    timeFormat='HH:mm'
+                    timeIntervals={30}
+                    dateFormat='MM/dd/yyyy h:mm aa'
+                    selected={
+                      !client
+                        ? selected
+                        : isClientRegistered
+                        ? clientConfirmedDate
+                        : selected
+                    }
+                    onChange={onChange}
+                    customInput={
+                      <CustomInput
+                        label='Tax invoice due date'
+                        icon='calendar'
+                      />
+                    }
                   />
-                )}
-              />
-            )
-          }}
-        />
-      </Grid>
+                )
+              }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Controller
+              name='taxInvoiceDueDate.timezone'
+              control={control}
+              render={({ field }) => {
+                const selected = !field.value
+                  ? { code: '', phone: '', label: '' }
+                  : field.value
+                const clientConfirmedTimezone =
+                  !invoiceInfo?.clientConfirmTimezone
+                    ? { code: '', phone: '', label: '' }
+                    : invoiceInfo?.clientConfirmTimezone
+                return (
+                  <Autocomplete
+                    autoHighlight
+                    fullWidth
+                    {...field}
+                    value={
+                      !client
+                        ? selected
+                        : isClientRegistered
+                        ? clientConfirmedTimezone
+                        : selected
+                    }
+                    options={countries as CountryType[]}
+                    onChange={(e, v) => field.onChange(v)}
+                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+                    renderOption={(props, option) => (
+                      <Box component='li' {...props} key={uuidv4()}>
+                        {getGmtTimeEng(option.code)}
+                      </Box>
+                    )}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Time zone'
+                        error={Boolean(errors?.taxInvoiceDueDate?.timezone)}
+                        inputProps={{
+                          ...params.inputProps,
+                        }}
+                      />
+                    )}
+                  />
+                )
+              }}
+            />
+          </Grid>
+        </>
+      )}
+
       <Grid item xs={12}>
         <Divider />
       </Grid>

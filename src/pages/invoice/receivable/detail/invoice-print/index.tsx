@@ -1,34 +1,27 @@
-import { useSelector } from 'react-redux'
-
 import { useAppSelector } from '@src/hooks/useRedux'
-import { useRouter } from 'next/router'
-import {
-  useGetClient,
-  useGetLangItem,
-  useGetProjectInfo,
-  useGetProjectTeam,
-} from '@src/queries/order/order.query'
-import { ReactNode, useContext, useEffect, useState } from 'react'
-import { OrderDownloadData } from '@src/types/orders/order-detail'
+
+import { ReactNode } from 'react'
+
 import BlankLayout from '@src/@core/layouts/BlankLayout'
 import Error404 from '@src/pages/404'
-import { Box } from '@mui/material'
-import { AuthContext } from '@src/context/AuthContext'
+
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import PrintInvoicePage from './print-page'
 
 const InvoicePrint = () => {
   const invoice = useAppSelector(state => state.invoice.invoiceTotalData)
   const lang = useAppSelector(state => state.order.lang)
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   if (!invoice) {
     return <Error404 />
-  } else {
+  } else if (auth.state === 'hasValue' && auth.getValue().user) {
     return (
       <div className='page'>
         <PrintInvoicePage
           data={invoice!}
           type='download'
-          user={user!}
+          user={auth.getValue().user!}
           lang={lang}
         />
       </div>

@@ -7,6 +7,28 @@ import {
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 
+export const getClientPaymentInfoRequest = async (
+  id: number,
+  isManagerRequest: boolean,
+) => {
+  if (!isManagerRequest) {
+    return getClientPaymentInfoWithMasking(id)
+  } else {
+    return getClientPaymentInfo(id)
+  }
+}
+
+export const getClientBillingAddressRequest = async (
+  id: number,
+  isManagerRequest: boolean,
+) => {
+  if (!isManagerRequest) {
+    return getClientBillingAddressWithMasking(id)
+  } else {
+    return getClientBillingAddress(id)
+  }
+}
+
 export const getClientOfficeList = async (
   clientId: number,
 ): Promise<Array<{ value: OfficeType; label: OfficeType }>> => {
@@ -20,16 +42,29 @@ export const getClientOfficeList = async (
   }
 }
 
+export const getClientPaymentInfoWithMasking = async (
+  clientId: number,
+): Promise<ClientPaymentInfoDetail | null> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/client/payment-info/masking?clientId=${clientId}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 export const getClientPaymentInfo = async (
   clientId: number,
-): Promise<Array<ClientPaymentInfoDetail>> => {
+): Promise<ClientPaymentInfoDetail | null> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/client/${clientId}/payment-info`,
     )
     return data
   } catch (e: any) {
-    return []
+    throw new Error(e)
   }
 }
 
@@ -67,6 +102,19 @@ export const getClientBillingAddress = async (
     return data
   } catch (e: any) {
     return undefined
+  }
+}
+
+export const getClientBillingAddressWithMasking = async (
+  clientId: number,
+): Promise<ClientAddressType | undefined> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/client/${clientId}/address/masking`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
   }
 }
 

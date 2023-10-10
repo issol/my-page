@@ -5,7 +5,8 @@ import NotificationCenterFilter from './components/filter'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetNotificationList } from '@src/queries/notification.query'
 import NotificationList from './components/list'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { useMutation, useQueryClient } from 'react-query'
 import { markAllAsRead, markAsRead } from '@src/apis/notification.api'
 import { useRouter } from 'next/router'
@@ -61,7 +62,7 @@ const NotificationCenter = () => {
     }
   }
 
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   function onSearch() {
     setActiveFilter({
@@ -125,7 +126,7 @@ const NotificationCenter = () => {
             list={notifications?.data ?? []}
             count={notifications?.totalCount ?? 0}
             isLoading={isLoading}
-            user={user!}
+            user={auth.getValue().user!}
             pageSize={activeFilter.take}
             skip={skip}
             setSkip={(n: number) => {

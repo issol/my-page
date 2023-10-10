@@ -16,7 +16,7 @@ import ProjectTeamFormContainer from '@src/pages/quotes/components/form-containe
 import { yupResolver } from '@hookform/resolvers/yup'
 import { projectTeamSchema } from '@src/types/schema/project-team.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
-import { ProjectTeamListType } from '@src/types/orders/order-detail'
+import { OrderFeatureType, ProjectTeamListType } from '@src/types/orders/order-detail'
 import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
@@ -39,8 +39,8 @@ type Props = {
   type: string
 
   setEdit?: Dispatch<SetStateAction<boolean>>
-  isUpdatable: boolean
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
+  canUseFeature?: (v: OrderFeatureType) => boolean
 }
 
 const ProjectTeam = ({
@@ -54,10 +54,12 @@ const ProjectTeam = ({
   type,
 
   setEdit,
-  isUpdatable,
   updateProject,
+  canUseFeature,
 }: Props) => {
   const currentRole = getCurrentRole()
+  const isUpdatable = canUseFeature ? canUseFeature('tab-ProjectTeam') : false
+  const canUpdateStatus = canUseFeature ? canUseFeature('button-Edit-Set-Status-To-UnderRevision') : false
   return (
     <>
       <Card>
@@ -76,7 +78,7 @@ const ProjectTeam = ({
           currentRole.name !== 'CLIENT' ? (
             <IconButton
               onClick={() => {
-                updateProject && updateProject.mutate({ status: 105 })
+                if (canUpdateStatus) updateProject && updateProject.mutate({ status: 10500 })
                 setEdit && setEdit(true)
               }}
             >

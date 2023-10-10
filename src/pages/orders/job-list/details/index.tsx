@@ -42,9 +42,10 @@ import {
   useGetProjectTeam,
 } from '@src/queries/order/order.query'
 import { useMutation, useQueryClient } from 'react-query'
-import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
+import { CreateJobParamsType, JobStatusType } from '@src/types/jobs/jobs.type'
 import { createJob } from '@src/apis/jobs.api'
 import { deleteJob } from '@src/apis/job-detail.api'
+import { useGetStatusList } from '@src/queries/common.query'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -55,16 +56,23 @@ const JobDetails = () => {
 
   const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId!))
   const { data: orderDetail } = useGetProjectInfo(Number(orderId!))
+  const { data: statusList } = useGetStatusList('Job')
 
   const [serviceType, setServiceType] = useState<
-    { label: string; value: string }[]
+    Array<{ label: string; value: string }[]>
   >([])
 
   const createJobMutation = useMutation(
     (params: CreateJobParamsType) => createJob(params),
     {
-      onSuccess: () => {
-        setServiceType([])
+      onSuccess: (data, variables) => {
+        if (variables.index) {
+          const newServiceType = [...serviceType]
+          newServiceType.splice(variables.index, 1)
+          setServiceType(newServiceType)
+        } else {
+          setServiceType([])
+        }
         refetch()
       },
     },
@@ -82,16 +90,19 @@ const JobDetails = () => {
       label: string
       value: string
     }[],
+    index: number,
   ) => {
-    setServiceType(value)
+    const newSelections = [...serviceType]
+    newSelections[index] = value
+    setServiceType(newSelections)
   }
 
-  const onClickAddJob = (itemId: number) => {
+  const onClickAddJob = (itemId: number, index: number) => {
     createJobMutation.mutate({
       orderId: Number(orderId),
       itemId: itemId,
-      serviceType: serviceType.map(value => value.value),
-      // serviceType: serviceType[0].value,
+      serviceType: serviceType[index].map(value => value.value),
+      index: index,
     })
   }
 
@@ -254,11 +265,11 @@ const JobDetails = () => {
                 return option.value === newValue.value
               }}
               onChange={(event, item) => {
-                handleChangeServiceType(event, item)
+                handleChangeServiceType(event, item, index)
 
                 // ServiceTypePair
               }}
-              value={serviceType || []}
+              value={serviceType[index] || []}
               options={ServiceTypeList}
               id='ServiceType'
               limitTags={1}
@@ -281,7 +292,7 @@ const JobDetails = () => {
               variant='contained'
               sx={{ height: '38px' }}
               disabled={serviceType.length === 0}
-              onClick={() => onClickAddJob(info.id)}
+              onClick={() => onClickAddJob(info.id, index)}
             >
               Add
             </Button>
@@ -493,7 +504,10 @@ const JobDetails = () => {
                               }}
                               size='small'
                             >
-                              {JobsStatusChip(row.status)}
+                              {JobsStatusChip(
+                                row.status as JobStatusType,
+                                statusList!,
+                              )}
                             </TableCell>
                             {separateLine()}
 

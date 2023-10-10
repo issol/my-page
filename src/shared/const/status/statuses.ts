@@ -221,50 +221,21 @@ export const QuotesStatus = [
 ]
 
 export const JobStatus = [
-  {
-    value: 'In preparation',
-    label: 'In preparation',
-  },
-  {
-    value: 'Requested',
-    label: 'Requested',
-  },
-  {
-    value: 'In progress',
-    label: 'In progress',
-  },
-  {
-    value: 'Overdue',
-    label: 'Overdue',
-  },
-  {
-    value: 'Delivered',
-    label: 'Delivered',
-  },
-  {
-    value: 'Approved',
-    label: 'Approved',
-  },
-  {
-    value: 'Invoice created',
-    label: 'Invoice created',
-  },
-  {
-    value: 'Invoice accepted',
-    label: 'Invoice accepted',
-  },
-  {
-    value: 'Paid',
-    label: 'Paid',
-  },
-  {
-    value: 'Without invoice',
-    label: 'Without invoice',
-  },
-  {
-    value: 'Canceled',
-    label: 'Canceled',
-  },
+  { value: 60000, label: "In preparation" },
+  { value: 60100, label: "Requested" },
+  { value: 60200, label: "Request accepted" },
+  { value: 60300, label: "Request rejected" },
+  { value: 60400, label: "Canceled" },
+  { value: 60500, label: "Assigned" },
+  { value: 60700, label: "In progress" },
+  { value: 60800, label: "Partially delivered" },
+  { value: 60900, label: "Delivered" },
+  { value: 601000, label: "Overdue" },
+  { value: 601100, label: "Approved" },
+  { value: 601200, label: "Invoiced" },
+  { value: 601300, label: "Without invoice" },
+  { value: 601400, label: "Paid" },
+  { value: 601500, label: "Payment canceled" },
 ]
 
 export const AssignmentStatus = [

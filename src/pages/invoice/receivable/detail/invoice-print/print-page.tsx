@@ -36,8 +36,11 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
   const dispatch = useAppDispatch()
 
   const patchInvoiceInfoMutation = useMutation(
-    (data: { id: number; form: { downloadedAt: string } }) =>
-      patchInvoiceInfo(data.id, data.form),
+    (data: {
+      id: number
+      form: { downloadedAt: string }
+      type: 'basic' | 'accounting'
+    }) => patchInvoiceInfo(data.id, data.form, data.type),
     {},
   )
   useEffect(() => {
@@ -49,6 +52,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           patchInvoiceInfoMutation.mutate({
             id: data.invoiceId,
             form: { downloadedAt: Date() },
+            type: 'basic',
           })
         }
         window.print()
@@ -105,7 +109,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
             {data.corporationId}
-            {/* {FullDateTimezoneHelper(data.invoicedAt, user?.timezone)} */}
+            {/* {FullDateTimezoneHelper(data.invoicedAt, user.timezone)} */}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -117,7 +121,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
             {data.orderCorporationId}
-            {/* {FullDateTimezoneHelper(data.invoicedAt, user?.timezone)} */}
+            {/* {FullDateTimezoneHelper(data.invoicedAt, user.timezone)} */}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -128,7 +132,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
             {lang === 'EN' ? 'Invoice date:' : '정산 요청일:'}
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-            {FullDateTimezoneHelper(data.invoicedAt, user?.timezone)}
+            {FullDateTimezoneHelper(data.invoicedAt, user.timezone)}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -248,7 +252,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                 ? data.contactPerson.mobile!
                 : data.client.client.mobile,
               data.contactPerson !== null
-                ? data.contactPerson.timezone.phone
+                ? data.contactPerson.timezone?.phone
                 : data.client.client.timezone.phone,
             )}
           </Typography>

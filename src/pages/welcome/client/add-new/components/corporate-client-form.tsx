@@ -43,6 +43,7 @@ import {
 } from '@src/types/schema/client-address.schema'
 
 import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
+import { formatDateToYYYYMMDD } from '@src/shared/helpers/date.helper'
 
 type Props = {
   clientType: ClientClassificationType
@@ -105,22 +106,28 @@ export default function CorporateClientForm({
     name: 'clientAddresses',
   })
 
+  const verifyFailModal = () => {
+    openModal({
+      type: 'verifyError',
+      children: (
+        <SimpleAlertModal
+          message='No matching company was found. Please try again.'
+          onClose={() => closeModal('verifyError')}
+        />
+      ),
+    })
+  }
   function handleVerify() {
     const corporateCompanyInfo = getValues()
+    corporateCompanyInfo.commencementDate = formatDateToYYYYMMDD(corporateCompanyInfo.commencementDate)
     verifyCompanyInfo(corporateCompanyInfo)
       .then(res => {
-        setActiveStep(2)
+        if(res) setActiveStep(2)
+        else verifyFailModal()
+        
       })
       .catch(e => {
-        openModal({
-          type: 'verifyError',
-          children: (
-            <SimpleAlertModal
-              message='No matching company was found. Please try again.'
-              onClose={() => closeModal('verifyError')}
-            />
-          ),
-        })
+        verifyFailModal()
       })
   }
 

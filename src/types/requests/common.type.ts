@@ -10,6 +10,7 @@ export type RequestStatusType =
 export type RequestFormType = {
   lspId: string
   contactPersonId: number
+  userId?: number | null
   items: RequestItemFormType[]
   sampleFiles: Array<{
     fileName: string
@@ -27,5 +28,5 @@ export type RequestItemFormType = {
   unit?: string
   quantity?: number | null
   desiredDueDate: string
-  desiredDueTimezone: CountryType
+  desiredDueTimezone: CountryType | null
 }

@@ -5,7 +5,7 @@ import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import { ClientRowType } from '@src/apis/client.api'
 import { ClientStatusChip } from '@src/@core/components/chips/chips'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { StyledNextLink } from '@src/@core/components/customLink'
 import { useRouter } from 'next/router'
 
@@ -102,7 +102,7 @@ export default function ClientList({
       sortable: false,
       renderHeader: () => <Box>Time zone</Box>,
       renderCell: ({ row }: ClientListCellType) => {
-        return <div>{getGmtTime(row?.timezone?.code)}</div>
+        return <div>{getGmtTimeEng(row?.timezone?.code)}</div>
       },
     },
     {

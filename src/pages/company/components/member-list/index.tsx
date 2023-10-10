@@ -91,7 +91,7 @@ const MemberList = ({
   const [editRow, setEditRow] = useState<boolean>(false)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const userAccess = useAppSelector(state => state.userAccess)
+
   const handleClick = (event: MouseEvent<HTMLElement>, member: MembersType) => {
     event.stopPropagation()
     if (!selectedMember) {

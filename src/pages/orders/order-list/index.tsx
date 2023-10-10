@@ -20,12 +20,15 @@ import { useForm } from 'react-hook-form'
 import OrdersFilters from './list/filters'
 import { useGetOrderList } from '@src/queries/order/order.query'
 import OrdersList from './list/list'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { useRouter } from 'next/router'
 import OrderListCalendar from './calendar'
 import { useGetStatusList } from '@src/queries/common.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
+import { useGetCompanyOptions } from '@src/queries/options.query'
+
 
 export type FilterType = {
   orderDate: Date[]
@@ -33,11 +36,11 @@ export type FilterType = {
   revenueFrom?: Array<{ label: string; value: string }>
 
   status: Array<{ label: string; value: number }>
-  client: Array<{ label: string; value: number }>
+  client?: Array<{ label: string; value: number }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
 
-  lsp?: Array<{ label: string; value: number }>
+  lsp?: Array<{ label: string; value: string }>
 
   search: string
 }
@@ -69,10 +72,12 @@ const defaultFilters: OrderListFilterType = {
 type MenuType = 'list' | 'calendar'
 
 export default function OrderList() {
+  const currentRole = getCurrentRole()
+
   const { data: statusList } = useGetStatusList('Order')
   const [menu, setMenu] = useState<MenuType>('list')
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const [orderListPage, setOrderListPage] = useState(0)
   const [orderListRowsPerPage, setOrderListRowsPerPage] = useState(10)
 
@@ -88,6 +93,12 @@ export default function OrderList() {
       value: number
     }[]
   >([])
+  const [companiesList, setCompaniesList] = useState<
+    {
+      label: string
+      value: string
+    }[]
+  >([])
 
   const { data: orderList, isLoading } = useGetOrderList(filters, 'order')
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
@@ -95,9 +106,11 @@ export default function OrderList() {
     skip: 0,
   })
 
-  const currentRole = getCurrentRole()
+  const { data: companies, isLoading: companiesListLoading } =
+    currentRole?.name === 'CLIENT'
+      ? useGetCompanyOptions('LSP')
+      : { data: [], isLoading: false }
 
-  const { data } = useGetStatusList('Order')
 
   const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
     defaultValues,
@@ -149,7 +162,7 @@ export default function OrderList() {
     const filter: OrderListFilterType = {
       revenueFrom: revenueFrom?.map(value => value.value) ?? [],
       status: status.map(value => value.value),
-      client: client.map(value => value.label),
+      client: client?.map(value => value.label) ?? [],
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
       orderDateFrom: orderDate[0]?.toISOString() ?? '',
@@ -176,6 +189,18 @@ export default function OrderList() {
       setClientList(res)
     }
   }, [clients, clientListLoading])
+
+  useEffect(() => {
+    if (currentRole?.name === 'CLIENT') {
+      if (companies && !companiesListLoading) {
+        const res = companies.map(company => ({
+          label: company.name,
+          value: company.id,
+        }))
+        setCompaniesList(res)
+      }
+    }
+  }, [companies, companiesListLoading])
 
   return (
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>
@@ -220,6 +245,7 @@ export default function OrderList() {
               categoryList={categoryList}
               setCategoryList={setCategoryList}
               clientList={clientList}
+              companiesList={companiesList}
               statusList={statusList!}
               role={currentRole!}
             />
@@ -243,11 +269,11 @@ export default function OrderList() {
               </Box>
             </Box>
             <OrdersList
-              pageSize={orderListPage}
+              page={orderListPage}
               setPageSize={setOrderListPage}
               rowsPerPage={orderListRowsPerPage}
               setRowsPerPage={setOrderListRowsPerPage}
-              user={user!}
+              user={auth.getValue().user!}
               list={orderList?.data!}
               listCount={orderList?.totalCount!}
               isLoading={isLoading}

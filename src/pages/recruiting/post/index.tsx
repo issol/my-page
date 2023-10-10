@@ -25,7 +25,7 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
-
+import { v4 as uuidv4 } from 'uuid'
 // ** Third Party Imports
 import { convertToRaw, EditorState } from 'draft-js'
 
@@ -46,7 +46,8 @@ import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** form
 import { useForm, Controller } from 'react-hook-form'
@@ -55,7 +56,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 // ** fetches
 import { FormType, postRecruiting, StatusType } from '@src/apis/recruiting.api'
 import { useMutation } from 'react-query'
-import { useGetJobPostingList } from '@src/queries/jobPosting.query'
+import { useGetJobPostingList } from '@src/queries/jobs/jobPosting.query'
 import { useGetClientList } from '@src/queries/client.query'
 
 // ** types
@@ -74,7 +75,7 @@ import { RecruitingStatus } from 'src/shared/const/status/statuses'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import logger from '@src/@core/utils/logger'
 
 export default function RecruitingPost() {
@@ -97,7 +98,7 @@ export default function RecruitingPost() {
   )
 
   // ** contexts
-  const { user } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
   // ** states
@@ -142,7 +143,11 @@ export default function RecruitingPost() {
         setValueOptions,
       )
     } else if (currDueDate && !watch('dueDateTimezone')?.code) {
-      setValue('dueDateTimezone', user?.timezone, setValueOptions)
+      setValue(
+        'dueDateTimezone',
+        auth.getValue().user?.timezone,
+        setValueOptions,
+      )
     }
   }, [currDueDate])
 
@@ -316,10 +321,12 @@ export default function RecruitingPost() {
                       sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                       color='primary'
                     >
-                      {user?.username}
+                      {auth.getValue().user?.username}
                     </Typography>
                     <Divider orientation='vertical' variant='middle' flexItem />
-                    <Typography variant='body2'>{user?.email}</Typography>
+                    <Typography variant='body2'>
+                      {auth.getValue().user?.email}
+                    </Typography>
                   </Box>
                 </Box>
                 <Grid container spacing={6} mb='20px'>
@@ -364,7 +371,6 @@ export default function RecruitingPost() {
                     <Controller
                       name='client'
                       control={control}
-                      rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
                         <Autocomplete
                           autoHighlight
@@ -382,7 +388,7 @@ export default function RecruitingPost() {
                             <TextField
                               {...params}
                               error={Boolean(errors.client)}
-                              label='Client*'
+                              label='Client'
                               placeholder='Client*'
                             />
                           )}
@@ -557,7 +563,7 @@ export default function RecruitingPost() {
                   sx={{ paddingTop: '10px' }}
                   rowSpacing={6}
                 >
-                  <Grid item xs={4}>
+                  <Grid item xs={2.2}>
                     <Controller
                       name='openings'
                       control={control}
@@ -587,7 +593,7 @@ export default function RecruitingPost() {
                     )}
                   </Grid>
                   {/* date & time */}
-                  <Grid item xs={4}>
+                  <Grid item xs={3.8}>
                     <Controller
                       name='dueDate'
                       control={control}
@@ -598,7 +604,7 @@ export default function RecruitingPost() {
                           id='dueDate'
                           onChange={onChange}
                           placeholderText='Due date'
-                          customInput={<CustomInput icon='calendar' />}
+                          customInput={<CustomInput label='Due date' icon='calendar' />}
                         />
                       )}
                     />
@@ -609,7 +615,7 @@ export default function RecruitingPost() {
                     )}
                   </Grid>
                   {/* timezone */}
-                  <Grid item xs={4}>
+                  <Grid item xs={6}>
                     <Controller
                       name='dueDateTimezone'
                       control={control}
@@ -624,8 +630,8 @@ export default function RecruitingPost() {
                             onChange={(e, v) => onChange(v)}
                             disableClearable
                             renderOption={(props, option) => (
-                              <Box component='li' {...props}>
-                                {getGmtTime(option.code)}
+                              <Box component='li' {...props} key={uuidv4()}>
+                                {getGmtTimeEng(option.code)}
                               </Box>
                             )}
                             renderInput={params => (
@@ -650,7 +656,7 @@ export default function RecruitingPost() {
                   </Grid>
                   {/* jobpost link */}
                   <Grid item xs={12}>
-                    <Box display='flex' gap='8px'>
+                    <Box display='flex' gap='24px'>
                       <Select
                         id='job post link'
                         labelId='select job post link'

@@ -113,12 +113,17 @@ export default function QuotesProjectInfoDetail({
 
   const filterStatusList = () => {
     if (client && statusList) {
-      if (client.contactPerson && client.contactPerson?.userId) {
+      if (client.isEnrolledClient) {
         return statusList?.filter(
           value =>
             value.label === 'New' ||
             value.label === 'In preparation' ||
-            value.label === 'Internal Review',
+            value.label === 'Internal review',
+        )
+      } else {
+        return statusList?.filter(
+          value =>
+            value.label !== 'Changed into order' && value.label !== 'Canceled',
         )
       }
     }
@@ -191,7 +196,11 @@ export default function QuotesProjectInfoDetail({
             <LabelContainer style={{ height: '40px' }}>
               <CustomTypo fontWeight={600}>Quote date</CustomTypo>
               <CustomTypo variant='body2'>
-                {FullDateHelper(project.quoteDate)}
+                {/* {FullDateHelper(project.quoteDate)} */}
+                {FullDateTimezoneHelper(
+                  project.quoteDate,
+                  project.quoteDateTimezone,
+                )}
               </CustomTypo>
             </LabelContainer>
           </Grid>
@@ -200,20 +209,23 @@ export default function QuotesProjectInfoDetail({
             <LabelContainer>
               <CustomTypo fontWeight={600}>Status</CustomTypo>
               {type === 'detail' &&
-              isUpdatable &&
-              project.status !== 'Quote sent' &&
-              project.status !== 'Client review' &&
-              project.status !== 'Revision requested' &&
-              project.status !== 'Under revision' &&
-              project.status !== 'Revised' &&
-              project.status !== 'Accepted' &&
-              project.status !== 'Changed into order' &&
-              project.status !== 'Expired' &&
-              project.status !== 'Rejected' &&
-              project.status !== 'Canceled' ? (
+              ((isUpdatable &&
+                // 연결된 Client가 있는 경우
+                project.status !== 'Quote sent' &&
+                project.status !== 'Client review' &&
+                project.status !== 'Revision requested' &&
+                project.status !== 'Under revision' &&
+                project.status !== 'Revised' &&
+                project.status !== 'Accepted' &&
+                project.status !== 'Changed into order' &&
+                project.status !== 'Expired' &&
+                project.status !== 'Rejected' &&
+                project.status !== 'Canceled') ||
+                // 연결된 Client가 없는 경우
+                !client?.isEnrolledClient) ? (
                 <Autocomplete
-                  autoHighlight
                   fullWidth
+                  disableClearable={true}
                   options={filterStatusList() ?? []}
                   onChange={(e, v) => {
                     if (updateStatus && v?.value) {
@@ -221,9 +233,8 @@ export default function QuotesProjectInfoDetail({
                     }
                   }}
                   value={
-                    (statusList &&
-                      statusList.find(item => item.label === project.status)) ||
-                    null
+                    statusList &&
+                    statusList.find(item => item.label === project.status)
                   }
                   renderInput={params => (
                     <TextField
@@ -358,11 +369,10 @@ export default function QuotesProjectInfoDetail({
                     {client?.contactPerson?.jobTitle
                       ? ` / ${client?.contactPerson?.jobTitle}`
                       : ''}
-                    {type === 'history' && 
-                      (project.status === 'Changed into order' ||
+                    {type === 'history' &&
+                    (project.status === 'Changed into order' ||
                       project.status === 'Rejected' ||
-                      project.status === 'Canceled')
-                    ? null : (
+                      project.status === 'Canceled') ? null : (
                       <IconButton onClick={() => setContactPersonEdit(true)}>
                         <Icon icon='mdi:pencil-outline' />
                       </IconButton>

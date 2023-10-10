@@ -12,6 +12,7 @@ import {
 } from '@mui/material'
 import styled from 'styled-components'
 import { Icon } from '@iconify/react'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** react hook form
 import {
@@ -51,6 +52,7 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
   control: Control<RequestFormType, any>
@@ -237,6 +239,7 @@ export default function AddRequestForm({
                     <Autocomplete
                       autoHighlight
                       fullWidth
+                      limitTags={1}
                       multiple
                       disabled={!watchCategory}
                       options={ServiceTypePair[watchCategory] || []}
@@ -252,7 +255,7 @@ export default function AddRequestForm({
                           {...params}
                           error={Boolean(errors?.items?.[idx]?.serviceType)}
                           label='Service type*'
-                          placeholder='Service type*'
+                          // placeholder='Service type*'
                         />
                       )}
                     />
@@ -334,26 +337,35 @@ export default function AddRequestForm({
               <Controller
                 name={`items.${idx}.desiredDueTimezone`}
                 control={control}
-                render={({ field }) => (
+                render={({ field: { value, onChange } }) => (
                   <Autocomplete
-                    autoHighlight
                     fullWidth
-                    {...field}
+                    value={value ?? undefined}
                     options={countries as CountryType[]}
-                    onChange={(e, v) => field.onChange(v)}
-                    disableClearable
+                    onChange={(e, v) => {
+                      if (v) {
+                        onChange(v)
+                      } else {
+                        onChange(undefined)
+                      }
+                    }}
+                    getOptionLabel={option => {
+                      if (typeof option !== 'string') {
+                        return getGmtTimeEng(option.code) ?? ''
+                      } else {
+                        return ''
+                      }
+                    }}
                     renderOption={(props, option) => (
-                      <Box component='li' {...props}>
-                        {option.label} ({option.code}) +{option.phone}
+                      <Box component='li' {...props} key={uuidv4()}>
+                        {getGmtTimeEng(option.code)}
                       </Box>
                     )}
                     renderInput={params => (
                       <TextField
                         {...params}
                         label='Time zone*'
-                        error={Boolean(
-                          errors?.items?.[idx]?.desiredDueTimezone?.code,
-                        )}
+                        error={Boolean(errors.items?.[idx]?.desiredDueTimezone)}
                         inputProps={{
                           ...params.inputProps,
                         }}

@@ -10,7 +10,7 @@ import { Typography } from '@mui/material'
 
 // ** components
 import Calendar from './calendar'
-import QuotesList from '../list/list'
+import QuotesList from '../quote-list/list'
 
 // ** Hooks
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -73,7 +73,7 @@ const CalendarContainer = () => {
       ? '#666CFF'
       : status === 'In preparation'
       ? `#F572D8`
-      : status === 'Internal Review'
+      : status === 'Internal review'
       ? `#20B6E5`
       : status === 'Client review'
       ? `#FDB528`
@@ -101,25 +101,33 @@ const CalendarContainer = () => {
   }
 
   useEffect(() => {
-    if (currentListId && data?.data) {
-      setCurrentList(data?.data.filter(item => item.id === currentListId))
-    }
-  }, [currentListId])
-
-  useEffect(() => {
-    if (data?.data?.length) {
-      setEvent(
-        data.data.filter(
-          item =>
-            item.status !== 'Changed into order' &&
-            item.status !== 'Canceled' &&
-            item.status !== 'Rejected',
-        ),
-      )
+    if (data?.data?.length && !isLoading) {
+      setEvent([...data.data])
     } else {
       setEvent([])
     }
-  }, [data])
+  }, [data, isLoading])
+  
+  // useEffect(() => {
+  //   if (currentListId && data?.data) {
+  //     setCurrentList(data?.data.filter(item => item.id === currentListId))
+  //   }
+  // }, [currentListId])
+
+  // useEffect(() => {
+  //   if (data?.data?.length) {
+  //     setEvent(
+  //       data.data.filter(
+  //         item =>
+  //           item.status !== 'Changed into order' &&
+  //           item.status !== 'Canceled' &&
+  //           item.status !== 'Rejected',
+  //       ),
+  //     )
+  //   } else {
+  //     setEvent([])
+  //   }
+  // }, [data])
 
   useEffect(() => {
     if (statusList) {
@@ -158,6 +166,7 @@ const CalendarContainer = () => {
             status={statuses!}
             mdAbove={mdAbove}
             leftSidebarWidth={leftSidebarWidth}
+            title='Quote'
           />
         </Suspense>
 
@@ -221,6 +230,7 @@ const CalendarContainer = () => {
             filter={filters}
             setFilter={setFilters}
             role={currentRole!}
+            type='calendar'
           />
         </Box>
       )}

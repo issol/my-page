@@ -20,14 +20,11 @@ import { Fragment, useMemo } from 'react'
 
 type Props = {
   office: OfficeType
-  paymentInfo: ClientPaymentInfoDetail[] | undefined
+  paymentInfo: ClientPaymentInfoDetail | undefined
 }
 
 export default function PaymentMethod({ office, paymentInfo }: Props) {
-  const currentPaymentInfo = useMemo(
-    () => paymentInfo?.find(i => i.office === office),
-    [office, paymentInfo],
-  )
+  const currentPaymentInfo = useMemo(() => paymentInfo, [office, paymentInfo])
 
   function renderInfo(
     label: string,

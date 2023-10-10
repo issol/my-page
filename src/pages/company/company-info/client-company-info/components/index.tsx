@@ -36,7 +36,8 @@ import useModal from '@src/hooks/useModal'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 import { useMutation, useQueryClient } from 'react-query'
 
 import { getCurrentRole } from '@src/shared/auth/storage'
@@ -86,7 +87,7 @@ export default function ClientCompanyInfoPageComponent() {
 
   const [tab, setTab] = useState<MenuType>('companyInfo')
 
-  const { user, company } = useContext(AuthContext)
+  const auth = useRecoilValueLoadable(authState)
 
   const [infoEdit, setInfoEdit] = useState(false)
   const [addressEdit, setAddressEdit] = useState(false)
@@ -106,7 +107,7 @@ export default function ClientCompanyInfoPageComponent() {
       data: CorporateClientInfoType &
         ClientCompanyInfoType &
         ClientAddressFormType,
-    ) => updateClient(company?.clientId!, data),
+    ) => updateClient(auth.getValue().company?.clientId!, data),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: 'clientUserInfo' })
@@ -129,7 +130,7 @@ export default function ClientCompanyInfoPageComponent() {
     formState: { errors, isValid, dirtyFields },
   } = useForm<ClientCompanyInfoType>({
     defaultValues: getClientCompanyInfoDefaultValue(
-      company?.businessClassification ?? 'corporate',
+      auth.getValue().company?.businessClassification ?? 'corporate',
     ),
     mode: 'onChange',
     resolver: yupResolver(clientCompanyInfoSchema),
@@ -151,36 +152,44 @@ export default function ClientCompanyInfoPageComponent() {
   })
 
   function resetCompanyInfoForm() {
-    reset({
-      businessClassification: company?.businessClassification,
-      name: company?.name ?? '',
-      email: company?.email ?? '',
-      phone: company?.phone ?? '',
-      mobile: company?.mobile ?? '',
-      fax: company?.fax ?? '',
-      websiteLink: company?.websiteLink ?? '',
-      timezone: company?.timezone,
-      headquarter: company?.headquarter ?? '',
-    })
+    if (auth.state === 'hasValue' && auth.getValue().company) {
+      reset({
+        businessClassification: auth.getValue().company?.businessClassification,
+        name: auth.getValue().company?.name ?? '',
+        email: auth.getValue().company?.email ?? '',
+        phone: auth.getValue().company?.phone ?? '',
+        mobile: auth.getValue().company?.mobile ?? '',
+        fax: auth.getValue().company?.fax ?? '',
+        websiteLink: auth.getValue().company?.websiteLink ?? '',
+        timezone: auth.getValue().company?.timezone,
+        headquarter: auth.getValue().company?.headquarter ?? '',
+      })
+    }
   }
 
   function resetAddressForm() {
-    resetAddress({
-      clientAddresses: company?.clientAddresses
-        .map(i => ({
-          ...i,
-          id: i?.id?.toString(),
-        }))
-        .filter(i => i.addressType !== 'billing'),
-    })
+    if (auth.state === 'hasValue' && auth.getValue().company) {
+      resetAddress({
+        clientAddresses: auth
+          .getValue()
+          .company?.clientAddresses.map(i => ({
+            ...i,
+            id: i?.id?.toString(),
+          }))
+          .filter(i => i.addressType !== 'billing'),
+      })
+    }
   }
 
   useEffect(() => {
     resetCompanyInfoForm()
-    if (company?.clientAddresses.length) {
+    if (
+      auth.state === 'hasValue' &&
+      auth.getValue().company?.clientAddresses.length
+    ) {
       resetAddressForm()
     }
-  }, [company])
+  }, [auth])
 
   const { fields, append, remove, update } = useFieldArray({
     control: addressControl,
@@ -246,7 +255,7 @@ export default function ClientCompanyInfoPageComponent() {
     <Suspense fallback={<FallbackSpinner />}>
       <ConfirmLeaveModal />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <CompanyInfoCard companyInfo={company!} />
+        <CompanyInfoCard companyInfo={auth.getValue().company!} />
         <TabContext value={tab}>
           <TabList
             onChange={handleChange}
@@ -280,7 +289,8 @@ export default function ClientCompanyInfoPageComponent() {
                   >
                     <Box display='flex' gap='16px' alignItems='center'>
                       <Typography variant='h6'>Company information</Typography>
-                      {company?.businessClassification === 'corporate' ? (
+                      {auth.getValue().company?.businessClassification ===
+                      'corporate' ? (
                         <CustomChip
                           icon={<Icon icon='fluent:shield-task-16-filled' />}
                           label='Verified'
@@ -297,7 +307,7 @@ export default function ClientCompanyInfoPageComponent() {
                       </IconButton>
                     )}
                   </Box>
-                  <CompanyInfoDetail companyInfo={company} />
+                  <CompanyInfoDetail companyInfo={auth.getValue().company} />
                 </Card>
                 <Card style={{ padding: '24px', marginTop: '24px' }}>
                   <Box
@@ -314,7 +324,7 @@ export default function ClientCompanyInfoPageComponent() {
                   </Box>
 
                   <CompanyAddressDetail
-                    address={company?.clientAddresses ?? []}
+                    address={auth.getValue().company?.clientAddresses ?? []}
                   />
                 </Card>
               </>
@@ -322,7 +332,7 @@ export default function ClientCompanyInfoPageComponent() {
             {infoEdit ? (
               <Card style={{ padding: '24px' }}>
                 <Grid container spacing={6}>
-                  {company?.businessClassification !==
+                  {auth.getValue().company?.businessClassification !==
                   'corporate_non_korean' ? null : (
                     <Grid item xs={12}>
                       <Controller

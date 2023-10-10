@@ -57,7 +57,7 @@ import AccountMethodForm from '../forms/payment-method/account-method-form'
 type Props = {
   office: OfficeType
   open: boolean
-  paymentInfo: ClientPaymentInfoDetail[] | undefined
+  paymentInfo: ClientPaymentInfoDetail | undefined
   onClose: () => void
   onSave: (
     paymentMethod: PaymentType,
@@ -76,10 +76,7 @@ export default function PaymentMethodForm({
 }: Props) {
   const methodList = PaymentMethodPairs[office]
 
-  const currentPaymentInfo = useMemo(
-    () => paymentInfo?.find(i => i.office === office),
-    [office, paymentInfo],
-  )
+  const currentPaymentInfo = useMemo(() => paymentInfo, [office, paymentInfo])
 
   const [currentMethod, setCurrentMethod] = useState<PaymentType>(
     currentPaymentInfo?.paymentMethod || methodList[0].value,
