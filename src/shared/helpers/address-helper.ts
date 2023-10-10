@@ -25,6 +25,10 @@ export const getAddress = (address: ClientAddressType<string | number>[]) => {
     )
       return '-'
 
-    return `${state1}${state2}${city}${state}${country}${zipCode}`
+    return `${state1 !== '' ? `${state1}, ` : ''}${
+      state2 !== '' ? `${state2}, ` : ''
+    }${city !== '' ? `${city}, ` : ''}${state !== '' ? `${state} ,` : ''}${
+      country !== '' ? `${country} ,` : ''
+    }${zipCode}`
   }
 }
