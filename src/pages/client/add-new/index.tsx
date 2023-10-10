@@ -79,6 +79,7 @@ import { toast } from 'react-hot-toast'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useRecoilValueLoadable } from 'recoil'
 import { roleSelector } from '@src/states/permission'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type PriceListCopyRowType = Omit<
   StandardPriceListType,
@@ -493,18 +494,21 @@ export default function AddNewClient() {
       clientAddresses: address,
       ...getContactPersonValues()!,
     }
-
     openModal({
       type: 'create-client',
       children: (
-        <AddConfirmModal
-          message='Are you sure you want to add this client?'
-          title={getCompanyInfoValues().name}
+        <CustomModal
+          title={'Are you sure you want to add this client?'}
+          subtitle={getCompanyInfoValues().name}
+          onClose={() => closeModal('create-client')}
+          leftButtonText='Cancel'
+          rightButtonText='Add'
+          vary='successful'
           onClick={() => {
             setIsWarn(false)
             createClientMutation.mutate(data)
+            closeModal('create-client')
           }}
-          onClose={() => closeModal('create-client')}
         />
       ),
     })

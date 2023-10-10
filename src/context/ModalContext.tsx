@@ -99,5 +99,5 @@ const Overlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1300;
+  z-index: 1301;
 `
