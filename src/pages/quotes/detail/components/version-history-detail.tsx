@@ -47,6 +47,7 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import { useGetStatusList } from '@src/queries/common.query'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 
 type Props = {
   id?: number
@@ -66,13 +67,14 @@ const VersionHistoryModal = ({ id, history }: Props) => {
   const [downloadData, setDownloadData] = useState<QuoteDownloadData | null>(
     null,
   )
+  console.log("dialog-prop",id,history)
 
   const [pageSize, setPageSize] = useState<number>(10)
-  const { data: priceList } = useGetClientPriceList({ clientId: id })
-
-  const priceInfo = priceList?.find(
-    value => value.id === history.items?.items[0].priceId,
-  )
+  // const { data: priceList, isLoading: priceDataLoading } = useGetClientPriceList({ clientId: id })
+  // console.log("priceList",priceList)
+  // const priceInfo = priceList?.find(
+  //   value => value.id === history.items?.items[0].priceId,
+  // )
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
   const auth = useRecoilValueLoadable(authState)
@@ -286,7 +288,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                     {open ? (
                       <ItemDetail
                         item={item}
-                        priceList={priceList || []}
+                        price={item.initialPrice}
                         role={currentRole!}
                       />
                     ) : null}
@@ -325,11 +327,11 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                                   history.items.items.reduce((acc, cur) => {
                                     return acc + cur.totalPrice
                                   }, 0),
-                                  priceInfo?.decimalPlace!,
-                                  priceInfo?.roundingProcedure!,
-                                  priceInfo?.currency ?? 'USD',
+                                  item?.initialPrice?.numberPlace!,
+                                  item?.initialPrice?.rounding!,
+                                  item?.initialPrice?.currency ?? 'KRW',
                                 ),
-                                priceInfo?.currency ?? 'USD',
+                                item?.initialPrice?.currency ?? 'KRW',
                               )}
                             </Typography>
                           </Box>
