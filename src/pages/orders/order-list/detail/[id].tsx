@@ -444,8 +444,8 @@ const OrderDetail = () => {
     setLanguagePairs(
       langItem?.items?.map(item => ({
         id: String(item.id),
-        source: item.source,
-        target: item.target,
+        source: item.source!,
+        target: item.target!,
         price: {
           id: item.initialPrice?.priceId!,
           isStandard: item.initialPrice?.isStandard!,
@@ -785,8 +785,8 @@ const OrderDetail = () => {
       setLanguagePairs(
         langItem?.items?.map(item => ({
           id: String(item.id),
-          source: item.source,
-          target: item.target,
+          source: item.source!,
+          target: item.target!,
           price: {
             id: item.initialPrice?.priceId!,
             isStandard: item.initialPrice?.isStandard!,
@@ -935,15 +935,16 @@ const OrderDetail = () => {
   const onSubmitItems = () => {
     setLangItemsEdit(false)
     const items: PostItemType[] = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
-      console.log('save item', item)
+      const { contactPerson, minimumPrice, priceFactor, source, target, ...filterItem } = item
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
-        name: item.itemName,
+        // name: item.itemName,
+        sourceLanguage: item.source,
+        targetLanguage: item.target,
       }
     })
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {

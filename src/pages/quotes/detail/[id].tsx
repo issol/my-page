@@ -468,8 +468,8 @@ export default function QuotesDetail() {
             if (!item.initialPrice) throw new Error('NO_InitialPrice')
             return {
               id: String(item.id),
-              source: item.source,
-              target: item.target,
+              source: item.source!,
+              target: item.target!,
               price: {
                 id: item.initialPrice?.priceId!,
                 isStandard: item.initialPrice?.isStandard!,
@@ -917,7 +917,7 @@ export default function QuotesDetail() {
 
   async function onItemSave() {
     const items: PostItemType[] = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
+      const { contactPerson, minimumPrice, priceFactor, source, target, ...filterItem } = item
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
@@ -925,7 +925,9 @@ export default function QuotesDetail() {
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
-        name: item.itemName,
+        // name: item.itemName,
+        sourceLanguage: item.source,
+        targetLanguage: item.target,
       }
     })
     const langs: LanguagePairsType[] = languagePairs.map(item => {

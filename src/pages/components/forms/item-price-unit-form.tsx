@@ -160,9 +160,15 @@ export default function ItemPriceUnitForm({
           data.forEach(subItem => {
             if (
               subItem?.parentPriceUnitId === item.priceUnitId &&
+              subItem?.groupName === item.groupName &&
               subItem?.priceUnitId
             ) {
-              item.subPriceUnits?.push(subItem)
+              // subPrice가 추가될 부모의 그룹이름이 Price unit이라면 price, quantity를 0으로 초기화 해준다
+              if (subItem?.groupName === 'Price unit') {
+                item.subPriceUnits?.push({...subItem, price: 0})
+              } else {
+                item.subPriceUnits?.push(subItem)
+              }
             }
           })
           const uniqueArray: PriceUnitListType[] = Array.from(
