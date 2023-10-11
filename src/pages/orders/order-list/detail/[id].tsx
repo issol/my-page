@@ -28,9 +28,11 @@ import {
 } from 'react'
 import ProjectInfo from './components/project-info'
 import OrderDetailClient from './components/client'
+import { v4 as uuidv4 } from 'uuid'
 import {
   OrderDownloadData,
   OrderFeatureType,
+  ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
 import { GridColumns } from '@mui/x-data-grid'
@@ -189,6 +191,11 @@ const OrderDetail = () => {
     currentRole && currentRole.name === 'CLIENT' ? 'order' : 'project',
   )
   const { data: statusList } = useGetStatusList('Order')
+
+  const [teams, setTeams] = useState<ProjectTeamListType[]>([])
+
+  const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
+  const teamOrder = ['supervisor', 'projectManager', 'member']
 
   const dispatch = useAppDispatch()
 
@@ -437,8 +444,8 @@ const OrderDetail = () => {
     setLanguagePairs(
       langItem?.items?.map(item => ({
         id: String(item.id),
-        source: item.source,
-        target: item.target,
+        source: item.source!,
+        target: item.target!,
         price: {
           id: item.initialPrice?.priceId!,
           isStandard: item.initialPrice?.isStandard!,
@@ -778,8 +785,8 @@ const OrderDetail = () => {
       setLanguagePairs(
         langItem?.items?.map(item => ({
           id: String(item.id),
-          source: item.source,
-          target: item.target,
+          source: item.source!,
+          target: item.target!,
           price: {
             id: item.initialPrice?.priceId!,
             isStandard: item.initialPrice?.isStandard!,
@@ -824,6 +831,43 @@ const OrderDetail = () => {
       )
     }
     if (projectTeam) {
+      let viewTeams: ProjectTeamListType[] = [...projectTeam]
+
+      if (!viewTeams.some(item => item.position === 'supervisor')) {
+        viewTeams.unshift({
+          id: uuidv4(),
+          position: 'supervisor',
+          userId: -1,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+      if (!viewTeams.some(item => item.position === 'member')) {
+        viewTeams.push({
+          id: uuidv4(),
+          position: 'member',
+          userId: 0,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+
+      const res = viewTeams.sort((a, b) => {
+        const aIndex = teamOrder.indexOf(a.position)
+        const bIndex = teamOrder.indexOf(b.position)
+        return aIndex - bIndex
+      })
+
+      console.log(res)
+
+      if (viewTeams.length) setTeams(res)
+
       const teams: Array<{
         type: MemberType
         id: number | null
@@ -842,7 +886,22 @@ const OrderDetail = () => {
           lastName: item?.lastName!,
         }),
       }))
-      resetTeam({ teams })
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
+
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
     }
     console.log("projectInfo",projectInfo,currentStatus)
     if (projectInfo) {
@@ -877,15 +936,16 @@ const OrderDetail = () => {
   const onSubmitItems = () => {
     setLangItemsEdit(false)
     const items: PostItemType[] = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, priceFactor, ...filterItem } = item
-      console.log('save item', item)
+      const { contactPerson, minimumPrice, priceFactor, source, target, ...filterItem } = item
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
-        name: item.itemName,
+        // name: item.itemName,
+        sourceLanguage: item.source,
+        targetLanguage: item.target,
       }
     })
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
@@ -1833,7 +1893,7 @@ const OrderDetail = () => {
                 ) : (
                   <ProjectTeam
                     type='detail'
-                    list={projectTeam!}
+                    list={teams}
                     listCount={projectTeam?.length!}
                     columns={getProjectTeamColumns()}
                     page={projectTeamListPage}

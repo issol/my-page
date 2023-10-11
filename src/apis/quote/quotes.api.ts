@@ -2,6 +2,7 @@ import axios from 'src/configs/axios'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import { UserDataType } from '@src/context/types'
+import { v4 as uuidv4 } from 'uuid'
 import {
   ClientFormType,
   ItemResType,
@@ -167,7 +168,7 @@ export const getProjectTeam = async (
 ): Promise<ProjectTeamListType[]> => {
   try {
     const { data } = await axios.get(`/api/enough/u/quote/${id}/team`)
-    return data.members
+    return data.members.map((value: any) => ({ ...value, id: uuidv4() }))
   } catch (e: any) {
     // throw new Error(e)
     return []

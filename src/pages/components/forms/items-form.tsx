@@ -196,8 +196,8 @@ export default function ItemForm({
 
   const getPricebyPairs = (idx: number) => {
     const options = getPriceOptions(
-      getValues(`items.${idx}.source`),
-      getValues(`items.${idx}.target`),
+      getValues(`items.${idx}.source`)!,
+      getValues(`items.${idx}.target`)!,
     )
     return options
   }
@@ -347,7 +347,7 @@ export default function ItemForm({
 
     const priceData = () => {
       return (
-        getPriceOptions(itemData.source, itemData.target).find(
+        getPriceOptions(itemData.source!, itemData.target!).find(
           price => price.id === itemData.priceId,
         ) || null
       )
@@ -666,8 +666,8 @@ export default function ItemForm({
 
     function onChangePrice(v: StandardPriceListType, idx: number) {
       if (v?.id) {
-        const source = getValues(`items.${idx}.source`)
-        const target = getValues(`items.${idx}.target`)
+        const source = getValues(`items.${idx}.source`)!
+        const target = getValues(`items.${idx}.target`)!
         setValue(`items.${idx}.priceId`, v?.id, setValueOptions)
         const priceData = getPriceOptions(source, target).find(
           price => price.id === v?.id,
@@ -1027,8 +1027,8 @@ export default function ItemForm({
                     control={control}
                     render={({ field: { value, onChange } }) => {
                       const options = getPriceOptions(
-                        getValues(`items.${idx}.source`),
-                        getValues(`items.${idx}.target`),
+                        getValues(`items.${idx}.source`)!,
+                        getValues(`items.${idx}.target`)!,
                         idx,
                       )
                       let hasMatchingPrice = false
