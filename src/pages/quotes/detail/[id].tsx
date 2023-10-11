@@ -13,6 +13,7 @@ import { Icon } from '@iconify/react'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
+import { v4 as uuidv4 } from 'uuid'
 import {
   Box,
   Button,
@@ -605,10 +606,11 @@ export default function QuotesDetail() {
 
   useEffect(() => {
     if (!isTeamLoading && team) {
-      const viewTeams: ProjectTeamListType[] = team
+      let viewTeams: ProjectTeamListType[] = [...team]
 
       if (!viewTeams.some(item => item.position === 'supervisor')) {
         viewTeams.unshift({
+          id: uuidv4(),
           position: 'supervisor',
           userId: -1,
           firstName: '',
@@ -620,6 +622,7 @@ export default function QuotesDetail() {
       }
       if (!viewTeams.some(item => item.position === 'member')) {
         viewTeams.push({
+          id: uuidv4(),
           position: 'member',
           userId: 0,
           firstName: '',
@@ -635,6 +638,8 @@ export default function QuotesDetail() {
         const bIndex = teamOrder.indexOf(b.position)
         return aIndex - bIndex
       })
+
+      console.log(res)
 
       if (viewTeams.length) setTeams(res)
 
@@ -835,9 +840,11 @@ export default function QuotesDetail() {
       }
     }
     // LPM에서 status가 Revision requested일때 quote의 편집화면에 진입하면 status를 Under revision(20600) 으로 패치한다.
-    console.log("currentRole",currentRole)
+    console.log('currentRole', currentRole)
     if (currentRole && currentRole.name === 'LPM') {
-      if (project && project.status === 'Revision requested' &&
+      if (
+        project &&
+        project.status === 'Revision requested' &&
         (editProject || editItems || editClient || editTeam)
       ) {
         patchQuoteProjectInfo(Number(id), { status: 20600 })
@@ -1304,6 +1311,8 @@ export default function QuotesDetail() {
     }
   }
 
+  console.log(teams)
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -1754,7 +1763,7 @@ export default function QuotesDetail() {
                         },
                       }}
                       autoHeight
-                      getRowId={row => row.userId}
+                      getRowId={row => row.id!}
                       columns={getProjectTeamColumns(
                         (currentRole && currentRole.name) ?? '',
                       )}

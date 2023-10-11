@@ -63,21 +63,6 @@ export const getProjectTeamColumns = (role?: string) => {
         )
       },
     },
-
-    {
-      flex: role ? 0.2802 : 0.3283,
-      field: 'email',
-      headerName: 'Email',
-      hideSortIcons: true,
-      disableColumnMenu: true,
-      sortable: false,
-      hide: role !== 'CLIENT',
-      // hide: true,
-      renderHeader: () => <Box>Email</Box>,
-      renderCell: ({ row }: ProjectTeamCellType) => {
-        return <Box>{row.email}</Box>
-      },
-    },
   ]
 
   const clientColumns: GridColumns<ProjectTeamListType> = [
