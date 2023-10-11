@@ -11,6 +11,7 @@ import { ReasonType } from '../quotes/quote'
 export type PositionType = 'supervisor' | 'projectManager' | 'member'
 
 export type ProjectTeamListType = {
+  id?: string
   userId: number
   position: PositionType
   firstName: string
