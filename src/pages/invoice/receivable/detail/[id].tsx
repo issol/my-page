@@ -572,8 +572,8 @@ const ReceivableInvoiceDetail = () => {
         langItem?.items?.map(item => {
           return {
             id: String(item.id),
-            source: item.source,
-            target: item.target,
+            source: item.source!,
+            target: item.target!,
             price: {
               id: item.initialPrice?.priceId!,
               isStandard: item.initialPrice?.isStandard!,

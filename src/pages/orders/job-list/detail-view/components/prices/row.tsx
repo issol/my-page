@@ -75,12 +75,12 @@ const Row = ({
   /* price unit */
   const itemName: `items.${number}.detail` = `items.${0}.detail`
 
-  const sourceLanguage = itemData.source
-  const targetLanguage = itemData.target
+  const sourceLanguage = itemData.source!
+  const targetLanguage = itemData.target!
 
   // standard price에 등록된 데이터중 매칭된 데이터
   const priceData = () => {
-    return getPriceOptions(itemData.source, itemData.target).find(
+    return getPriceOptions(itemData.source!, itemData.target!).find(
       price => price.id === itemData.priceId,
     ) || null
   }
