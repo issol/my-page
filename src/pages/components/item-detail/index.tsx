@@ -34,15 +34,16 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import ItemPriceUnitTable from './price-unit-table'
 import TmAnalysisTable from './tm-analysis-table'
 import { UserRoleType } from '@src/context/types'
+import { PriceType } from '@src/types/common/orders-and-quotes.type'
 
 type Props = {
   item: ItemType
-  priceList: StandardPriceListType[]
+  price: PriceType | null | undefined
   idx?: number
   role: UserRoleType
 }
 
-export default function ItemDetail({ item, priceList, idx, role }: Props) {
+export default function ItemDetail({ item, price, idx, role }: Props) {
   return (
     <Grid item xs={12}>
       <Grid container spacing={6}>
@@ -128,7 +129,7 @@ export default function ItemDetail({ item, priceList, idx, role }: Props) {
               Price
             </Typography>
             <Typography variant='body1' fontSize={14}>
-              {priceList?.find(price => price.id === item.priceId)?.priceName}
+              {price?.name ?? ''}
             </Typography>
           </Box>
         </Grid>
@@ -136,6 +137,7 @@ export default function ItemDetail({ item, priceList, idx, role }: Props) {
         <ItemPriceUnitTable
           itemDetail={item.detail || []}
           totalPrice={item.totalPrice}
+          price={item.initialPrice}
         />
 
         <Grid item xs={12}>

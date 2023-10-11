@@ -63,6 +63,7 @@ const ViewPrices = ({ jobInfo, prices }: Props) => {
         <ItemPriceUnitTable
           itemDetail={itemDetail}
           totalPrice={prices.totalPrice}
+          price={prices.initialPrice}
         />
       </Box>
     </Card>

@@ -15,13 +15,15 @@ import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 
 // ** helpers
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { PriceType } from '@src/types/common/orders-and-quotes.type'
 
 type Props = {
+  price: PriceType | null | undefined
   itemDetail: ItemDetailType[]
   totalPrice: number | string
 }
 
-export default function ItemPriceUnitTable({ itemDetail, totalPrice }: Props) {
+export default function ItemPriceUnitTable({ price, itemDetail, totalPrice }: Props) {
   const Row = ({ idx, item }: { idx: number; item: ItemDetailType }) => {
     return (
       <TableRow hover tabIndex={-1}>
