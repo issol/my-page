@@ -31,8 +31,11 @@ export type PostItemType = {
   itemName: string | null
   dueAt?: string
   contactPersonId?: number
-  source: string
-  target: string
+  source?: string
+  target?: string
+  // TODO: 추후 source, target을 걷어내야 함
+  sourceLanguage?: string
+  targetLanguage?: string
   priceId: number | null
   detail?: Array<ItemDetailType>
   description?: string | null
