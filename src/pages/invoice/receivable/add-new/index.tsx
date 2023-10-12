@@ -388,9 +388,9 @@ export default function AddNewInvoice() {
     }
 
     const res: InvoiceReceivablePatchParamsType = {
-      projectManagerId: teams.projectManagerId,
-      supervisorId: teams.supervisorId!,
-      members: teams.member,
+      projectManagerId: teams.projectManagerId!,
+      supervisorId: teams.supervisorId ?? null,
+      members: teams.members ?? null,
       contactPersonId: clients.contactPersonId,
       orderId: Number(router.query.orderId),
       invoicedAt: projectInfo.invoiceDate,
@@ -442,7 +442,7 @@ export default function AddNewInvoice() {
     let result: ProjectTeamFormType = {
       projectManagerId: 0,
       supervisorId: undefined,
-      member: [],
+      members: [],
     }
 
     data.teams.forEach(item => {
@@ -454,13 +454,13 @@ export default function AddNewInvoice() {
         result.projectManagerId = Number(item.id)!
       } else if (item.type === 'member') {
         if (!item.id) {
-          result.member = []
+          result.members = []
         } else {
-          result?.member?.push(item.id!)
+          result?.members?.push(item.id!)
         }
       }
     })
-    if (!result.member || !result?.member?.length) delete result.member
+    if (!result.members || !result?.members?.length) delete result.members
     return result
   }
 
