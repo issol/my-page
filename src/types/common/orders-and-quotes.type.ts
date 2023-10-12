@@ -1,7 +1,7 @@
 export type ProjectTeamFormType = {
   supervisorId?: number | null
-  projectManagerId: number
-  member?: Array<number>
+  projectManagerId: number | null
+  members?: Array<number> | null
 }
 
 export type ClientFormType = {
@@ -45,7 +45,7 @@ export type PriceType = {
   calculationBasis: string | null
   category: string | null
   createdAt: string
-  currency: "USD" | "KRW" | "SGD" | "JPY"
+  currency: 'USD' | 'KRW' | 'SGD' | 'JPY'
   deletedAt: string | null
   id: number
   isStandard: boolean

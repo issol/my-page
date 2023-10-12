@@ -5,7 +5,7 @@ export function transformTeamData(data: ProjectTeamType) {
   let result: ProjectTeamFormType = {
     projectManagerId: 0,
     supervisorId: undefined,
-    member: [],
+    members: [],
   }
 
   data.teams.forEach(item => {
@@ -17,12 +17,12 @@ export function transformTeamData(data: ProjectTeamType) {
       result.projectManagerId = Number(item.id)!
     } else if (item.type === 'member') {
       if (!item.id) {
-        result.member = []
+        result.members = []
       } else {
-        result?.member?.push(Number(item.id))
+        result?.members?.push(Number(item.id))
       }
     }
   })
-  if (!result.member || !result?.member?.length) delete result.member
+  if (!result.members || !result?.members?.length) delete result.members
   return result
 }

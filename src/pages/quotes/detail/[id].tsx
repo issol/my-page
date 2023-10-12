@@ -596,10 +596,44 @@ export default function QuotesDetail() {
     control: teamControl,
     name: 'teams',
   })
+  const initializeTeamData = () => {
+    if (!isTeamLoading && team) {
+      const teams: Array<{
+        type: MemberType
+        id: number | null
+        name: string
+      }> = team.map(item => ({
+        type:
+          item.position === 'projectManager'
+            ? 'projectManagerId'
+            : item.position === 'supervisor'
+            ? 'supervisorId'
+            : 'member',
+        id: item.userId,
+        name: getLegalName({
+          firstName: item?.firstName!,
+          middleName: item?.middleName,
+          lastName: item?.lastName!,
+        }),
+      }))
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
 
-  // useEffect(() => {
-  //   console.log(teams, 'team')
-  // }, [teams])
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
+    }
+  }
 
   const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
   const teamOrder = ['supervisor', 'projectManager', 'member']
@@ -917,7 +951,14 @@ export default function QuotesDetail() {
 
   async function onItemSave() {
     const items: PostItemType[] = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, priceFactor, source, target, ...filterItem } = item
+      const {
+        contactPerson,
+        minimumPrice,
+        priceFactor,
+        source,
+        target,
+        ...filterItem
+      } = item
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
@@ -990,7 +1031,20 @@ export default function QuotesDetail() {
 
   function onProjectTeamSave() {
     const teams = transformTeamData(getTeamValues())
-    onSave(() => updateProject.mutate(teams))
+    console.log(teams)
+    const res: ProjectTeamFormType = {
+      projectManagerId: teams.projectManagerId ? teams.projectManagerId : null,
+      supervisorId: teams.supervisorId ? teams.supervisorId : null,
+      members: teams.members && teams.members.length ? teams.members : null,
+    }
+
+    onSave(() =>
+      updateProject.mutate(res, {
+        onSuccess: () => {
+          initializeTeamData()
+        },
+      }),
+    )
   }
 
   function onDiscard({ callback }: { callback: () => void }) {
