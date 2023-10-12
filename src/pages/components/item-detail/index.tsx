@@ -107,9 +107,9 @@ export default function ItemDetail({ item, price, idx, role }: Props) {
               Language pair
             </Typography>
             <Typography variant='body1' fontSize={14}>
-              {languageHelper(item.source)}
+              {languageHelper(item.sourceLanguage)}
               &nbsp;&rarr;&nbsp;
-              {languageHelper(item.target)}
+              {languageHelper(item.targetLanguage)}
             </Typography>
           </Box>
         </Grid>

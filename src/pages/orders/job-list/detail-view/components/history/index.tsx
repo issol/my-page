@@ -58,10 +58,10 @@ export default function JobHistory({
   const auth = useRecoilValueLoadable(authState)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
+  const [listSort, setListSort] = useState<'desc' | 'asc'>('desc')
 
   const {
     data: originJobInfo,
-
     isLoading: originJobInfoLoading,
   } = useGetJobInfo(jobId, false)
 
@@ -79,7 +79,7 @@ export default function JobHistory({
       disableColumnMenu: true,
       renderHeader: () => <Box>Request</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Typography>Request. {row.version}</Typography>
+        return <Typography>Request. {row.historyId}</Typography>
       },
     },
     {
@@ -157,6 +157,7 @@ export default function JobHistory({
             }}
             sx={{ overflowX: 'scroll', cursor: 'pointer' }}
             columns={columns}
+            getRowId={row => row?.historyId}
             rows={list?.data || []}
             rowCount={list?.totalCount ?? 0}
             loading={isLoading}
@@ -207,6 +208,13 @@ export default function JobHistory({
             onPageChange={setSkip}
             disableSelectionOnClick
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+            sortModel={[
+              {
+                field: 'version',
+                sort: listSort,
+              },
+            ]}
+            onSortModelChange={() => listSort === 'desc' ? setListSort('asc') : setListSort('desc')}
           />
         </Box>
       </Card>
