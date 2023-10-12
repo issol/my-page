@@ -1490,6 +1490,7 @@ const OrderDetail = () => {
                                   ? `/quotes/requests/${projectInfo?.linkedRequest.id}`
                                   : `/quotes/lpm/requests/${projectInfo?.linkedRequest.id}`
                               }
+                              style={{ color: '#000000' }}
                             >
                               {projectInfo?.linkedRequest.corporationId ?? '-'}
                             </Link>
@@ -1508,6 +1509,7 @@ const OrderDetail = () => {
                             Linked quote :
                             <Link
                               href={`/quotes/detail/${projectInfo.linkedQuote.id}`}
+                              style={{ color: '#000000' }}
                             >
                               {projectInfo?.linkedQuote.corporationId ?? '-'}
                             </Link>
@@ -1526,6 +1528,7 @@ const OrderDetail = () => {
                             Linked invoice :
                             <Link
                               href={`/invoice/receivable/detail/${projectInfo.linkedInvoiceReceivable.id}`}
+                              style={{ color: '#000000' }}
                             >
                               {projectInfo?.linkedInvoiceReceivable
                                 .corporationId ?? '-'}
