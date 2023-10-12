@@ -11,7 +11,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useState, useEffect } from 'react'
 import {
   Control,
   FieldArrayWithId,
@@ -27,6 +27,7 @@ import Row from './row'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { boolean } from 'yup'
+import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 
 type Props = {
   row: JobType
@@ -66,6 +67,7 @@ type Props = {
   >[]
   setEditPrices?: Dispatch<SetStateAction<boolean>>
   type: string
+  jobPriceHistory?: JobPricesDetailType
 }
 const ViewPrices = ({
   row,
@@ -81,13 +83,11 @@ const ViewPrices = ({
   fields,
   setEditPrices,
   type,
+  jobPriceHistory,
 }: Props) => {
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: 7,
   })
-  // TODO: History 조회 API 연결해야 함
-  console.log("row",row)
-  console.log("field",fields)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -118,7 +118,10 @@ const ViewPrices = ({
     | null
   >(null)
 
-  const [showPriceHistory, setShowPriceHistory] = useState<boolean>(true)
+  const [showPriceHistory, setShowPriceHistory] = useState<boolean>(false)
+  useEffect(() => {
+    if (jobPriceHistory && jobPriceHistory.detail.length) setShowPriceHistory(true)
+  }, [])
 
   const PriceHistory = ({item}: {item:ItemType[]}) => {
     return (
@@ -309,7 +312,7 @@ const ViewPrices = ({
         </Box>
       </Card>
 
-      {!showPriceHistory ? 
+      {jobPriceHistory?.detail?.length && !showPriceHistory ? 
         <Box 
           sx={{ 
             display: 'flex', 
@@ -335,7 +338,7 @@ const ViewPrices = ({
         </Box>
         : null
       }
-      {showPriceHistory ?
+      {jobPriceHistory?.detail?.length && showPriceHistory ?
         <Box
           sx={{ 
             display: 'flex', 
