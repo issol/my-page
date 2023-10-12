@@ -14,6 +14,7 @@ export const getProjectTeamColumns = (role?: string) => {
 
       headerName: 'Position',
       disableColumnMenu: true,
+      sortable: false,
       renderHeader: () => <Box>Position</Box>,
       renderCell: ({ row }: ProjectTeamCellType) => {
         return (

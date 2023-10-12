@@ -108,7 +108,13 @@ const ProjectTeam = ({
             //   NoRowsOverlay: () => NoList(),
             //   NoResultsOverlay: () => NoList(),
             // }}
-            sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+            sx={{
+              overflowX: 'scroll',
+              '& .MuiDataGrid-row': { cursor: 'pointer' },
+              '& .MuiDataGrid-row:hover': {
+                backgroundColor: 'inherit',
+              },
+            }}
             getRowId={row => row.id!}
             columns={getProjectTeamColumns(
               (currentRole && currentRole.name) ?? '',
