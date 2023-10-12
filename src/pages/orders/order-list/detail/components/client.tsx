@@ -6,7 +6,11 @@ import { getAddress } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
-import { ClientType, OrderFeatureType } from '@src/types/orders/order-detail'
+import {
+  ClientType,
+  OrderFeatureType,
+  ProjectInfoType,
+} from '@src/types/orders/order-detail'
 
 import { Dispatch, SetStateAction } from 'react'
 import { UseMutationResult } from 'react-query'
@@ -18,6 +22,7 @@ type Props = {
   setEdit?: Dispatch<SetStateAction<boolean>>
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
   canUseFeature?: (v: OrderFeatureType) => boolean
+  project: ProjectInfoType
 }
 
 const OrderDetailClient = ({
@@ -26,11 +31,13 @@ const OrderDetailClient = ({
   setEdit,
   updateProject,
   canUseFeature,
+  project,
 }: Props) => {
   const isUpdatable = canUseFeature ? canUseFeature('tab-Client') : false
   const canUpdateStatus = canUseFeature
     ? canUseFeature('button-Edit-Set-Status-To-UnderRevision')
     : false
+
   return (
     <Card sx={{ padding: '24px' }}>
       <Box
@@ -220,7 +227,7 @@ const OrderDetailClient = ({
                   }}
                 >
                   <Box sx={{ textTransform: 'capitalize' }}>
-                    {client?.addressType}
+                    {project?.addressType}
                   </Box>
                   &nbsp;address
                 </Typography>
