@@ -2,6 +2,7 @@ import {
   getAssignableProList,
   getJobDetails,
   getJobInfo,
+  getJobPriceHistory,
   getJobPrices,
   getMessageList,
   getSourceFileToPro,
@@ -53,6 +54,18 @@ export const useGetJobPrices = (jobId: number, isHistory: boolean) => {
   return useQuery(
     ['jobPrices', jobId, isHistory],
     () => getJobPrices(jobId, isHistory),
+    {
+      staleTime: 60 * 1000, // 1
+
+      suspense: false,
+    },
+  )
+}
+
+export const useGetJobPriceHistory = (jobId: number) => {
+  return useQuery(
+    ['jobPriceHistory', jobId],
+    () => getJobPriceHistory(jobId),
     {
       staleTime: 60 * 1000, // 1
 
