@@ -124,34 +124,28 @@ export const assignReviewer = async (
   testId: number,
   status: string,
 ) => {
-  try {
-    const data = await axios.patch('/api/enough/cert/request/review/reply', {
-      reviewerId: reviewerId,
-      testId: testId,
-      reply: status,
-    })
+  const data = await axios.patch('/api/enough/cert/request/review/reply', {
+    reviewerId: reviewerId,
+    testId: testId,
+    reply: status,
+  })
 
-    return data
-  } catch (e) {}
+  return data
 }
 
 export const requestReviewer = async (testId: number, reviewerId: number) => {
-  try {
-    const data = await axios.post('/api/enough/cert/request/review', {
-      reviewerId: reviewerId,
-      testId: testId,
-    })
+  const data = await axios.post('/api/enough/cert/request/review', {
+    reviewerId: reviewerId,
+    testId: testId,
+  })
 
-    return data
-  } catch (e) {}
+  return data
 }
 
 export const cancelReviewer = async (testId: number) => {
-  try {
-    const data = await axios.patch('/api/enough/cert/request/review/reassign', {
-      testId: testId,
-    })
+  const data = await axios.patch('/api/enough/cert/request/review/reassign', {
+    testId: testId,
+  })
 
-    return data
-  } catch (e) {}
+  return data
 }

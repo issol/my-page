@@ -32,12 +32,8 @@ export const getRequestStatusList = async (): Promise<
 export const createClientRequest = async (
   form: RequestFormType,
 ): Promise<RequestFormType & { id: number }> => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/request`, form)
-    return data
-  } catch (error: any) {
-    throw new Error(error)
-  }
+  const { data } = await axios.post(`/api/enough/u/request`, form)
+  return data
 }
 
 export const getClientRequestList = async (
@@ -122,21 +118,12 @@ export const getClientRequestDetail = async (
 ): Promise<RequestDetailType> => {
   const { data } = await axios.get(`/api/enough/u/request/${id}`)
   return data
-  // try {
-
-  // } catch (e: any) {
-  //   throw new Error(e)
-  // }
 }
 
 export const updateRequest = async (
   id: number,
   form: Omit<RequestDetailType, 'lsp'> & { lspId: string },
 ): Promise<RequestDetailType> => {
-  try {
-    const { data } = await axios.put(`/api/enough/u/request/${id}`, form)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.put(`/api/enough/u/request/${id}`, form)
+  return data
 }

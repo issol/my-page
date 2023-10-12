@@ -61,19 +61,11 @@ export const getNotificationCenterList = async (
 }
 
 export const markAsRead = async (id: number[]) => {
-  try {
-    await axios.patch(`/api/enough/u/notification`, {
-      notificationId: id,
-    })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.patch(`/api/enough/u/notification`, {
+    notificationId: id,
+  })
 }
 
 export const markAllAsRead = async () => {
-  try {
-    await axios.patch(`/api/enough/u/notification/setAllRead`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.patch(`/api/enough/u/notification/setAllRead`)
 }

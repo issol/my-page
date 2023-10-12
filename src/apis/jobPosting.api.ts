@@ -30,7 +30,7 @@ export const getJobPostingList = async (
       `/api/enough/recruiting/jobposting?${makeQuery({
         ...filters,
         company: 'GloZ',
-        notStarted: 1
+        notStarted: 1,
       })}`,
     )
     return data
@@ -65,12 +65,8 @@ export type JobPostingDetailType = {
 export const getJobPostingDetail = async (
   id: number,
 ): Promise<JobPostingDetailType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/recruiting/jobposting/${id}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/recruiting/jobposting/${id}`)
+  return data
 }
 
 export type FormType = {
@@ -92,15 +88,11 @@ export type FormType = {
 export const postJobPosting = async (
   form: FormType,
 ): Promise<{ id: number }> => {
-  try {
-    const { data } = await axios.post(`/api/enough/recruiting/jobposting`, {
-      ...form,
-      company: 'GloZ',
-    })
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/recruiting/jobposting`, {
+    ...form,
+    company: 'GloZ',
+  })
+  return data
 }
 
 //update
@@ -108,22 +100,14 @@ export const updateJobPosting = async (
   id: number,
   form: FormType,
 ): Promise<{ id: number }> => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/recruiting/jobposting/${id}`,
-      form,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/recruiting/jobposting/${id}`,
+    form,
+  )
+  return data
 }
 
 //delete
 export const deleteJobPosting = async (id: number) => {
-  try {
-    return await axios.delete(`/api/enough/recruiting/jobposting/${id}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.delete(`/api/enough/recruiting/jobposting/${id}`)
 }

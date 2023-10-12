@@ -11,7 +11,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useState, useEffect } from 'react'
 import {
   Control,
   FieldArrayWithId,
@@ -25,6 +25,9 @@ import {
 } from 'react-hook-form'
 import Row from './row'
 import languageHelper from '@src/shared/helpers/language.helper'
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { boolean } from 'yup'
+import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 
 type Props = {
   row: JobType
@@ -64,6 +67,7 @@ type Props = {
   >[]
   setEditPrices?: Dispatch<SetStateAction<boolean>>
   type: string
+  jobPriceHistory?: JobPricesDetailType
 }
 const ViewPrices = ({
   row,
@@ -79,11 +83,11 @@ const ViewPrices = ({
   fields,
   setEditPrices,
   type,
+  jobPriceHistory,
 }: Props) => {
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: 7,
   })
-  console.log("row",row)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -114,6 +118,95 @@ const ViewPrices = ({
     | null
   >(null)
 
+  const [showPriceHistory, setShowPriceHistory] = useState<boolean>(false)
+  useEffect(() => {
+    if (jobPriceHistory && jobPriceHistory.detail.length) setShowPriceHistory(true)
+  }, [])
+
+  const PriceHistory = ({item}: {item:ItemType[]}) => {
+    return (
+      <Card sx={{ padding: '24px', backgroundColor: 'rgba(76, 78, 100, 0.5)' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {!row.proId ? (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography
+                  variant='subtitle1'
+                  fontWeight={600}
+                  fontSize={14}
+                  width={150}
+                >
+                  Pro
+                </Typography>
+                <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
+                  {'pro name'}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography
+                  variant='subtitle1'
+                  fontWeight={600}
+                  fontSize={14}
+                  width={150}
+                >
+                  Date&Time
+                </Typography>
+                <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
+                  {/* TODO: pro가 assign된 시간, 타임존 정보 필요함 */}
+                  {FullDateTimezoneHelper(row.dueAt,row.dueTimezone)}
+                </Typography>
+              </Box>
+            </Box>
+          ) : null}
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography
+                variant='subtitle1'
+                fontWeight={600}
+                fontSize={14}
+                width={150}
+              >
+                Language pair
+              </Typography>
+              <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
+                {languageHelper(row.sourceLanguage)}&nbsp;&rarr;&nbsp;
+                {languageHelper(row.targetLanguage)}
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography
+                variant='subtitle1'
+                fontWeight={600}
+                fontSize={14}
+                width={150}
+              >
+                Price
+              </Typography>
+              <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
+                {fields[0].initialPrice?.name}
+              </Typography>
+            </Box>
+          </Box>
+          <Divider />
+          <Row
+            getItem={getItem}
+            getPriceOptions={getPriceOptions}
+            itemControl={itemControl}
+            showMinimum={showMinimum}
+            setItem={setItem}
+            itemTrigger={itemTrigger}
+            setShowMinimum={setShowMinimum}
+            openModal={openModal}
+            closeModal={closeModal}
+            priceUnitsList={priceUnitsList}
+            type='detail'
+            setDarkMode={true}
+          />
+        </Box>
+      </Card>
+    )
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {type === 'history' ? null : (
@@ -141,6 +234,38 @@ const ViewPrices = ({
 
       <Card sx={{ padding: '24px' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {!row.proId ? (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography
+                  variant='subtitle1'
+                  fontWeight={600}
+                  fontSize={14}
+                  width={150}
+                >
+                  Pro
+                </Typography>
+                <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
+                  {'pro name'}
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography
+                  variant='subtitle1'
+                  fontWeight={600}
+                  fontSize={14}
+                  width={150}
+                >
+                  Date&Time
+                </Typography>
+                <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
+                  {/* TODO: pro가 assign된 시간, 타임존 정보 필요함 */}
+                  {FullDateTimezoneHelper(row.dueAt,row.dueTimezone)}
+                </Typography>
+              </Box>
+            </Box>
+          ) : null}
+
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography
@@ -186,6 +311,63 @@ const ViewPrices = ({
           />
         </Box>
       </Card>
+
+      {jobPriceHistory?.detail?.length && !showPriceHistory ? 
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '24px', 
+          }}>
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              height: 42,
+              cursor: 'pointer',
+            }} 
+            onClick={() => setShowPriceHistory(true)}
+          >
+            <Icon icon='fa6-solid:chevron-down' fontSize={15} color='#666CFF' />
+            <Typography variant='subtitle2' fontWeight='medium' fontSize={15} color='#666CFF'>
+              &nbsp;&nbsp;&nbsp;
+              {'Show price history'}
+            </Typography>
+          </Box>
+        </Box>
+        : null
+      }
+      {jobPriceHistory?.detail?.length && showPriceHistory ?
+        <Box
+          sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '24px', 
+          }}
+        >
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center', 
+              height: 42,
+              cursor: 'pointer',
+            }} 
+            onClick={() => setShowPriceHistory(false)}
+          >
+            <Icon icon='fa6-solid:chevron-up' fontSize={15} color='#666CFF' />
+            <Typography variant='subtitle2' fontWeight='medium' fontSize={15} color='#666CFF'>
+              &nbsp;&nbsp;&nbsp;
+              {'Hide price history'}
+            </Typography>
+          </Box>
+          <PriceHistory 
+            item={fields}
+          />
+        </Box>
+        : null
+      }
     </Box>
   )
 }

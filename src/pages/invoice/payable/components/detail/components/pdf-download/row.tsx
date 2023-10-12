@@ -130,7 +130,7 @@ export default function MakeTable({ rows, currency }: Props) {
                   <td className='table-row-third'>
                     <div className='flex-start-box'>
                       <h6 className='subtitle2'>
-                        {formatCurrency(value.unitPrice, currency || 'USD')}
+                        {formatCurrency(value.unitPrice!, currency || 'USD')}
                       </h6>
                     </div>
                   </td>

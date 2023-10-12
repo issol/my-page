@@ -136,73 +136,48 @@ export const getTaxCodeList = async (): Promise<
     isDefault: true
   }[]
 > => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/tir/list`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/u/tir/list`)
+  return data
 }
 
 export const updateProBillingMethod = async (
   info: ProPaymentFormType,
 ): Promise<void> => {
-  try {
-    await axios.put(`/api/enough/u/pro/payment`, info)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.put(`/api/enough/u/pro/payment`, info)
 }
 
 export const uploadProPaymentFile = async (
   positionType: PositionType,
   file: FormData,
 ): Promise<void> => {
-  try {
-    await axios.post(
-      `/api/enough/u/pro/payment/upload-file?positionType=${positionType}`,
-      file,
-      {
-        ...axiosConfigs,
-        headers: {
-          ...axiosConfigs.headers,
-          'Content-Type': 'multipart/form-data',
-        },
+  await axios.post(
+    `/api/enough/u/pro/payment/upload-file?positionType=${positionType}`,
+    file,
+    {
+      ...axiosConfigs,
+      headers: {
+        ...axiosConfigs.headers,
+        'Content-Type': 'multipart/form-data',
       },
-    )
-  } catch (e: any) {
-    throw new Error(e)
-  }
+    },
+  )
 }
 
 export const getProPaymentFile = async (fileId: number): Promise<any> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/pro/payment/file/${fileId}`,
-      { responseType: 'blob' },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/u/pro/payment/file/${fileId}`, {
+    responseType: 'blob',
+  })
+  return data
 }
 
 export const deleteProPaymentFile = async (fileId: number): Promise<void> => {
-  try {
-    await axios.delete(`/api/enough/u/pro/payment/delete-file/${fileId}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.delete(`/api/enough/u/pro/payment/delete-file/${fileId}`)
 }
 
 export const updateProBillingAddress = async (
   info: ClientAddressType,
 ): Promise<void> => {
-  try {
-    await axios.put(`/api/enough/u/pro/payment/address`, info)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.put(`/api/enough/u/pro/payment/address`, info)
 }
 
 export const updateProTaxInfo = async (
@@ -210,14 +185,10 @@ export const updateProTaxInfo = async (
   taxInfo: string,
   taxRate: number,
 ): Promise<void> => {
-  try {
-    await axios.post(`/api/enough/u/pro/${proId}/payment/tax`, {
-      taxInfo,
-      taxRate,
-    })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.post(`/api/enough/u/pro/${proId}/payment/tax`, {
+    taxInfo,
+    taxRate,
+  })
 }
 
 export type FileNameType = 'identification' | 'businessLicense'
@@ -225,17 +196,13 @@ export const downloadPersonalInfoFile = async (
   userId: number,
   file: FileNameType,
 ): Promise<void> => {
-  try {
-    const response = await axios.post(
-      `/api/enough/u/pro/${userId}/payment/download-file/${file}`,
-    )
-    const mime = response?.headers['content-type']
-    if (mime) {
-      downloadBase64File(response.data, mime, file)
-    } else {
-      throw new Error()
-    }
-  } catch (e: any) {
-    throw new Error(e)
+  const response = await axios.post(
+    `/api/enough/u/pro/${userId}/payment/download-file/${file}`,
+  )
+  const mime = response?.headers['content-type']
+  if (mime) {
+    downloadBase64File(response.data, mime, file)
+  } else {
+    throw new Error()
   }
 }

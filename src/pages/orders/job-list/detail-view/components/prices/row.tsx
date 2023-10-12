@@ -53,6 +53,7 @@ type Props = {
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
   }>
+  setDarkMode?: boolean
 }
 
 const Row = ({
@@ -67,6 +68,7 @@ const Row = ({
   priceUnitsList,
   type,
   itemTrigger,
+  setDarkMode,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
@@ -217,7 +219,7 @@ const Row = ({
     let prices = 0
     const detail = data?.[index]
     if (detail && detail.unit === 'Percent') {
-      const percentQuantity = data[index].quantity
+      const percentQuantity = data[index].quantity ?? 1
 
       const itemMinimumPrice = getItem(`items.${0}.minimumPrice`)
       const showMinimum = getItem(`items.${0}.minimumPriceApplied`)
@@ -226,12 +228,14 @@ const Row = ({
       } else {
         const generalPrices = data.filter(item => item.unit !== 'Percent')
         generalPrices.forEach(item => {
-          prices += item.unitPrice
+          prices += item.unitPrice ?? 1
         })
         prices *= percentQuantity / 100
       }
     } else {
-      prices = detail.unitPrice * detail.quantity
+      const unitPrice = detail.unitPrice ?? 1
+      const quantity = detail.quantity ?? 1
+      prices = unitPrice * quantity
     }
 
     // if (prices === data[index].prices) return
@@ -293,11 +297,17 @@ const Row = ({
   // console.log(details))
   return (
     <Box
-      style={{
-        border: '1px solid #F5F5F7',
-        borderRadius: '8px',
-        marginBottom: '14px',
-      }}
+      style={
+        setDarkMode ? 
+        {
+          borderRadius: '8px',
+          marginBottom: '14px',
+        } : {
+          border: '1px solid #F5F5F7',
+          borderRadius: '8px',
+          marginBottom: '14px',
+        }
+    }
     >
       {/* price unit start */}
       <ItemPriceUnitForm
@@ -323,6 +333,7 @@ const Row = ({
         showMinimum={false} //이거 쓰나?
         setShowMinimum={(n) => true} //이거 쓰나?
         type={type}
+        setDarkMode={setDarkMode}
         sumTotalPrice={sumTotalPrice}
         showCurrency={true}
       />

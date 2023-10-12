@@ -219,9 +219,7 @@ const ProjectInfo = ({
     if (client && statusList) {
       if (!client.isEnrolledClient) {
         if (project.status === 'Delivery confirmed') {
-          return statusList?.filter(
-            value => value.label === 'Without invoice'
-          )
+          return statusList?.filter(value => value.label === 'Without invoice')
         } else {
           return statusList?.filter(
             value =>
@@ -232,16 +230,14 @@ const ProjectInfo = ({
         }
       } else {
         if (project.status === 'Delivery confirmed') {
-          return statusList?.filter(
-            value => value.label === 'Without invoice'
-          )
+          return statusList?.filter(value => value.label === 'Without invoice')
         } else {
           return statusList?.filter(
             value =>
               value.label === 'New' ||
               value.label === 'In preparation' ||
               value.label === 'Internal review' ||
-              value.label === 'Without invoice'
+              value.label === 'Without invoice',
           )
         }
       }
@@ -263,48 +259,48 @@ const ProjectInfo = ({
       )
   }
 
-    // TODO: Order에 포함된 Job의 status를 체크하는 함수 필요
-    function handleCancelJob() {
-      // 포함된 job이 없는 경우 => 기본 캔슬 모달
-      if (!jobInfo || jobInfo?.length === 0) onClickCancel()
-      else {
-        const filteredJob = jobInfo.filter(job => job.isProAssigned)
+  // TODO: Order에 포함된 Job의 status를 체크하는 함수 필요
+  function handleCancelJob() {
+    // 포함된 job이 없는 경우 => 기본 캔슬 모달
+    if (!jobInfo || jobInfo?.length === 0) onClickCancel()
+    else {
+      const filteredJob = jobInfo.filter(job => job.isProAssigned)
 
-        // 포함된 job중에서 pro가 assign된 job이 없는 경우 => cancel 가능 + 경고모달
-        if (!filteredJob || filteredJob.length === 0) {
-          const jobTitle = jobInfo.map(job => job.jobName)
-          openModal({
-            type: `CancelJobInfoModal`,
-            children: (
-              <SimpleMultilineAlertWithCumtomTitleModal
-                onClose={() => closeModal('CancelJobInfoModal')}
-                onConfirm={() => onClickCancel()}
-                closeButtonText='Cancel'
-                confirmButtonText='Proceed'
-                title={jobTitle}
-                message={`Are you sure you want to cancel the order?\n\nThe following jobs will be canceled.`}
-                vary='error'
-              />
-            ),
-          })
-        } else {
-          // 포함된 job중에서 pro가 assign된 job이 있는 경우 => cancel 불가
-          const jobTitle = filteredJob.map(job => job.jobName)
-          openModal({
-            type: `DenyCancelModal`,
-            children: (
-              <SimpleMultilineAlertWithCumtomTitleModal
-                onClose={() => closeModal('DenyCancelModal')}
-                closeButtonText='Okey'
-                title={jobTitle}
-                message={`The following jobs are currently assigned to Pro and require manual cancellation.`}
-                vary='error'
-              />
-            ),
-          })
-        }
+      // 포함된 job중에서 pro가 assign된 job이 없는 경우 => cancel 가능 + 경고모달
+      if (!filteredJob || filteredJob.length === 0) {
+        const jobTitle = jobInfo.map(job => job.jobName)
+        openModal({
+          type: `CancelJobInfoModal`,
+          children: (
+            <SimpleMultilineAlertWithCumtomTitleModal
+              onClose={() => closeModal('CancelJobInfoModal')}
+              onConfirm={() => onClickCancel()}
+              closeButtonText='Cancel'
+              confirmButtonText='Proceed'
+              title={jobTitle}
+              message={`Are you sure you want to cancel the order?\n\nThe following jobs will be canceled.`}
+              vary='error'
+            />
+          ),
+        })
+      } else {
+        // 포함된 job중에서 pro가 assign된 job이 있는 경우 => cancel 불가
+        const jobTitle = filteredJob.map(job => job.jobName)
+        openModal({
+          type: `DenyCancelModal`,
+          children: (
+            <SimpleMultilineAlertWithCumtomTitleModal
+              onClose={() => closeModal('DenyCancelModal')}
+              closeButtonText='Okey'
+              title={jobTitle}
+              message={`The following jobs are currently assigned to Pro and require manual cancellation.`}
+              vary='error'
+            />
+          ),
+        })
       }
     }
+  }
 
   useEffect(() => {
     if (client) {
@@ -343,7 +339,16 @@ const ProjectInfo = ({
         })
     }
   }, [client])
-  console.log("project status",project.status, type, isUpdatable)
+  console.log('project status', project.status, type, isUpdatable)
+  console.log(project)
+
+  console.log(filterStatusList())
+  console.log(
+    statusList
+      ?.filter(value => !filterStatusList().some(v => v.value === value.value))
+      .some(status => status.value === project.status),
+  )
+
   return (
     <>
       <Card sx={{ padding: '24px' }}>
@@ -404,7 +409,10 @@ const ProjectInfo = ({
                       width: '100%',
                     }}
                   >
-                    {FullDateHelper(project.orderedAt)}
+                    {FullDateTimezoneHelper(
+                      project.orderedAt,
+                      project.orderTimezone,
+                    )}
                   </Typography>
                 </Box>
               </Box>
@@ -438,14 +446,37 @@ const ProjectInfo = ({
                 >
                   {type === 'detail' &&
                   isUpdatable &&
-                  (project.status === 'New' ||
-                    project.status === 'In preparation' ||
-                    project.status === 'Internal review' ||
-                    project.status === 'Delivery confirmed') ? (
+                  statusList
+                    ?.filter(
+                      value =>
+                        !filterStatusList().some(v => v.value === value.value),
+                    )
+                    .some(status => status.value === project.status) ? (
+                    <Box
+                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    >
+                      <OrderStatusChip
+                        status={project.status}
+                        label={project.status}
+                      />
+                      {(project.status === 'Redelivery requested' ||
+                        project.status === 'Canceled') && (
+                        <IconButton
+                          onClick={() => {
+                            project.reason && onClickReason()
+                          }}
+                          sx={{ padding: 0 }}
+                        >
+                          <img
+                            src='/images/icons/onboarding-icons/more-reason.svg'
+                            alt='more'
+                          />
+                        </IconButton>
+                      )}
+                    </Box>
+                  ) : (
                     <Autocomplete
-                      autoHighlight
                       fullWidth
-                      autoComplete={false}
                       disableClearable={true}
                       options={filterStatusList() ?? []}
                       onChange={(e, v) => {
@@ -470,29 +501,6 @@ const ProjectInfo = ({
                         />
                       )}
                     />
-                  ) : (
-                    <Box
-                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
-                    >
-                      <OrderStatusChip
-                        status={project.status}
-                        label={project.status}
-                      />
-                      {(project.status === 'Redelivery requested' ||
-                        project.status === 'Canceled') && (
-                        <IconButton
-                          onClick={() => {
-                            project.reason && onClickReason()
-                          }}
-                          sx={{ padding: 0 }}
-                        >
-                          <img
-                            src='/images/icons/onboarding-icons/more-reason.svg'
-                            alt='more'
-                          />
-                        </IconButton>
-                      )}
-                    </Box>
                   )}
                 </Box>
               </Box>
@@ -732,7 +740,7 @@ const ProjectInfo = ({
                       flexWrap: 'wrap',
                     }}
                   >
-                    {project.serviceType
+                    {project.serviceType && project.serviceType.length > 0
                       ? project.serviceType.map(value => {
                           return (
                             <ServiceTypeChip label={value} key={uuidv4()} />
@@ -769,7 +777,7 @@ const ProjectInfo = ({
                       width: '73.45%',
                     }}
                   >
-                    {project.expertise
+                    {project.expertise && project.expertise.length > 0
                       ? project.expertise.map((value, idx) => {
                           return (
                             <Typography key={uuidv4()} variant='subtitle2'>
@@ -952,7 +960,9 @@ const ProjectInfo = ({
                     width: '100%',
                   }}
                 >
-                  {project.projectDescription && project.showDescription && project.projectDescription !== ''
+                  {project.projectDescription &&
+                  project.showDescription &&
+                  project.projectDescription !== ''
                     ? project.projectDescription
                     : '-'}
                 </Typography>

@@ -7,7 +7,7 @@ import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
+import TableCell, { tableCellClasses } from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import {
   Autocomplete,
@@ -57,7 +57,8 @@ import useModal from '@src/hooks/useModal'
 // ** components
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
-import styled from 'styled-components'
+// import styled from 'styled-components'
+import { styled } from '@mui/material/styles'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -86,7 +87,20 @@ type Props = {
   // checkMinimumPrice: () => void
   fields?: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
   showCurrency?: boolean
+  setDarkMode?: boolean
 }
+
+const StyledTableCell = styled(TableCell)<{ dark: boolean }>(
+  ({ theme, dark }) => ({
+    [`&.${tableCellClasses.head}`]: {
+      // backgroundColor: dark ?
+      background: dark
+        ? 'linear-gradient( 0deg, rgba(255,255,255,0.2), rgba(255,255,255,0.2) ), #bbbbbb'
+        : 'linear-gradient( 0deg, rgba(255,255,255,0.88), rgba(255,255,255,0.88) ), #666cff',
+      // color: theme.palette.common.white,
+    },
+  }),
+)
 
 export default function ItemPriceUnitForm({
   control,
@@ -111,6 +125,7 @@ export default function ItemPriceUnitForm({
   // checkMinimumPrice,
   fields,
   showCurrency,
+  setDarkMode,
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
@@ -124,7 +139,7 @@ export default function ItemPriceUnitForm({
   const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
   const nestSubPriceUnits = (idx: number) => {
     const nestedData: Array<NestedPriceUnitType> = []
-    console.log("priceUnitsList",priceUnitsList)
+    console.log('priceUnitsList', priceUnitsList)
 
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
       ...item,
@@ -165,7 +180,7 @@ export default function ItemPriceUnitForm({
             ) {
               // subPrice가 추가될 부모의 그룹이름이 Price unit이라면 price, quantity를 0으로 초기화 해준다
               if (subItem?.groupName === 'Price unit') {
-                item.subPriceUnits?.push({...subItem, price: 0})
+                item.subPriceUnits?.push({ ...subItem, price: 0 })
               } else {
                 item.subPriceUnits?.push(subItem)
               }
@@ -190,7 +205,7 @@ export default function ItemPriceUnitForm({
       const percentQuantity = quantity
       const generalPrices = currentItem.filter(item => item.unit !== 'Percent')
       generalPrices.forEach(item => {
-        prices += item.unitPrice
+        prices += item.unitPrice ?? 0
       })
       prices *= percentQuantity / 100
     }
@@ -315,7 +330,7 @@ export default function ItemPriceUnitForm({
                     <TextField
                       placeholder='0'
                       type='number'
-                      value={Number(value)}
+                      value={value ? Number(value) : null}
                       sx={{ maxWidth: '85px', padding: 0 }}
                       inputProps={{ inputMode: 'decimal' }}
                       onChange={e => {
@@ -501,7 +516,13 @@ export default function ItemPriceUnitForm({
                     placeholder='0.00'
                     inputProps={{ inputMode: 'decimal' }}
                     type='number'
-                    value={savedValue.unit === 'Percent' ? '-' : value}
+                    value={
+                      savedValue.unit === 'Percent'
+                        ? '-'
+                        : value
+                        ? Number(value)
+                        : null
+                    }
                     disabled={savedValue.unit === 'Percent'}
                     onChange={e => {
                       onChange(e)
@@ -630,44 +651,70 @@ export default function ItemPriceUnitForm({
       //   }
       // }}
     >
-      <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+      <TableContainer
+        component={Paper}
+        sx={
+          setDarkMode
+            ? {
+                maxHeight: 400,
+                backgroundColor: 'rgba(76, 78, 100, 0)',
+                // opacity: 0.7,
+              }
+            : { maxHeight: 400 }
+        }
+      >
         <Table stickyHeader aria-label='sticky table'>
-          <TableHead sx={{ position: 'sticky', top: 0, zIndex: 10 }}>
-            <TableRow>
-              <HeaderCell
-                sx={{ width: '10%', textTransform: 'none' }}
+          <TableHead
+            sx={{
+              position: 'sticky',
+              top: 0,
+              zIndex: 10,
+            }}
+          >
+            <TableRow sx={{ border: '1px solid' }}>
+              <StyledTableCell
+                sx={{
+                  width: '10%',
+                  textTransform: 'none',
+                }}
                 align='left'
+                dark={setDarkMode!}
               >
                 Quantity
-              </HeaderCell>
-              <HeaderCell
+              </StyledTableCell>
+              <StyledTableCell
                 sx={{ width: 'auto', textTransform: 'none' }}
                 align='left'
+                dark={setDarkMode!}
               >
                 Price unit
-              </HeaderCell>
-              <HeaderCell
+              </StyledTableCell>
+              <StyledTableCell
                 sx={{ width: '15%', textTransform: 'none' }}
                 align='left'
+                dark={setDarkMode!}
               >
                 Unit price
-              </HeaderCell>
-              <HeaderCell
+              </StyledTableCell>
+              <StyledTableCell
                 sx={{ width: '17%', textTransform: 'none' }}
                 align='left'
+                dark={setDarkMode!}
               >
                 Currency
-              </HeaderCell>
-              <HeaderCell
+              </StyledTableCell>
+              <StyledTableCell
                 sx={{ width: '17%', textTransform: 'none' }}
                 align='left'
+                dark={setDarkMode!}
               >
                 Prices
-              </HeaderCell>
-              <HeaderCell
+              </StyledTableCell>
+              <StyledTableCell
                 sx={{ width: '5%', textTransform: 'none' }}
                 align='left'
-              ></HeaderCell>
+                dark={setDarkMode!}
+              ></StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -752,8 +799,8 @@ export default function ItemPriceUnitForm({
               onClick={() => {
                 append({
                   priceUnitId: -1,
-                  quantity: 0,
-                  unitPrice: 0,
+                  quantity: null,
+                  unitPrice: null,
                   prices: 0,
                   unit: '',
                   currency: priceData?.currency ?? 'USD',
@@ -873,11 +920,3 @@ export default function ItemPriceUnitForm({
     </Grid>
   )
 }
-
-const CustomTableCell = styled(TableCell)`
-  display: flex !important;
-  align-items: center;
-  height: 65px;
-  margin: 0px;
-  padding: 5px;
-`

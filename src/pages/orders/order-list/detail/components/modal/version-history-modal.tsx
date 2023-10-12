@@ -43,7 +43,13 @@ type Props = {
   canUseDisableButton?: boolean
 }
 
-const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisableButton }: Props) => {
+const VersionHistoryModal = ({
+  history,
+  onClose,
+  onClick,
+  project,
+  canUseDisableButton,
+}: Props) => {
   const auth = useRecoilValueLoadable(authState)
   const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
     null,
@@ -94,7 +100,7 @@ const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisable
       contactPerson: history?.client!.contactPerson,
       clientAddress: history?.client!.clientAddress,
       langItem: history?.items!,
-      subtotal: history?.projectInfo!.subtotal
+      subtotal: history?.projectInfo!.subtotal,
     }
 
     setDownloadData(res)
@@ -127,8 +133,8 @@ const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisable
             padding: '20px',
           }}
         >
-          <img src='/images/icons/order-icons/book.svg' alt='' />
-          <Typography variant='h5'>{`[${'Ver. 1'}] O-000001`}</Typography>
+          <img src='/images/icons/order-icons/book.png' alt='' />
+          <Typography variant='h5'>{`[Ver. ${history.version}] ${history.projectInfo.corporationId}`}</Typography>
         </Box>
         <TabContext value={value}>
           <TabList
@@ -278,6 +284,7 @@ const VersionHistoryModal = ({ history, onClose, onClick, project, canUseDisable
             <OrderDetailClient
               type='history'
               client={history.client}
+              project={history.projectInfo}
             />
           </TabPanel>
           <TabPanel

@@ -227,11 +227,7 @@ export const getJobHistory = async (
 }
 
 export const createJob = async (params: CreateJobParamsType) => {
-  try {
-    await axios.post(`/api/enough/u/job`, { ...params })
-  } catch (error: any) {
-    throw new Error(error)
-  }
+  await axios.post(`/api/enough/u/job`, { ...params })
 }
 
 export const getProJobList = async (
@@ -241,15 +237,11 @@ export const getProJobList = async (
   totalCount: number
   count: number
 }> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/pro/job/list?${makeQuery(filter)}`,
-    )
+  const { data } = await axios.get(
+    `/api/enough/u/pro/job/list?${makeQuery(filter)}`,
+  )
 
-    return data
-  } catch (error: any) {
-    throw new Error(error)
-  }
+  return data
 }
 
 export const getProJobClientList = async (filter: {
@@ -260,13 +252,9 @@ export const getProJobClientList = async (filter: {
     name: string
   }[]
 > => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/pro/job/filter-option?${makeQuery(filter)}`,
-    )
+  const { data } = await axios.get(
+    `/api/enough/u/pro/job/filter-option?${makeQuery(filter)}`,
+  )
 
-    return data
-  } catch (error: any) {
-    throw new Error(error)
-  }
+  return data
 }

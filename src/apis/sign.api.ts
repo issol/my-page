@@ -7,15 +7,11 @@ export const login = async (
   email: string,
   password: string,
 ): Promise<loginResType> => {
-  try {
-    const { data } = await axios.post(`/api/enough/a/login`, {
-      email,
-      password,
-    })
-    return data
-  } catch (e: any) {
-    throw new Error(e.response.status)
-  }
+  const { data } = await axios.post(`/api/enough/a/login`, {
+    email,
+    password,
+  })
+  return data
 }
 
 export const getRefreshToken = async () => {
@@ -52,31 +48,19 @@ export const redirectLinkedInAuth = (e: any) => {
 }
 
 export const checkEmailDuplication = async (email: string) => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/pu/r-check?email=${email}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/u/pu/r-check?email=${email}`)
+  return data
 }
 
 export const sendEmailVerificationCode = async (email: string) => {
-  try {
-    await axios.post(`/api/enough/a/email/code`, { email })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.post(`/api/enough/a/email/code`, { email })
 }
 
 export const verifyPinCode = async (
   email: string,
   verificationCode: string,
 ) => {
-  try {
-    await axios.post(`/api/enough/a/email/verify`, { email, verificationCode })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.post(`/api/enough/a/email/verify`, { email, verificationCode })
 }
 
 export const signUp = async (
@@ -85,40 +69,29 @@ export const signUp = async (
   password?: string,
 ): Promise<loginResType> => {
   const body = !password ? { email, roles } : { email, password, roles }
-  try {
-    const { data } = await axios.post(`/api/enough/a/signup`, body)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+
+  const { data } = await axios.post(`/api/enough/a/signup`, body)
+  return data
 }
 export const snsSignUp = async (
   email: string,
   roles: Array<UserRoleType>,
 ): Promise<loginResType> => {
-  try {
-    const { data } = await axios.post(`/api/enough/a/google/signup`, {
-      email,
-      roles,
-    })
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/a/google/signup`, {
+    email,
+    roles,
+  })
+  return data
 }
 
 export const validateRole = async (
   companyName: string,
   email: string,
 ): Promise<boolean> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/comp/e-chk?companyName=${companyName}&email=${email}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `/api/enough/u/comp/e-chk?companyName=${companyName}&email=${email}`,
+  )
+  return data
 }
 
 export const logout = async () => {

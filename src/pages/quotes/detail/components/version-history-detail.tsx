@@ -67,7 +67,6 @@ const VersionHistoryModal = ({ id, history }: Props) => {
   const [downloadData, setDownloadData] = useState<QuoteDownloadData | null>(
     null,
   )
-  console.log("dialog-prop",id,history)
 
   const [pageSize, setPageSize] = useState<number>(10)
   // const { data: priceList, isLoading: priceDataLoading } = useGetClientPriceList({ clientId: id })
@@ -229,6 +228,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                 isUpdatable={false}
                 role={currentRole!}
                 type='history'
+                statusList={statusList!}
               />
             </Card>
           </TabPanel>
@@ -240,11 +240,12 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                   <HeaderBox item xs={12}>
                     <Typography variant='h6'>
                       Language pairs (
-                      {history?.items?.languagePairs?.length ?? 0})
+                      {history?.items?.items?.length ?? 0})
                     </Typography>
                   </HeaderBox>
                   <LanguagePairTable
-                    languagePairs={history.items.languagePairs}
+                    languagePairs={history?.items?.languagePairs}
+                    items={history?.items?.items}
                   />
                 </>
               )}
@@ -255,7 +256,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                 </Typography>
               </HeaderBox>
               {history.items.items.map((item, idx) => {
-                const [open, setOpen] = useState(false)
+                const [open, setOpen] = useState(true)
                 return (
                   <Grid
                     container
@@ -292,55 +293,75 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                         role={currentRole!}
                       />
                     ) : null}
-                    {currentRole && currentRole.name === 'CLIENT' ? (
-                      <Grid item xs={12}>
-                        <Box
-                          sx={{ display: 'flex', justifyContent: 'flex-end' }}
-                        >
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              gap: '20px',
-                              borderBottom: '2px solid #666CFF',
-                              justifyContent: 'center',
-                              width: '257px',
-                            }}
-                          >
-                            <Typography
-                              fontWeight={600}
-                              variant='subtitle1'
-                              sx={{
-                                padding: '16px 16px 16px 20px',
-                                flex: 1,
-                                textAlign: 'right',
-                              }}
-                            >
-                              Subtotal
-                            </Typography>
-                            <Typography
-                              fontWeight={600}
-                              variant='subtitle1'
-                              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
-                            >
-                              {formatCurrency(
-                                formatByRoundingProcedure(
-                                  history.items.items.reduce((acc, cur) => {
-                                    return acc + cur.totalPrice
-                                  }, 0),
-                                  item?.initialPrice?.numberPlace!,
-                                  item?.initialPrice?.rounding!,
-                                  item?.initialPrice?.currency ?? 'KRW',
-                                ),
-                                item?.initialPrice?.currency ?? 'KRW',
-                              )}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </Grid>
-                    ) : null}
+                    
                   </Grid>
                 )
               })}
+
+              <Grid item xs={12}>
+                <Box
+                  sx={{ display: 'flex', justifyContent: 'flex-end' }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '20px',
+                      borderBottom: '2px solid #666CFF',
+                      justifyContent: 'center',
+                      width: '257px',
+                    }}
+                  >
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        textAlign: 'right',
+                      }}
+                    >
+                      Subtotal
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                    >
+                      {formatCurrency(
+                        formatByRoundingProcedure(
+                          Number(history.projectInfo?.subtotal),
+                          history.items?.items[0]?.initialPrice?.numberPlace!,
+                          history.items?.items[0]?.initialPrice?.rounding!,
+                          history.items?.items[0]?.initialPrice?.currency ?? 'KRW',
+                        ),
+                        history.items?.items[0]?.initialPrice?.currency ?? 'KRW',
+                      )}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              {/* tax */}
+              {currentRole?.name === 'CLIENT' ? null : (
+                <Grid
+                  item
+                  xs={12}
+                  display='flex'
+                  padding='24px'
+                  alignItems='center'
+                  justifyContent='space-between'
+                  mt={6}
+                  mb={6}
+                  sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+                >
+                  <Box display='flex' alignItems='center' gap='4px'>
+
+                    <Typography>Tax</Typography>
+                  </Box>
+                  <Box display='flex' alignItems='center' gap='4px'>
+                      <Box>{history.projectInfo?.isTaxable ? `${history.projectInfo?.tax} %` : '-'} </Box>
+                  </Box>
+                </Grid>
+              )} 
             </Card>
           </TabPanel>
 

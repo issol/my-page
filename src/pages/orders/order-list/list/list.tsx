@@ -112,8 +112,12 @@ export default function OrdersList({
       renderCell: ({ row }: OrderListCellType) => {
         return (
           <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>{role.name === 'CLIENT' ? row?.lsp?.name : row?.client.name}</Typography>
-            <Typography variant='body2'>{role.name === 'CLIENT' ? row?.lsp?.email : row?.client.email}</Typography>
+            <Typography fontWeight='bold'>
+              {role.name === 'CLIENT' ? row?.lsp?.name : row?.client.name}
+            </Typography>
+            <Typography variant='body2'>
+              {role.name === 'CLIENT' ? row?.lsp?.email : row?.client.email}
+            </Typography>
           </Box>
         )
       },
@@ -150,14 +154,14 @@ export default function OrdersList({
               '-'
             )}
 
-            {row.serviceType ? (
+            {row.serviceType && row.serviceType.length > 0 ? (
               <ServiceTypeChip label={row.serviceType[0]} />
             ) : (
               '-'
             )}
 
             {row.serviceType && row.serviceType.length > 1 ? (
-              <ExtraNumberChip label={row.serviceType.slice(1).length} />
+              <ExtraNumberChip label={`+${row.serviceType.slice(1).length}`} />
             ) : null}
           </Box>
         )
@@ -284,10 +288,11 @@ export default function OrdersList({
                 if (
                   role.name === 'CLIENT' &&
                   params.row.status === 'Under revision'
-                ) return
+                )
+                  return
                 handleRowClick(params.row)
               }}
-              getRowClassName={params => 
+              getRowClassName={params =>
                 role.name === 'CLIENT' && params.row.status === 'Under revision'
                   ? 'disabled'
                   : 'normal'
@@ -347,7 +352,7 @@ export default function OrdersList({
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
-                console.log("grid2",params)
+                console.log('grid2', params)
                 if (
                   role.name === 'CLIENT' &&
                   params.row.status === 'Under revision'
@@ -378,7 +383,7 @@ export default function OrdersList({
                 setRowsPerPage!(newPageSize)
               }}
               disableSelectionOnClick
-              getRowClassName={params => 
+              getRowClassName={params =>
                 role.name === 'CLIENT' && params.row.status === 'Under revision'
                   ? 'disabled'
                   : 'normal'

@@ -318,6 +318,7 @@ const OrderDetail = () => {
     control: teamControl,
     getValues: getTeamValues,
     setValue: setTeamValues,
+
     watch: teamWatch,
     reset: resetTeam,
     formState: { errors: teamErrors, isValid: isTeamValid },
@@ -373,9 +374,6 @@ const OrderDetail = () => {
 
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
-  const { data: prices, isSuccess } = useGetClientPriceList({
-    clientId: client?.client.clientId,
-  })
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
@@ -507,7 +505,22 @@ const OrderDetail = () => {
           lastName: item?.lastName!,
         }),
       }))
-      resetTeam({ teams })
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
+
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
     }
   }
 
@@ -538,6 +551,7 @@ const OrderDetail = () => {
     }
 
     setValue(newValue)
+    queryClient.invalidateQueries(['orderDetail'])
   }
 
   const handleRestoreVersion = () => {
@@ -649,6 +663,7 @@ const OrderDetail = () => {
 
       headerName: 'Position',
       disableColumnMenu: true,
+      sortable: false,
       renderHeader: () => <Box>Version</Box>,
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return <Box>Ver. {row.version}</Box>
@@ -831,7 +846,10 @@ const OrderDetail = () => {
       )
     }
     if (projectTeam) {
-      let viewTeams: ProjectTeamListType[] = [...projectTeam]
+      let viewTeams: ProjectTeamListType[] = [...projectTeam].map(value => ({
+        ...value,
+        id: uuidv4(),
+      }))
 
       if (!viewTeams.some(item => item.position === 'supervisor')) {
         viewTeams.unshift({
@@ -936,7 +954,14 @@ const OrderDetail = () => {
   const onSubmitItems = () => {
     setLangItemsEdit(false)
     const items: PostItemType[] = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, priceFactor, source, target, ...filterItem } = item
+      const {
+        contactPerson,
+        minimumPrice,
+        priceFactor,
+        source,
+        target,
+        ...filterItem
+      } = item
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
@@ -1093,7 +1118,20 @@ const OrderDetail = () => {
 
   function onProjectTeamSave() {
     const teams = transformTeamData(getTeamValues())
-    onSave(() => updateProject.mutate(teams))
+    console.log(teams)
+    const res: ProjectTeamFormType = {
+      projectManagerId: teams.projectManagerId ? teams.projectManagerId : null,
+      supervisorId: teams.supervisorId ? teams.supervisorId : null,
+      members: teams.members && teams.members.length ? teams.members : null,
+    }
+
+    onSave(() =>
+      updateProject.mutate(res, {
+        onSuccess: () => {
+          initializeTeamData()
+        },
+      }),
+    )
   }
 
   function onClientSave() {
@@ -1192,10 +1230,10 @@ const OrderDetail = () => {
           break
         case 'button-ProjectInfo-DeleteOrder':
           flag =
-            isUpdatable &&
-            projectInfo?.status !== 'New' &&
-            projectInfo?.status !== 'In preparation' &&
-            projectInfo?.status !== 'Internal review' &&
+            isDeletable &&
+            (projectInfo?.status === 'New' ||
+              projectInfo?.status === 'In preparation' ||
+              projectInfo?.status === 'Internal review') &&
             !projectInfo?.linkedInvoiceReceivable &&
             projectInfo?.linkedJobs.length === 0 &&
             isIncludeProjectTeam()
@@ -1406,7 +1444,7 @@ const OrderDetail = () => {
                 )}
 
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <img src='/images/icons/order-icons/book.svg' alt='' />
+                  <img src='/images/icons/order-icons/book.png' alt='' />
                   <Typography variant='h5'>
                     {projectInfo?.corporationId}
                   </Typography>
@@ -1452,6 +1490,7 @@ const OrderDetail = () => {
                                   ? `/quotes/requests/${projectInfo?.linkedRequest.id}`
                                   : `/quotes/lpm/requests/${projectInfo?.linkedRequest.id}`
                               }
+                              style={{ color: '#000000' }}
                             >
                               {projectInfo?.linkedRequest.corporationId ?? '-'}
                             </Link>
@@ -1469,7 +1508,8 @@ const OrderDetail = () => {
                           >
                             Linked quote :
                             <Link
-                              href={`/orders/order-list/detail/${projectInfo.linkedQuote.id}`}
+                              href={`/quotes/detail/${projectInfo.linkedQuote.id}`}
+                              style={{ color: '#000000' }}
                             >
                               {projectInfo?.linkedQuote.corporationId ?? '-'}
                             </Link>
@@ -1487,7 +1527,8 @@ const OrderDetail = () => {
                           >
                             Linked invoice :
                             <Link
-                              href={`/orders/order-list/detail/${projectInfo.linkedInvoiceReceivable.id}`}
+                              href={`/invoice/receivable/detail/${projectInfo.linkedInvoiceReceivable.id}`}
+                              style={{ color: '#000000' }}
                             >
                               {projectInfo?.linkedInvoiceReceivable
                                 .corporationId ?? '-'}
@@ -1752,17 +1793,20 @@ const OrderDetail = () => {
                       sx={{ background: '#F5F5F7', marginBottom: '24px' }}
                     >
                       <Box display='flex' alignItems='center' gap='4px'>
-                        <Checkbox
-                          disabled={!langItemsEdit}
-                          checked={taxable}
-                          onChange={e => {
-                            if (!e.target.checked) {
-                              setTax(null)
-                            }
-                            setTaxable(e.target.checked)
-                          }}
-                        />
-                        <Typography>Tax</Typography>
+                        {langItemsEdit ? (
+                          <Checkbox
+                            disabled={!langItemsEdit}
+                            checked={taxable}
+                            onChange={e => {
+                              if (!e.target.checked) {
+                                setTax(null)
+                              }
+                              setTaxable(e.target.checked)
+                            }}
+                          />
+                        ) : null}
+
+                        <Typography variant='h6'>Tax</Typography>
                       </Box>
                       <Box display='flex' alignItems='center' gap='4px'>
                         {langItemsEdit ? (
@@ -1782,7 +1826,9 @@ const OrderDetail = () => {
                             %
                           </>
                         ) : (
-                          <Box>{tax ? `${tax} %` : null} </Box>
+                          <Typography variant='body1'>
+                            {tax ? `${tax} %` : null}{' '}
+                          </Typography>
                         )}
                       </Box>
                     </Grid>
@@ -1859,6 +1905,7 @@ const OrderDetail = () => {
                     client={client!}
                     setEdit={setClientEdit}
                     canUseFeature={canUseFeature}
+                    project={projectInfo!}
                   />
                 )}
               </Suspense>
@@ -1883,7 +1930,10 @@ const OrderDetail = () => {
                       {renderSubmitButton({
                         onCancel: () =>
                           onDiscard({
-                            callback: () => setProjectTeamEdit(false),
+                            callback: () => {
+                              setProjectTeamEdit(false)
+                              initializeTeamData()
+                            },
                           }),
                         onSave: () => onProjectTeamSave(),
                         isValid: isTeamValid,

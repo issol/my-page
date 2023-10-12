@@ -32,6 +32,7 @@ import {
 import {
   useGetAssignableProList,
   useGetJobInfo,
+  useGetJobPriceHistory,
   useGetJobPrices,
 } from '@src/queries/order/job.query'
 import { useRecoilValueLoadable } from 'recoil'
@@ -96,6 +97,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { data: jobInfo, isLoading } = useGetJobInfo(jobId, false)
   // const { data: jobAssignProList } = useGetAssignProList(row.id, {}, false)
   const { data: jobPrices } = useGetJobPrices(jobId, false)
+  const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } = useGetJobPriceHistory(jobId)
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
@@ -441,6 +443,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                       appendItems={appendItems}
                       fields={items}
                       setEditPrices={setEditPrices}
+                      jobPriceHistory={jobPriceHistory!}
                       type='view'
                     />
                   )}

@@ -218,10 +218,10 @@ export type InvoiceVersionHistoryResType = {
 }
 
 export type InvoiceReceivablePatchParamsType = {
-  supervisorId?: number
+  supervisorId?: number | null
   projectManagerId?: number
   downloadedAt?: string
-  members?: number[]
+  members?: number[] | null
   contactPersonId?: number
   orderId?: number
   invoiceStatus?: number

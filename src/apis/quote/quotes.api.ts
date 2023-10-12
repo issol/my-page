@@ -123,12 +123,8 @@ export type CreateQuotesFormType = ProjectTeamFormType &
 export const createQuotesInfo = async (
   form: CreateQuotesFormType,
 ): Promise<any> => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/quote`, form)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/u/quote`, form)
+  return data
 }
 
 // ** step 4-1
@@ -136,15 +132,11 @@ export const createLangPairForQuotes = async (
   quoteId: number,
   form: Array<LanguagePairsType>,
 ): Promise<any> => {
-  try {
-    const { data } = await axios.post(
-      `/api/enough/u/quote/language/pair?quoteId=${quoteId}`,
-      { data: form },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(
+    `/api/enough/u/quote/language/pair?quoteId=${quoteId}`,
+    { data: form },
+  )
+  return data
 }
 
 // ** step 4-2
@@ -152,15 +144,11 @@ export const createItemsForQuotes = async (
   orderId: number,
   form: Array<PostItemType>,
 ): Promise<any> => {
-  try {
-    const { data } = await axios.post(
-      `/api/enough/u/quote/item?quoteId=${orderId}`,
-      { items: form },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(
+    `/api/enough/u/quote/item?quoteId=${orderId}`,
+    { items: form },
+  )
+  return data
 }
 
 export const getProjectTeam = async (
@@ -204,41 +192,29 @@ export const getClient = async (id: number): Promise<ClientType> => {
 export const getLangItems = async (
   id: number,
 ): Promise<LanguageAndItemType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/quote/${id}/items`)
-    return {
-      ...data,
-      items: data.items.map((item: ItemResType) => ({
-        ...item,
-        name: item?.name,
-        itemName: item?.name,
-        source: item?.sourceLanguage,
-        target: item?.targetLanguage,
-        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-        initialPrice: item.initialPrice,
-      })),
-    }
-  } catch (e: any) {
-    throw new Error(e)
+  const { data } = await axios.get(`/api/enough/u/quote/${id}/items`)
+  return {
+    ...data,
+    items: data.items.map((item: ItemResType) => ({
+      ...item,
+      name: item?.name,
+      itemName: item?.name,
+      source: item?.sourceLanguage,
+      target: item?.targetLanguage,
+      totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+      initialPrice: item.initialPrice,
+    })),
   }
 }
 
 export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/quote/${id}/project`)
+  const { data } = await axios.get(`/api/enough/u/quote/${id}/project`)
 
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return data
 }
 
 export const deleteQuotes = async (id: number): Promise<void> => {
-  try {
-    await axios.delete(`/api/enough/u/quote/${id}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.delete(`/api/enough/u/quote/${id}`)
 }
 
 export const getVersionHistory = async (
@@ -253,11 +229,7 @@ export const getVersionHistory = async (
 }
 
 export const restoreVersion = async (id: number): Promise<void> => {
-  try {
-    await axios.post(`/api/enough/u/quote/history/${id}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.post(`/api/enough/u/quote/history/${id}`)
 }
 
 export const patchQuoteProjectInfo = async (
@@ -283,37 +255,24 @@ export const patchQuoteLanguagePairs = async (
   id: number,
   form: Array<LanguagePairsType>,
 ) => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/u/quote/language/pair?quoteId=${id}`,
-      { data: form },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/u/quote/language/pair?quoteId=${id}`,
+    { data: form },
+  )
+  return data
 }
 
 export const patchQuoteItems = async (
   id: number,
   form: Array<PostItemType>,
 ) => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/u/quote/item?quoteId=${id}`,
-      { items: form },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(`/api/enough/u/quote/item?quoteId=${id}`, {
+    items: form,
+  })
+  return data
 }
 
 export const confirmQuote = async (id: number) => {
-  try {
-    const { data } = await axios.patch(`/api/enough/u/quote/${id}/confirm`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(`/api/enough/u/quote/${id}/confirm`)
+  return data
 }

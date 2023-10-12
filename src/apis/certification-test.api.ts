@@ -21,14 +21,10 @@ export const getTestMaterialList = async (
 export const checkBasicTestExistence = async (
   filters: BasicTestExistencePayloadType,
 ): Promise<boolean> => {
-  try {
-    const data = await axios.get(
-      `/api/enough/cert/test/paper/created-check?${makeQuery(filters)}`,
-    )
-    return data.data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const data = await axios.get(
+    `/api/enough/cert/test/paper/created-check?${makeQuery(filters)}`,
+  )
+  return data.data
 }
 
 export interface TestFormType {
@@ -64,41 +60,22 @@ export const postTest = async (form: TestFormType): Promise<{ id: number }> => {
 }
 
 export const getTestDetail = async (id: number): Promise<TestDetailType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/cert/test/paper/${id}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/cert/test/paper/${id}`)
+  return data
 }
 
 export const patchTest = async (
   id: number,
   form: PatchFormType,
 ): Promise<{ id: number }> => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/cert/test/paper/${id}`,
-      form,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(`/api/enough/cert/test/paper/${id}`, form)
+  return data
 }
 
 export const deleteTest = async (id: number) => {
-  try {
-    await axios.delete(`/api/enough/cert/test/paper/${id}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.delete(`/api/enough/cert/test/paper/${id}`)
 }
 
 export const deleteTestFile = async (fileId: number) => {
-  try {
-    return await axios.delete(`/api/enough/cert/test/paper/file/${fileId}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.delete(`/api/enough/cert/test/paper/file/${fileId}`)
 }

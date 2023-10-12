@@ -21,57 +21,37 @@ export type UserInfoResType = Omit<
 >
 
 export const getProDetails = async (userId: number) => {
-  try {
-    const { data } = await axiosDefault.get('/api/pro/details', {
-      params: { id: userId },
-    })
+  const { data } = await axiosDefault.get('/api/pro/details', {
+    params: { id: userId },
+  })
 
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return data
 }
 
 export const getUserInfo = async (userId: number): Promise<UserInfoResType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/pu/profile/${userId}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/u/pu/profile/${userId}`)
+  return data
 }
 
 export const getUserRoleNPermission = async (
   userId: number,
 ): Promise<{ roles: Array<RoleType>; permissions: [] }> => {
-  try {
-    const { data } = await axios.get(`/api/enough/a/role/rels?userId=${userId}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/a/role/rels?userId=${userId}`)
+  return data
 }
 
 /* client, pro 프로필 업데이트용 */
 export const updateConsumerUserInfo = async (
   userInfo: ProUserInfoType & { userId: number },
 ) => {
-  try {
-    await axios.put(`/api/enough/u/pu/edit`, userInfo)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.put(`/api/enough/u/pu/edit`, userInfo)
 }
 
 /* TAD, LPM 전용 프로필 업데이트 */
 export const updateManagerUserInfo = async (
   userInfo: ManagerUserInfoType & { userId: number },
 ) => {
-  try {
-    await axios.put(`/api/enough/u/pu/member/edit`, userInfo)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.put(`/api/enough/u/pu/member/edit`, userInfo)
 }
 
 export const sendResetEmail = async (email: string) => {
@@ -90,50 +70,34 @@ export const resetPassword = async (params: {
 }
 
 export const validatePassword = async (pw: string): Promise<boolean> => {
-  try {
-    const { data } = await axios.post('/api/enough/u/pu/v-check', { pw })
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post('/api/enough/u/pu/v-check', { pw })
+  return data
 }
 
 export const changePassword = async (
   pw: string,
   newPW: string,
 ): Promise<boolean> => {
-  try {
-    const { data } = await axios.put('/api/enough/u/pw/password', {
-      pw,
-      newPW,
-    })
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.put('/api/enough/u/pw/password', {
+    pw,
+    newPW,
+  })
+  return data
 }
 
 export const getIsDeletableAccount = async (): Promise<boolean> => {
-  try {
-    const { data } = await axios.get('/api/enough/u/pu/delete-account')
-    if (!data?.corporationIds) {
-      return true
-    } else {
-      throw new Error(JSON.stringify(data))
-    }
-  } catch (e: any) {
-    throw new Error(e.message)
+  const { data } = await axios.get('/api/enough/u/pu/delete-account')
+  if (!data?.corporationIds) {
+    return true
+  } else {
+    throw new Error(JSON.stringify(data))
   }
 }
 
 export const deleteAccount = async (reasonCode: number, text: string) => {
-  try {
-    return await axios.delete('/api/enough/u/pw/reset/save', {
-      data: { reasonCode, text },
-    })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.delete('/api/enough/u/pw/reset/save', {
+    data: { reasonCode, text },
+  })
 }
 
 export const getDeleteAccountReasonList = async (): Promise<
@@ -143,32 +107,20 @@ export const getDeleteAccountReasonList = async (): Promise<
     statusCode: number
   }>
 > => {
-  try {
-    const { data } = await axios.get('api/enough/u/delete-reason')
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get('api/enough/u/delete-reason')
+  return data
 }
 
 export const verifyCompanyInfo = async (
   info: CorporateClientInfoType,
 ): Promise<boolean> => {
-  try {
-    const { data } = await axios.post('/api/enough/u/comp/validation', info)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post('/api/enough/u/comp/validation', info)
+  return data
 }
 
 export const getClientUserInfo = async (): Promise<ClientUserType> => {
-  try {
-    const { data } = await axios.get('/api/enough/u/client/my-company')
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get('/api/enough/u/client/my-company')
+  return data
 }
 
 export type RequestCompanyJoinType = {
@@ -180,15 +132,11 @@ export type RequestCompanyJoinType = {
 export const requestJoinToCompany = async (
   info: RequestCompanyJoinType,
 ): Promise<void> => {
-  try {
-    await axios.put('api/enough/a/r-req', {
-      ...info,
-      type: 'General',
-      roles: ['CLIENT'],
-    })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.put('api/enough/a/r-req', {
+    ...info,
+    type: 'General',
+    roles: ['CLIENT'],
+  })
 }
 
 /* CLIENT 전용 프로필 업데이트 */
@@ -199,9 +147,5 @@ export const updateClientUserInfo = async (
     headquarter?: string
   },
 ) => {
-  try {
-    await axios.put(`/api/enough/u/pu/client/edit`, userInfo)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.put(`/api/enough/u/pu/client/edit`, userInfo)
 }

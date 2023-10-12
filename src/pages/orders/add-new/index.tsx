@@ -477,7 +477,14 @@ export default function AddNewOrder() {
     console.log(projectInfo)
 
     const items: Array<PostItemType> = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, priceFactor, source, target, ...filterItem } = item
+      const {
+        contactPerson,
+        minimumPrice,
+        priceFactor,
+        source,
+        target,
+        ...filterItem
+      } = item
       return {
         ...filterItem,
         contactPersonId: item.contactPerson?.id!,
@@ -536,7 +543,7 @@ export default function AddNewOrder() {
     let result: ProjectTeamFormType = {
       projectManagerId: 0,
       supervisorId: undefined,
-      member: [],
+      members: [],
     }
 
     data.teams.forEach(item => {
@@ -548,13 +555,13 @@ export default function AddNewOrder() {
         result.projectManagerId = Number(item.id)!
       } else if (item.type === 'member') {
         if (!item.id) {
-          result.member = []
+          result.members = []
         } else {
-          result?.member?.push(item.id!)
+          result?.members?.push(item.id!)
         }
       }
     })
-    if (!result.member || !result?.member?.length) delete result.member
+    if (!result.members || !result?.members?.length) delete result.members
     return result
   }
 

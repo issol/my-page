@@ -20,12 +20,8 @@ export type CreateOrderFormType = ProjectTeamFormType &
 export const createOrderInfo = async (
   form: CreateOrderFormType,
 ): Promise<CreateOrderInfoRes> => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/order`, form)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/u/order`, form)
+  return data
 }
 
 // ** step 4-1
@@ -33,15 +29,11 @@ export const createLangPairForOrder = async (
   orderId: number,
   form: Array<LanguagePairsType>,
 ): Promise<any> => {
-  try {
-    const { data } = await axios.post(
-      `/api/enough/u/order/language-pair?orderId=${orderId}`,
-      { data: form },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(
+    `/api/enough/u/order/language-pair?orderId=${orderId}`,
+    { data: form },
+  )
+  return data
 }
 
 // ** step 4-2
@@ -49,62 +41,42 @@ export const createItemsForOrder = async (
   orderId: number,
   form: Array<PostItemType>,
 ): Promise<any> => {
-  try {
-    const { data } = await axios.post(
-      `/api/enough/u/order/item?orderId=${orderId}`,
-      { items: form },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(
+    `/api/enough/u/order/item?orderId=${orderId}`,
+    { items: form },
+  )
+  return data
 }
 
 export const postCatToolFile = async (
   form: FormData,
 ): Promise<MemoQType | MemSourceType> => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/cat-tool/csv/parse`, form)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/u/cat-tool/csv/parse`, form)
+  return data
 }
 
 export const deleteCatToolFile = async (id: number) => {
-  try {
-    return await axios.delete(`/api/enough/u/cat-tool/TM/${id}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.delete(`/api/enough/u/cat-tool/TM/${id}`)
 }
 
 export const patchLangPairForOrder = async (
   orderId: number,
   form: Array<LanguagePairsType>,
 ) => {
-  try {
-    const { data } = await axios.put(
-      `/api/enough/u/order/language-pair?orderId=${orderId}`,
-      { data: form },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.put(
+    `/api/enough/u/order/language-pair?orderId=${orderId}`,
+    { data: form },
+  )
+  return data
 }
 
 export const patchItemsForOrder = async (
   orderId: number,
   form: Array<PostItemType>,
 ) => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/u/order/item?orderId=${orderId}`,
-      { items: form },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/u/order/item?orderId=${orderId}`,
+    { items: form },
+  )
+  return data
 }

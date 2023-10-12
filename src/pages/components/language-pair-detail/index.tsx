@@ -23,11 +23,13 @@ import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** types
 import { LanguagePairTypeInItem } from '@src/types/orders/order-detail'
+import { ItemType } from '@src/types/common/item.type'
 
 type Props = {
   languagePairs: LanguagePairTypeInItem[]
+  items?: ItemType[]
 }
-export default function LanguagePairTable({ languagePairs }: Props) {
+export default function LanguagePairTable({ languagePairs, items }: Props) {
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
 
@@ -80,14 +82,14 @@ export default function LanguagePairTable({ languagePairs }: Props) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {!languagePairs.length ? (
+              {!items?.length ? (
                 <TableRow hover tabIndex={-1}>
                   <TableCell colSpan={3} align='center'>
                     There are no language pairs
                   </TableCell>
                 </TableRow>
               ) : null}
-              {languagePairs
+              {items && items
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, idx) => {
                   return (
@@ -95,7 +97,8 @@ export default function LanguagePairTable({ languagePairs }: Props) {
                       <TableCell>
                         <Box display='flex' alignItems='center' gap='4px'>
                           <Typography fontWeight='bold' variant='body2'>
-                            {languageHelper(row.source)}
+                            {/* {languageHelper(row.source)} */}
+                            {languageHelper(items?.[idx].sourceLanguage)}
                           </Typography>
 
                           <Icon
@@ -104,13 +107,15 @@ export default function LanguagePairTable({ languagePairs }: Props) {
                             opacity={0.7}
                           />
                           <Typography fontWeight='bold' variant='body2'>
-                            {languageHelper(row.target)}
+                            {/* {languageHelper(row.target)} */}
+                            {languageHelper(items?.[idx].targetLanguage)}
                           </Typography>
                         </Box>
                       </TableCell>
                       <TableCell>
                         <Typography variant='body1' fontSize={14}>
-                          {row.price?.name}
+                          {/* {row.price?.name} */}
+                          {items?.[idx].initialPrice?.name}
                         </Typography>
                       </TableCell>
                     </TableRow>
@@ -122,7 +127,7 @@ export default function LanguagePairTable({ languagePairs }: Props) {
         <TablePagination
           rowsPerPageOptions={[5, 15, 30]}
           component='div'
-          count={languagePairs.length}
+          count={items?.length ?? 0}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

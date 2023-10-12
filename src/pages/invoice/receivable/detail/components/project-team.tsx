@@ -100,7 +100,7 @@ const InvoiceProjectTeam = ({
     let result: ProjectTeamFormType = {
       projectManagerId: 0,
       supervisorId: undefined,
-      member: [],
+      members: [],
     }
 
     data.teams.forEach(item => {
@@ -112,9 +112,9 @@ const InvoiceProjectTeam = ({
         result.projectManagerId = Number(item.id)!
       } else if (item.type === 'member') {
         if (!item.id) {
-          result.member = []
+          result.members = []
         }
-        result?.member?.push(item.id!)
+        result?.members?.push(item.id!)
       }
     })
     // if (!result.member || !result?.member?.length) delete result.member
@@ -136,9 +136,9 @@ const InvoiceProjectTeam = ({
         id: invoiceInfo.id,
         form: {
           ...data,
-          projectManagerId: teams.projectManagerId,
-          supervisorId: teams.supervisorId!,
-          members: teams.member,
+          projectManagerId: teams.projectManagerId!,
+          supervisorId: teams.supervisorId ?? null,
+          members: teams.members ?? null,
 
           showDescription: data.showDescription ? '1' : '0',
         },

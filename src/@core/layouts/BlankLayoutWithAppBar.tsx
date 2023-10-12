@@ -18,7 +18,9 @@ const BlankLayoutWithAppBarWrapper = styled(Box)<BoxProps>(({ theme }) => ({
     alignItems: 'center',
     justifyContent: 'center',
     padding: theme.spacing(5),
-    minHeight: `calc(100vh - ${theme.spacing((theme.mixins.toolbar.minHeight as number) / 4)})`
+    minHeight: `calc(100vh - ${theme.spacing(
+      (theme.mixins.toolbar.minHeight as number) / 4,
+    )})`,
   },
 
   // For V2 Blank layout pages
@@ -26,8 +28,10 @@ const BlankLayoutWithAppBarWrapper = styled(Box)<BoxProps>(({ theme }) => ({
     display: 'flex',
     overflowX: 'hidden',
     position: 'relative',
-    minHeight: `calc(100vh - ${theme.spacing((theme.mixins.toolbar.minHeight as number) / 4)})`
-  }
+    minHeight: `calc(100vh - ${theme.spacing(
+      (theme.mixins.toolbar.minHeight as number) / 4,
+    )})`,
+  },
 }))
 
 const BlankLayoutWithAppBar = (props: BlankLayoutWithAppBarProps) => {
@@ -42,7 +46,10 @@ const BlankLayoutWithAppBar = (props: BlankLayoutWithAppBarProps) => {
         sx={{
           overflowX: 'hidden',
           position: 'relative',
-          minHeight: theme => `calc(100vh - ${theme.spacing((theme.mixins.toolbar.minHeight as number) / 4)})`
+          minHeight: theme =>
+            `calc(100vh - ${theme.spacing(
+              (theme.mixins.toolbar.minHeight as number) / 4,
+            )})`,
         }}
       >
         {children}

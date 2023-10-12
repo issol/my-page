@@ -448,7 +448,14 @@ export default function AddNewQuote() {
     }
 
     const items: Array<PostItemType> = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, priceFactor, source, target, ...filterItem } = item
+      const {
+        contactPerson,
+        minimumPrice,
+        priceFactor,
+        source,
+        target,
+        ...filterItem
+      } = item
       return {
         ...filterItem,
         contactPersonId: item.contactPerson?.id!,
@@ -514,7 +521,7 @@ export default function AddNewQuote() {
     let result: ProjectTeamFormType = {
       projectManagerId: 0,
       supervisorId: undefined,
-      member: [],
+      members: [],
     }
     // console.log(data.teams)
 
@@ -527,13 +534,13 @@ export default function AddNewQuote() {
         result.projectManagerId = Number(item.id)!
       } else if (item.type === 'member') {
         if (!item.id) {
-          result.member = []
+          result.members = []
         } else {
-          result?.member?.push(Number(item.id!))
+          result?.members?.push(Number(item.id!))
         }
       }
     })
-    if (!result.member || !result?.member?.length) delete result.member
+    if (!result.members || !result?.members?.length) delete result.members
 
     return result
   }
