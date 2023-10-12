@@ -19,6 +19,8 @@ export interface Row {
   name: string
   source: string
   target: string
+  sourceLanguage: string
+  targetLanguage: string
   detail: Detail[]
   priceId?: number
   totalPrice?: number
@@ -86,8 +88,8 @@ export default function MakeTable({ rows, currency }: Props) {
                       fontSize: '14px',
                     }}
                   >
-                    [{languageHelper(row.source)} &rarr;{' '}
-                    {languageHelper(row.target)}
+                    [{languageHelper(row.sourceLanguage)} &rarr;{' '}
+                    {languageHelper(row.targetLanguage)}
                     ]&nbsp;{row.itemName}
                   </Typography>
                 ) : null}
