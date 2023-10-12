@@ -88,7 +88,6 @@ export const getInvoicePayableDetail = async (
 
     return data
   } catch (e: any) {
-    // throw Error(e)
     return {
       id: 1,
       corporationId: 'IP-000001',
@@ -170,39 +169,27 @@ export const updateInvoicePayable = async (
   payableId: number,
   form: PayableFormType,
 ) => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/u/invoice/payable/${payableId}`,
-      form,
-    )
-    return data
-  } catch (e: any) {
-    throw Error(e)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/u/invoice/payable/${payableId}`,
+    form,
+  )
+  return data
 }
 
 export const deleteInvoicePayable = async (id: number) => {
-  try {
-    const { data } = await axios.delete(`/api/enough/u/invoice/payable/${id}`)
-    return data
-  } catch (e: any) {
-    throw Error(e)
-  }
+  const { data } = await axios.delete(`/api/enough/u/invoice/payable/${id}`)
+  return data
 }
 
 export const deleteInvoicePayableJobs = async (
   payableId: number,
   jobIds: number[],
 ) => {
-  try {
-    const { data } = await axios.delete(
-      `/api/enough/u/invoice/payable/${payableId}/remove-job`,
-      { data: { jobIds } },
-    )
-    return data
-  } catch (e: any) {
-    throw Error(e)
-  }
+  const { data } = await axios.delete(
+    `/api/enough/u/invoice/payable/${payableId}/remove-job`,
+    { data: { jobIds } },
+  )
+  return data
 }
 
 export const getPayableHistoryList = async (
@@ -308,14 +295,10 @@ export const checkPayableEditable = async (id: number): Promise<boolean> => {
 export const restoreInvoicePayable = async (
   historyId: number,
 ): Promise<void> => {
-  try {
-    const { data } = await axios.put(
-      `/api/enough/u/invoice/payable/restore/${historyId}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.put(
+    `/api/enough/u/invoice/payable/restore/${historyId}`,
+  )
+  return data
 }
 
 export const createInvoicePayable = async (params: {
@@ -331,9 +314,7 @@ export const createInvoicePayable = async (params: {
   invoicedAt: string
   invoicedTimezone: CountryType
 }) => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/invoice/payable`, params)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/u/invoice/payable`, params)
+
+  return data
 }

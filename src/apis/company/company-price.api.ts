@@ -42,7 +42,7 @@ export const getProPriceList = async (
 
 export const getStandardPrice = async (
   page: 'pro' | 'client',
-  filter: ClientPriceListFilterType
+  filter: ClientPriceListFilterType,
 ): Promise<{
   data: Array<StandardPriceListType>
   count: number
@@ -59,13 +59,11 @@ export const getStandardPrice = async (
 }
 
 export const getCatInterfaceHeaders = async (toolName: string) => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/cat-tool/interface?toolName=${toolName}`,
-    )
+  const { data } = await axios.get(
+    `/api/enough/u/cat-tool/interface?toolName=${toolName}`,
+  )
 
-    return data
-  } catch (e: any) {}
+  return data
 }
 
 export const createPrice = async (
@@ -112,9 +110,12 @@ export const createLanguagePair = async (
   page: 'pro' | 'client',
 ) => {
   try {
-    await axios.post(`/api/enough/u/${page}-price/language/pair`, { data: data })
-  } catch ( e: any) {
-    if(e.response.data.message === '이미 존재하는 언어페어입니다.') throw 'LanguagePairDuplication'
+    await axios.post(`/api/enough/u/${page}-price/language/pair`, {
+      data: data,
+    })
+  } catch (e: any) {
+    if (e.response.data.message === '이미 존재하는 언어페어입니다.')
+      throw 'LanguagePairDuplication'
     else throw new Error(e)
   }
 }

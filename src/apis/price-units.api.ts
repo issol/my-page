@@ -5,7 +5,7 @@ import {
   PriceUnitListType,
   PriceUnitDataType,
   PriceUnitType,
-  PriceUnitFormType
+  PriceUnitFormType,
 } from '@src/types/common/standard-price'
 
 export type FilterType = {
@@ -43,29 +43,17 @@ export const getAllClientPriceUnitList = async (): Promise<
 export const postPriceUnit = async (
   form: PriceUnitFormType,
 ): Promise<PriceUnitDataType> => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/price/unit`, { ...form })
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/u/price/unit`, { ...form })
+  return data
 }
 
 export const updatePriceUnit = async (
   id: number,
   form: PriceUnitFormType,
 ): Promise<any> => {
-  try {
-    return await axios.patch(`/api/enough/u/price/unit/${id}`, { ...form })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.patch(`/api/enough/u/price/unit/${id}`, { ...form })
 }
 
 export const deletePriceUnit = async (id: number): Promise<any> => {
-  try {
-    return await axios.delete(`/api/enough/u/price/unit/${id}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.delete(`/api/enough/u/price/unit/${id}`)
 }

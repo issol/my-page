@@ -45,51 +45,35 @@ export const getClientOfficeList = async (
 export const getClientPaymentInfoWithMasking = async (
   clientId: number,
 ): Promise<ClientPaymentInfoDetail | null> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/client/payment-info/masking?clientId=${clientId}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `/api/enough/u/client/payment-info/masking?clientId=${clientId}`,
+  )
+  return data
 }
 
 export const getClientPaymentInfo = async (
   clientId: number,
 ): Promise<ClientPaymentInfoDetail | null> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/client/${clientId}/payment-info`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `/api/enough/u/client/${clientId}/payment-info`,
+  )
+  return data
 }
 
 export const createClientPaymentInfo = async (
   form: ClientPaymentFormType,
 ): Promise<void> => {
-  try {
-    const { data } = await axios.put(`/api/enough/u/client/payment-info`, form)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.put(`/api/enough/u/client/payment-info`, form)
+  return data
 }
 
 export const deleteClientPaymentInfo = async (
   paymentId: number,
 ): Promise<void> => {
-  try {
-    const { data } = await axios.delete(
-      `/api/enough/u/client/payment-info/${paymentId}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.delete(
+    `/api/enough/u/client/payment-info/${paymentId}`,
+  )
+  return data
 }
 
 export const getClientBillingAddress = async (
@@ -108,93 +92,73 @@ export const getClientBillingAddress = async (
 export const getClientBillingAddressWithMasking = async (
   clientId: number,
 ): Promise<ClientAddressType | undefined> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/client/${clientId}/address/masking`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `/api/enough/u/client/${clientId}/address/masking`,
+  )
+  return data
 }
 
 export const getClientPaymentFile = async (
   clientId: number,
 ): Promise<Array<FileItemType>> => {
-  try {
-    const {
-      data,
-    }: {
-      data: Array<{
-        id: number
-        name: string
+  const {
+    data,
+  }: {
+    data: Array<{
+      id: number
+      name: string
+      type: string
+      size: string
+      file: {
         type: string
-        size: string
-        file: {
-          type: string
-          data: []
-        }
-        clientId: number
-      }>
-    } = await axios.get(
-      `/api/enough/u/client/payment-info/file?clientId=${clientId}`,
-    )
+        data: []
+      }
+      clientId: number
+    }>
+  } = await axios.get(
+    `/api/enough/u/client/payment-info/file?clientId=${clientId}`,
+  )
 
-    return (
-      data?.map(i => ({
-        ...i,
-        id: i.id,
-        url: '',
-        filePath: '',
-        fileName: i.name,
-        fileExtension: i.type,
-        fileSize: Number(i.size),
-      })) || []
-    )
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return (
+    data?.map(i => ({
+      ...i,
+      id: i.id,
+      url: '',
+      filePath: '',
+      fileName: i.name,
+      fileExtension: i.type,
+      fileSize: Number(i.size),
+    })) || []
+  )
 }
 
 export const uploadClientPaymentFile = async (
   clientId: number,
   file: FormData,
 ): Promise<void> => {
-  try {
-    const { data } = await axios.post(
-      `/api/enough/u/client/payment-info/upload-file?clientId=${clientId}`,
-      file,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(
+    `/api/enough/u/client/payment-info/upload-file?clientId=${clientId}`,
+    file,
+  )
+  return data
 }
 
 export const deleteClientPaymentFile = async (
   clientId: number,
   fileId: number,
 ): Promise<void> => {
-  try {
-    const { data } = await axios.delete(
-      `/api/enough/u/client/payment-info/delete-file/${fileId}?clientId=${clientId}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.delete(
+    `/api/enough/u/client/payment-info/delete-file/${fileId}?clientId=${clientId}`,
+  )
+  return data
 }
 
 export const getClientPaymentFileFromServer = async (
   fileId: number,
 ): Promise<any> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/client/payment-info/file/${fileId}`,
-      { responseType: 'blob' },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `/api/enough/u/client/payment-info/file/${fileId}`,
+    { responseType: 'blob' },
+  )
+  return data
 }

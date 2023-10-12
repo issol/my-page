@@ -83,87 +83,59 @@ export type CreateClientBodyType = CompanyInfoFormType &
 export const createClient = async (
   form: CreateClientBodyType,
 ): Promise<CreateClientResType> => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/client`, form)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/u/client`, form)
+  return data
 }
 
 export const updateClient = async (
   clientId: number,
   form: CreateClientBodyType,
 ): Promise<CreateClientResType> => {
-  try {
-    const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, form)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, form)
+  return data
 }
 
 export const createNotesToClient = async (clientId: number, note: string) => {
-  try {
-    await axios.post(`/api/enough/u/client/payment-info/notes`, {
-      clientId,
-      note,
-    })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.post(`/api/enough/u/client/payment-info/notes`, {
+    clientId,
+    note,
+  })
 }
 
 export const createNotesToClientFiles = async (
   clientId: number,
   files: FileType[],
 ) => {
-  try {
-    await axios.post(`/api/enough/u/client/payment-info/notes/file`, {
-      clientId,
-      files,
-    })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.post(`/api/enough/u/client/payment-info/notes/file`, {
+    clientId,
+    files,
+  })
 }
 
 export const getClientDetail = async (
   id: number,
 ): Promise<ClientDetailType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/client/${id}/profile`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/u/client/${id}/profile`)
+  return data
 }
 
 export const getClientMemo = async (
   clientId: number,
   filters: { skip?: number; take: number },
 ): Promise<{ data: Array<ClientMemoType>; count: number }> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/client/memo?clientId=${clientId}&${makeQuery(filters)}`,
-    )
-    return data
-  } catch (e: any) {
-    return { data: [], count: 0 }
-  }
+  const { data } = await axios.get(
+    `/api/enough/u/client/memo?clientId=${clientId}&${makeQuery(filters)}`,
+  )
+  return data
 }
 
 export const getClientNotes = async (
   clientId: number,
 ): Promise<{ id?: number; note: string | null; file: Array<FileType> }> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/client/payment-info/notes?clientId=${clientId}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `/api/enough/u/client/payment-info/notes?clientId=${clientId}`,
+  )
+  return data
 }
 
 export type updateClientInfoType = Omit<CompanyInfoFormType, 'memo'>
@@ -171,111 +143,75 @@ export const updateClientInfo = async (
   clientId: number,
   body: updateClientInfoType,
 ): Promise<CreateClientResType> => {
-  try {
-    const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, body)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, body)
+  return data
 }
 
 export const updateNotesToClient = async (
   clientId: number,
   note: string | null,
 ) => {
-  try {
-    await axios.patch(`/api/enough/u/client/payment-info/notes`, {
-      clientId,
-      note,
-    })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.patch(`/api/enough/u/client/payment-info/notes`, {
+    clientId,
+    note,
+  })
 }
 
 export const updateClientStatus = async (
   clientId: number,
   body: { status: string },
 ): Promise<CreateClientResType> => {
-  try {
-    const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, body)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, body)
+  return data
 }
 
 export const updateClientAddress = async (body: {
   data: Array<ClientAddressType>
 }): Promise<CreateClientResType> => {
-  try {
-    const { data } = await axios.patch(`/api/enough/u/client/address`, {
-      data: body.data,
-    })
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(`/api/enough/u/client/address`, {
+    data: body.data,
+  })
+  return data
 }
 
 export const updateContactPerson = async (
   contactPersonId: number,
   body: ContactPersonType,
 ): Promise<ContactPersonType> => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/u/contact-person/${contactPersonId}`,
-      body,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/u/contact-person/${contactPersonId}`,
+    body,
+  )
+  return data
 }
 
 export const createContactPerson = async (
   body: Array<CreateContactPersonFormType>,
 ): Promise<ContactPersonType[]> => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/contact-person`, {
-      data: body,
-    })
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/u/contact-person`, {
+    data: body,
+  })
+  return data
 }
 
 export const deleteContactPerson = async (
   contactPersonId: number,
 ): Promise<ContactPersonType> => {
-  try {
-    const { data } = await axios.delete(
-      `/api/enough/u/contact-person/${contactPersonId}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.delete(
+    `/api/enough/u/contact-person/${contactPersonId}`,
+  )
+  return data
 }
 
 export const deleteNotesToClientFiles = async (fileId: number) => {
-  try {
-    await axios.delete(`/api/enough/u/client/payment-info/notes/file/${fileId}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.delete(`/api/enough/u/client/payment-info/notes/file/${fileId}`)
 }
 
 export const createClientMemo = async (
   body: ClientMemoPostType,
 ): Promise<ContactPersonType> => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/client/memo`, body)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/u/client/memo`, body)
+  return data
 }
 
 export type updateClientMemoType = {
@@ -285,34 +221,22 @@ export type updateClientMemoType = {
 export const updateClientMemo = async (
   body: updateClientMemoType,
 ): Promise<ClientMemoType> => {
-  try {
-    const { data } = await axios.patch(`/api/enough/u/client/memo`, body)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(`/api/enough/u/client/memo`, body)
+  return data
 }
 
 export const deleteClientMemo = async (
   memoId: number,
 ): Promise<ClientMemoType> => {
-  try {
-    const { data } = await axios.delete(`/api/enough/u/client/memo/${memoId}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.delete(`/api/enough/u/client/memo/${memoId}`)
+  return data
 }
 
 export const deleteClient = async (
   clientId: number,
 ): Promise<ClientMemoType> => {
-  try {
-    const { data } = await axios.delete(`/api/enough/u/client/${clientId}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.delete(`/api/enough/u/client/${clientId}`)
+  return data
 }
 
 export const getClientProjectList = async (
@@ -424,15 +348,11 @@ export const getClientInvoiceList = async (
   id: number,
   filter: ClientInvoiceFilterType,
 ): Promise<{ data: ClientInvoiceListType[]; totalCount: number }> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/client/${id}/invoices?${makeQuery(filter)}`,
-    )
+  const { data } = await axios.get(
+    `/api/enough/u/client/${id}/invoices?${makeQuery(filter)}`,
+  )
 
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return data
 }
 
 export const getClientInvoicesCalendarData = async (
@@ -468,10 +388,8 @@ export const getClientInvoicesCalendarData = async (
 }
 
 export const getWorkNameList = async (
-  id: number
-): Promise<
-  Array<{ value: string; label: string }>
-> => {
+  id: number,
+): Promise<Array<{ value: string; label: string }>> => {
   try {
     const { data } = await axios.get(`/api/enough/u/client/work/list`)
     return data
@@ -482,12 +400,8 @@ export const getWorkNameList = async (
 
 // TODO: work name 생성 body, request 타입 알아야 함
 export const createWorkList = async (
-  body: CreateWorkNameType
+  body: CreateWorkNameType,
 ): Promise<WorkNameResType> => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/client/`, body)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/u/client/`, body)
+  return data
 }

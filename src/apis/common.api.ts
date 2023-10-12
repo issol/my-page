@@ -46,14 +46,10 @@ export const getPresignedUrl = async (
   fileName: string,
   path: Paths,
 ) => {
-  try {
-    const { data } = await axios.get(
-      `${BASEURL}/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}&path=${path}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `${BASEURL}/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}&path=${path}`,
+  )
+  return data
 }
 
 /**
@@ -66,16 +62,12 @@ export const getUploadUrlforCommon = async (
   fileType: string,
   filePath: string,
 ) => {
-  try {
-    const { data } = await axios.get(
-      `${BASEURL}/api/enough/u/s3/presigned-url?type=${fileType}&filePath=${encodeURIComponent(
-        filePath,
-      )}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `${BASEURL}/api/enough/u/s3/presigned-url?type=${fileType}&filePath=${encodeURIComponent(
+      filePath,
+    )}`,
+  )
+  return data
 }
 
 //pro, onboarding 등 CloudFront를 통한 다운로드 주소 조회용(Signed-URL)
@@ -83,14 +75,10 @@ export const getDownloadUrlforCommon = async (
   fileType: string,
   filePath: string,
 ) => {
-  try {
-    const { data } = await axios.get(
-      `${BASEURL}/api/enough/u/s3/signed-url?type=${fileType}&filePath=${filePath}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `${BASEURL}/api/enough/u/s3/signed-url?type=${fileType}&filePath=${filePath}`,
+  )
+  return data
 }
 
 export const uploadFileToS3 = async (url: string, file: any) => {

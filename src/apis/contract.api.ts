@@ -43,14 +43,10 @@ export type ContractDetailType = {
 export const getContractDetail = async (
   props: ContractParam,
 ): Promise<ContractDetailType> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/onboard/contract?type=${props.type}&language=${props.language}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `/api/enough/onboard/contract?type=${props.type}&language=${props.language}`,
+  )
+  return data
 }
 
 export type ContractFormType = {
@@ -64,11 +60,7 @@ export type ContractFormType = {
 }
 
 export const postContract = async (param: ContractFormType) => {
-  try {
-    return await axios.post(`/api/enough/onboard/contract`, param)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.post(`/api/enough/onboard/contract`, param)
 }
 
 export type ContractUpdateFormType = Omit<
@@ -80,24 +72,16 @@ export const updateContract = async (
   documentId: number,
   param: ContractUpdateFormType,
 ) => {
-  try {
-    return await axios.put(`/api/enough/onboard/contract/${documentId}`, param)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.put(`/api/enough/onboard/contract/${documentId}`, param)
 }
 
 export const deleteContract = async (
   type: ContractType,
   language: LangType,
 ) => {
-  try {
-    return await axios.delete(`/api/enough/onboard/contract`, {
-      data: { type, language },
-    })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.delete(`/api/enough/onboard/contract`, {
+    data: { type, language },
+  })
 }
 
 export const restoreContract = async (
@@ -105,12 +89,8 @@ export const restoreContract = async (
   writer: string,
   email: string,
 ) => {
-  try {
-    return await axios.post(
-      `/api/enough/onboard/contract/restore/${documentId}`,
-      { writer, email },
-    )
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.post(
+    `/api/enough/onboard/contract/restore/${documentId}`,
+    { writer, email },
+  )
 }

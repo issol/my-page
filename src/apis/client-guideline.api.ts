@@ -57,12 +57,8 @@ export type GuideDetailType = {
 export const getGuidelineDetail = async (
   id: number,
 ): Promise<GuideDetailType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/onboard/guideline/${id}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/onboard/guideline/${id}`)
+  return data
 }
 
 export const checkGuidelineExistence = async (
@@ -70,14 +66,10 @@ export const checkGuidelineExistence = async (
   category: string,
   serviceType: string,
 ): Promise<boolean> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/onboard/guideline/created-check?client=${client}&category=${category}&serviceType=${serviceType}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(
+    `/api/enough/onboard/guideline/created-check?client=${client}&category=${category}&serviceType=${serviceType}`,
+  )
+  return data
 }
 
 export type FormType = {
@@ -95,53 +87,33 @@ export type FormType = {
 export const postGuideline = async (
   form: FormType,
 ): Promise<{ id: number }> => {
-  try {
-    const { data } = await axios.post(`/api/enough/onboard/guideline`, form)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post(`/api/enough/onboard/guideline`, form)
+  return data
 }
 
 export const updateGuideline = async (
   id: number,
   form: FormType,
 ): Promise<{ id: number }> => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/onboard/guideline/${id}`,
-      form,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/onboard/guideline/${id}`,
+    form,
+  )
+  return data
 }
 
 export const uploadGuidelineFiles = async (id: number, fileName: string) => {
-  try {
-    return await axios.post(
-      `/api/enough/a/r-req/al?type=${id}&fileName=${fileName}`,
-    )
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.post(
+    `/api/enough/a/r-req/al?type=${id}&fileName=${fileName}`,
+  )
 }
 
 export const deleteGuidelineFile = async (fileId: number) => {
-  try {
-    return await axios.delete(`/api/enough/onboard/guideline/file/${fileId}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.delete(`/api/enough/onboard/guideline/file/${fileId}`)
 }
 
 export const deleteGuideline = async (guidelineId: number) => {
-  try {
-    return await axios.delete(`/api/enough/onboard/guideline/${guidelineId}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.delete(`/api/enough/onboard/guideline/${guidelineId}`)
 }
 
 export const restoreGuideline = async (
@@ -149,12 +121,8 @@ export const restoreGuideline = async (
   writer: string,
   email: string,
 ) => {
-  try {
-    return await axios.post(`/api/enough/onboard/guideline/restore/${id}`, {
-      writer,
-      email,
-    })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.post(`/api/enough/onboard/guideline/restore/${id}`, {
+    writer,
+    email,
+  })
 }

@@ -13,33 +13,29 @@ export const getProInvoiceList = async (
   id: number,
   filters: ProInvoiceListFilterType,
 ): Promise<{ data: Array<ProInvoiceListType>; totalCount: number }> => {
-  try {
-    return {
-      data: [
-        {
-          id: 1,
-          corporationId: 'I-000001',
-          createdAt: '2021-08-31T07:00:00.000Z',
-          status: 30100,
-          invoicedAt: '2021-08-31T07:00:00.000Z',
-          payDueAt: '2021-08-31T07:00:00.000Z',
-          payDueTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          paidAt: '2021-08-31T07:00:00.000Z',
-          paidDateTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
+  return {
+    data: [
+      {
+        id: 1,
+        corporationId: 'I-000001',
+        createdAt: '2021-08-31T07:00:00.000Z',
+        status: 30100,
+        invoicedAt: '2021-08-31T07:00:00.000Z',
+        payDueAt: '2021-08-31T07:00:00.000Z',
+        payDueTimezone: {
+          code: 'KR',
+          label: 'Korea, Republic of',
+          phone: '82',
         },
-      ],
-      totalCount: 1,
-    }
-  } catch (e: any) {
-    throw new Error(e)
+        paidAt: '2021-08-31T07:00:00.000Z',
+        paidDateTimezone: {
+          code: 'KR',
+          label: 'Korea, Republic of',
+          phone: '82',
+        },
+      },
+    ],
+    totalCount: 1,
   }
 }
 

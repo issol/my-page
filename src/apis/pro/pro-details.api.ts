@@ -71,47 +71,34 @@ export const updateMyOffDays = async (
   end: string,
   reason?: string,
 ): Promise<OffDayEventType> => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/u/pro/unavailable-day/${offDayId}`,
-      {
-        start,
-        end,
-        reason,
-      },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/u/pro/unavailable-day/${offDayId}`,
+    {
+      start,
+      end,
+      reason,
+    },
+  )
+  return data
 }
 
 export const updateWeekends = async (
   userId: number,
   offOnWeekends: 0 | 1,
 ): Promise<Array<OffDayEventType>> => {
-  try {
-    const { data } = await axios.put(
-      `/api/enough/u/pro/${userId}/off-weekends`,
-      { offOnWeekends },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.put(`/api/enough/u/pro/${userId}/off-weekends`, {
+    offOnWeekends,
+  })
+  return data
 }
 
 export const deleteOffDays = async (
   offDayId: number,
 ): Promise<Array<OffDayEventType>> => {
-  try {
-    const { data } = await axios.delete(
-      `/api/enough/u/pro/unavailable-day/${offDayId}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.delete(
+    `/api/enough/u/pro/unavailable-day/${offDayId}`,
+  )
+  return data
 }
 
 /* TODO: endpoint 변경 */
@@ -119,9 +106,5 @@ export const deleteResume = async (
   userId: number,
   fileId: number,
 ): Promise<void> => {
-  try {
-    await axios.delete(`/api/enough/u/pro/${userId}/work-days?year=${fileId}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.delete(`/api/enough/u/pro/${userId}/work-days?year=${fileId}`)
 }

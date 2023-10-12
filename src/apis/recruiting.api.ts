@@ -85,12 +85,8 @@ export type DetailType = {
 }
 
 export const getRecruitingDetail = async (id: number): Promise<DetailType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/recruiting/${id}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/recruiting/${id}`)
+  return data
 }
 
 export type FormType = {
@@ -112,15 +108,11 @@ export type FormType = {
 export const postRecruiting = async (
   form: FormType,
 ): Promise<{ id: number }> => {
-  try {
-    const { data } = await axios.post('/api/enough/recruiting', {
-      ...form,
-      company: 'GloZ',
-    })
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.post('/api/enough/recruiting', {
+    ...form,
+    company: 'GloZ',
+  })
+  return data
 }
 
 //update
@@ -128,28 +120,16 @@ export const updateRecruiting = async (
   id: number,
   form: FormType,
 ): Promise<{ id: number }> => {
-  try {
-    const { data } = await axios.patch(`/api/enough/recruiting/${id}`, form)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(`/api/enough/recruiting/${id}`, form)
+  return data
 }
 
 //hide
 export const hideRecruiting = async (id: number, hide: boolean) => {
-  try {
-    return await axios.patch(`/api/enough/recruiting/hide/${id}?hide=${hide}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.patch(`/api/enough/recruiting/hide/${id}?hide=${hide}`)
 }
 
 //delete
 export const deleteRecruiting = async (id: number) => {
-  try {
-    return await axios.delete(`/api/enough/recruiting/${id}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return await axios.delete(`/api/enough/recruiting/${id}`)
 }

@@ -92,86 +92,66 @@ export const createInvoice = async (
 export const getInvoiceDetail = async (
   id: number,
 ): Promise<InvoiceReceivableDetailType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/invoice/receivable/${id}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/u/invoice/receivable/${id}`)
+  return data
 }
 
 export const getInvoiceLanguageItems = async (
   id: number,
 ): Promise<LanguageAndItemType> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/invoice/receivable/${id}/items`,
-    )
+  const { data } = await axios.get(
+    `/api/enough/u/invoice/receivable/${id}/items`,
+  )
 
-    return {
-      ...data,
-      items: data.items.map((item: ItemResType) => ({
+  return {
+    ...data,
+    items: data.items.map((item: ItemResType) => ({
+      ...item,
+      name: item?.itemName,
+      source: item?.sourceLanguage,
+      target: item?.targetLanguage,
+      totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+    })),
+  }
+}
+
+export const getInvoiceClient = async (id: number): Promise<ClientType> => {
+  const { data } = await axios.get(
+    `/api/enough/u/invoice/receivable/${id}/client`,
+  )
+  return data
+}
+
+export const getInvoiceProjectTeam = async (
+  id: number,
+): Promise<ProjectTeamListType[]> => {
+  const { data } = await axios.get(
+    `/api/enough/u/invoice/receivable/${id}/team`,
+  )
+  return data.members
+}
+
+export const getInvoiceVersionHistory = async (
+  id: number,
+): Promise<InvoiceVersionHistoryType[]> => {
+  const { data } = await axios.get(
+    `/api/enough/u/invoice/receivable/${id}/history`,
+  )
+
+  return data.map((value: InvoiceVersionHistoryResType) => ({
+    ...value,
+    items: {
+      ...value.items,
+      items: value.items.items.map((item: ItemResType) => ({
         ...item,
         name: item?.itemName,
         source: item?.sourceLanguage,
         target: item?.targetLanguage,
         totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
       })),
-    }
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
-export const getInvoiceClient = async (id: number): Promise<ClientType> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/invoice/receivable/${id}/client`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
-export const getInvoiceProjectTeam = async (
-  id: number,
-): Promise<ProjectTeamListType[]> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/invoice/receivable/${id}/team`,
-    )
-    return data.members
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
-export const getInvoiceVersionHistory = async (
-  id: number,
-): Promise<InvoiceVersionHistoryType[]> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/invoice/receivable/${id}/history`,
-    )
-
-    return data.map((value: InvoiceVersionHistoryResType) => ({
-      ...value,
-      items: {
-        ...value.items,
-        items: value.items.items.map((item: ItemResType) => ({
-          ...item,
-          name: item?.itemName,
-          source: item?.sourceLanguage,
-          target: item?.targetLanguage,
-          totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-        })),
-      },
-      members: value.projectTeam.members,
-    }))
-  } catch (e: any) {
-    throw new Error(e)
-  }
+    },
+    members: value.projectTeam.members,
+  }))
 }
 
 export const patchInvoiceInfo = async (
@@ -179,21 +159,17 @@ export const patchInvoiceInfo = async (
   form: InvoiceReceivablePatchParamsType,
   type: 'basic' | 'accounting',
 ): Promise<{ id: number }> => {
-  try {
-    const { data } =
-      type === 'basic'
-        ? await axios.patch(`/api/enough/u/invoice/receivable/${id}`, {
-            ...form,
-          })
-        : await axios.patch(
-            `/api/enough/u/invoice/receivable/${id}/accounting-info`,
-            { ...form },
-          )
+  const { data } =
+    type === 'basic'
+      ? await axios.patch(`/api/enough/u/invoice/receivable/${id}`, {
+          ...form,
+        })
+      : await axios.patch(
+          `/api/enough/u/invoice/receivable/${id}/accounting-info`,
+          { ...form },
+        )
 
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return data
 }
 
 export const deleteInvoice = async (id: number) => {
@@ -243,54 +219,38 @@ export const deliverTaxInvoice = async (
   invoiceId: number,
   fileInfo: DeliveryFileType[],
 ): Promise<boolean> => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/u/invoice/receivable/${invoiceId}/tax-invoice/send`,
-      { files: fileInfo },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/u/invoice/receivable/${invoiceId}/tax-invoice/send`,
+    { files: fileInfo },
+  )
+  return data
 }
 
 export const markInvoiceAsPaid = async (
   invoiceId: number,
   info: MarkDayInfo,
 ): Promise<boolean> => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/u/invoice/receivable/${invoiceId}/set-paid`,
-      info,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/u/invoice/receivable/${invoiceId}/set-paid`,
+    info,
+  )
+  return data
 }
 
 export const cancelInvoice = async (
   invoiceId: number,
   info: CancelReasonType,
 ): Promise<boolean> => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/u/invoice/receivable/${invoiceId}/cancel`,
-      { reason: info },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/u/invoice/receivable/${invoiceId}/cancel`,
+    { reason: info },
+  )
+  return data
 }
 
 export const restoreVersion = async (historyId: number): Promise<boolean> => {
-  try {
-    const { data } = await axios.put(
-      `/api/enough/u/invoice/receivable/restore/${historyId}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.put(
+    `/api/enough/u/invoice/receivable/restore/${historyId}`,
+  )
+  return data
 }
