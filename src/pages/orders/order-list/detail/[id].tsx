@@ -1442,7 +1442,7 @@ const OrderDetail = () => {
                 )}
 
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <img src='/images/icons/order-icons/book.svg' alt='' />
+                  <img src='/images/icons/order-icons/book.png' alt='' />
                   <Typography variant='h5'>
                     {projectInfo?.corporationId}
                   </Typography>
