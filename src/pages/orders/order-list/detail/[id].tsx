@@ -551,6 +551,7 @@ const OrderDetail = () => {
     }
 
     setValue(newValue)
+    queryClient.invalidateQueries(['orderDetail'])
   }
 
   const handleRestoreVersion = () => {
