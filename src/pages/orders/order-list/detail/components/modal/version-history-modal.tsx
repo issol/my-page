@@ -133,8 +133,8 @@ const VersionHistoryModal = ({
             padding: '20px',
           }}
         >
-          <img src='/images/icons/order-icons/book.svg' alt='' />
-          <Typography variant='h5'>{`[${'Ver. 1'}] O-000001`}</Typography>
+          <img src='/images/icons/order-icons/book.png' alt='' />
+          <Typography variant='h5'>{`[Ver. ${history.version}] ${history.projectInfo.corporationId}`}</Typography>
         </Box>
         <TabContext value={value}>
           <TabList
