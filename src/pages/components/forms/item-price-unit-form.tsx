@@ -86,6 +86,7 @@ type Props = {
   // checkMinimumPrice: () => void
   fields?: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
   showCurrency?: boolean
+  setDarkMode?: boolean
 }
 
 export default function ItemPriceUnitForm({
@@ -111,6 +112,7 @@ export default function ItemPriceUnitForm({
   // checkMinimumPrice,
   fields,
   showCurrency,
+  setDarkMode,
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
@@ -630,7 +632,13 @@ export default function ItemPriceUnitForm({
       //   }
       // }}
     >
-      <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+      <TableContainer 
+        component={Paper} 
+        sx={
+          setDarkMode ? 
+          { maxHeight: 400, backgroundColor: 'rgba(76, 78, 100, 0)' } :
+          { maxHeight: 400 }
+        }>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead sx={{ position: 'sticky', top: 0, zIndex: 10 }}>
             <TableRow>

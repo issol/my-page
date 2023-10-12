@@ -53,6 +53,7 @@ type Props = {
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
   }>
+  setDarkMode?: boolean
 }
 
 const Row = ({
@@ -67,6 +68,7 @@ const Row = ({
   priceUnitsList,
   type,
   itemTrigger,
+  setDarkMode,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
@@ -293,11 +295,17 @@ const Row = ({
   // console.log(details))
   return (
     <Box
-      style={{
-        border: '1px solid #F5F5F7',
-        borderRadius: '8px',
-        marginBottom: '14px',
-      }}
+      style={
+        setDarkMode ? 
+        {
+          borderRadius: '8px',
+          marginBottom: '14px',
+        } : {
+          border: '1px solid #F5F5F7',
+          borderRadius: '8px',
+          marginBottom: '14px',
+        }
+    }
     >
       {/* price unit start */}
       <ItemPriceUnitForm
@@ -323,6 +331,7 @@ const Row = ({
         showMinimum={false} //이거 쓰나?
         setShowMinimum={(n) => true} //이거 쓰나?
         type={type}
+        setDarkMode={setDarkMode}
         sumTotalPrice={sumTotalPrice}
         showCurrency={true}
       />
