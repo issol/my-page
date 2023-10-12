@@ -663,6 +663,7 @@ const OrderDetail = () => {
 
       headerName: 'Position',
       disableColumnMenu: true,
+      sortable: false,
       renderHeader: () => <Box>Version</Box>,
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return <Box>Ver. {row.version}</Box>
