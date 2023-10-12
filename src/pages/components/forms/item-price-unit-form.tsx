@@ -205,7 +205,7 @@ export default function ItemPriceUnitForm({
       const percentQuantity = quantity
       const generalPrices = currentItem.filter(item => item.unit !== 'Percent')
       generalPrices.forEach(item => {
-        prices += item.unitPrice
+        prices += item.unitPrice ?? 0
       })
       prices *= percentQuantity / 100
     }
@@ -330,7 +330,7 @@ export default function ItemPriceUnitForm({
                     <TextField
                       placeholder='0'
                       type='number'
-                      value={Number(value)}
+                      value={value ? Number(value) : null}
                       sx={{ maxWidth: '85px', padding: 0 }}
                       inputProps={{ inputMode: 'decimal' }}
                       onChange={e => {
@@ -516,7 +516,13 @@ export default function ItemPriceUnitForm({
                     placeholder='0.00'
                     inputProps={{ inputMode: 'decimal' }}
                     type='number'
-                    value={savedValue.unit === 'Percent' ? '-' : value}
+                    value={
+                      savedValue.unit === 'Percent'
+                        ? '-'
+                        : value
+                        ? Number(value)
+                        : null
+                    }
                     disabled={savedValue.unit === 'Percent'}
                     onChange={e => {
                       onChange(e)
@@ -793,8 +799,8 @@ export default function ItemPriceUnitForm({
               onClick={() => {
                 append({
                   priceUnitId: -1,
-                  quantity: 0,
-                  unitPrice: 0,
+                  quantity: null,
+                  unitPrice: null,
                   prices: 0,
                   unit: '',
                   currency: priceData?.currency ?? 'USD',
