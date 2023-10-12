@@ -219,7 +219,7 @@ const Row = ({
     let prices = 0
     const detail = data?.[index]
     if (detail && detail.unit === 'Percent') {
-      const percentQuantity = data[index].quantity
+      const percentQuantity = data[index].quantity ?? 1
 
       const itemMinimumPrice = getItem(`items.${0}.minimumPrice`)
       const showMinimum = getItem(`items.${0}.minimumPriceApplied`)
@@ -228,12 +228,14 @@ const Row = ({
       } else {
         const generalPrices = data.filter(item => item.unit !== 'Percent')
         generalPrices.forEach(item => {
-          prices += item.unitPrice
+          prices += item.unitPrice ?? 1
         })
         prices *= percentQuantity / 100
       }
     } else {
-      prices = detail.unitPrice * detail.quantity
+      const unitPrice = detail.unitPrice ?? 1
+      const quantity = detail.quantity ?? 1
+      prices = unitPrice * quantity
     }
 
     // if (prices === data[index].prices) return

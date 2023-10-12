@@ -41,7 +41,7 @@ export default function ItemPriceUnitTable({ price, itemDetail, totalPrice }: Pr
           <Typography variant='subtitle1' fontSize={14}>
             {/* {`${getCurrencyMark(item.currency)} ${item.unitPrice}`} */}
             {formatCurrency(
-              item.unitPrice,
+              item.unitPrice!,
               price?.currency ?? 'KRW',
             ) ?? '-'}
           </Typography>
