@@ -318,6 +318,7 @@ const OrderDetail = () => {
     control: teamControl,
     getValues: getTeamValues,
     setValue: setTeamValues,
+
     watch: teamWatch,
     reset: resetTeam,
     formState: { errors: teamErrors, isValid: isTeamValid },
@@ -373,9 +374,6 @@ const OrderDetail = () => {
 
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
-  const { data: prices, isSuccess } = useGetClientPriceList({
-    clientId: client?.client.clientId,
-  })
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
@@ -507,7 +505,22 @@ const OrderDetail = () => {
           lastName: item?.lastName!,
         }),
       }))
-      resetTeam({ teams })
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
+
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
     }
   }
 
@@ -831,7 +844,10 @@ const OrderDetail = () => {
       )
     }
     if (projectTeam) {
-      let viewTeams: ProjectTeamListType[] = [...projectTeam]
+      let viewTeams: ProjectTeamListType[] = [...projectTeam].map(value => ({
+        ...value,
+        id: uuidv4(),
+      }))
 
       if (!viewTeams.some(item => item.position === 'supervisor')) {
         viewTeams.unshift({
@@ -936,7 +952,14 @@ const OrderDetail = () => {
   const onSubmitItems = () => {
     setLangItemsEdit(false)
     const items: PostItemType[] = getItem().items.map(item => {
-      const { contactPerson, minimumPrice, priceFactor, source, target, ...filterItem } = item
+      const {
+        contactPerson,
+        minimumPrice,
+        priceFactor,
+        source,
+        target,
+        ...filterItem
+      } = item
       return {
         ...filterItem,
         contactPersonId: Number(item.contactPerson?.id!),
@@ -1093,7 +1116,20 @@ const OrderDetail = () => {
 
   function onProjectTeamSave() {
     const teams = transformTeamData(getTeamValues())
-    onSave(() => updateProject.mutate(teams))
+    console.log(teams)
+    const res: ProjectTeamFormType = {
+      projectManagerId: teams.projectManagerId ? teams.projectManagerId : null,
+      supervisorId: teams.supervisorId ? teams.supervisorId : null,
+      members: teams.members && teams.members.length ? teams.members : null,
+    }
+
+    onSave(() =>
+      updateProject.mutate(res, {
+        onSuccess: () => {
+          initializeTeamData()
+        },
+      }),
+    )
   }
 
   function onClientSave() {
@@ -1883,7 +1919,10 @@ const OrderDetail = () => {
                       {renderSubmitButton({
                         onCancel: () =>
                           onDiscard({
-                            callback: () => setProjectTeamEdit(false),
+                            callback: () => {
+                              setProjectTeamEdit(false)
+                              initializeTeamData()
+                            },
                           }),
                         onSave: () => onProjectTeamSave(),
                         isValid: isTeamValid,
