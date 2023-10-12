@@ -12,53 +12,37 @@ import {
 } from '@src/types/orders/order-detail'
 
 export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/project`)
+  const { data } = await axios.get(`/api/enough/u/order/${id}/project`)
 
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  return data
 }
 
 export const getProjectTeam = async (
   id: number,
 ): Promise<ProjectTeamListType[]> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/team`)
-    return data.members
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/u/order/${id}/team`)
+  return data.members
 }
 
 export const getClient = async (id: number): Promise<ClientType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/client`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/u/order/${id}/client`)
+  return data
 }
 
 export const getLangItems = async (
   id: number,
 ): Promise<LanguageAndItemType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/items`)
-    return {
-      ...data,
-      items: data.items.map((item: ItemResType) => ({
-        ...item,
-        name: item?.itemName,
-        itemName: item?.itemName,
-        source: item?.sourceLanguage,
-        target: item?.targetLanguage,
-        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-      })),
-    }
-  } catch (e: any) {
-    throw new Error(e)
+  const { data } = await axios.get(`/api/enough/u/order/${id}/items`)
+  return {
+    ...data,
+    items: data.items.map((item: ItemResType) => ({
+      ...item,
+      name: item?.itemName,
+      itemName: item?.itemName,
+      source: item?.sourceLanguage,
+      target: item?.targetLanguage,
+      totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+    })),
   }
 }
 

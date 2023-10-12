@@ -1,13 +1,11 @@
 import axios from 'src/configs/axios'
 import {
-  MembersType,
   SignUpRequestsType,
   RequestActionType,
 } from 'src/types/company/members'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 
 export const getSignUpRequests = async () => {
-  // const { data } = await axios.get('/api/company/signup-requests')
   try {
     const { data } = await axios.get('/api/enough/a/r-req/al')
 
@@ -64,17 +62,9 @@ export const patchMember = async (data: {
   userId: number
   permissionGroups: string[]
 }) => {
-  try {
-    await axios.patch('/api/enough/a/role/us/edit', { ...data })
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.patch('/api/enough/a/role/us/edit', { ...data })
 }
 
 export const deleteMember = async (userId: number) => {
-  try {
-    await axios.delete(`/api/enough/a/role/${userId}`)
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  await axios.delete(`/api/enough/a/role/${userId}`)
 }

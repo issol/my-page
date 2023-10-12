@@ -117,27 +117,23 @@ export const getJobPrices = async (
   id: number,
   isHistory: boolean,
 ): Promise<JobPricesDetailType> => {
-  try {
-    const { data } = isHistory
-      ? await axios.get(`/api/enough/u/job/history/${id}/price`)
-      : await axios.get(`/api/enough/u/job/${id}/price`)
-    // console.log(data)
+  const { data } = isHistory
+    ? await axios.get(`/api/enough/u/job/history/${id}/price`)
+    : await axios.get(`/api/enough/u/job/${id}/price`)
+  // console.log(data)
 
-    return {
-      ...data,
-      source: data.sourceLanguage,
-      target: data.targetLanguage,
-      datas:
-        data?.datas?.map((item: ItemResType) => ({
-          ...item,
-          name: item?.itemName,
-          source: data.sourceLanguage,
-          target: data.sourceLanguage,
-          totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-        })) || [],
-    }
-  } catch (e: any) {
-    throw new Error(e)
+  return {
+    ...data,
+    source: data.sourceLanguage,
+    target: data.targetLanguage,
+    datas:
+      data?.datas?.map((item: ItemResType) => ({
+        ...item,
+        name: item?.itemName,
+        source: data.sourceLanguage,
+        target: data.sourceLanguage,
+        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+      })) || [],
   }
 }
 
@@ -245,59 +241,55 @@ export const getSourceFileToPro = async (
 export const getProJobDetail = async (
   id: number,
 ): Promise<ProJobDetailType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/job/${id}/info`)
+  const { data } = await axios.get(`/api/enough/u/job/${id}/info`)
 
-    return {
-      ...data,
+  return {
+    ...data,
 
-      guideLines: {
-        id: 1,
-        version: 1,
-        userId: 1,
-        title: 'Test Guideline',
-        writer: 'John Doe',
-        email: 'johndoe@example.com',
-        client: 'Example Client',
-        category: 'Translation',
-        serviceType: 'Document',
-        updatedAt: '2022-01-01T00:00:00.000Z',
-        content: {
-          blocks: [
-            {
-              key: '33kfr',
-              data: {},
-              text: 'TEST GUIDELINE',
-              type: 'unstyled',
-              depth: 0,
-              entityRanges: [],
-              inlineStyleRanges: [],
-            },
-          ],
-          entityMap: {},
-        },
-        files: [
+    guideLines: {
+      id: 1,
+      version: 1,
+      userId: 1,
+      title: 'Test Guideline',
+      writer: 'John Doe',
+      email: 'johndoe@example.com',
+      client: 'Example Client',
+      category: 'Translation',
+      serviceType: 'Document',
+      updatedAt: '2022-01-01T00:00:00.000Z',
+      content: {
+        blocks: [
           {
-            id: 1,
-            name: 'file1.txt',
-            size: 1024,
-            type: 'text/plain',
-            file: 'https://example.com/files/file1.txt',
-            createdAt: '2022-01-01T00:00:00.000Z',
-          },
-          {
-            id: 2,
-            name: 'file2.jpg',
-            size: 2048,
-            type: 'image/jpeg',
-            file: 'https://example.com/files/file2.jpg',
-            createdAt: '2022-01-02T00:00:00.000Z',
+            key: '33kfr',
+            data: {},
+            text: 'TEST GUIDELINE',
+            type: 'unstyled',
+            depth: 0,
+            entityRanges: [],
+            inlineStyleRanges: [],
           },
         ],
+        entityMap: {},
       },
-    }
-  } catch (error: any) {
-    throw new Error(error)
+      files: [
+        {
+          id: 1,
+          name: 'file1.txt',
+          size: 1024,
+          type: 'text/plain',
+          file: 'https://example.com/files/file1.txt',
+          createdAt: '2022-01-01T00:00:00.000Z',
+        },
+        {
+          id: 2,
+          name: 'file2.jpg',
+          size: 2048,
+          type: 'image/jpeg',
+          file: 'https://example.com/files/file2.jpg',
+          createdAt: '2022-01-02T00:00:00.000Z',
+        },
+      ],
+    },
   }
 }
 
@@ -305,20 +297,12 @@ export const patchProJobDetail = async (
   id: number,
   params: { status: ProJobStatusType },
 ) => {
-  try {
-    await axios.patch(`/api/enough/u/job/${id}`, { ...params })
-  } catch (error: any) {
-    throw new Error(error)
-  }
+  await axios.patch(`/api/enough/u/job/${id}`, { ...params })
 }
 
 export const getProJobDetailDots = async (id: number): Promise<string[]> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/job/${id}/dot`)
-    return data
-  } catch (error: any) {
-    throw new Error(error)
-  }
+  const { data } = await axios.get(`/api/enough/u/job/${id}/dot`)
+  return data
 }
 
 export const getProJobDeliveriesFeedbacks = async (
@@ -327,28 +311,24 @@ export const getProJobDeliveriesFeedbacks = async (
   deliveries: Array<ProJobDeliveryType>
   feedbacks: Array<ProJobFeedbackType>
 }> => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/job/${id}/deliveries-feedback`,
-    )
+  const { data } = await axios.get(
+    `/api/enough/u/job/${id}/deliveries-feedback`,
+  )
 
-    return data
-    // return {
-    //   deliveries: data.deliveries,
-    //   feedbacks: [
-    //     {
-    //       id: 1,
-    //       isChecked: true,
-    //       name: 'Master (D) K',
-    //       email: 'd_master_1@glozinc.com',
-    //       createdAt: '2023-09-18T01:44:49.997Z',
-    //       feedback: 'rishatest',
-    //     },
-    //   ],
-    // }
-  } catch (error: any) {
-    throw new Error(error)
-  }
+  return data
+  // return {
+  //   deliveries: data.deliveries,
+  //   feedbacks: [
+  //     {
+  //       id: 1,
+  //       isChecked: true,
+  //       name: 'Master (D) K',
+  //       email: 'd_master_1@glozinc.com',
+  //       createdAt: '2023-09-18T01:44:49.997Z',
+  //       feedback: 'rishatest',
+  //     },
+  //   ],
+  // }
 }
 
 export const postProJobDeliveries = async (params: {
@@ -362,39 +342,31 @@ export const postProJobDeliveries = async (params: {
     type: 'TARGET' | 'SOURCE' | 'SAMPLE'
   }>
 }) => {
-  try {
-    const { data } = await axios.post(`/api/enough/u/job/delivery`, {
-      ...params,
-    })
+  const { data } = await axios.post(`/api/enough/u/job/delivery`, {
+    ...params,
+  })
 
-    return data
-  } catch (error: any) {
-    throw new Error(error)
-  }
+  return data
 }
 
 export const patchProJobFeedbackCheck = async (
   jobId: number,
   feedbackId: number,
 ) => {
-  try {
-    const { data } = await axios.patch(
-      `/api/enough/u/job/${jobId}/feedback?feedbackId=${feedbackId}`,
-    )
-  } catch (error: any) {
-    throw new Error(error)
-  }
+  const { data } = await axios.patch(
+    `/api/enough/u/job/${jobId}/feedback?feedbackId=${feedbackId}`,
+  )
+
+  return data
 }
 
 export const patchProJobSourceFileDownload = async (
   jobId: number,
   fileIds: number[],
 ) => {
-  try {
-    const { data } = await axios.patch(`/api/enough/u/job/download`, {
-      fileIds: fileIds,
-    })
-  } catch (error: any) {
-    throw new Error(error)
-  }
+  const { data } = await axios.patch(`/api/enough/u/job/download`, {
+    fileIds: fileIds,
+  })
+
+  return data
 }

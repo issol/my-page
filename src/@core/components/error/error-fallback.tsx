@@ -1,57 +1,75 @@
-import { Button } from '@mui/material'
+import { Box, BoxProps, Button, Link, Typography } from '@mui/material'
+import FooterIllustrations from '@src/views/pages/misc/FooterIllustrations'
 import { useRouter } from 'next/router'
-
-import styled from 'styled-components'
+import { styled } from '@mui/material/styles'
 
 type Props = {
   resetErrorBoundary: (...args: any[]) => void
 }
-export default function ErrorFallback({ resetErrorBoundary }: Props) {
-  const router = useRouter()
 
+const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+  marginBottom: theme.spacing(15),
+  [theme.breakpoints.down('md')]: {
+    width: '90vw',
+  },
+}))
+
+const Img = styled('img')(({ theme }) => ({
+  marginTop: theme.spacing(15),
+  marginBottom: theme.spacing(15),
+  borderRadius: '45%',
+  [theme.breakpoints.down('lg')]: {
+    height: 450,
+    marginTop: theme.spacing(10),
+    marginBottom: theme.spacing(10),
+  },
+  [theme.breakpoints.down('md')]: {
+    height: 400,
+  },
+}))
+export default function ErrorFallback({ resetErrorBoundary }: Props) {
   return (
-    <Container>
-      <h1 className='title'>Something went wrong.</h1>
-      <p className='desc'>Please try again.</p>
-      <Button
-        variant='contained'
-        style={{ border: 'none' }}
-        onClick={() => {
-          resetErrorBoundary()
-          router.back()
+    <Box
+      // className='content-center'
+      sx={{ height: '100vh' }}
+    >
+      <Box
+        sx={{
+          p: 5,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          minHeight: '100vh',
+          justifyContent: 'center',
         }}
       >
-        Go back to home
-      </Button>
-    </Container>
+        <Img alt='error-illustration' src='/images/pages/cute-plumber.png' />
+        <BoxWrapper>
+          <Typography variant='h4' sx={{ mb: 2.5 }}>
+            Oops! Something went wrong
+          </Typography>
+          <Typography variant='body2' fontSize={20}>
+            Please wait a few minutes before you try again
+          </Typography>
+        </BoxWrapper>
+
+        <Button
+          href='/'
+          component={Link}
+          variant='contained'
+          sx={{ px: 5.5 }}
+          size='large'
+          color='secondary'
+          onClick={() => {
+            resetErrorBoundary()
+            window.location.href = '/'
+          }}
+        >
+          Back to home
+        </Button>
+      </Box>
+      {/* <FooterIllustrations image='/images/pages/cute-plumber.png' /> */}
+    </Box>
   )
 }
-
-const Container = styled.div`
-  width: 100%;
-  height: 100vh;
-  padding: 24px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 44px;
-  .title {
-    text-align: center;
-    font-size: 3.75rem;
-    font-weight: bold;
-  }
-  button {
-    transition: all 100ms ease-in;
-    padding: 14px;
-    border: 1px solid black;
-    border-radius: 45px;
-    font-size: 0.875rem;
-    font-weight: bold;
-    &:hover {
-      background: black;
-      color: #fff;
-    }
-  }
-`
