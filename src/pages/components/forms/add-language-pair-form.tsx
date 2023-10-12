@@ -313,7 +313,7 @@ export default function AddLanguagePairForm({
               {!languagePairs?.length ? (
                 <TableRow hover tabIndex={-1}>
                   <TableCell colSpan={3} align='center'>
-                    Add language pairs for this project
+                    There are no language pairs for this project
                   </TableCell>
                 </TableRow>
               ) : null}
@@ -337,8 +337,16 @@ export default function AddLanguagePairForm({
                     let hasMatchingPrice = false
                     let hasStandardPrice = false
                     options.find(option => {
-                      if (option.groupName && option.groupName === 'Matching price') hasMatchingPrice = true
-                      if (option.groupName && option.groupName === 'Standard client price') hasStandardPrice = true
+                      if (
+                        option.groupName &&
+                        option.groupName === 'Matching price'
+                      )
+                        hasMatchingPrice = true
+                      if (
+                        option.groupName &&
+                        option.groupName === 'Standard client price'
+                      )
+                        hasStandardPrice = true
                     })
                     // row가 갑자기 여러번 리랜더링 되는 현상이 있음
                     console.log('Re-rendering-row', row)
@@ -398,20 +406,20 @@ export default function AddLanguagePairForm({
                               renderInput={params => (
                                 <TextField {...params} placeholder='Price' />
                               )}
-                              renderGroup={(params) => (
+                              renderGroup={params => (
                                 <li key={params.key}>
-                                  {!hasMatchingPrice && params.group
-                                    ? <GroupHeader>
-                                        Matching price <NoResultText>(No result)</NoResultText>
-                                      </GroupHeader>
-                                    : null
-                                   }
-                                  {!hasStandardPrice && params.group
-                                    ? <GroupHeader>
-                                        Standard client price <NoResultText>(No result)</NoResultText>
-                                      </GroupHeader>
-                                    : null
-                                   }
+                                  {!hasMatchingPrice && params.group ? (
+                                    <GroupHeader>
+                                      Matching price{' '}
+                                      <NoResultText>(No result)</NoResultText>
+                                    </GroupHeader>
+                                  ) : null}
+                                  {!hasStandardPrice && params.group ? (
+                                    <GroupHeader>
+                                      Standard client price{' '}
+                                      <NoResultText>(No result)</NoResultText>
+                                    </GroupHeader>
+                                  ) : null}
                                   <GroupHeader>{params.group}</GroupHeader>
                                   <GroupItems>{params.children}</GroupItems>
                                 </li>
@@ -457,10 +465,10 @@ const GroupHeader = styled('div')({
 
 const NoResultText = styled('span')({
   fontWeight: 'normal',
-});
+})
 
 const GroupItems = styled('ul')({
   paddingTop: '0px',
   paddingBottom: '0px',
   paddingLeft: '5px',
-});
+})
