@@ -1789,17 +1789,20 @@ const OrderDetail = () => {
                       sx={{ background: '#F5F5F7', marginBottom: '24px' }}
                     >
                       <Box display='flex' alignItems='center' gap='4px'>
-                        <Checkbox
-                          disabled={!langItemsEdit}
-                          checked={taxable}
-                          onChange={e => {
-                            if (!e.target.checked) {
-                              setTax(null)
-                            }
-                            setTaxable(e.target.checked)
-                          }}
-                        />
-                        <Typography>Tax</Typography>
+                        {langItemsEdit ? (
+                          <Checkbox
+                            disabled={!langItemsEdit}
+                            checked={taxable}
+                            onChange={e => {
+                              if (!e.target.checked) {
+                                setTax(null)
+                              }
+                              setTaxable(e.target.checked)
+                            }}
+                          />
+                        ) : null}
+
+                        <Typography variant='h6'>Tax</Typography>
                       </Box>
                       <Box display='flex' alignItems='center' gap='4px'>
                         {langItemsEdit ? (
@@ -1819,7 +1822,9 @@ const OrderDetail = () => {
                             %
                           </>
                         ) : (
-                          <Box>{tax ? `${tax} %` : null} </Box>
+                          <Typography variant='body1'>
+                            {tax ? `${tax} %` : null}{' '}
+                          </Typography>
                         )}
                       </Box>
                     </Grid>
