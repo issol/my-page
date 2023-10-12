@@ -1894,6 +1894,7 @@ const OrderDetail = () => {
                     client={client!}
                     setEdit={setClientEdit}
                     canUseFeature={canUseFeature}
+                    project={projectInfo!}
                   />
                 )}
               </Suspense>

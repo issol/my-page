@@ -37,6 +37,7 @@ export type DeliveryFileType = {
 
 export type ProjectInfoType = {
   id: number
+  addressType: 'shipping' | 'billing'
   corporationId: string
   orderedAt: string
   status: OrderStatusType
