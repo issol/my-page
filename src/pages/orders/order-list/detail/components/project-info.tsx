@@ -340,6 +340,7 @@ const ProjectInfo = ({
     }
   }, [client])
   console.log('project status', project.status, type, isUpdatable)
+  console.log(project)
 
   console.log(filterStatusList())
   console.log(
@@ -739,7 +740,7 @@ const ProjectInfo = ({
                       flexWrap: 'wrap',
                     }}
                   >
-                    {project.serviceType
+                    {project.serviceType && project.serviceType.length > 0
                       ? project.serviceType.map(value => {
                           return (
                             <ServiceTypeChip label={value} key={uuidv4()} />
@@ -776,7 +777,7 @@ const ProjectInfo = ({
                       width: '73.45%',
                     }}
                   >
-                    {project.expertise
+                    {project.expertise && project.expertise.length > 0
                       ? project.expertise.map((value, idx) => {
                           return (
                             <Typography key={uuidv4()} variant='subtitle2'>
