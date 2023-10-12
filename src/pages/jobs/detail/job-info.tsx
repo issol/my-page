@@ -58,6 +58,7 @@ import {
 } from '@src/shared/helpers/price.helper'
 import { useMutation, useQueryClient } from 'react-query'
 import {
+  handleJobAssignStatus,
   patchProJobDetail,
   patchProJobSourceFileDownload,
 } from '@src/apis/job-detail.api'
@@ -103,6 +104,16 @@ const ProJobInfo = ({
       onSuccess: () => {
         queryClient.invalidateQueries(['proJobDetail'])
         queryClient.invalidateQueries(['proJobDots'])
+      },
+    },
+  )
+
+  const selectAssignMutation = useMutation(
+    (data: { jobId: number; proId: number; status: number }) =>
+      handleJobAssignStatus(data.jobId, data.proId, data.status),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['proJobDetail'])
       },
     },
   )
@@ -245,15 +256,23 @@ const ProJobInfo = ({
     ))
   const handleJobStatus = (response: 'Decline' | 'Notify') => {
     // TODO API 연결
-    updateJob.mutate(response === 'Decline' ? 60300 : 60200, {
-      onSuccess: () => {
-        if (response === 'Decline') {
-          closeModal('DeclineModal')
-        } else {
-          closeModal('AvailableModal')
-        }
+    selectAssignMutation.mutate(
+      {
+        jobId: jobInfo.id,
+        proId: auth.getValue().user?.id!,
+        status: response === 'Decline' ? 60300 : 60200,
       },
-    })
+      {
+        onSuccess: () => {
+          if (response === 'Decline') {
+            closeModal('DeclineModal')
+          } else {
+            closeModal('AvailableModal')
+          }
+        },
+      },
+    )
+    // updateJob.mutate(response === 'Decline' ? 60300 : 60200, {})
   }
 
   const onClickAvailable = () => {
@@ -724,11 +743,19 @@ const ProJobInfo = ({
                         alignItems: 'center',
                       }}
                     >
-                      <JobTypeChip
-                        label={jobInfo.category}
-                        type={jobInfo.category}
-                      />
-                      <ServiceTypeChip label={jobInfo.serviceType} />
+                      {jobInfo.category ? (
+                        <JobTypeChip
+                          label={jobInfo.category}
+                          type={jobInfo.category}
+                        />
+                      ) : (
+                        '-'
+                      )}
+                      {jobInfo.serviceType ? (
+                        <ServiceTypeChip label={jobInfo.serviceType} />
+                      ) : (
+                        '-'
+                      )}
                     </Box>
                   </Box>
                 </Box>
