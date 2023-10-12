@@ -14,7 +14,7 @@ import { HeaderCell } from '@src/pages/orders/add-new'
 import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 
 // ** helpers
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { formatByRoundingProcedure, formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { PriceType } from '@src/types/common/orders-and-quotes.type'
 
 type Props = {
@@ -34,18 +34,31 @@ export default function ItemPriceUnitTable({ price, itemDetail, totalPrice }: Pr
         </TableCell>
         <TableCell>
           <Typography variant='subtitle1' fontSize={14}>
-            {item.priceUnit}
+            {item.initialPriceUnit?.title}
           </Typography>
         </TableCell>
         <TableCell>
           <Typography variant='subtitle1' fontSize={14}>
-            {`${getCurrencyMark(item.currency)} ${item.unitPrice}`}
+            {/* {`${getCurrencyMark(item.currency)} ${item.unitPrice}`} */}
+            {formatCurrency(
+              item.unitPrice,
+              price?.currency ?? 'KRW',
+            ) ?? '-'}
           </Typography>
         </TableCell>
         <TableCell align='center'></TableCell>
         <TableCell align='center'>
           <Typography fontSize={14}>
-            {`${getCurrencyMark(item.currency)} ${item.prices}`}
+            {/* {`${getCurrencyMark(item.currency)} ${item.prices}`} */}
+            {formatCurrency(
+              formatByRoundingProcedure(
+                Number(item.prices),
+                price?.numberPlace!,
+                price?.rounding!,
+                price?.currency ?? 'KRW',
+              ),
+              price?.currency ?? 'KRW',
+            )}
           </Typography>
         </TableCell>
         <TableCell align='center'></TableCell>
@@ -90,8 +103,15 @@ export default function ItemPriceUnitTable({ price, itemDetail, totalPrice }: Pr
                   justifyContent='flex-end'
                 >
                   <Typography fontWeight='bold'>
-                    {totalPrice}
-                    {getCurrencyMark(itemDetail[0]?.currency)}
+                  {formatCurrency(
+                    formatByRoundingProcedure(
+                      Number(totalPrice),
+                      price?.numberPlace!,
+                      price?.rounding!,
+                      price?.currency ?? 'KRW',
+                    ),
+                    price?.currency ?? 'KRW',
+                  )}
                   </Typography>
                 </Box>
               </TableCell>

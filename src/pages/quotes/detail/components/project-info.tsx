@@ -83,7 +83,7 @@ export default function QuotesProjectInfoDetail({
       }
     >
   >([])
-
+  console.log("projectInfo-statusList",statusList)
   const onClickReason = (status: string, reason: ReasonType | null) => {
     openModal({
       type: `${status}ReasonModal`,
@@ -128,6 +128,11 @@ export default function QuotesProjectInfoDetail({
       }
     }
     return statusList!
+  }
+
+  const getStatusNameFromCode = (code: number): QuoteStatusType => {
+    // @ts-ignore
+    return statusList?.find(status => status.value === code)?.label ?? "New"
   }
 
   useEffect(() => {
@@ -249,8 +254,8 @@ export default function QuotesProjectInfoDetail({
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <QuoteStatusChip
                     size='small'
-                    label={project.status}
-                    status={project.status}
+                    label={typeof(project.status) === 'number' ? getStatusNameFromCode(project.status) : project.status}
+                    status={typeof(project.status) === 'number' ? getStatusNameFromCode(project.status) : project.status}
                   />
                   {(project.status === 'Revision requested' ||
                     project.status === 'Rejected' ||
