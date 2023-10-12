@@ -1505,7 +1505,7 @@ const OrderDetail = () => {
                           >
                             Linked quote :
                             <Link
-                              href={`/orders/order-list/detail/${projectInfo.linkedQuote.id}`}
+                              href={`/quotes/detail/${projectInfo.linkedQuote.id}`}
                             >
                               {projectInfo?.linkedQuote.corporationId ?? '-'}
                             </Link>
@@ -1523,7 +1523,7 @@ const OrderDetail = () => {
                           >
                             Linked invoice :
                             <Link
-                              href={`/orders/order-list/detail/${projectInfo.linkedInvoiceReceivable.id}`}
+                              href={`/invoice/receivable/detail/${projectInfo.linkedInvoiceReceivable.id}`}
                             >
                               {projectInfo?.linkedInvoiceReceivable
                                 .corporationId ?? '-'}
