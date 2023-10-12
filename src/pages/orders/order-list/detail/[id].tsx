@@ -1228,10 +1228,10 @@ const OrderDetail = () => {
           break
         case 'button-ProjectInfo-DeleteOrder':
           flag =
-            isUpdatable &&
-            projectInfo?.status !== 'New' &&
-            projectInfo?.status !== 'In preparation' &&
-            projectInfo?.status !== 'Internal review' &&
+            isDeletable &&
+            (projectInfo?.status === 'New' ||
+              projectInfo?.status === 'In preparation' ||
+              projectInfo?.status === 'Internal review') &&
             !projectInfo?.linkedInvoiceReceivable &&
             projectInfo?.linkedJobs.length === 0 &&
             isIncludeProjectTeam()
