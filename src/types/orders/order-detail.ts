@@ -40,6 +40,7 @@ export type ProjectInfoType = {
   addressType: 'shipping' | 'billing'
   corporationId: string
   orderedAt: string
+  orderTimezone: CountryType
   status: OrderStatusType
   previousStatus: number
   workName: string
