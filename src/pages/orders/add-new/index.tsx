@@ -417,11 +417,15 @@ export default function AddNewOrder() {
     const projectManager = teamMembers.find(
       item => item.type === 'projectManagerId',
     )
+
+    const project = getProjectInfoValues()
+
     appendItems({
       itemName: null,
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
+      dueAt: project.projectDueAt,
       priceId: null,
       detail: [],
       totalPrice: 0,

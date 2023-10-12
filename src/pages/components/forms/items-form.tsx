@@ -175,6 +175,8 @@ export default function ItemForm({
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
 
+  console.log(fields)
+
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -889,7 +891,7 @@ export default function ItemForm({
                   </Box>
                 ) : (
                   <Controller
-                    name={`items.${idx}.contactPerson.id`}
+                    name={`items.${idx}.contactPersonId`}
                     control={control}
                     render={({ field: { value, onChange } }) => (
                       <Autocomplete
@@ -899,6 +901,7 @@ export default function ItemForm({
                         isOptionEqualToValue={(option, newValue) => {
                           return option.value === newValue.value
                         }}
+                        disableClearable={value ? false : true}
                         onChange={(e, v) => {
                           onChange(v?.value ?? '')
                         }}
@@ -913,7 +916,7 @@ export default function ItemForm({
                           <TextField
                             {...params}
                             label='Contact person for job*'
-                            placeholder='Contact person for job*'
+                            // placeholder='Contact person for job*'
                           />
                         )}
                       />
@@ -992,7 +995,6 @@ export default function ItemForm({
                               {...params}
                               error={Boolean(errors?.items?.[idx]?.source)}
                               label='Language pair*'
-                              placeholder='Language pair*'
                             />
                           )}
                         />
@@ -1056,7 +1058,7 @@ export default function ItemForm({
                       return (
                         <Autocomplete
                           // <StyledAutocomplete
-                          autoHighlight
+
                           fullWidth
                           options={options}
                           groupBy={option => option?.groupName ?? ''}
@@ -1099,7 +1101,6 @@ export default function ItemForm({
                               {...params}
                               error={Boolean(errors?.items?.[idx]?.priceId)}
                               label='Price*'
-                              placeholder='Price*'
                             />
                           )}
                           renderGroup={params => (
