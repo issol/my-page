@@ -340,6 +340,14 @@ const ProjectInfo = ({
     }
   }, [client])
   console.log('project status', project.status, type, isUpdatable)
+
+  console.log(filterStatusList())
+  console.log(
+    statusList
+      ?.filter(value => !filterStatusList().some(v => v.value === value.value))
+      .some(status => status.value === project.status),
+  )
+
   return (
     <>
       <Card sx={{ padding: '24px' }}>
@@ -437,14 +445,37 @@ const ProjectInfo = ({
                 >
                   {type === 'detail' &&
                   isUpdatable &&
-                  (project.status === 'New' ||
-                    project.status === 'In preparation' ||
-                    project.status === 'Internal review' ||
-                    project.status === 'Delivery confirmed') ? (
+                  statusList
+                    ?.filter(
+                      value =>
+                        !filterStatusList().some(v => v.value === value.value),
+                    )
+                    .some(status => status.value === project.status) ? (
+                    <Box
+                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    >
+                      <OrderStatusChip
+                        status={project.status}
+                        label={project.status}
+                      />
+                      {(project.status === 'Redelivery requested' ||
+                        project.status === 'Canceled') && (
+                        <IconButton
+                          onClick={() => {
+                            project.reason && onClickReason()
+                          }}
+                          sx={{ padding: 0 }}
+                        >
+                          <img
+                            src='/images/icons/onboarding-icons/more-reason.svg'
+                            alt='more'
+                          />
+                        </IconButton>
+                      )}
+                    </Box>
+                  ) : (
                     <Autocomplete
-                      autoHighlight
                       fullWidth
-                      autoComplete={false}
                       disableClearable={true}
                       options={filterStatusList() ?? []}
                       onChange={(e, v) => {
@@ -469,29 +500,6 @@ const ProjectInfo = ({
                         />
                       )}
                     />
-                  ) : (
-                    <Box
-                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
-                    >
-                      <OrderStatusChip
-                        status={project.status}
-                        label={project.status}
-                      />
-                      {(project.status === 'Redelivery requested' ||
-                        project.status === 'Canceled') && (
-                        <IconButton
-                          onClick={() => {
-                            project.reason && onClickReason()
-                          }}
-                          sx={{ padding: 0 }}
-                        >
-                          <img
-                            src='/images/icons/onboarding-icons/more-reason.svg'
-                            alt='more'
-                          />
-                        </IconButton>
-                      )}
-                    </Box>
                   )}
                 </Box>
               </Box>
