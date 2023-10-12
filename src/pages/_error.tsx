@@ -1,6 +1,8 @@
 import { Box, BoxProps, Button, Link, Typography } from '@mui/material'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 import FooterIllustrations from '@src/views/pages/misc/FooterIllustrations'
 import { NextPage } from 'next'
+import { ReactNode } from 'react'
 import styled from 'styled-components'
 
 interface Props {
@@ -30,7 +32,10 @@ const Img = styled('img')(({ theme }) => ({
 const Error: NextPage<Props> = ({ statusCode, err }) => {
   console.log(err) // {"name":"Internal Server Error.","message":"500 - Internal Server Error.","statusCode":500}
   return (
-    <Box className='content-center'>
+    <Box
+      // className='content-center'
+      sx={{ height: '100vh' }}
+    >
       <Box
         sx={{
           p: 5,
@@ -38,36 +43,36 @@ const Error: NextPage<Props> = ({ statusCode, err }) => {
           flexDirection: 'column',
           alignItems: 'center',
           textAlign: 'center',
+          minHeight: '100vh',
+          justifyContent: 'center',
         }}
       >
+        <Img alt='error-illustration' src='/images/pages/cute-plumber.png' />
         <BoxWrapper>
-          <Typography variant='h1' sx={{ mb: 2.5 }}>
-            Oops!
+          <Typography variant='h4' sx={{ mb: 2.5 }}>
+            Oops! Something went wrong
           </Typography>
-          <Typography
-            variant='h5'
-            sx={{ mb: 2.5, fontSize: '1.5rem !important' }}
-          >
-            Something went wrong
-          </Typography>
-          <Typography variant='body2'>
+          <Typography variant='body2' fontSize={20}>
             Please wait a few minutes before you try again
           </Typography>
         </BoxWrapper>
-        <Img alt='error-illustration' src='/images/pages/401.png' />
+
         <Button
           href='/'
           component={Link}
           variant='contained'
           sx={{ px: 5.5 }}
+          size='large'
+          color='secondary'
           onClick={() => {
+            // resetErrorBoundary()
             window.location.href = '/'
           }}
         >
-          Back to Home
+          Back to home
         </Button>
       </Box>
-      <FooterIllustrations image='/images/pages/cute-plumber.png' />
+      {/* <FooterIllustrations image='/images/pages/cute-plumber.png' /> */}
     </Box>
   )
 }
@@ -77,5 +82,7 @@ Error.getInitialProps = ({ res, err }: any) => {
   const statusCode = res ? res.statusCode : err ? err.statusCode : 404
   return { statusCode, err }
 }
+
+Error.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 
 export default Error
