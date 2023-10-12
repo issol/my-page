@@ -811,6 +811,7 @@ export default function QuotesDetail() {
           <DialogContent sx={{ padding: '50px 60px', minHeight: '900px' }}>
             <Grid container spacing={6}>
               <VersionHistoryModal id={Number(id)} history={history} />
+              {/* Client에게 Close 버튼 제공이 안되고 있음 */}
               {currentRole && currentRole.name === 'CLIENT' ? null : (
                 <Grid
                   item

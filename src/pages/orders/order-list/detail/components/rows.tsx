@@ -122,7 +122,7 @@ export default function MakeTable({ rows }: { rows: ItemType[] }) {
                   <td className='table-row-third'>
                     <div className='center-box'>
                       <h6 className='subtitle2'>
-                        {formatCurrency(value.unitPrice, row?.initialPrice?.currency!)}
+                        {formatCurrency(value.unitPrice!, row?.initialPrice?.currency!)}
                       </h6>
                     </div>
                   </td>
