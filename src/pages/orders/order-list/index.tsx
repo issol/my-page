@@ -28,7 +28,7 @@ import { useGetStatusList } from '@src/queries/common.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetCompanyOptions } from '@src/queries/options.query'
-
+import { useQueryClient } from 'react-query'
 
 export type FilterType = {
   orderDate: Date[]
@@ -73,6 +73,7 @@ type MenuType = 'list' | 'calendar'
 
 export default function OrderList() {
   const currentRole = getCurrentRole()
+  const queryClient = useQueryClient()
 
   const { data: statusList } = useGetStatusList('Order')
   const [menu, setMenu] = useState<MenuType>('list')
@@ -110,7 +111,6 @@ export default function OrderList() {
     currentRole?.name === 'CLIENT'
       ? useGetCompanyOptions('LSP')
       : { data: [], isLoading: false }
-
 
   const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
     defaultValues,
@@ -201,6 +201,11 @@ export default function OrderList() {
       }
     }
   }, [companies, companiesListLoading])
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['orderList'])
+    queryClient.invalidateQueries(['orderDetail'])
+  }, [])
 
   return (
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>

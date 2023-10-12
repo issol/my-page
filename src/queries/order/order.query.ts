@@ -28,7 +28,15 @@ export const useGetOrderList = (
       }
       return getOrderListForInvoice(filter)
     },
-    {},
+    {
+      staleTime: 60 * 1000,
+      suspense: true,
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
   )
 }
 
