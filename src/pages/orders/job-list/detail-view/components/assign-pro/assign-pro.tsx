@@ -19,9 +19,7 @@ import AssignProListPage from './list'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
-import {
-  useGetAssignableProList,
-} from '@src/queries/order/job.query'
+import { useGetAssignableProList } from '@src/queries/order/job.query'
 
 import {
   GridCallbackDetails,
@@ -51,7 +49,10 @@ import {
   useMutation,
 } from 'react-query'
 import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
-import { assignJob, requestJobToPro } from '@src/apis/job-detail.api'
+import {
+  handleJobAssignStatus,
+  requestJobToPro,
+} from '@src/apis/job-detail.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import toast from 'react-hot-toast'
 
@@ -160,8 +161,8 @@ const AssignPro = ({
   )
 
   const assignJobMutation = useMutation(
-    (data: { jobId: number; proId: number }) =>
-      assignJob(data.jobId, data.proId),
+    (data: { jobId: number; proId: number; status: number }) =>
+      handleJobAssignStatus(data.jobId, data.proId, data.status),
     {
       onSuccess: () => {
         refetchAssignableProList()
@@ -170,16 +171,10 @@ const AssignPro = ({
   )
 
   useEffect(() => {
-    if (
-      AssignableProList &&
-      !isAssignableProListLoading
-    ) {
+    if (AssignableProList && !isAssignableProListLoading) {
       setProList(AssignableProList)
     }
-  }, [
-    AssignableProList,
-    isAssignableProListLoading,
-  ])
+  }, [AssignableProList, isAssignableProListLoading])
 
   useEffect(() => {
     refetchAssignableProList()
@@ -234,7 +229,7 @@ const AssignPro = ({
 
   const handleAssignJob = (jobId: number, proId: number) => {
     assignJobMutation.mutate(
-      { jobId: jobId, proId: proId },
+      { jobId: jobId, proId: proId, status: 60500 },
       {
         onSuccess: () => {
           closeModal('AssignProJobModal')

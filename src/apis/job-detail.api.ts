@@ -157,10 +157,21 @@ export const requestJobToPro = async (ids: number[], jobId: number) => {
   await axios.post(`/api/enough/u/job/${jobId}/request`, { proIds: ids })
 }
 
-export const assignJob = async (jobId: number, proId: number) => {
+// export const assignJob = async (jobId: number, proId: number) => {
+//   await axios.patch(`/api/enough/u/job/${jobId}/request`, {
+//     proId: proId,
+//     status: 60500,
+//   })
+// }
+
+export const handleJobAssignStatus = async (
+  jobId: number,
+  proId: number,
+  status: number,
+) => {
   await axios.patch(`/api/enough/u/job/${jobId}/request`, {
     proId: proId,
-    status: 60500,
+    status: status,
   })
 }
 
