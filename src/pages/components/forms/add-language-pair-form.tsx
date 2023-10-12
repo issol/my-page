@@ -311,7 +311,7 @@ export default function AddLanguagePairForm({
             </TableHead>
             <TableBody>
               {!languagePairs?.length ? (
-                <TableRow hover tabIndex={-1}>
+                <TableRow tabIndex={-1}>
                   <TableCell colSpan={3} align='center'>
                     There are no language pairs for this project
                   </TableCell>
