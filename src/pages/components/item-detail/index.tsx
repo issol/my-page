@@ -85,8 +85,8 @@ export default function ItemDetail({ item, price, idx, role }: Props) {
             <Typography variant='body1' fontSize={14}>
               {getLegalName({
                 firstName: item.contactPerson?.firstName,
-                middleName: item.contactPerson?.firstName,
-                lastName: item.contactPerson?.firstName,
+                middleName: item.contactPerson?.middleName,
+                lastName: item.contactPerson?.lastName,
               })}
             </Typography>
           </Box>

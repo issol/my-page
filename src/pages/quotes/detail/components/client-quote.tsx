@@ -47,6 +47,7 @@ const ClientQuote = ({
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
+  console.log("downloadData",downloadData)
   const handleAcceptQuote = (status: number) => {
     // TODO API call
     updateProject &&

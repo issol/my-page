@@ -67,7 +67,6 @@ const VersionHistoryModal = ({ id, history }: Props) => {
   const [downloadData, setDownloadData] = useState<QuoteDownloadData | null>(
     null,
   )
-  console.log("dialog-prop",id,history)
 
   const [pageSize, setPageSize] = useState<number>(10)
   // const { data: priceList, isLoading: priceDataLoading } = useGetClientPriceList({ clientId: id })
@@ -257,7 +256,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                 </Typography>
               </HeaderBox>
               {history.items.items.map((item, idx) => {
-                const [open, setOpen] = useState(false)
+                const [open, setOpen] = useState(true)
                 return (
                   <Grid
                     container
