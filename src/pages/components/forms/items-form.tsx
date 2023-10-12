@@ -521,16 +521,22 @@ export default function ItemForm({
         const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
         const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
         if (itemMinimumPrice && showMinimum) {
-          prices = (percentQuantity / 100) * itemMinimumPrice
+          prices =
+            percentQuantity !== null
+              ? (percentQuantity / 100) * itemMinimumPrice
+              : 0
         } else {
           const generalPrices = data.filter(item => item.unit !== 'Percent')
           generalPrices.forEach(item => {
-            prices += item.unitPrice
+            prices += item.unitPrice ?? 0
           })
-          prices *= percentQuantity / 100
+          prices *= percentQuantity !== null ? percentQuantity / 100 : 0
         }
       } else {
-        prices = detail.unitPrice * detail.quantity
+        prices =
+          detail.unitPrice !== null && detail.quantity !== null
+            ? detail.unitPrice * detail.quantity
+            : 0
       }
 
       // if (prices === data[index].prices) return
@@ -552,10 +558,14 @@ export default function ItemForm({
         shouldValidate: false,
       })
       // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
-      setValue(`items.${idx}.detail.${index}.prices`, roundingPrice, {
-        shouldDirty: true,
-        shouldValidate: false,
-      })
+      setValue(
+        `items.${idx}.detail.${index}.prices`,
+        isNaN(Number(roundingPrice)) ? 0 : roundingPrice,
+        {
+          shouldDirty: true,
+          shouldValidate: false,
+        },
+      )
     }
 
     // function onItemBoxLeave() {
@@ -711,10 +721,8 @@ export default function ItemForm({
       }
     }
 
-    console.log("value",getValues(
-      `items.${idx}.contactPerson`,
-    ))
-    console.log("contactPersonList",contactPersonList)
+    console.log('value', getValues(`items.${idx}.contactPerson`))
+    console.log('contactPersonList', contactPersonList)
     // TODO: 네임 헬퍼 써야 함
 
     const handleMinimumPrice = () => {
