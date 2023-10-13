@@ -307,7 +307,6 @@ export default function ItemPriceUnitForm({
 
     return (
       <TableRow
-        hover
         tabIndex={-1}
         // onMouseLeave={() => {
         //   updateTotalPrice()
@@ -777,10 +776,7 @@ export default function ItemPriceUnitForm({
               <Row key={row.id} idx={idx} />
             ))}
             {showMinimum && !isNotApplicable ? (
-              <TableRow
-                hover
-                tabIndex={-1} /* onBlur={() => onItemBoxLeave()} */
-              >
+              <TableRow tabIndex={-1} /* onBlur={() => onItemBoxLeave()} */>
                 <TableCell>
                   <Typography color='primary' fontSize={14}>
                     1
