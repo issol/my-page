@@ -141,7 +141,6 @@ export default function ItemPriceUnitForm({
   const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
   const nestSubPriceUnits = (idx: number) => {
     const nestedData: Array<NestedPriceUnitType> = []
-    console.log('priceUnitsList', priceUnitsList)
 
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
       ...item,
@@ -165,7 +164,6 @@ export default function ItemPriceUnitForm({
 
     // const data = matchingUnit?.concat(filteredPriceUnit)
     const data = [...matchingUnit, ...priceUnit]
-    console.log(data)
 
     // const uniqueArray = Array.from(new Set(data.map(item => item.priceUnitId)))
     // .map(priceUnitId => data.find(item => item.priceUnitId === priceUnitId))
@@ -198,8 +196,6 @@ export default function ItemPriceUnitForm({
     }
 
     allPriceUnits.current = data
-
-    console.log(data)
 
     return _.uniqBy(data, 'id')
   }
@@ -308,7 +304,6 @@ export default function ItemPriceUnitForm({
     const [open, setOpen] = useState(false)
     const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
     const options = nestSubPriceUnits(idx)
-    console.log(options)
 
     return (
       <TableRow
@@ -429,8 +424,6 @@ export default function ItemPriceUnitForm({
                       }
                     }}
                     renderOption={(props, option, state) => {
-                      console.log(props)
-
                       return (
                         <>
                           <li {...props}>
@@ -543,8 +536,8 @@ export default function ItemPriceUnitForm({
                     renderInput={params => (
                       <TextField
                         {...params}
-                        label='Price unit*'
-                        placeholder='Price unit*'
+                        // label='Price unit*'
+                        placeholder={open ? '' : 'Price unit*'}
                       />
                     )}
                   />
