@@ -198,8 +198,6 @@ export default function ItemPriceUnitForm({
 
     allPriceUnits.current = data
 
-    console.log(data)
-
     return _.uniqBy(data, 'id')
   }
 
@@ -441,8 +439,6 @@ export default function ItemPriceUnitForm({
                       }
                     }}
                     renderOption={(props, option, state) => {
-                      console.log(props)
-
                       return (
                         <>
                           <li {...props}>
