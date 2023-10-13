@@ -408,9 +408,9 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <Autocomplete
-              autoHighlight
               fullWidth
               options={CategoryList}
+              disableClearable={value ? false : true}
               onChange={(e, v) => {
                 if (!v) {
                   setValue('serviceType', [], setValueOptions)
@@ -428,7 +428,6 @@ export default function ProjectInfoForm({
                   {...params}
                   error={Boolean(errors.category)}
                   label='Category'
-                  placeholder='Category'
                 />
               )}
             />
