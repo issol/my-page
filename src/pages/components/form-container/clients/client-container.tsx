@@ -70,6 +70,7 @@ type Props = {
   watch: UseFormWatch<ClientFormType>
   trigger?: UseFormTrigger<ClientFormType>
   setTaxable: (n: boolean) => void
+  setTax: (n: number | null) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'edit' | 'create'
   fromQuote: boolean
@@ -80,6 +81,7 @@ export default function ClientQuotesFormContainer({
   setValue,
   watch,
   trigger,
+  setTax,
   setTaxable,
   type,
   formType,
@@ -96,7 +98,7 @@ export default function ClientQuotesFormContainer({
   }
 
   const [clients, setClients] = useState<
-    Array<{ value: number; label: string }>
+    Array<{ value: number; label: string; tax: number | null }>
   >([])
   const {
     data: clientList,
@@ -109,10 +111,13 @@ export default function ClientQuotesFormContainer({
 
   useEffect(() => {
     if (isSuccess) {
+      console.log(clientList.data)
+
       setClients(
         clientList.data.map(item => ({
           value: item.clientId,
           label: item.name,
+          tax: item.isTaxable ? (item.tax ? Number(item.tax) : null) : null,
         })),
       )
     }
@@ -245,6 +250,7 @@ export default function ClientQuotesFormContainer({
           trigger={trigger}
           clientList={clients}
           setTaxable={setTaxable}
+          setTax={setTax}
           type={type}
           formType={formType}
           fromQuote={fromQuote}

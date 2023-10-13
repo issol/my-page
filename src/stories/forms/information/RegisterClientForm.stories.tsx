@@ -78,12 +78,13 @@ export const Default = ({
     mode: 'onChange',
     resolver: yupResolver(clientSchema),
   })
-
+  const [tax, setTax] = useState<number | null>(null)
   const [taxable, setTaxable] = useState(false)
   const [clientList, setClientList] = useState<
     {
       label: string
       value: number
+      tax: number | null
     }[]
   >([])
   return (
@@ -93,6 +94,7 @@ export const Default = ({
       watch={watch}
       clientList={clientList}
       setTaxable={setTaxable}
+      setTax={setTax}
       type={type}
       formType='create'
       getValue={getValues}

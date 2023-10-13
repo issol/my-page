@@ -621,6 +621,7 @@ export default function AddNewQuote() {
                 setValue={setClientValue}
                 watch={clientWatch}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
+                setTax={(n: number | null) => setProjectInfo('tax', n)}
                 type={requestId ? 'request' : 'quotes'}
                 formType='create'
                 getValue={getClientValue}
