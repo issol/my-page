@@ -16,6 +16,7 @@ import {
   Grid,
   IconButton,
   ListItem,
+  ListItem,
   TextField,
   Typography,
 } from '@mui/material'
@@ -59,7 +60,7 @@ import useModal from '@src/hooks/useModal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 // import styled from 'styled-components'
-import { styled, lighten, darken } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 import _ from 'lodash'
 
 type Props = {
@@ -196,6 +197,8 @@ export default function ItemPriceUnitForm({
     }
 
     allPriceUnits.current = data
+
+    console.log(data)
 
     return _.uniqBy(data, 'id')
   }
@@ -438,6 +441,8 @@ export default function ItemPriceUnitForm({
                       }
                     }}
                     renderOption={(props, option, state) => {
+                      console.log(props)
+
                       return (
                         <>
                           <li {...props}>
