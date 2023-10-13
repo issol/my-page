@@ -216,6 +216,7 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
+              placeholderText='MM/DD/YYYY, HH:MM'
               selected={!value ? null : formattedNow(new Date(value))}
               onChange={e => {
                 console.log(e)
@@ -565,6 +566,7 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
+              placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
                 <CustomInput label='Project due date' icon='calendar' />
               }
