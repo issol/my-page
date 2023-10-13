@@ -49,7 +49,7 @@ import {
   useMutation,
   useQueryClient,
 } from 'react-query'
-import { deleteJob, saveJobInfo, uploadFile } from '@src/apis/job-detail.api'
+import { deleteJob, deleteJobFile, saveJobInfo, uploadFile } from '@src/apis/job-detail.api'
 import {
   getDownloadUrlforCommon,
   getUploadUrlforCommon,
@@ -141,7 +141,8 @@ const EditJobInfo = ({
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries('jobInfo')
           queryClient.invalidateQueries('jobPrices')
-          refetch()
+          // refetch()
+          setJobId && setJobId(variables.jobId)
         } else {
           setJobId && setJobId(data.id)
         }
@@ -165,7 +166,8 @@ const EditJobInfo = ({
         // console.log('success')
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries('jobInfo')
-          refetch()
+          // refetch()
+          setJobId && setJobId(variables.jobId)
         } else {
           setJobId && setJobId(data.id)
         }
@@ -198,7 +200,7 @@ const EditJobInfo = ({
   const [files, setFiles] = useState<File[]>([])
   const [uploadedFiles, setUploadedFiles] = useState<FileType[]>([])
   const [deletedFiles, setDeletedFiles] = useState<FileType[]>([])
-
+  console.log("deletedFiles",deletedFiles)
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg'],
@@ -276,99 +278,116 @@ const EditJobInfo = ({
   }
 
   // console.log('data', getValues())
-  const onSubmit = () => {
-    const data = getValues()
-    if (files.length) {
-      // const fileInfo: Array<{
-      //   jobId: number
-      //   size: number
-      //   name: string
-      //   type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-      // }> = []
-      const fileInfo: {
-        jobId: number
-        files: Array<{
-          jobId: number
-          size: number
-          name: string
-          type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-        }>
-      } = {
-        jobId: row.id,
-        files: [],
+  async function deleteFiles() {
+    for (const file of deletedFiles) {
+      if (file.id) {
+        await deleteJobFile(file.id);
       }
-      const paths: string[] = files.map(file => {
-        return `project/${row.id}/sample/${file.name}`
-      })
-      const s3URL = paths.map(value => {
-        return getUploadUrlforCommon('job', value).then(res => {
-          return res.url
-        })
-      })
-      Promise.all(s3URL).then(res => {
-        const promiseArr = res.map((url: string, idx: number) => {
-          fileInfo.files.push({
-            jobId: row.id,
-            size: files[idx].size,
-            name: files[idx].name,
-            type: 'SAMPLE',
-          })
-          return uploadFileToS3(url, files[idx])
-        })
-        Promise.all(promiseArr)
-          .then(res => {
-            uploadFileMutation.mutate(fileInfo)
-            const jobInfo: SaveJobInfoParamsType = {
-              contactPersonId: data.contactPerson.userId,
-              description: data.description ?? null,
-              startDate: data.startedAt ? data.startedAt.toString() : null,
-              startTimezone: data.startTimezone ?? null,
-
-              dueDate: data.dueAt.toString(),
-              dueTimezone: data.dueTimezone,
-              status: data.status,
-              sourceLanguage: data.source !== ' ' ? data.source : null,
-              targetLanguage: data.target !== ' ' ? data.target : null,
-              name: data.name,
-              isShowDescription: data.isShowDescription,
-            }
-
-            saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
-
-            // res.map((value, idx) => {
-            //   uploadFileMutation.mutate(fileInfo[idx])
-
-            // })
-          })
-          .catch(err =>
-            toast.error(
-              'Something went wrong while uploading files. Please try again.',
-              {
-                position: 'bottom-left',
-              },
-            ),
-          )
-      })
-    } else {
-      const jobInfo: SaveJobInfoParamsType = {
-        contactPersonId: data.contactPerson.userId,
-        description: data.description ?? null,
-        startDate: data.startedAt ? data.startedAt.toString() : null,
-        startTimezone: data.startTimezone ?? null,
-
-        dueDate: data.dueAt.toString(),
-        dueTimezone: data.dueTimezone,
-        status: data.status,
-        sourceLanguage: data.source !== ' ' ? data.source : null,
-        targetLanguage: data.target !== ' ' ? data.target : null,
-        name: data.name,
-        isShowDescription: data.isShowDescription,
-      }
-      console.log('jobInfo', jobInfo)
-      saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
     }
+  }
 
-    // TODO : delete file form s3
+  const onSubmit = () => {
+    // TODO: 저장할때 로딩중 ui 필요함
+    const data = getValues()
+    // step1) 파일 삭제
+    const asyncDeleteFile = 
+      deletedFiles.map(file => {
+        if (file.id) {
+          return deleteJobFile(file.id);
+        }
+      })
+    Promise.all(asyncDeleteFile).then(res => {
+      // step2) 업로드+패치 or 패치
+      if (files.length) {
+        // const fileInfo: Array<{
+        //   jobId: number
+        //   size: number
+        //   name: string
+        //   type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+        // }> = []
+        const fileInfo: {
+          jobId: number
+          files: Array<{
+            jobId: number
+            size: number
+            name: string
+            type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+          }>
+        } = {
+          jobId: row.id,
+          files: [],
+        }
+        const paths: string[] = files.map(file => {
+          return `project/${row.id}/sample/${file.name}`
+        })
+        const s3URL = paths.map(value => {
+          return getUploadUrlforCommon('job', value).then(res => {
+            return res.url
+          })
+        })
+        Promise.all(s3URL).then(res => {
+          const promiseArr = res.map((url: string, idx: number) => {
+            fileInfo.files.push({
+              jobId: row.id,
+              size: files[idx].size,
+              name: files[idx].name,
+              type: 'SAMPLE',
+            })
+            return uploadFileToS3(url, files[idx])
+          })
+          Promise.all(promiseArr)
+            .then(res => {
+              uploadFileMutation.mutate(fileInfo)
+              const jobInfo: SaveJobInfoParamsType = {
+                contactPersonId: data.contactPerson.userId,
+                description: data.description ?? null,
+                startDate: data.startedAt ? data.startedAt.toString() : null,
+                startTimezone: data.startTimezone ?? null,
+  
+                dueDate: data.dueAt.toString(),
+                dueTimezone: data.dueTimezone,
+                status: data.status,
+                sourceLanguage: data.source !== ' ' ? data.source : null,
+                targetLanguage: data.target !== ' ' ? data.target : null,
+                name: data.name,
+                isShowDescription: data.isShowDescription,
+              }
+  
+              saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
+  
+              // res.map((value, idx) => {
+              //   uploadFileMutation.mutate(fileInfo[idx])
+  
+              // })
+            })
+            .catch(err =>
+              toast.error(
+                'Something went wrong while uploading files. Please try again.',
+                {
+                  position: 'bottom-left',
+                },
+              ),
+            )
+        })
+      } else {
+        const jobInfo: SaveJobInfoParamsType = {
+          contactPersonId: data.contactPerson.userId,
+          description: data.description ?? null,
+          startDate: data.startedAt ? data.startedAt.toString() : null,
+          startTimezone: data.startTimezone ?? null,
+  
+          dueDate: data.dueAt.toString(),
+          dueTimezone: data.dueTimezone,
+          status: data.status,
+          sourceLanguage: data.source !== ' ' ? data.source : null,
+          targetLanguage: data.target !== ' ' ? data.target : null,
+          name: data.name,
+          isShowDescription: data.isShowDescription,
+        }
+        console.log('jobInfo', jobInfo)
+        saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
+      }
+    })
   }
 
   useEffect(() => {

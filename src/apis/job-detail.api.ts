@@ -113,6 +113,10 @@ export const deleteJob = async (id: number) => {
   await axios.delete(`/api/enough/u/job/${id}`)
 }
 
+export const deleteJobFile = async (fileId: number) => {
+  await axios.delete(`/api/enough/u/job/file/${fileId}`)
+}
+
 export const getJobPrices = async (
   id: number,
   isHistory: boolean,
