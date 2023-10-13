@@ -118,6 +118,12 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
             ),
           )
           break
+        case 'ACCOUNT_MANAGER':
+          setSortedMenu(
+            HorizontalNavItems().filter(value => LPMMenu.includes(value.title)),
+          )
+          break
+
         default:
           setSortedMenu([])
       }
