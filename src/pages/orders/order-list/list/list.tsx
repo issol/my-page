@@ -149,19 +149,26 @@ export default function OrdersList({
         return (
           <Box sx={{ display: 'flex', gap: '8px' }}>
             {row.category ? (
-              <JobTypeChip type={row.category} label={row.category} />
+              <JobTypeChip
+                type={row.category}
+                label={row.category}
+                size='small'
+              />
             ) : (
               '-'
             )}
 
             {row.serviceType && row.serviceType.length > 0 ? (
-              <ServiceTypeChip label={row.serviceType[0]} />
+              <ServiceTypeChip label={row.serviceType[0]} size='small' />
             ) : (
               '-'
             )}
 
             {row.serviceType && row.serviceType.length > 1 ? (
-              <ExtraNumberChip label={`+${row.serviceType.slice(1).length}`} />
+              <ExtraNumberChip
+                label={`+${row.serviceType.slice(1).length}`}
+                size='small'
+              />
             ) : null}
           </Box>
         )
