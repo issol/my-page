@@ -804,7 +804,7 @@ export default function ItemForm({
                     render={({ field: { value, onChange, onBlur } }) => (
                       <TextField
                         fullWidth
-                        autoFocus={value !== null && value.length < 2}
+                        autoFocus={Boolean(value && value?.length < 2)}
                         label='Item name*'
                         variant='outlined'
                         value={value ?? ''}
