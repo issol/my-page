@@ -35,6 +35,7 @@ export const orderProjectInfoSchema = yup.object().shape({
   revenueFrom: yup
     .string()
     .oneOf(['United States', 'Korea', 'Singapore', 'Japan'])
+    .nullable()
     .required(FormErrors.required),
   orderedAt: yup.date().required(FormErrors.required),
   orderTimezone: yup.object().shape({
