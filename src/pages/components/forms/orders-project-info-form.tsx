@@ -390,7 +390,6 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              autoFocus
               label='Project name*'
               variant='outlined'
               value={value ?? ''}
