@@ -59,7 +59,7 @@ import useModal from '@src/hooks/useModal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 // import styled from 'styled-components'
-import { styled } from '@mui/material/styles'
+import { styled, lighten, darken } from '@mui/material/styles'
 import _ from 'lodash'
 
 type Props = {
@@ -370,6 +370,21 @@ export default function ItemPriceUnitForm({
                     fullWidth
                     options={options}
                     groupBy={option => option?.groupName}
+                    renderGroup={params => (
+                      <li key={params.key}>
+                        <GroupHeader>
+                          <Typography
+                            variant='body1'
+                            fontWeight={700}
+                            fontSize={16}
+                            // sx={{ border: '1px solid', lineHeight: '16px' }}
+                          >
+                            {params.group}
+                          </Typography>
+                        </GroupHeader>
+                        <GroupItems>{params.children}</GroupItems>
+                      </li>
+                    )}
                     getOptionLabel={option => {
                       const title =
                         option?.quantity && option?.quantity >= 2
@@ -971,3 +986,16 @@ export default function ItemPriceUnitForm({
     </Grid>
   )
 }
+
+const GroupHeader = styled('div')(({ theme }) => ({
+  // position: 'sticky',
+  // top: '-8px',
+  // height: '50px',
+  display: 'flex',
+
+  padding: '6px 16px',
+}))
+
+const GroupItems = styled('ul')({
+  padding: '6px 16px',
+})
