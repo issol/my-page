@@ -351,7 +351,7 @@ export default function AddLanguagePairForm({
                     // row가 갑자기 여러번 리랜더링 되는 현상이 있음
                     console.log('Re-rendering-row', row)
                     return (
-                      <TableRow hover tabIndex={-1} key={row.id}>
+                      <TableRow tabIndex={-1} key={row.id}>
                         <TableCell>
                           <Box display='flex' alignItems='center' gap='4px'>
                             <Typography fontWeight='bold' variant='body2'>

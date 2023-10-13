@@ -133,7 +133,7 @@ export default function OrderList() {
     setHideCompletedOrders(event.target.checked)
     setFilters(prevState => ({
       ...prevState,
-      hideCompletedOrders: event.target.checked ? 1 : 0,
+      hideCompleted: event.target.checked ? '1' : '0',
     }))
   }
 

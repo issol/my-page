@@ -7,7 +7,7 @@ import {
 } from 'src/types/sign/personalInfoTypes'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 
-export type RoleType = 'CLIENT' | 'PRO' | 'LPM' | 'TAD'
+export type RoleType = 'CLIENT' | 'PRO' | 'LPM' | 'TAD' | 'ACCOUNT_MANAGER'
 export type UserType = 'Master' | 'Manager' | 'General'
 
 export type UserRoleType = {

@@ -216,6 +216,7 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
+              placeholderText='MM/DD/YYYY, HH:MM'
               selected={!value ? null : formattedNow(new Date(value))}
               onChange={e => {
                 console.log(e)
@@ -390,7 +391,6 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              autoFocus
               label='Project name*'
               variant='outlined'
               value={value ?? ''}
@@ -447,6 +447,10 @@ export default function ProjectInfoForm({
                 fullWidth
                 disabled={!category}
                 multiple
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
+                }}
+                disableCloseOnSelect
                 options={
                   !category || !ServiceTypePair[category]
                     ? ServiceTypeList
@@ -465,6 +469,12 @@ export default function ProjectInfoForm({
                     label='Service type'
                     // placeholder='Service type'
                   />
+                )}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 2 }} />
+                    {option.label}
+                  </li>
                 )}
               />
             )
@@ -535,7 +545,7 @@ export default function ProjectInfoForm({
                     {...params}
                     error={Boolean(errors.revenueFrom)}
                     label='Revenue from*'
-                    placeholder='Revenue from*'
+                    // placeholder='Revenue from*'
                   />
                 )}
               />
@@ -556,6 +566,7 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
+              placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
                 <CustomInput label='Project due date' icon='calendar' />
               }
