@@ -122,11 +122,13 @@ const ViewPrices = ({
   useEffect(() => {
     if (jobPriceHistory && jobPriceHistory.detail.length) setShowPriceHistory(true)
   }, [])
-
   const PriceHistory = ({item}: {item:ItemType[]}) => {
     return (
       <Card sx={{ padding: '24px', backgroundColor: 'rgba(76, 78, 100, 0.5)' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* 현재 Price를 부를때는 jobInfo의 pro 정보를 호출함 */}
+          {/* Price history에서 부를때는 history 데이터 내에 pro 정보 호출함 */}
+          {/* Request history의 Price에서는 안씀 */}
           {!row.proId ? (
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
