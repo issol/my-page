@@ -184,9 +184,9 @@ export default function JobHistory({
                         }}
                       >
                         <HistoryDetail
-                          id={params.row.id}
+                          id={params.row.historyId}
                           originJobInfo={originJobInfo}
-                          title={`[Request .${params.row.version}] ${jobCorId}`}
+                          title={`[Request .${params.row.historyId}] ${jobCorId}`}
                           row={params.row}
                           onClose={() => closeModal('history-detail')}
                           orderDetail={orderDetail}
