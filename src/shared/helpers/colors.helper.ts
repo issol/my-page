@@ -87,7 +87,7 @@ export function getOrderStatusColor(
       : status === 10500 || status === 'Under revision'
       ? '#26C6F9'
       : status === 10600 || status === 'Partially delivered'
-      ? '#BA971A'
+      ? '#686A80'
       : status === 10700 || status === 'Delivery completed'
       ? '#1A6BBA'
       : status === 10800 || status === 'Redelivery requested'

@@ -15,6 +15,7 @@ import {
   Button,
   Grid,
   IconButton,
+  ListItem,
   TextField,
   Typography,
 } from '@mui/material'
@@ -58,7 +59,8 @@ import useModal from '@src/hooks/useModal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 // import styled from 'styled-components'
-import { styled } from '@mui/material/styles'
+import { styled, lighten, darken } from '@mui/material/styles'
+import _ from 'lodash'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -139,7 +141,6 @@ export default function ItemPriceUnitForm({
   const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
   const nestSubPriceUnits = (idx: number) => {
     const nestedData: Array<NestedPriceUnitType> = []
-    console.log('priceUnitsList', priceUnitsList)
 
     const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
       ...item,
@@ -163,7 +164,6 @@ export default function ItemPriceUnitForm({
 
     // const data = matchingUnit?.concat(filteredPriceUnit)
     const data = [...matchingUnit, ...priceUnit]
-    console.log(data)
 
     // const uniqueArray = Array.from(new Set(data.map(item => item.priceUnitId)))
     // .map(priceUnitId => data.find(item => item.priceUnitId === priceUnitId))
@@ -196,7 +196,8 @@ export default function ItemPriceUnitForm({
     }
 
     allPriceUnits.current = data
-    return nestedData
+
+    return _.uniqBy(data, 'id')
   }
 
   function PercentPrice(quantity: number) {
@@ -303,11 +304,9 @@ export default function ItemPriceUnitForm({
     const [open, setOpen] = useState(false)
     const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
     const options = nestSubPriceUnits(idx)
-    console.log(options)
 
     return (
       <TableRow
-        hover
         tabIndex={-1}
         // onMouseLeave={() => {
         //   updateTotalPrice()
@@ -368,10 +367,24 @@ export default function ItemPriceUnitForm({
                   ) || null
                 return (
                   <Autocomplete
-                    autoHighlight
                     fullWidth
                     options={options}
                     groupBy={option => option?.groupName}
+                    renderGroup={params => (
+                      <li key={params.key}>
+                        <GroupHeader>
+                          <Typography
+                            variant='body1'
+                            fontWeight={700}
+                            fontSize={16}
+                            // sx={{ border: '1px solid', lineHeight: '16px' }}
+                          >
+                            {params.group}
+                          </Typography>
+                        </GroupHeader>
+                        <GroupItems>{params.children}</GroupItems>
+                      </li>
+                    )}
                     getOptionLabel={option => {
                       const title =
                         option?.quantity && option?.quantity >= 2
@@ -379,10 +392,66 @@ export default function ItemPriceUnitForm({
                           : option.title
                       return title
                     }}
+                    onChange={(e, v) => {
+                      if (v) {
+                        setOpen(false)
+
+                        onChange(v.priceUnitId)
+
+                        const unitPrice = priceFactor
+                          ? priceFactor * v.price
+                          : v.price
+                        update(idx, {
+                          ...savedValue,
+                          priceUnitId: v.priceUnitId,
+                          quantity: v.quantity ?? 0,
+                          unit: v.unit,
+                          unitPrice: priceFactor
+                            ? priceFactor * v.price
+                            : v.price,
+                          priceFactor: priceFactor?.toString(),
+                          prices:
+                            v.unit !== 'Percent'
+                              ? v.quantity! * unitPrice
+                              : PercentPrice(v.quantity!),
+                        })
+                        if (v.subPriceUnits && v.subPriceUnits.length > 0) {
+                          v.subPriceUnits.forEach(item => {
+                            const unitPrice = priceFactor
+                              ? priceFactor * item.price
+                              : item.price
+
+                            append({
+                              ...savedValue,
+                              priceFactor: priceFactor?.toString(),
+                              priceUnitId: item.priceUnitId,
+                              quantity: item.quantity!,
+                              unit: item.unit,
+                              unitPrice: unitPrice,
+                              prices:
+                                item.unit !== 'Percent'
+                                  ? item.quantity! * unitPrice
+                                  : PercentPrice(item.quantity!),
+                            })
+                          })
+                        }
+                      }
+                    }}
                     renderOption={(props, option, state) => {
                       return (
-                        <Box>
-                          <Box
+                        <>
+                          <li {...props}>
+                            {option.parentPriceUnitId === null ? null : (
+                              <Icon
+                                icon='material-symbols:subdirectory-arrow-right'
+                                opacity={0.7}
+                              />
+                            )}
+                            {option?.quantity && option?.quantity >= 2
+                              ? `${option?.quantity} ${option.title}`
+                              : option.title}
+                          </li>
+                          {/* <Box
                             component='li'
                             padding='4px 0'
                             {...props}
@@ -462,8 +531,8 @@ export default function ItemPriceUnitForm({
                                 ? `${sub?.quantity} ${sub.title}`
                                 : sub.title}
                             </Box>
-                          ))}
-                        </Box>
+                          ))} */}
+                        </>
                       )
                     }}
                     open={open}
@@ -481,8 +550,8 @@ export default function ItemPriceUnitForm({
                     renderInput={params => (
                       <TextField
                         {...params}
-                        label='Price unit*'
-                        placeholder='Price unit*'
+                        // label='Price unit*'
+                        placeholder={open ? '' : 'Price unit*'}
                       />
                     )}
                   />
@@ -722,10 +791,7 @@ export default function ItemPriceUnitForm({
               <Row key={row.id} idx={idx} />
             ))}
             {showMinimum && !isNotApplicable ? (
-              <TableRow
-                hover
-                tabIndex={-1} /* onBlur={() => onItemBoxLeave()} */
-              >
+              <TableRow tabIndex={-1} /* onBlur={() => onItemBoxLeave()} */>
                 <TableCell>
                   <Typography color='primary' fontSize={14}>
                     1
@@ -920,3 +986,16 @@ export default function ItemPriceUnitForm({
     </Grid>
   )
 }
+
+const GroupHeader = styled('div')(({ theme }) => ({
+  // position: 'sticky',
+  // top: '-8px',
+  // height: '50px',
+  display: 'flex',
+
+  padding: '6px 16px',
+}))
+
+const GroupItems = styled('ul')({
+  padding: '6px 16px',
+})
