@@ -701,7 +701,7 @@ const ReceivableInvoiceDetail = () => {
           invoiceInfo!.isTaxable && priceInfo
             ? formatCurrency(
                 formatByRoundingProcedure(
-                  subtotal - tax,
+                  subtotal + tax,
                   priceInfo?.decimalPlace ?? 0,
                   priceInfo?.roundingProcedure ??
                     PriceRoundingResponseEnum.Type_0,
