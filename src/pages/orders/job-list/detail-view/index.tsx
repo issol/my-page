@@ -14,6 +14,7 @@ import {
   useEffect,
   useContext,
   Fragment,
+  useRef,
 } from 'react'
 
 import Prices from './components/prices/edit-prices'
@@ -91,12 +92,15 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     { value: string; label: string; userId: any }[]
   >([])
   const [jobId, setJobId] = useState(row.id)
+  const cachedJobIdRef = useRef(jobId)
+  if (jobId !== undefined) {
+    cachedJobIdRef.current = jobId;
+  }
   const [editJobInfo, setEditJobInfo] = useState(false)
   const [editPrices, setEditPrices] = useState(false)
 
-  const { data: jobInfo, isLoading } = useGetJobInfo(jobId, false)
-  // const { data: jobAssignProList } = useGetAssignProList(row.id, {}, false)
-  const { data: jobPrices } = useGetJobPrices(jobId, false)
+  const { data: jobInfo, isLoading } = useGetJobInfo(cachedJobIdRef.current, false)
+  const { data: jobPrices } = useGetJobPrices(cachedJobIdRef.current, false)
   const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } = useGetJobPriceHistory(jobId)
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
