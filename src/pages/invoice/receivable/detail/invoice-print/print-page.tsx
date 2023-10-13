@@ -32,6 +32,7 @@ type Props = {
 }
 
 const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
+  console.log("data",data)
   const router = useRouter()
   const dispatch = useAppDispatch()
 
@@ -403,7 +404,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                   display: 'flex',
                   justifyContent: 'flex-end',
                   gap: '50px',
-                  paddingRight: '16%',
+                  paddingRight: '11%',
 
                   mt: '10px',
                 }}
@@ -450,7 +451,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                     display: 'flex',
                     justifyContent: 'flex-end',
 
-                    paddingRight: '16%',
+                    paddingRight: '11%',
 
                     mt: '10px',
                   }}
@@ -475,7 +476,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                         textAlign: 'right',
                       }}
                     >
-                      {lang === 'EN' ? 'Tax' : '세액'}(-{data.taxPercent}%):
+                      {lang === 'EN' ? 'Tax' : '세액'}({data.taxPercent}%):
                     </Typography>
                     <Typography
                       variant='subtitle1'
@@ -487,7 +488,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                         textAlign: 'right',
                       }}
                     >
-                      - {data.tax}
+                       {data.tax}
                     </Typography>
                   </Box>
                 </Box>
@@ -498,7 +499,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                   display: 'flex',
                   justifyContent: 'flex-end',
                   gap: '50px',
-                  paddingRight: '16%',
+                  paddingRight: '11%',
 
                   mt: '10px',
                 }}
