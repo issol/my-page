@@ -15,6 +15,7 @@ import {
   Button,
   Grid,
   IconButton,
+  ListItem,
   TextField,
   Typography,
 } from '@mui/material'
@@ -59,6 +60,7 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 
 // import styled from 'styled-components'
 import { styled } from '@mui/material/styles'
+import _ from 'lodash'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -196,7 +198,10 @@ export default function ItemPriceUnitForm({
     }
 
     allPriceUnits.current = data
-    return nestedData
+
+    console.log(data)
+
+    return _.uniqBy(data, 'id')
   }
 
   function PercentPrice(quantity: number) {
@@ -368,7 +373,6 @@ export default function ItemPriceUnitForm({
                   ) || null
                 return (
                   <Autocomplete
-                    autoHighlight
                     fullWidth
                     options={options}
                     groupBy={option => option?.groupName}
@@ -379,10 +383,68 @@ export default function ItemPriceUnitForm({
                           : option.title
                       return title
                     }}
+                    onChange={(e, v) => {
+                      if (v) {
+                        setOpen(false)
+
+                        onChange(v.priceUnitId)
+
+                        const unitPrice = priceFactor
+                          ? priceFactor * v.price
+                          : v.price
+                        update(idx, {
+                          ...savedValue,
+                          priceUnitId: v.priceUnitId,
+                          quantity: v.quantity ?? 0,
+                          unit: v.unit,
+                          unitPrice: priceFactor
+                            ? priceFactor * v.price
+                            : v.price,
+                          priceFactor: priceFactor?.toString(),
+                          prices:
+                            v.unit !== 'Percent'
+                              ? v.quantity! * unitPrice
+                              : PercentPrice(v.quantity!),
+                        })
+                        if (v.subPriceUnits && v.subPriceUnits.length > 0) {
+                          v.subPriceUnits.forEach(item => {
+                            const unitPrice = priceFactor
+                              ? priceFactor * item.price
+                              : item.price
+
+                            append({
+                              ...savedValue,
+                              priceFactor: priceFactor?.toString(),
+                              priceUnitId: item.priceUnitId,
+                              quantity: item.quantity!,
+                              unit: item.unit,
+                              unitPrice: unitPrice,
+                              prices:
+                                item.unit !== 'Percent'
+                                  ? item.quantity! * unitPrice
+                                  : PercentPrice(item.quantity!),
+                            })
+                          })
+                        }
+                      }
+                    }}
                     renderOption={(props, option, state) => {
+                      console.log(props)
+
                       return (
-                        <Box>
-                          <Box
+                        <>
+                          <li {...props}>
+                            {option.parentPriceUnitId === null ? null : (
+                              <Icon
+                                icon='material-symbols:subdirectory-arrow-right'
+                                opacity={0.7}
+                              />
+                            )}
+                            {option?.quantity && option?.quantity >= 2
+                              ? `${option?.quantity} ${option.title}`
+                              : option.title}
+                          </li>
+                          {/* <Box
                             component='li'
                             padding='4px 0'
                             {...props}
@@ -462,8 +524,8 @@ export default function ItemPriceUnitForm({
                                 ? `${sub?.quantity} ${sub.title}`
                                 : sub.title}
                             </Box>
-                          ))}
-                        </Box>
+                          ))} */}
+                        </>
                       )
                     }}
                     open={open}
