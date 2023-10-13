@@ -253,8 +253,6 @@ const OrderDetail = () => {
     Number(id!),
   )
 
-  const [tax, setTax] = useState<number | null>(projectInfo!.tax)
-  const [taxable, setTaxable] = useState(projectInfo?.isTaxable ?? false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const currentStatus = useMemo(
@@ -995,8 +993,8 @@ const OrderDetail = () => {
       try {
         updateProject.mutate(
           {
-            isTaxable: taxable ? '1' : '0',
-            tax,
+            isTaxable: getProjectInfo('isTaxable') ? '1' : '0',
+            tax: getProjectInfo('tax'),
             subtotal: subtotal,
             languagePairs: langs,
             items: items,
@@ -1795,12 +1793,12 @@ const OrderDetail = () => {
                         {langItemsEdit ? (
                           <Checkbox
                             disabled={!langItemsEdit}
-                            checked={taxable}
+                            checked={getProjectInfo('isTaxable')}
                             onChange={e => {
                               if (!e.target.checked) {
-                                setTax(null)
+                                setProjectInfo('tax', null)
                               }
-                              setTaxable(e.target.checked)
+                              setProjectInfo('isTaxable', e.target.checked)
                             }}
                           />
                         ) : null}
@@ -1813,20 +1811,26 @@ const OrderDetail = () => {
                             <TextField
                               size='small'
                               type='number'
-                              value={!tax ? '-' : tax}
-                              disabled={!taxable}
+                              value={
+                                !getProjectInfo('tax')
+                                  ? '-'
+                                  : getProjectInfo('tax')
+                              }
+                              disabled={!getProjectInfo('isTaxable')}
                               sx={{ maxWidth: '120px', padding: 0 }}
                               inputProps={{ inputMode: 'decimal' }}
                               onChange={e => {
                                 if (e.target.value.length > 10) return
-                                setTax(Number(e.target.value))
+                                setProjectInfo('tax', Number(e.target.value))
                               }}
                             />
                             %
                           </>
                         ) : (
                           <Typography variant='body1'>
-                            {tax ? `${tax} %` : null}{' '}
+                            {getProjectInfo('tax')
+                              ? `${getProjectInfo('tax')} %`
+                              : null}{' '}
                           </Typography>
                         )}
                       </Box>
@@ -1839,13 +1843,19 @@ const OrderDetail = () => {
                           onDiscard({
                             callback: () => {
                               setLangItemsEdit(false), itemReset()
-                              setTax(projectInfo?.tax!)
-                              setTaxable(projectInfo?.isTaxable!)
+                              setProjectInfo(
+                                'isTaxable',
+                                projectInfo?.isTaxable!,
+                              )
+                              setProjectInfo('tax', projectInfo?.tax ?? null)
                             },
                           }),
                         onSave: () => onSubmitItems(),
                         isValid:
-                          isItemValid || !taxable || (taxable && tax! > 0),
+                          isItemValid ||
+                          !getProjectInfo('isTaxable') ||
+                          (getProjectInfo('isTaxable') &&
+                            getProjectInfo('tax')! > 0),
                       })
                     : null}
                   {splitReady && selectedIds ? (
@@ -1885,7 +1895,10 @@ const OrderDetail = () => {
                         setValue={setClientValue}
                         getValue={getClientValue}
                         watch={clientWatch}
-                        setTaxable={setTaxable}
+                        setTaxable={(n: boolean) =>
+                          setProjectInfo('isTaxable', n)
+                        }
+                        setTax={(n: number | null) => setProjectInfo('tax', n)}
                         type='order'
                         formType='edit'
                         fromQuote={false}

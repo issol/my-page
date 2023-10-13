@@ -49,6 +49,8 @@ export type ClientRowType = {
   phone?: string | null
   fax?: string | null
   websiteLink?: string
+  tax: string | null
+  isTaxable: boolean
 }
 
 export type ClientListDataType = {
