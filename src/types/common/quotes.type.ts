@@ -151,7 +151,8 @@ export type VersionHistoryType = HistoryType & {
   id: number
   version: number
   email: string
-  downloadedAt: string
+  // downloadedAt: string
+  confirmedAt: string
 }
 
 export type HistoryType = {
