@@ -325,9 +325,11 @@ export default function Receivable() {
                     <Typography variant='h6'>
                       Invoices ({list?.totalCount ?? 0})
                     </Typography>{' '}
-                    <Button variant='contained' onClick={onClickCreateInvoice}>
-                      Create new invoice
-                    </Button>
+                    {currentRole!.name !== 'CLIENT' ?
+                      <Button variant='contained' onClick={onClickCreateInvoice}>
+                        Create new invoice
+                      </Button> : null
+                    }
                   </Box>
                 }
                 sx={{
