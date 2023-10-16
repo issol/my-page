@@ -175,7 +175,7 @@ export default function TmAnalysisForm({
           </TableHead>
           <TableBody>
             {!fields.length ? (
-              <TableRow hover tabIndex={-1}>
+              <TableRow tabIndex={-1}>
                 <TableCell colSpan={4} align='center'>
                   {type === 'detail'
                     ? 'There are no TM files uploaded'
@@ -184,7 +184,7 @@ export default function TmAnalysisForm({
               </TableRow>
             ) : (
               fields.map((item, idx) => (
-                <TableRow hover tabIndex={-1} key={item.id}>
+                <TableRow tabIndex={-1} key={item.id}>
                   <TableCell style={{ textTransform: 'capitalize' }}>
                     {item?.data?.toolName}
                   </TableCell>
