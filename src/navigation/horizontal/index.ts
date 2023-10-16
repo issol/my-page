@@ -9,6 +9,7 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'members',
       path: `/dashboards`,
+      role: ['LPM','TAD', 'ACCOUNT_MANAGER', 'CLIENT', 'PRO'],
     },
     {
       title: 'My page',
@@ -16,29 +17,32 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'pro_mypage',
       path: `/mypage/pro`,
+      role: ['PRO'],
     },
-    {
-      title: 'My page',
-      icon: 'mdi:account-circle',
-      action: 'read',
-      subject: 'my_page',
+    // TODO: 아래 메뉴 용도 확인 필요
+    // {
+    //   title: 'My page',
+    //   icon: 'mdi:account-circle',
+    //   action: 'read',
+    //   subject: 'my_page',
 
-      children: [
-        {
-          title: 'Notification Center',
-          path: '/my-page/notification-center',
-          action: 'read',
-          subject: 'my_page',
-          icon: 'mdi:account-circle',
-        },
-      ],
-    },
+    //   children: [
+    //     {
+    //       title: 'Notification Center',
+    //       path: '/my-page/notification-center',
+    //       action: 'read',
+    //       subject: 'my_page',
+    //       icon: 'mdi:account-circle',
+    //     },
+    //   ],
+    // },
     {
       title: 'Pros',
       icon: 'ic:baseline-people-outline',
       action: 'read',
       subject: 'pro',
       path: `/pro`,
+      role: ['LPM', 'TAD', 'ACCOUNT_MANAGER'],
     },
     {
       title: 'Jobs',
@@ -46,6 +50,7 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'job_list',
       path: `/jobs`,
+      role: ['PRO'],
     },
     {
       title: 'Invoices',
@@ -53,13 +58,14 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'invoice_pro',
       path: '/invoice/pro',
+      role: ['PRO'],
     },
     {
       title: 'Clients',
       icon: 'mdi:account-star-outline',
       action: 'read',
       subject: 'client',
-
+      role: ['LPM','ACCOUNT_MANAGER'],
       children: [
         {
           title: 'Client List',
@@ -83,6 +89,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:person-search-outline',
       action: 'read',
       subject: 'recruiting',
+      role: ['TAD'],
       children: [
         {
           title: 'Recruiting Info',
@@ -106,12 +113,14 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'members',
       path: `/account`,
+      role: ['LPM','TAD','ACCOUNT_MANAGER','CLIENT'],
     },
     {
       title: 'Onboarding',
       icon: 'mdi:account-outline',
       action: 'read',
       subject: 'onboarding',
+      role: ['TAD'],
       children: [
         {
           title: 'Onboarding List',
@@ -135,12 +144,14 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'certification_test',
       path: `/certification-test`,
+      role: ['TAD'],
     },
     {
       title: 'Company',
       icon: 'mdi:briefcase-outline',
       action: 'update',
       subject: 'permission_request',
+      role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT'],
       children: [
         {
           title: 'Members',
@@ -177,6 +188,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:request-quote-outline',
       action: 'read',
       subject: 'quote',
+      role: ['LPM', 'ACCOUNT_MANAGER', 'CLIENT'],
       children: [
         {
           title: 'Request List',
@@ -206,6 +218,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:list-alt-outline-sharp',
       action: 'read',
       subject: 'order',
+      role: ['LPM', 'ACCOUNT_MANAGER', 'CLIENT'],
       children: [
         {
           title: 'Order List',
@@ -229,6 +242,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:receipt-long',
       action: 'read',
       subject: 'invoice_receivable',
+      role: ['LPM','ACCOUNT_MANAGER'],
       children: [
         {
           title: 'Receivables',
@@ -246,6 +260,14 @@ const navigation = (): HorizontalNavItemsType => {
           subject: 'invoice_payable',
         },
       ],
+    },
+    {
+      title: 'Invoices',
+      icon: 'material-symbols:receipt-long',
+      action: 'read',
+      subject: 'invoice_receivable',
+      path: `/invoice/receivable`,
+      role: ['CLIENT'],
     },
   ]
 }

@@ -58,6 +58,12 @@ export type NavGroup = {
     | 'error'
     | 'warning'
     | 'info'
+    role?:
+    (| 'TAD'
+    | 'LPM'
+    | 'CLIENT'
+    | 'PRO'
+    | 'ACCOUNT_MANAGER')[]
 }
 
 export type NavLink = {
@@ -78,6 +84,12 @@ export type NavLink = {
     | 'error'
     | 'warning'
     | 'info'
+  role?:
+    (| 'TAD'
+    | 'LPM'
+    | 'CLIENT'
+    | 'PRO'
+    | 'ACCOUNT_MANAGER')[]
 }
 
 export type VerticalNavItemsType = (NavLink | NavGroup | NavSectionTitle)[]
