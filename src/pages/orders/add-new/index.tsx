@@ -445,7 +445,7 @@ export default function AddNewOrder() {
             <>
               Are you sure you want to create this order?
               <Typography variant='body2' fontWeight={600} fontSize={16}>
-                ${getProjectInfoValues().projectName}
+                {getProjectInfoValues().projectName}
               </Typography>
             </>
           }
