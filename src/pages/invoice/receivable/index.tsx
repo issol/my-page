@@ -139,7 +139,7 @@ export default function Receivable() {
   const [categoryList, setCategoryList] = useState(CategoryList)
   const currentRole = getCurrentRole()
 
-  const { data: list, isLoading } = useGetReceivableList(defaultFilters)
+  const { data: list, isLoading } = useGetReceivableList(filters)
   const { data: statusList, isLoading: statusListLoading } =
     useGetStatusList('InvoiceReceivable')
 
@@ -211,6 +211,7 @@ export default function Receivable() {
     }
 
     setFilters(filter)
+    console.log("check filter",filters)
   }
 
   function onReset() {
