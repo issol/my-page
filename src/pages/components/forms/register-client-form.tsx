@@ -89,7 +89,7 @@ export default function RegisterClientForm({
 
   const clientId = watch('clientId')
   const contacts = watch('contacts')
-
+  console.log("contacts",contacts)
   useEffect(() => {
     if (!clientId) {
       reset &&
@@ -571,7 +571,7 @@ export default function RegisterClientForm({
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Shipping address{' '}
                     <span style={{ fontWeight: 600 }}>
-                      {getValue().contactPersonId
+                      {handleShowLabelAndPlaceHolder(Boolean(getAddress(contacts?.addresses, 'shipping')))
                         ? getAddress(contacts?.addresses, 'shipping')
                         : '-'}
                     </span>
@@ -587,7 +587,7 @@ export default function RegisterClientForm({
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Billing address{' '}
                     <span style={{ fontWeight: 600 }}>
-                      {getValue().contactPersonId
+                      {handleShowLabelAndPlaceHolder(Boolean(getAddress(contacts?.addresses, 'billing')))
                         ? getAddress(contacts?.addresses, 'billing')
                         : '-'}
                     </span>

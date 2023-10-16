@@ -938,12 +938,16 @@ const OrderDetail = () => {
     }
 
     if (client) {
+      console.log("client",client)
       clientReset({
         clientId: client.client.clientId,
         contactPersonId: client.contactPerson?.id,
         addressType: client.clientAddress.find(value => value.isSelected)
           ?.addressType!,
-        contacts: client.contactPerson!
+        contacts: {
+          ...client.contactPerson!,
+          addresses: client.clientAddress,
+        }
       })
     }
   }, [langItem, projectTeam, projectInfo, client])
