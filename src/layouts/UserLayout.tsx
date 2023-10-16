@@ -98,29 +98,38 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       switch (current.name) {
         case 'TAD':
           setSortedMenu(
-            HorizontalNavItems().filter(value => TADMenu.includes(value.title)),
+            HorizontalNavItems().filter(value => {
+              return TADMenu.includes(value.title) && value.role?.includes('TAD')
+            }),
           )
           break
         case 'LPM':
           setSortedMenu(
-            HorizontalNavItems().filter(value => LPMMenu.includes(value.title)),
+            HorizontalNavItems().filter(value => {
+              return LPMMenu.includes(value.title) && value.role?.includes('LPM')
+            }),
           )
           break
         case 'PRO':
           setSortedMenu(
-            HorizontalNavItems().filter(value => PROMenu.includes(value.title)),
+            HorizontalNavItems().filter(value => {
+              return PROMenu.includes(value.title) && value.role?.includes('PRO')
+            }),
           )
           break
         case 'CLIENT':
           setSortedMenu(
-            HorizontalNavItems().filter(value =>
-              CLIENTMenu.includes(value.title),
+            HorizontalNavItems().filter(value => {
+              return CLIENTMenu.includes(value.title) && value.role?.includes('CLIENT')
+            }
             ),
           )
           break
         case 'ACCOUNT_MANAGER':
           setSortedMenu(
-            HorizontalNavItems().filter(value => LPMMenu.includes(value.title)),
+            HorizontalNavItems().filter(value => {
+              return LPMMenu.includes(value.title) && value.role?.includes('ACCOUNT_MANAGER')
+            }),
           )
           break
 
