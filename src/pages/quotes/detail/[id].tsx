@@ -416,8 +416,8 @@ export default function QuotesDetail() {
         },
       })
 
-      setTax(project.tax ?? null)
-      setTaxable(project.isTaxable)
+      setProjectInfo('tax', project.tax)
+      setProjectInfo('isTaxable', project.isTaxable)
       setProjectInfo('quoteDate', {
         date: project.quoteDate,
         timezone: project.quoteDateTimezone ?? defaultTimezone,
@@ -716,9 +716,6 @@ export default function QuotesDetail() {
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
-  const [tax, setTax] = useState<number | null>(project!.tax)
-  const [taxable, setTaxable] = useState(project?.isTaxable || false)
-
   // ** Version history
   const [historyPageSize, setHistoryPageSize] = useState(10)
   const { data: versionHistory, isLoading: versionHistoryLoading } =
@@ -998,8 +995,8 @@ export default function QuotesDetail() {
         // await patchQuoteItems(Number(id), items)
         updateProject.mutate(
           {
-            tax,
-            isTaxable: taxable,
+            tax: getProjectInfoValues('tax'),
+            isTaxable: getProjectInfoValues('isTaxable'),
             subtotal: subtotal,
             languagePairs: langs,
             items: items,
@@ -1697,10 +1694,10 @@ export default function QuotesDetail() {
                   removeItems={removeItems}
                   getTeamValues={getTeamValues}
                   appendItems={appendItems}
-                  tax={tax}
-                  setTax={setTax}
-                  taxable={taxable}
-                  setTaxable={setTaxable}
+                  tax={getProjectInfoValues('tax')}
+                  setTax={(n: number | null) => setProjectInfo('tax', n)}
+                  taxable={getProjectInfoValues('isTaxable')}
+                  setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                   isEditMode={editItems}
                   setIsEditMode={setEditItems}
                   isUpdatable={canUseFeature('tab-Languages&Items')}
@@ -1718,7 +1715,11 @@ export default function QuotesDetail() {
                           },
                         }),
                       onSave: () => onItemSave(),
-                      isValid: isItemValid || !taxable || (taxable && tax! > 0),
+                      isValid:
+                        isItemValid ||
+                        !getProjectInfoValues('isTaxable') ||
+                        (getProjectInfoValues('isTaxable') &&
+                          getProjectInfoValues('tax')! > 0),
                     })
                   : null}
               </CardContent>
@@ -1734,7 +1735,8 @@ export default function QuotesDetail() {
                     control={clientControl}
                     setValue={setClientValue}
                     watch={clientWatch}
-                    setTaxable={setTaxable}
+                    setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
+                    setTax={(n: number | null) => setProjectInfo('tax', n)}
                     type='quotes'
                     formType='edit'
                     getValue={getClientValue}

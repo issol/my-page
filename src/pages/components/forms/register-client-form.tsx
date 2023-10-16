@@ -47,10 +47,11 @@ type Props = {
   control: Control<ClientFormType, any>
   setValue: UseFormSetValue<ClientFormType>
   watch: UseFormWatch<ClientFormType>
-  clientList: Array<{ value: number; label: string }>
+  clientList: Array<{ value: number; label: string; tax: number | null }>
   trigger?: UseFormTrigger<ClientFormType>
 
   setTaxable: (n: boolean) => void
+  setTax: (n: number | null) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'create' | 'edit'
   getValue: UseFormGetValues<ClientFormType>
@@ -67,6 +68,7 @@ export default function RegisterClientForm({
   clientList,
 
   setTaxable,
+  setTax,
   type,
   formType,
   getValue,
@@ -139,6 +141,7 @@ export default function RegisterClientForm({
 
         if (res.isTaxable && res.tax) {
           setTaxable(res.isTaxable)
+          setTax(res.tax)
         }
         if (res?.contactPersons?.length) {
           const result = res.contactPersons.map(item => ({
@@ -218,12 +221,14 @@ export default function RegisterClientForm({
                 }}
                 onChange={(e, v) => {
                   if (v) {
+                    setTax(selectedClient?.tax ?? null)
                     onChange(v.value)
                   } else {
                     onChange(null)
                     reset &&
                       reset({
                         clientId: null,
+
                         contactPersonId: null,
                         contacts: {
                           timezone: { code: '', label: '', phone: '' },
@@ -247,7 +252,7 @@ export default function RegisterClientForm({
                   (fromQuote && getValue('isEnrolledClient'))
                 }
                 disableClearable={getValue('clientId') === null}
-                value={selectedClient || { value: -0, label: '' }}
+                value={selectedClient || { value: -0, label: '', tax: null }}
                 renderInput={params => (
                   <TextField
                     {...params}

@@ -341,13 +341,10 @@ export default function AddNewOrder() {
             title={
               <>
                 Are you sure you want to delete this language pair? <br />
-                <Typography
-                  variant='body2'
-                  fontSize={16}
-                  fontWeight={600}
-                >{`${languageHelper(row.source)} -> ${languageHelper(
-                  row.target,
-                )}`}</Typography>
+                <Typography variant='body2' fontSize={16} fontWeight={600}>
+                  {languageHelper(row.source)}&nbsp;&rarr;&nbsp;
+                  {languageHelper(row.target)}
+                </Typography>
               </>
             }
             onClose={() => closeModal('delete-language')}
@@ -832,6 +829,8 @@ export default function AddNewOrder() {
           console.log(res)
 
           getClientDetail(res.client.clientId).then(data => {
+            console.log(data)
+
             const addressType = res.clientAddress.find(
               address => address.isSelected,
             )?.addressType
@@ -1039,6 +1038,7 @@ export default function AddNewOrder() {
                 setValue={setClientValue}
                 watch={clientWatch}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
+                setTax={(n: number | null) => setProjectInfo('tax', n)}
                 type={requestId ? 'request' : 'order'}
                 formType={'create'}
                 getValue={getClientValue}

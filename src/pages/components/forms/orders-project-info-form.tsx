@@ -408,9 +408,9 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <Autocomplete
-              autoHighlight
               fullWidth
               options={CategoryList}
+              disableClearable={value ? false : true}
               onChange={(e, v) => {
                 if (!v) {
                   setValue('serviceType', [], setValueOptions)
@@ -428,7 +428,6 @@ export default function ProjectInfoForm({
                   {...params}
                   error={Boolean(errors.category)}
                   label='Category'
-                  placeholder='Category'
                 />
               )}
             />
@@ -526,14 +525,14 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => {
             return (
               <Autocomplete
-                autoHighlight
                 fullWidth
                 options={RevenueFrom.sort((a, b) =>
                   a.value > b.value ? 1 : b.value > a.value ? -1 : 0,
                 )}
                 onChange={(e, v) => {
-                  onChange(v?.value ?? '')
+                  onChange(v?.value ?? null)
                 }}
+                disableClearable={value ? false : true}
                 value={
                   RevenueFrom.find(item => value?.includes(item.value)) || {
                     value: '',

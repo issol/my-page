@@ -682,6 +682,7 @@ export default function AddNewInvoice() {
                 setValue={setClientValue}
                 watch={clientWatch}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
+                setTax={(n: number | null) => setProjectInfo('tax', n)}
                 type='invoice'
                 formType='create'
                 getValue={getClientValue}
