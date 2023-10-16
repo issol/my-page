@@ -286,6 +286,18 @@ const OrderDetail = () => {
       clientId: NOT_APPLICABLE,
       contactPersonId: NOT_APPLICABLE,
       addressType: 'shipping',
+      contacts: {
+        timezone: {
+          code: '',
+          label: '',
+          phone: '',
+        },
+        phone: '',
+        mobile: '',
+        fax: '',
+        email: '',
+        addresses: []
+      }
     },
     resolver: yupResolver(clientSchema),
   })
@@ -741,7 +753,6 @@ const OrderDetail = () => {
 
   useEffect(() => {
     if (order.isReady && order.orderTotalData) {
-      console.log(order)
       openModal({
         type: 'PreviewModal',
         isCloseable: false,
@@ -880,8 +891,6 @@ const OrderDetail = () => {
         return aIndex - bIndex
       })
 
-      console.log(res)
-
       if (viewTeams.length) setTeams(res)
 
       const teams: Array<{
@@ -934,6 +943,7 @@ const OrderDetail = () => {
         contactPersonId: client.contactPerson?.id,
         addressType: client.clientAddress.find(value => value.isSelected)
           ?.addressType!,
+        contacts: client.contactPerson!
       })
     }
   }, [langItem, projectTeam, projectInfo, client])
@@ -1047,8 +1057,6 @@ const OrderDetail = () => {
     (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
       onSuccess: (data: any) => {
-        console.log(data)
-
         setProjectInfoEdit(false)
         setClientEdit(false)
         setProjectTeamEdit(false)
@@ -1115,7 +1123,6 @@ const OrderDetail = () => {
 
   function onProjectTeamSave() {
     const teams = transformTeamData(getTeamValues())
-    console.log(teams)
     const res: ProjectTeamFormType = {
       projectManagerId: teams.projectManagerId ? teams.projectManagerId : null,
       supervisorId: teams.supervisorId ? teams.supervisorId : null,
