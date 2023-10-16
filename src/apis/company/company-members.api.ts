@@ -66,5 +66,5 @@ export const patchMember = async (data: {
 }
 
 export const deleteMember = async (userId: number) => {
-  await axios.delete(`/api/enough/a/role/${userId}`)
+  await axios.delete(`/api/enough/u/pu/${userId}`)
 }
