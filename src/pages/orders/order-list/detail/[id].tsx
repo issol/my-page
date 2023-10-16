@@ -298,6 +298,18 @@ const OrderDetail = () => {
         email: '',
         addresses: []
       }
+      contacts: {
+        timezone: {
+          code: '',
+          label: '',
+          phone: '',
+        },
+        phone: '',
+        mobile: '',
+        fax: '',
+        email: '',
+        addresses: []
+      }
     },
     resolver: yupResolver(clientSchema),
   })
@@ -945,10 +957,7 @@ const OrderDetail = () => {
         contactPersonId: client.contactPerson?.id,
         addressType: client.clientAddress.find(value => value.isSelected)
           ?.addressType!,
-        contacts: {
-          ...client.contactPerson!,
-          addresses: client.clientAddress,
-        }
+        contacts: client.contactPerson!
       })
     }
   }, [langItem, projectTeam, projectInfo, client])
