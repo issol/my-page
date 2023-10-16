@@ -139,7 +139,7 @@ export default function Receivable() {
   const [categoryList, setCategoryList] = useState(CategoryList)
   const currentRole = getCurrentRole()
 
-  const { data: list, isLoading } = useGetReceivableList(defaultFilters)
+  const { data: list, isLoading } = useGetReceivableList(filters)
   const { data: statusList, isLoading: statusListLoading } =
     useGetStatusList('InvoiceReceivable')
 
@@ -211,6 +211,7 @@ export default function Receivable() {
     }
 
     setFilters(filter)
+    console.log("check filter",filters)
   }
 
   function onReset() {
@@ -324,9 +325,11 @@ export default function Receivable() {
                     <Typography variant='h6'>
                       Invoices ({list?.totalCount ?? 0})
                     </Typography>{' '}
-                    <Button variant='contained' onClick={onClickCreateInvoice}>
-                      Create new invoice
-                    </Button>
+                    {currentRole!.name !== 'CLIENT' ?
+                      <Button variant='contained' onClick={onClickCreateInvoice}>
+                        Create new invoice
+                      </Button> : null
+                    }
                   </Box>
                 }
                 sx={{

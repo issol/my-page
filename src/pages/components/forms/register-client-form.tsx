@@ -89,10 +89,8 @@ export default function RegisterClientForm({
 
   const clientId = watch('clientId')
   const contacts = watch('contacts')
-
+  console.log("contacts",contacts)
   useEffect(() => {
-    console.log(clientId)
-
     if (!clientId) {
       reset &&
         reset({
@@ -112,19 +110,14 @@ export default function RegisterClientForm({
       getDetail(clientId, false)
     }
   }, [clientId])
-  console.log(getValue())
 
   function getDetail(id: number, resetClientId = true) {
-    console.log(id)
-
     return getClientDetail(id)
       .then(res => {
         setClientDetail(res)
-        console.log(res)
-
         reset &&
           reset({
-            ...getValue(),
+            // ...getValue(),
             clientId: id,
             contacts: {
               timezone: res?.timezone!,
@@ -132,7 +125,7 @@ export default function RegisterClientForm({
               mobile: res?.mobile ?? '',
               fax: res?.fax ?? '',
               email: res?.email ?? '',
-              addresses:
+              addresses: 
                 res?.clientAddresses?.filter(
                   item => item.addressType !== 'additional',
                 ) || [],
@@ -201,6 +194,14 @@ export default function RegisterClientForm({
         address.zipCode ?? ''
       }`
     } else return '-'
+  }
+
+  const handleShowLabelAndPlaceHolder = (hasValue: boolean) => {
+    if(formType === 'create') {
+      return Boolean(hasValue && getValue().contactPersonId)
+    } else {
+      return Boolean(hasValue)
+    }
   }
 
   return (
@@ -330,8 +331,6 @@ export default function RegisterClientForm({
                   } else {
                     onChange(null)
                     // setValue('clientId', clientId)
-                    console.log(clientDetail)
-
                     reset &&
                       reset({
                         clientId: clientId,
@@ -387,10 +386,9 @@ export default function RegisterClientForm({
               <TextField
                 fullWidth
                 label={
-                  value &&
-                  getValue().contactPersonId &&
-                  getGmtTimeEng(value.code) !== '-'
-                    ? 'Time zone'
+                  handleShowLabelAndPlaceHolder(
+                    Boolean(getValue('contacts.timezone') && getGmtTimeEng(getValue('contacts.timezone.code')) !== '-')
+                  ) ? 'Time zone'
                     : null
                 }
                 value={
@@ -404,9 +402,10 @@ export default function RegisterClientForm({
                 InputProps={{
                   startAdornment: (
                     <>
-                      {value &&
-                      getValue().contactPersonId &&
-                      getGmtTimeEng(value.code) !== '-' ? null : (
+                      {handleShowLabelAndPlaceHolder(
+                        Boolean(getValue('contacts.timezone') && getGmtTimeEng(getValue('contacts.timezone.code')) !== '-')
+                      ) ? null 
+                        : (
                         <Box sx={{ width: '100%' }}>Time zone</Box>
                       )}
                     </>
@@ -424,7 +423,9 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
-              label={value && getValue().contactPersonId ? 'Telephone' : null}
+              label={handleShowLabelAndPlaceHolder(
+                Boolean(getValue('contacts.phone'))
+              ) ? 'Telephone' : null}
               value={
                 !value || value === '' || !getValue().contactPersonId
                   ? ''
@@ -434,8 +435,9 @@ export default function RegisterClientForm({
               InputProps={{
                 startAdornment: (
                   <>
-                    {(value || value !== '') &&
-                    getValue().contactPersonId ? null : (
+                    {handleShowLabelAndPlaceHolder(
+                      Boolean(getValue('contacts.phone'))
+                    ) ? null : (
                       <Box sx={{ width: '100%' }}>Telephone</Box>
                     )}
                   </>
@@ -453,7 +455,9 @@ export default function RegisterClientForm({
             <TextField
               fullWidth
               label={
-                value && getValue().contactPersonId ? 'Mobile phone' : null
+                handleShowLabelAndPlaceHolder(
+                  Boolean(getValue('contacts.mobile'))
+                ) ? 'Mobile phone' : null
               }
               // placeholder='Mobile phone'
               value={
@@ -465,8 +469,9 @@ export default function RegisterClientForm({
               InputProps={{
                 startAdornment: (
                   <>
-                    {(value || value !== '') &&
-                    getValue().contactPersonId ? null : (
+                    {handleShowLabelAndPlaceHolder(
+                      Boolean(getValue('contacts.mobile'))
+                    ) ? null : (
                       <Box sx={{ width: '100%' }}>Mobile phone</Box>
                     )}
                   </>
@@ -483,7 +488,9 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
-              label={value && getValue().contactPersonId ? 'Fax' : null}
+              label={handleShowLabelAndPlaceHolder(
+                Boolean(getValue('contacts.fax'))
+              ) ? 'Fax' : null}
               // placeholder='Fax'
               value={
                 !value || value === '' || !getValue().contactPersonId
@@ -494,8 +501,9 @@ export default function RegisterClientForm({
               InputProps={{
                 startAdornment: (
                   <>
-                    {(value || value !== '') &&
-                    getValue().contactPersonId ? null : (
+                    {handleShowLabelAndPlaceHolder(
+                      Boolean(getValue('contacts.fax'))
+                    ) ? null : (
                       <Box sx={{ width: '100%' }}>Fax</Box>
                     )}
                   </>
@@ -513,7 +521,9 @@ export default function RegisterClientForm({
             <TextField
               fullWidth
               // placeholder='Email'
-              label={value && getValue().contactPersonId ? 'Email' : null}
+              label={handleShowLabelAndPlaceHolder(
+                Boolean(getValue('contacts.email'))
+              ) ? 'Email' : null}
               value={
                 !value || value === '' || !getValue().contactPersonId
                   ? ''
@@ -523,8 +533,9 @@ export default function RegisterClientForm({
               InputProps={{
                 startAdornment: (
                   <>
-                    {(value || value !== '') &&
-                    getValue().contactPersonId ? null : (
+                    {handleShowLabelAndPlaceHolder(
+                      Boolean(getValue('contacts.email'))
+                    ) ? null : (
                       <Box sx={{ width: '100%' }}>Email</Box>
                     )}{' '}
                     {}
@@ -560,7 +571,7 @@ export default function RegisterClientForm({
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Shipping address{' '}
                     <span style={{ fontWeight: 600 }}>
-                      {getValue().contactPersonId
+                      {handleShowLabelAndPlaceHolder(Boolean(getAddress(contacts?.addresses, 'shipping')))
                         ? getAddress(contacts?.addresses, 'shipping')
                         : '-'}
                     </span>
@@ -576,7 +587,7 @@ export default function RegisterClientForm({
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Billing address{' '}
                     <span style={{ fontWeight: 600 }}>
-                      {getValue().contactPersonId
+                      {handleShowLabelAndPlaceHolder(Boolean(getAddress(contacts?.addresses, 'billing')))
                         ? getAddress(contacts?.addresses, 'billing')
                         : '-'}
                     </span>

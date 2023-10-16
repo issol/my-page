@@ -161,8 +161,6 @@ export default function AddNewInvoice() {
     (data: InvoiceReceivablePatchParamsType) => createInvoice(data),
     {
       onSuccess: (data: CreateInvoiceReceivableRes) => {
-        // console.log(data)
-
         closeModal('CreateInvoiceModal')
         router.push(`/invoice/receivable/detail/${data.data.id}`)
 

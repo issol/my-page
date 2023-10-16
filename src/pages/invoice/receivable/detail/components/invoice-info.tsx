@@ -165,7 +165,6 @@ const InvoiceInfo = ({
   const [isReminder, setIsReminder] = useState(invoiceInfo.setReminder)
   const [issued, setIssued] = useState<boolean>(invoiceInfo.taxInvoiceIssued)
 
-  console.log('client?.isEnrolledClient', client?.isEnrolledClient)
   const statusLabel =
     statusList?.find(i => i.value === invoiceInfo.invoiceStatus)?.label || ''
 
@@ -341,6 +340,7 @@ const InvoiceInfo = ({
               payDueAt: data.paymentDueDate.date,
               payDueTimezone: data.paymentDueDate.timezone,
               invoiceDescription: data.invoiceDescription,
+              description: data.invoiceDescription,
 
               invoiceConfirmedAt: data.invoiceConfirmDate?.date,
               invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
