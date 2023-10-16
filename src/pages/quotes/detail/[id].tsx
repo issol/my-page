@@ -757,7 +757,7 @@ export default function QuotesDetail() {
         return (
           <Box>
             {FullDateTimezoneHelper(
-              row.downloadedAt,
+              row.confirmedAt,
               auth.getValue().user?.timezone!,
             )}
           </Box>

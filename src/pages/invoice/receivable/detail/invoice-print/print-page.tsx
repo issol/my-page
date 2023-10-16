@@ -32,7 +32,6 @@ type Props = {
 }
 
 const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
-  console.log("data",data)
   const router = useRouter()
   const dispatch = useAppDispatch()
 
