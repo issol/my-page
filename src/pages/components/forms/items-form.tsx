@@ -1277,7 +1277,8 @@ export default function ItemForm({
         currentRole &&
         currentRole.name !== 'CLIENT' &&
         orderId &&
-        fields.length ? (
+        fields.length &&
+        !splitReady ? (
           <Link
             href={`/orders/job-list/details/?orderId=${orderId}`}
             style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
