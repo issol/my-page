@@ -95,6 +95,7 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import CancelRequestModal from './modal/cancel-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
 type Props = {
   type: string
@@ -295,8 +296,35 @@ const InvoiceInfo = ({
     }
   }
 
+  const onClickShowDescription = (value: boolean) => {
+    let confirmButtonText = ''
+    let message = ''
+    if (value) {
+      confirmButtonText = 'Show'
+      message = 'Are you sure you want to show the\ninvoice description to the client?'
+    } else {
+      confirmButtonText = 'Hide'
+      message = 'Are you sure you want to hide the\ninvoice description to the client?'
+    }
+    openModal({
+      type: 'ShowDescriptionModal',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => closeModal('ShowDescriptionModal')}
+          onConfirm={() => {
+            handelChangeShowDescription(value)
+          }}
+          closeButtonText='Cancel'
+          confirmButtonText={confirmButtonText}
+          message={message}
+          vary='successful'
+        />
+      ),
+    })
+  }
+
   const handelChangeShowDescription = (
-    event: ChangeEvent<HTMLInputElement>,
+    value: boolean
   ) => {
     const data = getInvoiceInfo && getInvoiceInfo()
     if (onSave && data) {
@@ -304,7 +332,7 @@ const InvoiceInfo = ({
         id: invoiceInfo.id,
         form: {
           // ...data,
-          showDescription: event.target.checked ? '1' : '0',
+          showDescription: value ? '1' : '0',
         },
         type: 'basic',
       })
@@ -1599,23 +1627,27 @@ const InvoiceInfo = ({
                           >
                             Invoice description
                           </Typography>
-                          <Box display='flex' width={380} alignItems='center'>
-                            <Checkbox
-                              value={invoiceInfo.showDescription}
-                              onChange={handelChangeShowDescription}
-                              checked={invoiceInfo.showDescription}
-                              disabled={
-                                type === 'history' ||
-                                [30900, 301200].includes(
-                                  invoiceInfo.invoiceStatus,
-                                )
-                              }
-                            />
+                          {currentRole && currentRole.name !== 'CLIENT' ? 
+                            <Box display='flex' width={380} alignItems='center'>
+                              <Checkbox
+                                value={invoiceInfo.showDescription}
+                                onChange={(e) => {
+                                  onClickShowDescription(e.target.checked)
+                                }}
+                                checked={invoiceInfo.showDescription}
+                                disabled={
+                                  type === 'history' ||
+                                  [30900, 301200].includes(
+                                    invoiceInfo.invoiceStatus,
+                                  )
+                                }
+                              />
+                              <Typography variant='body2' display='block'>
+                                Show invoice description to client
+                              </Typography>
+                            </Box> : null
+                          }
 
-                            <Typography variant='body2' display='block'>
-                              Show invoice description to client
-                            </Typography>
-                          </Box>
                         </Box>
                         <Box
                           sx={{

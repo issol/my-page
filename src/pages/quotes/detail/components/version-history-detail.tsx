@@ -226,6 +226,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                 project={history.projectInfo}
                 setEditMode={() => null}
                 isUpdatable={false}
+                canCheckboxEdit={false}
                 role={currentRole!}
                 type='history'
                 statusList={statusList!}
