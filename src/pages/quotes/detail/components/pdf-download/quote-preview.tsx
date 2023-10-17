@@ -66,12 +66,12 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
       patchQuoteProjectInfo(data.id, data.form),
     {
       onSuccess: (data, variables) => {
-        let res;
+        let res
 
         if (typeof data === 'number' || typeof data === 'string') {
-          res = Number(data);
+          res = Number(data)
         } else if (typeof data === 'object' && data !== null) {
-          res = Number(data.id);
+          res = Number(data.id)
         }
 
         if (res === variables.id) {
@@ -98,8 +98,13 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
             form: { downloadedAt: new Date().toISOString() },
           })
         }
-        window.print()
-      }, 300)
+        try {
+          document.title = `${data.corporationId}_${data.companyName}`
+          window.print()
+        } catch (error) {
+          console.log(error)
+        }
+      }, 1000)
     }
   }, [type])
 
