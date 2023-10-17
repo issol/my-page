@@ -296,8 +296,8 @@ const OrderDetail = () => {
         mobile: '',
         fax: '',
         email: '',
-        addresses: []
-      }
+        addresses: [],
+      },
     },
     resolver: yupResolver(clientSchema),
   })
@@ -928,7 +928,7 @@ const OrderDetail = () => {
         resetTeam({ teams: res })
       }
     }
-    console.log("projectInfo",projectInfo,currentStatus)
+    console.log('projectInfo', projectInfo, currentStatus)
     if (projectInfo) {
       const res = {
         ...projectInfo,
@@ -939,7 +939,7 @@ const OrderDetail = () => {
     }
 
     if (client) {
-      console.log("client",client)
+      console.log('client', client)
       clientReset({
         clientId: client.client.clientId,
         contactPersonId: client.contactPerson?.id,
@@ -948,7 +948,7 @@ const OrderDetail = () => {
         contacts: {
           ...client.contactPerson!,
           addresses: client.clientAddress,
-        }
+        },
       })
     }
   }, [langItem, projectTeam, projectInfo, client])
@@ -1789,7 +1789,7 @@ const OrderDetail = () => {
                     </Box>
                   </Grid> */}
 
-                  {currentRole?.name === 'CLIENT' ? null : (
+                  {currentRole?.name === 'CLIENT' || splitReady ? null : (
                     <Grid
                       item
                       xs={12}
@@ -1842,7 +1842,7 @@ const OrderDetail = () => {
                           <Typography variant='body1'>
                             {getProjectInfo('tax')
                               ? `${getProjectInfo('tax')} %`
-                              : null}{' '}
+                              : '- %'}
                           </Typography>
                         )}
                       </Box>

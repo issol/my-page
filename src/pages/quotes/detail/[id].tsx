@@ -1033,7 +1033,8 @@ export default function QuotesDetail() {
     const res: ProjectTeamFormType = {
       projectManagerId: teams.projectManagerId ? teams.projectManagerId : null,
       supervisorId: teams.supervisorId ? teams.supervisorId : null,
-      members: teams.members && teams.members.length ? teams.members : null,
+      // TODO: key 이름 members로 통일해야함
+      member: teams.members && teams.members.length ? teams.members : null,
     }
 
     onSave(() =>

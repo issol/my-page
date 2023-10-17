@@ -370,48 +370,50 @@ const LanguageAndItem = ({
         </Grid>
       ) : null}
       {/* subtotal */}
-      <Grid item xs={12}>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <Box
-            sx={{
-              display: 'flex',
-              gap: '20px',
-              borderBottom: '2px solid #666CFF',
-              justifyContent: 'center',
-              width: '257px',
-            }}
-          >
-            <Typography
-              fontWeight={600}
-              variant='subtitle1'
+      {splitReady ? null : (
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box
               sx={{
-                padding: '16px 16px 16px 20px',
-                flex: 1,
-                textAlign: 'right',
+                display: 'flex',
+                gap: '20px',
+                borderBottom: '2px solid #666CFF',
+                justifyContent: 'center',
+                width: '257px',
               }}
             >
-              Subtotal
-            </Typography>
-            <Typography
-              fontWeight={600}
-              variant='subtitle1'
-              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
-            >
-              {getItem().items.length && getItem().items[0].initialPrice
-                ? formatCurrency(
-                    formatByRoundingProcedure(
-                      langItemsEdit ? subtotal : Number(project?.subtotal),
-                      getItem().items[0].initialPrice?.numberPlace!,
-                      getItem().items[0].initialPrice?.rounding!,
+              <Typography
+                fontWeight={600}
+                variant='subtitle1'
+                sx={{
+                  padding: '16px 16px 16px 20px',
+                  flex: 1,
+                  textAlign: 'right',
+                }}
+              >
+                Subtotal
+              </Typography>
+              <Typography
+                fontWeight={600}
+                variant='subtitle1'
+                sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+              >
+                {getItem().items.length && getItem().items[0].initialPrice
+                  ? formatCurrency(
+                      formatByRoundingProcedure(
+                        langItemsEdit ? subtotal : Number(project?.subtotal),
+                        getItem().items[0].initialPrice?.numberPlace!,
+                        getItem().items[0].initialPrice?.rounding!,
+                        getItem().items[0].initialPrice?.currency!,
+                      ),
                       getItem().items[0].initialPrice?.currency!,
-                    ),
-                    getItem().items[0].initialPrice?.currency!,
-                  )
-                : 0}
-            </Typography>
+                    )
+                  : '-'}
+              </Typography>
+            </Box>
           </Box>
-        </Box>
-      </Grid>
+        </Grid>
+      )}
     </>
   )
 }

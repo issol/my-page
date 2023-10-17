@@ -128,7 +128,7 @@ const AppBarContent = (props: Props) => {
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <NotificationDropdown settings={settings} />
+      {/* <NotificationDropdown settings={settings} /> */}
 
       {/* <Autocomplete hidden={hidden} settings={settings} />
       <LanguageDropdown settings={settings} saveSettings={saveSettings} />
