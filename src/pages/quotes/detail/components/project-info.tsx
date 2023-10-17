@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Divider,
   Grid,
   IconButton,
@@ -39,11 +40,13 @@ import { update } from 'lodash'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ReasonType } from '@src/types/quotes/quote'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
 type Props = {
   project: ProjectInfoType | undefined
   setEditMode: (v: boolean) => void
   isUpdatable: boolean
+  canCheckboxEdit: boolean
   updateStatus?: (status: number) => void
   role: UserRoleType
   client?: ClientType
@@ -61,6 +64,7 @@ export default function QuotesProjectInfoDetail({
   project,
   setEditMode,
   isUpdatable,
+  canCheckboxEdit,
   updateStatus,
   role,
   client,
@@ -83,7 +87,6 @@ export default function QuotesProjectInfoDetail({
       }
     >
   >([])
-  console.log("projectInfo-statusList",statusList)
   const onClickReason = (status: string, reason: ReasonType | null) => {
     openModal({
       type: `${status}ReasonModal`,
@@ -133,6 +136,36 @@ export default function QuotesProjectInfoDetail({
   const getStatusNameFromCode = (code: number): QuoteStatusType => {
     // @ts-ignore
     return statusList?.find(status => status.value === code)?.label ?? "New"
+  }
+
+  const onClickShowDescription = (value: boolean) => {
+    let confirmButtonText = ''
+    let message = ''
+    if (value) {
+      confirmButtonText = 'Show'
+      message = 'Are you sure you want to show the\nproject description to the client?'
+    } else {
+      confirmButtonText = 'Hide'
+      message = 'Are you sure you want to hide the\nproject description to the client?'
+    }
+    openModal({
+      type: 'ShowDescriptionModal',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => closeModal('ShowDescriptionModal')}
+          onConfirm={() => {
+            updateProject &&
+            updateProject.mutate({
+              showDescription: value,
+            })
+          }}
+          closeButtonText='Cancel'
+          confirmButtonText={confirmButtonText}
+          message={message}
+          vary='successful'
+        />
+      ),
+    })
   }
 
   useEffect(() => {
@@ -532,12 +565,84 @@ export default function QuotesProjectInfoDetail({
             <Divider />
           </Grid>
           <Grid item xs={12}>
-            <CustomTypo fontWeight={600} mb={6}>
-              Project description
-            </CustomTypo>
-            <CustomTypo variant='body2'>
-              {project.projectDescription ?? '-'}
-            </CustomTypo>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Typography
+                variant='subtitle1'
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  width: '100%',
+                }}
+              >
+                Project description
+              </Typography>
+              {role.name === 'CLIENT' ? null : (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    opacity:
+                      project.status === 'Canceled'
+                        ? 0.5
+                        : 1,
+                  }}
+                >
+                  <Checkbox
+                    value={project.showDescription}
+                    onChange={e => {
+                      onClickShowDescription(e.target.checked)
+                    }}
+                    checked={project.showDescription}
+                    disabled={
+                      !canCheckboxEdit
+                    }
+                  />
+
+                  <Typography
+                    variant='body1'
+                    fontSize={14}
+                    fontWeight={400}
+                    lineHeight='21px'
+                    letterSpacing='0.15px'
+                    sx={{ minWidth: 230 }}
+                  >
+                    Show project description to client
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: '8px',
+                alignItems: 'center',
+                width: '73.45%',
+              }}
+            >
+              <Typography
+                variant='body1'
+                fontSize={14}
+                fontWeight={400}
+                lineHeight='21px'
+                letterSpacing='0.15px'
+                sx={{ minWidth: 230 }}
+              >
+                {role.name === 'CLIENT' ?
+                  project.projectDescription &&
+                  project.showDescription &&
+                  project.projectDescription !== ''
+                    ? project.projectDescription
+                    : '-'
+                  : project.projectDescription || '-'
+                }
+              </Typography>
+            </Box>
           </Grid>
         </Grid>
       )}

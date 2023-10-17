@@ -1065,6 +1065,9 @@ const OrderDetail = () => {
         setClientEdit(false)
         setProjectTeamEdit(false)
         setLangItemsEdit(false)
+        projectInfoReset()
+        itemReset()
+        resetTeam()
         if (data.id === Number(id)) {
           queryClient.invalidateQueries({
             queryKey: ['orderDetail'],

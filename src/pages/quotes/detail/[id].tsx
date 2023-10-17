@@ -163,6 +163,7 @@ export type updateProjectInfoType =
   | { languagePairs: Array<LanguagePairsType> }
   | { items: Array<PostItemType> }
   | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
+  | { showDescription: boolean }
 
 export default function QuotesDetail() {
   const router = useRouter()
@@ -218,7 +219,8 @@ export default function QuotesDetail() {
       | 'button-CreateOrder'
       | 'button-ConfirmQuote'
       | 'button-CancelQuote'
-      | 'button-DeleteQuote',
+      | 'button-DeleteQuote'
+      | 'checkBox-ProjectInfo-Description'
   ): boolean => {
     let flag = false
     if (currentRole! && currentRole.name !== 'CLIENT') {
@@ -310,8 +312,17 @@ export default function QuotesDetail() {
                   project?.status === 'Expired') &&
                 isIncludeProjectTeam()
             : false
-
           break
+          case 'checkBox-ProjectInfo-Description':
+            flag = 
+              (project?.status !== 'Quote sent' &&
+              project?.status !== 'Client review' &&
+              project?.status !== 'Accepted' &&
+              project?.status !== 'Expired' &&
+              project?.status !== 'Rejected' &&
+              project?.status !== 'Canceled') &&
+              isIncludeProjectTeam()
+            break
       }
     }
     return flag
@@ -392,7 +403,7 @@ export default function QuotesDetail() {
         category: project.category,
         serviceType: project.serviceType,
         expertise: project.expertise,
-        showDescription: false,
+        showDescription: project.showDescription,
 
         quoteDate: {
           date: project.quoteDate,
@@ -673,8 +684,6 @@ export default function QuotesDetail() {
         return aIndex - bIndex
       })
 
-      console.log(res)
-
       if (viewTeams.length) setTeams(res)
 
       const teams: Array<{
@@ -872,7 +881,6 @@ export default function QuotesDetail() {
       }
     }
     // LPM에서 status가 Revision requested일때 quote의 편집화면에 진입하면 status를 Under revision(20600) 으로 패치한다.
-    console.log('currentRole', currentRole)
     if (currentRole && currentRole.name === 'LPM') {
       if (
         project &&
@@ -1029,7 +1037,6 @@ export default function QuotesDetail() {
 
   function onProjectTeamSave() {
     const teams = transformTeamData(getTeamValues())
-    console.log(teams)
     const res: ProjectTeamFormType = {
       projectManagerId: teams.projectManagerId ? teams.projectManagerId : null,
       supervisorId: teams.supervisorId ? teams.supervisorId : null,
@@ -1364,8 +1371,6 @@ export default function QuotesDetail() {
     }
   }
 
-  console.log(teams)
-
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -1615,7 +1620,10 @@ export default function QuotesDetail() {
                       />
                       {renderSubmitButton({
                         onCancel: () =>
-                          onDiscard({ callback: () => setEditProject(false) }),
+                          onDiscard({ callback: () => {
+                            setEditProject(false)
+                            projectInfoReset()
+                          } }),
                         onSave: () => onProjectInfoSave(),
                         isValid: isProjectInfoValid,
                       })}
@@ -1629,6 +1637,7 @@ export default function QuotesDetail() {
                       project={project}
                       setEditMode={setEditProject}
                       isUpdatable={canUseFeature('tab-ProjectInfo')}
+                      canCheckboxEdit={canUseFeature('checkBox-ProjectInfo-Description')}
                       updateStatus={(status: number) =>
                         updateProject.mutate({ status: status })
                       }
