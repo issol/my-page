@@ -2,6 +2,7 @@ export type ProjectTeamFormType = {
   supervisorId?: number | null
   projectManagerId: number | null
   members?: Array<number> | null
+  member?: Array<number> | null
 }
 
 export type ClientFormType = {
