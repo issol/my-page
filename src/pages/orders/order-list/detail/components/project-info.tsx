@@ -302,6 +302,37 @@ const ProjectInfo = ({
     }
   }
 
+  const onClickShowDescription = (value: boolean) => {
+    let confirmButtonText = ''
+    let message = ''
+    if (value) {
+      confirmButtonText = 'Show'
+      message = 'Are you sure you want to show the\nproject description to the client?'
+    } else {
+      confirmButtonText = 'Hide'
+      message = 'Are you sure you want to hide the\nproject description to the client?'
+    }
+    openModal({
+      type: 'ShowDescriptionModal',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => closeModal('ShowDescriptionModal')}
+          onConfirm={() => {
+            updateProject &&
+            updateProject.mutate({
+              showDescription: value,
+            })
+            setShowDescription(value)
+          }}
+          closeButtonText='Cancel'
+          confirmButtonText={confirmButtonText}
+          message={message}
+          vary='successful'
+        />
+      ),
+    })
+  }
+  
   useEffect(() => {
     if (client) {
       setContactPersonId(client.contactPerson ? client.contactPerson.id! : null)
@@ -339,22 +370,6 @@ const ProjectInfo = ({
         })
     }
   }, [client])
-  console.log('project status', project.status, type, isUpdatable)
-  console.log(project)
-
-  console.log(filterStatusList())
-  console.log(
-    statusList?.filter(
-      value => !filterStatusList().some(v => v.value === value.value),
-    ),
-  )
-
-  console.log(
-    statusList
-      ?.filter(value => !filterStatusList().some(v => v.value === value.value))
-      .some(status => status.label === project.status),
-  )
-  console.log(isUpdatable)
 
   return (
     <>
@@ -925,15 +940,15 @@ const ProjectInfo = ({
                     }}
                   >
                     <Checkbox
-                      value={showDescription}
+                      value={project.showDescription}
                       onChange={e => {
-                        updateProject &&
-                          updateProject.mutate({
-                            showDescription: e.target.checked,
-                          })
-                        setShowDescription(e.target.checked)
+                        // updateProject &&
+                        //   updateProject.mutate({
+                        //     showDescription: e.target.checked,
+                        //   })
+                        onClickShowDescription(e.target.checked)
                       }}
-                      checked={showDescription}
+                      checked={project.showDescription}
                       disabled={
                         !canUseFeature('checkBox-ProjectInfo-Description')
                       }
@@ -966,11 +981,15 @@ const ProjectInfo = ({
                     width: '100%',
                   }}
                 >
-                  {project.projectDescription &&
-                  project.showDescription &&
-                  project.projectDescription !== ''
-                    ? project.projectDescription
-                    : '-'}
+                  {role.name === 'CLIENT' ?
+                    project.projectDescription &&
+                    project.showDescription &&
+                    project.projectDescription !== ''
+                      ? project.projectDescription
+                      : '-'
+                    : project.projectDescription || '-'
+                  }
+                  
                 </Typography>
               </Box>
             </Box>
