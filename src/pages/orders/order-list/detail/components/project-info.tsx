@@ -749,7 +749,7 @@ const ProjectInfo = ({
                       : '-'}
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex', flex: 1 }}>
+                <Box sx={{ display: 'flex', flex: 1, alignItems: 'start' }}>
                   <Box
                     sx={{
                       display: 'flex',
