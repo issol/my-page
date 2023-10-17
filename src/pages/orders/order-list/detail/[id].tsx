@@ -976,7 +976,8 @@ const OrderDetail = () => {
       } = item
       return {
         ...filterItem,
-        contactPersonId: Number(item.contactPerson?.id!),
+        // contactPersonId: Number(item.contactPerson?.id!),
+        contactPersonId: Number(item.contactPersonId!),
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
