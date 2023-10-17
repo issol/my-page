@@ -1788,7 +1788,7 @@ const OrderDetail = () => {
                     </Box>
                   </Grid> */}
 
-                  {currentRole?.name === 'CLIENT' ? null : (
+                  {currentRole?.name === 'CLIENT' || splitReady ? null : (
                     <Grid
                       item
                       xs={12}
