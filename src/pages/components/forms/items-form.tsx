@@ -967,7 +967,6 @@ export default function ItemForm({
                     render={({ field: { value, onChange } }) => {
                       return (
                         <Autocomplete
-                          autoHighlight
                           fullWidth
                           options={[...languagePairs].sort((a, b) =>
                             a.source.localeCompare(b.source),
@@ -975,7 +974,9 @@ export default function ItemForm({
                           getOptionLabel={option =>
                             `${languageHelper(
                               option.source,
-                            )} -> ${languageHelper(option.target)}`
+                            )} ${String.fromCharCode(8594)} ${languageHelper(
+                              option.target,
+                            )}`
                           }
                           onChange={(e, v) => {
                             onChangeLanguagePair(v, idx)
