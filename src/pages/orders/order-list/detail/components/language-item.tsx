@@ -408,7 +408,7 @@ const LanguageAndItem = ({
                       ),
                       getItem().items[0].initialPrice?.currency!,
                     )
-                  : 0}
+                  : '-'}
               </Typography>
             </Box>
           </Box>
