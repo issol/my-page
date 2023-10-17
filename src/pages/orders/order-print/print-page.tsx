@@ -55,16 +55,15 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
             form: { downloadedAt: Date() },
           })
         }
-        window.print()
-      }, 300)
+        try {
+          document.title = `${data.corporationId}_${data.companyName}`
+          window.print()
+        } catch (error) {
+          console.log(error)
+        }
+      }, 1000)
     }
   }, [type])
-
-  function calculateTotalPriceRows(rows: LanguageAndItemType): number {
-    return rows.items.reduce((total, row) => {
-      return total + row.totalPrice
-    }, 0)
-  }
 
   return (
     <Box
@@ -350,7 +349,17 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Box>{lang === 'EN' ? `Price (${data?.langItem?.items[0]?.initialPrice?.currency!})` : `단가 (${data?.langItem?.items[0]?.initialPrice?.currency!})`}</Box>
+                  <Box>
+                    {lang === 'EN'
+                      ? `Price (${
+                          data?.langItem?.items[0]?.initialPrice?.currency! ??
+                          'USD'
+                        })`
+                      : `단가 (${
+                          data?.langItem?.items[0]?.initialPrice?.currency! ??
+                          'USD'
+                        })`}
+                  </Box>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -375,7 +384,15 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                   }}
                 >
                   <Box>
-                    {lang === 'EN' ? `Total Price (${data?.langItem?.items[0]?.initialPrice?.currency!})` : `금액 (${data?.langItem?.items[0]?.initialPrice?.currency!})`}
+                    {lang === 'EN'
+                      ? `Total Price (${
+                          data?.langItem?.items[0]?.initialPrice?.currency! ??
+                          'USD'
+                        })`
+                      : `금액 (${
+                          data?.langItem?.items[0]?.initialPrice?.currency! ??
+                          'USD'
+                        })`}
                   </Box>
                 </TableCell>
               </TableRow>
