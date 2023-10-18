@@ -29,7 +29,7 @@ export const useGetOrderList = (
       return getOrderListForInvoice(filter)
     },
     {
-      staleTime: 60 * 1000,
+      staleTime: 10 * 1000,
       suspense: true,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
@@ -42,7 +42,7 @@ export const useGetOrderList = (
 
 export const useGetOrderListInJob = (filter: OrderListFilterType) => {
   return useQuery(['orderListInJob', filter], () => getOrderListInJob(filter), {
-    staleTime: 60 * 1000, // 1
+    staleTime: 10 * 1000, // 1
 
     suspense: false,
     keepPreviousData: true,
@@ -59,7 +59,7 @@ export const useGetOrderListCalendar = (
     () => getOrderListCalendar(year, month, filter),
 
     {
-      staleTime: 60 * 1000,
+      staleTime: 10 * 1000,
       suspense: true,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
@@ -75,7 +75,7 @@ export const useGetProjectInfo = (id: number) => {
     [`orderDetail`, { type: 'project' }, id],
     () => getProjectInfo(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: true,
       enabled: !!id && !isNaN(id),
@@ -88,7 +88,7 @@ export const useGetProjectTeam = (id: number) => {
     [`orderDetail`, { type: 'team' }, id],
     () => getProjectTeam(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: false,
       enabled: !!id,
@@ -104,7 +104,7 @@ export const useGetClient = (id: number) => {
     [`orderDetail`, { type: 'client' }, id],
     () => getClient(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: true,
     },
@@ -116,7 +116,7 @@ export const useGetLangItem = (id: number) => {
     [`orderDetail`, { type: 'items' }, id],
     () => getLangItems(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: false,
     },
@@ -128,7 +128,7 @@ export const useGetVersionHistory = (id: number) => {
     [`orderDetail`, { type: 'history' }, id],
     () => getVersionHistory(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: true,
     },
@@ -140,7 +140,7 @@ export const useGetJobInfo = (id: number) => {
     [`orderDetail`, { type: 'jobInfo' }, id],
     () => getJobInfo(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: false,
     },

@@ -15,7 +15,7 @@ export const useGetReceivableList = (filter: InvoiceReceivableFilterType) => {
     ['invoice/receivable/list', filter],
     () => getReceivableList(filter),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: false,
       keepPreviousData: true,
@@ -35,7 +35,7 @@ export const useGetReceivableCalendar = (
     },
     {
       suspense: true,
-      staleTime: 60 * 1000,
+      staleTime: 10 * 1000,
       keepPreviousData: true,
     },
   )
@@ -43,7 +43,7 @@ export const useGetReceivableCalendar = (
 
 export const useGetReceivableInvoiceDetail = (id: number) => {
   return useQuery(['invoiceReceivableDetail', id], () => getInvoiceDetail(id), {
-    staleTime: 60 * 1000, // 1
+    staleTime: 10 * 1000, // 1
 
     suspense: false,
   })
@@ -54,7 +54,7 @@ export const useGetReceivableInvoicePrices = (id: number) => {
     ['invoiceReceivablePrices', id],
     () => getInvoiceLanguageItems(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: false,
     },
@@ -63,7 +63,7 @@ export const useGetReceivableInvoicePrices = (id: number) => {
 
 export const useGetReceivableClient = (id: number) => {
   return useQuery(['invoiceReceivableClient', id], () => getInvoiceClient(id), {
-    staleTime: 60 * 1000, //
+    staleTime: 10 * 1000, //
 
     suspense: false,
   })
@@ -74,7 +74,7 @@ export const useGetReceivableTeam = (id: number) => {
     ['invoiceReceivableTeam', id],
     () => getInvoiceProjectTeam(id),
     {
-      staleTime: 60 * 1000, //
+      staleTime: 10 * 1000, //
 
       suspense: false,
     },
@@ -86,7 +86,7 @@ export const useGetReceivableHistory = (id: number) => {
     ['invoiceReceivableHistory', id],
     () => getInvoiceVersionHistory(id),
     {
-      staleTime: 60 * 1000, //
+      staleTime: 10 * 1000, //
 
       suspense: false,
     },
