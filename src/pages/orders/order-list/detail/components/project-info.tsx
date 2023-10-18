@@ -332,7 +332,6 @@ const ProjectInfo = ({
       ),
     })
   }
-  
   useEffect(() => {
     if (client) {
       setContactPersonId(client.contactPerson ? client.contactPerson.id! : null)
