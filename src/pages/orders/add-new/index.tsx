@@ -956,6 +956,12 @@ export default function AddNewOrder() {
     shouldWarn: isWarn,
     toUrl: '/orders/order-list',
   })
+  console.log(isItemValid)
+  console.log(getProjectInfoValues('tax'))
+
+  console.log(
+    getProjectInfoValues().isTaxable && getProjectInfoValues().tax === null,
+  )
 
   return (
     <Grid container spacing={6}>
@@ -1261,9 +1267,9 @@ export default function AddNewOrder() {
                 <Button
                   variant='contained'
                   disabled={
-                    !isItemValid &&
-                    getProjectInfoValues('isTaxable') &&
-                    !getProjectInfoValues('tax')
+                    !isItemValid ||
+                    (projectInfoWatch('isTaxable') === true &&
+                      projectInfoWatch('tax') === null)
                   }
                   onClick={onClickSaveOrder}
                 >
