@@ -413,7 +413,7 @@ const OrderDetail = () => {
         <CustomModal
           onClose={() => closeModal('EditSaveModal')}
           onClick={callBack}
-          title='Are you sure you want to save all changes? Language pair(s) not registered to the item(s) willS be deleted from the order.'
+          title='Are you sure you want to save all changes?'
           rightButtonText='Save'
           vary='successful'
         />
