@@ -1302,4 +1302,7 @@ export const HeaderCell = styled(TableCell)`
     height: 30%;
     background: rgba(76, 78, 100, 0.12);
   }
+  &:last-child::before {
+    display: none;
+  }
 `
