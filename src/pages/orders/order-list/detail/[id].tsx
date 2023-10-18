@@ -1135,7 +1135,7 @@ const OrderDetail = () => {
     const res: ProjectTeamFormType = {
       projectManagerId: teams.projectManagerId ? teams.projectManagerId : null,
       supervisorId: teams.supervisorId ? teams.supervisorId : null,
-      members: teams.members && teams.members.length ? teams.members : null,
+      members: teams.members && teams.members.length ? teams.members : [],
     }
 
     onSave(() =>

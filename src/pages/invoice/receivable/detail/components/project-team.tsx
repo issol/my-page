@@ -138,7 +138,7 @@ const InvoiceProjectTeam = ({
           ...data,
           projectManagerId: teams.projectManagerId!,
           supervisorId: teams.supervisorId ?? null,
-          members: teams.members ?? null,
+          members: teams.members && teams.members.length ? teams.members : [],
 
           showDescription: data.showDescription ? '1' : '0',
         },
