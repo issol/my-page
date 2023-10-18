@@ -31,6 +31,7 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { useGetCompanyOptions } from '@src/queries/options.query'
+import { useQueryClient } from 'react-query'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -84,6 +85,7 @@ type MenuType = 'list' | 'calendar'
 
 export default function Quotes({ id, user }: Props) {
   const { data: statusList } = useGetStatusList('Quote')
+  const queryClient = useQueryClient()
 
   const [menu, setMenu] = useState<MenuType>('list')
 
@@ -226,6 +228,11 @@ export default function Quotes({ id, user }: Props) {
       }
     }
   }, [companies, companiesListLoading])
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['quotesList'])
+    queryClient.invalidateQueries(['quotesDetail'])
+  }, [])
 
   return (
     <Box display='flex' flexDirection='column'>
