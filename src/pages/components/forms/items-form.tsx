@@ -359,7 +359,12 @@ export default function ItemForm({
         !splitReady ? (
           <Link
             href={`/orders/job-list/details/?orderId=${orderId}`}
-            style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+            style={{
+              display: 'flex',
+              gap: '8px',
+              alignItems: 'center',
+              color: '#666CFF',
+            }}
           >
             Jobs
             <Icon icon='ic:outline-arrow-forward' color='#666CFF' />
