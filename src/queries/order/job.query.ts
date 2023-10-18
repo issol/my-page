@@ -30,7 +30,7 @@ export const useGetAssignableProList = (
 
 export const useGetJobDetails = (orderId: number) => {
   return useQuery(['jobDetails', orderId], () => getJobDetails(orderId), {
-    staleTime: 60 * 1000, // 1
+    staleTime: 10 * 1000, // 1
 
     suspense: false,
     keepPreviousData: true,
@@ -43,7 +43,7 @@ export const useGetJobInfo = (jobId: number, isHistory: boolean) => {
     ['jobInfo', jobId, isHistory],
     () => getJobInfo(jobId, isHistory),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: false,
     },
@@ -55,7 +55,7 @@ export const useGetJobPrices = (jobId: number, isHistory: boolean) => {
     ['jobPrices', jobId, isHistory],
     () => getJobPrices(jobId, isHistory),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: false,
     },
@@ -67,7 +67,7 @@ export const useGetJobPriceHistory = (jobId: number) => {
     ['jobPriceHistory', jobId],
     () => getJobPriceHistory(jobId),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: false,
     },
@@ -76,7 +76,7 @@ export const useGetJobPriceHistory = (jobId: number) => {
 
 export const useGetMessage = (jobId: number, proId: number) => {
   return useQuery(['message', proId], () => getMessageList(jobId, proId), {
-    staleTime: 60 * 1000, // 1
+    staleTime: 10 * 1000, // 1
 
     suspense: false,
   })
@@ -84,7 +84,7 @@ export const useGetMessage = (jobId: number, proId: number) => {
 
 export const useGetSourceFile = (jobId: number) => {
   return useQuery(['sourceFile', jobId], () => getSourceFileToPro(jobId), {
-    staleTime: 60 * 1000,
+    staleTime: 10 * 1000,
     suspense: false,
   })
 }

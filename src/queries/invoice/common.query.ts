@@ -10,7 +10,7 @@ export const useGetInvoicePayableStatus = () => {
     ['invoice/payable/status'],
     () => getInvoicePayableStatusList(),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: false,
       keepPreviousData: true,
@@ -19,7 +19,7 @@ export const useGetInvoicePayableStatus = () => {
 }
 export const useCheckInvoiceEditable = (id: number) => {
   return useQuery(['invoice/editable', id], () => checkEditable(id), {
-    staleTime: 60 * 1000, // 1
+    staleTime: 10 * 1000, // 1
     enabled: !!id,
     suspense: false,
     keepPreviousData: true,
