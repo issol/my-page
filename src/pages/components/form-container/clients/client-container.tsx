@@ -235,7 +235,10 @@ export default function ClientQuotesFormContainer({
         alignItems='center'
       >
         <Typography variant='h6'>Select client</Typography>
-        {type === 'invoice' || type === 'request' || fromQuote ? null : (
+        {type === 'invoice' ||
+        type === 'request' ||
+        fromQuote ||
+        formType === 'edit' ? null : (
           <Button variant='contained' onClick={() => onClickAddNewClient()}>
             Add new client
           </Button>
