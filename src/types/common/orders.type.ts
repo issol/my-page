@@ -35,7 +35,7 @@ export type RevenueFormType = 'United States' | 'Korea' | 'Singapore' | 'Japan'
 export type OrderProjectInfoFormType = {
   // status: OrderStatusType
   status: number
-  workName?: string
+  workName?: string | null
   projectName: string
   projectDescription?: string
   category?: string
