@@ -187,7 +187,7 @@ const ProjectInfo = ({
           type={
             project.status === 'Redelivery requested'
               ? 'Requested'
-              : statusList?.find(i => i.value === project?.status)?.label || ''
+              : statusList?.find(i => i.label === project?.status)?.label || ''
           }
           vary='info'
         />
