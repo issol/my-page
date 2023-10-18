@@ -145,6 +145,8 @@ export type ProjectInfoType = {
     corporationId: string
   } | null
   subtotal: string | number
+  // history 처리를 위해 추가
+  contactPerson?: ContactPersonType
 }
 
 export type VersionHistoryType = HistoryType & {
