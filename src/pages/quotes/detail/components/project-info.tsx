@@ -399,15 +399,27 @@ export default function QuotesProjectInfoDetail({
                     variant='body2'
                     sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}
                   >
-                    {getLegalName({
-                      firstName: client?.contactPerson?.firstName,
-                      middleName: client?.contactPerson?.middleName,
-                      lastName: client?.contactPerson?.lastName,
-                    })}
-                    {client?.contactPerson?.jobTitle
-                      ? ` / ${client?.contactPerson?.jobTitle}`
-                      : ''}
-                    {type === 'history' &&
+                    {type !== 'history' ? 
+                      getLegalName({
+                        firstName: client?.contactPerson?.firstName,
+                        middleName: client?.contactPerson?.middleName,
+                        lastName: client?.contactPerson?.lastName,
+                      }) : 
+                      getLegalName({
+                        firstName: project?.contactPerson?.firstName,
+                        middleName: project?.contactPerson?.middleName,
+                        lastName: project?.contactPerson?.lastName,
+                      })
+                    }
+                    {type !== 'history' ? 
+                      client?.contactPerson?.jobTitle
+                        ? ` / ${client?.contactPerson?.jobTitle}`
+                        : ''
+                      : project?.contactPerson?.jobTitle
+                      ? ` / ${project?.contactPerson?.jobTitle}`
+                      : ''
+                    }
+                    {type === 'history' ||
                     (project.status === 'Changed into order' ||
                       project.status === 'Rejected' ||
                       project.status === 'Canceled') ? null : (
