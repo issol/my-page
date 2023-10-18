@@ -89,6 +89,9 @@ export default function RegisterClientForm({
 
   const clientId = watch('clientId')
   const contacts = watch('contacts')
+
+  console.log(contacts?.addresses)
+
   useEffect(() => {
     if (!clientId) {
       reset &&
@@ -114,22 +117,22 @@ export default function RegisterClientForm({
     return getClientDetail(id)
       .then(res => {
         setClientDetail(res)
-        // reset &&
-        //   reset({
-        //     ...getValue(),
-        //     clientId: id,
-        //     contacts: {
-        //       timezone: res?.timezone!,
-        //       phone: res?.phone ?? '',
-        //       mobile: res?.mobile ?? '',
-        //       fax: res?.fax ?? '',
-        //       email: res?.email ?? '',
-        //       addresses: 
-        //         res?.clientAddresses?.filter(
-        //           item => item.addressType !== 'additional',
-        //         ) || [],
-        //     },
-        //   })
+        reset &&
+          reset({
+            ...getValue(),
+            clientId: id,
+            contacts: {
+              timezone: res?.timezone!,
+              phone: res?.phone ?? '',
+              mobile: res?.mobile ?? '',
+              fax: res?.fax ?? '',
+              email: res?.email ?? '',
+              addresses:
+                res?.clientAddresses?.filter(
+                  item => item.addressType !== 'additional',
+                ) || [],
+            },
+          })
 
         if (res.isTaxable && res.tax) {
           setTaxable(res.isTaxable)
@@ -185,6 +188,15 @@ export default function RegisterClientForm({
     const result = addresses.filter(item => item.addressType === type)
     if (result.length) {
       const address = result[0]
+      if (
+        !address.baseAddress &&
+        !address.detailAddress &&
+        !address.city &&
+        !address.state &&
+        !address.country &&
+        !address.zipCode
+      )
+        return '-'
       return `${address?.baseAddress ? `${address.baseAddress}, ` : ''} ${
         address?.detailAddress ? `${address.detailAddress}, ` : ''
       } ${address?.city ? `${address.city}, ` : ''} ${
@@ -196,7 +208,7 @@ export default function RegisterClientForm({
   }
 
   const handleShowLabelAndPlaceHolder = (hasValue: boolean) => {
-    if(formType ==='create' || formType ==='edit') {
+    if (formType === 'create' || formType === 'edit') {
       return Boolean(hasValue && getValue().contactPersonId)
     } else {
       return Boolean(hasValue)
@@ -211,6 +223,12 @@ export default function RegisterClientForm({
           control={control}
           render={({ field: { value, onChange } }) => {
             const selectedClient = clientList.find(item => item.value === value)
+            console.log(
+              clientDetail?.clientAddresses?.filter(
+                item => item.addressType !== 'additional',
+              ) || [],
+            )
+
             return (
               <Autocomplete
                 autoHighlight
@@ -222,6 +240,7 @@ export default function RegisterClientForm({
                 onChange={(e, v) => {
                   if (v) {
                     setTax(selectedClient?.tax ?? null)
+
                     onChange(v.value)
                   } else {
                     onChange(null)
@@ -385,8 +404,13 @@ export default function RegisterClientForm({
                 fullWidth
                 label={
                   handleShowLabelAndPlaceHolder(
-                    Boolean(getValue('contacts.timezone') && getGmtTimeEng(getValue('contacts.timezone.code')) !== '-')
-                  ) ? 'Time zone'
+                    Boolean(
+                      getValue('contacts.timezone') &&
+                        getGmtTimeEng(getValue('contacts.timezone.code')) !==
+                          '-',
+                    ),
+                  )
+                    ? 'Time zone'
                     : null
                 }
                 value={
@@ -401,9 +425,13 @@ export default function RegisterClientForm({
                   startAdornment: (
                     <>
                       {handleShowLabelAndPlaceHolder(
-                        Boolean(getValue('contacts.timezone') && getGmtTimeEng(getValue('contacts.timezone.code')) !== '-')
-                      ) ? null 
-                        : (
+                        Boolean(
+                          getValue('contacts.timezone') &&
+                            getGmtTimeEng(
+                              getValue('contacts.timezone.code'),
+                            ) !== '-',
+                        ),
+                      ) ? null : (
                         <Box sx={{ width: '100%' }}>Time zone</Box>
                       )}
                     </>
@@ -421,9 +449,13 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
-              label={handleShowLabelAndPlaceHolder(
-                Boolean(getValue('contacts.phone'))
-              ) ? 'Telephone' : null}
+              label={
+                handleShowLabelAndPlaceHolder(
+                  Boolean(getValue('contacts.phone')),
+                )
+                  ? 'Telephone'
+                  : null
+              }
               value={
                 !value || value === '' || !getValue().contactPersonId
                   ? ''
@@ -434,7 +466,7 @@ export default function RegisterClientForm({
                 startAdornment: (
                   <>
                     {handleShowLabelAndPlaceHolder(
-                      Boolean(getValue('contacts.phone'))
+                      Boolean(getValue('contacts.phone')),
                     ) ? null : (
                       <Box sx={{ width: '100%' }}>Telephone</Box>
                     )}
@@ -454,8 +486,10 @@ export default function RegisterClientForm({
               fullWidth
               label={
                 handleShowLabelAndPlaceHolder(
-                  Boolean(getValue('contacts.mobile'))
-                ) ? 'Mobile phone' : null
+                  Boolean(getValue('contacts.mobile')),
+                )
+                  ? 'Mobile phone'
+                  : null
               }
               // placeholder='Mobile phone'
               value={
@@ -468,7 +502,7 @@ export default function RegisterClientForm({
                 startAdornment: (
                   <>
                     {handleShowLabelAndPlaceHolder(
-                      Boolean(getValue('contacts.mobile'))
+                      Boolean(getValue('contacts.mobile')),
                     ) ? null : (
                       <Box sx={{ width: '100%' }}>Mobile phone</Box>
                     )}
@@ -486,9 +520,11 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
-              label={handleShowLabelAndPlaceHolder(
-                Boolean(getValue('contacts.fax'))
-              ) ? 'Fax' : null}
+              label={
+                handleShowLabelAndPlaceHolder(Boolean(getValue('contacts.fax')))
+                  ? 'Fax'
+                  : null
+              }
               // placeholder='Fax'
               value={
                 !value || value === '' || !getValue().contactPersonId
@@ -500,7 +536,7 @@ export default function RegisterClientForm({
                 startAdornment: (
                   <>
                     {handleShowLabelAndPlaceHolder(
-                      Boolean(getValue('contacts.fax'))
+                      Boolean(getValue('contacts.fax')),
                     ) ? null : (
                       <Box sx={{ width: '100%' }}>Fax</Box>
                     )}
@@ -519,9 +555,13 @@ export default function RegisterClientForm({
             <TextField
               fullWidth
               // placeholder='Email'
-              label={handleShowLabelAndPlaceHolder(
-                Boolean(getValue('contacts.email'))
-              ) ? 'Email' : null}
+              label={
+                handleShowLabelAndPlaceHolder(
+                  Boolean(getValue('contacts.email')),
+                )
+                  ? 'Email'
+                  : null
+              }
               value={
                 !value || value === '' || !getValue().contactPersonId
                   ? ''
@@ -532,7 +572,7 @@ export default function RegisterClientForm({
                 startAdornment: (
                   <>
                     {handleShowLabelAndPlaceHolder(
-                      Boolean(getValue('contacts.email'))
+                      Boolean(getValue('contacts.email')),
                     ) ? null : (
                       <Box sx={{ width: '100%' }}>Email</Box>
                     )}
@@ -569,9 +609,14 @@ export default function RegisterClientForm({
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Shipping address{' '}
                     <span style={{ fontWeight: 600 }}>
-                      {handleShowLabelAndPlaceHolder(Boolean(getAddress(contacts?.addresses, 'shipping')))
+                      {contacts?.addresses && contacts?.addresses.length > 0
                         ? getAddress(contacts?.addresses, 'shipping')
                         : '-'}
+                      {/* {handleShowLabelAndPlaceHolder(
+                        Boolean(getAddress(contacts?.addresses, 'shipping')),
+                      )
+                        ? getAddress(contacts?.addresses, 'shipping')
+                        : '-'} */}
                     </span>
                   </div>
                 }
@@ -585,9 +630,14 @@ export default function RegisterClientForm({
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Billing address{' '}
                     <span style={{ fontWeight: 600 }}>
-                      {handleShowLabelAndPlaceHolder(Boolean(getAddress(contacts?.addresses, 'billing')))
+                      {contacts?.addresses && contacts?.addresses.length > 0
                         ? getAddress(contacts?.addresses, 'billing')
                         : '-'}
+                      {/* {handleShowLabelAndPlaceHolder(
+                        Boolean(getAddress(contacts?.addresses, 'billing')),
+                      )
+                        ? getAddress(contacts?.addresses, 'billing')
+                        : '-'} */}
                     </span>
                   </div>
                 }
