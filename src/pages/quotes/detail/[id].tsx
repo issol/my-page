@@ -148,6 +148,7 @@ import { UserRoleType } from '@src/context/types'
 import { ProjectInfoType } from '@src/types/common/quotes.type'
 import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -1302,6 +1303,26 @@ export default function QuotesDetail() {
     })
   }
 
+  const onClickCreateOrder = () => {
+    openModal({
+      type: 'CreateOrderModal',
+      children: (
+        <SimpleMultilineAlertModal
+          vary='successful'
+          closeButtonText='Cancel'
+          confirmButtonText='Create'
+          onClose={() => closeModal('CreateOrderModal')}
+          onConfirm={() => router.push({
+            pathname: `/orders/add-new`,
+            query: { quoteId: id },
+          })}
+          title={`[${project?.corporationId}] ${project?.projectName}`}
+          message={`Are you sure you want to create an order\nwith this quote?`}
+          textAlign='center'
+        />
+      ),
+    })
+  }
   function makePdfData() {
     const pm = team?.find(value => value.position === 'projectManager')
 
@@ -1502,10 +1523,11 @@ export default function QuotesDetail() {
                 <Button
                   variant='outlined'
                   onClick={() =>
-                    router.push({
-                      pathname: `/orders/add-new`,
-                      query: { quoteId: id },
-                    })
+                    // router.push({
+                    //   pathname: `/orders/add-new`,
+                    //   query: { quoteId: id },
+                    // })
+                    onClickCreateOrder()
                   }
                   disabled={!canUseFeature('button-CreateOrder')}
                 >
