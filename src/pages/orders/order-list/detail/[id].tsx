@@ -1930,6 +1930,7 @@ const OrderDetail = () => {
                         control={clientControl}
                         setValue={setClientValue}
                         getValue={getClientValue}
+                        reset={clientReset}
                         watch={clientWatch}
                         setTaxable={(n: boolean) =>
                           setProjectInfo('isTaxable', n)
