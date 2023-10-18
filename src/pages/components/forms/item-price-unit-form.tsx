@@ -198,8 +198,7 @@ export default function ItemPriceUnitForm({
     }
 
     allPriceUnits.current = data
-    console.log('priceUnit', data)
-    return _.uniqBy(data, 'id')
+    return _.uniqBy(data, item => item.id + item.groupName)
   }
 
   function PercentPrice(quantity: number) {
