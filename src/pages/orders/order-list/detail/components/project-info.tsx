@@ -344,10 +344,17 @@ const ProjectInfo = ({
 
   console.log(filterStatusList())
   console.log(
+    statusList?.filter(
+      value => !filterStatusList().some(v => v.value === value.value),
+    ),
+  )
+
+  console.log(
     statusList
       ?.filter(value => !filterStatusList().some(v => v.value === value.value))
-      .some(status => status.value === project.status),
+      .some(status => status.label === project.status),
   )
+  console.log(isUpdatable)
 
   return (
     <>
@@ -445,13 +452,12 @@ const ProjectInfo = ({
                   }}
                 >
                   {type === 'detail' &&
-                  isUpdatable &&
                   statusList
                     ?.filter(
                       value =>
                         !filterStatusList().some(v => v.value === value.value),
                     )
-                    .some(status => status.value === project.status) ? (
+                    .some(status => status.label === project.status) ? (
                     <Box
                       sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                     >
