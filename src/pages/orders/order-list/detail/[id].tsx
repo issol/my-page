@@ -442,10 +442,17 @@ const OrderDetail = () => {
   function onProjectInfoSave() {
     const projectInfo = {
       ...getProjectInfo(),
+      showDescription: getProjectInfo().showDescription ? '1' : '0',
       isTaxable: getProjectInfo().isTaxable ? '1' : '0',
     }
 
-    onSave(() => updateProject.mutate(projectInfo))
+    onSave(() =>
+      updateProject.mutate(projectInfo, {
+        onSuccess: () => {
+          closeModal('EditSaveModal')
+        },
+      }),
+    )
   }
 
   const initializeItemData = () => {
@@ -1141,6 +1148,7 @@ const OrderDetail = () => {
     onSave(() =>
       updateProject.mutate(res, {
         onSuccess: () => {
+          closeModal('EditSaveModal')
           initializeTeamData()
         },
       }),
@@ -1154,7 +1162,13 @@ const OrderDetail = () => {
       clientId: form.clientId!,
       contactPersonId: form.contactPersonId,
     }
-    onSave(() => updateProject.mutate(clientInfo))
+    onSave(() =>
+      updateProject.mutate(clientInfo, {
+        onSuccess: () => {
+          closeModal('EditSaveModal')
+        },
+      }),
+    )
   }
 
   const onClickConfirmOrder = () => {
