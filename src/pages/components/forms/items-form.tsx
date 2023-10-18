@@ -878,7 +878,18 @@ export default function ItemForm({
                     </Typography>
                     <Typography variant='body1' fontSize={14}>
                       {
-                        getLegalName(getValues(`items.${idx}.contactPerson`)!)
+                        // TODO: G-3406 items의 contactPerson(LPM 정보) 타입 맞추기 전까지 임시 코드
+                        // quote에서는 이름 정보만 리턴되고 order에서는 id 정보만 리턴됨
+                        getValues(`items.${idx}.contactPersonId`) ?
+                          contactPersonList.find(
+                            item =>
+                              item.value ===
+                              getValues(
+                                `items.${idx}.contactPersonId`,
+                              )?.toString(),
+                          )?.label :
+                          getLegalName(getValues(`items.${idx}.contactPerson`)!)
+
                         // contactPersonList.find(
                         //   item =>
                         //     item.value ===

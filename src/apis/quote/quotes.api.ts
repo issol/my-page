@@ -197,8 +197,8 @@ export const getLangItems = async (
     ...data,
     items: data.items.map((item: ItemResType) => ({
       ...item,
-      name: item?.name,
-      itemName: item?.name,
+      name: item?.itemName,
+      itemName: item?.itemName,
       source: item?.sourceLanguage,
       target: item?.targetLanguage,
       totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
@@ -245,7 +245,8 @@ export const patchQuoteProjectInfo = async (
     | { isConfirmed: boolean }
     | { languagePairs: Array<LanguagePairsType> }
     | { items: Array<PostItemType> }
-    | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> },
+    | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
+    | { showDescription: boolean },
 ) => {
   const { data } = await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
   return data

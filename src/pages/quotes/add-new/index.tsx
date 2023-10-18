@@ -458,7 +458,8 @@ export default function AddNewQuote() {
       } = item
       return {
         ...filterItem,
-        contactPersonId: item.contactPerson?.id!,
+        // contactPersonId: item.contactPerson?.id!,
+        contactPersonId: item.contactPersonId!,
         description: item.description || '',
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',

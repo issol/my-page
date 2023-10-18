@@ -976,7 +976,8 @@ const OrderDetail = () => {
       } = item
       return {
         ...filterItem,
-        contactPersonId: Number(item.contactPerson?.id!),
+        // contactPersonId: Number(item.contactPerson?.id!),
+        contactPersonId: Number(item.contactPersonId!),
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
@@ -1066,6 +1067,9 @@ const OrderDetail = () => {
         setClientEdit(false)
         setProjectTeamEdit(false)
         setLangItemsEdit(false)
+        projectInfoReset()
+        itemReset()
+        resetTeam()
         if (data.id === Number(id)) {
           queryClient.invalidateQueries({
             queryKey: ['orderDetail'],
