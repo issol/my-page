@@ -13,6 +13,7 @@ type Props = {
   confirmButtonText?: string
   onClose: () => void
   onConfirm?: () => void
+  textAlign?: 'left' | 'center' | 'right'
 }
 
 /**
@@ -31,7 +32,9 @@ export default function SimpleMultilineAlertModal({
   confirmButtonText,
   onClose,
   onConfirm,
+  textAlign,
 }: Props) {
+  const align = textAlign ?? 'left'
   const newMessage = message.split('\n').map((line, index) => (
     <Fragment key={index}>
       {line}
@@ -54,7 +57,7 @@ export default function SimpleMultilineAlertModal({
     >
       <SmallModalContainer>
         <AlertIcon type={vary} />
-        {newMessage}
+        <Box textAlign={align}>{newMessage}</Box>
         {newTitle ? (
           <TitleTypography
             mt='8px'
@@ -62,7 +65,8 @@ export default function SimpleMultilineAlertModal({
             fontSize='1rem'
             fontWeight='bold'
           >
-            {newTitle}
+            <Box textAlign={align}>{newTitle}</Box>
+            
           </TitleTypography>
         ) : null}
         <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
