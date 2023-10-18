@@ -530,8 +530,12 @@ export default function ProjectInfoForm({
             return (
               <Autocomplete
                 autoHighlight
+                disableCloseOnSelect
                 fullWidth
                 disabled={!category}
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
+                }}
                 multiple
                 limitTags={2}
                 options={
@@ -551,6 +555,12 @@ export default function ProjectInfoForm({
                     label='Area of expertise'
                     // placeholder='Area of expertise'
                   />
+                )}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 2 }} />
+                    {option.label}
+                  </li>
                 )}
               />
             )
