@@ -36,7 +36,7 @@ export const useGetMemberList = () => {
           }
         }),
       suspense: true,
-      staleTime: 60 * 1000,
+      staleTime: 10 * 1000,
       keepPreviousData: true,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
@@ -55,7 +55,7 @@ export const useGetQuotesList = (filter: QuotesFilterType) => {
     },
     {
       suspense: true,
-      staleTime: 60 * 1000,
+      staleTime: 10 * 1000,
       keepPreviousData: true,
     },
   )
@@ -73,7 +73,7 @@ export const useGetQuotesCalendarData = (
     },
     {
       suspense: true,
-      staleTime: 60 * 1000,
+      staleTime: 10 * 1000,
       keepPreviousData: true,
     },
   )
@@ -84,7 +84,7 @@ export const useGetProjectInfo = (id: number) => {
     [`quotesDetail`, { type: 'project' }, id],
     () => getProjectInfo(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: true,
     },
@@ -96,7 +96,7 @@ export const useGetProjectTeam = (id: number) => {
     [`quotesDetail`, { type: 'team' }, id],
     () => getProjectTeam(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: true,
 
@@ -112,7 +112,7 @@ export const useGetClient = (id: number) => {
     [`quotesDetail`, { type: 'client' }, id],
     () => getClient(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: true,
     },
@@ -124,7 +124,7 @@ export const useGetLangItem = (id: number) => {
     [`quotesDetailItems`, { type: 'item' }, id],
     () => getLangItems(id),
     {
-      staleTime: 60 * 1000, // 1
+      staleTime: 10 * 1000, // 1
 
       suspense: true,
     },
@@ -133,7 +133,7 @@ export const useGetLangItem = (id: number) => {
 
 export const useGetVersionHistory = (id: number) => {
   return useQuery([`quotesHistory`, id], () => getVersionHistory(id), {
-    staleTime: 60 * 1000, // 1
+    staleTime: 10 * 1000, // 1
     suspense: true,
   })
 }
