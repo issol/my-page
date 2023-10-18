@@ -89,7 +89,6 @@ export default function RegisterClientForm({
 
   const clientId = watch('clientId')
   const contacts = watch('contacts')
-  console.log("contacts",contacts)
   useEffect(() => {
     if (!clientId) {
       reset &&
@@ -115,22 +114,22 @@ export default function RegisterClientForm({
     return getClientDetail(id)
       .then(res => {
         setClientDetail(res)
-        reset &&
-          reset({
-            // ...getValue(),
-            clientId: id,
-            contacts: {
-              timezone: res?.timezone!,
-              phone: res?.phone ?? '',
-              mobile: res?.mobile ?? '',
-              fax: res?.fax ?? '',
-              email: res?.email ?? '',
-              addresses: 
-                res?.clientAddresses?.filter(
-                  item => item.addressType !== 'additional',
-                ) || [],
-            },
-          })
+        // reset &&
+        //   reset({
+        //     ...getValue(),
+        //     clientId: id,
+        //     contacts: {
+        //       timezone: res?.timezone!,
+        //       phone: res?.phone ?? '',
+        //       mobile: res?.mobile ?? '',
+        //       fax: res?.fax ?? '',
+        //       email: res?.email ?? '',
+        //       addresses: 
+        //         res?.clientAddresses?.filter(
+        //           item => item.addressType !== 'additional',
+        //         ) || [],
+        //     },
+        //   })
 
         if (res.isTaxable && res.tax) {
           setTaxable(res.isTaxable)
@@ -197,7 +196,7 @@ export default function RegisterClientForm({
   }
 
   const handleShowLabelAndPlaceHolder = (hasValue: boolean) => {
-    if(formType === 'create') {
+    if(formType ==='create' || formType ==='edit') {
       return Boolean(hasValue && getValue().contactPersonId)
     } else {
       return Boolean(hasValue)
@@ -314,7 +313,6 @@ export default function RegisterClientForm({
                         reset({
                           clientId: clientId,
                           contactPersonId: v.value,
-
                           contacts: {
                             timezone: clientDetail?.timezone!,
                             phone: clientDetail?.phone ?? '',
@@ -537,7 +535,7 @@ export default function RegisterClientForm({
                       Boolean(getValue('contacts.email'))
                     ) ? null : (
                       <Box sx={{ width: '100%' }}>Email</Box>
-                    )}{' '}
+                    )}
                     {}
                   </>
                 ),

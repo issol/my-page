@@ -565,8 +565,7 @@ const ReceivableInvoiceDetail = () => {
 
   useEffect(() => {
     if (langItem && prices) {
-      console.log(langItem)
-      console.log(prices)
+
 
       setLanguagePairs(
         langItem?.items?.map(item => {
@@ -647,14 +646,12 @@ const ReceivableInvoiceDetail = () => {
       const subtotal = Number(invoiceInfo!.subtotal!)
       const tax = subtotal * (invoiceInfo!.tax! / 100)
 
-      console.log(tax)
-
       const res: InvoiceDownloadData = {
         invoiceId: Number(id!),
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
         corporationId: invoiceInfo!.corporationId,
-        orderCorporationId: invoiceInfo?.corporationId ?? '',
+        orderCorporationId: invoiceInfo?.orderCorporationId ?? '',
         invoicedAt: invoiceInfo!.invoicedAt,
         paymentDueAt: {
           date: invoiceInfo!.payDueAt,
