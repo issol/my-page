@@ -412,10 +412,9 @@ export default function ProjectInfoForm({
               options={CategoryList}
               disableClearable={value ? false : true}
               onChange={(e, v) => {
-                if (!v) {
-                  setValue('serviceType', [], setValueOptions)
-                  setValue('expertise', [], setValueOptions)
-                }
+                setValue('serviceType', [], setValueOptions)
+                setValue('expertise', [], setValueOptions)
+
                 onChange(v?.value ?? '')
               }}
               value={
