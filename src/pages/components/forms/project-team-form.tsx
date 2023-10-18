@@ -121,8 +121,6 @@ export default function ProjectTeamForm({
     )
   }, [field])
 
-  console.log(focusField)
-
   function renderHeader(title: string) {
     return (
       <HeaderCell align='left' sx={{ width: '30%' }}>
@@ -132,8 +130,6 @@ export default function ProjectTeamForm({
   }
 
   function findMemberValue(value: number | null) {
-    console.log(value)
-
     let findValue = list.find(item => item.value === value?.toString())
     if (!findValue && value) {
       getUserInfo(value!)
@@ -239,8 +235,6 @@ export default function ProjectTeamForm({
 
     idx !== -1 && remove(idx)
   }
-
-  console.log(getValue('teams'))
 
   return (
     <TableContainer
