@@ -160,6 +160,7 @@ export default function AddNewOrder() {
   const [isWarn, setIsWarn] = useState(true)
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
+  const [taxFocus, setTaxFocus] = useState(false)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -1222,12 +1223,14 @@ export default function AddNewOrder() {
                       <TextField
                         size='small'
                         type='number'
+                        onClickCapture={() => setTaxFocus(true)}
+                        onBlur={() => setTaxFocus(false)}
                         value={
                           !getProjectInfoValues().isTaxable || !value
                             ? '-'
                             : value
                         }
-                        placeholder='-'
+                        placeholder={taxFocus ? '' : '-'}
                         error={
                           getProjectInfoValues().isTaxable && value === null
                         }
@@ -1298,5 +1301,8 @@ export const HeaderCell = styled(TableCell)`
     width: 2px;
     height: 30%;
     background: rgba(76, 78, 100, 0.12);
+  }
+  &:last-child::before {
+    display: none;
   }
 `

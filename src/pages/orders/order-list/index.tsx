@@ -52,6 +52,7 @@ const defaultValues: FilterType = {
   client: [],
   category: [],
   serviceType: [],
+  revenueFrom: [],
   search: '',
 }
 
