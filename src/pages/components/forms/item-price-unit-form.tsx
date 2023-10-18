@@ -165,6 +165,7 @@ export default function ItemPriceUnitForm({
 
     // const data = matchingUnit?.concat(filteredPriceUnit)
     const data = [...matchingUnit, ...priceUnit]
+    console.log(data)
 
     // const uniqueArray = Array.from(new Set(data.map(item => item.priceUnitId)))
     // .map(priceUnitId => data.find(item => item.priceUnitId === priceUnitId))
@@ -197,7 +198,7 @@ export default function ItemPriceUnitForm({
     }
 
     allPriceUnits.current = data
-    console.log("priceUnit",data)
+    console.log('priceUnit', data)
     return _.uniqBy(data, 'id')
   }
 
@@ -335,7 +336,7 @@ export default function ItemPriceUnitForm({
                       inputProps={{ inputMode: 'decimal' }}
                       onChange={e => {
                         onChange(Number(e.target.value))
-                        // updatePrice(e)
+                        updatePrice()
                       }}
                     />
                     {savedValue.unit === 'Percent' ? '%' : null}
@@ -402,14 +403,15 @@ export default function ItemPriceUnitForm({
                         const unitPrice = priceFactor
                           ? priceFactor * v.price
                           : v.price
+
+                        console.log(unitPrice, 'unitPrice')
+
                         update(idx, {
                           ...savedValue,
                           priceUnitId: v.priceUnitId,
                           quantity: v.quantity ?? 0,
                           unit: v.unit,
-                          unitPrice: priceFactor
-                            ? priceFactor * v.price
-                            : v.price,
+                          unitPrice: unitPrice,
                           priceFactor: priceFactor?.toString(),
                           prices:
                             v.unit !== 'Percent'
@@ -452,87 +454,6 @@ export default function ItemPriceUnitForm({
                               ? `${option?.quantity} ${option.title}`
                               : option.title}
                           </li>
-                          {/* <Box
-                            component='li'
-                            padding='4px 0'
-                            {...props}
-                            onClick={() => {
-                              setOpen(false)
-                              onChange(option.title)
-                              const unitPrice = priceFactor
-                                ? priceFactor * option.price
-                                : option.price
-                              update(idx, {
-                                ...savedValue,
-                                priceUnitId: option.priceUnitId,
-                                quantity: option.quantity ?? 0,
-                                unit: option.unit,
-                                unitPrice: priceFactor
-                                  ? priceFactor * option.price
-                                  : option.price,
-                                priceFactor: priceFactor?.toString(),
-                                prices:
-                                  option.unit !== 'Percent'
-                                    ? option.quantity! * unitPrice
-                                    : PercentPrice(option.quantity!),
-                              })
-                              if (option?.subPriceUnits?.length) {
-                                option.subPriceUnits.forEach(item => {
-                                  const unitPrice = priceFactor
-                                    ? priceFactor * item.price
-                                    : item.price
-
-                                  append({
-                                    ...savedValue,
-                                    priceFactor: priceFactor?.toString(),
-                                    priceUnitId: item.priceUnitId,
-                                    quantity: item.quantity!,
-                                    unit: item.unit,
-                                    unitPrice: unitPrice,
-                                    prices:
-                                      item.unit !== 'Percent'
-                                        ? item.quantity! * unitPrice
-                                        : PercentPrice(item.quantity!),
-                                  })
-                                })
-                              }
-                            }}
-                          >
-                            {option?.quantity && option?.quantity >= 2
-                              ? `${option?.quantity} ${option.title}`
-                              : option.title}
-                          </Box>
-                          {option?.subPriceUnits?.map(sub => (
-                            <Box
-                              component='li'
-                              padding='4px 0'
-                              className={props.className}
-                              key={sub.priceUnitId}
-                              role={props.role}
-                              onClick={() => {
-                                setOpen(false)
-                                onChange(sub.title)
-                                update(idx, {
-                                  ...savedValue,
-                                  priceUnitId: sub.priceUnitId,
-                                  quantity: sub.quantity ?? 0,
-                                  unit: sub.unit,
-                                  unitPrice: priceFactor
-                                    ? priceFactor * sub.price
-                                    : sub.price,
-                                  priceFactor: priceFactor?.toString(),
-                                })
-                              }}
-                            >
-                              <Icon
-                                icon='material-symbols:subdirectory-arrow-right'
-                                opacity={0.7}
-                              />
-                              {sub?.quantity && sub?.quantity >= 2
-                                ? `${sub?.quantity} ${sub.title}`
-                                : sub.title}
-                            </Box>
-                          ))} */}
                         </>
                       )
                     }}
@@ -582,24 +503,26 @@ export default function ItemPriceUnitForm({
               control={control}
               render={({ field: { value, onChange } }) => {
                 return (
-                  <TextField
-                    placeholder='0.00'
-                    inputProps={{ inputMode: 'decimal' }}
-                    type='number'
-                    value={
-                      savedValue.unit === 'Percent'
-                        ? '-'
-                        : value
-                        ? Number(value)
-                        : null
-                    }
-                    disabled={savedValue.unit === 'Percent'}
-                    onChange={e => {
-                      onChange(e)
-                      // updatePrice(e)
-                    }}
-                    sx={{ maxWidth: '104px', padding: 0 }}
-                  />
+                  <Box>
+                    <TextField
+                      placeholder='0.00'
+                      inputProps={{ inputMode: 'decimal' }}
+                      type='number'
+                      value={
+                        value
+                          ? savedValue.unit === 'Percent'
+                            ? '-'
+                            : value
+                          : null
+                      }
+                      disabled={savedValue.unit === 'Percent'}
+                      onChange={e => {
+                        onChange(Number(e.target.value))
+                        updatePrice()
+                      }}
+                      sx={{ maxWidth: '104px', padding: 0 }}
+                    />
+                  </Box>
                 )
               }}
             />
