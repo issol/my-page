@@ -564,8 +564,13 @@ const DeliveriesFeedback = ({
           onClose={() => closeModal('DeliverToClientModal')}
           title={
             <>
-              Are you sure you want to deliver the uploaded files?
-              <Typography variant='body1' fontWeight={600}>
+              Are you sure you want to deliver the uploaded files?&nbsp;
+              <Typography
+                variant='body2'
+                fontWeight={600}
+                component={'span'}
+                fontSize={16}
+              >
                 You cannot delete the files after delivering them to the client.
               </Typography>
             </>
