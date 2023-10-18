@@ -72,7 +72,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema } from '@src/types/schema/item.schema'
@@ -410,12 +410,12 @@ const OrderDetail = () => {
     openModal({
       type: 'EditSaveModal',
       children: (
-        <EditSaveModal
+        <CustomModal
           onClose={() => closeModal('EditSaveModal')}
-          onClick={() => {
-            closeModal('EditSaveModal')
-            callBack()
-          }}
+          onClick={callBack}
+          title='Are you sure you want to save all changes? Language pair(s) not registered to the item(s) willS be deleted from the order.'
+          rightButtonText='Save'
+          vary='successful'
         />
       ),
     })
@@ -964,7 +964,6 @@ const OrderDetail = () => {
   )
 
   const onSubmitItems = () => {
-    setLangItemsEdit(false)
     const items: PostItemType[] = getItem().items.map(item => {
       const {
         contactPerson,
@@ -1005,6 +1004,7 @@ const OrderDetail = () => {
     const subtotal = items.reduce((accumulator, item) => {
       return accumulator + item.totalPrice
     }, 0)
+
     onSave(async () => {
       try {
         updateProject.mutate(
@@ -1824,21 +1824,25 @@ const OrderDetail = () => {
                       <Box display='flex' alignItems='center' gap='4px'>
                         {langItemsEdit ? (
                           <>
-                            <TextField
-                              size='small'
-                              type='number'
-                              value={
-                                !getProjectInfo('tax')
-                                  ? '-'
-                                  : getProjectInfo('tax')
-                              }
-                              disabled={!getProjectInfo('isTaxable')}
-                              sx={{ maxWidth: '120px', padding: 0 }}
-                              inputProps={{ inputMode: 'decimal' }}
-                              onChange={e => {
-                                if (e.target.value.length > 10) return
-                                setProjectInfo('tax', Number(e.target.value))
-                              }}
+                            <Controller
+                              name='tax'
+                              control={projectInfoControl}
+                              render={({ field: { value, onChange } }) => (
+                                <TextField
+                                  size='small'
+                                  type='number'
+                                  value={value ? value : null}
+                                  disabled={!getProjectInfo('isTaxable')}
+                                  sx={{ maxWidth: '120px', padding: 0 }}
+                                  inputProps={{ inputMode: 'decimal' }}
+                                  onChange={e => {
+                                    console.log(e.target.value)
+
+                                    if (e.target.value.length > 10) return
+                                    onChange(Number(e.target.value))
+                                  }}
+                                />
+                              )}
                             />
                             %
                           </>
@@ -1866,7 +1870,23 @@ const OrderDetail = () => {
                               setProjectInfo('tax', projectInfo?.tax ?? null)
                             },
                           }),
-                        onSave: () => onSubmitItems(),
+                        onSave: () => {
+                          onSubmitItems()
+                          // openModal({
+                          //   type: 'SaveLanguageAndItemModal',
+                          //   children: (
+                          //     <CustomModal
+                          //       onClose={() =>
+                          //         closeModal('SaveLanguageAndItemModal')
+                          //       }
+                          //       onClick={onSubmitItems}
+                          //       title='Are you sure you want to save all changes? Language pair(s) not registered to the item(s) willS be deleted from the order.'
+                          //       rightButtonText='Save'
+                          //       vary='successful'
+                          //     />
+                          //   ),
+                          // })
+                        },
                         isValid:
                           isItemValid ||
                           !getProjectInfo('isTaxable') ||
@@ -1910,6 +1930,7 @@ const OrderDetail = () => {
                         control={clientControl}
                         setValue={setClientValue}
                         getValue={getClientValue}
+                        reset={clientReset}
                         watch={clientWatch}
                         setTaxable={(n: boolean) =>
                           setProjectInfo('isTaxable', n)

@@ -262,8 +262,6 @@ export default function AddNewOrder() {
     resolver: yupResolver(clientSchema),
   })
 
-  console.log(getClientValue())
-
   // ** step3
   const {
     control: projectInfoControl,
@@ -320,7 +318,6 @@ export default function AddNewOrder() {
     }
   }
   useEffect(() => {
-    console.log(getItem('items'))
     const subscription = itemWatch((value, { name, type }) => {
       sumTotalPrice()
     })
@@ -480,8 +477,6 @@ export default function AddNewOrder() {
       subtotal: subPrice,
     }
 
-    console.log(projectInfo)
-
     const items: Array<PostItemType> = getItem().items.map(item => {
       const {
         contactPerson,
@@ -523,6 +518,8 @@ export default function AddNewOrder() {
       ...projectInfo,
       quoteId: quoteId ?? null,
     }
+
+    console.log(items)
 
     createOrderInfo(stepOneData)
       .then(res => {
@@ -956,12 +953,6 @@ export default function AddNewOrder() {
     shouldWarn: isWarn,
     toUrl: '/orders/order-list',
   })
-  console.log(isItemValid)
-  console.log(getProjectInfoValues('tax'))
-
-  console.log(
-    getProjectInfoValues().isTaxable && getProjectInfoValues().tax === null,
-  )
 
   return (
     <Grid container spacing={6}>
