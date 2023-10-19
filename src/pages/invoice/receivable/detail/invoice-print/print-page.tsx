@@ -34,7 +34,7 @@ type Props = {
 const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
   const dispatch = useAppDispatch()
-
+  console.log("data",data)
   const patchInvoiceInfoMutation = useMutation(
     (data: {
       id: number
@@ -43,6 +43,10 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
     }) => patchInvoiceInfo(data.id, data.form, data.type),
     {},
   )
+
+  // print page에서 사용할 Currency 정보
+  const invoiceCurrency = data.langItem?.languagePairs?.[0].currency
+
   useEffect(() => {
     if (type === 'download') {
       setTimeout(() => {
@@ -365,7 +369,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Box>{lang === 'EN' ? `Price (USD)` : `단가 (USD)`}</Box>
+                  <Box>{lang === 'EN' ? `Price (${invoiceCurrency})` : `단가 (${invoiceCurrency})`}</Box>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -390,7 +394,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                   }}
                 >
                   <Box>
-                    {lang === 'EN' ? `Total Price (USD)` : `금액 (USD)`}
+                    {lang === 'EN' ? `Total Price (${invoiceCurrency})` : `금액 (${invoiceCurrency})`}
                   </Box>
                 </TableCell>
               </TableRow>
