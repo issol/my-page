@@ -175,24 +175,7 @@ export default function ItemForm({
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
 
-  const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
-
-  const [contactPersonList, setContactPersonList] = useState<
-    { value: string; label: string }[]
-  >([])
-
-  useEffect(() => {
-    if (teamMembers && teamMembers.length) {
-      const list = teamMembers
-        .filter(item => item.id !== null)
-        .map(item => ({
-          value: item?.id?.toString()!,
-          label: item.name || '',
-        }))
-      setContactPersonList(list)
-    }
-  }, [teamMembers])
 
   const getPricebyPairs = (idx: number) => {
     const options = getPriceOptions(
@@ -386,7 +369,7 @@ export default function ItemForm({
           splitReady={splitReady!}
           type={type}
           onItemRemove={onItemRemove}
-          contactPersonList={contactPersonList}
+          teamMembers={teamMembers}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
           errors={errors}
