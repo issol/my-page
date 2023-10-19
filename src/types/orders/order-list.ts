@@ -47,6 +47,7 @@ export type OrderListType = {
   totalPrice: number
   items?: Array<any>
   isEditable?: boolean
+  subtotal: number
 }
 
 export type OrderListForJobType = {
