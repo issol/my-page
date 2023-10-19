@@ -1305,7 +1305,13 @@ const OrderDetail = () => {
         case 'button-Deliveries&Feedback-DownloadOnce':
         case 'button-Deliveries&Feedback-DeliverToClient':
         case 'checkBox-ProjectInfo-Description':
-          flag = isUpdatable && isIncludeProjectTeam()
+          flag =
+            isUpdatable &&
+            isIncludeProjectTeam() &&
+            projectInfo?.status !== 'Delivery confirmed' &&
+            projectInfo?.status !== 'Canceled' &&
+            projectInfo?.status !== 'Invoiced' &&
+            projectInfo?.status !== 'Paid'
           break
         case 'button-Deliveries&Feedback-CompleteDelivery':
           flag =
