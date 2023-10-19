@@ -1223,6 +1223,15 @@ export default function AddNewOrder() {
                       <TextField
                         size='small'
                         type='number'
+                        onFocus={e =>
+                          e.target.addEventListener(
+                            'wheel',
+                            function (e) {
+                              e.preventDefault()
+                            },
+                            { passive: false },
+                          )
+                        }
                         onClickCapture={() => setTaxFocus(true)}
                         onBlur={() => setTaxFocus(false)}
                         value={
