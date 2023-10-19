@@ -322,7 +322,7 @@ const ProjectInfo = ({
           onConfirm={() => {
             updateProject &&
               updateProject.mutate({
-                showDescription: value,
+                showDescription: value ? '1' : '0',
               })
             setShowDescription(value)
           }}

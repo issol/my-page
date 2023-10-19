@@ -145,7 +145,7 @@ export type updateOrderType =
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
   | { isConfirmed: boolean }
-  | { showDescription: boolean }
+  | { showDescription: '1' | '0' }
   | {
       deliveries: {
         filePath: string
@@ -1309,7 +1309,7 @@ const OrderDetail = () => {
         case 'checkBox-ProjectInfo-Description':
           flag =
             isUpdatable &&
-            isIncludeProjectTeam() &&
+            // isIncludeProjectTeam() &&
             projectInfo?.status !== 'Delivery confirmed' &&
             projectInfo?.status !== 'Canceled' &&
             projectInfo?.status !== 'Invoiced' &&

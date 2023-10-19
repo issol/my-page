@@ -595,6 +595,7 @@ export default function AddNewOrder() {
         i => i.category !== items[0]?.category,
       )
       projectInfoReset({
+        orderedAt: formattedNow(new Date()),
         projectDueAt: findEarliestDate(desiredDueDates),
         // projectDueDate: {
         //   date: findEarliestDate(desiredDueDates),
@@ -602,6 +603,7 @@ export default function AddNewOrder() {
         category: isCategoryNotSame ? '' : items[0].category,
         serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
         projectDescription: requestData?.notes ?? '',
+        showDescription: requestData?.showDescription ?? false,
         status: 10000,
       })
       const itemLangPairs =
