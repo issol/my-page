@@ -1120,7 +1120,6 @@ export default function AddNewOrder() {
                   errors={itemErrors}
                   fields={items}
                   remove={removeItems}
-                  isValid={isItemValid}
                   teamMembers={getTeamValues()?.teams}
                   languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}

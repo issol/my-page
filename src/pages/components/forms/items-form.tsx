@@ -1,47 +1,23 @@
 // ** react
-import { Dispatch, SetStateAction, useEffect, useState, useRef } from 'react'
+import { Dispatch, SetStateAction, useEffect } from 'react'
 
-// ** style component
-import {
-  Autocomplete,
-  Box,
-  Checkbox,
-  Divider,
-  Grid,
-  IconButton,
-  Radio,
-  TextField,
-  Typography,
-} from '@mui/material'
-import styled from 'styled-components'
+import { Grid, Typography } from '@mui/material'
+
 import { Icon } from '@iconify/react'
 
 // ** react hook form
 import {
   Control,
-  Controller,
   FieldArrayWithId,
   FieldErrors,
   UseFieldArrayRemove,
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
-  useFieldArray,
 } from 'react-hook-form'
 
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-
 // ** types
-import {
-  ItemDetailType,
-  ItemType,
-  PostItemType,
-} from '@src/types/common/item.type'
-
-// ** Third Party Imports
-
-// ** Custom Component Imports
+import { ItemType, PostItemType } from '@src/types/common/item.type'
 
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
@@ -56,37 +32,23 @@ import {
 } from '@src/types/common/standard-price'
 
 // ** helpers
-import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
 
 // ** components
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
-import ItemPriceUnitForm from './item-price-unit-form'
-import TmAnalysisForm from './tm-analysis-form'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-
-// ** values
-import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** helpers
-import { FullDateHelper } from '@src/shared/helpers/date.helper'
+
 import Link from 'next/link'
-import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
+
 import { getCurrentRole } from '@src/shared/auth/storage'
-import { ProjectInfoType } from '@src/types/orders/order-detail'
-import { UseMutationResult } from 'react-query'
-import { CheckBox, TroubleshootRounded } from '@mui/icons-material'
-import {
-  formatByRoundingProcedure,
-  formatCurrency,
-} from '@src/shared/helpers/price.helper'
+
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
+
 import Row from './item-row'
 
 type Props = {
@@ -96,7 +58,6 @@ type Props = {
   errors: FieldErrors<{ items: ItemType[] }>
   fields: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
   remove: UseFieldArrayRemove
-  isValid: boolean
   teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
   languagePairs: languageType[]
   getPriceOptions: (
@@ -110,19 +71,6 @@ type Props = {
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
   }>
-  updateItems?: UseMutationResult<
-    any,
-    unknown,
-    {
-      id: number
-      items: PostItemType[]
-    },
-    unknown
-  >
-  project?: ProjectInfoType
-
-  onClickCancelSplitOrder?: () => void
-  onClickSplitOrderConfirm?: () => void
   selectedIds?: { id: number; selected: boolean }[]
   setSelectedIds?: Dispatch<
     SetStateAction<
@@ -155,7 +103,6 @@ export default function ItemForm({
   errors,
   fields,
   remove,
-  isValid,
   teamMembers,
   languagePairs,
   getPriceOptions,
@@ -163,10 +110,6 @@ export default function ItemForm({
   type,
   orderId,
   itemTrigger,
-  updateItems,
-  project,
-  onClickCancelSplitOrder,
-  onClickSplitOrderConfirm,
   selectedIds,
   setSelectedIds,
   splitReady,
