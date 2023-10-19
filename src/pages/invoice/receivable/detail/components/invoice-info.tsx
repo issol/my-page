@@ -1471,8 +1471,8 @@ const InvoiceInfo = ({
                             }}
                           >
                             {FullDateTimezoneHelper(
-                              invoiceInfo.invoiceConfirmedAt,
-                              invoiceInfo.invoiceConfirmTimezone!,
+                              invoiceInfo.clientConfirmedAt,
+                              invoiceInfo.clientConfirmTimezone!,
                             )}
                           </Typography>
                         </Box>

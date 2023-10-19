@@ -221,7 +221,7 @@ export default function OrdersList({
       renderCell: ({ row }: OrderListCellType) => {
         return (
           <Box>
-            {!row.currency ? '-' : formatCurrency(row.totalPrice, row.currency)}
+            {!row.currency ? '-' : formatCurrency(row.subtotal, row.currency)}
           </Box>
         )
       },

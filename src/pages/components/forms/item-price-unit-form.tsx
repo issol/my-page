@@ -329,6 +329,15 @@ export default function ItemPriceUnitForm({
                     <TextField
                       placeholder='0'
                       type='number'
+                      onFocus={e =>
+                        e.target.addEventListener(
+                          'wheel',
+                          function (e) {
+                            e.preventDefault()
+                          },
+                          { passive: false },
+                        )
+                      }
                       value={value ? Number(value) : null}
                       sx={{ maxWidth: '85px', padding: 0 }}
                       inputProps={{ inputMode: 'decimal' }}
@@ -506,6 +515,15 @@ export default function ItemPriceUnitForm({
                       placeholder='0.00'
                       inputProps={{ inputMode: 'decimal' }}
                       type='number'
+                      onFocus={e =>
+                        e.target.addEventListener(
+                          'wheel',
+                          function (e) {
+                            e.preventDefault()
+                          },
+                          { passive: false },
+                        )
+                      }
                       value={
                         value
                           ? savedValue.unit === 'Percent'

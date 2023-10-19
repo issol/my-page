@@ -42,6 +42,7 @@ import Icon from 'src/@core/components/icon'
 import { getUserInfo } from '@src/apis/user.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useEffect, useState } from 'react'
+import _ from 'lodash'
 
 type Props = {
   control: Control<ProjectTeamType, any>
@@ -81,6 +82,8 @@ export default function ProjectTeamForm({
       jobTitle: string | undefined
     }>
   >(memberList)
+
+  console.log(list)
 
   const setValueOptions = { shouldValidate: true, shouldDirty: true }
 
@@ -167,10 +170,13 @@ export default function ProjectTeamForm({
                 return option.value === newValue.value
               }}
               {...field}
-              options={list.map(item => ({
-                value: item.value,
-                label: item.label,
-              }))}
+              options={_.uniqBy(
+                list.map(item => ({
+                  value: item.value,
+                  label: item.label,
+                })),
+                'value',
+              )}
               onChange={(e, v) => {
                 if (v) {
                   onChange(Number(v.value))

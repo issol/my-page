@@ -867,7 +867,7 @@ export default function AddNewOrder() {
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
-            revenueFrom: undefined,
+            revenueFrom: res.revenueFrom,
             projectDueAt: res?.projectDueAt ?? null,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
@@ -1120,7 +1120,6 @@ export default function AddNewOrder() {
                   errors={itemErrors}
                   fields={items}
                   remove={removeItems}
-                  isValid={isItemValid}
                   teamMembers={getTeamValues()?.teams}
                   languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}
@@ -1223,6 +1222,15 @@ export default function AddNewOrder() {
                       <TextField
                         size='small'
                         type='number'
+                        onFocus={e =>
+                          e.target.addEventListener(
+                            'wheel',
+                            function (e) {
+                              e.preventDefault()
+                            },
+                            { passive: false },
+                          )
+                        }
                         onClickCapture={() => setTaxFocus(true)}
                         onBlur={() => setTaxFocus(false)}
                         value={

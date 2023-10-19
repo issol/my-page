@@ -199,6 +199,8 @@ const OrderDetail = () => {
 
   const dispatch = useAppDispatch()
 
+  const [uploadFileProcessing, setUploadFileProcessing] = useState(false)
+
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
   const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
@@ -1305,7 +1307,13 @@ const OrderDetail = () => {
         case 'button-Deliveries&Feedback-DownloadOnce':
         case 'button-Deliveries&Feedback-DeliverToClient':
         case 'checkBox-ProjectInfo-Description':
-          flag = isUpdatable && isIncludeProjectTeam()
+          flag =
+            isUpdatable &&
+            isIncludeProjectTeam() &&
+            projectInfo?.status !== 'Delivery confirmed' &&
+            projectInfo?.status !== 'Canceled' &&
+            projectInfo?.status !== 'Invoiced' &&
+            projectInfo?.status !== 'Paid'
           break
         case 'button-Deliveries&Feedback-CompleteDelivery':
           flag =
@@ -1461,7 +1469,8 @@ const OrderDetail = () => {
                 {projectInfoEdit ||
                 projectTeamEdit ||
                 clientEdit ||
-                langItemsEdit ? null : (
+                langItemsEdit ||
+                uploadFileProcessing ? null : (
                   <IconButton
                     sx={{ padding: '0 !important', height: '24px' }}
                     onClick={() => router.push('/orders/order-list')}
@@ -1475,9 +1484,10 @@ const OrderDetail = () => {
                   <Typography variant='h5'>
                     {projectInfo?.corporationId}
                   </Typography>
-                  {projectInfo?.linkedRequest ||
-                  projectInfo?.linkedQuote ||
-                  projectInfo?.linkedInvoiceReceivable ? (
+                  {(projectInfo?.linkedRequest ||
+                    projectInfo?.linkedQuote ||
+                    projectInfo?.linkedInvoiceReceivable) &&
+                  !uploadFileProcessing ? (
                     <Box>
                       <IconButton
                         sx={{ width: '24px', height: '24px', padding: 0 }}
@@ -1571,6 +1581,7 @@ const OrderDetail = () => {
               projectTeamEdit ||
               clientEdit ||
               langItemsEdit ||
+              uploadFileProcessing ||
               (currentRole && currentRole.name === 'CLIENT') ? null : (
                 <Box
                   sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}
@@ -2040,6 +2051,8 @@ const OrderDetail = () => {
                   updateProject={updateProject}
                   statusList={statusList!}
                   canUseFeature={canUseFeature}
+                  uploadFileProcessing={uploadFileProcessing}
+                  setUploadFileProcessing={setUploadFileProcessing}
                 />
               </Suspense>
             </TabPanel>

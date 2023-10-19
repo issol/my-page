@@ -5,7 +5,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Control,
   Controller,
@@ -41,6 +41,7 @@ import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import { MemberType } from '@src/types/schema/project-team.schema'
 
 type Props = {
   idx: number
@@ -64,10 +65,7 @@ type Props = {
   splitReady: boolean
   type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
   onItemRemove: (idx: number) => void
-  contactPersonList: {
-    value: string
-    label: string
-  }[]
+
   selectedIds?: { id: number; selected: boolean }[]
   setSelectedIds?: Dispatch<
     SetStateAction<
@@ -83,6 +81,7 @@ type Props = {
   priceUnitsList: Array<PriceUnitListType>
   checkPriceCurrency: (price: StandardPriceListType, index: number) => boolean
   findLangPairIndex: (source: string, target: string) => number
+  teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
 }
 
 const Row = ({
@@ -98,7 +97,7 @@ const Row = ({
   splitReady,
   type,
   onItemRemove,
-  contactPersonList,
+
   selectedIds,
   setSelectedIds,
   errors,
@@ -107,12 +106,16 @@ const Row = ({
   priceUnitsList,
   checkPriceCurrency,
   findLangPairIndex,
+  teamMembers,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
+  const [contactPersonList, setContactPersonList] = useState<
+    Array<{ value: number; label: string }>
+  >([])
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
   const itemData = getValues(`items.${idx}`)
   const currentRole = getCurrentRole()
-  const defaultValue = { value: '', label: '' }
+  const defaultValue = { value: 0, label: '' }
 
   /* price unit */
   const itemName: `items.${number}.detail` = `items.${idx}.detail`
@@ -126,6 +129,18 @@ const Row = ({
       ) || null
     )
   }
+
+  useEffect(() => {
+    if (teamMembers && teamMembers.length) {
+      const list = teamMembers
+        .filter(item => item.id !== null)
+        .map(item => ({
+          value: item?.id!,
+          label: item.name || '',
+        }))
+      setContactPersonList(list)
+    }
+  }, [teamMembers])
 
   const handleShowMinimum = (value: boolean) => {
     const minimumPrice = Number(getValues(`items.${idx}.minimumPrice`))
@@ -381,6 +396,7 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
+
   return (
     <Box
       style={{
@@ -524,9 +540,7 @@ const Row = ({
                         ? contactPersonList.find(
                             item =>
                               item.value ===
-                              getValues(
-                                `items.${idx}.contactPersonId`,
-                              )?.toString(),
+                              getValues(`items.${idx}.contactPersonId`),
                           )?.label
                         : getLegalName(getValues(`items.${idx}.contactPerson`)!)
 
@@ -541,38 +555,42 @@ const Row = ({
                   </Typography>
                 </Box>
               ) : (
-                <Controller
-                  name={`items.${idx}.contactPersonId`}
-                  control={control}
-                  render={({ field: { value, onChange } }) => (
-                    <Autocomplete
-                      autoHighlight
-                      fullWidth
-                      options={contactPersonList}
-                      isOptionEqualToValue={(option, newValue) => {
-                        return option.value === newValue.value
-                      }}
-                      disableClearable={value ? false : true}
-                      onChange={(e, v) => {
-                        onChange(v?.value ?? '')
-                      }}
-                      value={
-                        !value
-                          ? defaultValue
-                          : contactPersonList.find(
-                              item => item.value === value.toString(),
-                            )
-                      }
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Contact person for job*'
-                          // placeholder='Contact person for job*'
+                contactPersonList.length > 0 && (
+                  <Controller
+                    name={`items.${idx}.contactPersonId`}
+                    control={control}
+                    render={({ field: { value, onChange } }) => {
+                      return (
+                        <Autocomplete
+                          autoHighlight
+                          fullWidth
+                          options={contactPersonList}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          disableClearable={value ? false : true}
+                          onChange={(e, v) => {
+                            onChange(v?.value ?? '')
+                          }}
+                          value={
+                            !value
+                              ? defaultValue
+                              : contactPersonList.find(
+                                  item => item.value === value,
+                                )
+                          }
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              label='Contact person for job*'
+                              // placeholder='Contact person for job*'
+                            />
+                          )}
                         />
-                      )}
-                    />
-                  )}
-                />
+                      )
+                    }}
+                  />
+                )
               )}
             </Grid>
             <Grid item xs={6}>
