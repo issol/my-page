@@ -291,7 +291,6 @@ export default function QuotesLanguageItemsDetail({
           errors={itemErrors}
           fields={items}
           remove={removeItems}
-          isValid={isItemValid}
           teamMembers={getTeamValues()?.teams}
           languagePairs={languagePairs}
           getPriceOptions={getPriceOptions}
