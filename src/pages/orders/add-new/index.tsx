@@ -867,7 +867,7 @@ export default function AddNewOrder() {
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
-            revenueFrom: undefined,
+            revenueFrom: res.revenueFrom,
             projectDueAt: res?.projectDueAt ?? null,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
