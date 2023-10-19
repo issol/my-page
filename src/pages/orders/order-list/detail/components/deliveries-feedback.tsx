@@ -28,7 +28,13 @@ import {
   OrderFeatureType,
   ProjectInfoType,
 } from '@src/types/orders/order-detail'
-import { useContext, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
 import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
@@ -62,6 +68,8 @@ type Props = {
   updateProject: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList: Array<{ value: number; label: string }>
   canUseFeature: (v: OrderFeatureType) => boolean
+  uploadFileProcessing: boolean
+  setUploadFileProcessing: Dispatch<SetStateAction<boolean>>
 }
 
 const DeliveriesFeedback = ({
@@ -70,6 +78,8 @@ const DeliveriesFeedback = ({
   updateProject,
   statusList,
   canUseFeature,
+  uploadFileProcessing,
+  setUploadFileProcessing,
 }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
   const { openModal, closeModal } = useModal()
@@ -82,7 +92,6 @@ const DeliveriesFeedback = ({
   const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
   const [importedFiles, setImportedFiles] = useState<DeliveryFileType[]>([])
-  const [uploadFileProcessing, setUploadFileProcessing] = useState(false)
 
   const queryClient = useQueryClient()
 
@@ -752,20 +761,22 @@ const DeliveriesFeedback = ({
                     <Icon icon='mdi:import' fontSize={18} />
                     &nbsp;Import from job
                   </Button>
-                  <Button
-                    variant='outlined'
-                    disabled={
-                      savedFiles.length < 1 ||
-                      !canUseFeature('button-Deliveries&Feedback-DownloadAll')
-                    }
-                    sx={{
-                      height: '34px',
-                    }}
-                    onClick={() => downloadAllFiles(savedFiles)}
-                  >
-                    <Icon icon='mdi:download' fontSize={18} />
-                    &nbsp;Download all
-                  </Button>
+                  {uploadFileProcessing ? null : (
+                    <Button
+                      variant='outlined'
+                      disabled={
+                        savedFiles.length < 1 ||
+                        !canUseFeature('button-Deliveries&Feedback-DownloadAll')
+                      }
+                      sx={{
+                        height: '34px',
+                      }}
+                      onClick={() => downloadAllFiles(savedFiles)}
+                    >
+                      <Icon icon='mdi:download' fontSize={18} />
+                      &nbsp;Download all
+                    </Button>
+                  )}
                 </Box>
               ) : null}
               {currentRole &&
@@ -931,31 +942,32 @@ const DeliveriesFeedback = ({
             ) : null}
           </Box>
         </Card>
+        {uploadFileProcessing ? null : (
+          <Card sx={{ padding: '24px', mt: '24px' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <Typography variant='body1' fontWeight={600} fontSize={16}>
+                  Feedback
+                </Typography>
+                {currentRole &&
+                currentRole.name === 'CLIENT' &&
+                (project.feedback === '-' || project.feedback === null) ? (
+                  <Button
+                    variant='contained'
+                    sx={{ height: '34px' }}
+                    onClick={onClickSendFeedback}
+                  >
+                    Send feedback
+                  </Button>
+                ) : null}
+              </Box>
 
-        <Card sx={{ padding: '24px', mt: '24px' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <Typography variant='body1' fontWeight={600} fontSize={16}>
-                Feedback
+              <Typography variant='body1' fontWeight={400} fontSize={16}>
+                {project.feedback ?? '-'}
               </Typography>
-              {currentRole &&
-              currentRole.name === 'CLIENT' &&
-              (project.feedback === '-' || project.feedback === null) ? (
-                <Button
-                  variant='contained'
-                  sx={{ height: '34px' }}
-                  onClick={onClickSendFeedback}
-                >
-                  Send feedback
-                </Button>
-              ) : null}
             </Box>
-
-            <Typography variant='body1' fontWeight={400} fontSize={16}>
-              {project.feedback ?? '-'}
-            </Typography>
-          </Box>
-        </Card>
+          </Card>
+        )}
       </Grid>
       <Grid item xs={3}>
         <Card sx={{ padding: '24px' }}>
