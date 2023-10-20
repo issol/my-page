@@ -156,15 +156,15 @@ export type updateProjectInfoType =
   | QuotesProjectInfoFormType
   | ProjectTeamFormType
   | ClientPostType
-  | { tax: null | number; isTaxable: boolean }
-  | { tax: null | number; isTaxable: boolean; subtotal: number }
+  | { tax: null | number; isTaxable: '1' | '0' }
+  | { tax: null | number; isTaxable: '1' | '0'; subtotal: number }
   | { status: number }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
   | { languagePairs: Array<LanguagePairsType> }
   | { items: Array<PostItemType> }
   | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
-  | { showDescription: boolean }
+  | { showDescription: '1' | '0' }
 
 export default function QuotesDetail() {
   const router = useRouter()
@@ -221,7 +221,7 @@ export default function QuotesDetail() {
       | 'button-ConfirmQuote'
       | 'button-CancelQuote'
       | 'button-DeleteQuote'
-      | 'checkBox-ProjectInfo-Description'
+      | 'checkBox-ProjectInfo-Description',
   ): boolean => {
     let flag = false
     if (currentRole! && currentRole.name !== 'CLIENT') {
@@ -314,16 +314,16 @@ export default function QuotesDetail() {
                 isIncludeProjectTeam()
             : false
           break
-          case 'checkBox-ProjectInfo-Description':
-            flag = 
-              (project?.status !== 'Quote sent' &&
-              project?.status !== 'Client review' &&
-              project?.status !== 'Accepted' &&
-              project?.status !== 'Expired' &&
-              project?.status !== 'Rejected' &&
-              project?.status !== 'Canceled') &&
-              isIncludeProjectTeam()
-            break
+        case 'checkBox-ProjectInfo-Description':
+          flag =
+            project?.status !== 'Quote sent' &&
+            project?.status !== 'Client review' &&
+            project?.status !== 'Accepted' &&
+            project?.status !== 'Expired' &&
+            project?.status !== 'Rejected' &&
+            project?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
+          break
       }
     }
     return flag
@@ -859,12 +859,12 @@ export default function QuotesDetail() {
     openModal({
       type: 'EditSaveModal',
       children: (
-        <EditSaveModal
+        <CustomModal
           onClose={() => closeModal('EditSaveModal')}
-          onClick={() => {
-            closeModal('EditSaveModal')
-            callBack()
-          }}
+          onClick={callBack}
+          title='Are you sure you want to save all changes?'
+          rightButtonText='Save'
+          vary='successful'
         />
       ),
     })
@@ -951,9 +951,19 @@ export default function QuotesDetail() {
   })
 
   function onProjectInfoSave() {
-    const projectInfo = getProjectInfoValues()
+    const projectInfo = {
+      ...getProjectInfoValues(),
+      showDescription: getProjectInfoValues().showDescription ? '1' : '0',
+      isTaxable: getProjectInfoValues().isTaxable ? '1' : '0',
+    }
 
-    onSave(() => updateProject.mutate(projectInfo))
+    onSave(() =>
+      updateProject.mutate(projectInfo, {
+        onSuccess: () => {
+          closeModal('EditSaveModal')
+        },
+      }),
+    )
   }
 
   async function onItemSave() {
@@ -1006,7 +1016,7 @@ export default function QuotesDetail() {
         updateProject.mutate(
           {
             tax: getProjectInfoValues('tax'),
-            isTaxable: getProjectInfoValues('isTaxable'),
+            isTaxable: getProjectInfoValues('isTaxable') ? '1' : '0',
             subtotal: subtotal,
             languagePairs: langs,
             items: items,
@@ -1312,10 +1322,12 @@ export default function QuotesDetail() {
           closeButtonText='Cancel'
           confirmButtonText='Create'
           onClose={() => closeModal('CreateOrderModal')}
-          onConfirm={() => router.push({
-            pathname: `/orders/add-new`,
-            query: { quoteId: id },
-          })}
+          onConfirm={() =>
+            router.push({
+              pathname: `/orders/add-new`,
+              query: { quoteId: id },
+            })
+          }
           title={`[${project?.corporationId}] ${project?.projectName}`}
           message={`Are you sure you want to create an order\nwith this quote?`}
           textAlign='center'
@@ -1643,10 +1655,12 @@ export default function QuotesDetail() {
                       />
                       {renderSubmitButton({
                         onCancel: () =>
-                          onDiscard({ callback: () => {
-                            setEditProject(false)
-                            projectInfoReset()
-                          } }),
+                          onDiscard({
+                            callback: () => {
+                              setEditProject(false)
+                              projectInfoReset()
+                            },
+                          }),
                         onSave: () => onProjectInfoSave(),
                         isValid: isProjectInfoValid,
                       })}
@@ -1660,7 +1674,9 @@ export default function QuotesDetail() {
                       project={project}
                       setEditMode={setEditProject}
                       isUpdatable={canUseFeature('tab-ProjectInfo')}
-                      canCheckboxEdit={canUseFeature('checkBox-ProjectInfo-Description')}
+                      canCheckboxEdit={canUseFeature(
+                        'checkBox-ProjectInfo-Description',
+                      )}
                       updateStatus={(status: number) =>
                         updateProject.mutate({ status: status })
                       }
