@@ -256,7 +256,8 @@ export default function ItemPriceUnitForm({
       const newPrice = getValues(`${detailName}.${idx}`)
       if (type !== 'detail' && type !== 'invoiceDetail')
         getEachPrice(idx, isNotApplicable) //폼 데이터 업데이트 (setValue)
-      getTotalPrice() // 합계 데이터 업데이트 (setValue)
+      // getTotalPrice() // 합계 데이터 업데이트 (setValue)
+
       setSavedValue(newPrice) // setValue된 값 가져오기
       setPrice(newPrice.prices) // setValue된 값에서 price 정보 가져오기
     }
