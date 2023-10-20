@@ -343,7 +343,7 @@ const PersonalInfoPro = () => {
               pronounce: data.pronounce,
               specialties: data.specialties?.map(item => item.value),
               timezone: data.timezone,
-              addresses: getAddress(),
+              addresses: [getAddress()],
             },
           }
           updateUserInfoMutation.mutate(finalData)
