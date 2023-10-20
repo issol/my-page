@@ -95,7 +95,7 @@ export default function QuotesProjectInfoDetail({
           onClose={() => closeModal(`${status}ReasonModal`)}
           reason={reason}
           type={status}
-          vary='info'
+          vary='question-info'
         />
       ),
     })
