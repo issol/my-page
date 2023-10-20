@@ -23,6 +23,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useMutation } from 'react-query'
 import { useRecoilValueLoadable } from 'recoil'
+import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   userInfo: DetailUserType
@@ -90,7 +91,8 @@ const EditProfileModal = ({ userInfo, onClick, onClose }: Props) => {
       if (userInfo?.addresses) {
         addressReset({
           ...userInfo?.addresses[0],
-          id: String(userInfo.addresses[0].id),
+          // id: String(userInfo.addresses[0].id),
+          id: uuidv4(),
         })
       }
     }
