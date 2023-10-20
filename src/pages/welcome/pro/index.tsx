@@ -326,6 +326,7 @@ const PersonalInfoPro = () => {
             firstName: data.firstName,
             lastName: data.lastName,
             country: data.timezone.label,
+            birthday: data.birthday?.toISOString()!,
             extraData: {
               havePreferredName: data.havePreferred,
               jobInfo: data.jobInfo,
@@ -342,7 +343,7 @@ const PersonalInfoPro = () => {
               pronounce: data.pronounce,
               specialties: data.specialties?.map(item => item.value),
               timezone: data.timezone,
-              address: getAddress(),
+              addresses: getAddress(),
             },
           }
           updateUserInfoMutation.mutate(finalData)
@@ -703,7 +704,7 @@ const PersonalInfoPro = () => {
                     <DatePickerWrapper>
                       <Controller
                         control={control}
-                        name='dateOfBirth'
+                        name='birthday'
                         render={({ field: { onChange, value } }) => {
                           const selected = value ? new Date(value) : null
                           return (
@@ -720,7 +721,7 @@ const PersonalInfoPro = () => {
                                   <CustomInput
                                     label='Date of birth*'
                                     icon='calendar'
-                                    error={Boolean(errors?.dateOfBirth)}
+                                    error={Boolean(errors?.birthday)}
                                   />
                                 }
                               />
@@ -729,9 +730,9 @@ const PersonalInfoPro = () => {
                         }}
                       />
                     </DatePickerWrapper>
-                    {errors.dateOfBirth && (
+                    {errors.birthday && (
                       <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.dateOfBirth.message}
+                        {errors.birthday.message}
                       </FormHelperText>
                     )}
                   </FormControl>
@@ -1409,11 +1410,11 @@ const PersonalInfoPro = () => {
                         dirtyFields.firstName &&
                         dirtyFields.lastName &&
                         dirtyFields.timezone &&
-                        dirtyFields.dateOfBirth &&
+                        dirtyFields.birthday &&
                         (!errors.firstName ||
                           !errors.lastName ||
                           !errors.timezone ||
-                          !errors.dateOfBirth)
+                          !errors.birthday)
                       ) || !isAddressValid
                     }
                     onClick={e => {

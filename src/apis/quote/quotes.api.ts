@@ -25,6 +25,7 @@ import {
 } from '@src/types/orders/order-detail'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { CancelReasonType } from '@src/types/requests/detail.type'
+import { updateProjectInfoType } from '@src/pages/quotes/detail/[id]'
 
 export type MemberListType = Pick<
   UserDataType,
@@ -234,19 +235,7 @@ export const restoreVersion = async (id: number): Promise<void> => {
 
 export const patchQuoteProjectInfo = async (
   id: number,
-  form:
-    | QuotesProjectInfoFormType
-    | ProjectTeamFormType
-    | ClientFormType
-    | { status: number }
-    | { tax: null | number; isTaxable: boolean }
-    | { status: number; reason: CancelReasonType }
-    | { downloadedAt: string }
-    | { isConfirmed: boolean }
-    | { languagePairs: Array<LanguagePairsType> }
-    | { items: Array<PostItemType> }
-    | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
-    | { showDescription: boolean },
+  form: updateProjectInfoType,
 ) => {
   const { data } = await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
   return data

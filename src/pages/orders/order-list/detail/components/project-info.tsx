@@ -189,7 +189,7 @@ const ProjectInfo = ({
               ? 'Requested'
               : statusList?.find(i => i.label === project?.status)?.label || ''
           }
-          vary='info'
+          vary='question-info'
         />
       ),
     })
