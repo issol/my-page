@@ -920,7 +920,8 @@ const ReceivableInvoiceDetail = () => {
                     Download invoice
                   </Button>
                 )}
-                {isEditing ? null : (
+                {isEditing ||
+                (currentRole && currentRole.name === 'CLIENT')? null : (
                   <Button
                     variant='contained'
                     sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
