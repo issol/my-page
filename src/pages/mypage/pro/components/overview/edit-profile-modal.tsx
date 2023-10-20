@@ -92,6 +92,7 @@ const EditProfileModal = ({ userInfo, onClick, onClose }: Props) => {
         addressReset({
           ...userInfo?.addresses[0],
           id: String(0),
+          addressType: 'billing',
           // id: String(userInfo.addresses[0].id),
           // id: uuidv4(),
         })
