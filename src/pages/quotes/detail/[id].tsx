@@ -158,6 +158,7 @@ export type updateProjectInfoType =
   | ClientPostType
   | { tax: null | number; isTaxable: '1' | '0' }
   | { tax: null | number; isTaxable: '1' | '0'; subtotal: number }
+  | { downloadedAt: string }
   | { status: number }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }

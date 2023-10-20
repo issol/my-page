@@ -962,7 +962,10 @@ function OnboardingDetail() {
                   mobilePhone: userInfo?.mobilePhone!,
                   telephone: userInfo?.telephone!,
                   status: userInfo?.status!,
-                  address: userInfo?.address!,
+                  address:
+                    userInfo?.addresses && userInfo.addresses.length > 0
+                      ? userInfo.addresses[0]
+                      : null,
                 }}
                 type='onboarding'
               />
