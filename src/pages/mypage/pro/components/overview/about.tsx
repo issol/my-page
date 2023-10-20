@@ -18,7 +18,6 @@ import {
 import { ProStatus } from '@src/shared/const/status/statuses'
 import { Fragment } from 'react'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import { getAddress } from '@src/shared/helpers/address-helper'
 
 type Props = {
   userInfo: {
@@ -38,6 +37,29 @@ type Props = {
 export default function About({ userInfo }: Props) {
   if (!userInfo) {
     return null
+  }
+
+  const getAddress = (address: ClientAddressType<number>) => {
+    const state1 = address.baseAddress ? `${address.baseAddress}, ` : ''
+
+    const state2 = address.detailAddress ? `${address.detailAddress}, ` : ''
+
+    const city = address.city ? `${address.city}, ` : ''
+    const state = address.state ? `${address.state}, ` : ''
+    const country = address.country ? `${address.country}, ` : ''
+    const zipCode = address.zipCode ? `${address.zipCode}` : ''
+
+    if (
+      state1 === '' &&
+      state2 === '' &&
+      city === '' &&
+      state === '' &&
+      country === '' &&
+      zipCode === ''
+    )
+      return '-'
+
+    return `${state1}${state2}${city}${state}${country}${zipCode}`
   }
 
   return (
@@ -70,11 +92,18 @@ export default function About({ userInfo }: Props) {
         mt='20px'
       >
         <Typography variant='body2'>Contacts</Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
           <Icon icon='mdi:home' style={{ opacity: '0.7' }} />
           <LabelTitle>Permanent address :</LabelTitle>
+
           <Label>
-            {userInfo?.address ? getAddress([userInfo?.address]) : '-'}
+            {userInfo?.address ? getAddress(userInfo?.address) : '-'}
           </Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
