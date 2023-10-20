@@ -29,9 +29,9 @@ type Props = {
     timezone: CountryType
     mobilePhone?: string
     telephone?: string
-    dateOfBirth?: string
+    birthday?: string
     status?: string
-    address: ClientAddressType<number>
+    address: ClientAddressType<number> | null
   }
 }
 
@@ -62,7 +62,7 @@ export default function About({ userInfo }: Props) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:calendar-blank' style={{ opacity: '0.7' }} />
           <LabelTitle>Date of Birth:</LabelTitle>
-          <Label>{MMDDYYYYHelper(userInfo.dateOfBirth) || '-'}</Label>
+          <Label>{MMDDYYYYHelper(userInfo.birthday) || '-'}</Label>
         </Box>
       </Box>
       <Box

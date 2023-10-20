@@ -20,7 +20,7 @@ export const getProfileSchema = (type: 'join' | 'edit') => {
         ? yup.string().required(FormErrors.required)
         : yup.string().nullable(),
     legalNamePronunciation: yup.string().nullable(),
-    pronounce: yup.string().oneOf(Object.values(PronounceEnum)).nullable(),
+    pronounce: yup.string().nullable(),
     havePreferred: yup.boolean().required(),
     preferredName: yup.string().nullable(),
     preferredNamePronunciation: yup.string().nullable(),
@@ -72,8 +72,11 @@ export const getProfileSchema = (type: 'join' | 'edit') => {
       )
       .nullable(),
 
-    dateOfBirth: yup.string().required(FormErrors.required),
-    address: yup
+    birthday:
+      type === 'join'
+        ? yup.date().required(FormErrors.required)
+        : yup.date().nullable(),
+    addresses: yup
       .array()
       .of(
         yup.object().shape({

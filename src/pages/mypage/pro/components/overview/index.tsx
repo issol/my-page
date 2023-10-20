@@ -47,7 +47,10 @@ import { useMutation, useQueryClient } from 'react-query'
 
 // ** types & schemas
 import { UserDataType } from '@src/context/types'
-import { PersonalInfo } from '@src/types/sign/personalInfoTypes'
+import {
+  PersonalInfo,
+  ProUserInfoType,
+} from '@src/types/sign/personalInfoTypes'
 import { getProfileSchema } from '@src/types/schema/profile.schema'
 import { OffDayEventType } from '@src/types/common/calendar.type'
 import { offDaySchema } from '@src/types/schema/off-day.schema'
@@ -86,6 +89,12 @@ import {
   clientBillingAddressDefaultValue,
   clientBillingAddressSchema,
 } from '@src/types/schema/client-billing-address.schema'
+import { updateConsumerUserInfo } from '@src/apis/user.api'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import useAuth from '@src/hooks/useAuth'
+import { useRouter } from 'next/router'
+import EditProfileModal from './edit-profile-modal'
 
 type Props = {
   userInfo: DetailUserType
@@ -101,6 +110,9 @@ type Props = {
 export default function MyPageOverview({ user, userInfo }: Props) {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
+  const auth = useRecoilValueLoadable(authState)
+  const setAuth = useAuth()
+  const router = useRouter()
 
   const invalidateUserInfo = () =>
     queryClient.invalidateQueries({
@@ -142,85 +154,99 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   }
 
   const { data: offDays } = useGetProWorkDays(user.userId!, year, month)
-  const {
-    control,
-    getValues,
-    watch,
-    reset,
-    formState: { errors, dirtyFields, isValid },
-  } = useForm<Omit<PersonalInfo, 'address'>>({
-    defaultValues: {
-      legalNamePronunciation: '',
-      havePreferred: false,
-      preferredName: '',
-      mobile: '',
-      timezone: { code: '', phone: '', label: '' },
+
+  // function onCloseProfile() {
+  //   if (isFieldDirty) {
+  //     openModal({
+  //       type: 'closeProfileForm',
+  //       children: (
+  //         <DiscardChangesModal
+  //           onClose={() => closeModal('closeProfileForm')}
+  //           onDiscard={() => {
+  //             reset()
+  //             setEditProfile(false)
+  //           }}
+  //         />
+  //       ),
+  //     })
+  //   } else {
+  //     setEditProfile(false)
+  //   }
+  // }
+
+  const updateUserInfoMutation = useMutation(
+    (data: ProUserInfoType & { userId: number }) =>
+      updateConsumerUserInfo(data),
+    {
+      onSuccess: () => {
+        const { userId, email, accessToken } = router.query
+        const accessTokenAsString: string = accessToken as string
+        setAuth.updateUserInfo({
+          userId: auth.getValue().user!.id,
+          email: auth.getValue().user!.email,
+          accessToken: accessTokenAsString,
+        })
+
+        // router.push('/home')
+      },
     },
-    mode: 'onChange',
-    resolver: yupResolver(getProfileSchema('edit')),
-  })
+  )
 
-  const {
-    control: addressControl,
-    getValues: getAddress,
-    reset: addressReset,
-    formState: {
-      errors: addressError,
-      isValid: isAddressValid,
-      dirtyFields: isAddressFieldDirty,
-    },
-  } = useForm<ClientAddressType>({
-    defaultValues: {
-      ...clientBillingAddressDefaultValue,
-      addressType: 'billing',
-    },
-    mode: 'onChange',
-    resolver: yupResolver(clientBillingAddressSchema),
-  })
-
-  useEffect(() => {
-    if (userInfo) {
-      reset({
-        preferredName: userInfo.preferredName ?? '',
-        pronounce: userInfo.pronounce,
-        preferredNamePronunciation: userInfo.preferredNamePronunciation ?? '',
-        havePreferred: user.havePreferred ?? false,
-        dateOfBirth: userInfo.dateOfBirth,
-        mobile: user.mobilePhone,
-        timezone: userInfo.timezone!,
-      })
-      if (userInfo?.address) {
-        addressReset({ ...userInfo?.address, id: String(userInfo.address.id) })
-      }
-    }
-  }, [userInfo])
-
-  const isFieldDirty = !_.isEmpty(dirtyFields)
-  function onCloseProfile() {
-    if (isFieldDirty) {
-      openModal({
-        type: 'closeProfileForm',
-        children: (
-          <DiscardChangesModal
-            onClose={() => closeModal('closeProfileForm')}
-            onDiscard={() => {
-              reset()
-              setEditProfile(false)
-            }}
-          />
-        ),
-      })
-    } else {
-      setEditProfile(false)
-    }
-  }
-
-  function onProfileSave() {
-    setEditProfile(false)
-    const data = getValues()
-    const address = getAddress()
+  function onProfileSave(
+    data: Omit<PersonalInfo, 'address'>,
+    address: ClientAddressType,
+  ) {
+    updateUserInfoMutation.mutate(
+      {
+        userId: auth.getValue().user?.id || 0,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        country: data.timezone.label,
+        birthday: data.birthday?.toISOString()!,
+        extraData: {
+          havePreferredName: data.havePreferred,
+          jobInfo: data.jobInfo,
+          middleName: data.middleName,
+          experience: data.experience,
+          legalNamePronunciation: data.legalNamePronunciation,
+          mobilePhone: data.mobile,
+          telephone: data.phone,
+          preferredName: data.preferredName,
+          resume: data.resume?.length ? data.resume.map(file => file.name) : [],
+          preferredNamePronunciation: data.preferredNamePronunciation,
+          pronounce: data.pronounce,
+          specialties: data.specialties?.map(item => item.value),
+          timezone: data.timezone,
+          addresses: [address],
+        },
+      },
+      {
+        onSuccess: () => {
+          closeModal('saveProfileForm')
+          closeModal('EditProfileModal')
+        },
+      },
+    )
     // console.log('data', data)
     //TODO: mutation붙이기 + confirm modal
+  }
+
+  const onClickProfileSave = (
+    data: Omit<PersonalInfo, 'address'>,
+    address: ClientAddressType,
+  ) => {
+    openModal({
+      type: 'saveProfileForm',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('saveProfileForm')}
+          onClick={() => onProfileSave(data, address)}
+          title='Are you sure you want to save all changes?'
+          rightButtonText='Save'
+          vary='successful'
+        />
+      ),
+    })
   }
 
   function onNoteSave() {
@@ -517,6 +543,21 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     )
   }
 
+  const onClickEditProfile = () => {
+    openModal({
+      type: 'EditProfileModal',
+      children: (
+        <EditProfileModal
+          userInfo={userInfo!}
+          onClick={onClickProfileSave}
+          onClose={() => closeModal('EditProfileModal')}
+        />
+      ),
+    })
+  }
+
+  console.log(userInfo)
+
   return (
     <Fragment>
       <Grid container spacing={6}>
@@ -538,7 +579,8 @@ export default function MyPageOverview({ user, userInfo }: Props) {
               mb='24px'
             >
               <Typography variant='h6'>My profile</Typography>
-              <IconButton onClick={() => setEditProfile(!editProfile)}>
+              {/* <IconButton onClick={() => setEditProfile(!editProfile)}> */}
+              <IconButton onClick={onClickEditProfile}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
             </Box>
@@ -549,8 +591,11 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                 pronounce: userInfo.pronounce,
                 preferredNamePronunciation:
                   userInfo.preferredNamePronunciation ?? '',
-                dateOfBirth: userInfo.dateOfBirth,
-                address: userInfo?.address,
+                birthday: userInfo.birthday,
+                address:
+                  userInfo.addresses && userInfo.addresses.length > 0
+                    ? userInfo?.addresses[0]
+                    : null,
                 mobilePhone: user.mobilePhone,
                 timezone: userInfo.timezone!,
               }}
@@ -791,7 +836,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
       </Grid>
 
       {/* My profile form modal */}
-      <Dialog
+      {/* <Dialog
         open={editProfile}
         onClose={() => setEditProfile(false)}
         maxWidth='md'
@@ -830,17 +875,17 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                 variant='contained'
                 disabled={
                   !isValid ||
-                  (!isFieldDirty && !isAddressFieldDirty) ||
+                  // (!isFieldDirty && !isAddressFieldDirty) ||
                   !isAddressValid
                 }
-                onClick={onProfileSave}
+                onClick={onClickProfileSave}
               >
                 Save
               </Button>
             </Grid>
           </Grid>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* Note form */}
       <Dialog open={editNote} onClose={() => setEditNote(false)}>

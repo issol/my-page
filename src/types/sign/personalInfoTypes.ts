@@ -31,7 +31,7 @@ export interface PersonalInfo {
   experience: string
   resume: Array<File> | null
   specialties: Array<{ label: string; value: string }>
-  dateOfBirth?: string
+  birthday?: Date | null
   address: ClientAddressType<string>
 }
 
@@ -39,6 +39,7 @@ export type ProUserInfoType = {
   firstName: string
   lastName: string
   country: string
+  birthday: string
   extraData: {
     havePreferredName: boolean
     jobInfo: Array<JobInfoType>
@@ -53,7 +54,7 @@ export type ProUserInfoType = {
     resume?: Array<string>
     specialties: Array<string>
     timezone: CountryType
-    address: ClientAddressType<string>
+    addresses: Array<ClientAddressType<string>>
   }
 }
 

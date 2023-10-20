@@ -60,7 +60,6 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
         <Controller
           name='pronounce'
           control={control}
-          rules={{ required: true }}
           render={({ field: { value, onChange, onBlur } }) => (
             <FormControl fullWidth>
               <InputLabel id='Pronounce'>Pronounce</InputLabel>
@@ -89,7 +88,6 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
         <Controller
           name='havePreferred'
           control={control}
-          rules={{ required: true }}
           render={({ field: { value, onChange } }) => (
             <FormControlLabel
               control={
@@ -160,7 +158,7 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
       <Grid item xs={12}>
         <DatePickerWrapper>
           <Controller
-            name='dateOfBirth'
+            name='birthday'
             control={control}
             render={({ field: { value, onChange } }) => (
               <FullWidthDatePicker
