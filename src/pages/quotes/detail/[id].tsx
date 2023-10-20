@@ -1485,6 +1485,7 @@ export default function QuotesDetail() {
                               ? `/quotes/requests/${project?.linkedRequest.id}`
                               : `/quotes/lpm/requests/${project?.linkedRequest.id}`
                           }
+                          style={{ color: 'rgba(76, 78, 100, 0.87)' }}
                         >
                           {project?.linkedRequest.corporationId ?? '-'}
                         </Link>
@@ -1503,6 +1504,7 @@ export default function QuotesDetail() {
                         Linked order :
                         <Link
                           href={`/orders/order-list/detail/${project.linkedOrder.id}`}
+                          style={{ color: 'rgba(76, 78, 100, 0.87)' }}
                         >
                           {project?.linkedOrder.corporationId ?? '-'}
                         </Link>
