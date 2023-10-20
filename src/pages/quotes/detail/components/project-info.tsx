@@ -449,7 +449,7 @@ export default function QuotesProjectInfoDetail({
               <CustomTypo fontSize={14} fontWeight={600}>
                 Work name
               </CustomTypo>
-              <CustomTypo variant='body2'>{project.workName}</CustomTypo>
+              <CustomTypo variant='body2'>{project.workName ?? '-'}</CustomTypo>
             </LabelContainer>
           </Grid>
           <Grid item xs={6}>
@@ -474,9 +474,11 @@ export default function QuotesProjectInfoDetail({
                 Service type
               </CustomTypo>
               <Box display='flex' alignItems='center' gap='8px'>
-                {project.serviceType?.map((item, idx) => (
-                  <ServiceTypeChip key={idx} label={item} size='small' />
-                ))}
+                {project.serviceType && project.serviceType.length > 0
+                  ? project.serviceType?.map((item, idx) => (
+                      <ServiceTypeChip key={idx} label={item} size='small' />
+                    ))
+                  : '-'}
               </Box>
             </LabelContainer>
           </Grid>
