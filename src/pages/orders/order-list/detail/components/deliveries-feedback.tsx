@@ -728,8 +728,7 @@ const DeliveriesFeedback = ({
                   Deliveries
                 </Typography>
                 <Typography variant='caption'>
-                  {formatFileSize(fileSize).toLowerCase()}/
-                  {byteToGB(MAXIMUM_FILE_SIZE)}
+                  {formatFileSize(fileSize)}/{byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
               {isSubmittable && currentRole && currentRole.name !== 'CLIENT' ? (
