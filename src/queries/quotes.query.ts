@@ -30,7 +30,7 @@ export const useGetMemberList = () => {
             lastName: item.lastName!,
           })
           return {
-            value: item.userId.toString(),
+            value: Number(item.userId),
             label: name,
             jobTitle: item.jobTitle,
           }

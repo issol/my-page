@@ -65,6 +65,7 @@
     "keen-slider": "6.8.3",
     "lodash": "^4.17.21",
     "luxon": "^3.4.0",
+    "match-sorter": "^6.3.1",
     "moment-timezone": "^0.5.40",
     "next": "13.0.0",
     "next-transpile-modules": "^10.0.1",
