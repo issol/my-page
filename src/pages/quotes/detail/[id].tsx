@@ -652,7 +652,10 @@ export default function QuotesDetail() {
 
   useEffect(() => {
     if (!isTeamLoading && team) {
-      let viewTeams: ProjectTeamListType[] = [...team]
+      let viewTeams: ProjectTeamListType[] = [...team].map(value => ({
+        ...value,
+        id: uuidv4(),
+      }))
 
       if (!viewTeams.some(item => item.position === 'supervisor')) {
         viewTeams.unshift({

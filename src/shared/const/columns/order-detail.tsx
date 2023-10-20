@@ -20,7 +20,7 @@ export const getProjectTeamColumns = (role?: string) => {
         return (
           <Typography variant='body1' fontWeight={600}>
             {row.position === 'projectManager'
-              ? 'Project Manager'
+              ? 'Project manager'
               : row.position === 'supervisor'
               ? 'Supervisor'
               : row.position === 'member'
