@@ -266,6 +266,7 @@ const OrderDetail = () => {
     control: projectInfoControl,
     getValues: getProjectInfo,
     setValue: setProjectInfo,
+    trigger: projectInfoTrigger,
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
@@ -1832,15 +1833,23 @@ const OrderDetail = () => {
                     >
                       <Box display='flex' alignItems='center' gap='4px'>
                         {langItemsEdit ? (
-                          <Checkbox
-                            disabled={!langItemsEdit}
-                            checked={getProjectInfo('isTaxable')}
-                            onChange={e => {
-                              if (!e.target.checked) {
-                                setProjectInfo('tax', null)
-                              }
-                              setProjectInfo('isTaxable', e.target.checked)
-                            }}
+                          <Controller
+                            name='isTaxable'
+                            control={projectInfoControl}
+                            render={({ field: { value, onChange } }) => (
+                              <Checkbox
+                                disabled={!langItemsEdit}
+                                checked={value}
+                                onChange={e => {
+                                  onChange(e.target.checked)
+                                  projectInfoTrigger('isTaxable')
+                                  if (!e.target.checked) {
+                                    setProjectInfo('tax', null)
+                                    projectInfoTrigger('tax')
+                                  }
+                                }}
+                              />
+                            )}
                           />
                         ) : null}
 
@@ -1856,7 +1865,7 @@ const OrderDetail = () => {
                                 <TextField
                                   size='small'
                                   type='number'
-                                  value={value ? value : null}
+                                  value={value ? value : ''}
                                   disabled={!getProjectInfo('isTaxable')}
                                   sx={{ maxWidth: '120px', padding: 0 }}
                                   inputProps={{ inputMode: 'decimal' }}
@@ -1865,6 +1874,7 @@ const OrderDetail = () => {
 
                                     if (e.target.value.length > 10) return
                                     onChange(Number(e.target.value))
+                                    projectInfoTrigger('tax')
                                   }}
                                 />
                               )}
@@ -1916,7 +1926,7 @@ const OrderDetail = () => {
                           isItemValid ||
                           !getProjectInfo('isTaxable') ||
                           (getProjectInfo('isTaxable') &&
-                            getProjectInfo('tax')! > 0),
+                            getProjectInfo('tax') !== null),
                       })
                     : null}
                   {splitReady && selectedIds ? (
