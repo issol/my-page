@@ -59,7 +59,7 @@ export default function InvoiceAccountingInfoForm({
 
   useEffect(() => {
     if (clientTimezone) {
-      setValue('paymentDueDate.timezone', clientTimezone, setValueOptions)
+      setValue('paymentDate.timezone', clientTimezone, setValueOptions)
       setValue('invoiceConfirmDate.timezone', clientTimezone, setValueOptions)
       setValue('taxInvoiceDueDate.timezone', clientTimezone, setValueOptions)
     }
@@ -110,7 +110,7 @@ export default function InvoiceAccountingInfoForm({
       <Grid item xs={6}>
         <DatePickerWrapper>
           <Controller
-            name='paymentDueDate.date'
+            name='paymentDate.date'
             control={control}
             render={({ field: { value, onChange } }) => (
               <FullWidthDatePicker
@@ -121,7 +121,7 @@ export default function InvoiceAccountingInfoForm({
                 dateFormat='MM/dd/yyyy h:mm aa'
                 onChange={onChange}
                 customInput={
-                  <CustomInput label='Payment due*' icon='calendar' />
+                  <CustomInput label='Payment date*' icon='calendar' />
                 }
               />
             )}
@@ -130,7 +130,7 @@ export default function InvoiceAccountingInfoForm({
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='paymentDueDate.timezone'
+          name='paymentDate.timezone'
           control={control}
           render={({ field }) => (
             <Autocomplete

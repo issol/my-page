@@ -360,6 +360,7 @@ const InvoiceInfo = ({
   const onClickSave = (infoType: 'basic' | 'accounting') => {
     const data = getInvoiceInfo && getInvoiceInfo()
     if (data) {
+      console.log("onClickSave",data)
       const res: InvoiceReceivablePatchParamsType =
         infoType === 'basic'
           ? {
@@ -401,6 +402,7 @@ const InvoiceInfo = ({
         form: { contactPersonId: contactPersonId! },
         type: 'basic',
       })
+      setContactPersonEdit(false)
     }
   }
 
@@ -2042,7 +2044,7 @@ const InvoiceInfo = ({
           ) : null}
         </Grid>
       ) : null}
-      {type !== 'history' && currentRole && currentRole.name !== 'CLIENT' ? (
+      {type !== 'history' && !edit && !accountingEdit && currentRole && currentRole.name !== 'CLIENT' ? (
         <Grid container spacing={6}>
           <Grid item xs={isFileUploading ? 9 : 12}>
             <Card sx={{ padding: '24px' }}>
@@ -2054,7 +2056,7 @@ const InvoiceInfo = ({
                       {formatFileSize(fileSize).toLowerCase()}/ 50mb
                     </Typography>
                   </Box>
-                  {isUpdatable && isUserInTeamMember ? (
+                  {(isUpdatable && isUserInTeamMember) || isAccountInfoUpdatable ? (
                     <div {...getRootProps({ className: 'dropzone' })}>
                       <Button
                         variant='contained'
@@ -2145,6 +2147,7 @@ const InvoiceInfo = ({
       ) : null}
 
       {edit ||
+      accountingEdit || 
       isFileUploading ||
       !isUserInTeamMember ||
       type === 'history' ||
