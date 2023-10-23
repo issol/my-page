@@ -95,6 +95,7 @@ import { authState } from '@src/states/auth'
 import useAuth from '@src/hooks/useAuth'
 import { useRouter } from 'next/router'
 import EditProfileModal from './edit-profile-modal'
+import dayjs from 'dayjs'
 
 type Props = {
   userInfo: DetailUserType
@@ -314,12 +315,25 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   function onOffDaySave() {
     setEditOffDay(false)
     let data = getOffDayValues()
+
+    data = {
+      ...data,
+      start: dayjs(data.start).format('YYYY-MM-DD'),
+      end: dayjs(data.end).format('YYYY-MM-DD'),
+    }
+
     if (data?.otherReason) {
-      data = { ...data, reason: data.otherReason }
+      data = {
+        ...data,
+        reason: data.otherReason,
+      }
     }
 
     if (offDayId !== null) {
-      updateOffDays.mutate({ ...data, offDayId })
+      updateOffDays.mutate({
+        ...data,
+        offDayId,
+      })
       setOffDayId(null)
     } else {
       createOffDay.mutate(data)
