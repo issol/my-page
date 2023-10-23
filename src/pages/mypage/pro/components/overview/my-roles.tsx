@@ -11,6 +11,7 @@ import Button from '@mui/material/Button'
 import { v4 as uuidv4 } from 'uuid'
 import CustomPagination from 'src/pages/components/custom-pagination'
 import { AppliedRoleType } from 'src/types/onboarding/details'
+import NoList from '@src/pages/components/no-list'
 
 type Props = {
   userInfo: Array<AppliedRoleType>
@@ -53,99 +54,104 @@ export default function MyRoles({
         <Box sx={{ minHeight: 22 }}>
           <Grid container spacing={6} xs={12}>
             {userInfo && userInfo.length
-              ? userInfo.slice(offset, offset + rowsPerPage).map(value => {
-                  return (
-                    <Grid item lg={6} md={12} sm={12} xs={12} key={uuidv4()}>
-                      <Card
-                        sx={{
-                          padding: '20px',
-                          height: '100%',
-                          flex: 1,
-                          border: '2px solid rgba(76, 78, 100, 0.12)',
-                        }}
-                      >
-                        <Box
+              ? userInfo
+                  .filter(item => item.requestStatus === 'Certified')
+                  .slice(offset, offset + rowsPerPage)
+                  .map(value => {
+                    return (
+                      <Grid item lg={6} md={12} sm={12} xs={12} key={uuidv4()}>
+                        <Card
                           sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
+                            padding: '20px',
+                            height: '100%',
+                            flex: 1,
+                            border: '2px solid rgba(76, 78, 100, 0.12)',
                           }}
                         >
-                          <Box>
-                            <Typography
-                              variant='subtitle1'
-                              sx={{ fontWeight: 600, lineHeight: '24px' }}
-                            >
-                              {value.jobType}
-                            </Typography>
-                            <Typography
-                              variant='subtitle1'
-                              sx={{ fontWeight: 600 }}
-                            >
-                              {value.role}
-                            </Typography>
-                          </Box>
-                        </Box>
-                        <CardContent
-                          sx={{
-                            padding: 0,
-                            paddingTop: '10px',
-                            paddingBottom: '0 !important',
-                          }}
-                        >
-                          <Typography
-                            variant='subtitle2'
+                          <Box
                             sx={{
-                              fontWeight: 600,
-                              minHeight: '20px',
-
-                              lineHeight: '20px',
-
-                              letterSpacing: ' 0.15px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
                             }}
                           >
-                            {value.source &&
-                            value.target &&
-                            value.source !== '' &&
-                            value.target !== '' ? (
-                              <>
-                                {value.source.toUpperCase()} &rarr;{' '}
-                                {value.target.toUpperCase()}
-                              </>
-                            ) : (
-                              ''
-                            )}
-                          </Typography>
-                          <Grid item display='flex' gap='16px' mt={'17px'}>
-                            <Button
-                              sx={{
-                                display: 'flex',
-                                gap: '8px',
-                                cursor: 'unset',
-                                width: '100%',
-                                justifyContent: 'flex-start',
-                                paddingLeft: 0,
-                              }}
-                              disabled
-                            >
-                              <img
-                                src='/images/icons/onboarding-icons/certified-role.svg'
-                                alt='certified'
-                              />
+                            <Box>
+                              <Typography
+                                variant='subtitle1'
+                                sx={{ fontWeight: 600, lineHeight: '24px' }}
+                              >
+                                {value.jobType}
+                              </Typography>
                               <Typography
                                 variant='subtitle1'
                                 sx={{ fontWeight: 600 }}
                               >
-                                Certified
+                                {value.role}
                               </Typography>
-                            </Button>
-                          </Grid>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  )
-                })
+                            </Box>
+                          </Box>
+                          <CardContent
+                            sx={{
+                              padding: 0,
+                              paddingTop: '10px',
+                              paddingBottom: '0 !important',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle2'
+                              sx={{
+                                fontWeight: 600,
+                                minHeight: '20px',
+
+                                lineHeight: '20px',
+
+                                letterSpacing: ' 0.15px',
+                              }}
+                            >
+                              {value.source &&
+                              value.target &&
+                              value.source !== '' &&
+                              value.target !== '' ? (
+                                <>
+                                  {value.source.toUpperCase()} &rarr;{' '}
+                                  {value.target.toUpperCase()}
+                                </>
+                              ) : (
+                                ''
+                              )}
+                            </Typography>
+                            <Grid item display='flex' gap='16px' mt={'17px'}>
+                              <Button
+                                sx={{
+                                  display: 'flex',
+                                  gap: '8px',
+                                  cursor: 'unset',
+                                  width: '100%',
+                                  justifyContent: 'flex-start',
+                                  paddingLeft: 0,
+                                }}
+                                disabled
+                              >
+                                <img
+                                  src='/images/icons/onboarding-icons/certified-role.svg'
+                                  alt='certified'
+                                />
+                                <Typography
+                                  variant='subtitle1'
+                                  sx={{ fontWeight: 600 }}
+                                >
+                                  Certified
+                                </Typography>
+                              </Button>
+                            </Grid>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    )
+                  })
               : null}
-            {userInfo && userInfo.length ? (
+            {userInfo &&
+            userInfo.filter(item => item.requestStatus === 'Certified')
+              .length ? (
               <Grid item xs={12}>
                 <CustomPagination
                   listCount={userInfo.length}
@@ -154,7 +160,21 @@ export default function MyRoles({
                   rowsPerPage={rowsPerPage}
                 />
               </Grid>
-            ) : null}
+            ) : (
+              <Box
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Typography variant='subtitle2' fontSize={14} fontWeight={400}>
+                  No certified role
+                </Typography>
+              </Box>
+            )}
           </Grid>
         </Box>
       ) : null}

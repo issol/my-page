@@ -731,7 +731,13 @@ export default function MyPageOverview({ user, userInfo }: Props) {
           <Grid container spacing={6}>
             {/* Resume */}
             <Grid item xs={6} md={6} lg={6}>
-              <Card sx={{ padding: '24px', paddingBottom: '2px' }}>
+              <Card
+                sx={{
+                  padding: '24px',
+                  paddingBottom: '2px',
+                  minHeight: '186px',
+                }}
+              >
                 <FileInfo
                   title='Resume'
                   fileList={userInfo.resume ?? []}

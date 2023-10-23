@@ -159,9 +159,19 @@ export default function FileInfo({
             />
           </KeenSliderWrapper>
         ) : (
-          <Typography variant='body2' textAlign='center' sx={{ p: 3 }}>
-            No files uploaded
-          </Typography>
+          <Box
+            sx={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant='subtitle2' fontWeight={400}>
+              No files uploaded
+            </Typography>
+          </Box>
         )}
       </Grid>
     </Grid>
