@@ -186,6 +186,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
           email: auth.getValue().user!.email,
           accessToken: accessTokenAsString,
         })
+        invalidateUserInfo()
 
         // router.push('/home')
       },

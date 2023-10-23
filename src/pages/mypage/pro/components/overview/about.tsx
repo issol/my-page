@@ -95,16 +95,26 @@ export default function About({ userInfo }: Props) {
         <Box
           sx={{
             display: 'flex',
-            alignItems: 'center',
+            // alignItems: 'center',
             gap: '8px',
           }}
         >
-          <Icon icon='mdi:home' style={{ opacity: '0.7' }} />
-          <LabelTitle>Permanent address :</LabelTitle>
+          <Box>
+            <Icon
+              icon='mdi:home'
+              style={{
+                opacity: '0.7',
+              }}
+              fontSize={24}
+            />
+          </Box>
 
-          <Label>
-            {userInfo?.address ? getAddress(userInfo?.address) : '-'}
-          </Label>
+          <Typography variant='body2' fontWeight={600} fontSize={16}>
+            Permanent address :&nbsp;
+            <Typography variant='body2' fontSize={16} component={'span'}>
+              {userInfo?.address ? getAddress(userInfo?.address) : '-'}
+            </Typography>
+          </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:cellphone' style={{ opacity: '0.7' }} />
