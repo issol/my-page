@@ -16,6 +16,8 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import DeleteAccount from './delete-account'
 import AccountDeleteFailedModal from './account-delete-fail-modal'
 import { useRouter } from 'next/router'
+import dayjs from 'dayjs'
+import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
   user: UserDataType
@@ -106,6 +108,8 @@ export default function MyAccount({ user }: Props) {
     )
   }
 
+  console.log(user)
+
   return (
     <Card sx={{ padding: '24px' }}>
       <Grid container spacing={6}>
@@ -134,7 +138,8 @@ export default function MyAccount({ user }: Props) {
                 <LabelContainer>
                   <Typography fontWeight={600}>Sign-up date</Typography>
                   <Typography variant='body2'>
-                    04/03/2023 (GMT+09:00) Korean Standard Time - Seoul
+                    {dayjs(user.createdAt).format('MM/DD/YYYY')}&nbsp;
+                    {getGmtTimeEng(user.timezone.code)}
                   </Typography>
                 </LabelContainer>
                 <LabelContainer>
