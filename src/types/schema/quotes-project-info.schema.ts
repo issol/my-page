@@ -16,7 +16,7 @@ export const quotesProjectInfoSchema = yup.object().shape({
   serviceType: yup
   .array()
   .of(yup.string())
-  .min(1, FormErrors.required),
+  .min(1, FormErrors.required).required(FormErrors.required),
   expertise: yup.array().of(yup.string()).nullable(),
   // quoteDate: yup.date().required(FormErrors.required),
   quoteDate: yup.object().shape({

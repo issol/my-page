@@ -94,8 +94,6 @@ export default function ProjectInfoForm({
   const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
 
-  console.log(countries)
-
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
 
