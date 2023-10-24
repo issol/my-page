@@ -200,7 +200,7 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
-              selected={!value ? null : formattedNow(new Date(value))}
+              selected={!value ? formattedNow(new Date()) : formattedNow(new Date(value))}
               onChange={onChange}
               customInput={<CustomInput label='Quote date*' icon='calendar' />}
             />
