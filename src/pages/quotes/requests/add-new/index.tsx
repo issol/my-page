@@ -368,8 +368,6 @@ export default function AddNewRequest() {
                     jobTitle: auth.getValue().user?.jobTitle,
                   }
 
-                  console.log(selectedPerson)
-
                   return (
                     <Autocomplete
                       fullWidth

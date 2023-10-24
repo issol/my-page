@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
 type Props = {
   onClose: () => void
@@ -17,6 +17,8 @@ type Props = {
 }
 
 export default function CancelRequestModal({ onClose, onClick }: Props) {
+  const textFieldRef = useRef<HTMLInputElement | null>(null);
+
   const [selected, setSelected] = useState('')
   const [reason, setReason] = useState('')
   const options = [
@@ -50,8 +52,7 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
           name='simple-radio'
           onChange={e => {
             setSelected(e.target.value)
-            if (e.target.value === 'Others') setReason('')
-            else setReason(e.target.value)
+            textFieldRef?.current?.focus()
           }}
           aria-label='simple-radio'
         >
@@ -81,6 +82,7 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
             setReason(e.target.value)
           }}
           inputProps={{ maxLength: 500 }}
+          inputRef={textFieldRef}
         />
         <Typography variant='body2' mt='12px' textAlign='right'>
           {reason?.length ?? 0}/500
@@ -93,7 +95,7 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
         <Button
           variant='contained'
           onClick={() => onClick({ option: selected, reason })}
-          disabled={!selected || (selected === 'Others' && !reason)}
+          disabled={!selected || !reason}
         >
           Cancel
         </Button>
