@@ -141,8 +141,6 @@ export default function Filter({
         }`
   }
 
-  console.log(statusList)
-
   return (
     <DatePickerWrapper>
       <Grid item xs={12}>
@@ -216,7 +214,9 @@ export default function Filter({
                             getOptionLabel={option => option.label}
                             value={value}
                             limitTags={1}
-                            onChange={onChange}
+                            onChange={(e,v) => {
+                              onChange(v)
+                            }}
                             renderInput={params => (
                               <TextField
                                 {...params}

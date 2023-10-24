@@ -59,11 +59,14 @@ const defaultValues: FilterType = {
   category: [],
   serviceType: [],
   search: '',
+  lsp: [],
+  client: [],
 }
 
 export const defaultFilters: RequestFilterType = {
   status: [],
   lsp: [],
+  client: [],
   category: [],
   serviceType: [],
   requestDateFrom: '',
@@ -123,7 +126,7 @@ export default function LpmRequests() {
   const { data: statusList, isLoading: statusListLoading } =
     useGetClientRequestStatus()
 
-  const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
+  const { control, handleSubmit, trigger, reset: filterReset } = useForm<FilterType>({
     defaultValues,
     mode: 'onSubmit',
   })
@@ -162,6 +165,7 @@ export default function LpmRequests() {
   }
 
   function onReset() {
+    filterReset()
     setFilters({ ...defaultFilters })
   }
 
