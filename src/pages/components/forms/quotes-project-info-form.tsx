@@ -422,13 +422,14 @@ export default function ProjectInfoForm({
                 <TextField
                   {...params}
                   error={Boolean(errors.category)}
-                  label='Category'
-                  placeholder='Category'
+                  label='Category*'
+                  placeholder='Category*'
                 />
               )}
             />
           )}
         />
+        {renderErrorMsg('category')}
       </Grid>
       <Grid item xs={6}>
         <Controller
@@ -460,8 +461,9 @@ export default function ProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
-                    label='Service type'
-                    placeholder='Service type'
+                    error={Boolean(errors.serviceType)}
+                    label='Service type*'
+                    placeholder='Service type*'
                   />
                 )}
                 renderOption={(props, option, { selected }) => (
@@ -474,6 +476,7 @@ export default function ProjectInfoForm({
             )
           }}
         />
+        {renderErrorMsg('serviceType')}
       </Grid>
       <Grid item xs={12}>
         <Controller

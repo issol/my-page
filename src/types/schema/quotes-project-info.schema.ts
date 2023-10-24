@@ -10,9 +10,13 @@ export const quotesProjectInfoSchema = yup.object().shape({
   workName: yup.string().nullable(),
   projectName: yup.string().required(FormErrors.required),
   projectDescription: yup.string().nullable(),
-  category: yup.string().nullable(),
+  category: yup.string().required(FormErrors.required),
 
-  serviceType: yup.array().of(yup.string()).nullable(),
+  // serviceType: yup.array().of(yup.string()).required(FormErrors.required),
+  serviceType: yup
+  .array()
+  .of(yup.string())
+  .min(1, FormErrors.required),
   expertise: yup.array().of(yup.string()).nullable(),
   // quoteDate: yup.date().required(FormErrors.required),
   quoteDate: yup.object().shape({
