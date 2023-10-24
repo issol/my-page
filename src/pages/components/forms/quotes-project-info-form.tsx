@@ -10,6 +10,7 @@ import {
   FormHelperText,
   Grid,
   IconButton,
+  Popper,
   TextField,
   Typography,
 } from '@mui/material'
@@ -23,7 +24,7 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** types
-import { Fragment, ReactNode, useContext, useEffect, useState } from 'react'
+import { Fragment, ReactNode, useContext, useEffect, useState, useRef } from 'react'
 
 // ** react hook form
 import {
@@ -93,6 +94,7 @@ export default function ProjectInfoForm({
   )
   const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
+  const containerRef = useRef<HTMLDivElement | null>(null)
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
@@ -154,6 +156,22 @@ export default function ProjectInfoForm({
   function onWorkNameInputChange(name: string) {
     setWorkNameError(workName?.some(item => item.value === name) || false)
   }
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setOpenPopper(false)
+      }
+    }
+
+    window.addEventListener('mousedown', handleOutsideClick)
+
+    return () => {
+      window.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [])
 
   function onAddWorkName() {
     openModal({
@@ -270,7 +288,7 @@ export default function ProjectInfoForm({
         />
         {renderErrorMsg('status')}
       </Grid> */}
-      <Grid item xs={6}>
+      <Grid item xs={6} ref={containerRef}>
         <Controller
           name='workName'
           control={control}
@@ -279,48 +297,87 @@ export default function ProjectInfoForm({
             return (
               <Autocomplete
                 disableClearable
-                autoHighlight
+                // autoHighlight
                 fullWidth
                 options={workName || []}
                 onChange={(e, v) => {
-                  onChange(v?.value ?? '')
-                  setIsAddMode(false)
-                  setOpenPopper(false)
+                  if (v) {
+                    onChange(v?.value)
+                    // setIsAddMode(false)
+                    // setOpenPopper(false)
+                  } else {
+                    onChange(null)
+                    // setIsAddMode(false)
+                    // setOpenPopper(false)
+                  }
+                  // onChange(v?.value ?? '')
+                  // setIsAddMode(false)
+                  // setOpenPopper(false)
                 }}
                 value={
                   !value || !workName
                     ? defaultValue
                     : finedValue ?? defaultValue
                 }
-                PopperComponent={props => {
-                  const children = props.children as ReactNode
-                  return (
-                    <>
-                      {openPopper ? (
-                        <Box>
-                          {isAddMode ? null : (
-                            <Box>
-                              <Box
-                                display='flex'
-                                alignItems='center'
-                                margin='4px 0'
-                                onClick={() => setIsAddMode(true)}
-                              >
-                                <IconButton color='primary'>
-                                  <Icon icon='material-symbols:add-circle-outline' />
-                                </IconButton>
-                                <Typography variant='body2' color='primary'>
-                                  Add a new work name
-                                </Typography>
-                              </Box>
-                              <Box>{children}</Box>
-                            </Box>
-                          )}
-                        </Box>
-                      ) : null}
-                    </>
-                  )
-                }}
+                PopperComponent={props => (
+                  <>
+                    <Popper
+                      {...props}
+                      sx={{
+                        cursor: 'pointer',
+                        background: '#fff',
+                        borderRadius: '8px',
+                        boxShadow: '0px 2px 10px 0px rgba(76, 78, 100, 0.22)',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '4px 0',
+                        }}
+                        onMouseDown={() => setIsAddMode(true)}
+                      >
+                        <IconButton color='primary'>
+                          <Icon icon='material-symbols:add-circle-outline' />
+                        </IconButton>
+                        <Typography variant='body2' color='primary'>
+                          Add a new work name
+                        </Typography>
+                      </Box>
+                      {props.children as ReactNode}
+                    </Popper>
+                  </>
+                )}
+                // PopperComponent={props => {
+                //   const children = props.children as ReactNode
+                //   return (
+                //     <>
+                //       {openPopper ? (
+                //         <Box>
+                //           {isAddMode ? null : (
+                //             <Box>
+                //               <Box
+                //                 display='flex'
+                //                 alignItems='center'
+                //                 margin='4px 0'
+                //                 onClick={() => setIsAddMode(true)}
+                //               >
+                //                 <IconButton color='primary'>
+                //                   <Icon icon='material-symbols:add-circle-outline' />
+                //                 </IconButton>
+                //                 <Typography variant='body2' color='primary'>
+                //                   Add a new work name
+                //                 </Typography>
+                //               </Box>
+                //               <Box>{children}</Box>
+                //             </Box>
+                //           )}
+                //         </Box>
+                //       ) : null}
+                //     </>
+                //   )
+                // }}
                 renderInput={params => (
                   <TextField
                     {...params}
