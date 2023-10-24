@@ -408,7 +408,7 @@ export default function RequestDetail() {
             onStatusChange={onStatusChange}
           />
         </Card>
-        {isNotCancelable() ? null : (
+        {
           <Grid item xs={4} mt='24px'>
             <Card sx={{ padding: '24px' }}>
               <Button
@@ -422,7 +422,7 @@ export default function RequestDetail() {
               </Button>
             </Card>
           </Grid>
-        )}
+        }
       </Grid>
       <Grid item xs={3}>
         <Box display='flex' flexDirection='column' gap='24px'>
