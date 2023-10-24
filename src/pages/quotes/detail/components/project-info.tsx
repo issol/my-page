@@ -265,28 +265,52 @@ export default function QuotesProjectInfoDetail({
                 project.status !== 'Canceled') ||
                 // 연결된 Client가 없는 경우
                 !client?.isEnrolledClient) ? (
-                <Autocomplete
-                  fullWidth
-                  disableClearable={true}
-                  options={filterStatusList() ?? []}
-                  onChange={(e, v) => {
-                    if (updateStatus && v?.value) {
-                      updateStatus(v.value as number)
+                <Box sx={{ display: 'flex', gap: '2px', alignItems: 'left' }}>
+                  <Autocomplete
+                    fullWidth
+                    disableClearable={true}
+                    options={filterStatusList() ?? []}
+                    onChange={(e, v) => {
+                      if (updateStatus && v?.value) {
+                        updateStatus(v.value as number)
+                      }
+                    }}
+                    value={
+                      statusList &&
+                      statusList.find(item => item.label === project.status)
                     }
-                  }}
-                  value={
-                    statusList &&
-                    statusList.find(item => item.label === project.status)
-                  }
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      placeholder='Status'
-                      size='small'
-                      sx={{ maxWidth: '300px' }}
-                    />
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        placeholder='Status'
+                        size='small'
+                        sx={{ maxWidth: '300px' }}
+                      />
+                    )}
+                  />
+                  {(project.status === 'Revision requested' ||
+                    project.status === 'Rejected' ||
+                    project.status === 'Canceled') && (
+                    <IconButton
+                      onClick={() => {
+                        project.reason &&
+                          onClickReason(
+                            project.reason.type === 'revision-request'
+                              ? 'Requested'
+                              : project.reason.type?.replace(/^[a-z]/, char =>
+                                  char.toUpperCase(),
+                                ),
+                            project.reason,
+                          )
+                      }}
+                    >
+                      <img
+                        src='/images/icons/onboarding-icons/more-reason.svg'
+                        alt='more'
+                      />
+                    </IconButton>
                   )}
-                />
+                </Box>
               ) : (
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <QuoteStatusChip
