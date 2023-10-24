@@ -83,6 +83,7 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
 export type languageType = {
   id: number | string
@@ -229,7 +230,7 @@ export default function AddNewQuote() {
     },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
-
+  console.log("projectInfo",isProjectInfoValid,projectInfoErrors)
   // ** step4
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
@@ -417,12 +418,15 @@ export default function AddNewQuote() {
     openModal({
       type: 'SaveQuoteModal',
       children: (
-        <CustomModal
-          onClick={onSubmit}
-          onClose={() => closeModal('SaveQuoteModal')}
-          title='Are you sure you want to create this quote?'
+        <SimpleMultilineAlertModal
           vary='successful'
-          rightButtonText='Save'
+          closeButtonText='Cancel'
+          confirmButtonText='Save'
+          onClose={() => closeModal('SaveQuoteModal')}
+          onConfirm={onSubmit}
+          title={getProjectInfoValues().projectName}
+          message={`Are you sure you want to create this\nquote?`}
+          textAlign='center'
         />
       ),
     })
@@ -679,7 +683,7 @@ export default function AddNewQuote() {
                   </Button>
                   <Button
                     variant='contained'
-                    disabled={!isProjectInfoValid}
+                    disabled={!isProjectInfoValid || !projectInfoErrors}
                     onClick={onNextStep}
                   >
                     Next <Icon icon='material-symbols:arrow-forward-rounded' />
