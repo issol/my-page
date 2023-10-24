@@ -90,6 +90,7 @@ export default function RequestDetailCard({
                 renderInput={params => (
                   <TextField {...params} placeholder='Status' />
                 )}
+                clearIcon={null}
               />
             </FormControl>
           ) : (
@@ -197,10 +198,10 @@ export default function RequestDetailCard({
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Desired due date</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {/* {FullDateTimezoneHelper(
+                      {FullDateTimezoneHelper(
                         item.desiredDueDate,
-                        auth.getValue().timezone.code,
-                      )} */}
+                        item?.desiredDueTimezone?.code!
+                      )}
                       {/* {
                         convertDateByTimezone(
                           item.desiredDueDate,
@@ -208,12 +209,12 @@ export default function RequestDetailCard({
                           auth.getValue().timezone.code!
                         )
                       } */}
-                      {
+                      {/* {
                         convertUTCISOStringToLocalTimezoneISOString(
                           item.desiredDueDate,
                           user?.timezone.code!,
                         )!
-                      }
+                      } */}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>
