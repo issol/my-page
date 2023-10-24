@@ -42,6 +42,8 @@ import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ReasonType } from '@src/types/quotes/quote'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
+import _ from 'lodash'
+
 type Props = {
   project: ProjectInfoType | undefined
   setEditMode: (v: boolean) => void
@@ -475,9 +477,11 @@ export default function QuotesProjectInfoDetail({
               </CustomTypo>
               <Box display='flex' alignItems='center' gap='8px'>
                 {project.serviceType && project.serviceType.length > 0
-                  ? project.serviceType?.map((item, idx) => (
-                      <ServiceTypeChip key={idx} label={item} size='small' />
-                    ))
+                  ? project.serviceType
+                      .filter((item, index, self) => self.indexOf(item) === index)
+                      .map((item, idx) => (
+                        <ServiceTypeChip key={idx} label={item} size='small' />
+                      ))
                   : '-'}
               </Box>
             </LabelContainer>
