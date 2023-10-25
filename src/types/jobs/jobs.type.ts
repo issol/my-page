@@ -135,6 +135,18 @@ export type JobPricesDetailType = {
   initialPrice: PriceType | null | undefined
 }
 
+export type jobPriceHistoryType = JobPricesDetailType & {
+  historyAt: string
+  pro: {
+    id: number
+    firstName: string
+    middleName: string
+    lastName: string
+  }
+  sourceLanguage: string
+  targetLanguage: string
+}
+
 export type CreateJobParamsType = {
   orderId: number
   itemId: number

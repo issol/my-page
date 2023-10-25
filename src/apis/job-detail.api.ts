@@ -8,6 +8,7 @@ import {
   ProJobDeliveryType,
   ProJobDetailType,
   ProJobFeedbackType,
+  jobPriceHistoryType,
 } from '@src/types/jobs/jobs.type'
 import {
   AssignProFilterPostType,
@@ -144,24 +145,25 @@ export const getJobPrices = async (
 
 export const getJobPriceHistory = async (
   id: number,
-): Promise<JobPricesDetailType> => {
+): Promise<Array<jobPriceHistoryType>> => {
   const { data } = await axios.get(`/api/enough/u/job/${id}/price/history`)
   // const { data } = await axios.get(`/api/enough/u/job/${id}/price`)
   // console.log(data)
 
-  return {
-    ...data,
-    source: data.sourceLanguage,
-    target: data.targetLanguage,
-    datas:
-      data?.datas?.map((item: ItemResType) => ({
-        ...item,
-        name: item?.itemName,
-        source: data.sourceLanguage,
-        target: data.sourceLanguage,
-        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-      })) || [],
-  }
+  // return [
+  //   ...data,
+  //   source: data.sourceLanguage,
+  //   target: data.targetLanguage,
+  //   datas:
+  //     data?.datas?.map((item: ItemResType) => ({
+  //       ...item,
+  //       name: item?.itemName,
+  //       source: data.sourceLanguage,
+  //       target: data.sourceLanguage,
+  //       totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+  //     })) || [],
+  // ]
+  return data
 }
 
 export const saveJobPrices = async (

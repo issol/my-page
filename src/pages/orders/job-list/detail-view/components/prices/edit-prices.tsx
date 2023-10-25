@@ -105,7 +105,7 @@ const EditPrices = ({
 
   // console.log(getItem('items'), 'item')
 
-  const [success, setSuccess] = useState(false)
+  // const [success, setSuccess] = useState(false)
 
   const { openModal, closeModal } = useModal()
 
@@ -164,15 +164,15 @@ const EditPrices = ({
       ? getPriceOptions(languagePair.sourceLanguage, languagePair.targetLanguage)
       : [proDefaultOption]
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setSuccess(false)
-    }, 3000)
-    return () => {
-      clearTimeout(timer)
-      // 3. 그리고 실행됐던 setTimeout 함수를 없애는 clearTimeout 함수를 이용한다.
-    }
-  }, [success])
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setSuccess(false)
+  //   }, 3000)
+  //   return () => {
+  //     clearTimeout(timer)
+  //     // 3. 그리고 실행됐던 setTimeout 함수를 없애는 clearTimeout 함수를 이용한다.
+  //   }
+  // }, [success])
 
   useEffect(() => {
     if (jobPrices) {
@@ -218,7 +218,7 @@ const EditPrices = ({
 
   return (
     <>
-      {success && (
+      {/* {success && (
         <Box
           sx={{
             position: 'absolute',
@@ -236,9 +236,9 @@ const EditPrices = ({
           }}
         >
           <img src='/images/icons/order-icons/success.svg' alt='' />
-          Saved successfully
+          Saved successfully123
         </Box>
-      )}
+      )} */}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <Box sx={{ display: 'flex', gap: '20px' }}>
           <Box sx={{ flex: 1 }}>

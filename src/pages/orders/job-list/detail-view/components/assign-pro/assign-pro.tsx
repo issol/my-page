@@ -46,6 +46,7 @@ import {
   RefetchOptions,
   RefetchQueryFilters,
   useMutation,
+  useQueryClient,
 } from 'react-query'
 import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
 import {
@@ -111,6 +112,7 @@ const AssignPro = ({
   refetch,
   statusList,
 }: Props) => {
+  const queryClient = useQueryClient()
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
   const [hideOffBoard, setHideOffBoard] = useState<boolean>(true)
@@ -178,6 +180,7 @@ const AssignPro = ({
     {
       onSuccess: () => {
         refetchAssignableProList()
+        queryClient.invalidateQueries('jobInfo')
       },
     },
   )
