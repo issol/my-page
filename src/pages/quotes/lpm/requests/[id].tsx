@@ -175,7 +175,16 @@ export default function RequestDetail() {
       type: 'statusChange',
       children: (
         <CustomModal
-          title='Are you sure you want to change the status to [In preparation]? It cannot be unchanged.'
+          //title='Are you sure you want to change the status to [In preparation]? It cannot be unchanged.'
+          title={
+            <Box>
+              Are you sure you want to change the status to
+              <Typography variant='body2' fontWeight={600} component={'span'}>
+                &nbsp;[In preparation]
+              </Typography>?
+              It cannot be unchanged.
+            </Box>
+          }
           onClose={() => closeModal('statusChange')}
           onClick={() => {
             if (data !== undefined) {
