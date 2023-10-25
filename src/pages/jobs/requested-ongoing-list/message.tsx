@@ -157,11 +157,11 @@ const ProJobsMessage = ({ row }: Props) => {
                 </>
               ))
             : null}
-          {row.status === 601200 ||
-          row.status === 601400 ||
-          row.status === 60300 ||
-          row.status === 60600 ||
-          row.status === 60400 ? (
+          {row.status === 60700 ||
+          row.status === 60800 ||
+          row.status === 70200 ||
+          row.status === 70400 ||
+          row.status === 601000 ? (
             <Box>
               <Typography
                 variant='body1'

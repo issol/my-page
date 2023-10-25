@@ -28,7 +28,6 @@ import {
 } from '@mui/x-data-grid'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import {
-  AssignmentStatusChip,
   ProStatusChip,
   assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
@@ -98,6 +97,7 @@ type Props = {
       unknown
     >
   >
+  statusList: Array<{ value: number; label: string }>
 }
 
 const AssignPro = ({
@@ -108,6 +108,7 @@ const AssignPro = ({
   assignProList,
   item,
   refetch,
+  statusList,
 }: Props) => {
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
@@ -229,7 +230,7 @@ const AssignPro = ({
 
   const handleAssignJob = (jobId: number, proId: number) => {
     assignJobMutation.mutate(
-      { jobId: jobId, proId: proId, status: 60500 },
+      { jobId: jobId, proId: proId, status: 70300 },
       {
         onSuccess: () => {
           closeModal('AssignProJobModal')
@@ -266,20 +267,35 @@ const AssignPro = ({
     })
   }
 
-  const onClickRequestJob = () => {
+  const onClickRequestJob = (mode: 'assign' | 're-assign') => {
     if (!!item.itemName) {
-      openModal({
-        type: 'AssignProRequestJobModal',
-        children: (
-          <CustomModal
-            onClose={() => closeModal('AssignProRequestJobModal')}
-            title='Are you sure you want to request the job to selected Pro(s)?'
-            vary='successful'
-            rightButtonText='Request'
-            onClick={handleRequestPro}
-          ></CustomModal>
-        ),
-      })
+      if (mode === 'assign') {
+        openModal({
+          type: 'AssignProRequestJobModal',
+          children: (
+            <CustomModal
+              onClose={() => closeModal('AssignProRequestJobModal')}
+              title='Are you sure you want to request the job to selected Pro(s)?'
+              vary='successful'
+              rightButtonText='Request'
+              onClick={handleRequestPro}
+            ></CustomModal>
+          ),
+        })
+      } else if (mode === 're-assign') {
+        openModal({
+          type: 'ReAssignProRequestJobModal',
+          children: (
+            <CustomModal
+              onClose={() => closeModal('ReAssignProRequestJobModal')}
+              title='Are you sure you want to re-assign Pro? The assignment of the current Pro will be canceled.?'
+              vary='error'
+              rightButtonText='Re-assign'
+              onClick={handleRequestPro}
+            ></CustomModal>
+          ),
+        })
+      }
     } else {
       openModal({
         type: 'AssignDenyModal',
@@ -396,6 +412,7 @@ const AssignPro = ({
             orderDetail={orderDetail}
             item={item}
             refetch={refetch!}
+            statusList={statusList!}
           />
         </Box>
       ),
@@ -427,6 +444,7 @@ const AssignPro = ({
             orderDetail={orderDetail}
             item={item}
             refetch={refetch!}
+            statusList={statusList!}
           />
         </Box>
       ),
@@ -530,9 +548,9 @@ const AssignPro = ({
                 //   label={row.assignmentStatus}
                 //   status={row.assignmentStatus}
                 // />
-                assignmentStatusChip(Number(row.assignmentStatus))
+                assignmentStatusChip(Number(row.assignmentStatus), statusList!)
               : '-'}
-            {row.assignmentStatus === 60200 && (
+            {row.assignmentStatus === 70100 && (
               <Button
                 variant='outlined'
                 sx={{ height: '30px' }}
@@ -552,7 +570,7 @@ const AssignPro = ({
                 Assign
               </Button>
             )}
-            {row.assignmentStatus === 60500 && (
+            {row.assignmentStatus === 70300 && (
               <IconButton onClick={() => onClickSourceFileToPro(row)}>
                 <Icon icon='ic:outline-upload-file' color='#666cff' />
               </IconButton>
@@ -646,10 +664,11 @@ const AssignPro = ({
         return (
           <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {row.assignmentStatus ? (
-              <AssignmentStatusChip
-                label={row.assignmentStatus}
-                status={row.assignmentStatus}
-              />
+              // <AssignmentStatusChip
+              //   label={row.assignmentStatus}
+              //   status={row.assignmentStatus}
+              // />
+              assignmentStatusChip(row.assignmentStatus, statusList!)
             ) : (
               '-'
             )}

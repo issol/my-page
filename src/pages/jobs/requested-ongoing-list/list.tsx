@@ -109,7 +109,7 @@ const JobList = ({
           }}
           disableSelectionOnClick
           getRowClassName={params =>
-            params.row.status === 601000 ? 'overdue' : 'normal'
+            params.row.status === 60300 ? 'overdue' : 'normal'
           }
         />
       </Box>

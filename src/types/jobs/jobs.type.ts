@@ -18,14 +18,12 @@ export type JobStatusType =
   | 60300
   | 60400
   | 60500
+  | 60600
   | 60700
   | 60800
   | 60900
   | 601000
   | 601100
-  | 601200
-  | 601300
-  | 601400
 
 export type JobsListType = {
   id: number

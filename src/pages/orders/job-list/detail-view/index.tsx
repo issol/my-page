@@ -105,7 +105,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
-  const { data: statusList } = useGetStatusList('Job')
+  const { data: jobStatusList } = useGetStatusList('Job')
+  const { data: jobAssignmentStatusList } = useGetStatusList('JobAssignment')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -379,7 +380,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     success={success}
                     setSuccess={setSuccess}
                     setEditJobInfo={setEditJobInfo}
-                    statusList={statusList!}
+                    statusList={jobStatusList!}
                     setJobId={setJobId}
                   />
                 ) : (
@@ -391,7 +392,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     item={item}
                     setSuccess={setSuccess}
                     refetch={refetch!}
-                    statusList={statusList}
+                    statusList={jobStatusList}
                     auth={auth.getValue()}
                     role={role.getValue()}
                   />
@@ -461,6 +462,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                   type='view'
                   item={item}
                   refetch={refetch!}
+                  statusList={jobAssignmentStatusList!}
                 />
               </TabPanel>
               <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>
@@ -472,7 +474,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                   priceUnitsList={priceUnitsList ?? []}
                   item={item}
                   projectTeam={projectTeam || []}
-                  statusList={statusList!}
+                  statusList={jobStatusList!}
                 />
               </TabPanel>
             </TabContext>

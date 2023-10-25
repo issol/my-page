@@ -360,7 +360,6 @@ const InvoiceInfo = ({
   const onClickSave = (infoType: 'basic' | 'accounting') => {
     const data = getInvoiceInfo && getInvoiceInfo()
     if (data) {
-      console.log("onClickSave",data)
       const res: InvoiceReceivablePatchParamsType =
         infoType === 'basic'
           ? {

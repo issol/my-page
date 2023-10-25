@@ -260,7 +260,7 @@ const ProJobInfo = ({
       {
         jobId: jobInfo.id,
         proId: auth.getValue().user?.id!,
-        status: response === 'Decline' ? 60300 : 60200,
+        status: response === 'Decline' ? 70200 : 70100,
       },
       {
         onSuccess: () => {
@@ -376,7 +376,7 @@ const ProJobInfo = ({
                 </>
               }
             />
-          ) : status === 601300 ? (
+          ) : status === 60900 ? (
             <InformationModal
               vary='info'
               onClose={() => closeModal('StatusMoreInfoModal')}
@@ -593,10 +593,10 @@ const ProJobInfo = ({
                       statusLabel,
                       jobInfo.status as ProJobStatusType,
                     )}
-                    {jobInfo.status === 60600 ||
-                    jobInfo.status === 60400 ||
-                    jobInfo.status === 601000 ||
-                    jobInfo.status === 601300 ? (
+                    {/* TODO status 체크해야함 */}
+                    {jobInfo.status === 60900 ||
+                    jobInfo.status === 70400 ||
+                    jobInfo.status === 60300 ? (
                       <IconButton
                         sx={{ padding: 0 }}
                         onClick={() =>
@@ -1185,12 +1185,13 @@ const ProJobInfo = ({
       </Grid>
       <Grid item xs={2.75}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {fileList.length === 0 &&
-          (jobInfo.status === 60100 ||
-            jobInfo.status === 60400 ||
-            jobInfo.status === 60600 ||
-            jobInfo.status === 60200 ||
-            jobInfo.status === 60300) ? null : (
+          {fileList.length === 0 ||
+          (jobInfo.status !== 70000 &&
+            jobInfo.status !== 70100 &&
+            jobInfo.status !== 70200 &&
+            jobInfo.status !== 70300 &&
+            jobInfo.status !== 70400 &&
+            jobInfo.status !== 70500) ? null : (
             <Card>
               <Box
                 sx={{
@@ -1202,11 +1203,11 @@ const ProJobInfo = ({
               >
                 <Box display='flex' justifyContent='space-between'>
                   <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                    {jobInfo.status !== 60100 &&
-                    jobInfo.status !== 60400 &&
-                    jobInfo.status !== 60600 &&
-                    jobInfo.status !== 60200 &&
-                    jobInfo.status !== 60300
+                    {jobInfo.status !== 70000 &&
+                    jobInfo.status !== 70100 &&
+                    jobInfo.status !== 70200 &&
+                    jobInfo.status !== 70400 &&
+                    jobInfo.status !== 70500
                       ? 'Source files'
                       : 'Sample files'}
                   </Typography>
@@ -1215,11 +1216,11 @@ const ProJobInfo = ({
                   </Typography>
                 </Box>
                 {fileList.length === 0 &&
-                jobInfo.status !== 60100 &&
-                jobInfo.status !== 60400 &&
-                jobInfo.status !== 60600 &&
-                jobInfo.status !== 60200 &&
-                jobInfo.status !== 60300 ? null : fileList.length > 0 ? (
+                jobInfo.status !== 70000 &&
+                jobInfo.status !== 70100 &&
+                jobInfo.status !== 70200 &&
+                jobInfo.status !== 70400 &&
+                jobInfo.status !== 70500 ? null : fileList.length > 0 ? (
                   <Button
                     variant='outlined'
                     fullWidth
@@ -1227,8 +1228,9 @@ const ProJobInfo = ({
                     onClick={() => downloadAllFiles(jobInfo?.files)}
                     disabled={
                       fileList.length === 0 ||
-                      jobInfo.status === 60300 ||
-                      jobInfo.status === 60400
+                      jobInfo.status === 70200 ||
+                      jobInfo.status === 70400 ||
+                      jobInfo.status === 70500
                     }
                   >
                     Download all
@@ -1251,7 +1253,7 @@ const ProJobInfo = ({
             </Card>
           )}
 
-          {jobInfo.status === 60100 ? (
+          {jobInfo.status === 70000 ? (
             <Card sx={{ padding: '20px' }}>
               <Box
                 sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
@@ -1264,13 +1266,13 @@ const ProJobInfo = ({
                 </Button>
               </Box>
             </Card>
-          ) : (jobInfo.status === 60500 ||
+          ) : (jobInfo.status === 70300 ||
+              jobInfo.status === 60200 ||
+              jobInfo.status === 60400 ||
+              jobInfo.status === 60500 ||
+              jobInfo.status === 60600 ||
               jobInfo.status === 60700 ||
-              jobInfo.status === 60800 ||
-              jobInfo.status === 60900 ||
-              jobInfo.status === 601100 ||
-              jobInfo.status === 601200 ||
-              jobInfo.status === 601300) &&
+              jobInfo.status === 60900) &&
             jobInfo.guideLines ? (
             <Card
               sx={{

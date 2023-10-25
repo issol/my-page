@@ -267,6 +267,7 @@ export default function HistoryDetail({
               type='history'
               // assignProList={row.assignPro}
               item={item}
+              statusList={statusList!}
             />
           </TabPanel>
         </TabContext>

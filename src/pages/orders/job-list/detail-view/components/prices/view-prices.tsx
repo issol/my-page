@@ -120,7 +120,7 @@ const ViewPrices = ({
 
   const [showPriceHistory, setShowPriceHistory] = useState<boolean>(false)
   useEffect(() => {
-    if (jobPriceHistory && jobPriceHistory.detail.length) setShowPriceHistory(true)
+    if (jobPriceHistory && jobPriceHistory.detail?.length) setShowPriceHistory(true)
   }, [])
   const PriceHistory = ({item}: {item:ItemType[]}) => {
     return (

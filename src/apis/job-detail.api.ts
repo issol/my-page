@@ -144,9 +144,8 @@ export const getJobPrices = async (
 export const getJobPriceHistory = async (
   id: number,
 ): Promise<JobPricesDetailType> => {
-  // TODO: type 맞춘 이후 앤드포인트 교체해야함, price와 타입은 동일해야 함
-  // const { data } = await axios.get(`/api/enough/u/job/${id}/price/history`)
-  const { data } = await axios.get(`/api/enough/u/job/${id}/price`)
+  const { data } = await axios.get(`/api/enough/u/job/${id}/price/history`)
+  // const { data } = await axios.get(`/api/enough/u/job/${id}/price`)
   // console.log(data)
 
   return {

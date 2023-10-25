@@ -19,7 +19,7 @@ import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import { saveJobInfo } from '@src/apis/job-detail.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 
-import { JobStatus } from '@src/shared/const/status/statuses'
+// import { JobStatus } from '@src/shared/const/status/statuses'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -236,60 +236,60 @@ const ViewJobInfo = ({
     switch (statusCode) {
       case 60000: //"In preparation"
         setFilteredJobStatus(
-          statusList?.filter(list => [60000, 60400].includes(list.value))!,
+          statusList?.filter(list => [60000, 601000].includes(list.value))!,
         ) // Canceled
         break
       case 60100: //"Requested"
         setFilteredJobStatus(
-          statusList?.filter(list => [60100, 60400].includes(list.value))!,
+          statusList?.filter(list => [60100, 601000].includes(list.value))!,
         ) // Canceled
         break
-      case 60700: //"In progress"
+      case 60200: //"In progress"
         setFilteredJobStatus(
-          statusList?.filter(list => [60700, 60400].includes(list.value))!,
+          statusList?.filter(list => [60200, 601000].includes(list.value))!,
         ) // Canceled
         break
-      case 601000: //"Overdue"
+      case 60300: //"Overdue"
         setFilteredJobStatus(
-          statusList?.filter(list => [601100, 60400].includes(list.value))!,
+          statusList?.filter(list => [60300, 601000].includes(list.value))!,
         ) // Canceled
         break
-      case 60800: //"Partially delivered"
+      case 60400: //"Partially delivered"
         setFilteredJobStatus(
           statusList?.filter(list =>
-            [60800, 601100, 60400, 601300].includes(list.value),
+            [60400, 60600, 601000, 60900].includes(list.value),
           )!,
         ) //Approved, Canceled, Without invoice
         break
-      case 60900: //"Delivered"
+      case 60500: //"Delivered"
         setFilteredJobStatus(
           statusList?.filter(list =>
-            [60900, 601100, 60400, 601300].includes(list.value),
+            [60500, 60600, 601000, 60900].includes(list.value),
           )!,
         ) //Approved, Canceled, Without invoice
         break
-      case 601100: //Approved
+      case 60600: //Approved
         setFilteredJobStatus(
           statusList?.filter(list =>
-            [601100, 60400, 601300].includes(list.value),
+            [60600, 601000, 60900].includes(list.value),
           )!,
         ) //Canceled, Without invoice
         break
-      case 601200: //Invoiced
+      case 60700: //Invoiced
         setFilteredJobStatus(
           statusList?.filter(list =>
-            [601200, 60400, 601300].includes(list.value),
+            [60700, 601000, 60900].includes(list.value),
           )!,
         ) //Canceled, Without invoice
         break
-      case 601400:
+      case 601100:
         setFilteredJobStatus(
-          statusList?.filter(list => [601400, 601500].includes(list.value))!,
+          statusList?.filter(list => [60800, 601100].includes(list.value))!,
         ) //TODO Payment canceled 고도화때 반영 예정
         break
-      case 601300:
+      case 60900: //Without invoice
         setFilteredJobStatus(
-          statusList?.filter(list => [60400, 601100].includes(list.value))!,
+          statusList?.filter(list => [60900, 601000, 60900].includes(list.value))!,
         ) //Canceled, Approved
         break
       default:
