@@ -109,5 +109,11 @@ export type JobType = {
     file: string // s3 key
     type: 'SAMPLE' | 'SOURCE' | 'TARGET'
   }>
-  proId: number | null
+  pro: {
+    id: number
+    firstName: string
+    middleName: string
+    lastName: string
+  } | null
+  historyAt: string | null // job assign이 된 날짜, 보여줄때는 로그인한 사용자의 타임존으로 보여준다.
 }

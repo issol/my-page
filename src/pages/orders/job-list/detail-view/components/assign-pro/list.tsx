@@ -110,7 +110,7 @@ const AssignProList = ({
                 </Box>
               )}
             </Box>
-            {type === 'history' ? null : !jobInfo?.proId ? (
+            {type === 'history' ? null : !jobInfo?.pro ? (
               <Button
                 variant='contained'
                 sx={{ height: '30px' }}
@@ -169,7 +169,7 @@ const AssignProList = ({
           page={page}
           pageSize={pageSize}
           paginationMode='server'
-          checkboxSelection={type === 'history' ? false : true}
+          checkboxSelection={type === 'history' || jobInfo.pro ? false : true}
           onSelectionModelChange={handleSelectionModelChange}
           onPageChange={(newPage: number) => {
             setFilters!((prevState: AssignProFilterPostType) => ({

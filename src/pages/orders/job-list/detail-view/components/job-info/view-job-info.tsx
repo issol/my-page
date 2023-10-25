@@ -97,7 +97,7 @@ const ViewJobInfo = ({
   auth,
   role,
 }: Props) => {
-  console.log('row', row, row.proId, projectTeam)
+
   const [filteredJobStatus, setFilteredJobStatus] = useState<Array<statusType>>(
     statusList!,
   )
@@ -356,7 +356,7 @@ const ViewJobInfo = ({
           }}
         >
           <Typography variant='subtitle2'>
-            {!row.proId
+            {!row.pro
               ? '*Changes will only be applied to new requests'
               : '*Changes will also be applied to the Pro’s job detail page'}
           </Typography>
@@ -367,7 +367,7 @@ const ViewJobInfo = ({
           >
             <Icon icon='mdi:pencil-outline' fontSize={24} />
             &nbsp;
-            {!row.proId ? 'Edit before request' : 'Edit'}
+            {!row.pro ? 'Edit before request' : 'Edit'}
           </Button>
         </Box>
       ) : null}

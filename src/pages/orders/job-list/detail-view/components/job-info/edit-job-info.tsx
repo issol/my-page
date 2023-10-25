@@ -673,7 +673,7 @@ const EditJobInfo = ({
                       return (
                         <Autocomplete
                           fullWidth
-                          disabled={Boolean(row.proId)}
+                          disabled={Boolean(row.pro)}
                           // isOptionEqualToValue={(option, newValue) => {
                           //   return option.source === newValue.source
                           // }}
@@ -787,7 +787,7 @@ const EditJobInfo = ({
                           />
                         </Box>
                       }
-                      disabled={Boolean(row.proId)}
+                      disabled={Boolean(row.pro)}
                     />
                   </Box>
                 )}
@@ -800,7 +800,7 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
                     fullWidth
-                    disabled={Boolean(row.proId)}
+                    disabled={Boolean(row.pro)}
                     value={value || null}
                     options={countries as CountryType[]}
                     onChange={(e, v) => onChange(v)}
@@ -958,7 +958,7 @@ const EditJobInfo = ({
               {description?.length ?? 0}/500
             </Box>
           </Box>
-          {!row.proId ? (
+          {!row.pro ? (
             <Box>
               <Divider />
               <Box

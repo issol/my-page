@@ -213,6 +213,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
           position: 'bottom-left',
         })
         setSuccess(true)
+        setEditPrices(false)
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries('jobPrices')
         } else {
@@ -226,6 +227,10 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
       },
     },
   )
+
+  const onClickUpdatePrice = () => {
+    console.log("1")
+  }
 
   const onSubmit = () => {
     const data = getItem(`items.${0}`)
@@ -279,6 +284,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   //   return flag
   // }
   console.log('role', role.getValue())
+  console.log("isItemValid",isItemValid,itemErrors)
   return (
     <>
       {!isLoading && jobInfo ? (
@@ -425,13 +431,35 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                           width: '100%',
                         }}
                       >
-                        <Button
-                          variant='contained'
-                          onClick={onSubmit}
-                          disabled={!isItemValid}
-                        >
-                          Save draft
-                        </Button>
+                      {
+                        !jobPrices?.priceId ? (
+                          <Button
+                            variant='contained'
+                            onClick={onSubmit}
+                            disabled={!isItemValid}
+                          >
+                            Save draft
+                          </Button>
+                        ) : (
+                          <Box>
+                            <Button
+                              variant='outlined'
+                              onClick={() => setEditPrices(false)}
+                              // disabled={!isItemValid}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant='contained'
+                              onClick={onSubmit}
+                              disabled={!isItemValid}
+                            >
+                              Save
+                            </Button>
+                          </Box>
+                        )
+                      }
+
                       </Box>
                     </Fragment>
                   ) : (

@@ -50,6 +50,7 @@ import {
 import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
 import {
   handleJobAssignStatus,
+  handleJobReAssign,
   requestJobToPro,
 } from '@src/apis/job-detail.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -171,6 +172,16 @@ const AssignPro = ({
     },
   )
 
+  const reAssignJobMutation = useMutation(
+    (data: { jobId: number }) =>
+      handleJobReAssign(data.jobId),
+    {
+      onSuccess: () => {
+        refetchAssignableProList()
+      },
+    },
+  )
+
   useEffect(() => {
     if (AssignableProList && !isAssignableProListLoading) {
       setProList(AssignableProList)
@@ -218,7 +229,6 @@ const AssignPro = ({
   }
 
   const handleRequestPro = () => {
-    // TODO API call
     const res = selectionModel.map((value: any) => {
       return Number(value)
     })
@@ -226,6 +236,10 @@ const AssignPro = ({
 
     requestJobMutation.mutate({ ids: res, jobId: row.id })
     closeModal('AssignProRequestJobModal')
+  }
+  const handleReAssignPro = () => {
+    reAssignJobMutation.mutate({ jobId: row.id })
+    closeModal('ReAssignProRequestJobModal')
   }
 
   const handleAssignJob = (jobId: number, proId: number) => {
@@ -291,7 +305,7 @@ const AssignPro = ({
               title='Are you sure you want to re-assign Pro? The assignment of the current Pro will be canceled.?'
               vary='error'
               rightButtonText='Re-assign'
-              onClick={handleRequestPro}
+              onClick={handleReAssignPro}
             ></CustomModal>
           ),
         })
@@ -343,9 +357,14 @@ const AssignPro = ({
       })),
     )
     //@ts-ignore
-    const serviceTypeToPro = ServiceTypeToProRole[row.serviceType].map(
-      (value: any) => value.value,
-    )
+    // const serviceTypeToPro = ServiceTypeToProRole[row.serviceType].map(
+    //   (value: any) => value.value,
+    // )
+    
+    const serviceTypeToPro = row.serviceType
+    //@ts-ignore
+    ? ServiceTypeToProRole[row.serviceType]?.map(value => value.value) || []
+    : []
 
     setFilters(prevState => ({
       ...prevState,

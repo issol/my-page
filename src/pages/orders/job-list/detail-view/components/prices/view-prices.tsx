@@ -28,6 +28,10 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { boolean } from 'yup'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
+import ProjectInfo from '@src/pages/orders/order-list/detail/components/project-info'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   row: JobType
@@ -85,6 +89,8 @@ const ViewPrices = ({
   type,
   jobPriceHistory,
 }: Props) => {
+  const auth = useRecoilValueLoadable(authState)
+
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: 7,
   })
@@ -122,6 +128,9 @@ const ViewPrices = ({
   useEffect(() => {
     if (jobPriceHistory && jobPriceHistory.detail?.length) setShowPriceHistory(true)
   }, [])
+
+  console.log("row",row)
+  // prices tab 하단의 price history에 들어가는 row
   const PriceHistory = ({item}: {item:ItemType[]}) => {
     return (
       <Card sx={{ padding: '24px', backgroundColor: 'rgba(76, 78, 100, 0.5)' }}>
@@ -129,7 +138,7 @@ const ViewPrices = ({
           {/* 현재 Price를 부를때는 jobInfo의 pro 정보를 호출함 */}
           {/* Price history에서 부를때는 history 데이터 내에 pro 정보 호출함 */}
           {/* Request history의 Price에서는 안씀 */}
-          {!row.proId ? (
+          {!row ? (
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography
@@ -155,7 +164,7 @@ const ViewPrices = ({
                 </Typography>
                 <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
                   {/* TODO: pro가 assign된 시간, 타임존 정보 필요함 */}
-                  {FullDateTimezoneHelper(row.dueAt,row.dueTimezone)}
+                  {/* {FullDateTimezoneHelper(row.historyAt, auth.getValue().user?.timezone,)} */}
                 </Typography>
               </Box>
             </Box>
@@ -211,7 +220,7 @@ const ViewPrices = ({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {type === 'history' ? null : (
+      {type === 'history' ? null : ![60800, 601000].includes(row.status) ? (
         <Box
           sx={{
             display: 'flex',
@@ -221,7 +230,10 @@ const ViewPrices = ({
           }}
         >
           <Typography variant='subtitle2'>
-            *Changes will only be applied to new requests
+            {row.pro
+              ? '*Changes will also be applied to the invoice'
+              : '*Changes will only be applied to new requests'
+            }
           </Typography>
           <Button
             variant='outlined'
@@ -229,14 +241,18 @@ const ViewPrices = ({
             onClick={() => setEditPrices && setEditPrices(true)}
           >
             <Icon icon='mdi:pencil-outline' fontSize={24} />
-            &nbsp; Edit before request
+            &nbsp;
+            {row.pro
+              ? 'Edit'
+              : 'Edit before request'
+            }
           </Button>
         </Box>
-      )}
+      ) : null}
 
       <Card sx={{ padding: '24px' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {!row.proId ? (
+          {row.pro ? (
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography
@@ -248,7 +264,11 @@ const ViewPrices = ({
                   Pro
                 </Typography>
                 <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                  {'pro name'}
+                  {getLegalName({
+                    firstName: row.pro?.firstName!,
+                    middleName: row.pro?.middleName,
+                    lastName: row.pro?.lastName!,
+                  })}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -262,7 +282,7 @@ const ViewPrices = ({
                 </Typography>
                 <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
                   {/* TODO: pro가 assign된 시간, 타임존 정보 필요함 */}
-                  {FullDateTimezoneHelper(row.dueAt,row.dueTimezone)}
+                  {FullDateTimezoneHelper(row.historyAt, auth.getValue().user?.timezone,)}
                 </Typography>
               </Box>
             </Box>

@@ -99,6 +99,7 @@ const EditPrices = ({
   jobPrices,
   setJobId,
 }: Props) => {
+  console.log("price-edit",jobPrices,row)
   const { data: prices, isSuccess } = useGetProPriceList({})
   const queryClient = useQueryClient()
 
@@ -120,6 +121,25 @@ const EditPrices = ({
     | null
   >(null)
 
+  const [languagePair, setLanguagePair] = useState<{
+    sourceLanguage: string | null
+    targetLanguage: string | null
+  }> ({
+    sourceLanguage: '',
+    targetLanguage: ''
+  })
+
+  useEffect(() => {
+    setLanguagePair({
+      sourceLanguage: jobPrices.source ?? row.sourceLanguage,
+      targetLanguage: jobPrices.target ?? row.targetLanguage
+    })
+    if (!jobPrices.source && !jobPrices.target) {
+      setItem(`items.${0}.source`,row.sourceLanguage!)
+      setItem(`items.${0}.target`,row.targetLanguage!)
+    }
+  }, [row, jobPrices])
+
   const getPriceOptions = (source: string, target: string) => {
     if (!isSuccess) return [proDefaultOption]
     const filteredList = prices
@@ -137,8 +157,11 @@ const EditPrices = ({
   }
 
   const options =
-    jobPrices.source && jobPrices.target
-      ? getPriceOptions(jobPrices.source, jobPrices.target)
+    // jobPrices.source && jobPrices.target
+    //   ? getPriceOptions(jobPrices.source, jobPrices.target)
+    //   : [proDefaultOption]
+    languagePair.sourceLanguage && languagePair.targetLanguage
+      ? getPriceOptions(languagePair.sourceLanguage, languagePair.targetLanguage)
       : [proDefaultOption]
 
   useEffect(() => {
@@ -155,7 +178,7 @@ const EditPrices = ({
     if (jobPrices) {
       console.log(jobPrices)
 
-      const res = getPriceOptions(jobPrices.source, jobPrices.target).find(
+      const res = getPriceOptions(languagePair.sourceLanguage!, languagePair.targetLanguage!).find(
         value => value.id === jobPrices.initialPrice?.priceId,
       )
       setPrice(res!)
@@ -191,7 +214,7 @@ const EditPrices = ({
     })
   }
 
-  console.log(price)
+  console.log("getItem",getItem())
 
   return (
     <>
@@ -225,16 +248,20 @@ const EditPrices = ({
                 return option.value === newValue.value
               }}
               value={
-                jobPrices.source && jobPrices.target
-                  ? {
-                      value: `${languageHelper(
-                        jobPrices.source,
-                      )} -> ${languageHelper(jobPrices.target)}`,
-                      label: `${languageHelper(
-                        jobPrices.source,
-                      )} -> ${languageHelper(jobPrices.target)}`,
-                    }
-                  : { value: '', label: '' }
+                // jobPrices.source && jobPrices.target
+                //   ? {
+                //       value: `${languageHelper(
+                //         jobPrices.source,
+                //       )} -> ${languageHelper(jobPrices.target)}`,
+                //       label: `${languageHelper(
+                //         jobPrices.source,
+                //       )} -> ${languageHelper(jobPrices.target)}`,
+                //     }
+                //   : { value: '', label: '' }
+                {
+                  value: `${languageHelper(languagePair.sourceLanguage)} -> ${languageHelper(languagePair.targetLanguage)}`,
+                  label: `${languageHelper(languagePair.sourceLanguage)} -> ${languageHelper(languagePair.targetLanguage)}`,
+                }
               }
               options={[]}
               id='languagePair'

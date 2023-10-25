@@ -88,7 +88,8 @@ export const getJobInfo = async (
       description: '',
       isShowDescription: false,
       contactPerson: null,
-      proId: null,
+      pro: null,
+      historyAt: null,
     }
   }
 }
@@ -198,6 +199,14 @@ export const handleJobAssignStatus = async (
   await axios.patch(`/api/enough/u/job/${jobId}/request`, {
     proId: proId,
     status: status,
+  })
+}
+
+export const handleJobReAssign = async (
+  jobId: number,
+) => {
+  await axios.patch(`/api/enough/u/job/${jobId}/request/re-assign`, {
+    jobId: jobId,
   })
 }
 
