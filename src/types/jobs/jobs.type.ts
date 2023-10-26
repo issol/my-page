@@ -116,6 +116,8 @@ export type JobPricesDetailType = {
   id: number
   source: string
   target: string
+  sourceLanguage?: string
+  targetLanguage?: string
   priceId: number | null
   totalPrice: number
   currency: CurrencyType

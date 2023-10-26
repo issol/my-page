@@ -122,25 +122,26 @@ export const deleteJobFile = async (fileId: number) => {
 export const getJobPrices = async (
   id: number,
   isHistory: boolean,
-): Promise<JobPricesDetailType> => {
+): Promise<JobPricesDetailType | jobPriceHistoryType> => {
   const { data } = isHistory
     ? await axios.get(`/api/enough/u/job/history/${id}/price`)
     : await axios.get(`/api/enough/u/job/${id}/price`)
   // console.log(data)
 
-  return {
-    ...data,
-    source: data.sourceLanguage,
-    target: data.targetLanguage,
-    datas:
-      data?.datas?.map((item: ItemResType) => ({
-        ...item,
-        name: item?.itemName,
-        source: data.sourceLanguage,
-        target: data.sourceLanguage,
-        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-      })) || [],
-  }
+  // return {
+  //   ...data,
+  //   source: data.sourceLanguage,
+  //   target: data.targetLanguage,
+  //   datas:
+  //     data?.datas?.map((item: ItemResType) => ({
+  //       ...item,
+  //       name: item?.itemName,
+  //       source: data.sourceLanguage,
+  //       target: data.sourceLanguage,
+  //       totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+  //     })) || [],
+  // }
+  return data
 }
 
 export const getJobPriceHistory = async (
