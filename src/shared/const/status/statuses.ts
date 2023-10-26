@@ -316,7 +316,7 @@ export const ClientRequestCalendarStatus = [
   {
     value: 'Request created',
     label: 'Request created',
-    color: '#666CFF',
+    color: '#A81988',
   },
   {
     value: 'In preparation',
