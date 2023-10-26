@@ -154,7 +154,7 @@ export default function ProjectInfoForm({
     if (getClientValue() && !getValues('quoteDate.date')) {
       setValue(
         'quoteDate.date',
-        formattedNow(new Date())!,
+        String(formattedNow(new Date())!),
         setValueOptions,
       )
     }

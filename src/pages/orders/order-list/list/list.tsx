@@ -219,9 +219,14 @@ export default function OrdersList({
       sortable: false,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: OrderListCellType) => {
+        console.log("orderlist",row.currency, row.subtotal)
         return (
           <Box>
-            {!row.currency ? '-' : formatCurrency(row.subtotal, row.currency)}
+            {!row.currency 
+              ? row.subtotal 
+                ? row.subtotal 
+                : '-'
+              : formatCurrency(Number(row.subtotal), row.currency)}
           </Box>
         )
       },
