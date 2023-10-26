@@ -131,7 +131,7 @@ export const getRequestListColumns = (
             {serviceTypes.length > 1 ? (
               <ExtraNumberChip
                 size='small'
-                label={`${serviceTypes.length - 1}`}
+                label={`+ ${serviceTypes.length - 1}`}
               />
             ) : null}
           </Box>
