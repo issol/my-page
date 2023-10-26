@@ -267,6 +267,7 @@ export default function HistoryDetail({
               type='history'
               // assignProList={row.assignPro}
               item={item}
+              //TODO: assignment status에 70000대 코드 처리 추가해야 함 
               statusList={statusList!}
             />
           </TabPanel>

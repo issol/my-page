@@ -866,10 +866,11 @@ const ProJobInfo = ({
                       }}
                     >
                       {jobInfo.status !== 60100 &&
-                      jobInfo.status !== 60400 &&
-                      jobInfo.status !== 60600 &&
-                      jobInfo.status !== 60200 &&
-                      jobInfo.status !== 60300
+                      jobInfo.status !== 70000 &&
+                      jobInfo.status !== 70100 &&
+                      jobInfo.status !== 70200 &&
+                      jobInfo.status !== 70400 &&
+                      jobInfo.status !== 70500
                         ? 'Job start date'
                         : 'Job due date'}
                     </Typography>
@@ -892,10 +893,11 @@ const ProJobInfo = ({
                       <Typography variant='body2'>
                         {FullDateTimezoneHelper(
                           jobInfo.status !== 60100 &&
-                            jobInfo.status !== 60400 &&
-                            jobInfo.status !== 60600 &&
-                            jobInfo.status !== 60200 &&
-                            jobInfo.status !== 60300
+                            jobInfo.status !== 70000 &&
+                            jobInfo.status !== 70100 &&
+                            jobInfo.status !== 70200 &&
+                            jobInfo.status !== 70400 &&
+                            jobInfo.status !== 70500
                             ? jobInfo.startedAt
                             : jobInfo.dueAt,
                           auth.getValue()?.user?.timezone,
@@ -906,10 +908,11 @@ const ProJobInfo = ({
                 </Box>
               </Box>
               {jobInfo.status !== 60100 &&
-              jobInfo.status !== 60400 &&
-              jobInfo.status !== 60600 &&
-              jobInfo.status !== 60200 &&
-              jobInfo.status !== 60300 ? (
+                jobInfo.status !== 70000 &&
+                jobInfo.status !== 70100 &&
+                jobInfo.status !== 70200 &&
+                jobInfo.status !== 70400 &&
+                jobInfo.status !== 70500 ? (
                 <Box sx={{ display: 'flex', width: '50%', gap: '8px' }}>
                   <Box
                     sx={{

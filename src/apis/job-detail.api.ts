@@ -206,10 +206,17 @@ export const handleJobAssignStatus = async (
 
 export const handleJobReAssign = async (
   jobId: number,
-) => {
-  await axios.patch(`/api/enough/u/job/${jobId}/request/re-assign`, {
-    jobId: jobId,
-  })
+): Promise<{ id: number }> => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/job/${jobId}/request/re-assign`, {
+      jobId: jobId,
+    })
+    return data
+  } catch (e: any) {
+    return {
+      id: jobId
+    }
+  }
 }
 
 export const getMessageList = async (

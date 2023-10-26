@@ -529,6 +529,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                   item={item}
                   refetch={refetch!}
                   statusList={jobAssignmentStatusList!}
+                  setJobId={setJobId}
                 />
               </TabPanel>
               <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>
@@ -540,7 +541,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                   priceUnitsList={priceUnitsList ?? []}
                   item={item}
                   projectTeam={projectTeam || []}
-                  statusList={jobStatusList!}
+                  statusList={[ ...jobStatusList!, ...jobAssignmentStatusList! ]}
                 />
               </TabPanel>
             </TabContext>

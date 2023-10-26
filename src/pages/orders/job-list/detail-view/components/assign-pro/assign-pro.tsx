@@ -100,6 +100,7 @@ type Props = {
     >
   >
   statusList: Array<{ value: number; label: string }>
+  setJobId?: (n: number) => void
 }
 
 const AssignPro = ({
@@ -111,6 +112,7 @@ const AssignPro = ({
   item,
   refetch,
   statusList,
+  setJobId,
 }: Props) => {
   const queryClient = useQueryClient()
   const [proListPage, setProListPage] = useState<number>(0)
@@ -158,7 +160,9 @@ const AssignPro = ({
     (data: { ids: number[]; jobId: number }) =>
       requestJobToPro(data.ids, data.jobId),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         refetchAssignableProList()
       },
     },
@@ -168,7 +172,9 @@ const AssignPro = ({
     (data: { jobId: number; proId: number; status: number }) =>
       handleJobAssignStatus(data.jobId, data.proId, data.status),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         refetchAssignableProList()
       },
     },
@@ -178,9 +184,14 @@ const AssignPro = ({
     (data: { jobId: number }) =>
       handleJobReAssign(data.jobId),
     {
-      onSuccess: () => {
-        refetchAssignableProList()
-        queryClient.invalidateQueries('jobInfo')
+      onSuccess: (data, variables) => {
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+          queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+          refetchAssignableProList()
+        } else {
+          setJobId && setJobId(data.id)
+        }
       },
     },
   )
@@ -251,6 +262,7 @@ const AssignPro = ({
       {
         onSuccess: () => {
           closeModal('AssignProJobModal')
+          queryClient.invalidateQueries('JobInfo')
         },
         onError: () => {
           closeModal('AssignProJobModal')

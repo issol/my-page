@@ -141,7 +141,7 @@ export default function HistoryAssignPro({
       renderHeader: () => <Box>Assignment status</Box>,
       /* TODO : Chip디자인 추가해야 함 */
       renderCell: ({ row }: CellType) => (
-        <Typography>{row.assignmentStatus}</Typography>
+        <Typography>{row.assignmentStatus} {'123'}</Typography>
       ),
     },
     {
