@@ -210,6 +210,7 @@ const ViewPrices = ({
             minimumPrice={Number(priceHistory.minimumPrice!)}
             initialPrice={priceHistory.initialPrice!}
             totalPrice={priceHistory.totalPrice}
+            setDarkMode={true}
           />
         </Box>
       </Card>

@@ -739,9 +739,10 @@ const AssignPro = ({
       )}
 
       <AssignProListPage
-        listCount={
-          isFiltersDifferent() ? proList?.count! : proList?.totalCount!
-        }
+        // listCount={
+        //   isFiltersDifferent() ? proList?.totalCount! : proList?.totalCount!
+        // }
+        listCount={proList?.totalCount!}
         list={proList?.data!}
         columns={type === 'history' ? historyColumns : columns}
         setFilters={setFilters}

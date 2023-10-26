@@ -1253,7 +1253,7 @@ const ProJobInfo = ({
             </Card>
           )}
 
-          {jobInfo.status === 70000 ? (
+          {[60100, 70000].includes(jobInfo.status) ? (
             <Card sx={{ padding: '20px' }}>
               <Box
                 sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}

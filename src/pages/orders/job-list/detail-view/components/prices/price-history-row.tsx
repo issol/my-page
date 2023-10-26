@@ -26,6 +26,7 @@ type Props = {
   minimumPrice: number | null
   initialPrice: PriceType
   totalPrice: number | null
+  setDarkMode: boolean
 }
 
 const PriceHistoryRow = ({
@@ -34,6 +35,7 @@ const PriceHistoryRow = ({
   minimumPrice,
   initialPrice,
   totalPrice,
+  setDarkMode,
 }: Props) => {
   const Row = ({ idx }: { idx: number }) => {
     return (
@@ -110,10 +112,15 @@ const PriceHistoryRow = ({
       <Grid item xs={12}>
         <TableContainer
           component={Paper}
-          sx={{
-              maxHeight: 400,
-              backgroundColor: 'rgba(76, 78, 100, 0)',
-          }}
+          sx={
+            setDarkMode
+              ? {
+                  maxHeight: 400,
+                  backgroundColor: 'rgba(76, 78, 100, 0)',
+                  // opacity: 0.7,
+                }
+              : { maxHeight: 400 }
+          }
         >
           <Table stickyHeader aria-label='sticky table'>
             <TableHead
@@ -130,42 +137,42 @@ const PriceHistoryRow = ({
                     textTransform: 'none',
                   }}
                   align='left'
-                  dark={true}
+                  dark={setDarkMode}
                 >
                   Quantity
                 </StyledTableCell>
                 <StyledTableCell
                   sx={{ width: 'auto', textTransform: 'none' }}
                   align='left'
-                  dark={true}
+                  dark={setDarkMode}
                 >
                   Price unit
                 </StyledTableCell>
                 <StyledTableCell
                   sx={{ width: '15%', textTransform: 'none' }}
                   align='left'
-                  dark={true}
+                  dark={setDarkMode}
                 >
                   Unit price
                 </StyledTableCell>
                 <StyledTableCell
                   sx={{ width: '17%', textTransform: 'none' }}
                   align='left'
-                  dark={true}
+                  dark={setDarkMode}
                 >
                   Currency
                 </StyledTableCell>
                 <StyledTableCell
                   sx={{ width: '17%', textTransform: 'none' }}
                   align='left'
-                  dark={true}
+                  dark={setDarkMode}
                 >
                   Prices
                 </StyledTableCell>
                 <StyledTableCell
                   sx={{ width: '5%', textTransform: 'none' }}
                   align='left'
-                  dark={true}
+                  dark={setDarkMode}
                 ></StyledTableCell>
               </TableRow>
             </TableHead>
