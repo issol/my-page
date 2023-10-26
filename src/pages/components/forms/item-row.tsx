@@ -396,7 +396,7 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
-
+  console.log("getValues(`items.${idx}.contactPerson`)",getValues(`items.${idx}`))
   return (
     <Box
       style={{
@@ -536,13 +536,7 @@ const Row = ({
                     {
                       // TODO: G-3406 items의 contactPerson(LPM 정보) 타입 맞추기 전까지 임시 코드
                       // quote에서는 이름 정보만 리턴되고 order에서는 id 정보만 리턴됨
-                      getValues(`items.${idx}.contactPersonId`)
-                        ? contactPersonList.find(
-                            item =>
-                              item.value ===
-                              getValues(`items.${idx}.contactPersonId`),
-                          )?.label
-                        : getLegalName(getValues(`items.${idx}.contactPerson`)!)
+                      getLegalName(getValues(`items.${idx}.contactPerson`)!)
 
                       // contactPersonList.find(
                       //   item =>
@@ -557,7 +551,7 @@ const Row = ({
               ) : (
                 contactPersonList.length > 0 && (
                   <Controller
-                    name={`items.${idx}.contactPersonId`}
+                    name={`items.${idx}.contactPerson`}
                     control={control}
                     render={({ field: { value, onChange } }) => {
                       return (
@@ -566,6 +560,8 @@ const Row = ({
                           fullWidth
                           options={contactPersonList}
                           isOptionEqualToValue={(option, newValue) => {
+                            console.log("value",value)
+                            console.log("isOptionEqualToValue",option, newValue)
                             return option.value === newValue.value
                           }}
                           disableClearable={value ? false : true}
@@ -576,7 +572,7 @@ const Row = ({
                             !value
                               ? defaultValue
                               : contactPersonList.find(
-                                  item => item.value === value,
+                                  item => item.value === value.userId,
                                 )
                           }
                           renderInput={params => (
