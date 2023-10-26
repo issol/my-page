@@ -138,11 +138,18 @@ const CalendarContainer = () => {
           }}
         >
           <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '24px',
-            }}
+            // sx={{
+            //   display: 'flex',
+            //   justifyContent: 'flex-end',
+            //   gap: '24px',
+            // }}
+            display='flex'
+            alignItems='center'
+            gap='8px'
+            justifyContent='right'
+            padding='0 0 22px'
+            position='absolute'
+            right='0'
           >
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <Typography>Hide completed requests</Typography>
