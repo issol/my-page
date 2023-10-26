@@ -151,6 +151,13 @@ export default function ProjectInfoForm({
         setValueOptions,
       )
     }
+    if (getClientValue() && !getValues('quoteDate.date')) {
+      setValue(
+        'quoteDate.date',
+        formattedNow(new Date())!,
+        setValueOptions,
+      )
+    }
   }, [getClientValue, getValues])
 
   function onWorkNameInputChange(name: string) {
