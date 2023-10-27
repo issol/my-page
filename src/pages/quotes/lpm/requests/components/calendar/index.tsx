@@ -118,7 +118,7 @@ const CalendarContainer = () => {
         }}
       >
         <CalendarStatusSideBar
-          alertIconStatus=''
+          alertIconStatus='Canceled'
           status={ClientRequestCalendarStatus}
           mdAbove={mdAbove}
           leftSidebarWidth={leftSidebarWidth}
