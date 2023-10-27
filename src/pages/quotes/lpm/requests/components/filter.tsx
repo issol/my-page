@@ -344,6 +344,7 @@ export default function Filter({
                                 const res = CategoryListPair[value.value]
                                 arr.push(...res)
                               })
+                              setCategoryList(_.uniqBy(arr, 'value'))
 
                               setCategoryList(arr)
                               trigger('category')

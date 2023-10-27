@@ -214,7 +214,7 @@ export default function Filter({
                             getOptionLabel={option => option.label}
                             value={value}
                             limitTags={1}
-                            onChange={(e,v) => {
+                            onChange={(e, v) => {
                               onChange(v)
                             }}
                             renderInput={params => (
@@ -344,7 +344,7 @@ export default function Filter({
                                 arr.push(...res)
                               })
 
-                              setCategoryList(arr)
+                              setCategoryList(_.uniqBy(arr, 'value'))
                               trigger('category')
                             } else {
                               setCategoryList(CategoryList)
