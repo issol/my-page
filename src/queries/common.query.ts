@@ -2,11 +2,11 @@ import { StatusType, getStatusList } from '@src/apis/common.api'
 import { getClientUserInfo } from '@src/apis/user.api'
 import { useQuery } from 'react-query'
 
-export const useGetStatusList = (type: StatusType) => {
+export const useGetStatusList = (type: StatusType, isSelectable?: '1' | '0') => {
   return useQuery(
-    [`${type}-status-list`],
+    [`${type}-status-list`,isSelectable],
     () => {
-      return getStatusList(type)
+      return getStatusList(isSelectable ? type : type, isSelectable)
     },
     {
       suspense: true,
