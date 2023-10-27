@@ -18,7 +18,7 @@ export function getClientRequestDefaultValue(
         targetLanguage: '',
         category: '',
         serviceType: [],
-        desiredDueDate: '',
+        desiredDueDate: null,
         desiredDueTimezone: timezone,
       },
     ],

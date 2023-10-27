@@ -36,7 +36,11 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** types & validation
-import { RequestFormType } from '@src/types/requests/common.type'
+import {
+  RequestFormPayloadType,
+  RequestFormType,
+  RequestItemFormPayloadType,
+} from '@src/types/requests/common.type'
 import {
   getClientRequestDefaultValue,
   clientRequestSchema,
@@ -168,7 +172,6 @@ export default function AddNewRequest() {
   const clients = useMemo(() => {
     return (
       clientList?.map(item => ({
-        value: item.id,
         userId: item.userId,
         label: `${getLegalName({
           firstName: item.firstName,
@@ -180,8 +183,6 @@ export default function AddNewRequest() {
       })) || []
     )
   }, [clientList])
-
-  console.log(clients)
 
   // useEffect(() => {
   //   async function fetchDefaultValue() {
@@ -205,7 +206,7 @@ export default function AddNewRequest() {
   // }, []); // 빈 배열로 설정하여 한 번만 실행
 
   const createMutation = useMutation(
-    (form: RequestFormType) => createClientRequest(form),
+    (form: RequestFormPayloadType) => createClientRequest(form),
     {
       onSuccess: res => {
         router.push(`/quotes/requests/${res.id}`)
@@ -220,18 +221,18 @@ export default function AddNewRequest() {
 
   function mutateData() {
     const data: RequestFormType = getValues()
-    const dateFixedItem = data.items.map(item => {
+    const dateFixedItem: RequestItemFormPayloadType[] = data.items.map(item => {
       // const newDesiredDueDate = convertLocalTimezoneToUTC(new Date(item.desiredDueDate)).toISOString()
       const newDesiredDueDate = () => {
         const convertISOString = convertDateToLocalTimezoneISOString(
-          new Date(item.desiredDueDate),
+          item.desiredDueDate!,
         )
         if (convertISOString)
           return changeTimezoneFromLocalTimezoneISOString(
             convertISOString,
             item.desiredDueTimezone?.code!,
           )
-        return item.desiredDueDate
+        return item.desiredDueDate?.toISOString()!
       }
       return { ...item, desiredDueDate: newDesiredDueDate() }
     })
@@ -241,16 +242,15 @@ export default function AddNewRequest() {
       client => client?.userId! === auth.getValue().user?.userId!,
     )
     const { userId, ...filterData } = data
-    const calData = {
+    const calData: RequestFormPayloadType = {
       ...filterData,
       contactPersonId:
         data.contactPersonId === auth.getValue().user?.userId!
-          ? contactPersonId?.value!
+          ? contactPersonId?.userId!
           : data.contactPersonId,
       items: dateFixedItem,
     }
 
-    console.log('calData', calData)
     if (files.length) {
       const fileInfo: Array<{ fileName: string; fileSize: number }> = []
       const paths: string[] = files?.map(file =>
@@ -320,8 +320,6 @@ export default function AddNewRequest() {
     })
   }
 
-  console.log(getValues())
-
   return (
     <Grid container spacing={6}>
       <ConfirmLeaveModal />
@@ -352,12 +350,9 @@ export default function AddNewRequest() {
                 name='contactPersonId'
                 control={control}
                 render={({ field: { value, onChange } }) => {
-                  console.log(value)
-
                   const selectedPerson = clients.find(
-                    item => item.value === value,
+                    item => item.userId === value,
                   ) || {
-                    value: value,
                     userId: auth.getValue().user?.id!,
                     label: getLegalName({
                       firstName: auth.getValue().user?.firstName,
@@ -368,15 +363,13 @@ export default function AddNewRequest() {
                     jobTitle: auth.getValue().user?.jobTitle,
                   }
 
-                  console.log(selectedPerson)
-
                   return (
                     <Autocomplete
                       fullWidth
                       options={clients}
                       onChange={(e, v) => {
                         if (v) {
-                          onChange(v.value)
+                          onChange(v.userId)
                           fields.forEach((item, i) =>
                             setValue(
                               `items.${i}.desiredDueTimezone`,
@@ -389,7 +382,7 @@ export default function AddNewRequest() {
                       }}
                       isOptionEqualToValue={useCallback(
                         (option: any, value: any) =>
-                          option.value === value.value,
+                          option.userId === value.userId,
                         [],
                       )}
                       // disableClearable
@@ -432,9 +425,13 @@ export default function AddNewRequest() {
                       fullWidth
                       options={personList}
                       onChange={(e, v) => {
-                        onChange(v.value)
+                        if (v) {
+                          onChange(v.value)
+                        } else {
+                          onChange(null)
+                        }
                       }}
-                      disableClearable
+                      disableClearable={value ? false : true}
                       value={selectedPerson || { value: '', label: '' }}
                       renderInput={params => (
                         <TextField
@@ -470,9 +467,12 @@ export default function AddNewRequest() {
                 disabled={!isValid}
                 onClick={() => {
                   const contactPerson = getValues('contactPersonId')
+
                   const timezone = clients?.find(
                     c => c.userId === contactPerson,
                   )?.timezone
+
+                  console.log(timezone)
 
                   append({
                     name: '',
@@ -480,7 +480,7 @@ export default function AddNewRequest() {
                     targetLanguage: '',
                     category: '',
                     serviceType: [],
-                    desiredDueDate: '',
+                    desiredDueDate: null,
                     desiredDueTimezone: timezone!,
                   })
                 }}

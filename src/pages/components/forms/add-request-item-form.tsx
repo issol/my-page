@@ -53,6 +53,8 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { FormErrors } from '@src/shared/const/formErrors'
+import dayjs from 'dayjs'
 
 type Props = {
   control: Control<RequestFormType, any>
@@ -89,6 +91,10 @@ export default function AddRequestForm({
         )}
       </>
     )
+  }
+
+  const dateValue = (date: Date) => {
+    return dayjs(date).format('MM/DD/YYYY, hh:mm A')
   }
 
   return (
@@ -130,7 +136,7 @@ export default function AddRequestForm({
                     inputProps={{ maxLength: 200 }}
                     error={Boolean(errors?.items?.[idx]?.name)}
                     label='Item name*'
-                    placeholder='Item name*'
+                    // placeholder='Item name*'
                   />
                 )}
               />
@@ -157,7 +163,7 @@ export default function AddRequestForm({
                         {...params}
                         error={Boolean(errors?.items?.[idx]?.sourceLanguage)}
                         label='Source*'
-                        placeholder='Source*'
+                        // placeholder='Source*'
                       />
                     )}
                   />
@@ -185,7 +191,7 @@ export default function AddRequestForm({
                         {...params}
                         error={Boolean(errors?.items?.[idx]?.targetLanguage)}
                         label='Target*'
-                        placeholder='Target*'
+                        // placeholder='Target*'
                       />
                     )}
                   />
@@ -219,7 +225,7 @@ export default function AddRequestForm({
                         {...params}
                         error={Boolean(errors?.items?.[idx]?.category)}
                         label='Category*'
-                        placeholder='Category*'
+                        // placeholder='Category*'
                       />
                     )}
                   />
@@ -285,7 +291,7 @@ export default function AddRequestForm({
                         {...params}
                         error={Boolean(errors?.items?.[idx]?.unit)}
                         label='Unit'
-                        placeholder='Unit'
+                        // placeholder='Unit'
                       />
                     )}
                   />
@@ -310,7 +316,7 @@ export default function AddRequestForm({
                       type='number'
                       error={Boolean(errors?.items?.[idx]?.quantity)}
                       label='Quantity'
-                      placeholder='Quantity'
+                      // placeholder='Quantity'
                     />
                   )
                 }}
@@ -323,12 +329,24 @@ export default function AddRequestForm({
                   name={`items.${idx}.desiredDueDate`}
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <FullWidthDatePicker
-                      {...DateTimePickerDefaultOptions}
-                      selected={!value ? null : new Date(value)}
-                      onChange={onChange}
-                      customInput={<CustomInput label='Desired due date*' />}
-                    />
+                    <Box sx={{ width: '100%' }}>
+                      <FullWidthDatePicker
+                        {...DateTimePickerDefaultOptions}
+                        selected={value ?? null}
+                        onChange={onChange}
+                        customInput={
+                          <Box>
+                            <CustomInput
+                              label='Desired due date*'
+                              icon='calendar'
+                              readOnly
+                              placeholder='MM/DD/YYYY HH:MM'
+                              value={value ? dateValue(value) : ''}
+                            />
+                          </Box>
+                        }
+                      />
+                    </Box>
                   )}
                 />
               </DatePickerWrapper>
@@ -340,13 +358,13 @@ export default function AddRequestForm({
                 render={({ field: { value, onChange } }) => (
                   <Autocomplete
                     fullWidth
-                    value={value ?? undefined}
+                    value={value ?? null}
                     options={countries as CountryType[]}
                     onChange={(e, v) => {
                       if (v) {
                         onChange(v)
                       } else {
-                        onChange(undefined)
+                        onChange(null)
                       }
                     }}
                     getOptionLabel={option => {
@@ -374,8 +392,12 @@ export default function AddRequestForm({
                   />
                 )}
               />
+              {Boolean(errors.items?.[idx]?.desiredDueTimezone) ? (
+                <FormHelperText sx={{ color: 'error.main' }}>
+                  {FormErrors.required}
+                </FormHelperText>
+              ) : null}
             </Grid>
-            {renderErrorMsg(errors?.items?.[idx]?.desiredDueTimezone?.code)}
           </Fragment>
         )
       })}
