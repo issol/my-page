@@ -230,7 +230,7 @@ export default function AddNewQuote() {
     },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
-  console.log("projectInfo",isProjectInfoValid,projectInfoErrors)
+
   // ** step4
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
@@ -301,6 +301,7 @@ export default function AddNewQuote() {
       const isCategoryNotSame = items.some(
         i => i.category !== items[0]?.category,
       )
+
       projectInfoReset({
         projectDueDate: {
           date: findEarliestDate(desiredDueDates),
