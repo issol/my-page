@@ -11,7 +11,7 @@ import useModal from '@src/hooks/useModal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { AssignProListType } from '@src/types/orders/job-detail'
 import JobInfoDetailView from '../..'
-import { AssignmentStatusChip } from '@src/@core/components/chips/chips'
+import { assignmentStatusChip } from '@src/@core/components/chips/chips'
 import { ChangeEvent, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import CustomChip from 'src/@core/components/mui/chip'
@@ -47,9 +47,10 @@ type Props = {
       unknown
     >
   >
+  statusList: Array<{ value: number; label: string }>
 }
 
-const Message = ({ info, user, row, orderDetail, item, refetch }: Props) => {
+const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Props) => {
   const { openModal, closeModal } = useModal()
   const [message, setMessage] = useState<string>('')
   const handleChangeMessage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -152,10 +153,11 @@ const Message = ({ info, user, row, orderDetail, item, refetch }: Props) => {
               lastName: info.lastName,
             })}
           </Typography>
-          <AssignmentStatusChip
+          {/* <AssignmentStatusChip
             label={info.assignmentStatus}
             status={info.assignmentStatus!}
-          />
+          /> */}
+          {assignmentStatusChip(Number(info.assignmentStatus), statusList!)}
         </Box>
         <Divider />
         {messageList?.contents &&

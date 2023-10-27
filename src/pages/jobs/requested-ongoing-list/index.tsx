@@ -3,13 +3,14 @@ import JobFilters from './filters'
 import JobList from './list'
 import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
 import { FilterType } from '..'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   useGetProJobClientList,
   useGetProJobList,
 } from '@src/queries/jobs/jobs.query'
 import { useForm } from 'react-hook-form'
 import { useGetStatusList } from '@src/queries/common.query'
+import { statusType } from '@src/types/common/status.type'
 
 const defaultValues: FilterType = {
   jobDueDate: [],
@@ -55,8 +56,12 @@ const RequestedOngoingList = () => {
     },
   )
 
-  const { data: statusList, isLoading: statusListLoading } =
+  const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
+  const { data: assignmentJobStatusList, isLoading: assignmentStatusListLoading } =
+    useGetStatusList('JobAssignment')
+
+  const [statusList, setStatusList] = useState<Array<statusType>>([])
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -65,6 +70,12 @@ const RequestedOngoingList = () => {
     defaultValues,
     mode: 'onSubmit',
   })
+
+  useEffect(() => {
+    if (jobStatusList && assignmentJobStatusList && !statusListLoading && !assignmentStatusListLoading) {
+      setStatusList([ ...jobStatusList, ...assignmentJobStatusList ])
+    }
+  }, [jobStatusList, statusListLoading, assignmentJobStatusList, assignmentStatusListLoading])
 
   const onClickResetButton = () => {
     reset(defaultValues)
@@ -110,7 +121,7 @@ const RequestedOngoingList = () => {
       />
       <JobList
         type='requested'
-        columns={getProJobColumns(statusList!)}
+        columns={getProJobColumns(statusList && statusList!)}
         list={jobList?.data!}
         listCount={jobList?.totalCount!}
         page={page}

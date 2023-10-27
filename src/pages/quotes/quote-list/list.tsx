@@ -243,7 +243,11 @@ export default function QuotesList({
       renderCell: ({ row }: QuotesListCellType) => {
         return (
           <Box>
-            {!row.currency ? '-' : formatCurrency(row.totalPrice, row.currency)}
+            {!row.currency 
+              ? row.subtotal 
+                ? row.subtotal 
+                : '-'
+              : formatCurrency(Number(row.subtotal), row.currency)}
           </Box>
         )
       },

@@ -17,6 +17,7 @@ export type StatusType =
   | 'InvoiceReceivable'
   | 'InvoicePayable'
   | 'Job'
+  | 'JobAssignment'
 
 export type CompanyListByBusinessType = {
   id: string

@@ -79,6 +79,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { saveJobPrices } from '@src/apis/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import { toast } from 'react-hot-toast'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { openModal, closeModal } = useModal()
@@ -105,7 +106,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
-  const { data: statusList } = useGetStatusList('Job')
+  const { data: jobStatusList } = useGetStatusList('Job')
+  const { data: jobAssignmentStatusList } = useGetStatusList('JobAssignment')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -208,23 +210,63 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
       saveJobPrices(data.jobId, data.prices),
     {
       onSuccess: (data, variables) => {
-        toast.success('Job info added successfully', {
-          position: 'bottom-left',
-        })
+        // toast.success('Job info added successfully', {
+        //   position: 'bottom-left',
+        // })
         setSuccess(true)
+        console.log("editPrice",editPrices)
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries('jobPrices')
         } else {
           setJobId(data.id)
         }
+        setEditPrices(false)
       },
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',
         })
+        setEditPrices(false)
       },
     },
   )
+
+  const onClickUpdatePrice = () => {
+    openModal({
+      type: 'UpdatePriceModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('UpdatePriceModal')}
+          title='Are you sure you want to save all changes? The notification will be sent to Pro after the change.'
+          vary='successful'
+          rightButtonText='Save'
+          onClick={() => {
+            closeModal('UpdatePriceModal')
+            onSubmit()
+          }}
+        ></CustomModal>
+      ),
+    })
+  }
+
+  const onClickUpdatePriceCancel = () => {
+    openModal({
+      type: 'UpdatePriceCancelModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('UpdatePriceCancelModal')}
+          title='Are you sure you want to discard all changes?'
+          vary='error'
+          rightButtonText='Discard'
+          onClick={() => {
+            closeModal('UpdatePriceCancelModal')
+            itemReset()
+            setEditPrices(false)
+          }}
+        ></CustomModal>
+      ),
+    })
+  }
 
   const onSubmit = () => {
     const data = getItem(`items.${0}`)
@@ -278,6 +320,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   //   return flag
   // }
   console.log('role', role.getValue())
+  console.log("isItemValid",isItemValid,itemErrors)
   return (
     <>
       {!isLoading && jobInfo ? (
@@ -379,7 +422,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     success={success}
                     setSuccess={setSuccess}
                     setEditJobInfo={setEditJobInfo}
-                    statusList={statusList!}
+                    statusList={jobStatusList!}
                     setJobId={setJobId}
                   />
                 ) : (
@@ -391,7 +434,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     item={item}
                     setSuccess={setSuccess}
                     refetch={refetch!}
-                    statusList={statusList}
+                    statusList={jobStatusList}
                     auth={auth.getValue()}
                     role={role.getValue()}
                   />
@@ -420,17 +463,41 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                         mt='20px'
                         sx={{
                           display: 'flex',
-                          justifyContent: 'flex-end',
+                          justifyContent: !jobPrices?.priceId ? 'flex-end' : 'center',
                           width: '100%',
                         }}
                       >
-                        <Button
-                          variant='contained'
-                          onClick={onSubmit}
-                          disabled={!isItemValid}
-                        >
-                          Save draft
-                        </Button>
+                      {
+                        !jobPrices?.priceId ? (
+                          <Button
+                            variant='contained'
+                            onClick={onSubmit}
+                            disabled={!isItemValid}
+                          >
+                            Save draft
+                          </Button>
+                        ) : (
+                          <Box display='flex' alignItems='center' gap='32px'>
+                            <Button
+                              variant='outlined'
+                              onClick={() => {
+                                onClickUpdatePriceCancel()
+                              }}
+                              // disabled={!isItemValid}
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant='contained'
+                              onClick={onClickUpdatePrice}
+                              disabled={!isItemValid}
+                            >
+                              Save
+                            </Button>
+                          </Box>
+                        )
+                      }
+
                       </Box>
                     </Fragment>
                   ) : (
@@ -461,6 +528,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                   type='view'
                   item={item}
                   refetch={refetch!}
+                  statusList={jobAssignmentStatusList!}
+                  setJobId={setJobId}
                 />
               </TabPanel>
               <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>
@@ -472,7 +541,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                   priceUnitsList={priceUnitsList ?? []}
                   item={item}
                   projectTeam={projectTeam || []}
-                  statusList={statusList!}
+                  statusList={[ ...jobStatusList!, ...jobAssignmentStatusList! ]}
                 />
               </TabPanel>
             </TabContext>

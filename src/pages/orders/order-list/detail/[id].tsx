@@ -491,7 +491,8 @@ const OrderDetail = () => {
         target: item.target,
         priceId: item.priceId,
         detail: !item?.detail?.length ? [] : item.detail,
-        contactPersonId: item.contactPersonId,
+        // contactPersonId: item.contactPersonId,
+        contactPerson: item.contactPerson ?? null,
         description: item.description,
         analysis: item.analysis ?? [],
         totalPrice: item?.totalPrice ?? 0,
@@ -848,7 +849,7 @@ const OrderDetail = () => {
           target: item.target,
           priceId: item.priceId,
           detail: !item?.detail?.length ? [] : item.detail,
-          contactPersonId: item.contactPersonId,
+          contactPerson: item.contactPerson,
           description: item.description,
           analysis: item.analysis ?? [],
           totalPrice: item?.totalPrice ?? 0,
@@ -938,7 +939,6 @@ const OrderDetail = () => {
         resetTeam({ teams: res })
       }
     }
-    console.log('projectInfo', projectInfo, currentStatus)
     if (projectInfo) {
       const res = {
         ...projectInfo,
@@ -949,7 +949,6 @@ const OrderDetail = () => {
     }
 
     if (client) {
-      console.log('client', client)
       clientReset({
         clientId: client.client.clientId,
         contactPersonId: client.contactPerson?.id,
@@ -985,8 +984,8 @@ const OrderDetail = () => {
       } = item
       return {
         ...filterItem,
-        // contactPersonId: Number(item.contactPerson?.id!),
-        contactPersonId: Number(item.contactPersonId!),
+        contactPersonId: Number(item.contactPerson?.userId!),
+        // contactPersonId: Number(item.contactPersonId!),
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
@@ -1870,8 +1869,6 @@ const OrderDetail = () => {
                                   sx={{ maxWidth: '120px', padding: 0 }}
                                   inputProps={{ inputMode: 'decimal' }}
                                   onChange={e => {
-                                    console.log(e.target.value)
-
                                     if (e.target.value.length > 10) return
                                     onChange(Number(e.target.value))
                                     projectInfoTrigger('tax')

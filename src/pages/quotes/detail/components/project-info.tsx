@@ -42,6 +42,8 @@ import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ReasonType } from '@src/types/quotes/quote'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
+import _ from 'lodash'
+
 type Props = {
   project: ProjectInfoType | undefined
   setEditMode: (v: boolean) => void
@@ -263,28 +265,52 @@ export default function QuotesProjectInfoDetail({
                 project.status !== 'Canceled') ||
                 // 연결된 Client가 없는 경우
                 !client?.isEnrolledClient) ? (
-                <Autocomplete
-                  fullWidth
-                  disableClearable={true}
-                  options={filterStatusList() ?? []}
-                  onChange={(e, v) => {
-                    if (updateStatus && v?.value) {
-                      updateStatus(v.value as number)
+                <Box sx={{ display: 'flex', gap: '2px', alignItems: 'left' }}>
+                  <Autocomplete
+                    fullWidth
+                    disableClearable={true}
+                    options={filterStatusList() ?? []}
+                    onChange={(e, v) => {
+                      if (updateStatus && v?.value) {
+                        updateStatus(v.value as number)
+                      }
+                    }}
+                    value={
+                      statusList &&
+                      statusList.find(item => item.label === project.status)
                     }
-                  }}
-                  value={
-                    statusList &&
-                    statusList.find(item => item.label === project.status)
-                  }
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      placeholder='Status'
-                      size='small'
-                      sx={{ maxWidth: '300px' }}
-                    />
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        placeholder='Status'
+                        size='small'
+                        sx={{ maxWidth: '300px' }}
+                      />
+                    )}
+                  />
+                  {(project.status === 'Revision requested' ||
+                    project.status === 'Rejected' ||
+                    project.status === 'Canceled') && (
+                    <IconButton
+                      onClick={() => {
+                        project.reason &&
+                          onClickReason(
+                            project.reason.type === 'revision-request'
+                              ? 'Requested'
+                              : project.reason.type?.replace(/^[a-z]/, char =>
+                                  char.toUpperCase(),
+                                ),
+                            project.reason,
+                          )
+                      }}
+                    >
+                      <img
+                        src='/images/icons/onboarding-icons/more-reason.svg'
+                        alt='more'
+                      />
+                    </IconButton>
                   )}
-                />
+                </Box>
               ) : (
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <QuoteStatusChip
@@ -475,9 +501,11 @@ export default function QuotesProjectInfoDetail({
               </CustomTypo>
               <Box display='flex' alignItems='center' gap='8px'>
                 {project.serviceType && project.serviceType.length > 0
-                  ? project.serviceType?.map((item, idx) => (
-                      <ServiceTypeChip key={idx} label={item} size='small' />
-                    ))
+                  ? project.serviceType
+                      .filter((item, index, self) => self.indexOf(item) === index)
+                      .map((item, idx) => (
+                        <ServiceTypeChip key={idx} label={item} size='small' />
+                      ))
                   : '-'}
               </Box>
             </LabelContainer>

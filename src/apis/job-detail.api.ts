@@ -8,6 +8,7 @@ import {
   ProJobDeliveryType,
   ProJobDetailType,
   ProJobFeedbackType,
+  jobPriceHistoryType,
 } from '@src/types/jobs/jobs.type'
 import {
   AssignProFilterPostType,
@@ -88,7 +89,8 @@ export const getJobInfo = async (
       description: '',
       isShowDescription: false,
       contactPerson: null,
-      proId: null,
+      pro: null,
+      historyAt: null,
     }
   }
 }
@@ -120,48 +122,49 @@ export const deleteJobFile = async (fileId: number) => {
 export const getJobPrices = async (
   id: number,
   isHistory: boolean,
-): Promise<JobPricesDetailType> => {
+): Promise<JobPricesDetailType | jobPriceHistoryType> => {
   const { data } = isHistory
     ? await axios.get(`/api/enough/u/job/history/${id}/price`)
     : await axios.get(`/api/enough/u/job/${id}/price`)
   // console.log(data)
 
-  return {
-    ...data,
-    source: data.sourceLanguage,
-    target: data.targetLanguage,
-    datas:
-      data?.datas?.map((item: ItemResType) => ({
-        ...item,
-        name: item?.itemName,
-        source: data.sourceLanguage,
-        target: data.sourceLanguage,
-        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-      })) || [],
-  }
+  // return {
+  //   ...data,
+  //   source: data.sourceLanguage,
+  //   target: data.targetLanguage,
+  //   datas:
+  //     data?.datas?.map((item: ItemResType) => ({
+  //       ...item,
+  //       name: item?.itemName,
+  //       source: data.sourceLanguage,
+  //       target: data.sourceLanguage,
+  //       totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+  //     })) || [],
+  // }
+  return data
 }
 
 export const getJobPriceHistory = async (
   id: number,
-): Promise<JobPricesDetailType> => {
-  // TODO: type 맞춘 이후 앤드포인트 교체해야함, price와 타입은 동일해야 함
-  // const { data } = await axios.get(`/api/enough/u/job/${id}/price/history`)
-  const { data } = await axios.get(`/api/enough/u/job/${id}/price`)
+): Promise<Array<jobPriceHistoryType>> => {
+  const { data } = await axios.get(`/api/enough/u/job/${id}/price/history`)
+  // const { data } = await axios.get(`/api/enough/u/job/${id}/price`)
   // console.log(data)
 
-  return {
-    ...data,
-    source: data.sourceLanguage,
-    target: data.targetLanguage,
-    datas:
-      data?.datas?.map((item: ItemResType) => ({
-        ...item,
-        name: item?.itemName,
-        source: data.sourceLanguage,
-        target: data.sourceLanguage,
-        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-      })) || [],
-  }
+  // return [
+  //   ...data,
+  //   source: data.sourceLanguage,
+  //   target: data.targetLanguage,
+  //   datas:
+  //     data?.datas?.map((item: ItemResType) => ({
+  //       ...item,
+  //       name: item?.itemName,
+  //       source: data.sourceLanguage,
+  //       target: data.sourceLanguage,
+  //       totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+  //     })) || [],
+  // ]
+  return data
 }
 
 export const saveJobPrices = async (
@@ -200,6 +203,21 @@ export const handleJobAssignStatus = async (
     proId: proId,
     status: status,
   })
+}
+
+export const handleJobReAssign = async (
+  jobId: number,
+): Promise<{ id: number }> => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/job/${jobId}/request/re-assign`, {
+      jobId: jobId,
+    })
+    return data
+  } catch (e: any) {
+    return {
+      id: jobId
+    }
+  }
 }
 
 export const getMessageList = async (

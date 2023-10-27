@@ -107,6 +107,7 @@ export type QuotesListType = {
   quoteExpiry: string
   totalPrice: number
   updatedAt: string
+  subtotal: number
 }
 
 export type ProjectInfoType = {

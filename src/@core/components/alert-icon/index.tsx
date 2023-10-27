@@ -21,7 +21,7 @@ export default function AlertIcon({ type }: { type: AlertType }) {
       case 'progress':
         return 'status-progress.png'
       case 'successful':
-        return 'status-successful.png'
+        return 'alert-success.svg'
       case 'question-info':
         return 'status-question-info.png'
 

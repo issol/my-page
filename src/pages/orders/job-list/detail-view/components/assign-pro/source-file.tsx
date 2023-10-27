@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid'
 import JobInfoDetailView from '../..'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { AssignmentStatusChip } from '@src/@core/components/chips/chips'
+import { assignmentStatusChip } from '@src/@core/components/chips/chips'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 import {
   RefetchOptions,
@@ -49,8 +49,9 @@ type Props = {
       unknown
     >
   >
+  statusList: Array<{ value: number; label: string }>
 }
-const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
+const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }: Props) => {
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
@@ -307,10 +308,11 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
               lastName: info.lastName,
             })}
           </Typography>
-          <AssignmentStatusChip
+          {/* <AssignmentStatusChip
             label={info.assignmentStatus}
             status={info.assignmentStatus!}
-          />
+          /> */}
+          {assignmentStatusChip(Number(info.assignmentStatus), statusList!)}
         </Box>
         <Divider />
         <Box>
@@ -351,7 +353,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
           <div {...getRootProps({ className: 'dropzone' })}>
             <Button 
               variant='outlined'
-              disabled={[60900, 601100, 601200, 60400, 601400, 601300].includes(row.status)} // Delivered, Approved, invoiced, canceled, Paid, without invoice
+              disabled={[60500, 60600, 60700, 601000, 60800, 60900].includes(row.status)} // Delivered, Approved, invoiced, canceled, Paid, without invoice
             >
               <input {...getInputProps()} />
               <Icon

@@ -55,11 +55,14 @@ const defaultValues: FilterType = {
   category: [],
   serviceType: [],
   search: '',
+  lsp: [],
+  client: [],
 }
 
 export const defaultFilters: RequestFilterType = {
   status: [],
   lsp: [],
+  client: [],
   category: [],
   serviceType: [],
   requestDateFrom: '',
@@ -120,7 +123,7 @@ export default function Requests() {
   const { data: statusList, isLoading: statusListLoading } =
     useGetClientRequestStatus()
 
-  const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
+  const { control, getValues, setValue, handleSubmit, trigger, reset: filterReset } = useForm<FilterType>({
     defaultValues,
     mode: 'onSubmit',
   })
@@ -157,8 +160,10 @@ export default function Requests() {
 
     setFilters(filter)
   }
+  console.log("default filter",getValues())
 
   function onReset() {
+    filterReset()
     setFilters({ ...defaultFilters })
   }
 

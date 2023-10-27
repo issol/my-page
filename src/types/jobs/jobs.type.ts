@@ -18,14 +18,12 @@ export type JobStatusType =
   | 60300
   | 60400
   | 60500
+  | 60600
   | 60700
   | 60800
   | 60900
   | 601000
   | 601100
-  | 601200
-  | 601300
-  | 601400
 
 export type JobsListType = {
   id: number
@@ -118,6 +116,8 @@ export type JobPricesDetailType = {
   id: number
   source: string
   target: string
+  sourceLanguage?: string
+  targetLanguage?: string
   priceId: number | null
   totalPrice: number
   currency: CurrencyType
@@ -135,6 +135,18 @@ export type JobPricesDetailType = {
   minimumPrice: number | null | undefined
   minimumPriceApplied: boolean
   initialPrice: PriceType | null | undefined
+}
+
+export type jobPriceHistoryType = JobPricesDetailType & {
+  historyAt: string
+  pro: {
+    id: number
+    firstName: string
+    middleName: string
+    lastName: string
+  }
+  sourceLanguage: string
+  targetLanguage: string
 }
 
 export type CreateJobParamsType = {

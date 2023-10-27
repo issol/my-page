@@ -518,6 +518,7 @@ export default function AddNewOrder() {
       ...clients,
       ...projectInfo,
       quoteId: quoteId ?? null,
+      requestId: Number(requestId) ?? null,
     }
 
     console.log(items)

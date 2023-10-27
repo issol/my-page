@@ -140,25 +140,27 @@ export function getQuoteStatusColor(status: QuotesStatusType) {
 
 export function getProJobStatusColor(status: ProJobStatusType) {
   const color =
-    status === 60100
+    status === 60100 || status === 70000 //Requested from LPM, Requested
       ? '#A81988'
-      : status === 60200
+      : status === 70100 //Awaiting approval
       ? '#6D788D'
-      : status === 60500 || status === 60700 || status === 60800
+      : status === 60200 || status === 60400 || status === 70300 // In progress
       ? '#FDB528'
-      : status === 60900
+      : status === 60300 // Job overdue
+      ? '#FFCFCF'
+      : status === 60500 // Delivered to LPM
       ? '#1A6BBA'
-      : status === 601100
+      : status === 60600 // Approved
       ? '#64C623'
-      : status === 601200
+      : status === 60700 // Invoiced
       ? '#9B6CD8'
-      : status === 601400
+      : status === 60800 // Paid
       ? '#1B8332'
-      : status === 601300
-      ? '#D8AF1D'
-      : status === 60600
+      : status === 60900 // Without invoice
+      ? '#0D0D0D'
+      : status === 70500 // Unassigned
       ? '#6D788D'
-      : status === 60400 || status === 60300 || status === 601000
+      : status === 601000 || status === 601100 || status === 70200 || status === 70400 // Canceled, Payment canceled, Declined
       ? '#FF4D49'
       : null
 
@@ -170,29 +172,26 @@ export function getJobStatusColor(status: JobStatusType) {
       ? '#F572D8'
       : status === 60100 //'Requested'
       ? '#A81988'
-      : status === 60200 //'Request accepted'
-      ? '#A81988'
-      : status === 60300 //'Request rejected'
-      ? '#A81988'
-      : status === 60400 //'Canceled'
+      : status === 601000 //'Canceled'
       ? '#FF4D49'
-      : status === 60500 //'Assigned'
+      : status === 60200 //'In progress'
       ? '#FF4D49'
-      : status === 60700 //'In progress'
+      : status === 60400 //'Partially delivered'
       ? '#FF4D49'
-      : status === 60800 //'Partially delivered'
-      ? '#FF4D49'
-      : status === 60900 //'Delivered'
+      : status === 60500 //'Delivered'
       ? '#1A6BBA'
-      : status === 601000 //'Overdue'
+      : status === 60300 //'Overdue'
       ? '#FF4D49'
-      : status === 601100 //'Approved'
+      : status === 60600 //'Approved'
       ? '#64C623'
-      : status === 601200 //'Invoiced'
+      : status === 60700 //'Invoiced'
       ? '#FF4D49'
-      : status === 601300 //'Without invoice'
+      : status === 60900 //'Without invoice'
       ? '#75571C'
-      : status === 601400 //'Paid'
+      : status === 60800 //'Paid'
+      ? '#1B8332'
+      // TODO: 컬러 확정되면 업데이트 필요
+      : status === 601100 //'Payment canceled'
       ? '#1B8332'
       : ''
   return color

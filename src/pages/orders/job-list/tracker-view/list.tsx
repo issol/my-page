@@ -51,6 +51,7 @@ export default function JobsTrackerList({
   const auth = useRecoilValueLoadable(authState)
   const router = useRouter()
 
+  console.log("tracker",list)
   const columns: GridColumns<JobsTrackerListType> = [
     {
       flex: 0.1,
@@ -101,7 +102,7 @@ export default function JobsTrackerList({
               label={row?.category}
             />
             <Box></Box>
-            {row?.serviceType.length ? (
+            {row?.serviceType?.length ? (
               <Box display='flex' gap='8px'>
                 <ServiceTypeChip size='small' label={row?.serviceType[0]} />
                 {row?.serviceType.length > 1 ? (

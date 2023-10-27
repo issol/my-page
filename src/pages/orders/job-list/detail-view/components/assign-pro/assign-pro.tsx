@@ -28,7 +28,6 @@ import {
 } from '@mui/x-data-grid'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import {
-  AssignmentStatusChip,
   ProStatusChip,
   assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
@@ -47,10 +46,12 @@ import {
   RefetchOptions,
   RefetchQueryFilters,
   useMutation,
+  useQueryClient,
 } from 'react-query'
 import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
 import {
   handleJobAssignStatus,
+  handleJobReAssign,
   requestJobToPro,
 } from '@src/apis/job-detail.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -98,6 +99,8 @@ type Props = {
       unknown
     >
   >
+  statusList: Array<{ value: number; label: string }>
+  setJobId?: (n: number) => void
 }
 
 const AssignPro = ({
@@ -108,7 +111,10 @@ const AssignPro = ({
   assignProList,
   item,
   refetch,
+  statusList,
+  setJobId,
 }: Props) => {
+  const queryClient = useQueryClient()
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
   const [hideOffBoard, setHideOffBoard] = useState<boolean>(true)
@@ -154,7 +160,9 @@ const AssignPro = ({
     (data: { ids: number[]; jobId: number }) =>
       requestJobToPro(data.ids, data.jobId),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         refetchAssignableProList()
       },
     },
@@ -164,8 +172,26 @@ const AssignPro = ({
     (data: { jobId: number; proId: number; status: number }) =>
       handleJobAssignStatus(data.jobId, data.proId, data.status),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         refetchAssignableProList()
+      },
+    },
+  )
+
+  const reAssignJobMutation = useMutation(
+    (data: { jobId: number }) =>
+      handleJobReAssign(data.jobId),
+    {
+      onSuccess: (data, variables) => {
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+          queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+          refetchAssignableProList()
+        } else {
+          setJobId && setJobId(data.id)
+        }
       },
     },
   )
@@ -217,7 +243,6 @@ const AssignPro = ({
   }
 
   const handleRequestPro = () => {
-    // TODO API call
     const res = selectionModel.map((value: any) => {
       return Number(value)
     })
@@ -226,13 +251,18 @@ const AssignPro = ({
     requestJobMutation.mutate({ ids: res, jobId: row.id })
     closeModal('AssignProRequestJobModal')
   }
+  const handleReAssignPro = () => {
+    reAssignJobMutation.mutate({ jobId: row.id })
+    closeModal('ReAssignProRequestJobModal')
+  }
 
   const handleAssignJob = (jobId: number, proId: number) => {
     assignJobMutation.mutate(
-      { jobId: jobId, proId: proId, status: 60500 },
+      { jobId: jobId, proId: proId, status: 70300 },
       {
         onSuccess: () => {
           closeModal('AssignProJobModal')
+          queryClient.invalidateQueries('JobInfo')
         },
         onError: () => {
           closeModal('AssignProJobModal')
@@ -266,20 +296,35 @@ const AssignPro = ({
     })
   }
 
-  const onClickRequestJob = () => {
+  const onClickRequestJob = (mode: 'assign' | 're-assign') => {
     if (!!item.itemName) {
-      openModal({
-        type: 'AssignProRequestJobModal',
-        children: (
-          <CustomModal
-            onClose={() => closeModal('AssignProRequestJobModal')}
-            title='Are you sure you want to request the job to selected Pro(s)?'
-            vary='successful'
-            rightButtonText='Request'
-            onClick={handleRequestPro}
-          ></CustomModal>
-        ),
-      })
+      if (mode === 'assign') {
+        openModal({
+          type: 'AssignProRequestJobModal',
+          children: (
+            <CustomModal
+              onClose={() => closeModal('AssignProRequestJobModal')}
+              title='Are you sure you want to request the job to selected Pro(s)?'
+              vary='successful'
+              rightButtonText='Request'
+              onClick={handleRequestPro}
+            ></CustomModal>
+          ),
+        })
+      } else if (mode === 're-assign') {
+        openModal({
+          type: 'ReAssignProRequestJobModal',
+          children: (
+            <CustomModal
+              onClose={() => closeModal('ReAssignProRequestJobModal')}
+              title='Are you sure you want to re-assign Pro? The assignment of the current Pro will be canceled.?'
+              vary='error'
+              rightButtonText='Re-assign'
+              onClick={handleReAssignPro}
+            ></CustomModal>
+          ),
+        })
+      }
     } else {
       openModal({
         type: 'AssignDenyModal',
@@ -327,9 +372,14 @@ const AssignPro = ({
       })),
     )
     //@ts-ignore
-    const serviceTypeToPro = ServiceTypeToProRole[row.serviceType].map(
-      (value: any) => value.value,
-    )
+    // const serviceTypeToPro = ServiceTypeToProRole[row.serviceType].map(
+    //   (value: any) => value.value,
+    // )
+    
+    const serviceTypeToPro = row.serviceType
+    //@ts-ignore
+    ? ServiceTypeToProRole[row.serviceType]?.map(value => value.value) || []
+    : []
 
     setFilters(prevState => ({
       ...prevState,
@@ -396,6 +446,7 @@ const AssignPro = ({
             orderDetail={orderDetail}
             item={item}
             refetch={refetch!}
+            statusList={statusList!}
           />
         </Box>
       ),
@@ -427,6 +478,7 @@ const AssignPro = ({
             orderDetail={orderDetail}
             item={item}
             refetch={refetch!}
+            statusList={statusList!}
           />
         </Box>
       ),
@@ -530,9 +582,9 @@ const AssignPro = ({
                 //   label={row.assignmentStatus}
                 //   status={row.assignmentStatus}
                 // />
-                assignmentStatusChip(Number(row.assignmentStatus))
+                assignmentStatusChip(Number(row.assignmentStatus), statusList!)
               : '-'}
-            {row.assignmentStatus === 60200 && (
+            {row.assignmentStatus === 70100 && (
               <Button
                 variant='outlined'
                 sx={{ height: '30px' }}
@@ -552,7 +604,7 @@ const AssignPro = ({
                 Assign
               </Button>
             )}
-            {row.assignmentStatus === 60500 && (
+            {row.assignmentStatus === 70300 && (
               <IconButton onClick={() => onClickSourceFileToPro(row)}>
                 <Icon icon='ic:outline-upload-file' color='#666cff' />
               </IconButton>
@@ -646,10 +698,11 @@ const AssignPro = ({
         return (
           <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             {row.assignmentStatus ? (
-              <AssignmentStatusChip
-                label={row.assignmentStatus}
-                status={row.assignmentStatus}
-              />
+              // <AssignmentStatusChip
+              //   label={row.assignmentStatus}
+              //   status={row.assignmentStatus}
+              // />
+              assignmentStatusChip(row.assignmentStatus, statusList!)
             ) : (
               '-'
             )}
@@ -698,9 +751,10 @@ const AssignPro = ({
       )}
 
       <AssignProListPage
-        listCount={
-          isFiltersDifferent() ? proList?.count! : proList?.totalCount!
-        }
+        // listCount={
+        //   isFiltersDifferent() ? proList?.totalCount! : proList?.totalCount!
+        // }
+        listCount={proList?.totalCount!}
         list={proList?.data!}
         columns={type === 'history' ? historyColumns : columns}
         setFilters={setFilters}
