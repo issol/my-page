@@ -701,7 +701,7 @@ const ProJobInfo = ({
                       }}
                     >
                       <Typography variant='body2'>
-                        {jobInfo.order.client.name}
+                        {jobInfo.order?.client?.name}
                       </Typography>
                     </Box>
                   </Box>

@@ -28,14 +28,25 @@ type MenuType = 'jobInfo' | 'feedback'
 
 const ProJobsDetail = () => {
   const router = useRouter()
-  const { id } = router.query
+  const { id, assigned } = router.query
   const [value, setValue] = useState<MenuType>('jobInfo')
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
   }
 
-  const { data: jobDetail, isLoading } = useGetProJobDetail(Number(id))
-  const { data: jobPrices } = useGetJobPrices(Number(id), false)
+  // assigned이 false이면 히스토리를 조회한다.
+  const { data: jobDetail, isLoading } = useGetProJobDetail(
+    Number(id), 
+    assigned && assigned === 'false'
+      ? true
+      : false
+  )
+  const { data: jobPrices } = useGetJobPrices(
+    Number(id), 
+    assigned && assigned === 'false'
+      ? true
+      : false
+  )
   const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
     const { data: assignmentJobStatusList, isLoading: assignmentStatusListLoading } =
