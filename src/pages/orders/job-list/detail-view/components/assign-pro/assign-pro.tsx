@@ -488,6 +488,12 @@ const AssignPro = ({
     // console.log(proListPageSize)
   }, [proListPageSize])
 
+  // job이 assign 되더라도 request accepted인 pro들이 존재하므로(status를 cancel로 바꾸지 않음)
+  // 전체 리스트를 체크하여 70300(Assigned)가 있다면 70100인 프로에게도 Assign 버튼을 숨긴다.
+  const isJobAssigned = () => {
+    return proList?.data.some(item => [70300].includes(item.assignmentStatus!))
+  }
+
   const columns: GridColumns<AssignProListType> = [
     {
       minWidth: 310,
@@ -584,7 +590,8 @@ const AssignPro = ({
                 // />
                 assignmentStatusChip(Number(row.assignmentStatus), statusList!)
               : '-'}
-            {row.assignmentStatus === 70100 && (
+            {row.assignmentStatus === 70100 &&
+              !isJobAssigned() ? (
               <Button
                 variant='outlined'
                 sx={{ height: '30px' }}
@@ -603,7 +610,7 @@ const AssignPro = ({
               >
                 Assign
               </Button>
-            )}
+            ) : null}
             {row.assignmentStatus === 70300 && (
               <IconButton onClick={() => onClickSourceFileToPro(row)}>
                 <Icon icon='ic:outline-upload-file' color='#666cff' />
