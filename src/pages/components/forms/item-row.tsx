@@ -536,22 +536,21 @@ const Row = ({
                     {
                       // TODO: G-3406 items의 contactPerson(LPM 정보) 타입 맞추기 전까지 임시 코드
                       // quote에서는 이름 정보만 리턴되고 order에서는 id 정보만 리턴됨
-                      getLegalName(getValues(`items.${idx}.contactPerson`)!)
-
-                      // contactPersonList.find(
-                      //   item =>
-                      //     item.value ===
-                      //     getValues(
-                      //       `items.${idx}.contactPerson.id`,
-                      //     )?.toString(),
-                      // )?.label
+                      // getLegalName(getValues(`items.${idx}.contactPerson`)!)
+                      contactPersonList.find(
+                        item =>
+                          item.value ===
+                          getValues(
+                            `items.${idx}.contactPersonId`,
+                          ),
+                      )?.label
                     }
                   </Typography>
                 </Box>
               ) : (
                 contactPersonList.length > 0 && (
                   <Controller
-                    name={`items.${idx}.contactPerson`}
+                    name={`items.${idx}.contactPersonId`}
                     control={control}
                     render={({ field: { value, onChange } }) => {
                       return (
@@ -560,9 +559,7 @@ const Row = ({
                           fullWidth
                           options={contactPersonList}
                           isOptionEqualToValue={(option, newValue) => {
-                            console.log("value",value)
-                            console.log("isOptionEqualToValue",option, newValue)
-                            return option.value === newValue.value
+                            return option.value === newValue?.value
                           }}
                           disableClearable={value ? false : true}
                           onChange={(e, v) => {
@@ -570,10 +567,14 @@ const Row = ({
                           }}
                           value={
                             !value
-                              ? defaultValue
-                              : contactPersonList.find(
-                                  item => item.value === value.userId,
+                              // 신규 생성일땐 프로젝트 매니저가 기본으로 들어감
+                              ? contactPersonList.find(
+                                  item => item.value === teamMembers?.find(member => member.type === 'projectManagerId')?.id!
                                 )
+                              // 수정일땐 기존 설정된 값이 들어감
+                              : contactPersonList.find(
+                                item => item.value === value
+                              )
                           }
                           renderInput={params => (
                             <TextField

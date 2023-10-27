@@ -515,7 +515,8 @@ export default function QuotesDetail() {
             analysis: item.analysis ?? [],
             totalPrice: item?.totalPrice ?? 0,
             dueAt: item?.dueAt ?? '',
-            contactPerson: item?.contactPerson ?? {},
+            contactPersonId: item?.contactPerson?.userId ?? 0,
+            contactPerson: item?.contactPerson,
             // initialPrice는 quote 생성시점에 선택한 price의 값을 담고 있음
             // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
             initialPrice: item.initialPrice ?? {},
@@ -982,7 +983,7 @@ export default function QuotesDetail() {
       } = item
       return {
         ...filterItem,
-        // contactPersonId: Number(item.contactPerson?.id!),
+        // contactPersonId: Number(item.contactPerson?.userId!),
         contactPersonId: Number(item.contactPersonId!),
         description: item.description || '',
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
@@ -1030,6 +1031,7 @@ export default function QuotesDetail() {
               queryClient.invalidateQueries({
                 queryKey: ['quotesDetailItems'],
               })
+              closeModal('EditSaveModal')
               setEditItems(false)
             },
           },

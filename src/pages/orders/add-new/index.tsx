@@ -763,6 +763,7 @@ export default function AddNewOrder() {
               analysis: item.analysis ?? [],
               totalPrice: item?.totalPrice ?? 0,
               dueAt: item?.dueAt ?? '',
+              contactPersonId: item?.contactPerson?.userId ?? 0,
               contactPerson: item?.contactPerson ?? {},
               // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
               // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
@@ -925,6 +926,7 @@ export default function AddNewOrder() {
               analysis: item.analysis ?? [],
               totalPrice: item?.totalPrice ?? 0,
               dueAt: item?.dueAt ?? '',
+              contactPersonId: item?.contactPerson?.userId ?? 0,
               contactPerson: item?.contactPerson ?? {},
               // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
               // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
