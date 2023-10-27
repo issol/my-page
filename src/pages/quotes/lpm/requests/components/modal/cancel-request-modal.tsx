@@ -17,7 +17,7 @@ type Props = {
 }
 
 export default function CancelRequestModal({ onClose, onClick }: Props) {
-  const textFieldRef = useRef<HTMLInputElement | null>(null);
+  const textFieldRef = useRef<HTMLInputElement | null>(null)
 
   const [selected, setSelected] = useState('')
   const [reason, setReason] = useState('')
@@ -53,6 +53,8 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
           onChange={e => {
             setSelected(e.target.value)
             textFieldRef?.current?.focus()
+            if (e.target.value === 'Others') return
+            setReason(e.target.value)
           }}
           aria-label='simple-radio'
         >
