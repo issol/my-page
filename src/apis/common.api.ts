@@ -92,9 +92,15 @@ export const uploadFileToS3 = async (url: string, file: any) => {
 
 export const getStatusList = async (
   type: StatusType,
+  isSelectable?: '1' | '0'
 ): Promise<Array<{ value: number; label: string }>> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/status/list?type=${type}`)
+    
+    const { data } = 
+      isSelectable 
+      ? await axios.get(`/api/enough/u/status/list?type=${type}&isSelectable=${isSelectable}`)
+      : await axios.get(`/api/enough/u/status/list?type=${type}`)
+      
     // console.log(data)
 
     const res = data.map((item: any) => ({
