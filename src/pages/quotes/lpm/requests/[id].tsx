@@ -181,8 +181,8 @@ export default function RequestDetail() {
               Are you sure you want to change the status to
               <Typography variant='body2' fontWeight={600} component={'span'}>
                 &nbsp;[In preparation]
-              </Typography>?
-              It cannot be unchanged.
+              </Typography>
+              ? It cannot be unchanged.
             </Box>
           }
           onClose={() => closeModal('statusChange')}
@@ -417,7 +417,7 @@ export default function RequestDetail() {
             onStatusChange={onStatusChange}
           />
         </Card>
-        {
+        {currentRole?.type === 'General' ? null : (
           <Grid item xs={4} mt='24px'>
             <Card sx={{ padding: '24px' }}>
               <Button
@@ -431,7 +431,7 @@ export default function RequestDetail() {
               </Button>
             </Card>
           </Grid>
-        }
+        )}
       </Grid>
       <Grid item xs={3}>
         <Box display='flex' flexDirection='column' gap='24px'>

@@ -209,7 +209,6 @@ export default function RequestDetail() {
   }
 
   function isNotCancelable() {
-    if (!isDeletable) return true
     const status = data?.status
     return (
       status === 'Changed into order' ||
@@ -288,19 +287,21 @@ export default function RequestDetail() {
         <Card sx={{ padding: '24px' }}>
           <RequestDetailCard data={data} openReasonModal={openReasonModal} />
         </Card>
-        <Grid item xs={4} mt='24px'>
-          <Card sx={{ padding: '24px' }}>
-            <Button
-              fullWidth
-              variant='outlined'
-              color='error'
-              disabled={isNotCancelable()}
-              onClick={onCancelRequest}
-            >
-              Cancel this request
-            </Button>
-          </Card>
-        </Grid>
+        {isDeletable ? (
+          <Grid item xs={4} mt='24px'>
+            <Card sx={{ padding: '24px' }}>
+              <Button
+                fullWidth
+                variant='outlined'
+                color='error'
+                disabled={isNotCancelable()}
+                onClick={onCancelRequest}
+              >
+                Cancel this request
+              </Button>
+            </Card>
+          </Grid>
+        ) : null}
       </Grid>
       <Grid item xs={3}>
         <Box display='flex' flexDirection='column' gap='24px'>
