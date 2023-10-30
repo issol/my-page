@@ -116,14 +116,19 @@ export default function SelectOrder({
   }
 
   const handleSelectionModelChange = (selectionModel: GridSelectionModel) => {
-    // const selected: ProJobListType[] = selectionModel
-    //   .map(id => jobs.find(job => job.id === id))
-    //   .filter(job => job !== undefined) as ProJobListType[]
-    // console.log(selected)
-    // const firstCurrency = selected[0]?.currency
-    // const invalidSelections = selected.filter(
-    //   job => job.currency !== firstCurrency,
-    // )
+    if (orderList) {
+      const selected: OrderListType[] = selectionModel
+        .map(id => orderList.data.find(job => job.id === id))
+        .filter(job => job !== undefined) as OrderListType[]
+
+      console.log(selected)
+
+      // console.log(selected)
+      // const firstCurrency = selected[0]?.currency
+      // const invalidSelections = selected.filter(
+      //   job => job.currency !== firstCurrency,
+      // )
+    }
   }
 
   const columns: GridColumns<OrderListType> = [
