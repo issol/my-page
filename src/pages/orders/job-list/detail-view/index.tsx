@@ -94,14 +94,18 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const [jobId, setJobId] = useState(row.id)
   const cachedJobIdRef = useRef(jobId)
   if (jobId !== undefined) {
-    cachedJobIdRef.current = jobId;
+    cachedJobIdRef.current = jobId
   }
   const [editJobInfo, setEditJobInfo] = useState(false)
   const [editPrices, setEditPrices] = useState(false)
 
-  const { data: jobInfo, isLoading } = useGetJobInfo(cachedJobIdRef.current, false)
+  const { data: jobInfo, isLoading } = useGetJobInfo(
+    cachedJobIdRef.current,
+    false,
+  )
   const { data: jobPrices } = useGetJobPrices(cachedJobIdRef.current, false)
-  const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } = useGetJobPriceHistory(jobId)
+  const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } =
+    useGetJobPriceHistory(jobId)
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
@@ -212,6 +216,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
           position: 'bottom-left',
         })
         setSuccess(true)
+        console.log('editPrice', editPrices)
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries('jobPrices')
         } else {
@@ -232,13 +237,13 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     // toast('Job info added successfully')
 
     const res: SaveJobPricesParamsType = {
-      jobId: row.id,
+      jobId: jobId,
       priceId: data.priceId!,
       totalPrice: data.totalPrice,
       currency: data.detail![0].currency,
       detail: data.detail!,
     }
-    saveJobPricesMutation.mutate({ jobId: row.id, prices: res })
+    saveJobPricesMutation.mutate({ jobId: jobId, prices: res })
   }
   // console.log(jobPrices)
 
@@ -277,7 +282,6 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
 
   //   return flag
   // }
-  console.log('role', role.getValue())
   return (
     <>
       {!isLoading && jobInfo ? (
