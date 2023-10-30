@@ -296,57 +296,61 @@ export const getSourceFileToPro = async (
 
 export const getProJobDetail = async (
   id: number,
+  isHistory: boolean,
 ): Promise<ProJobDetailType> => {
-  const { data } = await axios.get(`/api/enough/u/job/${id}/info`)
+  const { data } = isHistory 
+    ? await axios.get(`/api/enough/u/job/history/${id}`)
+    : await axios.get(`/api/enough/u/job/${id}/info`)
 
-  return {
-    ...data,
+  return data
+  // return {
+  //   ...data,
 
-    guideLines: {
-      id: 1,
-      version: 1,
-      userId: 1,
-      title: 'Test Guideline',
-      writer: 'John Doe',
-      email: 'johndoe@example.com',
-      client: 'Example Client',
-      category: 'Translation',
-      serviceType: 'Document',
-      updatedAt: '2022-01-01T00:00:00.000Z',
-      content: {
-        blocks: [
-          {
-            key: '33kfr',
-            data: {},
-            text: 'TEST GUIDELINE',
-            type: 'unstyled',
-            depth: 0,
-            entityRanges: [],
-            inlineStyleRanges: [],
-          },
-        ],
-        entityMap: {},
-      },
-      files: [
-        {
-          id: 1,
-          name: 'file1.txt',
-          size: 1024,
-          type: 'text/plain',
-          file: 'https://example.com/files/file1.txt',
-          createdAt: '2022-01-01T00:00:00.000Z',
-        },
-        {
-          id: 2,
-          name: 'file2.jpg',
-          size: 2048,
-          type: 'image/jpeg',
-          file: 'https://example.com/files/file2.jpg',
-          createdAt: '2022-01-02T00:00:00.000Z',
-        },
-      ],
-    },
-  }
+  //   guideLines: {
+  //     id: 1,
+  //     version: 1,
+  //     userId: 1,
+  //     title: 'Test Guideline',
+  //     writer: 'John Doe',
+  //     email: 'johndoe@example.com',
+  //     client: 'Example Client',
+  //     category: 'Translation',
+  //     serviceType: 'Document',
+  //     updatedAt: '2022-01-01T00:00:00.000Z',
+  //     content: {
+  //       blocks: [
+  //         {
+  //           key: '33kfr',
+  //           data: {},
+  //           text: 'TEST GUIDELINE',
+  //           type: 'unstyled',
+  //           depth: 0,
+  //           entityRanges: [],
+  //           inlineStyleRanges: [],
+  //         },
+  //       ],
+  //       entityMap: {},
+  //     },
+  //     files: [
+  //       {
+  //         id: 1,
+  //         name: 'file1.txt',
+  //         size: 1024,
+  //         type: 'text/plain',
+  //         file: 'https://example.com/files/file1.txt',
+  //         createdAt: '2022-01-01T00:00:00.000Z',
+  //       },
+  //       {
+  //         id: 2,
+  //         name: 'file2.jpg',
+  //         size: 2048,
+  //         type: 'image/jpeg',
+  //         file: 'https://example.com/files/file2.jpg',
+  //         createdAt: '2022-01-02T00:00:00.000Z',
+  //       },
+  //     ],
+  //   },
+  // }
 }
 
 export const patchProJobDetail = async (
