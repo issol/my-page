@@ -216,6 +216,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
         //   position: 'bottom-left',
         // })
         queryClient.invalidateQueries('jobDetails')
+        queryClient.invalidateQueries('jobList')
         setSuccess(true)
         console.log('editPrice', editPrices)
         if (data.id === variables.jobId) {
