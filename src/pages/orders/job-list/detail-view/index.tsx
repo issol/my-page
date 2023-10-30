@@ -212,9 +212,10 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
       saveJobPrices(data.jobId, data.prices),
     {
       onSuccess: (data, variables) => {
-        toast.success('Job info added successfully', {
-          position: 'bottom-left',
-        })
+        // toast.success('Job info added successfully', {
+        //   position: 'bottom-left',
+        // })
+        queryClient.invalidateQueries('jobDetails')
         setSuccess(true)
         console.log('editPrice', editPrices)
         if (data.id === variables.jobId) {
