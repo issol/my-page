@@ -24,6 +24,16 @@ export type OrderListFilterType = {
   lsp?: string[]
 }
 
+export type InvoiceOrderListFilterType = {
+  take?: number
+  skip?: number
+  search?: string
+  status?: number[]
+  client?: number
+  revenueFrom?: string
+  mine?: '0' | '1'
+}
+
 export type OrderListType = {
   id: number
   corporationId: string
@@ -42,6 +52,7 @@ export type OrderListType = {
   orderedAt: string
   projectDueAt: string
   orderTimezone: CountryType
+  revenueFrom: string
   projectDueTimezone: CountryType
   currency: CurrencyType
   totalPrice: number

@@ -3,6 +3,7 @@ import { getOrderStatusColor } from '@src/shared/helpers/colors.helper'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 
 import {
+  InvoiceOrderListFilterType,
   OrderListFilterType,
   OrderListForJobType,
   OrderListType,
@@ -34,9 +35,11 @@ export const getOrderList = async (
 }
 
 export const getOrderListForInvoice = async (
-  filter: OrderListFilterType,
+  filter: InvoiceOrderListFilterType,
 ): Promise<{ data: OrderListType[]; count: number; totalCount: number }> => {
   try {
+    console.log(filter)
+
     const { data } = await axios.get<{
       data: OrderListType[]
       count: number
