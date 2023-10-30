@@ -22,7 +22,17 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { DataGrid, GridColumns, GridSelectionModel } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridCellCheckboxRenderer,
+  GridColumnHeaderParams,
+  GridColumns,
+  GridHeaderCheckbox,
+  GridSelectionModel,
+  GridValidRowModel,
+  GridValueGetterParams,
+  selectedIdsLookupSelector,
+} from '@mui/x-data-grid'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -43,6 +53,8 @@ import {
 import { Controller, useForm } from 'react-hook-form'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
 import NoList from '@src/pages/components/no-list'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import AlertModal from '@src/@core/components/common-modal/alert-modal'
 
 const initialFilter: InvoiceOrderListFilterType = {
   search: '',
@@ -97,15 +109,20 @@ export default function SelectOrder({
   const [selected, setSelected] = useState<OrderListType | null>(null)
   const [skip, setSkip] = useState(0)
   const [page, setPage] = useState(50)
+
+  const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
   const [filter, setFilter] =
     useState<InvoiceOrderListFilterType>(initialFilter)
   // const [activeFilter, setActiveFilter] =
   //   useState<OrderListFilterType>(initialFilter)
 
-  const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
-    defaultValues,
-    mode: 'onSubmit',
-  })
+  const { control, handleSubmit, trigger, reset, getValues } =
+    useForm<FilterType>({
+      defaultValues,
+      mode: 'onSubmit',
+    })
+
+  console.log(getValues())
 
   const { data: orderList, isLoading } = useGetOrderList(filter, type)
 
@@ -117,11 +134,27 @@ export default function SelectOrder({
 
   const handleSelectionModelChange = (selectionModel: GridSelectionModel) => {
     if (orderList) {
-      const selected: OrderListType[] = selectionModel
-        .map(id => orderList.data.find(job => job.id === id))
-        .filter(job => job !== undefined) as OrderListType[]
+      if (orderList.data.length === selectionModel.length) {
+        openModal({
+          type: 'NoFilterAlertModal',
+          children: (
+            <AlertModal
+              title='Please select the client and revenue from filters first'
+              onClick={() => closeModal('NoFilterAlertModal')}
+              vary='error'
+              buttonText='Okay'
+            />
+          ),
+        })
+      } else {
+        const selected: OrderListType[] = selectionModel
+          .map(id => orderList.data.find(job => job.id === id))
+          .filter(job => job !== undefined) as OrderListType[]
 
-      console.log(selected)
+        setSelectionModel(selectionModel)
+
+        console.log(selected)
+      }
 
       // console.log(selected)
       // const firstCurrency = selected[0]?.currency
@@ -132,6 +165,33 @@ export default function SelectOrder({
   }
 
   const columns: GridColumns<OrderListType> = [
+    // {
+    //   field: '__check__',
+    //   type: 'checkboxSelection',
+
+    //   resizable: false,
+    //   sortable: false,
+    //   filterable: false,
+    //   disableColumnMenu: true,
+    //   disableReorder: true,
+    //   disableExport: true,
+    //   valueGetter: params => {
+    //     console.log(params)
+
+    //     const selectionLookup = selectedIdsLookupSelector(
+    //       (params as GridValueGetterParams).api.state,
+    //     )
+
+    //     return selectionLookup[params.id] !== undefined
+    //   },
+
+    //   renderHeader: params => (
+    //     <>
+    //       <GridHeaderCheckbox {...params} />
+    //     </>
+    //   ),
+    //   renderCell: params => <GridCellCheckboxRenderer {...params} />,
+    // },
     {
       field: 'corporationId',
       flex: 0.1201,
@@ -399,7 +459,17 @@ export default function SelectOrder({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={statusList ?? []}
+                          options={
+                            statusList
+                              ? statusList.filter(
+                                  item =>
+                                    item.label === 'Partially delivered' ||
+                                    item.label === 'Delivery completed' ||
+                                    item.label === 'Redelivery requested' ||
+                                    item.label === 'Delivery confirmed',
+                                )
+                              : []
+                          }
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
@@ -416,22 +486,27 @@ export default function SelectOrder({
                     />
                   </Grid>
                   <Grid item xs={6}>
-                    <FormControl fullWidth>
-                      {/* <InputLabel>Search projects</InputLabel> */}
-                      <OutlinedInput
-                        // label='Search projects'
-                        placeholder='Search projects'
-                        value={filter.search}
-                        // onChange={onChangeSearch}
-                        endAdornment={
-                          <InputAdornment position='end'>
-                            <IconButton edge='end'>
-                              <Icon icon='mdi:magnify' />
-                            </IconButton>
-                          </InputAdornment>
-                        }
-                      />
-                    </FormControl>
+                    <Controller
+                      control={control}
+                      name='search'
+                      render={({ field: { onChange, value } }) => (
+                        <FormControl fullWidth>
+                          <OutlinedInput
+                            placeholder='Search projects'
+                            value={value ?? ''}
+                            onChange={onChange}
+                            // onChange={onChangeSearch}
+                            endAdornment={
+                              <InputAdornment position='end'>
+                                <IconButton edge='end'>
+                                  <Icon icon='mdi:magnify' />
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                          />
+                        </FormControl>
+                      )}
+                    />
                   </Grid>
                   <Grid item xs={12}>
                     <Box display='flex' justifyContent='flex-end' gap='15px'>
@@ -512,11 +587,14 @@ export default function SelectOrder({
                       }))
                       setPage(newPageSize)
                     }}
-                    disableSelectionOnClick
+                    // disableSelectionOnClick
+                    hideFooterSelectedRowCount
                     checkboxSelection
                     keepNonExistentRowsSelected
-                    onSelectionModelChange={newSelectionModel => {
+                    selectionModel={selectionModel}
+                    onSelectionModelChange={(newSelectionModel, details) => {
                       handleSelectionModelChange(newSelectionModel)
+                      console.log(details)
                     }}
                   />
                 </Box>
@@ -538,7 +616,7 @@ export default function SelectOrder({
                     onClick={onSubmit}
                     disabled={!selected}
                   >
-                    Select
+                    Create invoice
                   </Button>
                 </Box>
               </Grid>

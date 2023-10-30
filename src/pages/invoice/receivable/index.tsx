@@ -150,6 +150,8 @@ export default function Receivable() {
   const { data: statusListForRole, isLoading: statusListForRoleLoading } =
     useGetStatusList('InvoiceReceivable', '1')
 
+  const { data: statusListOrder } = useGetStatusList('Order')
+
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
     skip: 0,
@@ -261,7 +263,7 @@ export default function Receivable() {
         <SelectOrder
           onClose={() => closeModal('order-list')}
           type='invoice'
-          statusList={statusList ?? []}
+          statusList={statusListOrder ?? []}
           clientList={clientList}
         />
       ),
