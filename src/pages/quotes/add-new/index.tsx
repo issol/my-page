@@ -18,7 +18,7 @@ import {
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Icon Imports
@@ -83,6 +83,7 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
 export type languageType = {
   id: number | string
@@ -125,6 +126,7 @@ export default function AddNewQuote() {
   const [activeStep, setActiveStep] = useState<number>(0)
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+  const [taxFocus, setTaxFocus] = useState(false)
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -150,7 +152,7 @@ export default function AddNewQuote() {
   ]
 
   // ** step1
-  const [tax, setTax] = useState<null | number>(null)
+
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -211,6 +213,7 @@ export default function AddNewQuote() {
     control: projectInfoControl,
     getValues: getProjectInfoValues,
     setValue: setProjectInfo,
+    trigger: triggerProjectInfo,
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
@@ -298,6 +301,7 @@ export default function AddNewQuote() {
       const isCategoryNotSame = items.some(
         i => i.category !== items[0]?.category,
       )
+
       projectInfoReset({
         projectDueDate: {
           date: findEarliestDate(desiredDueDates),
@@ -415,12 +419,15 @@ export default function AddNewQuote() {
     openModal({
       type: 'SaveQuoteModal',
       children: (
-        <CustomModal
-          onClick={onSubmit}
-          onClose={() => closeModal('SaveQuoteModal')}
-          title='Are you sure you want to create this quote?'
+        <SimpleMultilineAlertModal
           vary='successful'
-          rightButtonText='Save'
+          closeButtonText='Cancel'
+          confirmButtonText='Save'
+          onClose={() => closeModal('SaveQuoteModal')}
+          onConfirm={onSubmit}
+          title={getProjectInfoValues().projectName}
+          message={`Are you sure you want to create this\nquote?`}
+          textAlign='center'
         />
       ),
     })
@@ -443,7 +450,7 @@ export default function AddNewQuote() {
     // )
     const projectInfo = {
       ...rawProjectInfo,
-      tax: !rawProjectInfo.isTaxable ? null : tax,
+      tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
       subtotal: subPrice,
     }
 
@@ -677,7 +684,7 @@ export default function AddNewQuote() {
                   </Button>
                   <Button
                     variant='contained'
-                    disabled={!isProjectInfoValid}
+                    disabled={!isProjectInfoValid || !projectInfoErrors}
                     onClick={onNextStep}
                   >
                     Next <Icon icon='material-symbols:arrow-forward-rounded' />
@@ -706,7 +713,6 @@ export default function AddNewQuote() {
                   errors={itemErrors}
                   fields={items}
                   remove={removeItems}
-                  isValid={isItemValid}
                   teamMembers={getTeamValues()?.teams}
                   languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}
@@ -773,7 +779,7 @@ export default function AddNewQuote() {
                   </Box>
                 </Box>
               </Grid>
-              <Grid
+              {/* <Grid
                 item
                 xs={12}
                 display='flex'
@@ -812,6 +818,80 @@ export default function AddNewQuote() {
                   />
                   %
                 </Box>
+              </Grid> */}
+              <Grid
+                item
+                xs={12}
+                display='flex'
+                padding='24px'
+                alignItems='center'
+                justifyContent='space-between'
+                mt={6}
+                mb={6}
+                sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+              >
+                <Box display='flex' alignItems='center' gap='4px'>
+                  <Controller
+                    name='isTaxable'
+                    control={projectInfoControl}
+                    render={({ field: { value, onChange } }) => (
+                      <Checkbox
+                        checked={value}
+                        onChange={e => {
+                          if (!e.target.checked) setProjectInfo('tax', null)
+                          onChange(e.target.checked)
+
+                          triggerProjectInfo('isTaxable')
+                        }}
+                      />
+                    )}
+                  />
+
+                  <Typography>Tax</Typography>
+                </Box>
+
+                <Box display='flex' alignItems='center' gap='4px'>
+                  <Controller
+                    name={'tax'}
+                    control={projectInfoControl}
+                    render={({ field: { value, onChange } }) => (
+                      <TextField
+                        size='small'
+                        type='number'
+                        onFocus={e =>
+                          e.target.addEventListener(
+                            'wheel',
+                            function (e) {
+                              e.preventDefault()
+                            },
+                            { passive: false },
+                          )
+                        }
+                        onClickCapture={() => setTaxFocus(true)}
+                        onBlur={() => setTaxFocus(false)}
+                        value={
+                          !getProjectInfoValues().isTaxable || !value
+                            ? '-'
+                            : value
+                        }
+                        placeholder={taxFocus ? '' : '-'}
+                        error={
+                          getProjectInfoValues().isTaxable && value === null
+                        }
+                        // value={tax ?? null}
+                        disabled={!getProjectInfoValues().isTaxable}
+                        sx={{ maxWidth: '120px', padding: 0 }}
+                        inputProps={{ inputMode: 'decimal' }}
+                        onChange={e => {
+                          if (e.target.value.length > 10) return
+                          else if (e.target.value === '') onChange(null)
+                          else onChange(Number(e.target.value))
+                        }}
+                      />
+                    )}
+                  />
+                  %
+                </Box>
               </Grid>
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -825,7 +905,9 @@ export default function AddNewQuote() {
                 <Button
                   variant='contained'
                   disabled={
-                    !isItemValid && getProjectInfoValues('isTaxable') && !tax
+                    !isItemValid ||
+                    (projectInfoWatch('isTaxable') === true &&
+                      projectInfoWatch('tax') === null)
                   }
                   onClick={onClickSaveQuote}
                 >

@@ -19,7 +19,31 @@ export type RequestFormType = {
   notes?: string
 }
 
+export type RequestFormPayloadType = {
+  lspId: string
+  contactPersonId: number
+  userId?: number | null
+  items: RequestItemFormPayloadType[]
+  sampleFiles: Array<{
+    fileName: string
+    fileSize: number
+  }>
+  notes?: string
+}
+
 export type RequestItemFormType = {
+  name: string
+  sourceLanguage: string
+  targetLanguage: string
+  category: string
+  serviceType: string[]
+  unit?: string
+  quantity?: number | null
+  desiredDueDate: Date | null
+  desiredDueTimezone: CountryType | null
+}
+
+export type RequestItemFormPayloadType = {
   name: string
   sourceLanguage: string
   targetLanguage: string

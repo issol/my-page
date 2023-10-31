@@ -16,29 +16,51 @@ import {
   useGetProJobDots,
 } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
-import { SyntheticEvent, useState, MouseEvent, Suspense } from 'react'
+import { SyntheticEvent, useState, MouseEvent, Suspense, useEffect } from 'react'
 import styled from 'styled-components'
 
 import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
+import { statusType } from '@src/types/common/status.type'
 type MenuType = 'jobInfo' | 'feedback'
 
 const ProJobsDetail = () => {
   const router = useRouter()
-  const { id } = router.query
+  const { id, assigned } = router.query
   const [value, setValue] = useState<MenuType>('jobInfo')
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
   }
 
-  const { data: jobDetail, isLoading } = useGetProJobDetail(Number(id))
-  const { data: jobPrices } = useGetJobPrices(Number(id), false)
-  const { data: statusList, isLoading: statusListLoading } =
+  // assigned이 false이면 히스토리를 조회한다.
+  const { data: jobDetail, isLoading } = useGetProJobDetail(
+    Number(id), 
+    assigned && assigned === 'false'
+      ? true
+      : false
+  )
+  const { data: jobPrices } = useGetJobPrices(
+    Number(id), 
+    assigned && assigned === 'false'
+      ? true
+      : false
+  )
+  const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
+    const { data: assignmentJobStatusList, isLoading: assignmentStatusListLoading } =
+    useGetStatusList('JobAssignment')
+
+  const [statusList, setStatusList] = useState<Array<statusType>>([])
 
   const { data: jobDetailDots } = useGetProJobDots(Number(id))
+
+  useEffect(() => {
+    if (jobStatusList && assignmentJobStatusList && !statusListLoading && !assignmentStatusListLoading) {
+      setStatusList([ ...jobStatusList, ...assignmentJobStatusList ])
+    }
+  }, [jobStatusList, statusListLoading, assignmentJobStatusList, assignmentStatusListLoading])
 
   return (
     <Box>
@@ -78,10 +100,12 @@ const ProJobsDetail = () => {
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
             {jobDetail.status !== 60100 &&
-            jobDetail.status !== 60400 &&
-            jobDetail.status !== 60600 &&
-            jobDetail.status !== 60200 &&
-            jobDetail.status !== 60300 ? (
+            jobDetail.status !== 601000 &&
+            jobDetail.status !== 70000 &&
+            jobDetail.status !== 70100 &&
+            jobDetail.status !== 70200 &&
+            jobDetail.status !== 70400 &&
+            jobDetail.status !== 70500 ? (
               <CustomTab
                 value='feedback'
                 label={

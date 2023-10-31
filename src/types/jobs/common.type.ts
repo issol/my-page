@@ -12,18 +12,21 @@ export type JobStatusType =
   | 'Canceled'
 
 export type ProJobStatusType =
-  | 60000
-  | 60100 //Requested from LPM
-  | 60200 //Awaiting approval
-  | 60300 //Declined
-  | 60400 //Canceled
-  | 60500 //In progress
-  | 60600 //Unassigned
-  | 60700 // In progress
-  | 60800 // In progress
-  | 60900 // Delivered to LPM
-  | 601000 //Job overdue
-  | 601100 //Approved
-  | 601200 //Invoiced
-  | 601300 //Without invoice
-  | 601400 //Paid
+//ProJob status는 job의 assign 진행상태 및 job 자체의 status 변화 모두를 보여주므로, 60000 / 70000 코드가 혼용된다.
+ | 60100 // Requested from LPM (Requested)
+ | 60200 // In progress
+ | 60300 // Job overdue (Overdue)
+ | 60400 // In progress (Partially delivered)
+ | 60500 // Delivered to LPM (Delevered)
+ | 60600 // Approved
+ | 60700 // Invoiced
+ | 60800 // Paid
+ | 60900 // Without invoice
+ | 601000 // Canceled
+ | 601100 // Payment canceled
+ | 70000 // Requested from LPM (Requested)
+ | 70100 // Awaiting approval (Request accepted)
+ | 70200 // Declined (Request rejected)
+ | 70300 // In progress (Assigned)
+ | 70400 // Canceled
+ | 70500 // Unassigned

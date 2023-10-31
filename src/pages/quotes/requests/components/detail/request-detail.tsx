@@ -144,17 +144,17 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Desired due date</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {/* {FullDateTimezoneHelper(
+                      {FullDateTimezoneHelper(
                           item?.desiredDueDate,
-                          item?.desiredDueTimezone.code
+                          item?.desiredDueTimezone?.code!
                         )
-                      } */}
-                      {
+                      }
+                      {/* {
                         convertUTCISOStringToLocalTimezoneISOString(
                           item.desiredDueDate,
                           item?.desiredDueTimezone?.code!,
                         )!
-                      }
+                      } */}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>

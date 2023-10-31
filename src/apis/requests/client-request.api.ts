@@ -3,7 +3,9 @@ import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import { ClientRequestListType } from '@src/types/options.type'
 import {
+  RequestFormPayloadType,
   RequestFormType,
+  RequestItemFormPayloadType,
   RequestStatusType,
 } from '@src/types/requests/common.type'
 import {
@@ -30,7 +32,7 @@ export const getRequestStatusList = async (): Promise<
 }
 
 export const createClientRequest = async (
-  form: RequestFormType,
+  form: RequestFormPayloadType,
 ): Promise<RequestFormType & { id: number }> => {
   const { data } = await axios.post(`/api/enough/u/request`, form)
   return data

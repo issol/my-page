@@ -145,7 +145,7 @@ export type updateOrderType =
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
   | { isConfirmed: boolean }
-  | { showDescription: boolean }
+  | { showDescription: '1' | '0' }
   | {
       deliveries: {
         filePath: string
@@ -198,6 +198,8 @@ const OrderDetail = () => {
   const teamOrder = ['supervisor', 'projectManager', 'member']
 
   const dispatch = useAppDispatch()
+
+  const [uploadFileProcessing, setUploadFileProcessing] = useState(false)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -264,6 +266,7 @@ const OrderDetail = () => {
     control: projectInfoControl,
     getValues: getProjectInfo,
     setValue: setProjectInfo,
+    trigger: projectInfoTrigger,
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
@@ -488,7 +491,8 @@ const OrderDetail = () => {
         target: item.target,
         priceId: item.priceId,
         detail: !item?.detail?.length ? [] : item.detail,
-        contactPersonId: item.contactPersonId,
+        // contactPersonId: item.contactPersonId,
+        contactPerson: item.contactPerson ?? null,
         description: item.description,
         analysis: item.analysis ?? [],
         totalPrice: item?.totalPrice ?? 0,
@@ -845,7 +849,7 @@ const OrderDetail = () => {
           target: item.target,
           priceId: item.priceId,
           detail: !item?.detail?.length ? [] : item.detail,
-          contactPersonId: item.contactPersonId,
+          contactPerson: item.contactPerson,
           description: item.description,
           analysis: item.analysis ?? [],
           totalPrice: item?.totalPrice ?? 0,
@@ -935,7 +939,6 @@ const OrderDetail = () => {
         resetTeam({ teams: res })
       }
     }
-    console.log("projectInfo",projectInfo,currentStatus)
     if (projectInfo) {
       const res = {
         ...projectInfo,
@@ -982,8 +985,10 @@ const OrderDetail = () => {
       } = item
       return {
         ...filterItem,
-        // contactPersonId: Number(item.contactPerson?.id!),
-        contactPersonId: Number(item.contactPersonId!),
+
+        contactPersonId: Number(item.contactPerson?.userId!),
+        // contactPersonId: Number(item.contactPersonId!),
+
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
@@ -1305,7 +1310,13 @@ const OrderDetail = () => {
         case 'button-Deliveries&Feedback-DownloadOnce':
         case 'button-Deliveries&Feedback-DeliverToClient':
         case 'checkBox-ProjectInfo-Description':
-          flag = isUpdatable && isIncludeProjectTeam()
+          flag =
+            isUpdatable &&
+            // isIncludeProjectTeam() &&
+            projectInfo?.status !== 'Delivery confirmed' &&
+            projectInfo?.status !== 'Canceled' &&
+            projectInfo?.status !== 'Invoiced' &&
+            projectInfo?.status !== 'Paid'
           break
         case 'button-Deliveries&Feedback-CompleteDelivery':
           flag =
@@ -1461,7 +1472,8 @@ const OrderDetail = () => {
                 {projectInfoEdit ||
                 projectTeamEdit ||
                 clientEdit ||
-                langItemsEdit ? null : (
+                langItemsEdit ||
+                uploadFileProcessing ? null : (
                   <IconButton
                     sx={{ padding: '0 !important', height: '24px' }}
                     onClick={() => router.push('/orders/order-list')}
@@ -1475,9 +1487,10 @@ const OrderDetail = () => {
                   <Typography variant='h5'>
                     {projectInfo?.corporationId}
                   </Typography>
-                  {projectInfo?.linkedRequest ||
-                  projectInfo?.linkedQuote ||
-                  projectInfo?.linkedInvoiceReceivable ? (
+                  {(projectInfo?.linkedRequest ||
+                    projectInfo?.linkedQuote ||
+                    projectInfo?.linkedInvoiceReceivable) &&
+                  !uploadFileProcessing ? (
                     <Box>
                       <IconButton
                         sx={{ width: '24px', height: '24px', padding: 0 }}
@@ -1571,6 +1584,7 @@ const OrderDetail = () => {
               projectTeamEdit ||
               clientEdit ||
               langItemsEdit ||
+              uploadFileProcessing ||
               (currentRole && currentRole.name === 'CLIENT') ? null : (
                 <Box
                   sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}
@@ -1821,15 +1835,25 @@ const OrderDetail = () => {
                     >
                       <Box display='flex' alignItems='center' gap='4px'>
                         {langItemsEdit ? (
-                          <Checkbox
-                            disabled={!langItemsEdit}
-                            checked={getProjectInfo('isTaxable')}
-                            onChange={e => {
-                              if (!e.target.checked) {
-                                setProjectInfo('tax', null)
-                              }
-                              setProjectInfo('isTaxable', e.target.checked)
-                            }}
+
+                          <Controller
+                            name='isTaxable'
+                            control={projectInfoControl}
+                            render={({ field: { value, onChange } }) => (
+                              <Checkbox
+                                disabled={!langItemsEdit}
+                                checked={value}
+                                onChange={e => {
+                                  onChange(e.target.checked)
+                                  projectInfoTrigger('isTaxable')
+                                  if (!e.target.checked) {
+                                    setProjectInfo('tax', null)
+                                    projectInfoTrigger('tax')
+                                  }
+                                }}
+                              />
+                            )}
+
                           />
                         ) : null}
 
@@ -1845,15 +1869,18 @@ const OrderDetail = () => {
                                 <TextField
                                   size='small'
                                   type='number'
-                                  value={value ? value : null}
+
+                                  value={value ? value : ''}
+
                                   disabled={!getProjectInfo('isTaxable')}
                                   sx={{ maxWidth: '120px', padding: 0 }}
                                   inputProps={{ inputMode: 'decimal' }}
                                   onChange={e => {
-                                    console.log(e.target.value)
 
                                     if (e.target.value.length > 10) return
                                     onChange(Number(e.target.value))
+                                    projectInfoTrigger('tax')
+
                                   }}
                                 />
                               )}
@@ -1905,7 +1932,9 @@ const OrderDetail = () => {
                           isItemValid ||
                           !getProjectInfo('isTaxable') ||
                           (getProjectInfo('isTaxable') &&
-                            getProjectInfo('tax')! > 0),
+
+                            getProjectInfo('tax') !== null),
+
                       })
                     : null}
                   {splitReady && selectedIds ? (
@@ -2040,6 +2069,8 @@ const OrderDetail = () => {
                   updateProject={updateProject}
                   statusList={statusList!}
                   canUseFeature={canUseFeature}
+                  uploadFileProcessing={uploadFileProcessing}
+                  setUploadFileProcessing={setUploadFileProcessing}
                 />
               </Suspense>
             </TabPanel>

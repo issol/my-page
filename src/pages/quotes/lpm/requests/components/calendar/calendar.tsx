@@ -78,8 +78,12 @@ export default Calendar
 
 const CustomEvent = styled(Box)<{ color: string }>`
   border-color: transparent !important;
-  border-radius: 4px;
+
   padding: 1px 4px 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-all;
   color: rgba(76, 78, 100, 0.87) !important;
   border-left: ${({ color }) => `6px solid ${color}`} !important;
   border-right: ${({ color }) => `6px solid ${color}`} !important;

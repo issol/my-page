@@ -75,15 +75,16 @@ export default function ProjectTeamFormContainer({
         watch={watch}
         getValue={getValue}
         memberList={
-          data?.concat({
-            value: auth.getValue().user?.userId.toString()!,
-            label: getLegalName({
-              firstName: auth.getValue().user?.firstName!,
-              middleName: auth.getValue().user?.middleName,
-              lastName: auth.getValue().user?.lastName!,
-            }),
-            jobTitle: auth.getValue().user?.jobTitle ?? '',
-          }) || []
+          // data?.concat({
+          //   value: Number(auth.getValue().user?.id!),
+          //   label: getLegalName({
+          //     firstName: auth.getValue().user?.firstName!,
+          //     middleName: auth.getValue().user?.middleName,
+          //     lastName: auth.getValue().user?.lastName!,
+          //   }),
+          //   jobTitle: auth.getValue().user?.jobTitle ?? '',
+          // }) || []
+          data || []
         }
       />
     </Grid>

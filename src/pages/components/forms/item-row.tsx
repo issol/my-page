@@ -5,7 +5,9 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useState } from 'react'
+
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+
 import {
   Control,
   Controller,
@@ -42,6 +44,9 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 import languageHelper from '@src/shared/helpers/language.helper'
 import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
+import { MemberType } from '@src/types/schema/project-team.schema'
+
+
 type Props = {
   idx: number
   setValue: UseFormSetValue<{ items: ItemType[] }>
@@ -64,10 +69,8 @@ type Props = {
   splitReady: boolean
   type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
   onItemRemove: (idx: number) => void
-  contactPersonList: {
-    value: string
-    label: string
-  }[]
+
+
   selectedIds?: { id: number; selected: boolean }[]
   setSelectedIds?: Dispatch<
     SetStateAction<
@@ -83,6 +86,9 @@ type Props = {
   priceUnitsList: Array<PriceUnitListType>
   checkPriceCurrency: (price: StandardPriceListType, index: number) => boolean
   findLangPairIndex: (source: string, target: string) => number
+
+  teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
+
 }
 
 const Row = ({
@@ -98,7 +104,6 @@ const Row = ({
   splitReady,
   type,
   onItemRemove,
-  contactPersonList,
   selectedIds,
   setSelectedIds,
   errors,
@@ -107,12 +112,18 @@ const Row = ({
   priceUnitsList,
   checkPriceCurrency,
   findLangPairIndex,
+
+  teamMembers,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
+  const [contactPersonList, setContactPersonList] = useState<
+    Array<{ value: number; label: string }>
+  >([])
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
   const itemData = getValues(`items.${idx}`)
   const currentRole = getCurrentRole()
-  const defaultValue = { value: '', label: '' }
+  const defaultValue = { value: 0, label: '' }
+
 
   /* price unit */
   const itemName: `items.${number}.detail` = `items.${idx}.detail`
@@ -126,6 +137,19 @@ const Row = ({
       ) || null
     )
   }
+
+
+  useEffect(() => {
+    if (teamMembers && teamMembers.length) {
+      const list = teamMembers
+        .filter(item => item.id !== null)
+        .map(item => ({
+          value: item?.id!,
+          label: item.name || '',
+        }))
+      setContactPersonList(list)
+    }
+  }, [teamMembers])
 
   const handleShowMinimum = (value: boolean) => {
     const minimumPrice = Number(getValues(`items.${idx}.minimumPrice`))
@@ -381,6 +405,9 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
+
+  console.log("getValues(`items.${idx}.contactPerson`)",getValues(`items.${idx}`))
+
   return (
     <Box
       style={{
@@ -520,59 +547,62 @@ const Row = ({
                     {
                       // TODO: G-3406 items의 contactPerson(LPM 정보) 타입 맞추기 전까지 임시 코드
                       // quote에서는 이름 정보만 리턴되고 order에서는 id 정보만 리턴됨
-                      getValues(`items.${idx}.contactPersonId`)
-                        ? contactPersonList.find(
-                            item =>
-                              item.value ===
-                              getValues(
-                                `items.${idx}.contactPersonId`,
-                              )?.toString(),
-                          )?.label
-                        : getLegalName(getValues(`items.${idx}.contactPerson`)!)
 
-                      // contactPersonList.find(
-                      //   item =>
-                      //     item.value ===
-                      //     getValues(
-                      //       `items.${idx}.contactPerson.id`,
-                      //     )?.toString(),
-                      // )?.label
+                      // getLegalName(getValues(`items.${idx}.contactPerson`)!)
+                      contactPersonList.find(
+                        item =>
+                          item.value ===
+                          getValues(
+                            `items.${idx}.contactPersonId`,
+                          ),
+                      )?.label
+
                     }
                   </Typography>
                 </Box>
               ) : (
-                <Controller
-                  name={`items.${idx}.contactPersonId`}
-                  control={control}
-                  render={({ field: { value, onChange } }) => (
-                    <Autocomplete
-                      autoHighlight
-                      fullWidth
-                      options={contactPersonList}
-                      isOptionEqualToValue={(option, newValue) => {
-                        return option.value === newValue.value
-                      }}
-                      disableClearable={value ? false : true}
-                      onChange={(e, v) => {
-                        onChange(v?.value ?? '')
-                      }}
-                      value={
-                        !value
-                          ? defaultValue
-                          : contactPersonList.find(
-                              item => item.value === value.toString(),
-                            )
-                      }
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Contact person for job*'
-                          // placeholder='Contact person for job*'
+
+                contactPersonList.length > 0 && (
+                  <Controller
+                    name={`items.${idx}.contactPersonId`}
+                    control={control}
+                    render={({ field: { value, onChange } }) => {
+                      return (
+                        <Autocomplete
+                          autoHighlight
+                          fullWidth
+                          options={contactPersonList}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue?.value
+                          }}
+                          disableClearable={value ? false : true}
+                          onChange={(e, v) => {
+                            onChange(v?.value ?? '')
+                          }}
+                          value={
+                            !value
+                              // 신규 생성일땐 프로젝트 매니저가 기본으로 들어감
+                              ? contactPersonList.find(
+                                  item => item.value === teamMembers?.find(member => member.type === 'projectManagerId')?.id!
+                                )
+                              // 수정일땐 기존 설정된 값이 들어감
+                              : contactPersonList.find(
+                                item => item.value === value
+                              )
+                          }
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              label='Contact person for job*'
+                              // placeholder='Contact person for job*'
+                            />
+                          )}
                         />
-                      )}
-                    />
-                  )}
-                />
+                      )
+                    }}
+                  />
+                )
+
               )}
             </Grid>
             <Grid item xs={6}>

@@ -5,9 +5,9 @@ import {
 import { ClientAddressType } from '../schema/client-address.schema'
 
 export interface DetailUserType extends OnboardingProDetailsType {
-  dateOfBirth?: string
+  birthday?: string
   status?: string
-  address: ClientAddressType<number>
+  addresses: Array<ClientAddressType<number>>
   isOffOnWeekends: boolean
   appliedRoles: Array<AppliedRoleType>
 }

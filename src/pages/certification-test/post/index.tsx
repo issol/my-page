@@ -510,7 +510,7 @@ const TestMaterialPost = () => {
           }}
         >
           <img
-            src='/images/icons/project-icons/status-successful.png'
+            src='/images/icons/project-icons/alert-success.svg'
             width={60}
             height={60}
             alt=''

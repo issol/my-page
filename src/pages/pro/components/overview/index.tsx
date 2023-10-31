@@ -630,7 +630,7 @@ function ProDetailOverview() {
   }
 
   const onClickAssignRole = (data: AddRoleType) => {
-    console.log("onClickAssignRole",data)
+    console.log('onClickAssignRole', data)
     setAssignRoleJobInfo(data)
     setAssignRoleModalOpen(true)
   }
@@ -932,9 +932,12 @@ function ProDetailOverview() {
                   timezone: userInfo?.timezone!,
                   mobilePhone: userInfo?.mobilePhone!,
                   telephone: userInfo?.telephone!,
-                  dateOfBirth: userInfo?.dateOfBirth!,
+                  birthday: userInfo?.birthday!,
                   status: userInfo?.status!,
-                  address: userInfo?.address!,
+                  address:
+                    userInfo?.addresses && userInfo.addresses.length > 0
+                      ? userInfo.addresses[0]
+                      : null,
                 }}
                 type={'pro'}
                 handleChangeStatus={handleChangeStatus}

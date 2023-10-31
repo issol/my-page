@@ -55,9 +55,9 @@ export type QuotesProjectInfoFormType = {
   quoteDeadline: { date: string; timezone: CountryType }
   quoteExpiryDate: { date: string; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
-  showDescription: boolean
+  showDescription: '1' | '0'
   tax: number | null
-  isTaxable: boolean
+  isTaxable: '1' | '0'
   subtotal: number
 }
 
@@ -107,6 +107,7 @@ export type QuotesListType = {
   quoteExpiry: string
   totalPrice: number
   updatedAt: string
+  subtotal: number
 }
 
 export type ProjectInfoType = {
@@ -145,6 +146,8 @@ export type ProjectInfoType = {
     corporationId: string
   } | null
   subtotal: string | number
+  // history 처리를 위해 추가
+  contactPerson?: ContactPersonType
 }
 
 export type VersionHistoryType = HistoryType & {

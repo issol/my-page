@@ -23,7 +23,13 @@ type Props = {
   onClose: any
 
   type: string
-  vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
+  vary:
+    | 'error'
+    | 'info'
+    | 'error-report'
+    | 'progress'
+    | 'successful'
+    | 'question-info'
   reason: ReasonType | null
   showType?: boolean
 }

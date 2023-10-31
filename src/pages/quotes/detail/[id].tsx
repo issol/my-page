@@ -156,15 +156,18 @@ export type updateProjectInfoType =
   | QuotesProjectInfoFormType
   | ProjectTeamFormType
   | ClientPostType
-  | { tax: null | number; isTaxable: boolean }
-  | { tax: null | number; isTaxable: boolean; subtotal: number }
+  | { tax: null | number; isTaxable: '1' | '0' }
+  | { tax: null | number; isTaxable: '1' | '0'; subtotal: number }
+  | { downloadedAt: string }
   | { status: number }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
   | { languagePairs: Array<LanguagePairsType> }
   | { items: Array<PostItemType> }
   | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
-  | { showDescription: boolean }
+
+  | { showDescription: '1' | '0' }
+
 
 export default function QuotesDetail() {
   const router = useRouter()
@@ -221,7 +224,9 @@ export default function QuotesDetail() {
       | 'button-ConfirmQuote'
       | 'button-CancelQuote'
       | 'button-DeleteQuote'
-      | 'checkBox-ProjectInfo-Description'
+
+      | 'checkBox-ProjectInfo-Description',
+
   ): boolean => {
     let flag = false
     if (currentRole! && currentRole.name !== 'CLIENT') {
@@ -313,6 +318,18 @@ export default function QuotesDetail() {
                   project?.status === 'Expired') &&
                 isIncludeProjectTeam()
             : false
+
+          break
+        case 'checkBox-ProjectInfo-Description':
+          flag =
+            project?.status !== 'Quote sent' &&
+            project?.status !== 'Client review' &&
+            project?.status !== 'Accepted' &&
+            project?.status !== 'Expired' &&
+            project?.status !== 'Rejected' &&
+            project?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
+
           break
           case 'checkBox-ProjectInfo-Description':
             flag = 
@@ -514,7 +531,8 @@ export default function QuotesDetail() {
             analysis: item.analysis ?? [],
             totalPrice: item?.totalPrice ?? 0,
             dueAt: item?.dueAt ?? '',
-            contactPerson: item?.contactPerson ?? {},
+            contactPersonId: item?.contactPerson?.userId ?? 0,
+            contactPerson: item?.contactPerson,
             // initialPrice는 quote 생성시점에 선택한 price의 값을 담고 있음
             // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
             initialPrice: item.initialPrice ?? {},
@@ -632,6 +650,7 @@ export default function QuotesDetail() {
         teams.unshift({ type: 'supervisorId', id: null, name: '' })
       }
 
+
       if (!teams.some(item => item.type === 'member')) {
         teams.push({ type: 'member', id: null, name: '' })
       }
@@ -652,7 +671,11 @@ export default function QuotesDetail() {
 
   useEffect(() => {
     if (!isTeamLoading && team) {
-      let viewTeams: ProjectTeamListType[] = [...team]
+
+      let viewTeams: ProjectTeamListType[] = [...team].map(value => ({
+        ...value,
+        id: uuidv4(),
+      }))
 
       if (!viewTeams.some(item => item.position === 'supervisor')) {
         viewTeams.unshift({
@@ -859,12 +882,12 @@ export default function QuotesDetail() {
     openModal({
       type: 'EditSaveModal',
       children: (
-        <EditSaveModal
+        <CustomModal
           onClose={() => closeModal('EditSaveModal')}
-          onClick={() => {
-            closeModal('EditSaveModal')
-            callBack()
-          }}
+          onClick={callBack}
+          title='Are you sure you want to save all changes?'
+          rightButtonText='Save'
+          vary='successful'
         />
       ),
     })
@@ -951,9 +974,19 @@ export default function QuotesDetail() {
   })
 
   function onProjectInfoSave() {
-    const projectInfo = getProjectInfoValues()
+    const projectInfo = {
+      ...getProjectInfoValues(),
+      showDescription: getProjectInfoValues().showDescription ? '1' : '0',
+      isTaxable: getProjectInfoValues().isTaxable ? '1' : '0',
+    }
 
-    onSave(() => updateProject.mutate(projectInfo))
+    onSave(() =>
+      updateProject.mutate(projectInfo, {
+        onSuccess: () => {
+          closeModal('EditSaveModal')
+        },
+      }),
+    )
   }
 
   async function onItemSave() {
@@ -968,7 +1001,7 @@ export default function QuotesDetail() {
       } = item
       return {
         ...filterItem,
-        // contactPersonId: Number(item.contactPerson?.id!),
+
         contactPersonId: Number(item.contactPersonId!),
         description: item.description || '',
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
@@ -1006,7 +1039,9 @@ export default function QuotesDetail() {
         updateProject.mutate(
           {
             tax: getProjectInfoValues('tax'),
-            isTaxable: getProjectInfoValues('isTaxable'),
+
+            isTaxable: getProjectInfoValues('isTaxable') ? '1' : '0',
+
             subtotal: subtotal,
             languagePairs: langs,
             items: items,
@@ -1016,6 +1051,7 @@ export default function QuotesDetail() {
               queryClient.invalidateQueries({
                 queryKey: ['quotesDetailItems'],
               })
+              closeModal('EditSaveModal')
               setEditItems(false)
             },
           },
@@ -1312,10 +1348,14 @@ export default function QuotesDetail() {
           closeButtonText='Cancel'
           confirmButtonText='Create'
           onClose={() => closeModal('CreateOrderModal')}
-          onConfirm={() => router.push({
-            pathname: `/orders/add-new`,
-            query: { quoteId: id },
-          })}
+
+          onConfirm={() =>
+            router.push({
+              pathname: `/orders/add-new`,
+              query: { quoteId: id },
+            })
+          }
+
           title={`[${project?.corporationId}] ${project?.projectName}`}
           message={`Are you sure you want to create an order\nwith this quote?`}
           textAlign='center'
@@ -1470,6 +1510,7 @@ export default function QuotesDetail() {
                               ? `/quotes/requests/${project?.linkedRequest.id}`
                               : `/quotes/lpm/requests/${project?.linkedRequest.id}`
                           }
+                          style={{ color: 'rgba(76, 78, 100, 0.87)' }}
                         >
                           {project?.linkedRequest.corporationId ?? '-'}
                         </Link>
@@ -1488,6 +1529,7 @@ export default function QuotesDetail() {
                         Linked order :
                         <Link
                           href={`/orders/order-list/detail/${project.linkedOrder.id}`}
+                          style={{ color: 'rgba(76, 78, 100, 0.87)' }}
                         >
                           {project?.linkedOrder.corporationId ?? '-'}
                         </Link>
@@ -1643,10 +1685,14 @@ export default function QuotesDetail() {
                       />
                       {renderSubmitButton({
                         onCancel: () =>
-                          onDiscard({ callback: () => {
-                            setEditProject(false)
-                            projectInfoReset()
-                          } }),
+
+                          onDiscard({
+                            callback: () => {
+                              setEditProject(false)
+                              projectInfoReset()
+                            },
+                          }),
+
                         onSave: () => onProjectInfoSave(),
                         isValid: isProjectInfoValid,
                       })}
@@ -1660,7 +1706,11 @@ export default function QuotesDetail() {
                       project={project}
                       setEditMode={setEditProject}
                       isUpdatable={canUseFeature('tab-ProjectInfo')}
-                      canCheckboxEdit={canUseFeature('checkBox-ProjectInfo-Description')}
+
+                      canCheckboxEdit={canUseFeature(
+                        'checkBox-ProjectInfo-Description',
+                      )}
+
                       updateStatus={(status: number) =>
                         updateProject.mutate({ status: status })
                       }

@@ -128,15 +128,15 @@ const InvoiceLanguageAndItem = ({
     const subPrice = getItem()?.items!
     if (subPrice) {
       const total = subPrice.reduce((accumulator, item) => {
-        return accumulator + item.totalPrice;
+        return accumulator + item.totalPrice
       }, 0)
-    
+
       setSubPrice(total)
     }
   }
   useEffect(() => {
     sumTotalPrice()
-  },[])
+  }, [])
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -228,7 +228,6 @@ const InvoiceLanguageAndItem = ({
           errors={itemErrors}
           fields={items}
           remove={removeItems}
-          isValid={isItemValid}
           teamMembers={getTeamValues()?.teams}
           languagePairs={languagePairs}
           getPriceOptions={getPriceOptions}
@@ -331,8 +330,7 @@ const InvoiceLanguageAndItem = ({
               {invoiceInfo.isTaxable
                 ? formatCurrency(
                     formatByRoundingProcedure(
-                      Number(invoiceInfo!.subtotal!) *
-                        (invoiceInfo.tax! / 100),
+                      Number(invoiceInfo!.subtotal!) * (invoiceInfo.tax! / 100),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
                       priceInfo?.currency ?? 'USD',

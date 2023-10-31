@@ -39,7 +39,7 @@ type Props = {
     selectionModel: GridSelectionModel,
     details: GridCallbackDetails<any>,
   ) => void
-  onClickRequestJob: () => void
+  onClickRequestJob: (n: 'assign' | 're-assign') => void
   type: string
   jobInfo: JobType
 }
@@ -110,12 +110,12 @@ const AssignProList = ({
                 </Box>
               )}
             </Box>
-            {type === 'history' ? null : !jobInfo?.proId ? (
+            {type === 'history' ? null : !jobInfo?.pro ? (
               <Button
                 variant='contained'
                 sx={{ height: '30px' }}
                 disabled={selectionModel.length === 0}
-                onClick={onClickRequestJob}
+                onClick={() => onClickRequestJob('assign')}
               >
                 <Icon icon='ic:outline-send' fontSize='18px' />
                 &nbsp; Request job
@@ -125,9 +125,9 @@ const AssignProList = ({
                 variant='outlined'
                 sx={{ height: '30px' }}
                 disabled={[
-                  60800, 60900, 601100, 601200, 601300, 601400, 60400,
+                  60400, 60500, 60600, 60700, 60800, 60900, 601000,
                 ].includes(jobInfo.status as JobStatusType)} //Partially delivered, delivered, Approved, Invoiced, without invoice, paid, canceled
-                onClick={onClickRequestJob}
+                onClick={() => onClickRequestJob('re-assign')}
               >
                 &nbsp; Re-assign
               </Button>
@@ -169,7 +169,7 @@ const AssignProList = ({
           page={page}
           pageSize={pageSize}
           paginationMode='server'
-          checkboxSelection={type === 'history' ? false : true}
+          checkboxSelection={type === 'history' || jobInfo.pro ? false : true}
           onSelectionModelChange={handleSelectionModelChange}
           onPageChange={(newPage: number) => {
             setFilters!((prevState: AssignProFilterPostType) => ({

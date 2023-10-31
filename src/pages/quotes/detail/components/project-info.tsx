@@ -42,6 +42,10 @@ import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ReasonType } from '@src/types/quotes/quote'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
+
+import _ from 'lodash'
+
+
 type Props = {
   project: ProjectInfoType | undefined
   setEditMode: (v: boolean) => void
@@ -95,7 +99,7 @@ export default function QuotesProjectInfoDetail({
           onClose={() => closeModal(`${status}ReasonModal`)}
           reason={reason}
           type={status}
-          vary='info'
+          vary='question-info'
         />
       ),
     })
@@ -135,7 +139,8 @@ export default function QuotesProjectInfoDetail({
 
   const getStatusNameFromCode = (code: number): QuoteStatusType => {
     // @ts-ignore
-    return statusList?.find(status => status.value === code)?.label ?? "New"
+    return statusList?.find(status => status.value === code)?.label ?? 'New'
+
   }
 
   const onClickShowDescription = (value: boolean) => {
@@ -143,10 +148,14 @@ export default function QuotesProjectInfoDetail({
     let message = ''
     if (value) {
       confirmButtonText = 'Show'
-      message = 'Are you sure you want to show the\nproject description to the client?'
+
+      message =
+        'Are you sure you want to show the\nproject description to the client?'
     } else {
       confirmButtonText = 'Hide'
-      message = 'Are you sure you want to hide the\nproject description to the client?'
+      message =
+        'Are you sure you want to hide the\nproject description to the client?'
+
     }
     openModal({
       type: 'ShowDescriptionModal',
@@ -155,9 +164,11 @@ export default function QuotesProjectInfoDetail({
           onClose={() => closeModal('ShowDescriptionModal')}
           onConfirm={() => {
             updateProject &&
-            updateProject.mutate({
-              showDescription: value,
-            })
+
+              updateProject.mutate({
+                showDescription: value ? '1' : '0',
+              })
+
           }}
           closeButtonText='Cancel'
           confirmButtonText={confirmButtonText}
@@ -261,34 +272,68 @@ export default function QuotesProjectInfoDetail({
                 project.status !== 'Canceled') ||
                 // 연결된 Client가 없는 경우
                 !client?.isEnrolledClient) ? (
-                <Autocomplete
-                  fullWidth
-                  disableClearable={true}
-                  options={filterStatusList() ?? []}
-                  onChange={(e, v) => {
-                    if (updateStatus && v?.value) {
-                      updateStatus(v.value as number)
+                <Box sx={{ display: 'flex', gap: '2px', alignItems: 'left' }}>
+                  <Autocomplete
+                    fullWidth
+                    disableClearable={true}
+                    options={filterStatusList() ?? []}
+                    onChange={(e, v) => {
+                      if (updateStatus && v?.value) {
+                        updateStatus(v.value as number)
+                      }
+                    }}
+                    value={
+                      statusList &&
+                      statusList.find(item => item.label === project.status)
                     }
-                  }}
-                  value={
-                    statusList &&
-                    statusList.find(item => item.label === project.status)
-                  }
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      placeholder='Status'
-                      size='small'
-                      sx={{ maxWidth: '300px' }}
-                    />
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        placeholder='Status'
+                        size='small'
+                        sx={{ maxWidth: '300px' }}
+                      />
+                    )}
+                  />
+                  {(project.status === 'Revision requested' ||
+                    project.status === 'Rejected' ||
+                    project.status === 'Canceled') && (
+                    <IconButton
+                      onClick={() => {
+                        project.reason &&
+                          onClickReason(
+                            project.reason.type === 'revision-request'
+                              ? 'Requested'
+                              : project.reason.type?.replace(/^[a-z]/, char =>
+                                  char.toUpperCase(),
+                                ),
+                            project.reason,
+                          )
+                      }}
+                    >
+                      <img
+                        src='/images/icons/onboarding-icons/more-reason.svg'
+                        alt='more'
+                      />
+                    </IconButton>
                   )}
-                />
+                </Box>
               ) : (
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <QuoteStatusChip
                     size='small'
-                    label={typeof(project.status) === 'number' ? getStatusNameFromCode(project.status) : project.status}
-                    status={typeof(project.status) === 'number' ? getStatusNameFromCode(project.status) : project.status}
+
+                    label={
+                      typeof project.status === 'number'
+                        ? getStatusNameFromCode(project.status)
+                        : project.status
+                    }
+                    status={
+                      typeof project.status === 'number'
+                        ? getStatusNameFromCode(project.status)
+                        : project.status
+                    }
+
                   />
                   {(project.status === 'Revision requested' ||
                     project.status === 'Rejected' ||
@@ -399,18 +444,28 @@ export default function QuotesProjectInfoDetail({
                     variant='body2'
                     sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}
                   >
-                    {getLegalName({
-                      firstName: client?.contactPerson?.firstName,
-                      middleName: client?.contactPerson?.middleName,
-                      lastName: client?.contactPerson?.lastName,
-                    })}
-                    {client?.contactPerson?.jobTitle
-                      ? ` / ${client?.contactPerson?.jobTitle}`
+                    {type !== 'history'
+                      ? getLegalName({
+                          firstName: client?.contactPerson?.firstName,
+                          middleName: client?.contactPerson?.middleName,
+                          lastName: client?.contactPerson?.lastName,
+                        })
+                      : getLegalName({
+                          firstName: project?.contactPerson?.firstName,
+                          middleName: project?.contactPerson?.middleName,
+                          lastName: project?.contactPerson?.lastName,
+                        })}
+                    {type !== 'history'
+                      ? client?.contactPerson?.jobTitle
+                        ? ` / ${client?.contactPerson?.jobTitle}`
+                        : ''
+                      : project?.contactPerson?.jobTitle
+                      ? ` / ${project?.contactPerson?.jobTitle}`
                       : ''}
-                    {type === 'history' &&
-                    (project.status === 'Changed into order' ||
-                      project.status === 'Rejected' ||
-                      project.status === 'Canceled') ? null : (
+                    {type === 'history' ||
+                    project.status === 'Changed into order' ||
+                    project.status === 'Rejected' ||
+                    project.status === 'Canceled' ? null : (
                       <IconButton onClick={() => setContactPersonEdit(true)}>
                         <Icon icon='mdi:pencil-outline' />
                       </IconButton>
@@ -429,7 +484,7 @@ export default function QuotesProjectInfoDetail({
               <CustomTypo fontSize={14} fontWeight={600}>
                 Work name
               </CustomTypo>
-              <CustomTypo variant='body2'>{project.workName}</CustomTypo>
+              <CustomTypo variant='body2'>{project.workName ?? '-'}</CustomTypo>
             </LabelContainer>
           </Grid>
           <Grid item xs={6}>
@@ -454,9 +509,13 @@ export default function QuotesProjectInfoDetail({
                 Service type
               </CustomTypo>
               <Box display='flex' alignItems='center' gap='8px'>
-                {project.serviceType?.map((item, idx) => (
-                  <ServiceTypeChip key={idx} label={item} size='small' />
-                ))}
+                {project.serviceType && project.serviceType.length > 0
+                  ? project.serviceType
+                      .filter((item, index, self) => self.indexOf(item) === index)
+                      .map((item, idx) => (
+                        <ServiceTypeChip key={idx} label={item} size='small' />
+                      ))
+                  : '-'}
               </Box>
             </LabelContainer>
           </Grid>
@@ -587,10 +646,9 @@ export default function QuotesProjectInfoDetail({
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-                    opacity:
-                      project.status === 'Canceled'
-                        ? 0.5
-                        : 1,
+
+                    opacity: project.status === 'Canceled' ? 0.5 : 1,
+
                   }}
                 >
                   <Checkbox
@@ -599,9 +657,9 @@ export default function QuotesProjectInfoDetail({
                       onClickShowDescription(e.target.checked)
                     }}
                     checked={project.showDescription}
-                    disabled={
-                      !canCheckboxEdit
-                    }
+
+                    disabled={!canCheckboxEdit}
+
                   />
 
                   <Typography
@@ -633,14 +691,15 @@ export default function QuotesProjectInfoDetail({
                 letterSpacing='0.15px'
                 sx={{ minWidth: 230 }}
               >
-                {role.name === 'CLIENT' ?
-                  project.projectDescription &&
-                  project.showDescription &&
-                  project.projectDescription !== ''
+
+                {role.name === 'CLIENT'
+                  ? project.projectDescription &&
+                    project.showDescription &&
+                    project.projectDescription !== ''
                     ? project.projectDescription
                     : '-'
-                  : project.projectDescription || '-'
-                }
+                  : project.projectDescription || '-'}
+
               </Typography>
             </Box>
           </Grid>

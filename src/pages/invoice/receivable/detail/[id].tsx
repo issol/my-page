@@ -249,6 +249,7 @@ const ReceivableInvoiceDetail = () => {
           historyRefetch()
           projectTeamRefetch()
           clientRefetch()
+          queryClient.invalidateQueries('invoice/receivable/list')
         }
         closeModal('EditSaveModal')
       },

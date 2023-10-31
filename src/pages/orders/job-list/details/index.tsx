@@ -193,6 +193,10 @@ const JobDetails = () => {
     }
   }, [jobDetails])
 
+  const onClickBack = () => {
+    //TODO 이전 페이지의 주소기반으로 라우팅 해야함, 무조건 back 할경우 사이드이펙이 나올수 있음
+    router.back()
+  }
   const Row = ({ info, index }: { info: JobItemType; index: number }) => {
     const [open, setOpen] = useState<boolean>(true)
     const separateLine = () => {
@@ -626,7 +630,7 @@ const JobDetails = () => {
           >
             <IconButton
               sx={{ padding: '0 !important', height: '24px' }}
-              onClick={() => router.push('/orders/job-list')}
+              onClick={() => onClickBack()}
             >
               <Icon icon='mdi:chevron-left' width={24} height={24} />
             </IconButton>

@@ -33,9 +33,9 @@ type Props = {
     timezone: CountryType
     mobilePhone?: string
     telephone?: string
-    dateOfBirth?: string
+    birthday?: string
     status?: string
-    address: ClientAddressType<number>
+    address: ClientAddressType<number> | null
   }
   type: string
   handleChangeStatus?: (event: SelectChangeEvent) => void
@@ -75,7 +75,7 @@ export default function About({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Icon icon='mdi:calendar-blank' style={{ opacity: '0.7' }} />
             <LabelTitle>Date of Birth:</LabelTitle>
-            <Label>{MMDDYYYYHelper(userInfo.dateOfBirth) || '-'}</Label>
+            <Label>{MMDDYYYYHelper(userInfo.birthday) || '-'}</Label>
           </Box>
         ) : null}
       </Box>

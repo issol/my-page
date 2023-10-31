@@ -344,6 +344,7 @@ export default function Filter({
                                 const res = CategoryListPair[value.value]
                                 arr.push(...res)
                               })
+                              setCategoryList(_.uniqBy(arr, 'value'))
 
                               setCategoryList(arr)
                               trigger('category')
@@ -446,7 +447,7 @@ export default function Filter({
                         name='search'
                         render={({ field: { onChange, value } }) => (
                           <>
-                            <InputLabel>Search Pros</InputLabel>
+                            <InputLabel>Search items</InputLabel>
                             <OutlinedInput
                               label='Search Items'
                               value={value}

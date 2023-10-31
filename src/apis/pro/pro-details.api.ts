@@ -102,9 +102,11 @@ export const deleteOffDays = async (
 }
 
 /* TODO: endpoint 변경 */
-export const deleteResume = async (
-  userId: number,
-  fileId: number,
-): Promise<void> => {
-  await axios.delete(`/api/enough/u/pro/${userId}/work-days?year=${fileId}`)
-}
+
+// export const deleteResume = async (
+//   userId: number,
+//   fileId: number,
+// ): Promise<void> => {
+//   await axios.delete(`/api/enough/u/pro/${userId}/work-days?year=${fileId}`)
+// }
+

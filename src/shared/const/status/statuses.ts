@@ -220,23 +220,23 @@ export const QuotesStatus = [
   },
 ]
 
-export const JobStatus = [
-  { value: 60000, label: "In preparation" },
-  { value: 60100, label: "Requested" },
-  { value: 60200, label: "Request accepted" },
-  { value: 60300, label: "Request rejected" },
-  { value: 60400, label: "Canceled" },
-  { value: 60500, label: "Assigned" },
-  { value: 60700, label: "In progress" },
-  { value: 60800, label: "Partially delivered" },
-  { value: 60900, label: "Delivered" },
-  { value: 601000, label: "Overdue" },
-  { value: 601100, label: "Approved" },
-  { value: 601200, label: "Invoiced" },
-  { value: 601300, label: "Without invoice" },
-  { value: 601400, label: "Paid" },
-  { value: 601500, label: "Payment canceled" },
-]
+// export const JobStatus = [
+//   { value: 60000, label: "In preparation" },
+//   { value: 60100, label: "Requested" },
+//   { value: 60200, label: "Request accepted" },
+//   { value: 60300, label: "Request rejected" },
+//   { value: 60400, label: "Canceled" },
+//   { value: 60500, label: "Assigned" },
+//   { value: 60700, label: "In progress" },
+//   { value: 60800, label: "Partially delivered" },
+//   { value: 60900, label: "Delivered" },
+//   { value: 601000, label: "Overdue" },
+//   { value: 601100, label: "Approved" },
+//   { value: 601200, label: "Invoiced" },
+//   { value: 601300, label: "Without invoice" },
+//   { value: 601400, label: "Paid" },
+//   { value: 601500, label: "Payment canceled" },
+// ]
 
 export const AssignmentStatus = [
   {
@@ -316,7 +316,7 @@ export const ClientRequestCalendarStatus = [
   {
     value: 'Request created',
     label: 'Request created',
-    color: '#666CFF',
+    color: '#A81988',
   },
   {
     value: 'In preparation',

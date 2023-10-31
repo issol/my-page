@@ -26,6 +26,7 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
+import { matchSorter } from 'match-sorter'
 
 import {
   Autocomplete,
@@ -42,6 +43,7 @@ import Icon from 'src/@core/components/icon'
 import { getUserInfo } from '@src/apis/user.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useEffect, useState } from 'react'
+import _ from 'lodash'
 
 type Props = {
   control: Control<ProjectTeamType, any>
@@ -54,7 +56,7 @@ type Props = {
   isValid: boolean
   watch: UseFormWatch<ProjectTeamType>
   memberList: Array<{
-    value: string
+    value: number
     label: string
     jobTitle: string | undefined
   }>
@@ -74,13 +76,13 @@ export default function ProjectTeamForm({
   getValue,
 }: Props) {
   const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
-  const [list, setList] = useState<
-    Array<{
-      value: string
-      label: string
-      jobTitle: string | undefined
-    }>
-  >(memberList)
+  // const [list, setList] = useState<
+  //   Array<{
+  //     value: number
+  //     label: string
+  //     jobTitle: string | undefined
+  //   }>
+  // >(memberList)
 
   const setValueOptions = { shouldValidate: true, shouldDirty: true }
 
@@ -130,28 +132,30 @@ export default function ProjectTeamForm({
   }
 
   function findMemberValue(value: number | null) {
-    let findValue = list.find(item => item.value === value?.toString())
+
+    let findValue = memberList.find(item => item.value === value)
+
     if (!findValue && value) {
       getUserInfo(value!)
         .then(res => {
-          setList(
-            list.concat({
-              value: String(res.userId),
-              label: getLegalName({
-                firstName: res?.firstName!,
-                middleName: res?.middleName,
-                lastName: res?.lastName!,
-              }),
-              jobTitle: res.jobTitle ?? '',
-            }),
-          )
-          findValue = list.find(item => item.value === value?.toString())
+          // setList(
+          //   list.concat({
+          //     value: res.userId,
+          //     label: getLegalName({
+          //       firstName: res?.firstName!,
+          //       middleName: res?.middleName,
+          //       lastName: res?.lastName!,
+          //     }),
+          //     jobTitle: res.jobTitle ?? '',
+          //   }),
+          // )
+          findValue = memberList.find(item => item.value === value)
         })
         .catch(e => {
-          findValue = { value: '', label: '', jobTitle: '' }
+          findValue = { value: 0, label: '', jobTitle: '' }
         })
     }
-    return findValue || { value: '', label: '', jobTitle: '' }
+    return findValue || { value: 0, label: '', jobTitle: '' }
   }
   function renderMemberField(name: `teams.${number}.id`, idx: number) {
     return (
@@ -166,17 +170,19 @@ export default function ProjectTeamForm({
               isOptionEqualToValue={(option, newValue) => {
                 return option.value === newValue.value
               }}
-              {...field}
-              options={list.map(item => ({
-                value: item.value,
-                label: item.label,
-              }))}
+              filterOptions={(options, { inputValue }) => {
+                return matchSorter(options, inputValue, {
+                  keys: ['label'],
+                })
+              }}
+              options={memberList}
+              getOptionLabel={option => option.label}
               onChange={(e, v) => {
                 if (v) {
                   onChange(Number(v.value))
                   setValue(`teams.${idx}.name`, v.label, setValueOptions)
                 } else {
-                  onChange(null)
+                  onChange(0)
                   handleFocusChange(idx, false)
                   const { name, ...rest } = getValue('teams')[idx]
                   update(idx, rest)
@@ -190,8 +196,6 @@ export default function ProjectTeamForm({
               value={findMemberValue(value)}
               onClickCapture={() => handleFocusChange(idx, true)}
               onClose={() => handleFocusChange(idx, false)}
-              // onFocus={() => setFocusField(true)}
-              // onFocusCapture={() => setFocusField(true)}
               renderInput={params => (
                 <TextField
                   {...params}
@@ -201,6 +205,11 @@ export default function ProjectTeamForm({
                     ...params.inputProps,
                   }}
                 />
+              )}
+              renderOption={(props, option) => (
+                <li {...props} key={uuidv4()}>
+                  {option.label}
+                </li>
               )}
             />
           )
@@ -219,7 +228,7 @@ export default function ProjectTeamForm({
             fullWidth
             disabled={true}
             value={
-              list.filter(item => item.value === field?.value?.toString())[0]
+              memberList.filter(item => item.value === field?.value)[0]
                 ?.jobTitle || '-'
             }
           />

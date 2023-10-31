@@ -55,7 +55,7 @@ const defaultFilters: JobListFilterType = {
   skip: 0,
   search: '',
   listType: 'completed-inactive',
-  status: [601100],
+  status: [60600], //Approved
 }
 
 const SelectJobModal = ({ onClose, onClick }: Props) => {

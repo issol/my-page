@@ -140,8 +140,16 @@ export default function Receivable() {
   const currentRole = getCurrentRole()
 
   const { data: list, isLoading } = useGetReceivableList(filters)
+
+  
+  //인보이스의 전체 status 리스트
+
   const { data: statusList, isLoading: statusListLoading } =
     useGetStatusList('InvoiceReceivable')
+
+  //각 롤에 필요한 인보이스 리스트만 필터
+  const { data: statusListForRole, isLoading: statusListForRoleLoading } =
+  useGetStatusList('InvoiceReceivable','1')
 
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
@@ -187,6 +195,11 @@ export default function Receivable() {
       lsp,
       search,
     } = data
+    
+    if (invoiceStatus.find(value => value.value === 301000)) invoiceStatus.push({
+      label: 'Overdue', value: 301100
+    })
+    console.log("invoiceStatus",data.invoiceStatus)
 
     const filter: InvoiceReceivableFilterType = {
       revenueFrom: revenueFrom?.map(value => value.value) ?? [],
@@ -289,8 +302,8 @@ export default function Receivable() {
               clientListLoading={clientListLoading}
               companyList={companyList}
               companyListLoading={companiesListLoading}
-              statusList={statusList || []}
-              statusListLoading={statusListLoading}
+              statusList={statusListForRole || []}
+              statusListLoading={statusListForRoleLoading}
               handleSubmit={handleSubmit}
               control={control}
               trigger={trigger}

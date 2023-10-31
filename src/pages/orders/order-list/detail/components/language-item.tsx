@@ -335,21 +335,16 @@ const LanguageAndItem = ({
           errors={itemErrors}
           fields={items}
           remove={removeItems}
-          isValid={isItemValid}
           teamMembers={getTeamValues()?.teams}
           languagePairs={languagePairs}
           getPriceOptions={getPriceOptions}
           priceUnitsList={priceUnitsList || []}
           type={langItemsEdit ? 'edit' : 'detail'}
           itemTrigger={itemTrigger}
-          project={project}
-          updateItems={updateItems}
           orderId={orderId}
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
           splitReady={splitReady}
-          onClickCancelSplitOrder={onClickCancelSplitOrder}
-          onClickSplitOrderConfirm={onClickSplitOrderConfirm}
           sumTotalPrice={sumTotalPrice}
         />
       </Grid>

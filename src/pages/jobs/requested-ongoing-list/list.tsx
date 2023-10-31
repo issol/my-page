@@ -85,8 +85,10 @@ const JobList = ({
           rowCount={listCount ?? 0}
           loading={isLoading}
           onCellClick={(params, event) => {
-            event.stopPropagation()
-            router.push(`/jobs/detail/${params.row.id}`)
+            event.stopPropagation(),
+            [70000,70100,70200,70300,70400].includes(params.row.status as number)
+              ? router.push(`/jobs/detail/${params.row.id}?assigned=false`)
+              : router.push(`/jobs/detail/${params.row.id}`)
           }}
           rowsPerPageOptions={[10, 25, 50]}
           pagination
@@ -109,7 +111,7 @@ const JobList = ({
           }}
           disableSelectionOnClick
           getRowClassName={params =>
-            params.row.status === 601000 ? 'overdue' : 'normal'
+            params.row.status === 60300 ? 'overdue' : 'normal'
           }
         />
       </Box>

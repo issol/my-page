@@ -301,36 +301,33 @@ export function JobsStatusChip(
       ? '#F572D8'
       : status === 60100 //'Requested'
       ? '#A81988'
-      : status === 60200 //'Request accepted'
-      ? '#A81988'
-      : status === 60300 //'Request rejected'
-      ? '#A81988'
-      : status === 60400 //'Canceled'
+      : status === 60200 //'In progress'
+      ? '#FDB528'
+      : status === 60300 //'Overdue'
       ? '#FF4D49'
-      : status === 60500 //'Assigned'
-      ? '#FF4D49'
-      : status === 60700 //'In progress'
-      ? '#FF4D49'
-      : status === 60800 //'Partially delivered'
-      ? '#FF4D49'
-      : status === 60900 //'Delivered'
+      : status === 60400 //'Partially delivered'
+      ? '#686A80'
+      : status === 60500 //'Delivered'
       ? '#1A6BBA'
-      : status === 601000 //'Overdue'
-      ? '#FF4D49'
-      : status === 601100 //'Approved'
+      : status === 60600 //'Approved'
       ? '#64C623'
-      : status === 601200 //'Invoiced'
-      ? '#FF4D49'
-      : status === 601300 //'Without invoice'
-      ? '#75571C'
-      : status === 601400 //'Paid'
+      : status === 60700 //'Invoiced'
+      ? '#9B6CD8'
+      : status === 60800 //'Paid'
       ? '#1B8332'
+      : status === 60900 //'Without invoice'
+      ? '#75571C'
+      : status === 601000 //'Canceled'
+      ? '#FF4D49'
+      // TODO 컬러 확정되면 업뎃해야함
+      : status === 601100 //'Payment canceled'
+      ? '#FFFFFF'
       : ''
 
   const statusLabel = statusList.find(list => list.value === status)?.label!
   return (
     <CustomChip
-      label={status === 601000 ? `🔴 ${statusLabel}` : statusLabel} // Status가 Overdue일 경우 아이콘 붙이기
+      label={status === 60300 ? `🔴 ${statusLabel}` : statusLabel} // Status가 Overdue일 경우 아이콘 붙이기
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
@@ -341,29 +338,27 @@ export function JobsStatusChip(
   )
 }
 
-const assignmentStatusCode = [
-  { label: 'Requested', value: 60100 },
-  { label: 'Request accepted', value: 60200 },
-  { label: 'Request rejected', value: 60300 },
-  { label: 'Canceled', value: 60400 },
-  { label: 'Assigned', value: 60500 },
-]
-
-export function assignmentStatusChip(status: number) {
+export function assignmentStatusChip(
+  status: number,
+  statusList: statusType[],
+  ) {
   const color =
-    status === 60100
+    status === 70000 //Requested
       ? '#FDB528'
-      : status === 60200
+      : status === 70100 //Request accepted
       ? '#64C623'
-      : status === 60300
+      : status === 70200 //Request rejected
       ? '#FF4D49'
-      : status === 60400
-      ? '#FF4D49'
-      : status === 60500
+      : status === 70300 //Assigned
       ? '#666CFF'
+      : status === 70400 //Canceled
+      ? '#FF4D49'
+      : status === 70500 //Unassigned
+      ? '#6D788D'
       : ''
-  const statusLabel = assignmentStatusCode.find(list => list.value === status)
-    ?.label!
+  // const statusLabel = assignmentStatusCode.find(list => list.value === status)
+  //   ?.label!
+  const statusLabel = statusList.find(list => list.value === status)?.label!
 
   return (
     <CustomChip
@@ -378,21 +373,21 @@ export function assignmentStatusChip(status: number) {
   )
 }
 
-export const AssignmentStatusChip = styled(Chip)<{ status: number }>`
-  border: none;
-  ${({ status }) =>
-    status === 60200
-      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128; color: #64C623;`
-      : status === 60300
-      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
-      : status === 60100
-      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color: #FDB528;`
-      : status === 60500
-      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
-      : status === 60400
-      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
-      : null};
-`
+// export const AssignmentStatusChip = styled(Chip)<{ status: number }>`
+//   border: none;
+//   ${({ status }) =>
+//     status === 60200
+//       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128; color: #64C623;`
+//       : status === 60300
+//       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
+//       : status === 60100
+//       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color: #FDB528;`
+//       : status === 60500
+//       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
+//       : status === 601600
+//       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
+//       : null};
+// `
 
 export function InvoicePayableChip(status: InvoicePayableStatusType) {
   const color =

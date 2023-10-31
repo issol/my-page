@@ -28,7 +28,13 @@ import {
   OrderFeatureType,
   ProjectInfoType,
 } from '@src/types/orders/order-detail'
-import { useContext, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
 import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
@@ -54,6 +60,7 @@ import {
   confirmDelivery,
   deliverySendToClient,
 } from '@src/apis/order-detail.api'
+import NoList from '@src/pages/components/no-list'
 
 type Props = {
   project: ProjectInfoType
@@ -61,6 +68,8 @@ type Props = {
   updateProject: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList: Array<{ value: number; label: string }>
   canUseFeature: (v: OrderFeatureType) => boolean
+  uploadFileProcessing: boolean
+  setUploadFileProcessing: Dispatch<SetStateAction<boolean>>
 }
 
 const DeliveriesFeedback = ({
@@ -69,6 +78,8 @@ const DeliveriesFeedback = ({
   updateProject,
   statusList,
   canUseFeature,
+  uploadFileProcessing,
+  setUploadFileProcessing,
 }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
   const { openModal, closeModal } = useModal()
@@ -81,6 +92,7 @@ const DeliveriesFeedback = ({
   const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
   const [importedFiles, setImportedFiles] = useState<DeliveryFileType[]>([])
+
   const queryClient = useQueryClient()
 
   const updateDeliveries = useMutation(
@@ -156,7 +168,9 @@ const DeliveriesFeedback = ({
               type: 'AlertMaximumFileSizeModal',
               children: (
                 <AlertModal
-                  title={`The maximum file size you can upload is ${byteToGB(MAXIMUM_FILE_SIZE)}.`}
+                  title={`The maximum file size you can upload is ${byteToGB(
+                    MAXIMUM_FILE_SIZE,
+                  )}.`}
                   onClick={() => closeModal('AlertMaximumFileSizeModal')}
                   vary='error'
                   buttonText='Okay'
@@ -184,6 +198,7 @@ const DeliveriesFeedback = ({
           }
         }, [])
       setFiles(uniqueFiles)
+      setUploadFileProcessing(true)
     },
   })
 
@@ -375,6 +390,43 @@ const DeliveriesFeedback = ({
     </Box>
   ))
 
+  // const groupedFiles: DeliveryFileType[][] = savedFiles.reduce(
+  //   (acc: DeliveryFileType[][], curr: DeliveryFileType) => {
+  //     const existingGroup = acc.find(
+  //       group => group[0]?.createdAt === curr.createdAt,
+  //     )
+  //     if (existingGroup) {
+  //       existingGroup.push(curr)
+  //     } else {
+  //       acc.push([curr])
+  //     }
+  //     return acc
+  //   },
+  //   [],
+  // )
+  // console.log(groupedFiles)
+
+  interface GroupedDeliveryFileType {
+    createdAt: string
+    data: DeliveryFileType[]
+  }
+
+  const groupedFiles: GroupedDeliveryFileType[] = savedFiles.reduce(
+    (acc: GroupedDeliveryFileType[], curr: DeliveryFileType) => {
+      const existingGroup = acc.find(
+        group => group.createdAt === curr.createdAt,
+      )
+      if (existingGroup) {
+        existingGroup.data.push(curr)
+      } else {
+        acc.push({ createdAt: curr.createdAt!, data: [curr] })
+      }
+      return acc
+    },
+    [],
+  )
+  console.log(groupedFiles)
+
   const savedFileList = savedFiles?.map((file: DeliveryFileType) => (
     <Box key={uuidv4()}>
       <Typography
@@ -457,6 +509,7 @@ const DeliveriesFeedback = ({
 
   const onSubmit = () => {
     closeModal('DeliverToClientModal')
+    setUploadFileProcessing(false)
     if (files.length || importedFiles.length) {
       const fileInfo: Array<DeliveryFileType> = [
         ...savedFiles,
@@ -520,8 +573,13 @@ const DeliveriesFeedback = ({
           onClose={() => closeModal('DeliverToClientModal')}
           title={
             <>
-              Are you sure you want to deliver the uploaded files?
-              <Typography variant='body1' fontWeight={600}>
+              Are you sure you want to deliver the uploaded files?&nbsp;
+              <Typography
+                variant='body2'
+                fontWeight={600}
+                component={'span'}
+                fontSize={16}
+              >
                 You cannot delete the files after delivering them to the client.
               </Typography>
             </>
@@ -541,6 +599,7 @@ const DeliveriesFeedback = ({
           onClick={() => {
             closeModal('CancelDeliverModal')
             setFiles([])
+            setUploadFileProcessing(false)
           }}
           onClose={() => closeModal('CancelDeliverModal')}
           title='Are you sure you want to cancel the file upload? The files you uploaded will not be saved.'
@@ -656,6 +715,8 @@ const DeliveriesFeedback = ({
     }
   }, [project])
 
+  console.log(uploadFileProcessing)
+
   return (
     <Grid container xs={12} spacing={4}>
       <Grid item xs={9}>
@@ -667,7 +728,7 @@ const DeliveriesFeedback = ({
                   Deliveries
                 </Typography>
                 <Typography variant='caption'>
-                  {formatFileSize(fileSize).toLowerCase()}/{byteToGB(MAXIMUM_FILE_SIZE)}
+                  {formatFileSize(fileSize)}/{byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
               {isSubmittable && currentRole && currentRole.name !== 'CLIENT' ? (
@@ -699,20 +760,22 @@ const DeliveriesFeedback = ({
                     <Icon icon='mdi:import' fontSize={18} />
                     &nbsp;Import from job
                   </Button>
-                  <Button
-                    variant='outlined'
-                    disabled={
-                      savedFiles.length < 1 ||
-                      !canUseFeature('button-Deliveries&Feedback-DownloadAll')
-                    }
-                    sx={{
-                      height: '34px',
-                    }}
-                    onClick={() => downloadAllFiles(savedFiles)}
-                  >
-                    <Icon icon='mdi:download' fontSize={18} />
-                    &nbsp;Download all
-                  </Button>
+                  {uploadFileProcessing ? null : (
+                    <Button
+                      variant='outlined'
+                      disabled={
+                        savedFiles.length < 1 ||
+                        !canUseFeature('button-Deliveries&Feedback-DownloadAll')
+                      }
+                      sx={{
+                        height: '34px',
+                      }}
+                      onClick={() => downloadAllFiles(savedFiles)}
+                    >
+                      <Icon icon='mdi:download' fontSize={18} />
+                      &nbsp;Download all
+                    </Button>
+                  )}
                 </Box>
               ) : null}
               {currentRole &&
@@ -732,19 +795,121 @@ const DeliveriesFeedback = ({
               ) : null}
             </Box>
 
-            {savedFiles.length ? (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3,1fr)',
-                  gridGap: '16px',
-                }}
-              >
-                {savedFileList}
-              </Box>
-            ) : (
-              '-'
-            )}
+            {savedFiles.length
+              ? groupedFiles.map(value => {
+                  return (
+                    <Box key={uuidv4()}>
+                      <Typography
+                        variant='body2'
+                        fontSize={14}
+                        fontWeight={400}
+                        sx={{ mb: '5px' }}
+                      >
+                        {FullDateTimezoneHelper(
+                          value.createdAt,
+                          auth.getValue().user?.timezone,
+                        )}
+                      </Typography>
+                      <Box
+                        sx={{
+                          display: 'grid',
+                          gridTemplateColumns: 'repeat(3,1fr)',
+                          gridGap: '16px',
+                        }}
+                      >
+                        {value.data.map(item => {
+                          return (
+                            <Box
+                              key={uuidv4()}
+                              sx={{
+                                display: 'flex',
+                                marginBottom: '8px',
+                                width: '100%',
+                                justifyContent: 'space-between',
+                                borderRadius: '8px',
+                                padding: '10px 12px',
+                                border: '1px solid rgba(76, 78, 100, 0.22)',
+                                background: '#f9f8f9',
+                              }}
+                            >
+                              <Box
+                                sx={{ display: 'flex', alignItems: 'center' }}
+                              >
+                                <Box
+                                  sx={{ marginRight: '8px', display: 'flex' }}
+                                >
+                                  <Icon
+                                    icon='material-symbols:file-present-outline'
+                                    style={{
+                                      color: 'rgba(76, 78, 100, 0.54)',
+                                    }}
+                                    fontSize={24}
+                                  />
+                                </Box>
+                                <Box
+                                  sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                  }}
+                                >
+                                  <Tooltip title={item.fileName}>
+                                    <Typography
+                                      variant='body1'
+                                      fontSize={14}
+                                      fontWeight={600}
+                                      lineHeight={'20px'}
+                                      sx={{
+                                        overflow: 'hidden',
+                                        wordBreak: 'break-all',
+                                        textOverflow: 'ellipsis',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 1,
+                                        WebkitBoxOrient: 'vertical',
+                                      }}
+                                    >
+                                      {item.fileName}
+                                    </Typography>
+                                  </Tooltip>
+
+                                  <Typography
+                                    variant='caption'
+                                    lineHeight={'14px'}
+                                  >
+                                    {formatFileSize(item.fileSize)}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              <IconButton
+                                onClick={() => downloadOneFile(item)}
+                                disabled={
+                                  currentRole?.name !== 'CLIENT' &&
+                                  !canUseFeature(
+                                    'button-Deliveries&Feedback-DownloadOnce',
+                                  )
+                                }
+                              >
+                                <Icon icon='mdi:download' fontSize={24} />
+                              </IconButton>
+                            </Box>
+                          )
+                        })}
+                      </Box>
+                    </Box>
+                  )
+                })
+              : // <Box
+              //   sx={{
+              //     display: 'grid',
+              //     gridTemplateColumns: 'repeat(3,1fr)',
+              //     gridGap: '16px',
+              //   }}
+              // >
+              //   {savedFileList}
+              // </Box>
+              uploadFileProcessing
+              ? null
+              : '-'}
             {files.length || importedFiles.length ? (
               <>
                 <Divider />
@@ -759,34 +924,49 @@ const DeliveriesFeedback = ({
                   {importedFileList}
                 </Box>
               </>
+            ) : uploadFileProcessing ? (
+              <Box
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+
+                  padding: '24px',
+                }}
+              >
+                <Typography variant='body2'>No files uploaded</Typography>
+              </Box>
             ) : null}
           </Box>
         </Card>
+        {uploadFileProcessing ? null : (
+          <Card sx={{ padding: '24px', mt: '24px' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <Typography variant='body1' fontWeight={600} fontSize={16}>
+                  Feedback
+                </Typography>
+                {currentRole &&
+                currentRole.name === 'CLIENT' &&
+                (project.feedback === '-' || project.feedback === null) ? (
+                  <Button
+                    variant='contained'
+                    sx={{ height: '34px' }}
+                    onClick={onClickSendFeedback}
+                  >
+                    Send feedback
+                  </Button>
+                ) : null}
+              </Box>
 
-        <Card sx={{ padding: '24px', mt: '24px' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <Typography variant='body1' fontWeight={600} fontSize={16}>
-                Feedback
+              <Typography variant='body1' fontWeight={400} fontSize={16}>
+                {project.feedback ?? '-'}
               </Typography>
-              {currentRole &&
-              currentRole.name === 'CLIENT' &&
-              (project.feedback === '-' || project.feedback === null) ? (
-                <Button
-                  variant='contained'
-                  sx={{ height: '34px' }}
-                  onClick={onClickSendFeedback}
-                >
-                  Send feedback
-                </Button>
-              ) : null}
             </Box>
-
-            <Typography variant='body1' fontWeight={400} fontSize={16}>
-              {project.feedback ?? '-'}
-            </Typography>
-          </Box>
-        </Card>
+          </Card>
+        )}
       </Grid>
       <Grid item xs={3}>
         <Card sx={{ padding: '24px' }}>
@@ -822,7 +1002,7 @@ const DeliveriesFeedback = ({
             </>
           ) : (
             <>
-              {files.length || importedFiles.length ? (
+              {files.length || uploadFileProcessing ? (
                 <Box
                   sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
                 >
@@ -833,7 +1013,28 @@ const DeliveriesFeedback = ({
                     disabled={
                       !canUseFeature(
                         'button-Deliveries&Feedback-DeliverToClient',
-                      )
+                      ) || files.length === 0
+                    }
+                  >
+                    <Icon icon='ic:outline-send' fontSize={18} />
+                    &nbsp;Deliver to client
+                  </Button>
+                  <Button variant='outlined' onClick={onClickCancelDeliver}>
+                    Cancel
+                  </Button>
+                </Box>
+              ) : importedFiles.length || uploadFileProcessing ? (
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+                >
+                  <Button
+                    variant='contained'
+                    color='success'
+                    onClick={onClickDeliverToClient}
+                    disabled={
+                      !canUseFeature(
+                        'button-Deliveries&Feedback-DeliverToClient',
+                      ) || importedFiles.length === 0
                     }
                   >
                     <Icon icon='ic:outline-send' fontSize={18} />

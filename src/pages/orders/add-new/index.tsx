@@ -160,6 +160,7 @@ export default function AddNewOrder() {
   const [isWarn, setIsWarn] = useState(true)
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
+  const [taxFocus, setTaxFocus] = useState(false)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -517,6 +518,7 @@ export default function AddNewOrder() {
       ...clients,
       ...projectInfo,
       quoteId: quoteId ?? null,
+      requestId: Number(requestId) ?? null,
     }
 
     console.log(items)
@@ -594,6 +596,7 @@ export default function AddNewOrder() {
         i => i.category !== items[0]?.category,
       )
       projectInfoReset({
+        orderedAt: formattedNow(new Date()),
         projectDueAt: findEarliestDate(desiredDueDates),
         // projectDueDate: {
         //   date: findEarliestDate(desiredDueDates),
@@ -601,6 +604,7 @@ export default function AddNewOrder() {
         category: isCategoryNotSame ? '' : items[0].category,
         serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
         projectDescription: requestData?.notes ?? '',
+        showDescription: requestData?.showDescription ?? false,
         status: 10000,
       })
       const itemLangPairs =
@@ -759,6 +763,7 @@ export default function AddNewOrder() {
               analysis: item.analysis ?? [],
               totalPrice: item?.totalPrice ?? 0,
               dueAt: item?.dueAt ?? '',
+              contactPersonId: item?.contactPerson?.userId ?? 0,
               contactPerson: item?.contactPerson ?? {},
               // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
               // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
@@ -866,7 +871,7 @@ export default function AddNewOrder() {
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
-            revenueFrom: undefined,
+            revenueFrom: res.revenueFrom,
             projectDueAt: res?.projectDueAt ?? null,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
@@ -921,6 +926,7 @@ export default function AddNewOrder() {
               analysis: item.analysis ?? [],
               totalPrice: item?.totalPrice ?? 0,
               dueAt: item?.dueAt ?? '',
+              contactPersonId: item?.contactPerson?.userId ?? 0,
               contactPerson: item?.contactPerson ?? {},
               // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
               // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
@@ -1119,7 +1125,6 @@ export default function AddNewOrder() {
                   errors={itemErrors}
                   fields={items}
                   remove={removeItems}
-                  isValid={isItemValid}
                   teamMembers={getTeamValues()?.teams}
                   languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}
@@ -1222,12 +1227,23 @@ export default function AddNewOrder() {
                       <TextField
                         size='small'
                         type='number'
+                        onFocus={e =>
+                          e.target.addEventListener(
+                            'wheel',
+                            function (e) {
+                              e.preventDefault()
+                            },
+                            { passive: false },
+                          )
+                        }
+                        onClickCapture={() => setTaxFocus(true)}
+                        onBlur={() => setTaxFocus(false)}
                         value={
                           !getProjectInfoValues().isTaxable || !value
                             ? '-'
                             : value
                         }
-                        placeholder='-'
+                        placeholder={taxFocus ? '' : '-'}
                         error={
                           getProjectInfoValues().isTaxable && value === null
                         }
@@ -1298,5 +1314,8 @@ export const HeaderCell = styled(TableCell)`
     width: 2px;
     height: 30%;
     background: rgba(76, 78, 100, 0.12);
+  }
+  &:last-child::before {
+    display: none;
   }
 `

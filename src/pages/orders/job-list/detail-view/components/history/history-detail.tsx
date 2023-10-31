@@ -11,7 +11,7 @@ import styled from 'styled-components'
 import HistoryAssignPro from './history-assign-pro'
 import useModal from '@src/hooks/useModal'
 import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
-import { JobHistoryType } from '@src/types/jobs/jobs.type'
+import { JobHistoryType, jobPriceHistoryType } from '@src/types/jobs/jobs.type'
 import ViewJobInfo from '../job-info/view-job-info'
 import JobInfoDetailView from '../..'
 import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
@@ -19,7 +19,8 @@ import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { jobItemSchema } from '@src/types/schema/item.schema'
-import ViewPrices from '../prices/view-prices'
+// import ViewPrices from '../prices/view-prices'
+import ViewHistoryPrices from './history-prices'
 import AssignPro from '../assign-pro/assign-pro'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -81,7 +82,7 @@ export default function HistoryDetail({
   const { data: jobPrices, isLoading: jobPricesLoading } = useGetJobPrices(
     id,
     true,
-  )
+  )  as { data: jobPriceHistoryType, isLoading: boolean };
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -141,11 +142,43 @@ export default function HistoryDetail({
     }
   }, [jobPrices])
 
+  const onClickClose = () => {
+    //history-detail 모달을 닫고 JobDetailViewModal 모달을 연다
+    
+    closeModal('history-detail')
+    openModal({
+      type: 'JobDetailViewModal',
+      children: (
+        <Box
+          sx={{
+            maxWidth: '1180px',
+            width: '100%',
+            maxHeight: '90vh',
+            background: '#ffffff',
+            boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+            borderRadius: '10px',
+            overflow: 'scroll',
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+          }}
+        >
+          <JobInfoDetailView
+            tab={'history'}
+            row={originJobInfo!}
+            orderDetail={orderDetail}
+            item={item}
+          />
+        </Box>
+      ),
+    })
+  }
+
   return (
     <Box sx={{ padding: '50px 60px', position: 'relative' }}>
       <IconButton
         sx={{ position: 'absolute', top: '20px', right: '20px' }}
-        onClick={() => closeModal('JobDetailViewModal')}
+        onClick={onClickClose}
       >
         <Icon icon='mdi:close'></Icon>
       </IconButton>
@@ -166,35 +199,7 @@ export default function HistoryDetail({
         >
           <IconButton
             sx={{ padding: '0 !important', height: '24px' }}
-            onClick={() => {
-              closeModal('history-detail')
-              openModal({
-                type: 'JobDetailViewModal',
-                children: (
-                  <Box
-                    sx={{
-                      maxWidth: '1180px',
-                      width: '100%',
-                      maxHeight: '90vh',
-                      background: '#ffffff',
-                      boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
-                      borderRadius: '10px',
-                      overflow: 'scroll',
-                      '&::-webkit-scrollbar': {
-                        display: 'none',
-                      },
-                    }}
-                  >
-                    <JobInfoDetailView
-                      tab={'history'}
-                      row={originJobInfo!}
-                      orderDetail={orderDetail}
-                      item={item}
-                    />
-                  </Box>
-                ),
-              })
-            }}
+            onClick={onClickClose}
           >
             <Icon icon='mdi:chevron-left' width={24} height={24} />
           </IconButton>
@@ -244,19 +249,9 @@ export default function HistoryDetail({
             )}
           </TabPanel>
           <TabPanel value='prices' sx={{ pt: '30px' }}>
-            <ViewPrices
-              row={jobInfo!}
-              priceUnitsList={priceUnitsList ?? []}
-              itemControl={itemControl}
-              itemErrors={itemErrors}
-              getItem={getItem}
-              setItem={setItem}
-              itemTrigger={itemTrigger}
-              itemReset={itemReset}
-              isItemValid={isItemValid}
-              appendItems={appendItems}
-              fields={items}
-              type='history'
+            <ViewHistoryPrices
+              jobInfo={jobInfo!}
+              jobPrices={jobPrices!}
             />
           </TabPanel>
           <TabPanel value='assignPro'>
@@ -267,6 +262,8 @@ export default function HistoryDetail({
               type='history'
               // assignProList={row.assignPro}
               item={item}
+              //TODO: assignment status에 70000대 코드 처리 추가해야 함 
+              statusList={statusList!}
             />
           </TabPanel>
         </TabContext>

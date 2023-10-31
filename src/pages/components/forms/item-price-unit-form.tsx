@@ -62,6 +62,9 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import { styled, lighten, darken } from '@mui/material/styles'
 import _ from 'lodash'
 
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+
+
 type Props = {
   control: Control<{ items: ItemType[] }, any>
   index: number
@@ -131,6 +134,8 @@ export default function ItemPriceUnitForm({
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
+
+  const { openModal, closeModal } = useModal()
 
   const currentItem = getValues(`${detailName}`) || []
   const currentInitialItem = getValues(`${initialPriceName}`)
@@ -270,9 +275,32 @@ export default function ItemPriceUnitForm({
       // sumTotalPrice()
     }
 
-    const onClickDeletePriceUnit = (idx: number) => {
+    const handleDeletePriceUnit = (idx: number) => {
+      closeModal('DeletePriceUnitModal')
       onDeletePriceUnit(idx)
       updateTotalPrice()
+    }
+
+    const onClickDeletePriceUnit = (idx: number) => {
+      openModal({
+        type: 'DeletePriceUnitModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('DeletePriceUnitModal')}
+            onClick={() => handleDeletePriceUnit(idx)}
+            title={
+              <>
+                Are you sure you want to delete this price unit?
+                <Typography variant='body2' fontWeight={700} fontSize={16}>
+                  {options[idx].title}
+                </Typography>
+              </>
+            }
+            vary='error'
+            rightButtonText='Delete'
+          />
+        ),
+      })
     }
 
     //init
@@ -330,6 +358,17 @@ export default function ItemPriceUnitForm({
                     <TextField
                       placeholder='0'
                       type='number'
+
+                      onFocus={e =>
+                        e.target.addEventListener(
+                          'wheel',
+                          function (e) {
+                            e.preventDefault()
+                          },
+                          { passive: false },
+                        )
+                      }
+
                       value={value ? Number(value) : null}
                       sx={{ maxWidth: '85px', padding: 0 }}
                       inputProps={{ inputMode: 'decimal' }}
@@ -507,6 +546,17 @@ export default function ItemPriceUnitForm({
                       placeholder='0.00'
                       inputProps={{ inputMode: 'decimal' }}
                       type='number'
+
+                      onFocus={e =>
+                        e.target.addEventListener(
+                          'wheel',
+                          function (e) {
+                            e.preventDefault()
+                          },
+                          { passive: false },
+                        )
+                      }
+
                       value={
                         value
                           ? savedValue.unit === 'Percent'
