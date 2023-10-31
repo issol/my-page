@@ -466,47 +466,47 @@ export default function AddNewInvoice() {
     const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
-      getProjectTeam(id)
-        .then(res => {
-          const teams: Array<{
-            type: MemberType
-            id: number | null
-            name?: string
-          }> = res.reduce(
-            (acc, item) => {
-              const type =
-                item.position === 'projectManager'
-                  ? 'projectManagerId'
-                  : item.position === 'supervisor'
-                  ? 'supervisorId'
-                  : 'member'
-              const id = item.userId
-              const name = getLegalName({
-                firstName: item?.firstName!,
-                middleName: item?.middleName,
-                lastName: item?.lastName!,
-              })
-              acc.push({ type, id, name })
-              return acc
-            },
-            [] as Array<{
-              type: MemberType
-              id: number | null
-              name?: string
-            }>,
-          )
-          if (!teams.find(value => value.type === 'supervisorId')) {
-            teams.unshift({ type: 'supervisorId', id: null })
-          }
-          if (!teams.find(value => value.type === 'member')) {
-            teams.push({ type: 'member', id: null })
-          }
+      // getProjectTeam(id)
+      //   .then(res => {
+      //     const teams: Array<{
+      //       type: MemberType
+      //       id: number | null
+      //       name?: string
+      //     }> = res.reduce(
+      //       (acc, item) => {
+      //         const type =
+      //           item.position === 'projectManager'
+      //             ? 'projectManagerId'
+      //             : item.position === 'supervisor'
+      //             ? 'supervisorId'
+      //             : 'member'
+      //         const id = item.userId
+      //         const name = getLegalName({
+      //           firstName: item?.firstName!,
+      //           middleName: item?.middleName,
+      //           lastName: item?.lastName!,
+      //         })
+      //         acc.push({ type, id, name })
+      //         return acc
+      //       },
+      //       [] as Array<{
+      //         type: MemberType
+      //         id: number | null
+      //         name?: string
+      //       }>,
+      //     )
+      //     if (!teams.find(value => value.type === 'supervisorId')) {
+      //       teams.unshift({ type: 'supervisorId', id: null })
+      //     }
+      //     if (!teams.find(value => value.type === 'member')) {
+      //       teams.push({ type: 'member', id: null })
+      //     }
 
-          resetTeam({ teams })
-        })
-        .catch(e => {
-          return
-        })
+      //     resetTeam({ teams })
+      //   })
+      //   .catch(e => {
+      //     return
+      //   })
 
       getClient(id)
         .then(res => {
@@ -515,10 +515,13 @@ export default function AddNewInvoice() {
           )?.addressType
           clientReset({
             clientId: res.client.clientId,
-            contactPersonId: res?.contactPerson?.id ?? null,
+            // contactPersonId: res?.contactPerson?.id ?? null,
+            contactPersonId: null,
             addressType:
               addressType === 'additional' ? 'shipping' : addressType,
           })
+          setProjectInfo('isTaxable', res.client.taxable)
+          setProjectInfo('tax', res.client.tax)
         })
         .catch(e => {
           return
@@ -543,8 +546,8 @@ export default function AddNewInvoice() {
                 code: '',
               },
             },
-            isTaxable: res.isTaxable ?? true,
-            tax: res.tax ?? null,
+            // isTaxable: res.isTaxable ?? true,
+            // tax: res.tax ?? null,
             subtotal: res.subtotal,
           })
         })

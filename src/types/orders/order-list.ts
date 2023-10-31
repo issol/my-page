@@ -41,6 +41,7 @@ export type OrderListType = {
   client: {
     name: string
     email: string
+    clientId: number
   }
   lsp?: {
     name: string

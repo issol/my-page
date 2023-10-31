@@ -194,7 +194,7 @@ export const getInvoiceReceivableListColumns = (
       renderCell: ({ row }: CellType) => {
         const price = `${getCurrencyMark(
           row.currency,
-        )} ${row.totalPrice.toLocaleString('ko-KR')}`
+        )} ${row.totalPrice?.toLocaleString('ko-KR')}`
         const date = FullDateTimezoneHelper(
           row.salesCheckedAt,
           row?.salesCheckedDateTimezone?.code,

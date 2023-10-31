@@ -65,17 +65,18 @@ const initialFilter: InvoiceOrderListFilterType = {
 }
 
 export type FilterType = {
-  revenueFrom?: string
+  revenueFrom?: { label: string; value: string }
 
   status?: Array<{ label: string; value: number }>
-  client?: number
+  client?: { label: string; value: number }
 
   search: string
 }
 
 const defaultValues: FilterType = {
   status: [],
-
+  client: undefined,
+  revenueFrom: undefined,
   search: '',
 }
 
@@ -106,7 +107,7 @@ export default function SelectOrder({
 
   const { openModal, closeModal } = useModal()
 
-  const [selected, setSelected] = useState<OrderListType | null>(null)
+  // const [selected, setSelected] = useState<OrderListType | null>(null)
   const [skip, setSkip] = useState(0)
   const [page, setPage] = useState(50)
 
@@ -133,24 +134,83 @@ export default function SelectOrder({
   }
 
   const handleSelectionModelChange = (selectionModel: GridSelectionModel) => {
-    if (orderList) {
+    let model = selectionModel as GridSelectionModel
+    if (orderList?.data.length) {
+      const selected: OrderListType[] = selectionModel
+        .map(id => orderList.data.find(job => job.id === id))
+        .filter(job => job !== undefined) as OrderListType[]
+
+      const firstClientId = selected[0]?.client?.clientId
+      const firstRevenueFrom = selected[0]?.revenueFrom
+      const firstCurrency = selected[0]?.currency
+      const hasDifferentClient = selected.some(
+        order => order.client?.clientId !== firstClientId,
+      )
+      const hasDifferentRevenueFrom = selected.some(
+        order => order.revenueFrom !== firstRevenueFrom,
+      )
+      const hasDifferentCurrency = selected.some(
+        order => order.currency !== firstCurrency,
+      )
+
       if (orderList.data.length === selectionModel.length) {
+        if (!getValues('client') || !getValues('revenueFrom')) {
+          openModal({
+            type: 'NoFilterAlertModal',
+            children: (
+              <AlertModal
+                title='Please select the client and revenue from filters first'
+                onClick={() => closeModal('NoFilterAlertModal')}
+                vary='error'
+                buttonText='Okay'
+              />
+            ),
+          })
+          setSelectionModel([])
+        }
+      } else if (hasDifferentClient) {
         openModal({
-          type: 'NoFilterAlertModal',
+          type: 'DifferentClientAlertModal',
           children: (
             <AlertModal
-              title='Please select the client and revenue from filters first'
-              onClick={() => closeModal('NoFilterAlertModal')}
+              title={`Please check the client of the selected order. You can't choose different clients in an invoice.`}
+              onClick={() => closeModal('DifferentClientAlertModal')}
               vary='error'
               buttonText='Okay'
             />
           ),
         })
+        model.pop()
+        setSelectionModel(model)
+      } else if (hasDifferentRevenueFrom) {
+        openModal({
+          type: 'DifferentRevenueAlertModal',
+          children: (
+            <AlertModal
+              title={`Please check the revenue of the selected order. You can't choose different revenues in an invoice.`}
+              onClick={() => closeModal('DifferentRevenueAlertModal')}
+              vary='error'
+              buttonText='Okay'
+            />
+          ),
+        })
+        model.pop()
+        setSelectionModel(model)
+      } else if (hasDifferentCurrency) {
+        openModal({
+          type: 'DifferentCurrencyAlertModal',
+          children: (
+            <AlertModal
+              title={`Please check the currency of the selected order. You can't choose different currencies in an invoice.`}
+              onClick={() => closeModal('DifferentCurrencyAlertModal')}
+              vary='error'
+              buttonText='Okay'
+            />
+          ),
+        })
+        model.pop()
+        setSelectionModel(model)
       } else {
-        const selected: OrderListType[] = selectionModel
-          .map(id => orderList.data.find(job => job.id === id))
-          .filter(job => job !== undefined) as OrderListType[]
-
         setSelectionModel(selectionModel)
 
         console.log(selected)
@@ -161,6 +221,8 @@ export default function SelectOrder({
       // const invalidSelections = selected.filter(
       //   job => job.currency !== firstCurrency,
       // )
+    } else {
+      return
     }
   }
 
@@ -326,33 +388,33 @@ export default function SelectOrder({
   ]
 
   function onSubmit() {
-    if (!selected) return
-    if (!selected?.isEditable) {
-      openModal({
-        type: 'not-a-team',
-        children: (
-          <SimpleAlertModal
-            message='You can only create invoices for orders where you are part of the project team. '
-            onClose={() => closeModal('not-a-team')}
-          />
-        ),
-      })
-    } else {
-      onClose()
-      router.push({
-        pathname: '/invoice/receivable/add-new',
-        query: { orderId: selected.id },
-      })
-    }
+    // if (!selected) return
+    // if (!selected?.isEditable) {
+    //   openModal({
+    //     type: 'not-a-team',
+    //     children: (
+    //       <SimpleAlertModal
+    //         message='You can only create invoices for orders where you are part of the project team. '
+    //         onClose={() => closeModal('not-a-team')}
+    //       />
+    //     ),
+    //   })
+    // } else {
+    //   onClose()
+    //   router.push({
+    //     pathname: '/invoice/receivable/add-new',
+    //     query: { orderId: selected.id },
+    //   })
+    // }
   }
 
   const filterSubmit = (data: FilterType) => {
     const { status, revenueFrom, client, search } = data
 
     const filter: InvoiceOrderListFilterType = {
-      revenueFrom: revenueFrom,
+      revenueFrom: revenueFrom?.label,
       status: status?.map(value => value.value) ?? [],
-      client: client,
+      client: client?.value,
 
       search: search,
       take: page,
@@ -405,11 +467,9 @@ export default function SelectOrder({
                         return (
                           <Autocomplete
                             onChange={(event, item) => {
-                              onChange(item?.value)
+                              onChange(item)
                             }}
-                            value={clientList?.find(
-                              item => item.value === value,
-                            )}
+                            value={value ?? null}
                             options={clientList ?? []}
                             id='client'
                             getOptionLabel={option => option.label}
@@ -428,8 +488,8 @@ export default function SelectOrder({
                       render={({ field: { onChange, value } }) => (
                         <Autocomplete
                           options={RevenueFrom}
-                          value={RevenueFrom.find(item => item.value === value)}
-                          onChange={(e, v) => onChange(v?.label)}
+                          value={value ?? null}
+                          onChange={(e, v) => onChange(v)}
                           getOptionLabel={option => option.label}
                           renderInput={params => (
                             <TextField
@@ -567,7 +627,7 @@ export default function SelectOrder({
                     rows={orderList?.data ?? []}
                     rowCount={orderList?.totalCount ?? 0}
                     loading={isLoading}
-                    onCellClick={params => setSelected(params.row)}
+                    // onCellClick={params => setSelected(params.row)}
                     rowsPerPageOptions={[10, 25, 50]}
                     pagination
                     page={skip}
@@ -614,7 +674,7 @@ export default function SelectOrder({
                     variant='contained'
                     size='medium'
                     onClick={onSubmit}
-                    disabled={!selected}
+                    // disabled={!selected}
                   >
                     Create invoice
                   </Button>

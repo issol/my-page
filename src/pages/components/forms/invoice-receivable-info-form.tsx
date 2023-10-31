@@ -7,9 +7,13 @@ import {
   CardContent,
   Checkbox,
   Divider,
+  FormControl,
   FormHelperText,
   Grid,
   IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   TextField,
   Typography,
 } from '@mui/material'
@@ -231,7 +235,7 @@ export default function InvoiceProjectInfoForm({
 
         {renderErrorMsg('invoiceDateTimezone')}
       </Grid>
-      <Grid item xs={6}>
+      {/* <Grid item xs={6}>
         <Controller
           name='workName'
           control={control}
@@ -264,7 +268,7 @@ export default function InvoiceProjectInfoForm({
             )
           }}
         />
-      </Grid>
+      </Grid> */}
       <Grid item xs={6}>
         <Controller
           name='projectName'
@@ -284,7 +288,7 @@ export default function InvoiceProjectInfoForm({
         />
         {renderErrorMsg('projectName')}
       </Grid>
-      <Grid item xs={6}>
+      {/* <Grid item xs={6}>
         <Controller
           name='category'
           control={control}
@@ -317,8 +321,8 @@ export default function InvoiceProjectInfoForm({
             />
           )}
         />
-      </Grid>
-      <Grid item xs={6}>
+      </Grid> */}
+      {/* <Grid item xs={6}>
         <Controller
           name='serviceType'
           control={control}
@@ -361,8 +365,8 @@ export default function InvoiceProjectInfoForm({
             )
           }}
         />
-      </Grid>
-      <Grid item xs={12}>
+      </Grid> */}
+      {/* <Grid item xs={12}>
         <Controller
           name='expertise'
           control={control}
@@ -407,7 +411,7 @@ export default function InvoiceProjectInfoForm({
             )
           }}
         />
-      </Grid>
+      </Grid> */}
       <Grid item xs={6}>
         <Controller
           name='revenueFrom'
@@ -451,7 +455,7 @@ export default function InvoiceProjectInfoForm({
               <Autocomplete
                 autoHighlight
                 fullWidth
-                disabled
+                // disabled
                 options={[
                   { value: true, label: 'Taxable' },
                   { value: false, label: 'Non-Taxable' },
@@ -476,6 +480,30 @@ export default function InvoiceProjectInfoForm({
           }}
         />
         {renderErrorMsg('revenueFrom')}
+      </Grid>
+
+      <Grid item xs={6}>
+        <Controller
+          name='tax'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <FormControl fullWidth error={Boolean(errors.tax)}>
+              <InputLabel>Tax rate*</InputLabel>
+              <OutlinedInput
+                value={value ?? ''}
+                error={Boolean(errors.tax)}
+                onChange={e => {
+                  if (e.target.value.length > 10) return
+                  onChange(e)
+                }}
+                type='number'
+                label='Tax rate*'
+                endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+              />
+            </FormControl>
+          )}
+        />
+        {renderErrorMsg('tax')}
       </Grid>
       <Grid item xs={6}>
         <Controller
