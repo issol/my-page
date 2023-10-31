@@ -34,7 +34,9 @@ import {
   Control,
   Controller,
   FieldErrors,
+  UseFormGetValues,
   UseFormSetValue,
+  UseFormTrigger,
   UseFormWatch,
 } from 'react-hook-form'
 
@@ -65,12 +67,15 @@ import InformationModal from '@src/@core/components/common-modal/information-mod
 import { ClientType } from '@src/types/orders/order-detail'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
+import { TaxTypeList } from '@src/shared/const/tax/tax-type'
 
 type Props = {
   control: Control<InvoiceProjectInfoFormType, any>
   setValue: UseFormSetValue<InvoiceProjectInfoFormType>
+  getValue: UseFormGetValues<InvoiceProjectInfoFormType>
   watch: UseFormWatch<InvoiceProjectInfoFormType>
   errors: FieldErrors<InvoiceProjectInfoFormType>
+  trigger: UseFormTrigger<InvoiceProjectInfoFormType>
   clientTimezone?: CountryType | undefined | null
   client?: ClientType
   invoiceInfo?: InvoiceReceivableDetailType
@@ -79,7 +84,9 @@ type Props = {
 export default function InvoiceProjectInfoForm({
   control,
   setValue,
+  getValue,
   watch,
+  trigger,
   errors,
   clientTimezone,
   client,
@@ -276,7 +283,7 @@ export default function InvoiceProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              disabled={true}
+              // disabled={true}
               label='Project name*'
               variant='outlined'
               value={value ?? ''}
@@ -451,22 +458,25 @@ export default function InvoiceProjectInfoForm({
           name='isTaxable'
           control={control}
           render={({ field: { value, onChange } }) => {
+            const findValue = TaxTypeList.find(item => item.value === value)
             return (
               <Autocomplete
                 autoHighlight
                 fullWidth
                 // disabled
-                options={[
-                  { value: true, label: 'Taxable' },
-                  { value: false, label: 'Non-Taxable' },
-                ]}
+                disableClearable={value === null}
+                options={TaxTypeList}
                 onChange={(e, v) => {
-                  onChange(v?.label ?? { value: true, label: 'Taxable' })
+                  if (!v) onChange(null)
+                  else {
+                    onChange(v.value)
+                    if (v.value === false) {
+                      setValue('tax', null)
+                      trigger('tax')
+                    }
+                  }
                 }}
-                value={[
-                  { value: true, label: 'Taxable' },
-                  { value: false, label: 'Non-Taxable' },
-                ].find(item => item.value === value)}
+                value={!value && !findValue ? null : findValue}
                 getOptionLabel={option => option.label}
                 renderInput={params => (
                   <TextField
@@ -487,18 +497,38 @@ export default function InvoiceProjectInfoForm({
           name='tax'
           control={control}
           render={({ field: { value, onChange } }) => (
-            <FormControl fullWidth error={Boolean(errors.tax)}>
+            <FormControl
+              fullWidth
+              error={Boolean(errors.tax) && getValue('isTaxable')}
+            >
               <InputLabel>Tax rate*</InputLabel>
               <OutlinedInput
+                // value={value ? Number(value) : null}
                 value={value ?? ''}
-                error={Boolean(errors.tax)}
+                error={Boolean(errors.tax) && getValue('isTaxable')}
+                onFocus={e =>
+                  e.target.addEventListener(
+                    'wheel',
+                    function (e) {
+                      e.preventDefault()
+                    },
+                    { passive: false },
+                  )
+                }
                 onChange={e => {
                   if (e.target.value.length > 10) return
-                  onChange(e)
+                  onChange(Number(e.target.value))
                 }}
+                disabled={!watch('isTaxable')}
+                endAdornment={
+                  !watch('isTaxable') ? null : (
+                    <InputAdornment position='end'>%</InputAdornment>
+                  )
+                }
                 type='number'
+                // inputProps={{ inputMode: 'decimal' }}
                 label='Tax rate*'
-                endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+                // endAdornment={<InputAdornment position='end'>%</InputAdornment>}
               />
             </FormControl>
           )}

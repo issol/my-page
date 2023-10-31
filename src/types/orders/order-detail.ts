@@ -94,6 +94,7 @@ export type ClientType = {
     name: string
     taxable: boolean
     tax: number | null
+    isTaxable: boolean
   }
 
   contactPerson: ContactPersonType | null

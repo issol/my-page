@@ -372,7 +372,7 @@ const OrderDetail = () => {
   const [splitReady, setSplitReady] = useState<boolean>(false)
   const [selectedIds, setSelectedIds] = useState<
     { id: number; selected: boolean }[]
-  >(getItem('items').map(value => ({ id: value.id!, selected: false })))
+  >(getItem('items')?.map(value => ({ id: value.id!, selected: false })))
   const order = useAppSelector(state => state.order)
 
   const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)

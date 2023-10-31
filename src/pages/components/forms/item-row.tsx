@@ -82,6 +82,7 @@ type Props = {
   checkPriceCurrency: (price: StandardPriceListType, index: number) => boolean
   findLangPairIndex: (source: string, target: string) => number
   teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
+  indexing?: number
 }
 
 const Row = ({
@@ -107,6 +108,7 @@ const Row = ({
   checkPriceCurrency,
   findLangPairIndex,
   teamMembers,
+  indexing,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const [contactPersonList, setContactPersonList] = useState<
@@ -396,7 +398,13 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
-  console.log("getValues(`items.${idx}.contactPerson`)",getValues(`items.${idx}`))
+  console.log(
+    'getValues(`items.${idx}.contactPerson`)',
+    getValues(`items.${idx}`),
+  )
+
+  console.log(contactPersonList)
+
   return (
     <Box
       style={{
@@ -437,7 +445,14 @@ const Row = ({
                 />
               </IconButton>
               <Typography fontWeight={500}>
-                {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}&nbsp;
+                {indexing !== undefined && type === 'invoiceDetail'
+                  ? `${
+                      indexing + 1 <= 10
+                        ? `0${indexing + 1}.`
+                        : `${indexing + 1}.`
+                    }`
+                  : `${idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}`}
+                &nbsp;
                 {type === 'detail' || type === 'invoiceDetail'
                   ? getValues(`items.${idx}.itemName`)
                   : null}
@@ -533,18 +548,23 @@ const Row = ({
                     Contact person for job
                   </Typography>
                   <Typography variant='body1' fontSize={14}>
-                    {
-                      // TODO: G-3406 items의 contactPerson(LPM 정보) 타입 맞추기 전까지 임시 코드
-                      // quote에서는 이름 정보만 리턴되고 order에서는 id 정보만 리턴됨
-                      // getLegalName(getValues(`items.${idx}.contactPerson`)!)
-                      contactPersonList.find(
-                        item =>
-                          item.value ===
-                          getValues(
-                            `items.${idx}.contactPersonId`,
-                          ),
-                      )?.label
-                    }
+                    {type === 'invoiceDetail'
+                      ? getLegalName({
+                          firstName: getValues(`items.${idx}.contactPerson`)
+                            ?.firstName,
+                          middleName: getValues(`items.${idx}.contactPerson`)
+                            ?.middleName,
+                          lastName: getValues(`items.${idx}.contactPerson`)
+                            ?.lastName,
+                        })
+                      : // TODO: G-3406 items의 contactPerson(LPM 정보) 타입 맞추기 전까지 임시 코드
+                        // quote에서는 이름 정보만 리턴되고 order에서는 id 정보만 리턴됨
+                        // getLegalName(getValues(`items.${idx}.contactPerson`)!)
+                        contactPersonList.find(
+                          item =>
+                            item.value ===
+                            getValues(`items.${idx}.contactPersonId`),
+                        )?.label}
                   </Typography>
                 </Box>
               ) : (
@@ -567,14 +587,19 @@ const Row = ({
                           }}
                           value={
                             !value
-                              // 신규 생성일땐 프로젝트 매니저가 기본으로 들어감
-                              ? contactPersonList.find(
-                                  item => item.value === teamMembers?.find(member => member.type === 'projectManagerId')?.id!
+                              ? // 신규 생성일땐 프로젝트 매니저가 기본으로 들어감
+                                contactPersonList.find(
+                                  item =>
+                                    item.value ===
+                                    teamMembers?.find(
+                                      member =>
+                                        member.type === 'projectManagerId',
+                                    )?.id!,
                                 )
-                              // 수정일땐 기존 설정된 값이 들어감
-                              : contactPersonList.find(
-                                item => item.value === value
-                              )
+                              : // 수정일땐 기존 설정된 값이 들어감
+                                contactPersonList.find(
+                                  item => item.value === value,
+                                )
                           }
                           renderInput={params => (
                             <TextField

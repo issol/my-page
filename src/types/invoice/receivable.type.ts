@@ -18,6 +18,19 @@ import { ItemResType } from '../common/orders-and-quotes.type'
 import { Cancel } from 'axios'
 import { CancelReasonType } from '../requests/detail.type'
 import { ReasonType } from '../quotes/quote'
+import { ItemType } from '../common/item.type'
+
+export type InvoiceLanguageItemType = {
+  invoiceId: number
+  orders: Array<{
+    id: number
+    projectName: string
+    corporationId: string
+    items: Array<ItemType>
+    languagePairs: Array<LanguagePairTypeInItem>
+    subtotal: number
+  }>
+}
 
 export type InvoiceReceivableFilterType = {
   invoiceStatus?: number[]
@@ -223,7 +236,12 @@ export type InvoiceReceivablePatchParamsType = {
   downloadedAt?: string
   members?: number[] | null
   contactPersonId?: number
-  orderId?: number
+  orderId?: number[]
+  projectName: string
+  revenueFrom: RevenueFormType
+  tax: string | null
+  isTaxable: '1' | '0'
+  addressType: AddressType
   invoiceStatus?: number
   invoicedAt?: string
   invoicedTimezone?: CountryType
@@ -266,7 +284,7 @@ export type InvoiceDownloadData = {
   client: ClientType
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
-  langItem: LanguageAndItemType
+  langItem: LanguageAndItemType | null
   subtotal: string
   total: string
   taxPercent: number

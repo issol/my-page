@@ -112,6 +112,7 @@ export default function SelectOrder({
   const [page, setPage] = useState(50)
 
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
+
   const [filter, setFilter] =
     useState<InvoiceOrderListFilterType>(initialFilter)
   // const [activeFilter, setActiveFilter] =
@@ -122,8 +123,6 @@ export default function SelectOrder({
       defaultValues,
       mode: 'onSubmit',
     })
-
-  console.log(getValues())
 
   const { data: orderList, isLoading } = useGetOrderList(filter, type)
 
@@ -388,6 +387,32 @@ export default function SelectOrder({
   ]
 
   function onSubmit() {
+    if (orderList) {
+      const selected: OrderListType[] = selectionModel
+        .map(id => orderList.data.find(job => job.id === id))
+        .filter(job => job !== undefined) as OrderListType[]
+
+      const hasEditable = selected.some(order => order.isEditable === true)
+
+      if (!hasEditable) {
+        openModal({
+          type: 'not-a-team',
+          children: (
+            <SimpleAlertModal
+              message='You can only create invoices for orders where you are part of the project team. '
+              onClose={() => closeModal('not-a-team')}
+            />
+          ),
+        })
+      } else {
+        closeModal('order-list')
+        router.push({
+          pathname: '/invoice/receivable/add-new',
+          query: { orderId: selected.map(order => order.id) },
+        })
+      }
+    }
+
     // if (!selected) return
     // if (!selected?.isEditable) {
     //   openModal({
@@ -675,6 +700,7 @@ export default function SelectOrder({
                     size='medium'
                     onClick={onSubmit}
                     // disabled={!selected}
+                    disabled={selectionModel.length === 0}
                   >
                     Create invoice
                   </Button>

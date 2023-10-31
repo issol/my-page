@@ -37,7 +37,10 @@ import {
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
-import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
+import {
+  InvoiceLanguageItemType,
+  InvoiceReceivableDetailType,
+} from '@src/types/invoice/receivable.type'
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
@@ -57,7 +60,6 @@ import {
 import { useMutation, useQueryClient } from 'react-query'
 
 type Props = {
-  langItem: LanguageAndItemType
   languagePairs: Array<languageType>
   setLanguagePairs: Dispatch<SetStateAction<Array<languageType>>>
   clientId: number
@@ -92,10 +94,10 @@ type Props = {
     items: ItemType[]
   }>
   invoiceInfo: InvoiceReceivableDetailType
+  invoiceLanguageItem: InvoiceLanguageItemType
 }
 
 const InvoiceLanguageAndItem = ({
-  langItem,
   clientId,
   languagePairs,
   setLanguagePairs,
@@ -112,7 +114,10 @@ const InvoiceLanguageAndItem = ({
   itemTrigger,
 
   invoiceInfo,
+  invoiceLanguageItem,
 }: Props) => {
+  console.log(invoiceLanguageItem)
+
   const { openModal, closeModal } = useModal()
 
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -207,7 +212,7 @@ const InvoiceLanguageAndItem = ({
           width: '100%',
         }}
       ></Box>
-      {currentRole && currentRole.name === 'CLIENT' ? null : (
+      {/* {currentRole && currentRole.name === 'CLIENT' ? null : (
         <Grid item xs={12}>
           <AddLanguagePairForm
             languagePairs={languagePairs}
@@ -218,9 +223,9 @@ const InvoiceLanguageAndItem = ({
             items={items}
           />
         </Grid>
-      )}
+      )} */}
 
-      <Grid item xs={12} mt={6} mb={6}>
+      <Grid item xs={12} mb={6}>
         <ItemForm
           control={itemControl}
           getValues={getItem}
@@ -236,6 +241,7 @@ const InvoiceLanguageAndItem = ({
           orderId={invoiceInfo.orderId}
           itemTrigger={itemTrigger}
           sumTotalPrice={sumTotalPrice}
+          orders={invoiceLanguageItem?.orders}
         />
       </Grid>
       <Grid item xs={12}>

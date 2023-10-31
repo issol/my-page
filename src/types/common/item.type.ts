@@ -18,6 +18,9 @@ export type ItemType = Omit<
   minimumPrice: number | null
   minimumPriceApplied: boolean
   priceFactor: number
+  orderId?: number
+  idx?: number
+  indexing?: number
 }
 
 export type AnalysisFileType = {

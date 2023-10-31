@@ -1,4 +1,7 @@
+import { ItemType } from '../common/item.type'
 import { RevenueFormType } from '../common/orders.type'
+import { ClientType, LanguagePairTypeInItem } from '../orders/order-detail'
+
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type InvoiceProStatusType =
@@ -84,4 +87,17 @@ export type ProInvoiceListFilterType = {
 
   skip: number
   take: number
+}
+
+export type InvoiceMultipleOrderType = {
+  clientInfo: Omit<ClientType, 'contactPerson'>
+  revenueFrom: RevenueFormType
+  orders: Array<{
+    id: number
+    projectName: string
+    corporationId: string
+    items: Array<ItemType>
+    languagePairs: Array<LanguagePairTypeInItem>
+    subtotal: number
+  }>
 }

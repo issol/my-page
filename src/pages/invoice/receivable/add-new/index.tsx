@@ -74,7 +74,10 @@ import {
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
 import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
-import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+import {
+  InvoiceMultipleOrderType,
+  InvoiceProjectInfoFormType,
+} from '@src/types/invoice/common.type'
 import {
   invoiceProjectInfoDefaultValue,
   invoiceProjectInfoSchema,
@@ -94,6 +97,7 @@ import { createInvoice } from '@src/apis/invoice/receivable.api'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetStatusList } from '@src/queries/common.query'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import { getMultipleOrder } from '@src/apis/invoice/common.api'
 
 export type languageType = {
   id: number | string
@@ -122,18 +126,37 @@ export const defaultOption: StandardPriceListType & {
 
 export default function AddNewInvoice() {
   const router = useRouter()
+
   const auth = useRecoilValueLoadable(authState)
   const { data: statusList, isLoading } = useGetStatusList('InvoiceReceivable')
   const [isReady, setIsReady] = useState(false)
   const [isWarn, setIsWarn] = useState(true)
   const queryClient = useQueryClient()
 
+  const [orders, setOrders] = useState<InvoiceMultipleOrderType | null>(null)
+
   useEffect(() => {
     if (!router.isReady) return
-    const orderId = Number(router.query.orderId)
-    if (!isNaN(orderId)) {
-      onCopyOrder(orderId)
+    console.log(router.query.orderId)
+
+    const orderId = router.query.orderId
+      ? typeof router.query.orderId === 'object'
+        ? router.query.orderId.map(item => Number(item))
+        : typeof router.query.orderId === 'string'
+        ? Number(router.query.orderId)
+        : 0
+      : []
+    const verifiedOrderIds =
+      typeof orderId === 'number'
+        ? !isNaN(orderId)
+        : orderId.every(item => !isNaN(item))
+
+    if (verifiedOrderIds) {
+      onCopyOrder(typeof orderId === 'number' ? [orderId] : orderId)
     }
+    // if (!isNaN(orderId)) {
+    //   onCopyOrder(orderId)
+    // }
   }, [router.query])
 
   const { openModal, closeModal } = useModal()
@@ -271,12 +294,15 @@ export default function AddNewInvoice() {
     setValue: setProjectInfo,
     watch: projectInfoWatch,
     reset: projectInfoReset,
+    trigger: projectInfoTrigger,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
   } = useForm<InvoiceProjectInfoFormType>({
     mode: 'onChange',
     defaultValues: invoiceProjectInfoDefaultValue,
     resolver: yupResolver(invoiceProjectInfoSchema),
   })
+
+  console.log(getProjectInfoValues())
 
   // ** step4
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -372,6 +398,14 @@ export default function AddNewInvoice() {
 
   function onSubmit() {
     setIsWarn(false)
+
+    const orderId = router.query.orderId
+      ? typeof router.query.orderId === 'object'
+        ? router.query.orderId.map(item => Number(item))
+        : typeof router.query.orderId === 'string'
+        ? Number(router.query.orderId)
+        : 0
+      : []
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
       ...getClientValue(),
@@ -390,11 +424,16 @@ export default function AddNewInvoice() {
       supervisorId: teams.supervisorId ?? null,
       members: teams.members ?? null,
       contactPersonId: clients.contactPersonId,
-      orderId: Number(router.query.orderId),
+      orderId: typeof orderId === 'number' ? [orderId] : orderId,
       invoicedAt: projectInfo.invoiceDate,
       invoicedTimezone: projectInfo.invoiceDateTimezone,
       payDueAt: projectInfo.paymentDueDate.date,
       description: projectInfo.invoiceDescription,
+      projectName: projectInfo.projectName,
+      revenueFrom: projectInfo.revenueFrom,
+      tax: projectInfo.tax ? projectInfo.tax.toString() : '',
+      isTaxable: projectInfo.isTaxable ? '1' : '0',
+      addressType: clients.addressType,
       payDueTimezone: projectInfo.paymentDueDate.timezone,
       // invoiceConfirmedAt: projectInfo.invoiceConfirmDate?.date,
       // invoiceConfirmTimezone: projectInfo.invoiceConfirmDate?.timezone,
@@ -462,155 +501,76 @@ export default function AddNewInvoice() {
     return result
   }
 
-  async function onCopyOrder(id: number | null) {
+  async function onCopyOrder(id: number[] | null) {
     const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
-      // getProjectTeam(id)
-      //   .then(res => {
-      //     const teams: Array<{
-      //       type: MemberType
-      //       id: number | null
-      //       name?: string
-      //     }> = res.reduce(
-      //       (acc, item) => {
-      //         const type =
-      //           item.position === 'projectManager'
-      //             ? 'projectManagerId'
-      //             : item.position === 'supervisor'
-      //             ? 'supervisorId'
-      //             : 'member'
-      //         const id = item.userId
-      //         const name = getLegalName({
-      //           firstName: item?.firstName!,
-      //           middleName: item?.middleName,
-      //           lastName: item?.lastName!,
-      //         })
-      //         acc.push({ type, id, name })
-      //         return acc
-      //       },
-      //       [] as Array<{
-      //         type: MemberType
-      //         id: number | null
-      //         name?: string
-      //       }>,
-      //     )
-      //     if (!teams.find(value => value.type === 'supervisorId')) {
-      //       teams.unshift({ type: 'supervisorId', id: null })
-      //     }
-      //     if (!teams.find(value => value.type === 'member')) {
-      //       teams.push({ type: 'member', id: null })
-      //     }
-
-      //     resetTeam({ teams })
-      //   })
-      //   .catch(e => {
-      //     return
-      //   })
-
-      getClient(id)
+      getMultipleOrder(id)
         .then(res => {
-          const addressType = res.clientAddress.find(
-            address => address.isSelected,
-          )?.addressType
+          console.log(res)
+          setOrders(res)
+          // setProjectInfo('isTaxable', res.clientInfo.client.taxable)
+          // setProjectInfo('tax', res.clientInfo.client.tax)
           clientReset({
-            clientId: res.client.clientId,
-            // contactPersonId: res?.contactPerson?.id ?? null,
+            clientId: res.clientInfo.client.clientId,
             contactPersonId: null,
-            addressType:
-              addressType === 'additional' ? 'shipping' : addressType,
+            addressType: 'billing',
           })
-          setProjectInfo('isTaxable', res.client.taxable)
-          setProjectInfo('tax', res.client.tax)
-        })
-        .catch(e => {
-          return
-        })
-      getProjectInfo(id)
-        .then(res => {
           projectInfoReset({
             invoiceDate: Date(),
-            workName: res?.workName ?? '',
-            projectName: res?.projectName ?? '',
-            showDescription: res?.showDescription ?? false,
+            showDescription: false,
             invoiceDescription: '',
-            category: res?.category ?? '',
-            serviceType: res?.serviceType ?? [],
-            expertise: res?.expertise ?? [],
-            revenueFrom: res?.revenueFrom ?? null,
-            paymentDueDate: {
-              date: '',
-              timezone: {
-                label: '',
-                phone: '',
-                code: '',
-              },
-            },
-            // isTaxable: res.isTaxable ?? true,
-            // tax: res.tax ?? null,
-            subtotal: res.subtotal,
+            revenueFrom: res.revenueFrom,
+            isTaxable: res.clientInfo.client.isTaxable,
+            tax: res.clientInfo.client.tax,
+            subtotal: res.orders.reduce(
+              (total, obj) => total + obj.subtotal,
+              0,
+            ),
           })
+          const items = res.orders
+            .map(item =>
+              item.items.map((value, idx) => ({
+                ...value,
+                orderId: item.id,
+                projectName: item.projectName,
+                id: item.id,
+                itemName: value.itemName,
+                source: value.sourceLanguage,
+                target: value.targetLanguage,
+                priceId: value.priceId,
+                detail: !value?.detail?.length ? [] : value.detail,
+                analysis: value.analysis ?? [],
+                totalPrice: value?.totalPrice ?? 0,
+                dueAt: value?.dueAt ?? '',
+                contactPerson: value?.contactPerson ?? {},
+                contactPersonId: value.contactPerson?.userId ?? undefined,
+                // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+                // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+                initialPrice: value.initialPrice ?? {},
+                description: value.description,
+                showItemDescription: value.showItemDescription,
+                minimumPrice: value.minimumPrice,
+                minimumPriceApplied: value.minimumPriceApplied,
+                indexing: idx,
+              })),
+            )
+            .flat()
+            .map((value, idx) => ({ ...value, idx: idx }))
+          console.log(items)
+
+          itemReset({ items: items })
+          itemTrigger()
         })
         .catch(e => {
           return
         })
-      getLangItems(id).then(res => {
-        if (res) {
-          setLanguagePairs(
-            res?.items?.map(item => {
-              return {
-                id: String(item.id),
-                source: item.source!,
-                target: item.target!,
-                price: {
-                  id: item.initialPrice?.priceId!,
-                  isStandard: item.initialPrice?.isStandard!,
-                  priceName: item.initialPrice?.name!,
-                  groupName: 'Current price',
-                  category: item.initialPrice?.category!,
-                  serviceType: item.initialPrice?.serviceType!,
-                  currency: item.initialPrice?.currency!,
-                  catBasis: item.initialPrice?.calculationBasis!,
-                  decimalPlace: item.initialPrice?.numberPlace!,
-                  roundingProcedure:
-                    RoundingProcedureList[item.initialPrice?.rounding!]
-                      ?.label ?? 0,
-                  languagePairs: [],
-                  priceUnit: [],
-                  catInterface: { memSource: [], memoQ: [] },
-                },
-              }
-            }),
-          )
-          const result = res?.items?.map(item => {
-            return {
-              id: item.id,
-              itemName: item.itemName,
-              source: item.source,
-              target: item.target,
-              priceId: item.priceId,
-              detail: !item?.detail?.length ? [] : item.detail,
-              analysis: item.analysis ?? [],
-              totalPrice: item?.totalPrice ?? 0,
-              dueAt: item?.dueAt ?? '',
-              contactPerson: item?.contactPerson ?? {},
-              contactPersonId: item.contactPersonId ?? undefined,
-              // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
-              // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
-              initialPrice: item.initialPrice ?? {},
-              description: item.description,
-              showItemDescription: item.showItemDescription,
-              minimumPrice: item.minimumPrice,
-              minimumPriceApplied: item.minimumPriceApplied,
-            }
-          })
-          itemReset({ items: result })
-          itemTrigger()
-        }
-      })
+
       setIsReady(true)
     }
   }
+
+  console.log(getProjectInfoValues())
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
@@ -718,8 +678,10 @@ export default function AddNewInvoice() {
                 <InvoiceProjectInfoForm
                   control={projectInfoControl}
                   setValue={setProjectInfo}
+                  getValue={getProjectInfoValues}
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
+                  trigger={projectInfoTrigger}
                   clientTimezone={getClientValue('contacts.timezone')}
                   type='create'
                 />
@@ -751,7 +713,7 @@ export default function AddNewInvoice() {
         ) : (
           <Card sx={{ padding: '24px' }}>
             <Grid container>
-              <Grid item xs={12}>
+              {/* <Grid item xs={12}>
                 <AddLanguagePairForm
                   type='detail'
                   languagePairs={languagePairs}
@@ -760,8 +722,8 @@ export default function AddNewInvoice() {
                   onDeleteLanguagePair={onDeleteLanguagePair}
                   items={items}
                 />
-              </Grid>
-              <Grid item xs={12} mt={6} mb={6}>
+              </Grid> */}
+              <Grid item xs={12} mb={6}>
                 <ItemForm
                   control={itemControl}
                   getValues={getItem}
@@ -776,6 +738,7 @@ export default function AddNewInvoice() {
                   type='invoiceDetail'
                   itemTrigger={itemTrigger}
                   sumTotalPrice={sumTotalPrice}
+                  orders={orders?.orders}
                 />
               </Grid>
 
@@ -845,7 +808,7 @@ export default function AddNewInvoice() {
                   <Box>
                     {!getProjectInfoValues().isTaxable
                       ? '-'
-                      : getProjectInfoValues().tax}
+                      : Number(getProjectInfoValues().tax)}
                   </Box>
                   %
                 </Box>
@@ -882,7 +845,7 @@ export default function AddNewInvoice() {
                         ? formatCurrency(
                             formatByRoundingProcedure(
                               Number(getProjectInfoValues().subtotal) *
-                                (getProjectInfoValues().tax! / 100),
+                                (Number(getProjectInfoValues().tax!) / 100),
                               priceInfo?.decimalPlace!,
                               priceInfo?.roundingProcedure!,
                               priceInfo?.currency!,

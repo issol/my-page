@@ -1,9 +1,11 @@
 // ** react
 import { Dispatch, SetStateAction, useEffect } from 'react'
 
-import { Grid, Typography } from '@mui/material'
+import { Box, Grid, Typography } from '@mui/material'
 
 import { Icon } from '@iconify/react'
+
+import { v4 as uuidv4 } from 'uuid'
 
 // ** react hook form
 import {
@@ -45,11 +47,15 @@ import Link from 'next/link'
 
 import { getCurrentRole } from '@src/shared/auth/storage'
 
-import { formatCurrency } from '@src/shared/helpers/price.helper'
+import {
+  formatCurrency,
+  getCurrencyMark,
+} from '@src/shared/helpers/price.helper'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 import Row from './item-row'
+import { LanguagePairTypeInItem } from '@src/types/orders/order-detail'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -82,6 +88,14 @@ type Props = {
   >
   splitReady?: boolean
   sumTotalPrice: () => void
+  orders?: {
+    id: number
+    projectName: string
+    corporationId: string
+    items: ItemType[]
+    languagePairs: LanguagePairTypeInItem[]
+    subtotal: number
+  }[]
 }
 
 export type DetailNewDataType = {
@@ -114,6 +128,7 @@ export default function ItemForm({
   setSelectedIds,
   splitReady,
   sumTotalPrice,
+  orders,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
@@ -265,6 +280,9 @@ export default function ItemForm({
     })
   }
 
+  console.log(orders)
+  console.log(fields)
+
   return (
     <DatePickerWrapper>
       <Grid
@@ -297,7 +315,75 @@ export default function ItemForm({
           </Link>
         ) : null}
       </Grid>
-      {fields.map((item, idx) => (
+      {orders &&
+        orders.length &&
+        orders.map(value => {
+          return (
+            <Box key={uuidv4()}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  padding: '24px 20px',
+                }}
+              >
+                <Box sx={{ display: 'flex', gap: '3px' }}>
+                  <Typography
+                    variant='body1'
+                    color='#666CFF'
+                    fontWeight={600}
+                    sx={{ textDecoration: 'underline' }}
+                  >
+                    [{value.corporationId}]
+                  </Typography>
+                  <Typography variant='body1' color='#666CFF' fontWeight={600}>
+                    {value.projectName}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography variant='body1' color='#666CFF' fontWeight={600}>
+                    {getCurrencyMark(value.items[0]?.initialPrice?.currency)}{' '}
+                    {value.subtotal?.toLocaleString('ko-KR')}
+                  </Typography>
+                </Box>
+              </Box>
+
+              {fields
+                .filter(item => item.orderId === value.id)
+                .map(data => {
+                  return (
+                    <Row
+                      key={uuidv4()}
+                      idx={data.idx!}
+                      control={control}
+                      setValue={setValue}
+                      getValues={getValues}
+                      getPriceOptions={getPriceOptions}
+                      fields={fields}
+                      itemTrigger={itemTrigger}
+                      sumTotalPrice={sumTotalPrice}
+                      openMinimumPriceModal={openMinimumPriceModal}
+                      splitReady={splitReady!}
+                      type={type}
+                      onItemRemove={onItemRemove}
+                      teamMembers={teamMembers}
+                      selectedIds={selectedIds}
+                      setSelectedIds={setSelectedIds}
+                      errors={errors}
+                      languagePairs={languagePairs}
+                      selectNotApplicableModal={selectNotApplicableModal}
+                      priceUnitsList={priceUnitsList}
+                      checkPriceCurrency={checkPriceCurrency}
+                      findLangPairIndex={findLangPairIndex}
+                      indexing={data.indexing}
+                    />
+                  )
+                })}
+            </Box>
+          )
+        })}
+      {/* {fields.map((item, idx) => (
         <Row
           key={item.id}
           idx={idx}
@@ -322,7 +408,7 @@ export default function ItemForm({
           checkPriceCurrency={checkPriceCurrency}
           findLangPairIndex={findLangPairIndex}
         />
-      ))}
+      ))} */}
     </DatePickerWrapper>
   )
 }

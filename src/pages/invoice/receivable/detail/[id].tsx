@@ -54,6 +54,7 @@ import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { GridColumns } from '@mui/x-data-grid'
 import {
   InvoiceDownloadData,
+  InvoiceLanguageItemType,
   InvoiceReceivablePatchParamsType,
   InvoiceVersionHistoryType,
 } from '@src/types/invoice/receivable.type'
@@ -128,6 +129,9 @@ const ReceivableInvoiceDetail = () => {
   const [downloadData, setDownloadData] = useState<InvoiceDownloadData | null>(
     null,
   )
+
+  const [invoiceLanguageItem, setInvoiceLanguageItem] =
+    useState<InvoiceLanguageItemType | null>(null)
 
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
@@ -566,53 +570,99 @@ const ReceivableInvoiceDetail = () => {
 
   useEffect(() => {
     if (langItem && prices) {
+      setInvoiceLanguageItem(langItem)
+      // clientReset({
+      //   clientId: res.clientInfo.client.clientId,
+      //   contactPersonId: null,
+      //   addressType: 'billing',
+      // })
+      // projectInfoReset({
+      //   invoiceDate: Date(),
+      //   showDescription: false,
+      //   invoiceDescription: '',
+      //   revenueFrom: res.revenueFrom,
+      //   isTaxable: res.clientInfo.client.isTaxable,
+      //   tax: res.clientInfo.client.tax,
+      //   subtotal: res.orders.reduce((total, obj) => total + obj.subtotal, 0),
+      // })
+      const items = langItem.orders
+        .map(item =>
+          item.items.map((value, idx) => ({
+            ...value,
+            orderId: item.id,
+            projectName: item.projectName,
+            id: item.id,
+            itemName: value.itemName,
+            source: value.sourceLanguage,
+            target: value.targetLanguage,
+            priceId: value.priceId,
+            detail: !value?.detail?.length ? [] : value.detail,
+            analysis: value.analysis ?? [],
+            totalPrice: value?.totalPrice ?? 0,
+            dueAt: value?.dueAt ?? '',
+            contactPerson: value?.contactPerson ?? {},
+            contactPersonId: value.contactPerson?.userId ?? undefined,
+            // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: value.initialPrice ?? {},
+            description: value.description,
+            showItemDescription: value.showItemDescription,
+            minimumPrice: value.minimumPrice,
+            minimumPriceApplied: value.minimumPriceApplied,
+            indexing: idx,
+          })),
+        )
+        .flat()
+        .map((value, idx) => ({ ...value, idx: idx }))
 
+      itemReset({ items: items })
+      // itemTrigger()
 
-      setLanguagePairs(
-        langItem?.items?.map(item => {
-          return {
-            id: String(item.id),
-            source: item.source!,
-            target: item.target!,
-            price: {
-              id: item.initialPrice?.priceId!,
-              isStandard: item.initialPrice?.isStandard!,
-              priceName: item.initialPrice?.name!,
-              groupName: 'Current price',
-              category: item.initialPrice?.category!,
-              serviceType: item.initialPrice?.serviceType!,
-              currency: item.initialPrice?.currency!,
-              catBasis: item.initialPrice?.calculationBasis!,
-              decimalPlace: item.initialPrice?.numberPlace!,
-              roundingProcedure:
-                RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-              languagePairs: [],
-              priceUnit: [],
-              catInterface: { memSource: [], memoQ: [] },
-            },
-          }
-        }),
-      )
-      const result = langItem?.items?.map(item => {
-        return {
-          id: item.id,
-          name: item.itemName,
-          source: item.source,
-          target: item.target,
-          priceId: item.priceId,
-          detail: !item?.detail?.length ? [] : item.detail,
-          contactPersonId: item.contactPersonId,
-          description: item.description,
-          analysis: item.analysis ?? [],
-          totalPrice: item?.totalPrice ?? 0,
-          dueAt: item?.dueAt,
-          showItemDescription: item.showItemDescription,
-          initialPrice: item.initialPrice,
-          minimumPrice: item.minimumPrice,
-          minimumPriceApplied: item.minimumPriceApplied,
-        }
-      })
-      itemReset({ items: result })
+      // setLanguagePairs(
+      //   langItem?.items?.map(item => {
+      //     return {
+      //       id: String(item.id),
+      //       source: item.source!,
+      //       target: item.target!,
+      //       price: {
+      //         id: item.initialPrice?.priceId!,
+      //         isStandard: item.initialPrice?.isStandard!,
+      //         priceName: item.initialPrice?.name!,
+      //         groupName: 'Current price',
+      //         category: item.initialPrice?.category!,
+      //         serviceType: item.initialPrice?.serviceType!,
+      //         currency: item.initialPrice?.currency!,
+      //         catBasis: item.initialPrice?.calculationBasis!,
+      //         decimalPlace: item.initialPrice?.numberPlace!,
+      //         roundingProcedure:
+      //           RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+      //         languagePairs: [],
+      //         priceUnit: [],
+      //         catInterface: { memSource: [], memoQ: [] },
+      //       },
+      //     }
+      //   }),
+      // )
+      // const result = langItem?.items?.map(item => {
+      //   return {
+      //     id: item.id,
+      //     name: item.itemName,
+      //     source: item.source,
+      //     target: item.target,
+      //     priceId: item.priceId,
+      //     detail: !item?.detail?.length ? [] : item.detail,
+      //     contactPersonId: item.contactPersonId,
+      //     description: item.description,
+      //     analysis: item.analysis ?? [],
+      //     totalPrice: item?.totalPrice ?? 0,
+      //     dueAt: item?.dueAt,
+      //     showItemDescription: item.showItemDescription,
+      //     initialPrice: item.initialPrice,
+      //     minimumPrice: item.minimumPrice,
+      //     minimumPriceApplied: item.minimumPriceApplied,
+      //   }
+      // })
+      // itemReset({ items: result })
     }
     if (projectTeam) {
       const teams: Array<{
@@ -669,7 +719,8 @@ const ReceivableInvoiceDetail = () => {
         client: client!,
         contactPerson: client!.contactPerson,
         clientAddress: client!.clientAddress,
-        langItem: langItem!,
+        langItem: null,
+        // langItem: {id : langItem.invoiceId, languagePairs : langItem.orders } !,
         subtotal: priceInfo
           ? formatCurrency(
               formatByRoundingProcedure(
@@ -921,7 +972,7 @@ const ReceivableInvoiceDetail = () => {
                   </Button>
                 )}
                 {isEditing ||
-                (currentRole && currentRole.name === 'CLIENT')? null : (
+                (currentRole && currentRole.name === 'CLIENT') ? null : (
                   <Button
                     variant='contained'
                     sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
@@ -1056,7 +1107,6 @@ const ReceivableInvoiceDetail = () => {
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
                   <InvoiceLanguageAndItem
-                    langItem={langItem!}
                     languagePairs={languagePairs!}
                     setLanguagePairs={setLanguagePairs}
                     clientId={client?.client.clientId!}
@@ -1071,6 +1121,7 @@ const ReceivableInvoiceDetail = () => {
                     getTeamValues={getTeamValues}
                     invoiceInfo={invoiceInfo!}
                     itemTrigger={itemTrigger}
+                    invoiceLanguageItem={invoiceLanguageItem!}
                   />
                 </Grid>
               </Card>

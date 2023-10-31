@@ -2,6 +2,7 @@ import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 
 import {
   CreateInvoiceReceivableRes,
+  InvoiceLanguageItemType,
   InvoiceReceivableDetailType,
   InvoiceReceivableFilterType,
   InvoiceReceivableListType,
@@ -98,21 +99,23 @@ export const getInvoiceDetail = async (
 
 export const getInvoiceLanguageItems = async (
   id: number,
-): Promise<LanguageAndItemType> => {
+): Promise<InvoiceLanguageItemType> => {
   const { data } = await axios.get(
     `/api/enough/u/invoice/receivable/${id}/items`,
   )
 
-  return {
-    ...data,
-    items: data.items.map((item: ItemResType) => ({
-      ...item,
-      name: item?.itemName,
-      source: item?.sourceLanguage,
-      target: item?.targetLanguage,
-      totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-    })),
-  }
+  console.log(data)
+  return data
+  // return {
+  //   ...data,
+  //   items: data.items.map((item: ItemResType) => ({
+  //     ...item,
+  //     name: item?.itemName,
+  //     source: item?.sourceLanguage,
+  //     target: item?.targetLanguage,
+  //     totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+  //   })),
+  // }
 }
 
 export const getInvoiceClient = async (id: number): Promise<ClientType> => {
