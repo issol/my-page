@@ -24,6 +24,7 @@ export type InvoiceLanguageItemType = {
   invoiceId: number
   orders: Array<{
     id: number
+    orderId: number
     projectName: string
     corporationId: string
     items: Array<ItemType>
@@ -182,15 +183,16 @@ export type InvoiceReceivableDetailType = {
   orderId: number
   tax: null | string
   taxInvoiceIssued: boolean
-
+  currency: CurrencyType
   taxInvoiceFiles: DeliveryFileType[]
 
   reason: ReasonType
   orderCorporationId: string
-  // linkedOrder: {
-  //   id: number
-  //   corporationId: string
-  // }
+
+  linkedOrders: {
+    id: number
+    corporationId: string
+  }[]
   subtotal: number | string
 }
 
@@ -271,8 +273,9 @@ export type InvoiceDownloadData = {
   adminCompanyName: string
   companyAddress: string
   corporationId: string
-  orderCorporationId: string
+  orderCorporationId: string[]
   invoicedAt: string
+  currency: CurrencyType
   paymentDueAt: { date: string; timezone: CountryType }
   pm: {
     email: string
@@ -285,7 +288,8 @@ export type InvoiceDownloadData = {
   client: ClientType
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
-  langItem: LanguageAndItemType | null
+  // langItem: LanguageAndItemType | null
+  langItem: ItemType[]
   subtotal: string
   total: string
   taxPercent: number

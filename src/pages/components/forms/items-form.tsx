@@ -319,8 +319,7 @@ export default function ItemForm({
           </Link>
         ) : null}
       </Grid>
-      {orders &&
-        orders.length &&
+      {type === 'invoiceDetail' && orders && orders.length ? (
         orders.map(value => {
           return (
             <Box key={uuidv4()}>
@@ -386,33 +385,37 @@ export default function ItemForm({
                 })}
             </Box>
           )
-        })}
-      {/* {fields.map((item, idx) => (
-        <Row
-          key={item.id}
-          idx={idx}
-          control={control}
-          setValue={setValue}
-          getValues={getValues}
-          getPriceOptions={getPriceOptions}
-          fields={fields}
-          itemTrigger={itemTrigger}
-          sumTotalPrice={sumTotalPrice}
-          openMinimumPriceModal={openMinimumPriceModal}
-          splitReady={splitReady!}
-          type={type}
-          onItemRemove={onItemRemove}
-          teamMembers={teamMembers}
-          selectedIds={selectedIds}
-          setSelectedIds={setSelectedIds}
-          errors={errors}
-          languagePairs={languagePairs}
-          selectNotApplicableModal={selectNotApplicableModal}
-          priceUnitsList={priceUnitsList}
-          checkPriceCurrency={checkPriceCurrency}
-          findLangPairIndex={findLangPairIndex}
-        />
-      ))} */}
+        })
+      ) : (
+        <>
+          {fields.map((item, idx) => (
+            <Row
+              key={item.id}
+              idx={idx}
+              control={control}
+              setValue={setValue}
+              getValues={getValues}
+              getPriceOptions={getPriceOptions}
+              fields={fields}
+              itemTrigger={itemTrigger}
+              sumTotalPrice={sumTotalPrice}
+              openMinimumPriceModal={openMinimumPriceModal}
+              splitReady={splitReady!}
+              type={type}
+              onItemRemove={onItemRemove}
+              teamMembers={teamMembers}
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+              errors={errors}
+              languagePairs={languagePairs}
+              selectNotApplicableModal={selectNotApplicableModal}
+              priceUnitsList={priceUnitsList}
+              checkPriceCurrency={checkPriceCurrency}
+              findLangPairIndex={findLangPairIndex}
+            />
+          ))}
+        </>
+      )}
     </DatePickerWrapper>
   )
 }

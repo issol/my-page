@@ -20,18 +20,31 @@ import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
 import { useMutation } from 'react-query'
 
-import MakeTable from '@src/pages/orders/order-list/detail/components/rows'
 import { InvoiceDownloadData } from '@src/types/invoice/receivable.type'
 import { patchInvoiceInfo } from '@src/apis/invoice/receivable.api'
+import MakeTable from './rows'
+import { LanguagePairTypeInItem } from '@src/types/orders/order-detail'
+import { ItemType } from '@src/types/common/item.type'
 
 type Props = {
   data: InvoiceDownloadData
   type: string
   user: UserDataType
   lang: 'EN' | 'KO'
+  orders: Array<{
+    id: number
+    orderId: number
+    projectName: string
+    corporationId: string
+    items: Array<ItemType>
+    languagePairs: Array<LanguagePairTypeInItem>
+    subtotal: number
+  }>
 }
 
-const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
+const PrintInvoicePage = ({ data, type, user, lang, orders }: Props) => {
+  console.log(data)
+
   const router = useRouter()
   const dispatch = useAppDispatch()
   console.log('data', data)
@@ -43,9 +56,11 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
     }) => patchInvoiceInfo(data.id, data.form, data.type),
     {},
   )
+  console.log(orders)
 
   // print page에서 사용할 Currency 정보
-  const invoiceCurrency = data.langItem?.languagePairs?.[0].currency
+  // const invoiceCurrency = data.currency
+  const invoiceCurrency = orders[0].languagePairs[0].currency
 
   useEffect(() => {
     if (type === 'download') {
@@ -63,6 +78,22 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
       }, 300)
     }
   }, [type])
+
+  function formatOrderId(ids: string[]) {
+    console.log(ids)
+
+    const formattedIds = ids.map((item, index) => {
+      if (index === ids.length - 1) {
+        return item
+      } else {
+        return item + ','
+      }
+    })
+
+    console.log(formattedIds)
+
+    return formattedIds.join(' ')
+  }
 
   return (
     <Box
@@ -124,7 +155,9 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
             {lang === 'EN' ? 'Order No:' : '오더 번호:'}
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-            {data.orderCorporationId}
+            {data.orderCorporationId.map((value, idx) => {
+              return <>{formatOrderId(data.orderCorporationId)}</>
+            })}
             {/* {FullDateTimezoneHelper(data.invoicedAt, user.timezone)} */}
           </Typography>
         </Box>
@@ -371,8 +404,8 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                 >
                   <Box>
                     {lang === 'EN'
-                      ? `Price (${invoiceCurrency})`
-                      : `단가 (${invoiceCurrency})`}
+                      ? `Price (${invoiceCurrency ?? ''})`
+                      : `단가 (${invoiceCurrency ?? ''})`}
                   </Box>
                 </TableCell>
                 <TableCell
@@ -399,14 +432,14 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                 >
                   <Box>
                     {lang === 'EN'
-                      ? `Total Price (${invoiceCurrency})`
-                      : `금액 (${invoiceCurrency})`}
+                      ? `Total Price (${invoiceCurrency ?? ''})`
+                      : `금액 (${invoiceCurrency ?? ''})`}
                   </Box>
                 </TableCell>
               </TableRow>
             </TableHead>
 
-            <MakeTable rows={data.langItem?.items ?? []} />
+            <MakeTable rows={data.langItem ?? []} orders={orders} />
             <Box className='total'>
               <Box
                 sx={{
@@ -431,7 +464,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                     variant='subtitle1'
                     sx={{
                       fontWeight: 600,
-                      color: 'rgba(76, 78, 100, 0.6)',
+                      color: 'rgba(76, 78, 100, 0.87)',
                       fontSize: '14px',
                       flex: 1,
                       textAlign: 'right',
@@ -454,7 +487,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                   </Typography>
                 </Box>
               </Box>
-              {data.tax !== null && (
+              {data.tax !== null && data.tax !== '' && (
                 <Box
                   sx={{
                     display: 'flex',

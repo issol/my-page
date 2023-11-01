@@ -571,6 +571,7 @@ const ReceivableInvoiceDetail = () => {
           invoiceId={Number(id!)}
           client={client?.client.clientId!}
           revenueFrom={invoiceInfo?.revenueFrom}
+          currency={invoiceInfo?.currency}
         />
       ),
     })
@@ -595,6 +596,7 @@ const ReceivableInvoiceDetail = () => {
         ...langItem,
         orders: langItem.orders.map(item => ({ ...item, orderId: item.id })),
       })
+      const languagePair = langItem.orders[0].languagePairs
 
       const items = langItem.orders
         .map(item =>
@@ -611,11 +613,11 @@ const ReceivableInvoiceDetail = () => {
             analysis: value.analysis ?? [],
             totalPrice: value?.totalPrice ?? 0,
             dueAt: value?.dueAt ?? '',
-            contactPerson: value?.contactPerson ?? {},
+            contactPerson: value?.contactPerson ?? null,
             contactPersonId: value.contactPerson?.userId ?? undefined,
             // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
             // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
-            initialPrice: value.initialPrice ?? {},
+            initialPrice: value.initialPrice ?? null,
             description: value.description,
             showItemDescription: value.showItemDescription,
             minimumPrice: value.minimumPrice,
@@ -625,6 +627,32 @@ const ReceivableInvoiceDetail = () => {
         )
         .flat()
         .map((value, idx) => ({ ...value, idx: idx }))
+
+      setLanguagePairs(
+        items?.map(item => {
+          return {
+            id: String(item.id),
+            source: item.source!,
+            target: item.target!,
+            price: {
+              id: item.initialPrice?.priceId!,
+              isStandard: item.initialPrice?.isStandard!,
+              priceName: item.initialPrice?.name!,
+              groupName: 'Current price',
+              category: item.initialPrice?.category!,
+              serviceType: item.initialPrice?.serviceType!,
+              currency: item.initialPrice?.currency!,
+              catBasis: item.initialPrice?.calculationBasis!,
+              decimalPlace: item.initialPrice?.numberPlace!,
+              roundingProcedure:
+                RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+              languagePairs: [],
+              priceUnit: [],
+              catInterface: { memSource: [], memoQ: [] },
+            },
+          }
+        }),
+      )
 
       itemReset({ items: items })
 
@@ -703,6 +731,37 @@ const ReceivableInvoiceDetail = () => {
   function makePdfData() {
     if (langItem) {
       const pm = projectTeam!.find(value => value.position === 'projectManager')
+      console.log(invoiceInfo)
+
+      const items: ItemType[] = langItem.orders
+        .map(item =>
+          item.items.map((value, idx) => ({
+            ...value,
+            orderId: item.orderId,
+            projectName: item.projectName,
+            id: item.orderId,
+            itemName: value.itemName,
+            source: value.sourceLanguage,
+            target: value.targetLanguage,
+            priceId: value.priceId,
+            detail: !value?.detail?.length ? [] : value.detail,
+            analysis: value.analysis ?? [],
+            totalPrice: value?.totalPrice ?? 0,
+            dueAt: value?.dueAt ?? '',
+            contactPerson: value?.contactPerson ?? null,
+            contactPersonId: value.contactPerson?.userId ?? undefined,
+            // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: value.initialPrice ?? null,
+            description: value.description,
+            showItemDescription: value.showItemDescription,
+            minimumPrice: value.minimumPrice,
+            minimumPriceApplied: value.minimumPriceApplied,
+            indexing: idx,
+          })),
+        )
+        .flat()
+        .map((value, idx) => ({ ...value, idx: idx }))
 
       // const subtotal = langItem.items.reduce((acc, cur) => {
       //   return acc + cur.totalPrice
@@ -711,15 +770,21 @@ const ReceivableInvoiceDetail = () => {
         invoiceInfo!.tax && invoiceInfo!.tax !== ''
           ? Number(invoiceInfo!.tax)
           : 0
-      const subtotal = Number(invoiceInfo!.subtotal!)
+      const subtotal = langItem.orders.reduce(
+        (total, obj) => total + obj.subtotal,
+        0,
+      )
       const tax = subtotal * (invoiceTax / 100)
 
       const res: InvoiceDownloadData = {
         invoiceId: Number(id!),
         adminCompanyName: 'GloZ Inc.',
+        corporationId: invoiceInfo?.corporationId!,
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
-        corporationId: invoiceInfo!.corporationId,
-        orderCorporationId: invoiceInfo?.orderCorporationId ?? '',
+        orderCorporationId: invoiceInfo!.linkedOrders.map(
+          value => value.corporationId,
+        ),
+        // orderCorporationId: invoiceInfo?.orderCorporationId ?? '',
         invoicedAt: invoiceInfo!.invoicedAt,
         paymentDueAt: {
           date: invoiceInfo!.payDueAt,
@@ -736,7 +801,8 @@ const ReceivableInvoiceDetail = () => {
         client: client!,
         contactPerson: client!.contactPerson,
         clientAddress: client!.clientAddress,
-        langItem: null,
+        langItem: items,
+        currency: invoiceInfo!.currency,
         // langItem: {id : langItem.invoiceId, languagePairs : langItem.orders } !,
         subtotal: priceInfo
           ? formatCurrency(
@@ -840,6 +906,7 @@ const ReceivableInvoiceDetail = () => {
                 type='preview'
                 user={auth.getValue().user!}
                 lang={invoice.lang}
+                orders={langItem?.orders!}
               />
             </div>
 

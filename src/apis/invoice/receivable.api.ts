@@ -104,7 +104,6 @@ export const getInvoiceLanguageItems = async (
     `/api/enough/u/invoice/receivable/${id}/items`,
   )
 
-  console.log(data)
   return data
   // return {
   //   ...data,

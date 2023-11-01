@@ -57,6 +57,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import { addOrderToInvoice } from '@src/apis/invoice/common.api'
+import { CurrencyType } from '@src/types/common/standard-price'
 
 const initialFilter: InvoiceOrderListFilterType = {
   search: '',
@@ -101,6 +102,7 @@ type Props = {
   invoiceId?: number
   client?: number
   revenueFrom?: string
+  currency?: CurrencyType
 }
 
 export default function SelectOrder({
@@ -112,6 +114,7 @@ export default function SelectOrder({
   invoiceId,
   client,
   revenueFrom,
+  currency,
 }: Props) {
   const router = useRouter()
   const queryClient = useQueryClient()
