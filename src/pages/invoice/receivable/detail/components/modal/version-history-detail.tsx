@@ -47,6 +47,16 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+
+import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
+import {
+  invoiceProjectInfoDefaultValue,
+  invoiceProjectInfoSchema,
+} from '@src/types/schema/invoice-project-info.schema'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   invoiceInfo: InvoiceReceivableDetailType
@@ -83,6 +93,8 @@ const InvoiceVersionHistoryModal = ({
   const [invoiceLanguageItem, setInvoiceLanguageItem] =
     useState<InvoiceLanguageItemType | null>(null)
 
+  const auth = useRecoilValueLoadable(authState)
+
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
@@ -107,6 +119,38 @@ const InvoiceVersionHistoryModal = ({
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
+
+  const {
+    control: invoiceInfoControl,
+    getValues: getInvoiceInfo,
+    setValue: setInvoiceInfo,
+    watch: invoiceInfoWatch,
+    reset: invoiceInfoReset,
+    trigger: invoiceInfoTrigger,
+    formState: { errors: invoiceInfoErrors, isValid: isInvoiceInfoValid },
+  } = useForm<InvoiceProjectInfoFormType>({
+    mode: 'onChange',
+    defaultValues: invoiceProjectInfoDefaultValue,
+    resolver: yupResolver(invoiceProjectInfoSchema),
+  })
+
+  const {
+    control: clientControl,
+    getValues: getClientValue,
+    setValue: setClientValue,
+    watch: clientWatch,
+    reset: clientReset,
+    trigger: clientTrigger,
+    formState: { errors: clientErrors, isValid: isClientValid },
+  } = useForm<ClientFormType>({
+    mode: 'onChange',
+    defaultValues: {
+      clientId: null,
+      contactPersonId: null,
+      addressType: 'shipping',
+    },
+    resolver: yupResolver(clientSchema),
+  })
 
   const {
     control: itemControl,
@@ -175,40 +219,27 @@ const InvoiceVersionHistoryModal = ({
   }
 
   useEffect(() => {
+    if (history.client) {
+      clientReset({
+        clientId: history.client.client.clientId,
+        contactPersonId: history.client.contactPerson?.id,
+        addressType: history.client.clientAddress.find(
+          value => value.isSelected,
+        )?.addressType!,
+      })
+    }
+  }, [history.client, clientReset])
+
+  useEffect(() => {
     if (history) {
       checkEditable(history.id).then(res => {
         setIsUserInTeamMember(res)
       })
     }
-    if (history.items) {
-      // setLanguagePairs(
-      //   history.items?.languagePairs?.map(item => ({
-      //     id: String(item.id),
-      //     source: item.source,
-      //     target: item.target,
-      //     price: !item?.price
-      //       ? null
-      //       : getPriceOptions(item.source, item.target).filter(
-      //           price => price.id === item?.price?.id!,
-      //         )[0],
-      //   }))!,
-      // )
-      // const result = history.items?.items?.map(item => {
-      //   return {
-      //     id: item.id,
-      //     name: item.itemName,
-      //     source: item.source,
-      //     target: item.target,
-      //     priceId: item.priceId,
-      //     detail: !item?.detail?.length ? [] : item.detail,
-      //     contactPersonId: item.contactPersonId,
-      //     description: item.description,
-      //     analysis: item.analysis ?? [],
-      //     totalPrice: item?.totalPrice ?? 0,
-      //     dueAt: item?.dueAt,
-      //   }
-      // })
-      // itemReset({ items: result })
+    if (history.items && history.projectInfo) {
+      const clientTimezone =
+        getClientValue('contacts.timezone') ?? auth.getValue().user?.timezone!
+
       setInvoiceLanguageItem({
         ...history.items,
         orders: history.items.orders.map(item => ({
@@ -232,11 +263,11 @@ const InvoiceVersionHistoryModal = ({
             analysis: value.analysis ?? [],
             totalPrice: value?.totalPrice ?? 0,
             dueAt: value?.dueAt ?? '',
-            contactPerson: value?.contactPerson ?? {},
+            contactPerson: value?.contactPerson ?? null,
             contactPersonId: value.contactPerson?.userId ?? undefined,
             // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
             // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
-            initialPrice: value.initialPrice ?? {},
+            initialPrice: value.initialPrice ?? null,
             description: value.description,
             showItemDescription: value.showItemDescription,
             minimumPrice: value.minimumPrice,
@@ -248,6 +279,78 @@ const InvoiceVersionHistoryModal = ({
         .map((value, idx) => ({ ...value, idx: idx }))
 
       itemReset({ items: items })
+
+      setLanguagePairs(
+        items?.map(item => {
+          return {
+            id: String(item.id),
+            source: item.source!,
+            target: item.target!,
+            price: {
+              id: item.initialPrice?.priceId!,
+              isStandard: item.initialPrice?.isStandard!,
+              priceName: item.initialPrice?.name!,
+              groupName: 'Current price',
+              category: item.initialPrice?.category!,
+              serviceType: item.initialPrice?.serviceType!,
+              currency: item.initialPrice?.currency!,
+              catBasis: item.initialPrice?.calculationBasis!,
+              decimalPlace: item.initialPrice?.numberPlace!,
+              roundingProcedure:
+                RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+              languagePairs: [],
+              priceUnit: [],
+              catInterface: { memSource: [], memoQ: [] },
+            },
+          }
+        }),
+      )
+
+      const res: InvoiceProjectInfoFormType = {
+        ...history.projectInfo,
+        invoiceDescription: history.projectInfo.description,
+        invoiceDateTimezone: history.projectInfo.invoicedTimezone,
+        invoiceDate: history.projectInfo.invoicedAt,
+        taxInvoiceIssued: history.projectInfo.taxInvoiceIssued,
+        showDescription: history.projectInfo.showDescription,
+        paymentDueDate: {
+          date: history.projectInfo.payDueAt,
+          timezone: clientTimezone!,
+        },
+        invoiceConfirmDate: {
+          date: history.projectInfo.invoiceConfirmedAt ?? null,
+          timezone: clientTimezone!,
+        },
+        taxInvoiceDueDate: {
+          date: history.projectInfo.taxInvoiceDueAt ?? null,
+          timezone: clientTimezone!,
+        },
+        paymentDate: {
+          date: history.projectInfo.paidAt,
+          timezone: clientTimezone!,
+        },
+        taxInvoiceIssuanceDate: {
+          date: history.projectInfo.taxInvoiceIssuedAt ?? '',
+          timezone: clientTimezone!,
+        },
+        salesRecognitionDate: {
+          date: history.projectInfo.salesCheckedAt ?? '',
+          timezone: clientTimezone!,
+        },
+
+        salesCategory: history.projectInfo.salesCategory,
+        notes: history.projectInfo.notes,
+
+        sendReminder: history.projectInfo.setReminder,
+        tax: history.projectInfo.tax,
+        isTaxable: history.projectInfo.isTaxable ?? true,
+        // subtotal: invoiceInfo.subtotal,
+        subtotal: history.items.orders.reduce(
+          (total, obj) => total + obj.subtotal,
+          0,
+        ),
+      }
+      invoiceInfoReset(res)
     }
     if (history.members) {
       const teams: Array<{
@@ -279,12 +382,49 @@ const InvoiceVersionHistoryModal = ({
   useEffect(() => {
     if (history) {
       const { projectInfo, client, members, items } = history
+
+      const historyItems = items.orders
+        .map(item =>
+          item.items.map((value, idx) => ({
+            ...value,
+            orderId: item.id,
+            projectName: item.projectName,
+            id: item.id,
+            itemName: value.itemName,
+            source: value.sourceLanguage,
+            target: value.targetLanguage,
+            priceId: value.priceId,
+            detail: !value?.detail?.length ? [] : value.detail,
+            analysis: value.analysis ?? [],
+            totalPrice: value?.totalPrice ?? 0,
+            dueAt: value?.dueAt ?? '',
+            contactPerson: value?.contactPerson ?? null,
+            contactPersonId: value.contactPerson?.userId ?? undefined,
+            // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: value.initialPrice ?? null,
+            description: value.description,
+            showItemDescription: value.showItemDescription,
+            minimumPrice: value.minimumPrice,
+            minimumPriceApplied: value.minimumPriceApplied,
+            indexing: idx,
+          })),
+        )
+        .flat()
+        .map((value, idx) => ({ ...value, idx: idx }))
       const pm = members!.find(value => value.position === 'projectManager')
 
       // const subtotal = items.items.reduce((acc, cur) => {
       //   return acc + cur.totalPrice
       // }, 0)
-      const subtotal = Number(projectInfo.subtotal)
+      const invoiceTax =
+        invoiceInfo!.tax && invoiceInfo!.tax !== ''
+          ? Number(invoiceInfo!.tax)
+          : 0
+      const subtotal = items.orders.reduce(
+        (total, obj) => total + obj.subtotal,
+        0,
+      )
 
       const tax = subtotal * (Number(projectInfo!.tax!) / 100)
 
@@ -293,7 +433,10 @@ const InvoiceVersionHistoryModal = ({
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
         corporationId: projectInfo!.corporationId,
-        orderCorporationId: projectInfo?.corporationId,
+        orders: items.orders,
+        orderCorporationId: projectInfo!.linkedOrders.map(
+          value => value.corporationId,
+        ),
         invoicedAt: projectInfo!.invoicedAt,
         paymentDueAt: {
           date: projectInfo!.payDueAt,
@@ -311,7 +454,8 @@ const InvoiceVersionHistoryModal = ({
         contactPerson: client!.contactPerson,
         clientAddress: client!.clientAddress,
         // langItem: items!,
-        langItem: null,
+        langItem: historyItems,
+        currency: projectInfo.currency,
         subtotal: priceInfo
           ? formatCurrency(
               formatByRoundingProcedure(
@@ -471,6 +615,7 @@ const InvoiceVersionHistoryModal = ({
                 setDownloadLanguage={setDownloadLanguage}
                 type='detail'
                 user={user!}
+                orders={history.items.orders}
               />
             ) : null}
           </TabPanel>
@@ -489,6 +634,7 @@ const InvoiceVersionHistoryModal = ({
               isAccountInfoUpdatable={false}
             />
           </TabPanel>
+
           <TabPanel value='items' sx={{ height: '100%', minHeight: '552px' }}>
             <Grid xs={12} container>
               <InvoiceLanguageAndItem
@@ -507,6 +653,7 @@ const InvoiceVersionHistoryModal = ({
                 invoiceInfo={history.projectInfo}
                 itemTrigger={itemTrigger}
                 invoiceLanguageItem={invoiceLanguageItem!}
+                getInvoiceInfo={getInvoiceInfo}
               />
             </Grid>
           </TabPanel>

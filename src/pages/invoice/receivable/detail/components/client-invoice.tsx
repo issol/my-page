@@ -12,6 +12,7 @@ import {
   RequestRevisionReason,
 } from '@src/shared/const/reason/reason'
 import {
+  LanguagePairTypeInItem,
   OrderDownloadData,
   ProjectInfoType,
 } from '@src/types/orders/order-detail'
@@ -26,6 +27,7 @@ import PrintInvoicePage from '../invoice-print/print-page'
 import ConfirmInvoiceModal from './modal/confirm-invoice-modal'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { confirmInvoiceFromClient } from '@src/apis/invoice/receivable.api'
+import { ItemType } from '@src/types/common/item.type'
 
 type Props = {
   downloadData: InvoiceDownloadData
@@ -35,6 +37,15 @@ type Props = {
   setDownloadLanguage?: Dispatch<SetStateAction<'EN' | 'KO'>>
   onClickDownloadInvoice?: () => void
   type: 'detail' | 'history'
+  orders: Array<{
+    id: number
+    orderId: number
+    projectName: string
+    corporationId: string
+    items: Array<ItemType>
+    languagePairs: Array<LanguagePairTypeInItem>
+    subtotal: number
+  }>
 }
 
 const ClientInvoice = ({
@@ -46,6 +57,7 @@ const ClientInvoice = ({
   type,
 
   onClickDownloadInvoice,
+  orders,
 }: // statusList,
 // project,
 Props) => {

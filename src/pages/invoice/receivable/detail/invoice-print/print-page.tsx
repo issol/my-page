@@ -23,28 +23,15 @@ import { useMutation } from 'react-query'
 import { InvoiceDownloadData } from '@src/types/invoice/receivable.type'
 import { patchInvoiceInfo } from '@src/apis/invoice/receivable.api'
 import MakeTable from './rows'
-import { LanguagePairTypeInItem } from '@src/types/orders/order-detail'
-import { ItemType } from '@src/types/common/item.type'
 
 type Props = {
   data: InvoiceDownloadData
   type: string
   user: UserDataType
   lang: 'EN' | 'KO'
-  orders: Array<{
-    id: number
-    orderId: number
-    projectName: string
-    corporationId: string
-    items: Array<ItemType>
-    languagePairs: Array<LanguagePairTypeInItem>
-    subtotal: number
-  }>
 }
 
-const PrintInvoicePage = ({ data, type, user, lang, orders }: Props) => {
-  console.log(data)
-
+const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
   const dispatch = useAppDispatch()
   console.log('data', data)
@@ -56,11 +43,10 @@ const PrintInvoicePage = ({ data, type, user, lang, orders }: Props) => {
     }) => patchInvoiceInfo(data.id, data.form, data.type),
     {},
   )
-  console.log(orders)
 
   // print page에서 사용할 Currency 정보
   // const invoiceCurrency = data.currency
-  const invoiceCurrency = orders[0].languagePairs[0].currency
+  const invoiceCurrency = data.orders[0].languagePairs[0].currency
 
   useEffect(() => {
     if (type === 'download') {
@@ -439,7 +425,7 @@ const PrintInvoicePage = ({ data, type, user, lang, orders }: Props) => {
               </TableRow>
             </TableHead>
 
-            <MakeTable rows={data.langItem ?? []} orders={orders} />
+            <MakeTable rows={data.langItem ?? []} orders={data.orders} />
             <Box className='total'>
               <Box
                 sx={{

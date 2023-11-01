@@ -96,7 +96,7 @@ type Props = {
   invoiceInfo: InvoiceReceivableDetailType
   invoiceLanguageItem: InvoiceLanguageItemType
   getInvoiceInfo: UseFormGetValues<InvoiceProjectInfoFormType>
-  onClickAddOrder: () => void
+  onClickAddOrder?: () => void
 }
 
 const InvoiceLanguageAndItem = ({
@@ -219,7 +219,7 @@ const InvoiceLanguageAndItem = ({
         <Button
           variant='outlined'
           sx={{ display: 'flex', gap: '8px', mb: '24px' }}
-          onClick={onClickAddOrder}
+          onClick={onClickAddOrder && onClickAddOrder}
           // disabled={
           //   items.length <= 0 ||
           //   !canUseFeature('button-Languages&Items-SplitOrder')

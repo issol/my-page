@@ -294,6 +294,15 @@ export type InvoiceDownloadData = {
   total: string
   taxPercent: number
   tax: string | null
+  orders: Array<{
+    id: number
+    orderId: number
+    projectName: string
+    corporationId: string
+    items: Array<ItemType>
+    languagePairs: Array<LanguagePairTypeInItem>
+    subtotal: number
+  }>
 }
 
 export type CreateInvoiceReceivableRes = {

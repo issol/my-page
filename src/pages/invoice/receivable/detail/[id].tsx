@@ -786,6 +786,7 @@ const ReceivableInvoiceDetail = () => {
         orderCorporationId: invoiceInfo!.linkedOrders.map(
           value => value.corporationId,
         ),
+        orders: langItem.orders,
         // orderCorporationId: invoiceInfo?.orderCorporationId ?? '',
         invoicedAt: invoiceInfo!.invoicedAt,
         paymentDueAt: {
@@ -908,7 +909,6 @@ const ReceivableInvoiceDetail = () => {
                 type='preview'
                 user={auth.getValue().user!}
                 lang={invoice.lang}
-                orders={langItem?.orders!}
               />
             </div>
 
@@ -1175,6 +1175,7 @@ const ReceivableInvoiceDetail = () => {
                     type='detail'
                     user={auth.getValue().user!}
                     onClickDownloadInvoice={onClickDownloadInvoice}
+                    orders={langItem?.orders!}
                   />
                 ) : null}
               </Suspense>
