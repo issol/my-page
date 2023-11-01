@@ -104,6 +104,8 @@ import PrintInvoicePage from './invoice-print/print-page'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import SelectOrder from '../components/list/select-order'
 
+import { v4 as uuidv4 } from 'uuid'
+
 type MenuType =
   | 'invoice'
   | 'invoiceInfo'
@@ -1024,12 +1026,34 @@ const ReceivableInvoiceDetail = () => {
                           },
                         }}
                       >
-                        Linked order :
-                        <Link
-                          href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '10px',
+                            alignITems: 'start',
+                          }}
                         >
-                          {invoiceInfo?.orderCorporationId}
-                        </Link>
+                          <Typography>Linked order :</Typography>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '10px',
+                            }}
+                          >
+                            {invoiceInfo.linkedOrders.map(value => {
+                              return (
+                                <Link
+                                  key={uuidv4()}
+                                  href={`/orders/order-list/detail/${value?.id}`}
+                                  style={{ color: 'rgba(76, 78, 100, 0.87)' }}
+                                >
+                                  {value?.corporationId}
+                                </Link>
+                              )
+                            })}
+                          </Box>
+                        </Box>
                       </MenuItem>
                     </Menu>
                   </div>
