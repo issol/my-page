@@ -167,7 +167,6 @@ export default function ItemPriceUnitForm({
 
     // const data = matchingUnit?.concat(filteredPriceUnit)
     const data = [...matchingUnit, ...priceUnit]
-    console.log(data)
 
     // const uniqueArray = Array.from(new Set(data.map(item => item.priceUnitId)))
     // .map(priceUnitId => data.find(item => item.priceUnitId === priceUnitId))

@@ -598,9 +598,14 @@ const ReceivableInvoiceDetail = () => {
     if (langItem && prices && invoiceInfo) {
       const clientTimezone =
         getClientValue('contacts.timezone') ?? auth.getValue().user?.timezone!
+
+      console.log(langItem)
+
       setInvoiceLanguageItem({
         ...langItem,
-        orders: langItem.orders.map(item => ({ ...item, orderId: item.id })),
+        // orders: langItem.orders.map(item => ({ ...item, orderId: item.id })),
+        //TODO 백엔드 수정 후 삭제
+        orders: langItem.orders.map(item => ({ ...item, id: item.orderId })),
       })
       const languagePair = langItem.orders[0].languagePairs
 
@@ -608,7 +613,9 @@ const ReceivableInvoiceDetail = () => {
         .map(item =>
           item.items.map((value, idx) => ({
             ...value,
-            orderId: item.id,
+            // orderId: item.id,
+            //TODO 백엔드 수정 후 위 코드로 교체
+            orderId: item.orderId,
             projectName: item.projectName,
             id: item.id,
             itemName: value.itemName,

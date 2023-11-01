@@ -398,10 +398,6 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
-  console.log(
-    'getValues(`items.${idx}.contactPerson`)',
-    getValues(`items.${idx}`),
-  )
 
   console.log(contactPersonList)
 

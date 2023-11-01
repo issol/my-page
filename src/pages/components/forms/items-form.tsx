@@ -132,6 +132,7 @@ export default function ItemForm({
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
+  console.log(orders)
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -279,9 +280,6 @@ export default function ItemForm({
       ),
     })
   }
-
-  console.log(orders)
-  console.log(fields)
 
   return (
     <DatePickerWrapper>
