@@ -366,7 +366,7 @@ const InvoiceInfo = ({
       const res: InvoiceReceivablePatchParamsType =
         infoType === 'basic'
           ? {
-              invoicedAt: data.invoiceDate,
+              invoicedAt: data.invoiceDate.toISOString(),
               invoicedTimezone: data.invoiceDateTimezone,
               payDueAt: data.paymentDueDate.date,
               payDueTimezone: data.paymentDueDate.timezone,

@@ -428,7 +428,7 @@ export default function AddNewInvoice() {
       clientId: clients.clientId,
       contactPersonId: clients.contactPersonId,
       orderId: typeof orderId === 'number' ? [orderId] : orderId,
-      invoicedAt: projectInfo.invoiceDate,
+      invoicedAt: projectInfo.invoiceDate.toISOString(),
       invoicedTimezone: projectInfo.invoiceDateTimezone,
       payDueAt: projectInfo.paymentDueDate.date,
       description: projectInfo.invoiceDescription,
@@ -520,7 +520,7 @@ export default function AddNewInvoice() {
             addressType: 'billing',
           })
           projectInfoReset({
-            invoiceDate: Date(),
+            invoiceDate: new Date(),
             showDescription: false,
             invoiceDescription: '',
             revenueFrom: res.revenueFrom,

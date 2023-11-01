@@ -535,6 +535,10 @@ const ReceivableInvoiceDetail = () => {
       closeModal('ConfirmInvoice')
       if (data.id === variables) {
         invalidateInvoiceDetail()
+        invoiceInfoRefetch()
+        historyRefetch()
+        projectTeamRefetch()
+        clientRefetch()
         // invoiceInfoRefetch()
       } else {
         router.push(`/invoice/receivable/detail/${data.id}`)
@@ -662,7 +666,7 @@ const ReceivableInvoiceDetail = () => {
         ...invoiceInfo,
         invoiceDescription: invoiceInfo.description,
         invoiceDateTimezone: invoiceInfo.invoicedTimezone,
-        invoiceDate: invoiceInfo.invoicedAt,
+        invoiceDate: new Date(invoiceInfo.invoicedAt),
         taxInvoiceIssued: invoiceInfo.taxInvoiceIssued,
         showDescription: invoiceInfo.showDescription,
         paymentDueDate: {

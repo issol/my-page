@@ -3,7 +3,7 @@ import { FormErrors } from 'src/shared/const/formErrors'
 
 export const invoiceProjectInfoDefaultValue = {
   showDescription: false,
-  invoiceDate: Date(),
+  invoiceDate: new Date(),
 }
 
 export const invoiceProjectInfoSchema = yup.object().shape({

@@ -310,7 +310,7 @@ const InvoiceVersionHistoryModal = ({
         ...history.projectInfo,
         invoiceDescription: history.projectInfo.description,
         invoiceDateTimezone: history.projectInfo.invoicedTimezone,
-        invoiceDate: history.projectInfo.invoicedAt,
+        invoiceDate: new Date(history.projectInfo.invoicedAt),
         taxInvoiceIssued: history.projectInfo.taxInvoiceIssued,
         showDescription: history.projectInfo.showDescription,
         paymentDueDate: {

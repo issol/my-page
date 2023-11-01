@@ -42,7 +42,7 @@ export type InvoiceProjectInfoFormType = {
   serviceType?: Array<string>
   expertise?: Array<string>
   revenueFrom: RevenueFormType
-  invoiceDate: string
+  invoiceDate: Date
   invoiceDateTimezone: CountryType
   paymentDueDate: { date: string; timezone: CountryType }
   invoiceConfirmDate?: { date: string | null; timezone: CountryType }
