@@ -28,6 +28,7 @@ import {
 import { ClientType } from '@src/types/orders/order-detail'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
+import { da } from 'date-fns/locale'
 import { Dispatch, SetStateAction, useEffect } from 'react'
 import {
   Control,
@@ -44,7 +45,6 @@ type Props = {
   client: ClientType
   edit: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
-
   setTax?: (n: number | null) => void
   setTaxable?: (n: boolean) => void
   clientControl?: Control<ClientFormType, any>
@@ -67,7 +67,6 @@ const InvoiceClient = ({
   client,
   edit,
   setEdit,
-
   setTax,
   setTaxable,
   clientControl,
@@ -104,7 +103,7 @@ const InvoiceClient = ({
           form: {
             ...data,
             contactPersonId: clients.contactPersonId,
-
+            isTaxable: data.isTaxable ? '1' : '0',
             showDescription: data.showDescription ? '1' : '0',
           },
           type: 'basic',
@@ -120,9 +119,9 @@ const InvoiceClient = ({
           <ClientQuotesFormContainer
             control={clientControl!}
             setValue={setClientValue!}
-            watch={clientWatch!}
-            setTaxable={setTaxable!}
             setTax={setTax!}
+            setTaxable={setTaxable!}
+            watch={clientWatch!}
             type='order'
             formType='edit'
             getValue={getClientValue!}

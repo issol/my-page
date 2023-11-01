@@ -93,7 +93,7 @@ export type ClientType = {
     timezone: CountryType
     name: string
     taxable: boolean
-    tax: number | null
+    tax: string | null
     isTaxable: boolean
   }
 

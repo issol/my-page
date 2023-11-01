@@ -265,6 +265,7 @@ export default function Receivable() {
           type='invoice'
           statusList={statusListOrder ?? []}
           clientList={clientList}
+          from='create'
         />
       ),
     })

@@ -419,10 +419,13 @@ export default function AddNewInvoice() {
       ...rawProjectInfo,
     }
 
+    console.log(clients)
+
     const res: InvoiceReceivablePatchParamsType = {
       projectManagerId: teams.projectManagerId!,
       supervisorId: teams.supervisorId ?? null,
       members: teams.members ?? null,
+      clientId: clients.clientId,
       contactPersonId: clients.contactPersonId,
       orderId: typeof orderId === 'number' ? [orderId] : orderId,
       invoicedAt: projectInfo.invoiceDate,
@@ -644,7 +647,9 @@ export default function AddNewInvoice() {
                 setValue={setClientValue}
                 watch={clientWatch}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
-                setTax={(n: number | null) => setProjectInfo('tax', n)}
+                setTax={(n: number | null) =>
+                  setProjectInfo('tax', n?.toString()!)
+                }
                 type='invoice'
                 formType='create'
                 getValue={getClientValue}
@@ -891,7 +896,7 @@ export default function AddNewInvoice() {
                         ? formatCurrency(
                             formatByRoundingProcedure(
                               Number(getProjectInfoValues().subtotal) *
-                                (getProjectInfoValues().tax! / 100) +
+                                (Number(getProjectInfoValues().tax!) / 100) +
                                 Number(getProjectInfoValues().subtotal),
                               priceInfo?.decimalPlace!,
                               priceInfo?.roundingProcedure!,

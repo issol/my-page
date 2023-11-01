@@ -180,7 +180,7 @@ export type InvoiceReceivableDetailType = {
   revenueFrom: RevenueFormType
   isTaxable: boolean
   orderId: number
-  tax: number
+  tax: null | string
   taxInvoiceIssued: boolean
 
   taxInvoiceFiles: DeliveryFileType[]
@@ -198,7 +198,7 @@ export type InvoiceHistoryType = {
   projectInfo: InvoiceReceivableDetailType
   client: ClientType
   members: ProjectTeamListType[]
-  items: LanguageAndItemType
+  items: InvoiceLanguageItemType
 }
 
 export type InvoiceVersionHistoryType = {
@@ -235,13 +235,14 @@ export type InvoiceReceivablePatchParamsType = {
   projectManagerId?: number
   downloadedAt?: string
   members?: number[] | null
+  clientId?: number
   contactPersonId?: number
   orderId?: number[]
-  projectName: string
-  revenueFrom: RevenueFormType
-  tax: string | null
-  isTaxable: '1' | '0'
-  addressType: AddressType
+  projectName?: string
+  revenueFrom?: RevenueFormType
+  tax?: string | null
+  isTaxable?: '1' | '0'
+  addressType?: AddressType
   invoiceStatus?: number
   invoicedAt?: string
   invoicedTimezone?: CountryType

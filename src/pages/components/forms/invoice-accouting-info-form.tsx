@@ -275,7 +275,7 @@ export default function InvoiceAccountingInfoForm({
           )}
         />
       </Grid>
-      <Grid item xs={12}>
+      {/* <Grid item xs={12}>
         <Controller
           name='salesCategory'
           control={control}
@@ -302,7 +302,7 @@ export default function InvoiceAccountingInfoForm({
             />
           )}
         />
-      </Grid>
+      </Grid> */}
       <Grid item xs={12}>
         <Divider />
       </Grid>

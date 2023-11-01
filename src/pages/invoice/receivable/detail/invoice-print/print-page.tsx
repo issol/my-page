@@ -34,7 +34,7 @@ type Props = {
 const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
   const dispatch = useAppDispatch()
-  console.log("data",data)
+  console.log('data', data)
   const patchInvoiceInfoMutation = useMutation(
     (data: {
       id: number
@@ -369,7 +369,11 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Box>{lang === 'EN' ? `Price (${invoiceCurrency})` : `단가 (${invoiceCurrency})`}</Box>
+                  <Box>
+                    {lang === 'EN'
+                      ? `Price (${invoiceCurrency})`
+                      : `단가 (${invoiceCurrency})`}
+                  </Box>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -394,13 +398,15 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                   }}
                 >
                   <Box>
-                    {lang === 'EN' ? `Total Price (${invoiceCurrency})` : `금액 (${invoiceCurrency})`}
+                    {lang === 'EN'
+                      ? `Total Price (${invoiceCurrency})`
+                      : `금액 (${invoiceCurrency})`}
                   </Box>
                 </TableCell>
               </TableRow>
             </TableHead>
 
-            <MakeTable rows={data.langItem.items} />
+            <MakeTable rows={data.langItem?.items ?? []} />
             <Box className='total'>
               <Box
                 sx={{
@@ -491,7 +497,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                         textAlign: 'right',
                       }}
                     >
-                       {data.tax}
+                      {data.tax}
                     </Typography>
                   </Box>
                 </Box>

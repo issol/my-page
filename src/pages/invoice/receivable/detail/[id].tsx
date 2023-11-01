@@ -102,6 +102,7 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import PrintInvoicePage from './invoice-print/print-page'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import SelectOrder from '../components/list/select-order'
 
 type MenuType =
   | 'invoice'
@@ -173,6 +174,8 @@ const ReceivableInvoiceDetail = () => {
     setAnchorEl(null)
   }
 
+  const { data: statusListOrder } = useGetStatusList('Order')
+
   const {
     data: invoiceInfo,
     isLoading: invoiceInfoIsLoading,
@@ -203,8 +206,6 @@ const ReceivableInvoiceDetail = () => {
     useGetStatusList('InvoiceReceivable')
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
-  const [tax, setTax] = useState<number | null>(invoiceInfo?.tax! ?? null)
-  const [taxable, setTaxable] = useState(invoiceInfo?.isTaxable || false)
 
   const invoiceStatus = invoiceInfo?.invoiceStatus
   const statusLabel = statusList?.find(
@@ -356,6 +357,7 @@ const ReceivableInvoiceDetail = () => {
     setValue: setInvoiceInfo,
     watch: invoiceInfoWatch,
     reset: invoiceInfoReset,
+    trigger: invoiceInfoTrigger,
     formState: { errors: invoiceInfoErrors, isValid: isInvoiceInfoValid },
   } = useForm<InvoiceProjectInfoFormType>({
     mode: 'onChange',
@@ -557,6 +559,23 @@ const ReceivableInvoiceDetail = () => {
     }
   }
 
+  const onClickAddOrder = () => {
+    openModal({
+      type: 'order-list',
+      children: (
+        <SelectOrder
+          onClose={() => closeModal('order-list')}
+          type='invoice'
+          statusList={statusListOrder ?? []}
+          from='detail'
+          invoiceId={Number(id!)}
+          client={client?.client.clientId!}
+          revenueFrom={invoiceInfo?.revenueFrom}
+        />
+      ),
+    })
+  }
+
   useEffect(() => {
     if (client) {
       clientReset({
@@ -569,22 +588,14 @@ const ReceivableInvoiceDetail = () => {
   }, [client, clientReset])
 
   useEffect(() => {
-    if (langItem && prices) {
-      setInvoiceLanguageItem(langItem)
-      // clientReset({
-      //   clientId: res.clientInfo.client.clientId,
-      //   contactPersonId: null,
-      //   addressType: 'billing',
-      // })
-      // projectInfoReset({
-      //   invoiceDate: Date(),
-      //   showDescription: false,
-      //   invoiceDescription: '',
-      //   revenueFrom: res.revenueFrom,
-      //   isTaxable: res.clientInfo.client.isTaxable,
-      //   tax: res.clientInfo.client.tax,
-      //   subtotal: res.orders.reduce((total, obj) => total + obj.subtotal, 0),
-      // })
+    if (langItem && prices && invoiceInfo) {
+      const clientTimezone =
+        getClientValue('contacts.timezone') ?? auth.getValue().user?.timezone!
+      setInvoiceLanguageItem({
+        ...langItem,
+        orders: langItem.orders.map(item => ({ ...item, orderId: item.id })),
+      })
+
       const items = langItem.orders
         .map(item =>
           item.items.map((value, idx) => ({
@@ -616,53 +627,55 @@ const ReceivableInvoiceDetail = () => {
         .map((value, idx) => ({ ...value, idx: idx }))
 
       itemReset({ items: items })
-      // itemTrigger()
 
-      // setLanguagePairs(
-      //   langItem?.items?.map(item => {
-      //     return {
-      //       id: String(item.id),
-      //       source: item.source!,
-      //       target: item.target!,
-      //       price: {
-      //         id: item.initialPrice?.priceId!,
-      //         isStandard: item.initialPrice?.isStandard!,
-      //         priceName: item.initialPrice?.name!,
-      //         groupName: 'Current price',
-      //         category: item.initialPrice?.category!,
-      //         serviceType: item.initialPrice?.serviceType!,
-      //         currency: item.initialPrice?.currency!,
-      //         catBasis: item.initialPrice?.calculationBasis!,
-      //         decimalPlace: item.initialPrice?.numberPlace!,
-      //         roundingProcedure:
-      //           RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-      //         languagePairs: [],
-      //         priceUnit: [],
-      //         catInterface: { memSource: [], memoQ: [] },
-      //       },
-      //     }
-      //   }),
-      // )
-      // const result = langItem?.items?.map(item => {
-      //   return {
-      //     id: item.id,
-      //     name: item.itemName,
-      //     source: item.source,
-      //     target: item.target,
-      //     priceId: item.priceId,
-      //     detail: !item?.detail?.length ? [] : item.detail,
-      //     contactPersonId: item.contactPersonId,
-      //     description: item.description,
-      //     analysis: item.analysis ?? [],
-      //     totalPrice: item?.totalPrice ?? 0,
-      //     dueAt: item?.dueAt,
-      //     showItemDescription: item.showItemDescription,
-      //     initialPrice: item.initialPrice,
-      //     minimumPrice: item.minimumPrice,
-      //     minimumPriceApplied: item.minimumPriceApplied,
-      //   }
-      // })
-      // itemReset({ items: result })
+      const res: InvoiceProjectInfoFormType = {
+        ...invoiceInfo,
+        invoiceDescription: invoiceInfo.description,
+        invoiceDateTimezone: invoiceInfo.invoicedTimezone,
+        invoiceDate: invoiceInfo.invoicedAt,
+        taxInvoiceIssued: invoiceInfo.taxInvoiceIssued,
+        showDescription: invoiceInfo.showDescription,
+        paymentDueDate: {
+          date: invoiceInfo.payDueAt,
+          timezone: clientTimezone!,
+        },
+        invoiceConfirmDate: {
+          date: invoiceInfo.invoiceConfirmedAt ?? null,
+          timezone: clientTimezone!,
+        },
+        taxInvoiceDueDate: {
+          date: invoiceInfo.taxInvoiceDueAt ?? null,
+          timezone: clientTimezone!,
+        },
+        paymentDate: {
+          date: invoiceInfo.paidAt,
+          timezone: clientTimezone!,
+        },
+        taxInvoiceIssuanceDate: {
+          date: invoiceInfo.taxInvoiceIssuedAt ?? '',
+          timezone: clientTimezone!,
+        },
+        salesRecognitionDate: {
+          date: invoiceInfo.salesCheckedAt ?? '',
+          timezone: clientTimezone!,
+        },
+
+        salesCategory: invoiceInfo.salesCategory,
+        notes: invoiceInfo.notes,
+
+        sendReminder: invoiceInfo.setReminder,
+        tax: invoiceInfo.tax,
+        isTaxable: invoiceInfo.isTaxable ?? true,
+        // subtotal: invoiceInfo.subtotal,
+        subtotal: langItem.orders.reduce(
+          (total, obj) => total + obj.subtotal,
+          0,
+        ),
+      }
+      invoiceInfoReset(res)
+      console.log(
+        langItem.orders.reduce((total, obj) => total + obj.subtotal, 0),
+      )
     }
     if (projectTeam) {
       const teams: Array<{
@@ -685,7 +698,7 @@ const ReceivableInvoiceDetail = () => {
       }))
       resetTeam({ teams })
     }
-  }, [langItem, projectTeam, prices])
+  }, [langItem, projectTeam, prices, invoiceInfo])
 
   function makePdfData() {
     if (langItem) {
@@ -694,8 +707,12 @@ const ReceivableInvoiceDetail = () => {
       // const subtotal = langItem.items.reduce((acc, cur) => {
       //   return acc + cur.totalPrice
       // }, 0)
+      const invoiceTax =
+        invoiceInfo!.tax && invoiceInfo!.tax !== ''
+          ? Number(invoiceInfo!.tax)
+          : 0
       const subtotal = Number(invoiceInfo!.subtotal!)
-      const tax = subtotal * (invoiceInfo!.tax! / 100)
+      const tax = subtotal * (invoiceTax / 100)
 
       const res: InvoiceDownloadData = {
         invoiceId: Number(id!),
@@ -732,7 +749,7 @@ const ReceivableInvoiceDetail = () => {
               priceInfo?.currency!,
             )
           : '',
-        taxPercent: invoiceInfo!.tax,
+        taxPercent: invoiceTax,
         tax:
           invoiceInfo!.isTaxable && priceInfo
             ? formatCurrency(
@@ -1100,6 +1117,7 @@ const ReceivableInvoiceDetail = () => {
                   client={client}
                   isFileUploading={isFileUploading}
                   setIsFileUploading={setIsFileUploading}
+                  invoiceInfoTrigger={invoiceInfoTrigger}
                 />
               ) : null}
             </TabPanel>
@@ -1122,6 +1140,8 @@ const ReceivableInvoiceDetail = () => {
                     invoiceInfo={invoiceInfo!}
                     itemTrigger={itemTrigger}
                     invoiceLanguageItem={invoiceLanguageItem!}
+                    getInvoiceInfo={getInvoiceInfo}
+                    onClickAddOrder={onClickAddOrder}
                   />
                 </Grid>
               </Card>
@@ -1132,8 +1152,6 @@ const ReceivableInvoiceDetail = () => {
                 client={client!}
                 edit={clientEdit}
                 setEdit={setClientEdit}
-                setTax={setTax}
-                setTaxable={setTaxable}
                 clientControl={clientControl}
                 getClientValue={getClientValue}
                 setClientValue={setClientValue}

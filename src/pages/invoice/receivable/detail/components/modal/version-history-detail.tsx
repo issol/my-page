@@ -17,6 +17,7 @@ import { HistoryType, VersionHistoryType } from '@src/types/orders/order-detail'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import {
   InvoiceDownloadData,
+  InvoiceLanguageItemType,
   InvoiceReceivableDetailType,
   InvoiceVersionHistoryType,
 } from '@src/types/invoice/receivable.type'
@@ -78,6 +79,10 @@ const InvoiceVersionHistoryModal = ({
   // console.log(history)
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
+  const [invoiceLanguageItem, setInvoiceLanguageItem] =
+    useState<InvoiceLanguageItemType | null>(null)
+
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
@@ -176,34 +181,73 @@ const InvoiceVersionHistoryModal = ({
       })
     }
     if (history.items) {
-      setLanguagePairs(
-        history.items?.languagePairs?.map(item => ({
-          id: String(item.id),
-          source: item.source,
-          target: item.target,
-          price: !item?.price
-            ? null
-            : getPriceOptions(item.source, item.target).filter(
-                price => price.id === item?.price?.id!,
-              )[0],
-        }))!,
-      )
-      const result = history.items?.items?.map(item => {
-        return {
-          id: item.id,
-          name: item.itemName,
-          source: item.source,
-          target: item.target,
-          priceId: item.priceId,
-          detail: !item?.detail?.length ? [] : item.detail,
-          contactPersonId: item.contactPersonId,
-          description: item.description,
-          analysis: item.analysis ?? [],
-          totalPrice: item?.totalPrice ?? 0,
-          dueAt: item?.dueAt,
-        }
+      // setLanguagePairs(
+      //   history.items?.languagePairs?.map(item => ({
+      //     id: String(item.id),
+      //     source: item.source,
+      //     target: item.target,
+      //     price: !item?.price
+      //       ? null
+      //       : getPriceOptions(item.source, item.target).filter(
+      //           price => price.id === item?.price?.id!,
+      //         )[0],
+      //   }))!,
+      // )
+      // const result = history.items?.items?.map(item => {
+      //   return {
+      //     id: item.id,
+      //     name: item.itemName,
+      //     source: item.source,
+      //     target: item.target,
+      //     priceId: item.priceId,
+      //     detail: !item?.detail?.length ? [] : item.detail,
+      //     contactPersonId: item.contactPersonId,
+      //     description: item.description,
+      //     analysis: item.analysis ?? [],
+      //     totalPrice: item?.totalPrice ?? 0,
+      //     dueAt: item?.dueAt,
+      //   }
+      // })
+      // itemReset({ items: result })
+      setInvoiceLanguageItem({
+        ...history.items,
+        orders: history.items.orders.map(item => ({
+          ...item,
+          orderId: item.id,
+        })),
       })
-      itemReset({ items: result })
+
+      const items = history.items.orders
+        .map(item =>
+          item.items.map((value, idx) => ({
+            ...value,
+            orderId: item.id,
+            projectName: item.projectName,
+            id: item.id,
+            itemName: value.itemName,
+            source: value.sourceLanguage,
+            target: value.targetLanguage,
+            priceId: value.priceId,
+            detail: !value?.detail?.length ? [] : value.detail,
+            analysis: value.analysis ?? [],
+            totalPrice: value?.totalPrice ?? 0,
+            dueAt: value?.dueAt ?? '',
+            contactPerson: value?.contactPerson ?? {},
+            contactPersonId: value.contactPerson?.userId ?? undefined,
+            // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: value.initialPrice ?? {},
+            description: value.description,
+            showItemDescription: value.showItemDescription,
+            minimumPrice: value.minimumPrice,
+            minimumPriceApplied: value.minimumPriceApplied,
+            indexing: idx,
+          })),
+        )
+        .flat()
+        .map((value, idx) => ({ ...value, idx: idx }))
+
+      itemReset({ items: items })
     }
     if (history.members) {
       const teams: Array<{
@@ -237,11 +281,12 @@ const InvoiceVersionHistoryModal = ({
       const { projectInfo, client, members, items } = history
       const pm = members!.find(value => value.position === 'projectManager')
 
-      const subtotal = items.items.reduce((acc, cur) => {
-        return acc + cur.totalPrice
-      }, 0)
+      // const subtotal = items.items.reduce((acc, cur) => {
+      //   return acc + cur.totalPrice
+      // }, 0)
+      const subtotal = Number(projectInfo.subtotal)
 
-      const tax = subtotal * (projectInfo!.tax! / 100)
+      const tax = subtotal * (Number(projectInfo!.tax!) / 100)
 
       const res: InvoiceDownloadData = {
         invoiceId: Number(projectInfo.id!),
@@ -265,7 +310,8 @@ const InvoiceVersionHistoryModal = ({
         client: client!,
         contactPerson: client!.contactPerson,
         clientAddress: client!.clientAddress,
-        langItem: items!,
+        // langItem: items!,
+        langItem: null,
         subtotal: priceInfo
           ? formatCurrency(
               formatByRoundingProcedure(
@@ -277,7 +323,7 @@ const InvoiceVersionHistoryModal = ({
               priceInfo?.currency!,
             )
           : '',
-        taxPercent: projectInfo!.tax,
+        taxPercent: Number(projectInfo!.tax),
         tax:
           projectInfo!.isTaxable && priceInfo
             ? formatCurrency(
@@ -446,7 +492,6 @@ const InvoiceVersionHistoryModal = ({
           <TabPanel value='items' sx={{ height: '100%', minHeight: '552px' }}>
             <Grid xs={12} container>
               <InvoiceLanguageAndItem
-                langItem={history.items!}
                 languagePairs={languagePairs!}
                 setLanguagePairs={setLanguagePairs}
                 clientId={history?.client.client.clientId}
@@ -461,6 +506,7 @@ const InvoiceVersionHistoryModal = ({
                 getTeamValues={getTeamValues}
                 invoiceInfo={history.projectInfo}
                 itemTrigger={itemTrigger}
+                invoiceLanguageItem={invoiceLanguageItem!}
               />
             </Grid>
           </TabPanel>

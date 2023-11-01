@@ -55,6 +55,8 @@ import { RevenueFrom } from '@src/shared/const/revenue-from'
 import NoList from '@src/pages/components/no-list'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
+import { useMutation, useQueryClient } from 'react-query'
+import { addOrderToInvoice } from '@src/apis/invoice/common.api'
 
 const initialFilter: InvoiceOrderListFilterType = {
   search: '',
@@ -95,6 +97,10 @@ type Props = {
     label: string
     value: number
   }[]
+  from: 'create' | 'detail'
+  invoiceId?: number
+  client?: number
+  revenueFrom?: string
 }
 
 export default function SelectOrder({
@@ -102,9 +108,13 @@ export default function SelectOrder({
   type = 'order',
   statusList,
   clientList,
+  from,
+  invoiceId,
+  client,
+  revenueFrom,
 }: Props) {
   const router = useRouter()
-
+  const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
 
   // const [selected, setSelected] = useState<OrderListType | null>(null)
@@ -113,8 +123,25 @@ export default function SelectOrder({
 
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
 
-  const [filter, setFilter] =
-    useState<InvoiceOrderListFilterType>(initialFilter)
+  const addOrderToInvoiceMutation = useMutation(
+    (ids: number[]) => addOrderToInvoice(invoiceId!, ids),
+    {
+      onSuccess: () => {
+        closeModal('order-list')
+        queryClient.invalidateQueries('invoiceReceivableDetail')
+        queryClient.invalidateQueries('invoiceReceivablePrices')
+        queryClient.invalidateQueries('invoiceReceivableClient')
+        queryClient.invalidateQueries('invoiceReceivableTeam')
+        queryClient.invalidateQueries('invoiceReceivableHistory')
+      },
+    },
+  )
+
+  const [filter, setFilter] = useState<InvoiceOrderListFilterType>(
+    from === 'detail'
+      ? { ...initialFilter, client: client, revenueFrom: revenueFrom }
+      : initialFilter,
+  )
   // const [activeFilter, setActiveFilter] =
   //   useState<OrderListFilterType>(initialFilter)
 
@@ -135,84 +162,84 @@ export default function SelectOrder({
   const handleSelectionModelChange = (selectionModel: GridSelectionModel) => {
     let model = selectionModel as GridSelectionModel
     if (orderList?.data.length) {
-      const selected: OrderListType[] = selectionModel
-        .map(id => orderList.data.find(job => job.id === id))
-        .filter(job => job !== undefined) as OrderListType[]
+      if (from === 'create') {
+        const selected: OrderListType[] = selectionModel
+          .map(id => orderList.data.find(job => job.id === id))
+          .filter(job => job !== undefined) as OrderListType[]
 
-      const firstClientId = selected[0]?.client?.clientId
-      const firstRevenueFrom = selected[0]?.revenueFrom
-      const firstCurrency = selected[0]?.currency
-      const hasDifferentClient = selected.some(
-        order => order.client?.clientId !== firstClientId,
-      )
-      const hasDifferentRevenueFrom = selected.some(
-        order => order.revenueFrom !== firstRevenueFrom,
-      )
-      const hasDifferentCurrency = selected.some(
-        order => order.currency !== firstCurrency,
-      )
+        const firstClientId = selected[0]?.client?.clientId
+        const firstRevenueFrom = selected[0]?.revenueFrom
+        const firstCurrency = selected[0]?.currency
+        const hasDifferentClient = selected.some(
+          order => order.client?.clientId !== firstClientId,
+        )
+        const hasDifferentRevenueFrom = selected.some(
+          order => order.revenueFrom !== firstRevenueFrom,
+        )
+        const hasDifferentCurrency = selected.some(
+          order => order.currency !== firstCurrency,
+        )
 
-      if (orderList.data.length === selectionModel.length) {
-        if (!getValues('client') || !getValues('revenueFrom')) {
+        if (orderList.data.length === selectionModel.length) {
+          if (!getValues('client') || !getValues('revenueFrom')) {
+            openModal({
+              type: 'NoFilterAlertModal',
+              children: (
+                <AlertModal
+                  title='Please select the client and revenue from filters first'
+                  onClick={() => closeModal('NoFilterAlertModal')}
+                  vary='error'
+                  buttonText='Okay'
+                />
+              ),
+            })
+            setSelectionModel([])
+          }
+        } else if (hasDifferentClient) {
           openModal({
-            type: 'NoFilterAlertModal',
+            type: 'DifferentClientAlertModal',
             children: (
               <AlertModal
-                title='Please select the client and revenue from filters first'
-                onClick={() => closeModal('NoFilterAlertModal')}
+                title={`Please check the client of the selected order. You can't choose different clients in an invoice.`}
+                onClick={() => closeModal('DifferentClientAlertModal')}
                 vary='error'
                 buttonText='Okay'
               />
             ),
           })
-          setSelectionModel([])
+          model.pop()
+          setSelectionModel(model)
+        } else if (hasDifferentRevenueFrom) {
+          openModal({
+            type: 'DifferentRevenueAlertModal',
+            children: (
+              <AlertModal
+                title={`Please check the revenue of the selected order. You can't choose different revenues in an invoice.`}
+                onClick={() => closeModal('DifferentRevenueAlertModal')}
+                vary='error'
+                buttonText='Okay'
+              />
+            ),
+          })
+          model.pop()
+          setSelectionModel(model)
+        } else if (hasDifferentCurrency) {
+          openModal({
+            type: 'DifferentCurrencyAlertModal',
+            children: (
+              <AlertModal
+                title={`Please check the currency of the selected order. You can't choose different currencies in an invoice.`}
+                onClick={() => closeModal('DifferentCurrencyAlertModal')}
+                vary='error'
+                buttonText='Okay'
+              />
+            ),
+          })
+          model.pop()
+          setSelectionModel(model)
         }
-      } else if (hasDifferentClient) {
-        openModal({
-          type: 'DifferentClientAlertModal',
-          children: (
-            <AlertModal
-              title={`Please check the client of the selected order. You can't choose different clients in an invoice.`}
-              onClick={() => closeModal('DifferentClientAlertModal')}
-              vary='error'
-              buttonText='Okay'
-            />
-          ),
-        })
-        model.pop()
-        setSelectionModel(model)
-      } else if (hasDifferentRevenueFrom) {
-        openModal({
-          type: 'DifferentRevenueAlertModal',
-          children: (
-            <AlertModal
-              title={`Please check the revenue of the selected order. You can't choose different revenues in an invoice.`}
-              onClick={() => closeModal('DifferentRevenueAlertModal')}
-              vary='error'
-              buttonText='Okay'
-            />
-          ),
-        })
-        model.pop()
-        setSelectionModel(model)
-      } else if (hasDifferentCurrency) {
-        openModal({
-          type: 'DifferentCurrencyAlertModal',
-          children: (
-            <AlertModal
-              title={`Please check the currency of the selected order. You can't choose different currencies in an invoice.`}
-              onClick={() => closeModal('DifferentCurrencyAlertModal')}
-              vary='error'
-              buttonText='Okay'
-            />
-          ),
-        })
-        model.pop()
-        setSelectionModel(model)
       } else {
         setSelectionModel(selectionModel)
-
-        console.log(selected)
       }
 
       // console.log(selected)
@@ -386,7 +413,7 @@ export default function SelectOrder({
     },
   ]
 
-  function onSubmit() {
+  function onSubmit(from: 'create' | 'detail') {
     if (orderList) {
       const selected: OrderListType[] = selectionModel
         .map(id => orderList.data.find(job => job.id === id))
@@ -405,11 +432,15 @@ export default function SelectOrder({
           ),
         })
       } else {
-        closeModal('order-list')
-        router.push({
-          pathname: '/invoice/receivable/add-new',
-          query: { orderId: selected.map(order => order.id) },
-        })
+        if (from === 'detail') {
+          addOrderToInvoiceMutation.mutate(selected.map(order => order.id))
+        } else {
+          closeModal('order-list')
+          router.push({
+            pathname: '/invoice/receivable/add-new',
+            query: { orderId: selected.map(order => order.id) },
+          })
+        }
       }
     }
 
@@ -469,7 +500,7 @@ export default function SelectOrder({
       >
         <Grid container spacing={6}>
           <Grid item xs={12}>
-            <Typography variant='h5'>Select order</Typography>
+            <Typography variant='h5'>Select orders</Typography>
           </Grid>
           <Grid item xs={12}>
             <form onSubmit={handleSubmit(filterSubmit)}>
@@ -484,49 +515,54 @@ export default function SelectOrder({
                 }}
               >
                 <Grid container spacing={6} rowSpacing={4}>
-                  <Grid item xs={6} sm={6} md={6}>
-                    <Controller
-                      control={control}
-                      name='client'
-                      render={({ field: { onChange, value } }) => {
-                        return (
+                  {from === 'detail' ? null : (
+                    <Grid item xs={6} sm={6} md={6}>
+                      <Controller
+                        control={control}
+                        name='client'
+                        render={({ field: { onChange, value } }) => {
+                          return (
+                            <Autocomplete
+                              onChange={(event, item) => {
+                                onChange(item)
+                              }}
+                              value={value ?? null}
+                              options={clientList ?? []}
+                              id='client'
+                              getOptionLabel={option => option.label}
+                              renderInput={params => (
+                                <TextField {...params} label='Client' />
+                              )}
+                            />
+                          )
+                        }}
+                      />
+                    </Grid>
+                  )}
+                  {from === 'detail' ? null : (
+                    <Grid item xs={6} sm={6} md={6}>
+                      <Controller
+                        control={control}
+                        name='revenueFrom'
+                        render={({ field: { onChange, value } }) => (
                           <Autocomplete
-                            onChange={(event, item) => {
-                              onChange(item)
-                            }}
+                            options={RevenueFrom}
                             value={value ?? null}
-                            options={clientList ?? []}
-                            id='client'
+                            onChange={(e, v) => onChange(v)}
                             getOptionLabel={option => option.label}
                             renderInput={params => (
-                              <TextField {...params} label='Client' />
+                              <TextField
+                                {...params}
+                                label='Revenue from'
+                                // placeholder='Revenue from'
+                              />
                             )}
                           />
-                        )
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={6} sm={6} md={6}>
-                    <Controller
-                      control={control}
-                      name='revenueFrom'
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          options={RevenueFrom}
-                          value={value ?? null}
-                          onChange={(e, v) => onChange(v)}
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              label='Revenue from'
-                              // placeholder='Revenue from'
-                            />
-                          )}
-                        />
-                      )}
-                    />
-                  </Grid>
+                        )}
+                      />
+                    </Grid>
+                  )}
+
                   <Grid item xs={6} sm={6} md={6}>
                     <Controller
                       control={control}
@@ -679,7 +715,6 @@ export default function SelectOrder({
                     selectionModel={selectionModel}
                     onSelectionModelChange={(newSelectionModel, details) => {
                       handleSelectionModelChange(newSelectionModel)
-                      console.log(details)
                     }}
                   />
                 </Box>
@@ -698,11 +733,12 @@ export default function SelectOrder({
                   <Button
                     variant='contained'
                     size='medium'
-                    onClick={onSubmit}
+                    onClick={() => onSubmit(from)}
                     // disabled={!selected}
                     disabled={selectionModel.length === 0}
                   >
-                    Create invoice
+                    {from === 'create' ? 'Create invoice' : 'Add to invoice'}
+                    {/* Create invoice */}
                   </Button>
                 </Box>
               </Grid>

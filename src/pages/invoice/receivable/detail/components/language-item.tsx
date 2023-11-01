@@ -95,6 +95,8 @@ type Props = {
   }>
   invoiceInfo: InvoiceReceivableDetailType
   invoiceLanguageItem: InvoiceLanguageItemType
+  getInvoiceInfo: UseFormGetValues<InvoiceProjectInfoFormType>
+  onClickAddOrder: () => void
 }
 
 const InvoiceLanguageAndItem = ({
@@ -115,6 +117,8 @@ const InvoiceLanguageAndItem = ({
 
   invoiceInfo,
   invoiceLanguageItem,
+  getInvoiceInfo,
+  onClickAddOrder,
 }: Props) => {
   console.log(invoiceLanguageItem)
 
@@ -211,7 +215,21 @@ const InvoiceLanguageAndItem = ({
           alignItems: 'center',
           width: '100%',
         }}
-      ></Box>
+      >
+        <Button
+          variant='outlined'
+          sx={{ display: 'flex', gap: '8px', mb: '24px' }}
+          onClick={onClickAddOrder}
+          // disabled={
+          //   items.length <= 0 ||
+          //   !canUseFeature('button-Languages&Items-SplitOrder')
+          // }
+          // onClick={onClickSplitOrder}
+        >
+          <Icon icon='mdi:playlist-add' />
+          Add order
+        </Button>
+      </Box>
       {/* {currentRole && currentRole.name === 'CLIENT' ? null : (
         <Grid item xs={12}>
           <AddLanguagePairForm
@@ -273,7 +291,7 @@ const InvoiceLanguageAndItem = ({
             >
               {formatCurrency(
                 formatByRoundingProcedure(
-                  Number(invoiceInfo!.subtotal),
+                  Number(getInvoiceInfo('subtotal')),
                   priceInfo?.decimalPlace!,
                   priceInfo?.roundingProcedure!,
                   priceInfo?.currency ?? 'USD',
@@ -336,7 +354,8 @@ const InvoiceLanguageAndItem = ({
               {invoiceInfo.isTaxable
                 ? formatCurrency(
                     formatByRoundingProcedure(
-                      Number(invoiceInfo!.subtotal!) * (invoiceInfo.tax! / 100),
+                      Number(getInvoiceInfo('subtotal')) *
+                        (Number(invoiceInfo.tax!) / 100),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
                       priceInfo?.currency ?? 'USD',
@@ -380,8 +399,8 @@ const InvoiceLanguageAndItem = ({
               {invoiceInfo.isTaxable
                 ? formatCurrency(
                     formatByRoundingProcedure(
-                      Number(invoiceInfo!.subtotal!) *
-                        (invoiceInfo.tax! / 100) +
+                      Number(getInvoiceInfo('subtotal')) *
+                        (Number(invoiceInfo.tax!) / 100) +
                         items.reduce((acc, cur) => {
                           return acc + cur.totalPrice
                         }, 0),
@@ -393,7 +412,7 @@ const InvoiceLanguageAndItem = ({
                   )
                 : formatCurrency(
                     formatByRoundingProcedure(
-                      Number(invoiceInfo!.subtotal!),
+                      Number(getInvoiceInfo('subtotal')),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
                       priceInfo?.currency ?? 'USD',

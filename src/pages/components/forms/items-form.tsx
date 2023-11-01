@@ -302,7 +302,11 @@ export default function ItemForm({
         fields.length &&
         !splitReady ? (
           <Link
-            href={`/orders/job-list/details/?orderId=${orderId}`}
+            href={
+              type === 'invoiceDetail'
+                ? `/orders/job-list`
+                : `/orders/job-list/details/?orderId=${orderId}`
+            }
             style={{
               display: 'flex',
               gap: '8px',

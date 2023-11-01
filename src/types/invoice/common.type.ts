@@ -53,7 +53,7 @@ export type InvoiceProjectInfoFormType = {
   salesCategory?: string
   taxInvoiceIssued: boolean
   sendReminder: boolean
-  tax: number | null
+  tax: string | null
   isTaxable: boolean
   notes?: string
   subtotal: string | number
