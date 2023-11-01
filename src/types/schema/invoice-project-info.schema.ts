@@ -24,7 +24,7 @@ export const invoiceProjectInfoSchema = yup.object().shape({
   isTaxable: yup.string().required(),
 
   paymentDueDate: yup.object().shape({
-    date: yup.date().nullable(),
+    date: yup.date().required(FormErrors.required),
     timezone: yup.object().shape({
       code: yup.string().required(FormErrors.required),
       label: yup.string().required(FormErrors.required),

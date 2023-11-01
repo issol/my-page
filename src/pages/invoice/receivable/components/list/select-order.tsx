@@ -240,6 +240,8 @@ export default function SelectOrder({
           })
           model.pop()
           setSelectionModel(model)
+        } else {
+          setSelectionModel(selectionModel)
         }
       } else {
         setSelectionModel(selectionModel)
