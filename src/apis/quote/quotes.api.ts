@@ -235,9 +235,7 @@ export const restoreVersion = async (id: number): Promise<void> => {
 
 export const patchQuoteProjectInfo = async (
   id: number,
-
   form: updateProjectInfoType,
-
 ) => {
   const { data } = await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
   return data

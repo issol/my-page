@@ -40,24 +40,6 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { roleState } from '@src/states/permission'
 
-type Props = {
-  tab?: string
-  row: JobType
-  orderDetail: ProjectInfoType
-  item: JobItemType
-  refetch?: <TPageData>(
-    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
-  ) => Promise<
-    QueryObserverResult<
-      {
-        id: number
-        cooperationId: string
-        items: JobItemType[]
-      },
-      unknown
-    >
-  >
-}
 import JobHistory from './components/history'
 import EditJobInfo from './components/job-info/edit-job-info'
 import ViewJobInfo from './components/job-info/view-job-info'
@@ -80,6 +62,26 @@ import { saveJobPrices } from '@src/apis/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import { toast } from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
+
+type Props = {
+  tab?: string
+  row: JobType
+  orderDetail: ProjectInfoType
+  item: JobItemType
+  refetch?: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<
+    QueryObserverResult<
+      {
+        id: number
+        cooperationId: string
+        items: JobItemType[]
+      },
+      unknown
+    >
+  >
+}
 
 const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { openModal, closeModal } = useModal()
@@ -104,6 +106,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     cachedJobIdRef.current,
     false,
   )
+  const { data: jobDeliveriesFeedbacks, isLoading: isJobDeliveriesFeedbacksLoading, refetch: jobDeliveriesFeedbacksRefetch } = useGetProJobDeliveriesFeedbacks(jobId)
+  
   const { data: jobPrices } = useGetJobPrices(cachedJobIdRef.current, false)
   const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } =
     useGetJobPriceHistory(jobId)
@@ -433,6 +437,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                 ) : (
                   <ViewJobInfo
                     row={jobInfo}
+                    jobDeliveriesFeedbacks={jobDeliveriesFeedbacks}
                     setEditJobInfo={setEditJobInfo}
                     type='view'
                     projectTeam={projectTeam || []}
@@ -442,6 +447,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     statusList={jobStatusList}
                     auth={auth.getValue()}
                     role={role.getValue()}
+                    setJobId={setJobId}
                   />
                 )}
               </TabPanel>

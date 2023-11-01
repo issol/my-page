@@ -260,9 +260,7 @@ const ProJobInfo = ({
       {
         jobId: jobInfo.id,
         proId: auth.getValue().user?.id!,
-
         status: response === 'Decline' ? 70200 : 70100,
-
       },
       {
         onSuccess: () => {

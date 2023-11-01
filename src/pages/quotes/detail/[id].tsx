@@ -165,6 +165,7 @@ export type updateProjectInfoType =
   | { languagePairs: Array<LanguagePairsType> }
   | { items: Array<PostItemType> }
   | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
+  | { showDescription: '1' | '0' }
 
   | { showDescription: '1' | '0' }
 
@@ -224,9 +225,7 @@ export default function QuotesDetail() {
       | 'button-ConfirmQuote'
       | 'button-CancelQuote'
       | 'button-DeleteQuote'
-
       | 'checkBox-ProjectInfo-Description',
-
   ): boolean => {
     let flag = false
     if (currentRole! && currentRole.name !== 'CLIENT') {
@@ -318,7 +317,16 @@ export default function QuotesDetail() {
                   project?.status === 'Expired') &&
                 isIncludeProjectTeam()
             : false
-
+          break
+        case 'checkBox-ProjectInfo-Description':
+          flag =
+            project?.status !== 'Quote sent' &&
+            project?.status !== 'Client review' &&
+            project?.status !== 'Accepted' &&
+            project?.status !== 'Expired' &&
+            project?.status !== 'Rejected' &&
+            project?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
           break
         case 'checkBox-ProjectInfo-Description':
           flag =
@@ -440,8 +448,8 @@ export default function QuotesDetail() {
           timezone: project.quoteExpiryDateTimezone ?? defaultTimezone,
         },
         estimatedDeliveryDate: {
-          date: project.estimatedDeliveryDate,
-          timezone: project.estimatedDeliveryDateTimezone ?? defaultTimezone,
+          date: project.estimatedAt,
+          timezone: project.estimatedTimezone ?? defaultTimezone,
         },
       })
 
@@ -650,7 +658,6 @@ export default function QuotesDetail() {
         teams.unshift({ type: 'supervisorId', id: null, name: '' })
       }
 
-
       if (!teams.some(item => item.type === 'member')) {
         teams.push({ type: 'member', id: null, name: '' })
       }
@@ -671,7 +678,6 @@ export default function QuotesDetail() {
 
   useEffect(() => {
     if (!isTeamLoading && team) {
-
       let viewTeams: ProjectTeamListType[] = [...team].map(value => ({
         ...value,
         id: uuidv4(),
@@ -1001,7 +1007,7 @@ export default function QuotesDetail() {
       } = item
       return {
         ...filterItem,
-
+        // contactPersonId: Number(item.contactPerson?.userId!),
         contactPersonId: Number(item.contactPersonId!),
         description: item.description || '',
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
@@ -1039,9 +1045,7 @@ export default function QuotesDetail() {
         updateProject.mutate(
           {
             tax: getProjectInfoValues('tax'),
-
             isTaxable: getProjectInfoValues('isTaxable') ? '1' : '0',
-
             subtotal: subtotal,
             languagePairs: langs,
             items: items,
@@ -1348,14 +1352,12 @@ export default function QuotesDetail() {
           closeButtonText='Cancel'
           confirmButtonText='Create'
           onClose={() => closeModal('CreateOrderModal')}
-
           onConfirm={() =>
             router.push({
               pathname: `/orders/add-new`,
               query: { quoteId: id },
             })
           }
-
           title={`[${project?.corporationId}] ${project?.projectName}`}
           message={`Are you sure you want to create an order\nwith this quote?`}
           textAlign='center'
@@ -1388,8 +1390,8 @@ export default function QuotesDetail() {
         timezone: project?.quoteExpiryDateTimezone,
       },
       estimatedDeliveryDate: {
-        date: project?.estimatedDeliveryDate ?? '',
-        timezone: project?.estimatedDeliveryDateTimezone,
+        date: project?.estimatedAt ?? '',
+        timezone: project?.estimatedTimezone,
       },
       pm: {
         firstName: pm?.firstName!,
@@ -1685,14 +1687,12 @@ export default function QuotesDetail() {
                       />
                       {renderSubmitButton({
                         onCancel: () =>
-
                           onDiscard({
                             callback: () => {
                               setEditProject(false)
                               projectInfoReset()
                             },
                           }),
-
                         onSave: () => onProjectInfoSave(),
                         isValid: isProjectInfoValid,
                       })}
@@ -1706,11 +1706,9 @@ export default function QuotesDetail() {
                       project={project}
                       setEditMode={setEditProject}
                       isUpdatable={canUseFeature('tab-ProjectInfo')}
-
                       canCheckboxEdit={canUseFeature(
                         'checkBox-ProjectInfo-Description',
                       )}
-
                       updateStatus={(status: number) =>
                         updateProject.mutate({ status: status })
                       }

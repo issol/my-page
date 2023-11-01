@@ -369,9 +369,7 @@ const InvoiceInfo = ({
               payDueTimezone: data.paymentDueDate.timezone,
               invoiceDescription: data.invoiceDescription,
               description: data.invoiceDescription,
-
               showDescription: data.showDescription ? '1' : '0',
-
 
               invoiceConfirmedAt: data.invoiceConfirmDate?.date,
               invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,

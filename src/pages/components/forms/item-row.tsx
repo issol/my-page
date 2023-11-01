@@ -5,9 +5,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
-
 import {
   Control,
   Controller,
@@ -43,9 +41,7 @@ import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
-
 import { MemberType } from '@src/types/schema/project-team.schema'
-
 
 type Props = {
   idx: number
@@ -70,7 +66,6 @@ type Props = {
   type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
   onItemRemove: (idx: number) => void
 
-
   selectedIds?: { id: number; selected: boolean }[]
   setSelectedIds?: Dispatch<
     SetStateAction<
@@ -86,9 +81,7 @@ type Props = {
   priceUnitsList: Array<PriceUnitListType>
   checkPriceCurrency: (price: StandardPriceListType, index: number) => boolean
   findLangPairIndex: (source: string, target: string) => number
-
   teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
-
 }
 
 const Row = ({
@@ -112,7 +105,6 @@ const Row = ({
   priceUnitsList,
   checkPriceCurrency,
   findLangPairIndex,
-
   teamMembers,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
@@ -123,7 +115,6 @@ const Row = ({
   const itemData = getValues(`items.${idx}`)
   const currentRole = getCurrentRole()
   const defaultValue = { value: 0, label: '' }
-
 
   /* price unit */
   const itemName: `items.${number}.detail` = `items.${idx}.detail`
@@ -137,7 +128,6 @@ const Row = ({
       ) || null
     )
   }
-
 
   useEffect(() => {
     if (teamMembers && teamMembers.length) {
@@ -405,9 +395,7 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
-
   console.log("getValues(`items.${idx}.contactPerson`)",getValues(`items.${idx}`))
-
   return (
     <Box
       style={{
@@ -547,7 +535,6 @@ const Row = ({
                     {
                       // TODO: G-3406 items의 contactPerson(LPM 정보) 타입 맞추기 전까지 임시 코드
                       // quote에서는 이름 정보만 리턴되고 order에서는 id 정보만 리턴됨
-
                       // getLegalName(getValues(`items.${idx}.contactPerson`)!)
                       contactPersonList.find(
                         item =>
@@ -556,12 +543,10 @@ const Row = ({
                             `items.${idx}.contactPersonId`,
                           ),
                       )?.label
-
                     }
                   </Typography>
                 </Box>
               ) : (
-
                 contactPersonList.length > 0 && (
                   <Controller
                     name={`items.${idx}.contactPersonId`}
@@ -602,7 +587,6 @@ const Row = ({
                     }}
                   />
                 )
-
               )}
             </Grid>
             <Grid item xs={6}>

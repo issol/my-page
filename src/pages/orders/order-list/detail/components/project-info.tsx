@@ -307,14 +307,12 @@ const ProjectInfo = ({
     let message = ''
     if (value) {
       confirmButtonText = 'Show'
-
       message =
         'Are you sure you want to show the\nproject description to the client?'
     } else {
       confirmButtonText = 'Hide'
       message =
         'Are you sure you want to hide the\nproject description to the client?'
-
     }
     openModal({
       type: 'ShowDescriptionModal',
@@ -323,11 +321,9 @@ const ProjectInfo = ({
           onClose={() => closeModal('ShowDescriptionModal')}
           onConfirm={() => {
             updateProject &&
-
               updateProject.mutate({
                 showDescription: value ? '1' : '0',
               })
-
             setShowDescription(value)
           }}
           closeButtonText='Cancel'
@@ -338,7 +334,6 @@ const ProjectInfo = ({
       ),
     })
   }
-
   useEffect(() => {
     if (client) {
       setContactPersonId(client.contactPerson ? client.contactPerson.id! : null)
@@ -987,7 +982,6 @@ const ProjectInfo = ({
                     width: '100%',
                   }}
                 >
-
                   {role.name === 'CLIENT'
                     ? project.projectDescription &&
                       project.showDescription &&
@@ -995,7 +989,6 @@ const ProjectInfo = ({
                       ? project.projectDescription
                       : '-'
                     : project.projectDescription || '-'}
-
                 </Typography>
               </Box>
             </Box>

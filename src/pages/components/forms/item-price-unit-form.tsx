@@ -61,9 +61,7 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 // import styled from 'styled-components'
 import { styled, lighten, darken } from '@mui/material/styles'
 import _ from 'lodash'
-
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -358,7 +356,6 @@ export default function ItemPriceUnitForm({
                     <TextField
                       placeholder='0'
                       type='number'
-
                       onFocus={e =>
                         e.target.addEventListener(
                           'wheel',
@@ -368,7 +365,6 @@ export default function ItemPriceUnitForm({
                           { passive: false },
                         )
                       }
-
                       value={value ? Number(value) : null}
                       sx={{ maxWidth: '85px', padding: 0 }}
                       inputProps={{ inputMode: 'decimal' }}
@@ -546,7 +542,6 @@ export default function ItemPriceUnitForm({
                       placeholder='0.00'
                       inputProps={{ inputMode: 'decimal' }}
                       type='number'
-
                       onFocus={e =>
                         e.target.addEventListener(
                           'wheel',
@@ -556,7 +551,6 @@ export default function ItemPriceUnitForm({
                           { passive: false },
                         )
                       }
-
                       value={
                         value
                           ? savedValue.unit === 'Percent'

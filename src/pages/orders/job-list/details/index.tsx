@@ -46,6 +46,7 @@ import { CreateJobParamsType, JobStatusType } from '@src/types/jobs/jobs.type'
 import { createJob } from '@src/apis/jobs.api'
 import { deleteJob } from '@src/apis/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -564,7 +565,15 @@ const JobDetails = () => {
                               }}
                               size='small'
                             >
-                              <Box>{row?.totalPrice ?? '-'}</Box>
+                              <Box>{
+                                row?.totalPrice 
+                                  ? formatCurrency(
+                                    row?.totalPrice,
+                                    row?.currency!
+                                    )
+                                  : '-'
+                                }
+                              </Box>
                             </TableCell>
 
                             {separateLine()}

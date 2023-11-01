@@ -66,7 +66,10 @@ const defaultValue = {
   currency: { label: '$ USD', value: 'USD' as CurrencyType },
   catBasis: { label: 'Words', value: 'Words' },
   decimalPlace: 2,
-  roundingProcedure: undefined,
+  roundingProcedure: {
+    value: 0,
+    label: 'Round (Round down to 0.5 - round up from 0.5)',
+  },
   memoForPrice: '',
 }
 
@@ -131,6 +134,7 @@ const AddSavePriceModal = ({
   const [selected, setSelected] = useState<StandardPriceListType | null>(null)
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
+  console.log("isValid",isValid,errors)
   const [category, setCategory] = useState<{
     label: String
     value: String
@@ -144,7 +148,10 @@ const AddSavePriceModal = ({
       currency: { label: '$ USD', value: 'USD' },
       catBasis: { label: 'Words', value: 'Words' },
       decimalPlace: undefined,
-      roundingProcedure: undefined,
+      roundingProcedure: {
+        value: 0,
+        label: 'Round (Round down to 0.5 - round up from 0.5)',
+      },
       memoForPrice: '',
     })
   }
@@ -283,7 +290,7 @@ const AddSavePriceModal = ({
   function onAddCopiedPrice(data: StandardPriceListType) {
     setSelected(data)
   }
-
+  console.log("RoundingProcedureList",RoundingProcedureList)
   return (
     <Dialog
       open={open}
@@ -621,12 +628,13 @@ const AddSavePriceModal = ({
                     onChange={(event, item) => {
                       onChange(item)
                     }}
-                    value={
-                      value || {
-                        value: 0,
-                        label: 'Round (Round down to 0.5 - round up from 0.5)',
-                      }
-                    }
+                    // value={
+                    //   value || {
+                    //     value: 0,
+                    //     label: 'Round (Round down to 0.5 - round up from 0.5)',
+                    //   }
+                    // }
+                    value={value}
                     options={RoundingProcedureList}
                     id='RoundingProcedure'
                     getOptionLabel={option => option.label}

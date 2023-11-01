@@ -117,4 +117,5 @@ export type JobType = {
     lastName: string
   } | null
   historyAt: string | null // job assign이 된 날짜, 보여줄때는 로그인한 사용자의 타임존으로 보여준다.
+  currency?: 'KRW' | 'JPY' | 'USD' | 'SGD'
 }

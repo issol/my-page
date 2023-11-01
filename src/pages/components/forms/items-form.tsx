@@ -17,9 +17,7 @@ import {
 } from 'react-hook-form'
 
 // ** types
-
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-
 
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
@@ -50,8 +48,6 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-
-
 
 import Row from './item-row'
 
@@ -316,9 +312,7 @@ export default function ItemForm({
           splitReady={splitReady!}
           type={type}
           onItemRemove={onItemRemove}
-
           teamMembers={teamMembers}
-
           selectedIds={selectedIds}
           setSelectedIds={setSelectedIds}
           errors={errors}

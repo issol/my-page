@@ -245,6 +245,7 @@ export default function HistoryDetail({
                 item={item}
                 projectTeam={projectTeam}
                 statusList={statusList}
+                jobDeliveriesFeedbacks={{deliveries:[], feedbacks:[]}}
               />
             )}
           </TabPanel>

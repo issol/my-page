@@ -28,13 +28,11 @@ import PriceHistoryRow from './price-history-row'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { boolean } from 'yup'
-
 import { JobPricesDetailType, jobPriceHistoryType } from '@src/types/jobs/jobs.type'
 import ProjectInfo from '@src/pages/orders/order-list/detail/components/project-info'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-
 
 type Props = {
   row: JobType
@@ -74,9 +72,7 @@ type Props = {
   >[]
   setEditPrices?: Dispatch<SetStateAction<boolean>>
   type: string
-
   jobPriceHistory?: Array<jobPriceHistoryType>
-
 }
 const ViewPrices = ({
   row,
@@ -131,7 +127,6 @@ const ViewPrices = ({
 
   const [showPriceHistory, setShowPriceHistory] = useState<boolean>(false)
   useEffect(() => {
-
     if (jobPriceHistory && jobPriceHistory.length) setShowPriceHistory(true)
   }, [])
 
@@ -140,14 +135,12 @@ const ViewPrices = ({
   // prices tab 하단의 price history에 들어가는 row
   const PriceHistory = ({priceHistory}: {priceHistory: jobPriceHistoryType}) => {
     console.log("priceHistoryDetail",priceHistory.detail)
-
     return (
       <Card sx={{ padding: '24px', backgroundColor: 'rgba(76, 78, 100, 0.5)' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* 현재 Price를 부를때는 jobInfo의 pro 정보를 호출함 */}
           {/* Price history에서 부를때는 history 데이터 내에 pro 정보 호출함 */}
           {/* Request history의 Price에서는 안씀 */}
-
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography
@@ -180,7 +173,6 @@ const ViewPrices = ({
               </Typography>
             </Box>
           </Box>
-
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography
@@ -192,10 +184,8 @@ const ViewPrices = ({
                 Language pair
               </Typography>
               <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-
                 {languageHelper(priceHistory.sourceLanguage)}&nbsp;&rarr;&nbsp;
                 {languageHelper(priceHistory.targetLanguage)}
-
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -208,14 +198,11 @@ const ViewPrices = ({
                 Price
               </Typography>
               <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-
                 {priceHistory.initialPrice?.name}
-
               </Typography>
             </Box>
           </Box>
           <Divider />
-
           {/* item unit 데이터 맞추기 */}
           <PriceHistoryRow
             priceHistoryDetail={priceHistory.detail!}
@@ -223,7 +210,6 @@ const ViewPrices = ({
             minimumPrice={Number(priceHistory.minimumPrice!)}
             initialPrice={priceHistory.initialPrice!}
             totalPrice={priceHistory.totalPrice}
-
             setDarkMode={true}
           />
         </Box>
@@ -265,9 +251,7 @@ const ViewPrices = ({
 
       <Card sx={{ padding: '24px' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
           {row.pro ? (
-
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Typography
@@ -279,13 +263,11 @@ const ViewPrices = ({
                   Pro
                 </Typography>
                 <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-
                   {getLegalName({
                     firstName: row.pro?.firstName!,
                     middleName: row.pro?.middleName,
                     lastName: row.pro?.lastName!,
                   })}
-
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -299,9 +281,7 @@ const ViewPrices = ({
                 </Typography>
                 <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
                   {/* TODO: pro가 assign된 시간, 타임존 정보 필요함 */}
-
                   {FullDateTimezoneHelper(row.historyAt, auth.getValue().user?.timezone,)}
-
                 </Typography>
               </Box>
             </Box>
@@ -353,9 +333,7 @@ const ViewPrices = ({
         </Box>
       </Card>
 
-
       {jobPriceHistory?.length && !showPriceHistory ? 
-
         <Box 
           sx={{ 
             display: 'flex', 
@@ -381,9 +359,7 @@ const ViewPrices = ({
         </Box>
         : null
       }
-
       {jobPriceHistory?.length && showPriceHistory ?
-
         <Box
           sx={{ 
             display: 'flex', 
@@ -407,14 +383,12 @@ const ViewPrices = ({
               {'Hide price history'}
             </Typography>
           </Box>
-
           {jobPriceHistory.map(priceHistory => (
             <PriceHistory
               key={priceHistory.id}
               priceHistory={priceHistory}
             />
           ))}
-
         </Box>
         : null
       }

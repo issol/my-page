@@ -140,10 +140,8 @@ export default function Receivable() {
   const currentRole = getCurrentRole()
 
   const { data: list, isLoading } = useGetReceivableList(filters)
-
   
   //인보이스의 전체 status 리스트
-
   const { data: statusList, isLoading: statusListLoading } =
     useGetStatusList('InvoiceReceivable')
 

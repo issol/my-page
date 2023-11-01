@@ -122,14 +122,11 @@ export const deleteJobFile = async (fileId: number) => {
 export const getJobPrices = async (
   id: number,
   isHistory: boolean,
-
 ): Promise<JobPricesDetailType | jobPriceHistoryType> => {
-
   const { data } = isHistory
     ? await axios.get(`/api/enough/u/job/history/${id}/price`)
     : await axios.get(`/api/enough/u/job/${id}/price`)
   // console.log(data)
-
 
   // return {
   //   ...data,
@@ -145,12 +142,10 @@ export const getJobPrices = async (
   //     })) || [],
   // }
   return data
-
 }
 
 export const getJobPriceHistory = async (
   id: number,
-
 ): Promise<Array<jobPriceHistoryType>> => {
   const { data } = await axios.get(`/api/enough/u/job/${id}/price/history`)
   // const { data } = await axios.get(`/api/enough/u/job/${id}/price`)
@@ -170,7 +165,6 @@ export const getJobPriceHistory = async (
   //     })) || [],
   // ]
   return data
-
 }
 
 export const saveJobPrices = async (
@@ -304,7 +298,6 @@ export const getProJobDetail = async (
   id: number,
   isHistory: boolean,
 ): Promise<ProJobDetailType> => {
-
   const { data } = isHistory 
     ? await axios.get(`/api/enough/u/job/history/${id}`)
     : await axios.get(`/api/enough/u/job/${id}/info`)
@@ -358,7 +351,6 @@ export const getProJobDetail = async (
   //     ],
   //   },
   // }
-
 }
 
 export const patchProJobDetail = async (
@@ -415,6 +407,22 @@ export const postProJobDeliveries = async (params: {
   })
 
   return data
+}
+
+export const addJobFeedback = async (
+  jobId: number,
+  feedbackData: string,
+): Promise<{ job: { id: number} }> => {
+  try {
+    const { data } = await axios.post(`/api/enough/u/job/${jobId}/feedback`, {
+      feedback: feedbackData,
+    })
+    return data
+  } catch (e: any) {
+    return {
+      job: { id: jobId },
+    }
+  }
 }
 
 export const patchProJobFeedbackCheck = async (

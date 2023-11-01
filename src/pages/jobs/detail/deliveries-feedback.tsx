@@ -64,7 +64,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
   const auth = useRecoilValueLoadable(authState)
 
   const { data, refetch } = useGetProJobDeliveriesFeedbacks(jobInfo.id)
-
+  console.log("jobInfo",jobInfo)
   const updateDeliveries = useMutation(
     (params: {
       jobId: number
@@ -414,7 +414,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                       variant='contained'
                       size='small'
                       sx={{ height: '30px' }}
-                      disabled={withoutFiles}
+                      disabled={withoutFiles || jobInfo.status === 601000}
                     >
                       <input {...getInputProps()} />
                       Upload
@@ -437,14 +437,14 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                         sx={{ padding: '4px 9px 9px 9px' }}
                         onChange={handleChange}
                         name='controlled'
-                        disabled={files.length > 0}
+                        disabled={files.length > 0 || jobInfo.status === 601000}
                       />
                     }
                   />
                 </Box>
               )}
             </Box>
-            {jobInfo.status === 60900 ? null : (
+            {[60900, 601000].includes(jobInfo.status) ? null : (
               <>
                 {fileList.length > 0 && (
                   <Box
@@ -539,14 +539,14 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
               >
                 <Button
                   variant='outlined'
-                  disabled={withoutFiles ? files.length > 0 : files.length < 1}
+                  disabled={(withoutFiles ? files.length > 0 : files.length < 1) || jobInfo.status === 601000}
                   onClick={onClickPartialDelivery}
                 >
                   Partial delivery
                 </Button>
                 <Button
                   variant='contained'
-                  disabled={withoutFiles ? files.length > 0 : files.length < 1}
+                  disabled={(withoutFiles ? files.length > 0 : files.length < 1) || jobInfo.status === 601000}
                   onClick={onClickFinalDelivery}
                 >
                   Final delivery

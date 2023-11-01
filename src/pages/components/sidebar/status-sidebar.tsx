@@ -70,14 +70,12 @@ export default function CalendarStatusSideBar({
                     item.label === 'Overdue (Reminder sent)' ||
                     item.label === 'Canceled'
                   }
-
                   small={item.label === 'Overdue (Reminder sent)'}
                   $bgSize={
                     item.label === alertIconStatus ||
                     item.label === 'Overdue' ||
                     item.label === 'Overdue (Reminder sent)' ||
                     item.label === 'Canceled'
-
                       ? '7px 7px'
                       : ''
                   }
@@ -109,17 +107,13 @@ const BoxFeature = styled(Box)<{
   $bgSize?: string
   color?: string
   canceled: boolean
-
   small: boolean
-
 }>`
   width: 100%;
   margin-bottom: 10px;
   padding: 4px 10px;
   color: ${({ color }) => color ?? 'rgba(76, 78, 100, 0.87)'};
-
   font-size: ${({ small }) => (small ? '14px' : '1rem')};
-
 
   background: ${({ bg, canceled }) =>
     canceled

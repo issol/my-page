@@ -42,9 +42,7 @@ import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ReasonType } from '@src/types/quotes/quote'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
-
 import _ from 'lodash'
-
 
 type Props = {
   project: ProjectInfoType | undefined
@@ -140,7 +138,6 @@ export default function QuotesProjectInfoDetail({
   const getStatusNameFromCode = (code: number): QuoteStatusType => {
     // @ts-ignore
     return statusList?.find(status => status.value === code)?.label ?? 'New'
-
   }
 
   const onClickShowDescription = (value: boolean) => {
@@ -148,14 +145,12 @@ export default function QuotesProjectInfoDetail({
     let message = ''
     if (value) {
       confirmButtonText = 'Show'
-
       message =
         'Are you sure you want to show the\nproject description to the client?'
     } else {
       confirmButtonText = 'Hide'
       message =
         'Are you sure you want to hide the\nproject description to the client?'
-
     }
     openModal({
       type: 'ShowDescriptionModal',
@@ -164,11 +159,9 @@ export default function QuotesProjectInfoDetail({
           onClose={() => closeModal('ShowDescriptionModal')}
           onConfirm={() => {
             updateProject &&
-
               updateProject.mutate({
                 showDescription: value ? '1' : '0',
               })
-
           }}
           closeButtonText='Cancel'
           confirmButtonText={confirmButtonText}
@@ -322,7 +315,6 @@ export default function QuotesProjectInfoDetail({
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <QuoteStatusChip
                     size='small'
-
                     label={
                       typeof project.status === 'number'
                         ? getStatusNameFromCode(project.status)
@@ -333,7 +325,6 @@ export default function QuotesProjectInfoDetail({
                         ? getStatusNameFromCode(project.status)
                         : project.status
                     }
-
                   />
                   {(project.status === 'Revision requested' ||
                     project.status === 'Rejected' ||
@@ -540,8 +531,8 @@ export default function QuotesProjectInfoDetail({
                   </CustomTypo>
                   <CustomTypo variant='body2'>
                     {FullDateTimezoneHelper(
-                      project.estimatedDeliveryDate,
-                      project.estimatedDeliveryDateTimezone,
+                      project.estimatedAt,
+                      project.estimatedTimezone,
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -600,8 +591,8 @@ export default function QuotesProjectInfoDetail({
                   </CustomTypo>
                   <CustomTypo variant='body2'>
                     {FullDateTimezoneHelper(
-                      project.estimatedDeliveryDate,
-                      project.estimatedDeliveryDateTimezone,
+                      project.estimatedAt,
+                      project.estimatedTimezone,
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -646,9 +637,7 @@ export default function QuotesProjectInfoDetail({
                   sx={{
                     display: 'flex',
                     alignItems: 'center',
-
                     opacity: project.status === 'Canceled' ? 0.5 : 1,
-
                   }}
                 >
                   <Checkbox
@@ -657,9 +646,7 @@ export default function QuotesProjectInfoDetail({
                       onClickShowDescription(e.target.checked)
                     }}
                     checked={project.showDescription}
-
                     disabled={!canCheckboxEdit}
-
                   />
 
                   <Typography
@@ -691,7 +678,6 @@ export default function QuotesProjectInfoDetail({
                 letterSpacing='0.15px'
                 sx={{ minWidth: 230 }}
               >
-
                 {role.name === 'CLIENT'
                   ? project.projectDescription &&
                     project.showDescription &&
@@ -699,7 +685,6 @@ export default function QuotesProjectInfoDetail({
                     ? project.projectDescription
                     : '-'
                   : project.projectDescription || '-'}
-
               </Typography>
             </Box>
           </Grid>

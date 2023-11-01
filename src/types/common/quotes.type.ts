@@ -129,8 +129,8 @@ export type ProjectInfoType = {
   quoteDeadlineTimezone: CountryType
   quoteExpiryDate: string
   quoteExpiryDateTimezone: CountryType
-  estimatedDeliveryDate: string
-  estimatedDeliveryDateTimezone: CountryType
+  estimatedAt: string
+  estimatedTimezone: CountryType
   tax: number | null
   isTaxable: boolean
   isConfirmed: boolean

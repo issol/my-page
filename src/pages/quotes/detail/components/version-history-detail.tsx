@@ -107,8 +107,8 @@ const VersionHistoryModal = ({ id, history }: Props) => {
           timezone: projectInfo?.quoteExpiryDateTimezone,
         },
         estimatedDeliveryDate: {
-          date: projectInfo?.estimatedDeliveryDate ?? '',
-          timezone: projectInfo?.estimatedDeliveryDateTimezone,
+          date: projectInfo?.estimatedAt ?? '',
+          timezone: projectInfo?.estimatedTimezone,
         },
         pm: {
           firstName: pm?.firstName!,
@@ -294,7 +294,6 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                         role={currentRole!}
                       />
                     ) : null}
-                    
                   </Grid>
                 )
               })}
@@ -362,7 +361,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                       <Box>{history.projectInfo?.isTaxable ? `${history.projectInfo?.tax} %` : '-'} </Box>
                   </Box>
                 </Grid>
-              )} 
+              )}
             </Card>
           </TabPanel>
 

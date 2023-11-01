@@ -32,6 +32,7 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   OrderDownloadData,
   OrderFeatureType,
+  ProjectInfoType,
   ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
@@ -448,14 +449,14 @@ const OrderDetail = () => {
       showDescription: getProjectInfo().showDescription ? '1' : '0',
       isTaxable: getProjectInfo().isTaxable ? '1' : '0',
     }
-
-    onSave(() =>
-      updateProject.mutate(projectInfo, {
-        onSuccess: () => {
-          closeModal('EditSaveModal')
-        },
-      }),
-    )
+    const { items, ...filteredProjectInfo } = projectInfo
+    // onSave(() =>
+    //   updateProject.mutate(filteredProjectInfo, {
+    //     onSuccess: () => {
+    //       closeModal('EditSaveModal')
+    //     },
+    //   }),
+    // )
   }
 
   const initializeItemData = () => {
@@ -945,7 +946,8 @@ const OrderDetail = () => {
         orderedAt: new Date(projectInfo?.orderedAt),
         status: currentStatus?.value ?? 100,
       }
-      projectInfoReset(res)
+      const { items, ...filteredRes } = res
+      projectInfoReset(filteredRes)
     }
 
     if (client) {
@@ -985,10 +987,8 @@ const OrderDetail = () => {
       } = item
       return {
         ...filterItem,
-
         contactPersonId: Number(item.contactPerson?.userId!),
         // contactPersonId: Number(item.contactPersonId!),
-
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
@@ -1835,7 +1835,6 @@ const OrderDetail = () => {
                     >
                       <Box display='flex' alignItems='center' gap='4px'>
                         {langItemsEdit ? (
-
                           <Controller
                             name='isTaxable'
                             control={projectInfoControl}
@@ -1853,7 +1852,6 @@ const OrderDetail = () => {
                                 }}
                               />
                             )}
-
                           />
                         ) : null}
 
@@ -1869,18 +1867,14 @@ const OrderDetail = () => {
                                 <TextField
                                   size='small'
                                   type='number'
-
                                   value={value ? value : ''}
-
                                   disabled={!getProjectInfo('isTaxable')}
                                   sx={{ maxWidth: '120px', padding: 0 }}
                                   inputProps={{ inputMode: 'decimal' }}
                                   onChange={e => {
-
                                     if (e.target.value.length > 10) return
                                     onChange(Number(e.target.value))
                                     projectInfoTrigger('tax')
-
                                   }}
                                 />
                               )}
@@ -1932,9 +1926,7 @@ const OrderDetail = () => {
                           isItemValid ||
                           !getProjectInfo('isTaxable') ||
                           (getProjectInfo('isTaxable') &&
-
                             getProjectInfo('tax') !== null),
-
                       })
                     : null}
                   {splitReady && selectedIds ? (
