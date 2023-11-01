@@ -604,8 +604,6 @@ const ReceivableInvoiceDetail = () => {
       setInvoiceLanguageItem({
         ...langItem,
         // orders: langItem.orders.map(item => ({ ...item, orderId: item.id })),
-        //TODO 백엔드 수정 후 삭제
-        orders: langItem.orders.map(item => ({ ...item, id: item.orderId })),
       })
       const languagePair = langItem.orders[0].languagePairs
 
@@ -613,9 +611,8 @@ const ReceivableInvoiceDetail = () => {
         .map(item =>
           item.items.map((value, idx) => ({
             ...value,
-            // orderId: item.id,
-            //TODO 백엔드 수정 후 위 코드로 교체
-            orderId: item.orderId,
+            orderId: item.id,
+
             projectName: item.projectName,
             id: item.id,
             itemName: value.itemName,
