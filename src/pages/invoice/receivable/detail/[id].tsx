@@ -105,6 +105,7 @@ import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/roun
 import SelectOrder from '../components/list/select-order'
 
 import { v4 as uuidv4 } from 'uuid'
+import { ProjectTeamListType } from '@src/types/orders/order-detail'
 
 type MenuType =
   | 'invoice'
@@ -122,6 +123,8 @@ const ReceivableInvoiceDetail = () => {
   const currentRole = getCurrentRole()
 
   const queryClient = useQueryClient()
+  const teamOrder = ['supervisor', 'projectManager', 'member']
+  const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
 
   const [invoiceInfoEdit, setInvoiceInfoEdit] = useState(false)
   const [accountingInfoEdit, setAccountingInfoEdit] = useState(false)
@@ -149,6 +152,8 @@ const ReceivableInvoiceDetail = () => {
   const [isFileUploading, setIsFileUploading] = useState(false)
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
+  const [teams, setTeams] = useState<ProjectTeamListType[]>([])
   const [value, setValue] = useState<MenuType>(
     currentRole && currentRole.name === 'CLIENT' ? 'invoice' : 'invoiceInfo',
   )
@@ -716,6 +721,44 @@ const ReceivableInvoiceDetail = () => {
       )
     }
     if (projectTeam) {
+      let viewTeams: ProjectTeamListType[] = [...projectTeam].map(value => ({
+        ...value,
+        id: uuidv4(),
+      }))
+
+      if (!viewTeams.some(item => item.position === 'supervisor')) {
+        viewTeams.unshift({
+          id: uuidv4(),
+          position: 'supervisor',
+          userId: -1,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+      if (!viewTeams.some(item => item.position === 'member')) {
+        viewTeams.push({
+          id: uuidv4(),
+          position: 'member',
+          userId: 0,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+
+      const res = viewTeams.sort((a, b) => {
+        const aIndex = teamOrder.indexOf(a.position)
+        const bIndex = teamOrder.indexOf(b.position)
+        return aIndex - bIndex
+      })
+
+      if (viewTeams.length) setTeams(res)
+
       const teams: Array<{
         type: MemberType
         id: number | null
@@ -734,7 +777,41 @@ const ReceivableInvoiceDetail = () => {
           lastName: item?.lastName!,
         }),
       }))
-      resetTeam({ teams })
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
+
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
+      // const teams: Array<{
+      //   type: MemberType
+      //   id: number | null
+      //   name: string
+      // }> = projectTeam.map(item => ({
+      //   type:
+      //     item.position === 'projectManager'
+      //       ? 'projectManagerId'
+      //       : item.position === 'supervisor'
+      //       ? 'supervisorId'
+      //       : 'member',
+      //   id: item.userId,
+      //   name: getLegalName({
+      //     firstName: item?.firstName!,
+      //     middleName: item?.middleName,
+      //     lastName: item?.lastName!,
+      //   }),
+      // }))
+      // resetTeam({ teams })
     }
   }, [langItem, projectTeam, prices, invoiceInfo])
 
@@ -1266,7 +1343,7 @@ const ReceivableInvoiceDetail = () => {
             <TabPanel value='team' sx={{ pt: '24px' }}>
               <InvoiceProjectTeam
                 type='detail'
-                list={projectTeam!}
+                list={teams!}
                 listCount={projectTeam?.length!}
                 columns={getProjectTeamColumns()}
                 page={projectTeamListPage}

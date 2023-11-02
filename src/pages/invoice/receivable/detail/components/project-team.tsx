@@ -240,7 +240,12 @@ const InvoiceProjectTeam = ({
               //   NoRowsOverlay: () => NoList(),
               //   NoResultsOverlay: () => NoList(),
               // }}
-              sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              sx={{
+                overflowX: 'scroll',
+                '& .MuiDataGrid-row:hover': {
+                  backgroundColor: 'inherit',
+                },
+              }}
               getRowId={row => row.userId}
               columns={columns}
               rows={list ?? []}
