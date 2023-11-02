@@ -1,5 +1,6 @@
 import {
   getClient,
+  getItemJob,
   getJobInfo,
   getLangItems,
   getProjectInfo,
@@ -141,6 +142,18 @@ export const useGetJobInfo = (id: number) => {
     () => getJobInfo(id),
     {
       staleTime: 10 * 1000, // 1
+
+      suspense: false,
+    },
+  )
+}
+
+export const useGetItemJob = (id: number) => {
+  return useQuery(
+    [`itemJob`, id],
+    () => getItemJob(id),
+    {
+      staleTime: 5 * 1000,
 
       suspense: false,
     },

@@ -50,6 +50,8 @@ import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modal
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 import Row from './item-row'
+import { LanguagePairTypeInItem } from '@src/types/orders/order-detail'
+import { getItemJob } from '@src/apis/order-detail.api'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -199,16 +201,48 @@ export default function ItemForm({
     })
   }
 
-  function onItemRemove(idx: number) {
-    openModal({
-      type: 'delete-item',
-      children: (
-        <DeleteConfirmModal
-          message='Are you sure you want to delete this item?'
-          onClose={() => closeModal('delete-item')}
-          onDelete={() => handleItemRemove(idx)}
-        />
-      ),
+  function onItemRemove(idx: number, itemId: number) {
+    getItemJob(itemId).then(res => {
+      if (res) {
+        // 삭제 불가능 케이스
+        openModal({
+          type: 'deleteNotAllowedModal',
+          children: (
+            <CustomModal
+              title='This item cannot be deleted because jobs have already been created from it.'
+              soloButton={true}
+              rightButtonText='Okey'
+              onClose={() => closeModal('deleteNotAllowedModal')}
+              onClick={() => closeModal('deleteNotAllowedModal')}
+              vary='error'
+            />
+          ),
+        })
+      } else if (!res) {
+        // 삭제 가능 케이스
+        openModal({
+          type: 'delete-item',
+          children: (
+            <DeleteConfirmModal
+              message='Are you sure you want to delete this item?'
+              onClose={() => closeModal('delete-item')}
+              onDelete={() => handleItemRemove(idx)}
+            />
+          ),
+        })
+      } else {
+        // 예외 케이스는 삭제 되도록 우선 설정함
+        openModal({
+          type: 'delete-item',
+          children: (
+            <DeleteConfirmModal
+              message='Are you sure you want to delete this item?'
+              onClose={() => closeModal('delete-item')}
+              onDelete={() => handleItemRemove(idx)}
+            />
+          ),
+        })
+      }
     })
   }
 

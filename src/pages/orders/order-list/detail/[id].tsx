@@ -450,13 +450,13 @@ const OrderDetail = () => {
       isTaxable: getProjectInfo().isTaxable ? '1' : '0',
     }
     const { items, ...filteredProjectInfo } = projectInfo
-    // onSave(() =>
-    //   updateProject.mutate(filteredProjectInfo, {
-    //     onSuccess: () => {
-    //       closeModal('EditSaveModal')
-    //     },
-    //   }),
-    // )
+    onSave(() =>
+      updateProject.mutate(filteredProjectInfo, {
+        onSuccess: () => {
+          closeModal('EditSaveModal')
+        },
+      }),
+    )
   }
 
   const initializeItemData = () => {
@@ -492,8 +492,8 @@ const OrderDetail = () => {
         target: item.target,
         priceId: item.priceId,
         detail: !item?.detail?.length ? [] : item.detail,
-        // contactPersonId: item.contactPersonId,
         contactPerson: item.contactPerson ?? null,
+        contactPersonId: Number(item.contactPerson?.userId!),
         description: item.description,
         analysis: item.analysis ?? [],
         totalPrice: item?.totalPrice ?? 0,
@@ -851,6 +851,7 @@ const OrderDetail = () => {
           priceId: item.priceId,
           detail: !item?.detail?.length ? [] : item.detail,
           contactPerson: item.contactPerson,
+          contactPersonId: Number(item.contactPerson?.userId!),
           description: item.description,
           analysis: item.analysis ?? [],
           totalPrice: item?.totalPrice ?? 0,
@@ -987,8 +988,8 @@ const OrderDetail = () => {
       } = item
       return {
         ...filterItem,
-        contactPersonId: Number(item.contactPerson?.userId!),
-        // contactPersonId: Number(item.contactPersonId!),
+        // contactPersonId: Number(item.contactPerson?.userId!),
+        contactPersonId: Number(item.contactPersonId!),
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',

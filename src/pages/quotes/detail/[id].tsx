@@ -167,9 +167,6 @@ export type updateProjectInfoType =
   | { languagePairs: Array<LanguagePairsType>; items: Array<PostItemType> }
   | { showDescription: '1' | '0' }
 
-  | { showDescription: '1' | '0' }
-
-
 export default function QuotesDetail() {
   const router = useRouter()
   const { data: statusList } = useGetStatusList('Quote')
@@ -327,17 +324,6 @@ export default function QuotesDetail() {
             project?.status !== 'Rejected' &&
             project?.status !== 'Canceled' &&
             isIncludeProjectTeam()
-          break
-        case 'checkBox-ProjectInfo-Description':
-          flag =
-            project?.status !== 'Quote sent' &&
-            project?.status !== 'Client review' &&
-            project?.status !== 'Accepted' &&
-            project?.status !== 'Expired' &&
-            project?.status !== 'Rejected' &&
-            project?.status !== 'Canceled' &&
-            isIncludeProjectTeam()
-
           break
           case 'checkBox-ProjectInfo-Description':
             flag = 

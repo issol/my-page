@@ -64,7 +64,7 @@ type Props = {
   }) => void
   splitReady: boolean
   type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
-  onItemRemove: (idx: number) => void
+  onItemRemove: (idx: number, itemId: number) => void
 
   selectedIds?: { id: number; selected: boolean }[]
   setSelectedIds?: Dispatch<
@@ -97,6 +97,7 @@ const Row = ({
   splitReady,
   type,
   onItemRemove,
+
   selectedIds,
   setSelectedIds,
   errors,
@@ -395,7 +396,7 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
-  console.log("getValues(`items.${idx}.contactPerson`)",getValues(`items.${idx}`))
+
   return (
     <Box
       style={{
@@ -443,7 +444,9 @@ const Row = ({
               </Typography>
             </Box>
             {type === 'detail' || type === 'invoiceDetail' ? null : (
-              <IconButton onClick={() => onItemRemove(idx)}>
+              <IconButton
+                onClick={() => onItemRemove(idx, getValues().items[idx].id!)}
+              >
                 <Icon icon='mdi:trash-outline' />
               </IconButton>
             )}
@@ -536,13 +539,12 @@ const Row = ({
                       // TODO: G-3406 items의 contactPerson(LPM 정보) 타입 맞추기 전까지 임시 코드
                       // quote에서는 이름 정보만 리턴되고 order에서는 id 정보만 리턴됨
                       // getLegalName(getValues(`items.${idx}.contactPerson`)!)
-                      contactPersonList.find(
-                        item =>
-                          item.value ===
-                          getValues(
-                            `items.${idx}.contactPersonId`,
-                          ),
-                      )?.label
+                      // contactPersonList.find(
+                      //   item =>
+                      //     item.value ===
+                      //     getValues(`items.${idx}.contactPersonId`),
+                      // )?.label
+                      getLegalName(getValues(`items.${idx}.contactPerson`)!)
                     }
                   </Typography>
                 </Box>
@@ -566,14 +568,19 @@ const Row = ({
                           }}
                           value={
                             !value
-                              // 신규 생성일땐 프로젝트 매니저가 기본으로 들어감
-                              ? contactPersonList.find(
-                                  item => item.value === teamMembers?.find(member => member.type === 'projectManagerId')?.id!
+                              ? // 신규 생성일땐 프로젝트 매니저가 기본으로 들어감
+                                contactPersonList.find(
+                                  item =>
+                                    item.value ===
+                                    teamMembers?.find(
+                                      member =>
+                                        member.type === 'projectManagerId',
+                                    )?.id!,
                                 )
-                              // 수정일땐 기존 설정된 값이 들어감
-                              : contactPersonList.find(
-                                item => item.value === value
-                              )
+                              : // 수정일땐 기존 설정된 값이 들어감
+                                contactPersonList.find(
+                                  item => item.value === value,
+                                )
                           }
                           renderInput={params => (
                             <TextField

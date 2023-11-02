@@ -28,3 +28,10 @@ export const getAddress = (address: ClientAddressType<string | number>[]) => {
     return `${state1}${state2}${city}${state}${country}${zipCode}`
   }
 }
+
+export const getAddressType = (address: ClientAddressType<string | number>[]) => {
+  if (!address || !address.length) return '-'
+  const addressArray = address.find(item => item.isSelected)
+  const addressType = addressArray?.addressType ? addressArray.addressType : ''
+  return `${addressType}`
+}

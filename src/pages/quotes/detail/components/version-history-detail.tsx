@@ -145,7 +145,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
           width='50px'
           height='50px'
         />
-        <Typography variant='h5'>{`[Ver.${history.version}] ${history.id}`}</Typography>
+        <Typography variant='h5'>{`[Ver.${history.version}] ${history.projectInfo.corporationId}`}</Typography>
       </Grid>
 
       <Grid item xs={12}>
@@ -294,6 +294,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                         role={currentRole!}
                       />
                     ) : null}
+
                   </Grid>
                 )
               })}

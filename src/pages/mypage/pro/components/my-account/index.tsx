@@ -143,15 +143,17 @@ export default function MyAccount({ user }: Props) {
                   </Typography>
                 </LabelContainer>
                 <LabelContainer>
-                  <Typography fontWeight={600}>Password</Typography>
-                  {user.fromSNS !== null ? (
+                  <Typography fontWeight={600}>{user.fromSNS !== null ? 'Connected account' : 'Password' }</Typography>
+                  {user.fromSNS !== null ?
+                    (
                     <img
                       src={`/images/logos/${user.fromSNS?.toLowerCase()}.png`}
                       alt='linked in'
                       width='24px'
                       height='24px'
                     />
-                  ) : (
+                  ) :
+                    (
                     <Button
                       variant='outlined'
                       size='small'
