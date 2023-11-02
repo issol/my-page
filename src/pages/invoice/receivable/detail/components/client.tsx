@@ -88,7 +88,7 @@ const InvoiceClient = ({
 
   const onClickSave = () => {
     if (getClientValue) {
-      const clients: any = {
+      const clients = {
         ...getClientValue(),
         contactPersonId:
           getClientValue().contactPersonId === NOT_APPLICABLE
@@ -102,9 +102,13 @@ const InvoiceClient = ({
           id: invoiceInfo.id,
           form: {
             ...data,
-            contactPersonId: clients.contactPersonId,
+            // contactPersonId: clients.contactPersonId,
+            ...clients,
+
             isTaxable: data.isTaxable ? '1' : '0',
             showDescription: data.showDescription ? '1' : '0',
+            taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
+            setReminder: data.setReminder ? '1' : '0',
           },
           type: 'basic',
         })
@@ -198,7 +202,7 @@ const InvoiceClient = ({
                 height={110}
               />
             </Card>
-            <Typography variant='h6'>{client.client.name}</Typography>
+            <Typography variant='h6'>{client.client?.name}</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -367,7 +371,11 @@ const InvoiceClient = ({
                   }}
                 >
                   <Box sx={{ textTransform: 'capitalize' }}>
-                    {client.addressType}
+                    {/* {client.addressType} */}
+                    {
+                      client.clientAddress.find(value => value.isSelected)
+                        ?.addressType
+                    }
                   </Box>
                   &nbsp;address
                 </Typography>

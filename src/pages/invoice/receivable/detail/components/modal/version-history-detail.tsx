@@ -341,7 +341,7 @@ const InvoiceVersionHistoryModal = ({
         salesCategory: history.projectInfo.salesCategory,
         notes: history.projectInfo.notes,
 
-        sendReminder: history.projectInfo.setReminder,
+        setReminder: history.projectInfo.setReminder,
         tax: history.projectInfo.tax,
         isTaxable: history.projectInfo.isTaxable ?? true,
         // subtotal: invoiceInfo.subtotal,

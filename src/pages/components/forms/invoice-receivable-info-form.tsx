@@ -132,7 +132,7 @@ export default function InvoiceProjectInfoForm({
   }, [clientTimezone])
 
   useEffect(() => {
-    setValue('sendReminder', true, setValueOptions)
+    setValue('setReminder', true, setValueOptions)
   }, [])
 
   function renderErrorMsg(key: keyof InvoiceProjectInfoFormType) {
@@ -152,7 +152,7 @@ export default function InvoiceProjectInfoForm({
       <Grid item xs={12}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Controller
-            name='sendReminder'
+            name='setReminder'
             control={control}
             defaultValue={true}
             render={({ field: { value, onChange } }) => (

@@ -249,8 +249,8 @@ export type InvoiceReceivablePatchParamsType = {
   projectManagerId?: number
   downloadedAt?: string
   members?: number[] | null
-  clientId?: number
-  contactPersonId?: number
+  clientId?: number | null
+  contactPersonId?: number | null
   orderId?: number[]
   projectName?: string
   revenueFrom?: RevenueFormType
@@ -278,6 +278,7 @@ export type InvoiceReceivablePatchParamsType = {
   setReminder?: '1' | '0'
   salesCategory?: string
   showDescription?: '1' | '0'
+  taxInvoiceIssued?: '1' | '0'
 }
 
 export type InvoiceDownloadData = {

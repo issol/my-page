@@ -594,7 +594,7 @@ export default function RegisterClientForm({
         <Controller
           name='addressType'
           control={control}
-          render={({ field }) => (
+          render={({ field: { onChange, value } }) => (
             <RadioGroup
               aria-label='address'
               name='address'
@@ -603,8 +603,8 @@ export default function RegisterClientForm({
               <FormControlLabel
                 value='shipping'
                 control={<Radio />}
-                onChange={(e, v) => field.onChange('shipping')}
-                checked={field.value === 'shipping'}
+                onChange={(e, v) => onChange('shipping')}
+                checked={value === 'shipping'}
                 label={
                   <div style={{ whiteSpace: 'nowrap' }}>
                     Shipping address{' '}
@@ -623,8 +623,8 @@ export default function RegisterClientForm({
               />
               <FormControlLabel
                 value='billing'
-                onChange={(e, v) => field.onChange('billing')}
-                checked={field.value === 'billing'}
+                onChange={(e, v) => onChange('billing')}
+                checked={value === 'billing'}
                 control={<Radio />}
                 label={
                   <div style={{ whiteSpace: 'nowrap' }}>

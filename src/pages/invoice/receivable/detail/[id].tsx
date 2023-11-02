@@ -595,6 +595,10 @@ const ReceivableInvoiceDetail = () => {
         contactPersonId: client.contactPerson?.id,
         addressType: client.clientAddress.find(value => value.isSelected)
           ?.addressType!,
+        contacts: {
+          ...client.contactPerson!,
+          addresses: client.clientAddress,
+        },
       })
     }
   }, [client, clientReset])
@@ -706,7 +710,7 @@ const ReceivableInvoiceDetail = () => {
         salesCategory: invoiceInfo.salesCategory,
         notes: invoiceInfo.notes,
 
-        sendReminder: invoiceInfo.setReminder,
+        setReminder: invoiceInfo.setReminder,
         tax: invoiceInfo.tax,
         isTaxable: invoiceInfo.isTaxable ?? true,
         // subtotal: invoiceInfo.subtotal,

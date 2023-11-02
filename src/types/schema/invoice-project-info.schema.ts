@@ -51,5 +51,5 @@ export const invoiceProjectInfoSchema = yup.object().shape({
   }),
 
   invoiceDescription: yup.string().nullable(),
-  sendReminder: yup.boolean().required(FormErrors.required),
+  setReminder: yup.boolean().required(FormErrors.required),
 })

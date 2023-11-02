@@ -443,7 +443,7 @@ export default function AddNewInvoice() {
       // taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date,
       // taxInvoiceDueTimezone: projectInfo.taxInvoiceDueDate?.timezone,
       invoiceDescription: projectInfo.invoiceDescription,
-      setReminder: projectInfo.sendReminder ? '1' : '0',
+      setReminder: projectInfo.setReminder ? '1' : '0',
     }
 
     openModal({

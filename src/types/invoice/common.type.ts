@@ -52,7 +52,7 @@ export type InvoiceProjectInfoFormType = {
   salesRecognitionDate?: { date: string; timezone: CountryType }
   salesCategory?: string
   taxInvoiceIssued: boolean
-  sendReminder: boolean
+  setReminder: boolean
   tax: string | null
   isTaxable: boolean
   notes?: string

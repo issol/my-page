@@ -66,7 +66,7 @@ export default function InvoiceAccountingInfoForm({
   }, [clientTimezone])
 
   useEffect(() => {
-    setValue('sendReminder', true, setValueOptions)
+    setValue('setReminder', true, setValueOptions)
     if (!getValue('salesCategory'))
       setValue('salesCategory', getValue('category'))
   }, [])

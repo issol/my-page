@@ -634,48 +634,6 @@ const InvoiceInfo = ({
       setStatus(invoiceInfo.invoiceStatus)
       setIsReminder(invoiceInfo.setReminder)
       setIssued(invoiceInfo.taxInvoiceIssued)
-
-      // const res: InvoiceProjectInfoFormType = {
-      //   ...invoiceInfo,
-      //   invoiceDescription: invoiceInfo.description,
-      //   invoiceDateTimezone: invoiceInfo.invoicedTimezone,
-      //   invoiceDate: invoiceInfo.invoicedAt,
-      //   taxInvoiceIssued: invoiceInfo.taxInvoiceIssued,
-      //   showDescription: invoiceInfo.showDescription,
-      //   paymentDueDate: {
-      //     date: invoiceInfo.payDueAt,
-      //     timezone: clientTimezone!,
-      //   },
-      //   invoiceConfirmDate: {
-      //     date: invoiceInfo.invoiceConfirmedAt ?? null,
-      //     timezone: clientTimezone!,
-      //   },
-      //   taxInvoiceDueDate: {
-      //     date: invoiceInfo.taxInvoiceDueAt ?? null,
-      //     timezone: clientTimezone!,
-      //   },
-      //   paymentDate: {
-      //     date: invoiceInfo.paidAt,
-      //     timezone: clientTimezone!,
-      //   },
-      //   taxInvoiceIssuanceDate: {
-      //     date: invoiceInfo.taxInvoiceIssuedAt ?? '',
-      //     timezone: clientTimezone!,
-      //   },
-      //   salesRecognitionDate: {
-      //     date: invoiceInfo.salesCheckedAt ?? '',
-      //     timezone: clientTimezone!,
-      //   },
-
-      //   salesCategory: invoiceInfo.salesCategory,
-      //   notes: invoiceInfo.notes,
-
-      //   sendReminder: invoiceInfo.setReminder,
-      //   tax: invoiceInfo.tax,
-      //   isTaxable: invoiceInfo.isTaxable ?? true,
-      //   subtotal: invoiceInfo.subtotal,
-      // }
-      // invoiceInfoReset(res)
     }
   }, [invoiceInfo, invoiceInfoReset, clientTimezone])
 
