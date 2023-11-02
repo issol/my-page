@@ -63,7 +63,7 @@ type Props = {
     currency: CurrencyType
   }) => void
   splitReady: boolean
-  type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
+  type: 'edit' | 'detail' | 'invoiceDetail' | 'create' | 'invoiceCreate'
   onItemRemove: (idx: number) => void
 
   selectedIds?: { id: number; selected: boolean }[]

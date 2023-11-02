@@ -62,6 +62,11 @@ export type InvoiceReceivableFilterType = {
 export type InvoiceReceivableListType = {
   id: number
   corporationId: string
+  client: {
+    clientId: number
+    email: string
+    name: string
+  }
   createdAt: string
   adminCompanyName: string
   invoiceStatus: InvoiceReceivableStatusType
@@ -88,7 +93,12 @@ export type InvoiceReceivableListType = {
   salesCheckedDateTimezone: CountryType | null
   downloadedAt: string | null
   order: InvoiceReceivableOrderType
+  orders: InvoiceReceivableOrderType[]
   updatedAt: string
+  projectName: string
+  revenueFrom: RevenueFormType
+  isTaxable: boolean
+  tax: string | null
 }
 
 export type InvoiceReceivableOrderType = {
@@ -120,6 +130,8 @@ export type InvoiceReceivableOrderType = {
   downloadedAt: string | null
   deletedAt: string | null
   client: InvoiceReceivableClientType
+  totalPrice: number
+  subtotal: string
 }
 
 export type InvoiceReceivableClientType = {

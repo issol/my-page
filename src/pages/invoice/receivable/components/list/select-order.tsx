@@ -348,11 +348,7 @@ export default function SelectOrder({
       sortable: false,
       renderHeader: () => <Box>Client</Box>,
       renderCell: ({ row }: OrderListCellType) => {
-        return (
-          <Typography variant='body1' fontWeight={600}>
-            {row.client.name}
-          </Typography>
-        )
+        return <Typography variant='body1'>{row.client.name}</Typography>
       },
     },
     {
@@ -366,11 +362,7 @@ export default function SelectOrder({
       sortable: false,
       renderHeader: () => <Box>Currency</Box>,
       renderCell: ({ row }: OrderListCellType) => {
-        return (
-          <Typography variant='body1' fontWeight={600}>
-            {row.currency}
-          </Typography>
-        )
+        return <Typography variant='body1'>{row.currency}</Typography>
       },
     },
     {
@@ -448,25 +440,6 @@ export default function SelectOrder({
         }
       }
     }
-
-    // if (!selected) return
-    // if (!selected?.isEditable) {
-    //   openModal({
-    //     type: 'not-a-team',
-    //     children: (
-    //       <SimpleAlertModal
-    //         message='You can only create invoices for orders where you are part of the project team. '
-    //         onClose={() => closeModal('not-a-team')}
-    //       />
-    //     ),
-    //   })
-    // } else {
-    //   onClose()
-    //   router.push({
-    //     pathname: '/invoice/receivable/add-new',
-    //     query: { orderId: selected.id },
-    //   })
-    // }
   }
 
   const filterSubmit = (data: FilterType) => {

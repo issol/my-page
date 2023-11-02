@@ -546,11 +546,11 @@ export default function AddNewInvoice() {
                 analysis: value.analysis ?? [],
                 totalPrice: value?.totalPrice ?? 0,
                 dueAt: value?.dueAt ?? '',
-                contactPerson: value?.contactPerson ?? {},
+                contactPerson: value?.contactPerson ?? null,
                 contactPersonId: value.contactPerson?.userId ?? undefined,
                 // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
                 // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
-                initialPrice: value.initialPrice ?? {},
+                initialPrice: value.initialPrice ?? null,
                 description: value.description,
                 showItemDescription: value.showItemDescription,
                 minimumPrice: value.minimumPrice,
@@ -560,7 +560,32 @@ export default function AddNewInvoice() {
             )
             .flat()
             .map((value, idx) => ({ ...value, idx: idx }))
-          console.log(items)
+
+          setLanguagePairs(
+            items?.map(item => {
+              return {
+                id: String(item.id),
+                source: item.source!,
+                target: item.target!,
+                price: {
+                  id: item.initialPrice?.priceId!,
+                  isStandard: item.initialPrice?.isStandard!,
+                  priceName: item.initialPrice?.name!,
+                  groupName: 'Current price',
+                  category: item.initialPrice?.category!,
+                  serviceType: item.initialPrice?.serviceType!,
+                  currency: item.initialPrice?.currency!,
+                  catBasis: item.initialPrice?.calculationBasis!,
+                  decimalPlace: item.initialPrice?.numberPlace!,
+                  roundingProcedure:
+                    RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+                  languagePairs: [],
+                  priceUnit: [],
+                  catInterface: { memSource: [], memoQ: [] },
+                },
+              }
+            }),
+          )
 
           itemReset({ items: items })
           itemTrigger()
@@ -740,7 +765,7 @@ export default function AddNewInvoice() {
                   languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
-                  type='invoiceDetail'
+                  type='invoiceCreate'
                   itemTrigger={itemTrigger}
                   sumTotalPrice={sumTotalPrice}
                   orders={orders?.orders}

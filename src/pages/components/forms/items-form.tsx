@@ -72,7 +72,7 @@ type Props = {
     idx?: number,
   ) => Array<StandardPriceListType & { groupName?: string }>
   priceUnitsList: Array<PriceUnitListType>
-  type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
+  type: 'edit' | 'detail' | 'invoiceDetail' | 'create' | 'invoiceCreate'
   orderId?: number
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
@@ -132,7 +132,6 @@ export default function ItemForm({
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
-  console.log(orders)
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -317,7 +316,9 @@ export default function ItemForm({
           </Link>
         ) : null}
       </Grid>
-      {type === 'invoiceDetail' && orders && orders.length ? (
+      {(type === 'invoiceDetail' || type === 'invoiceCreate') &&
+      orders &&
+      orders.length ? (
         orders.map(value => {
           return (
             <Box key={uuidv4()}>
@@ -329,14 +330,30 @@ export default function ItemForm({
                 }}
               >
                 <Box sx={{ display: 'flex', gap: '3px' }}>
-                  <Typography
-                    variant='body1'
-                    color='#666CFF'
-                    fontWeight={600}
-                    sx={{ textDecoration: 'underline' }}
-                  >
-                    [{value.corporationId}]
-                  </Typography>
+                  {type === 'invoiceCreate' ? (
+                    <Typography
+                      variant='body1'
+                      color='#666CFF'
+                      fontWeight={600}
+                      sx={{ textDecoration: 'underline' }}
+                    >
+                      [{value.corporationId}]
+                    </Typography>
+                  ) : (
+                    <Link
+                      href={`/orders/order-list/detail/${value.id}`}
+                      style={{
+                        display: 'flex',
+                        gap: '8px',
+                        alignItems: 'center',
+                        color: '#666CFF',
+                        fontWeight: 600,
+                      }}
+                    >
+                      [{value.corporationId}]
+                    </Link>
+                  )}
+
                   <Typography variant='body1' color='#666CFF' fontWeight={600}>
                     {value.projectName}
                   </Typography>
