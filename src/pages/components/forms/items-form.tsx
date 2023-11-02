@@ -72,7 +72,13 @@ type Props = {
     idx?: number,
   ) => Array<StandardPriceListType & { groupName?: string }>
   priceUnitsList: Array<PriceUnitListType>
-  type: 'edit' | 'detail' | 'invoiceDetail' | 'create' | 'invoiceCreate'
+  type:
+    | 'edit'
+    | 'detail'
+    | 'invoiceDetail'
+    | 'create'
+    | 'invoiceCreate'
+    | 'invoiceHistory'
   orderId?: number
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
@@ -280,6 +286,8 @@ export default function ItemForm({
     })
   }
 
+  console.log(fields)
+
   return (
     <DatePickerWrapper>
       <Grid
@@ -316,7 +324,9 @@ export default function ItemForm({
           </Link>
         ) : null}
       </Grid>
-      {(type === 'invoiceDetail' || type === 'invoiceCreate') &&
+      {(type === 'invoiceDetail' ||
+        type === 'invoiceCreate' ||
+        type === 'invoiceHistory') &&
       orders &&
       orders.length ? (
         orders.map(value => {

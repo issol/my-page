@@ -221,6 +221,7 @@ export type InvoiceVersionHistoryType = {
   email: string
   downloadedAt: string
   managerConfirmedAt: string | null
+  managerConfirmTimezone?: CountryType | null
   clientConfirmedAt: string | null
   clientConfirmTimezone?: CountryType | null
   isRestorable: boolean

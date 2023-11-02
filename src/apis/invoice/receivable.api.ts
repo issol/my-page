@@ -139,19 +139,20 @@ export const getInvoiceVersionHistory = async (
   const { data } = await axios.get(
     `/api/enough/u/invoice/receivable/${id}/history`,
   )
+  console.log(data)
 
   return data.map((value: InvoiceVersionHistoryResType) => ({
     ...value,
-    items: {
-      ...value.items,
-      items: value.items.items.map((item: ItemResType) => ({
-        ...item,
-        name: item?.itemName,
-        source: item?.sourceLanguage,
-        target: item?.targetLanguage,
-        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-      })),
-    },
+    // items: {
+    //   ...value.items,
+    //   items: value.items.items.map((item: ItemResType) => ({
+    //     ...item,
+    //     name: item?.itemName,
+    //     source: item?.sourceLanguage,
+    //     target: item?.targetLanguage,
+    //     totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+    //   })),
+    // },
     members: value.projectTeam.members,
   }))
 }

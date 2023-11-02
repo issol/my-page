@@ -63,7 +63,13 @@ type Props = {
     currency: CurrencyType
   }) => void
   splitReady: boolean
-  type: 'edit' | 'detail' | 'invoiceDetail' | 'create' | 'invoiceCreate'
+  type:
+    | 'edit'
+    | 'detail'
+    | 'invoiceDetail'
+    | 'create'
+    | 'invoiceCreate'
+    | 'invoiceHistory'
   onItemRemove: (idx: number) => void
 
   selectedIds?: { id: number; selected: boolean }[]
@@ -441,7 +447,10 @@ const Row = ({
                 />
               </IconButton>
               <Typography fontWeight={500}>
-                {indexing !== undefined && type === 'invoiceDetail'
+                {indexing !== undefined &&
+                (type === 'invoiceDetail' ||
+                  type === 'invoiceHistory' ||
+                  type === 'invoiceCreate')
                   ? `${
                       indexing + 1 <= 10
                         ? `0${indexing + 1}.`
@@ -449,12 +458,17 @@ const Row = ({
                     }`
                   : `${idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}`}
                 &nbsp;
-                {type === 'detail' || type === 'invoiceDetail'
+                {type === 'detail' ||
+                type === 'invoiceDetail' ||
+                type === 'invoiceHistory' ||
+                type === 'invoiceCreate'
                   ? getValues(`items.${idx}.itemName`)
                   : null}
               </Typography>
             </Box>
-            {type === 'detail' || type === 'invoiceDetail' ? null : (
+            {type === 'detail' ||
+            type === 'invoiceDetail' ||
+            type === 'invoiceHistory' ? null : (
               <IconButton onClick={() => onItemRemove(idx)}>
                 <Icon icon='mdi:trash-outline' />
               </IconButton>
@@ -463,7 +477,9 @@ const Row = ({
         </Grid>
         {cardOpen ? (
           <>
-            {type === 'detail' || type === 'invoiceDetail' ? null : (
+            {type === 'detail' ||
+            type === 'invoiceDetail' ||
+            type === 'invoiceHistory' ? null : (
               <Grid item xs={12}>
                 <Controller
                   name={`items.${idx}.itemName`}
@@ -490,7 +506,9 @@ const Row = ({
               </Grid>
             )}
             <Grid item xs={6}>
-              {type === 'detail' || type === 'invoiceDetail' ? (
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -528,7 +546,9 @@ const Row = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              {type === 'detail' || type === 'invoiceDetail' ? (
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -612,7 +632,9 @@ const Row = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              {type === 'detail' || type === 'invoiceDetail' ? (
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -692,7 +714,9 @@ const Row = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              {type === 'detail' || type === 'invoiceDetail' ? (
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -866,7 +890,9 @@ const Row = ({
                       render={({ field: { value, onChange } }) => (
                         <Checkbox
                           disabled={
-                            type === 'detail' || type === 'invoiceDetail'
+                            type === 'detail' ||
+                            type === 'invoiceDetail' ||
+                            type === 'invoiceHistory'
                           }
                           value={value}
                           onChange={e => {
@@ -883,7 +909,9 @@ const Row = ({
                   </Box>
                 )}
               </Box>
-              {type === 'detail' || type === 'invoiceDetail' ? (
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ? (
                 <Typography>
                   {currentRole?.name === 'CLIENT'
                     ? getValues(`items.${idx}.showItemDescription`)
@@ -923,6 +951,8 @@ const Row = ({
             </Grid>
             {/* TM analysis */}
             {type === 'invoiceDetail' ||
+            type === 'invoiceHistory' ||
+            type === 'invoiceCreate' ||
             (currentRole && currentRole.name === 'CLIENT') ? null : (
               <Grid item xs={12}>
                 <TmAnalysisForm

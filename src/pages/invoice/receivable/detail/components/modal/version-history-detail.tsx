@@ -13,7 +13,12 @@ import {
 } from 'react'
 
 import ProjectTeam from '../project-team'
-import { HistoryType, VersionHistoryType } from '@src/types/orders/order-detail'
+import {
+  HistoryType,
+  ProjectTeamListType,
+  VersionHistoryType,
+} from '@src/types/orders/order-detail'
+import { v4 as uuidv4 } from 'uuid'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import {
   InvoiceDownloadData,
@@ -105,6 +110,9 @@ const InvoiceVersionHistoryModal = ({
     currentRole && currentRole.name === 'CLIENT' ? 'invoice' : 'invoiceInfo',
   )
 
+  const teamOrder = ['supervisor', 'projectManager', 'member']
+  const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
+
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const [pageSize, setPageSize] = useState<number>(10)
@@ -119,6 +127,8 @@ const InvoiceVersionHistoryModal = ({
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
+
+  const [teams, setTeams] = useState<ProjectTeamListType[]>([])
 
   const {
     control: invoiceInfoControl,
@@ -218,21 +228,21 @@ const InvoiceVersionHistoryModal = ({
     return [defaultOption].concat(filteredList)
   }
 
-  useEffect(() => {
-    if (history.client) {
-      clientReset({
-        clientId: history.client.client.clientId,
-        contactPersonId: history.client.contactPerson?.id,
-        addressType: history.client.clientAddress.find(
-          value => value.isSelected,
-        )?.addressType!,
-      })
-    }
-  }, [history.client, clientReset])
+  // useEffect(() => {
+  //   if (history.client) {
+  //     clientReset({
+  //       clientId: history.client.client.clientId,
+  //       contactPersonId: history.client.contactPerson?.id,
+  //       addressType: history.client.clientAddress.find(
+  //         value => value.isSelected,
+  //       )?.addressType!,
+  //     })
+  //   }
+  // }, [history.client, clientReset])
 
   useEffect(() => {
     if (history) {
-      checkEditable(history.id).then(res => {
+      checkEditable(history.projectInfo.id).then(res => {
         setIsUserInTeamMember(res)
       })
     }
@@ -242,10 +252,9 @@ const InvoiceVersionHistoryModal = ({
 
       setInvoiceLanguageItem({
         ...history.items,
-        orders: history.items.orders.map(item => ({
-          ...item,
-          orderId: item.id,
-        })),
+        // orders: history.items.orders.map(item => ({
+        //   ...item,
+        // })),
       })
 
       const items = history.items.orders
@@ -277,6 +286,8 @@ const InvoiceVersionHistoryModal = ({
         )
         .flat()
         .map((value, idx) => ({ ...value, idx: idx }))
+
+      console.log(items)
 
       itemReset({ items: items })
 
@@ -353,6 +364,46 @@ const InvoiceVersionHistoryModal = ({
       invoiceInfoReset(res)
     }
     if (history.members) {
+      let viewTeams: ProjectTeamListType[] = [...history.members].map(
+        value => ({
+          ...value,
+          id: uuidv4(),
+        }),
+      )
+
+      if (!viewTeams.some(item => item.position === 'supervisor')) {
+        viewTeams.unshift({
+          id: uuidv4(),
+          position: 'supervisor',
+          userId: -1,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+      if (!viewTeams.some(item => item.position === 'member')) {
+        viewTeams.push({
+          id: uuidv4(),
+          position: 'member',
+          userId: 0,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+
+      const res = viewTeams.sort((a, b) => {
+        const aIndex = teamOrder.indexOf(a.position)
+        const bIndex = teamOrder.indexOf(b.position)
+        return aIndex - bIndex
+      })
+
+      if (viewTeams.length) setTeams(res)
+
       const teams: Array<{
         type: MemberType
         id: number | null
@@ -371,11 +422,22 @@ const InvoiceVersionHistoryModal = ({
           lastName: item?.lastName!,
         }),
       }))
-      setIsUserInTeamMember(
-        history.members.some(value => value.userId === user.userId!),
-      )
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
 
-      resetTeam({ teams })
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
     }
   }, [history])
 
@@ -383,7 +445,7 @@ const InvoiceVersionHistoryModal = ({
     if (history) {
       const { projectInfo, client, members, items } = history
 
-      const historyItems = items.orders
+      const historyItems: ItemType[] = items.orders
         .map(item =>
           item.items.map((value, idx) => ({
             ...value,
@@ -412,15 +474,13 @@ const InvoiceVersionHistoryModal = ({
         )
         .flat()
         .map((value, idx) => ({ ...value, idx: idx }))
+
       const pm = members!.find(value => value.position === 'projectManager')
 
       // const subtotal = items.items.reduce((acc, cur) => {
       //   return acc + cur.totalPrice
       // }, 0)
-      const invoiceTax =
-        invoiceInfo!.tax && invoiceInfo!.tax !== ''
-          ? Number(invoiceInfo!.tax)
-          : 0
+
       const subtotal = items.orders.reduce(
         (total, obj) => total + obj.subtotal,
         0,
@@ -448,7 +508,9 @@ const InvoiceVersionHistoryModal = ({
           email: pm?.email!,
           middleName: pm?.middleName!,
         },
-        companyName: client!.client.name,
+        //TODO 백엔드 배포 후 주석으로 변경
+        companyName: '',
+        // companyName: client!.client.name,
         projectName: projectInfo!.projectName,
         client: client!,
         contactPerson: client!.contactPerson,
@@ -640,7 +702,9 @@ const InvoiceVersionHistoryModal = ({
               <InvoiceLanguageAndItem
                 languagePairs={languagePairs!}
                 setLanguagePairs={setLanguagePairs}
-                clientId={history?.client.client.clientId}
+                //TODO 백엔드 배포 후 주석으로 변경
+                // clientId={history?.client.client.clientId}
+                clientId={1}
                 itemControl={itemControl}
                 getItem={getItem}
                 setItem={setItem}
@@ -654,23 +718,24 @@ const InvoiceVersionHistoryModal = ({
                 itemTrigger={itemTrigger}
                 invoiceLanguageItem={invoiceLanguageItem!}
                 getInvoiceInfo={getInvoiceInfo}
+                type='invoiceHistory'
               />
             </Grid>
           </TabPanel>
           <TabPanel value='client' sx={{ height: '100%', minHeight: '552px' }}>
-            <InvoiceClient
+            {/* <InvoiceClient
               type='history'
               client={history.client}
               edit={false}
               setTax={() => null}
               setTaxable={() => null}
               isUpdatable={isUpdatable}
-            />
+            /> */}
           </TabPanel>
           <TabPanel value='team' sx={{ height: '100%', minHeight: '552px' }}>
             <ProjectTeam
               type='history'
-              list={history.members}
+              list={teams}
               listCount={history.members.length}
               columns={getProjectTeamColumns()}
               page={page}

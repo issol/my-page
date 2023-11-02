@@ -366,6 +366,9 @@ const InvoiceInfo = ({
       const res: InvoiceReceivablePatchParamsType =
         infoType === 'basic'
           ? {
+              projectName: data.projectName,
+              tax: data.tax,
+              isTaxable: data.isTaxable ? '1' : '0',
               invoicedAt: data.invoiceDate.toISOString(),
               invoicedTimezone: data.invoiceDateTimezone,
               payDueAt: data.paymentDueDate.date,
@@ -1571,7 +1574,7 @@ const InvoiceInfo = ({
                                 }}
                               >
                                 {invoiceInfo.tax && invoiceInfo.tax !== ''
-                                  ? invoiceInfo.tax
+                                  ? `${invoiceInfo.tax}%`
                                   : '-'}
                               </Typography>
                             </Box>

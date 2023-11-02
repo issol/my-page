@@ -97,6 +97,7 @@ type Props = {
   invoiceLanguageItem: InvoiceLanguageItemType
   getInvoiceInfo: UseFormGetValues<InvoiceProjectInfoFormType>
   onClickAddOrder?: () => void
+  type?: 'invoiceHistory' | 'invoiceDetail'
 }
 
 const InvoiceLanguageAndItem = ({
@@ -119,6 +120,7 @@ const InvoiceLanguageAndItem = ({
   invoiceLanguageItem,
   getInvoiceInfo,
   onClickAddOrder,
+  type = 'invoiceDetail',
 }: Props) => {
   console.log(invoiceLanguageItem)
 
@@ -206,6 +208,8 @@ const InvoiceLanguageAndItem = ({
     }
   }
 
+  console.log(getInvoiceInfo())
+
   return (
     <>
       <Box
@@ -216,19 +220,21 @@ const InvoiceLanguageAndItem = ({
           width: '100%',
         }}
       >
-        <Button
-          variant='outlined'
-          sx={{ display: 'flex', gap: '8px', mb: '24px' }}
-          onClick={onClickAddOrder && onClickAddOrder}
-          // disabled={
-          //   items.length <= 0 ||
-          //   !canUseFeature('button-Languages&Items-SplitOrder')
-          // }
-          // onClick={onClickSplitOrder}
-        >
-          <Icon icon='mdi:playlist-add' />
-          Add order
-        </Button>
+        {type === 'invoiceHistory' || currentRole?.name === 'CLIENT' ? null : (
+          <Button
+            variant='outlined'
+            sx={{ display: 'flex', gap: '8px', mb: '24px' }}
+            onClick={onClickAddOrder && onClickAddOrder}
+            // disabled={
+            //   items.length <= 0 ||
+            //   !canUseFeature('button-Languages&Items-SplitOrder')
+            // }
+            // onClick={onClickSplitOrder}
+          >
+            <Icon icon='mdi:playlist-add' />
+            Add order
+          </Button>
+        )}
       </Box>
       {/* {currentRole && currentRole.name === 'CLIENT' ? null : (
         <Grid item xs={12}>
@@ -255,7 +261,7 @@ const InvoiceLanguageAndItem = ({
           languagePairs={languagePairs}
           getPriceOptions={getPriceOptions}
           priceUnitsList={priceUnitsList || []}
-          type={'invoiceDetail'}
+          type={type}
           orderId={invoiceInfo.orderId}
           itemTrigger={itemTrigger}
           sumTotalPrice={sumTotalPrice}
@@ -401,9 +407,7 @@ const InvoiceLanguageAndItem = ({
                     formatByRoundingProcedure(
                       Number(getInvoiceInfo('subtotal')) *
                         (Number(invoiceInfo.tax!) / 100) +
-                        items.reduce((acc, cur) => {
-                          return acc + cur.totalPrice
-                        }, 0),
+                        Number(getInvoiceInfo('subtotal')),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
                       priceInfo?.currency ?? 'USD',

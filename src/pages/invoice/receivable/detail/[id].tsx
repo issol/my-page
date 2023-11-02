@@ -248,7 +248,6 @@ const ReceivableInvoiceDetail = () => {
     }) => patchInvoiceInfo(data.id, data.form, data.type),
     {
       onSuccess: (data: { id: number }, variables) => {
-        invalidateInvoiceDetail()
         setInvoiceInfoEdit(false)
         setAccountingInfoEdit(false)
         setProjectTeamEdit(false)
@@ -256,6 +255,7 @@ const ReceivableInvoiceDetail = () => {
 
         if (data.id !== variables.id) {
           router.push(`/invoice/receivable/detail/${data.id}`)
+          invalidateInvoiceDetail()
         } else {
           invoiceInfoRefetch()
           historyRefetch()
@@ -486,8 +486,8 @@ const ReceivableInvoiceDetail = () => {
         return (
           <Box>
             {FullDateTimezoneHelper(
-              row?.clientConfirmedAt,
-              row?.clientConfirmTimezone,
+              row?.managerConfirmedAt,
+              row?.managerConfirmTimezone,
             )}
           </Box>
         )
