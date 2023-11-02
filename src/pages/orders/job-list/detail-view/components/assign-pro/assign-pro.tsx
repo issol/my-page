@@ -281,10 +281,6 @@ const AssignPro = ({
       }
     )
   }
-  const handleReAssignPro = () => {
-    reAssignJobMutation.mutate({ jobId: row.id })
-    closeModal('ReAssignProRequestJobModal')
-  }
 
   const handleAssignJob = (jobId: number, proId: number) => {
     assignJobMutation.mutate(
