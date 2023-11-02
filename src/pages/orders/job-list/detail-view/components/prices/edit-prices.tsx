@@ -317,6 +317,7 @@ const EditPrices = ({
               closeModal={closeModal}
               priceUnitsList={priceUnitsList}
               itemTrigger={itemTrigger}
+              selectedPrice={price}
               type='edit'
             />
           </Box>

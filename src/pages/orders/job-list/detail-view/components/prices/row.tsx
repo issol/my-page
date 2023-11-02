@@ -54,6 +54,9 @@ type Props = {
     items: ItemType[]
   }>
   setDarkMode?: boolean
+  selectedPrice?: (StandardPriceListType & {
+    groupName?: string
+  }) | null
 }
 
 const Row = ({
@@ -69,6 +72,7 @@ const Row = ({
   type,
   itemTrigger,
   setDarkMode,
+  selectedPrice,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
@@ -239,7 +243,10 @@ const Row = ({
     }
 
     // if (prices === data[index].prices) return
-    const currency = getItem(`items.${0}.initialPrice.currency`) ?? 'KRW'
+
+    const currency = selectedPrice && selectedPrice.currency
+      ? selectedPrice.currency
+      : getItem(`items.${0}.initialPrice.currency`) ?? 'KRW'
     const roundingPrice = formatByRoundingProcedure(
       prices,
       priceData()?.decimalPlace!
