@@ -445,13 +445,15 @@ const InvoiceVersionHistoryModal = ({
     if (history) {
       const { projectInfo, clientInfo, members, items } = history
 
+      const pm = members!.find(value => value.position === 'projectManager')
+
       const historyItems: ItemType[] = items.orders
         .map(item =>
           item.items.map((value, idx) => ({
             ...value,
-            orderId: item.id,
+            orderId: item.orderId,
             projectName: item.projectName,
-            id: item.id,
+            id: item.orderId,
             itemName: value.itemName,
             source: value.sourceLanguage,
             target: value.targetLanguage,
@@ -475,28 +477,29 @@ const InvoiceVersionHistoryModal = ({
         .flat()
         .map((value, idx) => ({ ...value, idx: idx }))
 
-      const pm = members!.find(value => value.position === 'projectManager')
-
-      // const subtotal = items.items.reduce((acc, cur) => {
+      // const subtotal = langItem.items.reduce((acc, cur) => {
       //   return acc + cur.totalPrice
       // }, 0)
-
+      const invoiceTax =
+        projectInfo!.tax && projectInfo!.tax !== ''
+          ? Number(projectInfo!.tax)
+          : 0
       const subtotal = items.orders.reduce(
         (total, obj) => total + obj.subtotal,
         0,
       )
-
-      const tax = subtotal * (Number(projectInfo!.tax!) / 100)
+      const tax = subtotal * (invoiceTax / 100)
 
       const res: InvoiceDownloadData = {
         invoiceId: Number(projectInfo.id!),
         adminCompanyName: 'GloZ Inc.',
+        corporationId: invoiceInfo?.corporationId!,
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
-        corporationId: projectInfo!.corporationId,
-        orders: items.orders,
         orderCorporationId: projectInfo!.linkedOrders.map(
           value => value.corporationId,
         ),
+        orders: items.orders,
+        // orderCorporationId: invoiceInfo?.orderCorporationId ?? '',
         invoicedAt: projectInfo!.invoicedAt,
         paymentDueAt: {
           date: projectInfo!.payDueAt,
@@ -508,15 +511,14 @@ const InvoiceVersionHistoryModal = ({
           email: pm?.email!,
           middleName: pm?.middleName!,
         },
-
         companyName: clientInfo!.client.name,
         projectName: projectInfo!.projectName,
         client: clientInfo!,
         contactPerson: clientInfo!.contactPerson,
         clientAddress: clientInfo!.clientAddress,
-        // langItem: items!,
         langItem: historyItems,
-        currency: projectInfo.currency,
+        currency: projectInfo!.currency,
+        // langItem: {id : langItem.invoiceId, languagePairs : langItem.orders } !,
         subtotal: priceInfo
           ? formatCurrency(
               formatByRoundingProcedure(
@@ -528,7 +530,7 @@ const InvoiceVersionHistoryModal = ({
               priceInfo?.currency!,
             )
           : '',
-        taxPercent: Number(projectInfo!.tax),
+        taxPercent: invoiceTax,
         tax:
           projectInfo!.isTaxable && priceInfo
             ? formatCurrency(
@@ -546,7 +548,7 @@ const InvoiceVersionHistoryModal = ({
           projectInfo!.isTaxable && priceInfo
             ? formatCurrency(
                 formatByRoundingProcedure(
-                  subtotal - tax,
+                  subtotal + tax,
                   priceInfo?.decimalPlace ?? 0,
                   priceInfo?.roundingProcedure ??
                     PriceRoundingResponseEnum.Type_0,
