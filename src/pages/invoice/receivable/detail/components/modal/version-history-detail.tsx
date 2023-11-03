@@ -451,9 +451,9 @@ const InvoiceVersionHistoryModal = ({
         .map(item =>
           item.items.map((value, idx) => ({
             ...value,
-            orderId: item.orderId,
+            orderId: item.id,
             projectName: item.projectName,
-            id: item.orderId,
+            id: item.id,
             itemName: value.itemName,
             source: value.sourceLanguage,
             target: value.targetLanguage,
@@ -676,7 +676,7 @@ const InvoiceVersionHistoryModal = ({
                 downloadData={downloadData}
                 downloadLanguage={downloadLanguage}
                 setDownloadLanguage={setDownloadLanguage}
-                type='detail'
+                type='history'
                 user={user!}
                 orders={history.items.orders}
               />
