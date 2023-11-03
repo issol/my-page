@@ -341,7 +341,8 @@ export default function ItemPriceUnitForm({
         <TableCell sx={{ width: '10%' }} ref={containerRef}>
           {type === 'detail' ||
           type === 'invoiceDetail' ||
-          type === 'invoiceHistory' ? (
+          type === 'invoiceHistory' ||
+          type === 'invoiceCreate' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {Number(getValues(`${detailName}.${idx}.quantity`))}
@@ -384,7 +385,8 @@ export default function ItemPriceUnitForm({
         <TableCell sx={{ width: 'auto' }}>
           {type === 'detail' ||
           type === 'invoiceDetail' ||
-          type === 'invoiceHistory' ? (
+          type === 'invoiceHistory' ||
+          type === 'invoiceCreate' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {allPriceUnits?.current?.find(
@@ -523,7 +525,8 @@ export default function ItemPriceUnitForm({
           align={
             type === 'detail' ||
             type === 'invoiceDetail' ||
-            type === 'invoiceHistory'
+            type === 'invoiceHistory' ||
+            type === 'invoiceCreate'
               ? 'left'
               : 'left'
           }
@@ -531,7 +534,8 @@ export default function ItemPriceUnitForm({
         >
           {type === 'detail' ||
           type === 'invoiceDetail' ||
-          type === 'invoiceHistory' ? (
+          type === 'invoiceHistory' ||
+          type === 'invoiceCreate' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {formatCurrency(
@@ -583,7 +587,8 @@ export default function ItemPriceUnitForm({
         <TableCell sx={{ width: '15%' }} align='center'>
           {type === 'detail' ||
           type === 'invoiceDetail' ||
-          type === 'invoiceHistory' ? (
+          type === 'invoiceHistory' ||
+          type === 'invoiceCreate' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {isNotApplicable || showCurrency
@@ -626,7 +631,8 @@ export default function ItemPriceUnitForm({
         <TableCell sx={{ width: '20%' }} align='left'>
           {type === 'detail' ||
           type === 'invoiceDetail' ||
-          type === 'invoiceHistory' ? (
+          type === 'invoiceHistory' ||
+          type === 'invoiceCreate' ? (
             <Typography fontSize={14}>
               {formatCurrency(
                 formatByRoundingProcedure(
@@ -682,7 +688,8 @@ export default function ItemPriceUnitForm({
         <TableCell sx={{ width: '5%' }} align='center'>
           {type === 'detail' ||
           type === 'invoiceDetail' ||
-          type === 'invoiceHistory' ? null : (
+          type === 'invoiceHistory' ||
+          type === 'invoiceCreate' ? null : (
             <IconButton onClick={() => onClickDeletePriceUnit(idx)}>
               <Icon icon='mdi:trash-outline' />
             </IconButton>
@@ -825,7 +832,8 @@ export default function ItemPriceUnitForm({
                 <TableCell align='center'>
                   {type === 'detail' ||
                   type === 'invoiceDetail' ||
-                  type === 'invoiceHistory' ? null : (
+                  type === 'invoiceHistory' ||
+                  type === 'invoiceCreate' ? null : (
                     <IconButton onClick={() => setShowMinimum(false)}>
                       <Icon icon='mdi:trash-outline' />
                     </IconButton>
@@ -838,7 +846,8 @@ export default function ItemPriceUnitForm({
       </TableContainer>
       {type === 'detail' ||
       type === 'invoiceDetail' ||
-      type === 'invoiceHistory' ? null : (
+      type === 'invoiceHistory' ||
+      type === 'invoiceCreate' ? null : (
         <Grid item xs={12}>
           <Box
             display='flex'
@@ -885,7 +894,8 @@ export default function ItemPriceUnitForm({
           >
             {type === 'detail' ||
             type === 'invoiceDetail' ||
-            type === 'invoiceHistory' ? (
+            type === 'invoiceHistory' ||
+            type === 'invoiceCreate' ? (
               <Typography fontWeight='bold' fontSize={14}>
                 {formatCurrency(
                   formatByRoundingProcedure(
@@ -961,7 +971,8 @@ export default function ItemPriceUnitForm({
             )}
             {type === 'detail' ||
             type === 'invoiceDetail' ||
-            type === 'invoiceHistory' ? null : (
+            type === 'invoiceHistory' ||
+            type === 'invoiceCreate' ? null : (
               <IconButton
                 onClick={() => {
                   getTotalPrice()

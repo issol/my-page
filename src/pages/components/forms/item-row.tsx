@@ -466,7 +466,8 @@ const Row = ({
             </Box>
             {type === 'detail' ||
             type === 'invoiceDetail' ||
-            type === 'invoiceHistory' ? null : (
+            type === 'invoiceHistory' ||
+            type === 'invoiceCreate' ? null : (
               <IconButton
                 onClick={() => onItemRemove(idx, getValues(`items.${idx}.id`)!)}
               >
@@ -479,7 +480,8 @@ const Row = ({
           <>
             {type === 'detail' ||
             type === 'invoiceDetail' ||
-            type === 'invoiceHistory' ? null : (
+            type === 'invoiceHistory' ||
+            type === 'invoiceCreate' ? null : (
               <Grid item xs={12}>
                 <Controller
                   name={`items.${idx}.itemName`}
@@ -508,7 +510,8 @@ const Row = ({
             <Grid item xs={6}>
               {type === 'detail' ||
               type === 'invoiceDetail' ||
-              type === 'invoiceHistory' ? (
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -548,7 +551,8 @@ const Row = ({
             <Grid item xs={6}>
               {type === 'detail' ||
               type === 'invoiceDetail' ||
-              type === 'invoiceHistory' ? (
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -634,7 +638,8 @@ const Row = ({
             <Grid item xs={6}>
               {type === 'detail' ||
               type === 'invoiceDetail' ||
-              type === 'invoiceHistory' ? (
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -716,7 +721,8 @@ const Row = ({
             <Grid item xs={6}>
               {type === 'detail' ||
               type === 'invoiceDetail' ||
-              type === 'invoiceHistory' ? (
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -892,7 +898,8 @@ const Row = ({
                           disabled={
                             type === 'detail' ||
                             type === 'invoiceDetail' ||
-                            type === 'invoiceHistory'
+                            type === 'invoiceHistory' ||
+                            type === 'invoiceCreate'
                           }
                           value={value}
                           onChange={e => {
@@ -911,13 +918,15 @@ const Row = ({
               </Box>
               {type === 'detail' ||
               type === 'invoiceDetail' ||
-              type === 'invoiceHistory' ? (
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
                 <Typography>
                   {currentRole?.name === 'CLIENT'
                     ? getValues(`items.${idx}.showItemDescription`)
                       ? getValues(`items.${idx}.description`)
                       : '-'
-                    : getValues(`items.${idx}.description`) !== ''
+                    : getValues(`items.${idx}.description`) !== '' &&
+                      getValues(`items.${idx}.description`) !== null
                     ? getValues(`items.${idx}.description`)
                     : '-'}
                 </Typography>
