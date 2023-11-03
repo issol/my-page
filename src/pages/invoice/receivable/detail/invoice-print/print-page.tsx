@@ -141,9 +141,10 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
             {lang === 'EN' ? 'Order No:' : '오더 번호:'}
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-            {data.orderCorporationId.map((value, idx) => {
+            {formatOrderId(data.orderCorporationId)}
+            {/* {data.orderCorporationId.map((value, idx) => {
               return <>{formatOrderId(data.orderCorporationId)}</>
-            })}
+            })} */}
             {/* {FullDateTimezoneHelper(data.invoicedAt, user.timezone)} */}
           </Typography>
         </Box>
