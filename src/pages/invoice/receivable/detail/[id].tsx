@@ -687,21 +687,22 @@ const ReceivableInvoiceDetail = () => {
           timezone: clientTimezone!,
         },
         invoiceConfirmDate: {
-          date:
-            client?.contactPerson !== null &&
-            client?.contactPerson.userId !== null
-              ? invoiceInfo.invoiceConfirmedAt
-              : null,
+          date: invoiceInfo.invoiceConfirmedAt ?? null,
+          // date:
+          //   client?.contactPerson !== null &&
+          //   client?.contactPerson.userId !== null
+          //     ? invoiceInfo.invoiceConfirmedAt
+          //     : null,
           timezone: clientTimezone!,
         },
         taxInvoiceDueDate: {
-          // date: invoiceInfo.taxInvoiceDueAt ?? null,
+          date: invoiceInfo.taxInvoiceDueAt ?? null,
 
-          date:
-            client?.contactPerson !== null &&
-            client?.contactPerson.userId !== null
-              ? invoiceInfo.taxInvoiceDueAt
-              : null,
+          // date:
+          //   client?.contactPerson !== null &&
+          //   client?.contactPerson.userId !== null
+          //     ? invoiceInfo.taxInvoiceDueAt
+          //     : null,
           timezone: clientTimezone!,
         },
         paymentDate: {
@@ -838,9 +839,9 @@ const ReceivableInvoiceDetail = () => {
         .map(item =>
           item.items.map((value, idx) => ({
             ...value,
-            orderId: item.orderId,
+            orderId: item.id,
             projectName: item.projectName,
-            id: item.orderId,
+            id: item.id,
             itemName: value.itemName,
             source: value.sourceLanguage,
             target: value.targetLanguage,

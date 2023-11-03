@@ -82,6 +82,9 @@ export default function MakeTable({
     console.log(rows)
   }, [rows])
 
+  console.log(newRows)
+  console.log(orders)
+
   return (
     <tbody className='table-body'>
       {orders.map(value => {
@@ -116,7 +119,7 @@ export default function MakeTable({
               </Box>
             </Box>
             {newRows
-              .filter(item => item.orderId === value.orderId)
+              .filter(item => item.orderId === value.id)
               .map(row => (
                 <Box className='table-item' key={uuidv4()}>
                   <Typography
