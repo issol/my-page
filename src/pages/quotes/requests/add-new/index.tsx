@@ -180,6 +180,7 @@ export default function AddNewRequest() {
         })}`,
         timezone: item.timezone,
         jobTitle: item.jobTitle,
+        contactPersonId: item.id,
       })) || []
     )
   }, [clientList])
@@ -246,7 +247,7 @@ export default function AddNewRequest() {
       ...filterData,
       contactPersonId:
         data.contactPersonId === auth.getValue().user?.userId!
-          ? contactPersonId?.userId!
+          ? contactPersonId?.contactPersonId!
           : data.contactPersonId,
       items: dateFixedItem,
     }
@@ -361,6 +362,10 @@ export default function AddNewRequest() {
                     }),
                     timezone: auth.getValue().user?.timezone!,
                     jobTitle: auth.getValue().user?.jobTitle,
+                    contactPersonId: clients?.find(
+                      client =>
+                        client?.userId! === auth.getValue().user?.userId!,
+                    )?.contactPersonId,
                   }
 
                   return (

@@ -531,8 +531,8 @@ export default function QuotesProjectInfoDetail({
                   </CustomTypo>
                   <CustomTypo variant='body2'>
                     {FullDateTimezoneHelper(
-                      project.estimatedDeliveryDate,
-                      project.estimatedDeliveryDateTimezone,
+                      project.estimatedAt,
+                      project.estimatedTimezone,
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -591,8 +591,8 @@ export default function QuotesProjectInfoDetail({
                   </CustomTypo>
                   <CustomTypo variant='body2'>
                     {FullDateTimezoneHelper(
-                      project.estimatedDeliveryDate,
-                      project.estimatedDeliveryDateTimezone,
+                      project.estimatedAt,
+                      project.estimatedTimezone,
                     )}
                   </CustomTypo>
                 </LabelContainer>

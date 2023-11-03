@@ -44,7 +44,7 @@ const CertificationTest = () => {
     take: testMaterialListPageSize,
     skip: testMaterialListPageSize * testMaterialListPage,
     userCompany: 'GloZ',
-    sort: 'asc',
+    sort: 'desc',
   })
 
   const { data: testMaterialList } = useGetTestMaterialList(filters)

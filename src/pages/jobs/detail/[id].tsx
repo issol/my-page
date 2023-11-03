@@ -16,7 +16,13 @@ import {
   useGetProJobDots,
 } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
-import { SyntheticEvent, useState, MouseEvent, Suspense, useEffect } from 'react'
+import {
+  SyntheticEvent,
+  useState,
+  MouseEvent,
+  Suspense,
+  useEffect,
+} from 'react'
 import styled from 'styled-components'
 
 import DeliveriesFeedback from './deliveries-feedback'
@@ -36,31 +42,39 @@ const ProJobsDetail = () => {
 
   // assigned이 false이면 히스토리를 조회한다.
   const { data: jobDetail, isLoading } = useGetProJobDetail(
-    Number(id), 
-    assigned && assigned === 'false'
-      ? true
-      : false
+    Number(id),
+    assigned && assigned === 'false' ? true : false,
   )
   const { data: jobPrices } = useGetJobPrices(
-    Number(id), 
-    assigned && assigned === 'false'
-      ? true
-      : false
+    Number(id),
+    assigned && assigned === 'false' ? true : false,
   )
   const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
-    const { data: assignmentJobStatusList, isLoading: assignmentStatusListLoading } =
-    useGetStatusList('JobAssignment')
+  const {
+    data: assignmentJobStatusList,
+    isLoading: assignmentStatusListLoading,
+  } = useGetStatusList('JobAssignment')
 
   const [statusList, setStatusList] = useState<Array<statusType>>([])
 
   const { data: jobDetailDots } = useGetProJobDots(Number(id))
 
   useEffect(() => {
-    if (jobStatusList && assignmentJobStatusList && !statusListLoading && !assignmentStatusListLoading) {
-      setStatusList([ ...jobStatusList, ...assignmentJobStatusList ])
+    if (
+      jobStatusList &&
+      assignmentJobStatusList &&
+      !statusListLoading &&
+      !assignmentStatusListLoading
+    ) {
+      setStatusList([...jobStatusList, ...assignmentJobStatusList])
     }
-  }, [jobStatusList, statusListLoading, assignmentJobStatusList, assignmentStatusListLoading])
+  }, [
+    jobStatusList,
+    statusListLoading,
+    assignmentJobStatusList,
+    assignmentStatusListLoading,
+  ])
 
   return (
     <Box>
@@ -104,6 +118,7 @@ const ProJobsDetail = () => {
             jobDetail.status !== 70000 &&
             jobDetail.status !== 70100 &&
             jobDetail.status !== 70200 &&
+            jobDetail.status !== 70300 &&
             jobDetail.status !== 70400 &&
             jobDetail.status !== 70500 ? (
               <CustomTab

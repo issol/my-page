@@ -325,6 +325,16 @@ export default function QuotesDetail() {
             project?.status !== 'Canceled' &&
             isIncludeProjectTeam()
           break
+        case 'checkBox-ProjectInfo-Description':
+          flag =
+            project?.status !== 'Quote sent' &&
+            project?.status !== 'Client review' &&
+            project?.status !== 'Accepted' &&
+            project?.status !== 'Expired' &&
+            project?.status !== 'Rejected' &&
+            project?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
+          break
       }
     }
     return flag
@@ -424,8 +434,8 @@ export default function QuotesDetail() {
           timezone: project.quoteExpiryDateTimezone ?? defaultTimezone,
         },
         estimatedDeliveryDate: {
-          date: project.estimatedDeliveryDate,
-          timezone: project.estimatedDeliveryDateTimezone ?? defaultTimezone,
+          date: project.estimatedAt,
+          timezone: project.estimatedTimezone ?? defaultTimezone,
         },
       })
 
@@ -1366,8 +1376,8 @@ export default function QuotesDetail() {
         timezone: project?.quoteExpiryDateTimezone,
       },
       estimatedDeliveryDate: {
-        date: project?.estimatedDeliveryDate ?? '',
-        timezone: project?.estimatedDeliveryDateTimezone,
+        date: project?.estimatedAt ?? '',
+        timezone: project?.estimatedTimezone,
       },
       pm: {
         firstName: pm?.firstName!,

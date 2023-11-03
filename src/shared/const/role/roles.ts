@@ -318,8 +318,8 @@ export const AssignJobType = {
     { label: Role['DTP QCer'], value: Role['DTP QCer'] },
     { label: Role['Webnovel QCer'], value: Role['Webnovel QCer'] },
     {
-      label: Role['Webcomics translator'],
-      value: Role['Webcomics translator'],
+      label: Role['Webnovel translator'],
+      value: Role['Webnovel translator'],
     },
   ],
 } as const

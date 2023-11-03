@@ -58,6 +58,12 @@ export type ProUserInfoType = {
   }
 }
 
+export type ProUserResumeInfoType = {
+  extraData: {
+    resume: Array<string>
+  }
+}
+
 export type ManagerUserInfoType = {
   firstName: string
   middleName?: string

@@ -16,7 +16,7 @@ import { getClient } from '@src/apis/order-detail.api'
 import useModal from '@src/hooks/useModal'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { getAddress } from '@src/shared/helpers/address-helper'
+import { getAddress, getAddressType } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
@@ -221,6 +221,12 @@ const InvoiceClient = ({
                       middleName: client.contactPerson?.middleName!,
                       lastName: client.contactPerson?.lastName!,
                     })
+                  : '-'}{' '}
+                /
+              </Typography>
+              <Typography variant={'body2'}>
+                {client.contactPerson?.jobTitle !== null
+                  ? client.contactPerson?.jobTitle
                   : '-'}
               </Typography>
             </Box>

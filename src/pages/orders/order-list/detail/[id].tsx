@@ -32,6 +32,7 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   OrderDownloadData,
   OrderFeatureType,
+  ProjectInfoType,
   ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
@@ -448,9 +449,9 @@ const OrderDetail = () => {
       showDescription: getProjectInfo().showDescription ? '1' : '0',
       isTaxable: getProjectInfo().isTaxable ? '1' : '0',
     }
-
+    const { items, ...filteredProjectInfo } = projectInfo
     onSave(() =>
-      updateProject.mutate(projectInfo, {
+      updateProject.mutate(filteredProjectInfo, {
         onSuccess: () => {
           closeModal('EditSaveModal')
         },
@@ -491,8 +492,8 @@ const OrderDetail = () => {
         target: item.target,
         priceId: item.priceId,
         detail: !item?.detail?.length ? [] : item.detail,
-        // contactPersonId: item.contactPersonId,
         contactPerson: item.contactPerson ?? null,
+        contactPersonId: Number(item.contactPerson?.userId!),
         description: item.description,
         analysis: item.analysis ?? [],
         totalPrice: item?.totalPrice ?? 0,
@@ -850,6 +851,7 @@ const OrderDetail = () => {
           priceId: item.priceId,
           detail: !item?.detail?.length ? [] : item.detail,
           contactPerson: item.contactPerson,
+          contactPersonId: Number(item.contactPerson?.userId!),
           description: item.description,
           analysis: item.analysis ?? [],
           totalPrice: item?.totalPrice ?? 0,
@@ -945,10 +947,12 @@ const OrderDetail = () => {
         orderedAt: new Date(projectInfo?.orderedAt),
         status: currentStatus?.value ?? 100,
       }
-      projectInfoReset(res)
+      const { items, ...filteredRes } = res
+      projectInfoReset(filteredRes)
     }
 
     if (client) {
+      console.log('client', client)
       clientReset({
         clientId: client.client.clientId,
         contactPersonId: client.contactPerson?.id,
@@ -984,8 +988,8 @@ const OrderDetail = () => {
       } = item
       return {
         ...filterItem,
-        contactPersonId: Number(item.contactPerson?.userId!),
-        // contactPersonId: Number(item.contactPersonId!),
+        // contactPersonId: Number(item.contactPerson?.userId!),
+        contactPersonId: Number(item.contactPersonId!),
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',

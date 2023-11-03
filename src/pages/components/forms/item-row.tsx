@@ -405,8 +405,6 @@ const Row = ({
     } else handleShowMinimum(false)
   }
 
-  console.log(contactPersonList)
-
   return (
     <Box
       style={{

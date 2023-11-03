@@ -11,7 +11,7 @@ import PrintInvoicePage from './print-page'
 
 const InvoicePrint = () => {
   const invoice = useAppSelector(state => state.invoice.invoiceTotalData)
-  const lang = useAppSelector(state => state.order.lang)
+  const lang = useAppSelector(state => state.invoice.lang)
   const auth = useRecoilValueLoadable(authState)
   if (!invoice) {
     return <Error404 />

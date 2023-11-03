@@ -164,6 +164,7 @@ const AssignPro = ({
         queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
         queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
         refetchAssignableProList()
+        // closeModal('AssignProRequestJobModal')
       },
     },
   )
@@ -248,8 +249,37 @@ const AssignPro = ({
     })
     // console.log(res)
 
-    requestJobMutation.mutate({ ids: res, jobId: row.id })
-    closeModal('AssignProRequestJobModal')
+    requestJobMutation.mutate(
+      { ids: res, jobId: row.id },
+      {
+        onSuccess: () => {
+          closeModal('AssignProRequestJobModal')
+        },
+        onError: () => {
+          closeModal('AssignProRequestJobModal')
+          toast.error('Something went wrong. Please try again. - Request failed!', {
+            position: 'bottom-left',
+          })
+        },
+      }
+      )
+    // closeModal('AssignProRequestJobModal')
+  }
+  const handleReAssignPro = () => {
+    reAssignJobMutation.mutate(
+      { jobId: row.id },
+      {
+        onSuccess: () => {
+          closeModal('ReAssignProRequestJobModal')
+        },
+        onError: () => {
+          closeModal('ReAssignProRequestJobModal')
+          toast.error('Something went wrong. Please try again. - Re-assign failed!', {
+            position: 'bottom-left',
+          })
+        },
+      }
+    )
   }
   const handleReAssignPro = () => {
     reAssignJobMutation.mutate({ jobId: row.id })
@@ -261,12 +291,13 @@ const AssignPro = ({
       { jobId: jobId, proId: proId, status: 70300 },
       {
         onSuccess: () => {
+          queryClient.invalidateQueries('JobInfo')
           closeModal('AssignProJobModal')
           queryClient.invalidateQueries('JobInfo')
         },
         onError: () => {
           closeModal('AssignProJobModal')
-          toast.error('Something went wrong. Please try again.', {
+          toast.error('Something went wrong. Please try again. - Assign failed!', {
             position: 'bottom-left',
           })
         },

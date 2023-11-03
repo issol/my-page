@@ -209,13 +209,16 @@ export const handleJobReAssign = async (
   jobId: number,
 ): Promise<{ id: number }> => {
   try {
-    const { data } = await axios.patch(`/api/enough/u/job/${jobId}/request/re-assign`, {
-      jobId: jobId,
-    })
+    const { data } = await axios.patch(
+      `/api/enough/u/job/${jobId}/request/re-assign`,
+      {
+        jobId: jobId,
+      },
+    )
     return data
   } catch (e: any) {
     return {
-      id: jobId
+      id: jobId,
     }
   }
 }
@@ -298,7 +301,7 @@ export const getProJobDetail = async (
   id: number,
   isHistory: boolean,
 ): Promise<ProJobDetailType> => {
-  const { data } = isHistory 
+  const { data } = isHistory
     ? await axios.get(`/api/enough/u/job/history/${id}`)
     : await axios.get(`/api/enough/u/job/${id}/info`)
 
@@ -407,6 +410,22 @@ export const postProJobDeliveries = async (params: {
   })
 
   return data
+}
+
+export const addJobFeedback = async (
+  jobId: number,
+  feedbackData: string,
+): Promise<{ job: { id: number } }> => {
+  try {
+    const { data } = await axios.post(`/api/enough/u/job/${jobId}/feedback`, {
+      feedback: feedbackData,
+    })
+    return data
+  } catch (e: any) {
+    return {
+      job: { id: jobId },
+    }
+  }
 }
 
 export const patchProJobFeedbackCheck = async (

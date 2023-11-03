@@ -141,6 +141,8 @@ const InvoiceProjectTeam = ({
           members: teams.members && teams.members.length ? teams.members : [],
           isTaxable: data.isTaxable ? '1' : '0',
           showDescription: data.showDescription ? '1' : '0',
+          setReminder: data.setReminder ? '1' : '0',
+          taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
         },
         type: 'basic',
       })

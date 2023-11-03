@@ -80,6 +80,8 @@ export type ProjectInfoType = {
   deliveries: DeliveryFileType[]
   feedback: string | null
   subtotal: string
+
+  items?: ItemType
 }
 
 export type ClientType = {

@@ -34,7 +34,7 @@ type Props = {
 const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
   const dispatch = useAppDispatch()
-  console.log('data', data)
+
   const patchInvoiceInfoMutation = useMutation(
     (data: {
       id: number

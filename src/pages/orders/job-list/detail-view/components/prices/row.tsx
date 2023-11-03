@@ -3,7 +3,10 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { formatByRoundingProcedure, formatCurrency } from '@src/shared/helpers/price.helper'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 import { ModalType } from '@src/store/modal'
 import { ItemType } from '@src/types/common/item.type'
 import {
@@ -54,6 +57,11 @@ type Props = {
     items: ItemType[]
   }>
   setDarkMode?: boolean
+  selectedPrice?:
+    | (StandardPriceListType & {
+        groupName?: string
+      })
+    | null
 }
 
 const Row = ({
@@ -69,6 +77,7 @@ const Row = ({
   type,
   itemTrigger,
   setDarkMode,
+  selectedPrice,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
@@ -82,62 +91,73 @@ const Row = ({
 
   // standard price에 등록된 데이터중 매칭된 데이터
   const priceData = () => {
-    return getPriceOptions(itemData.source!, itemData.target!).find(
-      price => price.id === itemData.priceId,
-    ) || null
+    return (
+      getPriceOptions(itemData.source!, itemData.target!).find(
+        price => price.id === itemData.priceId,
+      ) || null
+    )
   }
-  const languagePairData = () => priceData()?.languagePairs?.find(
-    i => i.source === sourceLanguage && i.target === targetLanguage,
-  )
+  const languagePairData = () =>
+    priceData()?.languagePairs?.find(
+      i => i.source === sourceLanguage && i.target === targetLanguage,
+    )
   const minimumPrice = () => languagePairData()?.minimumPrice
   const priceFactor = () => languagePairData()?.priceFactor
   // 여기까지
 
-// 현재 row의 프라이스 유닛에 적용될 minimumPrice 값
-    // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 minimumPrice 추출
-    // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 minimumPrice 값 추출
-    const currentMinimumPrice = () => {
-      // 기존 item에서 price 변경, 이때는 Standard price의 minimum price 값을 줘야 함
-      if (itemData?.id && itemData?.id !== -1 && priceData() && itemData?.initialPrice?.priceId !== priceData()?.id) {
-        return minimumPrice()
-      }
-     
-      // 기존 item
-      // standard price 데이터가 없다면 쿼츠 작성 후 standard price가 삭제된 케이스이므로 여기서 처리
-      else if ((itemData?.id && itemData?.id !== -1) || ((itemData?.id && itemData?.id !== -1) || !priceData())) {
-        return itemData?.minimumPrice!
-      }
-       // Not Applicable(재설계 필요)
-      else if (itemData?.id && itemData?.id === -1) return 0
-
-      // 신규 item
-      else {
-        return minimumPrice()
-      }
+  // 현재 row의 프라이스 유닛에 적용될 minimumPrice 값
+  // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 minimumPrice 추출
+  // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 minimumPrice 값 추출
+  const currentMinimumPrice = () => {
+    // 기존 item에서 price 변경, 이때는 Standard price의 minimum price 값을 줘야 함
+    if (
+      itemData?.id &&
+      itemData?.id !== -1 &&
+      priceData() &&
+      itemData?.initialPrice?.priceId !== priceData()?.id
+    ) {
+      return minimumPrice()
     }
 
-    // const showMinimum = itemData.minimumPriceApplied
-    // const setShowMinimum = (value: boolean) => {
-    //   if (value) {
-    //     if (currentMinimumPrice()) setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
-    //   }
-    //   else if(!value) setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
-    // }
-
-    // 현재 row의 프라이스 유닛에 적용될 currency 값
-    // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 currency 추출
-    // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 currency 값 추출
-    const currentCurrency = () => {
-      // setPriceData(getPriceData())
-      // 기존 item
-      if (itemData?.id && itemData?.id !== -1)
-        return itemData?.initialPrice?.currency!
-      // Not Applicable(재설계 필요)
-      else if (itemData?.id && itemData?.id === -1) return 'USD'
-      // 신규 item
-      else return priceData()?.currency!
+    // 기존 item
+    // standard price 데이터가 없다면 쿼츠 작성 후 standard price가 삭제된 케이스이므로 여기서 처리
+    else if (
+      (itemData?.id && itemData?.id !== -1) ||
+      (itemData?.id && itemData?.id !== -1) ||
+      !priceData()
+    ) {
+      return itemData?.minimumPrice!
     }
-    
+    // Not Applicable(재설계 필요)
+    else if (itemData?.id && itemData?.id === -1) return 0
+    // 신규 item
+    else {
+      return minimumPrice()
+    }
+  }
+
+  // const showMinimum = itemData.minimumPriceApplied
+  // const setShowMinimum = (value: boolean) => {
+  //   if (value) {
+  //     if (currentMinimumPrice()) setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
+  //   }
+  //   else if(!value) setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
+  // }
+
+  // 현재 row의 프라이스 유닛에 적용될 currency 값
+  // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 currency 추출
+  // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 currency 값 추출
+  const currentCurrency = () => {
+    // setPriceData(getPriceData())
+    // 기존 item
+    if (itemData?.id && itemData?.id !== -1)
+      return itemData?.initialPrice?.currency!
+    // Not Applicable(재설계 필요)
+    else if (itemData?.id && itemData?.id === -1) return 'USD'
+    // 신규 item
+    else return priceData()?.currency!
+  }
+
   const {
     fields: details,
     append,
@@ -183,10 +203,7 @@ const Row = ({
     const data = getItem(itemName)
 
     if (data?.length) {
-      const price = data.reduce(
-        (res, item) => (res += Number(item.prices)),
-        0,
-      )       
+      const price = data.reduce((res, item) => (res += Number(item.prices)), 0)
       if (isNaN(price)) return
 
       if (itemMinimumPrice && price < itemMinimumPrice && showMinimum) {
@@ -195,15 +212,14 @@ const Row = ({
         })
         // handleShowMinimum(true)
         total = itemMinimumPrice
-      } else if (itemMinimumPrice && price >= itemMinimumPrice && showMinimum){
+      } else if (itemMinimumPrice && price >= itemMinimumPrice && showMinimum) {
         total = price
         // 아래 코드 활성화시 미니멈 프라이스가 활성화 되었으나 미니멈 프라이스 값이 없는 경우 무한루프에 빠짐
         if (showMinimum === true) handleShowMinimum(false)
       } else {
         total = price
       }
-
-    } else if (!data?.length && showMinimum){
+    } else if (!data?.length && showMinimum) {
       // 최초 상태, row는 없이 미니멈프라이스만 설정되어 있는 상태
       total = itemMinimumPrice!
     }
@@ -239,7 +255,11 @@ const Row = ({
     }
 
     // if (prices === data[index].prices) return
-    const currency = getItem(`items.${0}.initialPrice.currency`) ?? 'KRW'
+
+    const currency =
+      selectedPrice && selectedPrice.currency
+        ? selectedPrice.currency
+        : getItem(`items.${0}.initialPrice.currency`) ?? 'KRW'
     const roundingPrice = formatByRoundingProcedure(
       prices,
       priceData()?.decimalPlace!
@@ -293,21 +313,22 @@ const Row = ({
   const sumTotalPrice = () => {
     return true
   }
-  
+
   // console.log(details))
   return (
     <Box
       style={
-        setDarkMode ? 
-        {
-          borderRadius: '8px',
-          marginBottom: '14px',
-        } : {
-          border: '1px solid #F5F5F7',
-          borderRadius: '8px',
-          marginBottom: '14px',
-        }
-    }
+        setDarkMode
+          ? {
+              borderRadius: '8px',
+              marginBottom: '14px',
+            }
+          : {
+              border: '1px solid #F5F5F7',
+              borderRadius: '8px',
+              marginBottom: '14px',
+            }
+      }
     >
       {/* price unit start */}
       <ItemPriceUnitForm
@@ -331,7 +352,7 @@ const Row = ({
         // isNotApplicable={itemData.priceId === NOT_APPLICABLE}
         priceUnitsList={priceUnitsList}
         showMinimum={false} //이거 쓰나?
-        setShowMinimum={(n) => true} //이거 쓰나?
+        setShowMinimum={n => true} //이거 쓰나?
         type={type}
         setDarkMode={setDarkMode}
         sumTotalPrice={sumTotalPrice}

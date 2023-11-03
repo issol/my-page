@@ -301,7 +301,10 @@ export default function AppliedRoleModal({
                                   >
                                     {/* @ts-ignore */}
                                     {ProRolePair[item.jobType]?.map(
-                                      (item: any, idx: number) => (
+                                      (
+                                        item: { value: string; label: string },
+                                        idx: number,
+                                      ) => (
                                         <MenuItem value={item.value} key={idx}>
                                           {item.label}
                                         </MenuItem>

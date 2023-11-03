@@ -113,3 +113,16 @@ export const getJobInfo = async (id: number): Promise<JobInfoType[]> => {
 
   return data
 }
+
+export const getItemJob = async (id: number): Promise<Boolean> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/job/check-already-job?itemId=${id}`,
+    )
+  
+    return data
+  } catch (error) {
+    return false
+  }
+
+}

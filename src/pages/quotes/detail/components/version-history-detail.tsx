@@ -107,8 +107,8 @@ const VersionHistoryModal = ({ id, history }: Props) => {
           timezone: projectInfo?.quoteExpiryDateTimezone,
         },
         estimatedDeliveryDate: {
-          date: projectInfo?.estimatedDeliveryDate ?? '',
-          timezone: projectInfo?.estimatedDeliveryDateTimezone,
+          date: projectInfo?.estimatedAt ?? '',
+          timezone: projectInfo?.estimatedTimezone,
         },
         pm: {
           firstName: pm?.firstName!,
@@ -122,7 +122,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
         contactPerson: client?.contactPerson ?? null,
         clientAddress: client?.clientAddress ?? [],
         langItem: items,
-        subtotal: projectInfo?.subtotal
+        subtotal: projectInfo?.subtotal,
       }
 
       setDownloadData(res)
@@ -145,7 +145,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
           width='50px'
           height='50px'
         />
-        <Typography variant='h5'>{`[Ver.${history.version}] ${history.id}`}</Typography>
+        <Typography variant='h5'>{`[Ver.${history.version}] ${history.projectInfo.corporationId}`}</Typography>
       </Grid>
 
       <Grid item xs={12}>
@@ -240,8 +240,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                 <>
                   <HeaderBox item xs={12}>
                     <Typography variant='h6'>
-                      Language pairs (
-                      {history?.items?.items?.length ?? 0})
+                      Language pairs ({history?.items?.items?.length ?? 0})
                     </Typography>
                   </HeaderBox>
                   <LanguagePairTable
@@ -294,15 +293,12 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                         role={currentRole!}
                       />
                     ) : null}
-                    
                   </Grid>
                 )
               })}
 
               <Grid item xs={12}>
-                <Box
-                  sx={{ display: 'flex', justifyContent: 'flex-end' }}
-                >
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Box
                     sx={{
                       display: 'flex',
@@ -333,9 +329,11 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                           Number(history.projectInfo?.subtotal),
                           history.items?.items[0]?.initialPrice?.numberPlace!,
                           history.items?.items[0]?.initialPrice?.rounding!,
-                          history.items?.items[0]?.initialPrice?.currency ?? 'KRW',
+                          history.items?.items[0]?.initialPrice?.currency ??
+                            'KRW',
                         ),
-                        history.items?.items[0]?.initialPrice?.currency ?? 'KRW',
+                        history.items?.items[0]?.initialPrice?.currency ??
+                          'KRW',
                       )}
                     </Typography>
                   </Box>
@@ -355,14 +353,17 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                   sx={{ background: '#F5F5F7', marginBottom: '24px' }}
                 >
                   <Box display='flex' alignItems='center' gap='4px'>
-
                     <Typography>Tax</Typography>
                   </Box>
                   <Box display='flex' alignItems='center' gap='4px'>
-                      <Box>{history.projectInfo?.isTaxable ? `${history.projectInfo?.tax} %` : '-'} </Box>
+                    <Box>
+                      {history.projectInfo?.isTaxable
+                        ? `${history.projectInfo?.tax} %`
+                        : '-'}{' '}
+                    </Box>
                   </Box>
                 </Grid>
-              )} 
+              )}
             </Card>
           </TabPanel>
 

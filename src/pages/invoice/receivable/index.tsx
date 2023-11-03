@@ -141,7 +141,6 @@ export default function Receivable() {
   const currentRole = getCurrentRole()
 
   const { data: list, isLoading } = useGetReceivableList(filters)
-
   //인보이스의 전체 status 리스트
   const { data: statusList, isLoading: statusListLoading } =
     useGetStatusList('InvoiceReceivable')
@@ -196,6 +195,13 @@ export default function Receivable() {
       lsp,
       search,
     } = data
+
+    if (invoiceStatus.find(value => value.value === 301000))
+      invoiceStatus.push({
+        label: 'Overdue',
+        value: 301100,
+      })
+    console.log('invoiceStatus', data.invoiceStatus)
 
     if (invoiceStatus.find(value => value.value === 301000))
       invoiceStatus.push({

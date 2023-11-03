@@ -40,24 +40,6 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { roleState } from '@src/states/permission'
 
-type Props = {
-  tab?: string
-  row: JobType
-  orderDetail: ProjectInfoType
-  item: JobItemType
-  refetch?: <TPageData>(
-    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
-  ) => Promise<
-    QueryObserverResult<
-      {
-        id: number
-        cooperationId: string
-        items: JobItemType[]
-      },
-      unknown
-    >
-  >
-}
 import JobHistory from './components/history'
 import EditJobInfo from './components/job-info/edit-job-info'
 import ViewJobInfo from './components/job-info/view-job-info'
@@ -80,6 +62,26 @@ import { saveJobPrices } from '@src/apis/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import { toast } from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
+
+type Props = {
+  tab?: string
+  row: JobType
+  orderDetail: ProjectInfoType
+  item: JobItemType
+  refetch?: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<
+    QueryObserverResult<
+      {
+        id: number
+        cooperationId: string
+        items: JobItemType[]
+      },
+      unknown
+    >
+  >
+}
 
 const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { openModal, closeModal } = useModal()
@@ -95,14 +97,24 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const [jobId, setJobId] = useState(row.id)
   const cachedJobIdRef = useRef(jobId)
   if (jobId !== undefined) {
-    cachedJobIdRef.current = jobId;
+    cachedJobIdRef.current = jobId
   }
   const [editJobInfo, setEditJobInfo] = useState(false)
   const [editPrices, setEditPrices] = useState(false)
 
-  const { data: jobInfo, isLoading } = useGetJobInfo(cachedJobIdRef.current, false)
+  const { data: jobInfo, isLoading } = useGetJobInfo(
+    cachedJobIdRef.current,
+    false,
+  )
+  const {
+    data: jobDeliveriesFeedbacks,
+    isLoading: isJobDeliveriesFeedbacksLoading,
+    refetch: jobDeliveriesFeedbacksRefetch,
+  } = useGetProJobDeliveriesFeedbacks(jobId)
+
   const { data: jobPrices } = useGetJobPrices(cachedJobIdRef.current, false)
-  const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } = useGetJobPriceHistory(jobId)
+  const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } =
+    useGetJobPriceHistory(jobId)
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
@@ -213,8 +225,10 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
         // toast.success('Job info added successfully', {
         //   position: 'bottom-left',
         // })
+        queryClient.invalidateQueries('jobDetails')
+        queryClient.invalidateQueries('jobList')
         setSuccess(true)
-        console.log("editPrice",editPrices)
+        console.log('editPrice', editPrices)
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries('jobPrices')
         } else {
@@ -274,13 +288,13 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     // toast('Job info added successfully')
 
     const res: SaveJobPricesParamsType = {
-      jobId: row.id,
+      jobId: jobId,
       priceId: data.priceId!,
       totalPrice: data.totalPrice,
       currency: data.detail![0].currency,
       detail: data.detail!,
     }
-    saveJobPricesMutation.mutate({ jobId: row.id, prices: res })
+    saveJobPricesMutation.mutate({ jobId: jobId, prices: res })
   }
   // console.log(jobPrices)
 
@@ -319,8 +333,6 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
 
   //   return flag
   // }
-  console.log('role', role.getValue())
-  console.log("isItemValid",isItemValid,itemErrors)
   return (
     <>
       {!isLoading && jobInfo ? (
@@ -428,6 +440,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                 ) : (
                   <ViewJobInfo
                     row={jobInfo}
+                    jobDeliveriesFeedbacks={jobDeliveriesFeedbacks}
                     setEditJobInfo={setEditJobInfo}
                     type='view'
                     projectTeam={projectTeam || []}
@@ -437,6 +450,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     statusList={jobStatusList}
                     auth={auth.getValue()}
                     role={role.getValue()}
+                    setJobId={setJobId}
                   />
                 )}
               </TabPanel>
@@ -463,12 +477,13 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                         mt='20px'
                         sx={{
                           display: 'flex',
-                          justifyContent: !jobPrices?.priceId ? 'flex-end' : 'center',
+                          justifyContent: !jobPrices?.priceId
+                            ? 'flex-end'
+                            : 'center',
                           width: '100%',
                         }}
                       >
-                      {
-                        !jobPrices?.priceId ? (
+                        {!jobPrices?.priceId ? (
                           <Button
                             variant='contained'
                             onClick={onSubmit}
@@ -495,9 +510,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                               Save
                             </Button>
                           </Box>
-                        )
-                      }
-
+                        )}
                       </Box>
                     </Fragment>
                   ) : (
@@ -541,7 +554,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                   priceUnitsList={priceUnitsList ?? []}
                   item={item}
                   projectTeam={projectTeam || []}
-                  statusList={[ ...jobStatusList!, ...jobAssignmentStatusList! ]}
+                  statusList={[...jobStatusList!, ...jobAssignmentStatusList!]}
                 />
               </TabPanel>
             </TabContext>

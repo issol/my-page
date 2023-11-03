@@ -19,7 +19,7 @@ import useModal from '@src/hooks/useModal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import { useMutation } from 'react-query'
-import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
+import { getUserInfo, updateConsumerUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
 import useAuth from '@src/hooks/useAuth'
 import { useGetProfile } from '@src/queries/userInfo/userInfo-query'
 import { useRecoilValueLoadable } from 'recoil'
@@ -40,14 +40,30 @@ const MyAccount = () => {
   const { openModal, closeModal } = useModal()
 
   const userAuth = useRecoilValueLoadable(authState)
+  
   const { data: userInfo, refetch } = useGetProfile(
     userAuth.getValue().user?.id! ?? 0,
   )
   const role = useRecoilValueLoadable(roleState)
+  const hasLSPRole = () => {
+    let flag = false
+    if (role.state === 'hasValue' && role.getValue()) {
+      role.getValue().map(item => {
+        if (
+          (item.name === 'LPM' || item.name === 'TAD')
+        )
+          flag = true
+      })
+    }
+    return flag
+  }
 
   const saveUserInfoMutation = useMutation(
     (data: ManagerUserInfoType & { userId: number }) =>
-      updateManagerUserInfo({ ...data, company: 'GloZ' }),
+      hasLSPRole() 
+        ? updateManagerUserInfo({ ...data, company: 'GloZ' })
+        : updateConsumerUserInfo(data)
+        ,
     {
       onSuccess: () => {
         setContractsEdit(false)

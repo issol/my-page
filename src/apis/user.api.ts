@@ -9,6 +9,7 @@ import {
 import {
   ProUserInfoType,
   ManagerUserInfoType,
+  ProUserResumeInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { UserDataType } from 'src/context/types'
 import { CurrencyType } from '@src/types/common/standard-price'
@@ -42,7 +43,8 @@ export const getUserRoleNPermission = async (
 
 /* client, pro 프로필 업데이트용 */
 export const updateConsumerUserInfo = async (
-  userInfo: ProUserInfoType & { userId: number },
+  userInfo: (ProUserInfoType | ManagerUserInfoType | ProUserResumeInfoType) 
+  & { userId: number },
 ) => {
   await axios.put(`/api/enough/u/pu/edit`, userInfo)
 }

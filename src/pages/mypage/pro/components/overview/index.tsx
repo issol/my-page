@@ -50,6 +50,7 @@ import { UserDataType } from '@src/context/types'
 import {
   PersonalInfo,
   ProUserInfoType,
+  ProUserResumeInfoType,
 } from '@src/types/sign/personalInfoTypes'
 import { getProfileSchema } from '@src/types/schema/profile.schema'
 import { OffDayEventType } from '@src/types/common/calendar.type'
@@ -71,7 +72,6 @@ import {
 } from '@src/apis/common.api'
 import {
   deleteOffDays,
-  deleteResume,
   createMyOffDays,
   updateWeekends,
   updateMyOffDays,
@@ -137,7 +137,11 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   const [month, setMonth] = useState(new Date().getMonth() + 1)
   const [experience, setExperience] = useState(userInfo.experience)
   const [specialties, setSpecialties] = useState(userInfo?.specialties ?? [])
-
+  const [resume, setResume] = useState(
+    userInfo.resume
+      ? userInfo.resume.map(item => `${item.fileName}.${item.fileExtension}`)
+      : [],
+  )
   //pagination
   const [rolePage, setRolePage] = useState(0)
   const roleRowsPerPage = 4
@@ -176,7 +180,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   // }
 
   const updateUserInfoMutation = useMutation(
-    (data: ProUserInfoType & { userId: number }) =>
+    (data: (ProUserInfoType | ProUserResumeInfoType) & { userId: number }) =>
       updateConsumerUserInfo(data),
     {
       onSuccess: () => {
@@ -231,6 +235,22 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     )
     // console.log('data', data)
     //TODO: mutation붙이기 + confirm modal
+  }
+
+  const onResumeSave = (files: Array<string>) => {
+    updateUserInfoMutation.mutate(
+      {
+        userId: auth.getValue().user?.id || 0,
+        extraData: {
+          resume: files,
+        },
+      },
+      {
+        onSuccess: () => {
+          closeModal('deleteResume')
+        },
+      },
+    )
   }
 
   const onClickProfileSave = (
@@ -447,18 +467,25 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   }
 
   function uploadFiles(files: File[]) {
+    let fileData: Array<string> = resume
     if (files?.length) {
       const promiseArr = files.map((file, idx) => {
         return getUploadUrlforCommon(
           S3FileType.RESUME,
           getResumeFilePath(user.id as number, file.name),
-        ).then(res => {
-          return uploadFileToS3(res.url, file)
-        })
+        )
+          .then(res => {
+            return uploadFileToS3(res.url, file)
+          })
+          .then(res => {
+            fileData.push(file.name)
+          })
       })
+      setResume(fileData)
       Promise.all(promiseArr)
         .then(res => {
-          invalidateUserInfo()
+          onResumeSave(fileData)
+          // invalidateUserInfo()
         })
         .catch(err => {
           toast.error(
@@ -471,16 +498,23 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     }
   }
 
-  const deleteResumeMutation = useMutation(
-    (fileId: number) => deleteResume(user.userId!, fileId),
-    {
-      onSuccess: () => {
-        onSuccess()
-        invalidateUserInfo()
-      },
-      onError: () => onError(),
-    },
-  )
+  const onClickDeleteResume = (fileName: string) => {
+    if (resume.includes(fileName)) {
+      const updatedResume = resume.filter(item => item !== fileName)
+      setResume(updatedResume)
+      onResumeSave(updatedResume)
+    }
+  }
+  // const deleteResumeMutation = useMutation(
+  //   (fileId: number) => deleteResume(user.userId!, fileId),
+  //   {
+  //     onSuccess: () => {
+  //       onSuccess()
+  //       invalidateUserInfo()
+  //     },
+  //     onError: () => onError(),
+  //   },
+  // )
 
   function onDeleteFile(file: FileItemType) {
     if (userInfo?.resume?.length && userInfo.resume.length <= 1) {
@@ -500,7 +534,9 @@ export default function MyPageOverview({ user, userInfo }: Props) {
           <DeleteConfirmModal
             message='Are you sure you want to delete this file?'
             title={file.fileName}
-            onDelete={() => deleteResumeMutation.mutate(file.id!)}
+            onDelete={() =>
+              onClickDeleteResume(`${file.fileName}.${file.fileExtension}`)
+            }
             onClose={() => closeModal('cannotDeleteResume')}
           />
         ),
@@ -612,6 +648,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                     ? userInfo?.addresses[0]
                     : null,
                 mobilePhone: user.mobilePhone,
+                telephone: user.telephone ?? '',
                 timezone: userInfo.timezone!,
               }}
             />

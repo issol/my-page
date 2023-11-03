@@ -1,4 +1,5 @@
 import { CountryType } from '../sign/personalInfoTypes'
+import { ItemType } from './item.type'
 
 export type OrderStatusType =
   | 10000
@@ -51,6 +52,8 @@ export type OrderProjectInfoFormType = {
   isTaxable: boolean
   showDescription: boolean
   subtotal: number | string
+
+  items?: ItemType
 }
 
 export type QuotesProjectInfoType = {
