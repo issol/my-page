@@ -70,7 +70,7 @@ type Props = {
     | 'create'
     | 'invoiceCreate'
     | 'invoiceHistory'
-  onItemRemove: (idx: number) => void
+  onItemRemove: (idx: number, itemId: number) => void
 
   selectedIds?: { id: number; selected: boolean }[]
   setSelectedIds?: Dispatch<
@@ -467,7 +467,9 @@ const Row = ({
             {type === 'detail' ||
             type === 'invoiceDetail' ||
             type === 'invoiceHistory' ? null : (
-              <IconButton onClick={() => onItemRemove(idx)}>
+              <IconButton
+                onClick={() => onItemRemove(idx, getValues(`items.${idx}.id`)!)}
+              >
                 <Icon icon='mdi:trash-outline' />
               </IconButton>
             )}
