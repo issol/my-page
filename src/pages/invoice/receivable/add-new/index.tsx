@@ -411,7 +411,7 @@ export default function AddNewInvoice() {
       ...getClientValue(),
       contactPersonId:
         getClientValue().contactPersonId === NOT_APPLICABLE
-          ? null
+          ? -1
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
@@ -419,7 +419,7 @@ export default function AddNewInvoice() {
       ...rawProjectInfo,
     }
 
-    console.log(clients)
+    console.log(clients.contactPersonId)
 
     const res: InvoiceReceivablePatchParamsType = {
       projectManagerId: teams.projectManagerId!,
