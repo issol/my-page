@@ -31,6 +31,7 @@ export type InvoiceOrderListFilterType = {
   status?: number[]
   client?: number
   revenueFrom?: string
+  currency?: CurrencyType
   mine?: '0' | '1'
 }
 

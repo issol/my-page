@@ -142,7 +142,12 @@ export default function SelectOrder({
 
   const [filter, setFilter] = useState<InvoiceOrderListFilterType>(
     from === 'detail'
-      ? { ...initialFilter, client: client, revenueFrom: revenueFrom }
+      ? {
+          ...initialFilter,
+          client: client,
+          revenueFrom: revenueFrom,
+          currency: currency,
+        }
       : initialFilter,
   )
   // const [activeFilter, setActiveFilter] =
