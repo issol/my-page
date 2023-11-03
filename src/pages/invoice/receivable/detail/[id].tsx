@@ -1276,6 +1276,7 @@ const ReceivableInvoiceDetail = () => {
                     user={auth.getValue().user!}
                     onClickDownloadInvoice={onClickDownloadInvoice}
                     orders={langItem?.orders!}
+                    invoiceInfo={invoiceInfo!}
                   />
                 ) : null}
               </Suspense>

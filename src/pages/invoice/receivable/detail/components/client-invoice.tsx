@@ -21,6 +21,7 @@ import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-
 import PrintOrderPage from '@src/pages/orders/order-print/print-page'
 import {
   InvoiceDownloadData,
+  InvoiceReceivableDetailType,
   InvoiceReceivablePatchParamsType,
 } from '@src/types/invoice/receivable.type'
 import PrintInvoicePage from '../invoice-print/print-page'
@@ -32,7 +33,7 @@ import { ItemType } from '@src/types/common/item.type'
 type Props = {
   downloadData: InvoiceDownloadData
   user: UserDataType
-
+  invoiceInfo?: InvoiceReceivableDetailType
   downloadLanguage?: 'EN' | 'KO'
   setDownloadLanguage?: Dispatch<SetStateAction<'EN' | 'KO'>>
   onClickDownloadInvoice?: () => void
@@ -57,6 +58,7 @@ const ClientInvoice = ({
   type,
 
   onClickDownloadInvoice,
+  invoiceInfo,
   orders,
 }: // statusList,
 // project,
@@ -180,6 +182,16 @@ Props) => {
               <Button
                 variant='contained'
                 fullWidth
+                disabled={
+                  invoiceInfo?.invoiceStatus === 30500 ||
+                  invoiceInfo?.invoiceStatus === 30700 ||
+                  invoiceInfo?.invoiceStatus === 30800 ||
+                  invoiceInfo?.invoiceStatus === 30900 ||
+                  invoiceInfo?.invoiceStatus === 301200 ||
+                  ((invoiceInfo?.invoiceStatus === 301000 ||
+                    invoiceInfo?.invoiceStatus === 301100) &&
+                    invoiceInfo.clientConfirmedAt !== null)
+                }
                 onClick={onClickConfirmInvoice}
               >
                 Confirm invoice
