@@ -687,11 +687,21 @@ const ReceivableInvoiceDetail = () => {
           timezone: clientTimezone!,
         },
         invoiceConfirmDate: {
-          date: invoiceInfo.invoiceConfirmedAt ?? null,
+          date:
+            client?.contactPerson !== null &&
+            client?.contactPerson.userId !== null
+              ? invoiceInfo.invoiceConfirmedAt
+              : null,
           timezone: clientTimezone!,
         },
         taxInvoiceDueDate: {
-          date: invoiceInfo.taxInvoiceDueAt ?? null,
+          // date: invoiceInfo.taxInvoiceDueAt ?? null,
+
+          date:
+            client?.contactPerson !== null &&
+            client?.contactPerson.userId !== null
+              ? invoiceInfo.taxInvoiceDueAt
+              : null,
           timezone: clientTimezone!,
         },
         paymentDate: {

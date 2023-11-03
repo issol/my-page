@@ -103,7 +103,8 @@ export default function InvoiceProjectInfoForm({
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
-  const isClientRegistered = client?.contactPerson?.userId !== null
+  const isClientRegistered =
+    client?.contactPerson !== null && client?.contactPerson.userId !== null
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
@@ -602,14 +603,15 @@ export default function InvoiceProjectInfoForm({
                     showTimeSelect
                     timeFormat='HH:mm'
                     timeIntervals={30}
-                    selected={
-                      !client
-                        ? selected
-                        : isClientRegistered
-                        ? clientConfirmedDate
-                        : selected
-                    }
-                    disabled={!client ? false : isClientRegistered}
+                    // selected={
+                    //   !client
+                    //     ? selected
+                    //     : isClientRegistered
+                    //     ? clientConfirmedDate
+                    //     : selected
+                    // }
+                    selected={!value ? null : new Date(value)}
+                    disabled={!isClientRegistered}
                     dateFormat='MM/dd/yyyy h:mm aa'
                     onChange={onChange}
                     customInput={
@@ -648,7 +650,7 @@ export default function InvoiceProjectInfoForm({
                         ? clientConfirmedTimezone
                         : selected
                     }
-                    disabled={!client ? false : isClientRegistered}
+                    disabled={!isClientRegistered}
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
                     getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
@@ -681,19 +683,23 @@ export default function InvoiceProjectInfoForm({
                 const clientConfirmedDate = !invoiceInfo?.clientConfirmedAt
                   ? null
                   : new Date(invoiceInfo?.clientConfirmedAt)
+
+                console.log(isClientRegistered)
+
                 return (
                   <FullWidthDatePicker
                     showTimeSelect
                     timeFormat='HH:mm'
                     timeIntervals={30}
                     dateFormat='MM/dd/yyyy h:mm aa'
-                    selected={
-                      !client
-                        ? selected
-                        : isClientRegistered
-                        ? clientConfirmedDate
-                        : selected
-                    }
+                    // selected={
+                    //   !client
+                    //     ? selected
+                    //     : isClientRegistered
+                    //     ? clientConfirmedDate
+                    //     : selected
+                    // }
+                    selected={!value ? null : new Date(value)}
                     onChange={onChange}
                     customInput={
                       <CustomInput

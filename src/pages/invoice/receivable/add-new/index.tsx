@@ -511,6 +511,10 @@ export default function AddNewInvoice() {
       getMultipleOrder(id)
         .then(res => {
           console.log(res)
+
+          const isClientRegistered =
+            res.clientInfo.contactPerson !== null &&
+            res.clientInfo.contactPerson.userId !== null
           setOrders(res)
           // setProjectInfo('isTaxable', res.clientInfo.client.taxable)
           // setProjectInfo('tax', res.clientInfo.client.tax)
@@ -525,6 +529,7 @@ export default function AddNewInvoice() {
             invoiceDescription: '',
             revenueFrom: res.revenueFrom,
             isTaxable: res.clientInfo.client.isTaxable,
+
             tax: res.clientInfo.client.tax,
             subtotal: res.orders.reduce(
               (total, obj) => total + obj.subtotal,

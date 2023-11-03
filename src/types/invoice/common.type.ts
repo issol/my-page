@@ -90,7 +90,7 @@ export type ProInvoiceListFilterType = {
 }
 
 export type InvoiceMultipleOrderType = {
-  clientInfo: Omit<ClientType, 'contactPerson'>
+  clientInfo: ClientType
   revenueFrom: RevenueFormType
   orders: Array<{
     id: number
