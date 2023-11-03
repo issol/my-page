@@ -27,7 +27,7 @@ import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
 import { useRouter } from 'next/router'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 import useModal from '@src/hooks/useModal'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
@@ -36,17 +36,17 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 type Props = {
   onClose: any
   onClick: (data: {
-    invoiceStatus: string
-    description: string
-    taxInfo: string
-    taxRate: number
+    // invoiceStatus: string
+    // description: string
+    // taxInfo: string
+    // taxRate: number
     currency: string
-    totalPrice: number
+    // totalPrice: number
     subtotal: number
-    tax: number
+    // tax: number
     jobIds: number[]
-    invoicedAt: string
-    invoicedTimezone: CountryType
+    // invoicedAt: string
+    // invoicedTimezone: CountryType
   }) => void
 }
 
@@ -119,8 +119,13 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
   }
 
   const onClickCreateInvoice = () => {
-    console.log(selectedJobs)
-
+    
+    const invoiceData = {
+      currency: selectedJobs[0].currency,
+      subtotal: getTotalPrice(selectedJobs),
+      jobIds: selectedJobs.map(job => job.id),
+    }
+    console.log("onClickCreateInvoice",selectedJobs,invoiceData)
     openModal({
       type: 'ClickCreateInvoiceModal',
       children: (
@@ -145,7 +150,7 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
           vary='successful'
           rightButtonText='Create'
           onClick={() => {
-            // onClick()
+            onClick(invoiceData)
             closeModal('ClickCreateInvoiceModal')
           }}
         />
@@ -396,7 +401,14 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
               Selected job(s): {selectedJobs.length ?? 0}
             </Typography>
             <Typography variant='body1' fontWeight={600} color='#666CFF'>
-              Subtotal: {getTotalPrice(selectedJobs)}
+              Subtotal: {
+                selectedJobs && selectedJobs.length
+                ? formatCurrency(
+                    getTotalPrice(selectedJobs),
+                    selectedJobs[0].currency
+                  )
+                : '-'
+              }
             </Typography>
           </Box>
         </Card>

@@ -302,17 +302,17 @@ export const restoreInvoicePayable = async (
 }
 
 export const createInvoicePayable = async (params: {
-  invoiceStatus: string
-  description: string
-  taxInfo: string
-  taxRate: number
+  // invoiceStatus: string
+  // description: string
+  // taxInfo: string
+  // taxRate: number
+  // totalPrice: number
+  // tax: number
+  // invoicedAt: string
+  // invoicedTimezone: CountryType
   currency: string
-  totalPrice: number
   subtotal: number
-  tax: number
   jobIds: number[]
-  invoicedAt: string
-  invoicedTimezone: CountryType
 }) => {
   const { data } = await axios.post(`/api/enough/u/invoice/payable`, params)
 

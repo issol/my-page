@@ -79,19 +79,23 @@ const DeliveredInactiveList = () => {
 
   const createInvoiceMutation = useMutation(
     (params: {
-      invoiceStatus: string
-      description: string
-      taxInfo: string
-      taxRate: number
+      // invoiceStatus: string
+      // description: string
+      // taxInfo: string
+      // taxRate: number
       currency: string
-      totalPrice: number
+      // totalPrice: number
       subtotal: number
-      tax: number
+      // tax: number
       jobIds: number[]
-      invoicedAt: string
-      invoicedTimezone: CountryType
-    }) => createInvoicePayable(params),
-    {},
+      // invoicedAt: string
+      // invoicedTimezone: CountryType
+    }) => createInvoicePayable(params), //api 체크해야함
+    {
+      onSuccess: () => {
+        console.log("createInvoiceMutation")
+      }
+    },
   )
 
   const { control, handleSubmit, reset } = useForm<FilterType>({
@@ -140,17 +144,17 @@ const DeliveredInactiveList = () => {
   }
 
   const handleCreateInvoice = (data: {
-    invoiceStatus: string
-    description: string
-    taxInfo: string
-    taxRate: number
+    // invoiceStatus: string
+    // description: string
+    // taxInfo: string
+    // taxRate: number
     currency: string
-    totalPrice: number
+    // totalPrice: number
     subtotal: number
-    tax: number
+    // tax: number
     jobIds: number[]
-    invoicedAt: string
-    invoicedTimezone: CountryType
+    // invoicedAt: string
+    // invoicedTimezone: CountryType
   }) => {
     createInvoiceMutation.mutate(data)
   }
