@@ -443,7 +443,7 @@ const InvoiceVersionHistoryModal = ({
 
   useEffect(() => {
     if (history) {
-      const { projectInfo, client, members, items } = history
+      const { projectInfo, clientInfo, members, items } = history
 
       const historyItems: ItemType[] = items.orders
         .map(item =>
@@ -508,13 +508,12 @@ const InvoiceVersionHistoryModal = ({
           email: pm?.email!,
           middleName: pm?.middleName!,
         },
-        //TODO 백엔드 배포 후 주석으로 변경
-        companyName: '',
-        // companyName: client!.client.name,
+
+        companyName: clientInfo!.client.name,
         projectName: projectInfo!.projectName,
-        client: client!,
-        contactPerson: client!.contactPerson,
-        clientAddress: client!.clientAddress,
+        client: clientInfo!,
+        contactPerson: clientInfo!.contactPerson,
+        clientAddress: clientInfo!.clientAddress,
         // langItem: items!,
         langItem: historyItems,
         currency: projectInfo.currency,
@@ -702,9 +701,7 @@ const InvoiceVersionHistoryModal = ({
               <InvoiceLanguageAndItem
                 languagePairs={languagePairs!}
                 setLanguagePairs={setLanguagePairs}
-                //TODO 백엔드 배포 후 주석으로 변경
-                // clientId={history?.client.client.clientId}
-                clientId={1}
+                clientId={history?.clientInfo.client.clientId}
                 itemControl={itemControl}
                 getItem={getItem}
                 setItem={setItem}
@@ -723,14 +720,14 @@ const InvoiceVersionHistoryModal = ({
             </Grid>
           </TabPanel>
           <TabPanel value='client' sx={{ height: '100%', minHeight: '552px' }}>
-            {/* <InvoiceClient
+            <InvoiceClient
               type='history'
-              client={history.client}
+              client={history.clientInfo}
               edit={false}
               setTax={() => null}
               setTaxable={() => null}
               isUpdatable={isUpdatable}
-            /> */}
+            />
           </TabPanel>
           <TabPanel value='team' sx={{ height: '100%', minHeight: '552px' }}>
             <ProjectTeam
