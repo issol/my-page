@@ -129,34 +129,7 @@ export const getInvoicePayableJobList = async (
     const { data } = await axios.get(
       `/api/enough/u/job/payable?${makeQuery({ payableId })}`,
     )
-    // return data
-    return {
-      totalCount: 1,
-      count: 1,
-      data: [
-        {
-          id: 98,
-          corporationId: 'KR-100',
-          serviceType: 'Editing',
-          name: 'bon',
-          totalPrice: 100000,
-          contactPerson: 'Bon',
-          isRemove: true,
-          sourceLanguage: 'ko',
-          targetLanguage: 'en',
-
-          prices: [
-            {
-              name: 'Price',
-              unitPrice: 1000,
-              quantity: 3,
-              prices: '100000',
-              unit: 'Words',
-            },
-          ],
-        },
-      ],
-    }
+    return data
   } catch (e) {
     return {
       totalCount: 0,
@@ -197,10 +170,10 @@ export const getPayableHistoryList = async (
   invoiceCorporationId: string,
 ): Promise<PayableHistoryType[]> => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
-    // )
-
+    const { data } = await axios.get(
+       `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
+    )
+/*
     const temp: PayableHistoryType[] = [
       {
         id: 1,
@@ -258,24 +231,23 @@ export const getPayableHistoryList = async (
           ],
         },
       },
-    ]
-    // return data.map((history: any) => ({
-    //   ...history,
-    //   jobs: {
-    //     ...history.jobs,
-    //     data: history.jobs.data.map((job: any) => ({
-    //       ...job,
-    //       priceUnits: job.prices.map((i: any) => ({
-    //         title: job.name,
-    //         unitPrice: Number(job.unitPrice),
-    //         quantity: Number(job.quantity),
-    //         prices: Number(job.prices),
-    //       })),
-    //     })),
-    //   },
-    // }))
-    // return data
-    return temp
+    ]*/
+    return data.map((history: any) => ({
+      ...history,
+      jobs: {
+        ...history.jobs,
+        data: history.jobs.data.map((job: any) => ({
+          ...job,
+          priceUnits: job.prices.map((i: any) => ({
+            title: job.name,
+            unitPrice: Number(job.unitPrice),
+            quantity: Number(job.quantity),
+            prices: Number(job.prices),
+          })),
+        })),
+      },
+    }))
+    return data
   } catch (e: any) {
     return []
   }
