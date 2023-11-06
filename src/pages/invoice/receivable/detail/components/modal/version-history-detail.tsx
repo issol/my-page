@@ -690,7 +690,6 @@ const InvoiceVersionHistoryModal = ({
               type='history'
               invoiceInfo={history.projectInfo}
               edit={false}
-              orderId={history.id}
               statusList={statusList}
               isUpdatable={isUpdatable}
               isDeletable={isDeletable}
