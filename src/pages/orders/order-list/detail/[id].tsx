@@ -1325,8 +1325,8 @@ const OrderDetail = () => {
             (projectInfo?.status === 'Under revision' ||
               projectInfo?.status === 'Partially delivered' ||
               projectInfo?.status === 'Redelivery requested') &&
-            projectInfo?.deliveries?.length > 0
-          isIncludeProjectTeam()
+            projectInfo?.deliveries?.length > 0 &&
+            isIncludeProjectTeam()
           break
         case 'button-Deliveries&Feedback-ConfirmDeliveries':
           flag = projectInfo?.status === 'Delivery completed'
@@ -1347,8 +1347,7 @@ const OrderDetail = () => {
               projectInfo?.status === 'Under revision' ||
               projectInfo?.status === 'Partially delivered' ||
               projectInfo?.status === 'Delivery completed' ||
-              projectInfo?.status === 'Redelivery requested' ||
-              projectInfo?.status === 'Delivery confirmed') &&
+              projectInfo?.status === 'Redelivery requested') &&
             isIncludeProjectTeam()
           break
         case 'tab-Languages&Items':
@@ -1371,6 +1370,7 @@ const OrderDetail = () => {
             isUpdatable &&
             projectInfo?.status !== 'Paid' &&
             projectInfo?.status !== 'Canceled' &&
+            projectInfo?.status !== 'Delivery confirmed' &&
             !!!client?.contactPerson?.userId &&
             isIncludeProjectTeam()
           break
@@ -1379,6 +1379,7 @@ const OrderDetail = () => {
             isUpdatable &&
             projectInfo?.status !== 'Paid' &&
             projectInfo?.status !== 'Canceled' &&
+            projectInfo?.status !== 'Delivery confirmed' &&
             isIncludeProjectTeam()
           break
         case 'button-DownloadOrder':

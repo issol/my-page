@@ -366,14 +366,13 @@ export default function AddNewRequest() {
                       client => client?.userId! === auth.getValue().user?.userId!,
                     )?.contactPersonId
                   }
-
                   return (
                     <Autocomplete
                       fullWidth
                       options={clients}
                       onChange={(e, v) => {
                         if (v) {
-                          onChange(v.userId)
+                          onChange(v.contactPersonId)
                           fields.forEach((item, i) =>
                             setValue(
                               `items.${i}.desiredDueTimezone`,
@@ -475,8 +474,6 @@ export default function AddNewRequest() {
                   const timezone = clients?.find(
                     c => c.userId === contactPerson,
                   )?.timezone
-
-                  console.log(timezone)
 
                   append({
                     name: '',

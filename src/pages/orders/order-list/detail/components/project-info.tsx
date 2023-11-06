@@ -467,13 +467,15 @@ const ProjectInfo = ({
                     width: '73.45%',
                   }}
                 >
-                  {type === 'detail' &&
-                  statusList
-                    ?.filter(
-                      value =>
-                        !filterStatusList().some(v => v.value === value.value),
-                    )
-                    .some(status => status.label === project.status) ? (
+                  {(type === 'detail' &&
+                    statusList
+                      ?.filter(
+                        value =>
+                          !filterStatusList().some(v => v.value === value.value),
+                      )
+                      .some(status => status.label === project.status)) ||
+                      role.name === 'CLIENT' ? 
+                  (
                     <Box
                       sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                     >
