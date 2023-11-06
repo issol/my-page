@@ -442,6 +442,7 @@ export default function AddNewInvoice() {
       // invoiceConfirmTimezone: projectInfo.invoiceConfirmDate?.timezone,
       // taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date,
       // taxInvoiceDueTimezone: projectInfo.taxInvoiceDueDate?.timezone,
+      showDescription: projectInfo.showDescription ? '1' : '0',
       invoiceDescription: projectInfo.invoiceDescription,
       setReminder: projectInfo.setReminder ? '1' : '0',
     }
