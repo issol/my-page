@@ -202,6 +202,8 @@ export default function SelectOrder({
               ),
             })
             setSelectionModel([])
+          } else {
+            setSelectionModel(selectionModel)
           }
         } else if (hasDifferentClient) {
           openModal({
