@@ -600,13 +600,9 @@ export default function Filter({
                         name='search'
                         render={({ field: { onChange, value } }) => (
                           <>
-                            <InputLabel>Search Pros</InputLabel>
+                            <InputLabel>Search projects</InputLabel>
                             <OutlinedInput
-                              label={
-                                role.name === 'CLIENT'
-                                  ? 'Search projects'
-                                  : 'Search Pros'
-                              }
+                              label='Search projects'
                               value={value}
                               onChange={onChange}
                               endAdornment={
