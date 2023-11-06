@@ -25,7 +25,7 @@ export const getProInvoiceList = async (
           id: 1,
           corporationId: 'I-000001',
           adminCompanyName: 'GloZ',
-          invoiceStatus: 'Invoiced',
+          invoiceStatus: 40000,
           invoicedAt: '2021-08-31T07:00:00.000Z',
           statusUpdatedAt: '2021-08-31T07:00:00.000Z',
           paidAt: '2021-08-31T07:00:00.000Z',
@@ -48,32 +48,33 @@ export const getProInvoiceDetail = async (
   id: number,
 ): Promise<InvoiceProDetailType> => {
   const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
-  const temp: InvoiceProDetailType = {
-    id: 1,
-    corporationId: 'KR-100',
-    invoicedAt: '2022-01-01',
-    invoicedAtTimezone: {
-      code: 'KR',
-      label: 'Korea, Republic of',
-      phone: '82',
-    },
-    invoiceStatus: 'Invoiced',
+  return data
+  // const temp: InvoiceProDetailType = {
+  //   id: 1,
+  //   corporationId: 'KR-100',
+  //   invoicedAt: '2022-01-01',
+  //   invoicedAtTimezone: {
+  //     code: 'KR',
+  //     label: 'Korea, Republic of',
+  //     phone: '82',
+  //   },
+  //   invoiceStatus: 'Invoiced',
 
-    taxInfo: '123-45-67890',
-    taxRate: 0.1,
+  //   taxInfo: '123-45-67890',
+  //   taxRate: 0.1,
 
-    paidAt: '2022-01-15',
-    paidDateTimezone: {
-      code: 'KR',
-      label: 'Korea, Republic of',
-      phone: '82',
-    },
-    description: 'Consulting services',
-    currency: 'USD',
-    subtotal: 1000,
-    totalPrice: 1100,
-    tax: 100,
-    invoiceConfirmedAt: '2022-01-15',
-  }
-  return temp
+  //   paidAt: '2022-01-15',
+  //   paidDateTimezone: {
+  //     code: 'KR',
+  //     label: 'Korea, Republic of',
+  //     phone: '82',
+  //   },
+  //   description: 'Consulting services',
+  //   currency: 'USD',
+  //   subtotal: 1000,
+  //   totalPrice: 1100,
+  //   tax: 100,
+  //   invoiceConfirmedAt: '2022-01-15',
+  // }
+  // return temp
 }

@@ -389,6 +389,38 @@ export function assignmentStatusChip(
 //       : null};
 // `
 
+export function proInvoiceStatusChip(
+  status: number,
+  statusList: statusType[],
+  ) {
+  const color =
+    status === 40000 //Invoiced
+      ? '#9B6CD8'
+      : status === 40100 //Under revision
+      ? '#26C6F9'
+      : status === 40200 //Revised
+      ? '#AD7028'
+      : status === 40300 //Paid
+      ? '#1B8332'
+      : status === 40400 //null?
+      ? '#FF4D49'
+      : ''
+
+  const statusLabel = statusList.find(list => list.value === status)?.label!
+
+  return (
+    <CustomChip
+      label={statusLabel}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
 export function InvoicePayableChip(status: InvoicePayableStatusType) {
   const color =
     status === 'Invoice created'

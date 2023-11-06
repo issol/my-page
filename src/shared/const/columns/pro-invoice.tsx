@@ -3,11 +3,12 @@ import { GridColumns } from '@mui/x-data-grid'
 import {
   InvoiceProChip,
   InvoiceReceivableChip,
+  proInvoiceStatusChip,
 } from '@src/@core/components/chips/chips'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { InvoiceProStatusType } from '@src/types/invoice/common.type'
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 
@@ -62,15 +63,13 @@ export const getInvoiceProListColumns = (
         </Typography>
       ),
       renderCell: ({ row }: CellType) => {
-        const label = statusList?.find(
-          i => i.label === row.invoiceStatus,
-        )?.label
-        if (label)
-          return (
-            <>
-              {InvoiceProChip(label, row.invoiceStatus as InvoiceProStatusType)}
-            </>
-          )
+        return (
+          <>
+            {/* {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)} */}
+            {/* TODO: invoiceStatus 넘버로 오는지 확인 필요 */}
+            {proInvoiceStatusChip(row.invoiceStatus as InvoiceProStatusType, statusList)}
+          </>
+        )
       },
     },
 
@@ -130,9 +129,10 @@ export const getInvoiceProListColumns = (
         </Typography>
       ),
       renderCell: ({ row }: CellType) => {
-        const price = `${getCurrencyMark(
-          row.currency,
-        )} ${row.totalPrice.toLocaleString('ko-KR')}`
+        const price = `${formatCurrency(
+          row.totalPrice,
+          row.currency
+        )}`
 
         return <Typography fontWeight={600}>{price}</Typography>
       },

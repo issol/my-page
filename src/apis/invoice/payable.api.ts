@@ -82,39 +82,13 @@ export const getInvoicePayableCalendarData = async (
 
 export const getInvoicePayableDetail = async (
   id: number,
-): Promise<InvoicePayableDetailType> => {
+): Promise<InvoicePayableDetailType | null> => {
   try {
     const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
 
     return data
   } catch (e: any) {
-    return {
-      id: 1,
-      corporationId: 'IP-000001',
-      invoicedAt: '2022-01-01',
-      invoicedAtTimezone: {
-        code: 'KR',
-        label: 'Korea, Republic of',
-        phone: '82',
-      },
-      invoiceStatus: 'Invoiced',
-
-      taxInfo: '123-45-67890',
-      taxRate: 10,
-
-      paidAt: '2022-01-15',
-      paidDateTimezone: {
-        code: 'KR',
-        label: 'Korea, Republic of',
-        phone: '82',
-      },
-      description: 'Consulting services',
-      currency: 'USD',
-      subtotal: 1000,
-      totalPrice: 1100,
-      tax: 100,
-      invoiceConfirmedAt: '2022-01-15',
-    }
+    return null
   }
 }
 
@@ -188,35 +162,35 @@ export const getPayableHistoryList = async (
         },
         invoiceStatus: 'Invoiced',
 
-        taxInfo: '123-45-67890',
-        taxRate: 10,
+    //     taxInfo: '123-45-67890',
+    //     taxRate: 10,
 
-        paidAt: '2022-01-15',
-        paidDateTimezone: {
-          code: 'KR',
-          label: 'Korea, Republic of',
-          phone: '82',
-        },
-        description: 'Consulting services',
-        currency: 'USD',
-        subtotal: 1000,
-        totalPrice: 1100,
-        tax: 100,
-        invoiceConfirmedAt: '2022-01-15',
-        jobs: {
-          totalCount: 1,
-          count: 1,
-          data: [
-            {
-              id: 98,
-              corporationId: 'KR-100',
-              serviceType: 'Editing',
-              name: 'bon',
-              totalPrice: 100000,
-              contactPerson: 'Bon',
-              isRemove: true,
-              sourceLanguage: 'ko',
-              targetLanguage: 'en',
+    //     paidAt: '2022-01-15',
+    //     paidDateTimezone: {
+    //       code: 'KR',
+    //       label: 'Korea, Republic of',
+    //       phone: '82',
+    //     },
+    //     description: 'Consulting services',
+    //     currency: 'USD',
+    //     subtotal: 1000,
+    //     totalPrice: 1100,
+    //     tax: 100,
+    //     invoiceConfirmedAt: '2022-01-15',
+    //     jobs: {
+    //       totalCount: 1,
+    //       count: 1,
+    //       data: [
+    //         {
+    //           id: 98,
+    //           corporationId: 'KR-100',
+    //           serviceType: 'Editing',
+    //           name: 'bon',
+    //           totalPrice: 100000,
+    //           contactPerson: 'Bon',
+    //           isRemove: true,
+    //           sourceLanguage: 'ko',
+    //           targetLanguage: 'en',
 
               prices: [
                 {

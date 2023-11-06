@@ -75,10 +75,10 @@ const List = ({
           setPageSize(newPageSize)
         }}
         getRowClassName={params =>
-          params.row.invoiceStatus === 'Under revision' ? 'disabled' : 'normal'
+          params.row.invoiceStatus === 40100 ? 'disabled' : 'normal' //Under revision
         }
         isRowSelectable={params =>
-          params.row.invoiceStatus !== 'Under revision'
+          params.row.invoiceStatus !== 40100
         }
       />
     </Box>

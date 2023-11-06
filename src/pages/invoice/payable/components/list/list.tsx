@@ -2,21 +2,21 @@
 import { Box, Tooltip, Typography } from '@mui/material'
 import { DataGrid, GridColumns, GridRowParams } from '@mui/x-data-grid'
 import { TableTitleTypography } from '@src/@core/styles/typography'
-import { InvoicePayableChip } from '@src/@core/components/chips/chips'
+import { InvoicePayableChip, proInvoiceStatusChip } from '@src/@core/components/chips/chips'
 
 // ** types
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 
 // ** helpers
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** contexts
 
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import Link from 'next/link'
-import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
+import { InvoicePayableStatusType, InvoiceProStatusType } from '@src/types/invoice/common.type'
 
 type CellType = {
   row: InvoicePayableListType
@@ -24,6 +24,10 @@ type CellType = {
 
 type Props = {
   isAccountManager: boolean
+  statusList: Array<{
+    label: string
+    value: number
+  }>
   statuses?: number[]
   setStatuses?: (n: number[]) => void
   skip: number
@@ -39,6 +43,7 @@ type Props = {
 
 export default function PayableList({
   isAccountManager,
+  statusList,
   statuses,
   setStatuses,
   skip,
@@ -93,7 +98,9 @@ export default function PayableList({
       renderCell: ({ row }: CellType) => {
         return (
           <>
-            {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)}
+            {/* {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)} */}
+            {/* TODO: invoiceStatus 넘버로 오는지 확인 필요 */}
+            {proInvoiceStatusChip(row.invoiceStatus as InvoiceProStatusType, statusList)}
           </>
         )
       },
@@ -171,9 +178,10 @@ export default function PayableList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
-        const price = `${getCurrencyMark(
+        const price = `${formatCurrency(
+          row.totalPrice,
           row.currency,
-        )} ${row.totalPrice.toLocaleString('ko-KR')}`
+        )}`
         return (
           <Tooltip title={price}>
             <Typography fontWeight={600}>{price}</Typography>

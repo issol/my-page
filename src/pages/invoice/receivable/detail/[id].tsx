@@ -674,7 +674,6 @@ const ReceivableInvoiceDetail = () => {
       )
 
       itemReset({ items: items })
-      console.log(invoiceInfo.taxInvoiceDueTimezone)
 
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,

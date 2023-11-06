@@ -24,6 +24,7 @@ import {
 } from '@src/queries/invoice/payable.query'
 import { useMutation, useQueryClient } from 'react-query'
 import {
+  InvoicePayableDetailType,
   InvoicePayableDownloadData,
   PayableFormType,
 } from '@src/types/invoice/payable.type'
@@ -44,6 +45,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import PayableHistory from '../../payable/components/detail/version-history'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type MenuType = 'info' | 'history'
 
@@ -56,6 +58,7 @@ const ProInvoiceDetail = () => {
   const currentRole = getCurrentRole()
   const dispatch = useAppDispatch()
   const invoicePayable = useAppSelector(state => state.invoicePayable)
+  const { data: statusList } = useGetStatusList('InvoicePayable')
 
   const queryClient = useQueryClient()
 
@@ -147,8 +150,6 @@ const ProInvoiceDetail = () => {
     }
   }
 
-  console.log(jobList)
-
   useEffect(() => {
     if (menuQuery && ['info', 'history'].includes(menuQuery)) {
       setMenu(menuQuery)
@@ -228,7 +229,7 @@ const ProInvoiceDetail = () => {
           sx={{ background: '#ffffff', padding: '20px', borderRadius: '6px' }}
         >
           <Box display='flex' alignItems='center' gap='4px'>
-            <IconButton onClick={() => router.push('/invoice/payable/')}>
+            <IconButton onClick={() => router.push('/invoice/pro/')}>
               <Icon icon='mdi:chevron-left' />
             </IconButton>
             <img
@@ -283,8 +284,10 @@ const ProInvoiceDetail = () => {
                 payableId={Number(id)}
                 isUpdatable={false}
                 updateMutation={updateMutation}
-                data={data}
+                data={data as InvoicePayableDetailType}
                 jobList={jobList || { count: 0, totalCount: 0, data: [] }}
+                statusList={statusList!}
+                auth={auth.getValue()}
               />
             </Suspense>
           </TabPanel>
@@ -296,6 +299,7 @@ const ProInvoiceDetail = () => {
                   isUpdatable={false}
                   invoiceId={Number(id)}
                   invoiceCorporationId={data?.corporationId!}
+                  statusList={statusList!}
                 />
               </Suspense>
             </Card>

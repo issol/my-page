@@ -32,6 +32,7 @@ import CalendarContainer from './components/calendar'
 import { useGetPayableList } from '@src/queries/invoice/payable.query'
 import { Icon } from '@iconify/react'
 import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
+import { useGetStatusList } from '@src/queries/common.query'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -56,6 +57,7 @@ const initialFilter: InvoicePayableFilterType = {
 export default function Payable() {
   const queryClient = useQueryClient()
   const ability = useContext(AbilityContext)
+  const { data: statusList } = useGetStatusList('InvoicePayable')
 
   const { openModal, closeModal } = useModal()
 
@@ -201,6 +203,7 @@ export default function Payable() {
               />
               <PayableList
                 list={list || { data: [], totalCount: 0 }}
+                statusList={statusList!}
                 statuses={statuses}
                 setStatuses={setStatuses}
                 isLoading={isLoading}
@@ -223,7 +226,10 @@ export default function Payable() {
         </Fragment>
       ) : (
         <Grid item xs={12}>
-          <CalendarContainer type='lpm' />
+          <CalendarContainer 
+            type='lpm'
+            statusList={statusList!}
+          />
         </Grid>
       )}
     </Grid>

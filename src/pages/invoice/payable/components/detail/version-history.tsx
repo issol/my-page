@@ -45,6 +45,10 @@ type Props = {
   invoiceId: number
   invoiceCorporationId: string
   isUpdatable: boolean
+  statusList: Array<{
+    label: string
+    value: number
+  }>
 }
 
 type CellType = {
@@ -55,14 +59,13 @@ export default function PayableHistory({
   invoiceId,
   invoiceCorporationId,
   isUpdatable,
+  statusList,
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
 
   const queryClient = useQueryClient()
 
   const { data } = useGetPayableHistory(invoiceId, invoiceCorporationId)
-
-  console.log(data)
 
   const { openModal, closeModal } = useModal()
 
@@ -139,6 +142,7 @@ export default function PayableHistory({
                       setEditInfo={() => {
                         return null
                       }}
+                      statusList={statusList!}
                     />
                   </CardContent>
                 </Card>
@@ -175,6 +179,7 @@ export default function PayableHistory({
                     onRowClick={() => {
                       return null
                     }}
+                    auth={auth.getValue()}
                   />
                 </Card>
               </Grid>

@@ -38,6 +38,7 @@ import PayableHistory from './components/detail/version-history'
 // ** store
 import { setInvoicePayableIsReady } from '@src/store/invoice-payable'
 import {
+  InvoicePayableDetailType,
   InvoicePayableDownloadData,
   PayableFormType,
 } from '@src/types/invoice/payable.type'
@@ -59,6 +60,7 @@ import {
 import { toast } from 'react-hot-toast'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type MenuType = 'info' | 'history'
 
@@ -74,6 +76,7 @@ export default function PayableDetail() {
 
   const { data: isUpdatable } = useCheckInvoicePayableEditable(Number(id))
   const isAccountManager = ability.can('read', 'account_manage')
+  const { data: statusList } = useGetStatusList('InvoicePayable')
 
   // ** store
   const dispatch = useAppDispatch()
@@ -337,8 +340,10 @@ export default function PayableDetail() {
                 payableId={Number(id)}
                 isUpdatable={isUpdatable!}
                 updateMutation={updateMutation}
-                data={data}
+                data={data as InvoicePayableDetailType}
                 jobList={jobList || { count: 0, totalCount: 0, data: [] }}
+                statusList={statusList!}
+                auth={auth.getValue()}
               />
             </Suspense>
           </TabPanel>
@@ -350,6 +355,7 @@ export default function PayableDetail() {
                   isUpdatable={isUpdatable || false}
                   invoiceId={Number(id)}
                   invoiceCorporationId={data?.corporationId!}
+                  statusList={statusList!}
                 />
               </Suspense>
             </Card>

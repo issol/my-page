@@ -57,6 +57,7 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import {
   InvoicePayableChip,
   InvoiceProChip,
+  proInvoiceStatusChip,
 } from '@src/@core/components/chips/chips'
 
 type Props = {
@@ -65,6 +66,10 @@ type Props = {
   data: InvoicePayableDetailType | undefined
   editInfo: boolean
   setEditInfo: (n: boolean) => void
+  statusList: Array<{
+    label: string
+    value: number
+  }>
 }
 
 export default function InvoiceDetailCard({
@@ -73,6 +78,7 @@ export default function InvoiceDetailCard({
   data,
   editInfo,
   setEditInfo,
+  statusList,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -242,9 +248,9 @@ export default function InvoiceDetailCard({
                   </Box>
                 ) : currentRole && currentRole.name === 'PRO' ? (
                   <Box sx={{ width: '50%' }}>
-                    {InvoiceProChip(
+                    {proInvoiceStatusChip(
                       data?.invoiceStatus as InvoiceProStatusType,
-                      data?.invoiceStatus as InvoiceProStatusType,
+                      statusList
                     )}
                   </Box>
                 ) : null}
@@ -277,7 +283,7 @@ export default function InvoiceDetailCard({
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Tax rate</CustomTypo>
                 <CustomTypo variant='body2'>
-                  {data?.taxRate ? `${data.taxRate}%` : '-'}
+                  {data?.taxRate ? `${Number(data.taxRate)}%` : '-'}
                 </CustomTypo>
               </LabelContainer>
             </Grid>
