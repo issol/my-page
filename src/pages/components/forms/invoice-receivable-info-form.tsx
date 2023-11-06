@@ -104,7 +104,7 @@ export default function InvoiceProjectInfoForm({
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   const isClientRegistered =
-    client?.contactPerson !== null && client?.contactPerson.userId !== null
+    client?.contactPerson !== null && client?.contactPerson.userId === null
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
@@ -630,12 +630,10 @@ export default function InvoiceProjectInfoForm({
               name='invoiceConfirmDate.timezone'
               control={control}
               render={({ field }) => {
-                const selected = !field.value
-                  ? { code: '', phone: '', label: '' }
-                  : field.value
+                const selected = !field.value ? undefined : field.value
                 const clientConfirmedTimezone =
                   !invoiceInfo?.clientConfirmTimezone
-                    ? { code: '', phone: '', label: '' }
+                    ? undefined
                     : invoiceInfo?.clientConfirmTimezone
 
                 return (
@@ -717,9 +715,7 @@ export default function InvoiceProjectInfoForm({
               name='taxInvoiceDueDate.timezone'
               control={control}
               render={({ field }) => {
-                const selected = !field.value
-                  ? { code: '', phone: '', label: '' }
-                  : field.value
+                const selected = !field.value ? undefined : field.value
 
                 console.log(field.value)
 
