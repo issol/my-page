@@ -265,33 +265,6 @@ export default function SelectOrder({
   }
 
   const columns: GridColumns<OrderListType> = [
-    // {
-    //   field: '__check__',
-    //   type: 'checkboxSelection',
-
-    //   resizable: false,
-    //   sortable: false,
-    //   filterable: false,
-    //   disableColumnMenu: true,
-    //   disableReorder: true,
-    //   disableExport: true,
-    //   valueGetter: params => {
-    //     console.log(params)
-
-    //     const selectionLookup = selectedIdsLookupSelector(
-    //       (params as GridValueGetterParams).api.state,
-    //     )
-
-    //     return selectionLookup[params.id] !== undefined
-    //   },
-
-    //   renderHeader: params => (
-    //     <>
-    //       <GridHeaderCheckbox {...params} />
-    //     </>
-    //   ),
-    //   renderCell: params => <GridCellCheckboxRenderer {...params} />,
-    // },
     {
       field: 'corporationId',
       flex: 0.1201,
@@ -355,7 +328,11 @@ export default function SelectOrder({
       sortable: false,
       renderHeader: () => <Box>Client</Box>,
       renderCell: ({ row }: OrderListCellType) => {
-        return <Typography variant='body1'>{row.client.name}</Typography>
+        return (
+          <Tooltip title={row.client.name}>
+            <Typography variant='body1'>{row.client.name}</Typography>
+          </Tooltip>
+        )
       },
     },
     {
@@ -424,20 +401,21 @@ export default function SelectOrder({
         .filter(job => job !== undefined) as OrderListType[]
 
       const hasEditable = selected.some(order => order.isEditable === true)
+      console.log(hasEditable)
 
-      if (!hasEditable) {
-        openModal({
-          type: 'not-a-team',
-          children: (
-            <SimpleAlertModal
-              message='You can only create invoices for orders where you are part of the project team. '
-              onClose={() => closeModal('not-a-team')}
-            />
-          ),
-        })
+      if (from === 'detail') {
+        addOrderToInvoiceMutation.mutate(selected.map(order => order.id))
       } else {
-        if (from === 'detail') {
-          addOrderToInvoiceMutation.mutate(selected.map(order => order.id))
+        if (!hasEditable) {
+          openModal({
+            type: 'not-a-team',
+            children: (
+              <SimpleAlertModal
+                message='You can only create invoices for orders where you are part of the project team. '
+                onClose={() => closeModal('not-a-team')}
+              />
+            ),
+          })
         } else {
           closeModal('order-list')
           router.push({
@@ -446,6 +424,28 @@ export default function SelectOrder({
           })
         }
       }
+
+      // if (!hasEditable) {
+      //   openModal({
+      //     type: 'not-a-team',
+      //     children: (
+      //       <SimpleAlertModal
+      //         message='You can only create invoices for orders where you are part of the project team. '
+      //         onClose={() => closeModal('not-a-team')}
+      //       />
+      //     ),
+      //   })
+      // } else {
+      //   if (from === 'detail') {
+      //     addOrderToInvoiceMutation.mutate(selected.map(order => order.id))
+      //   } else {
+      //     closeModal('order-list')
+      //     router.push({
+      //       pathname: '/invoice/receivable/add-new',
+      //       query: { orderId: selected.map(order => order.id) },
+      //     })
+      //   }
+      // }
     }
   }
 
