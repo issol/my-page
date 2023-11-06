@@ -100,9 +100,9 @@ type Props = {
   }[]
   from: 'create' | 'detail'
   invoiceId?: number
-  client?: number
-  revenueFrom?: string
-  currency?: CurrencyType
+  invoiceClient?: number
+  invoiceRevenueFrom?: string
+  invoiceCurrency?: CurrencyType
 }
 
 export default function SelectOrder({
@@ -112,9 +112,9 @@ export default function SelectOrder({
   clientList,
   from,
   invoiceId,
-  client,
-  revenueFrom,
-  currency,
+  invoiceClient,
+  invoiceRevenueFrom,
+  invoiceCurrency,
 }: Props) {
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -144,9 +144,9 @@ export default function SelectOrder({
     from === 'detail'
       ? {
           ...initialFilter,
-          client: client,
-          revenueFrom: revenueFrom,
-          currency: currency,
+          client: invoiceClient,
+          revenueFrom: invoiceRevenueFrom,
+          currency: invoiceCurrency,
         }
       : initialFilter,
   )
@@ -453,9 +453,10 @@ export default function SelectOrder({
     const { status, revenueFrom, client, search } = data
 
     const filter: InvoiceOrderListFilterType = {
-      revenueFrom: revenueFrom?.label,
+      revenueFrom: from === 'detail' ? invoiceRevenueFrom : revenueFrom?.label,
       status: status?.map(value => value.value) ?? [],
-      client: client?.value,
+      client: from === 'detail' ? invoiceClient : client?.value,
+      currency: from === 'detail' ? invoiceCurrency : undefined,
 
       search: search,
       take: page,

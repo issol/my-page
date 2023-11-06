@@ -580,9 +580,9 @@ const ReceivableInvoiceDetail = () => {
           statusList={statusListOrder ?? []}
           from='detail'
           invoiceId={Number(id!)}
-          client={client?.client.clientId!}
-          revenueFrom={invoiceInfo?.revenueFrom}
-          currency={invoiceInfo?.currency}
+          invoiceClient={client?.client.clientId!}
+          invoiceRevenueFrom={invoiceInfo?.revenueFrom}
+          invoiceCurrency={invoiceInfo?.currency}
         />
       ),
     })
