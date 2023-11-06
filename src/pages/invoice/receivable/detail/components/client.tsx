@@ -221,8 +221,11 @@ const InvoiceClient = ({
                       middleName: client.contactPerson?.middleName!,
                       lastName: client.contactPerson?.lastName!,
                     })
-                  : '-'}{' '}
-                /
+                  : '-'}
+                {client.contactPerson?.jobTitle !== null &&
+                client.contactPerson?.jobTitle !== ''
+                  ? ' / '
+                  : ''}
               </Typography>
               <Typography variant={'body2'}>
                 {client.contactPerson?.jobTitle !== null

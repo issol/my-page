@@ -105,7 +105,7 @@ type Props = {
   accountingEdit?: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
   setAccountingEdit?: Dispatch<SetStateAction<boolean>>
-  orderId: number
+
   onSave?: (data: {
     id: number
     form: InvoiceReceivablePatchParamsType
@@ -141,7 +141,7 @@ const InvoiceInfo = ({
   setEdit,
   accountingEdit,
   setAccountingEdit,
-  orderId,
+
   onSave,
   clientTimezone,
   invoiceInfoControl,
@@ -198,13 +198,6 @@ const InvoiceInfo = ({
       }
     >
   >([])
-
-  const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
-  useEffect(() => {
-    checkEditable(invoiceInfo.id).then(res => {
-      setIsUserInTeamMember(res)
-    })
-  }, [invoiceInfo])
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
@@ -611,7 +604,7 @@ const InvoiceInfo = ({
         </Box>
         <IconButton
           onClick={() => downloadOneFile(file)}
-          disabled={isFileUploading || !isUserInTeamMember}
+          disabled={isFileUploading || !isUpdatable}
         >
           <Icon icon='mdi:download' fontSize={24} />
         </IconButton>
@@ -818,7 +811,7 @@ const InvoiceInfo = ({
                       </Button>
                       <Button
                         variant='contained'
-                        disabled={!isInvoiceInfoValid}
+                        disabled={!isUpdatable}
                         onClick={() =>
                           openModal({
                             type: 'EditSaveModal',
@@ -913,6 +906,7 @@ const InvoiceInfo = ({
                     {type === 'detail' &&
                     isUpdatable &&
                     currentRole &&
+                    !isAccountInfoUpdatable &&
                     isInvoiceInfoUpdatable &&
                     currentRole.name !== 'CLIENT' ? (
                       <IconButton
@@ -1993,7 +1987,7 @@ const InvoiceInfo = ({
                     </Typography>
                   </Box>
 
-                  {isFileUploading || !isUserInTeamMember ? null : (
+                  {isFileUploading || !isUpdatable ? null : (
                     <Box sx={{ display: 'flex', gap: '16px' }}>
                       <Button
                         variant='outlined'
@@ -2072,8 +2066,7 @@ const InvoiceInfo = ({
                       {formatFileSize(fileSize).toLowerCase()}/ 50mb
                     </Typography>
                   </Box>
-                  {(isUpdatable && isUserInTeamMember) ||
-                  isAccountInfoUpdatable ? (
+                  {(isUpdatable && isUpdatable) || isAccountInfoUpdatable ? (
                     <div {...getRootProps({ className: 'dropzone' })}>
                       <Button
                         variant='contained'
@@ -2087,7 +2080,7 @@ const InvoiceInfo = ({
                     </div>
                   ) : null}
 
-                  {isFileUploading || !isUserInTeamMember ? null : (
+                  {isFileUploading || !isUpdatable ? null : (
                     <Box sx={{ display: 'flex', gap: '16px' }}>
                       <Button
                         variant='outlined'
@@ -2166,7 +2159,7 @@ const InvoiceInfo = ({
       {edit ||
       accountingEdit ||
       isFileUploading ||
-      !isUserInTeamMember ||
+      !isUpdatable ||
       type === 'history' ||
       (currentRole && currentRole.name === 'CLIENT') ? null : (
         <Grid xs={12} container spacing={6}>

@@ -65,6 +65,7 @@ import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import { useMutation, useQueryClient } from 'react-query'
 import {
+  checkEditable,
   confirmInvoiceByLpm,
   patchInvoiceInfo,
   restoreVersion,
@@ -132,6 +133,8 @@ const ReceivableInvoiceDetail = () => {
   const [projectTeamEdit, setProjectTeamEdit] = useState(false)
   const invoice = useAppSelector(state => state.invoice)
 
+  const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
+
   const [downloadData, setDownloadData] = useState<InvoiceDownloadData | null>(
     null,
   )
@@ -162,6 +165,8 @@ const ReceivableInvoiceDetail = () => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const User = new invoice_receivable(auth.getValue().user?.id!)
+  console.log(auth.getValue().user?.id!)
+
   // const AccountingTeam = new account_manage(auth.getValue().user?.id!)
   const AccountingTeam = new invoice_receivable_accounting_info(
     auth.getValue().user?.id!,
@@ -170,6 +175,9 @@ const ReceivableInvoiceDetail = () => {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
   const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
+
+  console.log(isUpdatable)
+  console.log(isAccountInfoUpdatable)
 
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -1045,6 +1053,13 @@ const ReceivableInvoiceDetail = () => {
     }
   }, [invoice.isReady])
 
+  useEffect(() => {
+    if (invoiceInfo)
+      checkEditable(invoiceInfo.id).then(res => {
+        setIsUserInTeamMember(res)
+      })
+  }, [invoiceInfo])
+
   function onError() {
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
@@ -1293,7 +1308,6 @@ const ReceivableInvoiceDetail = () => {
                   invoiceInfo={invoiceInfo!}
                   edit={invoiceInfoEdit}
                   setEdit={setInvoiceInfoEdit}
-                  orderId={7}
                   accountingEdit={accountingInfoEdit}
                   setAccountingEdit={setAccountingInfoEdit}
                   onSave={patchInvoiceInfoMutation.mutate}
@@ -1309,7 +1323,7 @@ const ReceivableInvoiceDetail = () => {
                     auth.getValue().user?.timezone!
                   }
                   statusList={statusList || []}
-                  isUpdatable={isUpdatable}
+                  isUpdatable={isUserInTeamMember}
                   isDeletable={isDeletable}
                   isAccountInfoUpdatable={isAccountInfoUpdatable}
                   client={client}
@@ -1358,7 +1372,7 @@ const ReceivableInvoiceDetail = () => {
                 onSave={patchInvoiceInfoMutation.mutate}
                 invoiceInfo={invoiceInfo!}
                 getInvoiceInfo={getInvoiceInfo}
-                isUpdatable={isUpdatable}
+                isUpdatable={isUserInTeamMember}
               />
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
@@ -1387,7 +1401,7 @@ const ReceivableInvoiceDetail = () => {
                 onSave={patchInvoiceInfoMutation.mutate}
                 getInvoiceInfo={getInvoiceInfo}
                 invoiceInfo={invoiceInfo}
-                isUpdatable={isUpdatable}
+                isUpdatable={isUserInTeamMember}
               />
             </TabPanel>
             <TabPanel value='history' sx={{ pt: '24px' }}>
