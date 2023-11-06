@@ -608,7 +608,7 @@ const ReceivableInvoiceDetail = () => {
       const clientTimezone =
         getClientValue('contacts.timezone') ?? auth.getValue().user?.timezone!
 
-      console.log(langItem)
+      console.log(getClientValue('contacts'))
 
       setInvoiceLanguageItem({
         ...langItem,
@@ -674,6 +674,7 @@ const ReceivableInvoiceDetail = () => {
       )
 
       itemReset({ items: items })
+      console.log(invoiceInfo.taxInvoiceDueTimezone)
 
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,
@@ -684,16 +685,21 @@ const ReceivableInvoiceDetail = () => {
         showDescription: invoiceInfo.showDescription,
         paymentDueDate: {
           date: invoiceInfo.payDueAt,
-          timezone: clientTimezone!,
+          timezone: invoiceInfo.payDueTimezone ?? clientTimezone!,
         },
         invoiceConfirmDate: {
-          date: invoiceInfo.invoiceConfirmedAt ?? null,
+          date:
+            client?.contactPerson !== null &&
+            client?.contactPerson.userId !== null
+              ? invoiceInfo.clientConfirmedAt ?? null
+              : null,
           // date:
-          //   client?.contactPerson !== null &&
-          //   client?.contactPerson.userId !== null
-          //     ? invoiceInfo.invoiceConfirmedAt
-          //     : null,
-          timezone: clientTimezone!,
+
+          timezone:
+            client?.contactPerson !== null &&
+            client?.contactPerson.userId !== null
+              ? invoiceInfo.clientConfirmTimezone ?? null
+              : null,
         },
         taxInvoiceDueDate: {
           date: invoiceInfo.taxInvoiceDueAt ?? null,
@@ -703,19 +709,19 @@ const ReceivableInvoiceDetail = () => {
           //   client?.contactPerson.userId !== null
           //     ? invoiceInfo.taxInvoiceDueAt
           //     : null,
-          timezone: clientTimezone!,
+          timezone: invoiceInfo.taxInvoiceDueTimezone! ?? null,
         },
         paymentDate: {
           date: invoiceInfo.paidAt,
-          timezone: clientTimezone!,
+          timezone: invoiceInfo.paidDateTimezone ?? null,
         },
         taxInvoiceIssuanceDate: {
           date: invoiceInfo.taxInvoiceIssuedAt ?? '',
-          timezone: clientTimezone!,
+          timezone: invoiceInfo.taxInvoiceIssuedDateTimezone ?? null!,
         },
         salesRecognitionDate: {
           date: invoiceInfo.salesCheckedAt ?? '',
-          timezone: clientTimezone!,
+          timezone: invoiceInfo.salesCheckedDateTimezone! ?? null,
         },
 
         salesCategory: invoiceInfo.salesCategory,

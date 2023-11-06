@@ -260,22 +260,22 @@ export type InvoiceReceivablePatchParamsType = {
   addressType?: AddressType
   invoiceStatus?: number
   invoicedAt?: string
-  invoicedTimezone?: CountryType
+  invoicedTimezone?: CountryType | null
   payDueAt?: string
   description?: string
-  payDueTimezone?: CountryType
+  payDueTimezone?: CountryType | null
   invoiceConfirmedAt?: string | null
-  invoiceConfirmTimezone?: CountryType
+  invoiceConfirmTimezone?: CountryType | null
   taxInvoiceDueAt?: string | null
-  taxInvoiceDueTimezone?: CountryType
+  taxInvoiceDueTimezone?: CountryType | null
   invoiceDescription?: string
   notes?: string
   taxInvoiceIssuedAt?: string
-  taxInvoiceIssuedDateTimezone?: CountryType
+  taxInvoiceIssuedDateTimezone?: CountryType | null
   paidAt?: string | null
-  paidDateTimezone?: CountryType
+  paidDateTimezone?: CountryType | null
   salesCheckedAt?: string
-  salesCheckedDateTimezone?: CountryType
+  salesCheckedDateTimezone?: CountryType | null
   setReminder?: '1' | '0'
   salesCategory?: string
   showDescription?: '1' | '0'

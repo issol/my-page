@@ -124,7 +124,7 @@ export default function InvoiceProjectInfoForm({
   }
 
   useEffect(() => {
-    if (clientTimezone) {
+    if (clientTimezone && type === 'create') {
       setValue('paymentDueDate.timezone', clientTimezone, setValueOptions)
       setValue('invoiceConfirmDate.timezone', clientTimezone, setValueOptions)
       setValue('taxInvoiceDueDate.timezone', clientTimezone, setValueOptions)
@@ -720,22 +720,26 @@ export default function InvoiceProjectInfoForm({
                 const selected = !field.value
                   ? { code: '', phone: '', label: '' }
                   : field.value
-                const clientConfirmedTimezone =
-                  !invoiceInfo?.clientConfirmTimezone
-                    ? { code: '', phone: '', label: '' }
-                    : invoiceInfo?.clientConfirmTimezone
+
+                console.log(field.value)
+
+                // const clientConfirmedTimezone =
+                //   !invoiceInfo?.clientConfirmTimezone
+                //     ? { code: '', phone: '', label: '' }
+                //     : invoiceInfo?.clientConfirmTimezone
                 return (
                   <Autocomplete
                     autoHighlight
                     fullWidth
                     {...field}
-                    value={
-                      !client
-                        ? selected
-                        : isClientRegistered
-                        ? clientConfirmedTimezone
-                        : selected
-                    }
+                    // value={
+                    //   !client
+                    //     ? selected
+                    //     : isClientRegistered
+                    //     ? clientConfirmedTimezone
+                    //     : selected
+                    // }
+                    value={selected}
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
                     getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
