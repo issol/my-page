@@ -28,7 +28,21 @@ function ModalContainer() {
     closeModal(name)
   }
 
-  // console.log(modalList)
+  useEffect(() => {
+    if (modalList) {
+      document.body.style.cssText = `
+          position: fixed;
+          top: -${window.scrollY}px;
+          overflow-y: scroll;
+          width: 100%;`
+      return () => {
+        const scrollY = window.scrollY
+
+        document.body.style.cssText = `position: unset`
+        window.scrollTo(0, -scrollY)
+      }
+    }
+  }, [modalList])
 
   const renderModal = modalList?.map(
     ({ type, children, isCloseable = true }: ModalType) => {

@@ -662,10 +662,25 @@ export default function SelectOrder({
                   }}
                 >
                   <DataGrid
-                    autoHeight
+                    // autoHeight
                     components={{
                       NoRowsOverlay: () => NoList('There are no orders'),
                       NoResultsOverlay: () => NoList('There are no orders'),
+                    }}
+                    sx={{
+                      overflowY: 'scroll',
+                      height: '400px',
+                      '& ::-webkit-scrollbar': {
+                        display: 'none',
+                      },
+                      // '& ::-webkit-scrollbar-track': {
+                      //   backgroundColor: '#f5f5f5',
+                      // },
+                      // '& ::-webkit-scrollbar-thumb': {
+                      //   borderRadius: '10px',
+                      //   boxShadow: 'inset 0 0 6px rgba(0,0,0,.3)',
+                      //   backgroundColor: '#f5f5f5',
+                      // },
                     }}
                     columns={columns}
                     rows={orderList?.data ?? []}
