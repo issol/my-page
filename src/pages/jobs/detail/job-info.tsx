@@ -120,7 +120,7 @@ const ProJobInfo = ({
   )
 
   const fileSize = useMemo(() => {
-    if (jobInfo?.files.length > 0) {
+    if (jobInfo?.files?.length > 0) {
       return jobInfo.files
         ?.filter(value => {
           if (
@@ -1194,7 +1194,7 @@ const ProJobInfo = ({
       </Grid>
       <Grid item xs={2.75}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {fileList.length === 0 ||
+          {fileList && fileList.length === 0 ||
           (jobInfo.status !== 70000 &&
             jobInfo.status !== 70100 &&
             jobInfo.status !== 70200 &&

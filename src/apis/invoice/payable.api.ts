@@ -266,8 +266,9 @@ export const createInvoicePayable = async (params: {
     return data
   } catch (error) {
     const err = error as AxiosError
-    if (err.response?.status === 400 && err.response?.data) {
-      return err.response?.data
-    }
+    // if (err.response?.status === 400 && err.response?.data) {
+    //   return err.response?.data
+    // }
+    throw err
   }
 }

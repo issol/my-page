@@ -45,6 +45,12 @@ const ProJobsDetail = () => {
     Number(id),
     assigned && assigned === 'false' ? true : false,
   )
+  useEffect(() => {
+    if (!isLoading && Number(jobDetail?.id) !== Number(id)) {
+      router.push(`/jobs/detail/${jobDetail?.id}/`)
+    }
+  }, [jobDetail, isLoading, id])
+
   const { data: jobPrices } = useGetJobPrices(
     Number(id),
     assigned && assigned === 'false' ? true : false,

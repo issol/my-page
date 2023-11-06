@@ -54,8 +54,8 @@ const defaultFilters: JobListFilterType = {
   take: 10,
   skip: 0,
   search: '',
-  listType: 'completed-inactive',
-  status: [60600], //Approved
+  listType: 'invoice',
+  status: [], //Approved
 }
 
 const SelectJobModal = ({ onClose, onClick }: Props) => {
@@ -83,7 +83,6 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
     const selected: ProJobListType[] = selectionModel
       .map(id => jobs.find(job => job.id === id))
       .filter(job => job !== undefined) as ProJobListType[]
-    console.log(selected)
 
     const firstCurrency = selected[0]?.currency
     const invalidSelections = selected.filter(
@@ -125,7 +124,6 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
       subtotal: getTotalPrice(selectedJobs),
       jobIds: selectedJobs.map(job => job.id),
     }
-    console.log("onClickCreateInvoice",selectedJobs,invoiceData)
     openModal({
       type: 'ClickCreateInvoiceModal',
       children: (
