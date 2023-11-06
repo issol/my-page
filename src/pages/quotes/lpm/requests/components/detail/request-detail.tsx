@@ -109,7 +109,7 @@ export default function RequestDetailCard({
         <LabelContainer>
           <CustomTypo fontWeight={600}>Client</CustomTypo>
           <StyledNextLink
-            href={`/client/detail/${data?.client.clientId}`}
+            href={`/client/detail/${data?.client?.clientId}`}
             color='black'
             style={{ textDecoration: 'underline' }}
           >
