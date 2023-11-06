@@ -266,18 +266,8 @@ export const createInvoicePayable = async (params: {
     return data
   } catch (error) {
     const err = error as AxiosError
-    if (err.response?.status === 400 &&
-      err.response.data && typeof err.response.data === 'object' && 'message' in err.response.data &&
-      err.response?.data?.message === `Pro's payment information is not saved`) {
-      return {
-        errorMessage: err.response?.data
-      }
-    } else {
-      return {
-        errorMessage: 'unknown'
-      }
+    if (err.response?.status === 400 && err.response?.data) {
+      return err.response?.data
     }
   }
-
-
 }
