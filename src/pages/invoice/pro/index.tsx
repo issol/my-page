@@ -28,6 +28,9 @@ import { getInvoiceProListColumns } from '@src/shared/const/columns/pro-invoice'
 import { useGetPayableList } from '@src/queries/invoice/payable.query'
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
 import CalendarContainer from '../payable/components/calendar'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import toast from 'react-hot-toast'
+import { useRouter } from 'next/router'
 
 export type FilterType = {
   invoiceDate: Date[]
@@ -68,6 +71,8 @@ const defaultFilters: InvoicePayableFilterType = {
 
 const ProInvoice = () => {
   const { openModal, closeModal } = useModal()
+  const router = useRouter()
+
   const auth = useRecoilValueLoadable(authState)
   const [invoiceListPage, setInvoiceListPage] = useState(0)
   const [invoiceListRowsPerPage, setInvoiceListRowsPerPage] = useState(10)
@@ -112,7 +117,45 @@ const ProInvoice = () => {
       // invoicedAt: string
       // invoicedTimezone: CountryType
     }) => createInvoicePayable(params),
-    {},
+    {
+      onSuccess: (res) => {
+        closeModal('CreateInvoiceModal')
+        router.push(`/invoice/pro/detail/${res?.id}`)
+        toast.success('Success', {
+          position: 'bottom-left',
+        })
+      },
+      onError: (res: {message: string}) => {
+        if (res.message === `Pro's payment information is not saved`) {
+          openModal({
+            type: 'ErrorModal',
+            children: (
+              <CustomModal
+                title={
+                  <>
+                    Since the payment info is not registered, 
+                    we are unable to create the invoice. 
+                    
+                    Please register the payment info first.
+                  </>
+                }
+                onClose={() => closeModal('ErrorModal')}
+                soloButton={true}
+                rightButtonText='Go to write payment info.'
+                vary='error'
+                onClick={() => {
+                  router.push('/mypage/pro/')
+                }}
+              />
+            ),
+          })
+        } else {
+          toast.error('Something went wrong. Please try again.', {
+            position: 'bottom-left',
+          })
+        }
+      }
+    },
   )
 
   const onSubmit = (data: FilterType) => {

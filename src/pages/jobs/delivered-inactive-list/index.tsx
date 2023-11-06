@@ -106,7 +106,7 @@ const DeliveredInactiveList = () => {
       jobIds: number[]
       // invoicedAt: string
       // invoicedTimezone: CountryType
-    }) => createInvoicePayable(params), //api 체크해야함
+    }) => createInvoicePayable(params),
     {
       onSuccess: (res) => {
         closeModal('CreateInvoiceModal')
@@ -115,8 +115,8 @@ const DeliveredInactiveList = () => {
           position: 'bottom-left',
         })
       },
-      onError: (res: {errorMessage: string}) => {
-        if (res.errorMessage === `Pro's payment information is not saved`) {
+      onError: (res: any) => {
+        if (res.message === `Pro's payment information is not saved`) {
           openModal({
             type: 'ErrorModal',
             children: (
@@ -134,6 +134,8 @@ const DeliveredInactiveList = () => {
                 rightButtonText='Go to write payment info.'
                 vary='error'
                 onClick={() => {
+                  closeModal('ErrorModal')
+                  closeModal('CreateInvoiceModal')
                   router.push('/mypage/pro/')
                 }}
               />
