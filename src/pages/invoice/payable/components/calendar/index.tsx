@@ -44,6 +44,10 @@ import {
 
 type Props = {
   type: 'pro' | 'lpm'
+  statusList: Array<{
+    label: string,
+    value: number,
+  }>
 }
 
 const CalendarContainer = ({ type }: Props) => {
@@ -67,7 +71,7 @@ const CalendarContainer = ({ type }: Props) => {
     color:
       type === 'lpm'
         ? getPayableColor(i.label as InvoicePayableStatusType)
-        : getProInvoiceStatusColor(i.label as InvoiceProStatusType),
+        : getProInvoiceStatusColor(i.value as InvoiceProStatusType),
   }))
 
   const [skip, setSkip] = useState(0)
@@ -199,6 +203,7 @@ const CalendarContainer = ({ type }: Props) => {
                 ? { data: currentList, totalCount: currentList?.length }
                 : { data: [], totalCount: 0 }
             }
+            statusList={statusList!}
           />
         </Box>
       )}

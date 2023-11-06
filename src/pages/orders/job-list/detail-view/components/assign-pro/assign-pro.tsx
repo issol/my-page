@@ -56,6 +56,7 @@ import {
 } from '@src/apis/job-detail.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import toast from 'react-hot-toast'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -252,53 +253,62 @@ const AssignPro = ({
     requestJobMutation.mutate(
       { ids: res, jobId: row.id },
       {
-        onSuccess: () => {
-          closeModal('AssignProRequestJobModal')
-        },
+        // onSuccess: () => {
+        //   closeModal('AssignProRequestJobModal')
+        // },
         onError: () => {
-          closeModal('AssignProRequestJobModal')
-          toast.error('Something went wrong. Please try again. - Request failed!', {
-            position: 'bottom-left',
-          })
+          toast.error(
+            'Something went wrong. Please try again. - Request failed!',
+            {
+              position: 'bottom-left',
+            },
+          )
         },
-      }
-      )
-    // closeModal('AssignProRequestJobModal')
+      },
+    )
+    closeModal('AssignProRequestJobModal')
   }
   const handleReAssignPro = () => {
     reAssignJobMutation.mutate(
       { jobId: row.id },
       {
-        onSuccess: () => {
-          closeModal('ReAssignProRequestJobModal')
-        },
+        // onSuccess: () => {
+        //   closeModal('ReAssignProRequestJobModal')
+        // },
         onError: () => {
-          closeModal('ReAssignProRequestJobModal')
-          toast.error('Something went wrong. Please try again. - Re-assign failed!', {
-            position: 'bottom-left',
-          })
+          // closeModal('ReAssignProRequestJobModal')
+          toast.error(
+            'Something went wrong. Please try again. - Re-assign failed!',
+            {
+              position: 'bottom-left',
+            },
+          )
         },
       }
     )
+    closeModal('ReAssignProRequestJobModal')
   }
 
   const handleAssignJob = (jobId: number, proId: number) => {
     assignJobMutation.mutate(
       { jobId: jobId, proId: proId, status: 70300 },
       {
-        onSuccess: () => {
-          queryClient.invalidateQueries('JobInfo')
-          closeModal('AssignProJobModal')
-          queryClient.invalidateQueries('JobInfo')
-        },
+        // onSuccess: () => {
+        //   queryClient.invalidateQueries('JobInfo')
+        //   closeModal('AssignProJobModal')
+        //   queryClient.invalidateQueries('JobInfo')
+        // },
         onError: () => {
-          closeModal('AssignProJobModal')
-          toast.error('Something went wrong. Please try again. - Assign failed!', {
-            position: 'bottom-left',
-          })
+          toast.error(
+            'Something went wrong. Please try again. - Assign failed!',
+            {
+              position: 'bottom-left',
+            },
+          )
         },
       },
     )
+    closeModal('AssignProJobModal')
   }
 
   const onClickAssignJob = (jobId: number, proId: number, name: string) => {
@@ -767,6 +777,10 @@ const AssignPro = ({
 
   return (
     <Box>
+      {(requestJobMutation.isLoading ||
+        reAssignJobMutation.isLoading ||
+        assignJobMutation.isLoading) ?
+        <OverlaySpinner /> : null }
       {type === 'history' ? null : (
         <AssignProFilters
           control={control}

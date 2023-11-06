@@ -272,13 +272,15 @@ const ProInvoice = () => {
               />
               <List
                 isLoading={isLoading}
+                // TODO: invoice pro  status code 확인해야함
                 columns={getInvoiceProListColumns(
-                  [
-                    { value: 50000, label: 'Invoiced' },
-                    { value: 50100, label: 'Under revision' },
-                    { value: 50200, label: 'Revised' },
-                    { value: 50300, label: 'Paid' },
-                  ],
+                  // [
+                  //   { value: 50000, label: 'Invoiced' },
+                  //   { value: 50100, label: 'Under revision' },
+                  //   { value: 50200, label: 'Revised' },
+                  //   { value: 50300, label: 'Paid' },
+                  // ],
+                  statusList!,
                   auth,
                 )}
                 page={invoiceListPage}
@@ -299,7 +301,10 @@ const ProInvoice = () => {
         </>
       ) : (
         <Grid item xs={12}>
-          <CalendarContainer type='pro' />
+          <CalendarContainer 
+            type='pro'
+            statusList={statusList!}
+          />
         </Grid>
       )}
     </Grid>

@@ -2,10 +2,15 @@ import { RevenueFormType } from '../common/orders.type'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type InvoiceProStatusType =
-  | 'Invoiced'
-  | 'Under revision'
-  | 'Revised'
-  | 'Paid'
+  // | 'Invoiced'
+  // | 'Under revision'
+  // | 'Revised'
+  // | 'Paid'
+  | 40000
+  | 40100
+  | 40200
+  | 40300
+  | 40400
 
 export type InvoicePayableStatusType =
   | 'Invoice created'

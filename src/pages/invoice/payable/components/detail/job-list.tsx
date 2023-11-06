@@ -16,8 +16,10 @@ import styled, { css } from 'styled-components'
 import { InvoicePayableJobType } from '@src/types/invoice/payable.type'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import { CurrencyType } from '@src/types/common/standard-price'
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { ClientUserType, UserDataType } from '@src/context/types'
+import { useRouter } from 'next/router'
 
 type Props = {
   data: {
@@ -30,6 +32,11 @@ type Props = {
   selectedJobs: number[]
   setSelectedJobs: (id: number[]) => void
   isUpdatable: boolean
+  auth: {
+    user: UserDataType | null;
+    company: ClientUserType | null | undefined;
+    loading: boolean;
+  }
 }
 export default function InvoiceJobList({
   data,
@@ -38,7 +45,9 @@ export default function InvoiceJobList({
   selectedJobs,
   setSelectedJobs,
   isUpdatable,
+  auth,
 }: Props) {
+  const router = useRouter()
   const { data: jobList } = data
 
   const currentRole = getCurrentRole()
@@ -102,7 +111,13 @@ export default function InvoiceJobList({
               }}
               variant='body1'
               color='secondary'
-              onClick={() => onRowClick(item.id)}
+              onClick={() => {
+                if (auth?.user?.roles?.some(role => role.name === 'PRO')) {
+                  router.push(`/jobs/detail/${item.id}`)
+                } else {
+                  onRowClick(item.id)
+                }
+              }}
             >
               {item.corporationId}
             </Typography>
@@ -120,7 +135,10 @@ export default function InvoiceJobList({
             <Typography
               fontWeight={600}
               sx={disabledTextUi}
-            >{`${currencyMark} ${item.totalPrice?.toLocaleString()}`}</Typography>
+            >
+              {/* {`${currencyMark} ${item.totalPrice?.toLocaleString()}`} */}
+              {formatCurrency(item.totalPrice, currency!)}
+            </Typography>
           </TableCell>
           {/* Contact person */}
           <TableCell
@@ -134,29 +152,29 @@ export default function InvoiceJobList({
         </CustomTableRow>
         {open ? (
           <TableRow>
-            <TableCell>{/* empty */}</TableCell>
-            <TableCell>{/* empty */}</TableCell>
             <TableCell colSpan={5}>
-              <Box>
+              <Box paddingLeft={30}>
                 <Typography fontSize={14} fontWeight={600}>
                   Price details
                 </Typography>
                 <ul>
                   {item?.prices?.map((price, i) => {
-                    const unitPrice = `${currencyMark} ${price.unitPrice.toLocaleString()}`
+                    // const unitPrice = `${currencyMark} ${price.unitPrice.toLocaleString()}`
+                    const unitPrice = `${formatCurrency(price.unitPrice, currency!)}`
                     const priceUnit =
                       price.quantity < 1
                         ? unitPrice
                         : `(${unitPrice} X ${price.quantity})`
                     return (
                       <li key={i}>
-                        <Box display='flex' gap='24px' alignItems='center'>
+                        <Box display='flex' gap='24px' alignItems='left'>
                           <Typography fontWeight={600}>
                             {price?.name}
                           </Typography>
                           <Typography variant='body2'>{priceUnit}</Typography>
                           <Typography variant='body2'>
-                            {`${currencyMark} ${price.prices.toLocaleString()}`}
+                            {/* {`${currencyMark} ${price.prices.toLocaleString()}`} */}
+                            {`${formatCurrency(price.prices, currency!)}`}
                           </Typography>
                         </Box>
                       </li>

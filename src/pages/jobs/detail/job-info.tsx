@@ -62,6 +62,7 @@ import {
   patchProJobDetail,
   patchProJobSourceFileDownload,
 } from '@src/apis/job-detail.api'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -127,6 +128,7 @@ const ProJobInfo = ({
             jobInfo.status !== 60400 &&
             jobInfo.status !== 60600 &&
             jobInfo.status !== 60200 &&
+            jobInfo.status !== 70300 &&
             jobInfo.status !== 60300
           ) {
             return value.type === 'SOURCE'
@@ -190,6 +192,7 @@ const ProJobInfo = ({
         jobInfo.status !== 60400 &&
         jobInfo.status !== 60600 &&
         jobInfo.status !== 60200 &&
+        jobInfo.status !== 70300 &&
         jobInfo.status !== 60300
       ) {
         return value.type === 'SOURCE'
@@ -526,6 +529,9 @@ const ProJobInfo = ({
 
   return (
     <Grid container xs={12} spacing={4}>
+      {(patchProJobSourceFileDownloadMutation.isLoading ||
+        selectAssignMutation.isLoading) ?
+        <OverlaySpinner /> : null }
       <Grid item xs={9.25}>
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>

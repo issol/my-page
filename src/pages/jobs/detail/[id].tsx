@@ -104,7 +104,7 @@ const ProJobsDetail = () => {
             jobDetail.status !== 70000 &&
             jobDetail.status !== 70100 &&
             jobDetail.status !== 70200 &&
-            jobDetail.status !== 70300 &&
+            // jobDetail.status !== 70300 &&
             jobDetail.status !== 70400 &&
             jobDetail.status !== 70500 ? (
               <CustomTab

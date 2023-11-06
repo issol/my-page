@@ -9,7 +9,7 @@ import {
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 import { Loadable } from 'recoil'
 
@@ -192,9 +192,10 @@ export const getInvoiceReceivableListColumns = (
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
-        const price = `${getCurrencyMark(
+        const price = `${formatCurrency(
+          row.totalPrice,
           row.currency,
-        )} ${row.totalPrice?.toLocaleString('ko-KR')}`
+        )}`
         const date = FullDateTimezoneHelper(
           row.salesCheckedAt,
           row?.salesCheckedDateTimezone?.code,

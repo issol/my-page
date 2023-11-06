@@ -9,7 +9,7 @@ import {
 } from '@mui/material'
 import styled from 'styled-components'
 
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 import { InvoicePayableDetailType } from '@src/types/invoice/payable.type'
 
@@ -18,7 +18,7 @@ type Props = {
 }
 
 export default function InvoiceAmount({ data }: Props) {
-  const currency = getCurrencyMark(data?.currency)
+  // const currency = getCurrencyMark(data?.currency)
   function renderRow(
     label: string,
     price: number,
@@ -32,8 +32,9 @@ export default function InvoiceAmount({ data }: Props) {
           <Typography variant='body2'>{label}</Typography>
         </FlexBox>
         <Typography variant='body2' fontSize='1rem' fontWeight={600}>
-          {label === 'Tax' ? (Math.sign(price) === 1 ? '-' : '+') : ''}&nbsp;
-          {`${currency} ${price.toLocaleString()}`}
+          {label === 'Tax' ? (Math.sign(price) === 1 ? '+' : '-') : ''}&nbsp;
+          {/* {`${data?.currency!} ${price.toLocaleString()}`} */}
+          {formatCurrency(Math.abs(price), data?.currency!)}
         </Typography>
       </FlexBox>
     )
@@ -54,7 +55,8 @@ export default function InvoiceAmount({ data }: Props) {
                 Total
               </Typography>
               <Typography color='#ffffff' fontSize={34} fontWeight={600}>
-                {`${currency} ${data?.totalPrice?.toLocaleString()}`}
+                {/* {`${currency} ${data?.totalPrice?.toLocaleString()}`} */}
+                {formatCurrency(data?.totalPrice!, data?.currency!)}
               </Typography>
             </Box>
           </CardContent>

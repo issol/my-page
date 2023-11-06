@@ -14,13 +14,13 @@ import { JobStatusType } from '@src/types/jobs/jobs.type'
 
 export function getProInvoiceStatusColor(status: InvoiceProStatusType) {
   const color =
-    status === 'Invoiced'
+    status === 40000 //'Invoiced'
       ? '#9B6CD8'
-      : status === 'Under revision'
+      : status === 40100 //'Under revision'
       ? '#26C6F9'
-      : status === 'Paid'
+      : status === 40300 //'Paid'
       ? '#1B8332'
-      : status === 'Revised'
+      : status === 40200 //'Revised'
       ? '#AD7028'
       : ''
 

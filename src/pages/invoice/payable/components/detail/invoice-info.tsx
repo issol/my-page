@@ -39,7 +39,7 @@ import { toast } from 'react-hot-toast'
 
 // ** contexts
 import { deleteInvoicePayableJobs } from '@src/apis/invoice/payable.api'
-import { UserRoleType } from '@src/context/types'
+import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
@@ -52,6 +52,15 @@ type Props = {
     totalCount: number
     data: InvoicePayableJobType[]
   }
+  statusList: Array<{
+    label: string
+    value: number
+  }>
+  auth: {
+    user: UserDataType | null;
+    company: ClientUserType | null | undefined;
+    loading: boolean;
+  }
 }
 export default function InvoiceInfo({
   payableId,
@@ -59,6 +68,8 @@ export default function InvoiceInfo({
   data,
   updateMutation,
   jobList,
+  statusList,
+  auth,
 }: Props) {
   const queryClient = useQueryClient()
 
@@ -151,6 +162,7 @@ export default function InvoiceInfo({
               updatePayable={updateMutation}
               editInfo={editInfo}
               setEditInfo={setEditInfo}
+              statusList={statusList!}
             />
           </CardContent>
         </Card>
@@ -191,6 +203,7 @@ export default function InvoiceInfo({
             selectedJobs={selectedJobs}
             setSelectedJobs={setSelectedJobs}
             onRowClick={onRowClick}
+            auth={auth!}
           />
         </Card>
       </Grid>
