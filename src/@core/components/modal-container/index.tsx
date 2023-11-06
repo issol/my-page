@@ -29,7 +29,7 @@ function ModalContainer() {
   }
 
   useEffect(() => {
-    if (modalList) {
+    if (modalList.length > 0) {
       document.body.style.cssText = `
           position: fixed;
           top: -${window.scrollY}px;
