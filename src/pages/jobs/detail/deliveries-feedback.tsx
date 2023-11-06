@@ -50,6 +50,7 @@ import {
   patchProJobSourceFileDownload,
   postProJobDeliveries,
 } from '@src/apis/job-detail.api'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -64,7 +65,8 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
   const auth = useRecoilValueLoadable(authState)
 
   const { data, refetch } = useGetProJobDeliveriesFeedbacks(jobInfo.id)
-  console.log("jobInfo",jobInfo)
+
+  const [ isFileUploading, setIsFileUploading ] = useState<boolean>(false)
   const updateDeliveries = useMutation(
     (params: {
       jobId: number
@@ -278,6 +280,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
   const onSubmit = (deliveryType: 'final' | 'partial') => {
     closeModal('DeliverToClientModal')
     if (files.length) {
+      setIsFileUploading(true)
       const fileInfo: Array<{
         name: string
         size: number
@@ -305,6 +308,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       })
       Promise.all(promiseArr)
         .then(res => {
+          setIsFileUploading(false)
           // logger.debug('upload client guideline file success :', res)
 
           // updateProject.mutate({ deliveries: fileInfo })
@@ -318,14 +322,15 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
 
           // setImportedFiles([])
         })
-        .catch(err =>
+        .catch(err => {
+          setIsFileUploading(false)
           toast.error(
             'Something went wrong while uploading files. Please try again.',
             {
               position: 'bottom-left',
             },
-          ),
-        )
+          )
+        })
     } else {
       updateDeliveries.mutate({
         jobId: jobInfo.id,
@@ -382,6 +387,10 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
 
   return (
     <Grid container xs={12} spacing={4}>
+      {(patchFeedbackCheckMutation.isLoading ||
+        updateDeliveries.isLoading ||
+        isFileUploading) ?
+        <OverlaySpinner /> : null }
       <Grid item xs={8.75}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <Card

@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 import { JobListFilterType } from '../requested-ongoing-list'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   useGetProJobClientList,
   useGetProJobList,
@@ -16,6 +16,11 @@ import SelectJobModal from './components/select-job-modal'
 import { useMutation } from 'react-query'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { createInvoicePayable } from '@src/apis/invoice/payable.api'
+import { statusType } from '@src/types/common/status.type'
+import { toast } from 'react-hot-toast'
+import { useRouter } from 'next/router'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 export type FilterType = {
   jobDueDate: Date[]
@@ -56,10 +61,18 @@ const defaultFilters: JobListFilterType = {
 
 const DeliveredInactiveList = () => {
   const { openModal, closeModal } = useModal()
+  const router = useRouter()
 
   const [filters, setFilters] = useState<JobListFilterType>(defaultFilters)
 
   const { data: jobList, isLoading } = useGetProJobList(filters)
+
+  const { data: jobStatusList, isLoading: statusListLoading } =
+  useGetStatusList('Job')
+  const { data: assignmentJobStatusList, isLoading: assignmentStatusListLoading } =
+  useGetStatusList('JobAssignment')
+
+  const [statusList, setStatusList] = useState<Array<statusType>>([])
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -74,8 +87,11 @@ const DeliveredInactiveList = () => {
       filterType: 'client',
     })
 
-  const { data: statusList, isLoading: statusListLoading } =
-    useGetStatusList('Job')
+  useEffect(() => {
+    if (jobStatusList && assignmentJobStatusList && !statusListLoading && !assignmentStatusListLoading) {
+      setStatusList([ ...jobStatusList, ...assignmentJobStatusList ])
+    }
+  }, [jobStatusList, statusListLoading, assignmentJobStatusList, assignmentStatusListLoading])
 
   const createInvoiceMutation = useMutation(
     (params: {
@@ -92,8 +108,42 @@ const DeliveredInactiveList = () => {
       // invoicedTimezone: CountryType
     }) => createInvoicePayable(params), //api 체크해야함
     {
-      onSuccess: () => {
-        console.log("createInvoiceMutation")
+      onSuccess: (res) => {
+        closeModal('CreateInvoiceModal')
+        router.push(`/invoice/pro/detail/${res?.id}`)
+        toast.success('Success', {
+          position: 'bottom-left',
+        })
+      },
+      onError: (res: {errorMessage: string}) => {
+        if (res.errorMessage === `Pro's payment information is not saved`) {
+          openModal({
+            type: 'ErrorModal',
+            children: (
+              <CustomModal
+                title={
+                  <>
+                    Since the payment info is not registered, 
+                    we are unable to create the invoice. 
+                    
+                    Please register the payment info first.
+                  </>
+                }
+                onClose={() => closeModal('ErrorModal')}
+                soloButton={true}
+                rightButtonText='Go to write payment info.'
+                vary='error'
+                onClick={() => {
+                  router.push('/mypage/pro/')
+                }}
+              />
+            ),
+          })
+        } else {
+          toast.error('Something went wrong. Please try again.', {
+            position: 'bottom-left',
+          })
+        }
       }
     },
   )
@@ -173,6 +223,8 @@ const DeliveredInactiveList = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      { createInvoiceMutation.isLoading ?
+        <OverlaySpinner /> : null }
       <Filters
         clientList={clientList!}
         contactPersonList={contactPersonList!}

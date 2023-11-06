@@ -47,6 +47,7 @@ import { createJob } from '@src/apis/jobs.api'
 import { deleteJob } from '@src/apis/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -619,6 +620,9 @@ const JobDetails = () => {
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
+      {(createJobMutation.isLoading ||
+        deleteJobMutation.isLoading) ?
+        <OverlaySpinner /> : null }
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <Box
           sx={{

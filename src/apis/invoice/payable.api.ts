@@ -15,6 +15,7 @@ import {
   PayableHistoryType,
 } from '@src/types/invoice/payable.type'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { AxiosError } from 'axios'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 
@@ -260,7 +261,13 @@ export const createInvoicePayable = async (params: {
   subtotal: number
   jobIds: number[]
 }) => {
-  const { data } = await axios.post(`/api/enough/u/invoice/payable`, params)
-
-  return data
+  try {
+    const { data } = await axios.post(`/api/enough/u/invoice/payable`, params)
+    return data
+  } catch (error) {
+    const err = error as AxiosError
+    if (err.response?.status === 400 && err.response?.data) {
+      return err.response?.data
+    }
+  }
 }
