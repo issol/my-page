@@ -495,6 +495,7 @@ export default function AddNewOrder() {
         analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
         showItemDescription: item.showItemDescription ? '1' : '0',
         minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+        minimumPrice: item.minimumPriceApplied ? item.minimumPrice : null,
         // name: item.itemName,
         sourceLanguage: item.source,
         targetLanguage: item.target,

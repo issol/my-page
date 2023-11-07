@@ -28,6 +28,7 @@ import {
   formatCurrency,
   getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
+import invoice from '@src/store/invoice'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   LanguagePairsPostType,
@@ -309,15 +310,9 @@ const InvoiceLanguageAndItem = ({
                 justifyContent: 'flex-end',
               }}
             >
-              {formatCurrency(
-                formatByRoundingProcedure(
-                  Number(getInvoiceInfo('subtotal')),
-                  priceInfo?.decimalPlace!,
-                  priceInfo?.roundingProcedure!,
-                  priceInfo?.currency ?? 'USD',
-                ),
-                priceInfo?.currency ?? 'USD',
-              )}
+              {getCurrencyMark(invoiceInfo.currency)}
+              &nbsp;
+              {Number(getInvoiceInfo('subtotal'))}
             </Typography>
           </Box>
         </Box>
@@ -391,7 +386,7 @@ const InvoiceLanguageAndItem = ({
                   )
                 : '-'} */}
               {invoiceInfo.isTaxable
-                ? `${getCurrencyMark(priceInfo?.currency)} ${
+                ? `${getCurrencyMark(invoiceInfo?.currency)} ${
                     Number(getInvoiceInfo('subtotal')) *
                     (Number(invoiceInfo.tax!) / 100)
                   }`
@@ -437,26 +432,14 @@ const InvoiceLanguageAndItem = ({
               }}
             >
               {invoiceInfo.isTaxable
-                ? formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(getInvoiceInfo('subtotal')) *
-                        (Number(invoiceInfo.tax!) / 100) +
-                        Number(getInvoiceInfo('subtotal')),
-                      priceInfo?.decimalPlace!,
-                      priceInfo?.roundingProcedure!,
-                      priceInfo?.currency ?? 'USD',
-                    ),
-                    priceInfo?.currency ?? 'USD',
-                  )
-                : formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(getInvoiceInfo('subtotal')),
-                      priceInfo?.decimalPlace!,
-                      priceInfo?.roundingProcedure!,
-                      priceInfo?.currency ?? 'USD',
-                    ),
-                    priceInfo?.currency ?? 'USD',
-                  )}
+                ? `${getCurrencyMark(invoiceInfo?.currency)} ${
+                    Number(getInvoiceInfo('subtotal')) +
+                    Number(getInvoiceInfo('subtotal')) *
+                      (Number(getInvoiceInfo('tax')) / 100)
+                  }`
+                : `${getCurrencyMark(invoiceInfo?.currency)} ${Number(
+                    getInvoiceInfo('subtotal'),
+                  )}`}
             </Typography>
           </Box>
         </Box>

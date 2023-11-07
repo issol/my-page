@@ -85,6 +85,7 @@ import {
 import {
   formatByRoundingProcedure,
   formatCurrency,
+  getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { useMutation, useQueryClient } from 'react-query'
@@ -786,7 +787,7 @@ export default function AddNewInvoice() {
                       gap: '20px',
                       borderBottom: '2px solid #666CFF',
                       justifyContent: 'center',
-                      width: '257px',
+                      width: '25%',
                     }}
                   >
                     <Typography
@@ -795,7 +796,8 @@ export default function AddNewInvoice() {
                       sx={{
                         padding: '16px 16px 16px 20px',
                         flex: 1,
-                        textAlign: 'right',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
                       }}
                     >
                       Subtotal
@@ -803,9 +805,14 @@ export default function AddNewInvoice() {
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                      }}
                     >
-                      {formatCurrency(
+                      {/* {formatCurrency(
                         formatByRoundingProcedure(
                           Number(getProjectInfoValues().subtotal),
                           priceInfo?.decimalPlace!,
@@ -813,7 +820,12 @@ export default function AddNewInvoice() {
                           priceInfo?.currency!,
                         ),
                         priceInfo?.currency!,
+                      )} */}
+                      {getCurrencyMark(
+                        getItem().items[0].initialPrice?.currency,
                       )}
+                      &nbsp;
+                      {Number(getProjectInfoValues().subtotal)}
                     </Typography>
                   </Box>
                 </Box>
@@ -857,7 +869,7 @@ export default function AddNewInvoice() {
                       gap: '20px',
                       borderBottom: '1.5px solid #666CFF',
                       justifyContent: 'space-between',
-                      width: '257px',
+                      width: '25%',
                     }}
                   >
                     <Typography
@@ -866,8 +878,8 @@ export default function AddNewInvoice() {
                       sx={{
                         padding: '16px 16px 16px 20px',
                         flex: 1,
-
-                        textAlign: 'right',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
                       }}
                     >
                       Tax
@@ -875,9 +887,14 @@ export default function AddNewInvoice() {
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                      }}
                     >
-                      {getProjectInfoValues().isTaxable
+                      {/* {getProjectInfoValues().isTaxable
                         ? formatCurrency(
                             formatByRoundingProcedure(
                               Number(getProjectInfoValues().subtotal) *
@@ -888,6 +905,14 @@ export default function AddNewInvoice() {
                             ),
                             priceInfo?.currency!,
                           )
+                        : '-'} */}
+                      {getProjectInfoValues().isTaxable
+                        ? `${getCurrencyMark(
+                            getItem().items[0].initialPrice?.currency,
+                          )} ${
+                            Number(getProjectInfoValues().subtotal) *
+                            (Number(getProjectInfoValues().tax!) / 100)
+                          }`
                         : '-'}
                     </Typography>
                   </Box>
@@ -901,7 +926,7 @@ export default function AddNewInvoice() {
                       gap: '20px',
                       borderBottom: '1.5px solid #666CFF',
                       justifyContent: 'space-between',
-                      width: '250px',
+                      width: '25%',
                     }}
                   >
                     <Typography
@@ -911,8 +936,8 @@ export default function AddNewInvoice() {
                       sx={{
                         padding: '16px 16px 16px 20px',
                         flex: 1,
-
-                        textAlign: 'right',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
                       }}
                     >
                       Total
@@ -921,29 +946,24 @@ export default function AddNewInvoice() {
                       fontWeight={600}
                       variant='subtitle1'
                       color={'#666CFF'}
-                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                      }}
                     >
                       {getProjectInfoValues().isTaxable
-                        ? formatCurrency(
-                            formatByRoundingProcedure(
-                              Number(getProjectInfoValues().subtotal) *
-                                (Number(getProjectInfoValues().tax!) / 100) +
-                                Number(getProjectInfoValues().subtotal),
-                              priceInfo?.decimalPlace!,
-                              priceInfo?.roundingProcedure!,
-                              priceInfo?.currency!,
-                            ),
-                            priceInfo?.currency!,
-                          )
-                        : formatCurrency(
-                            formatByRoundingProcedure(
-                              Number(getProjectInfoValues().subtotal),
-                              priceInfo?.decimalPlace!,
-                              priceInfo?.roundingProcedure!,
-                              priceInfo?.currency!,
-                            ),
-                            priceInfo?.currency!,
-                          )}
+                        ? `${getCurrencyMark(
+                            getItem().items[0].initialPrice?.currency,
+                          )} ${
+                            Number(getProjectInfoValues().subtotal) +
+                            Number(getProjectInfoValues().subtotal) *
+                              (Number(getProjectInfoValues().tax!) / 100)
+                          }`
+                        : `${getCurrencyMark(
+                            getItem().items[0].initialPrice?.currency,
+                          )} ${Number(getProjectInfoValues().subtotal)}`}
                     </Typography>
                   </Box>
                 </Box>
