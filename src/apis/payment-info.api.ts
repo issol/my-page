@@ -54,9 +54,11 @@ export const getPaymentInfoRequest = async (
   isManagerRequest: boolean,
 ) => {
   if (!isManagerRequest) {
-    return getUserPaymentInfoWithMasking(id)
+    return await getUserPaymentInfoWithMasking(id)
+
   } else {
-    return getUserPaymentInfo(id)
+    return await getUserPaymentInfo(id)
+
   }
 }
 
@@ -68,22 +70,20 @@ export const getUserPaymentInfoWithMasking = async (
     const { data } = await axios.get(
       `/api/enough/u/pro/${id}/payment/all/masking`,
     )
-    if (data) {
-      return {
-        ...data,
-        files: data.files.map((i: any) => ({
-          id: i.id,
-          url: '',
-          filePath: '',
-          fileName: i.name,
-          fileExtension: i.type,
-          fileSize: i.size,
-          proId: i.proId,
-          positionType: i.positionType,
-        })),
-      }
+    return {
+      ...data,
+      files: data.files.map((i: any) => ({
+        id: i.id,
+        url: '',
+        filePath: '',
+        fileName: i.name,
+        fileExtension: i.type,
+        fileSize: i.size,
+        proId: i.proId,
+        positionType: i.positionType,
+      })),
     }
-    return data
+
   } catch (e: any) {
     return null
   }
@@ -97,25 +97,25 @@ export const getUserPaymentInfo = async (
 ): Promise<ProPaymentInfoType | null> => {
   try {
     const { data } = await axios.get(`/api/enough/u/pro/${id}/payment/all`)
-    if (data) {
-      return {
-        ...data,
-        billingMethod: data.decryptPaymentInfo.billingMethod,
-        bankInfo: data.decryptPaymentInfo.bankInfo,
-        correspondentBankInfo: data.decryptPaymentInfo.correspondentBankInfo,
-        files: data.files.map((i: any) => ({
-          id: i.id,
-          url: '',
-          filePath: '',
-          fileName: i.name,
-          fileExtension: i.type,
-          fileSize: i.size,
-          proId: i.proId,
-          positionType: i.positionType,
-        })),
-      }
-    }
     return data
+    // TODO: 몇몇키가 없음, 매핑이 안됨, 데이터 스키마 재확인 해야 함
+    return {
+      ...data,
+      billingMethod: data.decryptPaymentInfo.billingMethod,
+      bankInfo: data.decryptPaymentInfo.bankInfo,
+      correspondentBankInfo: data.decryptPaymentInfo.correspondentBankInfo,
+      files: data.files.map((i: any) => ({
+        id: i.id,
+        url: '',
+        filePath: '',
+        fileName: i.name,
+        fileExtension: i.type,
+        fileSize: i.size,
+        proId: i.proId,
+        positionType: i.positionType,
+      })),
+    }
+
   } catch (e: any) {
     return null
   }
