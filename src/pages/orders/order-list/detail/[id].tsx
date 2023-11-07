@@ -1418,7 +1418,10 @@ const OrderDetail = () => {
           flag =
             isUpdatable &&
             !projectInfo?.linkedInvoiceReceivable &&
-            projectInfo?.status === 'Delivery confirmed' &&
+            (projectInfo?.status === 'Delivery confirmed' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Redelivery requested') &&
             isIncludeProjectTeam()
           break
         case 'button-ConfirmOrder':
