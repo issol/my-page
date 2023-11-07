@@ -269,14 +269,21 @@ const InvoiceLanguageAndItem = ({
         />
       </Grid>
       <Grid item xs={12}>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
               gap: '20px',
               borderBottom: '2px solid #666CFF',
-              justifyContent: 'center',
-              width: '257px',
+              // justifyContent: 'center',
+              width: '25%',
+
+              // width: '357px',
             }}
           >
             <Typography
@@ -284,8 +291,9 @@ const InvoiceLanguageAndItem = ({
               variant='subtitle1'
               sx={{
                 padding: '16px 16px 16px 20px',
+                display: 'flex',
                 flex: 1,
-                textAlign: 'right',
+                justifyContent: 'flex-end',
               }}
             >
               Subtotal
@@ -293,7 +301,12 @@ const InvoiceLanguageAndItem = ({
             <Typography
               fontWeight={600}
               variant='subtitle1'
-              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
             >
               {formatCurrency(
                 formatByRoundingProcedure(
@@ -338,7 +351,8 @@ const InvoiceLanguageAndItem = ({
               gap: '20px',
               borderBottom: '1.5px solid #666CFF',
               justifyContent: 'center',
-              width: '257px',
+              // width: '257px',
+              width: '25%',
             }}
           >
             <Typography
@@ -347,7 +361,8 @@ const InvoiceLanguageAndItem = ({
               sx={{
                 padding: '16px 16px 16px 20px',
                 flex: 1,
-                textAlign: 'right',
+                display: 'flex',
+                justifyContent: 'flex-end',
               }}
             >
               Tax
@@ -355,7 +370,12 @@ const InvoiceLanguageAndItem = ({
             <Typography
               fontWeight={600}
               variant='subtitle1'
-              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
             >
               {invoiceInfo.isTaxable
                 ? formatCurrency(
@@ -381,7 +401,8 @@ const InvoiceLanguageAndItem = ({
               gap: '20px',
               borderBottom: '1.5px solid #666CFF',
               justifyContent: 'center',
-              width: '250px',
+              // width: '250px',
+              width: '25%',
             }}
           >
             <Typography
@@ -391,7 +412,8 @@ const InvoiceLanguageAndItem = ({
               sx={{
                 padding: '16px 16px 16px 20px',
                 flex: 1,
-                textAlign: 'right',
+                display: 'flex',
+                justifyContent: 'flex-end',
               }}
             >
               Total
@@ -400,7 +422,12 @@ const InvoiceLanguageAndItem = ({
               fontWeight={600}
               variant='subtitle1'
               color={'#666CFF'}
-              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
             >
               {invoiceInfo.isTaxable
                 ? formatCurrency(
