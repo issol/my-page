@@ -250,7 +250,10 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
               </Box>
               {getAddress(data?.clientAddress) === '-' ? null : (
                 <Typography variant='subtitle1' fontSize={14}>
-                  {getAddress(data?.clientAddress)}
+                  {lang === 'KO' 
+                    ? getAddress(data.clientAddress)?.replace('Korea, Republic of,','대한민국')
+                    : getAddress(data.clientAddress)
+                  }
                 </Typography>
               )}
 
