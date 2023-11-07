@@ -283,7 +283,7 @@ export default function InvoiceDetailCard({
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Tax rate</CustomTypo>
                 <CustomTypo variant='body2'>
-                  {data?.taxRate ? `${Number(data.taxRate)}%` : '-'}
+                  {data?.taxRate ? `- ${Number(data.taxRate)}%` : '-'}
                 </CustomTypo>
               </LabelContainer>
             </Grid>
