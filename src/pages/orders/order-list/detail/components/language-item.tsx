@@ -280,7 +280,10 @@ const LanguageAndItem = ({
 
   return (
     <>
-      {!langItemsEdit && currentRole && currentRole.name !== 'CLIENT' ? (
+      {!langItemsEdit &&
+      currentRole &&
+      currentRole.name !== 'CLIENT' &&
+      !splitReady ? (
         <Box
           sx={{
             display: 'flex',
