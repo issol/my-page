@@ -47,7 +47,7 @@ const ClientQuote = ({
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
-  console.log("downloadData",downloadData)
+  console.log('downloadData', downloadData)
   const handleAcceptQuote = (status: number) => {
     // TODO API call
     updateProject &&
@@ -60,7 +60,7 @@ const ClientQuote = ({
         },
       )
   }
-  console.log("downloadData",downloadData)
+  console.log('downloadData', downloadData)
   const handleRequestRevision = (status: number, reason: CancelReasonType) => {
     // TODO API call
     updateProject &&
@@ -141,6 +141,7 @@ const ClientQuote = ({
               ? RequestRevisionReason
               : CancelQuoteReason
           }
+          usage={action === 'Request revision' ? 'request-revision' : 'reject'}
         />
       ),
     })

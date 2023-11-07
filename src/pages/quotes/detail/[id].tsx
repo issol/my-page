@@ -1159,6 +1159,7 @@ export default function QuotesDetail() {
           statusList={statusList!}
           type='canceled'
           reasonList={CancelOrderReason}
+          usage='quote'
         />
       ),
     })

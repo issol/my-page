@@ -24,6 +24,7 @@ type Props = {
   statusList: { value: number; label: string }[]
   reasonList: string[]
   type: 'canceled' | 'rejected' | 'revision-requested' | 'redelivery-requested'
+  usage: 'order' | 'quote' | 'request' | 'reject' | 'request-revision'
 }
 
 const SelectReasonModal = ({
@@ -39,6 +40,7 @@ const SelectReasonModal = ({
   statusList,
   reasonList,
   type,
+  usage,
 }: Props) => {
   const [reason, setReason] = useState<string>('')
   const [messageToLsp, setMessageToLsp] = useState<string>('')
@@ -150,9 +152,17 @@ const SelectReasonModal = ({
             inputProps={{ maxLength: 500 }}
             placeholder={
               messageToLsp === ''
-                ? rightButtonText === 'Request'
+                ? usage === 'request-revision'
                   ? 'Write down a request for this quote.'
-                  : 'Write down a reason for canceling this quote.'
+                  : usage === 'order'
+                  ? 'Write down a reason for canceling this order.'
+                  : usage === 'request'
+                  ? 'Write down a reason for requesting redelivery.'
+                  : usage === 'quote'
+                  ? 'Write down a reason for canceling this quote.'
+                  : usage === 'reject'
+                  ? 'Write down a reason for rejecting this quote.'
+                  : ''
                 : undefined
             }
             error={reason !== '' && messageToLsp === ''}

@@ -28,7 +28,7 @@ export const CancelQuoteReason = [
 export const CancelOrderReason = [
   'The task/language is currently unavailable.',
   'The due date needs to be adjusted.',
-  `The quote has been canceled upon the client's request.`,
+  `The order has been canceled upon the client's request.`,
   'Others',
 ]
 
