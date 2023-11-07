@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { ChangeEventHandler, useEffect, useState } from 'react'
+import { ChangeEvent, ChangeEventHandler, useEffect, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -24,6 +24,7 @@ import {
 } from '@mui/material'
 import {
   DataGrid,
+  GRID_CHECKBOX_SELECTION_COL_DEF,
   GridCellCheckboxRenderer,
   GridColumnHeaderParams,
   GridColumns,
@@ -124,7 +125,11 @@ export default function SelectOrder({
   const [skip, setSkip] = useState(0)
   const [page, setPage] = useState(50)
 
+  const [checked, setChecked] = useState(false)
+
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
+
+  const [applyFilter, setApplyFilter] = useState(false)
 
   const addOrderToInvoiceMutation = useMutation(
     (ids: number[]) => addOrderToInvoice(invoiceId!, ids),
@@ -164,6 +169,7 @@ export default function SelectOrder({
   function onReset() {
     reset(defaultValues)
     setFilter({ ...initialFilter })
+    setApplyFilter(false)
     // setActiveFilter({ ...initialFilter })
   }
 
@@ -188,24 +194,7 @@ export default function SelectOrder({
           order => order.currency !== firstCurrency,
         )
 
-        if (orderList.data.length === selectionModel.length) {
-          if (!getValues('client') || !getValues('revenueFrom')) {
-            openModal({
-              type: 'NoFilterAlertModal',
-              children: (
-                <AlertModal
-                  title='Please select the client and revenue from filters first'
-                  onClick={() => closeModal('NoFilterAlertModal')}
-                  vary='error'
-                  buttonText='Okay'
-                />
-              ),
-            })
-            setSelectionModel([])
-          } else {
-            setSelectionModel(selectionModel)
-          }
-        } else if (hasDifferentClient) {
+        if (hasDifferentClient) {
           openModal({
             type: 'DifferentClientAlertModal',
             children: (
@@ -265,6 +254,51 @@ export default function SelectOrder({
   }
 
   const columns: GridColumns<OrderListType> = [
+    {
+      ...GRID_CHECKBOX_SELECTION_COL_DEF,
+      renderHeader: () => {
+        return (
+          <Checkbox
+            checked={checked}
+            indeterminate={
+              selectionModel.length > 0 &&
+              orderList?.data.length !== selectionModel.length
+            }
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              console.log(event.target.checked)
+              if (event.target.checked) {
+                if (
+                  !applyFilter ||
+                  !getValues('client') ||
+                  !getValues('revenueFrom')
+                ) {
+                  openModal({
+                    type: 'NoFilterAlertModal',
+                    children: (
+                      <AlertModal
+                        title='Please select the client and revenue from filters first'
+                        onClick={() => closeModal('NoFilterAlertModal')}
+                        vary='error'
+                        buttonText='Okay'
+                      />
+                    ),
+                  })
+                  setSelectionModel([])
+                } else {
+                  setSelectionModel(
+                    orderList?.data.map(order => order.id) ?? [],
+                  )
+                  setChecked(event.target.checked)
+                }
+              } else {
+                setSelectionModel([])
+                setChecked(event.target.checked)
+              }
+            }}
+          ></Checkbox>
+        )
+      },
+    },
     {
       field: 'corporationId',
       flex: 0.1201,
@@ -464,6 +498,7 @@ export default function SelectOrder({
     }
 
     setFilter(filter)
+    setApplyFilter(true)
   }
 
   return (
