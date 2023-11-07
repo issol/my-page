@@ -26,6 +26,7 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import {
   formatByRoundingProcedure,
   formatCurrency,
+  getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
@@ -377,7 +378,7 @@ const InvoiceLanguageAndItem = ({
                 justifyContent: 'flex-end',
               }}
             >
-              {invoiceInfo.isTaxable
+              {/* {invoiceInfo.isTaxable
                 ? formatCurrency(
                     formatByRoundingProcedure(
                       Number(getInvoiceInfo('subtotal')) *
@@ -388,6 +389,12 @@ const InvoiceLanguageAndItem = ({
                     ),
                     priceInfo?.currency ?? 'USD',
                   )
+                : '-'} */}
+              {invoiceInfo.isTaxable
+                ? `${getCurrencyMark(priceInfo?.currency)} ${
+                    Number(getInvoiceInfo('subtotal')) *
+                    (Number(invoiceInfo.tax!) / 100)
+                  }`
                 : '-'}
             </Typography>
           </Box>
