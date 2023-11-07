@@ -262,7 +262,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           {getAddress(data.clientAddress) === '-' ? null : (
             <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
               {lang === 'KO' 
-                ? getAddress(data.clientAddress)?.replace('Korea, Republic of,','대한민국,')
+                ? getAddress(data.clientAddress)?.replace('Korea, Republic of,','대한민국')
                 : getAddress(data.clientAddress)
               }
             </Typography>
