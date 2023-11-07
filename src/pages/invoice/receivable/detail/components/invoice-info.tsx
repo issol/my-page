@@ -175,9 +175,7 @@ const InvoiceInfo = ({
   // const statusOption = client?.isEnrolledClient
   const statusOption = client?.contactPerson?.userId
     ? statusList.filter(i => [30000, 30100, 30200].includes(i.value))
-    : statusList.filter(
-        i => ![30300, 30900, 301000, 301100, 301200].includes(i.value),
-      )
+    : statusList.filter(i => ![30900, 301000, 301100, 301200].includes(i.value))
 
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
