@@ -221,7 +221,10 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
           </Box>
           {getAddress(data.clientAddress) === '-' ? null : (
             <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-              {getAddress(data.clientAddress)}
+              {lang === 'KO' 
+                ? getAddress(data.clientAddress)?.replace('Korea, Republic of,','대한민국,')
+                : getAddress(data.clientAddress)
+              } {'1'}
             </Typography>
           )}
 
