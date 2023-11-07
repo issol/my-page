@@ -82,6 +82,7 @@ export type ProjectInfoType = {
   subtotal: string
 
   items?: ItemType
+  invoiceIncludedWithMultipleOrders: boolean
 }
 
 export type ClientType = {

@@ -83,11 +83,11 @@ export class quotes {
     })
   }
 }
-export class orders {
+export class order {
   authorId: number
   constructor(authorId: number) {
     this.authorId = authorId
-    Object.defineProperty(orders.prototype.constructor, 'name', {
+    Object.defineProperty(order.prototype.constructor, 'name', {
       value: 'order',
     })
   }
