@@ -45,6 +45,7 @@ export type PostItemType = {
   showItemDescription?: '1' | '0'
   analysis?: number[] //file id를 보내기
   totalPrice: number
+  sortingOrder?: number
 }
 
 export type ItemDetailType = {

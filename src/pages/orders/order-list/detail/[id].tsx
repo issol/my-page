@@ -977,7 +977,7 @@ const OrderDetail = () => {
   )
 
   const onSubmitItems = () => {
-    const items: PostItemType[] = getItem().items.map(item => {
+    const items: PostItemType[] = getItem().items.map((item, idx) => {
       const {
         contactPerson,
         minimumPrice,
@@ -996,6 +996,7 @@ const OrderDetail = () => {
         // name: item.itemName,
         sourceLanguage: item.source,
         targetLanguage: item.target,
+        sortingOrder: idx + 1,
       }
     })
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
