@@ -1167,7 +1167,9 @@ const InvoiceInfo = ({
                               {client?.contactPerson?.jobTitle
                                 ? ` / ${client?.contactPerson?.jobTitle}`
                                 : ''}
-                              {type === 'history' ? null : (
+                              {type === 'history' ||
+                              invoiceInfo.invoiceStatus === 30900 ||
+                              invoiceInfo.invoiceStatus === 301200 ? null : (
                                 <IconButton
                                   onClick={() => setContactPersonEdit(true)}
                                 >
