@@ -587,7 +587,7 @@ const OrderDetail = () => {
       // updateProject && updateProject.mutate({ status: 10500 })
       updateOrderStatusMutation.mutate({
         id: Number(id!),
-        status: 10500
+        status: 10500,
       })
   }
 
@@ -1121,7 +1121,8 @@ const OrderDetail = () => {
   )
 
   const updateOrderStatusMutation = useMutation(
-    (data: {id: number; status: number; reason?: ReasonType}) => patchOrderStatus(Number(data.id), data.status, data.reason),
+    (data: { id: number; status: number; reason?: ReasonType }) =>
+      patchOrderStatus(Number(data.id), data.status, data.reason),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({
@@ -1132,7 +1133,7 @@ const OrderDetail = () => {
       onError: () => onMutationError(),
     },
   )
-  
+
   const confirmOrderMutation = useMutation(() => confirmOrder(Number(id)), {
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -1230,7 +1231,6 @@ const OrderDetail = () => {
       openModal({
         type: 'SplitOrderAlertModal',
         children: (
-          
           <AlertModal
             onClick={() => closeModal('SplitOrderAlertModal')}
             vary='error'
@@ -1786,7 +1786,7 @@ const OrderDetail = () => {
                         // })
                         updateOrderStatusMutation.mutate({
                           id: Number(id!),
-                          status: status
+                          status: status,
                         })
                       }
                       updateProject={updateProject}
@@ -1835,7 +1835,7 @@ const OrderDetail = () => {
                       // updateProjectWithoutControlForm.mutate({ status: status })
                       updateOrderStatusMutation.mutate({
                         id: Number(id!),
-                        status: status
+                        status: status,
                       })
                     }
                     canUseFeature={canUseFeature}
