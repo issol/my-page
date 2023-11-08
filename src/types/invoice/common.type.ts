@@ -13,11 +13,16 @@ export type InvoiceProStatusType =
   | 40400
 
 export type InvoicePayableStatusType =
-  | 'Invoice created'
-  | 'Invoice accepted'
-  | 'Paid'
-  | 'Overdue'
-  | 'Canceled'
+  // | 'Invoice created'
+  // | 'Invoice accepted'
+  // | 'Paid'
+  // | 'Overdue'
+  // | 'Canceled'
+  | 40000
+  | 40100
+  | 40200
+  | 40300
+  | 40400
 
 export type InvoiceReceivableStatusType =
   | 30000 //New

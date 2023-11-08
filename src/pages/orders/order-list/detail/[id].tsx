@@ -67,6 +67,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import {
   confirmOrder,
   patchOrderProjectInfo,
+  patchOrderStatus,
   splitOrder,
 } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
@@ -118,6 +119,7 @@ import PrintOrderPage from '../../order-print/print-page'
 
 import { orders } from '@src/shared/const/permission-class'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import { ReasonType } from '@src/types/quotes/quote'
 
 interface Detail {
   id: number
@@ -576,9 +578,14 @@ const OrderDetail = () => {
     queryClient.invalidateQueries(['orderDetail'])
   }
 
+  //TODO: endpoint 교체해야함(status 업데이트 전용)
   const handleRestoreVersion = () => {
     if (canUseFeature('button-Restore'))
-      updateProject && updateProject.mutate({ status: 10500 })
+      // updateProject && updateProject.mutate({ status: 10500 })
+      updateOrderStatusMutation.mutate({
+        id: Number(id!),
+        status: 10500
+      })
   }
 
   const onClickRestoreVersion = () => {
@@ -945,7 +952,7 @@ const OrderDetail = () => {
       const res = {
         ...projectInfo,
         orderedAt: new Date(projectInfo?.orderedAt),
-        status: currentStatus?.value ?? 100,
+        status: currentStatus?.value ?? 10000,
       }
       const { items, ...filteredRes } = res
       projectInfoReset(filteredRes)
@@ -1109,6 +1116,19 @@ const OrderDetail = () => {
     },
   )
 
+  const updateOrderStatusMutation = useMutation(
+    (data: {id: number; status: number; reason?: ReasonType}) => patchOrderStatus(Number(data.id), data.status, data.reason),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail'],
+        })
+        queryClient.invalidateQueries(['orderList'])
+      },
+      onError: () => onMutationError(),
+    },
+  )
+  
   const confirmOrderMutation = useMutation(() => confirmOrder(Number(id)), {
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -1738,8 +1758,13 @@ const OrderDetail = () => {
                       setEditMode={setProjectInfoEdit}
                       isUpdatable={canUseFeature('tab-ProjectInfo')}
                       updateStatus={(status: number) =>
-                        updateProjectWithoutControlForm.mutate({
-                          status: status,
+                        //TODO: endpoint 교체해야함(status 업데이트 전용)
+                        // updateProjectWithoutControlForm.mutate({
+                        //   status: status,
+                        // })
+                        updateOrderStatusMutation.mutate({
+                          id: Number(id!),
+                          status: status
                         })
                       }
                       updateProject={updateProject}
@@ -1785,7 +1810,11 @@ const OrderDetail = () => {
                     setSelectedIds={setSelectedIds}
                     splitReady={splitReady}
                     updateStatus={(status: number) =>
-                      updateProjectWithoutControlForm.mutate({ status: status })
+                      // updateProjectWithoutControlForm.mutate({ status: status })
+                      updateOrderStatusMutation.mutate({
+                        id: Number(id!),
+                        status: status
+                      })
                     }
                     canUseFeature={canUseFeature}
                   />

@@ -28,15 +28,15 @@ export function getProInvoiceStatusColor(status: InvoiceProStatusType) {
 }
 
 export function getPayableColor(status: InvoicePayableStatusType) {
-  return status === 'Invoice created'
-    ? '#F572D8'
-    : status === 'Invoice accepted'
+  return status === 40000 //'Invoiced'
     ? '#9B6CD8'
-    : status === 'Paid'
-    ? '#FF4D49'
-    : status === 'Overdue'
-    ? '#FF4D49'
-    : status === 'Canceled'
+    : status === 40100 //'Under revision'
+    ? '#26C6F9'
+    : status === 40300 //'Paid'
+    ? '#1B8332'
+    : status === 40200 //'Revised'
+    ? '#AD7028'
+    : status === 40400 //Overdue
     ? '#FF4D49'
     : ''
 }

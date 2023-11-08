@@ -3,7 +3,7 @@ import { GridColumns } from '@mui/x-data-grid'
 import {
   InvoiceProChip,
   InvoiceReceivableChip,
-  proInvoiceStatusChip,
+  invoicePayableStatusChip,
 } from '@src/@core/components/chips/chips'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType } from '@src/context/types'
@@ -67,7 +67,7 @@ export const getInvoiceProListColumns = (
           <>
             {/* {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)} */}
             {/* TODO: invoiceStatus 넘버로 오는지 확인 필요 */}
-            {proInvoiceStatusChip(row.invoiceStatus as InvoiceProStatusType, statusList)}
+            {invoicePayableStatusChip(row.invoiceStatus as InvoiceProStatusType, statusList)}
           </>
         )
       },

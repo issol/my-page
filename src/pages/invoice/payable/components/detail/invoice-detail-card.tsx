@@ -55,9 +55,8 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { InvoicePayableStatus } from '@src/shared/const/status/statuses'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import {
-  InvoicePayableChip,
   InvoiceProChip,
-  proInvoiceStatusChip,
+  invoicePayableStatusChip,
 } from '@src/@core/components/chips/chips'
 
 type Props = {
@@ -149,7 +148,7 @@ export default function InvoiceDetailCard({
           <Grid item xs={12} display='flex' justifyContent='space-between'>
             <Typography variant='h6'>Invoice details</Typography>
             {(isUpdatable || isAccountManager) &&
-            data?.invoiceStatus !== 'Paid' ? (
+            data?.invoiceStatus !== 40300 ? ( //Paid
               <IconButton onClick={() => setEditInfo(!editInfo)}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
@@ -164,6 +163,7 @@ export default function InvoiceDetailCard({
               control={control}
               errors={errors}
               isAccountManager={isAccountManager}
+              statusList={statusList!}
             />
             <Grid
               item
@@ -218,41 +218,45 @@ export default function InvoiceDetailCard({
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Status</CustomTypo>
-                {isUpdatable ? (
-                  <Autocomplete
-                    autoHighlight
-                    fullWidth
-                    value={
-                      InvoicePayableStatus.find(
-                        item => item.value === data?.invoiceStatus,
-                      ) ?? null
-                    }
-                    onChange={(e, v) => {
-                      if (v?.value) {
-                        onInvoiceStatusChange(
-                          v.value as InvoicePayableStatusType,
-                        )
-                      }
-                    }}
-                    options={InvoicePayableStatus}
-                    getOptionLabel={option => option.label}
-                    renderInput={params => (
-                      <TextField {...params} label='Status' />
-                    )}
-                  />
-                ) : currentRole && currentRole.name === 'LPM' ? (
+                {
+                // isUpdatable ? (
+                //   <Autocomplete
+                //     autoHighlight
+                //     fullWidth
+                //     value={
+                //       InvoicePayableStatus.find(
+                //         item => item.value === data?.invoiceStatus,
+                //       ) ?? null
+                //     }
+                //     onChange={(e, v) => {
+                //       if (v?.value) {
+                //         onInvoiceStatusChange(
+                //           v.value as InvoicePayableStatusType,
+                //         )
+                //       }
+                //     }}
+                //     options={InvoicePayableStatus}
+                //     getOptionLabel={option => option.label}
+                //     renderInput={params => (
+                //       <TextField {...params} label='Status' />
+                //     )}
+                //   />
+                // ) : 
+                currentRole && currentRole.name === 'LPM' ? (
                   <Box sx={{ width: '50%' }}>
-                    {InvoicePayableChip(
+                    {invoicePayableStatusChip(
                       data?.invoiceStatus as InvoicePayableStatusType,
+                      statusList
                     )}
                   </Box>
                 ) : currentRole && currentRole.name === 'PRO' ? (
                   <Box sx={{ width: '50%' }}>
-                    {proInvoiceStatusChip(
+                    {invoicePayableStatusChip(
                       data?.invoiceStatus as InvoiceProStatusType,
                       statusList
                     )}
                   </Box>
+                
                 ) : null}
               </LabelContainer>
             </Grid>

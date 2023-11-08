@@ -110,7 +110,7 @@ export default function Payable() {
           message={`Are you sure you want to change ${statuses.length} invoice(s) as paid?`}
           onClick={() => {
             statuses.forEach(st => {
-              updateMutation.mutateAsync({ id: st, status: 'Paid' })
+              updateMutation.mutateAsync({ id: st, status: 40300 })
             })
           }}
           onClose={() => closeModal('changeStatus')}

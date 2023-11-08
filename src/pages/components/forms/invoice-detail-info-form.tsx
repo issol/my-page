@@ -56,16 +56,21 @@ type Props = {
   control: Control<PayableFormType, any>
   errors: FieldErrors<PayableFormType>
   isAccountManager: boolean
+  statusList: Array<{
+    label: string
+    value: number
+  }>
 }
 export default function InvoiceDetailInfoForm({
   data,
   control,
   errors,
   isAccountManager,
+  statusList,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
-  const { data: statusList, isLoading } = useGetInvoicePayableStatus()
+  // const { data: statusList, isLoading } = useGetInvoicePayableStatus()
 
   function renderErrorMsg(errors: FieldError | undefined) {
     return (
@@ -141,15 +146,12 @@ export default function InvoiceDetailInfoForm({
               disabled={isAccountManager}
               options={statusList || []}
               onChange={(e, v) => {
-                onChange(v?.statusName ?? '')
+                onChange(v?.value ?? '')
               }}
               value={
-                statusList?.find(item => item.statusName === value) ?? {
-                  id: 0,
-                  statusName: '',
-                }
+                statusList?.find(item => item.value === value)
               }
-              getOptionLabel={option => option.statusName}
+              getOptionLabel={option => option.label}
               renderInput={params => (
                 <TextField
                   {...params}

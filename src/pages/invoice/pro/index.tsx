@@ -31,6 +31,7 @@ import CalendarContainer from '../payable/components/calendar'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
+import { AxiosError } from 'axios'
 
 export type FilterType = {
   invoiceDate: Date[]
@@ -125,8 +126,8 @@ const ProInvoice = () => {
           position: 'bottom-left',
         })
       },
-      onError: (res: {message: string}) => {
-        if (res.message === `Pro's payment information is not saved`) {
+      onError: (res: any) => {
+        if (res.response?.data?.message === `Pro's payment information is not saved`) {
           openModal({
             type: 'ErrorModal',
             children: (
