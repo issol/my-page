@@ -376,7 +376,7 @@ export default function ItemForm({
                       variant='body1'
                       color='#666CFF'
                       fontWeight={600}
-                      sx={{ textDecoration: 'underline' }}
+                      // sx={{ textDecoration: 'underline' }}
                     >
                       [{value.corporationId}]
                     </Typography>
