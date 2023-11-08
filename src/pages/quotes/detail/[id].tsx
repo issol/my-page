@@ -1060,7 +1060,13 @@ export default function QuotesDetail() {
       clientId: form.clientId!,
       contactPersonId: form.contactPersonId,
     }
-    onSave(() => updateProject.mutate(clientInfo))
+    onSave(() =>
+      updateProject.mutate(clientInfo, {
+        onSuccess: () => {
+          closeModal('EditSaveModal')
+        },
+      }),
+    )
   }
 
   function onProjectTeamSave() {
@@ -1076,6 +1082,7 @@ export default function QuotesDetail() {
       updateProject.mutate(res, {
         onSuccess: () => {
           initializeTeamData()
+          closeModal('EditSaveModal')
         },
       }),
     )
