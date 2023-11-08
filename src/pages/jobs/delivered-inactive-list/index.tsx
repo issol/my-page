@@ -116,7 +116,7 @@ const DeliveredInactiveList = () => {
         })
       },
       onError: (res: any) => {
-        if (res.message === `Pro's payment information is not saved`) {
+        if (res.response?.data?.message === `Pro's payment information is not saved`) {
           openModal({
             type: 'ErrorModal',
             children: (

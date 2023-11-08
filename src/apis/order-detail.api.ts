@@ -10,6 +10,7 @@ import {
   ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
+import { ReasonType } from '@src/types/quotes/quote'
 
 export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
   const { data } = await axios.get(`/api/enough/u/order/${id}/project`)
@@ -62,6 +63,16 @@ export const patchOrderProjectInfo = async (
   form: updateOrderType,
 ) => {
   const { data } = await axios.patch(`/api/enough/u/order/${id}`, { ...form })
+
+  return data
+}
+
+export const patchOrderStatus = async (
+  id: number,
+  status: number,
+  reason?: ReasonType,
+) => {
+  const { data } = await axios.patch(`/api/enough/u/order/${id}/set-status`, { status: status, reason: reason })
 
   return data
 }

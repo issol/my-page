@@ -154,7 +154,7 @@ export default function MyRoles({
               .length ? (
               <Grid item xs={12}>
                 <CustomPagination
-                  listCount={userInfo.length}
+                  listCount={userInfo.filter(info => info.requestStatus === 'Certified').length}
                   page={page}
                   handleChangePage={handleChangePage}
                   rowsPerPage={rowsPerPage}

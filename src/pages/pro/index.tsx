@@ -69,8 +69,6 @@ const Pro = () => {
 
   const { data: proList, isLoading } = useGetProList(filters)
 
-  console.log(proList)
-
   const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
 
@@ -91,6 +89,8 @@ const Pro = () => {
     defaultValues,
     mode: 'onSubmit',
   })
+
+  const [ isSorting, setIsSorting ] = useState<Boolean>(false)
 
   const onClickFile = (
     file: {
@@ -339,6 +339,7 @@ const Pro = () => {
       renderHeader: () => <Box>Job type / Role</Box>,
       renderCell: ({ row }: ProListCellType) => {
         if (row.jobInfo && row.jobInfo.length) {
+          setIsSorting(true)
           row.jobInfo.sort((a, b) => {
             const dateA = new Date(a.createdAt).getTime()
             const dateB = new Date(b.createdAt).getTime()
@@ -373,6 +374,7 @@ const Pro = () => {
             }
             return false
           })
+          setIsSorting(false)
         }
         // 리턴받은 jobInfo를 createdAt 기준으로 내림차순 정렬, 나중에 백엔드에 정렬된 데이터를 달라고 요구해도 될듯
 
@@ -506,7 +508,7 @@ const Pro = () => {
         proListCount={proList?.totalCount!}
         setFilters={setFilters}
         columns={columns}
-        isLoading={isLoading}
+        isLoading={Boolean(isLoading || isSorting)}
       />
     </Grid>
   )

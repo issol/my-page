@@ -64,13 +64,12 @@ const CalendarContainer = ({ type }: Props) => {
 
   const { data: statusList } = useGetStatusList('InvoicePayable')
 
-  //TODO label -> value로 수정필요
   const statuses = statusList?.map(i => ({
     value: i.value,
     label: i.label,
     color:
       type === 'lpm'
-        ? getPayableColor(i.label as InvoicePayableStatusType)
+        ? getPayableColor(i.value as InvoicePayableStatusType)
         : getProInvoiceStatusColor(i.value as InvoiceProStatusType),
   }))
 

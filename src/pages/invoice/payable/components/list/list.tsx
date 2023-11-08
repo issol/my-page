@@ -2,7 +2,7 @@
 import { Box, Tooltip, Typography } from '@mui/material'
 import { DataGrid, GridColumns, GridRowParams } from '@mui/x-data-grid'
 import { TableTitleTypography } from '@src/@core/styles/typography'
-import { InvoicePayableChip, proInvoiceStatusChip } from '@src/@core/components/chips/chips'
+import { invoicePayableStatusChip } from '@src/@core/components/chips/chips'
 
 // ** types
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
@@ -100,7 +100,7 @@ export default function PayableList({
           <>
             {/* {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)} */}
             {/* TODO: invoiceStatus 넘버로 오는지 확인 필요 */}
-            {proInvoiceStatusChip(row.invoiceStatus as InvoiceProStatusType, statusList)}
+            {invoicePayableStatusChip(row.invoiceStatus as InvoiceProStatusType, statusList)}
           </>
         )
       },
@@ -203,7 +203,7 @@ export default function PayableList({
         autoHeight
         checkboxSelection={isAccountManager}
         isRowSelectable={(params: GridRowParams<InvoicePayableListType>) =>
-          params.row.invoiceStatus !== 'Paid'
+          params.row.invoiceStatus !== 40300
         }
         onSelectionModelChange={newSelectionModel => {
           if (!setStatuses) return
