@@ -288,7 +288,9 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       }> = []
       const paths: string[] = files.map(
         file => {
-          return `project/${jobInfo.id}/delivery/${file.name}`
+          // return `project/${jobInfo.id}/delivery/${file.name}`
+          //TODO: 경로에 delivery가 들어가는게 맞는지 확인 필요
+          return `project/${jobInfo.id}/${file.name}`
         },
         // getFilePath(['delivery', jobInfo.id.toString()], file.name),
       )

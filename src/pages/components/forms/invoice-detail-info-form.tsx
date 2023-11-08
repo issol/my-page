@@ -135,7 +135,7 @@ export default function InvoiceDetailInfoForm({
       <Grid item xs={12}>
         <Divider />
       </Grid>
-      <Grid item xs={6}>
+      {/* <Grid item xs={6}>
         <Controller
           name='invoiceStatus'
           control={control}
@@ -164,8 +164,8 @@ export default function InvoiceDetailInfoForm({
           )}
         />
         {renderErrorMsg(errors.invoiceStatus)}
-      </Grid>
-      <Grid item xs={6}>
+      </Grid> */}
+      <Grid item xs={12}>
         <TextField
           fullWidth
           disabled

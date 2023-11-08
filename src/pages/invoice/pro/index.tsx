@@ -145,6 +145,8 @@ const ProInvoice = () => {
                 rightButtonText='Go to write payment info.'
                 vary='error'
                 onClick={() => {
+                  closeModal('ErrorModal')
+                  closeModal('CreateInvoiceModal')
                   router.push('/mypage/pro/')
                 }}
               />

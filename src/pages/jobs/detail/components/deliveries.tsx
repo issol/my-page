@@ -34,8 +34,6 @@ const Deliveries = ({ delivery, downloadAllFiles, downloadOneFile }: Props) => {
     return files.reduce((acc: number, file: JobsFileType) => acc + file.size, 0)
   }
 
-  console.log(delivery)
-
   return (
     <>
       {delivery.map(value => {

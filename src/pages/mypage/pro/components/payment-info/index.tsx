@@ -139,7 +139,6 @@ export default function ProPaymentInfo({ user }: Props) {
 
   function onBillingMethodSave(data: ProPaymentFormType) {
     // ** !isRegister인 경우 수정, 아닌 경우 create
-    console.log("isRegister",isRegister)
     if (!isRegister) {
       updatePaymentMethod(data)
     }
@@ -193,8 +192,6 @@ export default function ProPaymentInfo({ user }: Props) {
         updateProPaymentFileMutation.mutate({position: i.position, formData: formData})
       })
     }
-    console.log("data check",data,finalData)
-    //TODO: mutation 교체
     updateBillingMethodMutation.mutate({
       ...data,
       billingMethod: finalData!,
@@ -801,6 +798,7 @@ Some information will reset..'
               }}
               fileType={''}
               onDownloadAll={downloadAllFile}
+              onFileClick={downloadFile}
               onFileDrop={uploadAdditionalFiles}
               onDeleteFile={onDeleteFile}
               isUpdatable={true}
