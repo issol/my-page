@@ -1058,7 +1058,7 @@ const InvoiceInfo = ({
                               gap: '8px',
                               alignItems: 'center',
 
-                              width: '25.21%',
+                              width: '33.28%',
                             }}
                           >
                             <Typography fontSize={14} fontWeight={600}>
