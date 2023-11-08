@@ -329,7 +329,7 @@ export default function Receivable() {
               <Typography>Hide paid invoices</Typography>
               <Switch
                 checked={hidePaidInvoices}
-                onChange={e => handleHidePaidInvoices}
+                onChange={handleHidePaidInvoices}
               />
             </Box>
           </Grid>
