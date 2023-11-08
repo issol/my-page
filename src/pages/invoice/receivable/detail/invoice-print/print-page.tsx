@@ -60,8 +60,13 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
             type: 'basic',
           })
         }
-        window.print()
-      }, 300)
+        try {
+          document.title = `${data.corporationId}_${data.companyName}`
+          window.print()
+        } catch (error) {
+          console.log(error)
+        }
+      }, 1000)
     }
   }, [type])
 
@@ -261,10 +266,12 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           </Box>
           {getAddress(data.clientAddress) === '-' ? null : (
             <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-              {lang === 'KO' 
-                ? getAddress(data.clientAddress)?.replace('Korea, Republic of,','대한민국')
-                : getAddress(data.clientAddress)
-              }
+              {lang === 'KO'
+                ? getAddress(data.clientAddress)?.replace(
+                    'Korea, Republic of,',
+                    '대한민국',
+                  )
+                : getAddress(data.clientAddress)}
             </Typography>
           )}
 
