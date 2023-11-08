@@ -120,6 +120,7 @@ import PrintOrderPage from '../../order-print/print-page'
 import { order } from '@src/shared/const/permission-class'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { ReasonType } from '@src/types/quotes/quote'
+import AlertModal from '@src/@core/components/common-modal/alert-modal'
 
 interface Detail {
   id: number
@@ -1229,6 +1230,7 @@ const OrderDetail = () => {
       openModal({
         type: 'SplitOrderAlertModal',
         children: (
+          
           <AlertModal
             onClick={() => closeModal('SplitOrderAlertModal')}
             vary='error'
