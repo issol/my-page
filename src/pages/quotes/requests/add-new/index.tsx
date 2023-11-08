@@ -363,8 +363,9 @@ export default function AddNewRequest() {
                     timezone: auth.getValue().user?.timezone!,
                     jobTitle: auth.getValue().user?.jobTitle,
                     contactPersonId: clients?.find(
-                      client => client?.userId! === auth.getValue().user?.userId!,
-                    )?.contactPersonId
+                      client =>
+                        client?.userId! === auth.getValue().user?.userId!,
+                    )?.contactPersonId,
                   }
                   return (
                     <Autocomplete

@@ -13,21 +13,24 @@ import {
   getOrderListForInvoice,
   getOrderListInJob,
 } from '@src/apis/order-list.api'
-import { OrderListFilterType } from '@src/types/orders/order-list'
+import {
+  InvoiceOrderListFilterType,
+  OrderListFilterType,
+} from '@src/types/orders/order-list'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
 export const useGetOrderList = (
-  filter: OrderListFilterType,
+  filter: OrderListFilterType | InvoiceOrderListFilterType,
   type: 'invoice' | 'order',
 ) => {
   return useQuery(
     ['orderList', { type: 'list' }, filter, type],
     () => {
       if (type === 'order') {
-        return getOrderList(filter)
+        return getOrderList(filter as OrderListFilterType)
       }
-      return getOrderListForInvoice(filter)
+      return getOrderListForInvoice(filter as InvoiceOrderListFilterType)
     },
     {
       staleTime: 10 * 1000,
@@ -149,13 +152,9 @@ export const useGetJobInfo = (id: number) => {
 }
 
 export const useGetItemJob = (id: number) => {
-  return useQuery(
-    [`itemJob`, id],
-    () => getItemJob(id),
-    {
-      staleTime: 5 * 1000,
+  return useQuery([`itemJob`, id], () => getItemJob(id), {
+    staleTime: 5 * 1000,
 
-      suspense: false,
-    },
-  )
+    suspense: false,
+  })
 }

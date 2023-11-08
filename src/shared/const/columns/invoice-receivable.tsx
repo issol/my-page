@@ -9,7 +9,11 @@ import {
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+  getCurrencyMark,
+} from '@src/shared/helpers/price.helper'
 import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 import { Loadable } from 'recoil'
 
@@ -69,12 +73,8 @@ export const getInvoiceReceivableListColumns = (
       renderCell: ({ row }: CellType) => {
         return (
           <Box>
-            <Typography fontWeight={600}>
-              {row.order?.client?.name ?? '-'}
-            </Typography>
-            <Typography variant='body2'>
-              {row.order?.client?.email ?? '-'}
-            </Typography>
+            <Typography fontWeight={600}>{row.client?.name ?? '-'}</Typography>
+            <Typography variant='body2'>{row.client?.email ?? '-'}</Typography>
           </Box>
         )
       },
@@ -88,7 +88,7 @@ export const getInvoiceReceivableListColumns = (
         return (
           <Tooltip title={row.order?.projectName}>
             <TableTitleTypography fontSize={14}>
-              {row.order?.projectName ?? '-'}
+              {row.projectName ?? '-'}
             </TableTitleTypography>
           </Tooltip>
         )
@@ -192,10 +192,19 @@ export const getInvoiceReceivableListColumns = (
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
-        const price = `${formatCurrency(
-          row.totalPrice,
-          row.currency,
-        )}`
+        const subtotal = row.orders.reduce(
+          (total, obj) => total + Number(obj.subtotal),
+          0,
+        )
+
+        const price = `${getCurrencyMark(row.currency)} ${
+          row.isTaxable
+            ? (subtotal * (Number(row.tax!) / 100) + subtotal).toLocaleString(
+                'ko-KR',
+              )
+            : subtotal.toLocaleString('ko-KR')
+        }`
+
         const date = FullDateTimezoneHelper(
           row.salesCheckedAt,
           row?.salesCheckedDateTimezone?.code,
@@ -205,7 +214,7 @@ export const getInvoiceReceivableListColumns = (
             title={
               <Box>
                 <Typography color='#ffffff' fontSize={11}>
-                  Revenue from : {row.order?.revenueFrom ?? '-'}
+                  Revenue from : {row.revenueFrom ?? '-'}
                 </Typography>
                 <Typography color='#ffffff' fontSize={11}>
                   Sales category : {row.salesCategory ?? '-'}

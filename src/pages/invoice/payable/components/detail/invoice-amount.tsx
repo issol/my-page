@@ -9,7 +9,10 @@ import {
 } from '@mui/material'
 import styled from 'styled-components'
 
-import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
+import {
+  formatCurrency,
+  getCurrencyMark,
+} from '@src/shared/helpers/price.helper'
 
 import { InvoicePayableDetailType } from '@src/types/invoice/payable.type'
 

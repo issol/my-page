@@ -1,3 +1,4 @@
+import { InvoiceMultipleOrderType } from '@src/types/invoice/common.type'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 
@@ -25,4 +26,23 @@ export const getInvoicePayableStatusList = async (): Promise<
   } catch (e: any) {
     return []
   }
+}
+
+export const getMultipleOrder = async (
+  id: number[],
+): Promise<InvoiceMultipleOrderType> => {
+  const { data } = await axios.get(
+    `/api/enough/u/order/target-items?${makeQuery({ order: id })}`,
+  )
+
+  return data
+}
+
+export const addOrderToInvoice = async (invoiceId: number, id: number[]) => {
+  const { data } = await axios.patch(
+    `/api/enough/u/invoice/receivable/${invoiceId}/add-order`,
+    { order: id },
+  )
+
+  return data
 }

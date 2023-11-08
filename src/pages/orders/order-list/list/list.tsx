@@ -219,12 +219,12 @@ export default function OrdersList({
       sortable: false,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: OrderListCellType) => {
-        console.log("orderlist",row.currency, row.subtotal)
+        console.log('orderlist', row.currency, row.subtotal)
         return (
           <Box>
-            {!row.currency 
-              ? row.subtotal 
-                ? row.subtotal 
+            {!row.currency
+              ? row.subtotal
+                ? row.subtotal
                 : '-'
               : formatCurrency(Number(row.subtotal), row.currency)}
           </Box>
@@ -312,7 +312,7 @@ export default function OrdersList({
               isRowSelectable={params =>
                 role.name === 'CLIENT' && params.row.status !== 'Under revision'
               }
-              rowsPerPageOptions={[10, 25]}
+              rowsPerPageOptions={[10, 25, 50]}
               pagination
               page={page}
               pageSize={rowsPerPage}
@@ -373,7 +373,7 @@ export default function OrdersList({
 
                 handleRowClick(params.row)
               }}
-              rowsPerPageOptions={[10, 25]}
+              rowsPerPageOptions={[10, 25, 50]}
               pagination
               page={page}
               pageSize={rowsPerPage}

@@ -3,7 +3,7 @@ import { FormErrors } from 'src/shared/const/formErrors'
 
 export const invoiceProjectInfoDefaultValue = {
   showDescription: false,
-  invoiceDate: Date(),
+  invoiceDate: new Date(),
 }
 
 export const invoiceProjectInfoSchema = yup.object().shape({
@@ -24,7 +24,7 @@ export const invoiceProjectInfoSchema = yup.object().shape({
   isTaxable: yup.string().required(),
 
   paymentDueDate: yup.object().shape({
-    date: yup.date().nullable(),
+    date: yup.date().required(FormErrors.required),
     timezone: yup.object().shape({
       code: yup.string().required(FormErrors.required),
       label: yup.string().required(FormErrors.required),
@@ -51,5 +51,5 @@ export const invoiceProjectInfoSchema = yup.object().shape({
   }),
 
   invoiceDescription: yup.string().nullable(),
-  sendReminder: yup.boolean().required(FormErrors.required),
+  setReminder: yup.boolean().required(FormErrors.required),
 })

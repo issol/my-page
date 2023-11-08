@@ -180,6 +180,7 @@ export const getClient = async (id: number): Promise<ClientType> => {
         phone: null,
         timezone: { phone: '', code: '', label: '' },
         name: '',
+        isTaxable: false,
         taxable: false,
         tax: null,
       },

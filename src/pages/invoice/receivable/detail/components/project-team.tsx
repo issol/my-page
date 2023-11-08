@@ -139,8 +139,10 @@ const InvoiceProjectTeam = ({
           projectManagerId: teams.projectManagerId!,
           supervisorId: teams.supervisorId ?? null,
           members: teams.members && teams.members.length ? teams.members : [],
-
+          isTaxable: data.isTaxable ? '1' : '0',
           showDescription: data.showDescription ? '1' : '0',
+          setReminder: data.setReminder ? '1' : '0',
+          taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
         },
         type: 'basic',
       })
@@ -240,7 +242,12 @@ const InvoiceProjectTeam = ({
               //   NoRowsOverlay: () => NoList(),
               //   NoResultsOverlay: () => NoList(),
               // }}
-              sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              sx={{
+                overflowX: 'scroll',
+                '& .MuiDataGrid-row:hover': {
+                  backgroundColor: 'inherit',
+                },
+              }}
               getRowId={row => row.userId}
               columns={columns}
               rows={list ?? []}

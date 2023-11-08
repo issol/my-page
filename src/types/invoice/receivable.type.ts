@@ -18,6 +18,20 @@ import { ItemResType } from '../common/orders-and-quotes.type'
 import { Cancel } from 'axios'
 import { CancelReasonType } from '../requests/detail.type'
 import { ReasonType } from '../quotes/quote'
+import { ItemType } from '../common/item.type'
+
+export type InvoiceLanguageItemType = {
+  invoiceId: number
+  orders: Array<{
+    id: number
+    orderId: number
+    projectName: string
+    corporationId: string
+    items: Array<ItemType>
+    languagePairs: Array<LanguagePairTypeInItem>
+    subtotal: number
+  }>
+}
 
 export type InvoiceReceivableFilterType = {
   invoiceStatus?: number[]
@@ -48,6 +62,11 @@ export type InvoiceReceivableFilterType = {
 export type InvoiceReceivableListType = {
   id: number
   corporationId: string
+  client: {
+    clientId: number
+    email: string
+    name: string
+  }
   createdAt: string
   adminCompanyName: string
   invoiceStatus: InvoiceReceivableStatusType
@@ -74,7 +93,12 @@ export type InvoiceReceivableListType = {
   salesCheckedDateTimezone: CountryType | null
   downloadedAt: string | null
   order: InvoiceReceivableOrderType
+  orders: InvoiceReceivableOrderType[]
   updatedAt: string
+  projectName: string
+  revenueFrom: RevenueFormType
+  isTaxable: boolean
+  tax: string | null
 }
 
 export type InvoiceReceivableOrderType = {
@@ -106,6 +130,8 @@ export type InvoiceReceivableOrderType = {
   downloadedAt: string | null
   deletedAt: string | null
   client: InvoiceReceivableClientType
+  totalPrice: number
+  subtotal: string
 }
 
 export type InvoiceReceivableClientType = {
@@ -167,25 +193,26 @@ export type InvoiceReceivableDetailType = {
   revenueFrom: RevenueFormType
   isTaxable: boolean
   orderId: number
-  tax: number
+  tax: null | string
   taxInvoiceIssued: boolean
-
+  currency: CurrencyType
   taxInvoiceFiles: DeliveryFileType[]
 
   reason: ReasonType
   orderCorporationId: string
-  // linkedOrder: {
-  //   id: number
-  //   corporationId: string
-  // }
+
+  linkedOrders: {
+    id: number
+    corporationId: string
+  }[]
   subtotal: number | string
 }
 
 export type InvoiceHistoryType = {
   projectInfo: InvoiceReceivableDetailType
-  client: ClientType
+  clientInfo: ClientType
   members: ProjectTeamListType[]
-  items: LanguageAndItemType
+  items: InvoiceLanguageItemType
 }
 
 export type InvoiceVersionHistoryType = {
@@ -194,6 +221,7 @@ export type InvoiceVersionHistoryType = {
   email: string
   downloadedAt: string
   managerConfirmedAt: string | null
+  managerConfirmTimezone?: CountryType | null
   clientConfirmedAt: string | null
   clientConfirmTimezone?: CountryType | null
   isRestorable: boolean
@@ -222,29 +250,36 @@ export type InvoiceReceivablePatchParamsType = {
   projectManagerId?: number
   downloadedAt?: string
   members?: number[] | null
-  contactPersonId?: number
-  orderId?: number
+  clientId?: number | null
+  contactPersonId?: number | null
+  orderId?: number[]
+  projectName?: string
+  revenueFrom?: RevenueFormType
+  tax?: string | null
+  isTaxable?: '1' | '0'
+  addressType?: AddressType
   invoiceStatus?: number
   invoicedAt?: string
-  invoicedTimezone?: CountryType
+  invoicedTimezone?: CountryType | null
   payDueAt?: string
   description?: string
-  payDueTimezone?: CountryType
+  payDueTimezone?: CountryType | null
   invoiceConfirmedAt?: string | null
-  invoiceConfirmTimezone?: CountryType
+  invoiceConfirmTimezone?: CountryType | null
   taxInvoiceDueAt?: string | null
-  taxInvoiceDueTimezone?: CountryType
+  taxInvoiceDueTimezone?: CountryType | null
   invoiceDescription?: string
   notes?: string
   taxInvoiceIssuedAt?: string
-  taxInvoiceIssuedDateTimezone?: CountryType
+  taxInvoiceIssuedDateTimezone?: CountryType | null
   paidAt?: string | null
-  paidDateTimezone?: CountryType
+  paidDateTimezone?: CountryType | null
   salesCheckedAt?: string
-  salesCheckedDateTimezone?: CountryType
+  salesCheckedDateTimezone?: CountryType | null
   setReminder?: '1' | '0'
   salesCategory?: string
   showDescription?: '1' | '0'
+  taxInvoiceIssued?: '1' | '0'
 }
 
 export type InvoiceDownloadData = {
@@ -252,8 +287,9 @@ export type InvoiceDownloadData = {
   adminCompanyName: string
   companyAddress: string
   corporationId: string
-  orderCorporationId: string
+  orderCorporationId: string[]
   invoicedAt: string
+  currency: CurrencyType
   paymentDueAt: { date: string; timezone: CountryType }
   pm: {
     email: string
@@ -266,11 +302,21 @@ export type InvoiceDownloadData = {
   client: ClientType
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
-  langItem: LanguageAndItemType
+  // langItem: LanguageAndItemType | null
+  langItem: ItemType[]
   subtotal: string
   total: string
   taxPercent: number
   tax: string | null
+  orders: Array<{
+    id: number
+    orderId: number
+    projectName: string
+    corporationId: string
+    items: Array<ItemType>
+    languagePairs: Array<LanguagePairTypeInItem>
+    subtotal: number
+  }>
 }
 
 export type CreateInvoiceReceivableRes = {

@@ -112,6 +112,7 @@ type Props = {
   updateStatus?: (status: number) => void
   canUseSplit?: boolean
   canUseFeature: (v: OrderFeatureType) => boolean
+  isIncludeProjectTeam: boolean
 }
 
 const LanguageAndItem = ({
@@ -146,6 +147,7 @@ const LanguageAndItem = ({
   updateStatus,
   canUseSplit,
   canUseFeature,
+  isIncludeProjectTeam,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
@@ -280,7 +282,11 @@ const LanguageAndItem = ({
 
   return (
     <>
-      {!langItemsEdit && currentRole && currentRole.name !== 'CLIENT' ? (
+      {!langItemsEdit &&
+      currentRole &&
+      currentRole.name !== 'CLIENT' &&
+      isIncludeProjectTeam &&
+      !splitReady ? (
         <Box
           sx={{
             display: 'flex',

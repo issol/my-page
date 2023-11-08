@@ -61,6 +61,8 @@ export default function ProjectTeamFormContainer({
   const auth = useRecoilValueLoadable(authState)
   const { data } = useGetMemberList()
 
+  console.log(data)
+
   return (
     <Grid item xs={12} display='flex' justifyContent='flex-end'>
       <ProjectTeamForm

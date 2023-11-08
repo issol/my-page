@@ -74,7 +74,10 @@ import {
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
 import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
-import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+import {
+  InvoiceMultipleOrderType,
+  InvoiceProjectInfoFormType,
+} from '@src/types/invoice/common.type'
 import {
   invoiceProjectInfoDefaultValue,
   invoiceProjectInfoSchema,
@@ -82,6 +85,7 @@ import {
 import {
   formatByRoundingProcedure,
   formatCurrency,
+  getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { useMutation, useQueryClient } from 'react-query'
@@ -94,6 +98,7 @@ import { createInvoice } from '@src/apis/invoice/receivable.api'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetStatusList } from '@src/queries/common.query'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import { getMultipleOrder } from '@src/apis/invoice/common.api'
 
 export type languageType = {
   id: number | string
@@ -122,18 +127,37 @@ export const defaultOption: StandardPriceListType & {
 
 export default function AddNewInvoice() {
   const router = useRouter()
+
   const auth = useRecoilValueLoadable(authState)
   const { data: statusList, isLoading } = useGetStatusList('InvoiceReceivable')
   const [isReady, setIsReady] = useState(false)
   const [isWarn, setIsWarn] = useState(true)
   const queryClient = useQueryClient()
 
+  const [orders, setOrders] = useState<InvoiceMultipleOrderType | null>(null)
+
   useEffect(() => {
     if (!router.isReady) return
-    const orderId = Number(router.query.orderId)
-    if (!isNaN(orderId)) {
-      onCopyOrder(orderId)
+    console.log(router.query.orderId)
+
+    const orderId = router.query.orderId
+      ? typeof router.query.orderId === 'object'
+        ? router.query.orderId.map(item => Number(item))
+        : typeof router.query.orderId === 'string'
+        ? Number(router.query.orderId)
+        : 0
+      : []
+    const verifiedOrderIds =
+      typeof orderId === 'number'
+        ? !isNaN(orderId)
+        : orderId.every(item => !isNaN(item))
+
+    if (verifiedOrderIds) {
+      onCopyOrder(typeof orderId === 'number' ? [orderId] : orderId)
     }
+    // if (!isNaN(orderId)) {
+    //   onCopyOrder(orderId)
+    // }
   }, [router.query])
 
   const { openModal, closeModal } = useModal()
@@ -271,12 +295,15 @@ export default function AddNewInvoice() {
     setValue: setProjectInfo,
     watch: projectInfoWatch,
     reset: projectInfoReset,
+    trigger: projectInfoTrigger,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
   } = useForm<InvoiceProjectInfoFormType>({
     mode: 'onChange',
     defaultValues: invoiceProjectInfoDefaultValue,
     resolver: yupResolver(invoiceProjectInfoSchema),
   })
+
+  console.log(getProjectInfoValues())
 
   // ** step4
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -372,12 +399,20 @@ export default function AddNewInvoice() {
 
   function onSubmit() {
     setIsWarn(false)
+
+    const orderId = router.query.orderId
+      ? typeof router.query.orderId === 'object'
+        ? router.query.orderId.map(item => Number(item))
+        : typeof router.query.orderId === 'string'
+        ? Number(router.query.orderId)
+        : 0
+      : []
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
       ...getClientValue(),
       contactPersonId:
         getClientValue().contactPersonId === NOT_APPLICABLE
-          ? null
+          ? -1
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
@@ -385,23 +420,32 @@ export default function AddNewInvoice() {
       ...rawProjectInfo,
     }
 
+    console.log(clients.contactPersonId)
+
     const res: InvoiceReceivablePatchParamsType = {
       projectManagerId: teams.projectManagerId!,
       supervisorId: teams.supervisorId ?? null,
       members: teams.members ?? null,
+      clientId: clients.clientId,
       contactPersonId: clients.contactPersonId,
-      orderId: Number(router.query.orderId),
-      invoicedAt: projectInfo.invoiceDate,
+      orderId: typeof orderId === 'number' ? [orderId] : orderId,
+      invoicedAt: projectInfo.invoiceDate.toISOString(),
       invoicedTimezone: projectInfo.invoiceDateTimezone,
       payDueAt: projectInfo.paymentDueDate.date,
       description: projectInfo.invoiceDescription,
+      projectName: projectInfo.projectName,
+      revenueFrom: projectInfo.revenueFrom,
+      tax: projectInfo.tax ? projectInfo.tax.toString() : '',
+      isTaxable: projectInfo.isTaxable ? '1' : '0',
+      addressType: clients.addressType,
       payDueTimezone: projectInfo.paymentDueDate.timezone,
       // invoiceConfirmedAt: projectInfo.invoiceConfirmDate?.date,
       // invoiceConfirmTimezone: projectInfo.invoiceConfirmDate?.timezone,
       // taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date,
       // taxInvoiceDueTimezone: projectInfo.taxInvoiceDueDate?.timezone,
+      showDescription: projectInfo.showDescription ? '1' : '0',
       invoiceDescription: projectInfo.invoiceDescription,
-      setReminder: projectInfo.sendReminder ? '1' : '0',
+      setReminder: projectInfo.setReminder ? '1' : '0',
     }
 
     openModal({
@@ -462,99 +506,70 @@ export default function AddNewInvoice() {
     return result
   }
 
-  async function onCopyOrder(id: number | null) {
+  async function onCopyOrder(id: number[] | null) {
     const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
-      getProjectTeam(id)
+      getMultipleOrder(id)
         .then(res => {
-          const teams: Array<{
-            type: MemberType
-            id: number | null
-            name?: string
-          }> = res.reduce(
-            (acc, item) => {
-              const type =
-                item.position === 'projectManager'
-                  ? 'projectManagerId'
-                  : item.position === 'supervisor'
-                  ? 'supervisorId'
-                  : 'member'
-              const id = item.userId
-              const name = getLegalName({
-                firstName: item?.firstName!,
-                middleName: item?.middleName,
-                lastName: item?.lastName!,
-              })
-              acc.push({ type, id, name })
-              return acc
-            },
-            [] as Array<{
-              type: MemberType
-              id: number | null
-              name?: string
-            }>,
-          )
-          if (!teams.find(value => value.type === 'supervisorId')) {
-            teams.unshift({ type: 'supervisorId', id: null })
-          }
-          if (!teams.find(value => value.type === 'member')) {
-            teams.push({ type: 'member', id: null })
-          }
+          console.log(res)
 
-          resetTeam({ teams })
-        })
-        .catch(e => {
-          return
-        })
-
-      getClient(id)
-        .then(res => {
-          const addressType = res.clientAddress.find(
-            address => address.isSelected,
-          )?.addressType
+          const isClientRegistered =
+            res.clientInfo.contactPerson !== null &&
+            res.clientInfo.contactPerson.userId !== null
+          setOrders(res)
+          // setProjectInfo('isTaxable', res.clientInfo.client.taxable)
+          // setProjectInfo('tax', res.clientInfo.client.tax)
           clientReset({
-            clientId: res.client.clientId,
-            contactPersonId: res?.contactPerson?.id ?? null,
-            addressType:
-              addressType === 'additional' ? 'shipping' : addressType,
+            clientId: res.clientInfo.client.clientId,
+            contactPersonId: null,
+            addressType: 'billing',
           })
-        })
-        .catch(e => {
-          return
-        })
-      getProjectInfo(id)
-        .then(res => {
           projectInfoReset({
-            invoiceDate: Date(),
-            workName: res?.workName ?? '',
-            projectName: res?.projectName ?? '',
-            showDescription: res?.showDescription ?? false,
+            invoiceDate: new Date(),
+            showDescription: false,
             invoiceDescription: '',
-            category: res?.category ?? '',
-            serviceType: res?.serviceType ?? [],
-            expertise: res?.expertise ?? [],
-            revenueFrom: res?.revenueFrom ?? null,
-            paymentDueDate: {
-              date: '',
-              timezone: {
-                label: '',
-                phone: '',
-                code: '',
-              },
-            },
-            isTaxable: res.isTaxable ?? true,
-            tax: res.tax ?? null,
-            subtotal: res.subtotal,
+            revenueFrom: res.revenueFrom,
+            isTaxable: res.clientInfo.client.isTaxable,
+
+            tax: res.clientInfo.client.tax,
+            subtotal: res.orders.reduce(
+              (total, obj) => total + obj.subtotal,
+              0,
+            ),
           })
-        })
-        .catch(e => {
-          return
-        })
-      getLangItems(id).then(res => {
-        if (res) {
+          const items = res.orders
+            .map(item =>
+              item.items.map((value, idx) => ({
+                ...value,
+                orderId: item.id,
+                projectName: item.projectName,
+                id: item.id,
+                itemName: value.itemName,
+                source: value.sourceLanguage,
+                target: value.targetLanguage,
+                priceId: value.priceId,
+                detail: !value?.detail?.length ? [] : value.detail,
+                analysis: value.analysis ?? [],
+                totalPrice: value?.totalPrice ?? 0,
+                dueAt: value?.dueAt ?? '',
+                contactPerson: value?.contactPerson ?? null,
+                contactPersonId: value.contactPerson?.userId ?? undefined,
+                // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+                // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+                initialPrice: value.initialPrice ?? null,
+                description: value.description,
+                showItemDescription: value.showItemDescription,
+                minimumPrice: value.minimumPrice,
+                minimumPriceApplied: value.minimumPriceApplied,
+                indexing: idx,
+              })),
+            )
+            .flat()
+            .map((value, idx) => ({ ...value, idx: idx }))
+
           setLanguagePairs(
-            res?.items?.map(item => {
+            items?.map(item => {
               return {
                 id: String(item.id),
                 source: item.source!,
@@ -570,8 +585,7 @@ export default function AddNewInvoice() {
                   catBasis: item.initialPrice?.calculationBasis!,
                   decimalPlace: item.initialPrice?.numberPlace!,
                   roundingProcedure:
-                    RoundingProcedureList[item.initialPrice?.rounding!]
-                      ?.label ?? 0,
+                    RoundingProcedureList[item.initialPrice?.rounding!]?.label,
                   languagePairs: [],
                   priceUnit: [],
                   catInterface: { memSource: [], memoQ: [] },
@@ -579,35 +593,19 @@ export default function AddNewInvoice() {
               }
             }),
           )
-          const result = res?.items?.map(item => {
-            return {
-              id: item.id,
-              itemName: item.itemName,
-              source: item.source,
-              target: item.target,
-              priceId: item.priceId,
-              detail: !item?.detail?.length ? [] : item.detail,
-              analysis: item.analysis ?? [],
-              totalPrice: item?.totalPrice ?? 0,
-              dueAt: item?.dueAt ?? '',
-              contactPerson: item?.contactPerson ?? {},
-              contactPersonId: item.contactPersonId ?? undefined,
-              // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
-              // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
-              initialPrice: item.initialPrice ?? {},
-              description: item.description,
-              showItemDescription: item.showItemDescription,
-              minimumPrice: item.minimumPrice,
-              minimumPriceApplied: item.minimumPriceApplied,
-            }
-          })
-          itemReset({ items: result })
+
+          itemReset({ items: items })
           itemTrigger()
-        }
-      })
+        })
+        .catch(e => {
+          return
+        })
+
       setIsReady(true)
     }
   }
+
+  console.log(getProjectInfoValues())
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
@@ -681,7 +679,9 @@ export default function AddNewInvoice() {
                 setValue={setClientValue}
                 watch={clientWatch}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
-                setTax={(n: number | null) => setProjectInfo('tax', n)}
+                setTax={(n: number | null) =>
+                  setProjectInfo('tax', n?.toString()!)
+                }
                 type='invoice'
                 formType='create'
                 getValue={getClientValue}
@@ -715,8 +715,10 @@ export default function AddNewInvoice() {
                 <InvoiceProjectInfoForm
                   control={projectInfoControl}
                   setValue={setProjectInfo}
+                  getValue={getProjectInfoValues}
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
+                  trigger={projectInfoTrigger}
                   clientTimezone={getClientValue('contacts.timezone')}
                   type='create'
                 />
@@ -748,7 +750,7 @@ export default function AddNewInvoice() {
         ) : (
           <Card sx={{ padding: '24px' }}>
             <Grid container>
-              <Grid item xs={12}>
+              {/* <Grid item xs={12}>
                 <AddLanguagePairForm
                   type='detail'
                   languagePairs={languagePairs}
@@ -757,8 +759,8 @@ export default function AddNewInvoice() {
                   onDeleteLanguagePair={onDeleteLanguagePair}
                   items={items}
                 />
-              </Grid>
-              <Grid item xs={12} mt={6} mb={6}>
+              </Grid> */}
+              <Grid item xs={12} mb={6}>
                 <ItemForm
                   control={itemControl}
                   getValues={getItem}
@@ -770,9 +772,10 @@ export default function AddNewInvoice() {
                   languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
-                  type='invoiceDetail'
+                  type='invoiceCreate'
                   itemTrigger={itemTrigger}
                   sumTotalPrice={sumTotalPrice}
+                  orders={orders?.orders}
                 />
               </Grid>
 
@@ -784,7 +787,7 @@ export default function AddNewInvoice() {
                       gap: '20px',
                       borderBottom: '2px solid #666CFF',
                       justifyContent: 'center',
-                      width: '257px',
+                      width: '25%',
                     }}
                   >
                     <Typography
@@ -793,7 +796,8 @@ export default function AddNewInvoice() {
                       sx={{
                         padding: '16px 16px 16px 20px',
                         flex: 1,
-                        textAlign: 'right',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
                       }}
                     >
                       Subtotal
@@ -801,9 +805,14 @@ export default function AddNewInvoice() {
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                      }}
                     >
-                      {formatCurrency(
+                      {/* {formatCurrency(
                         formatByRoundingProcedure(
                           Number(getProjectInfoValues().subtotal),
                           priceInfo?.decimalPlace!,
@@ -811,7 +820,12 @@ export default function AddNewInvoice() {
                           priceInfo?.currency!,
                         ),
                         priceInfo?.currency!,
+                      )} */}
+                      {getCurrencyMark(
+                        getItem().items[0].initialPrice?.currency,
                       )}
+                      &nbsp;
+                      {Number(getProjectInfoValues().subtotal)}
                     </Typography>
                   </Box>
                 </Box>
@@ -842,7 +856,7 @@ export default function AddNewInvoice() {
                   <Box>
                     {!getProjectInfoValues().isTaxable
                       ? '-'
-                      : getProjectInfoValues().tax}
+                      : Number(getProjectInfoValues().tax)}
                   </Box>
                   %
                 </Box>
@@ -855,7 +869,7 @@ export default function AddNewInvoice() {
                       gap: '20px',
                       borderBottom: '1.5px solid #666CFF',
                       justifyContent: 'space-between',
-                      width: '257px',
+                      width: '25%',
                     }}
                   >
                     <Typography
@@ -864,8 +878,8 @@ export default function AddNewInvoice() {
                       sx={{
                         padding: '16px 16px 16px 20px',
                         flex: 1,
-
-                        textAlign: 'right',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
                       }}
                     >
                       Tax
@@ -873,19 +887,32 @@ export default function AddNewInvoice() {
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                      }}
                     >
-                      {getProjectInfoValues().isTaxable
+                      {/* {getProjectInfoValues().isTaxable
                         ? formatCurrency(
                             formatByRoundingProcedure(
                               Number(getProjectInfoValues().subtotal) *
-                                (getProjectInfoValues().tax! / 100),
+                                (Number(getProjectInfoValues().tax!) / 100),
                               priceInfo?.decimalPlace!,
                               priceInfo?.roundingProcedure!,
                               priceInfo?.currency!,
                             ),
                             priceInfo?.currency!,
                           )
+                        : '-'} */}
+                      {getProjectInfoValues().isTaxable
+                        ? `${getCurrencyMark(
+                            getItem().items[0].initialPrice?.currency,
+                          )} ${
+                            Number(getProjectInfoValues().subtotal) *
+                            (Number(getProjectInfoValues().tax!) / 100)
+                          }`
                         : '-'}
                     </Typography>
                   </Box>
@@ -899,7 +926,7 @@ export default function AddNewInvoice() {
                       gap: '20px',
                       borderBottom: '1.5px solid #666CFF',
                       justifyContent: 'space-between',
-                      width: '250px',
+                      width: '25%',
                     }}
                   >
                     <Typography
@@ -909,8 +936,8 @@ export default function AddNewInvoice() {
                       sx={{
                         padding: '16px 16px 16px 20px',
                         flex: 1,
-
-                        textAlign: 'right',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
                       }}
                     >
                       Total
@@ -919,29 +946,24 @@ export default function AddNewInvoice() {
                       fontWeight={600}
                       variant='subtitle1'
                       color={'#666CFF'}
-                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                      }}
                     >
                       {getProjectInfoValues().isTaxable
-                        ? formatCurrency(
-                            formatByRoundingProcedure(
-                              Number(getProjectInfoValues().subtotal) *
-                                (getProjectInfoValues().tax! / 100) +
-                                Number(getProjectInfoValues().subtotal),
-                              priceInfo?.decimalPlace!,
-                              priceInfo?.roundingProcedure!,
-                              priceInfo?.currency!,
-                            ),
-                            priceInfo?.currency!,
-                          )
-                        : formatCurrency(
-                            formatByRoundingProcedure(
-                              Number(getProjectInfoValues().subtotal),
-                              priceInfo?.decimalPlace!,
-                              priceInfo?.roundingProcedure!,
-                              priceInfo?.currency!,
-                            ),
-                            priceInfo?.currency!,
-                          )}
+                        ? `${getCurrencyMark(
+                            getItem().items[0].initialPrice?.currency,
+                          )} ${
+                            Number(getProjectInfoValues().subtotal) +
+                            Number(getProjectInfoValues().subtotal) *
+                              (Number(getProjectInfoValues().tax!) / 100)
+                          }`
+                        : `${getCurrencyMark(
+                            getItem().items[0].initialPrice?.currency,
+                          )} ${Number(getProjectInfoValues().subtotal)}`}
                     </Typography>
                   </Box>
                 </Box>

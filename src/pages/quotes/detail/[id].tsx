@@ -325,16 +325,16 @@ export default function QuotesDetail() {
             project?.status !== 'Canceled' &&
             isIncludeProjectTeam()
           break
-          case 'checkBox-ProjectInfo-Description':
-            flag = 
-              (project?.status !== 'Quote sent' &&
-              project?.status !== 'Client review' &&
-              project?.status !== 'Accepted' &&
-              project?.status !== 'Expired' &&
-              project?.status !== 'Rejected' &&
-              project?.status !== 'Canceled') &&
-              isIncludeProjectTeam()
-            break
+        case 'checkBox-ProjectInfo-Description':
+          flag =
+            project?.status !== 'Quote sent' &&
+            project?.status !== 'Client review' &&
+            project?.status !== 'Accepted' &&
+            project?.status !== 'Expired' &&
+            project?.status !== 'Rejected' &&
+            project?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
+          break
       }
     }
     return flag
@@ -1060,7 +1060,13 @@ export default function QuotesDetail() {
       clientId: form.clientId!,
       contactPersonId: form.contactPersonId,
     }
-    onSave(() => updateProject.mutate(clientInfo))
+    onSave(() =>
+      updateProject.mutate(clientInfo, {
+        onSuccess: () => {
+          closeModal('EditSaveModal')
+        },
+      }),
+    )
   }
 
   function onProjectTeamSave() {
@@ -1076,6 +1082,7 @@ export default function QuotesDetail() {
       updateProject.mutate(res, {
         onSuccess: () => {
           initializeTeamData()
+          closeModal('EditSaveModal')
         },
       }),
     )
@@ -1159,6 +1166,7 @@ export default function QuotesDetail() {
           statusList={statusList!}
           type='canceled'
           reasonList={CancelOrderReason}
+          usage='quote'
         />
       ),
     })

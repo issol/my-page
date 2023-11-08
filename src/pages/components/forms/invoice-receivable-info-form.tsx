@@ -7,9 +7,13 @@ import {
   CardContent,
   Checkbox,
   Divider,
+  FormControl,
   FormHelperText,
   Grid,
   IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   TextField,
   Typography,
 } from '@mui/material'
@@ -30,7 +34,9 @@ import {
   Control,
   Controller,
   FieldErrors,
+  UseFormGetValues,
   UseFormSetValue,
+  UseFormTrigger,
   UseFormWatch,
 } from 'react-hook-form'
 
@@ -61,12 +67,15 @@ import InformationModal from '@src/@core/components/common-modal/information-mod
 import { ClientType } from '@src/types/orders/order-detail'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
+import { TaxTypeList } from '@src/shared/const/tax/tax-type'
 
 type Props = {
   control: Control<InvoiceProjectInfoFormType, any>
   setValue: UseFormSetValue<InvoiceProjectInfoFormType>
+  getValue: UseFormGetValues<InvoiceProjectInfoFormType>
   watch: UseFormWatch<InvoiceProjectInfoFormType>
   errors: FieldErrors<InvoiceProjectInfoFormType>
+  trigger: UseFormTrigger<InvoiceProjectInfoFormType>
   clientTimezone?: CountryType | undefined | null
   client?: ClientType
   invoiceInfo?: InvoiceReceivableDetailType
@@ -75,7 +84,9 @@ type Props = {
 export default function InvoiceProjectInfoForm({
   control,
   setValue,
+  getValue,
   watch,
+  trigger,
   errors,
   clientTimezone,
   client,
@@ -92,7 +103,8 @@ export default function InvoiceProjectInfoForm({
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
-  const isClientRegistered = client?.contactPerson?.userId !== null
+  const isClientRegistered =
+    client?.contactPerson !== null && client?.contactPerson.userId === null
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
@@ -112,7 +124,7 @@ export default function InvoiceProjectInfoForm({
   }
 
   useEffect(() => {
-    if (clientTimezone) {
+    if (clientTimezone && type === 'create') {
       setValue('paymentDueDate.timezone', clientTimezone, setValueOptions)
       setValue('invoiceConfirmDate.timezone', clientTimezone, setValueOptions)
       setValue('taxInvoiceDueDate.timezone', clientTimezone, setValueOptions)
@@ -121,7 +133,7 @@ export default function InvoiceProjectInfoForm({
   }, [clientTimezone])
 
   useEffect(() => {
-    setValue('sendReminder', true, setValueOptions)
+    setValue('setReminder', true, setValueOptions)
   }, [])
 
   function renderErrorMsg(key: keyof InvoiceProjectInfoFormType) {
@@ -141,7 +153,7 @@ export default function InvoiceProjectInfoForm({
       <Grid item xs={12}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Controller
-            name='sendReminder'
+            name='setReminder'
             control={control}
             defaultValue={true}
             render={({ field: { value, onChange } }) => (
@@ -231,7 +243,7 @@ export default function InvoiceProjectInfoForm({
 
         {renderErrorMsg('invoiceDateTimezone')}
       </Grid>
-      <Grid item xs={6}>
+      {/* <Grid item xs={6}>
         <Controller
           name='workName'
           control={control}
@@ -264,7 +276,7 @@ export default function InvoiceProjectInfoForm({
             )
           }}
         />
-      </Grid>
+      </Grid> */}
       <Grid item xs={6}>
         <Controller
           name='projectName'
@@ -272,7 +284,7 @@ export default function InvoiceProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              disabled={true}
+              // disabled={true}
               label='Project name*'
               variant='outlined'
               value={value ?? ''}
@@ -284,7 +296,7 @@ export default function InvoiceProjectInfoForm({
         />
         {renderErrorMsg('projectName')}
       </Grid>
-      <Grid item xs={6}>
+      {/* <Grid item xs={6}>
         <Controller
           name='category'
           control={control}
@@ -317,8 +329,8 @@ export default function InvoiceProjectInfoForm({
             />
           )}
         />
-      </Grid>
-      <Grid item xs={6}>
+      </Grid> */}
+      {/* <Grid item xs={6}>
         <Controller
           name='serviceType'
           control={control}
@@ -361,8 +373,8 @@ export default function InvoiceProjectInfoForm({
             )
           }}
         />
-      </Grid>
-      <Grid item xs={12}>
+      </Grid> */}
+      {/* <Grid item xs={12}>
         <Controller
           name='expertise'
           control={control}
@@ -407,7 +419,7 @@ export default function InvoiceProjectInfoForm({
             )
           }}
         />
-      </Grid>
+      </Grid> */}
       <Grid item xs={6}>
         <Controller
           name='revenueFrom'
@@ -447,22 +459,25 @@ export default function InvoiceProjectInfoForm({
           name='isTaxable'
           control={control}
           render={({ field: { value, onChange } }) => {
+            const findValue = TaxTypeList.find(item => item.value === value)
             return (
               <Autocomplete
                 autoHighlight
                 fullWidth
-                disabled
-                options={[
-                  { value: true, label: 'Taxable' },
-                  { value: false, label: 'Non-Taxable' },
-                ]}
+                // disabled
+                disableClearable={value === null}
+                options={TaxTypeList}
                 onChange={(e, v) => {
-                  onChange(v?.label ?? { value: true, label: 'Taxable' })
+                  if (!v) onChange(null)
+                  else {
+                    onChange(v.value)
+                    if (v.value === false) {
+                      setValue('tax', null)
+                      trigger('tax')
+                    }
+                  }
                 }}
-                value={[
-                  { value: true, label: 'Taxable' },
-                  { value: false, label: 'Non-Taxable' },
-                ].find(item => item.value === value)}
+                value={!value && !findValue ? null : findValue}
                 getOptionLabel={option => option.label}
                 renderInput={params => (
                   <TextField
@@ -476,6 +491,50 @@ export default function InvoiceProjectInfoForm({
           }}
         />
         {renderErrorMsg('revenueFrom')}
+      </Grid>
+
+      <Grid item xs={6}>
+        <Controller
+          name='tax'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <FormControl
+              fullWidth
+              error={Boolean(errors.tax) && getValue('isTaxable')}
+            >
+              <InputLabel>Tax rate*</InputLabel>
+              <OutlinedInput
+                // value={value ? Number(value) : null}
+                value={value ?? ''}
+                error={Boolean(errors.tax) && getValue('isTaxable')}
+                onFocus={e =>
+                  e.target.addEventListener(
+                    'wheel',
+                    function (e) {
+                      e.preventDefault()
+                    },
+                    { passive: false },
+                  )
+                }
+                onChange={e => {
+                  if (e.target.value.length > 10) return
+                  onChange(Number(e.target.value))
+                }}
+                disabled={!watch('isTaxable')}
+                endAdornment={
+                  !watch('isTaxable') ? null : (
+                    <InputAdornment position='end'>%</InputAdornment>
+                  )
+                }
+                type='number'
+                // inputProps={{ inputMode: 'decimal' }}
+                label='Tax rate*'
+                // endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+              />
+            </FormControl>
+          )}
+        />
+        {renderErrorMsg('tax')}
       </Grid>
       <Grid item xs={6}>
         <Controller
@@ -544,14 +603,15 @@ export default function InvoiceProjectInfoForm({
                     showTimeSelect
                     timeFormat='HH:mm'
                     timeIntervals={30}
-                    selected={
-                      !client
-                        ? selected
-                        : isClientRegistered
-                        ? clientConfirmedDate
-                        : selected
-                    }
-                    disabled={!client ? false : isClientRegistered}
+                    // selected={
+                    //   !client
+                    //     ? selected
+                    //     : isClientRegistered
+                    //     ? clientConfirmedDate
+                    //     : selected
+                    // }
+                    selected={!value ? null : new Date(value)}
+                    disabled={!isClientRegistered}
                     dateFormat='MM/dd/yyyy h:mm aa'
                     onChange={onChange}
                     customInput={
@@ -570,12 +630,10 @@ export default function InvoiceProjectInfoForm({
               name='invoiceConfirmDate.timezone'
               control={control}
               render={({ field }) => {
-                const selected = !field.value
-                  ? { code: '', phone: '', label: '' }
-                  : field.value
+                const selected = !field.value ? undefined : field.value
                 const clientConfirmedTimezone =
                   !invoiceInfo?.clientConfirmTimezone
-                    ? { code: '', phone: '', label: '' }
+                    ? undefined
                     : invoiceInfo?.clientConfirmTimezone
 
                 return (
@@ -590,7 +648,7 @@ export default function InvoiceProjectInfoForm({
                         ? clientConfirmedTimezone
                         : selected
                     }
-                    disabled={!client ? false : isClientRegistered}
+                    disabled={!isClientRegistered}
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
                     getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
@@ -623,19 +681,23 @@ export default function InvoiceProjectInfoForm({
                 const clientConfirmedDate = !invoiceInfo?.clientConfirmedAt
                   ? null
                   : new Date(invoiceInfo?.clientConfirmedAt)
+
+                console.log(isClientRegistered)
+
                 return (
                   <FullWidthDatePicker
                     showTimeSelect
                     timeFormat='HH:mm'
                     timeIntervals={30}
                     dateFormat='MM/dd/yyyy h:mm aa'
-                    selected={
-                      !client
-                        ? selected
-                        : isClientRegistered
-                        ? clientConfirmedDate
-                        : selected
-                    }
+                    // selected={
+                    //   !client
+                    //     ? selected
+                    //     : isClientRegistered
+                    //     ? clientConfirmedDate
+                    //     : selected
+                    // }
+                    selected={!value ? null : new Date(value)}
                     onChange={onChange}
                     customInput={
                       <CustomInput
@@ -653,25 +715,27 @@ export default function InvoiceProjectInfoForm({
               name='taxInvoiceDueDate.timezone'
               control={control}
               render={({ field }) => {
-                const selected = !field.value
-                  ? { code: '', phone: '', label: '' }
-                  : field.value
-                const clientConfirmedTimezone =
-                  !invoiceInfo?.clientConfirmTimezone
-                    ? { code: '', phone: '', label: '' }
-                    : invoiceInfo?.clientConfirmTimezone
+                const selected = !field.value ? undefined : field.value
+
+                console.log(field.value)
+
+                // const clientConfirmedTimezone =
+                //   !invoiceInfo?.clientConfirmTimezone
+                //     ? { code: '', phone: '', label: '' }
+                //     : invoiceInfo?.clientConfirmTimezone
                 return (
                   <Autocomplete
                     autoHighlight
                     fullWidth
                     {...field}
-                    value={
-                      !client
-                        ? selected
-                        : isClientRegistered
-                        ? clientConfirmedTimezone
-                        : selected
-                    }
+                    // value={
+                    //   !client
+                    //     ? selected
+                    //     : isClientRegistered
+                    //     ? clientConfirmedTimezone
+                    //     : selected
+                    // }
+                    value={selected}
                     options={countries as CountryType[]}
                     onChange={(e, v) => field.onChange(v)}
                     getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}

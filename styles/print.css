@@ -224,7 +224,7 @@
 .table-head-first {
   align-items: center;
   display: flex !important;
-  flex: 0.4090;
+  flex: 0.409;
   min-width: 400px;
   height: 54px;
   text-align: left;
@@ -338,7 +338,7 @@
 .table-row-first {
   align-items: center;
   display: flex !important;
-  flex: 0.4090;
+  flex: 0.409;
   min-height: 30px;
 
   /* height: 30px; */
@@ -447,6 +447,15 @@
   color: #666cff;
 }
 
+.item-total-subtitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.75;
+  letter-spacing: 0.15px;
+  color: rgba(76, 78, 100, 0.87);
+}
+
 .primary-width-subtitle {
   margin: 0;
   font-size: 14px;
@@ -469,7 +478,6 @@
   display: flex;
   justify-content: flex-start;
 }
-
 
 .total-box {
   display: flex;

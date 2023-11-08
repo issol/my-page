@@ -54,6 +54,7 @@ import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { GridColumns } from '@mui/x-data-grid'
 import {
   InvoiceDownloadData,
+  InvoiceLanguageItemType,
   InvoiceReceivablePatchParamsType,
   InvoiceVersionHistoryType,
 } from '@src/types/invoice/receivable.type'
@@ -64,6 +65,7 @@ import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import { useMutation, useQueryClient } from 'react-query'
 import {
+  checkEditable,
   confirmInvoiceByLpm,
   patchInvoiceInfo,
   restoreVersion,
@@ -101,6 +103,10 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import PrintInvoicePage from './invoice-print/print-page'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import SelectOrder from '../components/list/select-order'
+
+import { v4 as uuidv4 } from 'uuid'
+import { ProjectTeamListType } from '@src/types/orders/order-detail'
 
 type MenuType =
   | 'invoice'
@@ -118,6 +124,8 @@ const ReceivableInvoiceDetail = () => {
   const currentRole = getCurrentRole()
 
   const queryClient = useQueryClient()
+  const teamOrder = ['supervisor', 'projectManager', 'member']
+  const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
 
   const [invoiceInfoEdit, setInvoiceInfoEdit] = useState(false)
   const [accountingInfoEdit, setAccountingInfoEdit] = useState(false)
@@ -125,9 +133,14 @@ const ReceivableInvoiceDetail = () => {
   const [projectTeamEdit, setProjectTeamEdit] = useState(false)
   const invoice = useAppSelector(state => state.invoice)
 
+  const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
+
   const [downloadData, setDownloadData] = useState<InvoiceDownloadData | null>(
     null,
   )
+
+  const [invoiceLanguageItem, setInvoiceLanguageItem] =
+    useState<InvoiceLanguageItemType | null>(null)
 
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
@@ -142,6 +155,8 @@ const ReceivableInvoiceDetail = () => {
   const [isFileUploading, setIsFileUploading] = useState(false)
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
+  const [teams, setTeams] = useState<ProjectTeamListType[]>([])
   const [value, setValue] = useState<MenuType>(
     currentRole && currentRole.name === 'CLIENT' ? 'invoice' : 'invoiceInfo',
   )
@@ -150,6 +165,8 @@ const ReceivableInvoiceDetail = () => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const User = new invoice_receivable(auth.getValue().user?.id!)
+  console.log(auth.getValue().user?.id!)
+
   // const AccountingTeam = new account_manage(auth.getValue().user?.id!)
   const AccountingTeam = new invoice_receivable_accounting_info(
     auth.getValue().user?.id!,
@@ -158,6 +175,9 @@ const ReceivableInvoiceDetail = () => {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
   const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
+
+  console.log(isUpdatable)
+  console.log(isAccountInfoUpdatable)
 
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -168,6 +188,8 @@ const ReceivableInvoiceDetail = () => {
   const handleMenuClose = () => {
     setAnchorEl(null)
   }
+
+  const { data: statusListOrder } = useGetStatusList('Order')
 
   const {
     data: invoiceInfo,
@@ -199,8 +221,6 @@ const ReceivableInvoiceDetail = () => {
     useGetStatusList('InvoiceReceivable')
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
-  const [tax, setTax] = useState<number | null>(invoiceInfo?.tax! ?? null)
-  const [taxable, setTaxable] = useState(invoiceInfo?.isTaxable || false)
 
   const invoiceStatus = invoiceInfo?.invoiceStatus
   const statusLabel = statusList?.find(
@@ -236,7 +256,6 @@ const ReceivableInvoiceDetail = () => {
     }) => patchInvoiceInfo(data.id, data.form, data.type),
     {
       onSuccess: (data: { id: number }, variables) => {
-        invalidateInvoiceDetail()
         setInvoiceInfoEdit(false)
         setAccountingInfoEdit(false)
         setProjectTeamEdit(false)
@@ -244,6 +263,7 @@ const ReceivableInvoiceDetail = () => {
 
         if (data.id !== variables.id) {
           router.push(`/invoice/receivable/detail/${data.id}`)
+          invalidateInvoiceDetail()
         } else {
           invoiceInfoRefetch()
           historyRefetch()
@@ -352,6 +372,7 @@ const ReceivableInvoiceDetail = () => {
     setValue: setInvoiceInfo,
     watch: invoiceInfoWatch,
     reset: invoiceInfoReset,
+    trigger: invoiceInfoTrigger,
     formState: { errors: invoiceInfoErrors, isValid: isInvoiceInfoValid },
   } = useForm<InvoiceProjectInfoFormType>({
     mode: 'onChange',
@@ -473,8 +494,8 @@ const ReceivableInvoiceDetail = () => {
         return (
           <Box>
             {FullDateTimezoneHelper(
-              row?.clientConfirmedAt,
-              row?.clientConfirmTimezone,
+              row?.managerConfirmedAt,
+              row?.managerConfirmTimezone,
             )}
           </Box>
         )
@@ -527,6 +548,10 @@ const ReceivableInvoiceDetail = () => {
       closeModal('ConfirmInvoice')
       if (data.id === variables) {
         invalidateInvoiceDetail()
+        invoiceInfoRefetch()
+        historyRefetch()
+        projectTeamRefetch()
+        clientRefetch()
         // invoiceInfoRefetch()
       } else {
         router.push(`/invoice/receivable/detail/${data.id}`)
@@ -553,6 +578,24 @@ const ReceivableInvoiceDetail = () => {
     }
   }
 
+  const onClickAddOrder = () => {
+    openModal({
+      type: 'order-list',
+      children: (
+        <SelectOrder
+          onClose={() => closeModal('order-list')}
+          type='invoice'
+          statusList={statusListOrder ?? []}
+          from='detail'
+          invoiceId={Number(id!)}
+          invoiceClient={client?.client.clientId!}
+          invoiceRevenueFrom={invoiceInfo?.revenueFrom}
+          invoiceCurrency={invoiceInfo?.currency}
+        />
+      ),
+    })
+  }
+
   useEffect(() => {
     if (client) {
       clientReset({
@@ -560,16 +603,60 @@ const ReceivableInvoiceDetail = () => {
         contactPersonId: client.contactPerson?.id,
         addressType: client.clientAddress.find(value => value.isSelected)
           ?.addressType!,
+        contacts: {
+          ...client.contactPerson!,
+          addresses: client.clientAddress,
+        },
       })
     }
   }, [client, clientReset])
 
   useEffect(() => {
-    if (langItem && prices) {
+    if (langItem && prices && invoiceInfo) {
+      const clientTimezone =
+        getClientValue('contacts.timezone') ?? auth.getValue().user?.timezone!
 
+      console.log(getClientValue('contacts'))
+
+      setInvoiceLanguageItem({
+        ...langItem,
+        // orders: langItem.orders.map(item => ({ ...item, orderId: item.id })),
+      })
+      const languagePair = langItem.orders[0].languagePairs
+
+      const items = langItem.orders
+        .map(item =>
+          item.items.map((value, idx) => ({
+            ...value,
+            orderId: item.id,
+
+            projectName: item.projectName,
+            id: item.id,
+            itemName: value.itemName,
+            source: value.sourceLanguage,
+            target: value.targetLanguage,
+            priceId: value.priceId,
+            detail: !value?.detail?.length ? [] : value.detail,
+            analysis: value.analysis ?? [],
+            totalPrice: value?.totalPrice ?? 0,
+            dueAt: value?.dueAt ?? '',
+            contactPerson: value?.contactPerson ?? null,
+            contactPersonId: value.contactPerson?.userId ?? undefined,
+            // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: value.initialPrice ?? null,
+            description: value.description,
+            showItemDescription: value.showItemDescription,
+            minimumPrice: value.minimumPrice,
+            minimumPriceApplied: value.minimumPriceApplied,
+            indexing: idx,
+          })),
+        )
+        .flat()
+        .map((value, idx) => ({ ...value, idx: idx }))
 
       setLanguagePairs(
-        langItem?.items?.map(item => {
+        items?.map(item => {
           return {
             id: String(item.id),
             source: item.source!,
@@ -593,28 +680,113 @@ const ReceivableInvoiceDetail = () => {
           }
         }),
       )
-      const result = langItem?.items?.map(item => {
-        return {
-          id: item.id,
-          name: item.itemName,
-          source: item.source,
-          target: item.target,
-          priceId: item.priceId,
-          detail: !item?.detail?.length ? [] : item.detail,
-          contactPersonId: item.contactPersonId,
-          description: item.description,
-          analysis: item.analysis ?? [],
-          totalPrice: item?.totalPrice ?? 0,
-          dueAt: item?.dueAt,
-          showItemDescription: item.showItemDescription,
-          initialPrice: item.initialPrice,
-          minimumPrice: item.minimumPrice,
-          minimumPriceApplied: item.minimumPriceApplied,
-        }
-      })
-      itemReset({ items: result })
+
+      itemReset({ items: items })
+
+      const res: InvoiceProjectInfoFormType = {
+        ...invoiceInfo,
+        invoiceDescription: invoiceInfo.description,
+        invoiceDateTimezone: invoiceInfo.invoicedTimezone,
+        invoiceDate: new Date(invoiceInfo.invoicedAt),
+        taxInvoiceIssued: invoiceInfo.taxInvoiceIssued,
+        showDescription: invoiceInfo.showDescription,
+        paymentDueDate: {
+          date: invoiceInfo.payDueAt,
+          timezone: invoiceInfo.payDueTimezone ?? clientTimezone!,
+        },
+        invoiceConfirmDate: {
+          date:
+            client?.contactPerson !== null &&
+            client?.contactPerson.userId !== null
+              ? invoiceInfo.clientConfirmedAt ?? null
+              : null,
+          // date:
+
+          timezone:
+            client?.contactPerson !== null &&
+            client?.contactPerson.userId !== null
+              ? invoiceInfo.clientConfirmTimezone ?? null
+              : null,
+        },
+        taxInvoiceDueDate: {
+          date: invoiceInfo.taxInvoiceDueAt ?? null,
+
+          // date:
+          //   client?.contactPerson !== null &&
+          //   client?.contactPerson.userId !== null
+          //     ? invoiceInfo.taxInvoiceDueAt
+          //     : null,
+          timezone: invoiceInfo.taxInvoiceDueTimezone! ?? null,
+        },
+        paymentDate: {
+          date: invoiceInfo.paidAt,
+          timezone: invoiceInfo.paidDateTimezone ?? null,
+        },
+        taxInvoiceIssuanceDate: {
+          date: invoiceInfo.taxInvoiceIssuedAt ?? '',
+          timezone: invoiceInfo.taxInvoiceIssuedDateTimezone ?? null!,
+        },
+        salesRecognitionDate: {
+          date: invoiceInfo.salesCheckedAt ?? '',
+          timezone: invoiceInfo.salesCheckedDateTimezone! ?? null,
+        },
+
+        salesCategory: invoiceInfo.salesCategory,
+        notes: invoiceInfo.notes,
+
+        setReminder: invoiceInfo.setReminder,
+        tax: invoiceInfo.tax,
+        isTaxable: invoiceInfo.isTaxable ?? true,
+        // subtotal: invoiceInfo.subtotal,
+        subtotal: langItem.orders.reduce(
+          (total, obj) => total + obj.subtotal,
+          0,
+        ),
+      }
+      invoiceInfoReset(res)
+      console.log(
+        langItem.orders.reduce((total, obj) => total + obj.subtotal, 0),
+      )
     }
     if (projectTeam) {
+      let viewTeams: ProjectTeamListType[] = [...projectTeam].map(value => ({
+        ...value,
+        id: uuidv4(),
+      }))
+
+      if (!viewTeams.some(item => item.position === 'supervisor')) {
+        viewTeams.unshift({
+          id: uuidv4(),
+          position: 'supervisor',
+          userId: -1,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+      if (!viewTeams.some(item => item.position === 'member')) {
+        viewTeams.push({
+          id: uuidv4(),
+          position: 'member',
+          userId: 0,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+
+      const res = viewTeams.sort((a, b) => {
+        const aIndex = teamOrder.indexOf(a.position)
+        const bIndex = teamOrder.indexOf(b.position)
+        return aIndex - bIndex
+      })
+
+      if (viewTeams.length) setTeams(res)
+
       const teams: Array<{
         type: MemberType
         id: number | null
@@ -633,26 +805,102 @@ const ReceivableInvoiceDetail = () => {
           lastName: item?.lastName!,
         }),
       }))
-      resetTeam({ teams })
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
+
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
+      // const teams: Array<{
+      //   type: MemberType
+      //   id: number | null
+      //   name: string
+      // }> = projectTeam.map(item => ({
+      //   type:
+      //     item.position === 'projectManager'
+      //       ? 'projectManagerId'
+      //       : item.position === 'supervisor'
+      //       ? 'supervisorId'
+      //       : 'member',
+      //   id: item.userId,
+      //   name: getLegalName({
+      //     firstName: item?.firstName!,
+      //     middleName: item?.middleName,
+      //     lastName: item?.lastName!,
+      //   }),
+      // }))
+      // resetTeam({ teams })
     }
-  }, [langItem, projectTeam, prices])
+  }, [langItem, projectTeam, prices, invoiceInfo])
 
   function makePdfData() {
     if (langItem) {
       const pm = projectTeam!.find(value => value.position === 'projectManager')
+      console.log(invoiceInfo)
+
+      const items: ItemType[] = langItem.orders
+        .map(item =>
+          item.items.map((value, idx) => ({
+            ...value,
+            orderId: item.id,
+            projectName: item.projectName,
+            id: item.id,
+            itemName: value.itemName,
+            source: value.sourceLanguage,
+            target: value.targetLanguage,
+            priceId: value.priceId,
+            detail: !value?.detail?.length ? [] : value.detail,
+            analysis: value.analysis ?? [],
+            totalPrice: value?.totalPrice ?? 0,
+            dueAt: value?.dueAt ?? '',
+            contactPerson: value?.contactPerson ?? null,
+            contactPersonId: value.contactPerson?.userId ?? undefined,
+            // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: value.initialPrice ?? null,
+            description: value.description,
+            showItemDescription: value.showItemDescription,
+            minimumPrice: value.minimumPrice,
+            minimumPriceApplied: value.minimumPriceApplied,
+            indexing: idx,
+          })),
+        )
+        .flat()
+        .map((value, idx) => ({ ...value, idx: idx }))
 
       // const subtotal = langItem.items.reduce((acc, cur) => {
       //   return acc + cur.totalPrice
       // }, 0)
-      const subtotal = Number(invoiceInfo!.subtotal!)
-      const tax = subtotal * (invoiceInfo!.tax! / 100)
+      const invoiceTax =
+        invoiceInfo!.tax && invoiceInfo!.tax !== ''
+          ? Number(invoiceInfo!.tax)
+          : 0
+      const subtotal = langItem.orders.reduce(
+        (total, obj) => total + obj.subtotal,
+        0,
+      )
+      const tax = subtotal * (invoiceTax / 100)
 
       const res: InvoiceDownloadData = {
         invoiceId: Number(id!),
         adminCompanyName: 'GloZ Inc.',
+        corporationId: invoiceInfo?.corporationId!,
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
-        corporationId: invoiceInfo!.corporationId,
-        orderCorporationId: invoiceInfo?.orderCorporationId ?? '',
+        orderCorporationId: invoiceInfo!.linkedOrders.map(
+          value => value.corporationId,
+        ),
+        orders: langItem.orders,
+        // orderCorporationId: invoiceInfo?.orderCorporationId ?? '',
         invoicedAt: invoiceInfo!.invoicedAt,
         paymentDueAt: {
           date: invoiceInfo!.payDueAt,
@@ -669,7 +917,9 @@ const ReceivableInvoiceDetail = () => {
         client: client!,
         contactPerson: client!.contactPerson,
         clientAddress: client!.clientAddress,
-        langItem: langItem!,
+        langItem: items,
+        currency: invoiceInfo!.currency,
+        // langItem: {id : langItem.invoiceId, languagePairs : langItem.orders } !,
         subtotal: priceInfo
           ? formatCurrency(
               formatByRoundingProcedure(
@@ -681,7 +931,7 @@ const ReceivableInvoiceDetail = () => {
               priceInfo?.currency!,
             )
           : '',
-        taxPercent: invoiceInfo!.tax,
+        taxPercent: invoiceTax,
         tax:
           invoiceInfo!.isTaxable && priceInfo
             ? formatCurrency(
@@ -803,6 +1053,13 @@ const ReceivableInvoiceDetail = () => {
     }
   }, [invoice.isReady])
 
+  useEffect(() => {
+    if (invoiceInfo)
+      checkEditable(invoiceInfo.id).then(res => {
+        setIsUserInTeamMember(res)
+      })
+  }, [invoiceInfo])
+
   function onError() {
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
@@ -889,12 +1146,34 @@ const ReceivableInvoiceDetail = () => {
                           },
                         }}
                       >
-                        Linked order :
-                        <Link
-                          href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '10px',
+                            alignITems: 'start',
+                          }}
                         >
-                          {invoiceInfo?.orderCorporationId}
-                        </Link>
+                          <Typography>Linked order :</Typography>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '10px',
+                            }}
+                          >
+                            {invoiceInfo.linkedOrders.map(value => {
+                              return (
+                                <Link
+                                  key={uuidv4()}
+                                  href={`/orders/order-list/detail/${value?.id}`}
+                                  style={{ color: 'rgba(76, 78, 100, 0.87)' }}
+                                >
+                                  {value?.corporationId}
+                                </Link>
+                              )
+                            })}
+                          </Box>
+                        </Box>
                       </MenuItem>
                     </Menu>
                   </div>
@@ -921,7 +1200,7 @@ const ReceivableInvoiceDetail = () => {
                   </Button>
                 )}
                 {isEditing ||
-                (currentRole && currentRole.name === 'CLIENT')? null : (
+                (currentRole && currentRole.name === 'CLIENT') ? null : (
                   <Button
                     variant='contained'
                     sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
@@ -1016,6 +1295,8 @@ const ReceivableInvoiceDetail = () => {
                     type='detail'
                     user={auth.getValue().user!}
                     onClickDownloadInvoice={onClickDownloadInvoice}
+                    orders={langItem?.orders!}
+                    invoiceInfo={invoiceInfo!}
                   />
                 ) : null}
               </Suspense>
@@ -1027,7 +1308,6 @@ const ReceivableInvoiceDetail = () => {
                   invoiceInfo={invoiceInfo!}
                   edit={invoiceInfoEdit}
                   setEdit={setInvoiceInfoEdit}
-                  orderId={7}
                   accountingEdit={accountingInfoEdit}
                   setAccountingEdit={setAccountingInfoEdit}
                   onSave={patchInvoiceInfoMutation.mutate}
@@ -1043,12 +1323,13 @@ const ReceivableInvoiceDetail = () => {
                     auth.getValue().user?.timezone!
                   }
                   statusList={statusList || []}
-                  isUpdatable={isUpdatable}
+                  isUpdatable={isUserInTeamMember}
                   isDeletable={isDeletable}
                   isAccountInfoUpdatable={isAccountInfoUpdatable}
                   client={client}
                   isFileUploading={isFileUploading}
                   setIsFileUploading={setIsFileUploading}
+                  invoiceInfoTrigger={invoiceInfoTrigger}
                 />
               ) : null}
             </TabPanel>
@@ -1056,7 +1337,6 @@ const ReceivableInvoiceDetail = () => {
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
                   <InvoiceLanguageAndItem
-                    langItem={langItem!}
                     languagePairs={languagePairs!}
                     setLanguagePairs={setLanguagePairs}
                     clientId={client?.client.clientId!}
@@ -1071,6 +1351,10 @@ const ReceivableInvoiceDetail = () => {
                     getTeamValues={getTeamValues}
                     invoiceInfo={invoiceInfo!}
                     itemTrigger={itemTrigger}
+                    invoiceLanguageItem={invoiceLanguageItem!}
+                    getInvoiceInfo={getInvoiceInfo}
+                    onClickAddOrder={onClickAddOrder}
+                    isUpdatable={isUserInTeamMember}
                   />
                 </Grid>
               </Card>
@@ -1081,8 +1365,6 @@ const ReceivableInvoiceDetail = () => {
                 client={client!}
                 edit={clientEdit}
                 setEdit={setClientEdit}
-                setTax={setTax}
-                setTaxable={setTaxable}
                 clientControl={clientControl}
                 getClientValue={getClientValue}
                 setClientValue={setClientValue}
@@ -1091,13 +1373,13 @@ const ReceivableInvoiceDetail = () => {
                 onSave={patchInvoiceInfoMutation.mutate}
                 invoiceInfo={invoiceInfo!}
                 getInvoiceInfo={getInvoiceInfo}
-                isUpdatable={isUpdatable}
+                isUpdatable={isUserInTeamMember}
               />
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
               <InvoiceProjectTeam
                 type='detail'
-                list={projectTeam!}
+                list={teams!}
                 listCount={projectTeam?.length!}
                 columns={getProjectTeamColumns()}
                 page={projectTeamListPage}
@@ -1120,7 +1402,7 @@ const ReceivableInvoiceDetail = () => {
                 onSave={patchInvoiceInfoMutation.mutate}
                 getInvoiceInfo={getInvoiceInfo}
                 invoiceInfo={invoiceInfo}
-                isUpdatable={isUpdatable}
+                isUpdatable={isUserInTeamMember}
               />
             </TabPanel>
             <TabPanel value='history' sx={{ pt: '24px' }}>

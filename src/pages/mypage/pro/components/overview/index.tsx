@@ -138,9 +138,9 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   const [experience, setExperience] = useState(userInfo.experience)
   const [specialties, setSpecialties] = useState(userInfo?.specialties ?? [])
   const [resume, setResume] = useState(
-    userInfo.resume 
+    userInfo.resume
       ? userInfo.resume.map(item => `${item.fileName}.${item.fileExtension}`)
-      : []
+      : [],
   )
   //pagination
   const [rolePage, setRolePage] = useState(0)
@@ -242,14 +242,14 @@ export default function MyPageOverview({ user, userInfo }: Props) {
       {
         userId: auth.getValue().user?.id || 0,
         extraData: {
-          resume: files
+          resume: files,
         },
       },
       {
         onSuccess: () => {
           closeModal('deleteResume')
-        }
-      }
+        },
+      },
     )
   }
 
@@ -467,17 +467,19 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   }
 
   function uploadFiles(files: File[]) {
-    let fileData:Array<string> = resume
+    let fileData: Array<string> = resume
     if (files?.length) {
       const promiseArr = files.map((file, idx) => {
         return getUploadUrlforCommon(
           S3FileType.RESUME,
           getResumeFilePath(user.id as number, file.name),
-        ).then(res => {
-          return uploadFileToS3(res.url, file)
-        }).then(res => {
-          fileData.push(file.name)
-        })
+        )
+          .then(res => {
+            return uploadFileToS3(res.url, file)
+          })
+          .then(res => {
+            fileData.push(file.name)
+          })
       })
       setResume(fileData)
       Promise.all(promiseArr)
@@ -497,12 +499,12 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   }
 
   const onClickDeleteResume = (fileName: string) => {
-    if(resume.includes(fileName)) {
+    if (resume.includes(fileName)) {
       const updatedResume = resume.filter(item => item !== fileName)
       setResume(updatedResume)
       onResumeSave(updatedResume)
-      }
     }
+  }
   // const deleteResumeMutation = useMutation(
   //   (fileId: number) => deleteResume(user.userId!, fileId),
   //   {
@@ -532,7 +534,9 @@ export default function MyPageOverview({ user, userInfo }: Props) {
           <DeleteConfirmModal
             message='Are you sure you want to delete this file?'
             title={file.fileName}
-            onDelete={() => onClickDeleteResume(`${file.fileName}.${file.fileExtension}`)}
+            onDelete={() =>
+              onClickDeleteResume(`${file.fileName}.${file.fileExtension}`)
+            }
             onClose={() => closeModal('cannotDeleteResume')}
           />
         ),

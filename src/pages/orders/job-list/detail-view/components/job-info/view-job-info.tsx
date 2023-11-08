@@ -45,7 +45,11 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { statusType } from '@src/types/common/status.type'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import { TroubleshootRounded } from '@mui/icons-material'
-import { JobStatusType, ProJobDeliveryType, ProJobFeedbackType } from '@src/types/jobs/jobs.type'
+import {
+  JobStatusType,
+  ProJobDeliveryType,
+  ProJobFeedbackType,
+} from '@src/types/jobs/jobs.type'
 import { useRouter } from 'next/router'
 import useModal from '@src/hooks/useModal'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
@@ -53,10 +57,12 @@ import JobFeedback from '../../../components/job-feedback'
 
 type Props = {
   row: JobType
-  jobDeliveriesFeedbacks: {
-    deliveries: ProJobDeliveryType[];
-    feedbacks: ProJobFeedbackType[];
-  } | undefined
+  jobDeliveriesFeedbacks:
+    | {
+        deliveries: ProJobDeliveryType[]
+        feedbacks: ProJobFeedbackType[]
+      }
+    | undefined
   setEditJobInfo?: Dispatch<SetStateAction<boolean>>
   type: string
   projectTeam: {
@@ -137,7 +143,7 @@ const ViewJobInfo = ({
       },
     },
   )
-  console.log("projectTeam",projectTeam)
+  console.log('projectTeam', projectTeam)
   const addJobFeedbackMutation = useMutation(
     (data: { jobId: number; data: string }) =>
       addJobFeedback(data.jobId, data.data),
@@ -152,7 +158,7 @@ const ViewJobInfo = ({
           setJobId && setJobId(data.job.id)
         }
       },
-    }
+    },
   )
   const DownloadAllFiles = (
     file:
@@ -237,16 +243,22 @@ const ViewJobInfo = ({
 
   const onChangeStatus = (event: SelectChangeEvent) => {
     const currentJobStatus = Number(event.target.value)
-    if (currentJobStatus === 60600) { //Approve
+    if (currentJobStatus === 60600) {
+      //Approve
       statusModals('approve', event)
-    } else if (currentJobStatus === 601000) { //Cancel
+    } else if (currentJobStatus === 601000) {
+      //Cancel
       statusModals('cancel', event)
-    } else if (currentJobStatus === 60900) { //Without Invoice
+    } else if (currentJobStatus === 60900) {
+      //Without Invoice
       statusModals('withoutInvoice', event)
     } else handleChange(event)
   }
 
-  const statusModals = (type: 'approve' | 'cancel' | 'withoutInvoice', event: SelectChangeEvent) => {
+  const statusModals = (
+    type: 'approve' | 'cancel' | 'withoutInvoice',
+    event: SelectChangeEvent,
+  ) => {
     const approveMessage = `
       Are you sure you want to approve the
       job?\n
@@ -267,38 +279,33 @@ const ViewJobInfo = ({
       A notification that the job status has
       been set as Without invoice will be sent
       to the assigned Pro.`
-      openModal({
-        type: 'statusModal',
-        children: (
-          <SimpleMultilineAlertModal
-            onClose={() => closeModal('statusModal')}
-            onConfirm={() => {
-              handleChange(event)
-            }}
-            closeButtonText={'Cancel'}
-            confirmButtonText={'Proceed'}
-            message={
-              type === 'approve'
-                ? approveMessage
-                : type === 'cancel'
-                  ? cancelMessage
-                  : withoutInvoiceMessage
-            }
-            vary={
-              type === 'approve'
-                ? 'successful'
-                : 'error'
-            }
-            textAlign={'center'}
-          />
-        ),
-      })
+    openModal({
+      type: 'statusModal',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => closeModal('statusModal')}
+          onConfirm={() => {
+            handleChange(event)
+          }}
+          closeButtonText={'Cancel'}
+          confirmButtonText={'Proceed'}
+          message={
+            type === 'approve'
+              ? approveMessage
+              : type === 'cancel'
+              ? cancelMessage
+              : withoutInvoiceMessage
+          }
+          vary={type === 'approve' ? 'successful' : 'error'}
+          textAlign={'center'}
+        />
+      ),
+    })
   }
 
   const handleChange = (event: SelectChangeEvent) => {
     if (Number(event.target.value) === 60600) {
-
-    } 
+    }
     const res: SaveJobInfoParamsType = {
       contactPersonId: row.contactPerson?.userId!,
       description: row.description ?? null,
@@ -384,7 +391,9 @@ const ViewJobInfo = ({
         break
       case 60900: //Without invoice
         setFilteredJobStatus(
-          statusList?.filter(list => [60900, 601000, 60900].includes(list.value))!,
+          statusList?.filter(list =>
+            [60900, 601000, 60900].includes(list.value),
+          )!,
         ) //Canceled, Approved
         break
       default:
@@ -519,9 +528,11 @@ const ViewJobInfo = ({
   }
   const canUseAddComment = () => {
     if (
-      (auth?.user?.roles?.some(role => ['General'].includes(role.type)) && userInTeamMember()) ||
+      (auth?.user?.roles?.some(role => ['General'].includes(role.type)) &&
+        userInTeamMember()) ||
       auth?.user?.roles?.some(role => ['Master', 'Manager'].includes(role.type))
-    ) return true
+    )
+      return true
     return false
   }
 
@@ -739,8 +750,10 @@ const ViewJobInfo = ({
 
           <Box>
             <Typography variant='subtitle2'>
-              {formatFileSize(row.files ? getFileSize(row?.files, 'SAMPLE') : 0)}/{' '}
-              {byteToGB(MAXIMUM_FILE_SIZE)}
+              {formatFileSize(
+                row.files ? getFileSize(row?.files, 'SAMPLE') : 0,
+              )}
+              / {byteToGB(MAXIMUM_FILE_SIZE)}
             </Typography>
           </Box>
         </Box>
@@ -749,121 +762,132 @@ const ViewJobInfo = ({
         <>
           <Divider />
           <Card sx={{ padding: '20px' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <Typography variant='body1' fontWeight={600}>
-                Target files from Pro
-              </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                }}
+              >
+                <Typography variant='body1' fontWeight={600}>
+                  Target files from Pro
+                </Typography>
+              </Box>
+              {jobDeliveriesFeedbacks?.deliveries &&
+              jobDeliveriesFeedbacks?.deliveries.some(delivery =>
+                delivery.files.some(files => files.type === 'TARGET'),
+              ) ? (
+                jobDeliveriesFeedbacks?.deliveries.map(delivery => (
+                  <Box
+                    key={delivery.id}
+                    sx={{
+                      padding: '20px',
+                      border: '1px solid #4C4E6454',
+                      borderRadius: '8px',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginBottom: '10px',
+                      }}
+                    >
+                      <Typography variant='body1' fontWeight={600}>
+                        {delivery.deliveredDate
+                          ? FullDateTimezoneHelper(
+                              delivery.deliveredDate,
+                              auth?.user?.timezone!,
+                            )
+                          : '-'}
+                      </Typography>
+                      {delivery.files.length ? (
+                        <Button
+                          variant='outlined'
+                          disabled={
+                            !(
+                              delivery.files &&
+                              delivery.files.find(
+                                value => value.type === 'TARGET',
+                              )
+                            )
+                          }
+                          sx={{
+                            height: '30px',
+                            borderRadius: '8',
+                          }}
+                        >
+                          <Icon icon='mdi:download' fontSize={18} />
+                          &nbsp; Download all
+                        </Button>
+                      ) : null}
+                    </Box>
+                    <Box sx={{ marginBottom: '10px' }}>
+                      {delivery.files.length ? (
+                        <Typography variant='subtitle2'>
+                          {formatFileSize(
+                            delivery.files
+                              ? getFileSize(delivery?.files, 'TARGET')
+                              : 0,
+                          )}
+                        </Typography>
+                      ) : null}
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        width: '100%',
+                        gap: '20px',
+                      }}
+                    >
+                      {fileList(delivery.files, 'TARGET')}
+                    </Box>
+                    <Divider />
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginTop: '16px',
+                        marginBottom: '16px',
+                      }}
+                    >
+                      <Typography variant='body1' fontWeight={600}>
+                        Notes from from Pro
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        marginTop: '16px',
+                      }}
+                    >
+                      <Typography variant='body1' fontWeight={400}>
+                        {delivery.note ?? '-'}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))
+              ) : (
+                <Typography variant='subtitle2'>
+                  There are no files delivered from Pro
+                </Typography>
+              )}
             </Box>
-            {jobDeliveriesFeedbacks?.deliveries &&
-            jobDeliveriesFeedbacks?.deliveries.some(delivery =>
-              delivery.files.some(files => files.type === 'TARGET')
-            ) ? (
-              jobDeliveriesFeedbacks?.deliveries.map(delivery => (
-                <Box 
-                  key={delivery.id} 
-                  sx={{ padding: '20px',
-                  border: '1px solid #4C4E6454',
-                  borderRadius: '8px',
-                 }}>
-                  <Box 
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      marginBottom: '10px'
-                    }}
-                  >
-                    <Typography variant='body1' fontWeight={600}>
-                      {delivery.deliveredDate
-                        ? FullDateTimezoneHelper(delivery.deliveredDate, auth?.user?.timezone!)
-                        : '-'}
-                    </Typography>
-                    {delivery.files.length ? (
-                      <Button
-                        variant='outlined'
-                        disabled={
-                          !(
-                            delivery.files &&
-                            delivery.files.find(value => value.type === 'TARGET')
-                          )
-                        }
-                        sx={{
-                          height: '30px',
-                          borderRadius: '8'
-                        }}
-                      >
-                        <Icon icon='mdi:download' fontSize={18} />
-                        &nbsp; Download all
-                      </Button>
-                    ) : null}
-                  </Box>
-                  <Box sx={{ marginBottom: '10px' }}>
-                    {delivery.files.length ? (
-                    <Typography variant='subtitle2'>
-                      {formatFileSize(delivery.files ? getFileSize(delivery?.files, 'TARGET') : 0)}
-                    </Typography>
-                    ) : null}
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(2, 1fr)',
-                      width: '100%',
-                      gap: '20px',
-                    }}
-                  >
-                    {fileList(delivery.files, 'TARGET')}
-                  </Box>
-                  <Divider />
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      marginTop: '16px',
-                      marginBottom: '16px'
-                    }}
-                  >
-                    <Typography variant='body1' fontWeight={600}>
-                      Notes from from Pro
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      marginTop: '16px',
-                      
-                    }}
-                  >
-                    <Typography variant='body1' fontWeight={400}>
-                      {delivery.note ?? '-'}
-                    </Typography>
-                  </Box>
-                </Box>   
-              ))
-            ) : (
-              <Typography variant='subtitle2'>
-                There are no files delivered from Pro
-              </Typography>
-            )}
-          </Box>
           </Card>
           <Divider />
         </>
       )}
 
       {row.pro &&
-      [60400, 60500, 60600, 60700, 60800, 60900, 601100].includes(row.status)
-      ? (
+      [60400, 60500, 60600, 60700, 60800, 60900, 601100].includes(
+        row.status,
+      ) ? (
         // <Card sx={{ padding: '20px' }}>
         //   <Box sx={{
         //     display: 'flex',
@@ -883,10 +907,10 @@ const ViewJobInfo = ({
         //           gap='8px'
         //           justifyContent='right'
         //           position='absolute'
-        //           right='96px' 
+        //           right='96px'
         //         >
-        //           <Button 
-        //             variant='contained' 
+        //           <Button
+        //             variant='contained'
         //             onClick={() => {
         //               setUseJobFeedbackForm(true)
         //             }}
@@ -906,7 +930,7 @@ const ViewJobInfo = ({
         //           //   <Typography variant='subtitle2'>{feedback.feedback}</Typography>
         //           // </Box>
         //           <Box key={feedback.id}>
-        //             <Box sx={{ 
+        //             <Box sx={{
         //               paddingTop: '16px',
         //               paddingBottom: '16px',
         //             }}>
@@ -938,7 +962,7 @@ const ViewJobInfo = ({
         //   </Box>
         //   {useJobFeedbackForm ? (
         //     <Box sx={{ padding: '20px', }}>
-        //       <Box sx={{ 
+        //       <Box sx={{
         //         paddingTop: '16px',
         //         paddingBottom: '16px',
         //       }}>
@@ -976,7 +1000,7 @@ const ViewJobInfo = ({
         //         sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px', gap: '8px' }}
         //       >
         //         <Button
-        //           variant='outlined' 
+        //           variant='outlined'
         //           onClick={() => {
         //             onClickDiscardFeedback()
         //           }}
@@ -988,7 +1012,7 @@ const ViewJobInfo = ({
         //           Cancel
         //         </Button>
         //         <Button
-        //           variant='contained' 
+        //           variant='contained'
         //           disabled={addJobFeedbackData?.length === 0}
         //           onClick={() => {
         //             onClickAddFeedback()

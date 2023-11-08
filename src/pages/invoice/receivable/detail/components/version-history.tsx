@@ -21,6 +21,8 @@ const InvoiceVersionHistory = ({
   setPageSize,
   onClickRow,
 }: Props) => {
+  console.log(list)
+
   function NoList() {
     return (
       <Box
@@ -61,7 +63,10 @@ const InvoiceVersionHistory = ({
             NoRowsOverlay: () => NoList(),
             NoResultsOverlay: () => NoList(),
           }}
-          sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+          sx={{
+            overflowX: 'scroll',
+            '& .MuiDataGrid-row': { cursor: 'pointer' },
+          }}
           columns={columns}
           pageSize={pageSize}
           onPageSizeChange={setPageSize}

@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk, Slice } from '@reduxjs/toolkit'
+import { ItemType } from '@src/types/common/item.type'
 import { InvoiceDownloadData } from '@src/types/invoice/receivable.type'
+import { LanguagePairTypeInItem } from '@src/types/orders/order-detail'
 
 const initialState: {
   invoiceTotalData: InvoiceDownloadData | null

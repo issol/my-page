@@ -82,6 +82,7 @@ export type ProjectInfoType = {
   subtotal: string
 
   items?: ItemType
+  invoiceIncludedWithMultipleOrders: boolean
 }
 
 export type ClientType = {
@@ -95,7 +96,8 @@ export type ClientType = {
     timezone: CountryType
     name: string
     taxable: boolean
-    tax: number | null
+    tax: string | null
+    isTaxable: boolean
   }
 
   contactPerson: ContactPersonType | null

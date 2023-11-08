@@ -117,9 +117,10 @@ import ReasonModal from '@src/@core/components/common-modal/reason-modal'
 import ClientOrder from './components/client-order'
 import PrintOrderPage from '../../order-print/print-page'
 
-import { orders } from '@src/shared/const/permission-class'
+import { order } from '@src/shared/const/permission-class'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { ReasonType } from '@src/types/quotes/quote'
+import AlertModal from '@src/@core/components/common-modal/alert-modal'
 
 interface Detail {
   id: number
@@ -237,10 +238,12 @@ const OrderDetail = () => {
     }
   }, [menuQuery])
 
-  const User = new orders(auth.getValue().user?.id!)
+  const User = new order(auth.getValue().user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
+
+  console.log(isUpdatable)
 
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
@@ -375,8 +378,8 @@ const OrderDetail = () => {
   const [splitReady, setSplitReady] = useState<boolean>(false)
   const [selectedIds, setSelectedIds] = useState<
     { id: number; selected: boolean }[]
-  >(getItem('items').map(value => ({ id: value.id!, selected: false })))
-  const order = useAppSelector(state => state.order)
+  >(getItem('items')?.map(value => ({ id: value.id!, selected: false })))
+  const orderInfo = useAppSelector(state => state.order)
 
   const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
   const [projectTeamListPageSize, setProjectTeamListPageSize] =
@@ -584,7 +587,7 @@ const OrderDetail = () => {
       // updateProject && updateProject.mutate({ status: 10500 })
       updateOrderStatusMutation.mutate({
         id: Number(id!),
-        status: 10500
+        status: 10500,
       })
   }
 
@@ -771,7 +774,7 @@ const OrderDetail = () => {
   }, [projectInfo, client, langItem, projectTeam])
 
   useEffect(() => {
-    if (order.isReady && order.orderTotalData) {
+    if (orderInfo.isReady && orderInfo.orderTotalData) {
       openModal({
         type: 'PreviewModal',
         isCloseable: false,
@@ -788,10 +791,10 @@ const OrderDetail = () => {
           >
             <div className='page'>
               <PrintOrderPage
-                data={order.orderTotalData}
+                data={orderInfo.orderTotalData}
                 type='preview'
                 user={auth.getValue().user!}
-                lang={order.lang}
+                lang={orderInfo.lang}
               />
             </div>
 
@@ -821,7 +824,7 @@ const OrderDetail = () => {
         ),
       })
     }
-  }, [order.isReady])
+  }, [orderInfo.isReady])
 
   useEffect(() => {
     if (langItem) {
@@ -984,7 +987,7 @@ const OrderDetail = () => {
   )
 
   const onSubmitItems = () => {
-    const items: PostItemType[] = getItem().items.map(item => {
+    const items: PostItemType[] = getItem().items.map((item, idx) => {
       const {
         contactPerson,
         minimumPrice,
@@ -1003,6 +1006,7 @@ const OrderDetail = () => {
         // name: item.itemName,
         sourceLanguage: item.source,
         targetLanguage: item.target,
+        sortingOrder: idx + 1,
       }
     })
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
@@ -1117,7 +1121,8 @@ const OrderDetail = () => {
   )
 
   const updateOrderStatusMutation = useMutation(
-    (data: {id: number; status: number; reason?: ReasonType}) => patchOrderStatus(Number(data.id), data.status, data.reason),
+    (data: { id: number; status: number; reason?: ReasonType }) =>
+      patchOrderStatus(Number(data.id), data.status, data.reason),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({
@@ -1128,7 +1133,7 @@ const OrderDetail = () => {
       onError: () => onMutationError(),
     },
   )
-  
+
   const confirmOrderMutation = useMutation(() => confirmOrder(Number(id)), {
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -1222,7 +1227,22 @@ const OrderDetail = () => {
   }
 
   const onClickSplitOrder = () => {
-    setSplitReady(true)
+    if (projectInfo?.invoiceIncludedWithMultipleOrders) {
+      openModal({
+        type: 'SplitOrderAlertModal',
+        children: (
+          <AlertModal
+            onClick={() => closeModal('SplitOrderAlertModal')}
+            vary='error'
+            title='This order cannot be split because it is already included in an invoice with multiple orders.'
+            buttonText='Okay'
+          />
+        ),
+      })
+      setSplitReady(false)
+    } else {
+      setSplitReady(true)
+    }
   }
 
   const onClickCancelSplitOrder = () => {
@@ -1295,8 +1315,7 @@ const OrderDetail = () => {
           flag =
             isUpdatable &&
             projectInfo?.status !== 'Paid' &&
-            projectInfo?.status !== 'Canceled' &&
-            isIncludeProjectTeam()
+            projectInfo?.status !== 'Canceled'
           break
         case 'button-Restore':
           flag =
@@ -1420,7 +1439,10 @@ const OrderDetail = () => {
           flag =
             isUpdatable &&
             !projectInfo?.linkedInvoiceReceivable &&
-            projectInfo?.status === 'Delivery confirmed' &&
+            (projectInfo?.status === 'Delivery confirmed' ||
+              projectInfo?.status === 'Delivery completed' ||
+              projectInfo?.status === 'Partially delivered' ||
+              projectInfo?.status === 'Redelivery requested') &&
             isIncludeProjectTeam()
           break
         case 'button-ConfirmOrder':
@@ -1764,7 +1786,7 @@ const OrderDetail = () => {
                         // })
                         updateOrderStatusMutation.mutate({
                           id: Number(id!),
-                          status: status
+                          status: status,
                         })
                       }
                       updateProject={updateProject}
@@ -1813,10 +1835,11 @@ const OrderDetail = () => {
                       // updateProjectWithoutControlForm.mutate({ status: status })
                       updateOrderStatusMutation.mutate({
                         id: Number(id!),
-                        status: status
+                        status: status,
                       })
                     }
                     canUseFeature={canUseFeature}
+                    isIncludeProjectTeam={isIncludeProjectTeam()}
                   />
 
                   {/* <Grid item xs={12}>

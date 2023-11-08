@@ -18,6 +18,9 @@ export type ItemType = Omit<
   minimumPrice: number | null
   minimumPriceApplied: boolean
   priceFactor: number
+  orderId?: number
+  idx?: number
+  indexing?: number
 }
 
 export type AnalysisFileType = {
@@ -42,6 +45,7 @@ export type PostItemType = {
   showItemDescription?: '1' | '0'
   analysis?: number[] //file id를 보내기
   totalPrice: number
+  sortingOrder?: number
 }
 
 export type ItemDetailType = {

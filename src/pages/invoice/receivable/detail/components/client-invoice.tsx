@@ -12,6 +12,7 @@ import {
   RequestRevisionReason,
 } from '@src/shared/const/reason/reason'
 import {
+  LanguagePairTypeInItem,
   OrderDownloadData,
   ProjectInfoType,
 } from '@src/types/orders/order-detail'
@@ -20,21 +21,32 @@ import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-
 import PrintOrderPage from '@src/pages/orders/order-print/print-page'
 import {
   InvoiceDownloadData,
+  InvoiceReceivableDetailType,
   InvoiceReceivablePatchParamsType,
 } from '@src/types/invoice/receivable.type'
 import PrintInvoicePage from '../invoice-print/print-page'
 import ConfirmInvoiceModal from './modal/confirm-invoice-modal'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { confirmInvoiceFromClient } from '@src/apis/invoice/receivable.api'
+import { ItemType } from '@src/types/common/item.type'
 
 type Props = {
   downloadData: InvoiceDownloadData
   user: UserDataType
-
+  invoiceInfo?: InvoiceReceivableDetailType
   downloadLanguage?: 'EN' | 'KO'
   setDownloadLanguage?: Dispatch<SetStateAction<'EN' | 'KO'>>
   onClickDownloadInvoice?: () => void
   type: 'detail' | 'history'
+  orders: Array<{
+    id: number
+    orderId: number
+    projectName: string
+    corporationId: string
+    items: Array<ItemType>
+    languagePairs: Array<LanguagePairTypeInItem>
+    subtotal: number
+  }>
 }
 
 const ClientInvoice = ({
@@ -46,6 +58,8 @@ const ClientInvoice = ({
   type,
 
   onClickDownloadInvoice,
+  invoiceInfo,
+  orders,
 }: // statusList,
 // project,
 Props) => {
@@ -168,6 +182,16 @@ Props) => {
               <Button
                 variant='contained'
                 fullWidth
+                disabled={
+                  invoiceInfo?.invoiceStatus === 30500 ||
+                  invoiceInfo?.invoiceStatus === 30700 ||
+                  invoiceInfo?.invoiceStatus === 30800 ||
+                  invoiceInfo?.invoiceStatus === 30900 ||
+                  invoiceInfo?.invoiceStatus === 301200 ||
+                  ((invoiceInfo?.invoiceStatus === 301000 ||
+                    invoiceInfo?.invoiceStatus === 301100) &&
+                    invoiceInfo.clientConfirmedAt !== null)
+                }
                 onClick={onClickConfirmInvoice}
               >
                 Confirm invoice

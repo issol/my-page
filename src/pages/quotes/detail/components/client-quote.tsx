@@ -140,6 +140,7 @@ const ClientQuote = ({
               ? RequestRevisionReason
               : CancelQuoteReason
           }
+          usage={action === 'Request revision' ? 'request-revision' : 'reject'}
         />
       ),
     })

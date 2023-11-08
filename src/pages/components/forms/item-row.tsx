@@ -63,7 +63,13 @@ type Props = {
     currency: CurrencyType
   }) => void
   splitReady: boolean
-  type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
+  type:
+    | 'edit'
+    | 'detail'
+    | 'invoiceDetail'
+    | 'create'
+    | 'invoiceCreate'
+    | 'invoiceHistory'
   onItemRemove: (idx: number, itemId: number) => void
 
   selectedIds?: { id: number; selected: boolean }[]
@@ -82,6 +88,7 @@ type Props = {
   checkPriceCurrency: (price: StandardPriceListType, index: number) => boolean
   findLangPairIndex: (source: string, target: string) => number
   teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
+  indexing?: number
 }
 
 const Row = ({
@@ -107,6 +114,7 @@ const Row = ({
   checkPriceCurrency,
   findLangPairIndex,
   teamMembers,
+  indexing,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const [contactPersonList, setContactPersonList] = useState<
@@ -437,15 +445,31 @@ const Row = ({
                 />
               </IconButton>
               <Typography fontWeight={500}>
-                {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}&nbsp;
-                {type === 'detail' || type === 'invoiceDetail'
+                {indexing !== undefined &&
+                (type === 'invoiceDetail' ||
+                  type === 'invoiceHistory' ||
+                  type === 'invoiceCreate')
+                  ? `${
+                      indexing + 1 <= 10
+                        ? `0${indexing + 1}.`
+                        : `${indexing + 1}.`
+                    }`
+                  : `${idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}`}
+                &nbsp;
+                {type === 'detail' ||
+                type === 'invoiceDetail' ||
+                type === 'invoiceHistory' ||
+                type === 'invoiceCreate'
                   ? getValues(`items.${idx}.itemName`)
                   : null}
               </Typography>
             </Box>
-            {type === 'detail' || type === 'invoiceDetail' ? null : (
+            {type === 'detail' ||
+            type === 'invoiceDetail' ||
+            type === 'invoiceHistory' ||
+            type === 'invoiceCreate' ? null : (
               <IconButton
-                onClick={() => onItemRemove(idx, getValues().items[idx].id!)}
+                onClick={() => onItemRemove(idx, getValues(`items.${idx}.id`)!)}
               >
                 <Icon icon='mdi:trash-outline' />
               </IconButton>
@@ -454,7 +478,10 @@ const Row = ({
         </Grid>
         {cardOpen ? (
           <>
-            {type === 'detail' || type === 'invoiceDetail' ? null : (
+            {type === 'detail' ||
+            type === 'invoiceDetail' ||
+            type === 'invoiceHistory' ||
+            type === 'invoiceCreate' ? null : (
               <Grid item xs={12}>
                 <Controller
                   name={`items.${idx}.itemName`}
@@ -481,7 +508,10 @@ const Row = ({
               </Grid>
             )}
             <Grid item xs={6}>
-              {type === 'detail' || type === 'invoiceDetail' ? (
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -519,7 +549,10 @@ const Row = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              {type === 'detail' || type === 'invoiceDetail' ? (
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -535,17 +568,23 @@ const Row = ({
                     Contact person for job
                   </Typography>
                   <Typography variant='body1' fontSize={14}>
-                    {
-                      // TODO: G-3406 items의 contactPerson(LPM 정보) 타입 맞추기 전까지 임시 코드
-                      // quote에서는 이름 정보만 리턴되고 order에서는 id 정보만 리턴됨
-                      // getLegalName(getValues(`items.${idx}.contactPerson`)!)
-                      // contactPersonList.find(
-                      //   item =>
-                      //     item.value ===
-                      //     getValues(`items.${idx}.contactPersonId`),
-                      // )?.label
-                      getLegalName(getValues(`items.${idx}.contactPerson`)!)
-                    }
+                    {type === 'invoiceDetail'
+                      ? getLegalName({
+                          firstName: getValues(`items.${idx}.contactPerson`)
+                            ?.firstName,
+                          middleName: getValues(`items.${idx}.contactPerson`)
+                            ?.middleName,
+                          lastName: getValues(`items.${idx}.contactPerson`)
+                            ?.lastName,
+                        })
+                      : // TODO: G-3406 items의 contactPerson(LPM 정보) 타입 맞추기 전까지 임시 코드
+                        // quote에서는 이름 정보만 리턴되고 order에서는 id 정보만 리턴됨
+                        // getLegalName(getValues(`items.${idx}.contactPerson`)!)
+                        contactPersonList.find(
+                          item =>
+                            item.value ===
+                            getValues(`items.${idx}.contactPersonId`),
+                        )?.label}
                   </Typography>
                 </Box>
               ) : (
@@ -597,7 +636,10 @@ const Row = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              {type === 'detail' || type === 'invoiceDetail' ? (
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -677,7 +719,10 @@ const Row = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              {type === 'detail' || type === 'invoiceDetail' ? (
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
                 <Box
                   sx={{
                     display: 'flex',
@@ -851,7 +896,10 @@ const Row = ({
                       render={({ field: { value, onChange } }) => (
                         <Checkbox
                           disabled={
-                            type === 'detail' || type === 'invoiceDetail'
+                            type === 'detail' ||
+                            type === 'invoiceDetail' ||
+                            type === 'invoiceHistory' ||
+                            type === 'invoiceCreate'
                           }
                           value={value}
                           onChange={e => {
@@ -868,13 +916,17 @@ const Row = ({
                   </Box>
                 )}
               </Box>
-              {type === 'detail' || type === 'invoiceDetail' ? (
+              {type === 'detail' ||
+              type === 'invoiceDetail' ||
+              type === 'invoiceHistory' ||
+              type === 'invoiceCreate' ? (
                 <Typography>
                   {currentRole?.name === 'CLIENT'
                     ? getValues(`items.${idx}.showItemDescription`)
                       ? getValues(`items.${idx}.description`)
                       : '-'
-                    : getValues(`items.${idx}.description`) !== ''
+                    : getValues(`items.${idx}.description`) !== '' &&
+                      getValues(`items.${idx}.description`) !== null
                     ? getValues(`items.${idx}.description`)
                     : '-'}
                 </Typography>
@@ -908,6 +960,8 @@ const Row = ({
             </Grid>
             {/* TM analysis */}
             {type === 'invoiceDetail' ||
+            type === 'invoiceHistory' ||
+            type === 'invoiceCreate' ||
             (currentRole && currentRole.name === 'CLIENT') ? null : (
               <Grid item xs={12}>
                 <TmAnalysisForm

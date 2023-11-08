@@ -16,7 +16,7 @@ import { getClient } from '@src/apis/order-detail.api'
 import useModal from '@src/hooks/useModal'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import {getAddress, getAddressType} from '@src/shared/helpers/address-helper'
+import { getAddress, getAddressType } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
@@ -28,6 +28,7 @@ import {
 import { ClientType } from '@src/types/orders/order-detail'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
+import { da } from 'date-fns/locale'
 import { Dispatch, SetStateAction, useEffect } from 'react'
 import {
   Control,
@@ -44,7 +45,6 @@ type Props = {
   client: ClientType
   edit: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
-
   setTax?: (n: number | null) => void
   setTaxable?: (n: boolean) => void
   clientControl?: Control<ClientFormType, any>
@@ -67,7 +67,6 @@ const InvoiceClient = ({
   client,
   edit,
   setEdit,
-
   setTax,
   setTaxable,
   clientControl,
@@ -89,7 +88,7 @@ const InvoiceClient = ({
 
   const onClickSave = () => {
     if (getClientValue) {
-      const clients: any = {
+      const clients = {
         ...getClientValue(),
         contactPersonId:
           getClientValue().contactPersonId === NOT_APPLICABLE
@@ -103,9 +102,13 @@ const InvoiceClient = ({
           id: invoiceInfo.id,
           form: {
             ...data,
-            contactPersonId: clients.contactPersonId,
+            // contactPersonId: clients.contactPersonId,
+            ...clients,
 
+            isTaxable: data.isTaxable ? '1' : '0',
             showDescription: data.showDescription ? '1' : '0',
+            taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
+            setReminder: data.setReminder ? '1' : '0',
           },
           type: 'basic',
         })
@@ -120,9 +123,9 @@ const InvoiceClient = ({
           <ClientQuotesFormContainer
             control={clientControl!}
             setValue={setClientValue!}
-            watch={clientWatch!}
-            setTaxable={setTaxable!}
             setTax={setTax!}
+            setTaxable={setTaxable!}
+            watch={clientWatch!}
             type='order'
             formType='edit'
             getValue={getClientValue!}
@@ -199,7 +202,7 @@ const InvoiceClient = ({
                 height={110}
               />
             </Card>
-            <Typography variant='h6'>{client.client.name}</Typography>
+            <Typography variant='h6'>{client.client?.name}</Typography>
           </Box>
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -217,13 +220,17 @@ const InvoiceClient = ({
                       firstName: client.contactPerson?.firstName!,
                       middleName: client.contactPerson?.middleName!,
                       lastName: client.contactPerson?.lastName!,
-                })
-                  : '-'} /
+                    })
+                  : '-'}
+                {client.contactPerson?.jobTitle !== null &&
+                client.contactPerson?.jobTitle !== ''
+                  ? ' / '
+                  : ''}
               </Typography>
               <Typography variant={'body2'}>
                 {client.contactPerson?.jobTitle !== null
                   ? client.contactPerson?.jobTitle
-                : '-'}
+                  : '-'}
               </Typography>
             </Box>
             <Divider />
@@ -373,7 +380,11 @@ const InvoiceClient = ({
                   }}
                 >
                   <Box sx={{ textTransform: 'capitalize' }}>
-                    {getAddressType(client.clientAddress)}
+                    {/* {client.addressType} */}
+                    {
+                      client.clientAddress.find(value => value.isSelected)
+                        ?.addressType
+                    }
                   </Box>
                   &nbsp;address
                 </Typography>

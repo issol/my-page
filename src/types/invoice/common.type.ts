@@ -1,4 +1,7 @@
+import { ItemType } from '../common/item.type'
 import { RevenueFormType } from '../common/orders.type'
+import { ClientType, LanguagePairTypeInItem } from '../orders/order-detail'
+
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type InvoiceProStatusType =
@@ -49,18 +52,18 @@ export type InvoiceProjectInfoFormType = {
   serviceType?: Array<string>
   expertise?: Array<string>
   revenueFrom: RevenueFormType
-  invoiceDate: string
+  invoiceDate: Date
   invoiceDateTimezone: CountryType
   paymentDueDate: { date: string; timezone: CountryType }
-  invoiceConfirmDate?: { date: string | null; timezone: CountryType }
+  invoiceConfirmDate?: { date: string | null; timezone: CountryType | null }
   taxInvoiceDueDate?: { date: string | null; timezone: CountryType }
-  paymentDate?: { date: string | null; timezone: CountryType }
+  paymentDate?: { date: string | null; timezone: CountryType | null }
   taxInvoiceIssuanceDate?: { date: string; timezone: CountryType }
   salesRecognitionDate?: { date: string; timezone: CountryType }
   salesCategory?: string
   taxInvoiceIssued: boolean
-  sendReminder: boolean
-  tax: number | null
+  setReminder: boolean
+  tax: string | null
   isTaxable: boolean
   notes?: string
   subtotal: string | number
@@ -94,4 +97,17 @@ export type ProInvoiceListFilterType = {
 
   skip: number
   take: number
+}
+
+export type InvoiceMultipleOrderType = {
+  clientInfo: ClientType
+  revenueFrom: RevenueFormType
+  orders: Array<{
+    id: number
+    projectName: string
+    corporationId: string
+    items: Array<ItemType>
+    languagePairs: Array<LanguagePairTypeInItem>
+    subtotal: number
+  }>
 }

@@ -13,10 +13,16 @@ import {
 } from 'react'
 
 import ProjectTeam from '../project-team'
-import { HistoryType, VersionHistoryType } from '@src/types/orders/order-detail'
+import {
+  HistoryType,
+  ProjectTeamListType,
+  VersionHistoryType,
+} from '@src/types/orders/order-detail'
+import { v4 as uuidv4 } from 'uuid'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import {
   InvoiceDownloadData,
+  InvoiceLanguageItemType,
   InvoiceReceivableDetailType,
   InvoiceVersionHistoryType,
 } from '@src/types/invoice/receivable.type'
@@ -46,6 +52,16 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+
+import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
+import {
+  invoiceProjectInfoDefaultValue,
+  invoiceProjectInfoSchema,
+} from '@src/types/schema/invoice-project-info.schema'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   invoiceInfo: InvoiceReceivableDetailType
@@ -78,6 +94,12 @@ const InvoiceVersionHistoryModal = ({
   // console.log(history)
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
+  const [invoiceLanguageItem, setInvoiceLanguageItem] =
+    useState<InvoiceLanguageItemType | null>(null)
+
+  const auth = useRecoilValueLoadable(authState)
+
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
@@ -87,6 +109,9 @@ const InvoiceVersionHistoryModal = ({
   const [value, setValue] = useState<string>(
     currentRole && currentRole.name === 'CLIENT' ? 'invoice' : 'invoiceInfo',
   )
+
+  const teamOrder = ['supervisor', 'projectManager', 'member']
+  const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
@@ -102,6 +127,40 @@ const InvoiceVersionHistoryModal = ({
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
+
+  const [teams, setTeams] = useState<ProjectTeamListType[]>([])
+
+  const {
+    control: invoiceInfoControl,
+    getValues: getInvoiceInfo,
+    setValue: setInvoiceInfo,
+    watch: invoiceInfoWatch,
+    reset: invoiceInfoReset,
+    trigger: invoiceInfoTrigger,
+    formState: { errors: invoiceInfoErrors, isValid: isInvoiceInfoValid },
+  } = useForm<InvoiceProjectInfoFormType>({
+    mode: 'onChange',
+    defaultValues: invoiceProjectInfoDefaultValue,
+    resolver: yupResolver(invoiceProjectInfoSchema),
+  })
+
+  const {
+    control: clientControl,
+    getValues: getClientValue,
+    setValue: setClientValue,
+    watch: clientWatch,
+    reset: clientReset,
+    trigger: clientTrigger,
+    formState: { errors: clientErrors, isValid: isClientValid },
+  } = useForm<ClientFormType>({
+    mode: 'onChange',
+    defaultValues: {
+      clientId: null,
+      contactPersonId: null,
+      addressType: 'shipping',
+    },
+    resolver: yupResolver(clientSchema),
+  })
 
   const {
     control: itemControl,
@@ -169,43 +228,182 @@ const InvoiceVersionHistoryModal = ({
     return [defaultOption].concat(filteredList)
   }
 
+  // useEffect(() => {
+  //   if (history.client) {
+  //     clientReset({
+  //       clientId: history.client.client.clientId,
+  //       contactPersonId: history.client.contactPerson?.id,
+  //       addressType: history.client.clientAddress.find(
+  //         value => value.isSelected,
+  //       )?.addressType!,
+  //     })
+  //   }
+  // }, [history.client, clientReset])
+
   useEffect(() => {
     if (history) {
-      checkEditable(history.id).then(res => {
+      checkEditable(history.projectInfo.id).then(res => {
         setIsUserInTeamMember(res)
       })
     }
-    if (history.items) {
-      setLanguagePairs(
-        history.items?.languagePairs?.map(item => ({
-          id: String(item.id),
-          source: item.source,
-          target: item.target,
-          price: !item?.price
-            ? null
-            : getPriceOptions(item.source, item.target).filter(
-                price => price.id === item?.price?.id!,
-              )[0],
-        }))!,
-      )
-      const result = history.items?.items?.map(item => {
-        return {
-          id: item.id,
-          name: item.itemName,
-          source: item.source,
-          target: item.target,
-          priceId: item.priceId,
-          detail: !item?.detail?.length ? [] : item.detail,
-          contactPersonId: item.contactPersonId,
-          description: item.description,
-          analysis: item.analysis ?? [],
-          totalPrice: item?.totalPrice ?? 0,
-          dueAt: item?.dueAt,
-        }
+    if (history.items && history.projectInfo) {
+      const clientTimezone =
+        getClientValue('contacts.timezone') ?? auth.getValue().user?.timezone!
+
+      setInvoiceLanguageItem({
+        ...history.items,
+        // orders: history.items.orders.map(item => ({
+        //   ...item,
+        // })),
       })
-      itemReset({ items: result })
+
+      const items = history.items.orders
+        .map(item =>
+          item.items.map((value, idx) => ({
+            ...value,
+            orderId: item.id,
+            projectName: item.projectName,
+            id: item.id,
+            itemName: value.itemName,
+            source: value.sourceLanguage,
+            target: value.targetLanguage,
+            priceId: value.priceId,
+            detail: !value?.detail?.length ? [] : value.detail,
+            analysis: value.analysis ?? [],
+            totalPrice: value?.totalPrice ?? 0,
+            dueAt: value?.dueAt ?? '',
+            contactPerson: value?.contactPerson ?? null,
+            contactPersonId: value.contactPerson?.userId ?? undefined,
+            // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: value.initialPrice ?? null,
+            description: value.description,
+            showItemDescription: value.showItemDescription,
+            minimumPrice: value.minimumPrice,
+            minimumPriceApplied: value.minimumPriceApplied,
+            indexing: idx,
+          })),
+        )
+        .flat()
+        .map((value, idx) => ({ ...value, idx: idx }))
+
+      console.log(items)
+
+      itemReset({ items: items })
+
+      setLanguagePairs(
+        items?.map(item => {
+          return {
+            id: String(item.id),
+            source: item.source!,
+            target: item.target!,
+            price: {
+              id: item.initialPrice?.priceId!,
+              isStandard: item.initialPrice?.isStandard!,
+              priceName: item.initialPrice?.name!,
+              groupName: 'Current price',
+              category: item.initialPrice?.category!,
+              serviceType: item.initialPrice?.serviceType!,
+              currency: item.initialPrice?.currency!,
+              catBasis: item.initialPrice?.calculationBasis!,
+              decimalPlace: item.initialPrice?.numberPlace!,
+              roundingProcedure:
+                RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+              languagePairs: [],
+              priceUnit: [],
+              catInterface: { memSource: [], memoQ: [] },
+            },
+          }
+        }),
+      )
+
+      const res: InvoiceProjectInfoFormType = {
+        ...history.projectInfo,
+        invoiceDescription: history.projectInfo.description,
+        invoiceDateTimezone: history.projectInfo.invoicedTimezone,
+        invoiceDate: new Date(history.projectInfo.invoicedAt),
+        taxInvoiceIssued: history.projectInfo.taxInvoiceIssued,
+        showDescription: history.projectInfo.showDescription,
+        paymentDueDate: {
+          date: history.projectInfo.payDueAt,
+          timezone: clientTimezone!,
+        },
+        invoiceConfirmDate: {
+          date: history.projectInfo.invoiceConfirmedAt ?? null,
+          timezone: clientTimezone!,
+        },
+        taxInvoiceDueDate: {
+          date: history.projectInfo.taxInvoiceDueAt ?? null,
+          timezone: clientTimezone!,
+        },
+        paymentDate: {
+          date: history.projectInfo.paidAt,
+          timezone: clientTimezone!,
+        },
+        taxInvoiceIssuanceDate: {
+          date: history.projectInfo.taxInvoiceIssuedAt ?? '',
+          timezone: clientTimezone!,
+        },
+        salesRecognitionDate: {
+          date: history.projectInfo.salesCheckedAt ?? '',
+          timezone: clientTimezone!,
+        },
+
+        salesCategory: history.projectInfo.salesCategory,
+        notes: history.projectInfo.notes,
+
+        setReminder: history.projectInfo.setReminder,
+        tax: history.projectInfo.tax,
+        isTaxable: history.projectInfo.isTaxable ?? true,
+        // subtotal: invoiceInfo.subtotal,
+        subtotal: history.items.orders.reduce(
+          (total, obj) => total + obj.subtotal,
+          0,
+        ),
+      }
+      invoiceInfoReset(res)
     }
     if (history.members) {
+      let viewTeams: ProjectTeamListType[] = [...history.members].map(
+        value => ({
+          ...value,
+          id: uuidv4(),
+        }),
+      )
+
+      if (!viewTeams.some(item => item.position === 'supervisor')) {
+        viewTeams.unshift({
+          id: uuidv4(),
+          position: 'supervisor',
+          userId: -1,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+      if (!viewTeams.some(item => item.position === 'member')) {
+        viewTeams.push({
+          id: uuidv4(),
+          position: 'member',
+          userId: 0,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+
+      const res = viewTeams.sort((a, b) => {
+        const aIndex = teamOrder.indexOf(a.position)
+        const bIndex = teamOrder.indexOf(b.position)
+        return aIndex - bIndex
+      })
+
+      if (viewTeams.length) setTeams(res)
+
       const teams: Array<{
         type: MemberType
         id: number | null
@@ -224,31 +422,84 @@ const InvoiceVersionHistoryModal = ({
           lastName: item?.lastName!,
         }),
       }))
-      setIsUserInTeamMember(
-        history.members.some(value => value.userId === user.userId!),
-      )
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
 
-      resetTeam({ teams })
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
     }
   }, [history])
 
   useEffect(() => {
     if (history) {
-      const { projectInfo, client, members, items } = history
+      const { projectInfo, clientInfo, members, items } = history
+
       const pm = members!.find(value => value.position === 'projectManager')
 
-      const subtotal = items.items.reduce((acc, cur) => {
-        return acc + cur.totalPrice
-      }, 0)
+      const historyItems: ItemType[] = items.orders
+        .map(item =>
+          item.items.map((value, idx) => ({
+            ...value,
+            orderId: item.id,
+            projectName: item.projectName,
+            id: item.id,
+            itemName: value.itemName,
+            source: value.sourceLanguage,
+            target: value.targetLanguage,
+            priceId: value.priceId,
+            detail: !value?.detail?.length ? [] : value.detail,
+            analysis: value.analysis ?? [],
+            totalPrice: value?.totalPrice ?? 0,
+            dueAt: value?.dueAt ?? '',
+            contactPerson: value?.contactPerson ?? null,
+            contactPersonId: value.contactPerson?.userId ?? undefined,
+            // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+            // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+            initialPrice: value.initialPrice ?? null,
+            description: value.description,
+            showItemDescription: value.showItemDescription,
+            minimumPrice: value.minimumPrice,
+            minimumPriceApplied: value.minimumPriceApplied,
+            indexing: idx,
+          })),
+        )
+        .flat()
+        .map((value, idx) => ({ ...value, idx: idx }))
 
-      const tax = subtotal * (projectInfo!.tax! / 100)
+      // const subtotal = langItem.items.reduce((acc, cur) => {
+      //   return acc + cur.totalPrice
+      // }, 0)
+      const invoiceTax =
+        projectInfo!.tax && projectInfo!.tax !== ''
+          ? Number(projectInfo!.tax)
+          : 0
+      const subtotal = items.orders.reduce(
+        (total, obj) => total + obj.subtotal,
+        0,
+      )
+      const tax = subtotal * (invoiceTax / 100)
 
       const res: InvoiceDownloadData = {
         invoiceId: Number(projectInfo.id!),
         adminCompanyName: 'GloZ Inc.',
+        corporationId: invoiceInfo?.corporationId!,
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
-        corporationId: projectInfo!.corporationId,
-        orderCorporationId: projectInfo?.corporationId,
+        orderCorporationId: projectInfo!.linkedOrders.map(
+          value => value.corporationId,
+        ),
+        orders: items.orders,
+        // orderCorporationId: invoiceInfo?.orderCorporationId ?? '',
         invoicedAt: projectInfo!.invoicedAt,
         paymentDueAt: {
           date: projectInfo!.payDueAt,
@@ -260,12 +511,14 @@ const InvoiceVersionHistoryModal = ({
           email: pm?.email!,
           middleName: pm?.middleName!,
         },
-        companyName: client!.client.name,
+        companyName: clientInfo!.client.name,
         projectName: projectInfo!.projectName,
-        client: client!,
-        contactPerson: client!.contactPerson,
-        clientAddress: client!.clientAddress,
-        langItem: items!,
+        client: clientInfo!,
+        contactPerson: clientInfo!.contactPerson,
+        clientAddress: clientInfo!.clientAddress,
+        langItem: historyItems,
+        currency: projectInfo!.currency,
+        // langItem: {id : langItem.invoiceId, languagePairs : langItem.orders } !,
         subtotal: priceInfo
           ? formatCurrency(
               formatByRoundingProcedure(
@@ -277,7 +530,7 @@ const InvoiceVersionHistoryModal = ({
               priceInfo?.currency!,
             )
           : '',
-        taxPercent: projectInfo!.tax,
+        taxPercent: invoiceTax,
         tax:
           projectInfo!.isTaxable && priceInfo
             ? formatCurrency(
@@ -295,7 +548,7 @@ const InvoiceVersionHistoryModal = ({
           projectInfo!.isTaxable && priceInfo
             ? formatCurrency(
                 formatByRoundingProcedure(
-                  subtotal - tax,
+                  subtotal + tax,
                   priceInfo?.decimalPlace ?? 0,
                   priceInfo?.roundingProcedure ??
                     PriceRoundingResponseEnum.Type_0,
@@ -423,8 +676,9 @@ const InvoiceVersionHistoryModal = ({
                 downloadData={downloadData}
                 downloadLanguage={downloadLanguage}
                 setDownloadLanguage={setDownloadLanguage}
-                type='detail'
+                type='history'
                 user={user!}
+                orders={history.items.orders}
               />
             ) : null}
           </TabPanel>
@@ -436,20 +690,19 @@ const InvoiceVersionHistoryModal = ({
               type='history'
               invoiceInfo={history.projectInfo}
               edit={false}
-              orderId={history.id}
               statusList={statusList}
               isUpdatable={isUpdatable}
               isDeletable={isDeletable}
               isAccountInfoUpdatable={false}
             />
           </TabPanel>
+
           <TabPanel value='items' sx={{ height: '100%', minHeight: '552px' }}>
             <Grid xs={12} container>
               <InvoiceLanguageAndItem
-                langItem={history.items!}
                 languagePairs={languagePairs!}
                 setLanguagePairs={setLanguagePairs}
-                clientId={history?.client.client.clientId}
+                clientId={history?.clientInfo.client.clientId}
                 itemControl={itemControl}
                 getItem={getItem}
                 setItem={setItem}
@@ -461,13 +714,17 @@ const InvoiceVersionHistoryModal = ({
                 getTeamValues={getTeamValues}
                 invoiceInfo={history.projectInfo}
                 itemTrigger={itemTrigger}
+                invoiceLanguageItem={invoiceLanguageItem!}
+                getInvoiceInfo={getInvoiceInfo}
+                type='invoiceHistory'
+                isUpdatable={false}
               />
             </Grid>
           </TabPanel>
           <TabPanel value='client' sx={{ height: '100%', minHeight: '552px' }}>
             <InvoiceClient
               type='history'
-              client={history.client}
+              client={history.clientInfo}
               edit={false}
               setTax={() => null}
               setTaxable={() => null}
@@ -477,7 +734,7 @@ const InvoiceVersionHistoryModal = ({
           <TabPanel value='team' sx={{ height: '100%', minHeight: '552px' }}>
             <ProjectTeam
               type='history'
-              list={history.members}
+              list={teams}
               listCount={history.members.length}
               columns={getProjectTeamColumns()}
               page={page}

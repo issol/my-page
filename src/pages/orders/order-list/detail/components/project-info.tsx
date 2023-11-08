@@ -172,6 +172,7 @@ const ProjectInfo = ({
           statusList={statusList!}
           type='canceled'
           reasonList={CancelOrderReason}
+          usage='order'
         />
       ),
     })
@@ -291,7 +292,7 @@ const ProjectInfo = ({
           children: (
             <SimpleMultilineAlertWithCumtomTitleModal
               onClose={() => closeModal('DenyCancelModal')}
-              closeButtonText='Okey'
+              closeButtonText='Okay'
               title={jobTitle}
               message={`The following jobs are currently assigned to Pro and require manual cancellation.`}
               vary='error'
@@ -471,11 +472,12 @@ const ProjectInfo = ({
                     statusList
                       ?.filter(
                         value =>
-                          !filterStatusList().some(v => v.value === value.value),
+                          !filterStatusList().some(
+                            v => v.value === value.value,
+                          ),
                       )
                       .some(status => status.label === project.status)) ||
-                      role.name === 'CLIENT' ? 
-                  (
+                  role.name === 'CLIENT' ? (
                     <Box
                       sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                     >

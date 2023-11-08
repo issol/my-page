@@ -106,8 +106,12 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     cachedJobIdRef.current,
     false,
   )
-  const { data: jobDeliveriesFeedbacks, isLoading: isJobDeliveriesFeedbacksLoading, refetch: jobDeliveriesFeedbacksRefetch } = useGetProJobDeliveriesFeedbacks(jobId)
-  
+  const {
+    data: jobDeliveriesFeedbacks,
+    isLoading: isJobDeliveriesFeedbacksLoading,
+    refetch: jobDeliveriesFeedbacksRefetch,
+  } = useGetProJobDeliveriesFeedbacks(jobId)
+
   const { data: jobPrices } = useGetJobPrices(cachedJobIdRef.current, false)
   const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } =
     useGetJobPriceHistory(jobId)
@@ -329,7 +333,6 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
 
   //   return flag
   // }
-
   return (
     <>
       {!isLoading && jobInfo ? (

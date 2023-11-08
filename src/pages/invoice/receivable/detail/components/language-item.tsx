@@ -26,7 +26,9 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import {
   formatByRoundingProcedure,
   formatCurrency,
+  getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
+import invoice from '@src/store/invoice'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   LanguagePairsPostType,
@@ -37,7 +39,10 @@ import {
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
-import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
+import {
+  InvoiceLanguageItemType,
+  InvoiceReceivableDetailType,
+} from '@src/types/invoice/receivable.type'
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
@@ -57,7 +62,6 @@ import {
 import { useMutation, useQueryClient } from 'react-query'
 
 type Props = {
-  langItem: LanguageAndItemType
   languagePairs: Array<languageType>
   setLanguagePairs: Dispatch<SetStateAction<Array<languageType>>>
   clientId: number
@@ -92,10 +96,14 @@ type Props = {
     items: ItemType[]
   }>
   invoiceInfo: InvoiceReceivableDetailType
+  invoiceLanguageItem: InvoiceLanguageItemType
+  getInvoiceInfo: UseFormGetValues<InvoiceProjectInfoFormType>
+  onClickAddOrder?: () => void
+  type?: 'invoiceHistory' | 'invoiceDetail'
+  isUpdatable: boolean
 }
 
 const InvoiceLanguageAndItem = ({
-  langItem,
   clientId,
   languagePairs,
   setLanguagePairs,
@@ -112,7 +120,14 @@ const InvoiceLanguageAndItem = ({
   itemTrigger,
 
   invoiceInfo,
+  invoiceLanguageItem,
+  getInvoiceInfo,
+  onClickAddOrder,
+  type = 'invoiceDetail',
+  isUpdatable,
 }: Props) => {
+  console.log(invoiceLanguageItem)
+
   const { openModal, closeModal } = useModal()
 
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -197,6 +212,8 @@ const InvoiceLanguageAndItem = ({
     }
   }
 
+  console.log(getInvoiceInfo())
+
   return (
     <>
       <Box
@@ -206,8 +223,21 @@ const InvoiceLanguageAndItem = ({
           alignItems: 'center',
           width: '100%',
         }}
-      ></Box>
-      {currentRole && currentRole.name === 'CLIENT' ? null : (
+      >
+        {type === 'invoiceHistory' ||
+        currentRole?.name === 'CLIENT' ||
+        !isUpdatable ? null : (
+          <Button
+            variant='outlined'
+            sx={{ display: 'flex', gap: '8px', mb: '24px' }}
+            onClick={onClickAddOrder && onClickAddOrder}
+          >
+            <Icon icon='mdi:playlist-add' />
+            Add order
+          </Button>
+        )}
+      </Box>
+      {/* {currentRole && currentRole.name === 'CLIENT' ? null : (
         <Grid item xs={12}>
           <AddLanguagePairForm
             languagePairs={languagePairs}
@@ -218,9 +248,9 @@ const InvoiceLanguageAndItem = ({
             items={items}
           />
         </Grid>
-      )}
+      )} */}
 
-      <Grid item xs={12} mt={6} mb={6}>
+      <Grid item xs={12} mb={6}>
         <ItemForm
           control={itemControl}
           getValues={getItem}
@@ -232,21 +262,29 @@ const InvoiceLanguageAndItem = ({
           languagePairs={languagePairs}
           getPriceOptions={getPriceOptions}
           priceUnitsList={priceUnitsList || []}
-          type={'invoiceDetail'}
-          orderId={invoiceInfo.orderId}
+          type={type}
+          orderId={invoiceInfo?.orderId}
           itemTrigger={itemTrigger}
           sumTotalPrice={sumTotalPrice}
+          orders={invoiceLanguageItem?.orders}
         />
       </Grid>
       <Grid item xs={12}>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
               gap: '20px',
               borderBottom: '2px solid #666CFF',
-              justifyContent: 'center',
-              width: '257px',
+              // justifyContent: 'center',
+              width: '25%',
+
+              // width: '357px',
             }}
           >
             <Typography
@@ -254,8 +292,9 @@ const InvoiceLanguageAndItem = ({
               variant='subtitle1'
               sx={{
                 padding: '16px 16px 16px 20px',
+                display: 'flex',
                 flex: 1,
-                textAlign: 'right',
+                justifyContent: 'flex-end',
               }}
             >
               Subtotal
@@ -263,17 +302,16 @@ const InvoiceLanguageAndItem = ({
             <Typography
               fontWeight={600}
               variant='subtitle1'
-              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
             >
-              {formatCurrency(
-                formatByRoundingProcedure(
-                  Number(invoiceInfo!.subtotal),
-                  priceInfo?.decimalPlace!,
-                  priceInfo?.roundingProcedure!,
-                  priceInfo?.currency ?? 'USD',
-                ),
-                priceInfo?.currency ?? 'USD',
-              )}
+              {getCurrencyMark(invoiceInfo.currency)}
+              &nbsp;
+              {Number(getInvoiceInfo('subtotal'))}
             </Typography>
           </Box>
         </Box>
@@ -308,7 +346,8 @@ const InvoiceLanguageAndItem = ({
               gap: '20px',
               borderBottom: '1.5px solid #666CFF',
               justifyContent: 'center',
-              width: '257px',
+              // width: '257px',
+              width: '25%',
             }}
           >
             <Typography
@@ -317,7 +356,8 @@ const InvoiceLanguageAndItem = ({
               sx={{
                 padding: '16px 16px 16px 20px',
                 flex: 1,
-                textAlign: 'right',
+                display: 'flex',
+                justifyContent: 'flex-end',
               }}
             >
               Tax
@@ -325,18 +365,30 @@ const InvoiceLanguageAndItem = ({
             <Typography
               fontWeight={600}
               variant='subtitle1'
-              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
             >
-              {invoiceInfo.isTaxable
+              {/* {invoiceInfo.isTaxable
                 ? formatCurrency(
                     formatByRoundingProcedure(
-                      Number(invoiceInfo!.subtotal!) * (invoiceInfo.tax! / 100),
+                      Number(getInvoiceInfo('subtotal')) *
+                        (Number(invoiceInfo.tax!) / 100),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
                       priceInfo?.currency ?? 'USD',
                     ),
                     priceInfo?.currency ?? 'USD',
                   )
+                : '-'} */}
+              {invoiceInfo.isTaxable
+                ? `${getCurrencyMark(invoiceInfo?.currency)} ${
+                    Number(getInvoiceInfo('subtotal')) *
+                    (Number(invoiceInfo.tax!) / 100)
+                  }`
                 : '-'}
             </Typography>
           </Box>
@@ -350,7 +402,8 @@ const InvoiceLanguageAndItem = ({
               gap: '20px',
               borderBottom: '1.5px solid #666CFF',
               justifyContent: 'center',
-              width: '250px',
+              // width: '250px',
+              width: '25%',
             }}
           >
             <Typography
@@ -360,7 +413,8 @@ const InvoiceLanguageAndItem = ({
               sx={{
                 padding: '16px 16px 16px 20px',
                 flex: 1,
-                textAlign: 'right',
+                display: 'flex',
+                justifyContent: 'flex-end',
               }}
             >
               Total
@@ -369,31 +423,22 @@ const InvoiceLanguageAndItem = ({
               fontWeight={600}
               variant='subtitle1'
               color={'#666CFF'}
-              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                display: 'flex',
+                justifyContent: 'flex-end',
+              }}
             >
               {invoiceInfo.isTaxable
-                ? formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(invoiceInfo!.subtotal!) *
-                        (invoiceInfo.tax! / 100) +
-                        items.reduce((acc, cur) => {
-                          return acc + cur.totalPrice
-                        }, 0),
-                      priceInfo?.decimalPlace!,
-                      priceInfo?.roundingProcedure!,
-                      priceInfo?.currency ?? 'USD',
-                    ),
-                    priceInfo?.currency ?? 'USD',
-                  )
-                : formatCurrency(
-                    formatByRoundingProcedure(
-                      Number(invoiceInfo!.subtotal!),
-                      priceInfo?.decimalPlace!,
-                      priceInfo?.roundingProcedure!,
-                      priceInfo?.currency ?? 'USD',
-                    ),
-                    priceInfo?.currency ?? 'USD',
-                  )}
+                ? `${getCurrencyMark(invoiceInfo?.currency)} ${
+                    Number(getInvoiceInfo('subtotal')) +
+                    Number(getInvoiceInfo('subtotal')) *
+                      (Number(getInvoiceInfo('tax')) / 100)
+                  }`
+                : `${getCurrencyMark(invoiceInfo?.currency)} ${Number(
+                    getInvoiceInfo('subtotal'),
+                  )}`}
             </Typography>
           </Box>
         </Box>

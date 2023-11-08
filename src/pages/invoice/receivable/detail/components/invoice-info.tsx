@@ -34,6 +34,7 @@ import {
   UseFormSetValue,
   UseFormWatch,
   FieldErrors,
+  UseFormTrigger,
 } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 import {
@@ -104,7 +105,7 @@ type Props = {
   accountingEdit?: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
   setAccountingEdit?: Dispatch<SetStateAction<boolean>>
-  orderId: number
+
   onSave?: (data: {
     id: number
     form: InvoiceReceivablePatchParamsType
@@ -117,6 +118,7 @@ type Props = {
   invoiceInfoWatch?: UseFormWatch<InvoiceProjectInfoFormType>
   invoiceInfoReset?: UseFormReset<InvoiceProjectInfoFormType>
   invoiceInfoErrors?: FieldErrors<InvoiceProjectInfoFormType>
+  invoiceInfoTrigger?: UseFormTrigger<InvoiceProjectInfoFormType>
   isInvoiceInfoValid?: boolean
   statusList: {
     value: number
@@ -139,7 +141,7 @@ const InvoiceInfo = ({
   setEdit,
   accountingEdit,
   setAccountingEdit,
-  orderId,
+
   onSave,
   clientTimezone,
   invoiceInfoControl,
@@ -148,6 +150,7 @@ const InvoiceInfo = ({
   invoiceInfoWatch,
   invoiceInfoReset,
   invoiceInfoErrors,
+  invoiceInfoTrigger,
   isInvoiceInfoValid,
   statusList,
   isUpdatable,
@@ -172,9 +175,7 @@ const InvoiceInfo = ({
   // const statusOption = client?.isEnrolledClient
   const statusOption = client?.contactPerson?.userId
     ? statusList.filter(i => [30000, 30100, 30200].includes(i.value))
-    : statusList.filter(
-        i => ![30300, 30900, 301000, 301100, 301200].includes(i.value),
-      )
+    : statusList.filter(i => ![30900, 301000, 301100, 301200].includes(i.value))
 
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
@@ -195,13 +196,6 @@ const InvoiceInfo = ({
       }
     >
   >([])
-
-  const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
-  useEffect(() => {
-    checkEditable(invoiceInfo.id).then(res => {
-      setIsUserInTeamMember(res)
-    })
-  }, [invoiceInfo])
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
@@ -301,10 +295,12 @@ const InvoiceInfo = ({
     let message = ''
     if (value) {
       confirmButtonText = 'Show'
-      message = 'Are you sure you want to show the\ninvoice description to the client?'
+      message =
+        'Are you sure you want to show the\ninvoice description to the client?'
     } else {
       confirmButtonText = 'Hide'
-      message = 'Are you sure you want to hide the\ninvoice description to the client?'
+      message =
+        'Are you sure you want to hide the\ninvoice description to the client?'
     }
     openModal({
       type: 'ShowDescriptionModal',
@@ -323,9 +319,7 @@ const InvoiceInfo = ({
     })
   }
 
-  const handelChangeShowDescription = (
-    value: boolean
-  ) => {
+  const handelChangeShowDescription = (value: boolean) => {
     const data = getInvoiceInfo && getInvoiceInfo()
     if (onSave && data) {
       onSave({
@@ -363,7 +357,10 @@ const InvoiceInfo = ({
       const res: InvoiceReceivablePatchParamsType =
         infoType === 'basic'
           ? {
-              invoicedAt: data.invoiceDate,
+              projectName: data.projectName,
+              tax: data.tax,
+              isTaxable: data.isTaxable ? '1' : '0',
+              invoicedAt: data.invoiceDate.toISOString(),
               invoicedTimezone: data.invoiceDateTimezone,
               payDueAt: data.paymentDueDate.date,
               payDueTimezone: data.paymentDueDate.timezone,
@@ -605,7 +602,7 @@ const InvoiceInfo = ({
         </Box>
         <IconButton
           onClick={() => downloadOneFile(file)}
-          disabled={isFileUploading || !isUserInTeamMember}
+          disabled={isFileUploading || !isUpdatable}
         >
           <Icon icon='mdi:download' fontSize={24} />
         </IconButton>
@@ -623,50 +620,14 @@ const InvoiceInfo = ({
 
   useEffect(() => {
     if (invoiceInfo && invoiceInfoReset) {
+      const invoiceTax =
+        invoiceInfo!.tax && invoiceInfo!.tax !== ''
+          ? Number(invoiceInfo!.tax)
+          : null
+
       setStatus(invoiceInfo.invoiceStatus)
       setIsReminder(invoiceInfo.setReminder)
       setIssued(invoiceInfo.taxInvoiceIssued)
-      const res: InvoiceProjectInfoFormType = {
-        ...invoiceInfo,
-        invoiceDescription: invoiceInfo.description,
-        invoiceDateTimezone: invoiceInfo.invoicedTimezone,
-        invoiceDate: invoiceInfo.invoicedAt,
-        taxInvoiceIssued: invoiceInfo.taxInvoiceIssued,
-        showDescription: invoiceInfo.showDescription,
-        paymentDueDate: {
-          date: invoiceInfo.payDueAt,
-          timezone: clientTimezone!,
-        },
-        invoiceConfirmDate: {
-          date: invoiceInfo.invoiceConfirmedAt ?? null,
-          timezone: clientTimezone!,
-        },
-        taxInvoiceDueDate: {
-          date: invoiceInfo.taxInvoiceDueAt ?? null,
-          timezone: clientTimezone!,
-        },
-        paymentDate: {
-          date: invoiceInfo.paidAt,
-          timezone: clientTimezone!,
-        },
-        taxInvoiceIssuanceDate: {
-          date: invoiceInfo.taxInvoiceIssuedAt ?? '',
-          timezone: clientTimezone!,
-        },
-        salesRecognitionDate: {
-          date: invoiceInfo.salesCheckedAt ?? '',
-          timezone: clientTimezone!,
-        },
-
-        salesCategory: invoiceInfo.salesCategory,
-        notes: invoiceInfo.notes,
-
-        sendReminder: invoiceInfo.setReminder,
-        tax: invoiceInfo.tax,
-        isTaxable: invoiceInfo.isTaxable ?? true,
-        subtotal: invoiceInfo.subtotal,
-      }
-      invoiceInfoReset(res)
     }
   }, [invoiceInfo, invoiceInfoReset, clientTimezone])
 
@@ -811,7 +772,9 @@ const InvoiceInfo = ({
                 <Grid container xs={12} spacing={6}>
                   <InvoiceProjectInfoForm
                     control={invoiceInfoControl!}
+                    getValue={getInvoiceInfo!}
                     setValue={setInvoiceInfo!}
+                    trigger={invoiceInfoTrigger!}
                     watch={invoiceInfoWatch!}
                     errors={invoiceInfoErrors!}
                     clientTimezone={clientTimezone}
@@ -846,7 +809,7 @@ const InvoiceInfo = ({
                       </Button>
                       <Button
                         variant='contained'
-                        disabled={!isInvoiceInfoValid}
+                        disabled={!isUpdatable}
                         onClick={() =>
                           openModal({
                             type: 'EditSaveModal',
@@ -941,6 +904,7 @@ const InvoiceInfo = ({
                     {type === 'detail' &&
                     isUpdatable &&
                     currentRole &&
+                    !isAccountInfoUpdatable &&
                     isInvoiceInfoUpdatable &&
                     currentRole.name !== 'CLIENT' ? (
                       <IconButton
@@ -965,7 +929,7 @@ const InvoiceInfo = ({
                             display: 'flex',
                             gap: '8px',
                             alignItems: 'center',
-                            width: '25.21%',
+                            width: '33.28%',
                           }}
                         >
                           <Typography
@@ -984,7 +948,7 @@ const InvoiceInfo = ({
                             display: 'flex',
                             gap: '8px',
                             alignItems: 'center',
-                            width: '73.45%',
+                            width: '66.62%',
                           }}
                         >
                           <Typography
@@ -1216,7 +1180,7 @@ const InvoiceInfo = ({
                       </Box>
                     ) : null}
                     <Divider />
-                    <Box
+                    {/* <Box
                       sx={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -1394,7 +1358,7 @@ const InvoiceInfo = ({
                         </Box>
                       </Box>
                     </Box>
-                    <Divider />
+                    <Divider /> */}
                     <Box sx={{ display: 'flex' }}>
                       <Box sx={{ display: 'flex', flex: 1 }}>
                         <Box
@@ -1515,8 +1479,8 @@ const InvoiceInfo = ({
                             }}
                           >
                             {FullDateTimezoneHelper(
-                              invoiceInfo.invoiceConfirmedAt,
-                              invoiceInfo.invoiceConfirmTimezone!,
+                              invoiceInfo.taxInvoiceDueAt,
+                              invoiceInfo.taxInvoiceDueTimezone!,
                             )}
                           </Typography>
                         </Box>
@@ -1528,6 +1492,88 @@ const InvoiceInfo = ({
                         <Divider />
                         <Box sx={{ display: 'flex' }}>
                           <Box sx={{ display: 'flex', flex: 1 }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '33.28%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle1'
+                                sx={{
+                                  fontSize: '14px',
+                                  fontWeight: 600,
+                                  width: '100%',
+                                }}
+                              >
+                                Tax type
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '66.62%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle2'
+                                sx={{
+                                  width: '100%',
+                                }}
+                              >
+                                {invoiceInfo.isTaxable
+                                  ? 'Taxable'
+                                  : 'Non-taxable'}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box sx={{ display: 'flex', flex: 1 }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '33.28%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle1'
+                                sx={{
+                                  fontSize: '14px',
+                                  fontWeight: 600,
+                                  width: '100%',
+                                }}
+                              >
+                                Tax rate
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '66.62%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle2'
+                                sx={{
+                                  width: '100%',
+                                }}
+                              >
+                                {invoiceInfo.tax && invoiceInfo.tax !== ''
+                                  ? `${invoiceInfo.tax}%`
+                                  : '-'}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: 'flex' }}>
+                          <Box sx={{ display: 'flex', width: '50%' }}>
                             <Box
                               sx={{
                                 display: 'flex',
@@ -1565,46 +1611,6 @@ const InvoiceInfo = ({
                               </Typography>
                             </Box>
                           </Box>
-                          <Box sx={{ display: 'flex', flex: 1 }}>
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                gap: '8px',
-                                alignItems: 'center',
-                                width: '25.21%',
-                              }}
-                            >
-                              <Typography
-                                variant='subtitle1'
-                                sx={{
-                                  fontSize: '14px',
-                                  fontWeight: 600,
-                                  width: '100%',
-                                }}
-                              >
-                                Tax type
-                              </Typography>
-                            </Box>
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                gap: '8px',
-                                alignItems: 'center',
-                                width: '73.45%',
-                              }}
-                            >
-                              <Typography
-                                variant='subtitle2'
-                                sx={{
-                                  width: '100%',
-                                }}
-                              >
-                                {invoiceInfo.isTaxable
-                                  ? 'Taxable'
-                                  : 'Non-taxable'}
-                              </Typography>
-                            </Box>
-                          </Box>
                         </Box>
                       </>
                     )}
@@ -1629,11 +1635,11 @@ const InvoiceInfo = ({
                           >
                             Invoice description
                           </Typography>
-                          {currentRole && currentRole.name !== 'CLIENT' ? 
+                          {currentRole && currentRole.name !== 'CLIENT' ? (
                             <Box display='flex' width={380} alignItems='center'>
                               <Checkbox
                                 value={invoiceInfo.showDescription}
-                                onChange={(e) => {
+                                onChange={e => {
                                   onClickShowDescription(e.target.checked)
                                 }}
                                 checked={invoiceInfo.showDescription}
@@ -1647,9 +1653,8 @@ const InvoiceInfo = ({
                               <Typography variant='body2' display='block'>
                                 Show invoice description to client
                               </Typography>
-                            </Box> : null
-                          }
-
+                            </Box>
+                          ) : null}
                         </Box>
                         <Box
                           sx={{
@@ -1877,7 +1882,7 @@ const InvoiceInfo = ({
                               </Typography>
                             </Box>
                           </Box>
-                          <Box sx={{ display: 'flex', flex: 1 }}>
+                          {/* <Box sx={{ display: 'flex', flex: 1 }}>
                             <Box
                               sx={{
                                 display: 'flex',
@@ -1907,7 +1912,7 @@ const InvoiceInfo = ({
                             >
                               {invoiceInfo.salesCategory}
                             </Box>
-                          </Box>
+                          </Box> */}
                         </Box>
                       </Box>
                       <Divider />
@@ -1980,7 +1985,7 @@ const InvoiceInfo = ({
                     </Typography>
                   </Box>
 
-                  {isFileUploading || !isUserInTeamMember ? null : (
+                  {isFileUploading || !isUpdatable ? null : (
                     <Box sx={{ display: 'flex', gap: '16px' }}>
                       <Button
                         variant='outlined'
@@ -2043,7 +2048,11 @@ const InvoiceInfo = ({
           ) : null}
         </Grid>
       ) : null}
-      {type !== 'history' && !edit && !accountingEdit && currentRole && currentRole.name !== 'CLIENT' ? (
+      {type !== 'history' &&
+      !edit &&
+      !accountingEdit &&
+      currentRole &&
+      currentRole.name !== 'CLIENT' ? (
         <Grid container spacing={6}>
           <Grid item xs={isFileUploading ? 9 : 12}>
             <Card sx={{ padding: '24px' }}>
@@ -2055,7 +2064,7 @@ const InvoiceInfo = ({
                       {formatFileSize(fileSize).toLowerCase()}/ 50mb
                     </Typography>
                   </Box>
-                  {(isUpdatable && isUserInTeamMember) || isAccountInfoUpdatable ? (
+                  {(isUpdatable && isUpdatable) || isAccountInfoUpdatable ? (
                     <div {...getRootProps({ className: 'dropzone' })}>
                       <Button
                         variant='contained'
@@ -2069,7 +2078,7 @@ const InvoiceInfo = ({
                     </div>
                   ) : null}
 
-                  {isFileUploading || !isUserInTeamMember ? null : (
+                  {isFileUploading || !isUpdatable ? null : (
                     <Box sx={{ display: 'flex', gap: '16px' }}>
                       <Button
                         variant='outlined'
@@ -2146,9 +2155,9 @@ const InvoiceInfo = ({
       ) : null}
 
       {edit ||
-      accountingEdit || 
+      accountingEdit ||
       isFileUploading ||
-      !isUserInTeamMember ||
+      !isUpdatable ||
       type === 'history' ||
       (currentRole && currentRole.name === 'CLIENT') ? null : (
         <Grid xs={12} container spacing={6}>

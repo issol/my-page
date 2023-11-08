@@ -667,6 +667,7 @@ const DeliveriesFeedback = ({
           statusList={statusList!}
           type='redelivery-requested'
           reasonList={RequestRedeliveryReason}
+          usage='request'
         />
       ),
     })
@@ -717,15 +718,15 @@ const DeliveriesFeedback = ({
   }, [project])
 
   console.log(uploadFileProcessing)
-  console.log("project",project)
-  console.log("status list",statusList)
+  console.log('project', project)
+  console.log('status list', statusList)
   return (
     <Grid container xs={12} spacing={4}>
-      {(updateDeliveries.isLoading || 
-        completeDeliveryMutation.isLoading ||
-        updateProject.isLoading)
-        ? <OverlaySpinner /> : null
-      }
+      {updateDeliveries.isLoading ||
+      completeDeliveryMutation.isLoading ||
+      updateProject.isLoading ? (
+        <OverlaySpinner />
+      ) : null}
       <Grid item xs={9}>
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -948,38 +949,40 @@ const DeliveriesFeedback = ({
             ) : null}
           </Box>
         </Card>
-        {uploadFileProcessing ? null : 
-          Boolean(['Delivery confirmed', 
-            'Invoiced', 
-            'Paid', 
-            'Without invoice', 
-            'Canceled'].includes(String(project.status))) ?
-          (
-            <Card sx={{ padding: '24px', mt: '24px' }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <Typography variant='body1' fontWeight={600} fontSize={16}>
-                    Feedback
-                  </Typography>
-                  {currentRole &&
-                  currentRole.name === 'CLIENT' &&
-                  (project.feedback === '-' || project.feedback === null) ? (
-                    <Button
-                      variant='contained'
-                      sx={{ height: '34px' }}
-                      onClick={onClickSendFeedback}
-                    >
-                      Send feedback
-                    </Button>
-                  ) : null}
-                </Box>
-
-                <Typography variant='body1' fontWeight={400} fontSize={16}>
-                  {project.feedback ?? '-'}
+        {uploadFileProcessing ? null : Boolean(
+            [
+              'Delivery confirmed',
+              'Invoiced',
+              'Paid',
+              'Without invoice',
+              'Canceled',
+            ].includes(String(project.status)),
+          ) ? (
+          <Card sx={{ padding: '24px', mt: '24px' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <Typography variant='body1' fontWeight={600} fontSize={16}>
+                  Feedback
                 </Typography>
+                {currentRole &&
+                currentRole.name === 'CLIENT' &&
+                (project.feedback === '-' || project.feedback === null) ? (
+                  <Button
+                    variant='contained'
+                    sx={{ height: '34px' }}
+                    onClick={onClickSendFeedback}
+                  >
+                    Send feedback
+                  </Button>
+                ) : null}
               </Box>
-            </Card>
-          ) : null}
+
+              <Typography variant='body1' fontWeight={400} fontSize={16}>
+                {project.feedback ?? '-'}
+              </Typography>
+            </Box>
+          </Card>
+        ) : null}
       </Grid>
       <Grid item xs={3}>
         <Card sx={{ padding: '24px' }}>

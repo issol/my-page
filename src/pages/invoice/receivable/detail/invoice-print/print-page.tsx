@@ -20,9 +20,9 @@ import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
 import { useMutation } from 'react-query'
 
-import MakeTable from '@src/pages/orders/order-list/detail/components/rows'
 import { InvoiceDownloadData } from '@src/types/invoice/receivable.type'
 import { patchInvoiceInfo } from '@src/apis/invoice/receivable.api'
+import MakeTable from './rows'
 
 type Props = {
   data: InvoiceDownloadData
@@ -34,7 +34,7 @@ type Props = {
 const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
   const dispatch = useAppDispatch()
-  console.log("data",data)
+
   const patchInvoiceInfoMutation = useMutation(
     (data: {
       id: number
@@ -45,7 +45,8 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
   )
 
   // print page에서 사용할 Currency 정보
-  const invoiceCurrency = data.langItem?.languagePairs?.[0].currency
+  // const invoiceCurrency = data.currency
+  const invoiceCurrency = data.orders[0].languagePairs[0].currency
 
   useEffect(() => {
     if (type === 'download') {
@@ -59,10 +60,31 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
             type: 'basic',
           })
         }
-        window.print()
-      }, 300)
+        try {
+          document.title = `${data.corporationId}_${data.companyName}`
+          window.print()
+        } catch (error) {
+          console.log(error)
+        }
+      }, 1000)
     }
   }, [type])
+
+  function formatOrderId(ids: string[]) {
+    console.log(ids)
+
+    const formattedIds = ids.map((item, index) => {
+      if (index === ids.length - 1) {
+        return item
+      } else {
+        return item + ','
+      }
+    })
+
+    console.log(formattedIds)
+
+    return formattedIds.join(' ')
+  }
 
   return (
     <Box
@@ -124,7 +146,10 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
             {lang === 'EN' ? 'Order No:' : '오더 번호:'}
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-            {data.orderCorporationId}
+            {formatOrderId(data.orderCorporationId)}
+            {/* {data.orderCorporationId.map((value, idx) => {
+              return <>{formatOrderId(data.orderCorporationId)}</>
+            })} */}
             {/* {FullDateTimezoneHelper(data.invoicedAt, user.timezone)} */}
           </Typography>
         </Box>
@@ -241,10 +266,12 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           </Box>
           {getAddress(data.clientAddress) === '-' ? null : (
             <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-              {lang === 'KO' 
-                ? getAddress(data.clientAddress)?.replace('Korea, Republic of,','대한민국')
-                : getAddress(data.clientAddress)
-              }
+              {lang === 'KO'
+                ? getAddress(data.clientAddress)?.replace(
+                    'Korea, Republic of,',
+                    '대한민국',
+                  )
+                : getAddress(data.clientAddress)}
             </Typography>
           )}
 
@@ -372,7 +399,11 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                     justifyContent: 'center',
                   }}
                 >
-                  <Box>{lang === 'EN' ? `Price (${invoiceCurrency})` : `단가 (${invoiceCurrency})`}</Box>
+                  <Box>
+                    {lang === 'EN'
+                      ? `Price (${invoiceCurrency ?? ''})`
+                      : `단가 (${invoiceCurrency ?? ''})`}
+                  </Box>
                 </TableCell>
                 <TableCell
                   sx={{
@@ -397,13 +428,15 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                   }}
                 >
                   <Box>
-                    {lang === 'EN' ? `Total Price (${invoiceCurrency})` : `금액 (${invoiceCurrency})`}
+                    {lang === 'EN'
+                      ? `Total Price (${invoiceCurrency ?? ''})`
+                      : `금액 (${invoiceCurrency ?? ''})`}
                   </Box>
                 </TableCell>
               </TableRow>
             </TableHead>
 
-            <MakeTable rows={data.langItem.items} />
+            <MakeTable rows={data.langItem ?? []} orders={data.orders} />
             <Box className='total'>
               <Box
                 sx={{
@@ -428,7 +461,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                     variant='subtitle1'
                     sx={{
                       fontWeight: 600,
-                      color: 'rgba(76, 78, 100, 0.6)',
+                      color: 'rgba(76, 78, 100, 0.87)',
                       fontSize: '14px',
                       flex: 1,
                       textAlign: 'right',
@@ -451,7 +484,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                   </Typography>
                 </Box>
               </Box>
-              {data.tax !== null && (
+              {data.tax !== null && data.tax !== '' && (
                 <Box
                   sx={{
                     display: 'flex',
@@ -494,7 +527,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                         textAlign: 'right',
                       }}
                     >
-                       {data.tax}
+                      {data.tax}
                     </Typography>
                   </Box>
                 </Box>

@@ -183,8 +183,7 @@ const AssignPro = ({
   )
 
   const reAssignJobMutation = useMutation(
-    (data: { jobId: number }) =>
-      handleJobReAssign(data.jobId),
+    (data: { jobId: number }) => handleJobReAssign(data.jobId),
     {
       onSuccess: (data, variables) => {
         if (data.id === variables.jobId) {
@@ -284,10 +283,14 @@ const AssignPro = ({
             },
           )
         },
-      }
+      },
     )
     closeModal('ReAssignProRequestJobModal')
   }
+  // const handleReAssignPro = () => {
+  //   reAssignJobMutation.mutate({ jobId: row.id })
+  //   closeModal('ReAssignProRequestJobModal')
+  // }
 
   const handleAssignJob = (jobId: number, proId: number) => {
     assignJobMutation.mutate(
@@ -412,11 +415,11 @@ const AssignPro = ({
     // const serviceTypeToPro = ServiceTypeToProRole[row.serviceType].map(
     //   (value: any) => value.value,
     // )
-    
+
     const serviceTypeToPro = row.serviceType
-    //@ts-ignore
-    ? ServiceTypeToProRole[row.serviceType]?.map(value => value.value) || []
-    : []
+      ? //@ts-ignore
+        ServiceTypeToProRole[row.serviceType]?.map(value => value.value) || []
+      : []
 
     setFilters(prevState => ({
       ...prevState,
@@ -627,8 +630,7 @@ const AssignPro = ({
                 // />
                 assignmentStatusChip(Number(row.assignmentStatus), statusList!)
               : '-'}
-            {row.assignmentStatus === 70100 &&
-              !isJobAssigned() ? (
+            {row.assignmentStatus === 70100 && !isJobAssigned() ? (
               <Button
                 variant='outlined'
                 sx={{ height: '30px' }}
@@ -741,15 +743,13 @@ const AssignPro = ({
       renderCell: ({ row }: { row: AssignProListType }) => {
         return (
           <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {row.assignmentStatus ? (
-              // <AssignmentStatusChip
-              //   label={row.assignmentStatus}
-              //   status={row.assignmentStatus}
-              // />
-              assignmentStatusChip(row.assignmentStatus, statusList!)
-            ) : (
-              '-'
-            )}
+            {row.assignmentStatus
+              ? // <AssignmentStatusChip
+                //   label={row.assignmentStatus}
+                //   status={row.assignmentStatus}
+                // />
+                assignmentStatusChip(row.assignmentStatus, statusList!)
+              : '-'}
           </Box>
         )
       },
@@ -777,10 +777,11 @@ const AssignPro = ({
 
   return (
     <Box>
-      {(requestJobMutation.isLoading ||
-        reAssignJobMutation.isLoading ||
-        assignJobMutation.isLoading) ?
-        <OverlaySpinner /> : null }
+      {requestJobMutation.isLoading ||
+      reAssignJobMutation.isLoading ||
+      assignJobMutation.isLoading ? (
+        <OverlaySpinner />
+      ) : null}
       {type === 'history' ? null : (
         <AssignProFilters
           control={control}

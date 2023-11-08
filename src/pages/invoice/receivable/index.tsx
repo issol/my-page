@@ -43,6 +43,7 @@ import { CategoryList } from '@src/shared/const/category/categories'
 import { getInvoiceReceivableListColumns } from '@src/shared/const/columns/invoice-receivable'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import SelectOrder from './components/list/select-order'
 
 export type FilterType = {
   invoiceDate: Date[]
@@ -140,14 +141,15 @@ export default function Receivable() {
   const currentRole = getCurrentRole()
 
   const { data: list, isLoading } = useGetReceivableList(filters)
-  
   //인보이스의 전체 status 리스트
   const { data: statusList, isLoading: statusListLoading } =
     useGetStatusList('InvoiceReceivable')
 
   //각 롤에 필요한 인보이스 리스트만 필터
   const { data: statusListForRole, isLoading: statusListForRoleLoading } =
-  useGetStatusList('InvoiceReceivable','1')
+    useGetStatusList('InvoiceReceivable', '1')
+
+  const { data: statusListOrder } = useGetStatusList('Order')
 
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
@@ -193,11 +195,20 @@ export default function Receivable() {
       lsp,
       search,
     } = data
-    
-    if (invoiceStatus.find(value => value.value === 301000)) invoiceStatus.push({
-      label: 'Overdue', value: 301100
-    })
-    console.log("invoiceStatus",data.invoiceStatus)
+
+    if (invoiceStatus.find(value => value.value === 301000))
+      invoiceStatus.push({
+        label: 'Overdue',
+        value: 301100,
+      })
+    console.log('invoiceStatus', data.invoiceStatus)
+
+    if (invoiceStatus.find(value => value.value === 301000))
+      invoiceStatus.push({
+        label: 'Overdue',
+        value: 301100,
+      })
+    console.log('invoiceStatus', data.invoiceStatus)
 
     const filter: InvoiceReceivableFilterType = {
       revenueFrom: revenueFrom?.map(value => value.value) ?? [],
@@ -222,7 +233,7 @@ export default function Receivable() {
     }
 
     setFilters(filter)
-    console.log("check filter",filters)
+    console.log('check filter', filters)
   }
 
   function onReset() {
@@ -255,18 +266,13 @@ export default function Receivable() {
     openModal({
       type: 'order-list',
       children: (
-        <Dialog
-          open={true}
+        <SelectOrder
           onClose={() => closeModal('order-list')}
-          maxWidth='lg'
-        >
-          <DialogContent sx={{ padding: '50px' }}>
-            <OrderList
-              onClose={() => closeModal('order-list')}
-              type='invoice'
-            />
-          </DialogContent>
-        </Dialog>
+          type='invoice'
+          statusList={statusListOrder ?? []}
+          clientList={clientList}
+          from='create'
+        />
       ),
     })
   }
@@ -323,7 +329,7 @@ export default function Receivable() {
               <Typography>Hide paid invoices</Typography>
               <Switch
                 checked={hidePaidInvoices}
-                onChange={e => handleHidePaidInvoices}
+                onChange={handleHidePaidInvoices}
               />
             </Box>
           </Grid>
@@ -336,11 +342,14 @@ export default function Receivable() {
                     <Typography variant='h6'>
                       Invoices ({list?.totalCount ?? 0})
                     </Typography>{' '}
-                    {currentRole!.name !== 'CLIENT' ?
-                      <Button variant='contained' onClick={onClickCreateInvoice}>
+                    {currentRole!.name !== 'CLIENT' ? (
+                      <Button
+                        variant='contained'
+                        onClick={onClickCreateInvoice}
+                      >
                         Create new invoice
-                      </Button> : null
-                    }
+                      </Button>
+                    ) : null}
                   </Box>
                 }
                 sx={{
