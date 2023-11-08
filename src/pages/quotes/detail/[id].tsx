@@ -982,7 +982,7 @@ export default function QuotesDetail() {
   }
 
   async function onItemSave() {
-    const items: PostItemType[] = getItem().items.map(item => {
+    const items: PostItemType[] = getItem().items.map((item, idx) => {
       const {
         contactPerson,
         minimumPrice,
@@ -1002,6 +1002,7 @@ export default function QuotesDetail() {
         // name: item.itemName,
         sourceLanguage: item.source,
         targetLanguage: item.target,
+        sortingOrder: idx + 1,
       }
     })
     const langs: LanguagePairsType[] = languagePairs.map(item => {
