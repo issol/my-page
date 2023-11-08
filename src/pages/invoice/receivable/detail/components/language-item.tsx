@@ -100,6 +100,7 @@ type Props = {
   getInvoiceInfo: UseFormGetValues<InvoiceProjectInfoFormType>
   onClickAddOrder?: () => void
   type?: 'invoiceHistory' | 'invoiceDetail'
+  isUpdatable: boolean
 }
 
 const InvoiceLanguageAndItem = ({
@@ -123,6 +124,7 @@ const InvoiceLanguageAndItem = ({
   getInvoiceInfo,
   onClickAddOrder,
   type = 'invoiceDetail',
+  isUpdatable,
 }: Props) => {
   console.log(invoiceLanguageItem)
 
@@ -222,16 +224,13 @@ const InvoiceLanguageAndItem = ({
           width: '100%',
         }}
       >
-        {type === 'invoiceHistory' || currentRole?.name === 'CLIENT' ? null : (
+        {type === 'invoiceHistory' ||
+        currentRole?.name === 'CLIENT' ||
+        !isUpdatable ? null : (
           <Button
             variant='outlined'
             sx={{ display: 'flex', gap: '8px', mb: '24px' }}
             onClick={onClickAddOrder && onClickAddOrder}
-            // disabled={
-            //   items.length <= 0 ||
-            //   !canUseFeature('button-Languages&Items-SplitOrder')
-            // }
-            // onClick={onClickSplitOrder}
           >
             <Icon icon='mdi:playlist-add' />
             Add order

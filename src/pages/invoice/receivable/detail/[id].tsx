@@ -1354,6 +1354,7 @@ const ReceivableInvoiceDetail = () => {
                     invoiceLanguageItem={invoiceLanguageItem!}
                     getInvoiceInfo={getInvoiceInfo}
                     onClickAddOrder={onClickAddOrder}
+                    isUpdatable={isUserInTeamMember}
                   />
                 </Grid>
               </Card>

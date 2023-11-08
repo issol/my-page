@@ -717,6 +717,7 @@ const InvoiceVersionHistoryModal = ({
                 invoiceLanguageItem={invoiceLanguageItem!}
                 getInvoiceInfo={getInvoiceInfo}
                 type='invoiceHistory'
+                isUpdatable={false}
               />
             </Grid>
           </TabPanel>
