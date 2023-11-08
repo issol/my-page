@@ -567,7 +567,13 @@ export default function SelectOrder({
                         name='revenueFrom'
                         render={({ field: { onChange, value } }) => (
                           <Autocomplete
-                            options={RevenueFrom}
+                            options={RevenueFrom.sort((a, b) =>
+                              a.value > b.value
+                                ? 1
+                                : b.value > a.value
+                                ? -1
+                                : 0,
+                            )}
                             value={value ?? null}
                             onChange={(e, v) => onChange(v)}
                             getOptionLabel={option => option.label}
