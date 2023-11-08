@@ -929,7 +929,7 @@ const InvoiceInfo = ({
                             display: 'flex',
                             gap: '8px',
                             alignItems: 'center',
-                            width: '25.21%',
+                            width: '33.28%',
                           }}
                         >
                           <Typography
@@ -948,7 +948,7 @@ const InvoiceInfo = ({
                             display: 'flex',
                             gap: '8px',
                             alignItems: 'center',
-                            width: '73.45%',
+                            width: '66.62%',
                           }}
                         >
                           <Typography
