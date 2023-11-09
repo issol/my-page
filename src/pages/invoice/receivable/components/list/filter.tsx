@@ -188,6 +188,11 @@ export default function Filter({
                           limitTags={1}
                           options={statusList}
                           id='status'
+                          // getOptionLabel={option =>
+                          //   `${option.label.slice(0, 12)}${
+                          //     option.label.length > 12 ? '...' : ''
+                          //   }`
+                          // }
                           getOptionLabel={option => option.label}
                           renderInput={params => (
                             <TextField {...params} label='Status' />
@@ -254,7 +259,11 @@ export default function Filter({
                             limitTags={1}
                             options={clientList}
                             id='client'
-                            getOptionLabel={option => option.label}
+                            getOptionLabel={option =>
+                              `${option.label.slice(0, 15)}${
+                                option.label.length > 15 ? '...' : ''
+                              }`
+                            }
                             renderInput={params => (
                               <TextField {...params} label='Client' />
                             )}
@@ -280,6 +289,7 @@ export default function Filter({
                           fullWidth
                           multiple
                           limitTags={1}
+                          disableCloseOnSelect
                           isOptionEqualToValue={(option, newValue) => {
                             return option.value === newValue.value
                           }}
