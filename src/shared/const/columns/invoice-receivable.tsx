@@ -39,7 +39,11 @@ export const getInvoiceReceivableListColumns = (
       minWidth: 130,
       headerName: 'No.',
       disableColumnMenu: true,
-      renderHeader: () => <Box>No.</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          No.
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip title={row.corporationId}>
@@ -55,6 +59,11 @@ export const getInvoiceReceivableListColumns = (
       minWidth: 240,
       disableColumnMenu: true,
       sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Status
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         const label = statusList?.find(
           i => i.value === row.invoiceStatus,
@@ -68,7 +77,9 @@ export const getInvoiceReceivableListColumns = (
       disableColumnMenu: true,
       sortable: false,
       renderHeader: () => (
-        <Box>{role.name === 'CLIENT' ? 'LSP / Email' : 'Client / Email'}</Box>
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          {role.name === 'CLIENT' ? 'LSP / Email' : 'Client / Email'}
+        </Typography>
       ),
       renderCell: ({ row }: CellType) => {
         return (
@@ -84,6 +95,11 @@ export const getInvoiceReceivableListColumns = (
       minWidth: 290,
       disableColumnMenu: true,
       sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Project name
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip title={row.order?.projectName}>
@@ -99,6 +115,11 @@ export const getInvoiceReceivableListColumns = (
       minWidth: 420,
       disableColumnMenu: true,
       sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Category / Service type
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ display: 'flex', gap: '8px' }}>
@@ -136,7 +157,11 @@ export const getInvoiceReceivableListColumns = (
       field: 'invoicedAt',
       minWidth: 280,
       disableColumnMenu: true,
-      renderHeader: () => <Box>Invoice date</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Invoice date
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         if (auth.state === 'hasValue' && auth.getValue().user) {
           const date = FullDateTimezoneHelper(
@@ -155,7 +180,11 @@ export const getInvoiceReceivableListColumns = (
       field: 'payDueAt',
       minWidth: 280,
       disableColumnMenu: true,
-      renderHeader: () => <Box>Payment due</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Payment due
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         const date = FullDateTimezoneHelper(
           row.payDueAt,
@@ -173,7 +202,11 @@ export const getInvoiceReceivableListColumns = (
       minWidth: 280,
       disableColumnMenu: true,
       hide: role.name === 'CLIENT',
-      renderHeader: () => <Box>Payment date</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Payment date
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         const date = FullDateTimezoneHelper(
           row.paidAt,
@@ -190,7 +223,11 @@ export const getInvoiceReceivableListColumns = (
       field: 'totalPrice',
       minWidth: 130,
       disableColumnMenu: true,
-      renderHeader: () => <Box>Total price</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Total price
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         const subtotal = row.orders.reduce(
           (total, obj) => total + Number(obj.subtotal),
