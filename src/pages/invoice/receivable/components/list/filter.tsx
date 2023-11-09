@@ -531,7 +531,13 @@ export default function Filter({
                           <Autocomplete
                             {...commonOptions}
                             multiple
-                            options={RevenueFrom}
+                            options={RevenueFrom.sort((a, b) =>
+                              a.value > b.value
+                                ? 1
+                                : b.value > a.value
+                                ? -1
+                                : 0,
+                            )}
                             value={value}
                             limitTags={1}
                             onChange={(e, v) => onChange(v)}
