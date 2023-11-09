@@ -1375,7 +1375,7 @@ const ReceivableInvoiceDetail = () => {
                 type='detail'
                 list={teams!}
                 listCount={projectTeam?.length!}
-                columns={getProjectTeamColumns()}
+                columns={getProjectTeamColumns(currentRole?.name)}
                 page={projectTeamListPage}
                 setPage={setProjectTeamListPage}
                 pageSize={projectTeamListPageSize}
