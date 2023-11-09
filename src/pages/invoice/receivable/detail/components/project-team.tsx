@@ -114,7 +114,7 @@ const InvoiceProjectTeam = ({
         if (!item.id) {
           result.members = []
         }
-        result?.members?.push(item.id!)
+        result?.members?.push(item.id ?? 0)
       }
     })
     // if (!result.member || !result?.member?.length) delete result.member
@@ -129,6 +129,8 @@ const InvoiceProjectTeam = ({
 
   const onClickSave = () => {
     const teams = getTeamValues && transformTeamData(getTeamValues())
+    console.log(getTeamValues && getTeamValues())
+    console.log(teams)
 
     const data = getInvoiceInfo && getInvoiceInfo()
     if (onSave && data && invoiceInfo && teams) {
