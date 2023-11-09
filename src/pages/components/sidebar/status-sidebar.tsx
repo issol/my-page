@@ -67,8 +67,7 @@ export default function CalendarStatusSideBar({
                   canceled={
                     item.label === alertIconStatus ||
                     item.label === 'Overdue' ||
-                    item.label === 'Overdue (Reminder sent)' ||
-                    item.label === 'Canceled'
+                    item.label === 'Overdue (Reminder sent)'
                   }
                   // small={item.label === 'Overdue (Reminder sent)'}
                   $bgSize={
