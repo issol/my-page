@@ -28,7 +28,7 @@ const ReceivableCalendar = (props: Props) => {
   const finalEvent = event.map(item => {
     return {
       ...item,
-      title: item.order.projectName,
+      title: item.projectName,
       start: item.updatedAt ?? new Date(),
       end: item.updatedAt ?? new Date(),
     }
