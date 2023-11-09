@@ -464,6 +464,8 @@ const ReceivableInvoiceDetail = () => {
       minWidth: 419,
       headerName: 'Position',
       disableColumnMenu: true,
+      sortable: false,
+      hideSortIcons: true,
       renderHeader: () => <Box>Version</Box>,
       renderCell: ({ row }: { row: InvoiceVersionHistoryType }) => {
         return <Box>Ver. {row.version}</Box>
