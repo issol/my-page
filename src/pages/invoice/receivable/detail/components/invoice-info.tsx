@@ -2104,7 +2104,6 @@ const InvoiceInfo = ({
                 padding: '24px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '24px',
               }}
             >
               <Grid item xs={12}>
@@ -2146,126 +2145,136 @@ const InvoiceInfo = ({
                   )}
                 </Box>
               </Grid>
-              {savedFiles.length
-                ? groupedFiles.map(value => {
-                    return (
-                      <Box key={uuidv4()}>
-                        <Typography
-                          variant='body2'
-                          fontSize={14}
-                          fontWeight={400}
-                          sx={{ mb: '5px' }}
-                        >
-                          {FullDateTimezoneHelper(
-                            value.createdAt,
-                            auth.getValue().user?.timezone,
-                          )}
-                        </Typography>
-                        <Box
-                          sx={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3,1fr)',
-                            gridGap: '16px',
-                          }}
-                        >
-                          {value.data.map(item => {
-                            return (
-                              <Box
-                                key={uuidv4()}
-                                sx={{
-                                  display: 'flex',
-                                  marginBottom: '8px',
-                                  width: '100%',
-                                  justifyContent: 'space-between',
-                                  borderRadius: '8px',
-                                  padding: '10px 12px',
-                                  border: '1px solid rgba(76, 78, 100, 0.22)',
-                                  background: '#f9f8f9',
-                                }}
-                              >
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '24px',
+                  mt: '24px',
+                }}
+              >
+                {savedFiles.length
+                  ? groupedFiles.map(value => {
+                      return (
+                        <Box key={uuidv4()}>
+                          <Typography
+                            variant='body2'
+                            fontSize={14}
+                            fontWeight={400}
+                            sx={{ mb: '5px' }}
+                          >
+                            {FullDateTimezoneHelper(
+                              value.createdAt,
+                              auth.getValue().user?.timezone,
+                            )}
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(3,1fr)',
+                              gridGap: '16px',
+                            }}
+                          >
+                            {value.data.map(item => {
+                              return (
                                 <Box
-                                  sx={{ display: 'flex', alignItems: 'center' }}
+                                  key={uuidv4()}
+                                  sx={{
+                                    display: 'flex',
+                                    marginBottom: '8px',
+                                    width: '100%',
+                                    justifyContent: 'space-between',
+                                    borderRadius: '8px',
+                                    padding: '10px 12px',
+                                    border: '1px solid rgba(76, 78, 100, 0.22)',
+                                    background: '#f9f8f9',
+                                  }}
                                 >
-                                  <Box
-                                    sx={{ marginRight: '8px', display: 'flex' }}
-                                  >
-                                    <Icon
-                                      icon='material-symbols:file-present-outline'
-                                      style={{
-                                        color: 'rgba(76, 78, 100, 0.54)',
-                                      }}
-                                      fontSize={24}
-                                    />
-                                  </Box>
                                   <Box
                                     sx={{
                                       display: 'flex',
-                                      flexDirection: 'column',
+                                      alignItems: 'center',
                                     }}
                                   >
-                                    <Tooltip title={item.fileName}>
-                                      <Typography
-                                        variant='body1'
-                                        fontSize={14}
-                                        fontWeight={600}
-                                        lineHeight={'20px'}
-                                        sx={{
-                                          overflow: 'hidden',
-                                          wordBreak: 'break-all',
-                                          textOverflow: 'ellipsis',
-                                          display: '-webkit-box',
-                                          WebkitLineClamp: 1,
-                                          WebkitBoxOrient: 'vertical',
-                                        }}
-                                      >
-                                        {item.fileName}
-                                      </Typography>
-                                    </Tooltip>
-
-                                    <Typography
-                                      variant='caption'
-                                      lineHeight={'14px'}
+                                    <Box
+                                      sx={{
+                                        marginRight: '8px',
+                                        display: 'flex',
+                                      }}
                                     >
-                                      {formatFileSize(item.fileSize)}
-                                    </Typography>
-                                  </Box>
-                                </Box>
+                                      <Icon
+                                        icon='material-symbols:file-present-outline'
+                                        style={{
+                                          color: 'rgba(76, 78, 100, 0.54)',
+                                        }}
+                                        fontSize={24}
+                                      />
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                      }}
+                                    >
+                                      <Tooltip title={item.fileName}>
+                                        <Typography
+                                          variant='body1'
+                                          fontSize={14}
+                                          fontWeight={600}
+                                          lineHeight={'20px'}
+                                          sx={{
+                                            overflow: 'hidden',
+                                            wordBreak: 'break-all',
+                                            textOverflow: 'ellipsis',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 1,
+                                            WebkitBoxOrient: 'vertical',
+                                          }}
+                                        >
+                                          {item.fileName}
+                                        </Typography>
+                                      </Tooltip>
 
-                                <IconButton
-                                  onClick={() => downloadOneFile(item)}
-                                  disabled={isFileUploading || !isUpdatable}
-                                >
-                                  <Icon icon='mdi:download' fontSize={24} />
-                                </IconButton>
-                              </Box>
-                            )
-                          })}
+                                      <Typography
+                                        variant='caption'
+                                        lineHeight={'14px'}
+                                      >
+                                        {formatFileSize(item.fileSize)}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+
+                                  <IconButton
+                                    onClick={() => downloadOneFile(item)}
+                                    disabled={isFileUploading || !isUpdatable}
+                                  >
+                                    <Icon icon='mdi:download' fontSize={24} />
+                                  </IconButton>
+                                </Box>
+                              )
+                            })}
+                          </Box>
                         </Box>
-                      </Box>
-                    )
-                  })
-                : // <Box
-                //   sx={{
-                //     display: 'grid',
-                //     gridTemplateColumns: 'repeat(3,1fr)',
-                //     gridGap: '16px',
-                //   }}
-                // >
-                //   {savedFileList}
-                // </Box>
-                isFileUploading
-                ? null
-                : '-'}
-              <Grid item xs={12} mt={4}>
-                {files.length ? (
-                  <Box
-                    display='grid'
-                    gridTemplateColumns='repeat(3,1fr)'
-                    gap='16px'
-                  >
-                    {uploadedFileList}
-                  </Box>
-                ) : null}
+                      )
+                    })
+                  : isFileUploading
+                  ? null
+                  : '-'}
+              </Box>
+
+              <Grid item xs={12} mt={1}>
+                <Divider />
+                <Box sx={{ mt: '14px' }}>
+                  {files.length ? (
+                    <Box
+                      display='grid'
+                      gridTemplateColumns='repeat(3,1fr)'
+                      gap='16px'
+                    >
+                      {uploadedFileList}
+                    </Box>
+                  ) : null}
+                </Box>
               </Grid>
             </Card>
           </Grid>
