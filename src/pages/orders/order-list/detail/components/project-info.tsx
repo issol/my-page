@@ -53,12 +53,17 @@ import { ContactPersonType } from '@src/types/schema/client-contact-person.schem
 import { getClientDetail } from '@src/apis/client.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import SimpleMultilineAlertWithCumtomTitleModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-with-custom-title-modal'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type Props = {
   project: ProjectInfoType
   setEditMode?: (v: boolean) => void
   isUpdatable: boolean
-  updateStatus?: (status: number, callback?: () => void) => void
+  updateStatus?: (
+    status: number,
+    callback?: () => void,
+    reason?: ReasonType,
+  ) => void
   role: UserRoleType
   client?: ClientType
   type: 'detail' | 'history'
@@ -153,9 +158,9 @@ const ProjectInfo = ({
       children: (
         <SelectReasonModal
           onClose={() => closeModal('CancelOrderModal')}
-          onClick={(status: number, reason: CancelReasonType) =>
+          onClick={(status: number, reason: ReasonType) =>
             updateStatus &&
-            updateStatus(status, () => closeModal('CancelOrderModal'))
+            updateStatus(status, () => closeModal('CancelOrderModal'), reason)
           }
           title='Are you sure you want to cancel this order?'
           vary='error'

@@ -1779,16 +1779,23 @@ const OrderDetail = () => {
                       project={projectInfo!}
                       setEditMode={setProjectInfoEdit}
                       isUpdatable={canUseFeature('tab-ProjectInfo')}
-                      updateStatus={(status: number, callback?: () => void) =>
+                      updateStatus={(
+                        status: number,
+                        callback?: () => void,
+                        reason?: ReasonType,
+                      ) =>
                         //TODO: endpoint 교체해야함(status 업데이트 전용)
                         // updateProjectWithoutControlForm.mutate({
                         //   status: status,
                         // })
                         updateOrderStatusMutation.mutate(
-                          {
-                            id: Number(id!),
-                            status: status,
-                          },
+                          reason
+                            ? {
+                                id: Number(id!),
+                                status: status,
+                                reason: reason,
+                              }
+                            : { id: Number(id!), status: status },
                           {
                             onSuccess: () => {
                               callback && callback()
