@@ -2107,7 +2107,11 @@ const InvoiceInfo = ({
               }}
             >
               <Grid item xs={12}>
-                <Box display='flex' gap='20px' alignItems='center'>
+                <Box
+                  display='flex'
+                  gap='20px'
+                  // alignItems='center'
+                >
                   <Box display='flex' flexDirection='column'>
                     <Typography variant='h6'>Tax invoice</Typography>
                     <Typography variant='caption'>
