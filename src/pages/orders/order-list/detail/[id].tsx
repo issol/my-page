@@ -1280,7 +1280,7 @@ const OrderDetail = () => {
                 ? 'Requested'
                 : currentStatus?.label ?? ''
             }
-            vary='info'
+            vary='question-info'
           />
         ),
       })

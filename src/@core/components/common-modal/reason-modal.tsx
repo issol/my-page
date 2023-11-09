@@ -31,6 +31,7 @@ type Props = {
     | 'successful'
     | 'question-info'
   reason: ReasonType | null
+  role?: 'lpm' | 'client'
   showType?: boolean
 }
 export default function ReasonModal({
@@ -39,6 +40,7 @@ export default function ReasonModal({
   type,
   vary,
   reason,
+  role,
   showType = true,
 }: Props) {
   return (
@@ -101,7 +103,16 @@ export default function ReasonModal({
               }}
             >
               <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                Message {reason?.from === 'lsp' ? 'from' : 'to'} LSP
+                {/* Message {reason?.from === 'lsp' ? 'from' : 'to'} LSP */}
+                Message{' '}
+                {reason?.from === 'lsp'
+                  ? role === 'lpm'
+                    ? 'to'
+                    : 'from'
+                  : role === 'lpm'
+                  ? 'from'
+                  : 'to'}{' '}
+                {role === 'lpm' ? 'client' : 'LSP'}
               </Typography>
               <Typography
                 variant='body2'

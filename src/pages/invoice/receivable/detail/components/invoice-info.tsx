@@ -258,7 +258,8 @@ const InvoiceInfo = ({
           reason={reason}
           showType={false}
           type={status}
-          vary='info'
+          vary='question-info'
+          role={currentRole?.name === 'CLIENT' ? 'client' : 'lpm'}
         />
       ),
     })

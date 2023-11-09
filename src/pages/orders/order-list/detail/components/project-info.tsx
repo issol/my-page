@@ -189,6 +189,7 @@ const ProjectInfo = ({
               : statusList?.find(i => i.label === project?.status)?.label || ''
           }
           vary='question-info'
+          role={role.name === 'CLIENT' ? 'client' : 'lpm'}
         />
       ),
     })
