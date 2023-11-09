@@ -68,6 +68,7 @@ import { ClientType } from '@src/types/orders/order-detail'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
 import { TaxTypeList } from '@src/shared/const/tax/tax-type'
+import dayjs from 'dayjs'
 
 type Props = {
   control: Control<InvoiceProjectInfoFormType, any>
@@ -148,6 +149,10 @@ export default function InvoiceProjectInfoForm({
     )
   }
 
+  const dateValue = (date: Date) => {
+    return dayjs(date).format('MM/DD/YYYY, hh:mm A')
+  }
+
   return (
     <Fragment>
       <Grid item xs={12}>
@@ -200,7 +205,17 @@ export default function InvoiceProjectInfoForm({
               selected={!value ? null : formattedNow(new Date(value))}
               onChange={onChange}
               customInput={
-                <CustomInput label='Invoice date*' icon='calendar' />
+                <Box>
+                  <CustomInput
+                    label='Invoice date*'
+                    icon='calendar'
+                    readOnly
+                    placeholder='MM/DD/YYYY HH:MM'
+                    value={
+                      value ? dateValue(formattedNow(new Date(value))) : ''
+                    }
+                  />
+                </Box>
               }
             />
           )}
