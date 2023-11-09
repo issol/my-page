@@ -23,22 +23,25 @@ import DatePicker from 'react-datepicker'
 // ** apis
 import { ProInvoiceListFilterType } from '@src/types/invoice/common.type'
 import { useGetStatusList } from '@src/queries/common.query'
+import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
 
 // ** types
 
 type Props = {
-  filter: ProInvoiceListFilterType
-  setFilter: (n: ProInvoiceListFilterType) => void
+  filter: InvoicePayableFilterType
+  setFilter: (n: InvoicePayableFilterType) => void
   onReset: () => void
   search: () => void
+  statusList: Array<{
+    label: string
+    value: number
+  }>
 }
 
-type FilterType = Pick<ProInvoiceListFilterType, 'status'>
+type FilterType = Pick<InvoicePayableFilterType, 'invoiceStatus'>
 
-export default function Filter({ filter, setFilter, onReset, search }: Props) {
+export default function Filter({ filter, setFilter, onReset, search, statusList }: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
-
-  const { data: statusList, isLoading } = useGetStatusList('InvoiceReceivable')
 
   const commonOptions = {
     autoHighlight: true,
@@ -75,21 +78,20 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                     <Autocomplete
                       {...commonOptions}
                       multiple
-                      loading={isLoading}
                       options={statusList || []}
                       getOptionLabel={option => option.label}
                       value={
                         !statusList
                           ? []
                           : statusList?.filter(item =>
-                              filter.status?.includes(item.value),
+                              filter.invoiceStatus?.includes(item.value),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          status: v.map(item => item.value),
+                          invoiceStatus: v.map(item => item.value),
                         })
                       }
                       renderInput={params => (

@@ -123,15 +123,15 @@ const DeliveredInactiveList = () => {
               <CustomModal
                 title={
                   <>
-                    Since the payment info is not registered, 
-                    we are unable to create the invoice. 
+                    Payment information is a prerequisite
+                    for invoice creation. 
                     
-                    Please register the payment info first.
+                    Please register your payment information first.
                   </>
                 }
                 onClose={() => closeModal('ErrorModal')}
                 soloButton={true}
-                rightButtonText='Go to write payment info.'
+                rightButtonText='Go to payment info.'
                 vary='error'
                 onClick={() => {
                   closeModal('ErrorModal')

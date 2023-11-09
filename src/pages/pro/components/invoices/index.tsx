@@ -10,25 +10,46 @@ import {
 import ToggleViewButton, {
   ToggleMenuType,
 } from '@src/@core/components/toggle-view-button'
-import { useGetProInvoiceList } from '@src/queries/pro/pro-details.query'
+
 import { ProInvoiceListFilterType } from '@src/types/invoice/common.type'
 import { Fragment, Suspense, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Filter from './list/filters'
 import ProInvoiceList from './list/list'
 import CalendarContainer from './calendar'
+import { useGetPayableList } from '@src/queries/invoice/payable.query'
+import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
+import { useGetStatusList } from '@src/queries/common.query'
 
-const initialFilter: ProInvoiceListFilterType = {
-  status: [],
+// const initialFilter: ProInvoiceListFilterType = {
+//   status: [],
+//   invoicedDateFrom: '',
+//   invoicedDateTo: '',
+//   payDueDateFrom: '',
+//   payDueDateTo: '',
+//   paidDateFrom: '',
+//   paidDateTo: '',
+
+//   mine: 0,
+//   hidePaid: 0,
+
+//   skip: 0,
+//   take: 10,
+// }
+
+const defaultFilters: InvoicePayableFilterType = {
+  invoiceStatus: [],
+
   invoicedDateFrom: '',
   invoicedDateTo: '',
-  payDueDateFrom: '',
-  payDueDateTo: '',
+
   paidDateFrom: '',
   paidDateTo: '',
 
-  mine: 0,
-  hidePaid: 0,
+  search: '',
+
+  mine: '0',
+  hidePaid: '0',
 
   skip: 0,
   take: 10,
@@ -39,12 +60,13 @@ type Props = { id: number }
 const ProInvoices = ({ id }: Props) => {
   const [menu, setMenu] = useState<ToggleMenuType>('list')
   const [skip, setSkip] = useState(0)
-  const [filter, setFilter] = useState<ProInvoiceListFilterType>(initialFilter)
+  const [filter, setFilter] = useState<InvoicePayableFilterType>(defaultFilters)
   const [activeFilter, setActiveFilter] =
-    useState<ProInvoiceListFilterType>(initialFilter)
+    useState<InvoicePayableFilterType>(defaultFilters)
 
-  const { data: invoices, isLoading } = useGetProInvoiceList(id, activeFilter)
-
+  // const { data: invoices, isLoading } = useGetProInvoiceList(id, activeFilter)
+  const { data: invoices, isLoading } = useGetPayableList({...activeFilter, pro: [id]})
+  const { data: statusList } = useGetStatusList('InvoicePayable')
   function onSearch() {
     setActiveFilter({
       ...filter,
@@ -54,8 +76,8 @@ const ProInvoices = ({ id }: Props) => {
   }
 
   function onReset() {
-    setFilter({ ...initialFilter })
-    setActiveFilter({ ...initialFilter })
+    setFilter({ ...defaultFilters })
+    setActiveFilter({ ...defaultFilters })
   }
   return (
     <Suspense>
@@ -78,6 +100,7 @@ const ProInvoices = ({ id }: Props) => {
                 setFilter={setFilter}
                 onReset={onReset}
                 search={onSearch}
+                statusList={statusList!}
               />
             </Grid>
             <Grid
@@ -91,11 +114,11 @@ const ProInvoices = ({ id }: Props) => {
               <Box display='flex' alignItems='center' gap='4px'>
                 <Typography>See only my invoices</Typography>
                 <Switch
-                  checked={activeFilter.mine === 1}
+                  checked={activeFilter.mine === '1'}
                   onChange={e =>
                     setActiveFilter({
                       ...activeFilter,
-                      mine: e.target.checked ? 1 : 0,
+                      mine: e.target.checked ? '1' : '0',
                     })
                   }
                 />
@@ -103,11 +126,11 @@ const ProInvoices = ({ id }: Props) => {
               <Box display='flex' alignItems='center' gap='4px'>
                 <Typography>Hide paid invoices</Typography>
                 <Switch
-                  checked={activeFilter.hidePaid === 1}
+                  checked={activeFilter.hidePaid === '1'}
                   onChange={e =>
                     setActiveFilter({
                       ...activeFilter,
-                      hidePaid: e.target.checked ? 1 : 0,
+                      hidePaid: e.target.checked ? '1' : '0',
                     })
                   }
                 />
@@ -144,13 +167,17 @@ const ProInvoices = ({ id }: Props) => {
                   setPageSize={(n: number) =>
                     setActiveFilter({ ...activeFilter, take: n })
                   }
+                  statusList={statusList!}
                 />
               </Card>
             </Grid>
           </Fragment>
         ) : (
           <Grid item xs={12}>
-            <CalendarContainer />
+            <CalendarContainer 
+              statusList={statusList!}
+              userId={id}
+            />
           </Grid>
         )}
       </Grid>

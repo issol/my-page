@@ -8,8 +8,8 @@ import { useQuery } from 'react-query'
 import _ from 'lodash'
 import { ProInvoiceListFilterType } from '@src/types/invoice/common.type'
 import {
-  getProInvoiceList,
-  getProInvoiceListCalendar,
+  // getProInvoiceList,
+  // getProInvoiceListCalendar,
 } from '@src/apis/pro/pro-invoice.api'
 
 export const useGetProOverview = (userId: number) => {
@@ -47,37 +47,37 @@ export const useGetProOverview = (userId: number) => {
 //   )
 // }
 
-export const useGetProInvoiceList = (
-  id: number,
-  filters: ProInvoiceListFilterType,
-) => {
-  return useQuery(
-    [`${id}-pro-invoice-list`, filters],
-    () => getProInvoiceList(id, filters),
-    {
-      staleTime: 60 * 1000,
-      suspense: true,
-    },
-  )
-}
+// export const useGetProInvoiceList = (
+//   id: number,
+//   filters: ProInvoiceListFilterType,
+// ) => {
+//   return useQuery(
+//     [`${id}-pro-invoice-list`, filters],
+//     () => getProInvoiceList(id, filters),
+//     {
+//       staleTime: 60 * 1000,
+//       suspense: true,
+//     },
+//   )
+// }
 
-export const useGetProInvoiceListCalendar = (
-  year: number,
-  month: number,
-  filter: ProInvoiceListFilterType,
-) => {
-  return useQuery(
-    ['invoice/receivable/calendar', year, month, filter],
-    () => {
-      return getProInvoiceListCalendar(year, month, filter)
-    },
-    {
-      suspense: true,
-      staleTime: 60 * 1000,
-      keepPreviousData: true,
-    },
-  )
-}
+// export const useGetProInvoiceListCalendar = (
+//   year: number,
+//   month: number,
+//   filter: ProInvoiceListFilterType,
+// ) => {
+//   return useQuery(
+//     ['invoice/receivable/calendar', year, month, filter],
+//     () => {
+//       return getProInvoiceListCalendar(year, month, filter)
+//     },
+//     {
+//       suspense: true,
+//       staleTime: 60 * 1000,
+//       keepPreviousData: true,
+//     },
+//   )
+// }
 
 //pro가 my page에서 보는 데이터
 export const useGetMyOverview = (userId: number) => {

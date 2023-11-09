@@ -9,6 +9,7 @@ import {
   InvoiceReceivableChip,
   JobTypeChip,
   ServiceTypeChip,
+  invoicePayableStatusChip,
 } from '@src/@core/components/chips/chips'
 
 // ** types
@@ -16,7 +17,7 @@ import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 
 // ** helpers
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** contexts
 import { useContext } from 'react'
@@ -24,9 +25,10 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { ProInvoiceListType } from '@src/types/invoice/common.type'
 import { useGetStatusList } from '@src/queries/common.query'
+import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 
 type CellType = {
-  row: ProInvoiceListType
+  row: InvoicePayableListType
 }
 
 type Props = {
@@ -35,13 +37,16 @@ type Props = {
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
   list: {
-    data: Array<ProInvoiceListType> | []
+    data: Array<InvoicePayableListType> | []
     totalCount: number
   }
   isLoading: boolean
+  statusList: Array<{
+    label: string
+    value: number
+  }>
 }
 
-// TODO: totalPrice컬럼 완료하기
 export default function ProInvoiceList({
   skip,
   pageSize,
@@ -49,10 +54,11 @@ export default function ProInvoiceList({
   setPageSize,
   list,
   isLoading,
+  statusList,
 }: Props) {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
-  const { data: statusList } = useGetStatusList('InvoiceReceivable')
+
   function NoList() {
     return (
       <Box
@@ -69,7 +75,7 @@ export default function ProInvoiceList({
     )
   }
 
-  const columns: GridColumns<ProInvoiceListType> = [
+  const columns: GridColumns<InvoicePayableListType> = [
     {
       field: 'corporationId',
       minWidth: 130,
@@ -92,8 +98,12 @@ export default function ProInvoiceList({
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
-        const label = statusList?.find(i => i.value === row.status)?.label
-        if (label) return <>{InvoiceReceivableChip(label, row.status)}</>
+        return (
+          invoicePayableStatusChip(
+            row.invoiceStatus, 
+            statusList!
+          )
+        )
       },
     },
 
@@ -154,11 +164,9 @@ export default function ProInvoiceList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
-        // const price = `${getCurrencyMark(
-        //   row.currency,
-        // )} ${row.totalPrice.toLocaleString('ko-KR')}`
-
-        return <Typography fontWeight={600}>보류</Typography>
+        return (
+          `${formatCurrency(row.totalPrice, row.currency)}`
+        )
       },
     },
   ]
@@ -180,10 +188,10 @@ export default function ProInvoiceList({
         sx={{ overflowX: 'scroll', cursor: 'pointer' }}
         columns={columns}
         rows={list?.data}
-        rowCount={list?.totalCount}
+        rowCount={list?.totalCount ?? 0}
         loading={isLoading}
         onCellClick={params =>
-          router.push(`/invoice/receivable/detail/${params.id}`)
+          router.push(`/invoice/payable/${params.id}`)
         }
         rowsPerPageOptions={[10, 25, 50]}
         pagination

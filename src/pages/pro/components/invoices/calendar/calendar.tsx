@@ -13,9 +13,10 @@ import { Box } from '@mui/material'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 import { ProInvoiceListType } from '@src/types/invoice/common.type'
+import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 
 type Props = {
-  event: Array<CalendarEventType<ProInvoiceListType>>
+  event: Array<CalendarEventType<InvoicePayableListType>>
   setYear: (year: number) => void
   setMonth: (month: number) => void
   direction: string

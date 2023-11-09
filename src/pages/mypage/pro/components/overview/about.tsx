@@ -69,8 +69,8 @@ export default function About({ userInfo }: Props) {
       {'THEY': 'They/them/theirs'},
       {'NONE': 'Perfer not to answer'},
     ]
-    const foundPronoun = pronounsList.find((item) => Object.keys(item)[0] === pronouns.toUpperCase())
-    return foundPronoun ? Object.values(foundPronoun)[0] : 'Not Found';
+    const foundPronoun = pronounsList.find((item) => Object.keys(item)[0] === pronouns?.toUpperCase())
+    return foundPronoun ? Object.values(foundPronoun)[0] : '-';
   }
 
   return (
