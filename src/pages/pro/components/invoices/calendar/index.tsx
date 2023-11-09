@@ -25,15 +25,27 @@ import { CalendarEventType } from '@src/types/common/calendar.type'
 // ** apis
 import ProInvoiceList from '../list/list'
 import {
+  InvoicePayableStatusType,
   InvoiceReceivableStatusType,
   ProInvoiceListFilterType,
   ProInvoiceListType,
 } from '@src/types/invoice/common.type'
-import { useGetProInvoiceListCalendar } from '@src/queries/pro/pro-details.query'
 import { useGetStatusList } from '@src/queries/common.query'
-import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
+import { getPayableColor, getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
+import { useGetPayableCalendar } from '@src/queries/invoice/payable.query'
+import { InvoicePayableFilterType, InvoicePayableListType } from '@src/types/invoice/payable.type'
 
-const CalendarContainer = () => {
+type Props = {
+  statusList: Array<{
+    label: string
+    value: number
+  }>
+  userId: number
+}
+const CalendarContainer = ({ 
+  statusList,
+  userId,
+ }:Props) => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
 
@@ -47,31 +59,29 @@ const CalendarContainer = () => {
 
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
-  const [filter, setFilter] = useState<ProInvoiceListFilterType>({
-    mine: 0,
-    hidePaid: 0,
+  const [filter, setFilter] = useState<InvoicePayableFilterType>({
+    mine: '0',
+    hidePaid: '0',
     skip: 0,
     take: 10,
   })
 
-  const { data: statusList } = useGetStatusList('InvoiceReceivable')
-
   const statuses = statusList?.map(i => ({
     value: i.value,
     label: i.label,
-    color: getReceivableStatusColor(i.value as InvoiceReceivableStatusType),
+    color: getPayableColor(i.value as InvoicePayableStatusType),
   }))
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, isLoading } = useGetProInvoiceListCalendar(year, month, filter)
+  const { data, isLoading } = useGetPayableCalendar(year, month, { ...filter, pro: [userId] }, 'lpm')
   const [event, setEvent] = useState<
-    Array<CalendarEventType<ProInvoiceListType>>
+    Array<CalendarEventType<InvoicePayableListType>>
   >([])
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<
-    Array<CalendarEventType<ProInvoiceListType>>
+    Array<CalendarEventType<InvoicePayableListType>>
   >([])
 
   useEffect(() => {
@@ -139,18 +149,18 @@ const CalendarContainer = () => {
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <Typography>See only my invoices</Typography>
               <Switch
-                checked={filter.mine === 1}
+                checked={filter.mine === '1'}
                 onChange={e =>
-                  setFilter({ ...filter, mine: e.target.checked ? 1 : 0 })
+                  setFilter({ ...filter, mine: e.target.checked ? '1' : '0' })
                 }
               />
             </Box>
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <Typography>Hide paid invoices</Typography>
               <Switch
-                checked={filter.hidePaid === 1}
+                checked={filter.hidePaid === '1'}
                 onChange={e =>
-                  setFilter({ ...filter, hidePaid: e.target.checked ? 1 : 0 })
+                  setFilter({ ...filter, hidePaid: e.target.checked ? '1' : '0' })
                 }
               />
             </Box>
@@ -177,6 +187,7 @@ const CalendarContainer = () => {
                 ? { data: currentList, totalCount: currentList?.length }
                 : { data: [], totalCount: 0 }
             }
+            statusList={statusList}
           />
         </Box>
       )}
