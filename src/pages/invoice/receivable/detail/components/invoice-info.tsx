@@ -276,18 +276,40 @@ const InvoiceInfo = ({
   }
 
   const handleChangeIsReminder = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsReminder(event.target.checked)
-    const data = getInvoiceInfo && getInvoiceInfo()
-    if (onSave && data) {
-      onSave({
-        id: invoiceInfo.id,
-        form: {
-          // ...data,
-          setReminder: event.target.checked ? '1' : '0',
-        },
-        type: 'basic',
-      })
-    }
+    const value = event.target.checked
+    openModal({
+      type: 'reminderModal',
+      children: (
+        <CustomModal
+          title={
+            value
+              ? 'A reminder email will be automatically sent to the client when the invoice is overdue. Are you sure you want to proceed?'
+              : 'A reminder email will not be sent to the client when the invoice is overdue. Are you sure you want to proceed?'
+          }
+          onClose={() => closeModal('reminderModal')}
+          onClick={() => {
+            console.log(value)
+
+            setIsReminder(value)
+            closeModal('reminderModal')
+
+            const data = getInvoiceInfo && getInvoiceInfo()
+            if (onSave && data) {
+              onSave({
+                id: invoiceInfo.id,
+                form: {
+                  // ...data,
+                  setReminder: value ? '1' : '0',
+                },
+                type: 'basic',
+              })
+            }
+          }}
+          vary='successful'
+          rightButtonText='Proceed'
+        />
+      ),
+    })
   }
 
   const onClickShowDescription = (value: boolean) => {
