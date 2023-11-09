@@ -288,6 +288,8 @@ const ProInvoiceDetail = () => {
                 jobList={jobList || { count: 0, totalCount: 0, data: [] }}
                 statusList={statusList!}
                 auth={auth.getValue()}
+                editInfo={false}
+                setEditInfo={() => null}
               />
             </Suspense>
           </TabPanel>

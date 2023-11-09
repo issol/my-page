@@ -155,7 +155,14 @@ export default function BillingMethodDetail({
   return (
     <Grid container spacing={6} className='match-height'>
       <Grid item xs={8}>
-        <BorderBox>
+        <Box
+          sx={
+            info && {
+            padding: '20px',
+            borderRadius: '10px',
+            border: '1px solid rgba(76, 78, 100, 0.12)',
+          }}
+        >
           {!info?.type ? null : info?.type === 'paypal' ? (
             <>
               <Box display='flex' alignItems='center' gap='8px'>
@@ -260,7 +267,7 @@ export default function BillingMethodDetail({
               </Grid>
             </>
           )}
-        </BorderBox>
+        </Box>
       </Grid>
       <Grid item xs={4}>
         {renderDetails()}

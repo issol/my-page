@@ -61,6 +61,7 @@ import { toast } from 'react-hot-toast'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useGetStatusList } from '@src/queries/common.query'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type MenuType = 'info' | 'history'
 
@@ -85,8 +86,10 @@ export default function PayableDetail() {
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('info')
 
-  const { data } = useGetPayableDetail(Number(id))
+  const { data, isLoading: isPayableDetailLoading } = useGetPayableDetail(Number(id))
   const { data: jobList } = useGetPayableJobList(Number(id))
+
+  const [editInfo, setEditInfo] = useState(false)
 
   useEffect(() => {
     if (menuQuery && ['info', 'history'].includes(menuQuery)) {
@@ -113,22 +116,22 @@ export default function PayableDetail() {
     },
   )
 
-  function onConfirmInvoice() {
+  function onCompleteRevisionInvoice() {
     if (auth.state === 'hasValue' && auth.getValue().user)
       openModal({
-        type: 'confirm',
+        type: 'CompleteRevisionModal',
         children: (
           <CustomModal
             vary='successful'
-            title='Are you sure you want to confirm the invoice? It will be notified to Pro as well.'
+            title='Are you sure you want to complete revision? The revised information will be updated to Pro as well.'
             rightButtonText='Confirm'
-            onClose={() => closeModal('confirm')}
+            onClose={() => closeModal('CompleteRevisionModal')}
             onClick={() => {
+              //TODO: api 연결해야함
               updateMutation.mutate({
-                invoiceConfirmedAt: Date(),
-                invoiceConfirmTimezone: auth.getValue().user?.timezone!,
+                invoiceStatus: 40200
               })
-              closeModal('confirm')
+              closeModal('CompleteRevisionModal')
             }}
           />
         ),
@@ -276,6 +279,10 @@ export default function PayableDetail() {
 
   return (
     <Grid container spacing={6}>
+      {(updateMutation.isLoading ||
+        deleteMutation.isLoading || 
+        isPayableDetailLoading) ?
+        <OverlaySpinner /> : null }
       <Grid item xs={12}>
         <Box
           display='flex'
@@ -295,20 +302,23 @@ export default function PayableDetail() {
             />
             <Typography variant='h5'>{data?.corporationId}</Typography>
           </Box>
-          <Box display='flex' alignItems='center' gap='18px'>
-            <Button
-              onClick={onDownloadInvoiceClick}
-              variant='outlined'
-              startIcon={<Icon icon='ic:baseline-download' />}
-            >
-              Download invoice
-            </Button>
-            {isUpdatable && data?.invoiceConfirmedAt === null ? (
-              <Button variant='contained' onClick={onConfirmInvoice}>
-                Confirm invoice
+          {editInfo ? null : (
+            <Box display='flex' alignItems='center' gap='18px'>
+              {isUpdatable && data?.invoiceStatus === 40100 ? (
+                <Button variant='contained' onClick={onCompleteRevisionInvoice}>
+                  Complete revision
+                </Button>
+              ) : null}
+              <Button
+                onClick={onDownloadInvoiceClick}
+                variant='outlined'
+                startIcon={<Icon icon='ic:baseline-download' />}
+              >
+                Download invoice
               </Button>
-            ) : null}
-          </Box>
+            </Box>
+          )}
+          
         </Box>
       </Grid>
       <Grid item xs={12}>
@@ -344,6 +354,8 @@ export default function PayableDetail() {
                 jobList={jobList || { count: 0, totalCount: 0, data: [] }}
                 statusList={statusList!}
                 auth={auth.getValue()}
+                editInfo={editInfo}
+                setEditInfo={setEditInfo}
               />
             </Suspense>
           </TabPanel>
@@ -362,7 +374,7 @@ export default function PayableDetail() {
           </TabPanel>
         </TabContext>
       </Grid>
-      {!isUpdatable ? null : (
+      {!isUpdatable || editInfo ? null : (
         <Grid item xs={4}>
           <Card sx={{ marginLeft: '12px' }}>
             <CardContent>

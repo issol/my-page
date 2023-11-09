@@ -175,6 +175,9 @@ const ReceivableInvoiceDetail = () => {
   const isDeletable = ability.can('delete', User)
   const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
 
+  console.log(isUpdatable)
+  console.log(isAccountInfoUpdatable)
+
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
@@ -837,6 +840,7 @@ const ReceivableInvoiceDetail = () => {
   function makePdfData() {
     if (langItem) {
       const pm = projectTeam!.find(value => value.position === 'projectManager')
+      console.log(invoiceInfo)
 
       const items: ItemType[] = langItem.orders
         .map(item =>

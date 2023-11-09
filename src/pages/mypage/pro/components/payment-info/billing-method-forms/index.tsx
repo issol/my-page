@@ -199,9 +199,6 @@ export default function BillingMethod({
   }, [billingMethod, isSolo, billingMethodData])
 
   function onBillingMethodSaveClick() {
-    const personalData = getValues()
-    const bankInfo = getBankInfo()
-    const corrBankInfo = getCorrBankInfo()
 
     openModal({
       type: 'save',
@@ -211,9 +208,9 @@ export default function BillingMethod({
           onSave={() => {
             closeModal('save')
             onBillingMethodSave({
-              billingMethod: personalData,
-              bankInfo,
-              correspondentBankInfo: corrBankInfo,
+              billingMethod: getValues(),
+              bankInfo: getBankInfo(),
+              correspondentBankInfo: getCorrBankInfo(),
             })
             setEdit(false)
           }}

@@ -61,6 +61,8 @@ type Props = {
     company: ClientUserType | null | undefined;
     loading: boolean;
   }
+  editInfo: boolean
+  setEditInfo: (n: boolean) => void
 }
 export default function InvoiceInfo({
   payableId,
@@ -70,6 +72,8 @@ export default function InvoiceInfo({
   jobList,
   statusList,
   auth,
+  editInfo,
+  setEditInfo,
 }: Props) {
   const queryClient = useQueryClient()
 
@@ -77,7 +81,7 @@ export default function InvoiceInfo({
 
   const { openModal, closeModal } = useModal()
 
-  const [editInfo, setEditInfo] = useState(false)
+  // const [editInfo, setEditInfo] = useState(false)
   const [selectedJobs, setSelectedJobs] = useState<Array<number>>([])
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
@@ -167,46 +171,51 @@ export default function InvoiceInfo({
           </CardContent>
         </Card>
       </Grid>
-      <Grid item xs={12}>
-        <InvoiceAmount data={data} />
-      </Grid>
-      <Grid item xs={12}>
-        <Card>
-          <CardHeader
-            title={
-              <Box
-                display='flex'
-                alignItems='center'
-                justifyContent='space-between'
-              >
-                <Typography variant='h6'>
-                  Jobs ({jobList.data?.length ?? 0})
-                </Typography>
-                {currentRole && currentRole.name === 'PRO' ? null : (
-                  <Button
-                    size='small'
-                    variant='contained'
-                    disabled={!selectedJobs.length || !isUpdatable}
-                    startIcon={<Icon icon='mdi:trash-outline' />}
-                    onClick={onRemoveJobs}
-                  >
-                    Remove
-                  </Button>
-                )}
-              </Box>
-            }
-          />
-          <InvoiceJobList
-            data={jobList}
-            currency={data?.currency}
-            isUpdatable={isUpdatable}
-            selectedJobs={selectedJobs}
-            setSelectedJobs={setSelectedJobs}
-            onRowClick={onRowClick}
-            auth={auth!}
-          />
-        </Card>
-      </Grid>
+      {editInfo ? null : (
+        <Grid item xs={12}>
+          <InvoiceAmount data={data} />
+        </Grid>
+      )}
+      {editInfo ? null : (
+        <Grid item xs={12}>
+          <Card>
+            <CardHeader
+              title={
+                <Box
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='space-between'
+                >
+                  <Typography variant='h6'>
+                    Jobs ({jobList.data?.length ?? 0})
+                  </Typography>
+                  {currentRole && currentRole.name === 'PRO' ? null : (
+                    <Button
+                      size='small'
+                      variant='contained'
+                      disabled={!selectedJobs.length || !isUpdatable}
+                      startIcon={<Icon icon='mdi:trash-outline' />}
+                      onClick={onRemoveJobs}
+                    >
+                      Remove
+                    </Button>
+                  )}
+                </Box>
+              }
+            />
+            <InvoiceJobList
+              data={jobList}
+              currency={data?.currency}
+              isUpdatable={isUpdatable}
+              selectedJobs={selectedJobs}
+              setSelectedJobs={setSelectedJobs}
+              onRowClick={onRowClick}
+              auth={auth!}
+            />
+          </Card>
+        </Grid>
+      )}
+      
     </Grid>
   )
 }

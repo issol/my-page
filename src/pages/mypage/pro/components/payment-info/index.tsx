@@ -33,7 +33,7 @@ import FileInfo from '@src/@core/components/file-info'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import TaxInfoDetail from './tax-info-details'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import { useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import {
   PositionType,
   ProPaymentFormType,
@@ -50,6 +50,7 @@ import {
   useGetUserPaymentInfo,
 } from '@src/queries/payment-info.query'
 import { isEmpty } from 'lodash'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   user: UserDataType
@@ -86,6 +87,55 @@ export default function ProPaymentInfo({ user }: Props) {
       position: 'bottom-left',
     })
   }
+
+  const updateBillingMethodMutation = useMutation(
+    (params: 
+      ProPaymentFormType & { 
+        billingMethod: TransferWiseFormType | KoreaDomesticTransferType 
+      }) => updateProBillingMethod(params),
+    {
+      onSuccess: (res) => {
+        queryClient.invalidateQueries(['get-payment-info', true, user.userId!])
+      },
+      // onError: (res: any) => {
+      
+      // }
+    }
+  )
+
+  const updateBillingAddressMutation = useMutation(
+    (params: ClientAddressType) => updateProBillingAddress(params),
+    {
+      onSuccess: (res) => {
+        queryClient.invalidateQueries(['get-payment-info', true, user.userId!])
+      }
+    }
+  )
+
+  const updateTaxInformationMutation = useMutation(
+    (params: {
+      userId: number;
+      taxInfo: string;
+      tax: number;
+    }) => updateProTaxInfo(params.userId, params.taxInfo, params.tax),
+    {
+      onSuccess: (res) => {
+        queryClient.invalidateQueries(['get-payment-info', true, user.userId!])
+      }
+    }
+  )
+
+  const updateProPaymentFileMutation = useMutation(
+    (params: {
+      position: PositionType;
+      formData: FormData;
+    }) => uploadProPaymentFile(params.position, params.formData),
+    {
+      onSuccess: (res) => {
+        queryClient.invalidateQueries(['get-payment-info', true, user.userId!])
+      }
+    }
+  )
 
   function onBillingMethodSave(data: ProPaymentFormType) {
     // ** !isRegister인 경우 수정, 아닌 경우 create
@@ -138,13 +188,18 @@ export default function ProPaymentInfo({ user }: Props) {
       const formData = new FormData()
       fileData.forEach(async i => {
         formData.append('file', i.file)
-        await uploadProPaymentFile(i.position, formData)
+        // await uploadProPaymentFile(i.position, formData)
+        updateProPaymentFileMutation.mutate({position: i.position, formData: formData})
       })
     }
-    await updateProBillingMethod({
+    updateBillingMethodMutation.mutate({
       ...data,
       billingMethod: finalData!,
     })
+    // await updateProBillingMethod({
+    //   ...data,
+    //   billingMethod: finalData!,
+    // })
   }
 
   const {
@@ -295,27 +350,34 @@ export default function ProPaymentInfo({ user }: Props) {
             if (!isRegister) {
               switch (type) {
                 case 'billingAddress':
-                  updateProBillingAddress(getValues())
-                    .then(() => invalidatePaymentInfo())
-                    .catch(() => onError())
+                  // updateProBillingAddress(getValues())
+                  //   .then(() => invalidatePaymentInfo())
+                  //   .catch(() => onError())
+                  updateBillingAddressMutation.mutate(getValues())
                   return
                 case 'tax':
                   if (taxCodes) {
                     const taxInfo = getTaxInfo()
 
-                    updateProTaxInfo(
-                      user.userId!,
-                      taxInfo.taxInfo,
-                      taxInfo?.tax!,
-                    )
+                    // updateProTaxInfo(
+                    //   user.userId!,
+                    //   taxInfo.taxInfo,
+                    //   taxInfo?.tax!,
+                    // )
+                    updateTaxInformationMutation.mutateAsync({
+                      userId: user.userId!,
+                      taxInfo: taxInfo.taxInfo,
+                      tax: taxInfo?.tax!,
+                    })
                       .then(() => {
                         if (taxInfo.businessLicense) {
                           const formData = new FormData()
                           formData.append('file', taxInfo.businessLicense)
-                          uploadProPaymentFile(
-                            'businessLicense',
-                            formData,
-                          ).then(() => invalidatePaymentInfo())
+                          // uploadProPaymentFile(
+                          //   'businessLicense',
+                          //   formData,
+                          // ).then(() => invalidatePaymentInfo())
+                          updateProPaymentFileMutation.mutate({position: 'businessLicense', formData: formData})
                         } else {
                           invalidatePaymentInfo()
                         }
@@ -360,16 +422,32 @@ export default function ProPaymentInfo({ user }: Props) {
           const formData = new FormData()
           formData.append('file', taxInfo.businessLicense)
           Promise.all([
-            updateProBillingAddress(billingAddress),
-            updateProTaxInfo(user.userId!, taxInfo.taxInfo, taxInfo?.tax!),
-            uploadProPaymentFile('businessLicense', formData),
+            // updateProBillingAddress(billingAddress),
+            updateBillingAddressMutation.mutate(billingAddress),
+            // updateProTaxInfo(user.userId!, taxInfo.taxInfo, taxInfo?.tax!),
+            updateTaxInformationMutation.mutate({
+              userId: user.userId!,
+              taxInfo: taxInfo.taxInfo,
+              tax: taxInfo?.tax!,
+            }),
+            // uploadProPaymentFile('businessLicense', formData),
+            updateProPaymentFileMutation.mutate({
+              position: 'businessLicense', 
+              formData: formData
+            })
           ])
             .then(() => invalidatePaymentInfo())
             .catch(onError)
         } else {
           Promise.all([
-            updateProBillingAddress(billingAddress),
-            updateProTaxInfo(user.userId!, taxInfo.taxInfo, taxInfo?.tax!),
+            // updateProBillingAddress(billingAddress),
+            updateBillingAddressMutation.mutate(billingAddress),
+            // updateProTaxInfo(user.userId!, taxInfo.taxInfo, taxInfo?.tax!),
+            updateTaxInformationMutation.mutate({
+              userId: user.userId!,
+              taxInfo: taxInfo.taxInfo,
+              tax: taxInfo?.tax!,
+            })
           ])
             .then(() => invalidatePaymentInfo())
             .catch(onError)
@@ -422,7 +500,8 @@ export default function ProPaymentInfo({ user }: Props) {
     files.forEach(file => {
       const formData = new FormData()
       formData.append('file', file)
-      uploadProPaymentFile('additional', formData)
+      // uploadProPaymentFile('additional', formData)
+      updateProPaymentFileMutation.mutate({position: 'additional', formData: formData})
     })
 
     setTimeout(() => {
@@ -502,6 +581,11 @@ Some information will reset..'
 
   return (
     <Grid container spacing={6}>
+      {(updateBillingMethodMutation.isLoading ||
+        updateBillingAddressMutation.isLoading ||
+        updateTaxInformationMutation.isLoading ||
+        updateProPaymentFileMutation.isLoading) ?
+        <OverlaySpinner /> : null }
       {editMethod || editBillingAddress || editTaxInfo || !isRegister ? null : (
         <Grid item xs={12} display='flex' justifyContent='end'>
           <Button
@@ -714,6 +798,7 @@ Some information will reset..'
               }}
               fileType={''}
               onDownloadAll={downloadAllFile}
+              onFileClick={downloadFile}
               onFileDrop={uploadAdditionalFiles}
               onDeleteFile={onDeleteFile}
               isUpdatable={true}

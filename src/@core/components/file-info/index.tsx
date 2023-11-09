@@ -52,7 +52,6 @@ export default function FileInfo({
   isReadable = true,
 }: Props) {
   const { openModal, closeModal } = useModal()
-
   const MAXIMUM_FILE_SIZE = maximumFileSize
   const fileSize = useMemo(
     () => fileList.reduce((res, file) => (res += file?.fileSize || 0), 0),
@@ -90,6 +89,7 @@ export default function FileInfo({
   })
 
   const onFileClickForPreview = (file: FileItemType) => {
+    console.log("file",file)
     if (fileType) {
       getDownloadUrlforCommon(fileType, file.filePath).then(res => {
         file.url = res.url

@@ -420,7 +420,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   const offDayOptions = [
     'I’ll be unavailable due to the other projects.',
     'I’ll be on vacation.',
-    'Prefer not to share',
+    'Prefer not to share.',
     'etc.',
   ]
 

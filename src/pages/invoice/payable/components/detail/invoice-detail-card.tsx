@@ -140,6 +140,11 @@ export default function InvoiceDetailCard({
     toUrl: '/invoice/payable/',
   })
 
+  const onClickInvoiceDetailEdit = () => {
+    setEditInfo(true)
+    onInvoiceStatusChange(40100)
+  }
+
   return (
     <DatePickerWrapper>
       <Grid container spacing={6}>
@@ -149,7 +154,7 @@ export default function InvoiceDetailCard({
             <Typography variant='h6'>Invoice details</Typography>
             {(isUpdatable || isAccountManager) &&
             data?.invoiceStatus !== 40300 ? ( //Paid
-              <IconButton onClick={() => setEditInfo(!editInfo)}>
+              <IconButton onClick={onClickInvoiceDetailEdit}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
             ) : null}

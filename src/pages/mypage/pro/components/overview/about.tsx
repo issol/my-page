@@ -62,6 +62,17 @@ export default function About({ userInfo }: Props) {
     return `${state1}${state2}${city}${state}${country}${zipCode}`
   }
 
+  const getFullPronouns = (pronouns: string) => {
+    const pronounsList = [
+      {'SHE': 'She/her/hers'},
+      {'HE': 'He/him/his'},
+      {'THEY': 'They/them/theirs'},
+      {'NONE': 'Perfer not to answer'},
+    ]
+    const foundPronoun = pronounsList.find((item) => Object.keys(item)[0] === pronouns.toUpperCase())
+    return foundPronoun ? Object.values(foundPronoun)[0] : 'Not Found';
+  }
+
   return (
     <Fragment>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -79,7 +90,7 @@ export default function About({ userInfo }: Props) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:label-variant' style={{ opacity: '0.7' }} />
           <LabelTitle>Pronouns:</LabelTitle>
-          <Label>{userInfo.pronounce || '-'}</Label>
+          <Label>{getFullPronouns(userInfo.pronounce!) || '-'}</Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:calendar-blank' style={{ opacity: '0.7' }} />

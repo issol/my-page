@@ -62,7 +62,7 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
           control={control}
           render={({ field: { value, onChange, onBlur } }) => (
             <FormControl fullWidth>
-              <InputLabel id='Pronounce'>Pronounce</InputLabel>
+              <InputLabel id='Pronounce'>Pronouns</InputLabel>
               <Select
                 label='Pronounce'
                 value={value}
