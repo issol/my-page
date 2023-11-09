@@ -165,7 +165,6 @@ const ReceivableInvoiceDetail = () => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const User = new invoice_receivable(auth.getValue().user?.id!)
-  console.log(auth.getValue().user?.id!)
 
   // const AccountingTeam = new account_manage(auth.getValue().user?.id!)
   const AccountingTeam = new invoice_receivable_accounting_info(
@@ -175,9 +174,6 @@ const ReceivableInvoiceDetail = () => {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
   const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
-
-  console.log(isUpdatable)
-  console.log(isAccountInfoUpdatable)
 
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -616,8 +612,6 @@ const ReceivableInvoiceDetail = () => {
       const clientTimezone =
         getClientValue('contacts.timezone') ?? auth.getValue().user?.timezone!
 
-      console.log(getClientValue('contacts'))
-
       setInvoiceLanguageItem({
         ...langItem,
         // orders: langItem.orders.map(item => ({ ...item, orderId: item.id })),
@@ -744,9 +738,6 @@ const ReceivableInvoiceDetail = () => {
         ),
       }
       invoiceInfoReset(res)
-      console.log(
-        langItem.orders.reduce((total, obj) => total + obj.subtotal, 0),
-      )
     }
     if (projectTeam) {
       let viewTeams: ProjectTeamListType[] = [...projectTeam].map(value => ({
@@ -846,7 +837,6 @@ const ReceivableInvoiceDetail = () => {
   function makePdfData() {
     if (langItem) {
       const pm = projectTeam!.find(value => value.position === 'projectManager')
-      console.log(invoiceInfo)
 
       const items: ItemType[] = langItem.orders
         .map(item =>
