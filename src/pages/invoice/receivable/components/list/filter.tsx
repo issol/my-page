@@ -534,12 +534,7 @@ export default function Filter({
                             options={RevenueFrom}
                             value={value}
                             limitTags={1}
-                            onChange={(e, v) =>
-                              setFilter({
-                                ...filter,
-                                revenueFrom: v.map(item => item.value),
-                              })
-                            }
+                            onChange={(e, v) => onChange(v)}
                             renderInput={params => (
                               <TextField
                                 {...params}
@@ -572,7 +567,10 @@ export default function Filter({
                             options={SalesCategory}
                             value={value}
                             limitTags={1}
-                            onChange={onChange}
+                            onChange={(e, v) => {
+                              onChange(v)
+                              console.log(v)
+                            }}
                             renderInput={params => (
                               <TextField
                                 {...params}

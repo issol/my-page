@@ -74,6 +74,8 @@ const defaultValues: FilterType = {
   clientId: [],
   category: [],
   serviceType: [],
+  revenueFrom: [],
+  salesCategory: [],
   lsp: [],
   search: '',
 }
@@ -194,6 +196,7 @@ export default function Receivable() {
       category,
       lsp,
       search,
+      salesCategory,
     } = data
 
     if (invoiceStatus.find(value => value.value === 301000))
@@ -226,6 +229,7 @@ export default function Receivable() {
       paidDateTo: paidDate[1]?.toISOString() ?? '',
       salesCheckedDateFrom: salesCheckedDate[0]?.toISOString() ?? '',
       salesCheckedDateTo: salesCheckedDate[1]?.toISOString() ?? '',
+      salesCategory: salesCategory?.map(value => value.value) ?? [],
 
       search: search,
       take: invoiceListRowsPerPage,

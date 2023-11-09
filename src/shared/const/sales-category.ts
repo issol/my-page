@@ -4,4 +4,4 @@ export const SalesCategory = [
   { value: 'Subtitle', label: 'Subtitle' },
   { value: 'Webcomics', label: 'Webcomics' },
   { value: 'Webnovel', label: 'Webnovel' },
-] as const
+]
