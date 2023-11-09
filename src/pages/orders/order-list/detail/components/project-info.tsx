@@ -58,7 +58,7 @@ type Props = {
   project: ProjectInfoType
   setEditMode?: (v: boolean) => void
   isUpdatable: boolean
-  updateStatus?: (status: number) => void
+  updateStatus?: (status: number, callback?: () => void) => void
   role: UserRoleType
   client?: ClientType
   type: 'detail' | 'history'
@@ -154,15 +154,8 @@ const ProjectInfo = ({
         <SelectReasonModal
           onClose={() => closeModal('CancelOrderModal')}
           onClick={(status: number, reason: CancelReasonType) =>
-            updateProject &&
-            updateProject.mutate(
-              { status: status, reason: reason },
-              {
-                onSuccess: () => {
-                  closeModal('CancelOrderModal')
-                },
-              },
-            )
+            updateStatus &&
+            updateStatus(status, () => closeModal('CancelOrderModal'))
           }
           title='Are you sure you want to cancel this order?'
           vary='error'
@@ -261,7 +254,7 @@ const ProjectInfo = ({
   }
 
   // TODO: Order에 포함된 Job의 status를 체크하는 함수 필요
-  function handleCancelJob() {
+  function handleCancelOrder() {
     // 포함된 job이 없는 경우 => 기본 캔슬 모달
     if (!jobInfo || jobInfo?.length === 0) onClickCancel()
     else {
@@ -1009,7 +1002,7 @@ const ProjectInfo = ({
                 color='error'
                 size='large'
                 disabled={!canUseFeature('button-ProjectInfo-CancelOrder')}
-                onClick={handleCancelJob}
+                onClick={handleCancelOrder}
               >
                 Cancel this order
               </Button>
