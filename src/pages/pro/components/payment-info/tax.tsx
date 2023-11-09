@@ -61,7 +61,7 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
   }
 
   const handleSaveTax = () => {
-    updateProTaxInfo(proId, taxInfo!, taxRate!)
+    updateProTaxInfo(proId, taxInfo!, taxRate ?? 0)
       .then(() => invalidatePaymentInfo())
       .catch(() => {
         toast.error('Something went wrong. Please try again.', {
