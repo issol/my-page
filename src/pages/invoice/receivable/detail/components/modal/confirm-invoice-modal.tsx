@@ -24,13 +24,18 @@ type Props = {
     taxInvoiceDueAt: string | null
     taxInvoiceDueTimezone: CountryType | null
   }) => void
+  contactPersonTimezone: CountryType | null
 }
 
-const ConfirmInvoiceModal = ({ onClose, onClick }: Props) => {
+const ConfirmInvoiceModal = ({
+  onClose,
+  onClick,
+  contactPersonTimezone,
+}: Props) => {
   const [data, setData] = useState<{
     taxInvoiceDueAt: string | null
     taxInvoiceDueTimezone: CountryType | null
-  }>({ taxInvoiceDueAt: null, taxInvoiceDueTimezone: null })
+  }>({ taxInvoiceDueAt: null, taxInvoiceDueTimezone: contactPersonTimezone })
   return (
     <DatePickerWrapper>
       <Box
