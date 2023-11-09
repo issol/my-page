@@ -199,7 +199,7 @@ const InvoiceInfo = ({
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
-    multiple: false,
+    multiple: true,
     disabled: invoiceInfo.clientConfirmedAt === null,
     maxSize: FILE_SIZE.DEFAULT,
     accept: {
