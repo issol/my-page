@@ -221,9 +221,13 @@ export default function Filter({
                             loading={companyListLoading}
                             options={companyList || []}
                             getOptionLabel={option => option.label}
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.value === newValue.value
+                            }}
                             value={value}
                             limitTags={1}
-                            onChange={onChange}
+                            disableCloseOnSelect
+                            onChange={(event, item) => onChange(item)}
                             renderInput={params => (
                               <TextField
                                 {...params}
