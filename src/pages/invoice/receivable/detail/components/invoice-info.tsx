@@ -2115,7 +2115,7 @@ const InvoiceInfo = ({
                   <Box display='flex' flexDirection='column'>
                     <Typography variant='h6'>Tax invoice</Typography>
                     <Typography variant='caption'>
-                      {formatFileSize(fileSize).toLowerCase()}/ 50mb
+                      {formatFileSize(fileSize)}/ 50MB
                     </Typography>
                   </Box>
                   {(isUpdatable && isUpdatable) || isAccountInfoUpdatable ? (
