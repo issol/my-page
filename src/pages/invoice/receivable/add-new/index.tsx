@@ -828,8 +828,6 @@ export default function AddNewInvoice() {
                       {Number(getProjectInfoValues().subtotal).toLocaleString(
                         'ko-KR',
                       )}
-                      &nbsp;
-                      {Number(getProjectInfoValues().subtotal)}
                     </Typography>
                   </Box>
                 </Box>
