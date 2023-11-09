@@ -568,6 +568,7 @@ const InvoiceInfo = ({
             onClick={() => {
               closeModal('cancelUpload')
               setIsFileUploading && setIsFileUploading(false)
+              setFiles([])
             }}
             onClose={() => closeModal('cancelUpload')}
             rightButtonText='Cancel'
@@ -2025,7 +2026,7 @@ const InvoiceInfo = ({
                   <Box display='flex' flexDirection='column'>
                     <Typography variant='h6'>Tax invoice</Typography>
                     <Typography variant='caption'>
-                      {formatFileSize(fileSize).toLowerCase()}/ 2gb
+                      {formatFileSize(fileSize)}/ 50MB
                     </Typography>
                   </Box>
 
@@ -2046,50 +2047,124 @@ const InvoiceInfo = ({
                   )}
                 </Box>
               </Grid>
-              {savedFiles.length ? (
-                <>
-                  <Grid item xs={12}>
-                    <Box
-                      display='grid'
-                      gridTemplateColumns='repeat(3,1fr)'
-                      gap='16px'
-                    >
-                      {savedFileList}
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Divider />
-                  </Grid>
-                </>
-              ) : (
-                '-'
-              )}
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '24px',
+                  mt: '24px',
+                }}
+              >
+                {savedFiles.length
+                  ? groupedFiles.map(value => {
+                      return (
+                        <Box key={uuidv4()}>
+                          <Typography
+                            variant='body2'
+                            fontSize={14}
+                            fontWeight={400}
+                            sx={{ mb: '5px' }}
+                          >
+                            {FullDateTimezoneHelper(
+                              value.createdAt,
+                              auth.getValue().user?.timezone,
+                            )}
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(3,1fr)',
+                              gridGap: '16px',
+                            }}
+                          >
+                            {value.data.map(item => {
+                              return (
+                                <Box
+                                  key={uuidv4()}
+                                  sx={{
+                                    display: 'flex',
+                                    marginBottom: '8px',
+                                    width: '100%',
+                                    justifyContent: 'space-between',
+                                    borderRadius: '8px',
+                                    padding: '10px 12px',
+                                    border: '1px solid rgba(76, 78, 100, 0.22)',
+                                    background: '#f9f8f9',
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        marginRight: '8px',
+                                        display: 'flex',
+                                      }}
+                                    >
+                                      <Icon
+                                        icon='material-symbols:file-present-outline'
+                                        style={{
+                                          color: 'rgba(76, 78, 100, 0.54)',
+                                        }}
+                                        fontSize={24}
+                                      />
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                      }}
+                                    >
+                                      <Tooltip title={item.fileName}>
+                                        <Typography
+                                          variant='body1'
+                                          fontSize={14}
+                                          fontWeight={600}
+                                          lineHeight={'20px'}
+                                          sx={{
+                                            overflow: 'hidden',
+                                            wordBreak: 'break-all',
+                                            textOverflow: 'ellipsis',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 1,
+                                            WebkitBoxOrient: 'vertical',
+                                          }}
+                                        >
+                                          {item.fileName}
+                                        </Typography>
+                                      </Tooltip>
+
+                                      <Typography
+                                        variant='caption'
+                                        lineHeight={'14px'}
+                                      >
+                                        {formatFileSize(item.fileSize)}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+
+                                  <IconButton
+                                    onClick={() => downloadOneFile(item)}
+                                    disabled={isFileUploading || !isUpdatable}
+                                  >
+                                    <Icon icon='mdi:download' fontSize={24} />
+                                  </IconButton>
+                                </Box>
+                              )
+                            })}
+                          </Box>
+                        </Box>
+                      )
+                    })
+                  : isFileUploading
+                  ? null
+                  : '-'}
+              </Box>
             </Card>
           </Grid>
-          {isFileUploading ? (
-            <Grid item xs={3}>
-              <Card sx={{ padding: '24px' }}>
-                <Button
-                  variant='contained'
-                  color='success'
-                  fullWidth
-                  disabled={!files.length}
-                  startIcon={<Icon icon='ic:outline-send' />}
-                  onClick={onDeliverTaxInvoice}
-                >
-                  Deliver to client
-                </Button>
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  sx={{ mt: 4 }}
-                  onClick={onCancelFileUpload}
-                >
-                  Cancel
-                </Button>
-              </Card>
-            </Grid>
-          ) : null}
         </Grid>
       ) : null}
       {type !== 'history' &&
