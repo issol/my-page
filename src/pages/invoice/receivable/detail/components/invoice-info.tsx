@@ -2312,15 +2312,14 @@ const InvoiceInfo = ({
                 size='large'
                 disabled={
                   !isDeletable ||
-                  ![30000, 30100, 30200].includes(invoiceInfo.invoiceStatus)
+                  [30900, 301200].includes(invoiceInfo.invoiceStatus)
                 }
-                onClick={onClickDelete}
+                onClick={onCancelClick}
               >
-                Delete this invoice
+                Cancel this invoice
               </Button>
             </Card>
           </Grid>
-
           <Grid item xs={4}>
             <Card sx={{ padding: '20px', width: '100%' }}>
               <Button
@@ -2330,14 +2329,15 @@ const InvoiceInfo = ({
                 size='large'
                 disabled={
                   !isDeletable ||
-                  [30900, 301200].includes(invoiceInfo.invoiceStatus)
+                  ![30000, 30100, 30200].includes(invoiceInfo.invoiceStatus)
                 }
-                onClick={onCancelClick}
+                onClick={onClickDelete}
               >
-                Cancel this invoice
+                Delete this invoice
               </Button>
             </Card>
           </Grid>
+
           <Grid item xs={4}>
             <Card sx={{ padding: '20px', width: '100%' }}>
               <Button
