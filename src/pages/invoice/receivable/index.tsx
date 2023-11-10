@@ -161,19 +161,21 @@ export default function Receivable() {
   const handleHidePaidInvoices = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    const checked = event.target.checked
     setHidePaidInvoices(event.target.checked)
     setFilters(prevState => ({
       ...prevState,
-      hidePaid: event.target.checked ? '1' : '0',
+      hidePaid: checked ? '1' : '0',
     }))
   }
 
   const handleSeeMyInvoices = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = event.target.checked
     setSeeMyInvoices(event.target.checked)
 
     setFilters(prevState => ({
       ...prevState,
-      mine: event.target.checked ? '1' : '0',
+      mine: checked ? '1' : '0',
     }))
   }
 

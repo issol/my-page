@@ -131,19 +131,21 @@ export default function OrderList() {
   const handleHideCompletedOrders = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setHideCompletedOrders(event.target.checked)
+    const checked = event.target.checked
+    setHideCompletedOrders(checked)
     setFilters(prevState => ({
       ...prevState,
-      hideCompleted: event.target.checked ? '1' : '0',
+      hideCompleted: checked ? '1' : '0',
     }))
   }
 
   const handleSeeMyOrders = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSeeMyOrders(event.target.checked)
+    const checked = event.target.checked
+    setSeeMyOrders(checked)
 
     setFilters(prevState => ({
       ...prevState,
-      mine: event.target.checked ? '1' : '0',
+      mine: checked ? '1' : '0',
     }))
   }
 

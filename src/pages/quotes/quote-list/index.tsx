@@ -155,18 +155,20 @@ export default function Quotes({ id, user }: Props) {
   const handleHideCompletedQuotes = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setHideCompletedQuotes(event.target.checked)
+    const checked = event.target.checked
+    setHideCompletedQuotes(checked)
     setFilters(prevState => ({
       ...prevState,
-      hideCompletedQuotes: event.target.checked ? 1 : 0,
+      hideCompletedQuotes: checked ? 1 : 0,
     }))
   }
 
   const handleSeeMyQuotes = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSeeMyQuotes(event.target.checked)
+    const checked = event.target.checked
+    setSeeMyQuotes(checked)
     setFilters(prevState => ({
       ...prevState,
-      seeMyQuotes: event.target.checked ? 1 : 0,
+      seeMyQuotes: checked ? 1 : 0,
     }))
   }
 
