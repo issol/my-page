@@ -462,6 +462,8 @@ export default function ProPaymentInfo({ user }: Props) {
             .then(() => invalidatePaymentInfo())
             .catch(onError)
         }
+      }).then(() => {
+        queryClient.invalidateQueries(['get-payment-info', true, user.userId!])
       })
     }
   }
