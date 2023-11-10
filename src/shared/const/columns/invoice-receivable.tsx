@@ -9,6 +9,7 @@ import {
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -84,8 +85,42 @@ export const getInvoiceReceivableListColumns = (
       renderCell: ({ row }: CellType) => {
         return (
           <Box>
-            <Typography fontWeight={600}>{row.client?.name ?? '-'}</Typography>
-            <Typography variant='body2'>{row.client?.email ?? '-'}</Typography>
+            {role.name === 'CLIENT' ? (
+              <>
+                <Typography fontWeight={600}>
+                  {row.client.name ?? '-'}
+                </Typography>
+                <Typography variant='body2'>
+                  {row.projectManager.email ?? '-'}
+                </Typography>
+              </>
+            ) : (
+              <>
+                {!row.contactPerson ? (
+                  <>
+                    <Typography fontWeight={600}>
+                      {row.client?.name ?? '-'}
+                    </Typography>
+                    <Typography variant='body2'>
+                      {row.client?.email ?? '-'}
+                    </Typography>
+                  </>
+                ) : (
+                  <>
+                    <Typography fontWeight={600}>
+                      {getLegalName({
+                        firstName: row.contactPerson?.firstName,
+                        middleName: row.contactPerson?.middleName,
+                        lastName: row.contactPerson?.lastName,
+                      })}
+                    </Typography>
+                    <Typography variant='body2'>
+                      {row.client?.email ?? '-'}
+                    </Typography>
+                  </>
+                )}
+              </>
+            )}
           </Box>
         )
       },

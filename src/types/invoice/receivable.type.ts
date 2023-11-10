@@ -99,6 +99,20 @@ export type InvoiceReceivableListType = {
   revenueFrom: RevenueFormType
   isTaxable: boolean
   tax: string | null
+  projectManager: {
+    userId: number
+    email: string
+    firstName: string
+    middleName: string | null
+    lastName: string
+  }
+  contactPerson: {
+    userId: number
+    email: string
+    firstName: string
+    middleName: string | null
+    lastName: string
+  } | null
 }
 
 export type InvoiceReceivableOrderType = {
