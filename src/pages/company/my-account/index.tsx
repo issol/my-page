@@ -13,19 +13,23 @@ import { managerProfileSchema } from '@src/types/schema/profile.schema'
 import {
   ManagerInfo,
   ManagerUserInfoType,
+  ProUserInfoType,
 } from '@src/types/sign/personalInfoTypes'
 import useModal from '@src/hooks/useModal'
 
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import { useMutation } from 'react-query'
-import { getUserInfo, updateConsumerUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
+import { getUserInfo, updateClientUserInfo, updateConsumerUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
 import useAuth from '@src/hooks/useAuth'
 import { useGetProfile } from '@src/queries/userInfo/userInfo-query'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { roleState } from '@src/states/permission'
 import { useRouter } from 'next/router'
+import { BrandingWatermarkSharp } from '@mui/icons-material'
+import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 const MyAccount = () => {
   const router = useRouter()
@@ -45,25 +49,26 @@ const MyAccount = () => {
     userAuth.getValue().user?.id! ?? 0,
   )
   const role = useRecoilValueLoadable(roleState)
-  const hasLSPRole = () => {
-    let flag = false
+
+  const getCurrentUserRole = () => {
     if (role.state === 'hasValue' && role.getValue()) {
-      role.getValue().map(item => {
-        if (
-          (item.name === 'LPM' || item.name === 'TAD')
-        )
-          flag = true
-      })
+      return role.getValue()[0].name
     }
-    return flag
+    return ''
   }
 
   const saveUserInfoMutation = useMutation(
-    (data: ManagerUserInfoType & { userId: number }) =>
-      hasLSPRole() 
-        ? updateManagerUserInfo({ ...data, company: 'GloZ' })
-        : updateConsumerUserInfo(data)
-        ,
+    (data: (ManagerUserInfoType | ContactPersonType | ProUserInfoType) & { userId: number }) => (
+      ['LPM','TAD','ACCOUNT_MANAGER'].includes(getCurrentUserRole())
+        ? updateManagerUserInfo({ ...data as ManagerUserInfoType & { userId: number }, company: 'GloZ' })
+        : getCurrentUserRole() === 'CLIENT'
+          ? updateClientUserInfo({ 
+              ...data as ContactPersonType & { userId: number }, 
+              clientId: userAuth.getValue().company?.clientId!,
+              companyId: userAuth.getValue().company?.companyId!,
+            })
+          : updateConsumerUserInfo(data as ProUserInfoType & { userId: number })
+    ),
     {
       onSuccess: () => {
         setContractsEdit(false)
@@ -112,7 +117,6 @@ const MyAccount = () => {
 
   const handleSaveInfo = () => {
     const data = getValues()
-
     const finalData: ManagerUserInfoType & { userId: number } = {
       userId: userInfo?.userId ?? 0,
       firstName: data.firstName,
@@ -164,6 +168,8 @@ const MyAccount = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      { saveUserInfoMutation.isLoading ?
+        <OverlaySpinner /> : null }
       <DesignedCard>
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ position: 'relative', display: 'flex', gap: '30px' }}>

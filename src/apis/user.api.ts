@@ -41,7 +41,18 @@ export const getUserRoleNPermission = async (
   return data
 }
 
-/* client, pro 프로필 업데이트용 */
+/* CLIENT 전용 프로필 업데이트 */
+export const updateClientUserInfo = async (
+  userInfo: ContactPersonType & { userId: number } & {
+    clientId: number
+    companyId: string
+    headquarter?: string
+  },
+) => {
+  await axios.put(`/api/enough/u/pu/client/edit`, userInfo)
+}
+
+/* pro 프로필 업데이트용 */
 export const updateConsumerUserInfo = async (
   userInfo: (ProUserInfoType | ManagerUserInfoType | ProUserResumeInfoType) 
   & { userId: number },
@@ -139,15 +150,4 @@ export const requestJoinToCompany = async (
     type: 'General',
     roles: ['CLIENT'],
   })
-}
-
-/* CLIENT 전용 프로필 업데이트 */
-export const updateClientUserInfo = async (
-  userInfo: ContactPersonType & { userId: number } & {
-    clientId: number
-    companyId: string
-    headquarter?: string
-  },
-) => {
-  await axios.put(`/api/enough/u/pu/client/edit`, userInfo)
 }

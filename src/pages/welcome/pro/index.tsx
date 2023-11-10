@@ -167,8 +167,11 @@ const PersonalInfoPro = () => {
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         ['.docx'],
     },
+    // onDrop: (acceptedFiles: File[]) => {
+    //   setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
+    // },
     onDrop: (acceptedFiles: File[]) => {
-      setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
+      setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
     },
   })
 

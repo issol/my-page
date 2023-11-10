@@ -96,6 +96,7 @@ import useAuth from '@src/hooks/useAuth'
 import { useRouter } from 'next/router'
 import EditProfileModal from './edit-profile-modal'
 import dayjs from 'dayjs'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   userInfo: DetailUserType
@@ -611,6 +612,11 @@ export default function MyPageOverview({ user, userInfo }: Props) {
 
   return (
     <Fragment>
+      { (updateUserInfoMutation.isLoading ||
+        updateOffDays.isLoading ||
+        updateWeekendsMutation.isLoading ||
+        deleteOffMutation.isLoading) ?
+        <OverlaySpinner /> : null }
       <Grid container spacing={6}>
         <Grid
           item
@@ -866,7 +872,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                       flexWrap: 'wrap',
                     }}
                   >
-                    {userInfo.specialties && userInfo.specialties.length ? (
+                    {userInfo.specialties && userInfo.specialties.length && userInfo.specialties[0] !== "" ? (
                       userInfo.specialties.map((value, idx) => {
                         return (
                           <Chip
