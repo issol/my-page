@@ -186,6 +186,16 @@ export const deleteProPaymentFile = async (fileId: number): Promise<void> => {
   await axios.delete(`/api/enough/u/pro/payment/delete-file/${fileId}`)
 }
 
+export const updateProBillingAddressAndTax = async (
+  info: ClientAddressType & { 
+    taxInfo: string,
+    taxRate: number,
+  },
+  proId: number
+): Promise<void> => {
+  await axios.put(`/api/enough/u/pro/${proId}/payment/info`, info)
+}
+
 export const updateProBillingAddress = async (
   info: ClientAddressType,
 ): Promise<void> => {
