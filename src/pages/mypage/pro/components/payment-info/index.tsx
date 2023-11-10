@@ -141,7 +141,7 @@ export default function ProPaymentInfo({ user }: Props) {
     setBillingMethodData(data)
   }
 
-  async function updatePaymentMethod(data: ProPaymentFormType) {
+  function updatePaymentMethod(data: ProPaymentFormType) {
     for (const key in data.correspondentBankInfo) {
       //@ts-ignore
       if (!data.correspondentBankInfo[key]) {
@@ -152,7 +152,7 @@ export default function ProPaymentInfo({ user }: Props) {
     if (isEmpty(data.correspondentBankInfo)) {
       data.correspondentBankInfo = null
     }
-
+    
     let finalData: BillingMethodUnionType | null = null
     let fileData: { position: PositionType; file: File }[] = []
     switch (billingMethod) {
@@ -163,7 +163,7 @@ export default function ProPaymentInfo({ user }: Props) {
         finalData = data.billingMethod as TransferWiseFormType
         fileData = [{ position: 'copyOfId', file: finalData?.copyOfId! }]
         delete finalData.copyOfId
-
+        break
       case 'koreaDomesticTransfer':
         //@ts-ignore
         const isSolo = !data.billingMethod?.copyOfBankStatement
@@ -179,22 +179,14 @@ export default function ProPaymentInfo({ user }: Props) {
           })
           delete finalData.copyOfBankStatement
         }
+        break
     }
-    if (fileData.length) {
-      const formData = new FormData()
-      fileData.forEach(async i => {
-        formData.append('file', i.file)
-        // await uploadProPaymentFile(i.position, formData)
-        updateProPaymentFileMutation.mutate({
-          position: i.position,
-          formData: formData,
-        })
-      })
+    return {
+      data: data,
+      finalData: finalData,
+      fileData:fileData
     }
-    updateBillingMethodMutation.mutate({
-      ...data,
-      billingMethod: finalData!,
-    })
+
     // await updateProBillingMethod({
     //   ...data,
     //   billingMethod: finalData!,
@@ -420,7 +412,22 @@ export default function ProPaymentInfo({ user }: Props) {
     const taxInfo = getTaxInfo()
 
     if (billingMethodData && taxCodes) {
-      updatePaymentMethod(billingMethodData).then(() => {
+      const { data, finalData, fileData } = updatePaymentMethod(billingMethodData)
+      updateBillingMethodMutation.mutateAsync({
+        ...data,
+        billingMethod: finalData!,
+      }).then((res) => {
+        // file upload
+        if (fileData.length) {
+          const formData = new FormData()
+          fileData.forEach(async i => {
+            formData.append('file', i.file)
+            // await uploadProPaymentFile(i.position, formData)
+            updateProPaymentFileMutation.mutate({position: i.position, formData: formData})
+          })
+        }
+
+        // billing, tax upload
         if (taxInfo.businessLicense) {
           const formData = new FormData()
           formData.append('file', taxInfo.businessLicense)
