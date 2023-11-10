@@ -12,7 +12,7 @@ import ToggleViewButton, {
 } from '@src/@core/components/toggle-view-button'
 
 import { ProInvoiceListFilterType } from '@src/types/invoice/common.type'
-import { Fragment, Suspense, useState } from 'react'
+import { Fragment, Suspense, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Filter from './list/filters'
 import ProInvoiceList from './list/list'
@@ -20,6 +20,7 @@ import CalendarContainer from './calendar'
 import { useGetPayableList } from '@src/queries/invoice/payable.query'
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
 import { useGetStatusList } from '@src/queries/common.query'
+import { useQueryClient } from 'react-query'
 
 // const initialFilter: ProInvoiceListFilterType = {
 //   status: [],
@@ -58,6 +59,7 @@ const defaultFilters: InvoicePayableFilterType = {
 type Props = { id: number }
 
 const ProInvoices = ({ id }: Props) => {
+  const queryClient = useQueryClient()
   const [menu, setMenu] = useState<ToggleMenuType>('list')
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<InvoicePayableFilterType>(defaultFilters)
@@ -65,7 +67,10 @@ const ProInvoices = ({ id }: Props) => {
     useState<InvoicePayableFilterType>(defaultFilters)
 
   // const { data: invoices, isLoading } = useGetProInvoiceList(id, activeFilter)
-  const { data: invoices, isLoading } = useGetPayableList({...activeFilter, pro: [id]})
+  const { data: invoices, isLoading } = useGetPayableList({
+    ...activeFilter,
+    pro: [id],
+  })
   const { data: statusList } = useGetStatusList('InvoicePayable')
   function onSearch() {
     setActiveFilter({
@@ -73,12 +78,24 @@ const ProInvoices = ({ id }: Props) => {
       skip: skip * activeFilter.take,
       take: activeFilter.take,
     })
+    queryClient.invalidateQueries([
+      'invoice/payable/list',
+      { ...filter, skip: skip * activeFilter.take, take: activeFilter.take },
+    ])
   }
 
   function onReset() {
     setFilter({ ...defaultFilters })
     setActiveFilter({ ...defaultFilters })
+    queryClient.invalidateQueries([
+      'invoice/payable/list',
+      { ...defaultFilters },
+    ])
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['invoice/payable/list'])
+  }, [])
   return (
     <Suspense>
       <Grid container spacing={6}>
@@ -174,10 +191,7 @@ const ProInvoices = ({ id }: Props) => {
           </Fragment>
         ) : (
           <Grid item xs={12}>
-            <CalendarContainer 
-              statusList={statusList!}
-              userId={id}
-            />
+            <CalendarContainer statusList={statusList!} userId={id} />
           </Grid>
         )}
       </Grid>

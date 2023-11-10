@@ -39,7 +39,7 @@ export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
 export const useGetOnboardingProDetails = (userId: number) => {
   const id = typeof userId === 'number' ? userId : 0
   return useQuery<DetailUserType, Error, DetailUserType>(
-    `${userId}`,
+    ['onboarding-pro-details'],
     () => getOnboardingProDetails(id!),
     {
       staleTime: 60 * 1000, // 1
@@ -136,7 +136,7 @@ export const useGetOnboardingStatistic = () => {
 export const useGetAppliedRole = (userId: number) => {
   const id = typeof userId === 'number' ? userId : 0
   return useQuery<Array<AppliedRoleType>>(
-    `applied-role-${id}`,
+    ['onboarding-pro-details', { type: 'applied-role' }],
     () => getAppliedRole(id!),
     {
       staleTime: 60 * 1000,
@@ -148,7 +148,7 @@ export const useGetAppliedRole = (userId: number) => {
 
 export const useGetCertifiedRole = (id: number) => {
   return useQuery<Array<CertifiedRoleType>>(
-    `certified-role-${id}`,
+    ['onboarding-pro-details', { type: 'certified-role' }],
     () => getCertifiedRole(id!),
     {
       staleTime: 60 * 1000,

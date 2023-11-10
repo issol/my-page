@@ -198,7 +198,7 @@ const ReceivableInvoiceDetail = () => {
   } = useGetReceivableInvoiceDetail(Number(id!))
 
   const invalidateInvoiceDetail = () =>
-    queryClient.invalidateQueries({ queryKey: 'invoiceReceivableDetail' })
+    queryClient.invalidateQueries(['invoiceReceivableDetail'])
 
   const { data: langItem, isLoading: langItemLoading } =
     useGetReceivableInvoicePrices(Number(id!))
@@ -269,7 +269,7 @@ const ReceivableInvoiceDetail = () => {
           historyRefetch()
           projectTeamRefetch()
           clientRefetch()
-          queryClient.invalidateQueries('invoice/receivable/list')
+          queryClient.invalidateQueries(['invoice/receivable/list'])
         }
         closeModal('EditSaveModal')
       },
@@ -313,6 +313,7 @@ const ReceivableInvoiceDetail = () => {
     }
 
     setValue(newValue)
+    invalidateInvoiceDetail()
   }
 
   const restoreVersionMutation = useMutation(

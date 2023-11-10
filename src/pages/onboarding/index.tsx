@@ -1,14 +1,14 @@
-import {Grid, IconButton, Typography} from '@mui/material'
+import { Grid, IconButton, Typography } from '@mui/material'
 
 import PageHeader from 'src/@core/components/page-header'
 import OnboardingDashboard from './components/list/dashboard'
 import Filters from './components/list/filters'
 import OnboardingList from './components/list/list'
-import {SyntheticEvent, useState} from 'react'
-import {useForm} from 'react-hook-form'
+import { SyntheticEvent, useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 
-import {JobList} from 'src/shared/const/job/jobs'
-import {getGloLanguage} from 'src/shared/transformer/language.transformer'
+import { JobList } from 'src/shared/const/job/jobs'
+import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import {
   FilterType,
   OnboardingFilterType,
@@ -22,13 +22,14 @@ import {
   useGetOnboardingStatistic,
   useGetStatistic,
 } from 'src/queries/onboarding/onboarding-query'
-import {OnboardingListRolePair} from '@src/shared/const/role/roles'
-import {GridColumns} from '@mui/x-data-grid'
+import { OnboardingListRolePair } from '@src/shared/const/role/roles'
+import { GridColumns } from '@mui/x-data-grid'
 import Box from '@mui/material/Box'
 import LegalNameEmail from './components/list/list-item/legalname-email'
 import JobTypeRole from '../components/job-type-role-chips'
 import TestStatus from './components/list/list-item/test-status'
 import Icon from 'src/@core/components/icon'
+import { useQueryClient } from 'react-query'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -41,6 +42,7 @@ const defaultValues: FilterType = {
 }
 
 export default function Onboarding() {
+  const queryClient = useQueryClient()
   const [onboardingListPage, setOnboardingListPage] = useState<number>(0)
   const [onboardingListPageSize, setOnboardingListPageSize] =
     useState<number>(10)
@@ -100,6 +102,20 @@ export default function Onboarding() {
       take: onboardingListPageSize,
       skip: onboardingListPageSize * onboardingListPage,
     })
+
+    queryClient.invalidateQueries([
+      'onboarding-pro-list',
+      {
+        jobType: [],
+        role: [],
+        source: [],
+        target: [],
+        experience: [],
+        testStatus: [],
+        take: onboardingListPageSize,
+        skip: onboardingListPageSize * onboardingListPage,
+      },
+    ])
   }
 
   const onSubmit = (data: FilterType) => {
@@ -122,6 +138,8 @@ export default function Onboarding() {
     // console.log(filter)
 
     setFilters(filter)
+
+    queryClient.invalidateQueries(['onboarding-pro-list', filter])
 
     // console.log(data)
   }
@@ -308,6 +326,11 @@ export default function Onboarding() {
       },
     },
   ]
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['onboarding-pro-list'])
+    queryClient.invalidateQueries(['onboarding-pro-details'])
+  }, [])
 
   return (
     <Grid container spacing={6}>

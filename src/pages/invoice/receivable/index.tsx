@@ -44,6 +44,7 @@ import { getInvoiceReceivableListColumns } from '@src/shared/const/columns/invoi
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import SelectOrder from './components/list/select-order'
+import { useQueryClient } from 'react-query'
 
 export type FilterType = {
   invoiceDate: Date[]
@@ -104,6 +105,7 @@ const defaultFilters: InvoiceReceivableFilterType = {
   take: 10,
 }
 export default function Receivable() {
+  const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
 
@@ -233,12 +235,17 @@ export default function Receivable() {
     }
 
     setFilters(filter)
+    queryClient.invalidateQueries(['invoice/receivable/list', filter])
     console.log('check filter', filters)
   }
 
   function onReset() {
     reset(defaultValues)
     setFilters({ ...defaultFilters })
+    queryClient.invalidateQueries([
+      'invoice/receivable/list',
+      { ...defaultFilters },
+    ])
   }
 
   useEffect(() => {
@@ -276,6 +283,12 @@ export default function Receivable() {
       ),
     })
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['invoice/receivable/list'])
+    queryClient.invalidateQueries(['invoice/receivable/calendar'])
+    queryClient.invalidateQueries(['invoiceReceivableDetail'])
+  }, [])
 
   return (
     <Grid container spacing={6}>

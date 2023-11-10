@@ -16,7 +16,7 @@ import {
   ProListFilterType,
   ProListType,
 } from '@src/types/pro/list'
-import { SyntheticEvent, useContext, useState } from 'react'
+import { SyntheticEvent, useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import JobTypeRole from '../components/job-type-role-chips'
 import LegalNameEmail from '../onboarding/components/list/list-item/legalname-email'
@@ -38,6 +38,7 @@ import { authState } from '@src/states/auth'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { setDate } from 'date-fns'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
+import { useQueryClient } from 'react-query'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -51,6 +52,7 @@ const defaultValues: ProFilterType = {
 }
 
 const Pro = () => {
+  const queryClient = useQueryClient()
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(10)
   const [filters, setFilters] = useState<ProListFilterType>({
@@ -90,7 +92,7 @@ const Pro = () => {
     mode: 'onSubmit',
   })
 
-  const [ isSorting, setIsSorting ] = useState<Boolean>(false)
+  const [isSorting, setIsSorting] = useState<Boolean>(false)
 
   const onClickFile = (
     file: {
@@ -139,6 +141,20 @@ const Pro = () => {
       take: proListPageSize,
       skip: proListPageSize * proListPage,
     })
+    queryClient.invalidateQueries([
+      'pro-list',
+      {
+        jobType: [],
+        role: [],
+        source: [],
+        target: [],
+        experience: [],
+        status: [],
+        clients: [],
+        take: proListPageSize,
+        skip: proListPageSize * proListPage,
+      },
+    ])
   }
 
   const onSubmit = (data: ProFilterType) => {
@@ -169,6 +185,7 @@ const Pro = () => {
     }
 
     setFilters(filter)
+    queryClient.invalidateQueries(['pro-list', filter])
   }
 
   const handleFilterStateChange =
@@ -482,6 +499,11 @@ const Pro = () => {
       },
     },
   ]
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['pro-list'])
+    queryClient.invalidateQueries(['pro-overview'])
+  }, [])
   return (
     <Grid container spacing={6}>
       <PageHeader title={<Typography variant='h5'>Pro list</Typography>} />

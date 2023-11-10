@@ -221,7 +221,7 @@ function ProDetailOverview() {
       changeProStatus(value.userId, value.status),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`proId:${userId}`)
+        queryClient.invalidateQueries(['pro-overview'])
       },
     },
   )
@@ -241,9 +241,7 @@ function ProDetailOverview() {
       ),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
-        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
-        queryClient.invalidateQueries(`proId:${userId}`)
+        queryClient.invalidateQueries(['pro-overview'])
       },
     },
   )
@@ -252,8 +250,7 @@ function ProDetailOverview() {
     (jobInfo: AddRolePayloadType[]) => setCertifiedRole(jobInfo),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
-        queryClient.invalidateQueries(`proId:${userInfo?.userId}`)
+        queryClient.invalidateQueries(['pro-overview'])
       },
     },
   )
@@ -263,9 +260,7 @@ function ProDetailOverview() {
       patchTestStatus(value.id, value.status),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
-        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
-        queryClient.invalidateQueries(`proId:${userId}`)
+        queryClient.invalidateQueries(['pro-overview'])
       },
     },
   )
@@ -274,8 +269,7 @@ function ProDetailOverview() {
     (jobInfo: AddRolePayloadType[]) => addCreatedAppliedRole(jobInfo),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`applied-role-${variables[0].userId}`)
-        queryClient.invalidateQueries(`proId:${userId}`)
+        queryClient.invalidateQueries(['pro-overview'])
       },
     },
   )
@@ -300,7 +294,7 @@ function ProDetailOverview() {
             </IconButton>
           ),
         })
-        queryClient.invalidateQueries(`proId:${userId}`)
+        queryClient.invalidateQueries(['pro-overview'])
       },
     },
   )
@@ -313,7 +307,7 @@ function ProDetailOverview() {
         toast.success('Successfully edited!', {
           position: 'bottom-right',
         })
-        queryClient.invalidateQueries(`proId:${userId}`)
+        queryClient.invalidateQueries(['pro-overview'])
       },
     },
   )
@@ -326,7 +320,7 @@ function ProDetailOverview() {
         toast.success('Successfully saved!', {
           position: 'bottom-right',
         })
-        queryClient.invalidateQueries(`proId:${userId}`)
+        queryClient.invalidateQueries(['pro-overview'])
       },
     },
   )

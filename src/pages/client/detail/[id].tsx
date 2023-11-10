@@ -48,9 +48,11 @@ import FallbackSpinner from '@src/@core/components/spinner'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { roleState } from '@src/states/permission'
+import { useQueryClient } from 'react-query'
 
 export default function ClientDetail() {
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const { id } = router.query
   const [value, setValue] = useState<string>('1')
@@ -60,21 +62,21 @@ export default function ClientDetail() {
   const role = useRecoilValueLoadable(roleState)
 
   const User = new client(auth.getValue().user?.id!)
-  
 
   // const isUpdatable = ability.can('update', User)
   // const isDeletable = ability.can('delete', User)
   // const isCreatable = ability.can('create', User)
 
- 
   const [memoSkip, setMemoSkip] = useState(0)
   const MEMO_PAGESIZE = 3
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
+    queryClient.invalidateQueries(['client-projects'])
+    queryClient.invalidateQueries(['client-invoices'])
   }
   const { data: userInfo, isError, isFetched } = useGetClientDetail(Number(id!))
-  
+
   const Writer = new client(userInfo?.authorId!)
 
   const { data: memo } = useGetClientMemo(Number(id!), {
@@ -90,8 +92,7 @@ export default function ClientDetail() {
     if (role.state === 'hasValue' && role.getValue()) {
       role.getValue().map(item => {
         if (
-          (item.name === 'LPM' ||
-            item.name === 'TAD') &&
+          (item.name === 'LPM' || item.name === 'TAD') &&
           item.type === 'General'
         )
           flag = true

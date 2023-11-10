@@ -17,7 +17,7 @@ import { useQuery } from 'react-query'
 
 export const useGetClientDetail = (id: number) => {
   return useQuery(
-    `client-detail-${id}`,
+    ['client-detail'],
     () => {
       return getClientDetail(id)
     },

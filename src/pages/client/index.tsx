@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Box, Grid, Switch, Typography } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 import ClientListFilter from './list/filters'
 import { useGetClientList } from '@src/queries/client.query'
 import ClientList from './list/list'
+import { useQueryClient } from 'react-query'
 
 export type FilterType = {
   status?: Array<string>
@@ -22,6 +23,7 @@ export const initialFilter: FilterType = {
 }
 
 export default function Clients() {
+  const queryClient = useQueryClient()
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
   const [activeFilter, setActiveFilter] = useState<FilterType>({
@@ -36,12 +38,23 @@ export default function Clients() {
       skip: skip * activeFilter.take,
       take: activeFilter.take,
     })
+    queryClient.invalidateQueries([
+      'get-client/list',
+      { ...filter, skip: skip * activeFilter.take, take: activeFilter.take },
+    ])
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
+    queryClient.invalidateQueries(['get-client/list', { ...initialFilter }])
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['get-client/list'])
+    queryClient.invalidateQueries(['client-detail'])
+    queryClient.invalidateQueries(['client-projects'])
+  }, [])
 
   return (
     <Grid container spacing={6}>

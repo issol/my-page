@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import styled from 'styled-components'
 
@@ -22,6 +22,7 @@ import { useGetClientProjectList } from '@src/queries/client/client-detail'
 import ClientProjectList from './list/list'
 import { UserDataType } from '@src/context/types'
 import ClientProjectCalendarContainer from './calendar'
+import { useQueryClient } from 'react-query'
 
 export type FilterType = {
   projectType: Array<{ value: string; label: string }>
@@ -45,6 +46,7 @@ type Props = { id: number; user: UserDataType }
 type MenuType = 'list' | 'calendar'
 
 export default function ClientProjects({ id, user }: Props) {
+  const queryClient = useQueryClient()
   const [menu, setMenu] = useState<MenuType>('list')
 
   const [clientProjectListPage, setClientProjectListPage] = useState<number>(0)
@@ -104,6 +106,22 @@ export default function ClientProjects({ id, user }: Props) {
       take: 10,
       sort: 'DESC',
     })
+
+    queryClient.invalidateQueries([
+      'client-projects',
+      {
+        projectType: [],
+        category: [],
+        serviceType: [],
+        status: [],
+        dueDateFrom: null,
+        dueDateTo: null,
+        search: '',
+        skip: 0,
+        take: 10,
+        sort: 'DESC',
+      },
+    ])
   }
 
   const handleRowClick = (row: ClientProjectListType) => {
@@ -150,6 +168,8 @@ export default function ClientProjects({ id, user }: Props) {
     // console.log(filter)
 
     setFilters(filter)
+
+    queryClient.invalidateQueries(['client-projects', filter])
   }
 
   return (

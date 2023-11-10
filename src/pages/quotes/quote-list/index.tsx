@@ -150,6 +150,11 @@ export default function Quotes({ id, user }: Props) {
     })
 
     setFilters(defaultFilters)
+    queryClient.invalidateQueries([
+      'quotesList',
+      { type: 'list' },
+      defaultFilters,
+    ])
   }
 
   const handleHideCompletedQuotes = (
@@ -205,6 +210,7 @@ export default function Quotes({ id, user }: Props) {
     }
 
     setFilters(filter)
+    queryClient.invalidateQueries(['quotesList', { type: 'list' }, filter])
   }
 
   useEffect(() => {

@@ -35,6 +35,7 @@ import { useGetClientList } from '@src/queries/client.query'
 import { getRequestListColumns } from '@src/shared/const/columns/requests'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { useQueryClient } from 'react-query'
 
 // ** components
 export type FilterType = {
@@ -78,6 +79,7 @@ export const defaultFilters: RequestFilterType = {
 
 type MenuType = 'list' | 'calendar'
 export default function Requests() {
+  const queryClient = useQueryClient()
   const router = useRouter()
   const currentRole = getCurrentRole()
   const [menu, setMenu] = useState<MenuType>('list')
@@ -123,7 +125,14 @@ export default function Requests() {
   const { data: statusList, isLoading: statusListLoading } =
     useGetClientRequestStatus()
 
-  const { control, getValues, setValue, handleSubmit, trigger, reset: filterReset } = useForm<FilterType>({
+  const {
+    control,
+    getValues,
+    setValue,
+    handleSubmit,
+    trigger,
+    reset: filterReset,
+  } = useForm<FilterType>({
     defaultValues,
     mode: 'onSubmit',
   })
@@ -159,12 +168,17 @@ export default function Requests() {
     }
 
     setFilters(filter)
+    queryClient.invalidateQueries(['request/client/list', filter])
   }
-  console.log("default filter",getValues())
+  console.log('default filter', getValues())
 
   function onReset() {
     filterReset()
     setFilters({ ...defaultFilters })
+    queryClient.invalidateQueries([
+      'request/client/list',
+      { ...defaultFilters },
+    ])
   }
 
   function onRowClick(id: number) {
@@ -211,6 +225,12 @@ export default function Requests() {
     }
   }, [companies, companiesListLoading])
 
+  useEffect(() => {
+    queryClient.invalidateQueries(['request/client/list'])
+    queryClient.invalidateQueries(['request/client/calendar'])
+    queryClient.invalidateQueries(['request/client/detail'])
+  }, [])
+
   return (
     <Box display='flex' flexDirection='column'>
       <Box
@@ -227,14 +247,22 @@ export default function Requests() {
           <CustomBtn
             value='list'
             $focus={menu === 'list'}
-            onClick={e => setMenu(e.currentTarget.value as MenuType)}
+            onClick={e => {
+              queryClient.invalidateQueries(['request/client/list'])
+              queryClient.invalidateQueries(['request/client/calendar'])
+              setMenu(e.currentTarget.value as MenuType)
+            }}
           >
             List view
           </CustomBtn>
           <CustomBtn
             $focus={menu === 'calendar'}
             value='calendar'
-            onClick={e => setMenu(e.currentTarget.value as MenuType)}
+            onClick={e => {
+              queryClient.invalidateQueries(['request/client/list'])
+              queryClient.invalidateQueries(['request/client/calendar'])
+              setMenu(e.currentTarget.value as MenuType)
+            }}
           >
             Calendar view
           </CustomBtn>
