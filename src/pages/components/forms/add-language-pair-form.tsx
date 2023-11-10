@@ -349,7 +349,7 @@ export default function AddLanguagePairForm({
                         hasStandardPrice = true
                     })
                     // row가 갑자기 여러번 리랜더링 되는 현상이 있음
-                    console.log('Re-rendering-row', row)
+
                     return (
                       <TableRow tabIndex={-1} key={row.id}>
                         <TableCell>

@@ -288,11 +288,14 @@ export default function ItemForm({
     currency: CurrencyType
   }) => {
     const minimumPrice = formatCurrency(value.minimumPrice, value.currency)
+
     openModal({
       type: 'info-minimum',
       children: (
         <CustomModal
-          onClose={() => closeModal('info-minimum')}
+          onClose={() => {
+            closeModal('info-minimum')
+          }}
           vary='info'
           title={
             <>
@@ -306,7 +309,9 @@ export default function ItemForm({
           }
           soloButton={true}
           rightButtonText='Okay'
-          onClick={() => closeModal('info-minimum')}
+          onClick={() => {
+            closeModal('info-minimum')
+          }}
         />
         // <SimpleMultilineAlertModal
         //   onClose={() => {
@@ -422,7 +427,7 @@ export default function ItemForm({
                       fields={fields}
                       itemTrigger={itemTrigger}
                       sumTotalPrice={sumTotalPrice}
-                      openMinimumPriceModal={openMinimumPriceModal}
+                      // openMinimumPriceModal={openMinimumPriceModal}
                       splitReady={splitReady!}
                       type={type}
                       onItemRemove={onItemRemove}
@@ -455,7 +460,7 @@ export default function ItemForm({
               fields={fields}
               itemTrigger={itemTrigger}
               sumTotalPrice={sumTotalPrice}
-              openMinimumPriceModal={openMinimumPriceModal}
+              // openMinimumPriceModal={openMinimumPriceModal}
               splitReady={splitReady!}
               type={type}
               onItemRemove={onItemRemove}

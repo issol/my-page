@@ -279,25 +279,30 @@ export default function ItemPriceUnitForm({
     }
 
     const onClickDeletePriceUnit = (idx: number) => {
-      openModal({
-        type: 'DeletePriceUnitModal',
-        children: (
-          <CustomModal
-            onClose={() => closeModal('DeletePriceUnitModal')}
-            onClick={() => handleDeletePriceUnit(idx)}
-            title={
-              <>
-                Are you sure you want to delete this price unit?
-                <Typography variant='body2' fontWeight={700} fontSize={16}>
-                  {options[idx].title}
-                </Typography>
-              </>
-            }
-            vary='error'
-            rightButtonText='Delete'
-          />
-        ),
-      })
+      if (options[idx]) {
+        openModal({
+          type: 'DeletePriceUnitModal',
+          children: (
+            <CustomModal
+              onClose={() => closeModal('DeletePriceUnitModal')}
+              onClick={() => handleDeletePriceUnit(idx)}
+              title={
+                <>
+                  Are you sure you want to delete this price unit?
+                  <Typography variant='body2' fontWeight={700} fontSize={16}>
+                    {options[idx].title}
+                  </Typography>
+                </>
+              }
+              vary='error'
+              rightButtonText='Delete'
+            />
+          ),
+        })
+      } else {
+        onDeletePriceUnit(idx)
+        updateTotalPrice()
+      }
     }
 
     //init
@@ -454,7 +459,7 @@ export default function ItemPriceUnitForm({
                           priceFactor: priceFactor?.toString(),
                           prices:
                             v.unit !== 'Percent'
-                              ? v.quantity! * unitPrice
+                              ? Number(v.quantity! * unitPrice)
                               : PercentPrice(v.quantity!),
                         })
                         if (v.subPriceUnits && v.subPriceUnits.length > 0) {
@@ -472,7 +477,7 @@ export default function ItemPriceUnitForm({
                               unitPrice: unitPrice,
                               prices:
                                 item.unit !== 'Percent'
-                                  ? item.quantity! * unitPrice
+                                  ? Number(item.quantity! * unitPrice)
                                   : PercentPrice(item.quantity!),
                             })
                           })
