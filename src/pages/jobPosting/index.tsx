@@ -11,6 +11,7 @@ import Filters from './components/filter'
 // ** fetch
 import { useGetJobPostingList } from '@src/queries/jobs/jobPosting.query'
 import JobPostingList from './components/list'
+import { useQueryClient } from 'react-query'
 
 export type FilterType = {
   jobType?: string
@@ -35,6 +36,8 @@ export const initialFilter: FilterType = {
 }
 export default function jobPosting() {
   type FilterState = Array<{ value: string; label: string }>
+
+  const queryClient = useQueryClient()
   const [jobTypeOption, setJobTypeOption] = useState<FilterState>([])
   const [roleOption, setRoleOption] = useState<FilterState>([])
   const [skip, setSkip] = useState(0)
@@ -95,12 +98,18 @@ export default function jobPosting() {
       skip: skip * activeFilter?.take!,
       take: activeFilter.take,
     })
+    queryClient.invalidateQueries(['get-jobPosting/list', activeFilter])
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
+    queryClient.invalidateQueries(['get-jobPosting/list', activeFilter])
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['get-jobPosting/list'])
+  }, [])
   return (
     <Grid container spacing={6} className='match-height'>
       <PageHeader title={<Typography variant='h5'>Job posting</Typography>} />

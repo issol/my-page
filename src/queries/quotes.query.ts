@@ -55,7 +55,7 @@ export const useGetQuotesList = (filter: QuotesFilterType) => {
     },
     {
       suspense: true,
-      staleTime: 10 * 1000,
+      staleTime: 1 * 1000,
       keepPreviousData: true,
     },
   )
@@ -121,7 +121,7 @@ export const useGetClient = (id: number) => {
 
 export const useGetLangItem = (id: number) => {
   return useQuery(
-    [`quotesDetailItems`, { type: 'item' }, id],
+    [`quotesDetail`, { type: 'item' }, id],
     () => getLangItems(id),
     {
       staleTime: 10 * 1000, // 1
@@ -132,7 +132,7 @@ export const useGetLangItem = (id: number) => {
 }
 
 export const useGetVersionHistory = (id: number) => {
-  return useQuery([`quotesHistory`, id], () => getVersionHistory(id), {
+  return useQuery([`quotesDetail`, id], () => getVersionHistory(id), {
     staleTime: 10 * 1000, // 1
     suspense: true,
   })

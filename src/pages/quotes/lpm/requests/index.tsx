@@ -39,6 +39,7 @@ import { useGetCompanyOptions } from '@src/queries/options.query'
 import { useGetClientList } from '@src/queries/client.query'
 import { useForm } from 'react-hook-form'
 import { getRequestListColumns } from '@src/shared/const/columns/requests'
+import { useQueryClient } from 'react-query'
 
 // ** components
 export type FilterType = {
@@ -81,6 +82,7 @@ export const defaultFilters: RequestFilterType = {
 }
 type MenuType = 'list' | 'calendar'
 export default function LpmRequests() {
+  const queryClient = useQueryClient()
   const router = useRouter()
   const currentRole = getCurrentRole()
   const [menu, setMenu] = useState<MenuType>('list')
@@ -126,7 +128,12 @@ export default function LpmRequests() {
   const { data: statusList, isLoading: statusListLoading } =
     useGetClientRequestStatus()
 
-  const { control, handleSubmit, trigger, reset: filterReset } = useForm<FilterType>({
+  const {
+    control,
+    handleSubmit,
+    trigger,
+    reset: filterReset,
+  } = useForm<FilterType>({
     defaultValues,
     mode: 'onSubmit',
   })
@@ -162,11 +169,16 @@ export default function LpmRequests() {
     }
 
     setFilters(filter)
+    queryClient.invalidateQueries(['request/client/list', filter])
   }
 
   function onReset() {
     filterReset()
     setFilters({ ...defaultFilters })
+    queryClient.invalidateQueries([
+      'request/client/list',
+      { ...defaultFilters },
+    ])
   }
 
   function onRowClick(id: number) {
@@ -212,6 +224,12 @@ export default function LpmRequests() {
       }
     }
   }, [companies, companiesListLoading])
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['request/client/list'])
+    queryClient.invalidateQueries(['request/client/calendar'])
+    queryClient.invalidateQueries(['request/client/detail'])
+  }, [])
   return (
     <Box display='flex' flexDirection='column'>
       <Box
@@ -228,14 +246,22 @@ export default function LpmRequests() {
           <CustomBtn
             value='list'
             $focus={menu === 'list'}
-            onClick={e => setMenu(e.currentTarget.value as MenuType)}
+            onClick={e => {
+              setMenu(e.currentTarget.value as MenuType)
+              queryClient.invalidateQueries(['request/client/list'])
+              queryClient.invalidateQueries(['request/client/calendar'])
+            }}
           >
             List view
           </CustomBtn>
           <CustomBtn
             $focus={menu === 'calendar'}
             value='calendar'
-            onClick={e => setMenu(e.currentTarget.value as MenuType)}
+            onClick={e => {
+              setMenu(e.currentTarget.value as MenuType)
+              queryClient.invalidateQueries(['request/client/list'])
+              queryClient.invalidateQueries(['request/client/calendar'])
+            }}
           >
             Calendar view
           </CustomBtn>

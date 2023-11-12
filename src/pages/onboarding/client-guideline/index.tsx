@@ -20,6 +20,7 @@ import {
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { useQueryClient } from 'react-query'
 
 export type ConstType = {
   label: string
@@ -44,6 +45,8 @@ export const initialFilter: FilterType = {
   take: 10,
 }
 export default function ClientGuidLines() {
+  const queryClient = useQueryClient()
+
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
   const [activeFilter, setActiveFilter] = useState<FilterType>({
@@ -61,11 +64,16 @@ export default function ClientGuidLines() {
       skip: skip * activeFilter.take,
       take: activeFilter.take,
     })
+    queryClient.invalidateQueries([
+      'get-guideline',
+      { ...filter, skip: skip * activeFilter.take, take: activeFilter.take },
+    ])
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
+    queryClient.invalidateQueries(['get-guideline', { ...initialFilter }])
   }
 
   function findServiceTypeFilter() {
@@ -103,7 +111,12 @@ export default function ClientGuidLines() {
           .filter(item => filter.serviceType?.includes(item.value))
           .map(item => item.value),
       })
-  },[filter.category])
+  }, [filter.category])
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['get-guideline'])
+    queryClient.invalidateQueries(['get-guideline/detail'])
+  }, [])
 
   return (
     <>

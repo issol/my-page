@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import styled from 'styled-components'
 
@@ -25,6 +25,7 @@ import ClientInvoiceList from './list/list'
 
 import ClientInvoiceCalendarContainer from './calendar'
 import { useGetStatusList } from '@src/queries/common.query'
+import { useQueryClient } from 'react-query'
 
 export type FilterType = {
   invoicedDate: Array<Date | null>
@@ -56,6 +57,7 @@ type Props = { id: number; user: UserDataType }
 type MenuType = 'list' | 'calendar'
 
 export default function ClientInvoices({ id, user }: Props) {
+  const queryClient = useQueryClient()
   const [menu, setMenu] = useState<MenuType>('list')
 
   const [clientInvoiceListPage, setClientInvoiceListPage] = useState<number>(0)
@@ -92,6 +94,7 @@ export default function ClientInvoices({ id, user }: Props) {
     })
 
     setFilters(initialFilter)
+    queryClient.invalidateQueries(['client-invoices', initialFilter])
   }
 
   const handleRowClick = (row: ClientInvoiceListType) => {
@@ -135,6 +138,7 @@ export default function ClientInvoices({ id, user }: Props) {
     }
 
     setFilters(filter)
+    queryClient.invalidateQueries(['client-invoices', filter])
   }
 
   return (

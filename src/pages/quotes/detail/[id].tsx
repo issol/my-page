@@ -1039,7 +1039,7 @@ export default function QuotesDetail() {
           {
             onSuccess: () => {
               queryClient.invalidateQueries({
-                queryKey: ['quotesDetailItems'],
+                queryKey: ['quotesDetail'],
               })
               closeModal('EditSaveModal')
               setEditItems(false)
@@ -1233,6 +1233,7 @@ export default function QuotesDetail() {
     }
 
     setMenu(newValue)
+    queryClient.invalidateQueries(['quotesDetail'])
   }
 
   useEffect(() => {

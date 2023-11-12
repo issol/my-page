@@ -42,16 +42,20 @@ export const useGetReceivableCalendar = (
 }
 
 export const useGetReceivableInvoiceDetail = (id: number) => {
-  return useQuery(['invoiceReceivableDetail', id], () => getInvoiceDetail(id), {
-    staleTime: 10 * 1000, // 1
+  return useQuery(
+    ['invoiceReceivableDetail', { type: 'project' }, id],
+    () => getInvoiceDetail(id),
+    {
+      staleTime: 10 * 1000, // 1
 
-    suspense: false,
-  })
+      suspense: false,
+    },
+  )
 }
 
 export const useGetReceivableInvoicePrices = (id: number) => {
   return useQuery(
-    ['invoiceReceivablePrices', id],
+    ['invoiceReceivableDetail', { type: 'price' }, id],
     () => getInvoiceLanguageItems(id),
     {
       staleTime: 10 * 1000, // 1
@@ -62,16 +66,20 @@ export const useGetReceivableInvoicePrices = (id: number) => {
 }
 
 export const useGetReceivableClient = (id: number) => {
-  return useQuery(['invoiceReceivableClient', id], () => getInvoiceClient(id), {
-    staleTime: 10 * 1000, //
+  return useQuery(
+    ['invoiceReceivableDetail', { type: 'client' }, id],
+    () => getInvoiceClient(id),
+    {
+      staleTime: 10 * 1000, //
 
-    suspense: false,
-  })
+      suspense: false,
+    },
+  )
 }
 
 export const useGetReceivableTeam = (id: number) => {
   return useQuery(
-    ['invoiceReceivableTeam', id],
+    ['invoiceReceivableDetail', { type: 'team' }, id],
     () => getInvoiceProjectTeam(id),
     {
       staleTime: 10 * 1000, //
@@ -83,7 +91,7 @@ export const useGetReceivableTeam = (id: number) => {
 
 export const useGetReceivableHistory = (id: number) => {
   return useQuery(
-    ['invoiceReceivableHistory', id],
+    ['invoiceReceivableDetail', { type: 'history' }, id],
     () => getInvoiceVersionHistory(id),
     {
       staleTime: 10 * 1000, //

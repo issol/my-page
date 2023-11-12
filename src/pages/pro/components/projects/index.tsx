@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 
 import styled from 'styled-components'
 
@@ -26,6 +26,7 @@ import {
   SortingType,
 } from '@src/apis/pro/pro-projects.api'
 import logger from '@src/@core/utils/logger'
+import { useQueryClient } from 'react-query'
 
 export type FilterType = {
   title?: Array<{ value: string; label: string }>
@@ -54,6 +55,7 @@ type Props = { id: number }
 type MenuType = 'list' | 'calendar'
 
 export default function ProjectsDetail({ id }: Props) {
+  const queryClient = useQueryClient()
   const [menu, setMenu] = useState<MenuType>('list')
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
   const [activeFilter, setActiveFilter] = useState<ActiveFilterType>({
@@ -87,12 +89,32 @@ export default function ProjectsDetail({ id }: Props) {
       skip: skip * activeFilter.take,
       take: activeFilter.take,
     })
+    queryClient.invalidateQueries([
+      'get-project/list',
+      {
+        ...activeFilter,
+        sort,
+        title: getFilter('title'),
+        role: getFilter('role'),
+        status: getFilter('status'),
+        source: getFilter('source'),
+        target: getFilter('target'),
+        client: getFilter('client'),
+        skip: skip * activeFilter.take,
+        take: activeFilter.take,
+      },
+    ])
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ skip: 0, take: 10 })
+    queryClient.invalidateQueries(['get-project/list', { ...initialFilter }])
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['get-project/list'])
+  }, [])
 
   return (
     <Box display='flex' flexDirection='column'>

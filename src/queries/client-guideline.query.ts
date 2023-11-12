@@ -16,7 +16,7 @@ export const useGetGuideLines = (filter: FilterType) => {
 
 export const useGetGuideLineDetail = (id: number) => {
   return useQuery(
-    'get-guideline/detail',
+    ['get-guideline/detail'],
     () => {
       return getGuidelineDetail(id)
     },

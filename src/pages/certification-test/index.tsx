@@ -1,4 +1,4 @@
-import { SyntheticEvent, useContext, useState } from 'react'
+import { SyntheticEvent, useContext, useEffect, useState } from 'react'
 import { Grid } from '@mui/material'
 
 import { RoleSelectType } from 'src/types/onboarding/list'
@@ -17,6 +17,7 @@ import { useRouter } from 'next/router'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 import { authState } from '@src/states/auth'
+import { useQueryClient } from 'react-query'
 
 const defaultValues: TestMaterialFilterType = {
   testType: [],
@@ -29,6 +30,8 @@ const defaultValues: TestMaterialFilterType = {
 const CertificationTest = () => {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
+
+  const queryClient = useQueryClient()
 
   const [testMaterialListPage, setTestMaterialListPage] = useState<number>(0)
 
@@ -86,6 +89,20 @@ const CertificationTest = () => {
       userCompany: 'GloZ',
       sort: 'asc',
     })
+    queryClient.invalidateQueries([
+      'test-material-list',
+      {
+        testType: [],
+        jobType: [],
+        role: [],
+        source: [],
+        target: [],
+        take: testMaterialListPageSize,
+        skip: testMaterialListPageSize * testMaterialListPage,
+        userCompany: 'GloZ',
+        sort: 'asc',
+      },
+    ])
   }
 
   const onSubmit = (data: TestMaterialFilterType) => {
@@ -106,12 +123,18 @@ const CertificationTest = () => {
     }
 
     setFilters(filter)
+    queryClient.invalidateQueries(['test-material-list', filter])
   }
 
   const handleFilterStateChange =
     (panel: string) => (event: SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false)
     }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['test-material-list'])
+    queryClient.invalidateQueries(['test-detail'])
+  }, [])
   return (
     <>
       {auth.state === 'hasValue' && (

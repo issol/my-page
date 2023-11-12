@@ -4,7 +4,7 @@ import { getTestDetail } from 'src/apis/certification-test.api'
 
 export const useGetTestDetail = (id: number, edit: boolean) => {
   return useQuery(
-    `test-detail-${id}-${edit}`,
+    ['test-detail'],
     () => {
       return getTestDetail(id)
     },

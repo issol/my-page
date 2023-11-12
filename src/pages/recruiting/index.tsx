@@ -22,6 +22,7 @@ import {
 
 // ** types
 import { RecruitingCountType } from 'src/apis/recruiting.api'
+import { useQueryClient } from 'react-query'
 
 export type FilterType = {
   client: string
@@ -44,6 +45,8 @@ export const initialFilter: FilterType = {
 }
 export default function Recruiting() {
   type FilterState = Array<{ value: string; label: string }>
+
+  const queryClient = useQueryClient()
   const [jobTypeOption, setJobTypeOption] = useState<FilterState>([])
   const [roleOption, setRoleOption] = useState<FilterState>([])
   const [skip, setSkip] = useState(0)
@@ -104,12 +107,19 @@ export default function Recruiting() {
       skip: skip * activeFilter?.take!,
       take: activeFilter.take,
     })
+
+    queryClient.invalidateQueries(['get-recruiting/list', activeFilter])
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
+    queryClient.invalidateQueries(['get-recruiting/list', activeFilter])
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['get-recruiting/list'])
+  }, [])
 
   return (
     <Grid container spacing={6} className='match-height'>

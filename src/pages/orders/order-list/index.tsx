@@ -102,7 +102,11 @@ export default function OrderList() {
     }[]
   >([])
 
-  const { data: orderList, isLoading } = useGetOrderList(filters, 'order')
+  const {
+    data: orderList,
+    isLoading,
+    isFetched,
+  } = useGetOrderList(filters, 'order')
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
     skip: 0,
@@ -122,6 +126,13 @@ export default function OrderList() {
     reset(defaultValues)
 
     setFilters(defaultFilters)
+
+    queryClient.invalidateQueries([
+      'orderList',
+      { type: 'list' },
+      defaultFilters,
+      'order',
+    ])
   }
 
   const handleRowClick = (row: OrderListType) => {
@@ -181,6 +192,12 @@ export default function OrderList() {
     }
 
     setFilters(filter)
+    queryClient.invalidateQueries([
+      'orderList',
+      { type: 'list' },
+      filter,
+      'order',
+    ])
   }
 
   useEffect(() => {

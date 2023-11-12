@@ -1,4 +1,4 @@
-import { Fragment, useContext, useState } from 'react'
+import { Fragment, useContext, useEffect, useState } from 'react'
 
 // ** style components
 import {
@@ -80,11 +80,19 @@ export default function Payable() {
       skip: skip * activeFilter.take,
       take: activeFilter.take,
     })
+    queryClient.invalidateQueries([
+      'invoice/payable/list',
+      { ...filter, skip: skip * activeFilter.take, take: activeFilter.take },
+    ])
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
+    queryClient.invalidateQueries([
+      'invoice/payable/list',
+      { ...initialFilter },
+    ])
   }
 
   const updateMutation = useMutation(
@@ -119,6 +127,14 @@ export default function Payable() {
       ),
     })
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['invoice/payable/list'])
+    queryClient.invalidateQueries(['invoice/payable/detail'])
+    queryClient.invalidateQueries(['invoice/payable/calendar'])
+    queryClient.invalidateQueries(['invoice/payable/detail/jobs'])
+    queryClient.invalidateQueries(['invoice/payable/history'])
+  }, [])
 
   return (
     <Grid container spacing={6}>
@@ -226,10 +242,7 @@ export default function Payable() {
         </Fragment>
       ) : (
         <Grid item xs={12}>
-          <CalendarContainer 
-            type='lpm'
-            statusList={statusList!}
-          />
+          <CalendarContainer type='lpm' statusList={statusList!} />
         </Grid>
       )}
     </Grid>

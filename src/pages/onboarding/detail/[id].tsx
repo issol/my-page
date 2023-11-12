@@ -217,8 +217,9 @@ function OnboardingDetail() {
       ),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
-        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        // queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
+        // queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(['onboarding-pro-details'])
       },
     },
   )
@@ -228,8 +229,9 @@ function OnboardingDetail() {
       patchTestStatus(value.id, value.status),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
-        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        // queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
+        // queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(['onboarding-pro-details'])
       },
     },
   )
@@ -238,7 +240,8 @@ function OnboardingDetail() {
     (jobInfo: AddRolePayloadType[]) => addCreatedAppliedRole(jobInfo),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`applied-role-${variables[0].userId}`)
+        // queryClient.invalidateQueries(`applied-role-${variables[0].userId}`)
+        queryClient.invalidateQueries(['onboarding-pro-details'])
       },
     },
   )
@@ -247,7 +250,8 @@ function OnboardingDetail() {
     (jobInfo: AddRolePayloadType[]) => setCertifiedRole(jobInfo),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        // queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(['onboarding-pro-details'])
       },
     },
   )
@@ -272,7 +276,7 @@ function OnboardingDetail() {
             </IconButton>
           ),
         })
-        queryClient.invalidateQueries(`${id}`)
+        queryClient.invalidateQueries(['onboarding-pro-details'])
       },
     },
   )
@@ -285,7 +289,7 @@ function OnboardingDetail() {
         toast.success('Successfully edited!', {
           position: 'bottom-right',
         })
-        queryClient.invalidateQueries(`${id}`)
+        queryClient.invalidateQueries(['onboarding-pro-details'])
       },
     },
   )
@@ -298,7 +302,7 @@ function OnboardingDetail() {
         toast.success('Successfully saved!', {
           position: 'bottom-right',
         })
-        queryClient.invalidateQueries(`${id}`)
+        queryClient.invalidateQueries(['onboarding-pro-details'])
       },
     },
   )
