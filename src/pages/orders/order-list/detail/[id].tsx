@@ -1622,6 +1622,12 @@ const OrderDetail = () => {
                       </Menu>
                     </Box>
                   ) : null}
+                  {currentRole && currentRole.name === 'CLIENT' ? (
+                    <OrderStatusChip
+                      status={projectInfo?.status}
+                      label={projectInfo?.status}
+                    />
+                  ) : null}
                 </Box>
               </Box>
               {projectInfoEdit ||
