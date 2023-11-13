@@ -42,7 +42,6 @@ import {
 } from '@src/shared/helpers/price.helper'
 
 type Props = {
-  langItem: LanguageAndItemType
   languagePairs: Array<languageType>
   setLanguagePairs: Dispatch<SetStateAction<Array<languageType>>>
   clientId: number
@@ -64,7 +63,7 @@ type Props = {
   itemErrors: FieldErrors<{
     items: ItemType[]
   }>
-  isItemValid: boolean
+
   priceUnitsList: PriceUnitListType[]
   items: FieldArrayWithId<
     {
@@ -75,7 +74,7 @@ type Props = {
   >[]
   removeItems: UseFieldArrayRemove
   getTeamValues: UseFormGetValues<ProjectTeamType>
-  projectTax: number
+
   appendItems: UseFieldArrayAppend<
     {
       items: ItemType[]
@@ -86,15 +85,7 @@ type Props = {
   setLangItemsEdit?: Dispatch<SetStateAction<boolean>>
   langItemsEdit: boolean
   project?: ProjectInfoType
-  updateItems?: UseMutationResult<
-    any,
-    unknown,
-    {
-      id: number
-      items: PostItemType[]
-    },
-    unknown
-  >
+
   onClickSplitOrder?: () => void
   onClickCancelSplitOrder?: () => void
   onClickSplitOrderConfirm?: () => void
@@ -108,15 +99,15 @@ type Props = {
     >
   >
   splitReady?: boolean
-  updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
+
   updateStatus?: (status: number) => void
-  canUseSplit?: boolean
+
   canUseFeature?: (v: OrderFeatureType) => boolean
   isIncludeProjectTeam: boolean
+  type: 'detail' | 'history'
 }
 
 const LanguageAndItem = ({
-  langItem,
   clientId,
   languagePairs,
   setLanguagePairs,
@@ -125,29 +116,28 @@ const LanguageAndItem = ({
   setItem,
   itemTrigger,
   itemErrors,
-  isItemValid,
+
   priceUnitsList,
   items,
   removeItems,
   getTeamValues,
-  projectTax,
+
   appendItems,
   orderId,
   setLangItemsEdit,
   langItemsEdit,
   project,
-  updateItems,
+
   onClickSplitOrder,
-  onClickCancelSplitOrder,
-  onClickSplitOrderConfirm,
   selectedIds,
   setSelectedIds,
   splitReady,
-  updateProject,
+
   updateStatus,
-  canUseSplit,
+
   canUseFeature,
   isIncludeProjectTeam,
+  type,
 }: Props) => {
   console.log(getItem())
 
@@ -288,6 +278,7 @@ const LanguageAndItem = ({
       currentRole &&
       currentRole.name !== 'CLIENT' &&
       isIncludeProjectTeam &&
+      type !== 'history' &&
       !splitReady ? (
         <Box
           sx={{

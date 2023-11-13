@@ -57,6 +57,10 @@ type Props = {
   onClose: any
   onClick: any
   canUseDisableButton?: boolean
+  statusList: {
+    value: number
+    label: string
+  }[]
 }
 
 const VersionHistoryModal = ({
@@ -65,6 +69,7 @@ const VersionHistoryModal = ({
   onClick,
   project,
   canUseDisableButton,
+  statusList,
 }: Props) => {
   const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
   const teamOrder = ['supervisor', 'projectManager', 'member']
@@ -75,7 +80,6 @@ const VersionHistoryModal = ({
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
   const [teams, setTeams] = useState<ProjectTeamListType[]>([])
-  const { data: statusList } = useGetStatusList('Order')
 
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
@@ -483,6 +487,8 @@ const VersionHistoryModal = ({
               role={currentRole!}
               canUseFeature={() => false}
               jobInfo={[]}
+              statusList={statusList}
+              client={{ ...history.client, isEnrolledClient: true }}
             />
           </TabPanel>
           <TabPanel
@@ -497,7 +503,6 @@ const VersionHistoryModal = ({
               }}
             >
               <LanguageAndItem
-                langItem={history.items!}
                 languagePairs={languagePairs!}
                 setLanguagePairs={setLanguagePairs}
                 clientId={history.client.client.clientId}
@@ -506,17 +511,16 @@ const VersionHistoryModal = ({
                 setItem={setItem}
                 itemTrigger={itemTrigger}
                 itemErrors={itemErrors}
-                isItemValid={isItemValid}
                 priceUnitsList={priceUnitsList || []}
                 items={items}
                 removeItems={removeItems}
                 getTeamValues={getTeamValues}
-                projectTax={history.projectInfo!.tax}
                 appendItems={appendItems}
                 orderId={Number(project.id!)}
                 langItemsEdit={false}
                 project={history.projectInfo!}
                 isIncludeProjectTeam={isIncludeProjectTeam()}
+                type='history'
               />
             </Card>
           </TabPanel>
@@ -538,7 +542,7 @@ const VersionHistoryModal = ({
               type='history'
               list={teams}
               listCount={history.projectTeam.length}
-              columns={getProjectTeamColumns()}
+              columns={getProjectTeamColumns(currentRole?.name)}
               page={page}
               pageSize={pageSize}
               setPage={setPage}

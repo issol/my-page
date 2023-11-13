@@ -51,7 +51,7 @@ const VersionHistory = ({
             NoResultsOverlay: () => NoList('There is no version history'),
           }}
           sx={{
-            overflowX: 'scroll',
+            // overflowX: 'scroll',
             '& .MuiDataGrid-row': { cursor: 'pointer' },
           }}
           columns={columns}
@@ -61,7 +61,7 @@ const VersionHistory = ({
           onCellClick={params => {
             onClickRow(params.row)
           }}
-          rowsPerPageOptions={[10, 25, 50]}
+          rowsPerPageOptions={[5, 15, 30]}
           pagination
           page={page}
           pageSize={pageSize}

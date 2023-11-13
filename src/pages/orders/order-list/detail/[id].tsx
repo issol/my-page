@@ -620,6 +620,7 @@ const OrderDetail = () => {
           onClose={() => closeModal('VersionHistoryModal')}
           onClick={onClickRestoreVersion}
           canUseDisableButton={canUseFeature('button-Restore')}
+          statusList={statusList!}
         />
       ),
     })
@@ -1836,7 +1837,6 @@ const OrderDetail = () => {
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
                   <LanguageAndItem
-                    langItem={langItem!}
                     languagePairs={languagePairs!}
                     setLanguagePairs={setLanguagePairs}
                     clientId={client?.client.clientId!}
@@ -1845,18 +1845,15 @@ const OrderDetail = () => {
                     setItem={setItem}
                     itemTrigger={itemTrigger}
                     itemErrors={itemErrors}
-                    isItemValid={isItemValid}
                     priceUnitsList={priceUnitsList || []}
                     items={items}
                     removeItems={removeItems}
                     getTeamValues={getTeamValues}
-                    projectTax={projectInfo!.tax}
                     appendItems={appendItems}
                     orderId={Number(id!)}
                     langItemsEdit={langItemsEdit}
                     setLangItemsEdit={setLangItemsEdit}
                     project={projectInfo!}
-                    updateItems={patchItems}
                     onClickSplitOrder={onClickSplitOrder}
                     onClickCancelSplitOrder={onClickCancelSplitOrder}
                     onClickSplitOrderConfirm={onClickSplitOrderConfirm}
@@ -1872,6 +1869,7 @@ const OrderDetail = () => {
                     }
                     canUseFeature={canUseFeature}
                     isIncludeProjectTeam={isIncludeProjectTeam()}
+                    type='detail'
                   />
 
                   {/* <Grid item xs={12}>
