@@ -83,7 +83,7 @@ type Props = {
     'items'
   >
   orderId: number
-  setLangItemsEdit: Dispatch<SetStateAction<boolean>>
+  setLangItemsEdit?: Dispatch<SetStateAction<boolean>>
   langItemsEdit: boolean
   project?: ProjectInfoType
   updateItems?: UseMutationResult<
@@ -111,7 +111,7 @@ type Props = {
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
   updateStatus?: (status: number) => void
   canUseSplit?: boolean
-  canUseFeature: (v: OrderFeatureType) => boolean
+  canUseFeature?: (v: OrderFeatureType) => boolean
   isIncludeProjectTeam: boolean
 }
 
@@ -149,12 +149,14 @@ const LanguageAndItem = ({
   canUseFeature,
   isIncludeProjectTeam,
 }: Props) => {
+  console.log(getItem())
+
   const { openModal, closeModal } = useModal()
 
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
-  const isUpdatable = canUseFeature('tab-Languages&Items')
+  const isUpdatable = canUseFeature && canUseFeature('tab-Languages&Items')
   const currentRole = getCurrentRole()
 
   const [subtotal, setSubTotal] = useState(0)
@@ -300,7 +302,8 @@ const LanguageAndItem = ({
             sx={{ display: 'flex', gap: '8px', mb: '24px' }}
             disabled={
               items.length <= 0 ||
-              !canUseFeature('button-Languages&Items-SplitOrder')
+              (canUseFeature &&
+                !canUseFeature('button-Languages&Items-SplitOrder'))
             }
             onClick={onClickSplitOrder}
           >
@@ -310,9 +313,12 @@ const LanguageAndItem = ({
           {isUpdatable ? (
             <IconButton
               onClick={() => {
-                if (canUseFeature('button-Edit-Set-Status-To-UnderRevision'))
+                if (
+                  canUseFeature &&
+                  canUseFeature('button-Edit-Set-Status-To-UnderRevision')
+                )
                   updateStatus && updateStatus(10500)
-                setLangItemsEdit(!langItemsEdit)
+                setLangItemsEdit && setLangItemsEdit(!langItemsEdit)
               }}
             >
               <Icon icon='mdi:pencil-outline' />
@@ -373,14 +379,19 @@ const LanguageAndItem = ({
       {/* subtotal */}
       {splitReady ? null : (
         <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+            }}
+          >
             <Box
               sx={{
                 display: 'flex',
                 gap: '20px',
                 borderBottom: '2px solid #666CFF',
                 justifyContent: 'center',
-                width: '257px',
+                width: '30%',
               }}
             >
               <Typography
@@ -389,7 +400,8 @@ const LanguageAndItem = ({
                 sx={{
                   padding: '16px 16px 16px 20px',
                   flex: 1,
-                  textAlign: 'right',
+                  display: 'flex',
+                  justifyContent: 'flex-end',
                 }}
               >
                 Subtotal
@@ -397,7 +409,12 @@ const LanguageAndItem = ({
               <Typography
                 fontWeight={600}
                 variant='subtitle1'
-                sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                sx={{
+                  padding: '16px 16px 16px 20px',
+                  flex: 1,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                }}
               >
                 {getItem().items.length && getItem().items[0].initialPrice
                   ? formatCurrency(

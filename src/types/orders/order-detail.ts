@@ -114,8 +114,8 @@ export type HistoryType = {
 export type VersionHistoryType = {
   id: number
   version: number
-  email: string
-  downloadedAt: string
+  account: string
+  confirmedAt: string
   items: LanguageAndItemType
 } & HistoryType
 

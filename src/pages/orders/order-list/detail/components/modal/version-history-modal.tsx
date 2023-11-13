@@ -8,9 +8,10 @@ import {
   Tab,
   Typography,
   styled,
+  Grid,
 } from '@mui/material'
 import Icon from '@src/@core/components/icon'
-
+import { v4 as uuidv4 } from 'uuid'
 import TabContext from '@mui/lab/TabContext'
 import {
   MouseEvent,
@@ -26,6 +27,7 @@ import {
   HistoryType,
   OrderDownloadData,
   ProjectInfoType,
+  ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
@@ -34,6 +36,20 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useGetStatusList } from '@src/queries/common.query'
 import ClientOrder from '../client-order'
+import LanguageAndItem from '../language-item'
+import { languageType } from '@src/pages/orders/add-new'
+import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import { ItemType } from '@src/types/common/item.type'
+import { useFieldArray, useForm } from 'react-hook-form'
+import { itemSchema } from '@src/types/schema/item.schema'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
+import {
+  MemberType,
+  ProjectTeamType,
+  projectTeamSchema,
+} from '@src/types/schema/project-team.schema'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type Props = {
   history: VersionHistoryType
@@ -50,11 +66,15 @@ const VersionHistoryModal = ({
   project,
   canUseDisableButton,
 }: Props) => {
+  const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
+  const teamOrder = ['supervisor', 'projectManager', 'member']
   const auth = useRecoilValueLoadable(authState)
   const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
     null,
   )
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
+  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+  const [teams, setTeams] = useState<ProjectTeamListType[]>([])
   const { data: statusList } = useGetStatusList('Order')
 
   const [pageSize, setPageSize] = useState<number>(10)
@@ -67,10 +87,189 @@ const VersionHistoryModal = ({
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
-  console.log('history', history)
+
+  const {
+    control: itemControl,
+    getValues: getItem,
+    setValue: setItem,
+    trigger: itemTrigger,
+    reset: itemReset,
+    formState: { errors: itemErrors, isValid: isItemValid },
+  } = useForm<{ items: ItemType[] }>({
+    mode: 'onBlur',
+    defaultValues: { items: [] },
+    resolver: yupResolver(itemSchema),
+  })
+
+  const {
+    fields: items,
+    append: appendItems,
+    remove: removeItems,
+    update: updateItems,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'items',
+  })
+
+  const {
+    control: teamControl,
+    getValues: getTeamValues,
+    setValue: setTeamValues,
+
+    watch: teamWatch,
+    reset: resetTeam,
+    formState: { errors: teamErrors, isValid: isTeamValid },
+  } = useForm<ProjectTeamType>({
+    mode: 'onChange',
+    defaultValues: {
+      teams: [
+        { type: 'supervisorId', id: null },
+        {
+          type: 'projectManagerId',
+          id: auth.getValue().user?.userId!,
+          name: getLegalName({
+            firstName: auth.getValue().user?.firstName!,
+            middleName: auth.getValue().user?.middleName,
+            lastName: auth.getValue().user?.lastName!,
+          }),
+        },
+        { type: 'member', id: null },
+      ],
+    },
+    resolver: yupResolver(projectTeamSchema),
+  })
+
+  const { data: priceUnitsList } = useGetAllClientPriceList()
 
   useEffect(() => {
     makePdfData()
+    const { items, projectTeam, projectInfo } = history
+    if (items) {
+      setLanguagePairs(
+        items?.items?.map(item => ({
+          id: String(item.id),
+          source: item.source!,
+          target: item.target!,
+          price: {
+            id: item.initialPrice?.priceId!,
+            isStandard: item.initialPrice?.isStandard!,
+            priceName: item.initialPrice?.name!,
+            groupName: 'Current price',
+            category: item.initialPrice?.category!,
+            serviceType: item.initialPrice?.serviceType!,
+            currency: item.initialPrice?.currency!,
+            catBasis: item.initialPrice?.calculationBasis!,
+            decimalPlace: item.initialPrice?.numberPlace!,
+            roundingProcedure:
+              RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+            languagePairs: [],
+            priceUnit: [],
+            catInterface: { memSource: [], memoQ: [] },
+          },
+        }))!,
+      )
+      const result = items?.items?.map(item => {
+        return {
+          id: item.id,
+          name: item.itemName,
+          itemName: item.itemName,
+          source: item.sourceLanguage,
+          target: item.targetLanguage,
+          priceId: item.priceId,
+          detail: !item?.detail?.length
+            ? []
+            : item.detail.map(value => ({
+                ...value,
+                priceUnit: value.priceUnit ?? value.initialPriceUnit?.title,
+              })),
+          contactPerson: item.contactPerson,
+          contactPersonId: Number(item.contactPerson?.userId!),
+          description: item.description,
+          analysis: item.analysis ?? [],
+          totalPrice: item?.totalPrice ?? 0,
+          dueAt: item?.dueAt,
+          showItemDescription: item.showItemDescription,
+          initialPrice: item.initialPrice,
+          minimumPrice: item.minimumPrice,
+          minimumPriceApplied: item.minimumPriceApplied,
+        }
+      })
+      itemReset({ items: result })
+    }
+    if (projectTeam) {
+      let viewTeams: ProjectTeamListType[] = [...projectTeam].map(value => ({
+        ...value,
+        id: uuidv4(),
+      }))
+
+      if (!viewTeams.some(item => item.position === 'supervisor')) {
+        viewTeams.unshift({
+          id: uuidv4(),
+          position: 'supervisor',
+          userId: -1,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+      if (!viewTeams.some(item => item.position === 'member')) {
+        viewTeams.push({
+          id: uuidv4(),
+          position: 'member',
+          userId: 0,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+
+      const res = viewTeams.sort((a, b) => {
+        const aIndex = teamOrder.indexOf(a.position)
+        const bIndex = teamOrder.indexOf(b.position)
+        return aIndex - bIndex
+      })
+
+      if (viewTeams.length) setTeams(res)
+
+      const teams: Array<{
+        type: MemberType
+        id: number | null
+        name: string
+      }> = projectTeam.map(item => ({
+        type:
+          item.position === 'projectManager'
+            ? 'projectManagerId'
+            : item.position === 'supervisor'
+            ? 'supervisorId'
+            : 'member',
+        id: item.userId,
+        name: getLegalName({
+          firstName: item?.firstName!,
+          middleName: item?.middleName,
+          lastName: item?.lastName!,
+        }),
+      }))
+      if (!teams.some(item => item.type === 'supervisorId')) {
+        teams.unshift({ type: 'supervisorId', id: null, name: '' })
+      }
+
+      if (!teams.some(item => item.type === 'member')) {
+        teams.push({ type: 'member', id: null, name: '' })
+      }
+      if (teams.length) {
+        const res = teams.sort((a, b) => {
+          const aIndex = fieldOrder.indexOf(a.type)
+          const bIndex = fieldOrder.indexOf(b.type)
+          return aIndex - bIndex
+        })
+
+        resetTeam({ teams: res })
+      }
+    }
   }, [history])
 
   function makePdfData() {
@@ -105,13 +304,26 @@ const VersionHistoryModal = ({
 
     setDownloadData(res)
   }
+
+  const isIncludeProjectTeam = () => {
+    return Boolean(
+      (currentRole?.name !== 'CLIENT' &&
+        (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
+        (currentRole?.type === 'General' &&
+          history.projectTeam?.length &&
+          history.projectTeam.some(
+            item => item.userId === auth.getValue().user?.id!,
+          )),
+    )
+  }
+
   return (
     <Box
       sx={{
         maxWidth: '1266px',
         width: '100%',
         maxHeight: '900px',
-        height: '100%',
+        // height: '100%',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
@@ -275,8 +487,39 @@ const VersionHistoryModal = ({
           </TabPanel>
           <TabPanel
             value='2'
-            sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
-          ></TabPanel>
+            // sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
+          >
+            <Card
+              sx={{
+                padding: '0 24px 24px 24px',
+                overflow: 'scroll',
+                maxHeight: '552px',
+              }}
+            >
+              <LanguageAndItem
+                langItem={history.items!}
+                languagePairs={languagePairs!}
+                setLanguagePairs={setLanguagePairs}
+                clientId={history.client.client.clientId}
+                itemControl={itemControl}
+                getItem={getItem}
+                setItem={setItem}
+                itemTrigger={itemTrigger}
+                itemErrors={itemErrors}
+                isItemValid={isItemValid}
+                priceUnitsList={priceUnitsList || []}
+                items={items}
+                removeItems={removeItems}
+                getTeamValues={getTeamValues}
+                projectTax={history.projectInfo!.tax}
+                appendItems={appendItems}
+                orderId={Number(project.id!)}
+                langItemsEdit={false}
+                project={history.projectInfo!}
+                isIncludeProjectTeam={isIncludeProjectTeam()}
+              />
+            </Card>
+          </TabPanel>
           <TabPanel
             value='3'
             sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
@@ -293,7 +536,7 @@ const VersionHistoryModal = ({
           >
             <ProjectTeam
               type='history'
-              list={history.projectTeam}
+              list={teams}
               listCount={history.projectTeam.length}
               columns={getProjectTeamColumns()}
               page={page}

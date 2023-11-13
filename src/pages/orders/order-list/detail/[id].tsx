@@ -696,7 +696,11 @@ const OrderDetail = () => {
       headerName: 'Position',
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Version</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Version
+        </Typography>
+      ),
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return <Box>Ver. {row.version}</Box>
       },
@@ -708,24 +712,32 @@ const OrderDetail = () => {
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Account</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Account
+        </Typography>
+      ),
       renderCell: ({ row }: { row: VersionHistoryType }) => {
-        return <Box>{row.email}</Box>
+        return <Box>{row.account ?? '-'}</Box>
       },
     },
     {
       flex: 0.3283,
-      field: 'jobTitle',
-      headerName: 'Job title',
+      field: 'confirmedAt',
+      headerName: 'Date&Time',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Date&Time</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Date&Time
+        </Typography>
+      ),
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return (
           <Box>
             {FullDateTimezoneHelper(
-              row.downloadedAt,
+              row.confirmedAt,
               auth.getValue().user?.timezone!,
             )}
           </Box>
