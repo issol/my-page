@@ -153,6 +153,7 @@ export default function ItemPriceUnitForm({
       subPriceUnits: [],
       groupName: 'Price unit',
     }))
+
     const matchingUnit: Array<NestedPriceUnitType> =
       priceData?.priceUnit?.map(item => ({
         ...item,
@@ -165,7 +166,6 @@ export default function ItemPriceUnitForm({
         !matchingUnit.some(item1 => item1.priceUnitId === item2.priceUnitId),
     )
 
-    // const data = matchingUnit?.concat(filteredPriceUnit)
     const data = [...matchingUnit, ...priceUnit]
 
     // const uniqueArray = Array.from(new Set(data.map(item => item.priceUnitId)))
@@ -254,6 +254,8 @@ export default function ItemPriceUnitForm({
     const [price, setPrice] = useState(savedValue.prices || 0)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
+    const options = nestSubPriceUnits(idx)
+
     const updatePrice = () => {
       const newPrice = getValues(`${detailName}.${idx}`)
       if (type !== 'detail' && type !== 'invoiceDetail')
@@ -279,7 +281,7 @@ export default function ItemPriceUnitForm({
     }
 
     const onClickDeletePriceUnit = (idx: number) => {
-      if (options[idx]) {
+      if (options.find(item => item.id === idx)) {
         openModal({
           type: 'DeletePriceUnitModal',
           children: (
@@ -290,7 +292,7 @@ export default function ItemPriceUnitForm({
                 <>
                   Are you sure you want to delete this price unit?
                   <Typography variant='body2' fontWeight={700} fontSize={16}>
-                    {options[idx].title}
+                    {options.find(item => item.id === idx)?.title ?? ''}
                   </Typography>
                 </>
               }
@@ -334,7 +336,6 @@ export default function ItemPriceUnitForm({
 
     const [open, setOpen] = useState(false)
     const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
-    const options = nestSubPriceUnits(idx)
 
     return (
       <TableRow
@@ -447,8 +448,6 @@ export default function ItemPriceUnitForm({
                         const unitPrice = priceFactor
                           ? priceFactor * v.price
                           : v.price
-
-                        console.log(unitPrice, 'unitPrice')
 
                         update(idx, {
                           ...savedValue,
@@ -695,7 +694,13 @@ export default function ItemPriceUnitForm({
           type === 'invoiceDetail' ||
           type === 'invoiceHistory' ||
           type === 'invoiceCreate' ? null : (
-            <IconButton onClick={() => onClickDeletePriceUnit(idx)}>
+            <IconButton
+              onClick={() => {
+                onClickDeletePriceUnit(
+                  getValues(`${detailName}.${idx}.priceUnitId`)!,
+                )
+              }}
+            >
               <Icon icon='mdi:trash-outline' />
             </IconButton>
           )}
