@@ -201,14 +201,35 @@ const ProjectInfo = ({
     if (status === 10950) {
       openModal({
         type: `ChangeWithoutInvoiceStatusModal`,
+        // children: (
+        //   <SimpleMultilineAlertModal
+        //     onClose={() => closeModal('ChangeWithoutInvoiceStatusModal')}
+        //     onConfirm={() => updateStatus && updateStatus(status)}
+        //     closeButtonText='Cancel'
+        //     confirmButtonText='Proceed'
+        //     message={`Are you sure you want to change the status to Without invoice?\n\nThe client's status will also be updated accordingly.`}
+        //     vary='error'
+        //   />
+        // ),
         children: (
-          <SimpleMultilineAlertModal
+          <CustomModal
             onClose={() => closeModal('ChangeWithoutInvoiceStatusModal')}
-            onConfirm={() => updateStatus && updateStatus(status)}
-            closeButtonText='Cancel'
-            confirmButtonText='Proceed'
-            message={`Are you sure you want to change the status to Without invoice?\n\nThe client's status will also be updated accordingly.`}
+            onClick={() =>
+              updateStatus &&
+              updateStatus(status, () =>
+                closeModal('ChangeWithoutInvoiceStatusModal'),
+              )
+            }
+            title={
+              <>
+                re you sure you want to change the status to Without invoice?{' '}
+                <br />
+                <br />
+                The client's status will also be updated accordingly.{' '}
+              </>
+            }
             vary='error'
+            rightButtonText='Proceed'
           />
         ),
       })
