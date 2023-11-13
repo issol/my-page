@@ -243,8 +243,6 @@ const OrderDetail = () => {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
 
-  console.log(isUpdatable)
-
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
   const { data: projectTeam, isLoading: projectTeamLoading } =
@@ -1320,9 +1318,11 @@ const OrderDetail = () => {
             (projectInfo?.status === 'New' ||
               projectInfo?.status === 'In preparation' ||
               projectInfo?.status === 'Internal review') &&
-            !projectInfo?.linkedInvoiceReceivable &&
-            projectInfo?.linkedJobs.length === 0 &&
+            // !projectInfo?.linkedInvoiceReceivable &&
+            // projectInfo?.linkedJobs.length === 0 &&
             isIncludeProjectTeam()
+          console.log(flag)
+
           break
         case 'button-Languages&Items-SplitOrder':
           flag =
@@ -1502,6 +1502,8 @@ const OrderDetail = () => {
           projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
     )
   }
+
+  console.log(isIncludeProjectTeam())
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
