@@ -11,6 +11,7 @@ type Props = {
   subtitleColor?: 'primary' | 'secondary'
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
   textarea?: boolean
+  textareaRequired?: boolean
   textareaPlaceholder?: string
   leftButtonText?: string
   rightButtonText: string
@@ -27,6 +28,7 @@ const CustomModal = ({
   leftButtonText,
   rightButtonText,
   textarea,
+  textareaRequired,
   textareaPlaceholder,
   soloButton,
 }: Props) => {
@@ -121,7 +123,7 @@ const CustomModal = ({
           <Button
             variant='contained'
             onClick={() => (textarea ? onClick(text) : onClick())}
-            disabled={textarea && text === ''}
+            disabled={textareaRequired ? textarea && text === '' : false}
           >
             {rightButtonText}
           </Button>

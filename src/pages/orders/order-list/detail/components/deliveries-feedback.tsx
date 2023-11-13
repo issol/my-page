@@ -638,6 +638,7 @@ const DeliveriesFeedback = ({
           vary='successful'
           rightButtonText='Confirm'
           textarea={true}
+          textareaRequired={false}
           textareaPlaceholder='Write down feedback for the deliveries'
         />
       ),
@@ -696,6 +697,7 @@ const DeliveriesFeedback = ({
           vary='successful'
           rightButtonText='Send'
           textarea={true}
+          textareaRequired={true}
           textareaPlaceholder='Write down feedback for the deliveries'
         />
       ),

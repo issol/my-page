@@ -232,7 +232,10 @@ const ProjectInfo = ({
             }
             vary='successful'
             rightButtonText='Proceed'
-            onClick={() => updateStatus && updateStatus(status)}
+            onClick={() =>
+              updateStatus &&
+              updateStatus(status, () => closeModal('ChangeStatusModal'))
+            }
             onClose={() => closeModal('ChangeStatusModal')}
           />
         ),
