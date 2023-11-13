@@ -721,6 +721,8 @@ const DeliveriesFeedback = ({
   }, [project])
 
   console.log(uploadFileProcessing)
+  console.log(savedFiles)
+
   console.log('project', project)
   console.log('status list', statusList)
   return (
@@ -923,7 +925,7 @@ const DeliveriesFeedback = ({
               : '-'}
             {files.length || importedFiles.length ? (
               <>
-                <Divider />
+                {savedFiles.length ? <Divider /> : null}
                 <Box
                   sx={{
                     display: 'grid',
@@ -936,19 +938,22 @@ const DeliveriesFeedback = ({
                 </Box>
               </>
             ) : uploadFileProcessing ? (
-              <Box
-                sx={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
+              <>
+                {savedFiles.length > 0 ? <Divider /> : null}
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
 
-                  padding: '24px',
-                }}
-              >
-                <Typography variant='body2'>No files uploaded</Typography>
-              </Box>
+                    padding: '24px',
+                  }}
+                >
+                  <Typography variant='body2'>No files uploaded</Typography>
+                </Box>
+              </>
             ) : null}
           </Box>
         </Card>
