@@ -605,6 +605,7 @@ const DeliveriesFeedback = ({
           onClose={() => closeModal('CancelDeliverModal')}
           title='Are you sure you want to cancel the file upload? The files you uploaded will not be saved.'
           vary='error'
+          leftButtonText='No'
           rightButtonText='Cancel'
         />
       ),
