@@ -624,9 +624,45 @@ export default function AddNewOrder() {
             createLangPairForOrder(res.id, filteredLangs),
             createItemsForOrder(res.id, items),
           ])
-            .then(() => {
-              router.push(`/orders/order-list/detail/${res.id}`)
+            .then(data => {
+              console.log(data[1].length)
               closeModal('onClickSaveOrder')
+              // router.push(`/orders/order-list/detail/${res.id}`)
+              if (data[1].length > 0) {
+                openModal({
+                  type: 'CreateJobModal',
+                  children: (
+                    <CustomModal
+                      onClose={() => {
+                        closeModal('CreateJobModal')
+                        router.push(`/orders/order-list/detail/${res.id}`)
+                      }}
+                      leftButtonText='Later'
+                      rightButtonText='Create job'
+                      onClick={() => {
+                        closeModal('CreateJobModal')
+                        router.push({
+                          pathname: '/orders/job-list/details/',
+                          query: { orderId: res.id },
+                        })
+                      }}
+                      vary='successful'
+                      title={
+                        <>
+                          Would you like to create jobs from this order?
+                          <Typography
+                            variant='body2'
+                            fontWeight={600}
+                            fontSize={16}
+                          >
+                            [{res.corporationId}] {res.projectName}
+                          </Typography>
+                        </>
+                      }
+                    />
+                  ),
+                })
+              }
             })
             .catch(e => onRequestError())
         }
