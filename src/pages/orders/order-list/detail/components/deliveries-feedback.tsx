@@ -62,6 +62,7 @@ import {
 } from '@src/apis/order-detail.api'
 import NoList from '@src/pages/components/no-list'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import SelectRequestRedeliveryReasonModal from './modal/select-request-redelivery-reason-modal'
 
 type Props = {
   project: ProjectInfoType
@@ -649,13 +650,16 @@ const DeliveriesFeedback = ({
     openModal({
       type: 'RequestRedeliveryModal',
       children: (
-        <SelectReasonModal
+        <SelectRequestRedeliveryReasonModal
           onClose={() => closeModal('RequestRedeliveryModal')}
           onClick={(status: number, reason: CancelReasonType) =>
             updateProject.mutate(
               { status: status, reason: reason },
               {
                 onSuccess: () => {
+                  closeModal('RequestRedeliveryModal')
+                },
+                onError: () => {
                   closeModal('RequestRedeliveryModal')
                 },
               },
@@ -974,7 +978,9 @@ const DeliveriesFeedback = ({
                 </Typography>
                 {currentRole &&
                 currentRole.name === 'CLIENT' &&
-                (project.feedback === '-' || project.feedback === null) ? (
+                (!project.feedback ||
+                  project.feedback === '-' ||
+                  project.feedback === null) ? (
                   <Button
                     variant='contained'
                     sx={{ height: '34px' }}
