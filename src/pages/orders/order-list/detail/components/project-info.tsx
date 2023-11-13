@@ -219,7 +219,8 @@ const ProjectInfo = ({
     if (client && statusList) {
       if (!client.isEnrolledClient) {
         if (project.status === 'Delivery confirmed') {
-          return statusList?.filter(value => value.label === 'Without invoice')
+          // return statusList?.filter(value => value.label === 'Without invoice')
+          return statusList!
         } else {
           return statusList?.filter(
             value =>
@@ -230,14 +231,17 @@ const ProjectInfo = ({
         }
       } else {
         if (project.status === 'Delivery confirmed') {
-          return statusList?.filter(value => value.label === 'Without invoice')
+          return statusList?.filter(
+            value =>
+              value.label === 'Without invoice' ||
+              value.label === 'Delivery confirmed',
+          )
         } else {
           return statusList?.filter(
             value =>
               value.label === 'New' ||
               value.label === 'In preparation' ||
-              value.label === 'Internal review' ||
-              value.label === 'Without invoice',
+              value.label === 'Internal review',
           )
         }
       }
