@@ -54,6 +54,7 @@ import { getClientDetail } from '@src/apis/client.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import SimpleMultilineAlertWithCumtomTitleModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-with-custom-title-modal'
 import { ReasonType } from '@src/types/quotes/quote'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   project: ProjectInfoType
@@ -196,6 +197,7 @@ const ProjectInfo = ({
   }
 
   const onChangeStatus = (status: number) => {
+    const statusLabel = statusList?.find(value => value.value === status)?.label
     if (status === 10950) {
       openModal({
         type: `ChangeWithoutInvoiceStatusModal`,
@@ -211,7 +213,30 @@ const ProjectInfo = ({
         ),
       })
     } else {
-      updateStatus && updateStatus(status)
+      openModal({
+        type: 'ChangeStatusModal',
+        children: (
+          <CustomModal
+            title={
+              <>
+                Are you sure you want to change the order status into{' '}
+                <Typography
+                  variant='body2'
+                  fontWeight={600}
+                  component={'span'}
+                  fontSize={16}
+                >
+                  [{statusLabel ?? ''}]
+                </Typography>
+              </>
+            }
+            vary='successful'
+            rightButtonText='Proceed'
+            onClick={() => updateStatus && updateStatus(status)}
+            onClose={() => closeModal('ChangeStatusModal')}
+          />
+        ),
+      })
     }
   }
 
