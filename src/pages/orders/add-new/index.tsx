@@ -1177,15 +1177,17 @@ export default function AddNewOrder() {
                       variant='subtitle1'
                       sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
-                      {formatCurrency(
-                        formatByRoundingProcedure(
-                          subPrice,
-                          priceInfo?.decimalPlace!,
-                          priceInfo?.roundingProcedure!,
-                          priceInfo?.currency ?? 'USD',
-                        ),
-                        priceInfo?.currency ?? 'USD',
-                      )}
+                      {subPrice === 0
+                        ? '-'
+                        : formatCurrency(
+                            formatByRoundingProcedure(
+                              subPrice,
+                              priceInfo?.decimalPlace!,
+                              priceInfo?.roundingProcedure!,
+                              priceInfo?.currency ?? 'USD',
+                            ),
+                            priceInfo?.currency ?? 'USD',
+                          )}
                     </Typography>
                   </Box>
                 </Box>
