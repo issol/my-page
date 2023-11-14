@@ -64,7 +64,7 @@ export default function ClientAddressesForm({
   getValues,
 }: Props) {
   const country = getTypeList('CountryCode')
-  const basicAddress = fields.filter(item => item.addressType !== 'additional')
+  const basicAddress = fields.filter(item => !['billing','additional'].includes(item.addressType!))
   const additionalAddress = fields.filter(
     item => item.addressType === 'additional',
   )
@@ -207,7 +207,7 @@ export default function ClientAddressesForm({
                 {item.addressType === 'billing' ? 'Billing' : 'Shipping'}{' '}
                 address
               </Typography>
-              {item.addressType === 'shipping' &&
+              {/* {item.addressType === 'shipping' &&
               checked !== undefined &&
               setChecked ? (
                 <Box>
@@ -226,7 +226,7 @@ export default function ClientAddressesForm({
                     Same as the billing address
                   </Typography>
                 </Box>
-              ) : null}
+              ) : null} */}
             </Grid>
             {renderFormTemplate(item.id)}
             <Grid item xs={12}>
