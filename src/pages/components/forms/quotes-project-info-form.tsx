@@ -580,11 +580,7 @@ export default function ProjectInfoForm({
                   value?.includes(item.value),
                 )}
                 renderInput={params => (
-                  <TextField
-                    {...params}
-                    label='Area of expertise'
-                    placeholder='Area of expertise'
-                  />
+                  <TextField {...params} label='Area of expertise' />
                 )}
                 renderOption={(props, option, { selected }) => (
                   <li {...props}>
