@@ -63,11 +63,22 @@ import {
 import NoList from '@src/pages/components/no-list'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import SelectRequestRedeliveryReasonModal from './modal/select-request-redelivery-reason-modal'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type Props = {
   project: ProjectInfoType
   isSubmittable: boolean
   updateProject: UseMutationResult<void, unknown, updateOrderType, unknown>
+  updateStatus: UseMutationResult<
+    any,
+    unknown,
+    {
+      id: number
+      status: number
+      reason?: ReasonType | undefined
+    },
+    unknown
+  >
   statusList: Array<{ value: number; label: string }>
   canUseFeature: (v: OrderFeatureType) => boolean
   uploadFileProcessing: boolean
@@ -78,6 +89,7 @@ const DeliveriesFeedback = ({
   project,
   isSubmittable,
   updateProject,
+  updateStatus,
   statusList,
   canUseFeature,
   uploadFileProcessing,
@@ -652,9 +664,9 @@ const DeliveriesFeedback = ({
       children: (
         <SelectRequestRedeliveryReasonModal
           onClose={() => closeModal('RequestRedeliveryModal')}
-          onClick={(status: number, reason: CancelReasonType) =>
-            updateProject.mutate(
-              { status: status, reason: reason },
+          onClick={(status: number, reason: ReasonType) =>
+            updateStatus.mutate(
+              { id: project.id, status: status, reason: reason },
               {
                 onSuccess: () => {
                   closeModal('RequestRedeliveryModal')

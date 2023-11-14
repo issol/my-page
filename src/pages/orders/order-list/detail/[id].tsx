@@ -2146,6 +2146,7 @@ const OrderDetail = () => {
                   project={projectInfo!}
                   isSubmittable={true}
                   updateProject={updateProject}
+                  updateStatus={updateOrderStatusMutation}
                   statusList={statusList!}
                   canUseFeature={canUseFeature}
                   uploadFileProcessing={uploadFileProcessing}
