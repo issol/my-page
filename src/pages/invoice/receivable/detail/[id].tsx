@@ -614,7 +614,7 @@ const ReceivableInvoiceDetail = () => {
   }, [client, clientReset])
 
   useEffect(() => {
-    if (langItem && prices && invoiceInfo) {
+    if (langItem && prices && invoiceInfo && client) {
       const clientTimezone =
         getClientValue('contacts.timezone') ?? auth.getValue().user?.timezone!
 
@@ -698,18 +698,9 @@ const ReceivableInvoiceDetail = () => {
           timezone: invoiceInfo.payDueTimezone ?? clientTimezone!,
         },
         invoiceConfirmDate: {
-          date:
-            client?.contactPerson !== null &&
-            client?.contactPerson.userId !== null
-              ? invoiceInfo.clientConfirmedAt ?? null
-              : null,
-          // date:
+          date: invoiceInfo.clientConfirmedAt ?? null,
 
-          timezone:
-            client?.contactPerson !== null &&
-            client?.contactPerson.userId !== null
-              ? invoiceInfo.clientConfirmTimezone ?? null
-              : null,
+          timezone: invoiceInfo.clientConfirmTimezone ?? null,
         },
         taxInvoiceDueDate: {
           date: invoiceInfo.taxInvoiceDueAt ?? null,
@@ -746,6 +737,7 @@ const ReceivableInvoiceDetail = () => {
           0,
         ),
       }
+
       invoiceInfoReset(res)
     }
     if (projectTeam) {
@@ -841,7 +833,7 @@ const ReceivableInvoiceDetail = () => {
       // }))
       // resetTeam({ teams })
     }
-  }, [langItem, projectTeam, prices, invoiceInfo])
+  }, [langItem, projectTeam, prices, invoiceInfo, client])
 
   function makePdfData() {
     if (langItem) {

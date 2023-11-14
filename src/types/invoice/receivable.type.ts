@@ -280,6 +280,8 @@ export type InvoiceReceivablePatchParamsType = {
   payDueTimezone?: CountryType | null
   invoiceConfirmedAt?: string | null
   invoiceConfirmTimezone?: CountryType | null
+  clientConfirmedAt?: string | null
+  clientConfirmTimezone?: CountryType | null
   taxInvoiceDueAt?: string | null
   taxInvoiceDueTimezone?: CountryType | null
   invoiceDescription?: string

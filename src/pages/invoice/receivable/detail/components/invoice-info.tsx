@@ -396,8 +396,10 @@ const InvoiceInfo = ({
               description: data.invoiceDescription,
               showDescription: data.showDescription ? '1' : '0',
 
-              invoiceConfirmedAt: data.invoiceConfirmDate?.date,
-              invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
+              // invoiceConfirmedAt: data.invoiceConfirmDate?.date,
+              // invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
+              clientConfirmedAt: data.invoiceConfirmDate?.date,
+              clientConfirmTimezone: data.invoiceConfirmDate?.timezone,
               taxInvoiceDueAt: data.taxInvoiceDueDate?.date,
               taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone,
             }
