@@ -69,6 +69,7 @@ type Props = {
   client?: ClientType
   type: 'detail' | 'history'
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
+  updateContactPerson?: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList?: Array<{ value: number; label: string }>
   canUseFeature: (v: OrderFeatureType) => boolean
   jobInfo: Array<JobInfoType>
@@ -82,6 +83,7 @@ const ProjectInfo = ({
   client,
   type,
   updateProject,
+  updateContactPerson,
   statusList,
   canUseFeature,
   jobInfo,
@@ -300,16 +302,27 @@ const ProjectInfo = ({
   }
 
   const onClickEditSaveContactPerson = () => {
-    // TODO api
-    updateProject &&
-      updateProject.mutate(
-        { contactPersonId: contactPersonId },
-        {
-          onSuccess: () => {
-            setContactPersonEdit(false)
+    if(role.name === 'CLIENT') {
+      updateContactPerson &&
+      updateContactPerson.mutate(
+          { contactPersonId: contactPersonId },
+          {
+            onSuccess: () => {
+              setContactPersonEdit(false)
+            },
           },
-        },
-      )
+        )
+    } else {
+      updateProject &&
+      updateProject.mutate(
+          { contactPersonId: contactPersonId },
+          {
+            onSuccess: () => {
+              setContactPersonEdit(false)
+            },
+          },
+        )
+    }
   }
 
   // TODO: Order에 포함된 Job의 status를 체크하는 함수 필요

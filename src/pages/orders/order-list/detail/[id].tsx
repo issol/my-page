@@ -66,6 +66,7 @@ import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   confirmOrder,
+  patchOrderContactPerson,
   patchOrderProjectInfo,
   patchOrderStatus,
   splitOrder,
@@ -1118,6 +1119,30 @@ const OrderDetail = () => {
     },
   )
 
+  const updateContactPersonForClient = useMutation(
+    (form: updateOrderType) => patchOrderContactPerson(Number(id), form),
+    {
+      onSuccess: (data: any) => {
+        setProjectInfoEdit(false)
+        setClientEdit(false)
+        setProjectTeamEdit(false)
+        setLangItemsEdit(false)
+        projectInfoReset()
+        itemReset()
+        resetTeam()
+        if (data.id === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: ['orderDetail'],
+          })
+          queryClient.invalidateQueries(['orderList'])
+        } else {
+          router.replace(`/orders/order-list/detail/${data.id}`)
+        }
+      },
+      onError: () => onMutationError(),
+    },
+  )
+
   const updateProjectWithoutControlForm = useMutation(
     (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
@@ -1826,6 +1851,7 @@ const OrderDetail = () => {
                         )
                       }
                       updateProject={updateProject}
+                      updateContactPerson={updateContactPersonForClient}
                       client={client}
                       statusList={statusList!}
                       role={currentRole!}
