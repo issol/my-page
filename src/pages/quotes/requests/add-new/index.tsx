@@ -367,6 +367,8 @@ export default function AddNewRequest() {
                         client?.userId! === auth.getValue().user?.userId!,
                     )?.contactPersonId,
                   }
+                  console.log(clients.find(item => item.userId === value))
+
                   return (
                     <Autocomplete
                       fullWidth
@@ -385,12 +387,29 @@ export default function AddNewRequest() {
                         }
                       }}
                       isOptionEqualToValue={useCallback(
-                        (option: any, value: any) =>
-                          option.userId === value.userId,
+                        (option: any, value: any) => option.userId === value,
                         [],
                       )}
                       // disableClearable
-                      value={value ? selectedPerson : null}
+                      value={
+                        value
+                          ? clients.find(item => item.userId === value)
+                          : null
+                      }
+                      defaultValue={{
+                        userId: auth.getValue().user?.id!,
+                        label: getLegalName({
+                          firstName: auth.getValue().user?.firstName,
+                          middleName: auth.getValue().user?.middleName,
+                          lastName: auth.getValue().user?.lastName,
+                        }),
+                        timezone: auth.getValue().user?.timezone!,
+                        jobTitle: auth.getValue().user?.jobTitle,
+                        contactPersonId: clients?.find(
+                          client =>
+                            client?.userId! === auth.getValue().user?.userId!,
+                        )?.contactPersonId,
+                      }}
                       getOptionLabel={option =>
                         `${option.label}${
                           option.jobTitle ? ' / ' + option.jobTitle : ''
