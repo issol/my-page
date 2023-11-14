@@ -23,6 +23,7 @@ import { authState } from '@src/states/auth'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { QuotesFilterType, SortType } from '@src/types/quotes/quote'
 import { UserRoleType } from '@src/context/types'
+import { getQuoteListColumns } from '@src/shared/const/columns/quote-list'
 
 type QuotesListCellType = {
   row: QuotesListType
@@ -58,201 +59,6 @@ export default function QuotesList({
 }: Props) {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
-
-  const columns: GridColumns<QuotesListType> = [
-    {
-      field: 'corporationId',
-      flex: 0.05,
-      minWidth: 120,
-      headerName: 'No.',
-      disableColumnMenu: true,
-      renderHeader: () => (
-        <Box
-          sx={{
-            display: 'flex',
-            minWidth: 80,
-            width: '100%',
-            alignItems: 'center',
-          }}
-        >
-          <Box>No.</Box>
-        </Box>
-      ),
-      renderCell: ({ row }: QuotesListCellType) => {
-        return <Box>{row.corporationId}</Box>
-      },
-    },
-    {
-      flex: 0.05,
-      minWidth: 214,
-      field: 'status',
-      headerName: 'Status',
-      hideSortIcons: true,
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => <Box>Status</Box>,
-      renderCell: ({ row }: QuotesListCellType) => {
-        return (
-          <QuoteStatusChip
-            size='small'
-            status={row?.status}
-            label={row?.status}
-          />
-        )
-      },
-    },
-    {
-      flex: 0.1,
-      minWidth: 260,
-      field: 'name',
-      headerName: 'Company name / Email',
-      hideSortIcons: true,
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => (
-        <Box>{role.name === 'CLIENT' ? 'LSP' : 'Client name'} / Email</Box>
-      ),
-      renderCell: ({ row }: QuotesListCellType) => {
-        return (
-          <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>
-              {role.name === 'CLIENT' ? row?.lsp?.name : row?.client.name}
-            </Typography>
-            <Typography variant='body2'>
-              {role.name === 'CLIENT' ? row?.lsp?.email : row?.client.email}
-            </Typography>
-          </Box>
-        )
-      },
-    },
-
-    {
-      flex: 0.1,
-      minWidth: 290,
-      field: 'projectName',
-      headerName: 'Project name',
-      hideSortIcons: true,
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => <Box>Project name</Box>,
-      renderCell: ({ row }: QuotesListCellType) => {
-        return <Box>{row.projectName}</Box>
-      },
-    },
-    {
-      flex: 0.1,
-      minWidth: 420,
-      field: 'category',
-      headerName: 'Category / Service type',
-      hideSortIcons: true,
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => <Box>Category / Service type</Box>,
-      renderCell: ({ row }: QuotesListCellType) => {
-        return (
-          <Box sx={{ display: 'flex', gap: '8px' }}>
-            {!row.category ? (
-              '-'
-            ) : (
-              <JobTypeChip
-                type={row.category}
-                label={row.category}
-                size='small'
-              />
-            )}
-            {!row.serviceType || !row.serviceType?.length ? null : (
-              <ServiceTypeChip size='small' label={row.serviceType[0]} />
-            )}
-
-            {row.serviceType?.length > 1 ? (
-              <ExtraNumberChip
-                size='small'
-                label={row.serviceType.slice(1).length}
-              />
-            ) : null}
-          </Box>
-        )
-      },
-    },
-
-    {
-      flex: 0.1,
-      minWidth: 280,
-      field: 'quoteRegisteredDate',
-      headerName: 'Quote date',
-      disableColumnMenu: true,
-      renderHeader: () => <Box>Quote date</Box>,
-      renderCell: ({ row }: QuotesListCellType) => {
-        return (
-          <Box>
-            {FullDateTimezoneHelper(
-              row.quoteDate,
-              auth.getValue().user?.timezone!,
-            )}
-          </Box>
-        )
-      },
-    },
-
-    {
-      flex: 0.1,
-      minWidth: 280,
-      field: 'quoteDeadline',
-      headerName: 'Quote deadline',
-      disableColumnMenu: true,
-      renderHeader: () => <Box>Quote deadline</Box>,
-      renderCell: ({ row }: QuotesListCellType) => {
-        return (
-          <Box>
-            {FullDateTimezoneHelper(
-              row.quoteDeadline,
-              auth.getValue().user?.timezone!,
-            )}
-          </Box>
-        )
-      },
-    },
-    {
-      flex: 0.1,
-      minWidth: 280,
-      field: 'expiryDate',
-      headerName: 'Quote expiry date',
-      disableColumnMenu: true,
-      renderHeader: () => <Box>Quote expiry date</Box>,
-      renderCell: ({ row }: QuotesListCellType) => {
-        return (
-          <Box>
-            {FullDateTimezoneHelper(
-              row.quoteExpiry,
-              auth.getValue().user?.timezone!,
-            )}
-          </Box>
-        )
-      },
-    },
-
-    {
-      flex: 0.1,
-      minWidth: 140,
-      field: 'totalPrice',
-      headerName: 'Total price',
-      hideSortIcons: true,
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => <Box>Total price</Box>,
-      renderCell: ({ row }: QuotesListCellType) => {
-        return (
-          <Box>
-            {!row.currency 
-              ? row.subtotal 
-                ? row.subtotal 
-                : '-'
-              : formatCurrency(Number(row.subtotal), row.currency)}
-          </Box>
-        )
-      },
-    },
-  ]
 
   function NoList() {
     return (
@@ -311,7 +117,7 @@ export default function QuotesList({
                   // backgroundColor: 'rgba(0, 0, 0, 0.1)',
                 },
               }}
-              columns={columns}
+              columns={getQuoteListColumns(role, auth)}
               rows={list.data}
               rowCount={list.totalCount ?? 0}
               hideFooter={type === 'calendar'}
@@ -382,7 +188,7 @@ export default function QuotesList({
                 // backgroundColor: 'rgba(0, 0, 0, 0.1)',
               },
             }}
-            columns={columns}
+            columns={getQuoteListColumns(role, auth)}
             rows={list.data}
             rowCount={list.totalCount ?? 0}
             loading={isLoading}

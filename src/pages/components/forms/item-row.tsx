@@ -231,7 +231,14 @@ const Row = ({
   })
 
   function onDeletePriceUnit(index: number) {
-    remove(index)
+    console.log(index, 'index22')
+    console.log(details, 'index22')
+    const findIndex = details.findIndex(item => item.priceUnitId === index)
+
+    if (findIndex !== -1) {
+      remove(findIndex)
+    }
+
     if (getValues(`items.${idx}.detail`)?.length === 0) {
       handleShowMinimum(true)
     }
@@ -918,6 +925,7 @@ const Row = ({
               type={type}
               sumTotalPrice={sumTotalPrice}
               fields={fields}
+              remove={remove}
             />
             {/* price unit end */}
             <Grid item xs={12}>

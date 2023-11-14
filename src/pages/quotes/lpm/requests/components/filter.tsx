@@ -18,6 +18,7 @@ import {
   InputLabel,
   OutlinedInput,
   TextField,
+  Tooltip,
   useTheme,
 } from '@mui/material'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
@@ -214,7 +215,11 @@ export default function Filter({
                             multiple
                             loading={companyListLoading}
                             options={companyList || []}
-                            getOptionLabel={option => option.label}
+                            getOptionLabel={option =>
+                              `${option.label.slice(0, 12)}${
+                                option.label.length > 12 ? '...' : ''
+                              }`
+                            }
                             value={value}
                             limitTags={1}
                             onChange={onChange}
@@ -253,13 +258,18 @@ export default function Filter({
                             limitTags={1}
                             options={clientList}
                             id='client'
-                            getOptionLabel={option => option.label}
+                            getOptionLabel={option =>
+                              `${option.label.slice(0, 12)}${
+                                option.label.length > 12 ? '...' : ''
+                              }`
+                            }
                             renderInput={params => (
                               <TextField {...params} label='Client' />
                             )}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>
                                 <Checkbox checked={selected} sx={{ mr: 2 }} />
+
                                 {option.label}
                               </li>
                             )}

@@ -9,7 +9,7 @@ export function getClientRequestDefaultValue(
 ): RequestFormType {
   return {
     lspId: '',
-    contactPersonId,
+    contactPersonId: contactPersonId,
     userId: null,
     items: [
       {

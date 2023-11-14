@@ -61,6 +61,8 @@ export default function JobList() {
     })
   }
 
+  console.log(statusList)
+
   return (
     <Grid container spacing={6} className='match-height'>
       <Grid item xs={12} display='flex' alignItems='center'>
@@ -93,7 +95,8 @@ export default function JobList() {
         <JobListView
           clients={clients?.data || []}
           onCreateNewJob={onCreateNewJob}
-          statusList={statusList!}
+          // TODO 고도화 이후 변경
+          statusList={statusList!.filter(value => value.value !== 601100)}
         />
       ) : (
         <JobTrackerView
