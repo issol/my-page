@@ -103,8 +103,15 @@ export type QuotesListType = {
   category: string
   serviceType: Array<string>
   quoteDate: string
+  quoteDateTimezone: CountryType
+  projectDueAt: string
+  projectDueTimezone: CountryType
   quoteDeadline: string
-  quoteExpiry: string
+  quoteDeadlineTimezone: CountryType
+  quoteExpiryDate: string
+  quoteExpiryDateTimezone: CountryType
+  estimatedAt: string
+  estimatedTimezone: CountryType
   totalPrice: number
   updatedAt: string
   subtotal: number
