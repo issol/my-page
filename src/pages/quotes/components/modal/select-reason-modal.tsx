@@ -54,6 +54,9 @@ const SelectReasonModal = ({
 
     // setMessageToLsp((event.target as HTMLInputElement).value)
   }
+
+  console.log(usage, from)
+
   return (
     <Box
       sx={{
@@ -141,7 +144,15 @@ const SelectReasonModal = ({
             variant='body1'
             sx={{ fontWeight: 600, marginBottom: '0.5rem' }}
           >
-            Message to client
+            {usage === 'order'
+              ? 'Message to client'
+              : usage === 'quote' ||
+                usage === 'reject' ||
+                usage === 'request-revision'
+              ? from === 'lsp'
+                ? 'Message to client'
+                : 'Message to LSP'
+              : 'Message to client'}
           </Typography>
           <TextField
             fullWidth

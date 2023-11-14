@@ -222,21 +222,27 @@ export default function AddNewRequest() {
 
   function mutateData() {
     const data: RequestFormType = getValues()
-    const dateFixedItem: RequestItemFormPayloadType[] = data.items.map(item => {
-      // const newDesiredDueDate = convertLocalTimezoneToUTC(new Date(item.desiredDueDate)).toISOString()
-      const newDesiredDueDate = () => {
-        const convertISOString = convertDateToLocalTimezoneISOString(
-          item.desiredDueDate!,
-        )
-        if (convertISOString)
-          return changeTimezoneFromLocalTimezoneISOString(
-            convertISOString,
-            item.desiredDueTimezone?.code!,
+    const dateFixedItem: RequestItemFormPayloadType[] = data.items.map(
+      (item, idx) => {
+        // const newDesiredDueDate = convertLocalTimezoneToUTC(new Date(item.desiredDueDate)).toISOString()
+        const newDesiredDueDate = () => {
+          const convertISOString = convertDateToLocalTimezoneISOString(
+            item.desiredDueDate!,
           )
-        return item.desiredDueDate?.toISOString()!
-      }
-      return { ...item, desiredDueDate: newDesiredDueDate() }
-    })
+          if (convertISOString)
+            return changeTimezoneFromLocalTimezoneISOString(
+              convertISOString,
+              item.desiredDueTimezone?.code!,
+            )
+          return item.desiredDueDate?.toISOString()!
+        }
+        return {
+          ...item,
+          desiredDueDate: newDesiredDueDate(),
+          sortingOrder: idx + 1,
+        }
+      },
+    )
     // TODO Contact Person 드롭다운에서 값을 선택하지 않는 경우 contactPersonId가 아니라 userId가 들어감
     // TODO 초기값 설정할때 clients 값을 map 돌려서 contactPersonId를 추출하는게 로딩 시점상 맞지가 않아서 부득이하게 mutation 타이밍에 변경하는 코드를 추가함
     const contactPersonId = clients?.find(

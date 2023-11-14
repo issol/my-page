@@ -53,4 +53,5 @@ export type RequestItemFormPayloadType = {
   quantity?: number | null
   desiredDueDate: string
   desiredDueTimezone: CountryType | null
+  sortingOrder: number
 }

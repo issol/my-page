@@ -196,11 +196,13 @@ export type PriceUnitFormType = {
   weighting?: number | null
   isBase?: boolean
   isActive?: boolean
+  sortingOrder?: number
   subPriceUnits?: Array<{
     title?: string
     unit?: string
     weighting?: number | null
     isActive?: boolean
+    sortingOrder?: number
   }>
 }
 
