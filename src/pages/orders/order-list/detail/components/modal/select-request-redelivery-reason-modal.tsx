@@ -45,7 +45,7 @@ const SelectRequestRedeliveryReasonModal = ({
   type,
   usage,
 }: Props) => {
-  const [messageToLsp, setMessageToLsp] = useState<string>('')
+  const [messageToLsp, setMessageToLsp] = useState<string | null>(null)
 
   const handleChangeMessageToLsp = (event: ChangeEvent<HTMLInputElement>) => {
     setMessageToLsp(event.target.value)
@@ -183,7 +183,7 @@ const SelectRequestRedeliveryReasonModal = ({
             onChange={handleChangeMessageToLsp}
             inputProps={{ maxLength: 500 }}
             placeholder={
-              messageToLsp === ''
+              messageToLsp === '' || messageToLsp === null
                 ? usage === 'request-revision'
                   ? 'Write down a request for this quote.'
                   : usage === 'order'
@@ -197,12 +197,8 @@ const SelectRequestRedeliveryReasonModal = ({
                   : ''
                 : undefined
             }
-            error={reason.length > 0 && messageToLsp === ''}
-            helperText={
-              reason.length > 0 && messageToLsp === ''
-                ? 'This field is required'
-                : null
-            }
+            error={messageToLsp === ''}
+            helperText={messageToLsp === '' ? 'This field is required' : null}
           />
           <Box
             sx={{
@@ -213,7 +209,7 @@ const SelectRequestRedeliveryReasonModal = ({
               color: '#888888',
             }}
           >
-            {messageToLsp.length}/500
+            {messageToLsp ? messageToLsp.length : 0}/500
           </Box>
         </Box>
 
@@ -240,7 +236,9 @@ const SelectRequestRedeliveryReasonModal = ({
                 type: type,
               })
             }
-            disabled={reason.length < 1 || messageToLsp === ''}
+            disabled={
+              reason.length < 1 || messageToLsp === '' || messageToLsp === null
+            }
           >
             {rightButtonText}
           </Button>
