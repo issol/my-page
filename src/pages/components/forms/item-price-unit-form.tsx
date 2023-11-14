@@ -37,6 +37,7 @@ import {
   Controller,
   FieldArrayWithId,
   UseFieldArrayAppend,
+  UseFieldArrayRemove,
   UseFieldArrayUpdate,
   UseFormGetValues,
 } from 'react-hook-form'
@@ -77,6 +78,7 @@ type Props = {
   getValues: UseFormGetValues<{ items: ItemType[] }>
   append: UseFieldArrayAppend<{ items: ItemType[] }, `items.${number}.detail`>
   update: UseFieldArrayUpdate<{ items: ItemType[] }, `items.${number}.detail`>
+  remove: UseFieldArrayRemove
   getTotalPrice: () => void
   getEachPrice: (idx: number, isNotApplicable?: boolean) => void
   onDeletePriceUnit: (idx: number) => void
@@ -129,6 +131,7 @@ export default function ItemPriceUnitForm({
   fields,
   showCurrency,
   setDarkMode,
+  remove,
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
@@ -281,6 +284,8 @@ export default function ItemPriceUnitForm({
     }
 
     const onClickDeletePriceUnit = (idx: number) => {
+      console.log(idx, 'index22')
+
       if (options.find(item => item.id === idx)) {
         openModal({
           type: 'DeletePriceUnitModal',
@@ -481,8 +486,11 @@ export default function ItemPriceUnitForm({
                             })
                           })
                         }
+                      } else {
+                        onChange(null)
                       }
                     }}
+                    // disableClearable={value !== null}
                     renderOption={(props, option, state) => {
                       return (
                         <>
@@ -696,9 +704,13 @@ export default function ItemPriceUnitForm({
           type === 'invoiceCreate' ? null : (
             <IconButton
               onClick={() => {
-                onClickDeletePriceUnit(
-                  getValues(`${detailName}.${idx}.priceUnitId`)!,
-                )
+                if (getValues(`${detailName}.${idx}.priceUnitId`) === null) {
+                  remove(idx)
+                } else {
+                  onClickDeletePriceUnit(
+                    getValues(`${detailName}.${idx}.priceUnitId`)!,
+                  )
+                }
               }}
             >
               <Icon icon='mdi:trash-outline' />
