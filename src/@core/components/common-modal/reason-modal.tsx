@@ -19,6 +19,8 @@ import AlertIcon from '../alert-icon'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ca } from 'date-fns/locale'
 import { ReasonType } from '@src/types/quotes/quote'
+import { v4 as uuidv4 } from 'uuid'
+
 type Props = {
   onClose: any
 
@@ -90,7 +92,13 @@ export default function ReasonModal({
                   {type}&nbsp; reason
                 </Typography>
                 <Typography variant='body1'>
-                  {reason ? reason?.reason : '-'}
+                  {reason
+                    ? typeof reason.reason === 'string'
+                      ? reason.reason
+                      : reason.reason.map(value => {
+                          return <li key={uuidv4()}>{value}</li>
+                        })
+                    : '-'}
                 </Typography>
               </Box>
             )}

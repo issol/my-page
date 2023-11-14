@@ -29,7 +29,7 @@ export type SortType =
 
 export type ReasonType = {
   from: 'client' | 'lsp'
-  reason: string
+  reason: string | string[]
   message: string
   type: string
 }
