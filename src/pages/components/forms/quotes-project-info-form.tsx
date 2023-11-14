@@ -24,7 +24,14 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** types
-import { Fragment, ReactNode, useContext, useEffect, useState, useRef } from 'react'
+import {
+  Fragment,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react'
 
 // ** react hook form
 import {
@@ -223,7 +230,11 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
-              selected={!value ? formattedNow(new Date()) : formattedNow(new Date(value))}
+              selected={
+                !value
+                  ? formattedNow(new Date())
+                  : formattedNow(new Date(value))
+              }
               onChange={onChange}
               customInput={<CustomInput label='Quote date*' icon='calendar' />}
             />
@@ -525,7 +536,6 @@ export default function ProjectInfoForm({
                     {...params}
                     error={Boolean(errors.serviceType)}
                     label='Service type*'
-                    placeholder='Service type*'
                   />
                 )}
                 renderOption={(props, option, { selected }) => (
