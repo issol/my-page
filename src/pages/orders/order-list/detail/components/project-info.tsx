@@ -720,7 +720,10 @@ const ProjectInfo = ({
                       {client?.contactPerson?.jobTitle
                         ? ` / ${client?.contactPerson?.jobTitle}`
                         : ''}
-                      {type === 'history' ? null : (
+                      {type === 'history' ||
+                      (role.name === 'CLIENT' && 
+                      ['Paid','Canceled'].includes(project.status as string))
+                      ? null : (
                         <IconButton onClick={() => setContactPersonEdit(true)}>
                           <Icon icon='mdi:pencil-outline' />
                         </IconButton>
