@@ -340,7 +340,10 @@ export default function ItemPriceUnitForm({
     }, [])
 
     const [open, setOpen] = useState(false)
-    const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
+
+    console.log(getValues(`${detailName}.${idx}`))
+
+    // const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
 
     return (
       <TableRow
@@ -446,6 +449,9 @@ export default function ItemPriceUnitForm({
                     }}
                     onChange={(e, v) => {
                       if (v) {
+                        const priceFactor = Number(
+                          getValues(`items.${index}`).priceFactor,
+                        )
                         setOpen(false)
 
                         onChange(v.priceUnitId)
