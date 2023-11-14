@@ -402,7 +402,6 @@ export default function ProjectInfoForm({
                     onClick={() => setOpenPopper(!openPopper)}
                     error={Boolean(errors.workName)}
                     label='Work name'
-                    placeholder='Work name'
                   />
                 )}
               />
@@ -479,6 +478,7 @@ export default function ProjectInfoForm({
               autoHighlight
               fullWidth
               options={CategoryList}
+              disableClearable={value || value !== '' ? false : true}
               onChange={(e, v) => {
                 if (!v) {
                   setValue('serviceType', [], setValueOptions)
@@ -496,7 +496,6 @@ export default function ProjectInfoForm({
                   {...params}
                   error={Boolean(errors.category)}
                   label='Category*'
-                  placeholder='Category*'
                 />
               )}
             />
