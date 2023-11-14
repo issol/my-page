@@ -101,6 +101,12 @@ const CalendarContainer = () => {
   }
 
   useEffect(() => {
+    if (currentListId && data?.data?.length) {
+      setCurrentList(data?.data.filter(item => item.id === currentListId))
+    }
+  }, [currentListId, data])
+
+  useEffect(() => {
     if (data?.data?.length && !isLoading) {
       setEvent([...data.data])
     } else {
