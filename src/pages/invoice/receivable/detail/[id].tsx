@@ -647,7 +647,10 @@ const ReceivableInvoiceDetail = () => {
             initialPrice: value.initialPrice ?? null,
             description: value.description,
             showItemDescription: value.showItemDescription,
-            minimumPrice: value.minimumPrice,
+            minimumPrice:
+              value.minimumPrice ?? value.minimumPriceApplied
+                ? Number(value.totalPrice)
+                : 0,
             minimumPriceApplied: value.minimumPriceApplied,
             indexing: idx,
           })),
@@ -867,7 +870,7 @@ const ReceivableInvoiceDetail = () => {
             initialPrice: value.initialPrice ?? null,
             description: value.description,
             showItemDescription: value.showItemDescription,
-            minimumPrice: value.minimumPrice,
+            minimumPrice: value.minimumPrice ?? Number(value.totalPrice),
             minimumPriceApplied: value.minimumPriceApplied,
             indexing: idx,
           })),
