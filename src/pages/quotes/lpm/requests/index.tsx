@@ -160,7 +160,7 @@ export default function LpmRequests() {
       requestDateTo: requestDate[1]?.toISOString() ?? '',
       desiredDueDateFrom: desiredDueDate[0]?.toISOString() ?? '',
       desiredDueDateTo: desiredDueDate[1]?.toISOString() ?? '',
-      lsp: lsp?.map(value => value.label),
+      client: client?.map(value => value.value),
       search: search,
       take: requestListPageSize,
       skip: requestListPageSize * requestListPage,
