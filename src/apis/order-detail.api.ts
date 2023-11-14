@@ -72,7 +72,10 @@ export const patchOrderStatus = async (
   status: number,
   reason?: ReasonType,
 ) => {
-  const { data } = await axios.patch(`/api/enough/u/order/${id}/set-status`, { status: status, reason: reason })
+  const { data } = await axios.patch(`/api/enough/u/order/${id}/set-status`, {
+    status: status,
+    reason: reason,
+  })
 
   return data
 }
@@ -80,7 +83,7 @@ export const patchOrderStatus = async (
 export const splitOrder = async (
   id: number,
   items: number[],
-): Promise<{ orderId: number }> => {
+): Promise<{ id: number }> => {
   const { data } = await axios.put(`/api/enough/u/order/${id}/split`, {
     splitItems: items,
   })
@@ -130,10 +133,9 @@ export const getItemJob = async (id: number): Promise<Boolean> => {
     const { data } = await axios.get(
       `/api/enough/u/job/check-already-job?itemId=${id}`,
     )
-  
+
     return data
   } catch (error) {
     return false
   }
-
 }

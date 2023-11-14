@@ -1159,7 +1159,8 @@ const OrderDetail = () => {
   const splitOrderMutation = useMutation(
     (items: number[]) => splitOrder(Number(id!), items),
     {
-      onSuccess: (data: { orderId: number }) => {
+      onSuccess: (data: { id: number }) => {
+        closeModal('SplitOrderAlertModal')
         setSplitReady(false)
         setSelectedIds(prevSelectedIds =>
           prevSelectedIds.map(id => ({ ...id, selected: false })),
@@ -1168,7 +1169,7 @@ const OrderDetail = () => {
         queryClient.invalidateQueries(['orderDetail'])
         queryClient.invalidateQueries(['orderList'])
 
-        router.push(`/orders/order-list/detail/${data.orderId}`)
+        router.push(`/orders/order-list/detail/${data.id}`)
       },
     },
   )
