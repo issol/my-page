@@ -110,11 +110,11 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     data: jobDeliveriesFeedbacks,
     isLoading: isJobDeliveriesFeedbacksLoading,
     refetch: jobDeliveriesFeedbacksRefetch,
-  } = useGetProJobDeliveriesFeedbacks(jobId)
+  } = useGetProJobDeliveriesFeedbacks(cachedJobIdRef.current)
 
   const { data: jobPrices } = useGetJobPrices(cachedJobIdRef.current, false)
   const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } =
-    useGetJobPriceHistory(jobId)
+    useGetJobPriceHistory(cachedJobIdRef.current)
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
