@@ -274,7 +274,8 @@ const JobDetails = () => {
               {info.itemName}
             </Typography>
           </Box>
-          {isUserInTeamMember ? (
+          {isUserInTeamMember ||
+          (currentRole && currentRole.type !== 'General') ? (
             <Box sx={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
               <Autocomplete
                 fullWidth
@@ -443,7 +444,8 @@ const JobDetails = () => {
                     >
                       <Box>Prices</Box>
                     </TableCell>
-                    {isUserInTeamMember ? (
+                    {isUserInTeamMember ||
+                    (currentRole && currentRole.type !== 'General') ? (
                       <>
                         {separateLine()}
                         <TableCell
@@ -604,7 +606,8 @@ const JobDetails = () => {
                                   : '-'}
                               </Box>
                             </TableCell>
-                            {isUserInTeamMember ? (
+                            {isUserInTeamMember ||
+                            (currentRole && currentRole.type !== 'General') ? (
                               <>
                                 {separateLine()}
                                 <TableCell
