@@ -24,6 +24,8 @@ import ProPaymentInfo from './components/payment-info'
 
 // ** apis
 import { useGetMyOverview } from '@src/queries/pro/pro-details.query'
+import { useGetCertifiedRole } from '@src/queries/onboarding/onboarding-query'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type MenuType = 'overview' | 'paymentInfo' | 'myAccount'
 export default function ProMyPage() {
@@ -32,8 +34,10 @@ export default function ProMyPage() {
     data: userInfo,
     isError,
     isFetched,
+    isLoading: isUserInfoLoading,
   } = useGetMyOverview(Number(auth.getValue().user?.userId!))
 
+  const { data: certifiedRoleInfo, isLoading: isCertifiedRoleInfoLoading } = useGetCertifiedRole(Number(auth.getValue().user?.userId!))
   const [value, setValue] = useState<MenuType>('overview')
 
   const handleChange = (_: any, value: MenuType) => {
@@ -42,8 +46,10 @@ export default function ProMyPage() {
 
   return (
     <>
-      {auth.state === 'loading' ? (
-        <FallbackSpinner />
+      {auth.state === 'loading' ||
+        isUserInfoLoading ||
+        isCertifiedRoleInfoLoading ? (
+        <OverlaySpinner />
       ) : auth.state === 'hasValue' ? (
         <Grid container spacing={6}>
           <Grid item xs={12}>
@@ -82,6 +88,7 @@ export default function ProMyPage() {
                 <Suspense fallback={<FallbackSpinner />}>
                   <MyPageOverview
                     userInfo={userInfo!}
+                    certifiedRoleInfo={certifiedRoleInfo!}
                     user={auth.getValue().user!}
                   />
                 </Suspense>

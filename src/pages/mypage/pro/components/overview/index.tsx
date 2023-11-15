@@ -97,10 +97,12 @@ import { useRouter } from 'next/router'
 import EditProfileModal from './edit-profile-modal'
 import dayjs from 'dayjs'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { CertifiedRoleType } from '@src/types/onboarding/details'
 
 type Props = {
   userInfo: DetailUserType
   user: UserDataType
+  certifiedRoleInfo: Array<CertifiedRoleType>
 }
 
 /* TODO
@@ -109,7 +111,7 @@ type Props = {
 3. Specialties 업데이트 api연동하기
 4. Resume 업로드, 삭제 api연동하기
 */
-export default function MyPageOverview({ user, userInfo }: Props) {
+export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Props) {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
   const auth = useRecoilValueLoadable(authState)
@@ -838,7 +840,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
             {/* My Roles */}
             <Grid item xs={12}>
               <MyRoles
-                userInfo={userInfo?.appliedRoles || []}
+                certifiedRoleInfo={certifiedRoleInfo || []}
                 page={rolePage}
                 rowsPerPage={roleRowsPerPage}
                 handleChangePage={handleChangeRolePage}
