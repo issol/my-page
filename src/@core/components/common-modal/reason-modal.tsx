@@ -96,7 +96,11 @@ export default function ReasonModal({
                     ? typeof reason.reason === 'string'
                       ? reason.reason
                       : reason.reason.map(value => {
-                          return <li key={uuidv4()}>{value}</li>
+                          return reason.type === 'canceled' ? (
+                            <>{value}</>
+                          ) : (
+                            <li key={uuidv4()}>{value}</li>
+                          )
                         })
                     : '-'}
                 </Typography>
