@@ -193,54 +193,65 @@ export default function Quotes({ id, user }: Props) {
       lsp,
     } = data
 
-    console.log(quoteDate)
+    console.log(data)
 
     const filter: QuotesFilterType = {
-      quoteDate: [
-        dayjs(quoteDate[0]).startOf('day').format('YYYY-MM-DD HH:mm:ss'),
-        dayjs(quoteDate[1]).endOf('day').format('YYYY-MM-DD HH:mm:ss'),
-      ],
-      quoteDeadline: quoteDeadline
-        ? [
-            dayjs(quoteDeadline[0])
-              .startOf('day')
-              .format('YYYY-MM-DD HH:mm:ss'),
-            dayjs(quoteDeadline[1]).endOf('day').format('YYYY-MM-DD HH:mm:ss'),
-          ]
-        : undefined,
-      quoteExpiryDate: quoteExpiryDate
-        ? [
-            dayjs(quoteExpiryDate[0])
-              .startOf('day')
-              .format('YYYY-MM-DD HH:mm:ss'),
-            dayjs(quoteExpiryDate[1])
-              .endOf('day')
-              .format('YYYY-MM-DD HH:mm:ss'),
-          ]
-        : undefined,
+      quoteDate:
+        quoteDate.length > 0
+          ? [
+              dayjs(quoteDate[0]).startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+              dayjs(quoteDate[1]).endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+            ]
+          : undefined,
+      quoteDeadline:
+        quoteDeadline && quoteDeadline.length > 0
+          ? [
+              dayjs(quoteDeadline[0])
+                .startOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+              dayjs(quoteDeadline[1])
+                .endOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            ]
+          : undefined,
+      quoteExpiryDate:
+        quoteExpiryDate && quoteExpiryDate.length > 0
+          ? [
+              dayjs(quoteExpiryDate[0])
+                .startOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+              dayjs(quoteExpiryDate[1])
+                .endOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            ]
+          : undefined,
       status: status.map(value => value.value),
       // client: client?.map(value => value.label),
       clientId: client?.map(value => value.value),
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
-      estimatedDeliveryDate: estimatedDeliveryDate
-        ? [
-            dayjs(estimatedDeliveryDate[0])
-              .startOf('day')
-              .format('YYYY-MM-DD HH:mm:ss'),
-            dayjs(estimatedDeliveryDate[1])
-              .endOf('day')
-              .format('YYYY-MM-DD HH:mm:ss'),
-          ]
-        : undefined,
-      projectDueDate: projectDueDate
-        ? [
-            dayjs(projectDueDate[0])
-              .startOf('day')
-              .format('YYYY-MM-DD HH:mm:ss'),
-            dayjs(projectDueDate[1]).endOf('day').format('YYYY-MM-DD HH:mm:ss'),
-          ]
-        : undefined,
+      estimatedDeliveryDate:
+        estimatedDeliveryDate && estimatedDeliveryDate.length > 0
+          ? [
+              dayjs(estimatedDeliveryDate[0])
+                .startOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+              dayjs(estimatedDeliveryDate[1])
+                .endOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            ]
+          : undefined,
+      projectDueDate:
+        projectDueDate && projectDueDate.length > 0
+          ? [
+              dayjs(projectDueDate[0])
+                .startOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+              dayjs(projectDueDate[1])
+                .endOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            ]
+          : undefined,
       lsp: lsp?.map(value => value.label),
       search: search,
       take: quoteListPageSize,
