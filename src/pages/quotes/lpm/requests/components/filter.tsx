@@ -131,8 +131,9 @@ export default function Filter({
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
-  const dateValue = (startDate: Date, endDate: Date) => {
-    return startDate.toDateString() === endDate?.toDateString()
+  const dateValue = (startDate: Date | null, endDate: Date | null) => {
+    if (startDate === null && endDate === null) return ''
+    return startDate?.toDateString() === endDate?.toDateString()
       ? dayjs(startDate).format('MM/DD/YYYY')
       : `${dayjs(startDate).format('MM/DD/YYYY')}${
           endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
