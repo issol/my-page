@@ -1195,7 +1195,8 @@ const ReceivableInvoiceDetail = () => {
                   </Button>
                 )}
                 {isEditing ||
-                (currentRole && currentRole.name === 'CLIENT') ? null : (
+                (currentRole && currentRole.name === 'CLIENT') ||
+                !isUserInTeamMember ? null : (
                   <Button
                     variant='contained'
                     sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
