@@ -94,7 +94,7 @@ const OrderDetailClient = ({
                 `${
                   client.contactPerson.jobTitle &&
                   client.contactPerson.jobTitle !== ''
-                    ? ' / '
+                    ? ` / ${client.contactPerson.jobTitle}`
                     : ''
                 }`}
             </Typography>
