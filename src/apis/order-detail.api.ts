@@ -67,6 +67,16 @@ export const patchOrderProjectInfo = async (
   return data
 }
 
+// client 전용
+export const patchOrderContactPerson = async (
+  id: number,
+  form: updateOrderType,
+) => {
+  const { data } = await axios.patch(`/api/enough/u/order/${id}/set-contact-person`, { ...form })
+
+  return data
+}
+
 export const patchOrderStatus = async (
   id: number,
   status: number,

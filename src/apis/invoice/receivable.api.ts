@@ -175,6 +175,16 @@ export const patchInvoiceInfo = async (
   return data
 }
 
+// client 전용
+export const patchInvoiceContactPerson = async (
+  id: number,
+  form: InvoiceReceivablePatchParamsType,
+) => {
+  const { data } = await axios.patch(`/api/enough/u/invoice/receivable/${id}/set-contact-person`, { ...form })
+
+  return data
+}
+
 export const deleteInvoice = async (id: number) => {
   await axios.delete(`/api/enough/u/invoice/receivable/${id}`)
 }

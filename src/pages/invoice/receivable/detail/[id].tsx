@@ -67,6 +67,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import {
   checkEditable,
   confirmInvoiceByLpm,
+  patchInvoiceContactPerson,
   patchInvoiceInfo,
   restoreVersion,
 } from '@src/apis/invoice/receivable.api'
@@ -253,6 +254,37 @@ const ReceivableInvoiceDetail = () => {
       form: InvoiceReceivablePatchParamsType
       type: 'basic' | 'accounting'
     }) => patchInvoiceInfo(data.id, data.form, data.type),
+    {
+      onSuccess: (data: { id: number }, variables) => {
+        setInvoiceInfoEdit(false)
+        setAccountingInfoEdit(false)
+        setProjectTeamEdit(false)
+        setClientEdit(false)
+
+        if (data.id !== variables.id) {
+          router.push(`/invoice/receivable/detail/${data.id}`)
+          invalidateInvoiceDetail()
+        } else {
+          invoiceInfoRefetch()
+          historyRefetch()
+          projectTeamRefetch()
+          clientRefetch()
+          queryClient.invalidateQueries(['invoice/receivable/list'])
+        }
+        closeModal('EditSaveModal')
+      },
+      onError: () => {
+        onError()
+        closeModal('EditSaveModal')
+      },
+    },
+  )
+
+  const updateContactPersonForClient = useMutation(
+    (data: {
+      id: number
+      form: InvoiceReceivablePatchParamsType
+    }) => patchInvoiceContactPerson(data.id, data.form),
     {
       onSuccess: (data: { id: number }, variables) => {
         setInvoiceInfoEdit(false)
@@ -1307,6 +1339,7 @@ const ReceivableInvoiceDetail = () => {
                   accountingEdit={accountingInfoEdit}
                   setAccountingEdit={setAccountingInfoEdit}
                   onSave={patchInvoiceInfoMutation.mutate}
+                  onContactPersonSave={updateContactPersonForClient.mutate}
                   invoiceInfoControl={invoiceInfoControl}
                   getInvoiceInfo={getInvoiceInfo}
                   setInvoiceInfo={setInvoiceInfo}

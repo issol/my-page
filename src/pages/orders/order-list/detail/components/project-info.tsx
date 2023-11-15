@@ -69,6 +69,7 @@ type Props = {
   client?: ClientType
   type: 'detail' | 'history'
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
+  updateContactPerson?: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList?: Array<{ value: number; label: string }>
   canUseFeature: (v: OrderFeatureType) => boolean
   jobInfo: Array<JobInfoType>
@@ -82,6 +83,7 @@ const ProjectInfo = ({
   client,
   type,
   updateProject,
+  updateContactPerson,
   statusList,
   canUseFeature,
   jobInfo,
@@ -300,16 +302,27 @@ const ProjectInfo = ({
   }
 
   const onClickEditSaveContactPerson = () => {
-    // TODO api
-    updateProject &&
-      updateProject.mutate(
-        { contactPersonId: contactPersonId },
-        {
-          onSuccess: () => {
-            setContactPersonEdit(false)
+    if(role.name === 'CLIENT') {
+      updateContactPerson &&
+      updateContactPerson.mutate(
+          { contactPersonId: contactPersonId },
+          {
+            onSuccess: () => {
+              setContactPersonEdit(false)
+            },
           },
-        },
-      )
+        )
+    } else {
+      updateProject &&
+      updateProject.mutate(
+          { contactPersonId: contactPersonId },
+          {
+            onSuccess: () => {
+              setContactPersonEdit(false)
+            },
+          },
+        )
+    }
   }
 
   // TODO: Order에 포함된 Job의 status를 체크하는 함수 필요
@@ -520,15 +533,7 @@ const ProjectInfo = ({
                     width: '73.45%',
                   }}
                 >
-                  {(type === 'detail' ||
-                    type === 'history' ||
-                    role.name === 'CLIENT') &&
-                  statusList
-                    ?.filter(
-                      value =>
-                        !filterStatusList().some(v => v.value === value.value),
-                    )
-                    .some(status => status.label === project.status) ? (
+                  {role.name === 'CLIENT' ? (
                     <Box
                       sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                     >
@@ -551,33 +556,64 @@ const ProjectInfo = ({
                         </IconButton>
                       )}
                     </Box>
-                  ) : (
-                    <Autocomplete
-                      fullWidth
-                      disableClearable={true}
-                      options={filterStatusList() ?? []}
-                      onChange={(e, v) => {
-                        if (v?.value) {
-                          onChangeStatus(v.value as number)
-                        }
-                      }}
-                      isOptionEqualToValue={(option, newValue) => {
-                        return option.value === newValue.value
-                      }}
-                      value={
-                        statusList &&
-                        statusList.find(item => item.label === project.status)
-                      }
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          placeholder='Status'
-                          size='small'
-                          autoComplete='off'
-                          sx={{ maxWidth: '300px' }}
+                  ) : (type === 'detail' ||
+                      type === 'history') &&
+                      statusList
+                        ?.filter(
+                          value =>
+                            !filterStatusList().some(v => v.value === value.value),
+                        )
+                        .some(status => status.label === project.status) 
+                      ? (
+                        <Box
+                          sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                        >
+                          <OrderStatusChip
+                            status={project.status}
+                            label={project.status}
+                          />
+                          {(project.status === 'Redelivery requested' ||
+                            project.status === 'Canceled') && (
+                            <IconButton
+                              onClick={() => {
+                                project.reason && onClickReason()
+                              }}
+                              sx={{ padding: 0 }}
+                            >
+                              <img
+                                src='/images/icons/onboarding-icons/more-reason.svg'
+                                alt='more'
+                              />
+                            </IconButton>
+                          )}
+                        </Box>
+                      ) : (
+                        <Autocomplete
+                          fullWidth
+                          disableClearable={true}
+                          options={filterStatusList() ?? []}
+                          onChange={(e, v) => {
+                            if (v?.value) {
+                              onChangeStatus(v.value as number)
+                            }
+                          }}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          value={
+                            statusList &&
+                            statusList.find(item => item.label === project.status)
+                          }
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              placeholder='Status'
+                              size='small'
+                              autoComplete='off'
+                              sx={{ maxWidth: '300px' }}
+                            />
+                          )}
                         />
-                      )}
-                    />
                   )}
                 </Box>
               </Box>
@@ -697,7 +733,10 @@ const ProjectInfo = ({
                       {client?.contactPerson?.jobTitle
                         ? ` / ${client?.contactPerson?.jobTitle}`
                         : ''}
-                      {type === 'history' ? null : (
+                      {type === 'history' ||
+                      (role.name === 'CLIENT' && 
+                      ['Paid','Canceled'].includes(project.status as string))
+                      ? null : (
                         <IconButton onClick={() => setContactPersonEdit(true)}>
                           <Icon icon='mdi:pencil-outline' />
                         </IconButton>

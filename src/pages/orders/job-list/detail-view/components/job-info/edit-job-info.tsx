@@ -63,6 +63,7 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { JobStatusType } from '@src/types/jobs/common.type'
 import { log } from 'npmlog'
 import { FormErrors } from '@src/shared/const/formErrors'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   row: JobType
@@ -128,6 +129,7 @@ const EditJobInfo = ({
       label: string
     }[]
   >([])
+  const [ isFileUploading, setIsFileUploading ] = useState<boolean>(false)
 
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
@@ -200,7 +202,7 @@ const EditJobInfo = ({
   const [files, setFiles] = useState<File[]>([])
   const [uploadedFiles, setUploadedFiles] = useState<FileType[]>([])
   const [deletedFiles, setDeletedFiles] = useState<FileType[]>([])
-  console.log("deletedFiles",deletedFiles)
+
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg'],
@@ -287,7 +289,6 @@ const EditJobInfo = ({
   }
 
   const onSubmit = () => {
-    // TODO: 저장할때 로딩중 ui 필요함
     const data = getValues()
     // step1) 파일 삭제
     const asyncDeleteFile = 
@@ -299,6 +300,7 @@ const EditJobInfo = ({
     Promise.all(asyncDeleteFile).then(res => {
       // step2) 업로드+패치 or 패치
       if (files.length) {
+        setIsFileUploading(true)
         // const fileInfo: Array<{
         //   jobId: number
         //   size: number
@@ -337,6 +339,7 @@ const EditJobInfo = ({
           })
           Promise.all(promiseArr)
             .then(res => {
+              setIsFileUploading(false)
               uploadFileMutation.mutate(fileInfo)
               const jobInfo: SaveJobInfoParamsType = {
                 contactPersonId: data.contactPerson.userId,
@@ -360,14 +363,15 @@ const EditJobInfo = ({
   
               // })
             })
-            .catch(err =>
+            .catch(err => {
+              setIsFileUploading(false)
               toast.error(
                 'Something went wrong while uploading files. Please try again.',
                 {
                   position: 'bottom-left',
                 },
-              ),
-            )
+              )
+            })
         })
       } else {
         const jobInfo: SaveJobInfoParamsType = {
@@ -391,7 +395,6 @@ const EditJobInfo = ({
   }
 
   useEffect(() => {
-    console.log(item)
 
     // reset({
     //   name: row.name ?? '',
@@ -521,6 +524,10 @@ const EditJobInfo = ({
 
   return (
     <>
+      {(uploadFileMutation.isLoading ||
+        saveJobInfoMutation.isLoading ||
+        isFileUploading) ?
+        <OverlaySpinner /> : null }
       <DatePickerWrapper sx={{ width: '100%' }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container xs={12} spacing={6} mb='20px'>

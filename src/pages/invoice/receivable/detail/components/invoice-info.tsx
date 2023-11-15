@@ -116,6 +116,10 @@ type Props = {
     form: InvoiceReceivablePatchParamsType
     type: 'basic' | 'accounting'
   }) => void
+  onContactPersonSave?: (data: {
+    id: number
+    form: InvoiceReceivablePatchParamsType
+  }) => void
   clientTimezone?: CountryType
   invoiceInfoControl?: Control<InvoiceProjectInfoFormType, any>
   getInvoiceInfo?: UseFormGetValues<InvoiceProjectInfoFormType>
@@ -148,6 +152,7 @@ const InvoiceInfo = ({
   setAccountingEdit,
 
   onSave,
+  onContactPersonSave,
   clientTimezone,
   invoiceInfoControl,
   getInvoiceInfo,
@@ -421,14 +426,23 @@ const InvoiceInfo = ({
   }
 
   const onClickEditSaveContactPerson = () => {
-    // TODO api
-    if (onSave) {
-      onSave({
-        id: invoiceInfo.id,
-        form: { contactPersonId: contactPersonId! },
-        type: 'basic',
-      })
-      setContactPersonEdit(false)
+    if(currentRole?.name === 'CLIENT') {
+      if (onContactPersonSave) {
+        onContactPersonSave({
+          id: invoiceInfo.id,
+          form: { contactPersonId: contactPersonId! },
+        })
+        setContactPersonEdit(false)
+      }
+    } else {
+      if (onSave) {
+        onSave({
+          id: invoiceInfo.id,
+          form: { contactPersonId: contactPersonId! },
+          type: 'basic',
+        })
+        setContactPersonEdit(false)
+      }
     }
   }
 
