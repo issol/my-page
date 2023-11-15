@@ -124,12 +124,12 @@ const ProJobInfo = ({
       return jobInfo.files
         ?.filter(value => {
           if (
-            jobInfo.status !== 60100 &&
-            jobInfo.status !== 60400 &&
-            jobInfo.status !== 60600 &&
-            jobInfo.status !== 60200 &&
+            jobInfo.status !== 70000 &&
+            jobInfo.status !== 70100 &&
+            jobInfo.status !== 70200 &&
             jobInfo.status !== 70300 &&
-            jobInfo.status !== 60300
+            jobInfo.status !== 70400 &&
+            jobInfo.status !== 70500
           ) {
             return value.type === 'SOURCE'
           } else {
@@ -188,12 +188,12 @@ const ProJobInfo = ({
   const fileList = jobInfo.files
     ?.filter(value => {
       if (
-        jobInfo.status !== 60100 &&
-        jobInfo.status !== 60400 &&
-        jobInfo.status !== 60600 &&
-        jobInfo.status !== 60200 &&
+        jobInfo.status !== 70000 &&
+        jobInfo.status !== 70100 &&
+        jobInfo.status !== 70200 &&
         jobInfo.status !== 70300 &&
-        jobInfo.status !== 60300
+        jobInfo.status !== 70400 &&
+        jobInfo.status !== 70500
       ) {
         return value.type === 'SOURCE'
       } else {
