@@ -840,7 +840,9 @@ export default function AddNewQuote() {
                         onClickCapture={() => setTaxFocus(true)}
                         onBlur={() => setTaxFocus(false)}
                         value={
-                          !getProjectInfoValues().isTaxable || !value
+                          !getProjectInfoValues().isTaxable ||
+                          value === null ||
+                          value === undefined
                             ? '-'
                             : value
                         }
@@ -853,6 +855,8 @@ export default function AddNewQuote() {
                         sx={{ maxWidth: '120px', padding: 0 }}
                         inputProps={{ inputMode: 'decimal' }}
                         onChange={e => {
+                          console.log(Number(e.target.value))
+
                           if (e.target.value.length > 10) return
                           else if (e.target.value === '') onChange(null)
                           else onChange(Number(e.target.value))
