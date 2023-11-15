@@ -454,7 +454,7 @@ export default function AddNewQuote() {
       subtotal: subPrice,
     }
 
-    const items: Array<PostItemType> = getItem().items.map(item => {
+    const items: Array<PostItemType> = getItem().items.map((item, idx) => {
       const {
         contactPerson,
         minimumPrice,
@@ -474,6 +474,7 @@ export default function AddNewQuote() {
         // name: item.itemName,
         sourceLanguage: item.source,
         targetLanguage: item.target,
+        sortingOrder: idx + 1,
       }
     })
 
@@ -743,8 +744,8 @@ export default function AddNewQuote() {
                       display: 'flex',
                       gap: '20px',
                       borderBottom: '2px solid #666CFF',
-                      justifyContent: 'center',
-                      width: '257px',
+                      justifyContent: 'space-between',
+                      width: '25%',
                     }}
                   >
                     <Typography
@@ -753,7 +754,8 @@ export default function AddNewQuote() {
                       sx={{
                         padding: '16px 16px 16px 20px',
                         flex: 1,
-                        textAlign: 'right',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
                       }}
                     >
                       Subtotal
@@ -761,64 +763,32 @@ export default function AddNewQuote() {
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        display: 'flex',
+                        justifyContent: subPrice === 0 ? 'center' : 'flex-end',
+                      }}
                     >
-                      {formatCurrency(
-                        formatByRoundingProcedure(
-                          // getItem().items.reduce((acc, cur) => {
-                          //   return acc + cur.totalPrice
-                          // }, 0),
-                          subPrice,
-                          priceInfo?.decimalPlace!,
-                          priceInfo?.roundingProcedure!,
-                          priceInfo?.currency ?? 'USD',
-                        ),
-                        priceInfo?.currency ?? 'USD',
-                      )}
+                      {subPrice === 0
+                        ? '-'
+                        : formatCurrency(
+                            formatByRoundingProcedure(
+                              // getItem().items.reduce((acc, cur) => {
+                              //   return acc + cur.totalPrice
+                              // }, 0),
+                              subPrice,
+                              priceInfo?.decimalPlace!,
+                              priceInfo?.roundingProcedure!,
+                              priceInfo?.currency ?? 'USD',
+                            ),
+                            priceInfo?.currency ?? 'USD',
+                          )}
                     </Typography>
                   </Box>
                 </Box>
               </Grid>
-              {/* <Grid
-                item
-                xs={12}
-                display='flex'
-                padding='24px'
-                alignItems='center'
-                justifyContent='space-between'
-                mt={6}
-                mb={6}
-                sx={{ background: '#F5F5F7', marginBottom: '24px' }}
-              >
-                <Box display='flex' alignItems='center' gap='4px'>
-                  <Checkbox
-                    checked={getProjectInfoValues().isTaxable}
-                    onChange={e => {
-                      if (!e.target.checked) setTax(null)
-                      setProjectInfo('isTaxable', e.target.checked, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
-                    }}
-                  />
-                  <Typography>Tax</Typography>
-                </Box>
-                <Box display='flex' alignItems='center' gap='4px'>
-                  <TextField
-                    size='small'
-                    type='number'
-                    value={!getProjectInfoValues().isTaxable ? '-' : tax}
-                    disabled={!getProjectInfoValues().isTaxable}
-                    sx={{ maxWidth: '120px', padding: 0 }}
-                    inputProps={{ inputMode: 'decimal' }}
-                    onChange={e => {
-                      if (e.target.value.length > 10) return
-                      setTax(Number(e.target.value))
-                    }}
-                  />
-                  %
-                </Box>
-              </Grid> */}
+
               <Grid
                 item
                 xs={12}
@@ -870,7 +840,9 @@ export default function AddNewQuote() {
                         onClickCapture={() => setTaxFocus(true)}
                         onBlur={() => setTaxFocus(false)}
                         value={
-                          !getProjectInfoValues().isTaxable || !value
+                          !getProjectInfoValues().isTaxable ||
+                          value === null ||
+                          value === undefined
                             ? '-'
                             : value
                         }
@@ -883,6 +855,8 @@ export default function AddNewQuote() {
                         sx={{ maxWidth: '120px', padding: 0 }}
                         inputProps={{ inputMode: 'decimal' }}
                         onChange={e => {
+                          console.log(Number(e.target.value))
+
                           if (e.target.value.length > 10) return
                           else if (e.target.value === '') onChange(null)
                           else onChange(Number(e.target.value))

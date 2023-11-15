@@ -66,6 +66,7 @@ import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   confirmOrder,
+  patchOrderContactPerson,
   patchOrderProjectInfo,
   patchOrderStatus,
   splitOrder,
@@ -242,8 +243,6 @@ const OrderDetail = () => {
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
-
-  console.log(isUpdatable)
 
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
@@ -620,6 +619,7 @@ const OrderDetail = () => {
           onClose={() => closeModal('VersionHistoryModal')}
           onClick={onClickRestoreVersion}
           canUseDisableButton={canUseFeature('button-Restore')}
+          statusList={statusList!}
         />
       ),
     })
@@ -696,7 +696,11 @@ const OrderDetail = () => {
       headerName: 'Position',
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Version</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Version
+        </Typography>
+      ),
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return <Box>Ver. {row.version}</Box>
       },
@@ -708,24 +712,32 @@ const OrderDetail = () => {
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Account</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Account
+        </Typography>
+      ),
       renderCell: ({ row }: { row: VersionHistoryType }) => {
-        return <Box>{row.email}</Box>
+        return <Box>{row.account ?? '-'}</Box>
       },
     },
     {
       flex: 0.3283,
-      field: 'jobTitle',
-      headerName: 'Job title',
+      field: 'confirmedAt',
+      headerName: 'Date&Time',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Date&Time</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Date&Time
+        </Typography>
+      ),
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return (
           <Box>
             {FullDateTimezoneHelper(
-              row.downloadedAt,
+              row.confirmedAt,
               auth.getValue().user?.timezone!,
             )}
           </Box>
@@ -1107,6 +1119,30 @@ const OrderDetail = () => {
     },
   )
 
+  const updateContactPersonForClient = useMutation(
+    (form: updateOrderType) => patchOrderContactPerson(Number(id), form),
+    {
+      onSuccess: (data: any) => {
+        setProjectInfoEdit(false)
+        setClientEdit(false)
+        setProjectTeamEdit(false)
+        setLangItemsEdit(false)
+        projectInfoReset()
+        itemReset()
+        resetTeam()
+        if (data.id === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: ['orderDetail'],
+          })
+          queryClient.invalidateQueries(['orderList'])
+        } else {
+          router.replace(`/orders/order-list/detail/${data.id}`)
+        }
+      },
+      onError: () => onMutationError(),
+    },
+  )
+
   const updateProjectWithoutControlForm = useMutation(
     (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
@@ -1148,7 +1184,8 @@ const OrderDetail = () => {
   const splitOrderMutation = useMutation(
     (items: number[]) => splitOrder(Number(id!), items),
     {
-      onSuccess: (data: { orderId: number }) => {
+      onSuccess: (data: { id: number }) => {
+        closeModal('SplitOrderAlertModal')
         setSplitReady(false)
         setSelectedIds(prevSelectedIds =>
           prevSelectedIds.map(id => ({ ...id, selected: false })),
@@ -1157,7 +1194,7 @@ const OrderDetail = () => {
         queryClient.invalidateQueries(['orderDetail'])
         queryClient.invalidateQueries(['orderList'])
 
-        router.push(`/orders/order-list/detail/${data.orderId}`)
+        router.push(`/orders/order-list/detail/${data.id}`)
       },
     },
   )
@@ -1280,7 +1317,7 @@ const OrderDetail = () => {
                 ? 'Requested'
                 : currentStatus?.label ?? ''
             }
-            vary='info'
+            vary='question-info'
           />
         ),
       })
@@ -1307,9 +1344,11 @@ const OrderDetail = () => {
             (projectInfo?.status === 'New' ||
               projectInfo?.status === 'In preparation' ||
               projectInfo?.status === 'Internal review') &&
-            !projectInfo?.linkedInvoiceReceivable &&
-            projectInfo?.linkedJobs.length === 0 &&
+            // !projectInfo?.linkedInvoiceReceivable &&
+            // projectInfo?.linkedJobs.length === 0 &&
             isIncludeProjectTeam()
+          console.log(flag)
+
           break
         case 'button-Languages&Items-SplitOrder':
           flag =
@@ -1490,6 +1529,8 @@ const OrderDetail = () => {
     )
   }
 
+  console.log(isIncludeProjectTeam())
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1621,6 +1662,12 @@ const OrderDetail = () => {
                         ) : null}
                       </Menu>
                     </Box>
+                  ) : null}
+                  {currentRole && currentRole.name === 'CLIENT' ? (
+                    <OrderStatusChip
+                      status={projectInfo?.status}
+                      label={projectInfo?.status}
+                    />
                   ) : null}
                 </Box>
               </Box>
@@ -1779,17 +1826,32 @@ const OrderDetail = () => {
                       project={projectInfo!}
                       setEditMode={setProjectInfoEdit}
                       isUpdatable={canUseFeature('tab-ProjectInfo')}
-                      updateStatus={(status: number) =>
+                      updateStatus={(
+                        status: number,
+                        callback?: () => void,
+                        reason?: ReasonType,
+                      ) =>
                         //TODO: endpoint 교체해야함(status 업데이트 전용)
                         // updateProjectWithoutControlForm.mutate({
                         //   status: status,
                         // })
-                        updateOrderStatusMutation.mutate({
-                          id: Number(id!),
-                          status: status,
-                        })
+                        updateOrderStatusMutation.mutate(
+                          reason
+                            ? {
+                                id: Number(id!),
+                                status: status,
+                                reason: reason,
+                              }
+                            : { id: Number(id!), status: status },
+                          {
+                            onSuccess: () => {
+                              callback && callback()
+                            },
+                          },
+                        )
                       }
                       updateProject={updateProject}
+                      updateContactPerson={updateContactPersonForClient}
                       client={client}
                       statusList={statusList!}
                       role={currentRole!}
@@ -1804,7 +1866,6 @@ const OrderDetail = () => {
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
                   <LanguageAndItem
-                    langItem={langItem!}
                     languagePairs={languagePairs!}
                     setLanguagePairs={setLanguagePairs}
                     clientId={client?.client.clientId!}
@@ -1813,18 +1874,15 @@ const OrderDetail = () => {
                     setItem={setItem}
                     itemTrigger={itemTrigger}
                     itemErrors={itemErrors}
-                    isItemValid={isItemValid}
                     priceUnitsList={priceUnitsList || []}
                     items={items}
                     removeItems={removeItems}
                     getTeamValues={getTeamValues}
-                    projectTax={projectInfo!.tax}
                     appendItems={appendItems}
                     orderId={Number(id!)}
                     langItemsEdit={langItemsEdit}
                     setLangItemsEdit={setLangItemsEdit}
                     project={projectInfo!}
-                    updateItems={patchItems}
                     onClickSplitOrder={onClickSplitOrder}
                     onClickCancelSplitOrder={onClickCancelSplitOrder}
                     onClickSplitOrderConfirm={onClickSplitOrderConfirm}
@@ -1840,6 +1898,7 @@ const OrderDetail = () => {
                     }
                     canUseFeature={canUseFeature}
                     isIncludeProjectTeam={isIncludeProjectTeam()}
+                    type='detail'
                   />
 
                   {/* <Grid item xs={12}>
@@ -2113,6 +2172,7 @@ const OrderDetail = () => {
                   project={projectInfo!}
                   isSubmittable={true}
                   updateProject={updateProject}
+                  updateStatus={updateOrderStatusMutation}
                   statusList={statusList!}
                   canUseFeature={canUseFeature}
                   uploadFileProcessing={uploadFileProcessing}

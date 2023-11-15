@@ -357,6 +357,7 @@ const Row = ({
         setDarkMode={setDarkMode}
         sumTotalPrice={sumTotalPrice}
         showCurrency={true}
+        remove={remove}
       />
       {/* price unit end */}
     </Box>

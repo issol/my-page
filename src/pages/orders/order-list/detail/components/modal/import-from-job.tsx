@@ -27,11 +27,7 @@ type Props = {
   onClose: any
 }
 
-const ImportFromJob = ({
-  items,
-  onClickUpload,
-  onClose,
-}: Props) => {
+const ImportFromJob = ({ items, onClickUpload, onClose }: Props) => {
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
   const [selectedJobs, setSelectedJobs] = useState<DeliveryFileType[]>([])
 
@@ -200,8 +196,8 @@ const ImportFromJob = ({
         // maxWidth: '1266px',
         maxWidth: '1100px',
         width: '100%',
-        maxHeight: '450px',
-        height: '100%',
+        maxHeight: '800px',
+        // height: '100%',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
@@ -213,22 +209,25 @@ const ImportFromJob = ({
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'space-between',
+          // justifyContent: 'space-between',
           gap: '24px',
-          border: '1px solid',
         }}
       >
-        <Card>
+        <Card sx={{ overflow: 'scroll' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {items.map((value, index) => {
               return <Row info={value} key={uuidv4()} index={index} />
             })}
           </Box>
         </Card>
-        <Box sx={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-          <Button variant='outlined' color='secondary'
-            onClick={onClose}
-          >
+        <Box
+          sx={{
+            display: 'flex',
+            gap: '16px',
+            justifyContent: 'center',
+          }}
+        >
+          <Button variant='outlined' color='secondary' onClick={onClose}>
             Cancel
           </Button>
           <Button

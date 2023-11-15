@@ -68,6 +68,9 @@ import { isEmpty } from 'lodash'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import CompanyPaymentInfo from './payment-info'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { useRouter } from 'next/router'
+import useAuth from '@src/hooks/useAuth'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 interface FileProp {
   name: string
@@ -78,6 +81,8 @@ interface FileProp {
 type MenuType = 'companyInfo' | 'paymentInfo'
 export default function ClientCompanyInfoPageComponent() {
   const currentRole = getCurrentRole()
+  const router = useRouter()
+  const setAuth = useAuth()
 
   const { openModal, closeModal } = useModal()
 
@@ -110,6 +115,14 @@ export default function ClientCompanyInfoPageComponent() {
     ) => updateClient(auth.getValue().company?.clientId!, data),
     {
       onSuccess: () => {
+        const { userId, email, accessToken } = router.query
+        const accessTokenAsString: string = accessToken as string
+        /* @ts-ignore */
+        setAuth.updateUserInfo({
+          userId: Number(auth.getValue().user?.id!),
+          email: auth.getValue().user?.email!,
+          accessToken: accessTokenAsString,
+        })
         queryClient.invalidateQueries({ queryKey: 'clientUserInfo' })
       },
       onError: () => onError(),
@@ -136,6 +149,10 @@ export default function ClientCompanyInfoPageComponent() {
     resolver: yupResolver(clientCompanyInfoSchema),
   })
 
+  const companyInfoAddressDefaultValue: ClientAddressFormType = {
+    clientAddresses: [{ addressType: 'shipping' }],
+  }
+
   const {
     control: addressControl,
     getValues: getAddress,
@@ -146,7 +163,7 @@ export default function ClientCompanyInfoPageComponent() {
       dirtyFields: addressDirtyFields,
     },
   } = useForm<ClientAddressFormType>({
-    defaultValues: clientAddressDefaultValue,
+    defaultValues: companyInfoAddressDefaultValue,
     mode: 'onChange',
     resolver: yupResolver(clientAddressAllRequiredSchema),
   })
@@ -169,14 +186,18 @@ export default function ClientCompanyInfoPageComponent() {
 
   function resetAddressForm() {
     if (auth.state === 'hasValue' && auth.getValue().company) {
+      const filteredAddress = auth
+        .getValue()
+        .company?.clientAddresses.map(i => ({
+          ...i,
+          id: i?.id?.toString(),
+        }))
+        .filter(i => i.addressType !== 'billing')
       resetAddress({
-        clientAddresses: auth
-          .getValue()
-          .company?.clientAddresses.map(i => ({
-            ...i,
-            id: i?.id?.toString(),
-          }))
-          .filter(i => i.addressType !== 'billing'),
+        clientAddresses: filteredAddress
+      })
+      filteredAddress?.map((address, idx) => {
+        update(idx, { ...address })
       })
     }
   }
@@ -253,6 +274,9 @@ export default function ClientCompanyInfoPageComponent() {
 
   return (
     <Suspense fallback={<FallbackSpinner />}>
+      {updateClientMutation.isLoading ? (
+        <OverlaySpinner />
+      ) : null}
       <ConfirmLeaveModal />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <CompanyInfoCard companyInfo={auth.getValue().company!} />

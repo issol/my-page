@@ -24,11 +24,11 @@ type Props = {
 const ReceivableCalendar = (props: Props) => {
   // ** Props
   const { event, setYear, setMonth, direction, setCurrentListId } = props
-
+  const now = new Date()
   const finalEvent = event.map(item => {
     return {
       ...item,
-      title: item.order.projectName,
+      title: item.projectName,
       start: item.updatedAt ?? new Date(),
       end: item.updatedAt ?? new Date(),
     }
@@ -36,6 +36,10 @@ const ReceivableCalendar = (props: Props) => {
 
   // ** Refs
   const calendarRef = useRef()
+
+  const handleMonthClick = (arg: any) => {
+    console.log(arg)
+  }
 
   const calendarOptions = {
     events: finalEvent,
@@ -47,6 +51,7 @@ const ReceivableCalendar = (props: Props) => {
     },
 
     dayMaxEvents: 3,
+
     eventResizableFromStart: true,
     ref: calendarRef,
     direction,
@@ -64,9 +69,51 @@ const ReceivableCalendar = (props: Props) => {
   }
 
   async function handleMonthChange(payload: DatesSetArg) {
+    const nextButton = document.querySelector(
+      '.fc-next-button',
+    ) as HTMLButtonElement
+
+    const prevButton = document.querySelector(
+      '.fc-prev-button',
+    ) as HTMLButtonElement
+
     const currDate = payload.view.currentStart
     const currYear = currDate.getFullYear()
     const currMonth = currDate.getMonth() + 1
+
+    const todayYear = now.getFullYear()
+    const todayMonth = now.getMonth() + 1
+
+    const yearDifference = currYear - todayYear
+    const monthDifference = currMonth - todayMonth
+
+    const totalDifference = yearDifference * 12 + monthDifference
+
+    const prevYearDifference = todayYear - currYear
+    const prevMonthDifference = todayMonth - currMonth
+
+    const prevTotalDifference = prevYearDifference * 12 + prevMonthDifference
+
+    if (prevTotalDifference >= 24) {
+      if (prevButton) {
+        prevButton.disabled = true
+      }
+    } else {
+      if (prevButton) {
+        prevButton.disabled = false
+      }
+    }
+
+    if (totalDifference >= 2) {
+      if (nextButton) {
+        nextButton.disabled = true
+      }
+    } else {
+      if (nextButton) {
+        nextButton.disabled = false
+      }
+    }
+
     setYear(currYear)
     setMonth(currMonth)
   }

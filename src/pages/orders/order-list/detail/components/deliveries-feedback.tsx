@@ -62,11 +62,23 @@ import {
 } from '@src/apis/order-detail.api'
 import NoList from '@src/pages/components/no-list'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import SelectRequestRedeliveryReasonModal from './modal/select-request-redelivery-reason-modal'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type Props = {
   project: ProjectInfoType
   isSubmittable: boolean
   updateProject: UseMutationResult<void, unknown, updateOrderType, unknown>
+  updateStatus: UseMutationResult<
+    any,
+    unknown,
+    {
+      id: number
+      status: number
+      reason?: ReasonType | undefined
+    },
+    unknown
+  >
   statusList: Array<{ value: number; label: string }>
   canUseFeature: (v: OrderFeatureType) => boolean
   uploadFileProcessing: boolean
@@ -77,6 +89,7 @@ const DeliveriesFeedback = ({
   project,
   isSubmittable,
   updateProject,
+  updateStatus,
   statusList,
   canUseFeature,
   uploadFileProcessing,
@@ -605,6 +618,7 @@ const DeliveriesFeedback = ({
           onClose={() => closeModal('CancelDeliverModal')}
           title='Are you sure you want to cancel the file upload? The files you uploaded will not be saved.'
           vary='error'
+          leftButtonText='No'
           rightButtonText='Cancel'
         />
       ),
@@ -637,6 +651,7 @@ const DeliveriesFeedback = ({
           vary='successful'
           rightButtonText='Confirm'
           textarea={true}
+          textareaRequired={false}
           textareaPlaceholder='Write down feedback for the deliveries'
         />
       ),
@@ -647,13 +662,16 @@ const DeliveriesFeedback = ({
     openModal({
       type: 'RequestRedeliveryModal',
       children: (
-        <SelectReasonModal
+        <SelectRequestRedeliveryReasonModal
           onClose={() => closeModal('RequestRedeliveryModal')}
-          onClick={(status: number, reason: CancelReasonType) =>
-            updateProject.mutate(
-              { status: status, reason: reason },
+          onClick={(status: number, reason: ReasonType) =>
+            updateStatus.mutate(
+              { id: project.id, status: status, reason: reason },
               {
                 onSuccess: () => {
+                  closeModal('RequestRedeliveryModal')
+                },
+                onError: () => {
                   closeModal('RequestRedeliveryModal')
                 },
               },
@@ -662,6 +680,7 @@ const DeliveriesFeedback = ({
           title='Are you sure you want to request redelivery?'
           vary='error'
           rightButtonText='Request'
+          leftButtonText='No'
           action='Redelivery requested'
           from='client'
           statusList={statusList!}
@@ -695,6 +714,7 @@ const DeliveriesFeedback = ({
           vary='successful'
           rightButtonText='Send'
           textarea={true}
+          textareaRequired={true}
           textareaPlaceholder='Write down feedback for the deliveries'
         />
       ),
@@ -718,6 +738,8 @@ const DeliveriesFeedback = ({
   }, [project])
 
   console.log(uploadFileProcessing)
+  console.log(savedFiles)
+
   console.log('project', project)
   console.log('status list', statusList)
   return (
@@ -920,7 +942,7 @@ const DeliveriesFeedback = ({
               : '-'}
             {files.length || importedFiles.length ? (
               <>
-                <Divider />
+                {savedFiles.length ? <Divider /> : null}
                 <Box
                   sx={{
                     display: 'grid',
@@ -933,19 +955,22 @@ const DeliveriesFeedback = ({
                 </Box>
               </>
             ) : uploadFileProcessing ? (
-              <Box
-                sx={{
-                  width: '100%',
-                  height: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
+              <>
+                {savedFiles.length > 0 ? <Divider /> : null}
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
 
-                  padding: '24px',
-                }}
-              >
-                <Typography variant='body2'>No files uploaded</Typography>
-              </Box>
+                    padding: '24px',
+                  }}
+                >
+                  <Typography variant='body2'>No files uploaded</Typography>
+                </Box>
+              </>
             ) : null}
           </Box>
         </Card>
@@ -966,7 +991,9 @@ const DeliveriesFeedback = ({
                 </Typography>
                 {currentRole &&
                 currentRole.name === 'CLIENT' &&
-                (project.feedback === '-' || project.feedback === null) ? (
+                (!project.feedback ||
+                  project.feedback === '-' ||
+                  project.feedback === null) ? (
                   <Button
                     variant='contained'
                     sx={{ height: '34px' }}

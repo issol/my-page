@@ -107,7 +107,10 @@ export default function Filters({
                         fullWidth
                         multiple
                         disableCloseOnSelect
-                        options={statusList!}
+                        // TODO 고도화 이후 변경
+                        options={statusList!.filter(
+                          value => value.value !== 601100,
+                        )}
                         value={statusList?.filter(status =>
                           filter.status?.includes(status.value!),
                         )}

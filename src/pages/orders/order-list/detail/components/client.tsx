@@ -91,7 +91,12 @@ const OrderDetailClient = ({
                   })
                 : '-'}
               {client.contactPerson !== null &&
-                ` / ${client.contactPerson.jobTitle}`}
+                `${
+                  client.contactPerson.jobTitle &&
+                  client.contactPerson.jobTitle !== ''
+                    ? ` / ${client.contactPerson.jobTitle}`
+                    : ''
+                }`}
             </Typography>
           </Box>
           <Divider />

@@ -67,6 +67,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import {
   checkEditable,
   confirmInvoiceByLpm,
+  patchInvoiceContactPerson,
   patchInvoiceInfo,
   restoreVersion,
 } from '@src/apis/invoice/receivable.api'
@@ -165,7 +166,6 @@ const ReceivableInvoiceDetail = () => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const User = new invoice_receivable(auth.getValue().user?.id!)
-  console.log(auth.getValue().user?.id!)
 
   // const AccountingTeam = new account_manage(auth.getValue().user?.id!)
   const AccountingTeam = new invoice_receivable_accounting_info(
@@ -254,6 +254,37 @@ const ReceivableInvoiceDetail = () => {
       form: InvoiceReceivablePatchParamsType
       type: 'basic' | 'accounting'
     }) => patchInvoiceInfo(data.id, data.form, data.type),
+    {
+      onSuccess: (data: { id: number }, variables) => {
+        setInvoiceInfoEdit(false)
+        setAccountingInfoEdit(false)
+        setProjectTeamEdit(false)
+        setClientEdit(false)
+
+        if (data.id !== variables.id) {
+          router.push(`/invoice/receivable/detail/${data.id}`)
+          invalidateInvoiceDetail()
+        } else {
+          invoiceInfoRefetch()
+          historyRefetch()
+          projectTeamRefetch()
+          clientRefetch()
+          queryClient.invalidateQueries(['invoice/receivable/list'])
+        }
+        closeModal('EditSaveModal')
+      },
+      onError: () => {
+        onError()
+        closeModal('EditSaveModal')
+      },
+    },
+  )
+
+  const updateContactPersonForClient = useMutation(
+    (data: {
+      id: number
+      form: InvoiceReceivablePatchParamsType
+    }) => patchInvoiceContactPerson(data.id, data.form),
     {
       onSuccess: (data: { id: number }, variables) => {
         setInvoiceInfoEdit(false)
@@ -466,6 +497,8 @@ const ReceivableInvoiceDetail = () => {
       minWidth: 419,
       headerName: 'Position',
       disableColumnMenu: true,
+      sortable: false,
+      hideSortIcons: true,
       renderHeader: () => <Box>Version</Box>,
       renderCell: ({ row }: { row: InvoiceVersionHistoryType }) => {
         return <Box>Ver. {row.version}</Box>
@@ -613,11 +646,9 @@ const ReceivableInvoiceDetail = () => {
   }, [client, clientReset])
 
   useEffect(() => {
-    if (langItem && prices && invoiceInfo) {
+    if (langItem && prices && invoiceInfo && client) {
       const clientTimezone =
         getClientValue('contacts.timezone') ?? auth.getValue().user?.timezone!
-
-      console.log(getClientValue('contacts'))
 
       setInvoiceLanguageItem({
         ...langItem,
@@ -648,7 +679,10 @@ const ReceivableInvoiceDetail = () => {
             initialPrice: value.initialPrice ?? null,
             description: value.description,
             showItemDescription: value.showItemDescription,
-            minimumPrice: value.minimumPrice,
+            minimumPrice:
+              value.minimumPrice ?? value.minimumPriceApplied
+                ? Number(value.totalPrice)
+                : 0,
             minimumPriceApplied: value.minimumPriceApplied,
             indexing: idx,
           })),
@@ -696,18 +730,9 @@ const ReceivableInvoiceDetail = () => {
           timezone: invoiceInfo.payDueTimezone ?? clientTimezone!,
         },
         invoiceConfirmDate: {
-          date:
-            client?.contactPerson !== null &&
-            client?.contactPerson.userId !== null
-              ? invoiceInfo.clientConfirmedAt ?? null
-              : null,
-          // date:
+          date: invoiceInfo.clientConfirmedAt ?? null,
 
-          timezone:
-            client?.contactPerson !== null &&
-            client?.contactPerson.userId !== null
-              ? invoiceInfo.clientConfirmTimezone ?? null
-              : null,
+          timezone: invoiceInfo.clientConfirmTimezone ?? null,
         },
         taxInvoiceDueDate: {
           date: invoiceInfo.taxInvoiceDueAt ?? null,
@@ -744,10 +769,8 @@ const ReceivableInvoiceDetail = () => {
           0,
         ),
       }
+
       invoiceInfoReset(res)
-      console.log(
-        langItem.orders.reduce((total, obj) => total + obj.subtotal, 0),
-      )
     }
     if (projectTeam) {
       let viewTeams: ProjectTeamListType[] = [...projectTeam].map(value => ({
@@ -842,7 +865,7 @@ const ReceivableInvoiceDetail = () => {
       // }))
       // resetTeam({ teams })
     }
-  }, [langItem, projectTeam, prices, invoiceInfo])
+  }, [langItem, projectTeam, prices, invoiceInfo, client])
 
   function makePdfData() {
     if (langItem) {
@@ -871,7 +894,10 @@ const ReceivableInvoiceDetail = () => {
             initialPrice: value.initialPrice ?? null,
             description: value.description,
             showItemDescription: value.showItemDescription,
-            minimumPrice: value.minimumPrice,
+            minimumPrice:
+              value.minimumPrice ?? value.minimumPriceApplied
+                ? Number(value.totalPrice)
+                : 0,
             minimumPriceApplied: value.minimumPriceApplied,
             indexing: idx,
           })),
@@ -1312,6 +1338,7 @@ const ReceivableInvoiceDetail = () => {
                   accountingEdit={accountingInfoEdit}
                   setAccountingEdit={setAccountingInfoEdit}
                   onSave={patchInvoiceInfoMutation.mutate}
+                  onContactPersonSave={updateContactPersonForClient.mutate}
                   invoiceInfoControl={invoiceInfoControl}
                   getInvoiceInfo={getInvoiceInfo}
                   setInvoiceInfo={setInvoiceInfo}
@@ -1382,7 +1409,7 @@ const ReceivableInvoiceDetail = () => {
                 type='detail'
                 list={teams!}
                 listCount={projectTeam?.length!}
-                columns={getProjectTeamColumns()}
+                columns={getProjectTeamColumns(currentRole?.name)}
                 page={projectTeamListPage}
                 setPage={setProjectTeamListPage}
                 pageSize={projectTeamListPageSize}

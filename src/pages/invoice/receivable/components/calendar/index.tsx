@@ -49,7 +49,10 @@ const CalendarContainer = () => {
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
-  const { data: statusList } = useGetStatusList('InvoiceReceivable')
+  const { data: statusList } = useGetStatusList(
+    'InvoiceReceivable',
+    currentRole?.name === 'CLIENT' ? '1' : '0',
+  )
   const auth = useRecoilValueLoadable(authState)
 
   const statuses = statusList?.map(i => ({

@@ -53,16 +53,23 @@ import { ContactPersonType } from '@src/types/schema/client-contact-person.schem
 import { getClientDetail } from '@src/apis/client.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import SimpleMultilineAlertWithCumtomTitleModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-with-custom-title-modal'
+import { ReasonType } from '@src/types/quotes/quote'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   project: ProjectInfoType
   setEditMode?: (v: boolean) => void
   isUpdatable: boolean
-  updateStatus?: (status: number) => void
+  updateStatus?: (
+    status: number,
+    callback?: () => void,
+    reason?: ReasonType,
+  ) => void
   role: UserRoleType
   client?: ClientType
   type: 'detail' | 'history'
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
+  updateContactPerson?: UseMutationResult<void, unknown, updateOrderType, unknown>
   statusList?: Array<{ value: number; label: string }>
   canUseFeature: (v: OrderFeatureType) => boolean
   jobInfo: Array<JobInfoType>
@@ -76,6 +83,7 @@ const ProjectInfo = ({
   client,
   type,
   updateProject,
+  updateContactPerson,
   statusList,
   canUseFeature,
   jobInfo,
@@ -153,16 +161,9 @@ const ProjectInfo = ({
       children: (
         <SelectReasonModal
           onClose={() => closeModal('CancelOrderModal')}
-          onClick={(status: number, reason: CancelReasonType) =>
-            updateProject &&
-            updateProject.mutate(
-              { status: status, reason: reason },
-              {
-                onSuccess: () => {
-                  closeModal('CancelOrderModal')
-                },
-              },
-            )
+          onClick={(status: number, reason: ReasonType) =>
+            updateStatus &&
+            updateStatus(status, () => closeModal('CancelOrderModal'), reason)
           }
           title='Are you sure you want to cancel this order?'
           vary='error'
@@ -191,28 +192,77 @@ const ProjectInfo = ({
               : statusList?.find(i => i.label === project?.status)?.label || ''
           }
           vary='question-info'
+          role={role.name === 'CLIENT' ? 'client' : 'lpm'}
         />
       ),
     })
   }
 
   const onChangeStatus = (status: number) => {
+    const statusLabel = statusList?.find(value => value.value === status)?.label
     if (status === 10950) {
       openModal({
         type: `ChangeWithoutInvoiceStatusModal`,
+        // children: (
+        //   <SimpleMultilineAlertModal
+        //     onClose={() => closeModal('ChangeWithoutInvoiceStatusModal')}
+        //     onConfirm={() => updateStatus && updateStatus(status)}
+        //     closeButtonText='Cancel'
+        //     confirmButtonText='Proceed'
+        //     message={`Are you sure you want to change the status to Without invoice?\n\nThe client's status will also be updated accordingly.`}
+        //     vary='error'
+        //   />
+        // ),
         children: (
-          <SimpleMultilineAlertModal
+          <CustomModal
             onClose={() => closeModal('ChangeWithoutInvoiceStatusModal')}
-            onConfirm={() => updateStatus && updateStatus(status)}
-            closeButtonText='Cancel'
-            confirmButtonText='Proceed'
-            message={`Are you sure you want to change the status to Without invoice?\n\nThe client's status will also be updated accordingly.`}
+            onClick={() =>
+              updateStatus &&
+              updateStatus(status, () =>
+                closeModal('ChangeWithoutInvoiceStatusModal'),
+              )
+            }
+            title={
+              <>
+                re you sure you want to change the status to Without invoice?{' '}
+                <br />
+                <br />
+                The client's status will also be updated accordingly.{' '}
+              </>
+            }
             vary='error'
+            rightButtonText='Proceed'
           />
         ),
       })
     } else {
-      updateStatus && updateStatus(status)
+      openModal({
+        type: 'ChangeStatusModal',
+        children: (
+          <CustomModal
+            title={
+              <>
+                Are you sure you want to change the order status into{' '}
+                <Typography
+                  variant='body2'
+                  fontWeight={600}
+                  component={'span'}
+                  fontSize={16}
+                >
+                  [{statusLabel ?? ''}]
+                </Typography>
+              </>
+            }
+            vary='successful'
+            rightButtonText='Proceed'
+            onClick={() =>
+              updateStatus &&
+              updateStatus(status, () => closeModal('ChangeStatusModal'))
+            }
+            onClose={() => closeModal('ChangeStatusModal')}
+          />
+        ),
+      })
     }
   }
 
@@ -220,7 +270,8 @@ const ProjectInfo = ({
     if (client && statusList) {
       if (!client.isEnrolledClient) {
         if (project.status === 'Delivery confirmed') {
-          return statusList?.filter(value => value.label === 'Without invoice')
+          // return statusList?.filter(value => value.label === 'Without invoice')
+          return statusList!
         } else {
           return statusList?.filter(
             value =>
@@ -231,14 +282,17 @@ const ProjectInfo = ({
         }
       } else {
         if (project.status === 'Delivery confirmed') {
-          return statusList?.filter(value => value.label === 'Without invoice')
+          return statusList?.filter(
+            value =>
+              value.label === 'Without invoice' ||
+              value.label === 'Delivery confirmed',
+          )
         } else {
           return statusList?.filter(
             value =>
               value.label === 'New' ||
               value.label === 'In preparation' ||
-              value.label === 'Internal review' ||
-              value.label === 'Without invoice',
+              value.label === 'Internal review',
           )
         }
       }
@@ -248,20 +302,31 @@ const ProjectInfo = ({
   }
 
   const onClickEditSaveContactPerson = () => {
-    // TODO api
-    updateProject &&
-      updateProject.mutate(
-        { contactPersonId: contactPersonId },
-        {
-          onSuccess: () => {
-            setContactPersonEdit(false)
+    if(role.name === 'CLIENT') {
+      updateContactPerson &&
+      updateContactPerson.mutate(
+          { contactPersonId: contactPersonId },
+          {
+            onSuccess: () => {
+              setContactPersonEdit(false)
+            },
           },
-        },
-      )
+        )
+    } else {
+      updateProject &&
+      updateProject.mutate(
+          { contactPersonId: contactPersonId },
+          {
+            onSuccess: () => {
+              setContactPersonEdit(false)
+            },
+          },
+        )
+    }
   }
 
   // TODO: Order에 포함된 Job의 status를 체크하는 함수 필요
-  function handleCancelJob() {
+  function handleCancelOrder() {
     // 포함된 job이 없는 경우 => 기본 캔슬 모달
     if (!jobInfo || jobInfo?.length === 0) onClickCancel()
     else {
@@ -468,16 +533,7 @@ const ProjectInfo = ({
                     width: '73.45%',
                   }}
                 >
-                  {(type === 'detail' &&
-                    statusList
-                      ?.filter(
-                        value =>
-                          !filterStatusList().some(
-                            v => v.value === value.value,
-                          ),
-                      )
-                      .some(status => status.label === project.status)) ||
-                  role.name === 'CLIENT' ? (
+                  {role.name === 'CLIENT' ? (
                     <Box
                       sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                     >
@@ -500,33 +556,64 @@ const ProjectInfo = ({
                         </IconButton>
                       )}
                     </Box>
-                  ) : (
-                    <Autocomplete
-                      fullWidth
-                      disableClearable={true}
-                      options={filterStatusList() ?? []}
-                      onChange={(e, v) => {
-                        if (v?.value) {
-                          onChangeStatus(v.value as number)
-                        }
-                      }}
-                      isOptionEqualToValue={(option, newValue) => {
-                        return option.value === newValue.value
-                      }}
-                      value={
-                        statusList &&
-                        statusList.find(item => item.label === project.status)
-                      }
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          placeholder='Status'
-                          size='small'
-                          autoComplete='off'
-                          sx={{ maxWidth: '300px' }}
+                  ) : (type === 'detail' ||
+                      type === 'history') &&
+                      statusList
+                        ?.filter(
+                          value =>
+                            !filterStatusList().some(v => v.value === value.value),
+                        )
+                        .some(status => status.label === project.status) 
+                      ? (
+                        <Box
+                          sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                        >
+                          <OrderStatusChip
+                            status={project.status}
+                            label={project.status}
+                          />
+                          {(project.status === 'Redelivery requested' ||
+                            project.status === 'Canceled') && (
+                            <IconButton
+                              onClick={() => {
+                                project.reason && onClickReason()
+                              }}
+                              sx={{ padding: 0 }}
+                            >
+                              <img
+                                src='/images/icons/onboarding-icons/more-reason.svg'
+                                alt='more'
+                              />
+                            </IconButton>
+                          )}
+                        </Box>
+                      ) : (
+                        <Autocomplete
+                          fullWidth
+                          disableClearable={true}
+                          options={filterStatusList() ?? []}
+                          onChange={(e, v) => {
+                            if (v?.value) {
+                              onChangeStatus(v.value as number)
+                            }
+                          }}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          value={
+                            statusList &&
+                            statusList.find(item => item.label === project.status)
+                          }
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              placeholder='Status'
+                              size='small'
+                              autoComplete='off'
+                              sx={{ maxWidth: '300px' }}
+                            />
+                          )}
                         />
-                      )}
-                    />
                   )}
                 </Box>
               </Box>
@@ -646,7 +733,10 @@ const ProjectInfo = ({
                       {client?.contactPerson?.jobTitle
                         ? ` / ${client?.contactPerson?.jobTitle}`
                         : ''}
-                      {type === 'history' ? null : (
+                      {type === 'history' ||
+                      (role.name === 'CLIENT' && 
+                      ['Paid','Canceled'].includes(project.status as string))
+                      ? null : (
                         <IconButton onClick={() => setContactPersonEdit(true)}>
                           <Icon icon='mdi:pencil-outline' />
                         </IconButton>
@@ -1009,7 +1099,7 @@ const ProjectInfo = ({
                 color='error'
                 size='large'
                 disabled={!canUseFeature('button-ProjectInfo-CancelOrder')}
-                onClick={handleCancelJob}
+                onClick={handleCancelOrder}
               >
                 Cancel this order
               </Button>

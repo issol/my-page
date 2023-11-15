@@ -32,6 +32,7 @@ import { useGetClientList } from '@src/queries/client.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { useGetCompanyOptions } from '@src/queries/options.query'
 import { useQueryClient } from 'react-query'
+import dayjs from 'dayjs'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -160,18 +161,20 @@ export default function Quotes({ id, user }: Props) {
   const handleHideCompletedQuotes = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setHideCompletedQuotes(event.target.checked)
+    const checked = event.target.checked
+    setHideCompletedQuotes(checked)
     setFilters(prevState => ({
       ...prevState,
-      hideCompletedQuotes: event.target.checked ? 1 : 0,
+      hideCompletedQuotes: checked ? 1 : 0,
     }))
   }
 
   const handleSeeMyQuotes = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSeeMyQuotes(event.target.checked)
+    const checked = event.target.checked
+    setSeeMyQuotes(checked)
     setFilters(prevState => ({
       ...prevState,
-      seeMyQuotes: event.target.checked ? 1 : 0,
+      seeMyQuotes: checked ? 1 : 0,
     }))
   }
 
@@ -190,19 +193,65 @@ export default function Quotes({ id, user }: Props) {
       lsp,
     } = data
 
+    console.log(data)
+
     const filter: QuotesFilterType = {
-      quoteDate: quoteDate.map(value => value.toISOString()),
-      quoteDeadline: quoteDeadline?.map(value => value.toISOString()),
-      quoteExpiryDate: quoteExpiryDate?.map(value => value.toISOString()),
+      quoteDate:
+        quoteDate.length > 0
+          ? [
+              dayjs(quoteDate[0]).startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+              dayjs(quoteDate[1]).endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+            ]
+          : undefined,
+      quoteDeadline:
+        quoteDeadline && quoteDeadline.length > 0
+          ? [
+              dayjs(quoteDeadline[0])
+                .startOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+              dayjs(quoteDeadline[1])
+                .endOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            ]
+          : undefined,
+      quoteExpiryDate:
+        quoteExpiryDate && quoteExpiryDate.length > 0
+          ? [
+              dayjs(quoteExpiryDate[0])
+                .startOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+              dayjs(quoteExpiryDate[1])
+                .endOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            ]
+          : undefined,
       status: status.map(value => value.value),
       // client: client?.map(value => value.label),
       clientId: client?.map(value => value.value),
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
-      estimatedDeliveryDate: estimatedDeliveryDate?.map(value =>
-        value.toISOString(),
-      ),
-      projectDueDate: projectDueDate?.map(value => value.toISOString()),
+      estimatedDeliveryDate:
+        estimatedDeliveryDate && estimatedDeliveryDate.length > 0
+          ? [
+              dayjs(estimatedDeliveryDate[0])
+                .startOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+              dayjs(estimatedDeliveryDate[1])
+                .endOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            ]
+          : undefined,
+      projectDueDate:
+        projectDueDate && projectDueDate.length > 0
+          ? [
+              dayjs(projectDueDate[0])
+                .startOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+              dayjs(projectDueDate[1])
+                .endOf('day')
+                .format('YYYY-MM-DD HH:mm:ss'),
+            ]
+          : undefined,
       lsp: lsp?.map(value => value.label),
       search: search,
       take: quoteListPageSize,

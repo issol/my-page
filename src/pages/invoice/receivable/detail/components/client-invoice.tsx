@@ -63,6 +63,8 @@ const ClientInvoice = ({
 }: // statusList,
 // project,
 Props) => {
+  console.log(downloadData)
+
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
 
@@ -101,6 +103,7 @@ Props) => {
         <ConfirmInvoiceModal
           onClose={() => closeModal('ConfirmInvoiceModal')}
           onClick={handleConfirmInvoice}
+          contactPersonTimezone={downloadData.client.contactPerson?.timezone!}
         />
       ),
     })

@@ -219,7 +219,6 @@ export default function OrdersList({
       sortable: false,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: OrderListCellType) => {
-        console.log('orderlist', row.currency, row.subtotal)
         return (
           <Box>
             {!row.currency
@@ -364,7 +363,6 @@ export default function OrdersList({
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
-                console.log('grid2', params)
                 if (
                   role.name === 'CLIENT' &&
                   params.row.status === 'Under revision'

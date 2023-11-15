@@ -30,7 +30,10 @@ import logger from '@src/@core/utils/logger'
 import CancelModal from './modal/cancel-baseprice-modal'
 
 // ** type
-import { PriceUnitFormType, PriceUnitType } from '@src/types/common/standard-price'
+import {
+  PriceUnitFormType,
+  PriceUnitType,
+} from '@src/types/common/standard-price'
 import { CustomTableRow } from './table'
 
 type Props = {
@@ -123,7 +126,7 @@ export default function PriceUnitForm(props: Props) {
 
   function resetSubPrice() {
     if (subPrices.length === 1) {
-        update(0, { ...subPrices[0], title: '', weighting: null })
+      update(0, { ...subPrices[0], title: '', weighting: null })
     }
   }
 
@@ -148,14 +151,17 @@ export default function PriceUnitForm(props: Props) {
 
   function onAdd() {
     const data = getValues()
+    console.log(data)
     if (data.subPriceUnits?.length) {
       let finalForm: PriceUnitFormType = {
         ...data,
-        subPriceUnits: data.subPriceUnits.map(item => {
+        sortingOrder: 0,
+        subPriceUnits: data.subPriceUnits.map((item, idx) => {
           return {
             isActive: item.isActive,
             title: item.title,
             unit: item.unit,
+            sortingOrder: idx + 1,
             weighting:
               typeof item.weighting === 'string'
                 ? parseFloat(item.weighting!)
@@ -166,7 +172,7 @@ export default function PriceUnitForm(props: Props) {
       mutation(finalForm, onCancel())
     } else {
       delete data.subPriceUnits
-      mutation(data, onCancel())
+      mutation({ ...data, sortingOrder: 0 }, onCancel())
     }
   }
   const [expend, setExpend] = useState(true)
@@ -285,8 +291,10 @@ export default function PriceUnitForm(props: Props) {
                 <Switch
                   checked={value}
                   onChange={e => {
-                    if(subPrices.length && e.target.checked === false) {
-                      subPrices?.map((item, idx) => setValue(`subPriceUnits.${idx}.isActive`, false))
+                    if (subPrices.length && e.target.checked === false) {
+                      subPrices?.map((item, idx) =>
+                        setValue(`subPriceUnits.${idx}.isActive`, false),
+                      )
                     }
                     onChange(e.target.checked)
                   }}
@@ -366,7 +374,7 @@ export default function PriceUnitForm(props: Props) {
                                 item => item.label === field.value,
                               )[0]
                             }
-                            renderInput={params => <TextField {...params}  />}
+                            renderInput={params => <TextField {...params} />}
                           />
                         )}
                       />
@@ -408,7 +416,8 @@ export default function PriceUnitForm(props: Props) {
                             <Switch
                               checked={value}
                               onChange={e => {
-                                if(!getValues('isActive') && e.target.checked) setValue('isActive',e.target.checked)
+                                if (!getValues('isActive') && e.target.checked)
+                                  setValue('isActive', e.target.checked)
                                 onChange(e.target.checked)
                               }}
                             />
@@ -418,9 +427,7 @@ export default function PriceUnitForm(props: Props) {
                     </TableCell>
                     <TableCell>
                       <Box width='100%' display='flex' justifyContent='center'>
-                        <IconButton
-                          onClick={() => removeSubPrice(item.id)}
-                        >
+                        <IconButton onClick={() => removeSubPrice(item.id)}>
                           <Icon icon='mdi:trash-outline' />
                         </IconButton>
                       </Box>

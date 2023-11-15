@@ -14,6 +14,7 @@ import { updateProjectInfoType } from '../[id]'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import {
   CancelQuoteReason,
+  RejectQuoteReason,
   RequestRevisionReason,
 } from '@src/shared/const/reason/reason'
 
@@ -138,7 +139,7 @@ const ClientQuote = ({
           reasonList={
             action === 'Request revision'
               ? RequestRevisionReason
-              : CancelQuoteReason
+              : RejectQuoteReason
           }
           usage={action === 'Request revision' ? 'request-revision' : 'reject'}
         />

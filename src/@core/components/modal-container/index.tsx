@@ -7,13 +7,13 @@ import { ModalType } from '@src/store/modal'
 
 function ModalContainer() {
   const modalList = useAppSelector(state => state.modal)
-  const [isCSR, setIsCSR] = useState<boolean>(false)
+  // const [isCSR, setIsCSR] = useState<boolean>(false)
 
-  useEffect(() => {
-    setIsCSR(true)
+  // useEffect(() => {
+  //   setIsCSR(true)
 
-    return () => setIsCSR(false)
-  }, [])
+  //   return () => setIsCSR(false)
+  // }, [])
 
   const { closeModal } = useModal()
 
@@ -29,20 +29,28 @@ function ModalContainer() {
   }
 
   useEffect(() => {
+    console.log(window.pageYOffset)
+    console.log(window.scrollY)
+
     if (modalList.length > 0) {
       document.body.style.cssText = `
-          position: fixed;
-          top: -${window.scrollY}px;
-          overflow-y: scroll;
-          width: 100%;`
+    position: fixed;
+    top: -${window.scrollY}px;
+    overflow-y: scroll;
+    width: 100%;`
       return () => {
-        const scrollY = window.scrollY
-
-        document.body.style.cssText = `position: unset`
-        window.scrollTo(0, -scrollY)
+        const scrollY = document.body.style.top
+        document.body.style.cssText = ''
+        window.scrollTo(0, parseInt(scrollY || '0', 10) * -1)
       }
     }
   }, [modalList])
+
+  function isClientSideRendering() {
+    return typeof window !== 'undefined'
+  }
+
+  // ...
 
   const renderModal = modalList?.map(
     ({ type, children, isCloseable = true }: ModalType) => {
@@ -61,9 +69,10 @@ function ModalContainer() {
   const element =
     typeof window !== 'undefined' ? document.getElementById('modal') : null
 
-  return isCSR
+  return isClientSideRendering()
     ? element && renderModal && createPortal(renderModal, element)
     : null
+
   // if (!isCSR) return <></>
   // return createPortal(<>{renderModal}</>, document.getElementById('modal')!)
 }

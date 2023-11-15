@@ -19,6 +19,8 @@ import AlertIcon from '../alert-icon'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ca } from 'date-fns/locale'
 import { ReasonType } from '@src/types/quotes/quote'
+import { v4 as uuidv4 } from 'uuid'
+
 type Props = {
   onClose: any
 
@@ -31,6 +33,7 @@ type Props = {
     | 'successful'
     | 'question-info'
   reason: ReasonType | null
+  role?: 'lpm' | 'client'
   showType?: boolean
 }
 export default function ReasonModal({
@@ -39,6 +42,7 @@ export default function ReasonModal({
   type,
   vary,
   reason,
+  role,
   showType = true,
 }: Props) {
   return (
@@ -88,7 +92,17 @@ export default function ReasonModal({
                   {type}&nbsp; reason
                 </Typography>
                 <Typography variant='body1'>
-                  {reason ? reason?.reason : '-'}
+                  {reason
+                    ? typeof reason.reason === 'string'
+                      ? reason.reason
+                      : reason.reason.map(value => {
+                          return reason.type === 'canceled' ? (
+                            <>{value}</>
+                          ) : (
+                            <li key={uuidv4()}>{value}</li>
+                          )
+                        })
+                    : '-'}
                 </Typography>
               </Box>
             )}
@@ -101,7 +115,16 @@ export default function ReasonModal({
               }}
             >
               <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                Message {reason?.from === 'lsp' ? 'from' : 'to'} LSP
+                {/* Message {reason?.from === 'lsp' ? 'from' : 'to'} LSP */}
+                Message{' '}
+                {reason?.from === 'lsp'
+                  ? role === 'lpm'
+                    ? 'to'
+                    : 'from'
+                  : role === 'lpm'
+                  ? 'from'
+                  : 'to'}{' '}
+                {role === 'lpm' ? 'client' : 'LSP'}
               </Typography>
               <Typography
                 variant='body2'

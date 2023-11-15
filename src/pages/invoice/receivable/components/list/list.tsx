@@ -104,9 +104,11 @@ export default function ReceivableList({
         rows={list.data}
         rowCount={list.totalCount ?? 0}
         loading={isLoading}
-        onCellClick={params =>
+        onCellClick={params => {
+          if (role.name === 'CLIENT' && params.row.invoiceStatus === 30500)
+            return
           router.push(`/invoice/receivable/detail/${params.id}`)
-        }
+        }}
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={page}

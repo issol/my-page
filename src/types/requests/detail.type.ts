@@ -37,7 +37,7 @@ export type LinkedInfoType = {
 }
 export type CancelReasonType = {
   from: 'client' | 'lsp'
-  reason: string
+  reason: string | string[]
   message: string
   type?: string
 }

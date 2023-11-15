@@ -16,7 +16,7 @@ type Props = {
   onClick: (data: CancelReasonType) => void
 }
 
-export default function CancelRequestModal({ onClose, onClick }: Props) {
+export default function CancelInvoiceModal({ onClose, onClick }: Props) {
   const [message, setMessage] = useState('')
 
   return (
@@ -32,7 +32,7 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
               gap='14px'
             >
               <AlertIcon type='error' />
-              <Typography variant='body2' textAlign='center'>
+              <Typography variant='body2' textAlign='center' fontSize={16}>
                 Are you sure you want to cancel this <br /> invoice?
               </Typography>
             </Box>
@@ -46,7 +46,7 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
               rows={4}
               multiline
               fullWidth
-              placeholder='Write down a reason for canceling this request.'
+              placeholder='Write down a reason for canceling this invoice.'
               value={message}
               onChange={e => {
                 setMessage(e.target.value)

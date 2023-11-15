@@ -24,7 +24,14 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** types
-import { Fragment, ReactNode, useContext, useEffect, useState, useRef } from 'react'
+import {
+  Fragment,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from 'react'
 
 // ** react hook form
 import {
@@ -223,7 +230,11 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
-              selected={!value ? formattedNow(new Date()) : formattedNow(new Date(value))}
+              selected={
+                !value
+                  ? formattedNow(new Date())
+                  : formattedNow(new Date(value))
+              }
               onChange={onChange}
               customInput={<CustomInput label='Quote date*' icon='calendar' />}
             />
@@ -391,7 +402,6 @@ export default function ProjectInfoForm({
                     onClick={() => setOpenPopper(!openPopper)}
                     error={Boolean(errors.workName)}
                     label='Work name'
-                    placeholder='Work name'
                   />
                 )}
               />
@@ -468,6 +478,7 @@ export default function ProjectInfoForm({
               autoHighlight
               fullWidth
               options={CategoryList}
+              disableClearable={value || value !== '' ? false : true}
               onChange={(e, v) => {
                 if (!v) {
                   setValue('serviceType', [], setValueOptions)
@@ -485,7 +496,6 @@ export default function ProjectInfoForm({
                   {...params}
                   error={Boolean(errors.category)}
                   label='Category*'
-                  placeholder='Category*'
                 />
               )}
             />
@@ -525,7 +535,6 @@ export default function ProjectInfoForm({
                     {...params}
                     error={Boolean(errors.serviceType)}
                     label='Service type*'
-                    placeholder='Service type*'
                   />
                 )}
                 renderOption={(props, option, { selected }) => (
@@ -570,11 +579,7 @@ export default function ProjectInfoForm({
                   value?.includes(item.value),
                 )}
                 renderInput={params => (
-                  <TextField
-                    {...params}
-                    label='Area of expertise'
-                    placeholder='Area of expertise'
-                  />
+                  <TextField {...params} label='Area of expertise' />
                 )}
                 renderOption={(props, option, { selected }) => (
                   <li {...props}>

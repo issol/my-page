@@ -120,7 +120,9 @@ export const getProjectTeamColumns = (role?: string) => {
       sortable: false,
       renderHeader: () => <Box>Job title</Box>,
       renderCell: ({ row }: ProjectTeamCellType) => {
-        return <Box>{row.jobTitle}</Box>
+        return (
+          <Box>{row.jobTitle && row.jobTitle !== '' ? row.jobTitle : '-'}</Box>
+        )
       },
     },
     {
@@ -133,7 +135,7 @@ export const getProjectTeamColumns = (role?: string) => {
       sortable: false,
       renderHeader: () => <Box>Email</Box>,
       renderCell: ({ row }: ProjectTeamCellType) => {
-        return <Box>{row.email}</Box>
+        return <Box>{row.email && row.email !== '' ? row.email : '-'}</Box>
       },
     },
   ]

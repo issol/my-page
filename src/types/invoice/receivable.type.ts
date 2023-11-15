@@ -99,6 +99,20 @@ export type InvoiceReceivableListType = {
   revenueFrom: RevenueFormType
   isTaxable: boolean
   tax: string | null
+  projectManager: {
+    userId: number
+    email: string
+    firstName: string
+    middleName: string | null
+    lastName: string
+  }
+  contactPerson: {
+    userId: number
+    email: string
+    firstName: string
+    middleName: string | null
+    lastName: string
+  } | null
 }
 
 export type InvoiceReceivableOrderType = {
@@ -266,6 +280,8 @@ export type InvoiceReceivablePatchParamsType = {
   payDueTimezone?: CountryType | null
   invoiceConfirmedAt?: string | null
   invoiceConfirmTimezone?: CountryType | null
+  clientConfirmedAt?: string | null
+  clientConfirmTimezone?: CountryType | null
   taxInvoiceDueAt?: string | null
   taxInvoiceDueTimezone?: CountryType | null
   invoiceDescription?: string

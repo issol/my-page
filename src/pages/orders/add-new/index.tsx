@@ -432,26 +432,98 @@ export default function AddNewOrder() {
   }
 
   const onClickSaveOrder = () => {
-    console.log('name', getProjectInfoValues().projectName)
-    openModal({
-      type: 'SaveOrderModal',
-      children: (
-        <CustomModal
-          onClick={onSubmit}
-          onClose={() => closeModal('SaveOrderModal')}
-          title={
-            <>
-              Are you sure you want to create this order?
-              <Typography variant='body2' fontWeight={600} fontSize={16}>
-                {getProjectInfoValues().projectName}
-              </Typography>
-            </>
-          }
-          vary='successful'
-          rightButtonText='Save'
-        />
-      ),
+    const items: Array<PostItemType> = getItem().items.map((item, idx) => {
+      const {
+        contactPerson,
+        minimumPrice,
+        priceFactor,
+        source,
+        target,
+        ...filterItem
+      } = item
+      return {
+        ...filterItem,
+        // contactPersonId: item.contactPerson?.id!,
+        contactPersonId: item.contactPersonId!,
+        description: item.description || '',
+        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+        showItemDescription: item.showItemDescription ? '1' : '0',
+        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+        minimumPrice: item.minimumPriceApplied ? item.minimumPrice : null,
+        // name: item.itemName,
+        sourceLanguage: item.source,
+        targetLanguage: item.target,
+        sortingOrder: idx + 1,
+      }
     })
+    const langs = languagePairs.map(item => {
+      if (item?.price?.id) {
+        return {
+          source: item.source,
+          target: item.target,
+          priceId: item.price.id,
+        }
+      }
+      return {
+        source: item.source,
+        target: item.target,
+      }
+    })
+
+    console.log(items)
+    console.log(langs)
+
+    const itemPriceIds = new Set(items.map(item => item.priceId))
+
+    // langs 배열을 filter 메서드로 필터링하여 items 배열에 없는 priceId를 가진 객체를 제거
+    const filteredLangs = langs.filter(lang =>
+      itemPriceIds.has(lang.priceId ?? 0),
+    )
+
+    const removedLangs = langs.filter(lang => !filteredLangs.includes(lang))
+
+    if (removedLangs.length > 0) {
+      openModal({
+        type: 'SaveOrderNotUsedPriceModal',
+        children: (
+          <CustomModal
+            onClick={onSubmit}
+            onClose={() => closeModal('SaveOrderNotUsedPriceModal')}
+            title={
+              <>
+                Are you sure you want to create this order? Language pair(s) not
+                registered to the item(s) will be deleted from the order.
+                <Typography variant='body2' fontWeight={600} fontSize={16}>
+                  {getProjectInfoValues().projectName}
+                </Typography>
+              </>
+            }
+            vary='successful'
+            rightButtonText='Save'
+          />
+        ),
+      })
+    } else {
+      openModal({
+        type: 'SaveOrderModal',
+        children: (
+          <CustomModal
+            onClick={onSubmit}
+            onClose={() => closeModal('SaveOrderModal')}
+            title={
+              <>
+                Are you sure you want to create this order?
+                <Typography variant='body2' fontWeight={600} fontSize={16}>
+                  {getProjectInfoValues().projectName}
+                </Typography>
+              </>
+            }
+            vary='successful'
+            rightButtonText='Save'
+          />
+        ),
+      })
+    }
   }
 
   function onSubmit() {
@@ -524,17 +596,73 @@ export default function AddNewOrder() {
     }
 
     console.log(items)
+    console.log(langs)
+
+    const itemPriceIds = new Set(items.map(item => item.priceId))
+
+    // langs 배열을 filter 메서드로 필터링하여 items 배열에 없는 priceId를 가진 객체를 제거
+    const filteredLangs = langs.filter(lang =>
+      itemPriceIds.has(lang.priceId ?? 0),
+    )
+
+    const removedLangs = langs.filter(lang => !filteredLangs.includes(lang))
+
+    // const matchingPrices =
+    //   prices &&
+    //   prices.filter(price =>
+    //     removedLangs.some(lang => lang.priceId === price.id),
+    //   )
+
+    // // 일치하는 객체들의 priceName만 추출
+    // const priceNames =
+    //   matchingPrices && matchingPrices.map(price => price.priceName)
 
     createOrderInfo(stepOneData)
       .then(res => {
         if (res.id) {
           Promise.all([
-            createLangPairForOrder(res.id, langs),
+            createLangPairForOrder(res.id, filteredLangs),
             createItemsForOrder(res.id, items),
           ])
-            .then(() => {
-              router.push(`/orders/order-list/detail/${res.id}`)
+            .then(data => {
+              console.log(data[1].length)
               closeModal('onClickSaveOrder')
+              // router.push(`/orders/order-list/detail/${res.id}`)
+              if (data[1].length > 0) {
+                openModal({
+                  type: 'CreateJobModal',
+                  children: (
+                    <CustomModal
+                      onClose={() => {
+                        closeModal('CreateJobModal')
+                        router.push(`/orders/order-list/detail/${res.id}`)
+                      }}
+                      leftButtonText='Later'
+                      rightButtonText='Create job'
+                      onClick={() => {
+                        closeModal('CreateJobModal')
+                        router.push({
+                          pathname: '/orders/job-list/details/',
+                          query: { orderId: res.id },
+                        })
+                      }}
+                      vary='successful'
+                      title={
+                        <>
+                          Would you like to create jobs from this order?
+                          <Typography
+                            variant='body2'
+                            fontWeight={600}
+                            fontSize={16}
+                          >
+                            [{res.corporationId}] {res.projectName}
+                          </Typography>
+                        </>
+                      }
+                    />
+                  ),
+                })
+              }
             })
             .catch(e => onRequestError())
         }
@@ -1177,15 +1305,17 @@ export default function AddNewOrder() {
                       variant='subtitle1'
                       sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
-                      {formatCurrency(
-                        formatByRoundingProcedure(
-                          subPrice,
-                          priceInfo?.decimalPlace!,
-                          priceInfo?.roundingProcedure!,
-                          priceInfo?.currency ?? 'USD',
-                        ),
-                        priceInfo?.currency ?? 'USD',
-                      )}
+                      {subPrice === 0
+                        ? '-'
+                        : formatCurrency(
+                            formatByRoundingProcedure(
+                              subPrice,
+                              priceInfo?.decimalPlace!,
+                              priceInfo?.roundingProcedure!,
+                              priceInfo?.currency ?? 'USD',
+                            ),
+                            priceInfo?.currency ?? 'USD',
+                          )}
                     </Typography>
                   </Box>
                 </Box>
@@ -1241,7 +1371,9 @@ export default function AddNewOrder() {
                         onClickCapture={() => setTaxFocus(true)}
                         onBlur={() => setTaxFocus(false)}
                         value={
-                          !getProjectInfoValues().isTaxable || !value
+                          !getProjectInfoValues().isTaxable ||
+                          value === null ||
+                          value === undefined
                             ? '-'
                             : value
                         }

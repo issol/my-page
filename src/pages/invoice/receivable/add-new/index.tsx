@@ -825,7 +825,9 @@ export default function AddNewInvoice() {
                         getItem().items[0].initialPrice?.currency,
                       )}
                       &nbsp;
-                      {Number(getProjectInfoValues().subtotal)}
+                      {Number(getProjectInfoValues().subtotal).toLocaleString(
+                        'ko-KR',
+                      )}
                     </Typography>
                   </Box>
                 </Box>
@@ -856,7 +858,9 @@ export default function AddNewInvoice() {
                   <Box>
                     {!getProjectInfoValues().isTaxable
                       ? '-'
-                      : Number(getProjectInfoValues().tax)}
+                      : Number(getProjectInfoValues().tax).toLocaleString(
+                          'ko-KR',
+                        )}
                   </Box>
                   %
                 </Box>
@@ -909,10 +913,10 @@ export default function AddNewInvoice() {
                       {getProjectInfoValues().isTaxable
                         ? `${getCurrencyMark(
                             getItem().items[0].initialPrice?.currency,
-                          )} ${
+                          )} ${(
                             Number(getProjectInfoValues().subtotal) *
                             (Number(getProjectInfoValues().tax!) / 100)
-                          }`
+                          ).toLocaleString('ko-KR')}`
                         : '-'}
                     </Typography>
                   </Box>
@@ -956,14 +960,16 @@ export default function AddNewInvoice() {
                       {getProjectInfoValues().isTaxable
                         ? `${getCurrencyMark(
                             getItem().items[0].initialPrice?.currency,
-                          )} ${
+                          )} ${(
                             Number(getProjectInfoValues().subtotal) +
                             Number(getProjectInfoValues().subtotal) *
                               (Number(getProjectInfoValues().tax!) / 100)
-                          }`
+                          ).toLocaleString('ko-KR')}`
                         : `${getCurrencyMark(
                             getItem().items[0].initialPrice?.currency,
-                          )} ${Number(getProjectInfoValues().subtotal)}`}
+                          )} ${Number(
+                            getProjectInfoValues().subtotal,
+                          ).toLocaleString('ko-KR')}`}
                     </Typography>
                   </Box>
                 </Box>

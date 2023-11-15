@@ -188,6 +188,11 @@ export default function Filter({
                           limitTags={1}
                           options={statusList}
                           id='status'
+                          // getOptionLabel={option =>
+                          //   `${option.label.slice(0, 12)}${
+                          //     option.label.length > 12 ? '...' : ''
+                          //   }`
+                          // }
                           getOptionLabel={option => option.label}
                           renderInput={params => (
                             <TextField {...params} label='Status' />
@@ -216,9 +221,13 @@ export default function Filter({
                             loading={companyListLoading}
                             options={companyList || []}
                             getOptionLabel={option => option.label}
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.value === newValue.value
+                            }}
                             value={value}
                             limitTags={1}
-                            onChange={onChange}
+                            disableCloseOnSelect
+                            onChange={(event, item) => onChange(item)}
                             renderInput={params => (
                               <TextField
                                 {...params}
@@ -254,7 +263,11 @@ export default function Filter({
                             limitTags={1}
                             options={clientList}
                             id='client'
-                            getOptionLabel={option => option.label}
+                            getOptionLabel={option =>
+                              `${option.label.slice(0, 15)}${
+                                option.label.length > 15 ? '...' : ''
+                              }`
+                            }
                             renderInput={params => (
                               <TextField {...params} label='Client' />
                             )}
@@ -280,6 +293,7 @@ export default function Filter({
                           fullWidth
                           multiple
                           limitTags={1}
+                          disableCloseOnSelect
                           isOptionEqualToValue={(option, newValue) => {
                             return option.value === newValue.value
                           }}
@@ -531,15 +545,16 @@ export default function Filter({
                           <Autocomplete
                             {...commonOptions}
                             multiple
-                            options={RevenueFrom}
+                            options={RevenueFrom.sort((a, b) =>
+                              a.value > b.value
+                                ? 1
+                                : b.value > a.value
+                                ? -1
+                                : 0,
+                            )}
                             value={value}
                             limitTags={1}
-                            onChange={(e, v) =>
-                              setFilter({
-                                ...filter,
-                                revenueFrom: v.map(item => item.value),
-                              })
-                            }
+                            onChange={(e, v) => onChange(v)}
                             renderInput={params => (
                               <TextField
                                 {...params}
@@ -572,7 +587,10 @@ export default function Filter({
                             options={SalesCategory}
                             value={value}
                             limitTags={1}
-                            onChange={onChange}
+                            onChange={(e, v) => {
+                              onChange(v)
+                              console.log(v)
+                            }}
                             renderInput={params => (
                               <TextField
                                 {...params}

@@ -159,6 +159,7 @@ export default function Requests() {
       requestDateTo: requestDate[1]?.toISOString() ?? '',
       desiredDueDateFrom: desiredDueDate[0]?.toISOString() ?? '',
       desiredDueDateTo: desiredDueDate[1]?.toISOString() ?? '',
+
       lsp: lsp?.map(value => value.label),
       search: search,
       take: requestListPageSize,

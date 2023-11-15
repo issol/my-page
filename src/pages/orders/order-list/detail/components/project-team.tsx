@@ -79,7 +79,7 @@ const ProjectTeam = ({
             padding: '15px 20px',
           }}
         >
-          <Typography variant='h6'>Project team</Typography>
+          <Typography variant='h6'>Project team ({listCount})</Typography>
           {type === 'detail' &&
           isUpdatable &&
           currentRole &&
@@ -109,16 +109,14 @@ const ProjectTeam = ({
             //   NoResultsOverlay: () => NoList(),
             // }}
             sx={{
-              overflowX: 'scroll',
-              '& .MuiDataGrid-row': { cursor: 'pointer' },
+              // overflowX: 'scroll',
+              // '& .MuiDataGrid-row': { cursor: 'pointer' },
               '& .MuiDataGrid-row:hover': {
                 backgroundColor: 'inherit',
               },
             }}
             getRowId={row => row.id!}
-            columns={getProjectTeamColumns(
-              (currentRole && currentRole.name) ?? '',
-            )}
+            columns={columns}
             rows={list ?? []}
             rowCount={listCount ?? 0}
             // loading={isLoading}

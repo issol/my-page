@@ -1,14 +1,17 @@
+import { CheckBox } from '@mui/icons-material'
 import {
   Box,
   Button,
+  Checkbox,
   FormControlLabel,
+  FormGroup,
   Radio,
   RadioGroup,
   TextField,
   Typography,
 } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
@@ -27,7 +30,7 @@ type Props = {
   usage: 'order' | 'quote' | 'request' | 'reject' | 'request-revision'
 }
 
-const SelectReasonModal = ({
+const SelectRequestRedeliveryReasonModal = ({
   onClose,
   onClick,
   title,
@@ -42,20 +45,48 @@ const SelectReasonModal = ({
   type,
   usage,
 }: Props) => {
-  const [reason, setReason] = useState<string>('')
-  const [messageToLsp, setMessageToLsp] = useState<string>('')
+  const [messageToLsp, setMessageToLsp] = useState<string | null>(null)
 
   const handleChangeMessageToLsp = (event: ChangeEvent<HTMLInputElement>) => {
     setMessageToLsp(event.target.value)
   }
 
-  const handleChangeReason = (event: ChangeEvent<HTMLInputElement>) => {
-    setReason((event.target as HTMLInputElement).value)
+  const [reason, setReason] = useState<
+    {
+      id: number
+      checked: boolean
+      reason: string
+    }[]
+  >([])
 
-    // setMessageToLsp((event.target as HTMLInputElement).value)
+  const changeHandler = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    reasons: {
+      id: number
+      checked: boolean
+      reason: string
+    },
+  ) => {
+    setReason(
+      reason.map(item =>
+        item.id === reasons.id
+          ? { ...item, checked: event.target.checked }
+          : item,
+      ),
+    )
   }
 
-  console.log(usage, from)
+  useEffect(() => {
+    setReason(
+      reasonList.map((value, idx) => {
+        return {
+          id: idx,
+          checked: false,
+          reason: value,
+        }
+      }),
+    )
+  }, [reasonList])
 
   return (
     <Box
@@ -106,24 +137,22 @@ const SelectReasonModal = ({
           ) : null}
         </Box>
         <Box>
-          <RadioGroup
-            row
-            aria-label='controlled'
-            name='controlled'
-            value={reason}
-            onChange={handleChangeReason}
-            sx={{ maxWidth: 442 }}
-          >
+          <FormGroup sx={{ maxWidth: 442 }}>
             <Box
               sx={{ display: 'flex', flexDirection: 'column', gap: 1, pl: 2.2 }}
             >
-              {reasonList.map(value => {
+              {reason.map((value, idx) => {
                 return (
                   <FormControlLabel
                     key={uuidv4()}
-                    value={value}
-                    control={<Radio />}
-                    label={value}
+                    // value={reason.find(el => el.reason === value)?.reason}
+                    control={
+                      <Checkbox
+                        checked={value.checked}
+                        onChange={event => changeHandler(event, value)}
+                      />
+                    }
+                    label={value.reason}
                     sx={{
                       '& .MuiFormControlLabel-label': {
                         fontSize: '16px',
@@ -136,7 +165,7 @@ const SelectReasonModal = ({
                 )
               })}
             </Box>
-          </RadioGroup>
+          </FormGroup>
         </Box>
 
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -144,15 +173,7 @@ const SelectReasonModal = ({
             variant='body1'
             sx={{ fontWeight: 600, marginBottom: '0.5rem' }}
           >
-            {usage === 'order'
-              ? 'Message to client'
-              : usage === 'quote' ||
-                usage === 'reject' ||
-                usage === 'request-revision'
-              ? from === 'lsp'
-                ? 'Message to client'
-                : 'Message to LSP'
-              : 'Message to client'}
+            Message to LSP
           </Typography>
           <TextField
             fullWidth
@@ -162,7 +183,7 @@ const SelectReasonModal = ({
             onChange={handleChangeMessageToLsp}
             inputProps={{ maxLength: 500 }}
             placeholder={
-              messageToLsp === ''
+              messageToLsp === '' || messageToLsp === null
                 ? usage === 'request-revision'
                   ? 'Write down a request for this quote.'
                   : usage === 'order'
@@ -176,12 +197,8 @@ const SelectReasonModal = ({
                   : ''
                 : undefined
             }
-            error={reason !== '' && messageToLsp === ''}
-            helperText={
-              reason !== '' && messageToLsp === ''
-                ? 'This field is required'
-                : null
-            }
+            error={messageToLsp === ''}
+            helperText={messageToLsp === '' ? 'This field is required' : null}
           />
           <Box
             sx={{
@@ -192,7 +209,7 @@ const SelectReasonModal = ({
               color: '#888888',
             }}
           >
-            {messageToLsp.length}/500
+            {messageToLsp ? messageToLsp.length : 0}/500
           </Box>
         </Box>
 
@@ -212,12 +229,16 @@ const SelectReasonModal = ({
             onClick={() =>
               onClick(statusList.find(value => value.label === action)?.value, {
                 from: from,
-                reason: usage === 'order' ? [reason] : reason,
+                reason: reason
+                  .filter(value => value.checked)
+                  .map(value => value.reason),
                 message: messageToLsp,
                 type: type,
               })
             }
-            disabled={reason === '' || messageToLsp === ''}
+            disabled={
+              reason.length < 1 || messageToLsp === '' || messageToLsp === null
+            }
           >
             {rightButtonText}
           </Button>
@@ -227,4 +248,4 @@ const SelectReasonModal = ({
   )
 }
 
-export default SelectReasonModal
+export default SelectRequestRedeliveryReasonModal

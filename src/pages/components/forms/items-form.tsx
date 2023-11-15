@@ -54,9 +54,9 @@ import {
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
-import Row from './item-row'
 import { LanguagePairTypeInItem } from '@src/types/orders/order-detail'
 import { getItemJob } from '@src/apis/order-detail.api'
+import Row from './item-row'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -80,6 +80,7 @@ type Props = {
     | 'create'
     | 'invoiceCreate'
     | 'invoiceHistory'
+
   orderId?: number
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
@@ -283,42 +284,6 @@ export default function ItemForm({
     return -1
   }
 
-  const openMinimumPriceModal = (value: {
-    minimumPrice: number
-    currency: CurrencyType
-  }) => {
-    const minimumPrice = formatCurrency(value.minimumPrice, value.currency)
-    openModal({
-      type: 'info-minimum',
-      children: (
-        <CustomModal
-          onClose={() => closeModal('info-minimum')}
-          vary='info'
-          title={
-            <>
-              The selected price includes a minimum price setting. <br />
-              <br /> Minimum price : {minimumPrice} <br />
-              <br />
-              If the amount of the added price unit is lower than the minimum
-              price, the minimum price will be automatically applied to the
-              total price.
-            </>
-          }
-          soloButton={true}
-          rightButtonText='Okay'
-          onClick={() => closeModal('info-minimum')}
-        />
-        // <SimpleMultilineAlertModal
-        //   onClose={() => {
-        //     closeModal('info-minimum')
-        //   }}
-        //   message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
-        //   vary='info'
-        // />
-      ),
-    })
-  }
-
   return (
     <DatePickerWrapper>
       <Grid
@@ -422,7 +387,7 @@ export default function ItemForm({
                       fields={fields}
                       itemTrigger={itemTrigger}
                       sumTotalPrice={sumTotalPrice}
-                      openMinimumPriceModal={openMinimumPriceModal}
+                      // openMinimumPriceModal={openMinimumPriceModal}
                       splitReady={splitReady!}
                       type={type}
                       onItemRemove={onItemRemove}
@@ -455,7 +420,7 @@ export default function ItemForm({
               fields={fields}
               itemTrigger={itemTrigger}
               sumTotalPrice={sumTotalPrice}
-              openMinimumPriceModal={openMinimumPriceModal}
+              // openMinimumPriceModal={openMinimumPriceModal}
               splitReady={splitReady!}
               type={type}
               onItemRemove={onItemRemove}

@@ -37,6 +37,7 @@ import {
   Controller,
   FieldArrayWithId,
   UseFieldArrayAppend,
+  UseFieldArrayRemove,
   UseFieldArrayUpdate,
   UseFormGetValues,
 } from 'react-hook-form'
@@ -77,6 +78,7 @@ type Props = {
   getValues: UseFormGetValues<{ items: ItemType[] }>
   append: UseFieldArrayAppend<{ items: ItemType[] }, `items.${number}.detail`>
   update: UseFieldArrayUpdate<{ items: ItemType[] }, `items.${number}.detail`>
+  remove: UseFieldArrayRemove
   getTotalPrice: () => void
   getEachPrice: (idx: number, isNotApplicable?: boolean) => void
   onDeletePriceUnit: (idx: number) => void
@@ -129,6 +131,7 @@ export default function ItemPriceUnitForm({
   fields,
   showCurrency,
   setDarkMode,
+  remove,
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
@@ -153,6 +156,7 @@ export default function ItemPriceUnitForm({
       subPriceUnits: [],
       groupName: 'Price unit',
     }))
+
     const matchingUnit: Array<NestedPriceUnitType> =
       priceData?.priceUnit?.map(item => ({
         ...item,
@@ -165,7 +169,6 @@ export default function ItemPriceUnitForm({
         !matchingUnit.some(item1 => item1.priceUnitId === item2.priceUnitId),
     )
 
-    // const data = matchingUnit?.concat(filteredPriceUnit)
     const data = [...matchingUnit, ...priceUnit]
 
     // const uniqueArray = Array.from(new Set(data.map(item => item.priceUnitId)))
@@ -254,6 +257,8 @@ export default function ItemPriceUnitForm({
     const [price, setPrice] = useState(savedValue.prices || 0)
     const containerRef = useRef<HTMLDivElement | null>(null)
 
+    const options = nestSubPriceUnits(idx)
+
     const updatePrice = () => {
       const newPrice = getValues(`${detailName}.${idx}`)
       if (type !== 'detail' && type !== 'invoiceDetail')
@@ -279,25 +284,32 @@ export default function ItemPriceUnitForm({
     }
 
     const onClickDeletePriceUnit = (idx: number) => {
-      openModal({
-        type: 'DeletePriceUnitModal',
-        children: (
-          <CustomModal
-            onClose={() => closeModal('DeletePriceUnitModal')}
-            onClick={() => handleDeletePriceUnit(idx)}
-            title={
-              <>
-                Are you sure you want to delete this price unit?
-                <Typography variant='body2' fontWeight={700} fontSize={16}>
-                  {options[idx].title}
-                </Typography>
-              </>
-            }
-            vary='error'
-            rightButtonText='Delete'
-          />
-        ),
-      })
+      console.log(idx, 'index22')
+
+      if (options.find(item => item.id === idx)) {
+        openModal({
+          type: 'DeletePriceUnitModal',
+          children: (
+            <CustomModal
+              onClose={() => closeModal('DeletePriceUnitModal')}
+              onClick={() => handleDeletePriceUnit(idx)}
+              title={
+                <>
+                  Are you sure you want to delete this price unit?
+                  <Typography variant='body2' fontWeight={700} fontSize={16}>
+                    {options.find(item => item.id === idx)?.title ?? ''}
+                  </Typography>
+                </>
+              }
+              vary='error'
+              rightButtonText='Delete'
+            />
+          ),
+        })
+      } else {
+        onDeletePriceUnit(idx)
+        updateTotalPrice()
+      }
     }
 
     //init
@@ -328,8 +340,10 @@ export default function ItemPriceUnitForm({
     }, [])
 
     const [open, setOpen] = useState(false)
-    const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
-    const options = nestSubPriceUnits(idx)
+
+    console.log(getValues(`${detailName}.${idx}`))
+
+    // const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
 
     return (
       <TableRow
@@ -435,6 +449,9 @@ export default function ItemPriceUnitForm({
                     }}
                     onChange={(e, v) => {
                       if (v) {
+                        const priceFactor = Number(
+                          getValues(`items.${index}`).priceFactor,
+                        )
                         setOpen(false)
 
                         onChange(v.priceUnitId)
@@ -442,8 +459,6 @@ export default function ItemPriceUnitForm({
                         const unitPrice = priceFactor
                           ? priceFactor * v.price
                           : v.price
-
-                        console.log(unitPrice, 'unitPrice')
 
                         update(idx, {
                           ...savedValue,
@@ -454,7 +469,7 @@ export default function ItemPriceUnitForm({
                           priceFactor: priceFactor?.toString(),
                           prices:
                             v.unit !== 'Percent'
-                              ? v.quantity! * unitPrice
+                              ? Number(v.quantity! * unitPrice)
                               : PercentPrice(v.quantity!),
                         })
                         if (v.subPriceUnits && v.subPriceUnits.length > 0) {
@@ -472,13 +487,16 @@ export default function ItemPriceUnitForm({
                               unitPrice: unitPrice,
                               prices:
                                 item.unit !== 'Percent'
-                                  ? item.quantity! * unitPrice
+                                  ? Number(item.quantity! * unitPrice)
                                   : PercentPrice(item.quantity!),
                             })
                           })
                         }
+                      } else {
+                        onChange(null)
                       }
                     }}
+                    // disableClearable={value !== null}
                     renderOption={(props, option, state) => {
                       return (
                         <>
@@ -690,7 +708,17 @@ export default function ItemPriceUnitForm({
           type === 'invoiceDetail' ||
           type === 'invoiceHistory' ||
           type === 'invoiceCreate' ? null : (
-            <IconButton onClick={() => onClickDeletePriceUnit(idx)}>
+            <IconButton
+              onClick={() => {
+                if (getValues(`${detailName}.${idx}.priceUnitId`) === null) {
+                  remove(idx)
+                } else {
+                  onClickDeletePriceUnit(
+                    getValues(`${detailName}.${idx}.priceUnitId`)!,
+                  )
+                }
+              }}
+            >
               <Icon icon='mdi:trash-outline' />
             </IconButton>
           )}

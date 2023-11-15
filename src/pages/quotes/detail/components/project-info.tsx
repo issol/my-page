@@ -98,6 +98,7 @@ export default function QuotesProjectInfoDetail({
           reason={reason}
           type={status}
           vary='question-info'
+          role={role.name === 'CLIENT' ? 'client' : 'lpm'}
         />
       ),
     })
@@ -502,7 +503,9 @@ export default function QuotesProjectInfoDetail({
               <Box display='flex' alignItems='center' gap='8px'>
                 {project.serviceType && project.serviceType.length > 0
                   ? project.serviceType
-                      .filter((item, index, self) => self.indexOf(item) === index)
+                      .filter(
+                        (item, index, self) => self.indexOf(item) === index,
+                      )
                       .map((item, idx) => (
                         <ServiceTypeChip key={idx} label={item} size='small' />
                       ))

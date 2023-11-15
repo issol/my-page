@@ -75,6 +75,8 @@ const defaultValues: FilterType = {
   clientId: [],
   category: [],
   serviceType: [],
+  revenueFrom: [],
+  salesCategory: [],
   lsp: [],
   search: '',
 }
@@ -161,19 +163,21 @@ export default function Receivable() {
   const handleHidePaidInvoices = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
+    const checked = event.target.checked
     setHidePaidInvoices(event.target.checked)
     setFilters(prevState => ({
       ...prevState,
-      hidePaid: event.target.checked ? '1' : '0',
+      hidePaid: checked ? '1' : '0',
     }))
   }
 
   const handleSeeMyInvoices = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const checked = event.target.checked
     setSeeMyInvoices(event.target.checked)
 
     setFilters(prevState => ({
       ...prevState,
-      mine: event.target.checked ? '1' : '0',
+      mine: checked ? '1' : '0',
     }))
   }
 
@@ -196,6 +200,7 @@ export default function Receivable() {
       category,
       lsp,
       search,
+      salesCategory,
     } = data
 
     if (invoiceStatus.find(value => value.value === 301000))
@@ -228,6 +233,7 @@ export default function Receivable() {
       paidDateTo: paidDate[1]?.toISOString() ?? '',
       salesCheckedDateFrom: salesCheckedDate[0]?.toISOString() ?? '',
       salesCheckedDateTo: salesCheckedDate[1]?.toISOString() ?? '',
+      salesCategory: salesCategory?.map(value => value.value) ?? [],
 
       search: search,
       take: invoiceListRowsPerPage,

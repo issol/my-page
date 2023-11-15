@@ -1,4 +1,7 @@
-import { formatByRoundingProcedure } from '@src/shared/helpers/price.helper'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 import { ItemType } from '@src/types/common/item.type'
 import {
   CurrencyType,
@@ -42,6 +45,8 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 import languageHelper from '@src/shared/helpers/language.helper'
 import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { MemberType } from '@src/types/schema/project-team.schema'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   idx: number
@@ -58,10 +63,10 @@ type Props = {
   }>
   control: Control<{ items: ItemType[] }, any>
   sumTotalPrice: () => void
-  openMinimumPriceModal: (value: {
-    minimumPrice: number
-    currency: CurrencyType
-  }) => void
+  // openMinimumPriceModal: (value: {
+  //   minimumPrice: number
+  //   currency: CurrencyType
+  // }) => void
   splitReady: boolean
   type:
     | 'edit'
@@ -100,7 +105,7 @@ const Row = ({
   fields,
   itemTrigger,
   sumTotalPrice,
-  openMinimumPriceModal,
+  // openMinimumPriceModal,
   splitReady,
   type,
   onItemRemove,
@@ -124,6 +129,7 @@ const Row = ({
   const itemData = getValues(`items.${idx}`)
   const currentRole = getCurrentRole()
   const defaultValue = { value: 0, label: '' }
+  const { openModal, closeModal } = useModal()
 
   /* price unit */
   const itemName: `items.${number}.detail` = `items.${idx}.detail`
@@ -136,6 +142,47 @@ const Row = ({
         price => price.id === itemData.priceId,
       ) || null
     )
+  }
+
+  const openMinimumPriceModal = (value: {
+    minimumPrice: number
+    currency: CurrencyType
+  }) => {
+    const minimumPrice = formatCurrency(value.minimumPrice, value.currency)
+
+    openModal({
+      type: 'info-minimum',
+      children: (
+        <CustomModal
+          onClose={() => {
+            closeModal('info-minimum')
+          }}
+          vary='info'
+          title={
+            <>
+              The selected price includes a minimum price setting. <br />
+              <br /> Minimum price : {minimumPrice} <br />
+              <br />
+              If the amount of the added price unit is lower than the minimum
+              price, the minimum price will be automatically applied to the
+              total price.
+            </>
+          }
+          soloButton={true}
+          rightButtonText='Okay'
+          onClick={() => {
+            closeModal('info-minimum')
+          }}
+        />
+        // <SimpleMultilineAlertModal
+        //   onClose={() => {
+        //     closeModal('info-minimum')
+        //   }}
+        //   message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
+        //   vary='info'
+        // />
+      ),
+    })
   }
 
   useEffect(() => {
@@ -184,7 +231,14 @@ const Row = ({
   })
 
   function onDeletePriceUnit(index: number) {
-    remove(index)
+    console.log(index, 'index22')
+    console.log(details, 'index22')
+    const findIndex = details.findIndex(item => item.priceUnitId === index)
+
+    if (findIndex !== -1) {
+      remove(findIndex)
+    }
+
     if (getValues(`items.${idx}.detail`)?.length === 0) {
       handleShowMinimum(true)
     }
@@ -281,7 +335,7 @@ const Row = ({
     // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
     setValue(
       `items.${idx}.detail.${index}.prices`,
-      isNaN(Number(roundingPrice)) ? 0 : roundingPrice,
+      isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
       {
         shouldDirty: true,
         shouldValidate: false,
@@ -871,6 +925,7 @@ const Row = ({
               type={type}
               sumTotalPrice={sumTotalPrice}
               fields={fields}
+              remove={remove}
             />
             {/* price unit end */}
             <Grid item xs={12}>

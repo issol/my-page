@@ -98,6 +98,11 @@ import CancelRequestModal from './modal/cancel-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
+interface GroupedDeliveryFileType {
+  createdAt: string
+  data: DeliveryFileType[]
+}
+
 type Props = {
   type: string
   invoiceInfo: InvoiceReceivableDetailType
@@ -110,6 +115,10 @@ type Props = {
     id: number
     form: InvoiceReceivablePatchParamsType
     type: 'basic' | 'accounting'
+  }) => void
+  onContactPersonSave?: (data: {
+    id: number
+    form: InvoiceReceivablePatchParamsType
   }) => void
   clientTimezone?: CountryType
   invoiceInfoControl?: Control<InvoiceProjectInfoFormType, any>
@@ -143,6 +152,7 @@ const InvoiceInfo = ({
   setAccountingEdit,
 
   onSave,
+  onContactPersonSave,
   clientTimezone,
   invoiceInfoControl,
   getInvoiceInfo,
@@ -199,7 +209,7 @@ const InvoiceInfo = ({
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
-    multiple: false,
+    multiple: true,
     disabled: invoiceInfo.clientConfirmedAt === null,
     maxSize: FILE_SIZE.DEFAULT,
     accept: {
@@ -253,7 +263,8 @@ const InvoiceInfo = ({
           reason={reason}
           showType={false}
           type={status}
-          vary='info'
+          vary='question-info'
+          role={currentRole?.name === 'CLIENT' ? 'client' : 'lpm'}
         />
       ),
     })
@@ -276,18 +287,40 @@ const InvoiceInfo = ({
   }
 
   const handleChangeIsReminder = (event: ChangeEvent<HTMLInputElement>) => {
-    setIsReminder(event.target.checked)
-    const data = getInvoiceInfo && getInvoiceInfo()
-    if (onSave && data) {
-      onSave({
-        id: invoiceInfo.id,
-        form: {
-          // ...data,
-          setReminder: event.target.checked ? '1' : '0',
-        },
-        type: 'basic',
-      })
-    }
+    const value = event.target.checked
+    openModal({
+      type: 'reminderModal',
+      children: (
+        <CustomModal
+          title={
+            value
+              ? 'A reminder email will be automatically sent to the client when the invoice is overdue. Are you sure you want to proceed?'
+              : 'A reminder email will not be sent to the client when the invoice is overdue. Are you sure you want to proceed?'
+          }
+          onClose={() => closeModal('reminderModal')}
+          onClick={() => {
+            console.log(value)
+
+            setIsReminder(value)
+            closeModal('reminderModal')
+
+            const data = getInvoiceInfo && getInvoiceInfo()
+            if (onSave && data) {
+              onSave({
+                id: invoiceInfo.id,
+                form: {
+                  // ...data,
+                  setReminder: value ? '1' : '0',
+                },
+                type: 'basic',
+              })
+            }
+          }}
+          vary='successful'
+          rightButtonText='Proceed'
+        />
+      ),
+    })
   }
 
   const onClickShowDescription = (value: boolean) => {
@@ -368,8 +401,10 @@ const InvoiceInfo = ({
               description: data.invoiceDescription,
               showDescription: data.showDescription ? '1' : '0',
 
-              invoiceConfirmedAt: data.invoiceConfirmDate?.date,
-              invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
+              // invoiceConfirmedAt: data.invoiceConfirmDate?.date,
+              // invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
+              clientConfirmedAt: data.invoiceConfirmDate?.date,
+              clientConfirmTimezone: data.invoiceConfirmDate?.timezone,
               taxInvoiceDueAt: data.taxInvoiceDueDate?.date,
               taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone,
             }
@@ -391,14 +426,23 @@ const InvoiceInfo = ({
   }
 
   const onClickEditSaveContactPerson = () => {
-    // TODO api
-    if (onSave) {
-      onSave({
-        id: invoiceInfo.id,
-        form: { contactPersonId: contactPersonId! },
-        type: 'basic',
-      })
-      setContactPersonEdit(false)
+    if(currentRole?.name === 'CLIENT') {
+      if (onContactPersonSave) {
+        onContactPersonSave({
+          id: invoiceInfo.id,
+          form: { contactPersonId: contactPersonId! },
+        })
+        setContactPersonEdit(false)
+      }
+    } else {
+      if (onSave) {
+        onSave({
+          id: invoiceInfo.id,
+          form: { contactPersonId: contactPersonId! },
+          type: 'basic',
+        })
+        setContactPersonEdit(false)
+      }
     }
   }
 
@@ -541,6 +585,7 @@ const InvoiceInfo = ({
             onClick={() => {
               closeModal('cancelUpload')
               setIsFileUploading && setIsFileUploading(false)
+              setFiles([])
             }}
             onClose={() => closeModal('cancelUpload')}
             rightButtonText='Cancel'
@@ -578,6 +623,21 @@ const InvoiceInfo = ({
       </FileBox>
     </Box>
   ))
+
+  const groupedFiles: GroupedDeliveryFileType[] = savedFiles.reduce(
+    (acc: GroupedDeliveryFileType[], curr: DeliveryFileType) => {
+      const existingGroup = acc.find(
+        group => group.createdAt === curr.createdAt,
+      )
+      if (existingGroup) {
+        existingGroup.data.push(curr)
+      } else {
+        acc.push({ createdAt: curr.createdAt!, data: [curr] })
+      }
+      return acc
+    },
+    [],
+  )
 
   const savedFileList = savedFiles?.map((file: DeliveryFileType) => (
     <Box key={uuidv4()} mt={4}>
@@ -1058,7 +1118,7 @@ const InvoiceInfo = ({
                               gap: '8px',
                               alignItems: 'center',
 
-                              width: '25.21%',
+                              width: '33.28%',
                             }}
                           >
                             <Typography fontSize={14} fontWeight={600}>
@@ -1167,7 +1227,9 @@ const InvoiceInfo = ({
                               {client?.contactPerson?.jobTitle
                                 ? ` / ${client?.contactPerson?.jobTitle}`
                                 : ''}
-                              {type === 'history' ? null : (
+                              {type === 'history' ||
+                              invoiceInfo.invoiceStatus === 30900 ||
+                              invoiceInfo.invoiceStatus === 301200 ? null : (
                                 <IconButton
                                   onClick={() => setContactPersonEdit(true)}
                                 >
@@ -1981,7 +2043,7 @@ const InvoiceInfo = ({
                   <Box display='flex' flexDirection='column'>
                     <Typography variant='h6'>Tax invoice</Typography>
                     <Typography variant='caption'>
-                      {formatFileSize(fileSize).toLowerCase()}/ 2gb
+                      {formatFileSize(fileSize)}/ 50MB
                     </Typography>
                   </Box>
 
@@ -2002,50 +2064,124 @@ const InvoiceInfo = ({
                   )}
                 </Box>
               </Grid>
-              {savedFiles.length ? (
-                <>
-                  <Grid item xs={12}>
-                    <Box
-                      display='grid'
-                      gridTemplateColumns='repeat(3,1fr)'
-                      gap='16px'
-                    >
-                      {savedFileList}
-                    </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Divider />
-                  </Grid>
-                </>
-              ) : (
-                '-'
-              )}
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '24px',
+                  mt: '24px',
+                }}
+              >
+                {savedFiles.length
+                  ? groupedFiles.map(value => {
+                      return (
+                        <Box key={uuidv4()}>
+                          <Typography
+                            variant='body2'
+                            fontSize={14}
+                            fontWeight={400}
+                            sx={{ mb: '5px' }}
+                          >
+                            {FullDateTimezoneHelper(
+                              value.createdAt,
+                              auth.getValue().user?.timezone,
+                            )}
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(3,1fr)',
+                              gridGap: '16px',
+                            }}
+                          >
+                            {value.data.map(item => {
+                              return (
+                                <Box
+                                  key={uuidv4()}
+                                  sx={{
+                                    display: 'flex',
+                                    marginBottom: '8px',
+                                    width: '100%',
+                                    justifyContent: 'space-between',
+                                    borderRadius: '8px',
+                                    padding: '10px 12px',
+                                    border: '1px solid rgba(76, 78, 100, 0.22)',
+                                    background: '#f9f8f9',
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        marginRight: '8px',
+                                        display: 'flex',
+                                      }}
+                                    >
+                                      <Icon
+                                        icon='material-symbols:file-present-outline'
+                                        style={{
+                                          color: 'rgba(76, 78, 100, 0.54)',
+                                        }}
+                                        fontSize={24}
+                                      />
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                      }}
+                                    >
+                                      <Tooltip title={item.fileName}>
+                                        <Typography
+                                          variant='body1'
+                                          fontSize={14}
+                                          fontWeight={600}
+                                          lineHeight={'20px'}
+                                          sx={{
+                                            overflow: 'hidden',
+                                            wordBreak: 'break-all',
+                                            textOverflow: 'ellipsis',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 1,
+                                            WebkitBoxOrient: 'vertical',
+                                          }}
+                                        >
+                                          {item.fileName}
+                                        </Typography>
+                                      </Tooltip>
+
+                                      <Typography
+                                        variant='caption'
+                                        lineHeight={'14px'}
+                                      >
+                                        {formatFileSize(item.fileSize)}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+
+                                  <IconButton
+                                    onClick={() => downloadOneFile(item)}
+                                    disabled={isFileUploading || !isUpdatable}
+                                  >
+                                    <Icon icon='mdi:download' fontSize={24} />
+                                  </IconButton>
+                                </Box>
+                              )
+                            })}
+                          </Box>
+                        </Box>
+                      )
+                    })
+                  : isFileUploading
+                  ? null
+                  : '-'}
+              </Box>
             </Card>
           </Grid>
-          {isFileUploading ? (
-            <Grid item xs={3}>
-              <Card sx={{ padding: '24px' }}>
-                <Button
-                  variant='contained'
-                  color='success'
-                  fullWidth
-                  disabled={!files.length}
-                  startIcon={<Icon icon='ic:outline-send' />}
-                  onClick={onDeliverTaxInvoice}
-                >
-                  Deliver to client
-                </Button>
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  sx={{ mt: 4 }}
-                  onClick={onCancelFileUpload}
-                >
-                  Cancel
-                </Button>
-              </Card>
-            </Grid>
-          ) : null}
         </Grid>
       ) : null}
       {type !== 'history' &&
@@ -2055,13 +2191,23 @@ const InvoiceInfo = ({
       currentRole.name !== 'CLIENT' ? (
         <Grid container spacing={6}>
           <Grid item xs={isFileUploading ? 9 : 12}>
-            <Card sx={{ padding: '24px' }}>
+            <Card
+              sx={{
+                padding: '24px',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
               <Grid item xs={12}>
-                <Box display='flex' gap='20px' alignItems='center'>
+                <Box
+                  display='flex'
+                  gap='20px'
+                  // alignItems='center'
+                >
                   <Box display='flex' flexDirection='column'>
                     <Typography variant='h6'>Tax invoice</Typography>
                     <Typography variant='caption'>
-                      {formatFileSize(fileSize).toLowerCase()}/ 50mb
+                      {formatFileSize(fileSize)}/ 50MB
                     </Typography>
                   </Box>
                   {(isUpdatable && isUpdatable) || isAccountInfoUpdatable ? (
@@ -2095,35 +2241,136 @@ const InvoiceInfo = ({
                   )}
                 </Box>
               </Grid>
-              {savedFiles.length ? (
-                <>
-                  <Grid item xs={12}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '24px',
+                  mt: '24px',
+                }}
+              >
+                {savedFiles.length
+                  ? groupedFiles.map(value => {
+                      return (
+                        <Box key={uuidv4()}>
+                          <Typography
+                            variant='body2'
+                            fontSize={14}
+                            fontWeight={400}
+                            sx={{ mb: '5px' }}
+                          >
+                            {FullDateTimezoneHelper(
+                              value.createdAt,
+                              auth.getValue().user?.timezone,
+                            )}
+                          </Typography>
+                          <Box
+                            sx={{
+                              display: 'grid',
+                              gridTemplateColumns: 'repeat(3,1fr)',
+                              gridGap: '16px',
+                            }}
+                          >
+                            {value.data.map(item => {
+                              return (
+                                <Box
+                                  key={uuidv4()}
+                                  sx={{
+                                    display: 'flex',
+                                    marginBottom: '8px',
+                                    width: '100%',
+                                    justifyContent: 'space-between',
+                                    borderRadius: '8px',
+                                    padding: '10px 12px',
+                                    border: '1px solid rgba(76, 78, 100, 0.22)',
+                                    background: '#f9f8f9',
+                                  }}
+                                >
+                                  <Box
+                                    sx={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        marginRight: '8px',
+                                        display: 'flex',
+                                      }}
+                                    >
+                                      <Icon
+                                        icon='material-symbols:file-present-outline'
+                                        style={{
+                                          color: 'rgba(76, 78, 100, 0.54)',
+                                        }}
+                                        fontSize={24}
+                                      />
+                                    </Box>
+                                    <Box
+                                      sx={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                      }}
+                                    >
+                                      <Tooltip title={item.fileName}>
+                                        <Typography
+                                          variant='body1'
+                                          fontSize={14}
+                                          fontWeight={600}
+                                          lineHeight={'20px'}
+                                          sx={{
+                                            overflow: 'hidden',
+                                            wordBreak: 'break-all',
+                                            textOverflow: 'ellipsis',
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 1,
+                                            WebkitBoxOrient: 'vertical',
+                                          }}
+                                        >
+                                          {item.fileName}
+                                        </Typography>
+                                      </Tooltip>
+
+                                      <Typography
+                                        variant='caption'
+                                        lineHeight={'14px'}
+                                      >
+                                        {formatFileSize(item.fileSize)}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+
+                                  <IconButton
+                                    onClick={() => downloadOneFile(item)}
+                                    disabled={isFileUploading || !isUpdatable}
+                                  >
+                                    <Icon icon='mdi:download' fontSize={24} />
+                                  </IconButton>
+                                </Box>
+                              )
+                            })}
+                          </Box>
+                        </Box>
+                      )
+                    })
+                  : isFileUploading
+                  ? null
+                  : '-'}
+              </Box>
+
+              <Grid item xs={12} mt={1}>
+                <Divider />
+                <Box sx={{ mt: '14px' }}>
+                  {files.length ? (
                     <Box
                       display='grid'
                       gridTemplateColumns='repeat(3,1fr)'
                       gap='16px'
                     >
-                      {savedFileList}
+                      {uploadedFileList}
                     </Box>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Divider />
-                  </Grid>
-                </>
-              ) : isFileUploading ? null : (
-                '-'
-              )}
-
-              <Grid item xs={12} mt={4}>
-                {files.length ? (
-                  <Box
-                    display='grid'
-                    gridTemplateColumns='repeat(3,1fr)'
-                    gap='16px'
-                  >
-                    {uploadedFileList}
-                  </Box>
-                ) : null}
+                  ) : null}
+                </Box>
               </Grid>
             </Card>
           </Grid>
@@ -2170,15 +2417,14 @@ const InvoiceInfo = ({
                 size='large'
                 disabled={
                   !isDeletable ||
-                  ![30000, 30100, 30200].includes(invoiceInfo.invoiceStatus)
+                  [30900, 301200].includes(invoiceInfo.invoiceStatus)
                 }
-                onClick={onClickDelete}
+                onClick={onCancelClick}
               >
-                Delete this invoice
+                Cancel this invoice
               </Button>
             </Card>
           </Grid>
-
           <Grid item xs={4}>
             <Card sx={{ padding: '20px', width: '100%' }}>
               <Button
@@ -2188,14 +2434,15 @@ const InvoiceInfo = ({
                 size='large'
                 disabled={
                   !isDeletable ||
-                  [30900, 301200].includes(invoiceInfo.invoiceStatus)
+                  ![30000, 30100, 30200].includes(invoiceInfo.invoiceStatus)
                 }
-                onClick={onCancelClick}
+                onClick={onClickDelete}
               >
-                Cancel this invoice
+                Delete this invoice
               </Button>
             </Card>
           </Grid>
+
           <Grid item xs={4}>
             <Card sx={{ padding: '20px', width: '100%' }}>
               <Button
