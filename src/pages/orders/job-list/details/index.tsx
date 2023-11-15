@@ -107,6 +107,7 @@ const JobDetails = () => {
     const newSelections = [...serviceType]
     newSelections[index] = value
     setServiceType(newSelections)
+    // setTmpServiceType(newSelections)
   }
 
   const onClickAddJob = (itemId: number, index: number) => {
@@ -214,14 +215,13 @@ const JobDetails = () => {
     }
   }, [projectTeam])
 
-  console.log(isUserInTeamMember)
-
   const onClickBack = () => {
     //TODO 이전 페이지의 주소기반으로 라우팅 해야함, 무조건 back 할경우 사이드이펙이 나올수 있음
     router.back()
   }
   const Row = ({ info, index }: { info: JobItemType; index: number }) => {
     const [open, setOpen] = useState<boolean>(true)
+
     const separateLine = () => {
       return (
         <TableCell
@@ -294,10 +294,15 @@ const JobDetails = () => {
                   return option.value === newValue.value
                 }}
                 onChange={(event, item) => {
+                  // event.preventDefault()
                   handleChangeServiceType(event, item, index)
 
                   // ServiceTypePair
                 }}
+                // onClose={() => {
+                //   setServiceType(tmpServiceType)
+                // }}
+                // blurOnSelect
                 value={serviceType[index] || []}
                 options={ServiceTypeList}
                 id='ServiceType'
@@ -323,7 +328,11 @@ const JobDetails = () => {
               <Button
                 variant='contained'
                 sx={{ height: '38px' }}
-                disabled={serviceType.length === 0}
+                disabled={
+                  serviceType.length === 0 ||
+                  !serviceType[index] ||
+                  (serviceType[index] && serviceType[index].length === 0)
+                }
                 onClick={() => onClickAddJob(info.id, index)}
               >
                 Add
