@@ -317,7 +317,7 @@ const AssignProFilters = ({
                           trigger('serviceType')
                         }
                       }}
-                      value={value}
+                      value={value || { value: '', label: '' }}
                       options={categoryList}
                       id='category'
                       getOptionLabel={option => option.label}
@@ -398,7 +398,7 @@ const AssignProFilters = ({
                           trigger('category')
                         }
                       }}
-                      value={value}
+                      value={value || { value: '', label: '' }}
                       options={serviceTypeList}
                       id='ServiceType'
                       limitTags={1}
