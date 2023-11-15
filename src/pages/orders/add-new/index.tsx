@@ -1371,7 +1371,9 @@ export default function AddNewOrder() {
                         onClickCapture={() => setTaxFocus(true)}
                         onBlur={() => setTaxFocus(false)}
                         value={
-                          !getProjectInfoValues().isTaxable || !value
+                          !getProjectInfoValues().isTaxable ||
+                          value === null ||
+                          value === undefined
                             ? '-'
                             : value
                         }
