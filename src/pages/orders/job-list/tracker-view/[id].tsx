@@ -58,6 +58,16 @@ export type DetailFilterType = {
   take: number
 }
 
+export type DetailFilterResponseType = {
+  workName: string
+  isMyJobs: '0' | '1'
+  isDelivered: '0' | '1'
+  isDueDatePast: '0' | '1'
+  isAwaiting: '0' | '1'
+  skip: number
+  take: number
+}
+
 export const initialFilter: DetailFilterType = {
   workName: '',
   isMyJobs: true,
@@ -87,10 +97,13 @@ export default function JobTrackerDetail() {
   const [filter, setFilter] = useState<DetailFilterType>({ ...initialFilter })
 
   const { data: list, isLoading } = useGetJobsTrackerDetail({
-    ...filter,
     workName: workName! as string,
     take: pageSize,
     skip: skip * pageSize,
+    isMyJobs: filter.isMyJobs ? '1' : '0',
+    isDelivered: filter.isDelivered ? '1' : '0',
+    isDueDatePast: filter.isDueDatePast ? '1' : '0',
+    isAwaiting: filter.isAwaiting ? '1' : '0',
   })
 
   const updateIsDeliveredMutation = useMutation(
