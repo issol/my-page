@@ -212,7 +212,7 @@ const SelectReasonModal = ({
             onClick={() =>
               onClick(statusList.find(value => value.label === action)?.value, {
                 from: from,
-                reason: reason,
+                reason: usage === 'order' ? [reason] : reason,
                 message: messageToLsp,
                 type: type,
               })
