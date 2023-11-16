@@ -263,7 +263,6 @@ const ReceivableInvoiceDetail = () => {
 
         if (data.id !== variables.id) {
           router.push(`/invoice/receivable/detail/${data.id}`)
-          invalidateInvoiceDetail()
         } else {
           invoiceInfoRefetch()
           historyRefetch()
@@ -281,10 +280,8 @@ const ReceivableInvoiceDetail = () => {
   )
 
   const updateContactPersonForClient = useMutation(
-    (data: {
-      id: number
-      form: InvoiceReceivablePatchParamsType
-    }) => patchInvoiceContactPerson(data.id, data.form),
+    (data: { id: number; form: InvoiceReceivablePatchParamsType }) =>
+      patchInvoiceContactPerson(data.id, data.form),
     {
       onSuccess: (data: { id: number }, variables) => {
         setInvoiceInfoEdit(false)
