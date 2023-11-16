@@ -18,7 +18,7 @@ export type QuotesFilterType = {
   sort?: SortType
   estimatedDeliveryDate?: string[]
   projectDueDate?: string[]
-  lsp?: string[]
+  companyId?: string[]
 }
 
 export type SortType =
