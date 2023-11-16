@@ -214,6 +214,21 @@ const InvoiceLanguageAndItem = ({
 
   console.log(getInvoiceInfo())
 
+  console.log(
+    Number(getInvoiceInfo('subtotal')) +
+      Number(getInvoiceInfo('subtotal')) *
+        (Number(getInvoiceInfo('tax')) / 100),
+  )
+
+  console.log(
+    Number(getInvoiceInfo('subtotal')) * (Number(getInvoiceInfo('tax')) / 100),
+  )
+  function decimalPlus(a: number, b: number, n = 1) {
+    const unit = Math.pow(10, n)
+
+    return (a * unit + b * unit) / unit
+  }
+
   return (
     <>
       <Box
@@ -431,11 +446,11 @@ const InvoiceLanguageAndItem = ({
               }}
             >
               {invoiceInfo.isTaxable
-                ? `${getCurrencyMark(invoiceInfo?.currency)} ${
-                    Number(getInvoiceInfo('subtotal')) +
+                ? `${getCurrencyMark(invoiceInfo?.currency)} ${decimalPlus(
+                    Number(getInvoiceInfo('subtotal')),
                     Number(getInvoiceInfo('subtotal')) *
-                      (Number(getInvoiceInfo('tax')) / 100)
-                  }`
+                      (Number(getInvoiceInfo('tax')) / 100),
+                  )}`
                 : `${getCurrencyMark(invoiceInfo?.currency)} ${Number(
                     getInvoiceInfo('subtotal'),
                   )}`}
