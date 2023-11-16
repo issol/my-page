@@ -70,7 +70,7 @@ export type DetailFilterResponseType = {
 
 export const initialFilter: DetailFilterType = {
   workName: '',
-  isMyJobs: true,
+  isMyJobs: false,
   isDelivered: true,
   isDueDatePast: true,
   isAwaiting: true,
