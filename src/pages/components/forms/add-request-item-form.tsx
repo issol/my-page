@@ -4,6 +4,7 @@ import { Fragment } from 'react'
 import {
   Autocomplete,
   Box,
+  Checkbox,
   FormHelperText,
   Grid,
   IconButton,
@@ -28,7 +29,7 @@ import {
 } from 'react-hook-form'
 
 // ** types
-import { RequestFormType } from '@src/types/requests/common.type'
+import { RequestFormType, RequestType } from '@src/types/requests/common.type'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 // ** data
@@ -57,11 +58,11 @@ import { FormErrors } from '@src/shared/const/formErrors'
 import dayjs from 'dayjs'
 
 type Props = {
-  control: Control<RequestFormType, any>
-  watch: UseFormWatch<RequestFormType>
-  setValue: UseFormSetValue<RequestFormType>
-  errors: FieldErrors<RequestFormType>
-  fields: FieldArrayWithId<RequestFormType, 'items', 'id'>[]
+  control: Control<RequestType, any>
+  watch: UseFormWatch<RequestType>
+  setValue: UseFormSetValue<RequestType>
+  errors: FieldErrors<RequestType>
+  fields: FieldArrayWithId<RequestType, 'items', 'id'>[]
   remove: UseFieldArrayRemove
 }
 export default function AddRequestForm({
@@ -154,6 +155,9 @@ export default function AddRequestForm({
                     value={languageList.find(
                       option => option.value === value || '',
                     )}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.label === newValue.label
+                    }}
                     options={languageList}
                     onChange={(event, v) => {
                       onChange(v ? v.value : '')
@@ -182,6 +186,9 @@ export default function AddRequestForm({
                     value={languageList.find(
                       option => option.value === value || '',
                     )}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.value === newValue.value
+                    }}
                     options={languageList}
                     onChange={(event, v) => {
                       onChange(v ? v.value : '')
@@ -211,6 +218,9 @@ export default function AddRequestForm({
                     autoHighlight
                     fullWidth
                     options={CategoryList}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.label === newValue.label
+                    }}
                     value={CategoryList.find(i => i.value === value) || null}
                     onChange={(e, v) => {
                       onChange(v?.value ?? '')
@@ -239,36 +249,47 @@ export default function AddRequestForm({
               <Controller
                 name={`items.${idx}.serviceType`}
                 control={control}
-                rules={{ required: true }}
+                // rules={{ required: true }}
                 render={({ field: { value, onChange } }) => {
                   return (
                     <Autocomplete
                       autoHighlight
                       fullWidth
                       limitTags={1}
+                      disableCloseOnSelect
                       multiple
+                      getOptionLabel={option => option.label}
                       disabled={!watchCategory}
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.value === newValue.value
+                      }}
                       options={ServiceTypePair[watchCategory] || []}
-                      value={ServiceTypeList.filter(item =>
-                        value?.includes(item.value),
-                      )}
+                      value={value}
                       onChange={(e, v) => {
-                        const data = v.map(i => i.value)
-                        onChange(data)
+                        // const data = v.map(i => i.value)
+                        onChange(v)
                       }}
                       renderInput={params => (
                         <TextField
                           {...params}
-                          error={Boolean(errors?.items?.[idx]?.serviceType)}
+                          // error={Boolean(errors?.items?.[idx]?.serviceType)}
                           label='Service type*'
                           // placeholder='Service type*'
                         />
                       )}
+                      renderOption={(props, option, { selected }) => {
+                        return (
+                          <li {...props}>
+                            <Checkbox checked={selected} sx={{ mr: 2 }} />
+                            {option.label}
+                          </li>
+                        )
+                      }}
                     />
                   )
                 }}
               />
-              {renderErrorMsg(errors?.items?.[idx]?.serviceType)}
+              {/* {renderErrorMsg(errors?.items?.[idx]?.serviceType)} */}
             </Grid>
 
             {/* Unit */}
@@ -284,6 +305,9 @@ export default function AddRequestForm({
                     options={units || []}
                     onChange={(event, v) => {
                       onChange(v ? v.name : '')
+                    }}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.id === newValue.id
                     }}
                     getOptionLabel={opt => opt.name}
                     renderInput={params => (
@@ -366,6 +390,9 @@ export default function AddRequestForm({
                       } else {
                         onChange(null)
                       }
+                    }}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.label === newValue.label
                     }}
                     getOptionLabel={option => {
                       if (typeof option !== 'string') {

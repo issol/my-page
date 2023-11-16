@@ -1,3 +1,4 @@
+import exp from 'constants'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type RequestStatusType =
@@ -54,4 +55,28 @@ export type RequestItemFormPayloadType = {
   desiredDueDate: string
   desiredDueTimezone: CountryType | null
   sortingOrder: number
+}
+
+export type RequestType = {
+  lspId: string
+  contactPersonId: number
+  userId?: number | null
+  items: RequestItemType[]
+  sampleFiles: Array<{
+    fileName: string
+    fileSize: number
+  }>
+  notes?: string
+}
+
+export type RequestItemType = {
+  name: string
+  sourceLanguage: string
+  targetLanguage: string
+  category: string
+  serviceType: Array<{ value: string; label: string }>
+  unit?: string
+  quantity?: number | null
+  desiredDueDate: Date | null
+  desiredDueTimezone: CountryType | null
 }
