@@ -392,16 +392,16 @@ const AssignPro = ({
     setValue('target', [
       { value: row.targetLanguage, label: languageHelper(row.targetLanguage)! },
     ])
-    setValue('category', [
+    setValue('category', orderDetail.category ? [
       {
         value: orderDetail.category,
         label: orderDetail.category,
       },
-    ])
+    ] : [])
     setValue('serviceType', [
       {
-        value: row.serviceType,
-        label: row.serviceType,
+        value: row.serviceType ?? '',
+        label: row.serviceType ?? '',
       },
     ])
     setValue(
@@ -425,7 +425,7 @@ const AssignPro = ({
       ...prevState,
       source: [row.sourceLanguage],
       target: [row.targetLanguage],
-      category: [orderDetail.category],
+      category: orderDetail.category ? [orderDetail.category] : [],
       //@ts-ignore
       // serviceType: serviceTypeToPro,
       serviceType: [row.serviceType],
