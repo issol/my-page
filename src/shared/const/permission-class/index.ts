@@ -164,8 +164,12 @@ export class invoice_receivable_accounting_info {
   authorId: number
   constructor(authorId: number) {
     this.authorId = authorId
-    Object.defineProperty(account_manage.prototype.constructor, 'name', {
-      value: 'invoice_receivable_accounting_info',
-    })
+    Object.defineProperty(
+      invoice_receivable_accounting_info.prototype.constructor,
+      'name',
+      {
+        value: 'invoice_receivable_accounting_info',
+      },
+    )
   }
 }

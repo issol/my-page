@@ -176,9 +176,6 @@ const ReceivableInvoiceDetail = () => {
   const isDeletable = ability.can('delete', User)
   const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
 
-  console.log(isUpdatable)
-  console.log(isAccountInfoUpdatable, 'isAccountInfoUpdatable')
-
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
