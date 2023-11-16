@@ -1,5 +1,6 @@
 import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
+import order from '@src/store/order'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   ClientFormType,
@@ -78,5 +79,10 @@ export const patchItemsForOrder = async (
     `/api/enough/u/order/item?orderId=${orderId}`,
     { items: form },
   )
+  return data
+}
+
+export const checkOrderEditable = async (orderId: number): Promise<boolean> => {
+  const { data } = await axios.get(`/api/enough/u/order/${orderId}/editable`)
   return data
 }

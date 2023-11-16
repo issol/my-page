@@ -92,7 +92,11 @@ import {
   LanguagePairsType,
   ProjectTeamFormType,
 } from '@src/types/common/orders-and-quotes.type'
-import { patchItemsForOrder, patchLangPairForOrder } from '@src/apis/order.api'
+import {
+  checkOrderEditable,
+  patchItemsForOrder,
+  patchLangPairForOrder,
+} from '@src/apis/order.api'
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import { toast } from 'react-hot-toast'
 import { useGetStatusList } from '@src/queries/common.query'
@@ -207,6 +211,8 @@ const OrderDetail = () => {
   const [uploadFileProcessing, setUploadFileProcessing] = useState(false)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
 
   const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
     null,
@@ -784,6 +790,13 @@ const OrderDetail = () => {
   useEffect(() => {
     if (projectInfo && client && langItem && projectTeam) makePdfData()
   }, [projectInfo, client, langItem, projectTeam])
+
+  useEffect(() => {
+    if (projectInfo)
+      checkOrderEditable(projectInfo.id).then(res => {
+        setIsUserInTeamMember(res)
+      })
+  }, [projectInfo])
 
   useEffect(() => {
     if (orderInfo.isReady && orderInfo.orderTotalData) {
@@ -1520,12 +1533,14 @@ const OrderDetail = () => {
 
   // 로그인 한 유저가 project team에 속해있는지 체크, 만약 Master, Manager일 경우 true 리턴
   const isIncludeProjectTeam = () => {
+    console.log(isUserInTeamMember)
+
     return Boolean(
-      (currentRole?.name !== 'CLIENT' &&
-        (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
-        (currentRole?.type === 'General' &&
-          projectTeam?.length &&
-          projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
+      currentRole?.name !== 'CLIENT' && isUserInTeamMember,
+      // (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
+      // (currentRole?.type === 'General' &&
+      //   projectTeam?.length &&
+      //   projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
     )
   }
 
@@ -2177,6 +2192,7 @@ const OrderDetail = () => {
                   canUseFeature={canUseFeature}
                   uploadFileProcessing={uploadFileProcessing}
                   setUploadFileProcessing={setUploadFileProcessing}
+                  isEditable={isIncludeProjectTeam()}
                 />
               </Suspense>
             </TabPanel>
