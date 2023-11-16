@@ -175,8 +175,9 @@ const ReceivableInvoiceDetail = () => {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
   const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
+  console.log(AccountingTeam, 'AccountingTeam')
 
-  console.log(isUpdatable)
+  console.log(auth.getValue().user?.id!, 'userId')
   console.log(isAccountInfoUpdatable, 'isAccountInfoUpdatable')
 
   /* 케밥 메뉴 */
