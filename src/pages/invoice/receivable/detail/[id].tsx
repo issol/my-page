@@ -177,9 +177,6 @@ const ReceivableInvoiceDetail = () => {
   const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
   console.log(AccountingTeam, 'AccountingTeam')
 
-  console.log(auth.getValue().user?.id!, 'userId')
-  console.log(isAccountInfoUpdatable, 'isAccountInfoUpdatable')
-
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
