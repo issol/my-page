@@ -145,6 +145,7 @@ export default function ItemPriceUnitForm({
     groupName: string
   }
   const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
+
   const nestSubPriceUnits = (idx: number) => {
     const nestedData: Array<NestedPriceUnitType> = []
 
@@ -201,7 +202,7 @@ export default function ItemPriceUnitForm({
       })
     }
 
-    allPriceUnits.current = data
+    allPriceUnits.current = _.uniqBy(data, item => item.id + item.groupName)
     return _.uniqBy(data, item => item.id + item.groupName)
   }
 
@@ -416,10 +417,12 @@ export default function ItemPriceUnitForm({
               control={control}
               render={({ field: { value, onChange } }) => {
                 // const options = nestSubPriceUnits()
+
                 const findValue =
                   allPriceUnits?.current?.find(
                     item => item.priceUnitId === value,
                   ) || null
+
                 return (
                   <Autocomplete
                     fullWidth

@@ -135,6 +135,9 @@ export type JobPricesDetailType = {
   minimumPrice: number | null | undefined
   minimumPriceApplied: boolean
   initialPrice: PriceType | null | undefined
+  languagePair: {
+    priceFactor: string
+  }
 }
 
 export type jobPriceHistoryType = JobPricesDetailType & {
