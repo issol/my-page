@@ -15,7 +15,12 @@ import {
 } from '@src/queries/company/standard-price'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { ItemType, JobType, PostItemType } from '@src/types/common/item.type'
+import {
+  ItemType,
+  JobItemType,
+  JobType,
+  PostItemType,
+} from '@src/types/common/item.type'
 import {
   PriceUnitListType,
   StandardPriceListType,
@@ -83,6 +88,8 @@ type Props = {
   >[]
   jobPrices: JobPricesDetailType
   setJobId?: (n: number) => void
+  item: JobItemType
+  prices: StandardPriceListType[]
 }
 
 const EditPrices = ({
@@ -98,9 +105,9 @@ const EditPrices = ({
   row,
   jobPrices,
   setJobId,
+  item,
+  prices,
 }: Props) => {
-  console.log("price-edit",jobPrices,row)
-  const { data: prices, isSuccess } = useGetProPriceList({})
   const queryClient = useQueryClient()
 
   // console.log(getItem('items'), 'item')
@@ -124,24 +131,14 @@ const EditPrices = ({
   const [languagePair, setLanguagePair] = useState<{
     sourceLanguage: string | null
     targetLanguage: string | null
-  }> ({
+  }>({
     sourceLanguage: '',
-    targetLanguage: ''
+    targetLanguage: '',
   })
 
-  useEffect(() => {
-    setLanguagePair({
-      sourceLanguage: jobPrices.source ?? row.sourceLanguage,
-      targetLanguage: jobPrices.target ?? row.targetLanguage
-    })
-    if (!jobPrices.source && !jobPrices.target) {
-      setItem(`items.${0}.source`,row.sourceLanguage!)
-      setItem(`items.${0}.target`,row.targetLanguage!)
-    }
-  }, [row, jobPrices])
-
   const getPriceOptions = (source: string, target: string) => {
-    if (!isSuccess) return [proDefaultOption]
+    // if (!isSuccess) return [proDefaultOption]
+
     const filteredList = prices
       .filter(item => {
         const matchingPairs = item.languagePairs.filter(
@@ -153,6 +150,7 @@ const EditPrices = ({
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
         ...item,
       }))
+
     return [proDefaultOption].concat(filteredList)
   }
 
@@ -161,7 +159,10 @@ const EditPrices = ({
     //   ? getPriceOptions(jobPrices.source, jobPrices.target)
     //   : [proDefaultOption]
     languagePair.sourceLanguage && languagePair.targetLanguage
-      ? getPriceOptions(languagePair.sourceLanguage, languagePair.targetLanguage)
+      ? getPriceOptions(
+          languagePair.sourceLanguage,
+          languagePair.targetLanguage,
+        )
       : [proDefaultOption]
 
   // useEffect(() => {
@@ -175,15 +176,25 @@ const EditPrices = ({
   // }, [success])
 
   useEffect(() => {
-    if (jobPrices) {
-      console.log(jobPrices)
+    if (jobPrices && item && prices) {
+      const sourceLanguage = jobPrices.sourceLanguage ?? item.sourceLanguage
+      const targetLanguage = jobPrices.targetLanguage ?? item.targetLanguage
 
-      const res = getPriceOptions(languagePair.sourceLanguage!, languagePair.targetLanguage!).find(
+      setLanguagePair({
+        sourceLanguage: sourceLanguage,
+        targetLanguage: targetLanguage,
+      })
+
+      setItem(`items.${0}.source`, sourceLanguage)
+      setItem(`items.${0}.target`, targetLanguage)
+
+      const res = getPriceOptions(sourceLanguage, targetLanguage).find(
         value => value.id === jobPrices.initialPrice?.priceId,
       )
+
       setPrice(res!)
     }
-  }, [jobPrices])
+  }, [jobPrices, item, prices])
 
   const openMinimumPriceModal = (value: any) => {
     const minimumPrice = formatCurrency(
@@ -214,7 +225,7 @@ const EditPrices = ({
     })
   }
 
-  console.log("getItem",getItem())
+  console.log('getItem', getItem())
 
   return (
     <>
@@ -259,8 +270,12 @@ const EditPrices = ({
                 //     }
                 //   : { value: '', label: '' }
                 {
-                  value: `${languageHelper(languagePair.sourceLanguage)} -> ${languageHelper(languagePair.targetLanguage)}`,
-                  label: `${languageHelper(languagePair.sourceLanguage)} -> ${languageHelper(languagePair.targetLanguage)}`,
+                  value: `${languageHelper(
+                    languagePair.sourceLanguage,
+                  )} -> ${languageHelper(languagePair.targetLanguage)}`,
+                  label: `${languageHelper(
+                    languagePair.sourceLanguage,
+                  )} -> ${languageHelper(languagePair.targetLanguage)}`,
                 }
               }
               options={[]}
