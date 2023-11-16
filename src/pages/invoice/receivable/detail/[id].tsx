@@ -177,7 +177,7 @@ const ReceivableInvoiceDetail = () => {
   const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
 
   console.log(isUpdatable)
-  console.log(isAccountInfoUpdatable)
+  console.log(isAccountInfoUpdatable, 'isAccountInfoUpdatable')
 
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)

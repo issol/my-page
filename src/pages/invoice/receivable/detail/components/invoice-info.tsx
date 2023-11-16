@@ -1640,7 +1640,7 @@ const InvoiceInfo = ({
                                 display: 'flex',
                                 gap: '8px',
                                 alignItems: 'center',
-                                width: '33.28%',
+                                width: '25.21%',
                               }}
                             >
                               <Typography
@@ -1659,7 +1659,7 @@ const InvoiceInfo = ({
                                 display: 'flex',
                                 gap: '8px',
                                 alignItems: 'center',
-                                width: '66.62%',
+                                width: '73.45%',
                               }}
                             >
                               <Typography
