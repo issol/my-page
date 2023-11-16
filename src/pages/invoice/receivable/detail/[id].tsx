@@ -272,8 +272,10 @@ const ReceivableInvoiceDetail = () => {
         }
         closeModal('EditSaveModal')
       },
-      onError: () => {
-        onError()
+      onError: (error: any) => {
+        console.log(error)
+
+        onError(error.message)
         closeModal('EditSaveModal')
       },
     },
@@ -1084,10 +1086,16 @@ const ReceivableInvoiceDetail = () => {
       })
   }, [invoiceInfo])
 
-  function onError() {
-    toast.error('Something went wrong. Please try again.', {
-      position: 'bottom-left',
-    })
+  function onError(message?: string) {
+    if (message === 'Request failed with status code 403') {
+      toast.error('You are not authorized', {
+        position: 'bottom-left',
+      })
+    } else {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    }
   }
 
   return (
@@ -1335,7 +1343,20 @@ const ReceivableInvoiceDetail = () => {
                   setEdit={setInvoiceInfoEdit}
                   accountingEdit={accountingInfoEdit}
                   setAccountingEdit={setAccountingInfoEdit}
-                  onSave={patchInvoiceInfoMutation.mutate}
+                  onSave={(
+                    data: {
+                      id: number
+                      form: InvoiceReceivablePatchParamsType
+                      type: 'basic' | 'accounting'
+                    },
+                    callback?: () => void,
+                  ) => {
+                    patchInvoiceInfoMutation.mutate(data, {
+                      onSuccess: () => {
+                        callback && callback()
+                      },
+                    })
+                  }}
                   onContactPersonSave={updateContactPersonForClient.mutate}
                   invoiceInfoControl={invoiceInfoControl}
                   getInvoiceInfo={getInvoiceInfo}

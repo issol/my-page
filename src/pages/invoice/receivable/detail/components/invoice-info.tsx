@@ -111,11 +111,14 @@ type Props = {
   setEdit?: Dispatch<SetStateAction<boolean>>
   setAccountingEdit?: Dispatch<SetStateAction<boolean>>
 
-  onSave?: (data: {
-    id: number
-    form: InvoiceReceivablePatchParamsType
-    type: 'basic' | 'accounting'
-  }) => void
+  onSave?: (
+    data: {
+      id: number
+      form: InvoiceReceivablePatchParamsType
+      type: 'basic' | 'accounting'
+    },
+    callback?: () => void,
+  ) => void
   onContactPersonSave?: (data: {
     id: number
     form: InvoiceReceivablePatchParamsType
@@ -272,16 +275,48 @@ const InvoiceInfo = ({
 
   const handleChangeStatus = (event: SelectChangeEvent) => {
     const value = Number(event.target.value)
-    setStatus(value)
+
+    const statusLabel = statusList?.find(i => i.value === value)?.label || ''
     const data = getInvoiceInfo && getInvoiceInfo()
     if (onSave && data) {
-      onSave({
-        id: invoiceInfo.id,
-        form: {
-          // ...data,
-          invoiceStatus: value as InvoiceReceivableStatusType,
-        },
-        type: 'basic',
+      openModal({
+        type: 'ChangeStatusModal',
+        children: (
+          <CustomModal
+            title={
+              <>
+                Are you sure you want to change the status as&nbsp;
+                <Typography
+                  variant='body2'
+                  fontWeight={600}
+                  component={'span'}
+                  fontSize={16}
+                >
+                  [{statusLabel ?? ''}]
+                </Typography>
+              </>
+            }
+            vary='successful'
+            rightButtonText='Change'
+            onClick={() => {
+              onSave(
+                {
+                  id: invoiceInfo.id,
+                  form: {
+                    // ...data,
+                    invoiceStatus: value as InvoiceReceivableStatusType,
+                  },
+                  type: 'basic',
+                },
+                () => {
+                  closeModal('ChangeStatusModal')
+                  setStatus(value)
+                },
+              )
+            }}
+            onClose={() => closeModal('ChangeStatusModal')}
+          />
+        ),
       })
     }
   }
@@ -411,10 +446,16 @@ const InvoiceInfo = ({
           : {
               paidAt: data.paymentDate?.date,
               paidDateTimezone: data.paymentDate?.timezone,
-              taxInvoiceIssuedAt: data.taxInvoiceIssuanceDate?.date,
+              taxInvoiceIssuedAt:
+                data.taxInvoiceIssuanceDate?.date === ''
+                  ? undefined
+                  : data.taxInvoiceIssuanceDate?.date,
               taxInvoiceIssuedDateTimezone:
                 data.taxInvoiceIssuanceDate?.timezone,
-              salesCheckedAt: data.salesRecognitionDate?.date,
+              salesCheckedAt:
+                data.salesRecognitionDate?.date === ''
+                  ? undefined
+                  : data.salesRecognitionDate?.date,
               salesCheckedDateTimezone: data.salesRecognitionDate?.timezone,
               notes: data.notes,
               salesCategory: data?.salesCategory,
@@ -426,7 +467,7 @@ const InvoiceInfo = ({
   }
 
   const onClickEditSaveContactPerson = () => {
-    if(currentRole?.name === 'CLIENT') {
+    if (currentRole?.name === 'CLIENT') {
       if (onContactPersonSave) {
         onContactPersonSave({
           id: invoiceInfo.id,
