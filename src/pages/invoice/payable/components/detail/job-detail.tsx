@@ -371,7 +371,9 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
                 <Fragment>
                   {renderEditButton()}
                   <Grid item xs={12}>
-                    {jobInfo && <ViewJobInfo row={jobInfo} jobStatusList={statusList!} />}
+                    {jobInfo && (
+                      <ViewJobInfo row={jobInfo} jobStatusList={statusList!} />
+                    )}
                   </Grid>
                 </Fragment>
               )}

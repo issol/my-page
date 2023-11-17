@@ -88,8 +88,8 @@ type Props = {
   >[]
   jobPrices: JobPricesDetailType
   setJobId?: (n: number) => void
-  item: JobItemType
-  prices: StandardPriceListType[]
+  item?: JobItemType
+  prices?: StandardPriceListType[]
 }
 
 const EditPrices = ({
@@ -138,6 +138,7 @@ const EditPrices = ({
 
   const getPriceOptions = (source: string, target: string) => {
     // if (!isSuccess) return [proDefaultOption]
+    if (!prices) return [proDefaultOption]
 
     const filteredList = prices
       .filter(item => {
