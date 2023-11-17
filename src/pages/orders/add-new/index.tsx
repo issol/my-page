@@ -707,6 +707,7 @@ export default function AddNewOrder() {
       clientReset({
         clientId: client.clientId,
         contactPersonId: requestData.contactPerson.id,
+        addressType: 'shipping',
         contacts: {
           timezone: client?.timezone,
           phone: client?.phone ?? '',
