@@ -1126,7 +1126,7 @@ const ProJobInfo = ({
                           {/* ${jobPrices.totalPrice} */}
                           {formatCurrency(
                             jobPrices.totalPrice,
-                            jobPrices.currency,
+                            jobPrices.initialPrice?.currency ?? 'KRW',
                           )}
                         </Typography>
                       </Box>
