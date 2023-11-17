@@ -179,7 +179,12 @@ export default function RequestDetail() {
           title={
             <Box>
               Are you sure you want to change the status to
-              <Typography variant='body2' fontWeight={600} component={'span'}>
+              <Typography
+                variant='body2'
+                fontWeight={600}
+                component={'span'}
+                fontSize={16}
+              >
                 &nbsp;[In preparation]
               </Typography>
               ? It cannot be unchanged.
