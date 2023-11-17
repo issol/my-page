@@ -173,7 +173,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
           minimumPriceApplied: jobPrices.minimumPriceApplied,
           initialPrice: jobPrices.initialPrice,
           totalPrice: Number(jobPrices?.totalPrice!),
-          priceFactor: Number(jobPrices.languagePair.priceFactor),
+          //priceFactor: Number(jobPrices.languagePair.priceFactor),
         },
       ]
       // console.log(result)
