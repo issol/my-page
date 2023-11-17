@@ -357,7 +357,7 @@ export default function Filter({
                               })
                               setCategoryList(_.uniqBy(arr, 'value'))
 
-                              setCategoryList(arr)
+                              // setCategoryList(arr)
                               trigger('category')
                             } else {
                               setCategoryList(CategoryList)
