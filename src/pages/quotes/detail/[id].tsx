@@ -1715,8 +1715,15 @@ export default function QuotesDetail() {
                       canCheckboxEdit={canUseFeature(
                         'checkBox-ProjectInfo-Description',
                       )}
-                      updateStatus={(status: number) =>
-                        updateProject.mutate({ status: status })
+                      updateStatus={(status: number, callback?: () => void) =>
+                        updateProject.mutate(
+                          { status: status },
+                          {
+                            onSuccess: () => {
+                              callback && callback()
+                            },
+                          },
+                        )
                       }
                       role={currentRole!}
                       client={client}

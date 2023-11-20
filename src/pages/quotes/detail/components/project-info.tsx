@@ -43,13 +43,14 @@ import { ReasonType } from '@src/types/quotes/quote'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
 import _ from 'lodash'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   project: ProjectInfoType | undefined
   setEditMode: (v: boolean) => void
   isUpdatable: boolean
   canCheckboxEdit: boolean
-  updateStatus?: (status: number) => void
+  updateStatus?: (status: number, callback?: () => void) => void
   role: UserRoleType
   client?: ClientType
   type: 'detail' | 'history'
@@ -168,6 +169,37 @@ export default function QuotesProjectInfoDetail({
           confirmButtonText={confirmButtonText}
           message={message}
           vary='successful'
+        />
+      ),
+    })
+  }
+
+  const onChangeStatus = (status: number) => {
+    const statusLabel = statusList?.find(value => value.value === status)?.label
+    openModal({
+      type: 'ChangeStatusModal',
+      children: (
+        <CustomModal
+          title={
+            <>
+              Are you sure you want to change the status as&nbsp;
+              <Typography
+                variant='body2'
+                fontWeight={600}
+                component={'span'}
+                fontSize={16}
+              >
+                [{statusLabel ?? ''}]
+              </Typography>
+            </>
+          }
+          vary='successful'
+          rightButtonText='Proceed'
+          onClick={() =>
+            updateStatus &&
+            updateStatus(status, () => closeModal('ChangeStatusModal'))
+          }
+          onClose={() => closeModal('ChangeStatusModal')}
         />
       ),
     })
@@ -317,8 +349,8 @@ export default function QuotesProjectInfoDetail({
                   disableClearable={true}
                   options={filterStatusList() ?? []}
                   onChange={(e, v) => {
-                    if (updateStatus && v?.value) {
-                      updateStatus(v.value as number)
+                    if (v?.value) {
+                      onChangeStatus(v.value as number)
                     }
                   }}
                   value={
