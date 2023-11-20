@@ -56,6 +56,7 @@ const JobDetails = () => {
   const router = useRouter()
   const ref = useRef<null | any>(null)
   const { openModal, closeModal } = useModal()
+  const queryClient = useQueryClient()
 
   const auth = useRecoilValueLoadable(authState)
   const currentRole = getCurrentRole()
@@ -217,6 +218,20 @@ const JobDetails = () => {
 
   const onClickBack = () => {
     //TODO 이전 페이지의 주소기반으로 라우팅 해야함, 무조건 back 할경우 사이드이펙이 나올수 있음
+    const filter = {
+      status: [],
+      client: [],
+      category: [],
+      serviceType: [],
+      startedAt: [null, null],
+      dueAt: [null, null],
+      search: '',
+      isMyJobs: '0',
+      isHidePaid: '0',
+      skip: 0,
+      take: 10,
+    }
+    queryClient.invalidateQueries(['jobList', filter])
     router.back()
   }
   const Row = ({ info, index }: { info: JobItemType; index: number }) => {
