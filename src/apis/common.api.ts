@@ -92,15 +92,15 @@ export const uploadFileToS3 = async (url: string, file: any) => {
 
 export const getStatusList = async (
   type: StatusType,
-  isSelectable?: '1' | '0'
+  isSelectable?: '1' | '0',
 ): Promise<Array<{ value: number; label: string }>> => {
   try {
-    
-    const { data } = 
-      isSelectable 
-      ? await axios.get(`/api/enough/u/status/list?type=${type}&isSelectable=${isSelectable}`)
+    const { data } = isSelectable
+      ? await axios.get(
+          `/api/enough/u/status/list?type=${type}&isSelectable=${isSelectable}`,
+        )
       : await axios.get(`/api/enough/u/status/list?type=${type}`)
-      
+
     // console.log(data)
 
     const res = data.map((item: any) => ({
@@ -126,4 +126,12 @@ export const getCompanyInfoByBusinessNumber = async (
   } catch (e: any) {
     return []
   }
+}
+
+export const addWorkName = async (data: {
+  clientId: number
+  value: string
+  label: string
+}) => {
+  axios.post(`/api/enough/u/client/work`, data)
 }
