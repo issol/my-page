@@ -267,6 +267,7 @@ export default function RegisterClientForm({
                 disabled={
                   type === 'request' ||
                   (formType === 'edit' && type === 'order') ||
+                  (formType === 'edit' && type === 'quotes') ||
                   type === 'invoice' ||
                   (fromQuote && getValue('isEnrolledClient'))
                 }
