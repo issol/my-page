@@ -461,6 +461,13 @@ const Row = ({
     } else handleShowMinimum(false)
   }
 
+  const onChangeCurrency = (currency: CurrencyType) => {
+    //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
+    getValues().items[0].detail?.map((priceUnit, idx) => {
+      setValue(`items.${0}.detail.${idx}.currency`,currency)
+    })
+  }
+
   return (
     <Box
       style={{
@@ -928,6 +935,7 @@ const Row = ({
               sumTotalPrice={sumTotalPrice}
               fields={fields}
               remove={remove}
+              onChangeCurrency={onChangeCurrency}
             />
             {/* price unit end */}
             <Grid item xs={12}>

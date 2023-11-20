@@ -149,7 +149,7 @@ export const proDefaultOption: StandardPriceListType & {
   currency: 'KRW',
   catBasis: '',
   decimalPlace: 0,
-  roundingProcedure: '',
+  roundingProcedure: 'Round (Round down to 0.5 - round up from 0.5)',
   languagePairs: [],
   priceUnit: [],
 }

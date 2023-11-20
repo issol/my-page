@@ -10,6 +10,7 @@ import {
 import { ModalType } from '@src/store/modal'
 import { ItemType } from '@src/types/common/item.type'
 import {
+  CurrencyType,
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
@@ -261,10 +262,13 @@ const Row = ({
 
     // if (prices === data[index].prices) return
 
+    //isNotApplicable이 true이면 폼에서 선택된 currency가 설정되도록 한다.
     const currency =
-      selectedPrice && selectedPrice.currency
-        ? selectedPrice.currency
-        : getItem(`items.${0}.initialPrice.currency`) ?? 'KRW'
+      isNotApplicable 
+        ? getItem()?.items?.[0]?.detail?.[0]?.currency!
+        : selectedPrice && selectedPrice.currency
+          ? selectedPrice.currency
+          : getItem(`items.${0}.initialPrice.currency`)
     const roundingPrice = formatByRoundingProcedure(
       prices,
       priceData()?.decimalPlace!
@@ -288,38 +292,17 @@ const Row = ({
     })
   }
 
-  // function onItemBoxLeave() {
-  //   const isMinimumPriceConfirmed =
-  //     !!minimumPrice &&
-  //     minimumPrice > getItem(`items.${0}.totalPrice`) &&
-  //     showMinimum.checked
-
-  //   const isNotMinimum =
-  //     !minimumPrice || minimumPrice <= getItem(`items.${0}.totalPrice`)
-
-  //   if (!isMinimumPriceConfirmed && !isNotMinimum) {
-  //     setShowMinimum({ ...showMinimum, show: true })
-  //     openModal({
-  //       type: 'info-minimum',
-  //       children: (
-  //         <SimpleAlertModal
-  //           onClose={() => {
-  //             closeModal('info-minimum')
-  //             setShowMinimum({ show: true, checked: true })
-  //           }}
-  //           message='The minimum price has been applied to the item(s).'
-  //         />
-  //       ),
-  //     })
-  //   }
-  //   getTotalPrice()
-  // }
+  const onChangeCurrency = (currency: CurrencyType) => {
+    //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
+    getItem().items[0].detail?.map((priceUnit, idx) => {
+      setItem(`items.${0}.detail.${idx}.currency`,currency)
+    })
+  }
 
   const sumTotalPrice = () => {
     return true
   }
 
-  // console.log(details))
   return (
     <Box
       style={
@@ -363,6 +346,7 @@ const Row = ({
         sumTotalPrice={sumTotalPrice}
         showCurrency={true}
         remove={remove}
+        onChangeCurrency={onChangeCurrency}
       />
       {/* price unit end */}
     </Box>

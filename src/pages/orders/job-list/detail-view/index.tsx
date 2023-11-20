@@ -177,7 +177,6 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
           priceFactor: Number(jobPrices.languagePair?.priceFactor ?? 0),
         },
       ]
-      // console.log(result)
 
       itemReset({ items: result })
     } else {
