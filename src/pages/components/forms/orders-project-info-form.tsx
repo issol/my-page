@@ -71,6 +71,8 @@ import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import dayjs from 'dayjs'
+import { useMutation } from 'react-query'
+import { addWorkName } from '@src/apis/common.api'
 
 type Props = {
   control: Control<OrderProjectInfoFormType, any>
@@ -99,6 +101,11 @@ export default function ProjectInfoForm({
   const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
   const containerRef = useRef<HTMLDivElement | null>(null)
+
+  const addWorkNameMutation = useMutation(
+    (data: { clientId: number; value: string; label: string }) =>
+      addWorkName(data),
+  )
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
@@ -180,13 +187,27 @@ export default function ProjectInfoForm({
           title={newWorkName}
           onClose={() => closeModal('add-work-name')}
           onClick={() => {
-            setWorkName(
-              workName?.concat({ value: newWorkName, label: newWorkName }),
+            addWorkNameMutation.mutate(
+              {
+                clientId: getClientValue().clientId!,
+                value: newWorkName,
+                label: newWorkName,
+              },
+              {
+                onSuccess: () => {
+                  setWorkName(
+                    workName?.concat({
+                      value: newWorkName,
+                      label: newWorkName,
+                    }),
+                  )
+                  setNewWorkName('')
+                  setIsAddMode(false)
+                  setOpenPopper(false)
+                  setValue('workName', newWorkName, setValueOptions)
+                },
+              },
             )
-            setNewWorkName('')
-            setIsAddMode(false)
-            setOpenPopper(false)
-            setValue('workName', newWorkName, setValueOptions)
           }}
         />
       ),
