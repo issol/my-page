@@ -252,6 +252,74 @@ export default function QuotesProjectInfoDetail({
             <LabelContainer>
               <CustomTypo fontWeight={600}>Status</CustomTypo>
               {type === 'detail' &&
+              statusList
+                ?.filter(
+                  value =>
+                    !filterStatusList().some(v => v.value === value.value),
+                )
+                .some(status => status.label === project.status) ? (
+                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <QuoteStatusChip
+                    size='small'
+                    label={
+                      typeof project.status === 'number'
+                        ? getStatusNameFromCode(project.status)
+                        : project.status
+                    }
+                    status={
+                      typeof project.status === 'number'
+                        ? getStatusNameFromCode(project.status)
+                        : project.status
+                    }
+                  />
+                  {(project.status === 'Revision requested' ||
+                    project.status === 'Rejected' ||
+                    project.status === 'Canceled') && (
+                    <IconButton
+                      onClick={() => {
+                        project.reason &&
+                          onClickReason(
+                            project.reason.type === 'revision-request'
+                              ? 'Requested'
+                              : project.reason.type?.replace(/^[a-z]/, char =>
+                                  char.toUpperCase(),
+                                ),
+                            project.reason,
+                          )
+                      }}
+                    >
+                      <img
+                        src='/images/icons/onboarding-icons/more-reason.svg'
+                        alt='more'
+                      />
+                    </IconButton>
+                  )}
+                </Box>
+              ) : (
+                <Autocomplete
+                  fullWidth
+                  disableClearable={true}
+                  options={filterStatusList() ?? []}
+                  onChange={(e, v) => {
+                    if (updateStatus && v?.value) {
+                      updateStatus(v.value as number)
+                    }
+                  }}
+                  value={
+                    statusList &&
+                    statusList.find(item => item.label === project.status)
+                  }
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      placeholder='Status'
+                      size='small'
+                      sx={{ maxWidth: '300px' }}
+                    />
+                  )}
+                />
+              )}
+              {/* {type === 'detail' &&
               ((isUpdatable &&
                 // 연결된 Client가 있는 경우
                 project.status !== 'Quote sent' &&
@@ -289,9 +357,12 @@ export default function QuotesProjectInfoDetail({
                       />
                     )}
                   />
-                  {(project.status === 'Revision requested' ||
-                    project.status === 'Rejected' ||
-                    project.status === 'Canceled') && (
+                  {(client?.isEnrolledClient &&
+                    (project.status === 'Revision requested' ||
+                      project.status === 'Rejected' ||
+                      project.status === 'Canceled')) ||
+                  (!client?.isEnrolledClient &&
+                    project.status === 'Canceled') ? (
                     <IconButton
                       onClick={() => {
                         project.reason &&
@@ -310,7 +381,7 @@ export default function QuotesProjectInfoDetail({
                         alt='more'
                       />
                     </IconButton>
-                  )}
+                  ) : null}
                 </Box>
               ) : (
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -350,7 +421,7 @@ export default function QuotesProjectInfoDetail({
                     </IconButton>
                   )}
                 </Box>
-              )}
+              )} */}
             </LabelContainer>
           </Grid>
           {role.name === 'CLIENT' ? (
