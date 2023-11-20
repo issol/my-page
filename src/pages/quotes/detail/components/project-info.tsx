@@ -251,13 +251,29 @@ export default function QuotesProjectInfoDetail({
           <Grid item xs={6}>
             <LabelContainer>
               <CustomTypo fontWeight={600}>Status</CustomTypo>
-              {type === 'detail' &&
-              statusList
-                ?.filter(
-                  value =>
-                    !filterStatusList().some(v => v.value === value.value),
-                )
-                .some(status => status.label === project.status) ? (
+              {role.name === 'CLIENT' ? (
+                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <QuoteStatusChip
+                    size='small'
+                    label={
+                      typeof project.status === 'number'
+                        ? getStatusNameFromCode(project.status)
+                        : project.status
+                    }
+                    status={
+                      typeof project.status === 'number'
+                        ? getStatusNameFromCode(project.status)
+                        : project.status
+                    }
+                  />
+                </Box>
+              ) : type === 'detail' &&
+                statusList
+                  ?.filter(
+                    value =>
+                      !filterStatusList().some(v => v.value === value.value),
+                  )
+                  .some(status => status.label === project.status) ? (
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <QuoteStatusChip
                     size='small'
