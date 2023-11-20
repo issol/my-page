@@ -311,10 +311,13 @@ export default function ProjectInfoForm({
           name='workName'
           control={control}
           render={({ field: { value, onChange } }) => {
-            const finedValue = workName.find(item => item.value === value)
+            const finedValue = workName.find(item => item.value === value) || {
+              value: value,
+              label: value,
+            }
             return (
               <Autocomplete
-                disableClearable
+                disableClearable={value ? false : true}
                 // autoHighlight
                 fullWidth
                 options={workName || []}
@@ -399,7 +402,7 @@ export default function ProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
-                    onClick={() => setOpenPopper(!openPopper)}
+                    // onClick={() => setOpenPopper(!openPopper)}
                     error={Boolean(errors.workName)}
                     label='Work name'
                   />
