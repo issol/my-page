@@ -323,9 +323,9 @@ const OrderDetail = () => {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(itemSchema),
   })
 
@@ -338,6 +338,17 @@ const OrderDetail = () => {
     control: itemControl,
     name: 'items',
   })
+
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
+  })
+
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -398,8 +409,6 @@ const OrderDetail = () => {
 
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
-
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
   function renderSubmitButton({
     onCancel,
@@ -470,29 +479,28 @@ const OrderDetail = () => {
   }
 
   const initializeItemData = () => {
-    setLanguagePairs(
-      langItem?.items?.map(item => ({
-        id: String(item.id),
-        source: item.source!,
-        target: item.target!,
-        price: {
-          id: item.initialPrice?.priceId!,
-          isStandard: item.initialPrice?.isStandard!,
-          priceName: item.initialPrice?.name!,
-          groupName: 'Current price',
-          category: item.initialPrice?.category!,
-          serviceType: item.initialPrice?.serviceType!,
-          currency: item.initialPrice?.currency!,
-          catBasis: item.initialPrice?.calculationBasis!,
-          decimalPlace: item.initialPrice?.numberPlace!,
-          roundingProcedure:
-            RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-          languagePairs: [],
-          priceUnit: [],
-          catInterface: { memSource: [], memoQ: [] },
-        },
-      }))!,
-    )
+    const itemLangPairs = langItem?.items?.map(item => ({
+      id: String(item.id),
+      source: item.source!,
+      target: item.target!,
+      price: {
+        id: item.initialPrice?.priceId!,
+        isStandard: item.initialPrice?.isStandard!,
+        priceName: item.initialPrice?.name!,
+        groupName: 'Current price',
+        category: item.initialPrice?.category!,
+        serviceType: item.initialPrice?.serviceType!,
+        currency: item.initialPrice?.currency!,
+        catBasis: item.initialPrice?.calculationBasis!,
+        decimalPlace: item.initialPrice?.numberPlace!,
+        roundingProcedure:
+          RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+        languagePairs: [],
+        priceUnit: [],
+        catInterface: { memSource: [], memoQ: [] },
+      },
+    }))!
+
     const result = langItem?.items?.map(item => {
       return {
         id: item.id,
@@ -514,7 +522,7 @@ const OrderDetail = () => {
         minimumPriceApplied: item.minimumPriceApplied,
       }
     })
-    itemReset({ items: result })
+    itemReset({ items: result, languagePairs: itemLangPairs })
   }
 
   const initializeTeamData = () => {
@@ -853,29 +861,27 @@ const OrderDetail = () => {
 
   useEffect(() => {
     if (langItem) {
-      setLanguagePairs(
-        langItem?.items?.map(item => ({
-          id: String(item.id),
-          source: item.source!,
-          target: item.target!,
-          price: {
-            id: item.initialPrice?.priceId!,
-            isStandard: item.initialPrice?.isStandard!,
-            priceName: item.initialPrice?.name!,
-            groupName: 'Current price',
-            category: item.initialPrice?.category!,
-            serviceType: item.initialPrice?.serviceType!,
-            currency: item.initialPrice?.currency!,
-            catBasis: item.initialPrice?.calculationBasis!,
-            decimalPlace: item.initialPrice?.numberPlace!,
-            roundingProcedure:
-              RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-            languagePairs: [],
-            priceUnit: [],
-            catInterface: { memSource: [], memoQ: [] },
-          },
-        }))!,
-      )
+      const itemLangPairs = langItem?.items?.map(item => ({
+        id: String(item.id),
+        source: item.source!,
+        target: item.target!,
+        price: {
+          id: item.initialPrice?.priceId!,
+          isStandard: item.initialPrice?.isStandard!,
+          priceName: item.initialPrice?.name!,
+          groupName: 'Current price',
+          category: item.initialPrice?.category!,
+          serviceType: item.initialPrice?.serviceType!,
+          currency: item.initialPrice?.currency!,
+          catBasis: item.initialPrice?.calculationBasis!,
+          decimalPlace: item.initialPrice?.numberPlace!,
+          roundingProcedure:
+            RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+          languagePairs: [],
+          priceUnit: [],
+          catInterface: { memSource: [], memoQ: [] },
+        },
+      }))
       const result = langItem?.items?.map(item => {
         return {
           id: item.id,
@@ -897,7 +903,7 @@ const OrderDetail = () => {
           minimumPriceApplied: item.minimumPriceApplied,
         }
       })
-      itemReset({ items: result })
+      itemReset({ items: result, languagePairs: itemLangPairs })
       setSelectedIds(
         langItem.items.map(value => ({ id: value.id ?? 0, selected: false })),
       )
@@ -1034,21 +1040,23 @@ const OrderDetail = () => {
         sortingOrder: idx + 1,
       }
     })
-    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
-      if (item?.price?.id) {
+    const langs: LanguagePairsPostType[] = getItem('languagePairs').map(
+      item => {
+        if (item?.price?.id) {
+          return {
+            langPairId: Number(item.id),
+            source: item.source,
+            target: item.target,
+            priceId: item.price.id,
+          }
+        }
         return {
           langPairId: Number(item.id),
           source: item.source,
           target: item.target,
-          priceId: item.price.id,
         }
-      }
-      return {
-        langPairId: Number(item.id),
-        source: item.source,
-        target: item.target,
-      }
-    })
+      },
+    )
 
     const subtotal = items.reduce((accumulator, item) => {
       return accumulator + item.totalPrice
@@ -1881,8 +1889,10 @@ const OrderDetail = () => {
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
                   <LanguageAndItem
-                    languagePairs={languagePairs!}
-                    setLanguagePairs={setLanguagePairs}
+                    languagePairs={getItem('languagePairs')}
+                    setLanguagePairs={(languagePair: languageType[]) =>
+                      setItem('languagePairs', languagePair)
+                    }
                     clientId={client?.client.clientId!}
                     itemControl={itemControl}
                     getItem={getItem}

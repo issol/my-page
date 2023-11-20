@@ -21,10 +21,12 @@ import {
   useFieldArray,
   UseFormTrigger,
 } from 'react-hook-form'
+import { languageType } from '@src/pages/orders/add-new'
 
 type Props = {
   getItem: UseFormGetValues<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   getPriceOptions: (
     source: string,
@@ -33,6 +35,7 @@ type Props = {
   itemControl: Control<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     any
   >
@@ -42,6 +45,7 @@ type Props = {
   }
   setItem: UseFormSetValue<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   setShowMinimum: Dispatch<
     SetStateAction<{
@@ -55,6 +59,7 @@ type Props = {
   type: string
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   setDarkMode?: boolean
   selectedPrice?:

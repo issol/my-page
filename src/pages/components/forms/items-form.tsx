@@ -59,11 +59,21 @@ import { getItemJob } from '@src/apis/order-detail.api'
 import Row from './item-row'
 
 type Props = {
-  control: Control<{ items: ItemType[] }, any>
-  getValues: UseFormGetValues<{ items: ItemType[] }>
-  setValue: UseFormSetValue<{ items: ItemType[] }>
-  errors: FieldErrors<{ items: ItemType[] }>
-  fields: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
+  control: Control<{ items: ItemType[]; languagePairs: languageType[] }, any>
+  getValues: UseFormGetValues<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
+  setValue: UseFormSetValue<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
+  errors: FieldErrors<{ items: ItemType[]; languagePairs: languageType[] }>
+  fields: FieldArrayWithId<
+    { items: ItemType[]; languagePairs: languageType[] },
+    'items',
+    'id'
+  >[]
   remove: UseFieldArrayRemove
   teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
   languagePairs: languageType[]
@@ -84,6 +94,7 @@ type Props = {
   orderId?: number
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   selectedIds?: { id: number; selected: boolean }[]
   setSelectedIds?: Dispatch<

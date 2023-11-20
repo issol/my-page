@@ -56,32 +56,39 @@ type Props = {
   itemControl: Control<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     any
   >
   getItem: UseFormGetValues<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   setItem: UseFormSetValue<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   itemErrors: FieldErrors<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
-  itemReset: UseFormReset<{ items: ItemType[] }>
+  itemReset: UseFormReset<{ items: ItemType[]; languagePairs: languageType[] }>
   isItemValid: boolean
   appendItems: UseFieldArrayAppend<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     'items'
   >
   fields: FieldArrayWithId<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     'items',
     'id'

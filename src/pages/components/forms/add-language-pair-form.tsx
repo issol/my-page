@@ -4,6 +4,7 @@ import {
   Dispatch,
   Fragment,
   SetStateAction,
+  useEffect,
   useState,
 } from 'react'
 
@@ -35,7 +36,7 @@ import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import Icon from 'src/@core/components/icon'
 
 // ** parent value imports
-import { HeaderCell, languageType } from '@src/pages/orders/add-new'
+import { HeaderCell } from '@src/pages/orders/add-new'
 
 // ** third parties
 import { v4 as uuidv4 } from 'uuid'
@@ -52,10 +53,12 @@ import useModal from '@src/hooks/useModal'
 // ** modals
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import { ItemType } from '@src/types/common/item.type'
+import { Control, Controller, UseFormGetValues } from 'react-hook-form'
+import { languageType } from '@src/pages/quotes/add-new'
 
 type Props = {
-  languagePairs: languageType[]
-  setLanguagePairs: Dispatch<SetStateAction<languageType[]>>
+  // languagePairs: languageType[]
+  setLanguagePairs: (languagePair: languageType[]) => void
   getPriceOptions: (
     source: string,
     target: string,
@@ -64,14 +67,21 @@ type Props = {
   type: string
   onDeleteLanguagePair: (row: languageType) => void
   items?: ItemType[]
+  getItem: UseFormGetValues<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
+  control: Control<{ items: ItemType[]; languagePairs: languageType[] }, any>
 }
 export default function AddLanguagePairForm({
-  languagePairs,
+  // languagePairs,
   setLanguagePairs,
   getPriceOptions,
   type,
   onDeleteLanguagePair,
   items,
+  getItem,
+  control,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -107,7 +117,7 @@ export default function AddLanguagePairForm({
     const result: Array<languageType> = []
 
     languagePair?.target?.forEach(target => {
-      const isDuplicated = languagePairs.some(
+      const isDuplicated = getItem('languagePairs').some(
         pair => languagePair.source === pair.source && pair.target === target,
       )
       if (isDuplicated) return
@@ -118,7 +128,7 @@ export default function AddLanguagePairForm({
         price: null,
       })
     })
-    setLanguagePairs(languagePairs.concat(result))
+    setLanguagePairs(getItem('languagePairs').concat(result))
     setLanguagePair({ source: '', target: [] })
   }
 
@@ -199,7 +209,7 @@ export default function AddLanguagePairForm({
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
       >
         <Typography variant='h6'>
-          Language pairs ({languagePairs?.length ?? 0})
+          Language pairs ({getItem('languagePairs')?.length ?? 0})
         </Typography>
         {type === 'detail' ? (
           <></>
@@ -310,27 +320,27 @@ export default function AddLanguagePairForm({
               </TableRow>
             </TableHead>
             <TableBody>
-              {!languagePairs?.length ? (
+              {!getItem('languagePairs')?.length ? (
                 <TableRow tabIndex={-1}>
                   <TableCell colSpan={3} align='center'>
                     There are no language pairs for this project
                   </TableCell>
                 </TableRow>
               ) : null}
-              {languagePairs &&
-                languagePairs
+              {getItem('languagePairs') &&
+                getItem('languagePairs')
                   ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, idx) => {
-                    const options = getPriceOptions(row.source, row.target, idx)
+                    const options = getPriceOptions(row.source, row.target)
 
                     const matchingPrice = options.filter(
                       item => item.groupName === 'Matching price',
                     )
                     if (
                       matchingPrice.length === 1 &&
-                      languagePairs[idx].price === null
+                      getItem('languagePairs')[idx].price === null
                     ) {
-                      const copyPairs = [...languagePairs]
+                      const copyPairs = [...getItem('languagePairs')]
                       copyPairs[idx].price = matchingPrice[0]
                       updateLanguagePairs(copyPairs)
                     }
@@ -375,54 +385,65 @@ export default function AddLanguagePairForm({
                               {items?.[idx]?.initialPrice?.name}
                             </Typography>
                           ) : (
-                            <Autocomplete
-                              value={
-                                !row.price
-                                  ? null
-                                  : options.find(
-                                      item => item.id === row.price?.id,
-                                    ) || null
-                                // options[0].groupName === 'Current price'
-                                //   ? options[0]
-                                //   : options.find(
-                                //       item => item.id === row.price?.id,
-                                //     ) || null
-                              }
-                              size='small'
-                              sx={{ width: 300 }}
-                              options={options}
-                              groupBy={option => option?.groupName ?? ''}
-                              onChange={(e, v) => {
-                                if (v && v.id === -1) {
-                                  selectNotApplicableModal()
-                                } else {
-                                  const copyPairs = [...languagePairs]
-                                  copyPairs[idx].price = v
-                                  updateLanguagePairs(copyPairs)
-                                }
-                              }}
-                              id='autocomplete-controlled'
-                              getOptionLabel={option => option.priceName}
-                              renderInput={params => (
-                                <TextField {...params} placeholder='Price' />
-                              )}
-                              renderGroup={params => (
-                                <li key={params.key}>
-                                  {!hasMatchingPrice && params.group ? (
-                                    <GroupHeader>
-                                      Matching price{' '}
-                                      <NoResultText>(No result)</NoResultText>
-                                    </GroupHeader>
-                                  ) : null}
-                                  {!hasStandardPrice && params.group ? (
-                                    <GroupHeader>
-                                      Standard client price{' '}
-                                      <NoResultText>(No result)</NoResultText>
-                                    </GroupHeader>
-                                  ) : null}
-                                  <GroupHeader>{params.group}</GroupHeader>
-                                  <GroupItems>{params.children}</GroupItems>
-                                </li>
+                            <Controller
+                              name={`languagePairs.${idx}.price`}
+                              control={control}
+                              render={({ field: { value, onChange } }) => (
+                                <Autocomplete
+                                  value={
+                                    !value
+                                      ? null
+                                      : options.find(
+                                          item => item.id === value?.id,
+                                        ) || null
+                                  }
+                                  size='small'
+                                  sx={{ width: 300 }}
+                                  options={options}
+                                  groupBy={option => option?.groupName ?? ''}
+                                  onChange={(e, v) => {
+                                    if (v && v.id === -1) {
+                                      selectNotApplicableModal()
+                                    } else {
+                                      onChange(v)
+                                      const copyPairs = [
+                                        ...getItem('languagePairs'),
+                                      ]
+                                      copyPairs[idx].price = v
+                                      updateLanguagePairs(copyPairs)
+                                    }
+                                  }}
+                                  id='autocomplete-controlled'
+                                  getOptionLabel={option => option.priceName}
+                                  renderInput={params => (
+                                    <TextField
+                                      {...params}
+                                      placeholder='Price'
+                                    />
+                                  )}
+                                  renderGroup={params => (
+                                    <li key={params.key}>
+                                      {!hasMatchingPrice && params.group ? (
+                                        <GroupHeader>
+                                          Matching price{' '}
+                                          <NoResultText>
+                                            (No result)
+                                          </NoResultText>
+                                        </GroupHeader>
+                                      ) : null}
+                                      {!hasStandardPrice && params.group ? (
+                                        <GroupHeader>
+                                          Standard client price{' '}
+                                          <NoResultText>
+                                            (No result)
+                                          </NoResultText>
+                                        </GroupHeader>
+                                      ) : null}
+                                      <GroupHeader>{params.group}</GroupHeader>
+                                      <GroupItems>{params.children}</GroupItems>
+                                    </li>
+                                  )}
+                                />
                               )}
                             />
                           )}
@@ -445,7 +466,7 @@ export default function AddLanguagePairForm({
         <TablePagination
           rowsPerPageOptions={[5, 15, 30]}
           component='div'
-          count={languagePairs?.length ?? 0}
+          count={getItem('languagePairs')?.length ?? 0}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}

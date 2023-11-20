@@ -169,9 +169,9 @@ const InvoiceVersionHistoryModal = ({
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(itemSchema),
   })
 

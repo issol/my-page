@@ -64,6 +64,7 @@ import { toast } from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
 import { useGetProPriceList } from '@src/queries/company/standard-price'
+import { languageType } from '../../add-new'
 
 type Props = {
   tab?: string
@@ -134,9 +135,9 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(jobItemSchema),
   })
 

@@ -50,18 +50,29 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   idx: number
-  setValue: UseFormSetValue<{ items: ItemType[] }>
-  getValues: UseFormGetValues<{ items: ItemType[] }>
+  setValue: UseFormSetValue<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
+  getValues: UseFormGetValues<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
   getPriceOptions: (
     source: string,
     target: string,
     idx?: number,
   ) => Array<StandardPriceListType & { groupName?: string }>
-  fields: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
+  fields: FieldArrayWithId<
+    { items: ItemType[]; languagePairs: languageType[] },
+    'items',
+    'id'
+  >[]
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
-  control: Control<{ items: ItemType[] }, any>
+  control: Control<{ items: ItemType[]; languagePairs: languageType[] }, any>
   sumTotalPrice: () => void
   // openMinimumPriceModal: (value: {
   //   minimumPrice: number
@@ -231,8 +242,6 @@ const Row = ({
   })
 
   function onDeletePriceUnit(index: number) {
-    console.log(index, 'index22')
-    console.log(details, 'index22')
     const findIndex = details.findIndex(item => item.priceUnitId === index)
 
     if (findIndex !== -1) {
@@ -410,7 +419,7 @@ const Row = ({
     if (v?.id) {
       const source = getValues(`items.${idx}.source`)!
       const target = getValues(`items.${idx}.target`)!
-      setValue(`items.${idx}.priceId`, v?.id, setValueOptions)
+      setValue(`items.${idx}.priceId`, v?.id)
       const priceData = getPriceOptions(source, target).find(
         price => price.id === v?.id,
       )
@@ -422,25 +431,18 @@ const Row = ({
       const currency = languagePairData?.currency
       const rounding = priceData?.roundingProcedure
       const numberPlace = priceData?.decimalPlace
-
-      setValue(`items.${idx}.totalPrice`, 0, setValueOptions)
-      setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0, setValueOptions)
-      setValue(`items.${idx}.priceFactor`, priceFactor ?? 0, setValueOptions)
-      setValue(`items.${idx}.initialPrice.currency`, currency!, setValueOptions)
-      setValue(
-        `items.${idx}.initialPrice.numberPlace`,
-        numberPlace!,
-        setValueOptions,
-      )
+      setValue(`items.${idx}.totalPrice`, 0)
+      setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
+      setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
+      setValue(`items.${idx}.initialPrice.currency`, currency!)
+      setValue(`items.${idx}.initialPrice.numberPlace`, numberPlace!)
       setValue(
         `items.${idx}.initialPrice.rounding`,
         //@ts-ignore
         RoundingProcedureObj[rounding!],
-        setValueOptions,
       )
       itemTrigger(`items.${idx}`)
       getTotalPrice()
-
       handleMinimumPrice()
     }
   }

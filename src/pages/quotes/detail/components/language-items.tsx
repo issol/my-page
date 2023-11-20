@@ -55,41 +55,48 @@ import { ProjectInfoType } from '@src/types/common/quotes.type'
 
 type Props = {
   languagePairs: Array<languageType>
-  setLanguagePairs: Dispatch<SetStateAction<Array<languageType>>>
+  setLanguagePairs: (languagePair: languageType[]) => void
   clientId: number | null
   priceUnitsList: PriceUnitListType[]
   itemControl: Control<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     any
   >
   items: FieldArrayWithId<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     'items',
     'id'
   >[]
   getItem: UseFormGetValues<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   setItem: UseFormSetValue<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
 
   itemErrors: FieldErrors<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   isItemValid: boolean
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   removeItems: UseFieldArrayRemove
   getTeamValues: UseFormGetValues<ProjectTeamType>
   appendItems: UseFieldArrayAppend<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     'items'
   >
@@ -272,12 +279,15 @@ export default function QuotesLanguageItemsDetail({
       {role.name === 'CLIENT' ? null : (
         <Grid item xs={12} mt={6}>
           <AddLanguagePairForm
-            languagePairs={languagePairs}
-            setLanguagePairs={setLanguagePairs}
+            getItem={getItem}
+            setLanguagePairs={(languagePair: languageType[]) =>
+              setItem('languagePairs', languagePair)
+            }
             getPriceOptions={getPriceOptions}
             type={isEditMode ? 'edit' : 'detail'}
             onDeleteLanguagePair={onDeleteLanguagePair}
             items={items}
+            control={itemControl}
           />
         </Grid>
       )}
@@ -292,7 +302,7 @@ export default function QuotesLanguageItemsDetail({
           fields={items}
           remove={removeItems}
           teamMembers={getTeamValues()?.teams}
-          languagePairs={languagePairs}
+          languagePairs={getItem('languagePairs')}
           getPriceOptions={getPriceOptions}
           priceUnitsList={priceUnitsList || []}
           type={isEditMode ? 'edit' : 'detail'}

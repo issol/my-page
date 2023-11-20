@@ -27,9 +27,10 @@ import MemsourceModal from '../modals/tm-analysis/memsource-modal'
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB } from '@src/shared/helpers/file-size.helper'
+import { languageType } from '@src/pages/quotes/add-new'
 
 type Props = {
-  control: Control<{ items: ItemType[] }, any>
+  control: Control<{ items: ItemType[]; languagePairs: languageType[] }, any>
   index: number
   priceData: StandardPriceListType | null
   priceFactor: number | undefined

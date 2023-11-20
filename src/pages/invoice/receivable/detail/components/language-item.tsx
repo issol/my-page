@@ -63,29 +63,34 @@ import { useMutation, useQueryClient } from 'react-query'
 
 type Props = {
   languagePairs: Array<languageType>
-  setLanguagePairs: Dispatch<SetStateAction<Array<languageType>>>
+  setLanguagePairs: (languagePair: languageType[]) => void
   clientId: number
   itemControl: Control<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     any
   >
   getItem: UseFormGetValues<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   setItem: UseFormSetValue<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
 
   itemErrors: FieldErrors<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   isItemValid: boolean
   priceUnitsList: PriceUnitListType[]
   items: FieldArrayWithId<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     'items',
     'id'
@@ -94,6 +99,7 @@ type Props = {
   getTeamValues: UseFormGetValues<ProjectTeamType>
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   invoiceInfo: InvoiceReceivableDetailType
   invoiceLanguageItem: InvoiceLanguageItemType

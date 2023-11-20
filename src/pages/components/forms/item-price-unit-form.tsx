@@ -63,9 +63,10 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import { styled, lighten, darken } from '@mui/material/styles'
 import _ from 'lodash'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { languageType } from '@src/pages/quotes/add-new'
 
 type Props = {
-  control: Control<{ items: ItemType[] }, any>
+  control: Control<{ items: ItemType[]; languagePairs: languageType[] }, any>
   index: number
   priceUnitsList: Array<PriceUnitListType>
   minimumPrice: number | undefined
@@ -75,9 +76,18 @@ type Props = {
     'id'
   >[]
   priceData: StandardPriceListType | null
-  getValues: UseFormGetValues<{ items: ItemType[] }>
-  append: UseFieldArrayAppend<{ items: ItemType[] }, `items.${number}.detail`>
-  update: UseFieldArrayUpdate<{ items: ItemType[] }, `items.${number}.detail`>
+  getValues: UseFormGetValues<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
+  append: UseFieldArrayAppend<
+    { items: ItemType[]; languagePairs: languageType[] },
+    `items.${number}.detail`
+  >
+  update: UseFieldArrayUpdate<
+    { items: ItemType[]; languagePairs: languageType[] },
+    `items.${number}.detail`
+  >
   remove: UseFieldArrayRemove
   getTotalPrice: () => void
   getEachPrice: (idx: number, isNotApplicable?: boolean) => void
@@ -90,7 +100,11 @@ type Props = {
   type: string
   sumTotalPrice: () => void
   // checkMinimumPrice: () => void
-  fields?: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
+  fields?: FieldArrayWithId<
+    { items: ItemType[]; languagePairs: languageType[] },
+    'items',
+    'id'
+  >[]
   showCurrency?: boolean
   setDarkMode?: boolean
 }

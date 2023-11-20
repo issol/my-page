@@ -104,7 +104,11 @@ export type languageType = {
   id: number | string
   source: string
   target: string
-  price: StandardPriceListType | null
+  price:
+    | (StandardPriceListType & {
+        groupName?: string
+      })
+    | null
 }
 
 export const defaultOption: StandardPriceListType & {
@@ -178,8 +182,6 @@ export default function AddNewInvoice() {
 
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
-
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
   const createInvoiceMutation = useMutation(
     (data: InvoiceReceivablePatchParamsType) => createInvoice(data),
@@ -318,7 +320,7 @@ export default function AddNewInvoice() {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [] },
     resolver: yupResolver(itemSchema),
@@ -332,6 +334,16 @@ export default function AddNewInvoice() {
   } = useFieldArray({
     control: itemControl,
     name: 'items',
+  })
+
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
   })
 
   function onDeleteLanguagePair(row: languageType) {
@@ -370,10 +382,13 @@ export default function AddNewInvoice() {
     }
 
     function deleteLanguage() {
-      const idx = languagePairs.map(item => item.id).indexOf(row.id)
+      const idx = getItem('languagePairs')
+        .map(item => item.id)
+        .indexOf(row.id)
       const copyOriginal = [...languagePairs]
       copyOriginal.splice(idx, 1)
-      setLanguagePairs([...copyOriginal])
+      // setLanguagePairs([...copyOriginal])
+      setItem('languagePairs', [...copyOriginal])
     }
   }
 
@@ -567,34 +582,31 @@ export default function AddNewInvoice() {
             )
             .flat()
             .map((value, idx) => ({ ...value, idx: idx }))
+          const itemLangPairs = items?.map(item => {
+            return {
+              id: String(item.id),
+              source: item.source!,
+              target: item.target!,
+              price: {
+                id: item.initialPrice?.priceId!,
+                isStandard: item.initialPrice?.isStandard!,
+                priceName: item.initialPrice?.name!,
+                groupName: 'Current price',
+                category: item.initialPrice?.category!,
+                serviceType: item.initialPrice?.serviceType!,
+                currency: item.initialPrice?.currency!,
+                catBasis: item.initialPrice?.calculationBasis!,
+                decimalPlace: item.initialPrice?.numberPlace!,
+                roundingProcedure:
+                  RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+                languagePairs: [],
+                priceUnit: [],
+                catInterface: { memSource: [], memoQ: [] },
+              },
+            }
+          })
 
-          setLanguagePairs(
-            items?.map(item => {
-              return {
-                id: String(item.id),
-                source: item.source!,
-                target: item.target!,
-                price: {
-                  id: item.initialPrice?.priceId!,
-                  isStandard: item.initialPrice?.isStandard!,
-                  priceName: item.initialPrice?.name!,
-                  groupName: 'Current price',
-                  category: item.initialPrice?.category!,
-                  serviceType: item.initialPrice?.serviceType!,
-                  currency: item.initialPrice?.currency!,
-                  catBasis: item.initialPrice?.calculationBasis!,
-                  decimalPlace: item.initialPrice?.numberPlace!,
-                  roundingProcedure:
-                    RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-                  languagePairs: [],
-                  priceUnit: [],
-                  catInterface: { memSource: [], memoQ: [] },
-                },
-              }
-            }),
-          )
-
-          itemReset({ items: items })
+          itemReset({ items: items, languagePairs: itemLangPairs })
           itemTrigger()
         })
         .catch(e => {
@@ -604,8 +616,6 @@ export default function AddNewInvoice() {
       setIsReady(true)
     }
   }
-
-  console.log(getProjectInfoValues())
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
@@ -769,7 +779,7 @@ export default function AddNewInvoice() {
                   fields={items}
                   remove={removeItems}
                   teamMembers={getTeamValues()?.teams}
-                  languagePairs={languagePairs}
+                  languagePairs={getItem('languagePairs')}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
                   type='invoiceCreate'

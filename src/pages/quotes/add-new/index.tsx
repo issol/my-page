@@ -89,7 +89,11 @@ export type languageType = {
   id: number | string
   source: string
   target: string
-  price: StandardPriceListType | null
+  price:
+    | (StandardPriceListType & {
+        groupName?: string
+      })
+    | null
 }
 
 export const defaultOption: StandardPriceListType & {
@@ -125,7 +129,6 @@ export default function AddNewQuote() {
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
 
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
   const [taxFocus, setTaxFocus] = useState(false)
 
   const handleBack = () => {
@@ -245,9 +248,9 @@ export default function AddNewQuote() {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(itemSchema),
   })
 
@@ -259,6 +262,16 @@ export default function AddNewQuote() {
   } = useFieldArray({
     control: itemControl,
     name: 'items',
+  })
+
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
   })
 
   useEffect(() => {
@@ -320,7 +333,8 @@ export default function AddNewQuote() {
           target: i.targetLanguage,
           price: null,
         })) || []
-      setLanguagePairs(itemLangPairs)
+      // setLanguagePairs(itemLangPairs)
+      setItem('languagePairs', itemLangPairs)
     }
   }
 
@@ -360,10 +374,13 @@ export default function AddNewQuote() {
     }
 
     function deleteLanguage() {
-      const idx = languagePairs.map(item => item.id).indexOf(row.id)
+      const idx = getItem('languagePairs')
+        .map(item => item.id)
+        .indexOf(row.id)
       const copyOriginal = [...languagePairs]
       copyOriginal.splice(idx, 1)
-      setLanguagePairs([...copyOriginal])
+      // setLanguagePairs([...copyOriginal])
+      setItem('languagePairs', [...copyOriginal])
     }
   }
 
@@ -701,10 +718,14 @@ export default function AddNewQuote() {
               <Grid item xs={12}>
                 <AddLanguagePairForm
                   type='create'
-                  languagePairs={languagePairs}
-                  setLanguagePairs={setLanguagePairs}
+                  // languagePairs={getItem('languagePairs')}
+                  getItem={getItem}
+                  setLanguagePairs={(languagePair: languageType[]) =>
+                    setItem('languagePairs', languagePair)
+                  }
                   getPriceOptions={getPriceOptions}
                   onDeleteLanguagePair={onDeleteLanguagePair}
+                  control={itemControl}
                 />
               </Grid>
               <Grid item xs={12} mt={6} mb={6}>
@@ -716,7 +737,7 @@ export default function AddNewQuote() {
                   fields={items}
                   remove={removeItems}
                   teamMembers={getTeamValues()?.teams}
-                  languagePairs={languagePairs}
+                  languagePairs={getItem('languagePairs')}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
                   itemTrigger={itemTrigger}

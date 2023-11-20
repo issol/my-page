@@ -458,7 +458,7 @@ export default function QuotesDetail() {
   const { data: itemsWithLang, isLoading: isItemLoading } = useGetLangItem(
     Number(id),
   )
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
   const {
     control: itemControl,
     getValues: getItem,
@@ -466,9 +466,9 @@ export default function QuotesDetail() {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(itemSchema),
   })
 
@@ -482,37 +482,47 @@ export default function QuotesDetail() {
     name: 'items',
   })
 
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
+  })
+
   useEffect(() => {
     if (!isItemLoading && itemsWithLang) {
       ;(async function () {
         const priceList = await getClientPriceList({})
-        setLanguagePairs(
-          itemsWithLang?.items?.map(item => {
-            if (!item.initialPrice) throw new Error('NO_InitialPrice')
-            return {
-              id: String(item.id),
-              source: item.source!,
-              target: item.target!,
-              price: {
-                id: item.initialPrice?.priceId!,
-                isStandard: item.initialPrice?.isStandard!,
-                priceName: item.initialPrice?.name!,
-                groupName: 'Current price',
-                category: item.initialPrice?.category!,
-                serviceType: item.initialPrice?.serviceType!,
-                currency: item.initialPrice?.currency!,
-                catBasis: item.initialPrice?.calculationBasis!,
-                decimalPlace: item.initialPrice?.numberPlace!,
-                roundingProcedure:
-                  RoundingProcedureList[item.initialPrice?.rounding!].label,
 
-                languagePairs: [],
-                priceUnit: [],
-                catInterface: { memSource: [], memoQ: [] },
-              },
-            }
-          }),
-        )
+        const itemLangPairs = itemsWithLang?.items?.map(item => {
+          if (!item.initialPrice) throw new Error('NO_InitialPrice')
+          return {
+            id: String(item.id),
+            source: item.source!,
+            target: item.target!,
+            price: {
+              id: item.initialPrice?.priceId!,
+              isStandard: item.initialPrice?.isStandard!,
+              priceName: item.initialPrice?.name!,
+              groupName: 'Current price',
+              category: item.initialPrice?.category!,
+              serviceType: item.initialPrice?.serviceType!,
+              currency: item.initialPrice?.currency!,
+              catBasis: item.initialPrice?.calculationBasis!,
+              decimalPlace: item.initialPrice?.numberPlace!,
+              roundingProcedure:
+                RoundingProcedureList[item.initialPrice?.rounding!].label,
+
+              languagePairs: [],
+              priceUnit: [],
+              catInterface: { memSource: [], memoQ: [] },
+            },
+          }
+        })
+
         const result = itemsWithLang?.items?.map(item => {
           return {
             id: item.id,
@@ -537,7 +547,7 @@ export default function QuotesDetail() {
             priceFactor: 0,
           }
         })
-        itemReset({ items: result })
+        itemReset({ items: result, languagePairs: itemLangPairs })
         itemTrigger()
       })()
     }
@@ -1005,7 +1015,7 @@ export default function QuotesDetail() {
         sortingOrder: idx + 1,
       }
     })
-    const langs: LanguagePairsType[] = languagePairs.map(item => {
+    const langs: LanguagePairsType[] = getItem('languagePairs').map(item => {
       if (item?.price?.id) {
         return {
           // langPairId: Number(item.id),
@@ -1758,8 +1768,10 @@ export default function QuotesDetail() {
             <Card>
               <CardContent sx={{ padding: '24px' }}>
                 <QuotesLanguageItemsDetail
-                  languagePairs={languagePairs}
-                  setLanguagePairs={setLanguagePairs}
+                  languagePairs={getItem('languagePairs')}
+                  setLanguagePairs={(languagePair: languageType[]) =>
+                    setItem('languagePairs', languagePair)
+                  }
                   clientId={getClientValue('clientId') ?? null}
                   priceUnitsList={priceUnitsList || []}
                   itemControl={itemControl}

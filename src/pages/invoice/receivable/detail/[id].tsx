@@ -155,8 +155,6 @@ const ReceivableInvoiceDetail = () => {
   const [clientEdit, setClientEdit] = useState(false)
   const [isFileUploading, setIsFileUploading] = useState(false)
 
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
-
   const [teams, setTeams] = useState<ProjectTeamListType[]>([])
   const [value, setValue] = useState<MenuType>(
     currentRole && currentRole.name === 'CLIENT' ? 'invoice' : 'invoiceInfo',
@@ -416,9 +414,9 @@ const ReceivableInvoiceDetail = () => {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(itemSchema),
   })
 
@@ -430,6 +428,16 @@ const ReceivableInvoiceDetail = () => {
   } = useFieldArray({
     control: itemControl,
     name: 'items',
+  })
+
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
   })
 
   const {
@@ -687,33 +695,30 @@ const ReceivableInvoiceDetail = () => {
         .flat()
         .map((value, idx) => ({ ...value, idx: idx }))
 
-      setLanguagePairs(
-        items?.map(item => {
-          return {
-            id: String(item.id),
-            source: item.source!,
-            target: item.target!,
-            price: {
-              id: item.initialPrice?.priceId!,
-              isStandard: item.initialPrice?.isStandard!,
-              priceName: item.initialPrice?.name!,
-              groupName: 'Current price',
-              category: item.initialPrice?.category!,
-              serviceType: item.initialPrice?.serviceType!,
-              currency: item.initialPrice?.currency!,
-              catBasis: item.initialPrice?.calculationBasis!,
-              decimalPlace: item.initialPrice?.numberPlace!,
-              roundingProcedure:
-                RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-              languagePairs: [],
-              priceUnit: [],
-              catInterface: { memSource: [], memoQ: [] },
-            },
-          }
-        }),
-      )
-
-      itemReset({ items: items })
+      const itemLangPairs = items?.map(item => {
+        return {
+          id: String(item.id),
+          source: item.source!,
+          target: item.target!,
+          price: {
+            id: item.initialPrice?.priceId!,
+            isStandard: item.initialPrice?.isStandard!,
+            priceName: item.initialPrice?.name!,
+            groupName: 'Current price',
+            category: item.initialPrice?.category!,
+            serviceType: item.initialPrice?.serviceType!,
+            currency: item.initialPrice?.currency!,
+            catBasis: item.initialPrice?.calculationBasis!,
+            decimalPlace: item.initialPrice?.numberPlace!,
+            roundingProcedure:
+              RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+            languagePairs: [],
+            priceUnit: [],
+            catInterface: { memSource: [], memoQ: [] },
+          },
+        }
+      })
+      itemReset({ items: items, languagePairs: itemLangPairs })
 
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,
@@ -1007,10 +1012,10 @@ const ReceivableInvoiceDetail = () => {
   }, [invoiceInfo, client, langItem, projectTeam, prices, priceInfo])
 
   useEffect(() => {
+    // console.log(languagePairs)
     if (languagePairs && prices) {
       const priceInfo =
         prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
-
       setPriceInfo(priceInfo)
     }
   }, [prices, languagePairs])
@@ -1382,8 +1387,10 @@ const ReceivableInvoiceDetail = () => {
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
                   <InvoiceLanguageAndItem
-                    languagePairs={languagePairs!}
-                    setLanguagePairs={setLanguagePairs}
+                    languagePairs={getItem('languagePairs')}
+                    setLanguagePairs={(languagePair: languageType[]) =>
+                      setItem('languagePairs', languagePair)
+                    }
                     clientId={client?.client.clientId!}
                     itemControl={itemControl}
                     getItem={getItem}

@@ -106,12 +106,17 @@ import {
   getProjectTeam,
 } from '@src/apis/order-detail.api'
 import { getClientDetail } from '@src/apis/client.api'
+import { set } from 'lodash'
 
 export type languageType = {
   id: number | string
   source: string
   target: string
-  price: StandardPriceListType | null
+  price:
+    | (StandardPriceListType & {
+        groupName?: string
+      })
+    | null
 }
 
 export const defaultOption: StandardPriceListType & {
@@ -178,8 +183,6 @@ export default function AddNewOrder() {
 
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
-
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -291,9 +294,9 @@ export default function AddNewOrder() {
     reset: itemReset,
     watch: itemWatch,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onChange',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(itemSchema),
   })
 
@@ -305,6 +308,16 @@ export default function AddNewOrder() {
   } = useFieldArray({
     control: itemControl,
     name: 'items',
+  })
+
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
   })
 
   function sumTotalPrice() {
@@ -379,10 +392,13 @@ export default function AddNewOrder() {
     }
 
     function deleteLanguage() {
-      const idx = languagePairs.map(item => item.id).indexOf(row.id)
+      const idx = getItem('languagePairs')
+        .map(item => item.id)
+        .indexOf(row.id)
       const copyOriginal = [...languagePairs]
       copyOriginal.splice(idx, 1)
-      setLanguagePairs([...copyOriginal])
+      // setLanguagePairs([...copyOriginal])
+      setItem('languagePairs', [...copyOriginal])
     }
   }
 
@@ -403,8 +419,8 @@ export default function AddNewOrder() {
   }
 
   function isAddItemDisabled(): boolean {
-    if (!languagePairs.length) return true
-    return languagePairs.some(item => !item?.price)
+    if (!getItem('languagePairs').length) return true
+    return getItem('languagePairs').some(item => !item?.price)
   }
 
   function addNewItem() {
@@ -456,7 +472,7 @@ export default function AddNewOrder() {
         sortingOrder: idx + 1,
       }
     })
-    const langs = languagePairs.map(item => {
+    const langs = getItem('languagePairs').map(item => {
       if (item?.price?.id) {
         return {
           source: item.source,
@@ -574,7 +590,7 @@ export default function AddNewOrder() {
         sortingOrder: idx + 1,
       }
     })
-    const langs = languagePairs.map(item => {
+    const langs = getItem('languagePairs').map(item => {
       if (item?.price?.id) {
         return {
           source: item.source,
@@ -745,7 +761,7 @@ export default function AddNewOrder() {
           target: i.targetLanguage,
           price: null,
         })) || []
-      setLanguagePairs(itemLangPairs)
+      setItem('languagePairs', itemLangPairs)
     }
   }
 
@@ -857,31 +873,30 @@ export default function AddNewOrder() {
         })
       getQuoteLangItems(id).then(res => {
         if (res) {
-          setLanguagePairs(
-            res?.items?.map(item => {
-              return {
-                id: String(item.id),
-                source: item.source!,
-                target: item.target!,
-                price: {
-                  id: item.initialPrice?.priceId!,
-                  isStandard: item.initialPrice?.isStandard!,
-                  priceName: item.initialPrice?.name!,
-                  groupName: 'Current price',
-                  category: item.initialPrice?.category!,
-                  serviceType: item.initialPrice?.serviceType!,
-                  currency: item.initialPrice?.currency!,
-                  catBasis: item.initialPrice?.calculationBasis!,
-                  decimalPlace: item.initialPrice?.numberPlace!,
-                  roundingProcedure:
-                    RoundingProcedureList[item.initialPrice?.rounding!].label,
-                  languagePairs: [],
-                  priceUnit: [],
-                  catInterface: { memSource: [], memoQ: [] },
-                },
-              }
-            }),
-          )
+          const itemLangPairs = res?.items?.map(item => {
+            return {
+              id: String(item.id),
+              source: item.source!,
+              target: item.target!,
+              price: {
+                id: item.initialPrice?.priceId!,
+                isStandard: item.initialPrice?.isStandard!,
+                priceName: item.initialPrice?.name!,
+                groupName: 'Current price',
+                category: item.initialPrice?.category!,
+                serviceType: item.initialPrice?.serviceType!,
+                currency: item.initialPrice?.currency!,
+                catBasis: item.initialPrice?.calculationBasis!,
+                decimalPlace: item.initialPrice?.numberPlace!,
+                roundingProcedure:
+                  RoundingProcedureList[item.initialPrice?.rounding!].label,
+                languagePairs: [],
+                priceUnit: [],
+                catInterface: { memSource: [], memoQ: [] },
+              },
+            }
+          })
+
           const result = res?.items?.map(item => {
             console.log('copy item', item)
             return {
@@ -905,7 +920,7 @@ export default function AddNewOrder() {
               minimumPriceApplied: item.minimumPriceApplied,
             }
           })
-          itemReset({ items: result })
+          itemReset({ items: result, languagePairs: itemLangPairs })
           itemTrigger()
         }
       })
@@ -1020,31 +1035,29 @@ export default function AddNewOrder() {
         })
       getLangItems(id).then(res => {
         if (res) {
-          setLanguagePairs(
-            res?.items?.map(item => {
-              return {
-                id: String(item.id),
-                source: item.source!,
-                target: item.target!,
-                price: {
-                  id: item.initialPrice?.priceId!,
-                  isStandard: item.initialPrice?.isStandard!,
-                  priceName: item.initialPrice?.name!,
-                  groupName: 'Current price',
-                  category: item.initialPrice?.category!,
-                  serviceType: item.initialPrice?.serviceType!,
-                  currency: item.initialPrice?.currency!,
-                  catBasis: item.initialPrice?.calculationBasis!,
-                  decimalPlace: item.initialPrice?.numberPlace!,
-                  roundingProcedure:
-                    RoundingProcedureList[item.initialPrice?.rounding!].label,
-                  languagePairs: [],
-                  priceUnit: [],
-                  catInterface: { memSource: [], memoQ: [] },
-                },
-              }
-            }),
-          )
+          const itemLangPairs = res?.items?.map(item => {
+            return {
+              id: String(item.id),
+              source: item.source!,
+              target: item.target!,
+              price: {
+                id: item.initialPrice?.priceId!,
+                isStandard: item.initialPrice?.isStandard!,
+                priceName: item.initialPrice?.name!,
+                groupName: 'Current price',
+                category: item.initialPrice?.category!,
+                serviceType: item.initialPrice?.serviceType!,
+                currency: item.initialPrice?.currency!,
+                catBasis: item.initialPrice?.calculationBasis!,
+                decimalPlace: item.initialPrice?.numberPlace!,
+                roundingProcedure:
+                  RoundingProcedureList[item.initialPrice?.rounding!].label,
+                languagePairs: [],
+                priceUnit: [],
+                catInterface: { memSource: [], memoQ: [] },
+              },
+            }
+          })
           const result = res?.items?.map(item => {
             console.log('copy item', item)
             return {
@@ -1068,7 +1081,7 @@ export default function AddNewOrder() {
               minimumPriceApplied: item.minimumPriceApplied,
             }
           })
-          itemReset({ items: result })
+          itemReset({ items: result, languagePairs: itemLangPairs })
           itemTrigger()
         }
       })
@@ -1076,12 +1089,14 @@ export default function AddNewOrder() {
   }
 
   useEffect(() => {
-    if (languagePairs && prices) {
+    if (getItem('languagePairs') && prices) {
       const priceInfo =
-        prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
+        prices?.find(
+          value => value.id === getItem('languagePairs')[0]?.price?.id,
+        ) ?? null
       setPriceInfo(priceInfo)
     }
-  }, [prices, languagePairs])
+  }, [prices, getItem('languagePairs')])
 
   // console.log(priceInfo)
 
@@ -1242,10 +1257,13 @@ export default function AddNewOrder() {
               <Grid item xs={12}>
                 <AddLanguagePairForm
                   type='create'
-                  languagePairs={languagePairs}
-                  setLanguagePairs={setLanguagePairs}
+                  getItem={getItem}
+                  setLanguagePairs={(languagePair: languageType[]) =>
+                    setItem('languagePairs', languagePair)
+                  }
                   getPriceOptions={getPriceOptions}
                   onDeleteLanguagePair={onDeleteLanguagePair}
+                  control={itemControl}
                 />
               </Grid>
               <Grid item xs={12} mt={6} mb={6}>
@@ -1257,7 +1275,7 @@ export default function AddNewOrder() {
                   fields={items}
                   remove={removeItems}
                   teamMembers={getTeamValues()?.teams}
-                  languagePairs={languagePairs}
+                  languagePairs={getItem('languagePairs')}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
                   type='create'
