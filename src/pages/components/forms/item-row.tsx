@@ -360,7 +360,7 @@ const Row = ({
     availableData.forEach(item => {
       const newData = item.newData!
       append({
-        priceUnitId: newData.priceUnitPairId,
+        priceUnitId: newData.priceUnitId,
         quantity: newData.priceUnitQuantity,
         // priceUnit: newData.priceUnitTitle,
         unit: newData.priceUnitUnit,
@@ -1035,6 +1035,7 @@ const Row = ({
                   details={details}
                   priceData={priceData()}
                   priceFactor={getValues(`items.${idx}.priceFactor`)}
+                  getValues={getValues}
                   onCopyAnalysis={onCopyAnalysis}
                   type={type}
                 />

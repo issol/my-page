@@ -118,6 +118,7 @@ type Props = {
 }
 
 export type DetailNewDataType = {
+  priceUnitId: number
   priceUnitPairId: number
   priceUnitTitle: string
   priceUnitQuantity: number

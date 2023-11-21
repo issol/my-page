@@ -159,9 +159,8 @@ export default function ClientQuotesFormContainer({
           closeModal('add-new-client')
           return
         }
-        createContactPerson([
-          { ...contactPersonData[0], clientId: res.clientId },
-        ]).then(res => {
+        const { id, ...rest } = contactPersonData[0]
+        createContactPerson([{ ...rest, clientId: res.clientId }]).then(res => {
           if (res.length) {
             setValue(
               'contactPersonId',

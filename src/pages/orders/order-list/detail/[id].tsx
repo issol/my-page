@@ -993,7 +993,6 @@ const OrderDetail = () => {
     }
 
     if (client) {
-      console.log('client', client)
       clientReset({
         clientId: client.client.clientId,
         contactPersonId: client.contactPerson?.id,
@@ -1368,7 +1367,6 @@ const OrderDetail = () => {
             // !projectInfo?.linkedInvoiceReceivable &&
             // projectInfo?.linkedJobs.length === 0 &&
             isIncludeProjectTeam()
-          console.log(flag)
 
           break
         case 'button-Languages&Items-SplitOrder':
@@ -1541,8 +1539,6 @@ const OrderDetail = () => {
 
   // 로그인 한 유저가 project team에 속해있는지 체크, 만약 Master, Manager일 경우 true 리턴
   const isIncludeProjectTeam = () => {
-    console.log(isUserInTeamMember)
-
     return Boolean(
       currentRole?.name !== 'CLIENT' && isUserInTeamMember,
       // (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
@@ -1551,8 +1547,6 @@ const OrderDetail = () => {
       //   projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
     )
   }
-
-  console.log(isIncludeProjectTeam())
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>

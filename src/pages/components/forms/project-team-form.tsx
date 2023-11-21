@@ -180,7 +180,7 @@ export default function ProjectTeamForm({
                   onChange(Number(v.value))
                   setValue(`teams.${idx}.name`, v.label, setValueOptions)
                 } else {
-                  onChange(0)
+                  onChange(null)
                   handleFocusChange(idx, false)
                   const { name, ...rest } = getValue('teams')[idx]
                   update(idx, rest)

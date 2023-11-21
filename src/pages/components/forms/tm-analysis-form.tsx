@@ -9,13 +9,22 @@ import TableContainer from '@mui/material/TableContainer'
 import { Box, Button, IconButton, Typography } from '@mui/material'
 import { HeaderCell } from '@src/pages/orders/add-new'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { Fragment, ReactNode, useContext } from 'react'
+import { Fragment, ReactNode, useContext, useEffect } from 'react'
 import { Icon } from '@iconify/react'
-import { Control, FieldArrayWithId, useFieldArray } from 'react-hook-form'
+import {
+  Control,
+  FieldArrayWithId,
+  UseFormGetValues,
+  useFieldArray,
+} from 'react-hook-form'
 import { ItemType } from '@src/types/common/item.type'
 import { useDropzone } from 'react-dropzone'
 import { toast } from 'react-hot-toast'
-import { deleteCatToolFile, postCatToolFile } from '@src/apis/order.api'
+import {
+  deleteCatToolFile,
+  getCatToolFile,
+  postCatToolFile,
+} from '@src/apis/order.api'
 import MemoQModal from '../modals/tm-analysis/memoq-modal'
 import useModal from '@src/hooks/useModal'
 import { StandardPriceListType } from '@src/types/common/standard-price'
@@ -41,6 +50,10 @@ type Props = {
     'id'
   >[]
   type: string
+  getValues: UseFormGetValues<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
 }
 export default function TmAnalysisForm({
   control,
@@ -50,7 +63,13 @@ export default function TmAnalysisForm({
   onCopyAnalysis,
   details,
   type,
+  getValues,
 }: Props) {
+  const headers =
+    type === 'detail' || type === 'invoiceDetail' || type === 'invoiceHistory'
+      ? ['CAT interface', 'Target language', 'File name']
+      : ['CAT interface', 'Target language', 'File name', '']
+
   const { openModal, closeModal } = useModal()
   const itemName: `items.${number}.analysis` = `items.${index}.analysis`
   const { fields, append, update, remove } = useFieldArray({
@@ -142,6 +161,21 @@ export default function TmAnalysisForm({
     }
   }
 
+  useEffect(() => {
+    if (type === 'detail' && getValues(`items.${index}.id`)) {
+      getCatToolFile(getValues(`items.${index}.id`)!, 'order').then(res => {
+        res.map((value, idx) => {
+          append({
+            id: value.id ?? idx + 1,
+            name: value.fileName,
+            size: 0,
+            data: value,
+          })
+        })
+      })
+    }
+  }, [type])
+
   return (
     <Fragment>
       <Box display='flex' alignItems='center' justifyContent='space-between'>
@@ -165,19 +199,26 @@ export default function TmAnalysisForm({
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
             <TableRow>
-              {['CAT interface', 'Target language', 'File name', ''].map(
-                (item, idx) => (
-                  <HeaderCell key={idx} align='left'>
-                    {item}
-                  </HeaderCell>
-                ),
-              )}
+              {headers.map((item, idx) => (
+                <HeaderCell key={idx} align='left'>
+                  {item}
+                </HeaderCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
             {!fields.length ? (
               <TableRow tabIndex={-1}>
-                <TableCell colSpan={4} align='center'>
+                <TableCell
+                  colSpan={
+                    type === 'detail' ||
+                    type === 'invoiceDetail' ||
+                    type === 'invoiceHistory'
+                      ? 3
+                      : 4
+                  }
+                  align='center'
+                >
                   {type === 'detail'
                     ? 'There are no TM files uploaded'
                     : 'Upload TM files to analyze and register price units'}
@@ -195,27 +236,31 @@ export default function TmAnalysisForm({
                   <TableCell style={{ maxWidth: '330px' }}>
                     {item.name}
                   </TableCell>
-                  <TableCell style={{ minWidth: '200px' }}>
-                    <Box
-                      display='flex'
-                      alignItems='center'
-                      justifyContent='space-between'
-                    >
-                      <Button
-                        size='small'
-                        variant='outlined'
-                        onClick={e => {
-                          e.stopPropagation()
-                          onViewAnalysis(idx, item?.name)
-                        }}
+                  {type === 'detail' ||
+                  type === 'invoiceDetail' ||
+                  type === 'invoiceHistory' ? null : (
+                    <TableCell style={{ minWidth: '200px' }}>
+                      <Box
+                        display='flex'
+                        alignItems='center'
+                        justifyContent='space-between'
                       >
-                        View analysis
-                      </Button>
-                      <IconButton onClick={() => onDeleteFile(idx)}>
-                        <Icon icon='mdi:trash-outline' />
-                      </IconButton>
-                    </Box>
-                  </TableCell>
+                        <Button
+                          size='small'
+                          variant='outlined'
+                          onClick={e => {
+                            e.stopPropagation()
+                            onViewAnalysis(idx, item?.name)
+                          }}
+                        >
+                          View analysis
+                        </Button>
+                        <IconButton onClick={() => onDeleteFile(idx)}>
+                          <Icon icon='mdi:trash-outline' />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  )}
                 </TableRow>
               ))
             )}
