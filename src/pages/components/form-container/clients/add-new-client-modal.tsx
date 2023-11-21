@@ -288,7 +288,7 @@ export default function AddNewClientModal({ onClose, onSave }: Props) {
               onClick={() =>
                 onSave(
                   { ...getCompanyInfoValues(), ...getAddressValues() },
-                  contactPersons,
+                  getContactPersonValues('contactPersons'),
                 )
               }
             >
