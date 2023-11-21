@@ -14,7 +14,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Control,
   UseFormGetValues,
@@ -68,6 +68,8 @@ type Props = {
         groupName?: string
       })
     | null
+  orderItems?: ItemType[]
+  currentOrderItemId?: number
 }
 
 const Row = ({
@@ -84,6 +86,8 @@ const Row = ({
   itemTrigger,
   setDarkMode,
   selectedPrice,
+  orderItems,
+  currentOrderItemId,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
@@ -142,28 +146,6 @@ const Row = ({
     }
   }
 
-  // const showMinimum = itemData.minimumPriceApplied
-  // const setShowMinimum = (value: boolean) => {
-  //   if (value) {
-  //     if (currentMinimumPrice()) setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
-  //   }
-  //   else if(!value) setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
-  // }
-
-  // 현재 row의 프라이스 유닛에 적용될 currency 값
-  // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 currency 추출
-  // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 currency 값 추출
-  const currentCurrency = () => {
-    // setPriceData(getPriceData())
-    // 기존 item
-    if (itemData?.id && itemData?.id !== -1)
-      return itemData?.initialPrice?.currency!
-    // Not Applicable(재설계 필요)
-    else if (itemData?.id && itemData?.id === -1) return 'USD'
-    // 신규 item
-    else return priceData()?.currency!
-  }
-
   const {
     fields: details,
     append,
@@ -173,6 +155,21 @@ const Row = ({
     control: itemControl,
     name: itemName,
   })
+
+  useEffect(() => {
+    // Price가 세팅되어 있지 않을때는 Order의 Item에 설정된 Price unit을 설정해준다.
+    if (orderItems?.length && 
+      (!getItem().items[0].detail || !getItem().items?.[0].detail?.length)) {
+        const currentItem = orderItems.find(orderItem => orderItem.id === currentOrderItemId && currentOrderItemId)
+        currentItem?.detail?.map(item => {
+          append({
+            ...item,
+            quantity: 0,
+            unitPrice: 0,
+          })
+        })
+      }
+  }, [orderItems])
 
   function onDeletePriceUnit(idx: number) {
     remove(idx)

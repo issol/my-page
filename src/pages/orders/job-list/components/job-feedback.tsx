@@ -18,6 +18,8 @@ import { ClientUserType, UserDataType } from '@src/context/types'
 
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { ProJobFeedbackType } from '@src/types/jobs/jobs.type'
+import { Icon } from '@iconify/react'
+import Image from 'next/image'
 
 type Props = {
   feedbacks: ProJobFeedbackType[] | undefined
@@ -273,6 +275,29 @@ export default function JobFeedback({
                           {value.email}
                         </Typography>
                       </Box>
+                      { value.isChecked ? (
+                            <Box display='flex' justifyContent='flex-end'>
+                              <Image
+                                src='/images/icons/job-icons/icon-check.svg'
+                                alt='logo'
+                                width={44}
+                                height={24}
+                              />
+                              <Typography
+                                variant='body1'
+                                sx={{
+                                  color:'rgba(76, 78, 100, 0.6)',
+                                  fontWeight: 600,
+                                  fontSize: '14px',
+                                  lineHeight: '21px',
+                                  letterSpacing: '0.15px',
+                                }}
+                              >
+                                {'Read by Pro'}
+                              </Typography>
+                            </Box>
+                          ) : null
+                        }
                       {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
                       {/* <Box sx={{ display: 'flex' }}>
                         {selectedComment && selectedComment?.id === value.id ? (
