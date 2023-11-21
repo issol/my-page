@@ -397,6 +397,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
                           fields={items}
                           row={jobInfo}
                           jobPrices={jobPrices!}
+                          orderItems={[]}
                         />
                       )}
                     </Grid>
