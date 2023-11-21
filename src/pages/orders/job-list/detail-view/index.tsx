@@ -481,6 +481,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                           setJobId={setJobId}
                           item={item}
                           prices={prices}
+                          orderItems={langItem?.items || []}
                         />
                       ) : null}
 

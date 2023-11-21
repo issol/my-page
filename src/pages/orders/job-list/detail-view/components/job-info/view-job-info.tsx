@@ -143,7 +143,6 @@ const ViewJobInfo = ({
       },
     },
   )
-  console.log('projectTeam', projectTeam)
   const addJobFeedbackMutation = useMutation(
     (data: { jobId: number; data: string }) =>
       addJobFeedback(data.jobId, data.data),

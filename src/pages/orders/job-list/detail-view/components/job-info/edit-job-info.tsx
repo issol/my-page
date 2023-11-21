@@ -170,7 +170,6 @@ const EditJobInfo = ({
     }) => uploadFile(file),
     {
       onSuccess: (data, variables) => {
-        // console.log('success')
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries('jobInfo')
           // refetch()
@@ -234,7 +233,6 @@ const EditJobInfo = ({
           } else {
             const found = acc.find(f => f.name === file.name)
             if (!found) acc.push(file)
-            // console.log(acc)
 
             return acc
           }
@@ -284,7 +282,6 @@ const EditJobInfo = ({
     return dayjs(date).format('MM/DD/YYYY, hh:mm a')
   }
 
-  // console.log('data', getValues())
   async function deleteFiles() {
     for (const file of deletedFiles) {
       if (file.id) {
@@ -392,7 +389,6 @@ const EditJobInfo = ({
           name: data.name,
           isShowDescription: data.isShowDescription,
         }
-        console.log('jobInfo', jobInfo)
         saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
       }
     })
@@ -515,15 +511,6 @@ const EditJobInfo = ({
     setUploadedFiles(row.files ?? [])
     // trigger()
   }, [row, item])
-
-  console.log(getValues())
-  console.log(
-    languagePair.find(
-      item =>
-        item.source === getValues('source') &&
-        item.target === getValues('target'),
-    ),
-  )
 
   return (
     <>
@@ -689,7 +676,6 @@ const EditJobInfo = ({
                           //   return option.source === newValue.source
                           // }}
                           onChange={(event, item) => {
-                            console.log(item, 'onChange')
                             if (item) {
                               setValue('source', item?.source, setValueOptions)
                               setValue('target', item?.target, setValueOptions)
@@ -738,8 +724,6 @@ const EditJobInfo = ({
                               .sort((a, b) => a.source.localeCompare(b.source)),
                           ]}
                           getOptionLabel={option => {
-                            console.log(option)
-
                             if (
                               option.source === ' ' &&
                               option.target === ' '
@@ -879,8 +863,6 @@ const EditJobInfo = ({
                     value={value || null}
                     options={countries as CountryType[]}
                     onChange={(e, v) => {
-                      // console.log(value)
-
                       if (!v) onChange(null)
                       else onChange(v)
                     }}

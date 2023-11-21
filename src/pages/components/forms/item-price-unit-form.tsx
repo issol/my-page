@@ -313,7 +313,6 @@ export default function ItemPriceUnitForm({
     }
 
     const onClickDeletePriceUnit = (idx: number) => {
-      console.log(idx, 'index22')
 
       if (options.find(item => item.id === idx)) {
         openModal({
@@ -369,8 +368,6 @@ export default function ItemPriceUnitForm({
     }, [])
 
     const [open, setOpen] = useState(false)
-
-    console.log(getValues(`${detailName}.${idx}`))
 
     // const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
 
@@ -446,23 +443,27 @@ export default function ItemPriceUnitForm({
               render={({ field: { value, onChange } }) => {
                 // const options = nestSubPriceUnits()
 
-                const findValue =
-                  allPriceUnits?.current?.find(
-                    item => item.priceUnitId === value,
-                  ) || null
-
                 // 저장된 프라이스 유닛을 에딧할때는 스탠다드 프라이스의 정보가 아니라 해당 아이템에 속한 정보를 보여줘야 함
                 const showValue = {
                   ...getValues(`${detailName}.${idx}`),
                   isBase: false,
                   price: 0,
-                  title: getValues(`${detailName}.${idx}`).title ?? getValues(`${detailName}.${idx}.initialPriceUnit.title`),
+                  title: getValues(`${detailName}.${idx}`).title 
+                    ? getValues(`${detailName}.${idx}`).title!
+                    : getValues(`${detailName}.${idx}.initialPriceUnit.title`)
+                      ? getValues(`${detailName}.${idx}.initialPriceUnit.title`)!
+                      : '',
                   id: getValues(`${detailName}.${idx}`).id!,
                   weighting: Number(getValues(`${detailName}.${idx}`).weighting!),
                   subPriceUnits: [],
                   groupName: '',
                 }
-
+                const findValue =
+                  allPriceUnits?.current?.find(item => item.priceUnitId === value)
+                    ? allPriceUnits?.current?.find(item => item.priceUnitId === value)
+                    : showValue
+                      ? showValue
+                      : null
                 return (
                   <Autocomplete
                     fullWidth

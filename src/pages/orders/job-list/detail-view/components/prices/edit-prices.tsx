@@ -97,6 +97,7 @@ type Props = {
   setJobId?: (n: number) => void
   item?: JobItemType
   prices?: StandardPriceListType[]
+  orderItems: ItemType[]
 }
 
 const EditPrices = ({
@@ -114,10 +115,9 @@ const EditPrices = ({
   setJobId,
   item,
   prices,
+  orderItems,
 }: Props) => {
   const queryClient = useQueryClient()
-
-  // console.log(getItem('items'), 'item')
 
   // const [success, setSuccess] = useState(false)
 
@@ -233,8 +233,6 @@ const EditPrices = ({
     })
   }
 
-  console.log('getItem', getItem())
-
   return (
     <>
       {/* {success && (
@@ -342,6 +340,8 @@ const EditPrices = ({
               itemTrigger={itemTrigger}
               selectedPrice={price}
               type='edit'
+              orderItems={orderItems}
+              currentOrderItemId={item?.id}
             />
           </Box>
         </Box>
