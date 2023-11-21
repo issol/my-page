@@ -316,8 +316,24 @@ export default function MemoQModal({
     )
   }
   return (
-    <Dialog open={true} maxWidth='lg'>
-      <DialogContent>
+    <Box
+      sx={{
+        maxWidth: '900px',
+        width: '100%',
+        minHeight: '1000px',
+        background: '#ffffff',
+        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+        borderRadius: '10px',
+      }}
+    >
+      <Box
+        sx={{
+          padding: '50px 60px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
         <Grid container spacing={6}>
           <Grid
             item
@@ -365,12 +381,16 @@ export default function MemoQModal({
           <Grid item xs={12}>
             <Divider />
           </Grid>
-          {data.data
-            ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-            ?.map((item, idx) => (
-              <Row key={idx} idx={idx} item={item} />
-            ))}
-          <Grid item xs={12}>
+          <Grid item xs={12} sx={{ minHeight: '650px' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {data.data
+                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                ?.map((item, idx) => (
+                  <Row key={idx} idx={idx} item={item} />
+                ))}
+            </Box>
+          </Grid>
+          {/* <Grid item xs={12}>
             <TablePagination
               rowsPerPageOptions={[5, 15, 30]}
               component='div'
@@ -380,21 +400,23 @@ export default function MemoQModal({
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
-          </Grid>
-          {!onCopyAnalysis ? null : (
-            <Grid item xs={12} display='flex' justifyContent='center'>
-              <Button
-                variant='contained'
-                disabled={!checked}
-                onClick={onSubmit}
-              >
-                Copy selected result to item
-              </Button>
-            </Grid>
-          )}
+          </Grid> */}
         </Grid>
-      </DialogContent>
-    </Dialog>
+        {!onCopyAnalysis ? null : (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginTop: '24px',
+            }}
+          >
+            <Button variant='contained' disabled={!checked} onClick={onSubmit}>
+              Copy selected result to item
+            </Button>
+          </Box>
+        )}
+      </Box>
+    </Box>
   )
 }
 

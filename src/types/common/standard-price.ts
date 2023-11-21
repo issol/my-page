@@ -210,6 +210,7 @@ export type CatInterfaceType = {
   id: number
   createdAt: string
   updatedAt: string
+  priceUnitId: number
   priceUnitPairId: number
   priceUnitTitle: string
   priceUnitQuantity: number

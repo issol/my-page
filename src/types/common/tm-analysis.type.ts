@@ -3,6 +3,7 @@ export type CatCalculationType = 'Words' | 'Character'
 export type MemSourceType = {
   id: number
   toolName: ToolNameType
+  fileName: string
   calculationBasis: Array<CatCalculationType>
   targetLanguage: string | null
   size: string
@@ -12,6 +13,7 @@ export type MemSourceType = {
 export type MemoQType = {
   id: number
   toolName: ToolNameType
+  fileName: string
   calculationBasis: Array<CatCalculationType>
   targetLanguage: string | null
   size: string

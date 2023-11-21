@@ -49,6 +49,16 @@ export const createItemsForOrder = async (
   return data
 }
 
+export const getCatToolFile = async (
+  itemId: number,
+  type: 'order' | 'quote',
+): Promise<MemoQType[] | MemSourceType[]> => {
+  const { data } = await axios.get(
+    `/api/enough/u/cat-tool/TM?itemId=${itemId}&type=${type}`,
+  )
+  return data
+}
+
 export const postCatToolFile = async (
   form: FormData,
 ): Promise<MemoQType | MemSourceType> => {
