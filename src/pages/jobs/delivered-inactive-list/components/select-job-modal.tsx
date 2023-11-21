@@ -165,7 +165,7 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
       skip: rowsPerPage * page,
       ordering: 'desc',
       sort: 'corporationId',
-      listType: 'completed-inactive',
+      listType: 'invoice',
     }
 
     setFilters(filter)
