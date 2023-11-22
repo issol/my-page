@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -39,6 +39,8 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
+export const CALENDER_MIN_WIDTH = 990
+
 const CalendarContainer = () => {
   // ** Hooks
   const { settings } = useSettings()
@@ -72,13 +74,20 @@ const CalendarContainer = () => {
     [],
   )
 
+  /* refs */
+  const containerRef = useRef<HTMLElement>(null)
+
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
 
+  const [containerWidth, setContainerWidth] = useState(CALENDER_MIN_WIDTH)
   const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<RequestListType>>
   >([])
+  function onRowClick(id: number) {
+    router.push(`/quotes/requests/${id}`)
+  }
 
   useEffect(() => {
     if (currentListId && data?.data) {
@@ -94,9 +103,27 @@ const CalendarContainer = () => {
     }
   }, [data])
 
-  function onRowClick(id: number) {
-    router.push(`/quotes/requests/${id}`)
+  useEffect(() => {
+    const offsetWidth = containerRef.current?.offsetWidth || 0
+    setContainerWidth(offsetWidth - 40)
+  }, [])
+  const setCalenderContainer = () => {
+    const offsetWidth = containerRef.current?.offsetWidth || 0
+
+    if (offsetWidth > CALENDER_MIN_WIDTH) {
+      // NOTE : offsetWidth -  좌우 양쪽 패딩값
+      setContainerWidth(offsetWidth - 40)
+      return
+    }
   }
+
+  useEffect(() => {
+    window.addEventListener('resize', setCalenderContainer)
+
+    return () => {
+      window.removeEventListener('resize', setCalenderContainer)
+    }
+  }, [])
 
   return (
     <Box>
@@ -124,53 +151,31 @@ const CalendarContainer = () => {
           leftSidebarWidth={leftSidebarWidth}
           title='Request'
         />
+
         <Box
+          ref={containerRef}
           sx={{
+            width: '100%',
             px: 5,
             pt: 3.75,
-            flexGrow: 1,
             borderRadius: 1,
             boxShadow: 'none',
             backgroundColor: 'background.paper',
             ...(mdAbove
               ? { borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }
               : {}),
+            position: 'relative',
           }}
         >
-          <Box
-            // sx={{
-            //   display: 'flex',
-            //   justifyContent: 'flex-end',
-            //   gap: '24px',
-            // }}
-            display='flex'
-            alignItems='center'
-            gap='8px'
-            justifyContent='right'
-            padding='0 0 22px'
-            position='absolute'
-            right='0'
-          >
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>Hide completed requests</Typography>
-              <Switch
-                checked={filter.hideCompleted === '1'}
-                onChange={e => {
-                  setCurrentListId(null)
-                  setFilter({
-                    ...filter,
-                    hideCompleted: e.target.checked ? '1' : '0',
-                  })
-                }}
-              />
-            </Box>
-          </Box>
           <Calendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            filter={filter}
+            setFilter={setFilter}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>

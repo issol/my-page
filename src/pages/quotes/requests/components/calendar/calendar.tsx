@@ -9,6 +9,7 @@ import styled from 'styled-components'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { Box } from '@mui/material'
 import { RequestListType } from '@src/types/requests/list.type'
+import { CalendarOptions } from '@fullcalendar/common'
 
 type Props = {
   event: Array<CalendarEventType<RequestListType>>
@@ -22,7 +23,7 @@ const Calendar = (props: Props) => {
   // ** Props
   const { event, setYear, setMonth, direction, setCurrentListId } = props
 
-  const finalEvent = event.map(item => {
+  const finalEvent: any = event.map(item => {
     return {
       ...item,
       title: item.items.length ? item.items[0].name : '',
@@ -42,15 +43,14 @@ const Calendar = (props: Props) => {
       start: 'sidebarToggle, prev, next, title',
       end: '',
     },
-
     dayMaxEvents: 3,
     eventResizableFromStart: true,
     ref: calendarRef,
-    direction,
+    direction: direction as any,
     eventContent: (arg: any) => {
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
-          {arg.event?._def?.title}
+          <span>{arg.event?._def?.title}</span>
         </CustomEvent>
       )
     },
@@ -68,25 +68,30 @@ const Calendar = (props: Props) => {
     setMonth(currMonth)
   }
 
-  return (
-    //@ts-ignore
-    <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
-  )
+  // @ts-ignore
+  return <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
 }
 
 export default Calendar
 
 const CustomEvent = styled(Box)<{ color: string }>`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 20px;
+  padding: 0 10px;
   border-color: transparent !important;
-  // border-radius: 4px;
-  padding: 1px 4px 4px;
   overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  word-break: break-all;
   color: rgba(76, 78, 100, 0.87) !important;
   border-left: ${({ color }) => `6px solid ${color}`} !important;
-  // border-right: ${({ color }) => `6px solid ${color}`} !important;
   background: ${({ color }) =>
     `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
+
+  & > span {
+    display: block;
+    width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `
