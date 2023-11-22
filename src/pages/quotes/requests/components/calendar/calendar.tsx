@@ -12,8 +12,10 @@ import {
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import { Box, Typography } from '@mui/material'
 import Switch from '@mui/material/Switch'
+import { RequestListType } from '@src/types/requests/list.type'
+import { RequestFilterType } from '@src/types/requests/filters.type'
 
-const Calendar = (props: CalenderProps) => {
+const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
   // ** Props
   const {
     event,

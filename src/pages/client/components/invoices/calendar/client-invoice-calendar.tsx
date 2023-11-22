@@ -28,7 +28,7 @@ const ClientInvoiceCalendar = (props: Props) => {
       ...item,
       start: item.updatedAt,
       end: item.updatedAt,
-      title: item.order?.projectName ?? '-',
+      title: item.orders?.projectName ?? '-',
     }
   })
 

@@ -25,6 +25,7 @@ import { QuotesFilterType } from '@src/types/quotes/quote'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import { useGetStatusList } from '@src/queries/common.query'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 const CalendarContainer = () => {
   // ** States
@@ -37,6 +38,7 @@ const CalendarContainer = () => {
 
   // ** Hooks
   const { settings } = useSettings()
+  const { containerRef, containerWidth } = useCalenderResize()
 
   // ** calendar values
   const leftSidebarWidth = 260
@@ -177,6 +179,7 @@ const CalendarContainer = () => {
         </Suspense>
 
         <Box
+          ref={containerRef}
           sx={{
             px: 5,
             pt: 3.75,
@@ -189,41 +192,17 @@ const CalendarContainer = () => {
               : {}),
           }}
         >
-          <Box
-            // sx={{
-            //   display: 'flex',
-            //   justifyContent: 'flex-end',
-            //   gap: '24px',
-            // }}
-            display='flex'
-            alignItems='center'
-            gap='8px'
-            justifyContent='right'
-            padding='0 0 22px'
-            position='absolute'
-            right='0'
-          >
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>See only my quotes</Typography>
-              <Switch
-                checked={seeMyQuotes === 1}
-                onChange={e => setSeeMyQuotes(e.target.checked ? 1 : 0)}
-              />
-            </Box>
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>Hide completed quotes</Typography>
-              <Switch
-                checked={hideCompletedQuotes === 1}
-                onChange={e => setHideCompletedQuotes(e.target.checked ? 1 : 0)}
-              />
-            </Box>
-          </Box>
           <Calendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            seeMyQuotes={seeMyQuotes}
+            setSeeMyQuotes={setSeeMyQuotes}
+            hideCompletedQuotes={hideCompletedQuotes}
+            setHideCompletedQuotes={setHideCompletedQuotes}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>

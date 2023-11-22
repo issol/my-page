@@ -18,18 +18,18 @@ import { RequestFilterType } from '@src/types/requests/filters.type'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import { CALENDER_MIN_WIDTH } from '@src/hooks/useCalenderResize'
 
-export interface CalenderProps {
-  event: Array<CalendarEventType<RequestListType>>
+export interface CalenderProps<EVENT, FILTER> {
+  event: Array<CalendarEventType<EVENT>>
   setYear: (year: number) => void
   setMonth: (month: number) => void
   direction: string
   setCurrentListId: Dispatch<number | null>
-  filter: RequestFilterType
-  setFilter: Dispatch<RequestFilterType>
+  filter: FILTER
+  setFilter: Dispatch<FILTER>
   containerWidth: number
 }
 
-const Calendar = (props: CalenderProps) => {
+const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
   // ** Props
   const {
     event,

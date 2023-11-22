@@ -19,7 +19,6 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 // ** apis
-
 // ** values
 import { ClientRequestCalendarStatus } from '@src/shared/const/status/statuses'
 
@@ -44,6 +43,7 @@ const CalendarContainer = () => {
   const router = useRouter()
   const currentRole = getCurrentRole()
   const auth = useRecoilValueLoadable(authState)
+  const { containerRef, containerWidth } = useCalenderResize()
 
   // ** calendar values
   const leftSidebarWidth = 260
@@ -60,7 +60,6 @@ const CalendarContainer = () => {
   })
 
   // ** custom hooks
-  const { containerRef, containerWidth } = useCalenderResize()
   const { data, isLoading } = useGetClientRequestCalendarData(
     year,
     month,
