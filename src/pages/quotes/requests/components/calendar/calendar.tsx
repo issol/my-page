@@ -2,7 +2,7 @@
 import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
+import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import {
   Calender,
@@ -42,7 +42,7 @@ const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
   const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
-    events: finalEvent,
+    events: finalEvent as CalendarOptions['events'],
     plugins: [dayGridPlugin],
     initialView: 'dayGridMonth',
     headerToolbar: {
@@ -106,7 +106,6 @@ const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
           </Box>
         </Box>
       </CustomCalenderToolbar>
-      {/*@ts-ignore*/}
       <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
     </Calender>
   )

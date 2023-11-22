@@ -55,7 +55,7 @@ const ProInvoiceCalendar = (props: Props) => {
     eventContent: (arg: any) => {
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
-          {arg.event?._def?.title}
+          <span>{arg.event?._def?.title}</span>
         </CustomEvent>
       )
     },

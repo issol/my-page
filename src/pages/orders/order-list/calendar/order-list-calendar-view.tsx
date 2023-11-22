@@ -1,26 +1,41 @@
 // ** React Import
-import { useRef } from 'react'
+import { ChangeEvent, useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
+import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import styled from 'styled-components'
-import { QuotesListType } from '@src/types/common/quotes.type'
-import { CalendarEventType } from '@src/types/common/calendar.type'
-import { Box } from '@mui/material'
 import { OrderListType } from '@src/types/orders/order-list'
+import {
+  Calender,
+  CalenderProps,
+  CustomEvent,
+} from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
+import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import { Box } from '@mui/system'
+import { Switch, Typography } from '@mui/material'
 
-type Props = {
-  event: Array<CalendarEventType<OrderListType>>
-  setYear: (year: number) => void
-  setMonth: (month: number) => void
-  direction: string
-  setCurrentListId: (id: number) => void
+interface Props
+  extends Omit<CalenderProps<OrderListType, boolean>, 'filter' | 'setFilter'> {
+  seeMyOrders: boolean
+  handleSeeMyOrders: (event: ChangeEvent<HTMLInputElement>) => void
+  hideCompletedOrders: boolean
+  handleHideCompletedOrders: (event: ChangeEvent<HTMLInputElement>) => void
 }
 
 const Calendar = (props: Props) => {
   // ** Props
-  const { event, setYear, setMonth, direction, setCurrentListId } = props
+  const {
+    event,
+    setYear,
+    setMonth,
+    direction,
+    setCurrentListId,
+    seeMyOrders,
+    handleSeeMyOrders,
+    handleHideCompletedOrders,
+    hideCompletedOrders,
+    containerWidth,
+  } = props
   // console.log(event)
 
   const finalEvent = event.map(item => {
@@ -33,14 +48,15 @@ const Calendar = (props: Props) => {
   })
 
   // ** Refs
-  const calendarRef = useRef()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
-    events: finalEvent,
+    events: finalEvent as CalendarOptions['events'],
     plugins: [dayGridPlugin],
     initialView: 'dayGridMonth',
     headerToolbar: {
-      start: 'sidebarToggle, prev, next, title',
+      start: '',
       end: '',
     },
 
@@ -51,14 +67,12 @@ const Calendar = (props: Props) => {
     eventContent: (arg: any) => {
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
-          {arg.event?._def?.title}
+          <span>{arg.event?._def?.title}</span>
         </CustomEvent>
       )
     },
 
     eventClick({ event }: any) {
-      // console.log(event.id)
-
       setCurrentListId(Number(event?.id))
     },
   }
@@ -72,23 +86,31 @@ const Calendar = (props: Props) => {
   }
 
   return (
-    //@ts-ignore
-    <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+    <Calender ref={containerRef} width={containerWidth}>
+      <CustomCalenderToolbar ref={calendarRef}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '24px',
+          }}
+        >
+          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <Typography>See only my orders</Typography>
+            <Switch checked={seeMyOrders} onChange={handleSeeMyOrders} />
+          </Box>
+          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <Typography>Hide completed orders</Typography>
+            <Switch
+              checked={hideCompletedOrders}
+              onChange={handleHideCompletedOrders}
+            />
+          </Box>
+        </Box>
+      </CustomCalenderToolbar>
+      <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+    </Calender>
   )
 }
 
 export default Calendar
-
-const CustomEvent = styled(Box)<{ color: string }>`
-  border-color: transparent !important;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  word-break: break-all;
-  padding: 1px 4px 4px;
-  color: rgba(76, 78, 100, 0.87) !important;
-  border-left: ${({ color }) => `6px solid ${color}`} !important;
-
-  background: ${({ color }) =>
-    `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
-`

@@ -5,13 +5,11 @@ import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import Switch from '@mui/material/Switch'
-import { Card, Typography } from '@mui/material'
+import { Card } from '@mui/material'
 
 // ** components
 import ReceivableCalendar from './calendar'
 import ReceivableList from '../list/list'
-import CalendarSideBar from '@src/pages/components/sidebar'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 
 // ** Hooks
@@ -37,10 +35,12 @@ import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import { getInvoiceReceivableListColumns } from '@src/shared/const/columns/invoice-receivable'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 const CalendarContainer = () => {
   // ** Hooks
   const { settings } = useSettings()
+  const { containerRef, containerWidth } = useCalenderResize()
 
   const currentRole = getCurrentRole()
 
@@ -128,6 +128,7 @@ const CalendarContainer = () => {
           title='Invoice'
         />
         <Box
+          ref={containerRef}
           sx={{
             px: 5,
             pt: 3.75,
@@ -140,48 +141,15 @@ const CalendarContainer = () => {
               : {}),
           }}
         >
-          <Box
-            // sx={{
-            //   display: 'flex',
-            //   justifyContent: 'flex-end',
-            //   gap: '24px',
-            // }}
-            display='flex'
-            alignItems='center'
-            gap='8px'
-            justifyContent='right'
-            padding='0 0 22px'
-            position='absolute'
-            right='0'
-          >
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>See only my invoices</Typography>
-              <Switch
-                checked={filter.mine === '1'}
-                onChange={e =>
-                  setFilter({ ...filter, mine: e.target.checked ? '1' : '0' })
-                }
-              />
-            </Box>
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>Hide paid invoices</Typography>
-              <Switch
-                checked={filter.hidePaid === '1'}
-                onChange={e =>
-                  setFilter({
-                    ...filter,
-                    hidePaid: e.target.checked ? '1' : '0',
-                  })
-                }
-              />
-            </Box>
-          </Box>
           <ReceivableCalendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            filter={filter}
+            setFilter={setFilter}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>

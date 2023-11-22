@@ -1,17 +1,14 @@
 // ** React Import
-import { Dispatch, MutableRefObject, useEffect, useRef, useState } from 'react'
+import { Dispatch, useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
 import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import styled from 'styled-components'
 
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { Box, Typography } from '@mui/material'
 import { RequestListType } from '@src/types/requests/list.type'
-import dayjs from 'dayjs'
 import Switch from '@mui/material/Switch'
 import { RequestFilterType } from '@src/types/requests/filters.type'
 
@@ -22,7 +19,7 @@ export interface CalenderProps<EVENT, FILTER> {
   event: Array<CalendarEventType<EVENT>>
   setYear: (year: number) => void
   setMonth: (month: number) => void
-  direction: string
+  direction: 'ltr' | 'rtl' | undefined
   setCurrentListId: Dispatch<number | null>
   filter: FILTER
   setFilter: Dispatch<FILTER>

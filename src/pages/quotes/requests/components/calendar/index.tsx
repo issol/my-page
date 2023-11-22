@@ -43,7 +43,6 @@ const CalendarContainer = () => {
   const router = useRouter()
   const currentRole = getCurrentRole()
   const auth = useRecoilValueLoadable(authState)
-  const { containerRef, containerWidth } = useCalenderResize()
 
   // ** calendar values
   const leftSidebarWidth = 260
@@ -60,6 +59,7 @@ const CalendarContainer = () => {
   })
 
   // ** custom hooks
+  const { containerRef, containerWidth } = useCalenderResize()
   const { data, isLoading } = useGetClientRequestCalendarData(
     year,
     month,

@@ -2,28 +2,46 @@
 import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
+import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 
 // ** style components
 import styled from 'styled-components'
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 
 // ** types
-import { InvoicePayableListType } from '@src/types/invoice/payable.type'
-import { CalendarEventType } from '@src/types/common/calendar.type'
+import {
+  InvoicePayableFilterType,
+  InvoicePayableListType,
+} from '@src/types/invoice/payable.type'
+import {
+  CalenderProps,
+  Calender,
+  CustomEvent,
+} from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
+import { Role } from '@src/pages/invoice/payable/components/calendar/index'
+import Switch from '@mui/material/Switch'
+import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import { calendarDefaultOptions, ValidRange } from '@src/shared/const/calender'
 
-type Props = {
-  event: Array<CalendarEventType<InvoicePayableListType>>
-  setYear: (year: number) => void
-  setMonth: (month: number) => void
-  direction: string
-  setCurrentListId: (id: number | null) => void
+interface Props
+  extends CalenderProps<InvoicePayableListType, InvoicePayableFilterType> {
+  type: Role
 }
 
 const PayableCalendar = (props: Props) => {
   // ** Props
-  const { event, setYear, setMonth, direction, setCurrentListId } = props
+  const {
+    event,
+    setYear,
+    setMonth,
+    direction,
+    setCurrentListId,
+    containerWidth,
+    type,
+    filter,
+    setFilter,
+  } = props
 
   const finalEvent = event.map(item => {
     return {
@@ -35,25 +53,18 @@ const PayableCalendar = (props: Props) => {
   })
 
   // ** Refs
-  const calendarRef = useRef()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
-    events: finalEvent,
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: 'sidebarToggle, prev, next, title',
-      end: '',
-    },
-
-    dayMaxEvents: 3,
-    eventResizableFromStart: true,
+    ...calendarDefaultOptions,
+    events: finalEvent as CalendarOptions['events'],
     ref: calendarRef,
     direction,
     eventContent: (arg: any) => {
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
-          {arg.event?._def?.title}
+          <span>{arg.event?._def?.title}</span>
         </CustomEvent>
       )
     },
@@ -72,23 +83,44 @@ const PayableCalendar = (props: Props) => {
   }
 
   return (
-    //@ts-ignore
-    <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+    <Calender ref={containerRef} width={containerWidth}>
+      <CustomCalenderToolbar ref={calendarRef}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '20px',
+          }}
+        >
+          {type === 'pro' ? null : (
+            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+              <Typography>See only my invoices</Typography>
+              <Switch
+                checked={filter.mine === '1'}
+                onChange={e =>
+                  setFilter({ ...filter, mine: e.target.checked ? '1' : '0' })
+                }
+              />
+            </Box>
+          )}
+
+          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <Typography>Hide paid invoices</Typography>
+            <Switch
+              checked={filter.hidePaid === '1'}
+              onChange={e =>
+                setFilter({
+                  ...filter,
+                  hidePaid: e.target.checked ? '1' : '0',
+                })
+              }
+            />
+          </Box>
+        </Box>
+      </CustomCalenderToolbar>
+      <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+    </Calender>
   )
 }
 
 export default PayableCalendar
-
-const CustomEvent = styled(Box)<{ color: string }>`
-  border-color: transparent !important;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  word-break: break-all;
-  padding: 1px 4px 4px;
-  color: rgba(76, 78, 100, 0.87) !important;
-  border-left: ${({ color }) => `6px solid ${color}`} !important;
-  border-right: ${({ color }) => `6px solid ${color}`} !important;
-  background: ${({ color }) =>
-    `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
-`
