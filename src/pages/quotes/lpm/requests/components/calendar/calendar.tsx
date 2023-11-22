@@ -14,9 +14,11 @@ import { RequestListType } from '@src/types/requests/list.type'
 import dayjs from 'dayjs'
 import Switch from '@mui/material/Switch'
 import { RequestFilterType } from '@src/types/requests/filters.type'
-import { CALENDER_MIN_WIDTH } from '@src/pages/quotes/lpm/requests/components/calendar/index'
 
-type Props = {
+import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import { CALENDER_MIN_WIDTH } from '@src/hooks/useCalenderResize'
+
+export interface CalenderProps {
   event: Array<CalendarEventType<RequestListType>>
   setYear: (year: number) => void
   setMonth: (month: number) => void
@@ -27,7 +29,7 @@ type Props = {
   containerWidth: number
 }
 
-const Calendar = (props: Props) => {
+const Calendar = (props: CalenderProps) => {
   // ** Props
   const {
     event,
@@ -52,8 +54,6 @@ const Calendar = (props: Props) => {
   // ** Refs
   const containerRef = useRef<HTMLDivElement>(null)
   const calendarRef = useRef<FullCalendar>(null)
-
-  const [title, setTitle] = useState(dayjs().format('MMMM YYYY'))
 
   const calendarOptions = {
     events: finalEvent,
@@ -88,48 +88,23 @@ const Calendar = (props: Props) => {
     setMonth(currMonth)
   }
 
-  const handleCalenderMonthPrev = () => {
-    const calenderApi = calendarRef.current?.getApi()
-    calenderApi?.prev()
-    setTitle(calenderApi?.view.title || '')
-  }
-
-  const handleCalenderMonthNext = () => {
-    const calenderApi = calendarRef.current?.getApi()
-    calenderApi?.next()
-    setTitle(calenderApi?.view.title || '')
-  }
-
   return (
     <Calender ref={containerRef} width={containerWidth}>
-      <Box display='flex' alignItems='center' justifyContent='space-between'>
+      <CustomCalenderToolbar ref={calendarRef}>
         <Box display='flex' alignItems='center'>
-          <ButtonGroup>
-            <button onClick={handleCalenderMonthPrev}>
-              <ArrowBackIosIcon style={{ width: '18px' }} />
-            </button>
-            <button onClick={handleCalenderMonthNext}>
-              <ArrowForwardIosIcon style={{ width: '18px' }} />
-            </button>
-          </ButtonGroup>
-          <CalenderTitle>{title}</CalenderTitle>
+          <Typography>Hide completed requests</Typography>
+          <Switch
+            checked={filter.hideCompleted === '1'}
+            onChange={e => {
+              setCurrentListId(null)
+              setFilter({
+                ...filter,
+                hideCompleted: e.target.checked ? '1' : '0',
+              })
+            }}
+          />
         </Box>
-        <Box>
-          <Box display='flex' alignItems='center'>
-            <Typography>Hide completed requests</Typography>
-            <Switch
-              checked={filter.hideCompleted === '1'}
-              onChange={e => {
-                setCurrentListId(null)
-                setFilter({
-                  ...filter,
-                  hideCompleted: e.target.checked ? '1' : '0',
-                })
-              }}
-            />
-          </Box>
-        </Box>
-      </Box>
+      </CustomCalenderToolbar>
       {/*@ts-ignore*/}
       <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
     </Calender>
@@ -137,47 +112,6 @@ const Calendar = (props: Props) => {
 }
 
 export default Calendar
-
-const CustomEvent = styled(Box)<{ color: string }>`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 20px;
-  padding: 0 10px;
-  border-color: transparent !important;
-  overflow: hidden;
-  color: rgba(76, 78, 100, 0.87) !important;
-  border-left: ${({ color }) => `6px solid ${color}`} !important;
-  background: ${({ color }) =>
-    `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
-
-  & > span {
-    display: block;
-    width: 95%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-`
-
-const CalenderTitle = styled.h4`
-  font-size: 20px;
-  font-weight: 500;
-`
-
-const ButtonGroup = styled.div`
-  width: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-right: 10px;
-
-  & > button {
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-`
 
 const FullCalenderContainer = styled.div`
   .fc-time-grid .fc-slats {
@@ -263,7 +197,7 @@ const FullCalenderContainer = styled.div`
   }
 `
 
-const Calender = styled(FullCalenderContainer)<{ width: number }>(
+export const Calender = styled(FullCalenderContainer)<{ width: number }>(
   ({ width }) => ({
     '.fc-view': {
       overflowX: 'auto',
@@ -273,3 +207,25 @@ const Calender = styled(FullCalenderContainer)<{ width: number }>(
     },
   }),
 )
+
+export const CustomEvent = styled(Box)<{ color: string }>`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 20px;
+  padding: 0 10px;
+  border-color: transparent !important;
+  overflow: hidden;
+  color: rgba(76, 78, 100, 0.87) !important;
+  border-left: ${({ color }) => `6px solid ${color}`} !important;
+  background: ${({ color }) =>
+    `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
+
+  & > span {
+    display: block;
+    width: 95%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+`

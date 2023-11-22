@@ -1,12 +1,11 @@
 // ** React Imports
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import Switch from '@mui/material/Switch'
-import { Card, Typography } from '@mui/material'
+import { Card } from '@mui/material'
 
 // ** components
 import List from '../list'
@@ -20,7 +19,6 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 // ** apis
-import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
 
 // ** values
 import { ClientRequestCalendarStatus } from '@src/shared/const/status/statuses'
@@ -38,8 +36,7 @@ import { getRequestListColumns } from '@src/shared/const/columns/requests'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-
-export const CALENDER_MIN_WIDTH = 990
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 const CalendarContainer = () => {
   // ** Hooks
@@ -52,6 +49,9 @@ const CalendarContainer = () => {
   const leftSidebarWidth = 260
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+
+  // ** custom hooks
+  const { containerRef, containerWidth } = useCalenderResize()
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
@@ -74,13 +74,9 @@ const CalendarContainer = () => {
     [],
   )
 
-  /* refs */
-  const containerRef = useRef<HTMLElement>(null)
-
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
 
-  const [containerWidth, setContainerWidth] = useState(CALENDER_MIN_WIDTH)
   const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<RequestListType>>
@@ -102,29 +98,6 @@ const CalendarContainer = () => {
       setEvent([])
     }
   }, [data])
-
-  useEffect(() => {
-    const offsetWidth = containerRef.current?.offsetWidth || 0
-    setContainerWidth(offsetWidth - 40)
-  }, [])
-
-  const setCalenderContainer = () => {
-    const offsetWidth = containerRef.current?.offsetWidth || 0
-
-    if (offsetWidth > CALENDER_MIN_WIDTH) {
-      // NOTE : offsetWidth -  좌우 양쪽 패딩값
-      setContainerWidth(offsetWidth - 40)
-      return
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener('resize', setCalenderContainer)
-
-    return () => {
-      window.removeEventListener('resize', setCalenderContainer)
-    }
-  }, [])
 
   return (
     <Box>

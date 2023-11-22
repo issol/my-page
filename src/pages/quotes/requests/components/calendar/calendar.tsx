@@ -4,24 +4,27 @@ import { useRef } from 'react'
 // ** Full Calendar & it's Plugins
 import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import styled from 'styled-components'
+import {
+  Calender,
+  CalenderProps,
+  CustomEvent,
+} from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
+import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import { Box, Typography } from '@mui/material'
+import Switch from '@mui/material/Switch'
 
-import { CalendarEventType } from '@src/types/common/calendar.type'
-import { Box } from '@mui/material'
-import { RequestListType } from '@src/types/requests/list.type'
-import { CalendarOptions } from '@fullcalendar/common'
-
-type Props = {
-  event: Array<CalendarEventType<RequestListType>>
-  setYear: (year: number) => void
-  setMonth: (month: number) => void
-  direction: string
-  setCurrentListId: (id: number) => void
-}
-
-const Calendar = (props: Props) => {
+const Calendar = (props: CalenderProps) => {
   // ** Props
-  const { event, setYear, setMonth, direction, setCurrentListId } = props
+  const {
+    event,
+    setYear,
+    setMonth,
+    direction,
+    setCurrentListId,
+    filter,
+    setFilter,
+    containerWidth,
+  } = props
 
   const finalEvent: any = event.map(item => {
     return {
@@ -33,14 +36,15 @@ const Calendar = (props: Props) => {
   })
 
   // ** Refs
-  const calendarRef = useRef()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
     events: finalEvent,
     plugins: [dayGridPlugin],
     initialView: 'dayGridMonth',
     headerToolbar: {
-      start: 'sidebarToggle, prev, next, title',
+      start: '',
       end: '',
     },
     dayMaxEvents: 3,
@@ -54,7 +58,6 @@ const Calendar = (props: Props) => {
         </CustomEvent>
       )
     },
-
     eventClick({ event }: any) {
       setCurrentListId(Number(event?.id))
     },
@@ -69,29 +72,42 @@ const Calendar = (props: Props) => {
   }
 
   // @ts-ignore
-  return <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+  return (
+    <Calender ref={containerRef} width={containerWidth}>
+      <CustomCalenderToolbar ref={calendarRef}>
+        <Box display='flex' alignItems='center' gap={20}>
+          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <Typography>See only my requests</Typography>
+            <Switch
+              checked={filter.mine === '1'}
+              onChange={e => {
+                setFilter({
+                  ...filter,
+                  mine: e.target.checked ? '1' : '0',
+                })
+                setCurrentListId(null)
+              }}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <Typography>Hide completed requests</Typography>
+            <Switch
+              checked={filter.hideCompleted === '1'}
+              onChange={e => {
+                setCurrentListId(null)
+                setFilter({
+                  ...filter,
+                  hideCompleted: e.target.checked ? '1' : '0',
+                })
+              }}
+            />
+          </Box>
+        </Box>
+      </CustomCalenderToolbar>
+      {/*@ts-ignore*/}
+      <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+    </Calender>
+  )
 }
 
 export default Calendar
-
-const CustomEvent = styled(Box)<{ color: string }>`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  height: 20px;
-  padding: 0 10px;
-  border-color: transparent !important;
-  overflow: hidden;
-  color: rgba(76, 78, 100, 0.87) !important;
-  border-left: ${({ color }) => `6px solid ${color}`} !important;
-  background: ${({ color }) =>
-    `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
-
-  & > span {
-    display: block;
-    width: 90%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-`

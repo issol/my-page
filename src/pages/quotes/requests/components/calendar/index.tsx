@@ -5,8 +5,7 @@ import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import Switch from '@mui/material/Switch'
-import { Card, Typography } from '@mui/material'
+import { Card } from '@mui/material'
 
 // ** components
 import List from '../list'
@@ -20,7 +19,6 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 // ** apis
-import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
 
 // ** values
 import { ClientRequestCalendarStatus } from '@src/shared/const/status/statuses'
@@ -36,8 +34,9 @@ import {
 } from '@src/queries/requests/client-request.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { getRequestListColumns } from '@src/shared/const/columns/requests'
-import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 const CalendarContainer = () => {
   // ** Hooks
@@ -60,6 +59,8 @@ const CalendarContainer = () => {
     take: 200,
   })
 
+  // ** custom hooks
+  const { containerRef, containerWidth } = useCalenderResize()
   const { data, isLoading } = useGetClientRequestCalendarData(
     year,
     month,
@@ -126,6 +127,7 @@ const CalendarContainer = () => {
           title='Request'
         />
         <Box
+          ref={containerRef}
           sx={{
             px: 5,
             pt: 3.75,
@@ -138,46 +140,15 @@ const CalendarContainer = () => {
               : {}),
           }}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '24px',
-            }}
-          >
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>See only my requests</Typography>
-              <Switch
-                checked={filter.mine === '1'}
-                onChange={e => {
-                  setFilter({
-                    ...filter,
-                    mine: e.target.checked ? '1' : '0',
-                  })
-                  setCurrentListId(null)
-                }}
-              />
-            </Box>
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>Hide completed requests</Typography>
-              <Switch
-                checked={filter.hideCompleted === '1'}
-                onChange={e => {
-                  setCurrentListId(null)
-                  setFilter({
-                    ...filter,
-                    hideCompleted: e.target.checked ? '1' : '0',
-                  })
-                }}
-              />
-            </Box>
-          </Box>
           <Calendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            filter={filter}
+            setFilter={setFilter}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>
