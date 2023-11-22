@@ -107,6 +107,7 @@ const CalendarContainer = () => {
     const offsetWidth = containerRef.current?.offsetWidth || 0
     setContainerWidth(offsetWidth - 40)
   }, [])
+
   const setCalenderContainer = () => {
     const offsetWidth = containerRef.current?.offsetWidth || 0
 
