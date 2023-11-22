@@ -6,7 +6,7 @@ import {
   useEffect,
   useState,
 } from 'react'
-
+import { v4 as uuidv4 } from 'uuid'
 // ** style components
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
@@ -48,6 +48,7 @@ import {
 } from '@src/shared/helpers/price.helper'
 import { useGetStatusList } from '@src/queries/common.query'
 import { StandardPriceListType } from '@src/types/common/standard-price'
+import { ProjectTeamListType } from '@src/types/orders/order-detail'
 
 type Props = {
   id?: number
@@ -56,6 +57,8 @@ type Props = {
 
 const VersionHistoryModal = ({ id, history }: Props) => {
   const currentRole = getCurrentRole()
+  const teamOrder = ['supervisor', 'projectManager', 'member']
+  const [teams, setTeams] = useState<ProjectTeamListType[]>([])
   const [value, setValue] = useState<string>(
     currentRole && currentRole.name === 'CLIENT' ? 'quote' : 'project',
   )
@@ -84,6 +87,46 @@ const VersionHistoryModal = ({ id, history }: Props) => {
       const pm = projectTeam?.members.find(
         value => value.position === 'projectManager',
       )
+
+      let viewTeams: ProjectTeamListType[] = [...projectTeam.members].map(
+        value => ({
+          ...value,
+          id: uuidv4(),
+        }),
+      )
+
+      if (!viewTeams.some(item => item.position === 'supervisor')) {
+        viewTeams.unshift({
+          id: uuidv4(),
+          position: 'supervisor',
+          userId: -1,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+      if (!viewTeams.some(item => item.position === 'member')) {
+        viewTeams.push({
+          id: uuidv4(),
+          position: 'member',
+          userId: 0,
+          firstName: '',
+          middleName: '',
+          lastName: '',
+          jobTitle: '',
+          email: '',
+        })
+      }
+
+      const team = viewTeams.sort((a, b) => {
+        const aIndex = teamOrder.indexOf(a.position)
+        const bIndex = teamOrder.indexOf(b.position)
+        return aIndex - bIndex
+      })
+
+      if (viewTeams.length) setTeams(team)
 
       const res: QuoteDownloadData = {
         quoteId: Number(id!),
@@ -392,7 +435,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                   columns={getProjectTeamColumns(
                     currentRole ? currentRole.name : '',
                   )}
-                  rows={history.projectTeam.members ?? []}
+                  rows={teams ?? []}
                   rowsPerPageOptions={[10, 25, 50]}
                   pageSize={pageSize}
                   onPageSizeChange={setPageSize}

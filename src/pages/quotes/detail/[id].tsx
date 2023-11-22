@@ -144,8 +144,7 @@ import Link from 'next/link'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { QuoteStatusChip } from '@src/@core/components/chips/chips'
 import { CancelOrderReason } from '@src/shared/const/reason/reason'
-import { UserRoleType } from '@src/context/types'
-import { ProjectInfoType } from '@src/types/common/quotes.type'
+
 import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
@@ -480,16 +479,6 @@ export default function QuotesDetail() {
   } = useFieldArray({
     control: itemControl,
     name: 'items',
-  })
-
-  const {
-    fields: languagePairs,
-    append: appendLanguagePairs,
-    remove: removeLanguagePairs,
-    update: updateLanguagePairs,
-  } = useFieldArray({
-    control: itemControl,
-    name: 'languagePairs',
   })
 
   useEffect(() => {
@@ -1419,27 +1408,6 @@ export default function QuotesDetail() {
   useEffect(() => {
     makePdfData()
   }, [project, client])
-
-  const deleteButtonDisabled = () => {
-    if (client?.contactPerson?.userId === null) {
-      return (
-        !isDeletable ||
-        (project?.status !== 'New' &&
-          project?.status !== 'In preparation' &&
-          project?.status !== 'Internal review' &&
-          project?.status !== 'Expired')
-      )
-    } else {
-      return (
-        !isDeletable ||
-        (project?.status !== 'New' &&
-          project?.status !== 'In preparation' &&
-          project?.status !== 'Internal review' &&
-          project?.status === 'Expired' &&
-          project?.confirmedAt !== null)
-      )
-    }
-  }
 
   return (
     <Grid container spacing={6}>
