@@ -3,7 +3,6 @@ import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
 import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
 import {
   Calender,
   CalenderProps,
@@ -14,6 +13,7 @@ import { Box, Typography } from '@mui/material'
 import Switch from '@mui/material/Switch'
 import { RequestListType } from '@src/types/requests/list.type'
 import { RequestFilterType } from '@src/types/requests/filters.type'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
 
 const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
   // ** Props
@@ -42,15 +42,8 @@ const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
   const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
+    ...calendarDefaultOptions,
     events: finalEvent as CalendarOptions['events'],
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: '',
-      end: '',
-    },
-    dayMaxEvents: 3,
-    eventResizableFromStart: true,
     ref: calendarRef,
     direction: direction as any,
     eventContent: (arg: any) => {

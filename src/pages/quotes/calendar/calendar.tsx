@@ -16,6 +16,7 @@ import {
 import { QuotesFilterType } from '@src/types/quotes/quote'
 import Switch from '@mui/material/Switch'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
 
 type BooleanNumber = 0 | 1
 
@@ -59,15 +60,8 @@ const Calendar = (props: QuoteCalender) => {
   const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
+    ...calendarDefaultOptions,
     events: finalEvent,
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: '',
-      end: '',
-    },
-    dayMaxEvents: 3,
-    eventResizableFromStart: true,
     ref: calendarRef,
     direction,
     eventContent: (arg: any) => {

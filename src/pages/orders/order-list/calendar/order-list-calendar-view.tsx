@@ -13,6 +13,7 @@ import {
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import { Box } from '@mui/system'
 import { Switch, Typography } from '@mui/material'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
 
 interface Props
   extends Omit<CalenderProps<OrderListType, boolean>, 'filter' | 'setFilter'> {
@@ -52,16 +53,8 @@ const Calendar = (props: Props) => {
   const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
+    ...calendarDefaultOptions,
     events: finalEvent as CalendarOptions['events'],
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: '',
-      end: '',
-    },
-
-    dayMaxEvents: 3,
-    eventResizableFromStart: true,
     ref: calendarRef,
     direction,
     eventContent: (arg: any) => {

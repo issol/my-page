@@ -14,6 +14,7 @@ import { RequestFilterType } from '@src/types/requests/filters.type'
 
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import { CALENDER_MIN_WIDTH } from '@src/hooks/useCalenderResize'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
 
 export interface CalenderProps<EVENT, FILTER> {
   event: Array<CalendarEventType<EVENT>>
@@ -53,15 +54,8 @@ const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
   const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
+    ...calendarDefaultOptions,
     events: finalEvent,
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: '',
-      end: '',
-    },
-    dayMaxEvents: 3,
-    eventResizableFromStart: true,
     ref: calendarRef,
     direction,
     eventContent: (arg: any) => {

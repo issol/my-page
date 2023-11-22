@@ -30,6 +30,7 @@ import { useGetStatusList } from '@src/queries/common.query'
 import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 type Props = {
   id: number
@@ -66,6 +67,9 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
   >([])
 
   const [selected, setSelected] = useState<number | null>(null)
+
+  // ** custom hooks
+  const { containerRef, containerWidth } = useCalenderResize()
 
   const handleRowClick = (row: ClientInvoiceListType) => {
     if (row.id === selected) {
@@ -176,6 +180,7 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
         </Box>
 
         <Box
+          ref={containerRef}
           sx={{
             px: 5,
             pt: 3.75,
@@ -191,24 +196,19 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
           <Box
             display='flex'
             alignItems='center'
-            gap='8px'
+            gap='20px'
             justifyContent='right'
-            padding='0 0 22px'
-            position='absolute'
-            right='0'
-          >
-            <Typography>Hide paid invoices</Typography>
-            <Switch
-              checked={hideFilter}
-              onChange={e => setHideFilter(e.target.checked)}
-            />
-          </Box>
+            padding='0 0 20px'
+          ></Box>
           <ClientInvoiceCalendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            filter={hideFilter}
+            setFilter={setHideFilter}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>

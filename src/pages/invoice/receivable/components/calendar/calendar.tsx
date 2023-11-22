@@ -3,11 +3,9 @@ import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
 import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
 
 // ** style components
 // ** types
-import { CalendarEventType } from '@src/types/common/calendar.type'
 import {
   InvoiceReceivableFilterType,
   InvoiceReceivableListType,
@@ -21,6 +19,7 @@ import Box from '@mui/material/Box'
 import { Typography } from '@mui/material'
 import Switch from '@mui/material/Switch'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
 
 const ReceivableCalendar = (
   props: CalenderProps<InvoiceReceivableListType, InvoiceReceivableFilterType>,
@@ -51,15 +50,8 @@ const ReceivableCalendar = (
   const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
+    ...calendarDefaultOptions,
     events: finalEvent as CalendarOptions['events'],
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: '',
-      end: '',
-    },
-    dayMaxEvents: 3,
-    eventResizableFromStart: true,
     ref: calendarRef,
     direction,
     eventContent: (arg: any) => {

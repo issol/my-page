@@ -21,6 +21,7 @@ import { Typography } from '@mui/material'
 import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
 import { CalendarEventType, SortingType } from '@src/apis/pro/pro-projects.api'
 import ProjectsList from '../list-view/list'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 type Props = {
   id: number
@@ -51,6 +52,9 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<Array<CalendarEventType>>([])
+
+  // ** custom hooks
+  const { containerRef, containerWidth } = useCalenderResize()
 
   useEffect(() => {
     if (currentListId && data?.data) {
@@ -109,6 +113,7 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
           setCurrentListId={setCurrentListId}
         />
         <Box
+          ref={containerRef}
           sx={{
             px: 5,
             pt: 3.75,
@@ -121,28 +126,15 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
               : {}),
           }}
         >
-          <Box
-            display='flex'
-            alignItems='center'
-            gap='8px'
-            justifyContent='right'
-            padding='0 0 22px'
-            position='absolute'
-            right='0'
-          >
-            <Typography>Hide completed projects</Typography>
-            <Typography variant='body2'>(As of yesterday)</Typography>
-            <Switch
-              checked={hideFilter}
-              onChange={e => setHideFilter(e.target.checked)}
-            />
-          </Box>
           <ProjectCalendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            containerWidth={containerWidth}
+            filter={hideFilter}
+            setFilter={setHideFilter}
           />
         </Box>
       </CalendarWrapper>
