@@ -12,6 +12,7 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
   // ** Hook
   const bgColors: UseBgColorType = useBgColor()
 
+  // @ts-ignore
   return {
     display: 'flex',
     position: 'relative',
@@ -343,18 +344,16 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
         padding: '5px',
         '& .fc-daygrid-day-top': {
           flexDirection: 'row',
+          height: 'auto',
+          marginBottom: '10px',
         },
+
         '&.fc-day-other': {
           '& .fc-daygrid-day-top': {
             opacity: 1,
             '& .fc-daygrid-day-number': {
-              color: `${theme.palette.text.disabled} !important`,
+              padding: 0,
             },
-          },
-        },
-        '&.fc-day-past:not(.fc-day-other)': {
-          '& .fc-daygrid-day-number': {
-            color: `${theme.palette.text.secondary} !important`,
           },
         },
       },
@@ -378,12 +377,6 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           textDecoration: 'none !important',
           color: `${theme.palette.text.primary} !important`,
         },
-      '& .fc-day-today:not(.fc-popover)': {
-        '&:not(.fc-col-header-cell)': {
-          background: `${theme.palette.background.default} !important`,
-          backgroundColor: `${theme.palette.action.hover} !important`,
-        },
-      },
 
       // ** WeekView
       '& .fc-timegrid': {
