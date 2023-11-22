@@ -307,13 +307,12 @@ export default function ItemPriceUnitForm({
     }
 
     const handleDeletePriceUnit = (idx: number) => {
-      closeModal('DeletePriceUnitModal')
       onDeletePriceUnit(idx)
       updateTotalPrice()
+      closeModal('DeletePriceUnitModal')
     }
 
-    const onClickDeletePriceUnit = (idx: number) => {
-
+    const onClickDeletePriceUnit = (idx: number, rowIndex: number) => {
       if (options.find(item => item.id === idx)) {
         openModal({
           type: 'DeletePriceUnitModal',
@@ -326,6 +325,26 @@ export default function ItemPriceUnitForm({
                   Are you sure you want to delete this price unit?
                   <Typography variant='body2' fontWeight={700} fontSize={16}>
                     {options.find(item => item.id === idx)?.title ?? ''}
+                  </Typography>
+                </>
+              }
+              vary='error'
+              rightButtonText='Delete'
+            />
+          ),
+        })
+      } else if (getValues().items[0].detail?.find(item => item.id === idx)?.title) {
+        openModal({
+          type: 'DeletePriceUnitModal',
+          children: (
+            <CustomModal
+              onClose={() => closeModal('DeletePriceUnitModal')}
+              onClick={() => {handleDeletePriceUnit(rowIndex)}}
+              title={
+                <>
+                  Are you sure you want to delete this price unit?
+                  <Typography variant='body2' fontWeight={700} fontSize={16}>
+                    {getValues().items[0].detail?.find(item => item.id === idx)?.title ?? ''}
                   </Typography>
                 </>
               }
@@ -773,6 +792,7 @@ export default function ItemPriceUnitForm({
                 } else {
                   onClickDeletePriceUnit(
                     getValues(`${detailName}.${idx}.priceUnitId`)!,
+                    idx
                   )
                 }
               }}
