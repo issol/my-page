@@ -123,7 +123,7 @@ export default function ClientInvoicesRows(props: {
           }}
           size='small'
         >
-          <Typography variant='body1'>{row.order.projectName}</Typography>
+          <Typography variant='body1'>{row.orders.projectName}</Typography>
         </TableCell>
         {separateLine()}
         <TableCell
