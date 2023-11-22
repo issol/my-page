@@ -81,6 +81,7 @@ const CalendarContainer = () => {
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<RequestListType>>
   >([])
+
   function onRowClick(id: number) {
     router.push(`/quotes/requests/${id}`)
   }
@@ -138,7 +139,6 @@ const CalendarContainer = () => {
             ...(mdAbove
               ? { borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }
               : {}),
-            position: 'relative',
           }}
         >
           <Calendar

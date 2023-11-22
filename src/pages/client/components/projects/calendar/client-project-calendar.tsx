@@ -2,14 +2,22 @@
 import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
+import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 
 // ** types
 
 import { ClientProjectCalendarEventType } from '@src/apis/client.api'
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import styled from 'styled-components'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
+import {
+  CalenderProps,
+  Calender,
+  CustomEvent,
+} from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
+import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import Switch from '@mui/material/Switch'
 
 type Props = {
   event: Array<ClientProjectCalendarEventType>
@@ -19,9 +27,20 @@ type Props = {
   setCurrentListId: (id: number) => void
 }
 
-const ClientProjectCalendar = (props: Props) => {
+const ClientProjectCalendar = (
+  props: CalenderProps<ClientProjectCalendarEventType, boolean>,
+) => {
   // ** Props
-  const { event, setYear, setMonth, direction, setCurrentListId } = props
+  const {
+    event,
+    setYear,
+    setMonth,
+    direction,
+    setCurrentListId,
+    containerWidth,
+    filter,
+    setFilter,
+  } = props
 
   const finalEvent = event.map(item => {
     return {
@@ -33,25 +52,18 @@ const ClientProjectCalendar = (props: Props) => {
   })
 
   // ** Refs
-  const calendarRef = useRef()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
-    events: finalEvent,
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: 'sidebarToggle, prev, next, title',
-      end: '',
-    },
-
-    dayMaxEvents: 3,
-    eventResizableFromStart: true,
+    ...calendarDefaultOptions,
+    events: finalEvent as CalendarOptions['events'],
     ref: calendarRef,
     direction,
     eventContent: (arg: any) => {
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
-          {arg.event?._def?.title}
+          <span>{arg.event?._def?.title}</span>
         </CustomEvent>
       )
     },
@@ -70,18 +82,20 @@ const ClientProjectCalendar = (props: Props) => {
   }
 
   // @ts-ignore
-  return <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+  return (
+    <Calender ref={containerRef} width={containerWidth}>
+      <CustomCalenderToolbar ref={calendarRef}>
+        <Box display='flex' alignItems='center' gap='20px' paddingRight='20px'>
+          <Typography>Hide completed projects</Typography>
+          <Switch
+            checked={filter}
+            onChange={e => setFilter(e.target.checked)}
+          />
+        </Box>
+      </CustomCalenderToolbar>
+      <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+    </Calender>
+  )
 }
 
 export default ClientProjectCalendar
-
-const CustomEvent = styled(Box)<{ color: string }>`
-  border-color: transparent !important;
-
-  padding: 1px 4px 4px;
-  color: rgba(76, 78, 100, 0.87) !important;
-  border-left: ${({ color }) => `6px solid ${color}`} !important;
-
-  background: ${({ color }) =>
-    `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
-`

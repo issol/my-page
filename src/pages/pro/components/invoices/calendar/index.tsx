@@ -31,9 +31,16 @@ import {
   ProInvoiceListType,
 } from '@src/types/invoice/common.type'
 import { useGetStatusList } from '@src/queries/common.query'
-import { getPayableColor, getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
+import {
+  getPayableColor,
+  getReceivableStatusColor,
+} from '@src/shared/helpers/colors.helper'
 import { useGetPayableCalendar } from '@src/queries/invoice/payable.query'
-import { InvoicePayableFilterType, InvoicePayableListType } from '@src/types/invoice/payable.type'
+import {
+  InvoicePayableFilterType,
+  InvoicePayableListType,
+} from '@src/types/invoice/payable.type'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 type Props = {
   statusList: Array<{
@@ -42,10 +49,7 @@ type Props = {
   }>
   userId: number
 }
-const CalendarContainer = ({ 
-  statusList,
-  userId,
- }:Props) => {
+const CalendarContainer = ({ statusList, userId }: Props) => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
 
@@ -74,7 +78,12 @@ const CalendarContainer = ({
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, isLoading } = useGetPayableCalendar(year, month, { ...filter, pro: [userId] }, 'lpm')
+  const { data, isLoading } = useGetPayableCalendar(
+    year,
+    month,
+    { ...filter, pro: [userId] },
+    'lpm',
+  )
   const [event, setEvent] = useState<
     Array<CalendarEventType<InvoicePayableListType>>
   >([])
@@ -83,6 +92,9 @@ const CalendarContainer = ({
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<InvoicePayableListType>>
   >([])
+
+  // ** custom hooks
+  const { containerRef, containerWidth } = useCalenderResize()
 
   useEffect(() => {
     if (currentListId && data?.data) {
@@ -127,6 +139,7 @@ const CalendarContainer = ({
           title='Invoice'
         />
         <Box
+          ref={containerRef}
           sx={{
             px: 5,
             pt: 3.75,
@@ -139,38 +152,15 @@ const CalendarContainer = ({
               : {}),
           }}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '24px',
-            }}
-          >
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>See only my invoices</Typography>
-              <Switch
-                checked={filter.mine === '1'}
-                onChange={e =>
-                  setFilter({ ...filter, mine: e.target.checked ? '1' : '0' })
-                }
-              />
-            </Box>
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>Hide paid invoices</Typography>
-              <Switch
-                checked={filter.hidePaid === '1'}
-                onChange={e =>
-                  setFilter({ ...filter, hidePaid: e.target.checked ? '1' : '0' })
-                }
-              />
-            </Box>
-          </Box>
           <ReceivableCalendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            filter={filter}
+            setFilter={setFilter}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>

@@ -276,25 +276,6 @@ export default function OrderList() {
               statusList={statusList!}
               role={currentRole!}
             />
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '24px',
-              }}
-            >
-              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <Typography>See only my orders</Typography>
-                <Switch checked={seeMyOrders} onChange={handleSeeMyOrders} />
-              </Box>
-              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <Typography>Hide completed orders</Typography>
-                <Switch
-                  checked={hideCompletedOrders}
-                  onChange={handleHideCompletedOrders}
-                />
-              </Box>
-            </Box>
             <OrdersList
               page={orderListPage}
               setPageSize={setOrderListPage}

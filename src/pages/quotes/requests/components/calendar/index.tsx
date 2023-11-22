@@ -19,7 +19,6 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 // ** apis
-
 // ** values
 import { ClientRequestCalendarStatus } from '@src/shared/const/status/statuses'
 

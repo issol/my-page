@@ -1,5 +1,5 @@
 // ** React Imports
-import { Suspense, useEffect, useState } from 'react'
+import { ChangeEvent, Suspense, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -35,6 +35,7 @@ import Calendar from './order-list-calendar-view'
 import { OrderStatusType } from '@src/types/common/orders.type'
 import { getOrderStatusColor } from '@src/shared/helpers/colors.helper'
 import { hide } from '@popperjs/core'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 const defaultFilters: OrderListFilterType = {
   hideCompleted: '0',
@@ -77,6 +78,9 @@ const OrderListCalendar = () => {
   const [statuses, setStatuses] = useState<
     Array<{ color: string; value: number; label: string }>
   >([])
+
+  // ** custom hooks
+  const { containerRef, containerWidth } = useCalenderResize()
 
   const handleRowClick = (row: OrderListType) => {
     router.push(`/orders/order-list/detail/${row.id}`)
@@ -164,6 +168,7 @@ const OrderListCalendar = () => {
           />
         </Suspense>
         <Box
+          ref={containerRef}
           sx={{
             px: 5,
             pt: 3.75,
@@ -176,33 +181,17 @@ const OrderListCalendar = () => {
               : {}),
           }}
         >
-          <Box
-            display='flex'
-            alignItems='center'
-            gap='8px'
-            justifyContent='right'
-            padding='0 0 22px'
-            position='absolute'
-            right='0'
-          >
-            <Box display='flex' alignItems='center' gap='8px'>
-              <Typography>See only my orders</Typography>
-              <Switch checked={seeMyOrders} onChange={handleSeeMyOrders} />
-            </Box>
-            <Box display='flex' alignItems='center' gap='8px'>
-              <Typography>Hide completed orders</Typography>
-              <Switch
-                checked={hideCompletedOrders}
-                onChange={handleHideCompletedOrders}
-              />
-            </Box>
-          </Box>
           <Calendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            seeMyOrders={seeMyOrders}
+            handleSeeMyOrders={handleSeeMyOrders}
+            hideCompletedOrders={hideCompletedOrders}
+            handleHideCompletedOrders={handleHideCompletedOrders}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>

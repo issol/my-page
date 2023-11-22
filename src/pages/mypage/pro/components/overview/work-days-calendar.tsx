@@ -12,6 +12,7 @@ import {
 import { addOneDay } from '@src/shared/helpers/date.helper'
 import { Card, Dialog, Tooltip } from '@mui/material'
 import styled from 'styled-components'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
 
 /**
  * event : 달력에 보여줄 off day 데이터
@@ -62,16 +63,15 @@ const WorkDaysCalendar = (props: Props) => {
   const deleteBtn = document.getElementsByClassName('off-delete')
 
   const calendarOptions = {
+    ...calendarDefaultOptions,
     events: finalEvent || [],
     plugins: [dayGridPlugin, interactionPlugin],
-    initialView: 'dayGridMonth',
     headerToolbar: {
       start: 'sidebarToggle, prev, title, next',
       end: '',
     },
     ref: calendarRef,
     contentHeight: 315,
-
     eventClick(info: any) {
       let eventEl = info.el
 

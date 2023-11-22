@@ -35,6 +35,7 @@ import { OrderStatusType } from '@src/types/common/orders.type'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import { QuotesStatusType } from '@src/types/common/quotes.type'
 import { itemSchema } from '@src/types/schema/item.schema'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 type Props = {
   id: number
@@ -72,8 +73,6 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
   )
   const [event, setEvent] = useState<Array<ClientProjectCalendarEventType>>([])
 
-  console.log(data)
-
   const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<
     Array<ClientProjectCalendarEventType>
@@ -81,6 +80,8 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
 
   const [selected, setSelected] = useState<number | null>(null)
 
+  // ** custom hooks
+  const { containerRef, containerWidth } = useCalenderResize()
   const handleRowClick = (row: ClientProjectListType) => {
     if (row.id === selected) {
       setSelected(null)
@@ -241,6 +242,7 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
           </Box>
         </Suspense>
         <Box
+          ref={containerRef}
           sx={{
             px: 5,
             pt: 3.75,
@@ -253,27 +255,15 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
               : {}),
           }}
         >
-          <Box
-            display='flex'
-            alignItems='center'
-            gap='8px'
-            justifyContent='right'
-            padding='0 0 22px'
-            position='absolute'
-            right='0'
-          >
-            <Typography>Hide completed projects</Typography>
-            <Switch
-              checked={hideFilter}
-              onChange={e => setHideFilter(e.target.checked)}
-            />
-          </Box>
           <ClientProjectCalendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            filter={hideFilter}
+            setFilter={setHideFilter}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>

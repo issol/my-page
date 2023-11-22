@@ -2,8 +2,7 @@
 import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
+import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
 import {
   Calender,
   CalenderProps,
@@ -12,8 +11,11 @@ import {
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import { Box, Typography } from '@mui/material'
 import Switch from '@mui/material/Switch'
+import { RequestListType } from '@src/types/requests/list.type'
+import { RequestFilterType } from '@src/types/requests/filters.type'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
 
-const Calendar = (props: CalenderProps) => {
+const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
   // ** Props
   const {
     event,
@@ -40,15 +42,8 @@ const Calendar = (props: CalenderProps) => {
   const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
-    events: finalEvent,
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: '',
-      end: '',
-    },
-    dayMaxEvents: 3,
-    eventResizableFromStart: true,
+    ...calendarDefaultOptions,
+    events: finalEvent as CalendarOptions['events'],
     ref: calendarRef,
     direction: direction as any,
     eventContent: (arg: any) => {
@@ -104,7 +99,6 @@ const Calendar = (props: CalenderProps) => {
           </Box>
         </Box>
       </CustomCalenderToolbar>
-      {/*@ts-ignore*/}
       <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
     </Calender>
   )

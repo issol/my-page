@@ -41,12 +41,14 @@ import {
   InvoiceProStatusType,
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
+export type Role = 'pro' | 'lpm'
 type Props = {
-  type: 'pro' | 'lpm'
+  type: Role
   statusList: Array<{
-    label: string,
-    value: number,
+    label: string
+    value: number
   }>
 }
 
@@ -62,6 +64,8 @@ const CalendarContainer = ({ type }: Props) => {
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
+  // ** custom hooks
+  const { containerRef, containerWidth } = useCalenderResize()
   const { data: statusList } = useGetStatusList('InvoicePayable')
 
   const statuses = statusList?.map(i => ({
@@ -135,6 +139,7 @@ const CalendarContainer = ({ type }: Props) => {
           title={'Invoice'}
         />
         <Box
+          ref={containerRef}
           sx={{
             px: 5,
             pt: 3.75,
@@ -147,44 +152,16 @@ const CalendarContainer = ({ type }: Props) => {
               : {}),
           }}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '24px',
-            }}
-          >
-            {type === 'pro' ? null : (
-              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <Typography>See only my invoices</Typography>
-                <Switch
-                  checked={filter.mine === '1'}
-                  onChange={e =>
-                    setFilter({ ...filter, mine: e.target.checked ? '1' : '0' })
-                  }
-                />
-              </Box>
-            )}
-
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>Hide paid invoices</Typography>
-              <Switch
-                checked={filter.hidePaid === '1'}
-                onChange={e =>
-                  setFilter({
-                    ...filter,
-                    hidePaid: e.target.checked ? '1' : '0',
-                  })
-                }
-              />
-            </Box>
-          </Box>
           <Calendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            filter={filter}
+            setFilter={setFilter}
+            type={type}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>
