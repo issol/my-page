@@ -148,6 +148,7 @@ import { CancelOrderReason } from '@src/shared/const/reason/reason'
 import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+import dayjs from 'dayjs'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -417,7 +418,7 @@ export default function QuotesDetail() {
         showDescription: project.showDescription,
 
         quoteDate: {
-          date: project.quoteDate,
+          date: new Date(project.quoteDate),
           timezone: project.quoteDateTimezone ?? defaultTimezone,
         },
         projectDueDate: {
@@ -441,7 +442,7 @@ export default function QuotesDetail() {
       setProjectInfo('tax', project.tax)
       setProjectInfo('isTaxable', project.isTaxable)
       setProjectInfo('quoteDate', {
-        date: project.quoteDate,
+        date: new Date(project.quoteDate),
         timezone: project.quoteDateTimezone ?? defaultTimezone,
       })
     }

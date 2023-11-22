@@ -308,6 +308,7 @@ export default function QuotesLanguageItemsDetail({
           type={isEditMode ? 'edit' : 'detail'}
           itemTrigger={itemTrigger}
           sumTotalPrice={sumTotalPrice}
+          from='quote'
         />
       </Grid>
 

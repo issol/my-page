@@ -288,6 +288,7 @@ const InvoiceLanguageAndItem = ({
           itemTrigger={itemTrigger}
           sumTotalPrice={sumTotalPrice}
           orders={invoiceLanguageItem?.orders}
+          from='invoice'
         />
       </Grid>
       <Grid item xs={12}>

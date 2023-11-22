@@ -105,6 +105,7 @@ type Props = {
   findLangPairIndex: (source: string, target: string) => number
   teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
   indexing?: number
+  from: 'quote' | 'order' | 'invoice'
 }
 
 const Row = ({
@@ -131,6 +132,7 @@ const Row = ({
   findLangPairIndex,
   teamMembers,
   indexing,
+  from,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const [contactPersonList, setContactPersonList] = useState<
@@ -1030,6 +1032,7 @@ const Row = ({
                   getValues={getValues}
                   onCopyAnalysis={onCopyAnalysis}
                   type={type}
+                  from={from}
                 />
               </Grid>
             )}

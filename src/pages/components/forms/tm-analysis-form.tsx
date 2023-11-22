@@ -54,6 +54,7 @@ type Props = {
     items: ItemType[]
     languagePairs: languageType[]
   }>
+  from: 'quote' | 'order' | 'invoice'
 }
 export default function TmAnalysisForm({
   control,
@@ -64,6 +65,7 @@ export default function TmAnalysisForm({
   details,
   type,
   getValues,
+  from,
 }: Props) {
   const headers =
     type === 'detail' || type === 'invoiceDetail' || type === 'invoiceHistory'
@@ -162,19 +164,25 @@ export default function TmAnalysisForm({
   }
 
   useEffect(() => {
-    if (type === 'detail' && getValues(`items.${index}.id`)) {
-      getCatToolFile(getValues(`items.${index}.id`)!, 'order').then(res => {
-        res.map((value, idx) => {
-          append({
-            id: value.id ?? idx + 1,
-            name: value.fileName,
-            size: 0,
-            data: value,
+    if (
+      type === 'detail' &&
+      getValues(`items.${index}.id`) &&
+      from !== 'invoice'
+    ) {
+      getCatToolFile(getValues(`items.${index}.id`)!, from).then(res => {
+        if (res) {
+          res.map((value, idx) => {
+            append({
+              id: value.id ?? idx + 1,
+              name: value.fileName,
+              size: 0,
+              data: value,
+            })
           })
-        })
+        }
       })
     }
-  }, [type])
+  }, [type, from])
 
   return (
     <Fragment>

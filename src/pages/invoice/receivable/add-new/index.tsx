@@ -786,6 +786,7 @@ export default function AddNewInvoice() {
                   itemTrigger={itemTrigger}
                   sumTotalPrice={sumTotalPrice}
                   orders={orders?.orders}
+                  from='invoice'
                 />
               </Grid>
 

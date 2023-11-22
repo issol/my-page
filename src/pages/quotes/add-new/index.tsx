@@ -225,7 +225,6 @@ export default function AddNewQuote() {
     defaultValues: {
       ...quotesProjectInfoDefaultValue,
       quoteDate: {
-        date: Date(),
         timezone: getClientValue().contacts?.timezone!,
         // JSON.parse(getUserDataFromBrowser()!).timezone,
       },
@@ -469,6 +468,10 @@ export default function AddNewQuote() {
     const projectInfo = {
       ...rawProjectInfo,
       tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
+      // quoteDate: {
+      //   ...rawProjectInfo.quoteDate,
+      //   date: rawProjectInfo.quoteDate.date.toISOString(),
+      // },
       subtotal: subPrice,
     }
 
@@ -743,6 +746,7 @@ export default function AddNewQuote() {
                   itemTrigger={itemTrigger}
                   type='create'
                   sumTotalPrice={sumTotalPrice}
+                  from='quote'
                 />
               </Grid>
               <Grid item xs={12}>
