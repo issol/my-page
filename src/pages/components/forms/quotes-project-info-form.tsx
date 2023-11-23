@@ -138,6 +138,7 @@ export default function ProjectInfoForm({
   useEffect(() => {
     if (clientTimezone) {
       ;[
+        'quoteDate.timezone',
         'projectDueDate.timezone',
         'quoteDeadline.timezone',
         'quoteExpiryDate.timezone',
