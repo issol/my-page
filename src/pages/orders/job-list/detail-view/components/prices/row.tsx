@@ -276,7 +276,7 @@ const Row = ({
         ? priceData()?.decimalPlace!
         : currency === 'USD' || currency === 'SGD'
         ? 2
-        : 1000,
+        : 1,
       priceData()?.roundingProcedure! ?? 0,
       currency,
     )

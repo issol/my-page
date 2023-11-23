@@ -722,7 +722,7 @@ export default function ItemPriceUnitForm({
                           savedValue.currency === 'USD' ||
                             savedValue.currency === 'SGD'
                             ? 2
-                            : 1000,
+                            : 1,
                           0,
                           savedValue.currency ?? 'KRW',
                         ),
@@ -734,7 +734,7 @@ export default function ItemPriceUnitForm({
                         getValues(`${initialPriceName}.currency`) === 'USD' ||
                         getValues(`${initialPriceName}.currency`) === 'SGD'
                           ? 2
-                          : 1000,
+                          : 1,
                         0,
                         getValues(`${initialPriceName}.currency`) ?? 'KRW',
                       ),
@@ -1008,7 +1008,7 @@ export default function ItemPriceUnitForm({
                           getValues().items?.[0]?.detail?.[0]?.currency === 'USD' ||
                           getValues().items?.[0]?.detail?.[0]?.currency === 'SGD'
                             ? 2
-                            : 1000,
+                            : 1,
                           0,
                           getValues().items?.[0]?.detail?.[0]?.currency ?? 'KRW',
                         ),
@@ -1020,7 +1020,7 @@ export default function ItemPriceUnitForm({
                           getValues().items?.[0]?.initialPrice?.currency === 'USD' ||
                           getValues().items?.[0]?.initialPrice?.currency === 'SGD'
                             ? 2
-                            : 1000,
+                            : 1,
                           0,
                           getValues().items?.[0]?.initialPrice?.currency ?? 'KRW',
                         ),
