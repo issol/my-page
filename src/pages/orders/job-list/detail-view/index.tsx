@@ -65,6 +65,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
 import { useGetProPriceList } from '@src/queries/company/standard-price'
 import { languageType } from '../../add-new'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   tab?: string
@@ -341,6 +342,9 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   // }
   return (
     <>
+      {saveJobPricesMutation.isLoading ? (
+        <OverlaySpinner />
+      ) : null}
       {!isLoading && jobInfo ? (
         <Box sx={{ padding: '50px 60px', position: 'relative' }}>
           <IconButton

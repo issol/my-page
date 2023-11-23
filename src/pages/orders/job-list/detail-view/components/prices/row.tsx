@@ -171,8 +171,12 @@ const Row = ({
       }
   }, [orderItems])
 
-  function onDeletePriceUnit(idx: number) {
-    remove(idx)
+  function onDeletePriceUnit(index: number) {
+    const findIndex = details.findIndex(item => item.priceUnitId === index)
+
+    if (findIndex !== -1) {
+      remove(findIndex)
+    }
   }
 
   const handleShowMinimum = (value: boolean) => {
@@ -272,7 +276,7 @@ const Row = ({
         ? priceData()?.decimalPlace!
         : currency === 'USD' || currency === 'SGD'
         ? 2
-        : 1000,
+        : 1,
       priceData()?.roundingProcedure! ?? 0,
       currency,
     )

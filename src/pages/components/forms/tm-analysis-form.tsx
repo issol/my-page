@@ -164,7 +164,7 @@ export default function TmAnalysisForm({
   useEffect(() => {
     if (type === 'detail' && getValues(`items.${index}.id`)) {
       getCatToolFile(getValues(`items.${index}.id`)!, 'order').then(res => {
-        res.map((value, idx) => {
+        res?.map((value, idx) => {
           append({
             id: value.id ?? idx + 1,
             name: value.fileName,

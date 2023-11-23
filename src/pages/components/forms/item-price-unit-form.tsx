@@ -307,14 +307,16 @@ export default function ItemPriceUnitForm({
     }
 
     const handleDeletePriceUnit = (idx: number) => {
-      closeModal('DeletePriceUnitModal')
       onDeletePriceUnit(idx)
       updateTotalPrice()
+      closeModal('DeletePriceUnitModal')
     }
 
     const onClickDeletePriceUnit = (idx: number) => {
-
-      if (options.find(item => item.id === idx)) {
+      if (
+        options.find(item => item.id === idx) ||
+        (idx !== -1 && getValues().items[0].detail?.find(item => item.priceUnitId === idx))
+      ) {
         openModal({
           type: 'DeletePriceUnitModal',
           children: (
@@ -335,7 +337,7 @@ export default function ItemPriceUnitForm({
           ),
         })
       } else {
-        onDeletePriceUnit(idx)
+        remove(idx)
         updateTotalPrice()
       }
     }
@@ -720,7 +722,7 @@ export default function ItemPriceUnitForm({
                           savedValue.currency === 'USD' ||
                             savedValue.currency === 'SGD'
                             ? 2
-                            : 1000,
+                            : 1,
                           0,
                           savedValue.currency ?? 'KRW',
                         ),
@@ -732,7 +734,7 @@ export default function ItemPriceUnitForm({
                         getValues(`${initialPriceName}.currency`) === 'USD' ||
                         getValues(`${initialPriceName}.currency`) === 'SGD'
                           ? 2
-                          : 1000,
+                          : 1,
                         0,
                         getValues(`${initialPriceName}.currency`) ?? 'KRW',
                       ),
@@ -1006,7 +1008,7 @@ export default function ItemPriceUnitForm({
                           getValues().items?.[0]?.detail?.[0]?.currency === 'USD' ||
                           getValues().items?.[0]?.detail?.[0]?.currency === 'SGD'
                             ? 2
-                            : 1000,
+                            : 1,
                           0,
                           getValues().items?.[0]?.detail?.[0]?.currency ?? 'KRW',
                         ),
@@ -1018,7 +1020,7 @@ export default function ItemPriceUnitForm({
                           getValues().items?.[0]?.initialPrice?.currency === 'USD' ||
                           getValues().items?.[0]?.initialPrice?.currency === 'SGD'
                             ? 2
-                            : 1000,
+                            : 1,
                           0,
                           getValues().items?.[0]?.initialPrice?.currency ?? 'KRW',
                         ),
