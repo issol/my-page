@@ -544,7 +544,10 @@ const Row = ({
                 <Controller
                   name={`items.${idx}.itemName`}
                   control={control}
-                  render={({ field: { value, onChange, onBlur } }) => (
+                  render={({
+                    field: { value, onChange, onBlur },
+                    fieldState: { isDirty },
+                  }) => (
                     <TextField
                       fullWidth
                       autoFocus={Boolean(value && value?.length < 2)}
@@ -559,7 +562,7 @@ const Row = ({
                         }
                       }}
                       inputProps={{ maxLength: 200 }}
-                      error={Boolean(errors?.items?.[idx]?.itemName)}
+                      error={isDirty && !value}
                     />
                   )}
                 />
@@ -599,7 +602,14 @@ const Row = ({
                       onChange={onChange}
                       placeholderText='MM/DD/YYYY, HH:MM'
                       customInput={
-                        <CustomInput label='Item due date*' icon='calendar' />
+                        <CustomInput
+                          label={
+                            from === 'quote'
+                              ? 'Item due date'
+                              : 'Item due date*'
+                          }
+                          icon='calendar'
+                        />
                       }
                     />
                   )}
@@ -661,12 +671,21 @@ const Row = ({
                           }}
                           disableClearable={value ? false : true}
                           onChange={(e, v) => {
-                            onChange(v?.value ?? '')
+                            if (v) {
+                              onChange(v.value)
+                            } else {
+                              onChange(null)
+                            }
                           }}
                           value={
-                            !value
-                              ? // 신규 생성일땐 프로젝트 매니저가 기본으로 들어감
-                                contactPersonList.find(
+                            type === 'edit'
+                              ? value
+                                ? contactPersonList.find(
+                                    item => item.value === value,
+                                  )
+                                : null
+                              : value
+                              ? contactPersonList.find(
                                   item =>
                                     item.value ===
                                     teamMembers?.find(
@@ -674,15 +693,16 @@ const Row = ({
                                         member.type === 'projectManagerId',
                                     )?.id!,
                                 )
-                              : // 수정일땐 기존 설정된 값이 들어감
-                                contactPersonList.find(
-                                  item => item.value === value,
-                                )
+                              : null
                           }
                           renderInput={params => (
                             <TextField
                               {...params}
-                              label='Contact person for job*'
+                              label={
+                                from === 'quote'
+                                  ? 'Contact person form job'
+                                  : 'Contact person for job*'
+                              }
                               // placeholder='Contact person for job*'
                             />
                           )}

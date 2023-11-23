@@ -41,7 +41,7 @@ import {
   quotesProjectInfoSchema,
 } from '@src/types/schema/quotes-project-info.schema'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import { itemSchema } from '@src/types/schema/item.schema'
+import { itemSchema, quoteItemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
@@ -250,7 +250,7 @@ export default function AddNewQuote() {
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(quoteItemSchema),
   })
 
   const {

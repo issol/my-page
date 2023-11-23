@@ -388,7 +388,10 @@ export default function AddLanguagePairForm({
                             <Controller
                               name={`languagePairs.${idx}.price`}
                               control={control}
-                              render={({ field: { value, onChange } }) => (
+                              render={({
+                                field: { value, onChange },
+                                fieldState: { isDirty },
+                              }) => (
                                 <Autocomplete
                                   value={
                                     !value
@@ -419,7 +422,7 @@ export default function AddLanguagePairForm({
                                     <TextField
                                       {...params}
                                       placeholder='Price*'
-                                      error={value === null}
+                                      error={isDirty && value === null}
                                     />
                                   )}
                                   renderGroup={params => (

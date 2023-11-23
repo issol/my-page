@@ -94,7 +94,7 @@ import {
 } from '@src/types/schema/quotes-project-info.schema'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import { itemSchema } from '@src/types/schema/item.schema'
+import { itemSchema, quoteItemSchema } from '@src/types/schema/item.schema'
 import { languageType } from '../add-new'
 
 // ** hook
@@ -467,9 +467,9 @@ export default function QuotesDetail() {
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(quoteItemSchema),
   })
 
   const {
