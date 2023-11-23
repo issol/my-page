@@ -1447,7 +1447,11 @@ export default function QuotesDetail() {
                 height='50px'
               />
               <Typography variant='h5'>{project?.corporationId}</Typography>
-              {project?.linkedOrder || project?.linkedRequest ? (
+              {(project?.linkedOrder || project?.linkedRequest) &&
+              !editProject &&
+              !editItems &&
+              !editClient &&
+              !editTeam ? (
                 <Box>
                   <IconButton
                     sx={{ width: '24px', height: '24px', padding: 0 }}
@@ -1524,7 +1528,11 @@ export default function QuotesDetail() {
               ) : null}
             </Box>
           </Box>
-          {currentRole && currentRole.name === 'CLIENT' ? null : (
+          {(currentRole && currentRole.name === 'CLIENT') ||
+          editProject ||
+          editItems ||
+          editClient ||
+          editTeam ? null : (
             <Box display='flex' alignItems='center' gap='14px'>
               <Button
                 variant='outlined'
