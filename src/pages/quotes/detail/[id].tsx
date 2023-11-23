@@ -1095,7 +1095,7 @@ export default function QuotesDetail() {
       children: (
         <DiscardModal
           onClose={() => {
-            callback()
+            // callback()
             closeModal('DiscardModal')
           }}
           onClick={() => {
