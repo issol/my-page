@@ -38,7 +38,7 @@ const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
     filter,
     setFilter,
     containerWidth,
-  } = propsx
+  } = props
 
   const finalEvent = event.map(item => {
     return {
