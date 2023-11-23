@@ -139,7 +139,7 @@ export default function MyAccount({ user }: Props) {
                   <Typography fontWeight={600}>Sign-up date</Typography>
                   <Typography variant='body2'>
                     {dayjs(user.createdAt).format('MM/DD/YYYY')}&nbsp;
-                    {getGmtTimeEng(user.timezone.code)}
+                    {getGmtTimeEng(user.timezone?.code)}
                   </Typography>
                 </LabelContainer>
                 <LabelContainer>

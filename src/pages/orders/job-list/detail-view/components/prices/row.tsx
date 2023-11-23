@@ -164,7 +164,6 @@ const Row = ({
         currentItem?.detail?.map(item => {
           append({
             ...item,
-            quantity: 0,
             unitPrice: 0,
           })
         })
