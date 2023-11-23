@@ -11,6 +11,14 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import FullCalendar from '@fullcalendar/react'
 import dayjs from 'dayjs'
 import styled from '@emotion/styled'
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
+
+dayjs.extend(isSameOrAfter)
+dayjs.extend(isSameOrBefore)
+
+const ACTIVE_COLOR = 'rgba(76, 78, 100, 0.87)'
+const DISABLED_COLOR = 'rgba(76, 78, 100, 0.26)'
 
 const CustomCalenderToolbar = forwardRef(
   (
@@ -22,16 +30,36 @@ const CustomCalenderToolbar = forwardRef(
     const calenderRef = ref as MutableRefObject<FullCalendar>
 
     const [title, setTitle] = useState(dayjs().format('MMMM YYYY'))
+    const [isDisabledPrev, setIsDisabledPrev] = useState(false)
+    const [isDisabledNext, setIsDisabledNext] = useState(false)
+
+    const currentDateForDisabledState = () => {
+      // 현재 날짜의 시간 이후만 Active
+      const calenderApi = calenderRef.current?.getApi()
+
+      const isSameOrAfter = dayjs(calenderApi.view.currentStart).isSameOrAfter(
+        calenderApi.view.activeStart,
+      )
+
+      // 현재 날짜의 시간 이전만 Active
+      const isSameOrBefore = dayjs(calenderApi.view.currentEnd).isSameOrBefore(
+        calenderApi.view.activeEnd,
+      )
+      setIsDisabledPrev(!isSameOrAfter)
+      setIsDisabledNext(!isSameOrBefore)
+    }
 
     const handleCalenderMonthPrev = () => {
       const calenderApi = calenderRef.current?.getApi()
       calenderApi?.prev()
+      currentDateForDisabledState()
       setTitle(calenderApi?.view.title || '')
     }
 
     const handleCalenderMonthNext = () => {
       const calenderApi = calenderRef.current?.getApi()
       calenderApi?.next()
+      currentDateForDisabledState()
       setTitle(calenderApi?.view.title || '')
     }
 
@@ -39,12 +67,20 @@ const CustomCalenderToolbar = forwardRef(
       <Box display='flex' alignItems='center' justifyContent='space-between'>
         <Box display='flex' alignItems='center'>
           <ButtonGroup>
-            <button onClick={handleCalenderMonthPrev}>
-              <ArrowBackIosIcon style={{ width: '18px' }} />
-            </button>
-            <button onClick={handleCalenderMonthNext}>
-              <ArrowForwardIosIcon style={{ width: '18px' }} />
-            </button>
+            <Button disabled={isDisabledPrev} onClick={handleCalenderMonthPrev}>
+              <ArrowBackIosIcon
+                style={{
+                  color: isDisabledPrev ? DISABLED_COLOR : ACTIVE_COLOR,
+                }}
+              />
+            </Button>
+            <Button disabled={isDisabledNext} onClick={handleCalenderMonthNext}>
+              <ArrowForwardIosIcon
+                style={{
+                  color: isDisabledNext ? DISABLED_COLOR : ACTIVE_COLOR,
+                }}
+              />
+            </Button>
           </ButtonGroup>
           <CalenderTitle>{title}</CalenderTitle>
         </Box>
@@ -65,12 +101,16 @@ const ButtonGroup = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-right: 10px;
-
-  & > button {
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
 `
 
+const Button = styled.button<{ disabled: boolean }>(disabled => ({
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+
+  '& > svg': {
+    width: '18px',
+    color: ACTIVE_COLOR,
+  },
+}))
 export default CustomCalenderToolbar
