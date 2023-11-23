@@ -597,22 +597,31 @@ const Row = ({
                   name={`items.${idx}.dueAt`}
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <FullWidthDatePicker
-                      {...DateTimePickerDefaultOptions}
-                      selected={!value ? null : new Date(value)}
-                      onChange={onChange}
-                      placeholderText='MM/DD/YYYY, HH:MM'
-                      customInput={
-                        <CustomInput
-                          label={
-                            from === 'quote'
-                              ? 'Item due date'
-                              : 'Item due date*'
-                          }
-                          icon='calendar'
-                        />
-                      }
-                    />
+                    <Box
+                      sx={{
+                        '& .react-datepicker__close-icon': {
+                          right: '25px !important',
+                        },
+                      }}
+                    >
+                      <FullWidthDatePicker
+                        {...DateTimePickerDefaultOptions}
+                        selected={!value ? null : new Date(value)}
+                        onChange={onChange}
+                        isClearable={from === 'quote'}
+                        placeholderText='MM/DD/YYYY, HH:MM'
+                        customInput={
+                          <CustomInput
+                            label={
+                              from === 'quote'
+                                ? 'Item due date'
+                                : 'Item due date*'
+                            }
+                            icon='calendar'
+                          />
+                        }
+                      />
+                    </Box>
                   )}
                 />
               )}
