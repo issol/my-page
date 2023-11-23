@@ -611,9 +611,6 @@ export default function AddNewOrder() {
       requestId: Number(requestId) ?? null,
     }
 
-    console.log(items)
-    console.log(langs)
-
     const itemPriceIds = new Set(items.map(item => item.priceId))
 
     // langs 배열을 filter 메서드로 필터링하여 items 배열에 없는 priceId를 가진 객체를 제거
@@ -1281,6 +1278,7 @@ export default function AddNewOrder() {
                   type='create'
                   itemTrigger={itemTrigger}
                   sumTotalPrice={sumTotalPrice}
+                  from='order'
                 />
               </Grid>
               <Grid item xs={12}>

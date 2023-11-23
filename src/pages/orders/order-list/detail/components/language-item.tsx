@@ -359,6 +359,7 @@ const LanguageAndItem = ({
           setSelectedIds={setSelectedIds}
           splitReady={splitReady}
           sumTotalPrice={sumTotalPrice}
+          from='order'
         />
       </Grid>
       {langItemsEdit ? (

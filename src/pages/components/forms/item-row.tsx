@@ -47,6 +47,7 @@ import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/round
 import { MemberType } from '@src/types/schema/project-team.schema'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type Props = {
   idx: number
@@ -105,6 +106,7 @@ type Props = {
   findLangPairIndex: (source: string, target: string) => number
   teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
   indexing?: number
+  from: 'quote' | 'order' | 'invoice'
 }
 
 const Row = ({
@@ -131,6 +133,7 @@ const Row = ({
   findLangPairIndex,
   teamMembers,
   indexing,
+  from,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const [contactPersonList, setContactPersonList] = useState<
@@ -549,24 +552,27 @@ const Row = ({
                 <Controller
                   name={`items.${idx}.itemName`}
                   control={control}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <TextField
-                      fullWidth
-                      autoFocus={Boolean(value && value?.length < 2)}
-                      label='Item name*'
-                      variant='outlined'
-                      value={value ?? ''}
-                      onChange={(e: any) => {
-                        if (e.target.value) {
-                          onChange(e.target.value)
-                        } else {
-                          onChange('')
-                        }
-                      }}
-                      inputProps={{ maxLength: 200 }}
-                      error={Boolean(errors?.items?.[idx]?.itemName)}
-                    />
-                  )}
+                  render={({ field: { value, onChange, onBlur } }) => {
+                    return (
+                      <TextField
+                        fullWidth
+                        autoFocus={Boolean(value && value?.length < 2)}
+                        label='Item name*'
+                        variant='outlined'
+                        value={value ?? ''}
+                        onChange={(e: any) => {
+                          if (e.target.value) {
+                            onChange(e.target.value)
+                          } else {
+                            onChange('')
+                          }
+                        }}
+                        inputProps={{ maxLength: 200 }}
+                        error={value === ''}
+                        helperText={value === '' ? FormErrors.required : ''}
+                      />
+                    )
+                  }}
                 />
               </Grid>
             )}
@@ -598,15 +604,31 @@ const Row = ({
                   name={`items.${idx}.dueAt`}
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <FullWidthDatePicker
-                      {...DateTimePickerDefaultOptions}
-                      selected={!value ? null : new Date(value)}
-                      onChange={onChange}
-                      placeholderText='MM/DD/YYYY, HH:MM'
-                      customInput={
-                        <CustomInput label='Item due date*' icon='calendar' />
-                      }
-                    />
+                    <Box
+                      sx={{
+                        '& .react-datepicker__close-icon': {
+                          right: '25px !important',
+                        },
+                      }}
+                    >
+                      <FullWidthDatePicker
+                        {...DateTimePickerDefaultOptions}
+                        selected={!value ? null : new Date(value)}
+                        onChange={onChange}
+                        isClearable={from === 'quote'}
+                        placeholderText='MM/DD/YYYY, HH:MM'
+                        customInput={
+                          <CustomInput
+                            label={
+                              from === 'quote'
+                                ? 'Item due date'
+                                : 'Item due date*'
+                            }
+                            icon='calendar'
+                          />
+                        }
+                      />
+                    </Box>
                   )}
                 />
               )}
@@ -666,12 +688,21 @@ const Row = ({
                           }}
                           disableClearable={value ? false : true}
                           onChange={(e, v) => {
-                            onChange(v?.value ?? '')
+                            if (v) {
+                              onChange(v.value)
+                            } else {
+                              onChange(null)
+                            }
                           }}
                           value={
-                            !value
-                              ? // 신규 생성일땐 프로젝트 매니저가 기본으로 들어감
-                                contactPersonList.find(
+                            type === 'edit'
+                              ? value
+                                ? contactPersonList.find(
+                                    item => item.value === value,
+                                  )
+                                : null
+                              : value
+                              ? contactPersonList.find(
                                   item =>
                                     item.value ===
                                     teamMembers?.find(
@@ -679,15 +710,16 @@ const Row = ({
                                         member.type === 'projectManagerId',
                                     )?.id!,
                                 )
-                              : // 수정일땐 기존 설정된 값이 들어감
-                                contactPersonList.find(
-                                  item => item.value === value,
-                                )
+                              : null
                           }
                           renderInput={params => (
                             <TextField
                               {...params}
-                              label='Contact person for job*'
+                              label={
+                                from === 'quote'
+                                  ? 'Contact person form job'
+                                  : 'Contact person for job*'
+                              }
                               // placeholder='Contact person for job*'
                             />
                           )}
@@ -1038,6 +1070,7 @@ const Row = ({
                   getValues={getValues}
                   onCopyAnalysis={onCopyAnalysis}
                   type={type}
+                  from={from}
                 />
               </Grid>
             )}

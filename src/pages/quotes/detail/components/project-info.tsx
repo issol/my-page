@@ -327,7 +327,7 @@ export default function QuotesProjectInfoDetail({
                       onClick={() => {
                         project.reason &&
                           onClickReason(
-                            project.reason.type === 'revision-request'
+                            project.reason.type === 'revision-requested'
                               ? 'Requested'
                               : project.reason.type?.replace(/^[a-z]/, char =>
                                   char.toUpperCase(),

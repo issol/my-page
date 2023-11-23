@@ -41,7 +41,7 @@ import {
   quotesProjectInfoSchema,
 } from '@src/types/schema/quotes-project-info.schema'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import { itemSchema } from '@src/types/schema/item.schema'
+import { itemSchema, quoteItemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
@@ -225,7 +225,6 @@ export default function AddNewQuote() {
     defaultValues: {
       ...quotesProjectInfoDefaultValue,
       quoteDate: {
-        date: Date(),
         timezone: getClientValue().contacts?.timezone!,
         // JSON.parse(getUserDataFromBrowser()!).timezone,
       },
@@ -247,12 +246,19 @@ export default function AddNewQuote() {
     watch: itemWatch,
     trigger: itemTrigger,
     reset: itemReset,
-    formState: { errors: itemErrors, isValid: isItemValid },
+
+    formState: {
+      errors: itemErrors,
+      isValid: isItemValid,
+      dirtyFields: itemDirtyFields,
+    },
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(quoteItemSchema),
   })
+
+  console.log(typeof itemDirtyFields)
 
   const {
     fields: items,
@@ -419,7 +425,7 @@ export default function AddNewQuote() {
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      itemName: '',
+      itemName: null,
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
@@ -469,6 +475,10 @@ export default function AddNewQuote() {
     const projectInfo = {
       ...rawProjectInfo,
       tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
+      // quoteDate: {
+      //   ...rawProjectInfo.quoteDate,
+      //   date: rawProjectInfo.quoteDate.date.toISOString(),
+      // },
       subtotal: subPrice,
     }
 
@@ -743,6 +753,7 @@ export default function AddNewQuote() {
                   itemTrigger={itemTrigger}
                   type='create'
                   sumTotalPrice={sumTotalPrice}
+                  from='quote'
                 />
               </Grid>
               <Grid item xs={12}>

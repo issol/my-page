@@ -76,6 +76,7 @@ import { ClientFormType } from '@src/types/schema/client.schema'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { useMutation } from 'react-query'
 import { addWorkName } from '@src/apis/common.api'
+import dayjs from 'dayjs'
 
 type Props = {
   control: Control<QuotesProjectInfoAddNewType, any>
@@ -137,6 +138,7 @@ export default function ProjectInfoForm({
   useEffect(() => {
     if (clientTimezone) {
       ;[
+        'quoteDate.timezone',
         'projectDueDate.timezone',
         'quoteDeadline.timezone',
         'quoteExpiryDate.timezone',
@@ -166,11 +168,7 @@ export default function ProjectInfoForm({
       )
     }
     if (getClientValue() && !getValues('quoteDate.date')) {
-      setValue(
-        'quoteDate.date',
-        String(formattedNow(new Date())!),
-        setValueOptions,
-      )
+      setValue('quoteDate.date', formattedNow(new Date())!, setValueOptions)
     }
   }, [getClientValue, getValues])
 
@@ -242,6 +240,10 @@ export default function ProjectInfoForm({
     )
   }
 
+  const dateValue = (date: Date) => {
+    return dayjs(date).format('MM/DD/YYYY, hh:mm A')
+  }
+
   return (
     <Fragment>
       <Grid item xs={6}>
@@ -251,13 +253,25 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
-              selected={
-                !value
-                  ? formattedNow(new Date())
-                  : formattedNow(new Date(value))
+              placeholderText='MM/DD/YYYY, HH:MM'
+              selected={!value ? null : formattedNow(new Date(value))}
+              onChange={e => {
+                console.log(e)
+
+                onChange(e)
+              }}
+              customInput={
+                <Box>
+                  <CustomInput
+                    label='Quote date*'
+                    icon='calendar'
+                    readOnly
+                    value={
+                      value ? dateValue(formattedNow(new Date(value))) : ''
+                    }
+                  />
+                </Box>
               }
-              onChange={onChange}
-              customInput={<CustomInput label='Quote date*' icon='calendar' />}
             />
           )}
         />

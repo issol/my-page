@@ -115,6 +115,7 @@ type Props = {
     languagePairs: LanguagePairTypeInItem[]
     subtotal: number
   }[]
+  from: 'order' | 'quote' | 'invoice'
 }
 
 export type DetailNewDataType = {
@@ -149,6 +150,7 @@ export default function ItemForm({
   splitReady,
   sumTotalPrice,
   orders,
+  from,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
@@ -413,6 +415,7 @@ export default function ItemForm({
                       checkPriceCurrency={checkPriceCurrency}
                       findLangPairIndex={findLangPairIndex}
                       indexing={data.indexing}
+                      from={from}
                     />
                   )
                 })}
@@ -445,6 +448,7 @@ export default function ItemForm({
               priceUnitsList={priceUnitsList}
               checkPriceCurrency={checkPriceCurrency}
               findLangPairIndex={findLangPairIndex}
+              from={from}
             />
           ))}
         </>

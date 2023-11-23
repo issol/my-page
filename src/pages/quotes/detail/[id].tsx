@@ -94,7 +94,7 @@ import {
 } from '@src/types/schema/quotes-project-info.schema'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import { itemSchema } from '@src/types/schema/item.schema'
+import { itemSchema, quoteItemSchema } from '@src/types/schema/item.schema'
 import { languageType } from '../add-new'
 
 // ** hook
@@ -144,11 +144,11 @@ import Link from 'next/link'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { QuoteStatusChip } from '@src/@core/components/chips/chips'
 import { CancelOrderReason } from '@src/shared/const/reason/reason'
-import { UserRoleType } from '@src/context/types'
-import { ProjectInfoType } from '@src/types/common/quotes.type'
+
 import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+import dayjs from 'dayjs'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -418,7 +418,7 @@ export default function QuotesDetail() {
         showDescription: project.showDescription,
 
         quoteDate: {
-          date: project.quoteDate,
+          date: new Date(project.quoteDate),
           timezone: project.quoteDateTimezone ?? defaultTimezone,
         },
         projectDueDate: {
@@ -442,7 +442,7 @@ export default function QuotesDetail() {
       setProjectInfo('tax', project.tax)
       setProjectInfo('isTaxable', project.isTaxable)
       setProjectInfo('quoteDate', {
-        date: project.quoteDate,
+        date: new Date(project.quoteDate),
         timezone: project.quoteDateTimezone ?? defaultTimezone,
       })
     }
@@ -469,7 +469,7 @@ export default function QuotesDetail() {
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(quoteItemSchema),
   })
 
   const {
@@ -480,16 +480,6 @@ export default function QuotesDetail() {
   } = useFieldArray({
     control: itemControl,
     name: 'items',
-  })
-
-  const {
-    fields: languagePairs,
-    append: appendLanguagePairs,
-    remove: removeLanguagePairs,
-    update: updateLanguagePairs,
-  } = useFieldArray({
-    control: itemControl,
-    name: 'languagePairs',
   })
 
   useEffect(() => {
@@ -1105,7 +1095,7 @@ export default function QuotesDetail() {
       children: (
         <DiscardModal
           onClose={() => {
-            callback()
+            // callback()
             closeModal('DiscardModal')
           }}
           onClick={() => {
@@ -1420,27 +1410,6 @@ export default function QuotesDetail() {
     makePdfData()
   }, [project, client])
 
-  const deleteButtonDisabled = () => {
-    if (client?.contactPerson?.userId === null) {
-      return (
-        !isDeletable ||
-        (project?.status !== 'New' &&
-          project?.status !== 'In preparation' &&
-          project?.status !== 'Internal review' &&
-          project?.status !== 'Expired')
-      )
-    } else {
-      return (
-        !isDeletable ||
-        (project?.status !== 'New' &&
-          project?.status !== 'In preparation' &&
-          project?.status !== 'Internal review' &&
-          project?.status === 'Expired' &&
-          project?.confirmedAt !== null)
-      )
-    }
-  }
-
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -1478,7 +1447,11 @@ export default function QuotesDetail() {
                 height='50px'
               />
               <Typography variant='h5'>{project?.corporationId}</Typography>
-              {project?.linkedOrder || project?.linkedRequest ? (
+              {(project?.linkedOrder || project?.linkedRequest) &&
+              !editProject &&
+              !editItems &&
+              !editClient &&
+              !editTeam ? (
                 <Box>
                   <IconButton
                     sx={{ width: '24px', height: '24px', padding: 0 }}
@@ -1555,7 +1528,11 @@ export default function QuotesDetail() {
               ) : null}
             </Box>
           </Box>
-          {currentRole && currentRole.name === 'CLIENT' ? null : (
+          {(currentRole && currentRole.name === 'CLIENT') ||
+          editProject ||
+          editItems ||
+          editClient ||
+          editTeam ? null : (
             <Box display='flex' alignItems='center' gap='14px'>
               <Button
                 variant='outlined'
