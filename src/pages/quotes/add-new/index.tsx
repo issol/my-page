@@ -246,12 +246,19 @@ export default function AddNewQuote() {
     watch: itemWatch,
     trigger: itemTrigger,
     reset: itemReset,
-    formState: { errors: itemErrors, isValid: isItemValid },
+
+    formState: {
+      errors: itemErrors,
+      isValid: isItemValid,
+      dirtyFields: itemDirtyFields,
+    },
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(quoteItemSchema),
   })
+
+  console.log(typeof itemDirtyFields)
 
   const {
     fields: items,
@@ -418,7 +425,7 @@ export default function AddNewQuote() {
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      itemName: '',
+      itemName: null,
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,

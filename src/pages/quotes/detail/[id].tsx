@@ -467,7 +467,7 @@ export default function QuotesDetail() {
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(quoteItemSchema),
   })

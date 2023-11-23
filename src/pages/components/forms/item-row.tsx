@@ -47,6 +47,7 @@ import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/round
 import { MemberType } from '@src/types/schema/project-team.schema'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type Props = {
   idx: number
@@ -544,27 +545,27 @@ const Row = ({
                 <Controller
                   name={`items.${idx}.itemName`}
                   control={control}
-                  render={({
-                    field: { value, onChange, onBlur },
-                    fieldState: { isDirty },
-                  }) => (
-                    <TextField
-                      fullWidth
-                      autoFocus={Boolean(value && value?.length < 2)}
-                      label='Item name*'
-                      variant='outlined'
-                      value={value ?? ''}
-                      onChange={(e: any) => {
-                        if (e.target.value) {
-                          onChange(e.target.value)
-                        } else {
-                          onChange('')
-                        }
-                      }}
-                      inputProps={{ maxLength: 200 }}
-                      error={isDirty && !value}
-                    />
-                  )}
+                  render={({ field: { value, onChange, onBlur } }) => {
+                    return (
+                      <TextField
+                        fullWidth
+                        autoFocus={Boolean(value && value?.length < 2)}
+                        label='Item name*'
+                        variant='outlined'
+                        value={value ?? ''}
+                        onChange={(e: any) => {
+                          if (e.target.value) {
+                            onChange(e.target.value)
+                          } else {
+                            onChange('')
+                          }
+                        }}
+                        inputProps={{ maxLength: 200 }}
+                        error={value === ''}
+                        helperText={value === '' ? FormErrors.required : ''}
+                      />
+                    )
+                  }}
                 />
               </Grid>
             )}
