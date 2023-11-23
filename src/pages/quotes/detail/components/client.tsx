@@ -220,7 +220,10 @@ export default function QuotesClientDetail({
                   }}
                 >
                   <Box sx={{ textTransform: 'capitalize' }}>
-                    {client.addressType}
+                    {
+                      client.clientAddress.find(value => value.isSelected)
+                        ?.addressType
+                    }
                   </Box>
                   &nbsp;address
                 </Typography>
