@@ -1,23 +1,18 @@
-import { Box, Tooltip, Typography } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import {
   ExtraNumberChip,
-  InvoiceReceivableChip,
   JobTypeChip,
   QuoteStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import { TableTitleTypography } from '@src/@core/styles/typography'
+
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import {
-  formatByRoundingProcedure,
-  formatCurrency,
-  getCurrencyMark,
-} from '@src/shared/helpers/price.helper'
+
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { QuotesListType } from '@src/types/common/quotes.type'
-import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
+
 import { Loadable } from 'recoil'
 
 type QuotesListCellType = {
@@ -154,7 +149,7 @@ export const getQuoteListColumns = (
             {row.serviceType?.length > 1 ? (
               <ExtraNumberChip
                 size='small'
-                label={row.serviceType.slice(1).length}
+                label={`+${row.serviceType.slice(1).length}`}
               />
             ) : null}
           </Box>

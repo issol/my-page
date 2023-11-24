@@ -1,33 +1,17 @@
 import { Card, Typography } from '@mui/material'
 
 import { Box } from '@mui/system'
-import {
-  DataGrid,
-  GridColumns,
-  GridRowParams,
-  GridSortDirection,
-  gridClasses,
-} from '@mui/x-data-grid'
-import {
-  ExtraNumberChip,
-  JobTypeChip,
-  QuoteStatusChip,
-  ServiceTypeChip,
-} from '@src/@core/components/chips/chips'
+import { DataGrid, GridSortDirection, gridClasses } from '@mui/x-data-grid'
+
 import { useRouter } from 'next/router'
 import { QuotesListType } from '@src/types/common/quotes.type'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { useContext, useState } from 'react'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { formatCurrency } from '@src/shared/helpers/price.helper'
+
 import { QuotesFilterType, SortType } from '@src/types/quotes/quote'
 import { UserRoleType } from '@src/context/types'
 import { getQuoteListColumns } from '@src/shared/const/columns/quote-list'
-
-type QuotesListCellType = {
-  row: QuotesListType
-}
 
 type Props = {
   skip: number
