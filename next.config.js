@@ -60,6 +60,7 @@ module.exports = withTM({
         './node_modules/apexcharts-clevision',
       ),
     }
+    config.devtool = 'source-map'
 
     return config
   },
