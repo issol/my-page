@@ -115,6 +115,7 @@ export type QuotesListType = {
   totalPrice: number
   updatedAt: string
   subtotal: number
+  sortIndex?: number
 }
 
 export type ProjectInfoType = {
