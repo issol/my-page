@@ -480,6 +480,16 @@ export default function QuotesDetail() {
     name: 'items',
   })
 
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
+  })
+
   useEffect(() => {
     if (!isItemLoading && itemsWithLang) {
       ;(async function () {
@@ -1750,7 +1760,7 @@ export default function QuotesDetail() {
             <Card>
               <CardContent sx={{ padding: '24px' }}>
                 <QuotesLanguageItemsDetail
-                  languagePairs={getItem('languagePairs')}
+                  // languagePairs={getItem('languagePairs')}
                   setLanguagePairs={(languagePair: languageType[]) =>
                     setItem('languagePairs', languagePair)
                   }
@@ -1775,6 +1785,9 @@ export default function QuotesDetail() {
                   role={currentRole!}
                   itemTrigger={itemTrigger}
                   project={project}
+                  languagePairs={languagePairs}
+                  appendLanguagePairs={appendLanguagePairs}
+                  updateLanguagePairs={updateLanguagePairs}
                 />
                 {editItems
                   ? renderSubmitButton({

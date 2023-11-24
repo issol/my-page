@@ -1261,6 +1261,10 @@ export default function AddNewOrder() {
                   getPriceOptions={getPriceOptions}
                   onDeleteLanguagePair={onDeleteLanguagePair}
                   control={itemControl}
+                  append={appendLanguagePairs}
+                  update={updateLanguagePairs}
+                  itemTrigger={itemTrigger}
+                  languagePairs={languagePairs}
                 />
               </Grid>
               <Grid item xs={12} mt={6} mb={6}>

@@ -1883,7 +1883,7 @@ const OrderDetail = () => {
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
                   <LanguageAndItem
-                    languagePairs={getItem('languagePairs')}
+                    // languagePairs={getItem('languagePairs')}
                     setLanguagePairs={(languagePair: languageType[]) =>
                       setItem('languagePairs', languagePair)
                     }
@@ -1918,6 +1918,9 @@ const OrderDetail = () => {
                     canUseFeature={canUseFeature}
                     isIncludeProjectTeam={isIncludeProjectTeam()}
                     type='detail'
+                    languagePairs={languagePairs}
+                    appendLanguagePairs={appendLanguagePairs}
+                    updateLanguagePairs={updateLanguagePairs}
                   />
 
                   {/* <Grid item xs={12}>
