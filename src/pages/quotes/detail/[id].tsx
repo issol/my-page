@@ -398,8 +398,6 @@ export default function QuotesDetail() {
 
   const setProjectInfoData = () => {
     if (!isProjectLoading && project && statusList) {
-      // console.log(project.quoteDateTimezone)
-
       const defaultTimezone = {
         code: '',
         phone: '',
@@ -430,7 +428,7 @@ export default function QuotesDetail() {
           timezone: project.quoteDeadlineTimezone ?? defaultTimezone,
         },
         quoteExpiryDate: {
-          date: project.quoteExpiryDate,
+          date: new Date(project.quoteExpiryDate),
           timezone: project.quoteExpiryDateTimezone ?? defaultTimezone,
         },
         estimatedDeliveryDate: {

@@ -225,7 +225,7 @@ export default function AddNewQuote() {
     defaultValues: {
       ...quotesProjectInfoDefaultValue,
       quoteDate: {
-        timezone: getClientValue().contacts?.timezone!,
+        // timezone: getClientValue().contacts?.timezone!,
         // JSON.parse(getUserDataFromBrowser()!).timezone,
       },
       status: 20000,
@@ -270,16 +270,6 @@ export default function AddNewQuote() {
     name: 'items',
   })
 
-  const {
-    fields: languagePairs,
-    append: appendLanguagePairs,
-    remove: removeLanguagePairs,
-    update: updateLanguagePairs,
-  } = useFieldArray({
-    control: itemControl,
-    name: 'languagePairs',
-  })
-
   useEffect(() => {
     if (!router.isReady) return
     if (requestId) {
@@ -289,12 +279,14 @@ export default function AddNewQuote() {
 
   useEffect(() => {
     // console.log(languagePairs)
-    if (languagePairs && prices) {
+    if (getItem('languagePairs').length > 0 && prices) {
       const priceInfo =
-        prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
+        prices?.find(
+          value => value.id === getItem('languagePairs')[0]?.price?.id,
+        ) ?? null
       setPriceInfo(priceInfo)
     }
-  }, [prices, languagePairs])
+  }, [prices, getItem('languagePairs')])
 
   function initializeFormWithRequest() {
     if (requestId && requestData) {
@@ -383,20 +375,12 @@ export default function AddNewQuote() {
       const idx = getItem('languagePairs')
         .map(item => item.id)
         .indexOf(row.id)
-      const copyOriginal = [...languagePairs]
+      const copyOriginal = [...getItem('languagePairs')]
       copyOriginal.splice(idx, 1)
       // setLanguagePairs([...copyOriginal])
       setItem('languagePairs', [...copyOriginal])
     }
   }
-
-  // console.log(getItem())
-
-  // console.log(
-  //   getItem().items.reduce((acc, cur) => {
-  //     return acc + cur.totalPrice
-  //   }, 0),
-  // )
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -415,8 +399,8 @@ export default function AddNewQuote() {
   }
 
   function isAddItemDisabled(): boolean {
-    if (!languagePairs.length) return true
-    return languagePairs.some(item => !item?.price)
+    if (!getItem('languagePairs').length) return true
+    return getItem('languagePairs').some(item => !item?.price)
   }
 
   function addNewItem() {
@@ -506,7 +490,7 @@ export default function AddNewQuote() {
       }
     })
 
-    const langs = languagePairs.map(item => {
+    const langs = getItem('languagePairs').map(item => {
       if (item?.price?.id) {
         return {
           source: item.source,

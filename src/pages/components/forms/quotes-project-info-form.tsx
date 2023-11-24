@@ -128,6 +128,16 @@ export default function ProjectInfoForm({
     return formattedDate
   }
 
+  function add30DaysAndSetTimeTo9AM(date: Date) {
+    // 30일을 더합니다.
+    date.setDate(date.getDate() + 30)
+
+    // 시간을 오전 9시로 설정합니다.
+    date.setHours(9, 0, 0, 0)
+
+    return date
+  }
+
   const defaultValue = { value: '', label: '' }
 
   const { openModal, closeModal } = useModal()
@@ -137,6 +147,7 @@ export default function ProjectInfoForm({
 
   useEffect(() => {
     if (clientTimezone) {
+      console.log(clientTimezone)
       ;[
         'quoteDate.timezone',
         'projectDueDate.timezone',
@@ -160,7 +171,10 @@ export default function ProjectInfoForm({
   }, [newWorkName])
 
   useEffect(() => {
-    if (getClientValue() && !getValues('quoteDate.timezone')) {
+    if (
+      getClientValue('contacts.timezone') &&
+      !getValues('quoteDate.timezone')
+    ) {
       setValue(
         'quoteDate.timezone',
         getClientValue('contacts.timezone')!,
@@ -169,6 +183,13 @@ export default function ProjectInfoForm({
     }
     if (getClientValue() && !getValues('quoteDate.date')) {
       setValue('quoteDate.date', formattedNow(new Date())!, setValueOptions)
+    }
+    if (!getValues('quoteExpiryDate.date')) {
+      setValue(
+        'quoteExpiryDate.date',
+        add30DaysAndSetTimeTo9AM(getValues('quoteDate.date'))!,
+        setValueOptions,
+      )
     }
   }, [getClientValue, getValues])
 
@@ -692,15 +713,30 @@ export default function ProjectInfoForm({
           name='quoteExpiryDate.date'
           control={control}
           render={({ field: { value, onChange } }) => (
-            <FullWidthDatePicker
-              {...DateTimePickerDefaultOptions}
-              selected={!value ? null : new Date(value)}
-              onChange={onChange}
-              placeholderText='MM/DD/YYYY, HH:MM'
-              customInput={
-                <CustomInput label='Quote expiry date' icon='calendar' />
-              }
-            />
+            <Box
+              sx={{
+                '&:hover .react-datepicker__close-icon': {
+                  right: '25px !important',
+                  opacity: 0.7,
+                },
+                '& .react-datepicker__close-icon': {
+                  right: '25px !important',
+                  opacity: 0,
+                  transition: 'opacity 0.2s ease-in-out',
+                },
+              }}
+            >
+              <FullWidthDatePicker
+                {...DateTimePickerDefaultOptions}
+                selected={!value ? null : new Date(value)}
+                onChange={onChange}
+                isClearable
+                placeholderText='MM/DD/YYYY, HH:MM'
+                customInput={
+                  <CustomInput label='Quote expiry date' icon='calendar' />
+                }
+              />
+            </Box>
           )}
         />
       </Grid>
