@@ -26,11 +26,33 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import { useGetStatusList } from '@src/queries/common.query'
 import useCalenderResize from '@src/hooks/useCalenderResize'
+import dayjs from 'dayjs'
+
+interface DataItem {
+  updatedAt: string
+  status: string
+  sortIndex: number
+}
 
 const CalendarContainer = () => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
   const { data: statusList } = useGetStatusList('Quote')
+  const quoteOrder = [
+    'New',
+    'In preparation',
+    'Internal review',
+    'Quote sent',
+    'Client review',
+    'Revision requested',
+    'Under revision',
+    'Revised',
+    'Accepted',
+    'Changed into order',
+    'Expired',
+    'Rejected',
+    'Canceled',
+  ]
 
   const [statuses, setStatuses] = useState<
     Array<{ color: string; value: number; label: string }>
@@ -110,7 +132,30 @@ const CalendarContainer = () => {
 
   useEffect(() => {
     if (data?.data?.length && !isLoading) {
-      setEvent([...data.data])
+      const groupedData: Record<string, QuotesListType[]> = data.data.reduce(
+        (acc: Record<string, QuotesListType[]>, item: QuotesListType) => {
+          const date = dayjs(item.updatedAt).format('YYYY-MM-DD')
+          if (!acc[date]) {
+            acc[date] = []
+          }
+          acc[date].push(item)
+          return acc
+        },
+        {},
+      )
+
+      Object.keys(groupedData).forEach(date => {
+        groupedData[date].sort(
+          (a, b) => quoteOrder.indexOf(a.status) - quoteOrder.indexOf(b.status),
+        )
+        groupedData[date].forEach((item, index) => {
+          item.sortIndex = index
+        })
+      })
+
+      const sortedData = Object.values(groupedData).flat()
+
+      setEvent(sortedData)
     } else {
       setEvent([])
     }

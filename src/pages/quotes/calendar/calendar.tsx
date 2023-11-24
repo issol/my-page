@@ -64,6 +64,7 @@ const Calendar = (props: QuoteCalender) => {
     events: finalEvent,
     ref: calendarRef,
     direction,
+    eventOrder: 'sortIndex',
     eventContent: (arg: any) => {
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>

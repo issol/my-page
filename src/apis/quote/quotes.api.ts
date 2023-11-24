@@ -60,7 +60,7 @@ function getColor(status: QuoteStatusType) {
     : status === 'In preparation'
     ? `#F572D8`
     : status === 'Internal review'
-    ? `#20B6E5`
+    ? `#D8AF1D`
     : status === 'Client review'
     ? `#FDB528`
     : status === 'Expired'
