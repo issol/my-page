@@ -367,10 +367,12 @@ export default function RegisterClientForm({
                   (fromQuote && getValue('isEnrolledClient'))
                 }
                 value={
-                  selectedPerson || {
-                    value: NOT_APPLICABLE,
-                    label: 'Not applicable',
-                  }
+                  formType === 'edit'
+                    ? selectedPerson || {
+                        value: NOT_APPLICABLE,
+                        label: 'Not applicable',
+                      }
+                    : selectedPerson || { value: '', label: '' }
                 }
                 renderInput={params => (
                   <TextField
