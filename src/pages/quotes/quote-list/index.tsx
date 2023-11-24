@@ -125,6 +125,8 @@ export default function Quotes({ id, user }: Props) {
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
     skip: 0,
+    sort: 'name',
+    ordering: 'desc',
   })
   const { data: companies, isLoading: companiesListLoading } =
     currentRole?.name === 'CLIENT'
@@ -266,10 +268,13 @@ export default function Quotes({ id, user }: Props) {
 
   useEffect(() => {
     if (clients && !clientListLoading) {
-      const res = clients.data.map(client => ({
-        label: client.name,
-        value: client.clientId,
-      }))
+      const res = clients.data
+        .map(client => ({
+          label: client.name,
+          value: client.clientId,
+        }))
+        .slice()
+        .sort((a, b) => b.label.localeCompare(a.label))
       setClientList(res)
     }
   }, [clients, clientListLoading])
