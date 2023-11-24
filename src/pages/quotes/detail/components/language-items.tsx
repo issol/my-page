@@ -41,6 +41,7 @@ import {
   FieldErrors,
   UseFieldArrayAppend,
   UseFieldArrayRemove,
+  UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
@@ -54,7 +55,7 @@ import {
 import { ProjectInfoType } from '@src/types/common/quotes.type'
 
 type Props = {
-  languagePairs: Array<languageType>
+  // languagePairs: Array<languageType>
   setLanguagePairs: (languagePair: languageType[]) => void
   clientId: number | null
   priceUnitsList: PriceUnitListType[]
@@ -109,6 +110,28 @@ type Props = {
   isUpdatable: boolean
   role: UserRoleType
   project?: ProjectInfoType
+  appendLanguagePairs: UseFieldArrayAppend<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    'languagePairs'
+  >
+  updateLanguagePairs: UseFieldArrayUpdate<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    'languagePairs'
+  >
+  languagePairs: FieldArrayWithId<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    'languagePairs',
+    'id'
+  >[]
 }
 
 export default function QuotesLanguageItemsDetail({
@@ -135,6 +158,8 @@ export default function QuotesLanguageItemsDetail({
   role,
   itemTrigger,
   project,
+  appendLanguagePairs,
+  updateLanguagePairs,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -233,10 +258,15 @@ export default function QuotesLanguageItemsDetail({
     }
 
     function deleteLanguage() {
-      const idx = languagePairs.map(item => item.id).indexOf(row.id)
-      const copyOriginal = [...languagePairs]
+      const idx = getItem('languagePairs')
+        .map(item => item.id)
+        .indexOf(row.id)
+
+      const copyOriginal = [...getItem('languagePairs')]
       copyOriginal.splice(idx, 1)
-      setLanguagePairs([...copyOriginal])
+      // setLanguagePairs([...copyOriginal])
+      setItem('languagePairs', [...copyOriginal])
+      itemTrigger('languagePairs')
     }
   }
 
@@ -288,6 +318,10 @@ export default function QuotesLanguageItemsDetail({
             onDeleteLanguagePair={onDeleteLanguagePair}
             items={items}
             control={itemControl}
+            languagePairs={languagePairs}
+            append={appendLanguagePairs}
+            update={updateLanguagePairs}
+            itemTrigger={itemTrigger}
           />
         </Grid>
       )}

@@ -347,8 +347,8 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                       display: 'flex',
                       gap: '20px',
                       borderBottom: '2px solid #666CFF',
-                      justifyContent: 'center',
-                      width: '257px',
+                      // justifyContent: 'center',
+                      width: '30%',
                     }}
                   >
                     <Typography
@@ -356,8 +356,9 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                       variant='subtitle1'
                       sx={{
                         padding: '16px 16px 16px 20px',
+                        display: 'flex',
                         flex: 1,
-                        textAlign: 'right',
+                        justifyContent: 'flex-end',
                       }}
                     >
                       Subtotal
@@ -365,7 +366,12 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                      }}
                     >
                       {formatCurrency(
                         formatByRoundingProcedure(
@@ -401,8 +407,10 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                   <Box display='flex' alignItems='center' gap='4px'>
                     <Box>
                       {history.projectInfo?.isTaxable
-                        ? `${history.projectInfo?.tax} %`
-                        : '-'}{' '}
+                        ? history.projectInfo.tax
+                          ? `${history.projectInfo?.tax} %`
+                          : '- %'
+                        : '- %'}
                     </Box>
                   </Box>
                 </Grid>

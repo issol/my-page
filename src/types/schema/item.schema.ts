@@ -114,4 +114,11 @@ export const quoteItemSchema = yup.object().shape({
       showItemDescription: yup.boolean().required(),
     }),
   ),
+  languagePairs: yup.array().of(
+    yup.object().shape({
+      source: yup.string().required(FormErrors.required),
+      target: yup.string().required(FormErrors.required),
+      price: yup.object().required(FormErrors.required),
+    }),
+  ),
 })

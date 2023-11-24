@@ -53,7 +53,15 @@ import useModal from '@src/hooks/useModal'
 // ** modals
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import { ItemType } from '@src/types/common/item.type'
-import { Control, Controller, UseFormGetValues } from 'react-hook-form'
+import {
+  Control,
+  Controller,
+  FieldArrayWithId,
+  UseFieldArrayAppend,
+  UseFieldArrayUpdate,
+  UseFormGetValues,
+  UseFormTrigger,
+} from 'react-hook-form'
 import { languageType } from '@src/pages/quotes/add-new'
 
 type Props = {
@@ -72,9 +80,35 @@ type Props = {
     languagePairs: languageType[]
   }>
   control: Control<{ items: ItemType[]; languagePairs: languageType[] }, any>
+  itemTrigger: UseFormTrigger<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
+  append: UseFieldArrayAppend<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    'languagePairs'
+  >
+  update: UseFieldArrayUpdate<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    'languagePairs'
+  >
+  languagePairs: FieldArrayWithId<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    'languagePairs',
+    'id'
+  >[]
 }
 export default function AddLanguagePairForm({
-  // languagePairs,
+  languagePairs,
   setLanguagePairs,
   getPriceOptions,
   type,
@@ -82,6 +116,9 @@ export default function AddLanguagePairForm({
   items,
   getItem,
   control,
+  itemTrigger,
+  append,
+  update,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -116,20 +153,31 @@ export default function AddLanguagePairForm({
   function onAddLanguagePair() {
     const result: Array<languageType> = []
 
-    languagePair?.target?.forEach(target => {
+    languagePair?.target?.forEach((target, index) => {
       const isDuplicated = getItem('languagePairs').some(
         pair => languagePair.source === pair.source && pair.target === target,
       )
       if (isDuplicated) return
+
+      const options = getPriceOptions(languagePair.source, target)
+
+      const matchingPrice = options.filter(
+        item => item.groupName === 'Matching price',
+      )
+
       result.push({
         id: uuidv4(),
         source: languagePair.source,
         target,
-        price: null,
+        price: matchingPrice.length === 1 ? matchingPrice[0] : null,
       })
     })
-    setLanguagePairs(getItem('languagePairs').concat(result))
+    result.map(value => {
+      append(value)
+    })
+
     setLanguagePair({ source: '', target: [] })
+    // itemTrigger('languagePairs')
   }
 
   const updateLanguagePairs = (languagePairs: languageType[]) => {
@@ -161,10 +209,13 @@ export default function AddLanguagePairForm({
         price: null,
       }))
     }
-    if (isValidCondition) setLanguagePairs(languagePairs)
-    else {
+    if (isValidCondition) {
+      setLanguagePairs(languagePairs)
+      itemTrigger('languagePairs')
+    } else {
       selectCurrencyViolation(type)
       setLanguagePairs(updatedLanguagePairs)
+      itemTrigger('languagePairs')
     }
   }
 
@@ -320,44 +371,29 @@ export default function AddLanguagePairForm({
               </TableRow>
             </TableHead>
             <TableBody>
-              {!getItem('languagePairs')?.length ? (
+              {!languagePairs.length ? (
                 <TableRow tabIndex={-1}>
                   <TableCell colSpan={3} align='center'>
                     There are no language pairs for this project
                   </TableCell>
                 </TableRow>
               ) : null}
-              {getItem('languagePairs') &&
-                getItem('languagePairs')
+              {languagePairs &&
+                languagePairs
                   ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, idx) => {
-                    const options = getPriceOptions(row.source, row.target)
-
-                    const matchingPrice = options.filter(
-                      item => item.groupName === 'Matching price',
-                    )
-                    if (
-                      matchingPrice.length === 1 &&
-                      getItem('languagePairs')[idx].price === null
-                    ) {
-                      const copyPairs = [...getItem('languagePairs')]
-                      copyPairs[idx].price = matchingPrice[0]
-                      updateLanguagePairs(copyPairs)
-                    }
-                    let hasMatchingPrice = false
-                    let hasStandardPrice = false
-                    options.find(option => {
-                      if (
-                        option.groupName &&
-                        option.groupName === 'Matching price'
-                      )
-                        hasMatchingPrice = true
-                      if (
-                        option.groupName &&
-                        option.groupName === 'Standard client price'
-                      )
-                        hasStandardPrice = true
-                    })
+                    // options.find(option => {
+                    //   if (
+                    //     option.groupName &&
+                    //     option.groupName === 'Matching price'
+                    //   )
+                    //     hasMatchingPrice = true
+                    //   if (
+                    //     option.groupName &&
+                    //     option.groupName === 'Standard client price'
+                    //   )
+                    //     hasStandardPrice = true
+                    // })
                     // row가 갑자기 여러번 리랜더링 되는 현상이 있음
 
                     return (
@@ -396,24 +432,34 @@ export default function AddLanguagePairForm({
                                   value={
                                     !value
                                       ? null
-                                      : options.find(
-                                          item => item.id === value?.id,
-                                        ) || null
+                                      : getPriceOptions(
+                                          row.source,
+                                          row.target,
+                                        ).find(item => item.id === value?.id) ||
+                                        null
                                   }
                                   size='small'
                                   sx={{ width: 300 }}
-                                  options={options}
+                                  options={getPriceOptions(
+                                    row.source,
+                                    row.target,
+                                  )}
                                   groupBy={option => option?.groupName ?? ''}
                                   onChange={(e, v) => {
-                                    if (v && v.id === -1) {
-                                      selectNotApplicableModal()
+                                    if (!v) {
+                                      onChange(null)
                                     } else {
-                                      onChange(v)
-                                      const copyPairs = [
-                                        ...getItem('languagePairs'),
-                                      ]
-                                      copyPairs[idx].price = v
-                                      updateLanguagePairs(copyPairs)
+                                      if (v.id === -1) {
+                                        selectNotApplicableModal()
+                                      } else {
+                                        onChange(v)
+
+                                        const copyPairs = [
+                                          ...getItem('languagePairs'),
+                                        ]
+                                        copyPairs[idx].price = v
+                                        updateLanguagePairs(copyPairs)
+                                      }
                                     }
                                   }}
                                   id='autocomplete-controlled'
@@ -427,7 +473,13 @@ export default function AddLanguagePairForm({
                                   )}
                                   renderGroup={params => (
                                     <li key={params.key}>
-                                      {!hasMatchingPrice && params.group ? (
+                                      {!getPriceOptions(
+                                        row.source,
+                                        row.target,
+                                      ).find(
+                                        value =>
+                                          value.groupName === 'Matching price',
+                                      ) && params.group ? (
                                         <GroupHeader>
                                           Matching price{' '}
                                           <NoResultText>
@@ -435,7 +487,14 @@ export default function AddLanguagePairForm({
                                           </NoResultText>
                                         </GroupHeader>
                                       ) : null}
-                                      {!hasStandardPrice && params.group ? (
+                                      {!getPriceOptions(
+                                        row.source,
+                                        row.target,
+                                      ).find(
+                                        value =>
+                                          value.groupName ===
+                                          'Standard client price',
+                                      ) && params.group ? (
                                         <GroupHeader>
                                           Standard client price{' '}
                                           <NoResultText>

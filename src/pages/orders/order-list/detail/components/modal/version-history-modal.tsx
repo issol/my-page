@@ -511,7 +511,7 @@ const VersionHistoryModal = ({
               }}
             >
               <LanguageAndItem
-                languagePairs={languagePairs!}
+                // languagePairs={languagePairs!}
                 setLanguagePairs={(languagePair: languageType[]) =>
                   setItem('languagePairs', languagePair)
                 }
@@ -531,6 +531,9 @@ const VersionHistoryModal = ({
                 project={history.projectInfo!}
                 isIncludeProjectTeam={isIncludeProjectTeam()}
                 type='history'
+                languagePairs={languagePairs}
+                appendLanguagePairs={appendLanguagePairs}
+                updateLanguagePairs={updateLanguagePairs}
               />
             </Card>
           </TabPanel>

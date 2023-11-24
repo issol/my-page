@@ -162,7 +162,10 @@ export default function ProjectInfoForm({
 
   useEffect(() => {
     if (isSuccess) {
-      setWorkName(data)
+      const sortedData = data
+        .slice()
+        .sort((a, b) => a.value.localeCompare(b.value))
+      setWorkName(sortedData)
     }
   }, [isSuccess])
 

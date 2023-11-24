@@ -258,8 +258,6 @@ export default function AddNewQuote() {
     resolver: yupResolver(quoteItemSchema),
   })
 
-  console.log(typeof itemDirtyFields)
-
   const {
     fields: items,
     append: appendItems,
@@ -270,6 +268,18 @@ export default function AddNewQuote() {
     name: 'items',
   })
 
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
+  })
+
+  console.log(getItem('languagePairs'))
+
   useEffect(() => {
     if (!router.isReady) return
     if (requestId) {
@@ -278,15 +288,12 @@ export default function AddNewQuote() {
   }, [requestId])
 
   useEffect(() => {
-    // console.log(languagePairs)
-    if (getItem('languagePairs').length > 0 && prices) {
+    if (languagePairs.length > 0 && prices) {
       const priceInfo =
-        prices?.find(
-          value => value.id === getItem('languagePairs')[0]?.price?.id,
-        ) ?? null
+        prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
       setPriceInfo(priceInfo)
     }
-  }, [prices, getItem('languagePairs')])
+  }, [prices, languagePairs])
 
   function initializeFormWithRequest() {
     if (requestId && requestData) {
@@ -336,6 +343,7 @@ export default function AddNewQuote() {
     }
   }
 
+  console.log(getItem('languagePairs'))
   function onDeleteLanguagePair(row: languageType) {
     const isDeletable = !getItem()?.items?.length
       ? true
@@ -375,10 +383,12 @@ export default function AddNewQuote() {
       const idx = getItem('languagePairs')
         .map(item => item.id)
         .indexOf(row.id)
+
       const copyOriginal = [...getItem('languagePairs')]
       copyOriginal.splice(idx, 1)
       // setLanguagePairs([...copyOriginal])
       setItem('languagePairs', [...copyOriginal])
+      itemTrigger('languagePairs')
     }
   }
 
@@ -399,7 +409,7 @@ export default function AddNewQuote() {
   }
 
   function isAddItemDisabled(): boolean {
-    if (!getItem('languagePairs').length) return true
+    if (getItem('languagePairs').length === 0) return true
     return getItem('languagePairs').some(item => !item?.price)
   }
 
@@ -715,11 +725,17 @@ export default function AddNewQuote() {
                   // languagePairs={getItem('languagePairs')}
                   getItem={getItem}
                   setLanguagePairs={(languagePair: languageType[]) =>
-                    setItem('languagePairs', languagePair)
+                    setItem('languagePairs', languagePair, {
+                      shouldDirty: true,
+                    })
                   }
+                  append={appendLanguagePairs}
+                  update={updateLanguagePairs}
+                  languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}
                   onDeleteLanguagePair={onDeleteLanguagePair}
                   control={itemControl}
+                  itemTrigger={itemTrigger}
                 />
               </Grid>
               <Grid item xs={12} mt={6} mb={6}>
