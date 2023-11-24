@@ -467,7 +467,7 @@ const Row = ({
   const onChangeCurrency = (currency: CurrencyType) => {
     //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
     getValues().items[0].detail?.map((priceUnit, idx) => {
-      setValue(`items.${0}.detail.${idx}.currency`,currency)
+      setValue(`items.${0}.detail.${idx}.currency`, currency)
     })
   }
 
@@ -606,8 +606,14 @@ const Row = ({
                   render={({ field: { value, onChange } }) => (
                     <Box
                       sx={{
+                        '&:hover .react-datepicker__close-icon': {
+                          right: '25px !important',
+                          opacity: 0.7,
+                        },
                         '& .react-datepicker__close-icon': {
                           right: '25px !important',
+                          opacity: 0,
+                          transition: 'opacity 0.2s ease-in-out',
                         },
                       }}
                     >

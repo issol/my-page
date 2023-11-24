@@ -72,7 +72,7 @@ export type QuotesProjectInfoAddNewType = {
   quoteDate: { date: Date; timezone: CountryType }
   projectDueDate: { date: string; timezone: CountryType }
   quoteDeadline: { date: string; timezone: CountryType }
-  quoteExpiryDate: { date: string; timezone: CountryType }
+  quoteExpiryDate: { date: Date; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
   showDescription: boolean
   tax: number | null
