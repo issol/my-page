@@ -615,11 +615,16 @@ export default function QuotesProjectInfoDetail({
             </LabelContainer>
           </Grid>
           <Grid item xs={6}>
-            <LabelContainer>
+            <LabelContainer style={{ alignItems: 'start' }}>
               <CustomTypo fontSize={14} fontWeight={600}>
                 Service type
               </CustomTypo>
-              <Box display='flex' alignItems='center' gap='8px'>
+              <Box
+                display='flex'
+                // alignItems='center'
+                gap='8px'
+                sx={{ width: '100%', flexWrap: 'wrap' }}
+              >
                 {project.serviceType && project.serviceType.length > 0
                   ? project.serviceType
                       .filter(
@@ -634,7 +639,7 @@ export default function QuotesProjectInfoDetail({
           </Grid>
 
           <Grid item xs={6}>
-            <LabelContainer>
+            <LabelContainer style={{ alignItems: 'start' }}>
               <CustomTypo fontWeight={600}>Area of expertise</CustomTypo>
               <CustomTypo variant='body2'>
                 {project.expertise?.join(', ') ?? '-'}
