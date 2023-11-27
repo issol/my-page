@@ -126,7 +126,7 @@ export default function Quotes({ id, user }: Props) {
     take: 1000,
     skip: 0,
     sort: 'name',
-    ordering: 'desc',
+    ordering: 'asc',
   })
   const { data: companies, isLoading: companiesListLoading } =
     currentRole?.name === 'CLIENT'
@@ -274,7 +274,7 @@ export default function Quotes({ id, user }: Props) {
           value: client.clientId,
         }))
         .slice()
-        .sort((a, b) => b.label.localeCompare(a.label))
+        // .sort((a, b) => b.label.localeCompare(a.label))
       setClientList(res)
     }
   }, [clients, clientListLoading])

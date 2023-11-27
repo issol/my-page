@@ -158,6 +158,8 @@ export default function Receivable() {
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
     skip: 0,
+    sort: 'name',
+    ordering: 'asc',
   })
 
   const handleHidePaidInvoices = (
