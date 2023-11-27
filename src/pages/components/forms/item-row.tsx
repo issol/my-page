@@ -620,7 +620,11 @@ const Row = ({
                       <FullWidthDatePicker
                         {...DateTimePickerDefaultOptions}
                         selected={!value ? null : new Date(value)}
-                        onChange={onChange}
+                        onChange={(e,v) => {
+                          if (e) {
+                            onChange(new Date(e.toString()).toISOString())
+                          }
+                        }}
                         isClearable={from === 'quote'}
                         placeholderText='MM/DD/YYYY, HH:MM'
                         customInput={

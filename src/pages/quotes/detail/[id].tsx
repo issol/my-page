@@ -1011,6 +1011,9 @@ export default function QuotesDetail() {
         sourceLanguage: item.source,
         targetLanguage: item.target,
         sortingOrder: idx + 1,
+        dueAt: item.dueAt || item.dueAt !== "" 
+          ? item.dueAt
+          : null,
       }
     })
     const langs: LanguagePairsType[] = getItem('languagePairs').map(item => {
@@ -1032,7 +1035,7 @@ export default function QuotesDetail() {
     const subtotal = items.reduce((accumulator, item) => {
       return accumulator + item.totalPrice
     }, 0)
-
+    console.log("items",items)
     onSave(async () => {
       try {
         // await patchQuoteLanguagePairs(Number(id), langs)
