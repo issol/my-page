@@ -161,6 +161,7 @@ export type CreateJobParamsType = {
 
 export type ProJobListType = {
   id: number
+  jobId: number
   corporationId: string
   serviceType: string
   name: string

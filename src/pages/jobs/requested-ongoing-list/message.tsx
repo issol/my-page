@@ -17,8 +17,9 @@ import CustomChip from 'src/@core/components/mui/chip'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import { useMutation } from 'react-query'
-import { sendMessageToPro } from '@src/apis/job-detail.api'
+import { readMessage, sendMessageToPro } from '@src/apis/job-detail.api'
 import { useGetMessage } from '@src/queries/order/job.query'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   row: ProJobListType
@@ -28,15 +29,16 @@ const ProJobsMessage = ({ row }: Props) => {
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
   const [message, setMessage] = useState<string>('')
+  const [isScrollToBottomRunning, setIsScrollToBottomRunning] = useState<boolean>(false)
   const handleChangeMessage = (event: ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value)
   }
 
   const {
     data: messageList,
-    isLoading,
+    isLoading: messageListLoading,
     refetch: messageRefetch,
-  } = useGetMessage(row.id, auth.getValue()?.user?.id!)
+  } = useGetMessage(row.jobId, auth.getValue()?.user?.id!)
 
   const sendMessageToProMutation = useMutation(
     (data: { jobId: number; proId: number; message: string }) =>
@@ -49,17 +51,44 @@ const ProJobsMessage = ({ row }: Props) => {
     },
   )
 
+  const readMessageMutation = useMutation(
+    (data: { jobId: number; proId: number }) =>
+      readMessage(data.jobId, data.proId),
+    {
+      onSuccess: () =>{
+        messageRefetch()
+      }
+    }
+  )
+
   const handleSendMessage = () => {
     sendMessageToProMutation.mutate({
-      jobId: row.id,
+      jobId: row.jobId,
       proId: auth.getValue()?.user?.id!,
       message: message,
     })
   }
 
+  const scrollToBottom = () => {
+    const box = document.getElementById('message-box');
+    if (box) {
+      box.scrollTop = box.scrollHeight;
+    }
+  }
+
   useEffect(() => {
     messageRefetch()
   }, [messageRefetch])
+
+  useEffect(() => {
+    if (messageList && !messageListLoading) {
+      readMessageMutation.mutate({
+        jobId: row.id,
+        proId: auth.getValue()?.user?.id!
+      })
+      scrollToBottom()
+    }
+  }, [messageList, messageListLoading])
 
   return (
     <Box
@@ -70,12 +99,10 @@ const ProJobsMessage = ({ row }: Props) => {
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
-        overflow: 'scroll',
-        '&::-webkit-scrollbar': {
-          display: 'none',
-        },
       }}
     >
+      { sendMessageToProMutation.isLoading ?
+        <OverlaySpinner /> : null }
       <Box sx={{ padding: '50px 60px', position: 'relative' }}>
         <IconButton
           sx={{ position: 'absolute', top: '20px', right: '20px' }}
@@ -104,6 +131,13 @@ const ProJobsMessage = ({ row }: Props) => {
             <Typography variant='h5'>Message from LPM</Typography>
           </Box>
           <Divider />
+          <Box
+            id="message-box"
+            sx={{
+              maxHeight: '500px',
+              overflowY: 'scroll',
+            }}
+          >
           {messageList?.contents && messageList.contents.length > 0
             ? messageList?.contents.map((item, index) => (
                 <>
@@ -113,23 +147,33 @@ const ProJobsMessage = ({ row }: Props) => {
                       display: 'flex',
                       flexDirection: 'column',
                       gap: '10px',
+                      paddingTop: '20px', 
+                      paddingBottom: '20px',
                     }}
                   >
                     <Box
-                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                      sx={{ 
+                        display: 'flex', 
+                        gap: '8px', 
+                        alignItems: 'center', 
+                      }}
                     >
-                      {item.role === 'LPM' ? (
+                      {!item.isPro ? (
                         <CustomChip
-                          label={item.role}
+                          label={'LPM'}
                           skin='light'
                           sx={{
-                            background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128`,
-                            color: '#72E128',
+                            background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #21AEDB`,
+                            color: '#21AEDB',
                           }}
                           size='small'
                         />
                       ) : null}
-                      <Typography variant='subtitle1' fontWeight={500}>
+                      <Typography
+                        variant='subtitle1'
+                        fontWeight={500}
+                        color={auth.getValue()?.user?.email === item.email ? 'primary' : 'default'}
+                      >
                         {getLegalName({
                           firstName: item.firstName,
                           middleName: item.middleName,
@@ -157,6 +201,7 @@ const ProJobsMessage = ({ row }: Props) => {
                 </>
               ))
             : null}
+          </Box>
           {row.status === 60700 ||
           row.status === 60800 ||
           row.status === 70200 ||

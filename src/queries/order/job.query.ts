@@ -76,7 +76,7 @@ export const useGetJobPriceHistory = (jobId: number) => {
 
 export const useGetMessage = (jobId: number, proId: number) => {
   return useQuery(['message', proId], () => getMessageList(jobId, proId), {
-    staleTime: 10 * 1000, // 1
+    staleTime: 10 * 100, // 1
 
     suspense: false,
   })
