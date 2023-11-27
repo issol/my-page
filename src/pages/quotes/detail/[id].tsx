@@ -1035,7 +1035,7 @@ export default function QuotesDetail() {
     const subtotal = items.reduce((accumulator, item) => {
       return accumulator + item.totalPrice
     }, 0)
-    console.log("items",items)
+
     onSave(async () => {
       try {
         // await patchQuoteLanguagePairs(Number(id), langs)
