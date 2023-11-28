@@ -5,7 +5,14 @@ import {
   SectionTitle,
   SubDateDescription,
 } from '@src/pages/dashboards/components/dashboardItem'
-import { Box, ButtonGroup } from '@mui/material'
+import {
+  Box,
+  ButtonGroup,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from '@mui/material'
 import dayjs from 'dayjs'
 import { useDashboardReport } from '@src/queries/dashboard/dashnaord-lpm'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
@@ -17,7 +24,9 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import { useState } from 'react'
+import { useState, MouseEvent } from 'react'
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
+import DownloadIcon from '@mui/icons-material/Download'
 
 type SelectedRangeDate = 'month' | 'week' | 'today'
 interface DashboardForm {
@@ -36,7 +45,11 @@ const Dashboards = () => {
       view: 'mine',
       viewSwitch: false,
       dateRange: [DEFAULT_START_DATE, DEFAULT_LAST_DATE],
-      userViewDate: `${dayjs(DEFAULT_START_DATE).format('MMMM D - ')}`,
+      userViewDate: `${dayjs(DEFAULT_START_DATE).format('MMMM D - ')}${dayjs(
+        DEFAULT_LAST_DATE,
+      )
+        .set('date', dayjs().daysInMonth())
+        .format('DD, YYYY ')}`,
       selectedRangeDate: 'month',
     },
   })
@@ -46,13 +59,21 @@ const Dashboards = () => {
     showMonthYearPicker: true,
   })
 
-  const [viewSwitch, dateRange, selectedRangeDate] = useWatch({
+  const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
     control,
-    name: ['viewSwitch', 'dateRange', 'selectedRangeDate'],
+    name: ['viewSwitch', 'dateRange', 'selectedRangeDate', 'userViewDate'],
   })
 
   const { data } = useDashboardReport({ from: '2023-01-01', to: '2023-01-05' })
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
   const onChangeDateRange = (type: SelectedRangeDate) => {
     setValue('selectedRangeDate', type)
 
@@ -96,7 +117,7 @@ const Dashboards = () => {
   }
 
   return (
-    <Grid container gap='24px' sx={{ minWidth: '1280px' }}>
+    <Grid container gap='24px' sx={{ minWidth: '1280px', overflowX: 'scroll' }}>
       <Grid container gap='24px'>
         <GridItem width={290} height={76}>
           <Box
@@ -125,7 +146,18 @@ const Dashboards = () => {
                   <Switch
                     size='small'
                     value={value}
-                    sx={{ transform: 'rotate(180deg)' }}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                    sx={{
+                      '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                        color: '#666CFF',
+                        '.MuiSwitch-thumb': {
+                          color: '#666CFF',
+                        },
+                      },
+                      '.MuiSwitch-track': {
+                        backgroundColor: '#666CFF',
+                      },
+                    }}
                     onChange={(event, val) => {
                       if (val) {
                         setValue('view', 'mine')
@@ -163,14 +195,13 @@ const Dashboards = () => {
                   <DatePicker
                     aria-label='date picker button'
                     onChange={date => onChangeDatePicker(date, onChange)}
-                    startDate={dateRange[0]}
-                    endDate={dateRange[1]}
+                    startDate={(dateRange && dateRange[0]) || new Date()}
+                    endDate={dateRange && dateRange[1]}
                     {...calendarOptions}
                     customInput={
                       <Box display='flex' alignItems='center'>
                         <Typography fontSize='24px' fontWeight={500}>
-                          {dayjs(dateRange[0]).format('MMMM D')}
-                          {dayjs(dateRange[1]).format(' - DD, YYYY')}
+                          {userViewDate}
                         </Typography>
                         <CalendarTodayIcon
                           sx={{ width: '45px' }}
@@ -214,11 +245,51 @@ const Dashboards = () => {
           </Box>
         </GridItem>
         <GridItem width={76} height={76}>
-          <Button>
-            <MoreVertIcon
-              sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
-            />
-          </Button>
+          <Box>
+            <Button onClick={handleClick}>
+              <MoreVertIcon
+                sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
+              />
+            </Button>
+            <Menu
+              id='dashboard-menu'
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+              <MenuItem
+                onClick={handleClose}
+                sx={{
+                  color: 'rgba(76, 78, 100, 0.87)',
+                }}
+              >
+                <ListItemIcon
+                  sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                >
+                  <DownloadIcon fontSize='small' />
+                </ListItemIcon>
+                <ListItemText>Download csv</ListItemText>
+              </MenuItem>
+              <MenuItem
+                onClick={handleClose}
+                sx={{
+                  display: 'flex',
+                  color: 'rgba(76, 78, 100, 0.87)',
+                }}
+              >
+                <ListItemIcon
+                  sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                >
+                  <RemoveRedEyeIcon fontSize='small' />
+                </ListItemIcon>
+                <ListItemText>View member dashboard</ListItemText>
+              </MenuItem>
+            </Menu>
+          </Box>
         </GridItem>
       </Grid>
       <Grid container gap='24px'>
