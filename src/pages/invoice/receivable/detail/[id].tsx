@@ -328,37 +328,6 @@ const ReceivableInvoiceDetail = () => {
     },
   )
 
-  const updateContactPersonForClient = useMutation(
-    (data: {
-      id: number
-      form: InvoiceReceivablePatchParamsType
-    }) => patchInvoiceContactPerson(data.id, data.form),
-    {
-      onSuccess: (data: { id: number }, variables) => {
-        setInvoiceInfoEdit(false)
-        setAccountingInfoEdit(false)
-        setProjectTeamEdit(false)
-        setClientEdit(false)
-
-        if (data.id !== variables.id) {
-          router.push(`/invoice/receivable/detail/${data.id}`)
-          invalidateInvoiceDetail()
-        } else {
-          invoiceInfoRefetch()
-          historyRefetch()
-          projectTeamRefetch()
-          clientRefetch()
-          queryClient.invalidateQueries(['invoice/receivable/list'])
-        }
-        closeModal('EditSaveModal')
-      },
-      onError: () => {
-        onError()
-        closeModal('EditSaveModal')
-      },
-    },
-  )
-
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     if (
       invoiceInfoEdit ||
