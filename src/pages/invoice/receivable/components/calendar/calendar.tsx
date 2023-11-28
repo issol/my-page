@@ -49,6 +49,10 @@ const ReceivableCalendar = (
   const containerRef = useRef<HTMLDivElement>(null)
   const calendarRef = useRef<FullCalendar>(null)
 
+  const handleMonthClick = (arg: any) => {
+    console.log(arg)
+  }
+
   const calendarOptions = {
     ...calendarDefaultOptions,
     events: finalEvent as CalendarOptions['events'],

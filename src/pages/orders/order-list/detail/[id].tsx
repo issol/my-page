@@ -1552,6 +1552,8 @@ const OrderDetail = () => {
     )
   }
 
+  console.log(isIncludeProjectTeam())
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
