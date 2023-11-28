@@ -5,8 +5,7 @@ import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
-import Switch from '@mui/material/Switch'
-import { Card, Typography } from '@mui/material'
+import { Card } from '@mui/material'
 
 // ** components
 import List from '../list'
@@ -20,7 +19,6 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 // ** apis
-import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
 
 // ** values
 import { ClientRequestCalendarStatus } from '@src/shared/const/status/statuses'
@@ -38,6 +36,7 @@ import { getRequestListColumns } from '@src/shared/const/columns/requests'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 const CalendarContainer = () => {
   // ** Hooks
@@ -50,6 +49,9 @@ const CalendarContainer = () => {
   const leftSidebarWidth = 260
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+
+  // ** custom hooks
+  const { containerRef, containerWidth } = useCalenderResize()
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
@@ -80,6 +82,10 @@ const CalendarContainer = () => {
     Array<CalendarEventType<RequestListType>>
   >([])
 
+  function onRowClick(id: number) {
+    router.push(`/quotes/requests/${id}`)
+  }
+
   useEffect(() => {
     if (currentListId && data?.data) {
       setCurrentList(data?.data.filter(item => item.id === currentListId))
@@ -93,10 +99,6 @@ const CalendarContainer = () => {
       setEvent([])
     }
   }, [data])
-
-  function onRowClick(id: number) {
-    router.push(`/quotes/requests/${id}`)
-  }
 
   return (
     <Box>
@@ -124,11 +126,13 @@ const CalendarContainer = () => {
           leftSidebarWidth={leftSidebarWidth}
           title='Request'
         />
+
         <Box
+          ref={containerRef}
           sx={{
+            width: '100%',
             px: 5,
             pt: 3.75,
-            flexGrow: 1,
             borderRadius: 1,
             boxShadow: 'none',
             backgroundColor: 'background.paper',
@@ -137,40 +141,15 @@ const CalendarContainer = () => {
               : {}),
           }}
         >
-          <Box
-            // sx={{
-            //   display: 'flex',
-            //   justifyContent: 'flex-end',
-            //   gap: '24px',
-            // }}
-            display='flex'
-            alignItems='center'
-            gap='8px'
-            justifyContent='right'
-            padding='0 0 22px'
-            position='absolute'
-            right='0'
-          >
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>Hide completed requests</Typography>
-              <Switch
-                checked={filter.hideCompleted === '1'}
-                onChange={e => {
-                  setCurrentListId(null)
-                  setFilter({
-                    ...filter,
-                    hideCompleted: e.target.checked ? '1' : '0',
-                  })
-                }}
-              />
-            </Box>
-          </Box>
           <Calendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            filter={filter}
+            setFilter={setFilter}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>

@@ -97,6 +97,12 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import CancelRequestModal from './modal/cancel-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+import { UseMutationResult } from 'react-query'
+
+interface GroupedDeliveryFileType {
+  createdAt: string
+  data: DeliveryFileType[]
+}
 
 interface GroupedDeliveryFileType {
   createdAt: string
@@ -111,15 +117,24 @@ type Props = {
   setEdit?: Dispatch<SetStateAction<boolean>>
   setAccountingEdit?: Dispatch<SetStateAction<boolean>>
 
-  onSave?: (data: {
-    id: number
-    form: InvoiceReceivablePatchParamsType
-    type: 'basic' | 'accounting'
-  }) => void
+  onSave?: (
+    data: {
+      id: number
+      form: InvoiceReceivablePatchParamsType
+      type: 'basic' | 'accounting'
+    },
+    callback?: () => void,
+  ) => void
   onContactPersonSave?: (data: {
     id: number
     form: InvoiceReceivablePatchParamsType
   }) => void
+  updateInvoiceStatus?: UseMutationResult<
+    void,
+    unknown,
+    {id: number; invoiceStatus: number; reason?: ReasonType},
+    unknown
+  >
   clientTimezone?: CountryType
   invoiceInfoControl?: Control<InvoiceProjectInfoFormType, any>
   getInvoiceInfo?: UseFormGetValues<InvoiceProjectInfoFormType>
@@ -153,6 +168,7 @@ const InvoiceInfo = ({
 
   onSave,
   onContactPersonSave,
+  updateInvoiceStatus,
   clientTimezone,
   invoiceInfoControl,
   getInvoiceInfo,
@@ -272,16 +288,43 @@ const InvoiceInfo = ({
 
   const handleChangeStatus = (event: SelectChangeEvent) => {
     const value = Number(event.target.value)
-    setStatus(value)
+
+    const statusLabel = statusList?.find(i => i.value === value)?.label || ''
     const data = getInvoiceInfo && getInvoiceInfo()
-    if (onSave && data) {
-      onSave({
-        id: invoiceInfo.id,
-        form: {
-          // ...data,
-          invoiceStatus: value as InvoiceReceivableStatusType,
-        },
-        type: 'basic',
+    if (updateInvoiceStatus && data) {
+      openModal({
+        type: 'ChangeStatusModal',
+        children: (
+          <CustomModal
+            title={
+              <>
+                Are you sure you want to change the status as&nbsp;
+                <Typography
+                  variant='body2'
+                  fontWeight={600}
+                  component={'span'}
+                  fontSize={16}
+                >
+                  [{statusLabel ?? ''}]
+                </Typography>
+              </>
+            }
+            vary='successful'
+            rightButtonText='Change'
+            onClick={() => {
+              updateInvoiceStatus.mutate(
+                { id: invoiceInfo.id, invoiceStatus: value as InvoiceReceivableStatusType },
+                {
+                  onSuccess: () => {
+                    closeModal('ChangeStatusModal')
+                    setStatus(value)
+                  }
+                }
+              )
+            }}
+            onClose={() => closeModal('ChangeStatusModal')}
+          />
+        ),
       })
     }
   }
@@ -411,10 +454,16 @@ const InvoiceInfo = ({
           : {
               paidAt: data.paymentDate?.date,
               paidDateTimezone: data.paymentDate?.timezone,
-              taxInvoiceIssuedAt: data.taxInvoiceIssuanceDate?.date,
+              taxInvoiceIssuedAt:
+                data.taxInvoiceIssuanceDate?.date === ''
+                  ? undefined
+                  : data.taxInvoiceIssuanceDate?.date,
               taxInvoiceIssuedDateTimezone:
                 data.taxInvoiceIssuanceDate?.timezone,
-              salesCheckedAt: data.salesRecognitionDate?.date,
+              salesCheckedAt:
+                data.salesRecognitionDate?.date === ''
+                  ? undefined
+                  : data.salesRecognitionDate?.date,
               salesCheckedDateTimezone: data.salesRecognitionDate?.timezone,
               notes: data.notes,
               salesCategory: data?.salesCategory,
@@ -426,7 +475,7 @@ const InvoiceInfo = ({
   }
 
   const onClickEditSaveContactPerson = () => {
-    if(currentRole?.name === 'CLIENT') {
+    if (currentRole?.name === 'CLIENT') {
       if (onContactPersonSave) {
         onContactPersonSave({
           id: invoiceInfo.id,
@@ -1599,7 +1648,7 @@ const InvoiceInfo = ({
                                 display: 'flex',
                                 gap: '8px',
                                 alignItems: 'center',
-                                width: '33.28%',
+                                width: '25.21%',
                               }}
                             >
                               <Typography
@@ -1618,7 +1667,7 @@ const InvoiceInfo = ({
                                 display: 'flex',
                                 gap: '8px',
                                 alignItems: 'center',
-                                width: '66.62%',
+                                width: '73.45%',
                               }}
                             >
                               <Typography

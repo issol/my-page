@@ -13,14 +13,10 @@ import Filter from './components/filter'
 import List from './components/list'
 
 // ** types
-import { ConstType } from '@src/pages/onboarding/client-guideline'
 import { RequestFilterType } from '@src/types/requests/filters.type'
 
 // ** values
-import {
-  ServiceTypeList,
-  ServiceTypePair,
-} from '@src/shared/const/service-type/service-types'
+import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 
 // ** apis
 import {

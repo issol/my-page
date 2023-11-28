@@ -63,6 +63,9 @@ import { useGetStatusList } from '@src/queries/common.query'
 import { toast } from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
+import { useGetProPriceList } from '@src/queries/company/standard-price'
+import { languageType } from '../../add-new'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   tab?: string
@@ -120,6 +123,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { data: langItem } = useGetLangItem(orderDetail.id)
   const { data: jobStatusList } = useGetStatusList('Job')
   const { data: jobAssignmentStatusList } = useGetStatusList('JobAssignment')
+  const { data: prices, isSuccess } = useGetProPriceList({})
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -132,9 +136,9 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(jobItemSchema),
   })
 
@@ -152,25 +156,28 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   })
 
   useEffect(() => {
-    if (jobPrices) {
-      console.log('jobPrices-init', jobPrices)
-
+    if (jobPrices && row) {
       const result = [
         {
-          id: jobPrices.id!,
+          id: jobPrices.priceId!,
           name: jobPrices.priceName!,
           itemName: jobPrices.priceName!,
-          source: jobPrices.source!,
-          target: jobPrices.target!,
+          source: jobPrices.sourceLanguage ?? item.sourceLanguage,
+          target: jobPrices.targetLanguage ?? item.targetLanguage,
           priceId: jobPrices.initialPrice?.priceId!,
-          detail: !jobPrices.detail?.length ? [] : jobPrices.detail,
+          detail: !jobPrices.detail?.length
+            ? []
+            : jobPrices.detail.map(value => ({
+                ...value,
+                priceUnitId: value.priceUnitId ?? value.id,
+              })),
           minimumPrice: jobPrices.minimumPrice,
           minimumPriceApplied: jobPrices.minimumPriceApplied,
           initialPrice: jobPrices.initialPrice,
           totalPrice: Number(jobPrices?.totalPrice!),
+          priceFactor: Number(jobPrices.languagePair?.priceFactor ?? 0),
         },
       ]
-      // console.log(result)
 
       itemReset({ items: result })
     } else {
@@ -187,7 +194,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
         priceFactor: 0,
       })
     }
-  }, [jobPrices])
+  }, [jobPrices, row, item])
 
   useEffect(() => {
     if (projectTeam) {
@@ -335,6 +342,9 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   // }
   return (
     <>
+      {saveJobPricesMutation.isLoading ? (
+        <OverlaySpinner />
+      ) : null}
       {!isLoading && jobInfo ? (
         <Box sx={{ padding: '50px 60px', position: 'relative' }}>
           <IconButton
@@ -423,7 +433,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                 />
               </TabList>
               <TabPanel value='jobInfo' sx={{ pt: '30px' }}>
-                {jobInfo.name === null || editJobInfo ? (
+                {jobInfo.status === 60000 || editJobInfo ? (
                   <EditJobInfo
                     row={jobInfo}
                     orderDetail={orderDetail}
@@ -456,34 +466,39 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
               </TabPanel>
               <TabPanel value='prices' sx={{ pt: '30px' }}>
                 <Suspense>
-                  {jobPrices?.priceId === null || editPrices ? (
+                  {jobInfo.status === 60000 || editPrices ? (
                     <Fragment>
-                      <EditPrices
-                        priceUnitsList={priceUnitsList ?? []}
-                        itemControl={itemControl}
-                        itemErrors={itemErrors}
-                        getItem={getItem}
-                        setItem={setItem}
-                        itemTrigger={itemTrigger}
-                        itemReset={itemReset}
-                        isItemValid={isItemValid}
-                        appendItems={appendItems}
-                        fields={items}
-                        row={jobInfo}
-                        jobPrices={jobPrices!}
-                        setJobId={setJobId}
-                      />
+                      {isSuccess ? (
+                        <EditPrices
+                          priceUnitsList={priceUnitsList ?? []}
+                          itemControl={itemControl}
+                          itemErrors={itemErrors}
+                          getItem={getItem}
+                          setItem={setItem}
+                          itemTrigger={itemTrigger}
+                          itemReset={itemReset}
+                          isItemValid={isItemValid}
+                          appendItems={appendItems}
+                          fields={items}
+                          row={jobInfo}
+                          jobPrices={jobPrices!}
+                          setJobId={setJobId}
+                          item={item}
+                          prices={prices}
+                          orderItems={langItem?.items || []}
+                        />
+                      ) : null}
+
                       <Box
                         mt='20px'
                         sx={{
                           display: 'flex',
-                          justifyContent: !jobPrices?.priceId
-                            ? 'flex-end'
-                            : 'center',
+                          justifyContent:
+                            jobInfo.status === 60000 ? 'flex-end' : 'center',
                           width: '100%',
                         }}
                       >
-                        {!jobPrices?.priceId ? (
+                        {jobInfo.status === 60000 ? (
                           <Button
                             variant='contained'
                             onClick={onSubmit}

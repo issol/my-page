@@ -208,13 +208,6 @@ export default function JobHistory({
             onPageChange={setSkip}
             disableSelectionOnClick
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-            sortModel={[
-              {
-                field: 'version',
-                sort: listSort,
-              },
-            ]}
-            onSortModelChange={() => listSort === 'desc' ? setListSort('asc') : setListSort('desc')}
           />
         </Box>
       </Card>

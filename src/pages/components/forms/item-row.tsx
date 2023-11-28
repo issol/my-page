@@ -47,21 +47,33 @@ import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/round
 import { MemberType } from '@src/types/schema/project-team.schema'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type Props = {
   idx: number
-  setValue: UseFormSetValue<{ items: ItemType[] }>
-  getValues: UseFormGetValues<{ items: ItemType[] }>
+  setValue: UseFormSetValue<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
+  getValues: UseFormGetValues<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
   getPriceOptions: (
     source: string,
     target: string,
     idx?: number,
   ) => Array<StandardPriceListType & { groupName?: string }>
-  fields: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
+  fields: FieldArrayWithId<
+    { items: ItemType[]; languagePairs: languageType[] },
+    'items',
+    'id'
+  >[]
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
-  control: Control<{ items: ItemType[] }, any>
+  control: Control<{ items: ItemType[]; languagePairs: languageType[] }, any>
   sumTotalPrice: () => void
   // openMinimumPriceModal: (value: {
   //   minimumPrice: number
@@ -94,6 +106,7 @@ type Props = {
   findLangPairIndex: (source: string, target: string) => number
   teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
   indexing?: number
+  from: 'quote' | 'order' | 'invoice'
 }
 
 const Row = ({
@@ -120,6 +133,7 @@ const Row = ({
   findLangPairIndex,
   teamMembers,
   indexing,
+  from,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const [contactPersonList, setContactPersonList] = useState<
@@ -231,8 +245,6 @@ const Row = ({
   })
 
   function onDeletePriceUnit(index: number) {
-    console.log(index, 'index22')
-    console.log(details, 'index22')
     const findIndex = details.findIndex(item => item.priceUnitId === index)
 
     if (findIndex !== -1) {
@@ -351,7 +363,7 @@ const Row = ({
     availableData.forEach(item => {
       const newData = item.newData!
       append({
-        priceUnitId: newData.priceUnitPairId,
+        priceUnitId: newData.priceUnitId,
         quantity: newData.priceUnitQuantity,
         // priceUnit: newData.priceUnitTitle,
         unit: newData.priceUnitUnit,
@@ -410,7 +422,7 @@ const Row = ({
     if (v?.id) {
       const source = getValues(`items.${idx}.source`)!
       const target = getValues(`items.${idx}.target`)!
-      setValue(`items.${idx}.priceId`, v?.id, setValueOptions)
+      setValue(`items.${idx}.priceId`, v?.id)
       const priceData = getPriceOptions(source, target).find(
         price => price.id === v?.id,
       )
@@ -422,25 +434,18 @@ const Row = ({
       const currency = languagePairData?.currency
       const rounding = priceData?.roundingProcedure
       const numberPlace = priceData?.decimalPlace
-
-      setValue(`items.${idx}.totalPrice`, 0, setValueOptions)
-      setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0, setValueOptions)
-      setValue(`items.${idx}.priceFactor`, priceFactor ?? 0, setValueOptions)
-      setValue(`items.${idx}.initialPrice.currency`, currency!, setValueOptions)
-      setValue(
-        `items.${idx}.initialPrice.numberPlace`,
-        numberPlace!,
-        setValueOptions,
-      )
+      setValue(`items.${idx}.totalPrice`, 0)
+      setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
+      setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
+      setValue(`items.${idx}.initialPrice.currency`, currency!)
+      setValue(`items.${idx}.initialPrice.numberPlace`, numberPlace!)
       setValue(
         `items.${idx}.initialPrice.rounding`,
         //@ts-ignore
         RoundingProcedureObj[rounding!],
-        setValueOptions,
       )
       itemTrigger(`items.${idx}`)
       getTotalPrice()
-
       handleMinimumPrice()
     }
   }
@@ -457,6 +462,13 @@ const Row = ({
         currency: currency,
       })
     } else handleShowMinimum(false)
+  }
+
+  const onChangeCurrency = (currency: CurrencyType) => {
+    //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
+    getValues().items[0].detail?.map((priceUnit, idx) => {
+      setValue(`items.${0}.detail.${idx}.currency`, currency)
+    })
   }
 
   return (
@@ -540,24 +552,27 @@ const Row = ({
                 <Controller
                   name={`items.${idx}.itemName`}
                   control={control}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <TextField
-                      fullWidth
-                      autoFocus={Boolean(value && value?.length < 2)}
-                      label='Item name*'
-                      variant='outlined'
-                      value={value ?? ''}
-                      onChange={(e: any) => {
-                        if (e.target.value) {
-                          onChange(e.target.value)
-                        } else {
-                          onChange('')
-                        }
-                      }}
-                      inputProps={{ maxLength: 200 }}
-                      error={Boolean(errors?.items?.[idx]?.itemName)}
-                    />
-                  )}
+                  render={({ field: { value, onChange, onBlur } }) => {
+                    return (
+                      <TextField
+                        fullWidth
+                        autoFocus={Boolean(value && value?.length < 2)}
+                        label='Item name*'
+                        variant='outlined'
+                        value={value ?? ''}
+                        onChange={(e: any) => {
+                          if (e.target.value) {
+                            onChange(e.target.value)
+                          } else {
+                            onChange('')
+                          }
+                        }}
+                        inputProps={{ maxLength: 200 }}
+                        error={value === ''}
+                        helperText={value === '' ? FormErrors.required : ''}
+                      />
+                    )
+                  }}
                 />
               </Grid>
             )}
@@ -589,15 +604,41 @@ const Row = ({
                   name={`items.${idx}.dueAt`}
                   control={control}
                   render={({ field: { value, onChange } }) => (
-                    <FullWidthDatePicker
-                      {...DateTimePickerDefaultOptions}
-                      selected={!value ? null : new Date(value)}
-                      onChange={onChange}
-                      placeholderText='MM/DD/YYYY, HH:MM'
-                      customInput={
-                        <CustomInput label='Item due date*' icon='calendar' />
-                      }
-                    />
+                    <Box
+                      sx={{
+                        '&:hover .react-datepicker__close-icon': {
+                          right: '25px !important',
+                          opacity: 0.7,
+                        },
+                        '& .react-datepicker__close-icon': {
+                          right: '25px !important',
+                          opacity: 0,
+                          transition: 'opacity 0.2s ease-in-out',
+                        },
+                      }}
+                    >
+                      <FullWidthDatePicker
+                        {...DateTimePickerDefaultOptions}
+                        selected={!value ? null : new Date(value)}
+                        onChange={(e,v) => {
+                          if (e) {
+                            onChange(new Date(e.toString()).toISOString())
+                          }
+                        }}
+                        isClearable={from === 'quote'}
+                        placeholderText='MM/DD/YYYY, HH:MM'
+                        customInput={
+                          <CustomInput
+                            label={
+                              from === 'quote'
+                                ? 'Item due date'
+                                : 'Item due date*'
+                            }
+                            icon='calendar'
+                          />
+                        }
+                      />
+                    </Box>
                   )}
                 />
               )}
@@ -657,12 +698,21 @@ const Row = ({
                           }}
                           disableClearable={value ? false : true}
                           onChange={(e, v) => {
-                            onChange(v?.value ?? '')
+                            if (v) {
+                              onChange(v.value)
+                            } else {
+                              onChange(null)
+                            }
                           }}
                           value={
-                            !value
-                              ? // 신규 생성일땐 프로젝트 매니저가 기본으로 들어감
-                                contactPersonList.find(
+                            type === 'edit'
+                              ? value
+                                ? contactPersonList.find(
+                                    item => item.value === value,
+                                  )
+                                : null
+                              : value
+                              ? contactPersonList.find(
                                   item =>
                                     item.value ===
                                     teamMembers?.find(
@@ -670,15 +720,16 @@ const Row = ({
                                         member.type === 'projectManagerId',
                                     )?.id!,
                                 )
-                              : // 수정일땐 기존 설정된 값이 들어감
-                                contactPersonList.find(
-                                  item => item.value === value,
-                                )
+                              : null
                           }
                           renderInput={params => (
                             <TextField
                               {...params}
-                              label='Contact person for job*'
+                              label={
+                                from === 'quote'
+                                  ? 'Contact person form job'
+                                  : 'Contact person for job*'
+                              }
                               // placeholder='Contact person for job*'
                             />
                           )}
@@ -926,6 +977,7 @@ const Row = ({
               sumTotalPrice={sumTotalPrice}
               fields={fields}
               remove={remove}
+              onChangeCurrency={onChangeCurrency}
             />
             {/* price unit end */}
             <Grid item xs={12}>
@@ -1025,8 +1077,10 @@ const Row = ({
                   details={details}
                   priceData={priceData()}
                   priceFactor={getValues(`items.${idx}.priceFactor`)}
+                  getValues={getValues}
                   onCopyAnalysis={onCopyAnalysis}
                   type={type}
+                  from={from}
                 />
               </Grid>
             )}

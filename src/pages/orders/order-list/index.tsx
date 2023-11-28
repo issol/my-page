@@ -112,6 +112,8 @@ export default function OrderList() {
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
     skip: 0,
+    sort: 'name',
+    ordering: 'asc',
   })
 
   const { data: companies, isLoading: companiesListLoading } =

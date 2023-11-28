@@ -36,6 +36,7 @@ import { getRequestListColumns } from '@src/shared/const/columns/requests'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useQueryClient } from 'react-query'
+import useCalenderResize from '@src/hooks/useCalenderResize'
 
 // ** components
 export type FilterType = {

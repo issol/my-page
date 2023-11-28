@@ -2,30 +2,39 @@
 import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
+import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
 
 // ** style components
-import styled from 'styled-components'
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 
 // ** types
-import { CalendarEventType } from '@src/types/common/calendar.type'
-import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
-import { ProInvoiceListType } from '@src/types/invoice/common.type'
-import { InvoicePayableListType } from '@src/types/invoice/payable.type'
+import {
+  InvoicePayableFilterType,
+  InvoicePayableListType,
+} from '@src/types/invoice/payable.type'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
+import {
+  Calender,
+  CalenderProps,
+  CustomEvent,
+} from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
+import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import Switch from '@mui/material/Switch'
 
-type Props = {
-  event: Array<CalendarEventType<InvoicePayableListType>>
-  setYear: (year: number) => void
-  setMonth: (month: number) => void
-  direction: string
-  setCurrentListId: (id: number | null) => void
-}
-
-const ProInvoiceCalendar = (props: Props) => {
+const ProInvoiceCalendar = (
+  props: CalenderProps<InvoicePayableListType, InvoicePayableFilterType>,
+) => {
   // ** Props
-  const { event, setYear, setMonth, direction, setCurrentListId } = props
+  const {
+    event,
+    setYear,
+    setMonth,
+    direction,
+    setCurrentListId,
+    containerWidth,
+    filter,
+    setFilter,
+  } = props
 
   const finalEvent = event.map(item => {
     return {
@@ -37,25 +46,18 @@ const ProInvoiceCalendar = (props: Props) => {
   })
 
   // ** Refs
-  const calendarRef = useRef()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
-    events: finalEvent,
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: 'sidebarToggle, prev, next, title',
-      end: '',
-    },
-
-    dayMaxEvents: 3,
-    eventResizableFromStart: true,
+    ...calendarDefaultOptions,
+    events: finalEvent as CalendarOptions['events'],
     ref: calendarRef,
     direction,
     eventContent: (arg: any) => {
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
-          {arg.event?._def?.title}
+          <span>{arg.event?._def?.title}</span>
         </CustomEvent>
       )
     },
@@ -74,20 +76,38 @@ const ProInvoiceCalendar = (props: Props) => {
   }
 
   return (
-    //@ts-ignore
-    <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+    <Calender ref={containerRef} width={containerWidth}>
+      <CustomCalenderToolbar ref={calendarRef}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: '24px',
+          }}
+        >
+          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <Typography>See only my invoices</Typography>
+            <Switch
+              checked={filter.mine === '1'}
+              onChange={e =>
+                setFilter({ ...filter, mine: e.target.checked ? '1' : '0' })
+              }
+            />
+          </Box>
+          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <Typography>Hide paid invoices</Typography>
+            <Switch
+              checked={filter.hidePaid === '1'}
+              onChange={e =>
+                setFilter({ ...filter, hidePaid: e.target.checked ? '1' : '0' })
+              }
+            />
+          </Box>
+        </Box>
+      </CustomCalenderToolbar>
+      <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+    </Calender>
   )
 }
 
 export default ProInvoiceCalendar
-
-const CustomEvent = styled(Box)<{ color: string }>`
-  border-color: transparent !important;
-  border-radius: 4px;
-  padding: 1px 4px 4px;
-  color: rgba(76, 78, 100, 0.87) !important;
-  border-left: ${({ color }) => `6px solid ${color}`} !important;
-  border-right: ${({ color }) => `6px solid ${color}`} !important;
-  background: ${({ color }) =>
-    `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
-`

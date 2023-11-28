@@ -49,7 +49,12 @@ import {
   useMutation,
   useQueryClient,
 } from 'react-query'
-import { deleteJob, deleteJobFile, saveJobInfo, uploadFile } from '@src/apis/job-detail.api'
+import {
+  deleteJob,
+  deleteJobFile,
+  saveJobInfo,
+  uploadFile,
+} from '@src/apis/job-detail.api'
 import {
   getDownloadUrlforCommon,
   getUploadUrlforCommon,
@@ -129,7 +134,7 @@ const EditJobInfo = ({
       label: string
     }[]
   >([])
-  const [ isFileUploading, setIsFileUploading ] = useState<boolean>(false)
+  const [isFileUploading, setIsFileUploading] = useState<boolean>(false)
 
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
@@ -165,7 +170,6 @@ const EditJobInfo = ({
     }) => uploadFile(file),
     {
       onSuccess: (data, variables) => {
-        // console.log('success')
         if (data.id === variables.jobId) {
           queryClient.invalidateQueries('jobInfo')
           // refetch()
@@ -191,7 +195,7 @@ const EditJobInfo = ({
 
     formState: { errors, dirtyFields, isValid },
   } = useForm<AddJobInfoFormType>({
-    mode: 'onChange',
+    mode: 'onSubmit',
 
     resolver: yupResolver(addJobInfoFormSchema),
   })
@@ -229,7 +233,6 @@ const EditJobInfo = ({
           } else {
             const found = acc.find(f => f.name === file.name)
             if (!found) acc.push(file)
-            // console.log(acc)
 
             return acc
           }
@@ -279,11 +282,10 @@ const EditJobInfo = ({
     return dayjs(date).format('MM/DD/YYYY, hh:mm a')
   }
 
-  // console.log('data', getValues())
   async function deleteFiles() {
     for (const file of deletedFiles) {
       if (file.id) {
-        await deleteJobFile(file.id);
+        await deleteJobFile(file.id)
       }
     }
   }
@@ -291,12 +293,11 @@ const EditJobInfo = ({
   const onSubmit = () => {
     const data = getValues()
     // step1) 파일 삭제
-    const asyncDeleteFile = 
-      deletedFiles.map(file => {
-        if (file.id) {
-          return deleteJobFile(file.id);
-        }
-      })
+    const asyncDeleteFile = deletedFiles.map(file => {
+      if (file.id) {
+        return deleteJobFile(file.id)
+      }
+    })
     Promise.all(asyncDeleteFile).then(res => {
       // step2) 업로드+패치 or 패치
       if (files.length) {
@@ -346,7 +347,7 @@ const EditJobInfo = ({
                 description: data.description ?? null,
                 startDate: data.startedAt ? data.startedAt.toString() : null,
                 startTimezone: data.startTimezone ?? null,
-  
+
                 dueDate: data.dueAt.toString(),
                 dueTimezone: data.dueTimezone,
                 status: data.status,
@@ -355,12 +356,12 @@ const EditJobInfo = ({
                 name: data.name,
                 isShowDescription: data.isShowDescription,
               }
-  
+
               saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
-  
+
               // res.map((value, idx) => {
               //   uploadFileMutation.mutate(fileInfo[idx])
-  
+
               // })
             })
             .catch(err => {
@@ -379,7 +380,7 @@ const EditJobInfo = ({
           description: data.description ?? null,
           startDate: data.startedAt ? data.startedAt.toString() : null,
           startTimezone: data.startTimezone ?? null,
-  
+
           dueDate: data.dueAt.toString(),
           dueTimezone: data.dueTimezone,
           status: data.status,
@@ -388,14 +389,12 @@ const EditJobInfo = ({
           name: data.name,
           isShowDescription: data.isShowDescription,
         }
-        console.log('jobInfo', jobInfo)
         saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
       }
     })
   }
 
   useEffect(() => {
-
     // reset({
     //   name: row.name ?? '',
     //   description: row.description ?? '',
@@ -446,8 +445,8 @@ const EditJobInfo = ({
       shouldValidate: true,
     })
 
-    trigger('source')
-    trigger('target')
+    // trigger('source')
+    // trigger('target')
 
     setValue('serviceType', row.serviceType, {
       shouldDirty: true,
@@ -510,24 +509,16 @@ const EditJobInfo = ({
     //   ...langPairList,
     // ])
     setUploadedFiles(row.files ?? [])
-    trigger()
+    // trigger()
   }, [row, item])
-
-  console.log(getValues())
-  console.log(
-    languagePair.find(
-      item =>
-        item.source === getValues('source') &&
-        item.target === getValues('target'),
-    ),
-  )
 
   return (
     <>
-      {(uploadFileMutation.isLoading ||
-        saveJobInfoMutation.isLoading ||
-        isFileUploading) ?
-        <OverlaySpinner /> : null }
+      {uploadFileMutation.isLoading ||
+      saveJobInfoMutation.isLoading ||
+      isFileUploading ? (
+        <OverlaySpinner />
+      ) : null}
       <DatePickerWrapper sx={{ width: '100%' }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container xs={12} spacing={6} mb='20px'>
@@ -685,7 +676,6 @@ const EditJobInfo = ({
                           //   return option.source === newValue.source
                           // }}
                           onChange={(event, item) => {
-                            console.log(item, 'onChange')
                             if (item) {
                               setValue('source', item?.source, setValueOptions)
                               setValue('target', item?.target, setValueOptions)
@@ -734,8 +724,6 @@ const EditJobInfo = ({
                               .sort((a, b) => a.source.localeCompare(b.source)),
                           ]}
                           getOptionLabel={option => {
-                            console.log(option)
-
                             if (
                               option.source === ' ' &&
                               option.target === ' '
@@ -875,8 +863,6 @@ const EditJobInfo = ({
                     value={value || null}
                     options={countries as CountryType[]}
                     onChange={(e, v) => {
-                      // console.log(value)
-
                       if (!v) onChange(null)
                       else onChange(v)
                     }}

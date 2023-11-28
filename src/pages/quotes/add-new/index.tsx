@@ -41,7 +41,7 @@ import {
   quotesProjectInfoSchema,
 } from '@src/types/schema/quotes-project-info.schema'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import { itemSchema } from '@src/types/schema/item.schema'
+import { itemSchema, quoteItemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
@@ -89,7 +89,11 @@ export type languageType = {
   id: number | string
   source: string
   target: string
-  price: StandardPriceListType | null
+  price:
+    | (StandardPriceListType & {
+        groupName?: string
+      })
+    | null
 }
 
 export const defaultOption: StandardPriceListType & {
@@ -125,7 +129,6 @@ export default function AddNewQuote() {
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
 
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
   const [taxFocus, setTaxFocus] = useState(false)
 
   const handleBack = () => {
@@ -222,8 +225,7 @@ export default function AddNewQuote() {
     defaultValues: {
       ...quotesProjectInfoDefaultValue,
       quoteDate: {
-        date: Date(),
-        timezone: getClientValue().contacts?.timezone!,
+        // timezone: getClientValue().contacts?.timezone!,
         // JSON.parse(getUserDataFromBrowser()!).timezone,
       },
       status: 20000,
@@ -244,11 +246,16 @@ export default function AddNewQuote() {
     watch: itemWatch,
     trigger: itemTrigger,
     reset: itemReset,
-    formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
-    mode: 'onBlur',
-    defaultValues: { items: [] },
-    resolver: yupResolver(itemSchema),
+
+    formState: {
+      errors: itemErrors,
+      isValid: isItemValid,
+      dirtyFields: itemDirtyFields,
+    },
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
+    mode: 'onChange',
+    defaultValues: { items: [], languagePairs: [] },
+    resolver: yupResolver(quoteItemSchema),
   })
 
   const {
@@ -261,6 +268,18 @@ export default function AddNewQuote() {
     name: 'items',
   })
 
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
+  })
+
+  console.log(getItem('languagePairs'))
+
   useEffect(() => {
     if (!router.isReady) return
     if (requestId) {
@@ -269,8 +288,7 @@ export default function AddNewQuote() {
   }, [requestId])
 
   useEffect(() => {
-    // console.log(languagePairs)
-    if (languagePairs && prices) {
+    if (languagePairs.length > 0 && prices) {
       const priceInfo =
         prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
       setPriceInfo(priceInfo)
@@ -283,6 +301,7 @@ export default function AddNewQuote() {
       clientReset({
         clientId: client.clientId,
         contactPersonId: requestData.contactPerson.id,
+        addressType: 'shipping',
         contacts: {
           timezone: client?.timezone,
           phone: client?.phone ?? '',
@@ -319,10 +338,12 @@ export default function AddNewQuote() {
           target: i.targetLanguage,
           price: null,
         })) || []
-      setLanguagePairs(itemLangPairs)
+      // setLanguagePairs(itemLangPairs)
+      setItem('languagePairs', itemLangPairs)
     }
   }
 
+  console.log(getItem('languagePairs'))
   function onDeleteLanguagePair(row: languageType) {
     const isDeletable = !getItem()?.items?.length
       ? true
@@ -359,20 +380,17 @@ export default function AddNewQuote() {
     }
 
     function deleteLanguage() {
-      const idx = languagePairs.map(item => item.id).indexOf(row.id)
-      const copyOriginal = [...languagePairs]
+      const idx = getItem('languagePairs')
+        .map(item => item.id)
+        .indexOf(row.id)
+
+      const copyOriginal = [...getItem('languagePairs')]
       copyOriginal.splice(idx, 1)
-      setLanguagePairs([...copyOriginal])
+      // setLanguagePairs([...copyOriginal])
+      setItem('languagePairs', [...copyOriginal])
+      itemTrigger('languagePairs')
     }
   }
-
-  // console.log(getItem())
-
-  // console.log(
-  //   getItem().items.reduce((acc, cur) => {
-  //     return acc + cur.totalPrice
-  //   }, 0),
-  // )
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -391,8 +409,8 @@ export default function AddNewQuote() {
   }
 
   function isAddItemDisabled(): boolean {
-    if (!languagePairs.length) return true
-    return languagePairs.some(item => !item?.price)
+    if (getItem('languagePairs').length === 0) return true
+    return getItem('languagePairs').some(item => !item?.price)
   }
 
   function addNewItem() {
@@ -401,7 +419,7 @@ export default function AddNewQuote() {
       item => item.type === 'projectManagerId',
     )
     appendItems({
-      itemName: '',
+      itemName: null,
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
@@ -451,6 +469,10 @@ export default function AddNewQuote() {
     const projectInfo = {
       ...rawProjectInfo,
       tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
+      // quoteDate: {
+      //   ...rawProjectInfo.quoteDate,
+      //   date: rawProjectInfo.quoteDate.date.toISOString(),
+      // },
       subtotal: subPrice,
     }
 
@@ -478,7 +500,7 @@ export default function AddNewQuote() {
       }
     })
 
-    const langs = languagePairs.map(item => {
+    const langs = getItem('languagePairs').map(item => {
       if (item?.price?.id) {
         return {
           source: item.source,
@@ -700,10 +722,20 @@ export default function AddNewQuote() {
               <Grid item xs={12}>
                 <AddLanguagePairForm
                   type='create'
+                  // languagePairs={getItem('languagePairs')}
+                  getItem={getItem}
+                  setLanguagePairs={(languagePair: languageType[]) =>
+                    setItem('languagePairs', languagePair, {
+                      shouldDirty: true,
+                    })
+                  }
+                  append={appendLanguagePairs}
+                  update={updateLanguagePairs}
                   languagePairs={languagePairs}
-                  setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}
                   onDeleteLanguagePair={onDeleteLanguagePair}
+                  control={itemControl}
+                  itemTrigger={itemTrigger}
                 />
               </Grid>
               <Grid item xs={12} mt={6} mb={6}>
@@ -715,12 +747,13 @@ export default function AddNewQuote() {
                   fields={items}
                   remove={removeItems}
                   teamMembers={getTeamValues()?.teams}
-                  languagePairs={languagePairs}
+                  languagePairs={getItem('languagePairs')}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
                   itemTrigger={itemTrigger}
                   type='create'
                   sumTotalPrice={sumTotalPrice}
+                  from='quote'
                 />
               </Grid>
               <Grid item xs={12}>

@@ -238,6 +238,7 @@ export const getMessageList = async (
         lastName: string
         email: string
         role: string
+        isPro: boolean
       }[]
     | null
 }> => {
@@ -262,6 +263,16 @@ export const sendMessageToPro = async (
   await axios.post(`/api/enough/u/job/${jobId}/message`, {
     proId: proId,
     message: message,
+  })
+}
+
+export const readMessage = async (
+  jobId: number,
+  proId: number,
+) => {
+  await axios.patch(`/api/enough/u/job/${jobId}/message`, {
+    jobId: jobId,
+    proId: proId,
   })
 }
 

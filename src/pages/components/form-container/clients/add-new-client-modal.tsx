@@ -252,7 +252,7 @@ export default function AddNewClientModal({ onClose, onSave }: Props) {
           <Grid item xs={12} display='flex' justifyContent='flex-end'>
             <Button
               variant='contained'
-              disabled={!isCompanyInfoValid}
+              disabled={!isCompanyInfoValid || !isContactPersonValid}
               onClick={onClickNextStep}
             >
               Next <Icon icon='material-symbols:arrow-forward-rounded' />
@@ -288,7 +288,7 @@ export default function AddNewClientModal({ onClose, onSave }: Props) {
               onClick={() =>
                 onSave(
                   { ...getCompanyInfoValues(), ...getAddressValues() },
-                  contactPersons,
+                  getContactPersonValues('contactPersons'),
                 )
               }
             >

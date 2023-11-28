@@ -10,11 +10,11 @@ import Button from '@mui/material/Button'
 
 import { v4 as uuidv4 } from 'uuid'
 import CustomPagination from 'src/pages/components/custom-pagination'
-import { AppliedRoleType } from 'src/types/onboarding/details'
+import { AppliedRoleType, CertifiedRoleType } from 'src/types/onboarding/details'
 import NoList from '@src/pages/components/no-list'
 
 type Props = {
-  userInfo: Array<AppliedRoleType>
+  certifiedRoleInfo: Array<CertifiedRoleType>
   page: number
   offset: number
   rowsPerPage: number
@@ -22,7 +22,7 @@ type Props = {
 }
 
 export default function MyRoles({
-  userInfo,
+  certifiedRoleInfo,
   page,
   offset,
   rowsPerPage,
@@ -50,12 +50,11 @@ export default function MyRoles({
           My role
         </Box>
       </Typography>
-      {userInfo && userInfo.length ? (
+      {certifiedRoleInfo && certifiedRoleInfo.length ? (
         <Box sx={{ minHeight: 22 }}>
           <Grid container spacing={6} xs={12}>
-            {userInfo && userInfo.length
-              ? userInfo
-                  .filter(item => item.requestStatus === 'Certified')
+            {certifiedRoleInfo && certifiedRoleInfo.length
+              ? certifiedRoleInfo
                   .slice(offset, offset + rowsPerPage)
                   .map(value => {
                     return (
@@ -149,12 +148,11 @@ export default function MyRoles({
                     )
                   })
               : null}
-            {userInfo &&
-            userInfo.filter(item => item.requestStatus === 'Certified')
-              .length ? (
+            {certifiedRoleInfo &&
+              certifiedRoleInfo.length ? (
               <Grid item xs={12}>
                 <CustomPagination
-                  listCount={userInfo.filter(info => info.requestStatus === 'Certified').length}
+                  listCount={certifiedRoleInfo.length}
                   page={page}
                   handleChangePage={handleChangePage}
                   rowsPerPage={rowsPerPage}

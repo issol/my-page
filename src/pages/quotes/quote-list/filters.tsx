@@ -114,7 +114,8 @@ export default function QuotesFilters({
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
-  const dateValue = (startDate: Date, endDate: Date) => {
+  const dateValue = (startDate: Date | null, endDate: Date | null) => {
+    if (startDate === null || endDate === null) return ''
     return startDate?.toDateString() === endDate?.toDateString()
       ? dayjs(startDate).format('MM/DD/YYYY')
       : `${dayjs(startDate).format('MM/DD/YYYY')}${
@@ -391,7 +392,7 @@ export default function QuotesFilters({
                                   label='Quote date'
                                   icon='calendar'
                                   placeholder='MM/DD/YYYY - MM/DD/YYYY'
-                                  readOnly
+                                  // readOnly
                                   value={
                                     value.length > 0
                                       ? dateValue(value[0], value[1])
@@ -443,7 +444,7 @@ export default function QuotesFilters({
                                       : 'Quote deadline'
                                   }
                                   icon='calendar'
-                                  readOnly
+                                  // readOnly
                                   placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                   value={
                                     value && value.length > 0
@@ -497,7 +498,7 @@ export default function QuotesFilters({
                                         : 'Quote expiry date'
                                     }
                                     icon='calendar'
-                                    readOnly
+                                    // readOnly
                                     placeholder='MM/DD/YYYY - MM/DD/YYYY'
                                     value={
                                       value && value.length > 0

@@ -40,6 +40,7 @@ import {
   RequestFormPayloadType,
   RequestFormType,
   RequestItemFormPayloadType,
+  RequestType,
 } from '@src/types/requests/common.type'
 import {
   getClientRequestDefaultValue,
@@ -149,7 +150,7 @@ export default function AddNewRequest() {
     setValue,
     watch,
     formState: { errors, isValid },
-  } = useForm<RequestFormType>({
+  } = useForm<RequestType>({
     mode: 'onChange',
     defaultValues: getClientRequestDefaultValue(
       auth.getValue().user?.userId!,
@@ -162,6 +163,9 @@ export default function AddNewRequest() {
     control,
     name: 'items',
   })
+  console.log(getValues())
+
+  console.log(errors)
 
   // ** form options
   const { data: clientList, isLoading: clientListLoading } =
@@ -221,7 +225,7 @@ export default function AddNewRequest() {
   )
 
   function mutateData() {
-    const data: RequestFormType = getValues()
+    const data: RequestType = getValues()
     const dateFixedItem: RequestItemFormPayloadType[] = data.items.map(
       (item, idx) => {
         // const newDesiredDueDate = convertLocalTimezoneToUTC(new Date(item.desiredDueDate)).toISOString()
@@ -239,6 +243,7 @@ export default function AddNewRequest() {
         return {
           ...item,
           desiredDueDate: newDesiredDueDate(),
+          serviceType: item.serviceType.map(value => value.value),
           sortingOrder: idx + 1,
         }
       },
@@ -392,10 +397,9 @@ export default function AddNewRequest() {
                           onChange(null)
                         }
                       }}
-                      isOptionEqualToValue={useCallback(
-                        (option: any, value: any) => option.userId === value,
-                        [],
-                      )}
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.userId === newValue.userId
+                      }}
                       // disableClearable
                       value={
                         value
@@ -461,6 +465,9 @@ export default function AddNewRequest() {
                         }
                       }}
                       disableClearable={value ? false : true}
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.value === newValue.value
+                      }}
                       value={selectedPerson || { value: '', label: '' }}
                       renderInput={params => (
                         <TextField

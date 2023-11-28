@@ -43,7 +43,6 @@ const ViewHistoryPrices = ({
   jobPrices,
 }: Props) => {
   const auth = useRecoilValueLoadable(authState)
-  console.log("ViewHistoryPrices",jobInfo,jobPrices)
 
   const [ languagePair, setLanguagePair ] = useState<{
     sourceLanguage: string
@@ -53,7 +52,7 @@ const ViewHistoryPrices = ({
     targetLanguage: '',
   })
   useEffect(() => {
-    if (jobPrices.sourceLanguage && jobPrices.targetLanguage) {
+    if (jobPrices?.sourceLanguage && jobPrices?.targetLanguage) {
       setLanguagePair({
         sourceLanguage: jobPrices.sourceLanguage,
         targetLanguage: jobPrices.targetLanguage
@@ -84,9 +83,9 @@ const ViewHistoryPrices = ({
             </Typography>
             <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
               {getLegalName({
-                firstName: jobPrices.pro?.firstName!,
-                middleName: jobPrices.pro?.middleName,
-                lastName: jobPrices.pro?.lastName!,
+                firstName: jobPrices?.pro?.firstName!,
+                middleName: jobPrices?.pro?.middleName,
+                lastName: jobPrices?.pro?.lastName!,
               })}
             </Typography>
           </Box>
@@ -100,7 +99,7 @@ const ViewHistoryPrices = ({
               Date&Time
             </Typography>
             <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-              {FullDateTimezoneHelper(jobPrices.historyAt, auth.getValue().user?.timezone,)}
+              {FullDateTimezoneHelper(jobPrices?.historyAt, auth.getValue().user?.timezone,)}
             </Typography>
           </Box>
         </Box>
@@ -129,18 +128,18 @@ const ViewHistoryPrices = ({
               Price
             </Typography>
             <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-              {jobPrices.initialPrice?.name}
+              {jobPrices?.initialPrice?.name}
             </Typography>
           </Box>
         </Box>
         <Divider />
         {/* item unit 데이터 맞추기 */}
         <PriceHistoryRow
-          priceHistoryDetail={jobPrices.detail!}
-          showMinimum={jobPrices.minimumPriceApplied}
-          minimumPrice={Number(jobPrices.minimumPrice!)}
-          initialPrice={jobPrices.initialPrice!}
-          totalPrice={jobPrices.totalPrice}
+          priceHistoryDetail={jobPrices?.detail!}
+          showMinimum={jobPrices?.minimumPriceApplied}
+          minimumPrice={Number(jobPrices?.minimumPrice!)}
+          initialPrice={jobPrices?.initialPrice!}
+          totalPrice={jobPrices?.totalPrice}
           setDarkMode={Boolean(false)}
         />
       </Box>

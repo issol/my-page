@@ -94,7 +94,7 @@ import {
 } from '@src/types/schema/quotes-project-info.schema'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import { itemSchema } from '@src/types/schema/item.schema'
+import { itemSchema, quoteItemSchema } from '@src/types/schema/item.schema'
 import { languageType } from '../add-new'
 
 // ** hook
@@ -114,6 +114,7 @@ import {
   patchQuoteItems,
   patchQuoteLanguagePairs,
   patchQuoteProjectInfo,
+  patchQuoteStatus,
   restoreVersion,
 } from '@src/apis/quote/quotes.api'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
@@ -144,11 +145,12 @@ import Link from 'next/link'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { QuoteStatusChip } from '@src/@core/components/chips/chips'
 import { CancelOrderReason } from '@src/shared/const/reason/reason'
-import { UserRoleType } from '@src/context/types'
-import { ProjectInfoType } from '@src/types/common/quotes.type'
+
 import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+import dayjs from 'dayjs'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -398,8 +400,6 @@ export default function QuotesDetail() {
 
   const setProjectInfoData = () => {
     if (!isProjectLoading && project && statusList) {
-      // console.log(project.quoteDateTimezone)
-
       const defaultTimezone = {
         code: '',
         phone: '',
@@ -418,7 +418,7 @@ export default function QuotesDetail() {
         showDescription: project.showDescription,
 
         quoteDate: {
-          date: project.quoteDate,
+          date: new Date(project.quoteDate),
           timezone: project.quoteDateTimezone ?? defaultTimezone,
         },
         projectDueDate: {
@@ -430,7 +430,7 @@ export default function QuotesDetail() {
           timezone: project.quoteDeadlineTimezone ?? defaultTimezone,
         },
         quoteExpiryDate: {
-          date: project.quoteExpiryDate,
+          date: new Date(project.quoteExpiryDate),
           timezone: project.quoteExpiryDateTimezone ?? defaultTimezone,
         },
         estimatedDeliveryDate: {
@@ -442,7 +442,7 @@ export default function QuotesDetail() {
       setProjectInfo('tax', project.tax)
       setProjectInfo('isTaxable', project.isTaxable)
       setProjectInfo('quoteDate', {
-        date: project.quoteDate,
+        date: new Date(project.quoteDate),
         timezone: project.quoteDateTimezone ?? defaultTimezone,
       })
     }
@@ -458,7 +458,7 @@ export default function QuotesDetail() {
   const { data: itemsWithLang, isLoading: isItemLoading } = useGetLangItem(
     Number(id),
   )
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
   const {
     control: itemControl,
     getValues: getItem,
@@ -466,10 +466,10 @@ export default function QuotesDetail() {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
-    resolver: yupResolver(itemSchema),
+    defaultValues: { items: [], languagePairs: [] },
+    resolver: yupResolver(quoteItemSchema),
   })
 
   const {
@@ -482,37 +482,47 @@ export default function QuotesDetail() {
     name: 'items',
   })
 
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
+  })
+
   useEffect(() => {
     if (!isItemLoading && itemsWithLang) {
       ;(async function () {
         const priceList = await getClientPriceList({})
-        setLanguagePairs(
-          itemsWithLang?.items?.map(item => {
-            if (!item.initialPrice) throw new Error('NO_InitialPrice')
-            return {
-              id: String(item.id),
-              source: item.source!,
-              target: item.target!,
-              price: {
-                id: item.initialPrice?.priceId!,
-                isStandard: item.initialPrice?.isStandard!,
-                priceName: item.initialPrice?.name!,
-                groupName: 'Current price',
-                category: item.initialPrice?.category!,
-                serviceType: item.initialPrice?.serviceType!,
-                currency: item.initialPrice?.currency!,
-                catBasis: item.initialPrice?.calculationBasis!,
-                decimalPlace: item.initialPrice?.numberPlace!,
-                roundingProcedure:
-                  RoundingProcedureList[item.initialPrice?.rounding!].label,
 
-                languagePairs: [],
-                priceUnit: [],
-                catInterface: { memSource: [], memoQ: [] },
-              },
-            }
-          }),
-        )
+        const itemLangPairs = itemsWithLang?.items?.map(item => {
+          if (!item.initialPrice) throw new Error('NO_InitialPrice')
+          return {
+            id: String(item.id),
+            source: item.source!,
+            target: item.target!,
+            price: {
+              id: item.initialPrice?.priceId!,
+              isStandard: item.initialPrice?.isStandard!,
+              priceName: item.initialPrice?.name!,
+              groupName: 'Current price',
+              category: item.initialPrice?.category!,
+              serviceType: item.initialPrice?.serviceType!,
+              currency: item.initialPrice?.currency!,
+              catBasis: item.initialPrice?.calculationBasis!,
+              decimalPlace: item.initialPrice?.numberPlace!,
+              roundingProcedure:
+                RoundingProcedureList[item.initialPrice?.rounding!].label,
+
+              languagePairs: [],
+              priceUnit: [],
+              catInterface: { memSource: [], memoQ: [] },
+            },
+          }
+        })
+
         const result = itemsWithLang?.items?.map(item => {
           return {
             id: item.id,
@@ -537,7 +547,7 @@ export default function QuotesDetail() {
             priceFactor: 0,
           }
         })
-        itemReset({ items: result })
+        itemReset({ items: result, languagePairs: itemLangPairs })
         itemTrigger()
       })()
     }
@@ -889,28 +899,30 @@ export default function QuotesDetail() {
     // ** Client가 Status가 New(20300)인 Quote를 열람할 경우, 자동으로 Status를 Under review(20400)로 바꾸고 데이터를 리패치한다.
     if (currentRole && currentRole.name === 'CLIENT') {
       if (project && project.status === 'New') {
-        patchQuoteProjectInfo(Number(id), { status: 20400 })
-          .then(res => {
-            refetch()
-          })
-          .catch(e => onMutationError())
+        updateQuoteStatusMutation.mutate({
+          id: Number(id),
+          status: 20400 
+        })
       }
     }
+  }, [])
+
+  useEffect(() => {
     // LPM에서 status가 Revision requested일때 quote의 편집화면에 진입하면 status를 Under revision(20600) 으로 패치한다.
     if (currentRole && currentRole.name === 'LPM') {
+      console.log("status update",project?.status,(editProject || editItems || editClient || editTeam))
       if (
         project &&
         project.status === 'Revision requested' &&
         (editProject || editItems || editClient || editTeam)
       ) {
-        patchQuoteProjectInfo(Number(id), { status: 20600 })
-          .then(res => {
-            refetch()
-          })
-          .catch(e => onMutationError())
+        updateQuoteStatusMutation.mutate({
+          id: Number(id),
+          status: 20600 
+        })
       }
     }
-  }, [currentRole, project, editProject, editItems, editClient, editTeam])
+  }, [project, editProject, editItems, editClient, editTeam])
 
   const updateProject = useMutation(
     (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
@@ -1003,9 +1015,12 @@ export default function QuotesDetail() {
         sourceLanguage: item.source,
         targetLanguage: item.target,
         sortingOrder: idx + 1,
+        dueAt: item.dueAt || item.dueAt !== "" 
+          ? item.dueAt
+          : null,
       }
     })
-    const langs: LanguagePairsType[] = languagePairs.map(item => {
+    const langs: LanguagePairsType[] = getItem('languagePairs').map(item => {
       if (item?.price?.id) {
         return {
           // langPairId: Number(item.id),
@@ -1095,7 +1110,7 @@ export default function QuotesDetail() {
       children: (
         <DiscardModal
           onClose={() => {
-            callback()
+            // callback()
             closeModal('DiscardModal')
           }}
           onClick={() => {
@@ -1132,6 +1147,32 @@ export default function QuotesDetail() {
       </Grid>
     )
   }
+
+  const updateQuoteStatusMutation = useMutation(
+    (data: { id: number; status: number; reason?: ReasonType }) =>
+      patchQuoteStatus(Number(data.id), data.status, data.reason),
+    {
+      onSuccess: (data, variables) => {
+        let res
+
+        if (typeof data === 'number' || typeof data === 'string') {
+          res = Number(data)
+        } else if (typeof data === 'object' && data !== null) {
+          res = Number(data.id)
+        }
+
+        if (res === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: [`quotesDetail`, { type: 'project' }, Number(id)],
+          })
+          queryClient.invalidateQueries(['quotesList'])
+        } else {
+          router.push(`/quotes/detail/${res}`)
+        }
+      },
+      onError: () => onMutationError(),
+    },
+  )
 
   const deleteQuotesMutation = useMutation((id: number) => deleteQuotes(id), {
     onSuccess: () => {
@@ -1410,27 +1451,6 @@ export default function QuotesDetail() {
     makePdfData()
   }, [project, client])
 
-  const deleteButtonDisabled = () => {
-    if (client?.contactPerson?.userId === null) {
-      return (
-        !isDeletable ||
-        (project?.status !== 'New' &&
-          project?.status !== 'In preparation' &&
-          project?.status !== 'Internal review' &&
-          project?.status !== 'Expired')
-      )
-    } else {
-      return (
-        !isDeletable ||
-        (project?.status !== 'New' &&
-          project?.status !== 'In preparation' &&
-          project?.status !== 'Internal review' &&
-          project?.status === 'Expired' &&
-          project?.confirmedAt !== null)
-      )
-    }
-  }
-
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -1468,7 +1488,11 @@ export default function QuotesDetail() {
                 height='50px'
               />
               <Typography variant='h5'>{project?.corporationId}</Typography>
-              {project?.linkedOrder || project?.linkedRequest ? (
+              {(project?.linkedOrder || project?.linkedRequest) &&
+              !editProject &&
+              !editItems &&
+              !editClient &&
+              !editTeam ? (
                 <Box>
                   <IconButton
                     sx={{ width: '24px', height: '24px', padding: 0 }}
@@ -1545,7 +1569,11 @@ export default function QuotesDetail() {
               ) : null}
             </Box>
           </Box>
-          {currentRole && currentRole.name === 'CLIENT' ? null : (
+          {(currentRole && currentRole.name === 'CLIENT') ||
+          editProject ||
+          editItems ||
+          editClient ||
+          editTeam ? null : (
             <Box display='flex' alignItems='center' gap='14px'>
               <Button
                 variant='outlined'
@@ -1658,7 +1686,7 @@ export default function QuotesDetail() {
                   setDownloadLanguage={setDownloadLanguage}
                   onClickDownloadQuotes={onClickDownloadQuotes}
                   type='detail'
-                  updateProject={updateProject}
+                  updateProject={updateQuoteStatusMutation}
                   statusList={statusList!}
                   project={project!}
                 />
@@ -1705,8 +1733,18 @@ export default function QuotesDetail() {
                       canCheckboxEdit={canUseFeature(
                         'checkBox-ProjectInfo-Description',
                       )}
-                      updateStatus={(status: number) =>
-                        updateProject.mutate({ status: status })
+                      updateStatus={(status: number, callback?: () => void) =>
+                        updateQuoteStatusMutation.mutate(
+                          {
+                          id: Number(id),
+                          status: status
+                          },
+                          {
+                            onSuccess: () => {
+                              callback && callback()
+                            },
+                          },
+                        )
                       }
                       role={currentRole!}
                       client={client}
@@ -1758,8 +1796,10 @@ export default function QuotesDetail() {
             <Card>
               <CardContent sx={{ padding: '24px' }}>
                 <QuotesLanguageItemsDetail
-                  languagePairs={languagePairs}
-                  setLanguagePairs={setLanguagePairs}
+                  // languagePairs={getItem('languagePairs')}
+                  setLanguagePairs={(languagePair: languageType[]) =>
+                    setItem('languagePairs', languagePair)
+                  }
                   clientId={getClientValue('clientId') ?? null}
                   priceUnitsList={priceUnitsList || []}
                   itemControl={itemControl}
@@ -1781,6 +1821,9 @@ export default function QuotesDetail() {
                   role={currentRole!}
                   itemTrigger={itemTrigger}
                   project={project}
+                  languagePairs={languagePairs}
+                  appendLanguagePairs={appendLanguagePairs}
+                  updateLanguagePairs={updateLanguagePairs}
                 />
                 {editItems
                   ? renderSubmitButton({

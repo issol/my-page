@@ -17,7 +17,7 @@ import {
   VersionHistoryType,
 } from '@src/types/common/quotes.type'
 import { PostItemType } from '@src/types/common/item.type'
-import { QuotesFilterType } from '@src/types/quotes/quote'
+import { QuotesFilterType, ReasonType } from '@src/types/quotes/quote'
 import {
   ClientType,
   LanguageAndItemType,
@@ -60,7 +60,7 @@ function getColor(status: QuoteStatusType) {
     : status === 'In preparation'
     ? `#F572D8`
     : status === 'Internal review'
-    ? `#20B6E5`
+    ? `#D8AF1D`
     : status === 'Client review'
     ? `#FDB528`
     : status === 'Expired'
@@ -265,5 +265,18 @@ export const patchQuoteItems = async (
 
 export const confirmQuote = async (id: number) => {
   const { data } = await axios.patch(`/api/enough/u/quote/${id}/confirm`)
+  return data
+}
+
+export const patchQuoteStatus = async (
+  id: number,
+  status: number,
+  reason?: ReasonType,
+) => {
+  const { data } = await axios.patch(`/api/enough/u/quote/${id}/set-status`, {
+    status: status,
+    reason: reason,
+  })
+
   return data
 }

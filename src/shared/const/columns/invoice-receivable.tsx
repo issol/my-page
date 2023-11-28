@@ -91,7 +91,7 @@ export const getInvoiceReceivableListColumns = (
                   {row.client.name ?? '-'}
                 </Typography>
                 <Typography variant='body2'>
-                  {row.projectManager.email ?? '-'}
+                  {row.projectManager?.email ?? '-'}
                 </Typography>
               </>
             ) : (

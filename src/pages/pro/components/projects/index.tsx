@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import styled from 'styled-components'
 
@@ -14,7 +14,6 @@ import ProjectsList from './list-view/list'
 import CalendarContainer from './calendar-view/calendar-container'
 
 // ** third parties
-import isEqual from 'lodash/isEqual'
 
 // ** fetch
 import {
@@ -25,7 +24,6 @@ import {
   FilterType as ActiveFilterType,
   SortingType,
 } from '@src/apis/pro/pro-projects.api'
-import logger from '@src/@core/utils/logger'
 import { useQueryClient } from 'react-query'
 
 export type FilterType = {

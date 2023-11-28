@@ -102,7 +102,7 @@ const AssignProFilters = ({
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
   const clientList = useMemo(
-    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.clientId })) || [],
     [clientData],
   )
 
@@ -317,7 +317,7 @@ const AssignProFilters = ({
                           trigger('serviceType')
                         }
                       }}
-                      value={value}
+                      value={value || { value: '', label: '' }}
                       options={categoryList}
                       id='category'
                       getOptionLabel={option => option.label}
@@ -398,7 +398,7 @@ const AssignProFilters = ({
                           trigger('category')
                         }
                       }}
-                      value={value}
+                      value={value || { value: '', label: '' }}
                       options={serviceTypeList}
                       id='ServiceType'
                       limitTags={1}

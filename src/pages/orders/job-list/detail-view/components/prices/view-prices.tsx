@@ -3,7 +3,7 @@ import { Box, Button, Card, Divider, Typography } from '@mui/material'
 import useModal from '@src/hooks/useModal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
-import { defaultOption } from '@src/pages/orders/add-new'
+import { defaultOption, languageType } from '@src/pages/orders/add-new'
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { ItemType, JobType } from '@src/types/common/item.type'
@@ -28,7 +28,10 @@ import PriceHistoryRow from './price-history-row'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { boolean } from 'yup'
-import { JobPricesDetailType, jobPriceHistoryType } from '@src/types/jobs/jobs.type'
+import {
+  JobPricesDetailType,
+  jobPriceHistoryType,
+} from '@src/types/jobs/jobs.type'
 import ProjectInfo from '@src/pages/orders/order-list/detail/components/project-info'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRecoilValueLoadable } from 'recoil'
@@ -40,32 +43,39 @@ type Props = {
   itemControl: Control<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     any
   >
   getItem: UseFormGetValues<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   setItem: UseFormSetValue<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   itemErrors: FieldErrors<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
-  itemReset: UseFormReset<{ items: ItemType[] }>
+  itemReset: UseFormReset<{ items: ItemType[]; languagePairs: languageType[] }>
   isItemValid: boolean
   appendItems: UseFieldArrayAppend<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     'items'
   >
   fields: FieldArrayWithId<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     'items',
     'id'
@@ -130,11 +140,13 @@ const ViewPrices = ({
     if (jobPriceHistory && jobPriceHistory.length) setShowPriceHistory(true)
   }, [])
 
-  console.log("row",row)
-  console.log("jobPriceHistory",jobPriceHistory)
   // prices tab 하단의 price history에 들어가는 row
-  const PriceHistory = ({priceHistory}: {priceHistory: jobPriceHistoryType}) => {
-    console.log("priceHistoryDetail",priceHistory.detail)
+  const PriceHistory = ({
+    priceHistory,
+  }: {
+    priceHistory: jobPriceHistoryType
+  }) => {
+    console.log('priceHistoryDetail', priceHistory.detail)
     return (
       <Card sx={{ padding: '24px', backgroundColor: 'rgba(76, 78, 100, 0.5)' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -169,7 +181,10 @@ const ViewPrices = ({
                 Date&Time
               </Typography>
               <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                {FullDateTimezoneHelper(priceHistory.historyAt, auth.getValue().user?.timezone,)}
+                {FullDateTimezoneHelper(
+                  priceHistory.historyAt,
+                  auth.getValue().user?.timezone,
+                )}
               </Typography>
             </Box>
           </Box>
@@ -231,8 +246,7 @@ const ViewPrices = ({
           <Typography variant='subtitle2'>
             {row.pro
               ? '*Changes will also be applied to the invoice'
-              : '*Changes will only be applied to new requests'
-            }
+              : '*Changes will only be applied to new requests'}
           </Typography>
           <Button
             variant='outlined'
@@ -241,10 +255,7 @@ const ViewPrices = ({
           >
             <Icon icon='mdi:pencil-outline' fontSize={24} />
             &nbsp;
-            {row.pro
-              ? 'Edit'
-              : 'Edit before request'
-            }
+            {row.pro ? 'Edit' : 'Edit before request'}
           </Button>
         </Box>
       ) : null}
@@ -281,7 +292,10 @@ const ViewPrices = ({
                 </Typography>
                 <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
                   {/* TODO: pro가 assign된 시간, 타임존 정보 필요함 */}
-                  {FullDateTimezoneHelper(row.historyAt, auth.getValue().user?.timezone,)}
+                  {FullDateTimezoneHelper(
+                    row.historyAt,
+                    auth.getValue().user?.timezone,
+                  )}
                 </Typography>
               </Box>
             </Box>
@@ -333,65 +347,71 @@ const ViewPrices = ({
         </Box>
       </Card>
 
-      {jobPriceHistory?.length && !showPriceHistory ? 
-        <Box 
-          sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '24px', 
-          }}>
-          <Box 
-            sx={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
+      {jobPriceHistory?.length && !showPriceHistory ? (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
               height: 42,
               cursor: 'pointer',
-            }} 
+            }}
             onClick={() => setShowPriceHistory(true)}
           >
             <Icon icon='fa6-solid:chevron-down' fontSize={15} color='#666CFF' />
-            <Typography variant='subtitle2' fontWeight='medium' fontSize={15} color='#666CFF'>
+            <Typography
+              variant='subtitle2'
+              fontWeight='medium'
+              fontSize={15}
+              color='#666CFF'
+            >
               &nbsp;&nbsp;&nbsp;
               {'Show price history'}
             </Typography>
           </Box>
         </Box>
-        : null
-      }
-      {jobPriceHistory?.length && showPriceHistory ?
+      ) : null}
+      {jobPriceHistory?.length && showPriceHistory ? (
         <Box
-          sx={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '24px', 
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px',
           }}
         >
-          <Box 
-            sx={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center', 
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
               height: 42,
               cursor: 'pointer',
-            }} 
+            }}
             onClick={() => setShowPriceHistory(false)}
           >
             <Icon icon='fa6-solid:chevron-up' fontSize={15} color='#666CFF' />
-            <Typography variant='subtitle2' fontWeight='medium' fontSize={15} color='#666CFF'>
+            <Typography
+              variant='subtitle2'
+              fontWeight='medium'
+              fontSize={15}
+              color='#666CFF'
+            >
               &nbsp;&nbsp;&nbsp;
               {'Hide price history'}
             </Typography>
           </Box>
           {jobPriceHistory.map(priceHistory => (
-            <PriceHistory
-              key={priceHistory.id}
-              priceHistory={priceHistory}
-            />
+            <PriceHistory key={priceHistory.id} priceHistory={priceHistory} />
           ))}
         </Box>
-        : null
-      }
+      ) : null}
     </Box>
   )
 }

@@ -58,6 +58,7 @@ const defaultValues: FilterType = {
   estimatedDeliveryDate: [],
   status: [],
   client: [],
+  lsp: [],
   category: [],
   serviceType: [],
   search: '',
@@ -72,6 +73,7 @@ const defaultFilters: QuotesFilterType = {
   status: [],
   client: [],
   clientId: [],
+  companyId: [],
   category: [],
   serviceType: [],
   search: '',
@@ -123,6 +125,8 @@ export default function Quotes({ id, user }: Props) {
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
     skip: 0,
+    sort: 'name',
+    ordering: 'asc',
   })
   const { data: companies, isLoading: companiesListLoading } =
     currentRole?.name === 'CLIENT'
@@ -252,7 +256,7 @@ export default function Quotes({ id, user }: Props) {
                 .format('YYYY-MM-DD HH:mm:ss'),
             ]
           : undefined,
-      lsp: lsp?.map(value => value.label),
+      companyId: lsp?.map(value => value.label),
       search: search,
       take: quoteListPageSize,
       skip: quoteListPageSize * quoteListPage,
@@ -264,10 +268,13 @@ export default function Quotes({ id, user }: Props) {
 
   useEffect(() => {
     if (clients && !clientListLoading) {
-      const res = clients.data.map(client => ({
-        label: client.name,
-        value: client.clientId,
-      }))
+      const res = clients.data
+        .map(client => ({
+          label: client.name,
+          value: client.clientId,
+        }))
+        .slice()
+        // .sort((a, b) => b.label.localeCompare(a.label))
       setClientList(res)
     }
   }, [clients, clientListLoading])

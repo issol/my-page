@@ -63,29 +63,34 @@ import { useMutation, useQueryClient } from 'react-query'
 
 type Props = {
   languagePairs: Array<languageType>
-  setLanguagePairs: Dispatch<SetStateAction<Array<languageType>>>
+  setLanguagePairs: (languagePair: languageType[]) => void
   clientId: number
   itemControl: Control<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     any
   >
   getItem: UseFormGetValues<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   setItem: UseFormSetValue<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
 
   itemErrors: FieldErrors<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   isItemValid: boolean
   priceUnitsList: PriceUnitListType[]
   items: FieldArrayWithId<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     'items',
     'id'
@@ -94,6 +99,7 @@ type Props = {
   getTeamValues: UseFormGetValues<ProjectTeamType>
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   invoiceInfo: InvoiceReceivableDetailType
   invoiceLanguageItem: InvoiceLanguageItemType
@@ -214,6 +220,21 @@ const InvoiceLanguageAndItem = ({
 
   console.log(getInvoiceInfo())
 
+  console.log(
+    Number(getInvoiceInfo('subtotal')) +
+      Number(getInvoiceInfo('subtotal')) *
+        (Number(getInvoiceInfo('tax')) / 100),
+  )
+
+  console.log(
+    Number(getInvoiceInfo('subtotal')) * (Number(getInvoiceInfo('tax')) / 100),
+  )
+  function decimalPlus(a: number, b: number, n = 1) {
+    const unit = Math.pow(10, n)
+
+    return (a * unit + b * unit) / unit
+  }
+
   return (
     <>
       <Box
@@ -267,6 +288,7 @@ const InvoiceLanguageAndItem = ({
           itemTrigger={itemTrigger}
           sumTotalPrice={sumTotalPrice}
           orders={invoiceLanguageItem?.orders}
+          from='invoice'
         />
       </Grid>
       <Grid item xs={12}>
@@ -431,11 +453,11 @@ const InvoiceLanguageAndItem = ({
               }}
             >
               {invoiceInfo.isTaxable
-                ? `${getCurrencyMark(invoiceInfo?.currency)} ${
-                    Number(getInvoiceInfo('subtotal')) +
+                ? `${getCurrencyMark(invoiceInfo?.currency)} ${decimalPlus(
+                    Number(getInvoiceInfo('subtotal')),
                     Number(getInvoiceInfo('subtotal')) *
-                      (Number(getInvoiceInfo('tax')) / 100)
-                  }`
+                      (Number(getInvoiceInfo('tax')) / 100),
+                  )}`
                 : `${getCurrencyMark(invoiceInfo?.currency)} ${Number(
                     getInvoiceInfo('subtotal'),
                   )}`}

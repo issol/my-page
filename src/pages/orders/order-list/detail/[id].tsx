@@ -92,7 +92,11 @@ import {
   LanguagePairsType,
   ProjectTeamFormType,
 } from '@src/types/common/orders-and-quotes.type'
-import { patchItemsForOrder, patchLangPairForOrder } from '@src/apis/order.api'
+import {
+  checkOrderEditable,
+  patchItemsForOrder,
+  patchLangPairForOrder,
+} from '@src/apis/order.api'
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import { toast } from 'react-hot-toast'
 import { useGetStatusList } from '@src/queries/common.query'
@@ -208,6 +212,8 @@ const OrderDetail = () => {
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
+  const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
+
   const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
     null,
   )
@@ -317,9 +323,9 @@ const OrderDetail = () => {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(itemSchema),
   })
 
@@ -332,6 +338,17 @@ const OrderDetail = () => {
     control: itemControl,
     name: 'items',
   })
+
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
+  })
+
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -392,8 +409,6 @@ const OrderDetail = () => {
 
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
-
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
   function renderSubmitButton({
     onCancel,
@@ -464,29 +479,28 @@ const OrderDetail = () => {
   }
 
   const initializeItemData = () => {
-    setLanguagePairs(
-      langItem?.items?.map(item => ({
-        id: String(item.id),
-        source: item.source!,
-        target: item.target!,
-        price: {
-          id: item.initialPrice?.priceId!,
-          isStandard: item.initialPrice?.isStandard!,
-          priceName: item.initialPrice?.name!,
-          groupName: 'Current price',
-          category: item.initialPrice?.category!,
-          serviceType: item.initialPrice?.serviceType!,
-          currency: item.initialPrice?.currency!,
-          catBasis: item.initialPrice?.calculationBasis!,
-          decimalPlace: item.initialPrice?.numberPlace!,
-          roundingProcedure:
-            RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-          languagePairs: [],
-          priceUnit: [],
-          catInterface: { memSource: [], memoQ: [] },
-        },
-      }))!,
-    )
+    const itemLangPairs = langItem?.items?.map(item => ({
+      id: String(item.id),
+      source: item.source!,
+      target: item.target!,
+      price: {
+        id: item.initialPrice?.priceId!,
+        isStandard: item.initialPrice?.isStandard!,
+        priceName: item.initialPrice?.name!,
+        groupName: 'Current price',
+        category: item.initialPrice?.category!,
+        serviceType: item.initialPrice?.serviceType!,
+        currency: item.initialPrice?.currency!,
+        catBasis: item.initialPrice?.calculationBasis!,
+        decimalPlace: item.initialPrice?.numberPlace!,
+        roundingProcedure:
+          RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+        languagePairs: [],
+        priceUnit: [],
+        catInterface: { memSource: [], memoQ: [] },
+      },
+    }))!
+
     const result = langItem?.items?.map(item => {
       return {
         id: item.id,
@@ -508,7 +522,7 @@ const OrderDetail = () => {
         minimumPriceApplied: item.minimumPriceApplied,
       }
     })
-    itemReset({ items: result })
+    itemReset({ items: result, languagePairs: itemLangPairs })
   }
 
   const initializeTeamData = () => {
@@ -786,6 +800,13 @@ const OrderDetail = () => {
   }, [projectInfo, client, langItem, projectTeam])
 
   useEffect(() => {
+    if (projectInfo)
+      checkOrderEditable(projectInfo.id).then(res => {
+        setIsUserInTeamMember(res)
+      })
+  }, [projectInfo])
+
+  useEffect(() => {
     if (orderInfo.isReady && orderInfo.orderTotalData) {
       openModal({
         type: 'PreviewModal',
@@ -840,29 +861,27 @@ const OrderDetail = () => {
 
   useEffect(() => {
     if (langItem) {
-      setLanguagePairs(
-        langItem?.items?.map(item => ({
-          id: String(item.id),
-          source: item.source!,
-          target: item.target!,
-          price: {
-            id: item.initialPrice?.priceId!,
-            isStandard: item.initialPrice?.isStandard!,
-            priceName: item.initialPrice?.name!,
-            groupName: 'Current price',
-            category: item.initialPrice?.category!,
-            serviceType: item.initialPrice?.serviceType!,
-            currency: item.initialPrice?.currency!,
-            catBasis: item.initialPrice?.calculationBasis!,
-            decimalPlace: item.initialPrice?.numberPlace!,
-            roundingProcedure:
-              RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-            languagePairs: [],
-            priceUnit: [],
-            catInterface: { memSource: [], memoQ: [] },
-          },
-        }))!,
-      )
+      const itemLangPairs = langItem?.items?.map(item => ({
+        id: String(item.id),
+        source: item.source!,
+        target: item.target!,
+        price: {
+          id: item.initialPrice?.priceId!,
+          isStandard: item.initialPrice?.isStandard!,
+          priceName: item.initialPrice?.name!,
+          groupName: 'Current price',
+          category: item.initialPrice?.category!,
+          serviceType: item.initialPrice?.serviceType!,
+          currency: item.initialPrice?.currency!,
+          catBasis: item.initialPrice?.calculationBasis!,
+          decimalPlace: item.initialPrice?.numberPlace!,
+          roundingProcedure:
+            RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+          languagePairs: [],
+          priceUnit: [],
+          catInterface: { memSource: [], memoQ: [] },
+        },
+      }))
       const result = langItem?.items?.map(item => {
         return {
           id: item.id,
@@ -884,7 +903,7 @@ const OrderDetail = () => {
           minimumPriceApplied: item.minimumPriceApplied,
         }
       })
-      itemReset({ items: result })
+      itemReset({ items: result, languagePairs: itemLangPairs })
       setSelectedIds(
         langItem.items.map(value => ({ id: value.id ?? 0, selected: false })),
       )
@@ -974,7 +993,6 @@ const OrderDetail = () => {
     }
 
     if (client) {
-      console.log('client', client)
       clientReset({
         clientId: client.client.clientId,
         contactPersonId: client.contactPerson?.id,
@@ -1021,21 +1039,23 @@ const OrderDetail = () => {
         sortingOrder: idx + 1,
       }
     })
-    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
-      if (item?.price?.id) {
+    const langs: LanguagePairsPostType[] = getItem('languagePairs').map(
+      item => {
+        if (item?.price?.id) {
+          return {
+            langPairId: Number(item.id),
+            source: item.source,
+            target: item.target,
+            priceId: item.price.id,
+          }
+        }
         return {
           langPairId: Number(item.id),
           source: item.source,
           target: item.target,
-          priceId: item.price.id,
         }
-      }
-      return {
-        langPairId: Number(item.id),
-        source: item.source,
-        target: item.target,
-      }
-    })
+      },
+    )
 
     const subtotal = items.reduce((accumulator, item) => {
       return accumulator + item.totalPrice
@@ -1146,11 +1166,15 @@ const OrderDetail = () => {
   const updateProjectWithoutControlForm = useMutation(
     (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ['orderDetail'],
-        })
-        queryClient.invalidateQueries(['orderList'])
+      onSuccess: (data, variables) => {
+        if (data.id === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: ['orderDetail'],
+          })
+          queryClient.invalidateQueries(['orderList'])
+        } else {
+          router.replace(`/orders/order-list/detail/${data.id}`)
+        }
       },
       onError: () => onMutationError(),
     },
@@ -1347,7 +1371,6 @@ const OrderDetail = () => {
             // !projectInfo?.linkedInvoiceReceivable &&
             // projectInfo?.linkedJobs.length === 0 &&
             isIncludeProjectTeam()
-          console.log(flag)
 
           break
         case 'button-Languages&Items-SplitOrder':
@@ -1521,11 +1544,11 @@ const OrderDetail = () => {
   // 로그인 한 유저가 project team에 속해있는지 체크, 만약 Master, Manager일 경우 true 리턴
   const isIncludeProjectTeam = () => {
     return Boolean(
-      (currentRole?.name !== 'CLIENT' &&
-        (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
-        (currentRole?.type === 'General' &&
-          projectTeam?.length &&
-          projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
+      currentRole?.name !== 'CLIENT' && isUserInTeamMember,
+      // (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
+      // (currentRole?.type === 'General' &&
+      //   projectTeam?.length &&
+      //   projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
     )
   }
 
@@ -1786,7 +1809,7 @@ const OrderDetail = () => {
                     setDownloadLanguage={setDownloadLanguage}
                     onClickDownloadOrder={onClickDownloadOrder}
                     type='detail'
-                    updateProject={updateProject}
+                    updateProject={updateOrderStatusMutation}
                     statusList={statusList!}
                     project={projectInfo!}
                   />
@@ -1866,8 +1889,10 @@ const OrderDetail = () => {
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
                   <LanguageAndItem
-                    languagePairs={languagePairs!}
-                    setLanguagePairs={setLanguagePairs}
+                    // languagePairs={getItem('languagePairs')}
+                    setLanguagePairs={(languagePair: languageType[]) =>
+                      setItem('languagePairs', languagePair)
+                    }
                     clientId={client?.client.clientId!}
                     itemControl={itemControl}
                     getItem={getItem}
@@ -1899,6 +1924,9 @@ const OrderDetail = () => {
                     canUseFeature={canUseFeature}
                     isIncludeProjectTeam={isIncludeProjectTeam()}
                     type='detail'
+                    languagePairs={languagePairs}
+                    appendLanguagePairs={appendLanguagePairs}
+                    updateLanguagePairs={updateLanguagePairs}
                   />
 
                   {/* <Grid item xs={12}>
@@ -2177,6 +2205,7 @@ const OrderDetail = () => {
                   canUseFeature={canUseFeature}
                   uploadFileProcessing={uploadFileProcessing}
                   setUploadFileProcessing={setUploadFileProcessing}
+                  isEditable={isIncludeProjectTeam()}
                 />
               </Suspense>
             </TabPanel>

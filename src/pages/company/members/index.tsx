@@ -279,8 +279,8 @@ const Members = () => {
         user={user}
         message={
           isClient
-            ? 'Are you sure to decline the sign up request for this account?'
-            : ''
+            ? 'Are you sure to decline the registration request for this account?'
+            : 'Are you sure to decline the sign up request for this account?'
         }
         onClose={() => setModal(null)}
       />,

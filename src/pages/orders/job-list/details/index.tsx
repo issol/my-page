@@ -48,17 +48,28 @@ import { deleteJob } from '@src/apis/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 const JobDetails = () => {
   const router = useRouter()
   const ref = useRef<null | any>(null)
   const { openModal, closeModal } = useModal()
+  const queryClient = useQueryClient()
+
+  const auth = useRecoilValueLoadable(authState)
+  const currentRole = getCurrentRole()
 
   const { orderId, jobId } = router.query
 
   const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId!))
   const { data: orderDetail } = useGetProjectInfo(Number(orderId!))
+  const { data: projectTeam, isLoading: projectTeamLoading } =
+    useGetProjectTeam(Number(orderId!))
   const { data: statusList } = useGetStatusList('Job')
+
+  const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
 
   const [serviceType, setServiceType] = useState<
     Array<{ label: string; value: string }[]>
@@ -97,6 +108,7 @@ const JobDetails = () => {
     const newSelections = [...serviceType]
     newSelections[index] = value
     setServiceType(newSelections)
+    // setTmpServiceType(newSelections)
   }
 
   const onClickAddJob = (itemId: number, index: number) => {
@@ -195,12 +207,36 @@ const JobDetails = () => {
     }
   }, [jobDetails])
 
+  useEffect(() => {
+    if (projectTeam) {
+      const isUserInTeamMember = projectTeam.some(
+        member => member.userId === Number(auth.getValue().user?.id!),
+      )
+      setIsUserInTeamMember(isUserInTeamMember)
+    }
+  }, [projectTeam])
+
   const onClickBack = () => {
     //TODO 이전 페이지의 주소기반으로 라우팅 해야함, 무조건 back 할경우 사이드이펙이 나올수 있음
+    const filter = {
+      status: [],
+      client: [],
+      category: [],
+      serviceType: [],
+      startedAt: [null, null],
+      dueAt: [null, null],
+      search: '',
+      isMyJobs: '0',
+      isHidePaid: '0',
+      skip: 0,
+      take: 10,
+    }
+    queryClient.invalidateQueries(['jobList', filter])
     router.back()
   }
   const Row = ({ info, index }: { info: JobItemType; index: number }) => {
     const [open, setOpen] = useState<boolean>(true)
+
     const separateLine = () => {
       return (
         <TableCell
@@ -253,56 +289,71 @@ const JobDetails = () => {
               {info.itemName}
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-            <Autocomplete
-              fullWidth
-              multiple
-              sx={{
-                width: '306px',
-                '& .MuiInputBase-root': {
-                  height: '46px',
-                },
-                '& .MuiChip-root': {
-                  height: '24px',
-                },
-              }}
-              disableCloseOnSelect
-              isOptionEqualToValue={(option, newValue) => {
-                return option.value === newValue.value
-              }}
-              onChange={(event, item) => {
-                handleChangeServiceType(event, item, index)
+          {isUserInTeamMember ||
+          (currentRole && currentRole.type !== 'General') ? (
+            <Box sx={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+              <Autocomplete
+                fullWidth
+                multiple
+                sx={{
+                  width: '306px',
+                  '& .MuiInputBase-root': {
+                    height: '46px',
+                  },
+                  '& .MuiChip-root': {
+                    height: '24px',
+                  },
+                }}
+                disableCloseOnSelect
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
+                }}
+                onChange={(event, item) => {
+                  // event.preventDefault()
+                  handleChangeServiceType(event, item, index)
 
-                // ServiceTypePair
-              }}
-              value={serviceType[index] || []}
-              options={ServiceTypeList}
-              id='ServiceType'
-              limitTags={1}
-              getOptionLabel={option => option.label}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  size='small'
-                  placeholder={serviceType.length ? undefined : 'Service type'}
-                />
-              )}
-              renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox checked={selected} sx={{ mr: 2 }} />
-                  {option.label}
-                </li>
-              )}
-            />
-            <Button
-              variant='contained'
-              sx={{ height: '38px' }}
-              disabled={serviceType.length === 0}
-              onClick={() => onClickAddJob(info.id, index)}
-            >
-              Add
-            </Button>
-          </Box>
+                  // ServiceTypePair
+                }}
+                // onClose={() => {
+                //   setServiceType(tmpServiceType)
+                // }}
+                // blurOnSelect
+                value={serviceType[index] || []}
+                options={ServiceTypeList}
+                id='ServiceType'
+                limitTags={1}
+                getOptionLabel={option => option.label}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    size='small'
+                    placeholder={
+                      serviceType.length ? undefined : 'Service type'
+                    }
+                  />
+                )}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 2 }} />
+                    {option.label}
+                  </li>
+                )}
+              />
+
+              <Button
+                variant='contained'
+                sx={{ height: '38px' }}
+                disabled={
+                  serviceType.length === 0 ||
+                  !serviceType[index] ||
+                  (serviceType[index] && serviceType[index].length === 0)
+                }
+                onClick={() => onClickAddJob(info.id, index)}
+              >
+                Add
+              </Button>
+            </Box>
+          ) : null}
         </Box>
         <Collapse in={open} timeout='auto' unmountOnExit>
           <Box sx={{ padding: '0px 20px 24px 20px' }}>
@@ -417,22 +468,26 @@ const JobDetails = () => {
                     >
                       <Box>Prices</Box>
                     </TableCell>
+                    {isUserInTeamMember ||
+                    (currentRole && currentRole.type !== 'General') ? (
+                      <>
+                        {separateLine()}
+                        <TableCell
+                          sx={{
+                            height: '54px',
 
-                    {separateLine()}
-                    <TableCell
-                      sx={{
-                        height: '54px',
-
-                        fontWeight: '400 !important',
-                        fontSize: '14px !important',
-                        // paddingRight: '0 !important',
-                        display: 'flex',
-                        alignItems: 'center',
-                        flex: 0.062,
-                        minWidth: '72px',
-                      }}
-                      size='small'
-                    ></TableCell>
+                            fontWeight: '400 !important',
+                            fontSize: '14px !important',
+                            // paddingRight: '0 !important',
+                            display: 'flex',
+                            alignItems: 'center',
+                            flex: 0.062,
+                            minWidth: '72px',
+                          }}
+                          size='small'
+                        ></TableCell>
+                      </>
+                    ) : null}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -566,45 +621,48 @@ const JobDetails = () => {
                               }}
                               size='small'
                             >
-                              <Box>{
-                                row?.totalPrice 
+                              <Box>
+                                {row?.totalPrice
                                   ? formatCurrency(
-                                    row?.totalPrice,
-                                    row?.currency!
+                                      row?.totalPrice,
+                                      row?.currency!,
                                     )
-                                  : '-'
-                                }
+                                  : '-'}
                               </Box>
                             </TableCell>
+                            {isUserInTeamMember ||
+                            (currentRole && currentRole.type !== 'General') ? (
+                              <>
+                                {separateLine()}
+                                <TableCell
+                                  sx={{
+                                    height: '54px',
 
-                            {separateLine()}
-                            <TableCell
-                              sx={{
-                                height: '54px',
-
-                                fontWeight: '400 !important',
-                                fontSize: '14px !important',
-                                // paddingRight: '0 !important',
-                                display: 'flex',
-                                alignItems: 'center',
-                                flex: 0.062,
-                                minWidth: '72px',
-                              }}
-                              size='small'
-                            >
-                              <IconButton
-                                onClick={event => {
-                                  event.stopPropagation()
-                                  onClickRemoveJob(
-                                    row.id,
-                                    row.corporationId,
-                                    row.name,
-                                  )
-                                }}
-                              >
-                                <Icon icon='mdi:trash'></Icon>
-                              </IconButton>
-                            </TableCell>
+                                    fontWeight: '400 !important',
+                                    fontSize: '14px !important',
+                                    // paddingRight: '0 !important',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    flex: 0.062,
+                                    minWidth: '72px',
+                                  }}
+                                  size='small'
+                                >
+                                  <IconButton
+                                    onClick={event => {
+                                      event.stopPropagation()
+                                      onClickRemoveJob(
+                                        row.id,
+                                        row.corporationId,
+                                        row.name,
+                                      )
+                                    }}
+                                  >
+                                    <Icon icon='mdi:trash'></Icon>
+                                  </IconButton>
+                                </TableCell>
+                              </>
+                            ) : null}
                           </TableRow>
                         )
                       })
@@ -620,9 +678,9 @@ const JobDetails = () => {
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
-      {(createJobMutation.isLoading ||
-        deleteJobMutation.isLoading) ?
-        <OverlaySpinner /> : null }
+      {createJobMutation.isLoading || deleteJobMutation.isLoading ? (
+        <OverlaySpinner />
+      ) : null}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <Box
           sx={{

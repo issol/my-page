@@ -90,8 +90,6 @@ export default function RegisterClientForm({
   const clientId = watch('clientId')
   const contacts = watch('contacts')
 
-  console.log(contacts?.addresses)
-
   useEffect(() => {
     if (!clientId) {
       reset &&
@@ -223,11 +221,6 @@ export default function RegisterClientForm({
           control={control}
           render={({ field: { value, onChange } }) => {
             const selectedClient = clientList.find(item => item.value === value)
-            console.log(
-              clientDetail?.clientAddresses?.filter(
-                item => item.addressType !== 'additional',
-              ) || [],
-            )
 
             return (
               <Autocomplete
@@ -267,6 +260,7 @@ export default function RegisterClientForm({
                 disabled={
                   type === 'request' ||
                   (formType === 'edit' && type === 'order') ||
+                  (formType === 'edit' && type === 'quotes') ||
                   type === 'invoice' ||
                   (fromQuote && getValue('isEnrolledClient'))
                 }
@@ -310,7 +304,6 @@ export default function RegisterClientForm({
                     const res = contactPersonList.find(
                       item => item.id === Number(v.value),
                     )
-                    // setContactPerson(res ? res : v)
 
                     if (res) {
                       reset &&
@@ -373,7 +366,14 @@ export default function RegisterClientForm({
                   getValue('clientId') === null ||
                   (fromQuote && getValue('isEnrolledClient'))
                 }
-                value={selectedPerson || { value: '', label: '' }}
+                value={
+                  formType === 'edit'
+                    ? selectedPerson || {
+                        value: NOT_APPLICABLE,
+                        label: 'Not applicable',
+                      }
+                    : selectedPerson || { value: '', label: '' }
+                }
                 renderInput={params => (
                   <TextField
                     {...params}

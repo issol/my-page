@@ -59,6 +59,7 @@ import ViewPrices from './components/prices'
 import EditPrices from '@src/pages/orders/job-list/detail-view/components/prices/edit-prices'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useGetStatusList } from '@src/queries/common.query'
+import { languageType } from '@src/pages/orders/add-new'
 
 type Props = {
   id: number
@@ -114,9 +115,9 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(jobItemSchema),
   })
 
@@ -144,7 +145,6 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
           totalPrice: Number(jobPrices?.totalPrice!),
         },
       ]
-      // console.log(result)
 
       itemReset({ items: result })
     } else {
@@ -371,7 +371,9 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
                 <Fragment>
                   {renderEditButton()}
                   <Grid item xs={12}>
-                    {jobInfo && <ViewJobInfo row={jobInfo} jobStatusList={statusList!} />}
+                    {jobInfo && (
+                      <ViewJobInfo row={jobInfo} jobStatusList={statusList!} />
+                    )}
                   </Grid>
                 </Fragment>
               )}
@@ -395,6 +397,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
                           fields={items}
                           row={jobInfo}
                           jobPrices={jobPrices!}
+                          orderItems={[]}
                         />
                       )}
                     </Grid>

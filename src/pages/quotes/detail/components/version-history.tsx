@@ -1,5 +1,6 @@
 import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import NoList from '@src/pages/components/no-list'
 import { VersionHistoryType } from '@src/types/common/quotes.type'
 
 import { Dispatch, SetStateAction } from 'react'
@@ -43,9 +44,15 @@ const VersionHistory = ({
       >
         <DataGrid
           autoHeight
-          /* TODO: 백엔드에서 id추가해주면 getRowId삭제하기 */
-          getRowId={() => Math.random()}
-          sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+          getRowId={row => row.id}
+          components={{
+            NoRowsOverlay: () => NoList('There is no version history'),
+            NoResultsOverlay: () => NoList('There is no version history'),
+          }}
+          sx={{
+            overflowX: 'scroll',
+            '& .MuiDataGrid-row': { cursor: 'pointer' },
+          }}
           columns={columns}
           rows={list ?? []}
           onCellClick={params => {

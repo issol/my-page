@@ -10,6 +10,8 @@ export type FilterType = {
   status?: Array<string>
   search?: string
   hideBlocked?: boolean
+  ordering?: 'desc' | 'asc'
+  sort?: 'name' | 'corporationId' | 'createdAt'
   skip: number
   take: number
 }

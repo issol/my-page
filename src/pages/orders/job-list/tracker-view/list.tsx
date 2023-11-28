@@ -96,11 +96,15 @@ export default function JobsTrackerList({
       renderCell: ({ row }: CellType) => {
         return (
           <Box display='flex' alignItems='center' gap='8px'>
-            <JobTypeChip
-              size='small'
-              type={row?.category}
-              label={row?.category}
-            />
+            {
+              row?.category?.length ? (
+                <JobTypeChip
+                  size='small'
+                  type={row?.category}
+                  label={row?.category}
+                />
+              ) : null}
+            
             <Box></Box>
             {row?.serviceType?.length ? (
               <Box display='flex' gap='8px'>

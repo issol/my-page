@@ -59,11 +59,21 @@ import { getItemJob } from '@src/apis/order-detail.api'
 import Row from './item-row'
 
 type Props = {
-  control: Control<{ items: ItemType[] }, any>
-  getValues: UseFormGetValues<{ items: ItemType[] }>
-  setValue: UseFormSetValue<{ items: ItemType[] }>
-  errors: FieldErrors<{ items: ItemType[] }>
-  fields: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
+  control: Control<{ items: ItemType[]; languagePairs: languageType[] }, any>
+  getValues: UseFormGetValues<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
+  setValue: UseFormSetValue<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
+  errors: FieldErrors<{ items: ItemType[]; languagePairs: languageType[] }>
+  fields: FieldArrayWithId<
+    { items: ItemType[]; languagePairs: languageType[] },
+    'items',
+    'id'
+  >[]
   remove: UseFieldArrayRemove
   teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
   languagePairs: languageType[]
@@ -84,6 +94,7 @@ type Props = {
   orderId?: number
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   selectedIds?: { id: number; selected: boolean }[]
   setSelectedIds?: Dispatch<
@@ -104,9 +115,11 @@ type Props = {
     languagePairs: LanguagePairTypeInItem[]
     subtotal: number
   }[]
+  from: 'order' | 'quote' | 'invoice'
 }
 
 export type DetailNewDataType = {
+  priceUnitId: number
   priceUnitPairId: number
   priceUnitTitle: string
   priceUnitQuantity: number
@@ -137,6 +150,7 @@ export default function ItemForm({
   splitReady,
   sumTotalPrice,
   orders,
+  from,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
@@ -401,6 +415,7 @@ export default function ItemForm({
                       checkPriceCurrency={checkPriceCurrency}
                       findLangPairIndex={findLangPairIndex}
                       indexing={data.indexing}
+                      from={from}
                     />
                   )
                 })}
@@ -433,6 +448,7 @@ export default function ItemForm({
               priceUnitsList={priceUnitsList}
               checkPriceCurrency={checkPriceCurrency}
               findLangPairIndex={findLangPairIndex}
+              from={from}
             />
           ))}
         </>

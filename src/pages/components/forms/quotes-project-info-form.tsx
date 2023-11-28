@@ -74,6 +74,9 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { useMutation } from 'react-query'
+import { addWorkName } from '@src/apis/common.api'
+import dayjs from 'dayjs'
 
 type Props = {
   control: Control<QuotesProjectInfoAddNewType, any>
@@ -100,6 +103,11 @@ export default function ProjectInfoForm({
     [],
   )
   const auth = useRecoilValueLoadable(authState)
+
+  const addWorkNameMutation = useMutation(
+    (data: { clientId: number; value: string; label: string }) =>
+      addWorkName(data),
+  )
   const [newWorkName, setNewWorkName] = useState('')
   const containerRef = useRef<HTMLDivElement | null>(null)
 
@@ -120,6 +128,16 @@ export default function ProjectInfoForm({
     return formattedDate
   }
 
+  function add30DaysAndSetTimeTo9AM(date: Date) {
+    // 30일을 더합니다.
+    date.setDate(date.getDate() + 30)
+
+    // 시간을 오전 9시로 설정합니다.
+    date.setHours(9, 0, 0, 0)
+
+    return date
+  }
+
   const defaultValue = { value: '', label: '' }
 
   const { openModal, closeModal } = useModal()
@@ -129,7 +147,9 @@ export default function ProjectInfoForm({
 
   useEffect(() => {
     if (clientTimezone) {
+      console.log(clientTimezone)
       ;[
+        'quoteDate.timezone',
         'projectDueDate.timezone',
         'quoteDeadline.timezone',
         'quoteExpiryDate.timezone',
@@ -142,7 +162,10 @@ export default function ProjectInfoForm({
 
   useEffect(() => {
     if (isSuccess) {
-      setWorkName(data)
+      const sortedData = data
+        .slice()
+        .sort((a, b) => a.value.localeCompare(b.value))
+      setWorkName(sortedData)
     }
   }, [isSuccess])
 
@@ -151,7 +174,10 @@ export default function ProjectInfoForm({
   }, [newWorkName])
 
   useEffect(() => {
-    if (getClientValue() && !getValues('quoteDate.timezone')) {
+    if (
+      getClientValue('contacts.timezone') &&
+      !getValues('quoteDate.timezone')
+    ) {
       setValue(
         'quoteDate.timezone',
         getClientValue('contacts.timezone')!,
@@ -159,9 +185,12 @@ export default function ProjectInfoForm({
       )
     }
     if (getClientValue() && !getValues('quoteDate.date')) {
+      setValue('quoteDate.date', formattedNow(new Date())!, setValueOptions)
+    }
+    if (!getValues('quoteExpiryDate.date')) {
       setValue(
-        'quoteDate.date',
-        String(formattedNow(new Date())!),
+        'quoteExpiryDate.date',
+        add30DaysAndSetTimeTo9AM(getValues('quoteDate.date'))!,
         setValueOptions,
       )
     }
@@ -196,13 +225,27 @@ export default function ProjectInfoForm({
           title={newWorkName}
           onClose={() => closeModal('add-work-name')}
           onClick={() => {
-            setWorkName(
-              workName?.concat({ value: newWorkName, label: newWorkName }),
+            addWorkNameMutation.mutate(
+              {
+                clientId: getClientValue().clientId!,
+                value: newWorkName,
+                label: newWorkName,
+              },
+              {
+                onSuccess: () => {
+                  setWorkName(
+                    workName?.concat({
+                      value: newWorkName,
+                      label: newWorkName,
+                    }),
+                  )
+                  setNewWorkName('')
+                  setIsAddMode(false)
+                  setOpenPopper(false)
+                  setValue('workName', newWorkName, setValueOptions)
+                },
+              },
             )
-            setNewWorkName('')
-            setIsAddMode(false)
-            setOpenPopper(false)
-            setValue('workName', newWorkName, setValueOptions)
           }}
         />
       ),
@@ -221,6 +264,10 @@ export default function ProjectInfoForm({
     )
   }
 
+  const dateValue = (date: Date) => {
+    return dayjs(date).format('MM/DD/YYYY, hh:mm A')
+  }
+
   return (
     <Fragment>
       <Grid item xs={6}>
@@ -230,13 +277,25 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
-              selected={
-                !value
-                  ? formattedNow(new Date())
-                  : formattedNow(new Date(value))
+              placeholderText='MM/DD/YYYY, HH:MM'
+              selected={!value ? null : formattedNow(new Date(value))}
+              onChange={e => {
+                console.log(e)
+
+                onChange(e)
+              }}
+              customInput={
+                <Box>
+                  <CustomInput
+                    label='Quote date*'
+                    icon='calendar'
+                    readOnly
+                    value={
+                      value ? dateValue(formattedNow(new Date(value))) : ''
+                    }
+                  />
+                </Box>
               }
-              onChange={onChange}
-              customInput={<CustomInput label='Quote date*' icon='calendar' />}
             />
           )}
         />
@@ -311,10 +370,13 @@ export default function ProjectInfoForm({
           name='workName'
           control={control}
           render={({ field: { value, onChange } }) => {
-            const finedValue = workName.find(item => item.value === value)
+            const finedValue = workName.find(item => item.value === value) || {
+              value: value,
+              label: value,
+            }
             return (
               <Autocomplete
-                disableClearable
+                disableClearable={value ? false : true}
                 // autoHighlight
                 fullWidth
                 options={workName || []}
@@ -399,7 +461,7 @@ export default function ProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
-                    onClick={() => setOpenPopper(!openPopper)}
+                    // onClick={() => setOpenPopper(!openPopper)}
                     error={Boolean(errors.workName)}
                     label='Work name'
                   />
@@ -654,15 +716,30 @@ export default function ProjectInfoForm({
           name='quoteExpiryDate.date'
           control={control}
           render={({ field: { value, onChange } }) => (
-            <FullWidthDatePicker
-              {...DateTimePickerDefaultOptions}
-              selected={!value ? null : new Date(value)}
-              onChange={onChange}
-              placeholderText='MM/DD/YYYY, HH:MM'
-              customInput={
-                <CustomInput label='Quote expiry date' icon='calendar' />
-              }
-            />
+            <Box
+              sx={{
+                '&:hover .react-datepicker__close-icon': {
+                  right: '25px !important',
+                  opacity: 0.7,
+                },
+                '& .react-datepicker__close-icon': {
+                  right: '25px !important',
+                  opacity: 0,
+                  transition: 'opacity 0.2s ease-in-out',
+                },
+              }}
+            >
+              <FullWidthDatePicker
+                {...DateTimePickerDefaultOptions}
+                selected={!value ? null : new Date(value)}
+                onChange={onChange}
+                isClearable
+                placeholderText='MM/DD/YYYY, HH:MM'
+                customInput={
+                  <CustomInput label='Quote expiry date' icon='calendar' />
+                }
+              />
+            </Box>
           )}
         />
       </Grid>

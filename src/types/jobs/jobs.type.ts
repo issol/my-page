@@ -135,6 +135,9 @@ export type JobPricesDetailType = {
   minimumPrice: number | null | undefined
   minimumPriceApplied: boolean
   initialPrice: PriceType | null | undefined
+  languagePair: {
+    priceFactor: string
+  }
 }
 
 export type jobPriceHistoryType = JobPricesDetailType & {
@@ -158,6 +161,7 @@ export type CreateJobParamsType = {
 
 export type ProJobListType = {
   id: number
+  jobId: number
   corporationId: string
   serviceType: string
   name: string

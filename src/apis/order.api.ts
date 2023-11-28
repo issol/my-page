@@ -1,5 +1,6 @@
 import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
+import order from '@src/store/order'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   ClientFormType,
@@ -48,6 +49,16 @@ export const createItemsForOrder = async (
   return data
 }
 
+export const getCatToolFile = async (
+  itemId: number,
+  type: 'order' | 'quote',
+): Promise<MemoQType[] | MemSourceType[]> => {
+  const { data } = await axios.get(
+    `/api/enough/u/cat-tool/TM?itemId=${itemId}&type=${type}`,
+  )
+  return data
+}
+
 export const postCatToolFile = async (
   form: FormData,
 ): Promise<MemoQType | MemSourceType> => {
@@ -78,5 +89,10 @@ export const patchItemsForOrder = async (
     `/api/enough/u/order/item?orderId=${orderId}`,
     { items: form },
   )
+  return data
+}
+
+export const checkOrderEditable = async (orderId: number): Promise<boolean> => {
+  const { data } = await axios.get(`/api/enough/u/order/${orderId}/editable`)
   return data
 }

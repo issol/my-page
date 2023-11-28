@@ -69,10 +69,10 @@ export type QuotesProjectInfoAddNewType = {
   category: string
   serviceType: Array<string>
   expertise?: Array<string>
-  quoteDate: { date: string; timezone: CountryType }
+  quoteDate: { date: Date; timezone: CountryType }
   projectDueDate: { date: string; timezone: CountryType }
   quoteDeadline: { date: string; timezone: CountryType }
-  quoteExpiryDate: { date: string; timezone: CountryType }
+  quoteExpiryDate: { date: Date; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
   showDescription: boolean
   tax: number | null
@@ -115,6 +115,7 @@ export type QuotesListType = {
   totalPrice: number
   updatedAt: string
   subtotal: number
+  sortIndex?: number
 }
 
 export type ProjectInfoType = {

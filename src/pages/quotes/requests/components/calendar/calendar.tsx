@@ -2,27 +2,33 @@
 import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import styled from 'styled-components'
-
-import { CalendarEventType } from '@src/types/common/calendar.type'
-import { Box } from '@mui/material'
+import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
+import {
+  Calender,
+  CalenderProps,
+  CustomEvent,
+} from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
+import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import { Box, Typography } from '@mui/material'
+import Switch from '@mui/material/Switch'
 import { RequestListType } from '@src/types/requests/list.type'
+import { RequestFilterType } from '@src/types/requests/filters.type'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
 
-type Props = {
-  event: Array<CalendarEventType<RequestListType>>
-  setYear: (year: number) => void
-  setMonth: (month: number) => void
-  direction: string
-  setCurrentListId: (id: number) => void
-}
-
-const Calendar = (props: Props) => {
+const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
   // ** Props
-  const { event, setYear, setMonth, direction, setCurrentListId } = props
+  const {
+    event,
+    setYear,
+    setMonth,
+    direction,
+    setCurrentListId,
+    filter,
+    setFilter,
+    containerWidth,
+  } = props
 
-  const finalEvent = event.map(item => {
+  const finalEvent: any = event.map(item => {
     return {
       ...item,
       title: item.items.length ? item.items[0].name : '',
@@ -32,29 +38,21 @@ const Calendar = (props: Props) => {
   })
 
   // ** Refs
-  const calendarRef = useRef()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const calendarRef = useRef<FullCalendar>(null)
 
   const calendarOptions = {
-    events: finalEvent,
-    plugins: [dayGridPlugin],
-    initialView: 'dayGridMonth',
-    headerToolbar: {
-      start: 'sidebarToggle, prev, next, title',
-      end: '',
-    },
-
-    dayMaxEvents: 3,
-    eventResizableFromStart: true,
+    ...calendarDefaultOptions,
+    events: finalEvent as CalendarOptions['events'],
     ref: calendarRef,
-    direction,
+    direction: direction as any,
     eventContent: (arg: any) => {
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
-          {arg.event?._def?.title}
+          <span>{arg.event?._def?.title}</span>
         </CustomEvent>
       )
     },
-
     eventClick({ event }: any) {
       setCurrentListId(Number(event?.id))
     },
@@ -68,25 +66,42 @@ const Calendar = (props: Props) => {
     setMonth(currMonth)
   }
 
+  // @ts-ignore
   return (
-    //@ts-ignore
-    <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+    <Calender ref={containerRef} width={containerWidth}>
+      <CustomCalenderToolbar ref={calendarRef}>
+        <Box display='flex' alignItems='center' gap={20}>
+          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <Typography>See only my requests</Typography>
+            <Switch
+              checked={filter.mine === '1'}
+              onChange={e => {
+                setFilter({
+                  ...filter,
+                  mine: e.target.checked ? '1' : '0',
+                })
+                setCurrentListId(null)
+              }}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <Typography>Hide completed requests</Typography>
+            <Switch
+              checked={filter.hideCompleted === '1'}
+              onChange={e => {
+                setCurrentListId(null)
+                setFilter({
+                  ...filter,
+                  hideCompleted: e.target.checked ? '1' : '0',
+                })
+              }}
+            />
+          </Box>
+        </Box>
+      </CustomCalenderToolbar>
+      <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+    </Calender>
   )
 }
 
 export default Calendar
-
-const CustomEvent = styled(Box)<{ color: string }>`
-  border-color: transparent !important;
-  // border-radius: 4px;
-  padding: 1px 4px 4px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  word-break: break-all;
-  color: rgba(76, 78, 100, 0.87) !important;
-  border-left: ${({ color }) => `6px solid ${color}`} !important;
-  // border-right: ${({ color }) => `6px solid ${color}`} !important;
-  background: ${({ color }) =>
-    `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
-`

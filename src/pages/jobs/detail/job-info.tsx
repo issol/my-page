@@ -981,9 +981,9 @@ const ProJobInfo = ({
                 </Box>
               ) : null}
               <Divider />
-              {jobInfo.status === 60300 ||
-              jobInfo.status === 60600 ||
-              jobInfo.status === 60400 ? null : (
+              {jobInfo.status === 70200 ||
+              jobInfo.status === 70400 ||
+              jobInfo.status === 70500 ? null : (
                 <>
                   <Box
                     sx={{
@@ -1126,7 +1126,7 @@ const ProJobInfo = ({
                           {/* ${jobPrices.totalPrice} */}
                           {formatCurrency(
                             jobPrices.totalPrice,
-                            jobPrices.currency,
+                            jobPrices.initialPrice?.currency ?? 'KRW',
                           )}
                         </Typography>
                       </Box>

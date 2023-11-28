@@ -69,6 +69,7 @@ import {
   confirmInvoiceByLpm,
   patchInvoiceContactPerson,
   patchInvoiceInfo,
+  patchInvoiceStatus,
   restoreVersion,
 } from '@src/apis/invoice/receivable.api'
 import toast from 'react-hot-toast'
@@ -108,6 +109,7 @@ import SelectOrder from '../components/list/select-order'
 
 import { v4 as uuidv4 } from 'uuid'
 import { ProjectTeamListType } from '@src/types/orders/order-detail'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type MenuType =
   | 'invoice'
@@ -155,8 +157,6 @@ const ReceivableInvoiceDetail = () => {
   const [clientEdit, setClientEdit] = useState(false)
   const [isFileUploading, setIsFileUploading] = useState(false)
 
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
-
   const [teams, setTeams] = useState<ProjectTeamListType[]>([])
   const [value, setValue] = useState<MenuType>(
     currentRole && currentRole.name === 'CLIENT' ? 'invoice' : 'invoiceInfo',
@@ -175,9 +175,7 @@ const ReceivableInvoiceDetail = () => {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
   const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
-
-  console.log(isUpdatable)
-  console.log(isAccountInfoUpdatable)
+  console.log(AccountingTeam, 'AccountingTeam')
 
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -254,6 +252,56 @@ const ReceivableInvoiceDetail = () => {
       form: InvoiceReceivablePatchParamsType
       type: 'basic' | 'accounting'
     }) => patchInvoiceInfo(data.id, data.form, data.type),
+    {
+      onSuccess: (data: { id: number }, variables) => {
+        setInvoiceInfoEdit(false)
+        setAccountingInfoEdit(false)
+        setProjectTeamEdit(false)
+        setClientEdit(false)
+
+        if (data.id !== variables.id) {
+          router.push(`/invoice/receivable/detail/${data.id}`)
+        } else {
+          invoiceInfoRefetch()
+          historyRefetch()
+          projectTeamRefetch()
+          clientRefetch()
+          queryClient.invalidateQueries(['invoice/receivable/list'])
+        }
+        closeModal('EditSaveModal')
+      },
+      onError: (error: any) => {
+        console.log(error)
+
+        onError(error.message)
+        closeModal('EditSaveModal')
+      },
+    },
+  )
+  
+  const updateInvoiceStatusMutation = useMutation(
+    (data: { id: number; invoiceStatus: number; reason?: ReasonType }) =>
+      patchInvoiceStatus(Number(data.id), data.invoiceStatus, data.reason),
+    {
+      onSuccess: (data, variables) => {
+        if (data.id !== variables.id) {
+          router.push(`/invoice/receivable/detail/${data.id}`)
+          invalidateInvoiceDetail()
+        } else {
+          invoiceInfoRefetch()
+          historyRefetch()
+          projectTeamRefetch()
+          clientRefetch()
+          queryClient.invalidateQueries(['invoice/receivable/list'])
+        }
+      },
+      onError: () => onError(),
+    },
+  )
+
+  const updateContactPersonForClient = useMutation(
+    (data: { id: number; form: InvoiceReceivablePatchParamsType }) =>
+      patchInvoiceContactPerson(data.id, data.form),
     {
       onSuccess: (data: { id: number }, variables) => {
         setInvoiceInfoEdit(false)
@@ -419,9 +467,9 @@ const ReceivableInvoiceDetail = () => {
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(itemSchema),
   })
 
@@ -433,6 +481,16 @@ const ReceivableInvoiceDetail = () => {
   } = useFieldArray({
     control: itemControl,
     name: 'items',
+  })
+
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
   })
 
   const {
@@ -690,33 +748,30 @@ const ReceivableInvoiceDetail = () => {
         .flat()
         .map((value, idx) => ({ ...value, idx: idx }))
 
-      setLanguagePairs(
-        items?.map(item => {
-          return {
-            id: String(item.id),
-            source: item.source!,
-            target: item.target!,
-            price: {
-              id: item.initialPrice?.priceId!,
-              isStandard: item.initialPrice?.isStandard!,
-              priceName: item.initialPrice?.name!,
-              groupName: 'Current price',
-              category: item.initialPrice?.category!,
-              serviceType: item.initialPrice?.serviceType!,
-              currency: item.initialPrice?.currency!,
-              catBasis: item.initialPrice?.calculationBasis!,
-              decimalPlace: item.initialPrice?.numberPlace!,
-              roundingProcedure:
-                RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-              languagePairs: [],
-              priceUnit: [],
-              catInterface: { memSource: [], memoQ: [] },
-            },
-          }
-        }),
-      )
-
-      itemReset({ items: items })
+      const itemLangPairs = items?.map(item => {
+        return {
+          id: String(item.id),
+          source: item.source!,
+          target: item.target!,
+          price: {
+            id: item.initialPrice?.priceId!,
+            isStandard: item.initialPrice?.isStandard!,
+            priceName: item.initialPrice?.name!,
+            groupName: 'Current price',
+            category: item.initialPrice?.category!,
+            serviceType: item.initialPrice?.serviceType!,
+            currency: item.initialPrice?.currency!,
+            catBasis: item.initialPrice?.calculationBasis!,
+            decimalPlace: item.initialPrice?.numberPlace!,
+            roundingProcedure:
+              RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+            languagePairs: [],
+            priceUnit: [],
+            catInterface: { memSource: [], memoQ: [] },
+          },
+        }
+      })
+      itemReset({ items: items, languagePairs: itemLangPairs })
 
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,
@@ -1010,10 +1065,10 @@ const ReceivableInvoiceDetail = () => {
   }, [invoiceInfo, client, langItem, projectTeam, prices, priceInfo])
 
   useEffect(() => {
+    // console.log(languagePairs)
     if (languagePairs && prices) {
       const priceInfo =
         prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
-
       setPriceInfo(priceInfo)
     }
   }, [prices, languagePairs])
@@ -1087,10 +1142,16 @@ const ReceivableInvoiceDetail = () => {
       })
   }, [invoiceInfo])
 
-  function onError() {
-    toast.error('Something went wrong. Please try again.', {
-      position: 'bottom-left',
-    })
+  function onError(message?: string) {
+    if (message === 'Request failed with status code 403') {
+      toast.error('You are not authorized', {
+        position: 'bottom-left',
+      })
+    } else {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    }
   }
 
   return (
@@ -1227,7 +1288,8 @@ const ReceivableInvoiceDetail = () => {
                   </Button>
                 )}
                 {isEditing ||
-                (currentRole && currentRole.name === 'CLIENT') ? null : (
+                (currentRole && currentRole.name === 'CLIENT') ||
+                !isUserInTeamMember ? null : (
                   <Button
                     variant='contained'
                     sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
@@ -1337,7 +1399,21 @@ const ReceivableInvoiceDetail = () => {
                   setEdit={setInvoiceInfoEdit}
                   accountingEdit={accountingInfoEdit}
                   setAccountingEdit={setAccountingInfoEdit}
-                  onSave={patchInvoiceInfoMutation.mutate}
+                  onSave={(
+                    data: {
+                      id: number
+                      form: InvoiceReceivablePatchParamsType
+                      type: 'basic' | 'accounting'
+                    },
+                    callback?: () => void,
+                  ) => {
+                    patchInvoiceInfoMutation.mutate(data, {
+                      onSuccess: () => {
+                        callback && callback()
+                      },
+                    })
+                  }}
+                  updateInvoiceStatus={updateInvoiceStatusMutation}
                   onContactPersonSave={updateContactPersonForClient.mutate}
                   invoiceInfoControl={invoiceInfoControl}
                   getInvoiceInfo={getInvoiceInfo}
@@ -1365,8 +1441,10 @@ const ReceivableInvoiceDetail = () => {
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
                   <InvoiceLanguageAndItem
-                    languagePairs={languagePairs!}
-                    setLanguagePairs={setLanguagePairs}
+                    languagePairs={getItem('languagePairs')}
+                    setLanguagePairs={(languagePair: languageType[]) =>
+                      setItem('languagePairs', languagePair)
+                    }
                     clientId={client?.client.clientId!}
                     itemControl={itemControl}
                     getItem={getItem}

@@ -16,6 +16,7 @@ import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helpe
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 import { InvoicePayableStatusType, InvoiceProStatusType } from '@src/types/invoice/common.type'
 
 type CellType = {
@@ -54,6 +55,7 @@ export default function PayableList({
   isLoading,
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
+  const router = useRouter()
 
   function NoList() {
     return (
@@ -80,13 +82,9 @@ export default function PayableList({
       renderHeader: () => <Box>No.</Box>,
       renderCell: ({ row }: CellType) => {
         return (
-          <Tooltip title={row.corporationId}>
-            <Link href={`/invoice/payable/${row.id}`}>
-              <TableTitleTypography fontSize={14}>
-                {row.corporationId}
-              </TableTitleTypography>
-            </Link>
-          </Tooltip>
+          <>
+            {row.corporationId}
+          </>
         )
       },
     },
@@ -226,6 +224,13 @@ export default function PayableList({
         onPageChange={setSkip}
         disableSelectionOnClick
         onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+        onCellClick={params => {
+          router.push(`/invoice/payable/${params.id}`)
+        }}
+        sx={{
+          overflowX: 'scroll',
+          cursor: 'pointer',
+        }}
       />
     </Box>
   )

@@ -83,6 +83,7 @@ type Props = {
   canUseFeature: (v: OrderFeatureType) => boolean
   uploadFileProcessing: boolean
   setUploadFileProcessing: Dispatch<SetStateAction<boolean>>
+  isEditable: boolean
 }
 
 const DeliveriesFeedback = ({
@@ -94,6 +95,7 @@ const DeliveriesFeedback = ({
   canUseFeature,
   uploadFileProcessing,
   setUploadFileProcessing,
+  isEditable,
 }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
   const { openModal, closeModal } = useModal()
@@ -680,7 +682,7 @@ const DeliveriesFeedback = ({
           title='Are you sure you want to request redelivery?'
           vary='error'
           rightButtonText='Request'
-          leftButtonText='No'
+          leftButtonText='Cancel'
           action='Redelivery requested'
           from='client'
           statusList={statusList!}
@@ -749,7 +751,10 @@ const DeliveriesFeedback = ({
       updateProject.isLoading ? (
         <OverlaySpinner />
       ) : null}
-      <Grid item xs={9}>
+      <Grid
+        item
+        xs={currentRole && currentRole.name === 'CLIENT' && isEditable ? 9 : 12}
+      >
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <Box sx={{ display: 'flex', gap: '20px' }}>
@@ -1012,100 +1017,102 @@ const DeliveriesFeedback = ({
         ) : null}
       </Grid>
       <Grid item xs={3}>
-        <Card sx={{ padding: '24px' }}>
-          {currentRole && currentRole.name === 'CLIENT' ? (
-            <>
+        {currentRole && currentRole.name === 'CLIENT' ? (
+          <>
+            {isEditable ? (
+              <Card sx={{ padding: '24px' }}>
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+                >
+                  <Button
+                    variant='contained'
+                    onClick={onClickConfirmDeliveries}
+                    disabled={
+                      !canUseFeature(
+                        'button-Deliveries&Feedback-ConfirmDeliveries',
+                      )
+                    }
+                  >
+                    Confirm deliveries
+                  </Button>
+                  <Button
+                    variant='outlined'
+                    onClick={onClickRequestRedelivery}
+                    color='error'
+                    disabled={
+                      !canUseFeature(
+                        'button-Deliveries&Feedback-RequestRedelivery',
+                      )
+                    }
+                  >
+                    Request redelivery
+                  </Button>
+                </Box>
+              </Card>
+            ) : null}
+          </>
+        ) : (
+          <Card sx={{ padding: '24px' }}>
+            {files.length || uploadFileProcessing ? (
               <Box
                 sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
               >
                 <Button
                   variant='contained'
-                  onClick={onClickConfirmDeliveries}
+                  color='success'
+                  onClick={onClickDeliverToClient}
                   disabled={
                     !canUseFeature(
-                      'button-Deliveries&Feedback-ConfirmDeliveries',
-                    )
+                      'button-Deliveries&Feedback-DeliverToClient',
+                    ) || files.length === 0
                   }
                 >
-                  Confirm deliveries
+                  <Icon icon='ic:outline-send' fontSize={18} />
+                  &nbsp;Deliver to client
                 </Button>
-                <Button
-                  variant='outlined'
-                  onClick={onClickRequestRedelivery}
-                  color='error'
-                  disabled={
-                    !canUseFeature(
-                      'button-Deliveries&Feedback-RequestRedelivery',
-                    )
-                  }
-                >
-                  Request redelivery
+                <Button variant='outlined' onClick={onClickCancelDeliver}>
+                  Cancel
                 </Button>
               </Box>
-            </>
-          ) : (
-            <>
-              {files.length || uploadFileProcessing ? (
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+            ) : importedFiles.length || uploadFileProcessing ? (
+              <Box
+                sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+              >
+                <Button
+                  variant='contained'
+                  color='success'
+                  onClick={onClickDeliverToClient}
+                  disabled={
+                    !canUseFeature(
+                      'button-Deliveries&Feedback-DeliverToClient',
+                    ) || importedFiles.length === 0
+                  }
                 >
-                  <Button
-                    variant='contained'
-                    color='success'
-                    onClick={onClickDeliverToClient}
-                    disabled={
-                      !canUseFeature(
-                        'button-Deliveries&Feedback-DeliverToClient',
-                      ) || files.length === 0
-                    }
-                  >
-                    <Icon icon='ic:outline-send' fontSize={18} />
-                    &nbsp;Deliver to client
-                  </Button>
-                  <Button variant='outlined' onClick={onClickCancelDeliver}>
-                    Cancel
-                  </Button>
-                </Box>
-              ) : importedFiles.length || uploadFileProcessing ? (
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+                  <Icon icon='ic:outline-send' fontSize={18} />
+                  &nbsp;Deliver to client
+                </Button>
+                <Button variant='outlined' onClick={onClickCancelDeliver}>
+                  Cancel
+                </Button>
+              </Box>
+            ) : (
+              <Box sx={{ display: 'flex' }}>
+                <Button
+                  variant='contained'
+                  fullWidth
+                  onClick={onClickCompleteDelivery}
+                  disabled={
+                    !canUseFeature(
+                      'button-Deliveries&Feedback-CompleteDelivery',
+                    )
+                  }
                 >
-                  <Button
-                    variant='contained'
-                    color='success'
-                    onClick={onClickDeliverToClient}
-                    disabled={
-                      !canUseFeature(
-                        'button-Deliveries&Feedback-DeliverToClient',
-                      ) || importedFiles.length === 0
-                    }
-                  >
-                    <Icon icon='ic:outline-send' fontSize={18} />
-                    &nbsp;Deliver to client
-                  </Button>
-                  <Button variant='outlined' onClick={onClickCancelDeliver}>
-                    Cancel
-                  </Button>
-                </Box>
-              ) : (
-                <Box sx={{ display: 'flex' }}>
-                  <Button
-                    variant='contained'
-                    fullWidth
-                    onClick={onClickCompleteDelivery}
-                    disabled={
-                      !canUseFeature(
-                        'button-Deliveries&Feedback-CompleteDelivery',
-                      )
-                    }
-                  >
-                    Complete delivery
-                  </Button>
-                </Box>
-              )}
-            </>
-          )}
-        </Card>
+                  Complete delivery
+                </Button>
+              </Box>
+            )}
+          </Card>
+        )}
       </Grid>
     </Grid>
   )

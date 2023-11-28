@@ -25,11 +25,34 @@ import { QuotesFilterType } from '@src/types/quotes/quote'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import { useGetStatusList } from '@src/queries/common.query'
+import useCalenderResize from '@src/hooks/useCalenderResize'
+import dayjs from 'dayjs'
+
+interface DataItem {
+  updatedAt: string
+  status: string
+  sortIndex: number
+}
 
 const CalendarContainer = () => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
   const { data: statusList } = useGetStatusList('Quote')
+  const quoteOrder = [
+    'New',
+    'In preparation',
+    'Internal review',
+    'Quote sent',
+    'Client review',
+    'Revision requested',
+    'Under revision',
+    'Revised',
+    'Accepted',
+    'Changed into order',
+    'Expired',
+    'Rejected',
+    'Canceled',
+  ]
 
   const [statuses, setStatuses] = useState<
     Array<{ color: string; value: number; label: string }>
@@ -37,6 +60,7 @@ const CalendarContainer = () => {
 
   // ** Hooks
   const { settings } = useSettings()
+  const { containerRef, containerWidth } = useCalenderResize()
 
   // ** calendar values
   const leftSidebarWidth = 260
@@ -108,7 +132,30 @@ const CalendarContainer = () => {
 
   useEffect(() => {
     if (data?.data?.length && !isLoading) {
-      setEvent([...data.data])
+      const groupedData: Record<string, QuotesListType[]> = data.data.reduce(
+        (acc: Record<string, QuotesListType[]>, item: QuotesListType) => {
+          const date = dayjs(item.updatedAt).format('YYYY-MM-DD')
+          if (!acc[date]) {
+            acc[date] = []
+          }
+          acc[date].push(item)
+          return acc
+        },
+        {},
+      )
+
+      Object.keys(groupedData).forEach(date => {
+        groupedData[date].sort(
+          (a, b) => quoteOrder.indexOf(a.status) - quoteOrder.indexOf(b.status),
+        )
+        groupedData[date].forEach((item, index) => {
+          item.sortIndex = index
+        })
+      })
+
+      const sortedData = Object.values(groupedData).flat()
+
+      setEvent(sortedData)
     } else {
       setEvent([])
     }
@@ -177,6 +224,7 @@ const CalendarContainer = () => {
         </Suspense>
 
         <Box
+          ref={containerRef}
           sx={{
             px: 5,
             pt: 3.75,
@@ -189,41 +237,17 @@ const CalendarContainer = () => {
               : {}),
           }}
         >
-          <Box
-            // sx={{
-            //   display: 'flex',
-            //   justifyContent: 'flex-end',
-            //   gap: '24px',
-            // }}
-            display='flex'
-            alignItems='center'
-            gap='8px'
-            justifyContent='right'
-            padding='0 0 22px'
-            position='absolute'
-            right='0'
-          >
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>See only my quotes</Typography>
-              <Switch
-                checked={seeMyQuotes === 1}
-                onChange={e => setSeeMyQuotes(e.target.checked ? 1 : 0)}
-              />
-            </Box>
-            <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <Typography>Hide completed quotes</Typography>
-              <Switch
-                checked={hideCompletedQuotes === 1}
-                onChange={e => setHideCompletedQuotes(e.target.checked ? 1 : 0)}
-              />
-            </Box>
-          </Box>
           <Calendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
             setCurrentListId={setCurrentListId}
+            seeMyQuotes={seeMyQuotes}
+            setSeeMyQuotes={setSeeMyQuotes}
+            hideCompletedQuotes={hideCompletedQuotes}
+            setHideCompletedQuotes={setHideCompletedQuotes}
+            containerWidth={containerWidth}
           />
         </Box>
       </CalendarWrapper>

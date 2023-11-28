@@ -90,7 +90,7 @@ export default function ClientQuotesFormContainer({
   reset,
 }: Props) {
   const { openModal, closeModal } = useModal()
-  const [openForm, setOpenForm] = useState(false)
+
   // ** stepper
   const setValueOptions = {
     shouldDirty: true,
@@ -111,8 +111,6 @@ export default function ClientQuotesFormContainer({
 
   useEffect(() => {
     if (isSuccess) {
-      console.log(clientList.data)
-
       setClients(
         clientList.data.map(item => ({
           value: item.clientId,
@@ -159,9 +157,8 @@ export default function ClientQuotesFormContainer({
           closeModal('add-new-client')
           return
         }
-        createContactPerson([
-          { ...contactPersonData[0], clientId: res.clientId },
-        ]).then(res => {
+        const { id, ...rest } = contactPersonData[0]
+        createContactPerson([{ ...rest, clientId: res.clientId }]).then(res => {
           if (res.length) {
             setValue(
               'contactPersonId',

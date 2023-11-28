@@ -78,7 +78,7 @@ const VersionHistoryModal = ({
     null,
   )
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
   const [teams, setTeams] = useState<ProjectTeamListType[]>([])
 
   const [pageSize, setPageSize] = useState<number>(10)
@@ -99,9 +99,9 @@ const VersionHistoryModal = ({
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
-  } = useForm<{ items: ItemType[] }>({
+  } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
-    defaultValues: { items: [] },
+    defaultValues: { items: [], languagePairs: [] },
     resolver: yupResolver(itemSchema),
   })
 
@@ -113,6 +113,16 @@ const VersionHistoryModal = ({
   } = useFieldArray({
     control: itemControl,
     name: 'items',
+  })
+
+  const {
+    fields: languagePairs,
+    append: appendLanguagePairs,
+    remove: removeLanguagePairs,
+    update: updateLanguagePairs,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'languagePairs',
   })
 
   const {
@@ -149,29 +159,27 @@ const VersionHistoryModal = ({
     makePdfData()
     const { items, projectTeam, projectInfo } = history
     if (items) {
-      setLanguagePairs(
-        items?.items?.map(item => ({
-          id: String(item.id),
-          source: item.source!,
-          target: item.target!,
-          price: {
-            id: item.initialPrice?.priceId!,
-            isStandard: item.initialPrice?.isStandard!,
-            priceName: item.initialPrice?.name!,
-            groupName: 'Current price',
-            category: item.initialPrice?.category!,
-            serviceType: item.initialPrice?.serviceType!,
-            currency: item.initialPrice?.currency!,
-            catBasis: item.initialPrice?.calculationBasis!,
-            decimalPlace: item.initialPrice?.numberPlace!,
-            roundingProcedure:
-              RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-            languagePairs: [],
-            priceUnit: [],
-            catInterface: { memSource: [], memoQ: [] },
-          },
-        }))!,
-      )
+      const itemLangPairs = items?.items?.map(item => ({
+        id: String(item.id),
+        source: item.source!,
+        target: item.target!,
+        price: {
+          id: item.initialPrice?.priceId!,
+          isStandard: item.initialPrice?.isStandard!,
+          priceName: item.initialPrice?.name!,
+          groupName: 'Current price',
+          category: item.initialPrice?.category!,
+          serviceType: item.initialPrice?.serviceType!,
+          currency: item.initialPrice?.currency!,
+          catBasis: item.initialPrice?.calculationBasis!,
+          decimalPlace: item.initialPrice?.numberPlace!,
+          roundingProcedure:
+            RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+          languagePairs: [],
+          priceUnit: [],
+          catInterface: { memSource: [], memoQ: [] },
+        },
+      }))!
       const result = items?.items?.map(item => {
         return {
           id: item.id,
@@ -198,7 +206,7 @@ const VersionHistoryModal = ({
           minimumPriceApplied: item.minimumPriceApplied,
         }
       })
-      itemReset({ items: result })
+      itemReset({ items: result, languagePairs: itemLangPairs })
     }
     if (projectTeam) {
       let viewTeams: ProjectTeamListType[] = [...projectTeam].map(value => ({
@@ -503,8 +511,10 @@ const VersionHistoryModal = ({
               }}
             >
               <LanguageAndItem
-                languagePairs={languagePairs!}
-                setLanguagePairs={setLanguagePairs}
+                // languagePairs={languagePairs!}
+                setLanguagePairs={(languagePair: languageType[]) =>
+                  setItem('languagePairs', languagePair)
+                }
                 clientId={history.client.client.clientId}
                 itemControl={itemControl}
                 getItem={getItem}
@@ -521,6 +531,9 @@ const VersionHistoryModal = ({
                 project={history.projectInfo!}
                 isIncludeProjectTeam={isIncludeProjectTeam()}
                 type='history'
+                languagePairs={languagePairs}
+                appendLanguagePairs={appendLanguagePairs}
+                updateLanguagePairs={updateLanguagePairs}
               />
             </Card>
           </TabPanel>

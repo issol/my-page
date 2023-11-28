@@ -10,10 +10,11 @@ import {
 import { ModalType } from '@src/store/modal'
 import { ItemType } from '@src/types/common/item.type'
 import {
+  CurrencyType,
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Control,
   UseFormGetValues,
@@ -21,10 +22,12 @@ import {
   useFieldArray,
   UseFormTrigger,
 } from 'react-hook-form'
+import { languageType } from '@src/pages/orders/add-new'
 
 type Props = {
   getItem: UseFormGetValues<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   getPriceOptions: (
     source: string,
@@ -33,6 +36,7 @@ type Props = {
   itemControl: Control<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     any
   >
@@ -42,6 +46,7 @@ type Props = {
   }
   setItem: UseFormSetValue<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   setShowMinimum: Dispatch<
     SetStateAction<{
@@ -55,6 +60,7 @@ type Props = {
   type: string
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   setDarkMode?: boolean
   selectedPrice?:
@@ -62,6 +68,8 @@ type Props = {
         groupName?: string
       })
     | null
+  orderItems?: ItemType[]
+  currentOrderItemId?: number
 }
 
 const Row = ({
@@ -78,6 +86,8 @@ const Row = ({
   itemTrigger,
   setDarkMode,
   selectedPrice,
+  orderItems,
+  currentOrderItemId,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
@@ -136,28 +146,6 @@ const Row = ({
     }
   }
 
-  // const showMinimum = itemData.minimumPriceApplied
-  // const setShowMinimum = (value: boolean) => {
-  //   if (value) {
-  //     if (currentMinimumPrice()) setValue(`items.${idx}.minimumPriceApplied`, true, setValueOptions)
-  //   }
-  //   else if(!value) setValue(`items.${idx}.minimumPriceApplied`, false, setValueOptions)
-  // }
-
-  // 현재 row의 프라이스 유닛에 적용될 currency 값
-  // 신규 item인 경우: 기존에 저장된 price가 없으므로 선택된 price의 standard price정보에서 currency 추출
-  // 기존 item인 경우: 저장된 price가 있으므로(initialPrice) initialPrice에서 currency 값 추출
-  const currentCurrency = () => {
-    // setPriceData(getPriceData())
-    // 기존 item
-    if (itemData?.id && itemData?.id !== -1)
-      return itemData?.initialPrice?.currency!
-    // Not Applicable(재설계 필요)
-    else if (itemData?.id && itemData?.id === -1) return 'USD'
-    // 신규 item
-    else return priceData()?.currency!
-  }
-
   const {
     fields: details,
     append,
@@ -168,8 +156,26 @@ const Row = ({
     name: itemName,
   })
 
-  function onDeletePriceUnit(idx: number) {
-    remove(idx)
+  useEffect(() => {
+    // Price가 세팅되어 있지 않을때는 Order의 Item에 설정된 Price unit을 설정해준다.
+    if (orderItems?.length && 
+      (!getItem().items[0].detail || !getItem().items?.[0].detail?.length)) {
+        const currentItem = orderItems.find(orderItem => orderItem.id === currentOrderItemId && currentOrderItemId)
+        currentItem?.detail?.map(item => {
+          append({
+            ...item,
+            unitPrice: 0,
+          })
+        })
+      }
+  }, [orderItems])
+
+  function onDeletePriceUnit(index: number) {
+    const findIndex = details.findIndex(item => item.priceUnitId === index)
+
+    if (findIndex !== -1) {
+      remove(findIndex)
+    }
   }
 
   const handleShowMinimum = (value: boolean) => {
@@ -256,17 +262,20 @@ const Row = ({
 
     // if (prices === data[index].prices) return
 
+    //isNotApplicable이 true이면 폼에서 선택된 currency가 설정되도록 한다.
     const currency =
-      selectedPrice && selectedPrice.currency
-        ? selectedPrice.currency
-        : getItem(`items.${0}.initialPrice.currency`) ?? 'KRW'
+      isNotApplicable 
+        ? getItem()?.items?.[0]?.detail?.[0]?.currency!
+        : selectedPrice && selectedPrice.currency
+          ? selectedPrice.currency
+          : getItem(`items.${0}.initialPrice.currency`)
     const roundingPrice = formatByRoundingProcedure(
       prices,
       priceData()?.decimalPlace!
         ? priceData()?.decimalPlace!
         : currency === 'USD' || currency === 'SGD'
         ? 2
-        : 1000,
+        : 1,
       priceData()?.roundingProcedure! ?? 0,
       currency,
     )
@@ -283,38 +292,17 @@ const Row = ({
     })
   }
 
-  // function onItemBoxLeave() {
-  //   const isMinimumPriceConfirmed =
-  //     !!minimumPrice &&
-  //     minimumPrice > getItem(`items.${0}.totalPrice`) &&
-  //     showMinimum.checked
-
-  //   const isNotMinimum =
-  //     !minimumPrice || minimumPrice <= getItem(`items.${0}.totalPrice`)
-
-  //   if (!isMinimumPriceConfirmed && !isNotMinimum) {
-  //     setShowMinimum({ ...showMinimum, show: true })
-  //     openModal({
-  //       type: 'info-minimum',
-  //       children: (
-  //         <SimpleAlertModal
-  //           onClose={() => {
-  //             closeModal('info-minimum')
-  //             setShowMinimum({ show: true, checked: true })
-  //           }}
-  //           message='The minimum price has been applied to the item(s).'
-  //         />
-  //       ),
-  //     })
-  //   }
-  //   getTotalPrice()
-  // }
+  const onChangeCurrency = (currency: CurrencyType) => {
+    //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
+    getItem().items[0].detail?.map((priceUnit, idx) => {
+      setItem(`items.${0}.detail.${idx}.currency`,currency)
+    })
+  }
 
   const sumTotalPrice = () => {
     return true
   }
 
-  // console.log(details))
   return (
     <Box
       style={
@@ -358,6 +346,7 @@ const Row = ({
         sumTotalPrice={sumTotalPrice}
         showCurrency={true}
         remove={remove}
+        onChangeCurrency={onChangeCurrency}
       />
       {/* price unit end */}
     </Box>

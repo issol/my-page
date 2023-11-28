@@ -4,25 +4,11 @@ import { UserDataType } from '@src/context/types'
 import { Dispatch, SetStateAction } from 'react'
 import useModal from '@src/hooks/useModal'
 
-import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
-
-import { CancelReasonType } from '@src/types/requests/detail.type'
-import {
-  CancelQuoteReason,
-  RequestRevisionReason,
-} from '@src/shared/const/reason/reason'
-import {
-  LanguagePairTypeInItem,
-  OrderDownloadData,
-  ProjectInfoType,
-} from '@src/types/orders/order-detail'
-
-import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
-import PrintOrderPage from '@src/pages/orders/order-print/print-page'
+import { useMutation, useQueryClient } from 'react-query'
+import { LanguagePairTypeInItem } from '@src/types/orders/order-detail'
 import {
   InvoiceDownloadData,
   InvoiceReceivableDetailType,
-  InvoiceReceivablePatchParamsType,
 } from '@src/types/invoice/receivable.type'
 import PrintInvoicePage from '../invoice-print/print-page'
 import ConfirmInvoiceModal from './modal/confirm-invoice-modal'

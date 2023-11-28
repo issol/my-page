@@ -38,12 +38,14 @@ export const companyInfoSchema = yup.object().shape({
   // websiteLink: yup.string().url(FormErrors.invalidUrl).nullable(),
   websiteLink: yup
     .string()
+    .matches(
+      /[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/,
+      FormErrors.invalidUrl,
+    )
     .test('is-http-url', FormErrors.notHTTPPrefixUrl, value => {
       if (!value) return true // Pass validation if value is empty
-      return value.startsWith('http://') || value.startsWith('https://')
-    })
-    .url(FormErrors.invalidUrl)
-    .nullable(),
+      return value.startsWith('https://') || value.startsWith('http://')
+    }),
   timezone: yup.object().shape({
     code: yup.string().required(FormErrors.required),
     label: yup.string().required(FormErrors.required),

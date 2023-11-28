@@ -30,6 +30,7 @@ import {
   FieldErrors,
   UseFieldArrayAppend,
   UseFieldArrayRemove,
+  UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
@@ -42,32 +43,38 @@ import {
 } from '@src/shared/helpers/price.helper'
 
 type Props = {
-  languagePairs: Array<languageType>
-  setLanguagePairs: Dispatch<SetStateAction<Array<languageType>>>
+  // languagePairs: Array<languageType>
+  setLanguagePairs: (languagePair: languageType[]) => void
   clientId: number
   itemControl: Control<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     any
   >
   getItem: UseFormGetValues<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   setItem: UseFormSetValue<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
   itemErrors: FieldErrors<{
     items: ItemType[]
+    languagePairs: languageType[]
   }>
 
   priceUnitsList: PriceUnitListType[]
   items: FieldArrayWithId<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     'items',
     'id'
@@ -78,6 +85,7 @@ type Props = {
   appendItems: UseFieldArrayAppend<
     {
       items: ItemType[]
+      languagePairs: languageType[]
     },
     'items'
   >
@@ -105,6 +113,28 @@ type Props = {
   canUseFeature?: (v: OrderFeatureType) => boolean
   isIncludeProjectTeam: boolean
   type: 'detail' | 'history'
+  appendLanguagePairs: UseFieldArrayAppend<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    'languagePairs'
+  >
+  updateLanguagePairs: UseFieldArrayUpdate<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    'languagePairs'
+  >
+  languagePairs: FieldArrayWithId<
+    {
+      items: ItemType[]
+      languagePairs: languageType[]
+    },
+    'languagePairs',
+    'id'
+  >[]
 }
 
 const LanguageAndItem = ({
@@ -138,6 +168,8 @@ const LanguageAndItem = ({
   canUseFeature,
   isIncludeProjectTeam,
   type,
+  appendLanguagePairs,
+  updateLanguagePairs,
 }: Props) => {
   console.log(getItem())
 
@@ -265,10 +297,15 @@ const LanguageAndItem = ({
     }
 
     function deleteLanguage() {
-      const idx = languagePairs.map(item => item.id).indexOf(row.id)
-      const copyOriginal = [...languagePairs]
+      const idx = getItem('languagePairs')
+        .map(item => item.id)
+        .indexOf(row.id)
+
+      const copyOriginal = [...getItem('languagePairs')]
       copyOriginal.splice(idx, 1)
-      setLanguagePairs([...copyOriginal])
+      // setLanguagePairs([...copyOriginal])
+      setItem('languagePairs', [...copyOriginal])
+      itemTrigger('languagePairs')
     }
   }
 
@@ -320,12 +357,19 @@ const LanguageAndItem = ({
       {currentRole && currentRole.name === 'CLIENT' ? null : (
         <Grid item xs={12}>
           <AddLanguagePairForm
-            languagePairs={languagePairs}
-            setLanguagePairs={setLanguagePairs}
+            getItem={getItem}
+            setLanguagePairs={(languagePair: languageType[]) =>
+              setItem('languagePairs', languagePair)
+            }
             getPriceOptions={getPriceOptions}
             type={langItemsEdit ? 'edit' : 'detail'}
             onDeleteLanguagePair={onDeleteLanguagePair}
             items={items}
+            control={itemControl}
+            append={appendLanguagePairs}
+            update={updateLanguagePairs}
+            languagePairs={languagePairs}
+            itemTrigger={itemTrigger}
           />
         </Grid>
       )}
@@ -339,7 +383,7 @@ const LanguageAndItem = ({
           fields={items}
           remove={removeItems}
           teamMembers={getTeamValues()?.teams}
-          languagePairs={languagePairs}
+          languagePairs={getItem('languagePairs')}
           getPriceOptions={getPriceOptions}
           priceUnitsList={priceUnitsList || []}
           type={langItemsEdit ? 'edit' : 'detail'}
@@ -349,6 +393,7 @@ const LanguageAndItem = ({
           setSelectedIds={setSelectedIds}
           splitReady={splitReady}
           sumTotalPrice={sumTotalPrice}
+          from='order'
         />
       </Grid>
       {langItemsEdit ? (

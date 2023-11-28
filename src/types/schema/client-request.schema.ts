@@ -1,12 +1,12 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
-import { RequestFormType } from '../requests/common.type'
+import { RequestFormType, RequestType } from '../requests/common.type'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export function getClientRequestDefaultValue(
   contactPersonId: number,
   timezone: CountryType,
-): RequestFormType {
+): RequestType {
   return {
     lspId: '',
     contactPersonId: contactPersonId,
@@ -35,7 +35,12 @@ export const clientRequestSchema = yup.object().shape({
       sourceLanguage: yup.string().required(FormErrors.required),
       targetLanguage: yup.string().required(FormErrors.required),
       category: yup.string().required(FormErrors.required),
-      serviceType: yup.array().of(yup.string()).min(1, FormErrors.required),
+      serviceType: yup.array().of(
+        yup.object().shape({
+          value: yup.string().required(FormErrors.required),
+          label: yup.string().required(FormErrors.required),
+        }),
+      ),
       unit: yup.string().nullable(),
       quantity: yup.number().nullable(),
       desiredDueDate: yup.string().required(FormErrors.required),
