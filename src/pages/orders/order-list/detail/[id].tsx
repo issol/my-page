@@ -1166,11 +1166,15 @@ const OrderDetail = () => {
   const updateProjectWithoutControlForm = useMutation(
     (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ['orderDetail'],
-        })
-        queryClient.invalidateQueries(['orderList'])
+      onSuccess: (data, variables) => {
+        if (data.id === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: ['orderDetail'],
+          })
+          queryClient.invalidateQueries(['orderList'])
+        } else {
+          router.replace(`/orders/order-list/detail/${data.id}`)
+        }
       },
       onError: () => onMutationError(),
     },
@@ -1803,7 +1807,7 @@ const OrderDetail = () => {
                     setDownloadLanguage={setDownloadLanguage}
                     onClickDownloadOrder={onClickDownloadOrder}
                     type='detail'
-                    updateProject={updateProject}
+                    updateProject={updateOrderStatusMutation}
                     statusList={statusList!}
                     project={projectInfo!}
                   />
