@@ -36,7 +36,7 @@ export type AddJobInfoFormType = {
 
 export type AssignProFilterType = {
   category: { label: string; value: string }[]
-  client: { label: string; value: string }[]
+  client: { label: string; value: number }[]
   serviceType: { label: string; value: string }[]
   search: string
   source: { label: string; value: string }[]
@@ -48,7 +48,7 @@ export type AssignProFilterPostType = {
   take: number
   skip: number
   category?: string[]
-  client?: string[]
+  client?: number[]
   serviceType?: string[]
 
   search?: string
