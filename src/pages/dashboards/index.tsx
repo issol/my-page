@@ -14,7 +14,10 @@ import {
   ListItemText,
 } from '@mui/material'
 import dayjs from 'dayjs'
-import { useDashboardReport } from '@src/queries/dashboard/dashnaord-lpm'
+import {
+  useDashboardReport,
+  useDashboardRequest,
+} from '@src/queries/dashboard/dashnaord-lpm'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
@@ -27,6 +30,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { useState, MouseEvent } from 'react'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import DownloadIcon from '@mui/icons-material/Download'
+import { DataGrid } from '@mui/x-data-grid'
 
 type SelectedRangeDate = 'month' | 'week' | 'today'
 interface DashboardForm {
@@ -39,6 +43,7 @@ interface DashboardForm {
 
 const DEFAULT_START_DATE = dayjs().set('date', 1).toDate()
 const DEFAULT_LAST_DATE = dayjs().set('date', dayjs().daysInMonth()).toDate()
+
 const Dashboards = () => {
   const { control, setValue } = useForm<DashboardForm>({
     defaultValues: {
@@ -64,8 +69,13 @@ const Dashboards = () => {
     name: ['viewSwitch', 'dateRange', 'selectedRangeDate', 'userViewDate'],
   })
 
-  const { data } = useDashboardReport({ from: '2023-01-01', to: '2023-01-05' })
+  const { data: ReportData } = useDashboardReport({
+    from: '2023-01-01',
+    to: '2023-01-05',
+  })
+  const { data: RequestData } = useDashboardRequest({ skip: 0, take: 4 })
 
+  console.log('data', RequestData)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -130,7 +140,7 @@ const Dashboards = () => {
               sx={{
                 fontSize: '14px',
                 fontWeight: 600,
-                color: viewSwitch
+                color: !viewSwitch
                   ? 'rgba(102, 108, 255, 1)'
                   : 'rgba(189, 189, 189, 1)',
               }}
@@ -172,7 +182,7 @@ const Dashboards = () => {
               sx={{
                 fontSize: '14px',
                 fontWeight: 600,
-                color: !viewSwitch
+                color: viewSwitch
                   ? 'rgba(102, 108, 255, 1)'
                   : 'rgba(189, 189, 189, 1)',
               }}
@@ -313,16 +323,17 @@ const Dashboards = () => {
                 flexDirection='column'
                 sx={{ padding: 0 }}
               >
-                {data &&
-                  Object.entries(data).map(([key, value], index) => (
+                {ReportData &&
+                  Object.entries(ReportData).map(([key, value], index) => (
                     <ReportItem
                       key={`${key}-${index}`}
                       label={key}
                       value={value}
                       color='#FDB528'
-                      isHidden={[Object.entries(data).length - 1, 3].includes(
-                        index,
-                      )}
+                      isHidden={[
+                        Object.entries(ReportData).length - 1,
+                        3,
+                      ].includes(index)}
                     />
                   ))}
               </Box>
@@ -330,7 +341,25 @@ const Dashboards = () => {
           </Box>
         </GridItem>
         <GridItem height={362} sm>
-          <div>sdfd</div>
+          <Box sx={{ width: '100%' }}>
+            <Box marginBottom='20px'>
+              <SectionTitle>
+                <span className='title'>New requests</span>
+                <ErrorOutlineIcon className='info_icon' />
+              </SectionTitle>
+              <SubDateDescription textAlign='left'>
+                {dayjs('2023-01-24').format('MMMM D, YYYY')}
+              </SubDateDescription>
+            </Box>
+            <Box sx={{ height: 300 }}>
+              <DataGrid
+                rows={RequestData.data}
+                columns={[
+                  { field: 'category', headerName: 'Column 1', width: 150 },
+                ]}
+              />
+            </Box>
+          </Box>
         </GridItem>
       </Grid>
     </Grid>

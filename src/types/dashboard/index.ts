@@ -3,6 +3,11 @@ export interface DashboardQuery {
   to: string // 종료날짜
 }
 
+export interface DashboardPaginationQuery {
+  take: number
+  skip: number
+}
+
 export type ReportItem = {
   requests: number
   quotes: number
