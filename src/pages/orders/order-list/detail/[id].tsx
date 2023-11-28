@@ -1544,15 +1544,13 @@ const OrderDetail = () => {
   // 로그인 한 유저가 project team에 속해있는지 체크, 만약 Master, Manager일 경우 true 리턴
   const isIncludeProjectTeam = () => {
     return Boolean(
-      currentRole?.name !== 'CLIENT' && isUserInTeamMember,
+      isUserInTeamMember,
       // (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
       // (currentRole?.type === 'General' &&
       //   projectTeam?.length &&
       //   projectTeam.some(item => item.userId === auth.getValue().user?.id!)),
     )
   }
-
-  console.log(isIncludeProjectTeam())
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>

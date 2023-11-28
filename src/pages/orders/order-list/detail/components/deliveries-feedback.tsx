@@ -420,7 +420,6 @@ const DeliveriesFeedback = ({
   //   },
   //   [],
   // )
-  // console.log(groupedFiles)
 
   interface GroupedDeliveryFileType {
     createdAt: string
@@ -441,7 +440,6 @@ const DeliveriesFeedback = ({
     },
     [],
   )
-  console.log(groupedFiles)
 
   const savedFileList = savedFiles?.map((file: DeliveryFileType) => (
     <Box key={uuidv4()}>
@@ -739,11 +737,6 @@ const DeliveriesFeedback = ({
     }
   }, [project])
 
-  console.log(uploadFileProcessing)
-  console.log(savedFiles)
-
-  console.log('project', project)
-  console.log('status list', statusList)
   return (
     <Grid container xs={12} spacing={4}>
       {updateDeliveries.isLoading ||
@@ -753,7 +746,7 @@ const DeliveriesFeedback = ({
       ) : null}
       <Grid
         item
-        xs={currentRole && currentRole.name === 'CLIENT' && isEditable ? 9 : 12}
+        xs={isEditable ? 9 : 12}
       >
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
