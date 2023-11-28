@@ -114,6 +114,7 @@ import {
   patchQuoteItems,
   patchQuoteLanguagePairs,
   patchQuoteProjectInfo,
+  patchQuoteStatus,
   restoreVersion,
 } from '@src/apis/quote/quotes.api'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
@@ -149,6 +150,7 @@ import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import dayjs from 'dayjs'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -897,28 +899,34 @@ export default function QuotesDetail() {
     // ** Client가 Status가 New(20300)인 Quote를 열람할 경우, 자동으로 Status를 Under review(20400)로 바꾸고 데이터를 리패치한다.
     if (currentRole && currentRole.name === 'CLIENT') {
       if (project && project.status === 'New') {
-        patchQuoteProjectInfo(Number(id), { status: 20400 })
-          .then(res => {
-            refetch()
-          })
-          .catch(e => onMutationError())
+        updateQuoteStatusMutation.mutate({
+          id: Number(id),
+          status: 20400,
+        })
       }
     }
+  }, [])
+
+  useEffect(() => {
     // LPM에서 status가 Revision requested일때 quote의 편집화면에 진입하면 status를 Under revision(20600) 으로 패치한다.
     if (currentRole && currentRole.name === 'LPM') {
+      console.log(
+        'status update',
+        project?.status,
+        editProject || editItems || editClient || editTeam,
+      )
       if (
         project &&
         project.status === 'Revision requested' &&
         (editProject || editItems || editClient || editTeam)
       ) {
-        patchQuoteProjectInfo(Number(id), { status: 20600 })
-          .then(res => {
-            refetch()
-          })
-          .catch(e => onMutationError())
+        updateQuoteStatusMutation.mutate({
+          id: Number(id),
+          status: 20600,
+        })
       }
     }
-  }, [currentRole, project, editProject, editItems, editClient, editTeam])
+  }, [project, editProject, editItems, editClient, editTeam])
 
   const updateProject = useMutation(
     (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
@@ -1011,6 +1019,7 @@ export default function QuotesDetail() {
         sourceLanguage: item.source,
         targetLanguage: item.target,
         sortingOrder: idx + 1,
+        dueAt: item.dueAt || item.dueAt !== '' ? item.dueAt : null,
       }
     })
     const langs: LanguagePairsType[] = getItem('languagePairs').map(item => {
@@ -1140,6 +1149,32 @@ export default function QuotesDetail() {
       </Grid>
     )
   }
+
+  const updateQuoteStatusMutation = useMutation(
+    (data: { id: number; status: number; reason?: ReasonType }) =>
+      patchQuoteStatus(Number(data.id), data.status, data.reason),
+    {
+      onSuccess: (data, variables) => {
+        let res
+
+        if (typeof data === 'number' || typeof data === 'string') {
+          res = Number(data)
+        } else if (typeof data === 'object' && data !== null) {
+          res = Number(data.id)
+        }
+
+        if (res === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: [`quotesDetail`, { type: 'project' }, Number(id)],
+          })
+          queryClient.invalidateQueries(['quotesList'])
+        } else {
+          router.push(`/quotes/detail/${res}`)
+        }
+      },
+      onError: () => onMutationError(),
+    },
+  )
 
   const deleteQuotesMutation = useMutation((id: number) => deleteQuotes(id), {
     onSuccess: () => {
@@ -1653,7 +1688,7 @@ export default function QuotesDetail() {
                   setDownloadLanguage={setDownloadLanguage}
                   onClickDownloadQuotes={onClickDownloadQuotes}
                   type='detail'
-                  updateProject={updateProject}
+                  updateProject={updateQuoteStatusMutation}
                   statusList={statusList!}
                   project={project!}
                 />
@@ -1701,8 +1736,11 @@ export default function QuotesDetail() {
                         'checkBox-ProjectInfo-Description',
                       )}
                       updateStatus={(status: number, callback?: () => void) =>
-                        updateProject.mutate(
-                          { status: status },
+                        updateQuoteStatusMutation.mutate(
+                          {
+                            id: Number(id),
+                            status: status,
+                          },
                           {
                             onSuccess: () => {
                               callback && callback()

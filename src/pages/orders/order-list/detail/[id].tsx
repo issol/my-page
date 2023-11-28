@@ -1166,11 +1166,15 @@ const OrderDetail = () => {
   const updateProjectWithoutControlForm = useMutation(
     (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ['orderDetail'],
-        })
-        queryClient.invalidateQueries(['orderList'])
+      onSuccess: (data, variables) => {
+        if (data.id === Number(id)) {
+          queryClient.invalidateQueries({
+            queryKey: ['orderDetail'],
+          })
+          queryClient.invalidateQueries(['orderList'])
+        } else {
+          router.replace(`/orders/order-list/detail/${data.id}`)
+        }
       },
       onError: () => onMutationError(),
     },
@@ -1548,6 +1552,8 @@ const OrderDetail = () => {
     )
   }
 
+  console.log(isIncludeProjectTeam())
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -1803,7 +1809,7 @@ const OrderDetail = () => {
                     setDownloadLanguage={setDownloadLanguage}
                     onClickDownloadOrder={onClickDownloadOrder}
                     type='detail'
-                    updateProject={updateProject}
+                    updateProject={updateOrderStatusMutation}
                     statusList={statusList!}
                     project={projectInfo!}
                   />

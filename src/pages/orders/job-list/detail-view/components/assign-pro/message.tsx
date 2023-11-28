@@ -26,8 +26,9 @@ import {
   useMutation,
 } from 'react-query'
 import { useGetMessage } from '@src/queries/order/job.query'
-import { sendMessageToPro } from '@src/apis/job-detail.api'
+import { readMessage, sendMessageToPro } from '@src/apis/job-detail.api'
 import { useEffect } from 'react'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type Props = {
   info: AssignProListType
@@ -58,7 +59,7 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
   }
   const {
     data: messageList,
-    isLoading,
+    isLoading: messageListLoading,
     refetch: messageRefetch,
   } = useGetMessage(row.id, info.userId)
 
@@ -68,8 +69,19 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
     {
       onSuccess: () => {
         messageRefetch()
+        setMessage('')
       },
     },
+  )
+
+  const readMessageMutation = useMutation(
+    (data: { jobId: number; proId: number }) =>
+      readMessage(data.jobId, data.proId),
+    {
+      onSuccess: () =>{
+        messageRefetch()
+      }
+    }
   )
 
   const handleSendMessage = () => {
@@ -80,17 +92,59 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
     })
   }
 
+  const scrollToBottom = () => {
+    const box = document.getElementById('message-box');
+    if (box) {
+      box.scrollTop = box.scrollHeight;
+    }
+  }
+  
   useEffect(() => {
     messageRefetch()
   }, [messageRefetch])
 
+  useEffect(() => {
+    if (messageList && !messageListLoading) {
+      readMessageMutation.mutate({
+        jobId: row.id,
+        proId: info.userId
+      })
+      scrollToBottom()
+    }
+  }, [messageList, messageListLoading])
+
   return (
     <Box sx={{ padding: '50px 60px', position: 'relative' }}>
+      { sendMessageToProMutation.isLoading ?
+        <OverlaySpinner /> : null }
       <IconButton
         sx={{ position: 'absolute', top: '20px', right: '20px' }}
         onClick={() => {
           closeModal('AssignProMessageModal')
-          closeModal('JobDetailViewModal')
+          // closeModal('JobDetailViewModal')
+          openModal({
+            type: 'JobDetailViewModal',
+            children: (
+              <Box
+                sx={{
+                  maxWidth: '1180px',
+                  width: '100%',
+                  maxHeight: '90vh',
+                  background: '#ffffff',
+                  boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+                  borderRadius: '10px',
+                }}
+              >
+                <JobInfoDetailView
+                  tab={'assignPro'}
+                  row={row}
+                  orderDetail={orderDetail}
+                  item={item}
+                  refetch={refetch}
+                />
+              </Box>
+            ),
+          })
         }}
       >
         <Icon icon='mdi:close'></Icon>
@@ -160,17 +214,30 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
           {assignmentStatusChip(Number(info.assignmentStatus), statusList!)}
         </Box>
         <Divider />
+        <Box
+          id="message-box"
+          sx={{
+            maxHeight: '500px',
+            overflowY: 'scroll',
+          }}
+        >
         {messageList?.contents &&
           messageList?.contents.map((item, index) => (
             <>
               <Box
                 key={uuidv4()}
-                sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+                sx={{ 
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
+                  paddingTop: '20px', 
+                  paddingBottom: '20px',
+                }}
               >
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  {item.role === 'Pro' ? (
+                  {item.isPro ? (
                     <CustomChip
-                      label={item.role}
+                      label={'Pro'}
                       skin='light'
                       sx={{
                         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128`,
@@ -179,7 +246,11 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
                       size='small'
                     />
                   ) : null}
-                  <Typography variant='subtitle1' fontWeight={500}>
+                  <Typography 
+                    variant='subtitle1'
+                    fontWeight={500}
+                    color={user.email === item.email ? 'primary' : 'default'}
+                  >
                     {getLegalName({
                       firstName: info.firstName,
                       middleName: info.middleName,
@@ -199,6 +270,7 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
               <Divider />
             </>
           ))}
+        </Box>
         <Box>
           <TextField
             rows={4}

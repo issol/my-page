@@ -22,6 +22,7 @@ import {
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 import { CancelReasonType } from '@src/types/requests/detail.type'
+import { ReasonType } from '@src/types/quotes/quote'
 
 export const getReceivableList = async (
   filter: InvoiceReceivableFilterType,
@@ -175,12 +176,31 @@ export const patchInvoiceInfo = async (
   return data
 }
 
+export const patchInvoiceStatus = async (
+  id: number,
+  invoiceStatus: number,
+  reason?: ReasonType,
+) => {
+  const { data } = await axios.patch(
+    `/api/enough/u/invoice/receivable/${id}/set-status`,
+    {
+      invoiceStatus: invoiceStatus,
+      reason: reason,
+    },
+  )
+
+  return data
+}
+
 // client 전용
 export const patchInvoiceContactPerson = async (
   id: number,
   form: InvoiceReceivablePatchParamsType,
 ) => {
-  const { data } = await axios.patch(`/api/enough/u/invoice/receivable/${id}/set-contact-person`, { ...form })
+  const { data } = await axios.patch(
+    `/api/enough/u/invoice/receivable/${id}/set-contact-person`,
+    { ...form },
+  )
 
   return data
 }

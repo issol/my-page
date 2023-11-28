@@ -69,6 +69,7 @@ import {
   confirmInvoiceByLpm,
   patchInvoiceContactPerson,
   patchInvoiceInfo,
+  patchInvoiceStatus,
   restoreVersion,
 } from '@src/apis/invoice/receivable.api'
 import toast from 'react-hot-toast'
@@ -108,6 +109,7 @@ import SelectOrder from '../components/list/select-order'
 
 import { v4 as uuidv4 } from 'uuid'
 import { ProjectTeamListType } from '@src/types/orders/order-detail'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type MenuType =
   | 'invoice'
@@ -274,6 +276,26 @@ const ReceivableInvoiceDetail = () => {
         onError(error.message)
         closeModal('EditSaveModal')
       },
+    },
+  )
+
+  const updateInvoiceStatusMutation = useMutation(
+    (data: { id: number; invoiceStatus: number; reason?: ReasonType }) =>
+      patchInvoiceStatus(Number(data.id), data.invoiceStatus, data.reason),
+    {
+      onSuccess: (data, variables) => {
+        if (data.id !== variables.id) {
+          router.push(`/invoice/receivable/detail/${data.id}`)
+          invalidateInvoiceDetail()
+        } else {
+          invoiceInfoRefetch()
+          historyRefetch()
+          projectTeamRefetch()
+          clientRefetch()
+          queryClient.invalidateQueries(['invoice/receivable/list'])
+        }
+      },
+      onError: () => onError(),
     },
   )
 
@@ -1360,6 +1382,7 @@ const ReceivableInvoiceDetail = () => {
                       },
                     })
                   }}
+                  updateInvoiceStatus={updateInvoiceStatusMutation}
                   onContactPersonSave={updateContactPersonForClient.mutate}
                   invoiceInfoControl={invoiceInfoControl}
                   getInvoiceInfo={getInvoiceInfo}
