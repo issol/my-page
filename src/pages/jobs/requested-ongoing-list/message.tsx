@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from 'uuid'
 import CustomChip from 'src/@core/components/mui/chip'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
-import { useMutation } from 'react-query'
+import { useQueryClient, useMutation } from 'react-query'
 import { readMessage, sendMessageToPro } from '@src/apis/job-detail.api'
 import { useGetMessage } from '@src/queries/order/job.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
@@ -26,6 +26,7 @@ type Props = {
 }
 
 const ProJobsMessage = ({ row }: Props) => {
+  const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
   const [message, setMessage] = useState<string>('')
@@ -57,6 +58,7 @@ const ProJobsMessage = ({ row }: Props) => {
     {
       onSuccess: () =>{
         messageRefetch()
+        queryClient.invalidateQueries(['proJobList'])
       }
     }
   )
@@ -83,7 +85,7 @@ const ProJobsMessage = ({ row }: Props) => {
   useEffect(() => {
     if (messageList && !messageListLoading) {
       readMessageMutation.mutate({
-        jobId: row.id,
+        jobId: row.jobId,
         proId: auth.getValue()?.user?.id!
       })
       scrollToBottom()
