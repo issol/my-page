@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/react'
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import dayjs from 'dayjs'
+import { getUserDataFromBrowser } from './auth/storage'
 
 export const StatusCode = {
   100: 'Error',
@@ -71,7 +72,9 @@ export const ApiErrorHandler = (error: AxiosError, email = '') => {
       scope.setTag('email', email)
       scope.setUser({ email: email })
       scope.setLevel('error')
-
+      scope.setExtra('API Request Detail', error.config)
+      scope.setExtra('response', error.response)
+      Sentry.captureException(error)
       const err: any = new Error(`${error.message}`)
 
       if (Object.keys(StatusCode).includes(status ? status.toString() : '')) {
@@ -98,8 +101,10 @@ export const ClientErrorHandler = (
   event.tags = event.tags || {}
   event.contexts = event.contexts || {}
   event.user = event.user || {}
-  event.tags.email = sessionStorage.getItem('email') ?? 'not logged-in'
-  event.user.email = sessionStorage.getItem('email') ?? 'not logged-in'
+  event.tags.email =
+    JSON.parse(getUserDataFromBrowser()!).email ?? 'not logged-in'
+  event.user.email =
+    JSON.parse(getUserDataFromBrowser()!).email ?? 'not logged-in'
 
   event.transaction = 'Client Error'
 

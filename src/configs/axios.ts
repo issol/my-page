@@ -7,6 +7,7 @@ import {
   saveUserTokenToBrowser,
   removeUserDataFromBrowser,
   removeCompanyDataFromBrowser,
+  getUserDataFromBrowser,
 } from 'src/shared/auth/storage'
 
 export const BASEURL =
@@ -117,7 +118,7 @@ instance.interceptors.response.use(
 
       return retryOriginalRequest
     } else {
-      ApiErrorHandler(error)
+      ApiErrorHandler(error, JSON.parse(getUserDataFromBrowser()!).email)
       // ApiErrorHandler(error, localStorage.getItem('email') ?? 'not logged-in')
     }
     return Promise.reject(error)

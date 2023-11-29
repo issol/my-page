@@ -37,6 +37,8 @@ import { currentRoleSelector, permissionState } from '@src/states/permission'
 import { current } from '@reduxjs/toolkit'
 import { HorizontalNavItemsType } from '@src/@core/layouts/types'
 import { UserRoleType } from '@src/context/types'
+import { useQuery } from 'react-query'
+import { getUserBeHealthz } from '@src/apis/common.api'
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean
@@ -45,6 +47,8 @@ interface Props {
 const UserLayout = ({ children, contentHeightFixed }: Props) => {
   // ** Hooks
   const { settings, saveSettings } = useSettings()
+
+  const { data: health } = useQuery('healthz', () => getUserBeHealthz())
 
   // const { currentRole } = useAppSelector(state => state.userAccess)
   const currentRoleStorage = getCurrentRole()
@@ -99,36 +103,47 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
         case 'TAD':
           setSortedMenu(
             HorizontalNavItems().filter(value => {
-              return TADMenu.includes(value.title) && value.role?.includes('TAD')
+              return (
+                TADMenu.includes(value.title) && value.role?.includes('TAD')
+              )
             }),
           )
           break
         case 'LPM':
           setSortedMenu(
             HorizontalNavItems().filter(value => {
-              return LPMMenu.includes(value.title) && value.role?.includes('LPM')
+              return (
+                LPMMenu.includes(value.title) && value.role?.includes('LPM')
+              )
             }),
           )
           break
         case 'PRO':
           setSortedMenu(
             HorizontalNavItems().filter(value => {
-              return PROMenu.includes(value.title) && value.role?.includes('PRO')
+              return (
+                PROMenu.includes(value.title) && value.role?.includes('PRO')
+              )
             }),
           )
           break
         case 'CLIENT':
           setSortedMenu(
             HorizontalNavItems().filter(value => {
-              return CLIENTMenu.includes(value.title) && value.role?.includes('CLIENT')
-            }
-            ),
+              return (
+                CLIENTMenu.includes(value.title) &&
+                value.role?.includes('CLIENT')
+              )
+            }),
           )
           break
         case 'ACCOUNT_MANAGER':
           setSortedMenu(
             HorizontalNavItems().filter(value => {
-              return LPMMenu.includes(value.title) && value.role?.includes('ACCOUNT_MANAGER')
+              return (
+                LPMMenu.includes(value.title) &&
+                value.role?.includes('ACCOUNT_MANAGER')
+              )
             }),
           )
           break
