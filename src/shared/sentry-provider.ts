@@ -93,6 +93,7 @@ export const ClientErrorHandler = (
   hint: Sentry.EventHint,
 ) => {
   const error = hint.originalException!.toString()
+
   const occurred = event.request!.url
   const time = dayjs(event.timestamp).format('YYYY-MM-DD HH:mm:ss')
   // const time = moment(event.timestamp, 'X')

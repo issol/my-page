@@ -1,7 +1,9 @@
 // ** React Imports
 import React, { ReactNode, Suspense, useEffect, useState } from 'react'
-import * as Sentry from '@sentry/nextjs'
+// import * as Sentry from '@sentry/nextjs'
 import { Integrations } from '@sentry/tracing'
+import * as Sentry from '@sentry/nextjs'
+import * as SentryBrowser from '@sentry/browser'
 
 // ** Next Imports
 import Head from 'next/head'
@@ -105,6 +107,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import DetailNoUser from '@src/@core/components/error/detail-no-user'
 import useAuth from '@src/hooks/useAuth'
 import AuthProvider from '@src/shared/auth/auth-provider'
+import { log } from 'npmlog'
 
 /* msw mock server */
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
@@ -125,7 +128,13 @@ type GuardProps = {
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  integrations: [new Integrations.BrowserTracing()],
+  // dsn: 'https://3db74b6528ea4c11aa73527f8c19835d@o1281625.ingest.sentry.io/4504479356026880',
+  integrations: [
+    new SentryBrowser.BrowserTracing(),
+    new SentryBrowser.Replay(),
+  ],
+  replaysSessionSampleRate: 0.5,
+  replaysOnErrorSampleRate: 1.0,
   normalizeDepth: 6,
   environment: process.env.NEXT_PUBLIC_BUILD_MODE,
   autoSessionTracking: true,
@@ -139,6 +148,8 @@ Sentry.init({
     if (errorType === 'API' && event) {
       return event
     } else if (errorType === 'CLIENT') {
+      console.log(event)
+      // return event
       return ClientErrorHandler(event, hint)
     } else {
       return event
