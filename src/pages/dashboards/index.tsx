@@ -8,10 +8,10 @@ import {
 import {
   Box,
   ButtonGroup,
-  Menu,
-  MenuItem,
   ListItemIcon,
   ListItemText,
+  Menu,
+  MenuItem,
 } from '@mui/material'
 import dayjs from 'dayjs'
 import {
@@ -24,13 +24,20 @@ import Typography from '@mui/material/Typography'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import Button from '@mui/material/Button'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
+import DatePicker from 'react-datepicker'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import { useState, MouseEvent } from 'react'
+import React, { MouseEvent, useState } from 'react'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import DownloadIcon from '@mui/icons-material/Download'
-import { DataGrid } from '@mui/x-data-grid'
+import DashboardDataGrid from '@src/pages/dashboards/components/dataGrid'
+import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
+
+// ** Third Party Imports
+
+// ** Custom Components Imports
+import { useTheme } from '@mui/material/styles'
+import DoughnutChart from '@src/pages/dashboards/components/doughnutChart'
 
 type SelectedRangeDate = 'month' | 'week' | 'today'
 interface DashboardForm {
@@ -44,7 +51,15 @@ interface DashboardForm {
 const DEFAULT_START_DATE = dayjs().set('date', 1).toDate()
 const DEFAULT_LAST_DATE = dayjs().set('date', dayjs().daysInMonth()).toDate()
 
+const datas = [
+  { label: 'Group A', value: 400 },
+  { label: 'Group B', value: 300 },
+  { label: 'Group C', value: 300 },
+  { label: 'Group D', value: 200 },
+]
+
 const Dashboards = () => {
+  const theme = useTheme()
   const { control, setValue } = useForm<DashboardForm>({
     defaultValues: {
       view: 'mine',
@@ -127,242 +142,255 @@ const Dashboards = () => {
   }
 
   return (
-    <Grid container gap='24px' sx={{ minWidth: '1280px', overflowX: 'scroll' }}>
-      <Grid container gap='24px'>
-        <GridItem width={290} height={76}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <Typography
+    <ApexChartWrapper>
+      <Grid
+        container
+        gap='24px'
+        sx={{ minWidth: '1320px', overflowX: 'auto', padding: '10px' }}
+      >
+        <Grid container gap='24px'>
+          <GridItem width={290} height={76}>
+            <Box
               sx={{
-                fontSize: '14px',
-                fontWeight: 600,
-                color: !viewSwitch
-                  ? 'rgba(102, 108, 255, 1)'
-                  : 'rgba(189, 189, 189, 1)',
+                display: 'flex',
+                alignItems: 'center',
               }}
             >
-              Company view
-            </Typography>
-            <div style={{ width: '40px' }}>
-              <Controller
-                control={control}
-                name='viewSwitch'
-                defaultValue={false}
-                render={({ field: { onChange, value } }) => (
-                  <Switch
-                    size='small'
-                    value={value}
-                    inputProps={{ 'aria-label': 'controlled' }}
-                    sx={{
-                      '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                        color: '#666CFF',
-                        '.MuiSwitch-thumb': {
-                          color: '#666CFF',
-                        },
-                      },
-                      '.MuiSwitch-track': {
-                        backgroundColor: '#666CFF',
-                      },
-                    }}
-                    onChange={(event, val) => {
-                      if (val) {
-                        setValue('view', 'mine')
-                      }
-                      return onChange(val)
-                    }}
-                  />
-                )}
-              />
-            </div>
-            <Typography
-              sx={{
-                fontSize: '14px',
-                fontWeight: 600,
-                color: viewSwitch
-                  ? 'rgba(102, 108, 255, 1)'
-                  : 'rgba(189, 189, 189, 1)',
-              }}
-            >
-              Personal view
-            </Typography>
-          </Box>
-        </GridItem>
-        <GridItem height={76} sm>
-          <Box
-            display='flex'
-            justifyContent='space-between'
-            sx={{ width: '100%' }}
-          >
-            <DatePickerWrapper>
-              <Controller
-                control={control}
-                name='dateRange'
-                render={({ field: { onChange } }) => (
-                  <DatePicker
-                    aria-label='date picker button'
-                    onChange={date => onChangeDatePicker(date, onChange)}
-                    startDate={(dateRange && dateRange[0]) || new Date()}
-                    endDate={dateRange && dateRange[1]}
-                    {...calendarOptions}
-                    customInput={
-                      <Box display='flex' alignItems='center'>
-                        <Typography fontSize='24px' fontWeight={500}>
-                          {userViewDate}
-                        </Typography>
-                        <CalendarTodayIcon
-                          sx={{ width: '45px' }}
-                          color='primary'
-                        />
-                      </Box>
-                    }
-                  />
-                )}
-              />
-            </DatePickerWrapper>
-            <ButtonGroup color='primary' aria-label='date selecor button group'>
-              <Button
-                variant={
-                  selectedRangeDate === 'month' ? 'contained' : 'outlined'
-                }
-                key='month'
-                onClick={() => onChangeDateRange('month')}
-              >
-                Month
-              </Button>
-              <Button
-                key='week'
-                variant={
-                  selectedRangeDate === 'week' ? 'contained' : 'outlined'
-                }
-                onClick={() => onChangeDateRange('week')}
-              >
-                Week
-              </Button>
-              <Button
-                key='today'
-                variant={
-                  selectedRangeDate === 'today' ? 'contained' : 'outlined'
-                }
-                onClick={() => onChangeDateRange('today')}
-              >
-                Today
-              </Button>
-            </ButtonGroup>
-          </Box>
-        </GridItem>
-        <GridItem width={76} height={76}>
-          <Box>
-            <Button onClick={handleClick}>
-              <MoreVertIcon
-                sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
-              />
-            </Button>
-            <Menu
-              id='dashboard-menu'
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              MenuListProps={{
-                'aria-labelledby': 'basic-button',
-              }}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            >
-              <MenuItem
-                onClick={handleClose}
+              <Typography
                 sx={{
-                  color: 'rgba(76, 78, 100, 0.87)',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: !viewSwitch
+                    ? 'rgba(102, 108, 255, 1)'
+                    : 'rgba(189, 189, 189, 1)',
                 }}
               >
-                <ListItemIcon
-                  sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-                >
-                  <DownloadIcon fontSize='small' />
-                </ListItemIcon>
-                <ListItemText>Download csv</ListItemText>
-              </MenuItem>
-              <MenuItem
-                onClick={handleClose}
-                sx={{
-                  display: 'flex',
-                  color: 'rgba(76, 78, 100, 0.87)',
-                }}
-              >
-                <ListItemIcon
-                  sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-                >
-                  <RemoveRedEyeIcon fontSize='small' />
-                </ListItemIcon>
-                <ListItemText>View member dashboard</ListItemText>
-              </MenuItem>
-            </Menu>
-          </Box>
-        </GridItem>
-      </Grid>
-      <Grid container gap='24px'>
-        <GridItem width={290} height={362}>
-          <Box
-            display='flex'
-            flexDirection='column'
-            sx={{ width: '100%', height: '100%' }}
-          >
-            <Box marginBottom='20px'>
-              <SectionTitle>
-                <span className='title'>Report</span>
-                <ErrorOutlineIcon className='info_icon' />
-              </SectionTitle>
-              <SubDateDescription textAlign='left'>
-                {dayjs('2023-01-24').format('MMMM D, YYYY')}
-              </SubDateDescription>
-              <Box
-                component='ul'
-                display='flex'
-                flexDirection='column'
-                sx={{ padding: 0 }}
-              >
-                {ReportData &&
-                  Object.entries(ReportData).map(([key, value], index) => (
-                    <ReportItem
-                      key={`${key}-${index}`}
-                      label={key}
+                Company view
+              </Typography>
+              <div style={{ width: '40px' }}>
+                <Controller
+                  control={control}
+                  name='viewSwitch'
+                  defaultValue={false}
+                  render={({ field: { onChange, value } }) => (
+                    <Switch
+                      size='small'
                       value={value}
-                      color='#FDB528'
-                      isHidden={[
-                        Object.entries(ReportData).length - 1,
-                        3,
-                      ].includes(index)}
+                      inputProps={{ 'aria-label': 'controlled' }}
+                      sx={{
+                        '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                          color: '#666CFF',
+                          '.MuiSwitch-thumb': {
+                            color: '#666CFF',
+                          },
+                        },
+                        '.MuiSwitch-track': {
+                          backgroundColor: '#666CFF',
+                        },
+                      }}
+                      onChange={(event, val) => {
+                        if (val) {
+                          setValue('view', 'mine')
+                        }
+                        return onChange(val)
+                      }}
                     />
-                  ))}
+                  )}
+                />
+              </div>
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: viewSwitch
+                    ? 'rgba(102, 108, 255, 1)'
+                    : 'rgba(189, 189, 189, 1)',
+                }}
+              >
+                Personal view
+              </Typography>
+            </Box>
+          </GridItem>
+          <GridItem height={76} sm>
+            <Box
+              display='flex'
+              justifyContent='space-between'
+              sx={{ width: '100%' }}
+            >
+              <DatePickerWrapper>
+                <Controller
+                  control={control}
+                  name='dateRange'
+                  render={({ field: { onChange } }) => (
+                    <DatePicker
+                      aria-label='date picker button'
+                      onChange={date => onChangeDatePicker(date, onChange)}
+                      startDate={(dateRange && dateRange[0]) || new Date()}
+                      endDate={dateRange && dateRange[1]}
+                      {...calendarOptions}
+                      customInput={
+                        <Box display='flex' alignItems='center'>
+                          <Typography fontSize='24px' fontWeight={500}>
+                            {userViewDate}
+                          </Typography>
+                          <CalendarTodayIcon
+                            sx={{ width: '45px' }}
+                            color='primary'
+                          />
+                        </Box>
+                      }
+                    />
+                  )}
+                />
+              </DatePickerWrapper>
+              <ButtonGroup
+                color='primary'
+                aria-label='date selecor button group'
+              >
+                <Button
+                  variant={
+                    selectedRangeDate === 'month' ? 'contained' : 'outlined'
+                  }
+                  key='month'
+                  onClick={() => onChangeDateRange('month')}
+                >
+                  Month
+                </Button>
+                <Button
+                  key='week'
+                  variant={
+                    selectedRangeDate === 'week' ? 'contained' : 'outlined'
+                  }
+                  onClick={() => onChangeDateRange('week')}
+                >
+                  Week
+                </Button>
+                <Button
+                  key='today'
+                  variant={
+                    selectedRangeDate === 'today' ? 'contained' : 'outlined'
+                  }
+                  onClick={() => onChangeDateRange('today')}
+                >
+                  Today
+                </Button>
+              </ButtonGroup>
+            </Box>
+          </GridItem>
+          <GridItem width={76} height={76}>
+            <Box>
+              <Button onClick={handleClick}>
+                <MoreVertIcon
+                  sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
+                />
+              </Button>
+              <Menu
+                id='dashboard-menu'
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              >
+                <MenuItem
+                  onClick={handleClose}
+                  sx={{
+                    color: 'rgba(76, 78, 100, 0.87)',
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                  >
+                    <DownloadIcon fontSize='small' />
+                  </ListItemIcon>
+                  <ListItemText>Download csv</ListItemText>
+                </MenuItem>
+                <MenuItem
+                  onClick={handleClose}
+                  sx={{
+                    display: 'flex',
+                    color: 'rgba(76, 78, 100, 0.87)',
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                  >
+                    <RemoveRedEyeIcon fontSize='small' />
+                  </ListItemIcon>
+                  <ListItemText>View member dashboard</ListItemText>
+                </MenuItem>
+              </Menu>
+            </Box>
+          </GridItem>
+        </Grid>
+        <Grid container gap='24px'>
+          <GridItem width={290} height={362}>
+            <Box
+              display='flex'
+              flexDirection='column'
+              sx={{ width: '100%', height: '100%' }}
+            >
+              <Box marginBottom='20px'>
+                <SectionTitle>
+                  <span className='title'>Report</span>
+                  <ErrorOutlineIcon className='info_icon' />
+                </SectionTitle>
+                <SubDateDescription textAlign='left'>
+                  {dayjs('2023-01-24').format('MMMM D, YYYY')}
+                </SubDateDescription>
+                <Box
+                  component='ul'
+                  display='flex'
+                  flexDirection='column'
+                  sx={{ padding: 0 }}
+                >
+                  {ReportData &&
+                    Object.entries(ReportData).map(([key, value], index) => (
+                      <ReportItem
+                        key={`${key}-${index}`}
+                        label={key}
+                        value={value}
+                        color='#FDB528'
+                        isHidden={[
+                          Object.entries(ReportData).length - 1,
+                          3,
+                        ].includes(index)}
+                      />
+                    ))}
+                </Box>
               </Box>
             </Box>
-          </Box>
-        </GridItem>
-        <GridItem height={362} sm>
-          <Box sx={{ width: '100%' }}>
-            <Box marginBottom='20px'>
-              <SectionTitle>
-                <span className='title'>New requests</span>
-                <ErrorOutlineIcon className='info_icon' />
-              </SectionTitle>
-              <SubDateDescription textAlign='left'>
-                {dayjs('2023-01-24').format('MMMM D, YYYY')}
-              </SubDateDescription>
-            </Box>
-            <Box sx={{ height: 300 }}>
-              <DataGrid
-                rows={RequestData.data}
-                columns={[
-                  { field: 'category', headerName: 'Column 1', width: 150 },
-                ]}
+          </GridItem>
+          <GridItem height={362} sm>
+            <Box sx={{ width: '100%' }}>
+              <Box marginBottom='20px'>
+                <SectionTitle>
+                  <span className='title'>New requests</span>
+                  <ErrorOutlineIcon className='info_icon' />
+                </SectionTitle>
+                <SubDateDescription textAlign='left'>
+                  {dayjs('2023-01-24').format('MMMM D, YYYY')}
+                </SubDateDescription>
+              </Box>
+              <DashboardDataGrid
+                data={RequestData?.data || []}
+                page={RequestData?.count || 0}
+                rowsPerPage={4}
+                totalCount={RequestData?.totalCount || 0}
               />
             </Box>
-          </Box>
-        </GridItem>
+          </GridItem>
+        </Grid>
+        <Grid container gap='24px'>
+          <DoughnutChart />
+          <GridItem height={416} sm>
+            <Box></Box>
+          </GridItem>
+        </Grid>
       </Grid>
-    </Grid>
+    </ApexChartWrapper>
   )
 }
 

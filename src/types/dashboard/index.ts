@@ -16,3 +16,40 @@ export type ReportItem = {
   payables: number
   canceled: number
 }
+
+export type RequestItem = {
+  id: number
+  corporationId: string
+  client: number
+  companyName: string
+  category: string
+  serviceType: string
+  itemCount: number
+  desiredDueDate: string
+  desiredDueTimezone: {
+    code: string
+    label: string
+    phone: string
+  }
+}
+
+export type Currency = 'USD' | 'JPY' | 'KRW' | 'SGD'
+export interface RatioQuery extends DashboardQuery {
+  type: string
+  currency: Currency
+}
+
+export type RatioItem = {
+  count: number
+  name: string
+  ratio: number
+  sortingOrder: number
+  sum: number
+}
+
+export type RatioResponse = {
+  totalOrderCount: number
+  totalOrderPrice: number
+  currency: Currency
+  reportByClient: Array<RatioItem>
+}

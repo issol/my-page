@@ -1,7 +1,15 @@
 import Grid from '@mui/material/Grid'
-import { Box, Card, Typography } from '@mui/material'
-import { ReactElement } from 'react'
+import { Box, ButtonGroup, Card, MenuItem, Typography } from '@mui/material'
+import React, { ReactElement, useCallback } from 'react'
 import styled from '@emotion/styled'
+import Button from '@mui/material/Button'
+import Popper from '@mui/material/Popper'
+import Grow from '@mui/material/Grow'
+import Paper from '@mui/material/Paper'
+import ClickAwayListener from '@mui/material/ClickAwayListener'
+import MenuList from '@mui/material/MenuList'
+import { ArrowDropDown } from '@mui/icons-material'
+import { Currency } from '@src/types/dashboard'
 
 interface GridItemProps {
   width?: number
@@ -67,7 +75,7 @@ export const SubDateDescription = styled(Typography)(() => {
   }
 })
 
-const StatusSquare = styled.span<{ color: string }>(({ color }) => {
+export const StatusSquare = styled.span<{ color: string }>(({ color }) => {
   return {
     display: 'flex',
     alignItems: 'center',
@@ -152,3 +160,115 @@ const ReportLabel = styled(Typography)`
   font-size: 14px;
   font-weight: 600;
 `
+
+const options = [
+  'Convert to USD',
+  'Convert to JPY',
+  'Convert to KRW',
+  'Convert to SGD',
+  'JPY only',
+  'KRW only',
+  'SGD only',
+  'USD only',
+]
+export const ConvertButtonGroup = ({
+  onChangeCurrency,
+}: {
+  onChangeCurrency: (type: Currency) => void
+}) => {
+  const [open, setOpen] = React.useState(false)
+  const anchorRef = React.useRef<HTMLDivElement>(null)
+  const [selectedIndex, setSelectedIndex] = React.useState(1)
+
+  const handleClick = (type: Currency) => {
+    onChangeCurrency(type)
+  }
+
+  const handleMenuItemClick = (
+    event: React.MouseEvent<HTMLLIElement, MouseEvent>,
+    index: number,
+    type: Currency,
+  ) => {
+    setSelectedIndex(index)
+    setOpen(false)
+    onChangeCurrency(type)
+  }
+
+  const handleToggle = () => {
+    setOpen(prevOpen => !prevOpen)
+  }
+
+  const handleClose = (event: Event) => {
+    if (
+      anchorRef.current &&
+      anchorRef.current.contains(event.target as HTMLElement)
+    ) {
+      return
+    }
+
+    setOpen(false)
+  }
+
+  return (
+    <React.Fragment>
+      <ButtonGroup
+        ref={anchorRef}
+        size='small'
+        color='secondary'
+        aria-label='convert to money'
+        sx={{ height: '30px' }}
+      >
+        <Button onClick={handleToggle}>{options[selectedIndex]}</Button>
+        <Button
+          size='small'
+          aria-controls={open ? 'split-button-menu' : undefined}
+          aria-expanded={open ? 'true' : undefined}
+          aria-label='select merge strategy'
+          aria-haspopup='menu'
+          onClick={handleToggle}
+        >
+          <ArrowDropDown />
+        </Button>
+      </ButtonGroup>
+      <Popper
+        sx={{
+          zIndex: 1,
+        }}
+        open={open}
+        anchorEl={anchorRef.current}
+        role={undefined}
+        transition
+        disablePortal
+      >
+        {({ TransitionProps, placement }) => (
+          <Grow
+            {...TransitionProps}
+            style={{
+              transformOrigin:
+                placement === 'bottom' ? 'center top' : 'center bottom',
+            }}
+          >
+            <Paper>
+              <ClickAwayListener onClickAway={handleClose}>
+                <MenuList id='split-button-menu' autoFocusItem>
+                  {options.map((option, index) => (
+                    <MenuItem
+                      key={option}
+                      disabled={index === 2}
+                      selected={index === selectedIndex}
+                      onClick={event =>
+                        handleMenuItemClick(event, index, 'SGD')
+                      }
+                    >
+                      {option}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </ClickAwayListener>
+            </Paper>
+          </Grow>
+        )}
+      </Popper>
+    </React.Fragment>
+  )
+}

@@ -1,8 +1,13 @@
 import { useQuery } from 'react-query'
 
-import { getReport, getRequest } from '@src/apis/dashboard/lpm'
+import { getRatio, getReport, getRequest } from '@src/apis/dashboard/lpm'
 import type { DashboardQuery } from '@src/types/dashboard'
-import { DashboardPaginationQuery } from '@src/types/dashboard'
+import {
+  Currency,
+  DashboardPaginationQuery,
+  RatioQuery,
+  RatioResponse,
+} from '@src/types/dashboard'
 
 const DEFAULT_QUERY_NAME = 'dashboard'
 export const useDashboardReport = (query: DashboardQuery) => {
@@ -28,6 +33,22 @@ export const useDashboardRequest = (query: DashboardPaginationQuery) => {
     {
       staleTime: 60 * 1000, // 1
       suspense: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useDashboardRatio = (
+  query: Omit<RatioQuery, 'currency'>,
+  currency: Currency,
+) => {
+  return useQuery<RatioResponse>(
+    [`${DEFAULT_QUERY_NAME}-ratio-${query.type}`, currency],
+    () => {
+      return getRatio({ ...query, currency: currency })
+    },
+    {
+      staleTime: 60 * 1000, // 1
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },
   )
