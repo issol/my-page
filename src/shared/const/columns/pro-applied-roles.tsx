@@ -9,6 +9,7 @@ import {
   ProAppliedRolesType,
   ProAppliedRolesStatusHistoryType,
 } from '@src/types/pro-certification-test/applied-roles'
+import { Dispatch, SetStateAction } from 'react'
 import { Loadable } from 'recoil'
 
 export const getProAppliedRolesColumns = (
@@ -23,6 +24,7 @@ export const getProAppliedRolesColumns = (
     loading: boolean
   }>,
   viewHistory: (history: ProAppliedRolesStatusHistoryType[]) => void,
+  onClickStartTest: (row: ProAppliedRolesType) => void,
 ) => {
   const cannotTestStatus = [
     'Awaiting approval',
@@ -116,7 +118,8 @@ export const getProAppliedRolesColumns = (
 
       headerName: 'Status',
       disableColumnMenu: true,
-      sortable: true,
+      sortable: false,
+      hideSortIcons: true,
       renderHeader: () => (
         <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
           Status
@@ -134,7 +137,8 @@ export const getProAppliedRolesColumns = (
 
       headerName: 'Action',
       disableColumnMenu: true,
-      sortable: true,
+      sortable: false,
+      hideSortIcons: true,
       align: 'center',
       headerAlign: 'center',
       renderHeader: () => (
@@ -143,16 +147,19 @@ export const getProAppliedRolesColumns = (
         </Typography>
       ),
       renderCell: ({ row }: { row: ProAppliedRolesType }) => {
-        // const label = statusList?.find(i => i.value === row.status)?.label
-        // console.log(row.status)
-
         return (
           <Box>
             {cannotTestStatus.includes(row.status) ? (
               '-'
             ) : canTestStatus.includes(row.status) ? (
               <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <Button variant='contained'>Start test</Button>
+                <Button
+                  variant='contained'
+                  sx={{ minWidth: '201px' }}
+                  onClick={() => onClickStartTest(row)}
+                >
+                  Start test
+                </Button>
                 <Button
                   variant='outlined'
                   sx={{
@@ -208,7 +215,8 @@ export const getProAppliedRolesColumns = (
 
       headerName: 'Test start time',
       disableColumnMenu: true,
-      sortable: true,
+      sortable: false,
+      hideSortIcons: true,
       renderHeader: () => (
         <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
           Test start time
@@ -232,7 +240,8 @@ export const getProAppliedRolesColumns = (
 
       headerName: 'History',
       disableColumnMenu: true,
-      sortable: true,
+      sortable: false,
+      hideSortIcons: true,
       align: 'center',
       renderHeader: () => (
         <Typography variant='subtitle1' fontWeight={500} fontSize={14}>

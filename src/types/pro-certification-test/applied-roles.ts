@@ -7,7 +7,7 @@ export type ProAppliedRolesStatusHistoryType = {
 }
 
 export type ProAppliedRolesFilterType = {
-  seeOnlyActiveTests: '0' | '1'
+  isActive: '0' | '1'
   skip: number
   take: number
 }
