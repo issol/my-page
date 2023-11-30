@@ -117,7 +117,7 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
                 <br /> Once tests are created, you will be able to take them
                 after going through the TAD verification process.
               </>
-            ) : row.status === 'Skill test Ready' ? (
+            ) : row.status === 'Skill test Ready' && row.basicTest.isSkipped ? (
               <>
                 TAD has waived the requirement for the basic test for you.
                 <br />
@@ -125,6 +125,14 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
                 have already commenced it.
                 <br />
                 <br /> Please proceed with the skill test.
+              </>
+            ) : row.status === 'Skill test Ready' && !row.basicTest.isPassed ? (
+              <>
+                TAD has decided to proceed with the skill test regardless of the
+                Basic test results.
+                <br />
+                <br />
+                Please proceed with the Skill test.
               </>
             ) : row.status === 'Basic failed' ? (
               <>
@@ -142,7 +150,7 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
             )}
           </Typography>
         )}
-        {row.status === 'Skill test Ready' && (
+        {row.status === 'Skill test Ready' && row.basicTest.isSkipped && (
           <Box
             sx={{
               display: 'flex',

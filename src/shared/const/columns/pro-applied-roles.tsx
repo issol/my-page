@@ -136,6 +136,7 @@ export const getProAppliedRolesColumns = (
             {row.status === 'Test in preparation' ||
             row.status === 'Rejected by TAD' ||
             (row.basicTest.isSkipped && row.status === 'Skill test Ready') ||
+            (!row.basicTest.isPassed && row.status === 'Skill test Ready') ||
             row.status === 'Basic failed' ? (
               <IconButton
                 onClick={() => {
