@@ -214,7 +214,7 @@ export const getProAppliedRoles = async (
       from: 'User',
       message: 'Test message',
       reason: 'Test reason',
-      rejectedAt: '2022-01-01',
+      retestDate: '2022-01-01',
     },
     testGuideline: {
       id: index + 1,

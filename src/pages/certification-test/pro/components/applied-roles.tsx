@@ -125,7 +125,8 @@ const ProAppliedRoles = ({
         <ReasonModal
           onClose={() => closeModal('ReasonModal')}
           vary='info'
-          status={row.status}
+          row={row}
+          timezone={auth.getValue().user?.timezone!}
         />
       ),
     })

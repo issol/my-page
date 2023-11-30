@@ -130,7 +130,8 @@ export const getProAppliedRolesColumns = (
         return (
           <Box sx={{ display: 'flex', gap: '7px' }}>
             {ProAppliedRolesStatusChip(row.status!, row.status)}
-            {row.status === 'Test in preparation' ? (
+            {row.status === 'Test in preparation' ||
+            row.status === 'Rejected by TAD' ? (
               <IconButton
                 onClick={() => {
                   onClickReason(row)

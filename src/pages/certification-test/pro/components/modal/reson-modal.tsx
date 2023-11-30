@@ -1,7 +1,12 @@
 import { Icon } from '@iconify/react'
-import { Box, IconButton, Typography } from '@mui/material'
+import { Box, Divider, IconButton, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
-import { ProAppliedRolesStatusType } from '@src/types/pro-certification-test/applied-roles'
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import {
+  ProAppliedRolesStatusType,
+  ProAppliedRolesType,
+} from '@src/types/pro-certification-test/applied-roles'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 type Props = {
   onClose: any
@@ -13,10 +18,11 @@ type Props = {
     | 'successful'
     | 'question-info'
 
-  status: ProAppliedRolesStatusType
+  row: ProAppliedRolesType
+  timezone: CountryType
 }
 
-const ReasonModal = ({ vary, status, onClose }: Props) => {
+const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
   return (
     <Box
       sx={{
@@ -48,28 +54,73 @@ const ReasonModal = ({ vary, status, onClose }: Props) => {
             justifyContent: 'center',
             flexDirection: 'column',
             alignItems: 'center',
-            mb: '8px',
+            mb: '24px',
           }}
         >
           <AlertIcon type={vary} />
         </Box>
-        <Typography
-          variant='body2'
-          fontSize={16}
-          sx={{ whiteSpace: 'pre-line !important' }}
-        >
-          {status === 'Test in preparation' ? (
-            <>
-              There are no tests currently available for the role you have
-              applied for.
-              <br />
-              <br /> Once tests are created, you will be able to take them after
-              going through the TAD verification process.
-            </>
-          ) : (
-            ''
-          )}
-        </Typography>
+
+        {row.status === 'Rejected by TAD' ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <Typography variant='h6'>
+                {row.reason.type}&nbsp; reason
+              </Typography>
+              <Typography variant='body1'>{row.reason.reason}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <Typography variant='h6'>
+                Message from {row.reason.from}
+              </Typography>
+              <Box
+                sx={{
+                  border: '1px solid rgba(76, 78, 100, 0.22)',
+                  borderRadius: '10px',
+                  padding: '20px',
+                }}
+              >
+                <Typography
+                  variant='body1'
+                  // fontSize={16}
+                  sx={{ whiteSpace: 'pre-line !important' }}
+                >
+                  {row.reason.message}
+                </Typography>
+              </Box>
+            </Box>
+            <Divider />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <Typography variant='h6'>Retest date</Typography>
+              <Typography
+                variant='body1'
+                // fontSize={16}
+                // sx={{ whiteSpace: 'pre-line !important' }}
+              >
+                Please wait until{' '}
+                {FullDateTimezoneHelper(row.reason.retestDate, timezone)} to
+                reapply for the role.
+              </Typography>
+            </Box>
+          </Box>
+        ) : (
+          <Typography
+            variant='body2'
+            fontSize={16}
+            sx={{ whiteSpace: 'pre-line !important' }}
+          >
+            {row.status === 'Test in preparation' ? (
+              <>
+                There are no tests currently available for the role you have
+                applied for.
+                <br />
+                <br /> Once tests are created, you will be able to take them
+                after going through the TAD verification process.
+              </>
+            ) : (
+              ''
+            )}
+          </Typography>
+        )}
       </Box>
     </Box>
   )

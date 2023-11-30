@@ -34,7 +34,7 @@ export type ProAppliedRolesType = {
     from: string
     message: string
     reason: string
-    rejectedAt: string
+    retestDate: string
   }
 
   testGuideline: CurrentTestType
