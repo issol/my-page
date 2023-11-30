@@ -162,7 +162,7 @@ const ProAppliedRoles = ({
       children: (
         <ReasonModal
           onClose={() => closeModal('ReasonModal')}
-          vary='question-info'
+          vary={row.status === 'Basic failed' ? 'error' : 'question-info'}
           row={row}
           timezone={auth.getValue().user?.timezone!}
         />

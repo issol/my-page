@@ -7,6 +7,7 @@ import {
   ProAppliedRolesType,
 } from '@src/types/pro-certification-test/applied-roles'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
+import dayjs from 'dayjs'
 
 type Props = {
   onClose: any
@@ -124,6 +125,17 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
                 have already commenced it.
                 <br />
                 <br /> Please proceed with the skill test.
+              </>
+            ) : row.status === 'Basic failed' ? (
+              <>
+                You failed the basic test.
+                <br />
+                <br /> To reapply to the same role, please wait until{' '}
+                {FullDateTimezoneHelper(
+                  dayjs(row.basicTest.testStartedAt).add(6, 'month'),
+                  timezone,
+                )}{' '}
+                before proceeding.
               </>
             ) : (
               ''

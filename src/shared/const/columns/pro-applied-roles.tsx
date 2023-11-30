@@ -135,7 +135,8 @@ export const getProAppliedRolesColumns = (
             {ProAppliedRolesStatusChip(row.status!, row.status)}
             {row.status === 'Test in preparation' ||
             row.status === 'Rejected by TAD' ||
-            (row.basicTest.isSkipped && row.status === 'Skill test Ready') ? (
+            (row.basicTest.isSkipped && row.status === 'Skill test Ready') ||
+            row.status === 'Basic failed' ? (
               <IconButton
                 onClick={() => {
                   onClickReason(row)
