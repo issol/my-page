@@ -109,11 +109,6 @@ interface GroupedDeliveryFileType {
   data: DeliveryFileType[]
 }
 
-interface GroupedDeliveryFileType {
-  createdAt: string
-  data: DeliveryFileType[]
-}
-
 type Props = {
   type: string
   invoiceInfo: InvoiceReceivableDetailType

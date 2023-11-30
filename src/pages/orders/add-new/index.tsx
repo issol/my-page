@@ -107,6 +107,7 @@ import {
 } from '@src/apis/order-detail.api'
 import { getClientDetail } from '@src/apis/client.api'
 import { set } from 'lodash'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 export type languageType = {
   id: number | string
@@ -163,6 +164,7 @@ export default function AddNewOrder() {
 
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
   const [isWarn, setIsWarn] = useState(true)
+  const [isFatching, setIsFatching] = useState(false)
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
   const [taxFocus, setTaxFocus] = useState(false)
@@ -544,6 +546,7 @@ export default function AddNewOrder() {
 
   function onSubmit() {
     setIsWarn(false)
+    setIsFatching(true)
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
       ...getClientValue(),
@@ -640,7 +643,6 @@ export default function AddNewOrder() {
             .then(data => {
               console.log(data[1].length)
               closeModal('onClickSaveOrder')
-              // router.push(`/orders/order-list/detail/${res.id}`)
               if (data[1].length > 0) {
                 openModal({
                   type: 'CreateJobModal',
@@ -675,12 +677,20 @@ export default function AddNewOrder() {
                     />
                   ),
                 })
+              } else {
+                router.push(`/orders/order-list/detail/${res.id}`)
               }
             })
             .catch(e => onRequestError())
+            .finally(() => {
+              setIsFatching(false)
+            })
         }
       })
       .catch(e => onRequestError())
+      .finally(() => {
+        setIsFatching(false)
+      })
   }
 
   function onRequestError() {
@@ -1105,6 +1115,8 @@ export default function AddNewOrder() {
 
   return (
     <Grid container spacing={6}>
+      { isFatching ?
+        <OverlaySpinner /> : null }
       <ConfirmLeaveModal />
       <PageHeader
         title={
