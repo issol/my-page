@@ -24,10 +24,10 @@ import Typography from '@mui/material/Typography'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import Button from '@mui/material/Button'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import DatePicker from 'react-datepicker'
+import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import React, { MouseEvent, useState } from 'react'
+import React, { MouseEvent, useCallback, useState } from 'react'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import DownloadIcon from '@mui/icons-material/Download'
 import DashboardDataGrid from '@src/pages/dashboards/components/dataGrid'
@@ -38,10 +38,13 @@ import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 // ** Custom Components Imports
 import { useTheme } from '@mui/material/styles'
 import DoughnutChart from '@src/pages/dashboards/components/doughnutChart'
+import weekday from 'dayjs/plugin/weekday'
+import { Colors, Status, StatusColor } from '@src/shared/const/dashboard/chart'
+dayjs.extend(weekday)
 
 type SelectedRangeDate = 'month' | 'week' | 'today'
 interface DashboardForm {
-  dateRange?: Array<Date>
+  dateRange?: Array<Date | null>
   view: 'company' | 'mine'
   viewSwitch: boolean
   userViewDate: string
@@ -51,12 +54,37 @@ interface DashboardForm {
 const DEFAULT_START_DATE = dayjs().set('date', 1).toDate()
 const DEFAULT_LAST_DATE = dayjs().set('date', dayjs().daysInMonth()).toDate()
 
-const datas = [
-  { label: 'Group A', value: 400 },
-  { label: 'Group B', value: 300 },
-  { label: 'Group C', value: 300 },
-  { label: 'Group D', value: 200 },
-]
+const getRangeDateTitle = (date1: Date, date2: Date | null) => {
+  const title = date2
+    ? dayjs(date2).set('date', dayjs(date1).daysInMonth()).format('DD, YYYY ')
+    : '-'
+  return `${dayjs(date1).format('MMMM D')} - ${title}`
+}
+
+const getDateFormatter = (date1: Date, date2: Date | null) => {
+  if (!date1) return
+
+  if (!dayjs(date1).isSame(dayjs(date2), 'year')) {
+    const title = date2 ? dayjs(date2).format('MMMM D, YYYY') : '-'
+    return `${dayjs(date1).format('MMMM D, YYYY')} - ${title}`
+  }
+
+  if (!dayjs(date1).isSame(dayjs(date2), 'month')) {
+    const title = date2 ? dayjs(date2).format('MMMM D') : '-'
+    return `${dayjs(date1).format('MMMM D, YYYY')} - ${title}`
+  }
+
+  return getRangeDateTitle(date1, date2)
+}
+
+const getDateFormat = (date: Date | null) => {
+  if (!date) return dayjs().format('YYYY-MM-DD')
+  return dayjs(date).format('YYYY-MM-DD')
+}
+
+const toCapitalize = (str: string) => {
+  return str.replace(/\b\w/g, match => match.toUpperCase())
+}
 
 const Dashboards = () => {
   const theme = useTheme()
@@ -65,18 +93,9 @@ const Dashboards = () => {
       view: 'mine',
       viewSwitch: false,
       dateRange: [DEFAULT_START_DATE, DEFAULT_LAST_DATE],
-      userViewDate: `${dayjs(DEFAULT_START_DATE).format('MMMM D - ')}${dayjs(
-        DEFAULT_LAST_DATE,
-      )
-        .set('date', dayjs().daysInMonth())
-        .format('DD, YYYY ')}`,
+      userViewDate: getRangeDateTitle(DEFAULT_START_DATE, DEFAULT_LAST_DATE),
       selectedRangeDate: 'month',
     },
-  })
-
-  const [calendarOptions, setCalendarOptions] = useState({
-    selectsRange: true,
-    showMonthYearPicker: true,
   })
 
   const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
@@ -85,12 +104,11 @@ const Dashboards = () => {
   })
 
   const { data: ReportData } = useDashboardReport({
-    from: '2023-01-01',
-    to: '2023-01-05',
+    from: getDateFormat((Array.isArray(dateRange) && dateRange[0]) || null),
+    to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
   const { data: RequestData } = useDashboardRequest({ skip: 0, take: 4 })
 
-  console.log('data', RequestData)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -99,46 +117,48 @@ const Dashboards = () => {
   const handleClose = () => {
     setAnchorEl(null)
   }
-  const onChangeDateRange = (type: SelectedRangeDate) => {
-    setValue('selectedRangeDate', type)
 
-    switch (type) {
-      case 'month':
-        setCalendarOptions({
-          selectsRange: false,
-          showMonthYearPicker: true,
-        })
-        break
-      case 'today':
-        setCalendarOptions({
-          selectsRange: false,
-          showMonthYearPicker: false,
-        })
-        break
-      case 'week':
-        setCalendarOptions({
-          selectsRange: true,
-          showMonthYearPicker: false,
-        })
-        break
-      default:
-        setCalendarOptions({
-          selectsRange: true,
-          showMonthYearPicker: true,
-        })
-        break
-    }
-  }
+  const onChangeDateRange = useCallback(
+    (type: SelectedRangeDate) => {
+      setValue('selectedRangeDate', type)
+      console.log('week', dayjs().weekday(-7).toDate())
+
+      switch (type) {
+        case 'month':
+          const dates = [
+            dayjs().set('date', 1).toDate(),
+            dayjs().set('date', dayjs().daysInMonth()).toDate(),
+          ]
+          setValue('dateRange', dates)
+          const title1 = getDateFormatter(dates[0], dates[1]) || '-'
+          setValue('userViewDate', title1)
+          break
+        case 'today':
+          const title2 = getDateFormatter(new Date(), new Date()) || '-'
+          setValue('userViewDate', title2)
+          setValue('dateRange', [new Date(), new Date()])
+          break
+        case 'week':
+          const title3 = getDateFormatter(new Date(), new Date()) || '-'
+          setValue('userViewDate', title3)
+          setValue('dateRange', [new Date(), new Date()])
+          break
+        default:
+          break
+      }
+    },
+    [dateRange, selectedRangeDate],
+  )
 
   const onChangeDatePicker = (
-    date: Date | Array<Date | null> | null,
-    onChange: (date: Date | Array<Date | null> | null) => void,
+    date: Array<Date | null> | null,
+    onChange: (date: Array<Date | null> | null) => void,
   ) => {
-    if (Array.isArray(date)) {
-      onChange(date)
-    } else {
-      onChange([date, date])
-    }
+    if (!date || !date[0]) return
+
+    const title = getDateFormatter(date[0], date[1]) || '-'
+    setValue('userViewDate', title)
+    onChange(date)
   }
 
   return (
@@ -227,7 +247,7 @@ const Dashboards = () => {
                       onChange={date => onChangeDatePicker(date, onChange)}
                       startDate={(dateRange && dateRange[0]) || new Date()}
                       endDate={dateRange && dateRange[1]}
-                      {...calendarOptions}
+                      selectsRange
                       customInput={
                         <Box display='flex' alignItems='center'>
                           <Typography fontSize='24px' fontWeight={500}>
@@ -350,9 +370,9 @@ const Dashboards = () => {
                     Object.entries(ReportData).map(([key, value], index) => (
                       <ReportItem
                         key={`${key}-${index}`}
-                        label={key}
+                        label={toCapitalize(Status[index])}
                         value={value}
-                        color='#FDB528'
+                        color={StatusColor[index]}
                         isHidden={[
                           Object.entries(ReportData).length - 1,
                           3,
@@ -363,9 +383,9 @@ const Dashboards = () => {
               </Box>
             </Box>
           </GridItem>
-          <GridItem height={362} sm>
+          <GridItem height={362} sm padding='0'>
             <Box sx={{ width: '100%' }}>
-              <Box marginBottom='20px'>
+              <Box marginBottom='20px' sx={{ padding: '10px 20px 0' }}>
                 <SectionTitle>
                   <span className='title'>New requests</span>
                   <ErrorOutlineIcon className='info_icon' />
@@ -383,11 +403,61 @@ const Dashboards = () => {
             </Box>
           </GridItem>
         </Grid>
-        <Grid container gap='24px'>
-          <DoughnutChart />
-          <GridItem height={416} sm>
-            <Box></Box>
-          </GridItem>
+        <Grid container spacing={5}>
+          <DoughnutChart
+            title='Clients'
+            from={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[0]) || null,
+            )}
+            to={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[1]) || null,
+            )}
+            type='client'
+          />
+          <DoughnutChart
+            title='Language pairs'
+            from={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[0]) || null,
+            )}
+            to={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[1]) || null,
+            )}
+            type='language-pair'
+          />
+        </Grid>
+        <Grid container spacing={5}>
+          <DoughnutChart
+            title='Main categories'
+            from={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[0]) || null,
+            )}
+            to={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[1]) || null,
+            )}
+            type='category'
+          />
+          <DoughnutChart
+            title='Service types'
+            from={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[0]) || null,
+            )}
+            to={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[1]) || null,
+            )}
+            type='service-type'
+          />
+        </Grid>
+        <Grid container spacing={5}>
+          <DoughnutChart
+            title='Area of expertises'
+            from={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[0]) || null,
+            )}
+            to={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[1]) || null,
+            )}
+            type='expertise'
+          />
         </Grid>
       </Grid>
     </ApexChartWrapper>

@@ -6,7 +6,9 @@ export const CustomChart = styled(ReactApexcharts)(() => {
     '& .apexcharts-tooltip': {
       display: 'flex',
       alignItems: 'center',
-      padding: '0 12px',
+      justifyContent: 'center',
+      height: '80px',
+      padding: '0 20px',
       color: '#4C4E64DE !important',
       boxShadow: '0px 2px 10px 0px rgba(76, 78, 100, 0.22)',
 
@@ -18,8 +20,14 @@ export const CustomChart = styled(ReactApexcharts)(() => {
 
       '& .tooltip_container': {
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
-        height: '35px',
+      },
+
+      '& .flex-center': {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
       },
 
       '& .tooltip_text_bold': {

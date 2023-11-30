@@ -51,5 +51,5 @@ export type RatioResponse = {
   totalOrderCount: number
   totalOrderPrice: number
   currency: Currency
-  reportByClient: Array<RatioItem>
+  report: Array<RatioItem>
 }

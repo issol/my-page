@@ -12,7 +12,7 @@ import {
 const DEFAULT_QUERY_NAME = 'dashboard'
 export const useDashboardReport = (query: DashboardQuery) => {
   return useQuery(
-    [`${DEFAULT_QUERY_NAME}-report`],
+    [`${DEFAULT_QUERY_NAME}-report`, query.from, query.to],
     () => {
       return getReport(query)
     },
@@ -48,7 +48,7 @@ export const useDashboardRatio = (
       return getRatio({ ...query, currency: currency })
     },
     {
-      staleTime: 60 * 1000, // 1
+      suspense: true,
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },
   )

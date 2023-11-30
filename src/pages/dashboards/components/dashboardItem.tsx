@@ -12,21 +12,24 @@ import { ArrowDropDown } from '@mui/icons-material'
 import { Currency } from '@src/types/dashboard'
 
 interface GridItemProps {
-  width?: number
+  width?: number | string
   height: number
   sm?: boolean
+  xs?: number
   padding?: string
+  spacing?: number
   children: ReactElement
 }
 export const GridItem = ({
-  width,
+  width = '100%',
   height,
   sm = false,
+  xs = undefined,
   padding = '20px',
   children,
 }: GridItemProps) => {
   return (
-    <Grid item sx={{ width }} sm={sm}>
+    <Grid item sx={{ width }} sm={sm} xs={xs}>
       <Card
         sx={{
           display: 'flex',
@@ -127,6 +130,7 @@ export const ReportItem = ({
         <Box
           display='flex'
           justifyContent='space-between'
+          alignItems='center'
           sx={{ width: '100%' }}
         >
           <ReportLabel color='rgba(76, 78, 100, 0.87)' fontWeight={600}>
@@ -180,15 +184,12 @@ export const ConvertButtonGroup = ({
   const anchorRef = React.useRef<HTMLDivElement>(null)
   const [selectedIndex, setSelectedIndex] = React.useState(1)
 
-  const handleClick = (type: Currency) => {
-    onChangeCurrency(type)
-  }
-
   const handleMenuItemClick = (
     event: React.MouseEvent<HTMLLIElement, MouseEvent>,
     index: number,
     type: Currency,
   ) => {
+    event.preventDefault()
     setSelectedIndex(index)
     setOpen(false)
     onChangeCurrency(type)
@@ -218,7 +219,9 @@ export const ConvertButtonGroup = ({
         aria-label='convert to money'
         sx={{ height: '30px' }}
       >
-        <Button onClick={handleToggle}>{options[selectedIndex]}</Button>
+        <Button type='button' onClick={handleToggle}>
+          {options[selectedIndex]}
+        </Button>
         <Button
           size='small'
           aria-controls={open ? 'split-button-menu' : undefined}

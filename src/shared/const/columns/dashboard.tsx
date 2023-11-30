@@ -34,7 +34,12 @@ export const RequestColumns: GridColumns = [
       if (86400000 >= remainTime && remainTime > 0) {
         color = '#FF4D49'
       }
-      return <StatusSquare style={{ margin: 0, padding: 0 }} color={color} />
+      return (
+        <StatusSquare
+          style={{ margin: 0, padding: '0', marginLeft: '20px' }}
+          color={color}
+        />
+      )
     },
   },
   {
@@ -42,6 +47,7 @@ export const RequestColumns: GridColumns = [
     headerName: 'companyName',
     cellClassName: 'companyName__cell',
     flex: 1,
+    minWidth: 120,
     renderCell: ({ row }: { row: RequestItem }) => {
       return <Typography fontWeight={600}>{row.companyName}</Typography>
     },
@@ -49,8 +55,8 @@ export const RequestColumns: GridColumns = [
   {
     field: 'category',
     headerName: 'category',
-    minWidth: 360,
     flex: 1,
+    minWidth: 280,
     renderCell: ({ row }: { row: RequestItem }) => {
       return (
         <Box
@@ -58,7 +64,7 @@ export const RequestColumns: GridColumns = [
           justifyContent='space-between'
           alignItems='center'
           gap='10px'
-          sx={{ width: '360px' }}
+          sx={{ width: '340px' }}
         >
           <Box display='flex' gap='10px'>
             <JobTypeChip type={row.category} label={row.category} />
@@ -80,7 +86,6 @@ export const RequestColumns: GridColumns = [
   {
     field: 'itemCount',
     headerName: 'itemCount',
-    minWidth: 140,
     flex: 1,
     renderCell: ({ row }: { row: RequestItem }) => {
       return (
@@ -95,7 +100,6 @@ export const RequestColumns: GridColumns = [
     field: 'desiredDueDate_date',
     headerName: 'desiredDueDate',
     flex: 1,
-    minWidth: 140,
     cellClassName: 'desiredDueDate-date__cell',
     renderCell: ({ row }: { row: RequestItem }) => {
       const code = row.desiredDueTimezone

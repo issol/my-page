@@ -47,7 +47,12 @@ const CustomDataGrid = styled(DataGrid)(() => {
     },
     '& .desiredDueDate-status__cell': {
       minWidth: '22px !important',
-      padding: '0 20px 0 0  !important',
+      flex: 1,
+    },
+
+    '& .MuiDataGrid-row': {
+      paddingRight: '20px',
+      cursor: 'pointer',
     },
 
     '& .MuiDataGrid-main': {
