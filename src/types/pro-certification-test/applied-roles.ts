@@ -16,18 +16,24 @@ export type ProAppliedRolesType = {
   id: number
   jobType: string
   role: string
+
   sourceLanguage: string
   targetLanguage: string
   basicTest: {
     score: number | null
     isPassed: boolean
-  } | null
+    isExist: boolean
+    testPaperFormLink: string
+    testStartedAt: string | null
+  }
   skillTest: {
     score: number | null
     isPassed: boolean
-  } | null
+    isExist: boolean
+    testPaperFormLink: string
+    testStartedAt: string | null
+  }
   status: ProAppliedRolesStatusType
-  testStartedAt: string
 
   reason: {
     type: 'Paused' | 'Rejected'

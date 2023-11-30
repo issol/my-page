@@ -9,7 +9,13 @@ type Props = {
   title: string | JSX.Element
   subtitle?: string
   subtitleColor?: 'primary' | 'secondary'
-  vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
+  vary:
+    | 'error'
+    | 'info'
+    | 'error-report'
+    | 'progress'
+    | 'successful'
+    | 'guideline-info'
   textarea?: boolean
   textareaRequired?: boolean
   textareaPlaceholder?: string

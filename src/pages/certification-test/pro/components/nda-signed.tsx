@@ -181,7 +181,7 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
   }
 
   const onClickSubmit = () => {
-    //TODO API 연결
+    //TODO API 연결 (성공 후 유저 데이터 쿼리 초기화 isSignedNDA 재조회 필요)
     setSignNDA(false)
     setChecked(false)
     // closeModal('CancelSignNDAModal')

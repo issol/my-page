@@ -30,6 +30,7 @@ import {
 import NDASigned from './nda-signed'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import ReasonModal from './modal/reson-modal'
+import TestGuidelineModal from './modal/test-guideline-modal'
 
 type Props = {
   role: UserRoleType
@@ -95,27 +96,64 @@ const ProAppliedRoles = ({
   }
 
   const onClickStartTest = (row: ProAppliedRolesType) => {
-    openModal({
-      type: 'StartTestModal',
-      children: (
-        <CustomModal
-          onClose={() => closeModal('StartTestModal')}
-          vary='info'
-          onClick={() => {
-            if (row.sourceLanguage === 'ko' || row.targetLanguage === 'ko') {
-              setLanguage('KOR')
-            } else {
-              setLanguage('ENG')
+    if (!auth.getValue().user?.isSignedNDA) {
+      openModal({
+        type: 'BeforeStartTestModal',
+        children: (
+          <CustomModal
+            soloButton
+            onClick={() => {
+              window.open(
+                row.status === 'Basic test Ready' ||
+                  row.status === 'Basic in progress'
+                  ? row.basicTest?.testPaperFormLink
+                  : row.status === 'Skill test Ready' ||
+                    row.status === 'Skill in progress'
+                  ? row.skillTest?.testPaperFormLink
+                  : '',
+                '_blank',
+              )
+              closeModal('BeforeStartTestModal')
+              //TODO : API call (applied roles query invalidate)
+            }}
+            vary='guideline-info'
+            rightButtonText='Okay'
+            onClose={() => closeModal('BeforeStartTestModal')}
+            title={
+              <>
+                Please make sure to check the guidelines before starting the
+                test.
+                <br />
+                <br />
+                This message is shown only once before the examination begins.
+              </>
             }
-            setSignNDA(true)
-            closeModal('StartTestModal')
-          }}
-          title='In order to proceed, agreement to the Non-Disclosure Agreement (NDA) is required.'
-          rightButtonText='Sign NDA'
-          leftButtonText='Later'
-        />
-      ),
-    })
+          />
+        ),
+      })
+    } else {
+      openModal({
+        type: 'StartTestModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('StartTestModal')}
+            vary='info'
+            onClick={() => {
+              if (row.sourceLanguage === 'ko' || row.targetLanguage === 'ko') {
+                setLanguage('KOR')
+              } else {
+                setLanguage('ENG')
+              }
+              setSignNDA(true)
+              closeModal('StartTestModal')
+            }}
+            title='In order to proceed, agreement to the Non-Disclosure Agreement (NDA) is required.'
+            rightButtonText='Sign NDA'
+            leftButtonText='Later'
+          />
+        ),
+      })
+    }
   }
 
   const onClickReason = (row: ProAppliedRolesType) => {
@@ -127,6 +165,18 @@ const ProAppliedRoles = ({
           vary='info'
           row={row}
           timezone={auth.getValue().user?.timezone!}
+        />
+      ),
+    })
+  }
+
+  const onClickTestGuideLine = (row: ProAppliedRolesType) => {
+    openModal({
+      type: 'TestGuidelineModal',
+      children: (
+        <TestGuidelineModal
+          onClose={() => closeModal('TestGuidelineModal')}
+          guideline={row.testGuideline}
         />
       ),
     })
@@ -183,6 +233,7 @@ const ProAppliedRoles = ({
               viewHistory,
               onClickStartTest,
               onClickReason,
+              onClickTestGuideLine,
             )}
             pagination
             page={page}

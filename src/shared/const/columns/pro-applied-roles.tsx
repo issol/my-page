@@ -26,6 +26,7 @@ export const getProAppliedRolesColumns = (
   viewHistory: (history: ProAppliedRolesStatusHistoryType[]) => void,
   onClickStartTest: (row: ProAppliedRolesType) => void,
   onClickReason: (row: ProAppliedRolesType) => void,
+  onClickTestGuideLine: (row: ProAppliedRolesType) => void,
 ) => {
   const cannotTestStatus = [
     'Awaiting approval',
@@ -187,6 +188,7 @@ export const getProAppliedRolesColumns = (
                     minWidth: '28px !important',
                     padding: '0px !important',
                   }}
+                  onClick={() => onClickTestGuideLine(row)}
                 >
                   <Icon
                     icon='fluent:book-information-24-regular'
@@ -247,7 +249,11 @@ export const getProAppliedRolesColumns = (
         return (
           <Box>
             {FullDateTimezoneHelper(
-              row.testStartedAt,
+              row.status === 'Basic in progress'
+                ? row.basicTest.testStartedAt
+                : row.status === 'Skill in progress'
+                ? row.skillTest.testStartedAt
+                : null,
               auth.getValue().user?.timezone!,
             )}
           </Box>
