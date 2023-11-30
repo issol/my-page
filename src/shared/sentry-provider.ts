@@ -74,7 +74,7 @@ export const ApiErrorHandler = (error: AxiosError, email = '') => {
       scope.setLevel('error')
       scope.setExtra('API Request Detail', error.config)
       scope.setExtra('response', error.response)
-      Sentry.captureException(error)
+      // Sentry.captureException(error)
       const err: any = new Error(`${error.message}`)
 
       if (Object.keys(StatusCode).includes(status ? status.toString() : '')) {
