@@ -16,6 +16,7 @@ type Props = {
     | 'progress'
     | 'successful'
     | 'guideline-info'
+    | 'question-info'
   textarea?: boolean
   textareaRequired?: boolean
   textareaPlaceholder?: string

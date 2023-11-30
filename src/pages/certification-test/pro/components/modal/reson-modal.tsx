@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react'
-import { Box, Divider, IconButton, Typography } from '@mui/material'
+import { Box, Button, Divider, IconButton, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import {
@@ -116,10 +116,33 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
                 <br /> Once tests are created, you will be able to take them
                 after going through the TAD verification process.
               </>
+            ) : row.status === 'Skill test Ready' ? (
+              <>
+                TAD has waived the requirement for the basic test for you.
+                <br />
+                <br /> There is no need to submit the basic test, even if you
+                have already commenced it.
+                <br />
+                <br /> Please proceed with the skill test.
+              </>
             ) : (
               ''
             )}
           </Typography>
+        )}
+        {row.status === 'Skill test Ready' && (
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '16px',
+              justifyContent: 'center',
+              mt: '16px',
+            }}
+          >
+            <Button variant='contained' onClick={onClose}>
+              Okay
+            </Button>
+          </Box>
         )}
       </Box>
     </Box>

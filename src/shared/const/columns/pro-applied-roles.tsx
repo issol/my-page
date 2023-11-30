@@ -27,6 +27,8 @@ export const getProAppliedRolesColumns = (
   onClickStartTest: (row: ProAppliedRolesType) => void,
   onClickReason: (row: ProAppliedRolesType) => void,
   onClickTestGuideLine: (row: ProAppliedRolesType) => void,
+  onClickResume: (row: ProAppliedRolesType) => void,
+  onClickSubmit: (row: ProAppliedRolesType) => void,
 ) => {
   const cannotTestStatus = [
     'Awaiting approval',
@@ -132,7 +134,8 @@ export const getProAppliedRolesColumns = (
           <Box sx={{ display: 'flex', gap: '7px' }}>
             {ProAppliedRolesStatusChip(row.status!, row.status)}
             {row.status === 'Test in preparation' ||
-            row.status === 'Rejected by TAD' ? (
+            row.status === 'Rejected by TAD' ||
+            (row.basicTest.isSkipped && row.status === 'Skill test Ready') ? (
               <IconButton
                 onClick={() => {
                   onClickReason(row)
@@ -198,8 +201,12 @@ export const getProAppliedRolesColumns = (
               </Box>
             ) : resumeTestStatus.includes(row.status) ? (
               <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                <Button variant='outlined'>Resume</Button>
-                <Button variant='contained'>Submit</Button>
+                <Button variant='outlined' onClick={() => onClickResume(row)}>
+                  Resume
+                </Button>
+                <Button variant='contained' onClick={() => onClickSubmit(row)}>
+                  Submit
+                </Button>
                 <Button
                   variant='outlined'
                   sx={{

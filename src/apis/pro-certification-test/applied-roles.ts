@@ -201,9 +201,10 @@ export const getProAppliedRoles = async (
     targetLanguage: 'en',
     basicTest: {
       score: 80,
-      isPassed: true,
+      isPassed: null,
       isExist: true,
       isClicked: false,
+      isSkipped: true,
       testPaperFormLink: 'https://www.naver.com',
       testStartedAt: '2022-01-01',
     },

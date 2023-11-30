@@ -162,7 +162,7 @@ const ProAppliedRoles = ({
       children: (
         <ReasonModal
           onClose={() => closeModal('ReasonModal')}
-          vary='info'
+          vary='question-info'
           row={row}
           timezone={auth.getValue().user?.timezone!}
         />
@@ -177,6 +177,44 @@ const ProAppliedRoles = ({
         <TestGuidelineModal
           onClose={() => closeModal('TestGuidelineModal')}
           guideline={row.testGuideline}
+        />
+      ),
+    })
+  }
+
+  const onClickResume = (row: ProAppliedRolesType) => {
+    window.open(
+      row.status === 'Basic test Ready' || row.status === 'Basic in progress'
+        ? row.basicTest?.testPaperFormLink
+        : row.status === 'Skill test Ready' ||
+          row.status === 'Skill in progress'
+        ? row.skillTest?.testPaperFormLink
+        : '',
+      '_blank',
+    )
+  }
+
+  const onClickSubmit = (row: ProAppliedRolesType) => {
+    openModal({
+      type: 'SubmitModal',
+      children: (
+        <CustomModal
+          vary='question-info'
+          onClose={() => closeModal('SubmitModal')}
+          title={
+            <>
+              This will notify TAD that the test has been completed.
+              <br />
+              <br />
+              Please click the "Submit" button only if you have finished the
+              Google Form test.
+            </>
+          }
+          onClick={() => {
+            //TODO : API call (applied roles query invalidate)
+            closeModal('SubmitModal')
+          }}
+          rightButtonText='Submit'
         />
       ),
     })
@@ -234,6 +272,8 @@ const ProAppliedRoles = ({
               onClickStartTest,
               onClickReason,
               onClickTestGuideLine,
+              onClickResume,
+              onClickSubmit,
             )}
             pagination
             page={page}
