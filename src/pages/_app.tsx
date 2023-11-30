@@ -108,6 +108,7 @@ import DetailNoUser from '@src/@core/components/error/detail-no-user'
 import useAuth from '@src/hooks/useAuth'
 import AuthProvider from '@src/shared/auth/auth-provider'
 import { log } from 'npmlog'
+import { getUserDataFromBrowser } from '@src/shared/auth/storage'
 
 /* msw mock server */
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
@@ -133,6 +134,8 @@ const SentryIntegrations =
         new SentryBrowser.BrowserTracing(),
         new SentryBrowser.Replay({ maskAllText: false, maskAllInputs: false }),
       ]
+// console.log(JSON.parse(getUserDataFromBrowser()!).email)
+const userData = getUserDataFromBrowser()
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -153,9 +156,12 @@ Sentry.init({
     if (errorType === 'API' && event) {
       return event
     } else if (errorType === 'CLIENT') {
-      console.log(event)
+      let email = ''
+      if (userData) {
+        email = JSON.parse(userData).email
+      }
       // return event
-      return ClientErrorHandler(event, hint)
+      return ClientErrorHandler(event, hint, email)
     } else {
       return event
     }

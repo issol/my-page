@@ -57,7 +57,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
     refetchInterval: 600000,
     refetchIntervalInBackground: true,
     refetchOnMount: 'always',
-    refetchOnWindowFocus: 'always',
+    // refetchOnWindowFocus: 'always',
     retry: false,
   })
 

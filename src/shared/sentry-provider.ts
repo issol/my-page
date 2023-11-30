@@ -91,6 +91,7 @@ export const ApiErrorHandler = (error: AxiosError, email = '') => {
 export const ClientErrorHandler = (
   event: Sentry.Event,
   hint: Sentry.EventHint,
+  email: string,
 ) => {
   const error = hint.originalException!.toString()
 
