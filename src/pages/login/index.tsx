@@ -231,14 +231,7 @@ const LoginPage = () => {
                 <Typography color='primary'>Sign in with LinkedIn</Typography>
               </Link>
             </Box>
-            <button
-              type='button'
-              onClick={() => {
-                throw new Error('Sentry Frontend Error')
-              }}
-            >
-              Throw error
-            </button>
+
             <Divider
               sx={{
                 '& .MuiDivider-wrapper': { px: 4 },
