@@ -127,13 +127,13 @@ type GuardProps = {
 }
 
 Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  // dsn: 'https://3db74b6528ea4c11aa73527f8c19835d@o1281625.ingest.sentry.io/4504479356026880',
+  // dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn: 'https://3db74b6528ea4c11aa73527f8c19835d@o1281625.ingest.sentry.io/4504479356026880',
   integrations: [
     new SentryBrowser.BrowserTracing(),
-    new SentryBrowser.Replay(),
+    new SentryBrowser.Replay({ maskAllText: false, maskAllInputs: false }),
   ],
-  replaysSessionSampleRate: 0.5,
+  replaysSessionSampleRate: 0.8,
   replaysOnErrorSampleRate: 1.0,
   normalizeDepth: 6,
   environment: process.env.NEXT_PUBLIC_BUILD_MODE,
