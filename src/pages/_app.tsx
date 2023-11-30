@@ -135,8 +135,8 @@ const SentryIntegrations =
       ]
 
 Sentry.init({
-  // dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  dsn: 'https://3db74b6528ea4c11aa73527f8c19835d@o1281625.ingest.sentry.io/4504479356026880',
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  // dsn: 'https://3db74b6528ea4c11aa73527f8c19835d@o1281625.ingest.sentry.io/4504479356026880',
   integrations: SentryIntegrations,
   replaysSessionSampleRate: 0.8,
   replaysOnErrorSampleRate: 1.0,
