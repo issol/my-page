@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react'
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Button, IconButton, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import { ProAppliedRolesStatusChip } from '@src/@core/components/chips/chips'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
@@ -25,6 +25,7 @@ export const getProAppliedRolesColumns = (
   }>,
   viewHistory: (history: ProAppliedRolesStatusHistoryType[]) => void,
   onClickStartTest: (row: ProAppliedRolesType) => void,
+  onClickReason: (row: ProAppliedRolesType) => void,
 ) => {
   const cannotTestStatus = [
     'Awaiting approval',
@@ -126,8 +127,25 @@ export const getProAppliedRolesColumns = (
         </Typography>
       ),
       renderCell: ({ row }: { row: ProAppliedRolesType }) => {
-        // const label = statusList?.find(i => i.value === row.status)?.label
-        return <Box>{ProAppliedRolesStatusChip(row.status!, row.status)}</Box>
+        return (
+          <Box sx={{ display: 'flex', gap: '7px' }}>
+            {ProAppliedRolesStatusChip(row.status!, row.status)}
+            {row.status === 'Test in preparation' ? (
+              <IconButton
+                onClick={() => {
+                  onClickReason(row)
+                  // project.reason && onClickReason()
+                }}
+                sx={{ padding: 0 }}
+              >
+                <img
+                  src='/images/icons/onboarding-icons/more-reason.svg'
+                  alt='more'
+                />
+              </IconButton>
+            ) : null}
+          </Box>
+        )
       },
     },
     {
@@ -203,7 +221,9 @@ export const getProAppliedRolesColumns = (
                 <Button variant='outlined'>Declined</Button>
                 <Button variant='contained'>Accept</Button>
               </Box>
-            ) : null}
+            ) : (
+              '-'
+            )}
           </Box>
         )
       },
@@ -297,8 +317,8 @@ export const getProAppliedRolesStatusHistoryColumns = (
       },
     },
     {
-      flex: 0.1824,
-      minWidth: 300,
+      flex: 0.5306,
+      minWidth: 249,
       field: 'date',
       headerName: 'Date & Time',
       disableColumnMenu: true,

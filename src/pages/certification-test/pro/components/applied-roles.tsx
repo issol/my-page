@@ -29,6 +29,7 @@ import {
 } from '@src/apis/contract.api'
 import NDASigned from './nda-signed'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import ReasonModal from './modal/reson-modal'
 
 type Props = {
   role: UserRoleType
@@ -116,6 +117,20 @@ const ProAppliedRoles = ({
       ),
     })
   }
+
+  const onClickReason = (row: ProAppliedRolesType) => {
+    openModal({
+      type: 'ReasonModal',
+      children: (
+        <ReasonModal
+          onClose={() => closeModal('ReasonModal')}
+          vary='info'
+          status={row.status}
+        />
+      ),
+    })
+  }
+
   return (
     <>
       <Card>
@@ -166,6 +181,7 @@ const ProAppliedRoles = ({
               auth,
               viewHistory,
               onClickStartTest,
+              onClickReason,
             )}
             pagination
             page={page}
