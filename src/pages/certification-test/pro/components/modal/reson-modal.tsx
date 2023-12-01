@@ -156,12 +156,22 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
                 {dayjs(row.skillTest.testStartedAt).format('MM/DD/YYYY')}&nbsp;
                 before proceeding.
               </>
+            ) : row.status === 'Test assigned' ? (
+              <>
+                TAD directly assigned you this test, considering your work
+                experience and specialties.
+                <br />
+                <br />
+                If you accept the test offer, you will proceed with the test
+                procedure.
+              </>
             ) : (
               ''
             )}
           </Typography>
         )}
-        {row.status === 'Skill test Ready' && row.basicTest.isSkipped && (
+        {((row.status === 'Skill test Ready' && row.basicTest.isSkipped) ||
+          row.status === 'Test assigned') && (
           <Box
             sx={{
               display: 'flex',

@@ -215,6 +215,44 @@ const ProAppliedRoles = ({
     })
   }
 
+  const onClickDecline = (row: ProAppliedRolesType) => {
+    openModal({
+      type: 'DeclineModal',
+      children: (
+        <CustomModal
+          vary='error'
+          onClose={() => closeModal('DeclineModal')}
+          title={'Are you sure you want to decline the test offer from TAD?'}
+          onClick={() => {
+            //TODO : API call (applied roles query invalidate)
+            closeModal('DeclineModal')
+          }}
+          rightButtonText='Decline'
+        />
+      ),
+    })
+  }
+
+  const onClickAccept = (row: ProAppliedRolesType) => {
+    openModal({
+      type: 'AcceptModal',
+      children: (
+        <CustomModal
+          vary='successful'
+          onClose={() => closeModal('AcceptModal')}
+          title={
+            'Would you like to accept the test offer from TAD and proceed with the test procedure?'
+          }
+          onClick={() => {
+            //TODO : API call (applied roles query invalidate)
+            closeModal('AcceptModal')
+          }}
+          rightButtonText='Accept'
+        />
+      ),
+    })
+  }
+
   return (
     <>
       <Card>
@@ -269,6 +307,8 @@ const ProAppliedRoles = ({
               onClickTestGuideLine,
               onClickResume,
               onClickSubmit,
+              onClickDecline,
+              onClickAccept,
             )}
             pagination
             page={page}
