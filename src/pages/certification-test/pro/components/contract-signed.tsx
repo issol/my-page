@@ -78,6 +78,7 @@ const ContractSigned = ({
   }
 
   const handleFreelancerChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setValue('privacy')
     setFreelancerChecked(event.target.checked)
   }
   const getAddress = (address: any) => {
@@ -469,7 +470,7 @@ const ContractSigned = ({
                   </Typography>
                 </Box>
               </Box>
-              <Box
+              {/* <Box
                 sx={{ display: 'flex', gap: '24px', justifyContent: 'center' }}
               >
                 <Button variant='outlined' onClick={onClickClose}>
@@ -482,7 +483,7 @@ const ContractSigned = ({
                 >
                   Submit
                 </Button>
-              </Box>
+              </Box> */}
             </Box>
           </TabPanel>
           <TabPanel value='privacy'>
@@ -606,7 +607,7 @@ const ContractSigned = ({
                   </Typography>
                 </Box>
               </Box>
-              <Box
+              {/* <Box
                 sx={{ display: 'flex', gap: '24px', justifyContent: 'center' }}
               >
                 <Button variant='outlined' onClick={onClickClose}>
@@ -619,10 +620,30 @@ const ContractSigned = ({
                 >
                   Submit
                 </Button>
-              </Box>
+              </Box> */}
             </Box>
           </TabPanel>
         </TabContext>
+        <Divider />
+        <Box
+          sx={{
+            display: 'flex',
+            gap: '24px',
+            justifyContent: 'center',
+            marginTop: '24px',
+          }}
+        >
+          <Button variant='outlined' onClick={onClickClose}>
+            Close
+          </Button>
+          <Button
+            variant='contained'
+            disabled={!privacyChecked || !freelancerChecked}
+            onClick={onClickSubmit}
+          >
+            Submit
+          </Button>
+        </Box>
       </Card>
     </Box>
   )
