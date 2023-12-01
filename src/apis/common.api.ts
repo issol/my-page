@@ -135,3 +135,8 @@ export const addWorkName = async (data: {
 }) => {
   axios.post(`/api/enough/u/client/work`, data)
 }
+
+export const getUserBeHealthz = async () => {
+  const { data } = await axios.get(`/api/enough/u/healthz`)
+  return data
+}
