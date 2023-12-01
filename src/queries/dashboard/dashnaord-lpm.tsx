@@ -5,6 +5,7 @@ import type { DashboardQuery } from '@src/types/dashboard'
 import {
   Currency,
   DashboardPaginationQuery,
+  RatioItem,
   RatioQuery,
   RatioResponse,
 } from '@src/types/dashboard'
@@ -24,25 +25,27 @@ export const useDashboardReport = (query: DashboardQuery) => {
   )
 }
 
-export const useDashboardRequest = (query: DashboardPaginationQuery) => {
+export const useDashboardRequest = (
+  query: DashboardPaginationQuery,
+  skip: number,
+) => {
   return useQuery(
-    [`${DEFAULT_QUERY_NAME}-request`],
+    [`${DEFAULT_QUERY_NAME}-request`, skip],
     () => {
-      return getRequest(query)
+      return getRequest({ ...query, skip })
     },
     {
-      staleTime: 60 * 1000, // 1
       suspense: true,
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },
   )
 }
 
-export const useDashboardRatio = (
+export const useDashboardRatio = <T extends RatioItem>(
   query: Omit<RatioQuery, 'currency'>,
   currency: Currency,
 ) => {
-  return useQuery<RatioResponse>(
+  return useQuery<RatioResponse<T>>(
     [`${DEFAULT_QUERY_NAME}-ratio-${query.type}`, currency],
     () => {
       return getRatio({ ...query, currency: currency })

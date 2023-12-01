@@ -39,7 +39,18 @@ import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 import { useTheme } from '@mui/material/styles'
 import DoughnutChart from '@src/pages/dashboards/components/doughnutChart'
 import weekday from 'dayjs/plugin/weekday'
-import { Colors, Status, StatusColor } from '@src/shared/const/dashboard/chart'
+import {
+  Colors,
+  SecondColors,
+  Status,
+  StatusColor,
+} from '@src/shared/const/dashboard/chart'
+import {
+  CategoryRatioItem,
+  ExpertiseRatioItem,
+  PairRatioItem,
+  ServiceRatioItem,
+} from '@src/types/dashboard'
 dayjs.extend(weekday)
 
 type SelectedRangeDate = 'month' | 'week' | 'today'
@@ -64,17 +75,21 @@ const getRangeDateTitle = (date1: Date, date2: Date | null) => {
 const getDateFormatter = (date1: Date, date2: Date | null) => {
   if (!date1) return
 
+  if (date1 && !date2) {
+    return `${dayjs(date1).format('MMMM D, YYYY')}`
+  }
+
   if (!dayjs(date1).isSame(dayjs(date2), 'year')) {
     const title = date2 ? dayjs(date2).format('MMMM D, YYYY') : '-'
     return `${dayjs(date1).format('MMMM D, YYYY')} - ${title}`
   }
 
   if (!dayjs(date1).isSame(dayjs(date2), 'month')) {
-    const title = date2 ? dayjs(date2).format('MMMM D') : '-'
-    return `${dayjs(date1).format('MMMM D, YYYY')} - ${title}`
+    const title = date2 ? dayjs(date2).format('MMMM D, YYYY') : '-'
+    return `${dayjs(date1).format('MMMM D')} - ${title}`
   }
 
-  return getRangeDateTitle(date1, date2)
+  return `${dayjs(date1).format('MMMM D')} - ${dayjs(date2).format('D, YYYY')}`
 }
 
 const getDateFormat = (date: Date | null) => {
@@ -107,7 +122,6 @@ const Dashboards = () => {
     from: getDateFormat((Array.isArray(dateRange) && dateRange[0]) || null),
     to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
-  const { data: RequestData } = useDashboardRequest({ skip: 0, take: 4 })
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const open = Boolean(anchorEl)
@@ -134,12 +148,18 @@ const Dashboards = () => {
           setValue('userViewDate', title1)
           break
         case 'today':
-          const title2 = getDateFormatter(new Date(), new Date()) || '-'
+          const title2 = getDateFormatter(new Date(), null) || '-'
+
           setValue('userViewDate', title2)
-          setValue('dateRange', [new Date(), new Date()])
+          setValue('dateRange', [new Date(), null])
           break
         case 'week':
-          const title3 = getDateFormatter(new Date(), new Date()) || '-'
+          console.log()
+          const title3 =
+            getDateFormatter(
+              dayjs().day(0).toDate(),
+              dayjs().day(6).toDate(),
+            ) || '-'
           setValue('userViewDate', title3)
           setValue('dateRange', [new Date(), new Date()])
           break
@@ -394,12 +414,7 @@ const Dashboards = () => {
                   {dayjs('2023-01-24').format('MMMM D, YYYY')}
                 </SubDateDescription>
               </Box>
-              <DashboardDataGrid
-                data={RequestData?.data || []}
-                page={RequestData?.count || 0}
-                rowsPerPage={4}
-                totalCount={RequestData?.totalCount || 0}
-              />
+              <DashboardDataGrid />
             </Box>
           </GridItem>
         </Grid>
@@ -413,8 +428,9 @@ const Dashboards = () => {
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
             type='client'
+            colors={Colors}
           />
-          <DoughnutChart
+          <DoughnutChart<PairRatioItem>
             title='Language pairs'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
@@ -423,10 +439,15 @@ const Dashboards = () => {
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
             type='language-pair'
+            colors={SecondColors}
+            getName={item => {
+              console.log(item)
+              return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
+            }}
           />
         </Grid>
         <Grid container spacing={5}>
-          <DoughnutChart
+          <DoughnutChart<CategoryRatioItem>
             title='Main categories'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
@@ -435,8 +456,12 @@ const Dashboards = () => {
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
             type='category'
+            colors={Colors}
+            getName={item => {
+              return `${item?.category || '-'}`
+            }}
           />
-          <DoughnutChart
+          <DoughnutChart<ServiceRatioItem>
             title='Service types'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
@@ -445,10 +470,14 @@ const Dashboards = () => {
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
             type='service-type'
+            colors={SecondColors}
+            getName={item => {
+              return `${item?.serviceType || '-'}`
+            }}
           />
         </Grid>
         <Grid container spacing={5}>
-          <DoughnutChart
+          <DoughnutChart<ExpertiseRatioItem>
             title='Area of expertises'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
@@ -457,6 +486,10 @@ const Dashboards = () => {
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
             type='expertise'
+            colors={Colors}
+            getName={item => {
+              return `${item?.expertise || '-'}`
+            }}
           />
         </Grid>
       </Grid>

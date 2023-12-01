@@ -33,23 +33,48 @@ export type RequestItem = {
   }
 }
 
-export type Currency = 'USD' | 'JPY' | 'KRW' | 'SGD'
+export type Currency =
+  | 'convertedToJPY'
+  | 'convertedToKRW'
+  | 'convertedToSGD'
+  | 'convertedToUSD'
+  | 'onlyJPY'
+  | 'onlyKRW'
+  | 'onlySGD'
+  | 'onlyUSD'
+
 export interface RatioQuery extends DashboardQuery {
   type: string
   currency: Currency
 }
 
-export type RatioItem = {
+export interface RatioItem {
   count: number
-  name: string
+  name?: string
   ratio: number
   sortingOrder: number
   sum: number
 }
 
-export type RatioResponse = {
+export interface PairRatioItem extends RatioItem {
+  sourceLanguage: string
+  targetLanguage: string
+}
+
+export interface CategoryRatioItem extends RatioItem {
+  category: string
+}
+
+export interface ServiceRatioItem extends RatioItem {
+  serviceType: string
+}
+
+export interface ExpertiseRatioItem extends RatioItem {
+  expertise: string
+}
+export interface RatioResponse<T> {
   totalOrderCount: number
   totalOrderPrice: number
   currency: Currency
-  report: Array<RatioItem>
+  report: Array<T>
 }

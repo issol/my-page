@@ -2,33 +2,35 @@ import { Box } from '@mui/material'
 import { DataGrid, GridRowsProp } from '@mui/x-data-grid'
 import { RequestColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
+import { useState } from 'react'
+import { useDashboardRequest } from '@src/queries/dashboard/dashnaord-lpm'
 
-interface DashboardDataGridProps {
-  data: GridRowsProp
-  page: number
-  rowsPerPage: number
-  totalCount: number
-}
+const DashboardDataGrid = () => {
+  const [skip, setSkip] = useState(0)
+  const [page, setPage] = useState(0)
+  const [pageSize, setPageSize] = useState(4)
 
-const DashboardDataGrid = ({
-  data,
-  page,
-  rowsPerPage,
-  totalCount,
-}: DashboardDataGridProps) => {
+  const { data: RequestData } = useDashboardRequest({ skip, take: 4 }, skip)
+
   return (
     <Box sx={{ width: '100%', height: '260px' }}>
       <CustomDataGrid
-        rows={data || []}
+        rows={RequestData.data || []}
         columns={RequestColumns}
         headerHeight={0}
         components={{
           Header: () => null,
         }}
-        page={0}
-        pageSize={4}
+        page={page}
+        onPageChange={newPage => {
+          setPage(newPage)
+          setSkip(val => newPage * 4)
+        }}
+        pageSize={pageSize}
+        onPageSizeChange={pageSize => setPageSize(pageSize)}
         paginationMode='server'
-        rowCount={totalCount}
+        rowCount={RequestData.totalCount}
+        rowsPerPageOptions={[5]}
       />
     </Box>
   )

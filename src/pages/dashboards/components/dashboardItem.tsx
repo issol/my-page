@@ -164,17 +164,18 @@ const ReportLabel = styled(Typography)`
   font-size: 14px;
   font-weight: 600;
 `
+//convertedToJPY, convertedToKRW, convertedToSGD, convertedToUSD, onlyJPY, onlyKRW, onlySGD, onlyUSD
+const options = {
+  'Convert to USD': 'convertedToUSD',
+  'Convert to JPY': 'convertedToJPY',
+  'Convert to KRW': 'convertedToKRW',
+  'Convert to SGD': 'convertedToSGD',
+  'JPY only': 'onlyJPY',
+  'KRW only': 'onlyKRW',
+  'SGD only': 'onlySGD',
+  'USD only': 'onlyUSD',
+}
 
-const options = [
-  'Convert to USD',
-  'Convert to JPY',
-  'Convert to KRW',
-  'Convert to SGD',
-  'JPY only',
-  'KRW only',
-  'SGD only',
-  'USD only',
-]
 export const ConvertButtonGroup = ({
   onChangeCurrency,
 }: {
@@ -182,7 +183,11 @@ export const ConvertButtonGroup = ({
 }) => {
   const [open, setOpen] = React.useState(false)
   const anchorRef = React.useRef<HTMLDivElement>(null)
-  const [selectedIndex, setSelectedIndex] = React.useState(1)
+  const [selectedIndex, setSelectedIndex] = React.useState(0)
+
+  const buttonOptions: Array<[string, Currency]> = Object.entries(options).map(
+    ([key, value]) => [key, value as Currency],
+  )
 
   const handleMenuItemClick = (
     event: React.MouseEvent<HTMLLIElement, MouseEvent>,
@@ -220,7 +225,7 @@ export const ConvertButtonGroup = ({
         sx={{ height: '30px' }}
       >
         <Button type='button' onClick={handleToggle}>
-          {options[selectedIndex]}
+          {buttonOptions[selectedIndex][0]}
         </Button>
         <Button
           size='small'
@@ -254,16 +259,15 @@ export const ConvertButtonGroup = ({
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MenuList id='split-button-menu' autoFocusItem>
-                  {options.map((option, index) => (
+                  {buttonOptions.map(([key, value], index) => (
                     <MenuItem
-                      key={option}
-                      disabled={index === 2}
+                      key={key}
                       selected={index === selectedIndex}
                       onClick={event =>
-                        handleMenuItemClick(event, index, 'SGD')
+                        handleMenuItemClick(event, index, value)
                       }
                     >
-                      {option}
+                      {key}
                     </MenuItem>
                   ))}
                 </MenuList>

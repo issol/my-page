@@ -16,7 +16,7 @@ import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
 import { useDashboardRatio } from '@src/queries/dashboard/dashnaord-lpm'
 import { renderToString } from 'react-dom/server'
-import { Currency } from '@src/types/dashboard'
+import { Currency, RatioItem } from '@src/types/dashboard'
 import Typography from '@mui/material/Typography'
 
 const List = styled('ul')(() => {
@@ -71,18 +71,27 @@ const List = styled('ul')(() => {
   }
 })
 
-interface DoughnutChartProps {
+interface DoughnutChartProps<T> {
   title: string
   from: string
   to: string
   type: string
+  colors: Array<string>
+  getName?: (row?: T) => string
 }
 
-const DoughnutChart = ({ title, from, to, type }: DoughnutChartProps) => {
+const DoughnutChart = <T extends RatioItem>({
+  title,
+  from,
+  to,
+  type,
+  colors,
+  getName,
+}: DoughnutChartProps<T>) => {
   const theme = useTheme()
 
-  const [currency, setCurrency] = useState<Currency>('USD')
-  const { data } = useDashboardRatio(
+  const [currency, setCurrency] = useState<Currency>('convertedToUSD')
+  const { data } = useDashboardRatio<T>(
     {
       from,
       to,
@@ -93,7 +102,7 @@ const DoughnutChart = ({ title, from, to, type }: DoughnutChartProps) => {
 
   const options: ApexOptions = {
     legend: { show: false },
-    colors: Colors,
+    colors: colors,
     labels: [],
     stroke: {
       width: 5,
@@ -107,11 +116,12 @@ const DoughnutChart = ({ title, from, to, type }: DoughnutChartProps) => {
             className='flex-center'
             style={{ alignItems: 'flex-start', paddingTop: '10px' }}
           >
-            <StatusSquare color='#FF9E90' />
+            <StatusSquare color={colors[seriesIndex]} />
             <div className='tooltip_container'>
               <div className='flex-center'>
                 <span className='tooltip_text_bold'>
-                  {data?.report[seriesIndex].name}
+                  {(getName && getName(data?.report[seriesIndex])) ||
+                    data?.report[seriesIndex].name}
                 </span>
                 <span className='tooltip__count'>{`(${data?.report[seriesIndex].count})`}</span>
               </div>
@@ -169,8 +179,7 @@ const DoughnutChart = ({ title, from, to, type }: DoughnutChartProps) => {
   }
 
   const onChangeCurrency = (type: Currency) => {
-    console.log(type)
-    setCurrency('SGD')
+    setCurrency(type)
   }
 
   return (
@@ -211,14 +220,14 @@ const DoughnutChart = ({ title, from, to, type }: DoughnutChartProps) => {
               options={options}
               width={276}
               heigt={176}
-              series={data?.report.map(item => item.ratio)}
+              series={data?.report.map(item => item.ratio) || []}
             />
             <Typography
               fontSize='20px'
               fontWeight={500}
               sx={{ textAlign: 'center' }}
             >
-              1234567890
+              {data?.totalOrderPrice.toLocaleString()}
             </Typography>
           </Box>
           <Box sx={{ position: 'absolute', right: 0 }}>
@@ -226,8 +235,11 @@ const DoughnutChart = ({ title, from, to, type }: DoughnutChartProps) => {
               {data?.report.map((item, index) => (
                 <li key={`{item.name}-${index}`}>
                   <Box display='flex' alignItems='center'>
-                    <StatusSquare color={Colors[index]} />
-                    <span className='company-name'>{item.name}</span>
+                    <StatusSquare color={colors[index]} />
+                    <span className='company-name'>
+                      {(getName && getName(data?.report[index])) ||
+                        data?.report[index].name}
+                    </span>
                   </Box>
                   <Box
                     display='flex'
