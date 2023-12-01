@@ -143,7 +143,10 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
           {
             style: 'BOLD',
             length: now.length + 16,
-            offset: copyContent?.blocks[i]?.text!.indexOf('Signature date: '),
+            offset:
+              language === 'ENG'
+                ? copyContent?.blocks[i]?.text!.indexOf('Signature date: ')
+                : copyContent?.blocks[i]?.text!.indexOf('서명 일자: '),
           },
         ]
 

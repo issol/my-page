@@ -59,7 +59,8 @@ const useAuth = () => {
           } ${profile.lastName}`,
           firstName: profile.firstName,
           timezone: profile.timezone,
-          isSignedNDA: false,
+          isSignedNDA: true,
+          isSignedContract: false,
         }
         saveUserDataToBrowser(userInfo)
 

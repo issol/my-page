@@ -19,17 +19,62 @@ import ProCertificationTests from './components/certiciation-tests'
 import { useGetContract } from '@src/queries/contract/contract.query'
 import NDASigned from './components/nda-signed'
 import { currentVersionType } from '@src/apis/contract.api'
+import Image from 'next/image'
+import ContractSigned from './components/contract-signed'
+
+const defaultFilters: ProAppliedRolesFilterType = {
+  take: 10,
+  skip: 0,
+  isActive: '0',
+}
 
 const ProCertificationTest = () => {
   const auth = useRecoilValueLoadable(authState)
   const role = getCurrentRole()
   const [signNDA, setSignNDA] = useState(false)
-  const [language, setLanguage] = useState<'ENG' | 'KOR'>('ENG')
+  const [signContract, setSignContract] = useState(false)
 
-  const { data: ndaData, isLoading } = useGetProContract({
+  const [ndaLanguage, setNdaLanguage] = useState<'ENG' | 'KOR'>('ENG')
+  const [privacyContractLanguage, setPrivacyContractLanguage] = useState<
+    'ENG' | 'KOR'
+  >('ENG')
+  const [freelancerContractLanguage, setFreelancerContractLanguage] = useState<
+    'ENG' | 'KOR'
+  >('ENG')
+
+  const [filters, setFilters] =
+    useState<ProAppliedRolesFilterType>(defaultFilters)
+  const [seeOnlyActiveTests, setSeeOnlyActiveTests] = useState(false)
+  const handleSeeOnlyActiveTests = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const checked = event.target.checked
+    setSeeOnlyActiveTests(checked)
+    setFilters(prevState => ({
+      ...prevState,
+      isActive: checked ? '1' : '0',
+    }))
+  }
+
+  const { data: appliedRoles, isLoading: appliedRolesLoading } =
+    useGetProAppliedRoles(filters)
+
+  const { data: ndaData, isLoading: ndaLoading } = useGetProContract({
     type: 'NDA',
-    language: language,
+    language: ndaLanguage,
   })
+
+  const { data: privacyContractData, isLoading: privacyContractLoading } =
+    useGetProContract({
+      type: 'PRIVACY',
+      language: privacyContractLanguage,
+    })
+
+  const { data: freelancerContractData, isLoading: freelancerContractLoading } =
+    useGetProContract({
+      type: 'FREELANCER',
+      language: freelancerContractLanguage,
+    })
 
   const statusList = [
     { value: 50100, label: 'Awaiting approval' },
@@ -57,12 +102,27 @@ const ProCertificationTest = () => {
 
   return (
     <Box display='flex' flexDirection='column' gap='24px'>
-      {signNDA && ndaData && !isLoading ? (
+      {signNDA && ndaData && !ndaLoading ? (
         <NDASigned
           nda={ndaData!}
-          language={language}
-          setLanguage={setLanguage}
+          language={ndaLanguage}
+          setLanguage={setNdaLanguage}
           setSignNDA={setSignNDA}
+          auth={auth}
+        />
+      ) : signContract &&
+        privacyContractData &&
+        !privacyContractLoading &&
+        freelancerContractData &&
+        !freelancerContractLoading ? (
+        <ContractSigned
+          privacyContract={privacyContractData!}
+          freelancerContract={freelancerContractData!}
+          privacyContractLanguage={privacyContractLanguage}
+          setPrivacyContractLanguage={setPrivacyContractLanguage}
+          freelancerContractLanguage={freelancerContractLanguage}
+          setFreelancerContractLanguage={setFreelancerContractLanguage}
+          setSignContract={setSignContract}
           auth={auth}
         />
       ) : (
@@ -107,7 +167,7 @@ const ProCertificationTest = () => {
                   variant='contained'
                   onClick={() => {
                     setSignNDA(true)
-                    setLanguage('ENG')
+                    setNdaLanguage('ENG')
                     // getContractDetail({ type: 'NDA', language: 'ENG' }).then(
                     //   res => {
                     //     setNDA(res.currentVersion)
@@ -120,6 +180,68 @@ const ProCertificationTest = () => {
               </Box>
             </Box>
           )}
+          {auth.getValue().user?.isSignedContract ? null : (
+            <Box
+              sx={{
+                border: '2px solid #666CFF',
+                borderRadius: '10px',
+                padding: '20px 24px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                background: '#FFF',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  width: '92%',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mr: '40px',
+                }}
+              >
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                  <Typography
+                    variant='body1'
+                    color='#666CFF'
+                    fontSize={20}
+                    fontWeight={500}
+                  >
+                    Congratulations on your first certified role(s) 🎉
+                  </Typography>
+                  <Typography variant='body1'>
+                    It’s time to sign on contracts to proceed with actual jobs.
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex' }}>
+                  <Button
+                    variant='contained'
+                    sx={{ height: '40px' }}
+                    onClick={() => {
+                      setSignContract(true)
+                      // setSignNDA(true)
+                      // setLanguage('ENG')
+                      // getContractDetail({ type: 'NDA', language: 'ENG' }).then(
+                      //   res => {
+                      //     setNDA(res.currentVersion)
+                      //   },
+                      // )
+                    }}
+                  >
+                    Sign Contracts
+                  </Button>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', alignContent: 'center' }}>
+                <Image
+                  src='/images/icons/certification-test-icons/skill-test-passed.svg'
+                  width={106}
+                  height={140}
+                  alt='success'
+                />
+              </Box>
+            </Box>
+          )}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <Suspense>
               <ProAppliedRoles
@@ -127,7 +249,14 @@ const ProCertificationTest = () => {
                 statusList={statusList}
                 auth={auth}
                 setSignNDA={setSignNDA}
-                setLanguage={setLanguage}
+                setLanguage={setNdaLanguage}
+                filters={filters}
+                setFilters={setFilters}
+                seeOnlyActiveTests={seeOnlyActiveTests}
+                setSeeOnlyActiveTests={setSeeOnlyActiveTests}
+                handleSeeOnlyActiveTests={handleSeeOnlyActiveTests}
+                appliedRoles={appliedRoles!}
+                appliedRolesLoading={appliedRolesLoading}
               />
             </Suspense>
             <Suspense>

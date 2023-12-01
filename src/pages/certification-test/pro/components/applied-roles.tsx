@@ -43,12 +43,16 @@ type Props = {
   }>
   setSignNDA: Dispatch<SetStateAction<boolean>>
   setLanguage: Dispatch<SetStateAction<'ENG' | 'KOR'>>
-}
-
-const defaultFilters: ProAppliedRolesFilterType = {
-  take: 10,
-  skip: 0,
-  isActive: '0',
+  filters: ProAppliedRolesFilterType
+  setFilters: Dispatch<SetStateAction<ProAppliedRolesFilterType>>
+  seeOnlyActiveTests: boolean
+  setSeeOnlyActiveTests: Dispatch<SetStateAction<boolean>>
+  handleSeeOnlyActiveTests: (event: React.ChangeEvent<HTMLInputElement>) => void
+  appliedRoles: {
+    data: ProAppliedRolesType[]
+    totalCount: number
+  }
+  appliedRolesLoading: boolean
 }
 
 const ProAppliedRoles = ({
@@ -58,28 +62,18 @@ const ProAppliedRoles = ({
   auth,
   setSignNDA,
   setLanguage,
+  filters,
+  setFilters,
+  seeOnlyActiveTests,
+  setSeeOnlyActiveTests,
+  handleSeeOnlyActiveTests,
+  appliedRoles,
+  appliedRolesLoading,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
-
-  const [filters, setFilters] =
-    useState<ProAppliedRolesFilterType>(defaultFilters)
-  const [seeOnlyActiveTests, setSeeOnlyActiveTests] = useState(false)
-  const handleSeeOnlyActiveTests = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
-    const checked = event.target.checked
-    setSeeOnlyActiveTests(checked)
-    setFilters(prevState => ({
-      ...prevState,
-      isActive: checked ? '1' : '0',
-    }))
-  }
-
-  const { data: appliedRoles, isLoading: appliedRolesLoading } =
-    useGetProAppliedRoles(filters)
 
   const viewHistory = (history: ProAppliedRolesStatusHistoryType[]) => {
     openModal({
@@ -183,6 +177,7 @@ const ProAppliedRoles = ({
   }
 
   const onClickResume = (row: ProAppliedRolesType) => {
+    //TODO Status 별로 업데이트 체크
     window.open(
       row.status === 'Basic test Ready' || row.status === 'Basic in progress'
         ? row.basicTest?.testPaperFormLink
