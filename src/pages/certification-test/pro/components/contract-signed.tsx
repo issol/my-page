@@ -286,7 +286,7 @@ const ContractSigned = ({
           onClick={() => {
             closeModal('CancelSignContractModal')
           }}
-          title='Are you sure? To proceed with the testing process, the initial agreement to the NDA is required.'
+          title='Before proceeding with the testing process, agreeing to the contracts is required.'
           vary='error'
           leftButtonText='Leave this page'
           rightButtonText='Stay on this page'
