@@ -1,7 +1,10 @@
 import { Icon } from '@iconify/react'
 import { Box, Button, Divider, IconButton, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import {
+  FullDateHelper,
+  FullDateTimezoneHelper,
+} from '@src/shared/helpers/date.helper'
 import {
   ProAppliedRolesStatusType,
   ProAppliedRolesType,
@@ -143,6 +146,14 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
                   dayjs(row.basicTest.testStartedAt).add(6, 'month'),
                   timezone,
                 )}{' '}
+                before proceeding.
+              </>
+            ) : row.status === 'Skill failed' ? (
+              <>
+                You failed the skill test.
+                <br />
+                <br /> To reapply to the same role, please wait until{' '}
+                {dayjs(row.skillTest.testStartedAt).format('MM/DD/YYYY')}&nbsp;
                 before proceeding.
               </>
             ) : (
