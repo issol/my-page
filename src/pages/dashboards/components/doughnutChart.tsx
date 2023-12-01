@@ -1,6 +1,7 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { Suspense, useCallback, useMemo, useState } from 'react'
 import {
   ConvertButtonGroup,
+  CurrencyUnit,
   GridItem,
   SectionTitle,
   StatusSquare,
@@ -18,6 +19,7 @@ import { useDashboardRatio } from '@src/queries/dashboard/dashnaord-lpm'
 import { renderToString } from 'react-dom/server'
 import { Currency, RatioItem } from '@src/types/dashboard'
 import Typography from '@mui/material/Typography'
+import NoRatio from '@src/pages/dashboards/components/noRatio'
 
 const List = styled('ul')(() => {
   return {
@@ -91,14 +93,12 @@ const DoughnutChart = <T extends RatioItem>({
   const theme = useTheme()
 
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
-  const { data } = useDashboardRatio<T>(
-    {
-      from,
-      to,
-      type,
-    },
+  const { data } = useDashboardRatio<T>({
+    from,
+    to,
+    type,
     currency,
-  )
+  })
 
   const options: ApexOptions = {
     legend: { show: false },
@@ -205,58 +205,64 @@ const DoughnutChart = <T extends RatioItem>({
         <Box display='flex' justifyContent='flex-end'>
           <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
         </Box>
-        <Box
-          display='flex'
-          sx={{
-            width: '100%',
-            height: '100%',
-            paddingBottom: '20px',
-            position: 'relative',
-          }}
-        >
-          <Box sx={{ position: 'absolute', left: '-40px' }}>
-            <CustomChart
-              type='donut'
-              options={options}
-              width={276}
-              heigt={176}
-              series={data?.report.map(item => item.ratio) || []}
-            />
-            <Typography
-              fontSize='20px'
-              fontWeight={500}
-              sx={{ textAlign: 'center' }}
-            >
-              {data?.totalOrderPrice.toLocaleString()}
-            </Typography>
+        {!data && <NoRatio title={title} />}
+        {data && (
+          <Box
+            display='flex'
+            sx={{
+              width: '100%',
+              height: '100%',
+              paddingBottom: '20px',
+              position: 'relative',
+            }}
+          >
+            <Suspense fallback={<div>로딩 중</div>}>
+              <Box sx={{ position: 'absolute', left: '-40px' }}>
+                <CustomChart
+                  type='donut'
+                  options={options}
+                  width={276}
+                  heigt={176}
+                  series={data?.report.map(item => item.ratio) || []}
+                />
+                <Typography
+                  fontSize='20px'
+                  fontWeight={500}
+                  sx={{ textAlign: 'center' }}
+                >
+                  {data?.totalOrderPrice && CurrencyUnit[currency]}
+                  {data?.totalOrderPrice.toLocaleString()}
+                </Typography>
+              </Box>
+            </Suspense>
+            <Box sx={{ position: 'absolute', right: 0 }}>
+              <List>
+                {data?.report.map((item, index) => (
+                  <li key={`{item.name}-${index}`}>
+                    <Box display='flex' alignItems='center'>
+                      <StatusSquare color={colors[index]} />
+                      <span className='company-name'>
+                        {(getName && getName(data?.report[index])) ||
+                          data?.report[index].name}
+                      </span>
+                    </Box>
+                    <Box
+                      display='flex'
+                      justifyContent='space-between'
+                      sx={{ width: '100%' }}
+                    >
+                      <span className='item-count'>({item.count})</span>
+                      <span className='money'>
+                        {Number(item.sum.toFixed(0)).toLocaleString()}
+                      </span>
+                      <span className='ratio'>{item.ratio || 0}%</span>
+                    </Box>
+                  </li>
+                ))}
+              </List>
+            </Box>
           </Box>
-          <Box sx={{ position: 'absolute', right: 0 }}>
-            <List>
-              {data?.report.map((item, index) => (
-                <li key={`{item.name}-${index}`}>
-                  <Box display='flex' alignItems='center'>
-                    <StatusSquare color={colors[index]} />
-                    <span className='company-name'>
-                      {(getName && getName(data?.report[index])) ||
-                        data?.report[index].name}
-                    </span>
-                  </Box>
-                  <Box
-                    display='flex'
-                    justifyContent='space-between'
-                    sx={{ width: '100%' }}
-                  >
-                    <span className='item-count'>({item.count})</span>
-                    <span className='money'>
-                      {Number(item.sum.toFixed(0)).toLocaleString()}
-                    </span>
-                    <span className='ratio'>{item.ratio}%</span>
-                  </Box>
-                </li>
-              ))}
-            </List>
-          </Box>
-        </Box>
+        )}
       </Box>
     </GridItem>
   )

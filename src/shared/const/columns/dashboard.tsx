@@ -56,7 +56,7 @@ export const RequestColumns: GridColumns = [
     field: 'category',
     headerName: 'category',
     flex: 1,
-    minWidth: 280,
+    minWidth: 340,
     renderCell: ({ row }: { row: RequestItem }) => {
       return (
         <Box

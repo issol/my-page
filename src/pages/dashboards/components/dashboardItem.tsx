@@ -165,15 +165,26 @@ const ReportLabel = styled(Typography)`
   font-weight: 600;
 `
 //convertedToJPY, convertedToKRW, convertedToSGD, convertedToUSD, onlyJPY, onlyKRW, onlySGD, onlyUSD
+//['$', '¥', '₩', '$']
+export const CurrencyUnit = {
+  convertedToUSD: '$',
+  convertedToJPY: '¥',
+  convertedToKRW: '₩',
+  convertedToSGD: '$',
+  onlyUSD: '$',
+  onlyJPY: '¥',
+  onlyKRW: '₩',
+  onlySGD: '$',
+}
 const options = {
   'Convert to USD': 'convertedToUSD',
   'Convert to JPY': 'convertedToJPY',
   'Convert to KRW': 'convertedToKRW',
   'Convert to SGD': 'convertedToSGD',
+  'USD only': 'onlyUSD',
   'JPY only': 'onlyJPY',
   'KRW only': 'onlyKRW',
   'SGD only': 'onlySGD',
-  'USD only': 'onlyUSD',
 }
 
 export const ConvertButtonGroup = ({

@@ -33,8 +33,6 @@ import DownloadIcon from '@mui/icons-material/Download'
 import DashboardDataGrid from '@src/pages/dashboards/components/dataGrid'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
-// ** Third Party Imports
-
 // ** Custom Components Imports
 import { useTheme } from '@mui/material/styles'
 import DoughnutChart from '@src/pages/dashboards/components/doughnutChart'
@@ -143,9 +141,10 @@ const Dashboards = () => {
             dayjs().set('date', 1).toDate(),
             dayjs().set('date', dayjs().daysInMonth()).toDate(),
           ]
-          setValue('dateRange', dates)
+
           const title1 = getDateFormatter(dates[0], dates[1]) || '-'
           setValue('userViewDate', title1)
+          setValue('dateRange', dates)
           break
         case 'today':
           const title2 = getDateFormatter(new Date(), null) || '-'
@@ -154,14 +153,16 @@ const Dashboards = () => {
           setValue('dateRange', [new Date(), null])
           break
         case 'week':
-          console.log()
           const title3 =
             getDateFormatter(
               dayjs().day(0).toDate(),
               dayjs().day(6).toDate(),
             ) || '-'
           setValue('userViewDate', title3)
-          setValue('dateRange', [new Date(), new Date()])
+          setValue('dateRange', [
+            dayjs().day(0).toDate(),
+            dayjs().day(6).toDate(),
+          ])
           break
         default:
           break

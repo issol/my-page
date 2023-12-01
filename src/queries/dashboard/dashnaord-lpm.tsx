@@ -20,6 +20,7 @@ export const useDashboardReport = (query: DashboardQuery) => {
     {
       staleTime: 60 * 1000, // 1
       suspense: true,
+      keepPreviousData: true,
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },
   )
@@ -36,22 +37,26 @@ export const useDashboardRequest = (
     },
     {
       suspense: true,
+      keepPreviousData: true,
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },
   )
 }
 
-export const useDashboardRatio = <T extends RatioItem>(
-  query: Omit<RatioQuery, 'currency'>,
-  currency: Currency,
-) => {
+export const useDashboardRatio = <T extends RatioItem>({
+  currency,
+  from,
+  to,
+  ...props
+}: RatioQuery) => {
   return useQuery<RatioResponse<T>>(
-    [`${DEFAULT_QUERY_NAME}-ratio-${query.type}`, currency],
+    [`${DEFAULT_QUERY_NAME}-ratio-${props.type}`, currency, from, to],
     () => {
-      return getRatio({ ...query, currency: currency })
+      return getRatio({ ...props, currency, from, to })
     },
     {
       suspense: true,
+      keepPreviousData: true,
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },
   )

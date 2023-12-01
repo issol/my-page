@@ -2,7 +2,7 @@ import { Box } from '@mui/material'
 import { DataGrid, GridRowsProp } from '@mui/x-data-grid'
 import { RequestColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useDashboardRequest } from '@src/queries/dashboard/dashnaord-lpm'
 
 const DashboardDataGrid = () => {
@@ -10,28 +10,35 @@ const DashboardDataGrid = () => {
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(4)
 
-  const { data: RequestData } = useDashboardRequest({ skip, take: 4 }, skip)
+  const {
+    data: RequestData,
+    isLoading,
+    isFetching,
+  } = useDashboardRequest({ skip, take: 4 }, skip)
 
   return (
     <Box sx={{ width: '100%', height: '260px' }}>
-      <CustomDataGrid
-        rows={RequestData.data || []}
-        columns={RequestColumns}
-        headerHeight={0}
-        components={{
-          Header: () => null,
-        }}
-        page={page}
-        onPageChange={newPage => {
-          setPage(newPage)
-          setSkip(val => newPage * 4)
-        }}
-        pageSize={pageSize}
-        onPageSizeChange={pageSize => setPageSize(pageSize)}
-        paginationMode='server'
-        rowCount={RequestData.totalCount}
-        rowsPerPageOptions={[5]}
-      />
+      <Suspense fallback={<div>로딩 중</div>}>
+        <CustomDataGrid
+          rows={RequestData.data || []}
+          columns={RequestColumns}
+          headerHeight={0}
+          components={{
+            Header: () => null,
+          }}
+          page={page}
+          onPageChange={newPage => {
+            setPage(newPage)
+            setSkip(val => newPage * 4)
+          }}
+          pageSize={pageSize}
+          onPageSizeChange={pageSize => setPageSize(pageSize)}
+          paginationMode='server'
+          rowCount={RequestData.totalCount}
+          rowsPerPageOptions={[5]}
+          loading={isLoading || isFetching}
+        />
+      </Suspense>
     </Box>
   )
 }
