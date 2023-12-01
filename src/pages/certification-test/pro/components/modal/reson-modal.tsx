@@ -165,13 +165,23 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
                 If you accept the test offer, you will proceed with the test
                 procedure.
               </>
+            ) : row.status === 'Role assigned' ? (
+              <>
+                TAD directly assigned you this role, considering your work
+                experience and specialties.
+                <br />
+                <br />
+                Once you accept the offer, you will promptly be granted the
+                authority to proceed with the job.
+              </>
             ) : (
               ''
             )}
           </Typography>
         )}
         {((row.status === 'Skill test Ready' && row.basicTest.isSkipped) ||
-          row.status === 'Test assigned') && (
+          row.status === 'Test assigned' ||
+          row.status === 'Role assigned') && (
           <Box
             sx={{
               display: 'flex',

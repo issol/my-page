@@ -90,7 +90,7 @@ const ProAppliedRoles = ({
   }
 
   const onClickStartTest = (row: ProAppliedRolesType) => {
-    if (!auth.getValue().user?.isSignedNDA) {
+    if (auth.getValue().user?.isSignedNDA) {
       openModal({
         type: 'BeforeStartTestModal',
         children: (
@@ -222,9 +222,13 @@ const ProAppliedRoles = ({
         <CustomModal
           vary='error'
           onClose={() => closeModal('DeclineModal')}
-          title={'Are you sure you want to decline the test offer from TAD?'}
+          title={
+            row.status === 'Test assigned'
+              ? 'Are you sure you want to decline the test offer from TAD?'
+              : 'Are you sure you want to decline the role offer from TAD?'
+          }
           onClick={() => {
-            //TODO : API call (applied roles query invalidate)
+            //TODO : API call (applied roles query invalidate), status 별 분기
             closeModal('DeclineModal')
           }}
           rightButtonText='Decline'
@@ -234,23 +238,68 @@ const ProAppliedRoles = ({
   }
 
   const onClickAccept = (row: ProAppliedRolesType) => {
-    openModal({
-      type: 'AcceptModal',
-      children: (
-        <CustomModal
-          vary='successful'
-          onClose={() => closeModal('AcceptModal')}
-          title={
-            'Would you like to accept the test offer from TAD and proceed with the test procedure?'
-          }
-          onClick={() => {
-            //TODO : API call (applied roles query invalidate)
-            closeModal('AcceptModal')
-          }}
-          rightButtonText='Accept'
-        />
-      ),
-    })
+    if (row.status === 'Test assigned') {
+      openModal({
+        type: 'AcceptModal',
+        children: (
+          <CustomModal
+            vary='successful'
+            onClose={() => closeModal('AcceptModal')}
+            title={
+              'Would you like to accept the test offer from TAD and proceed with the test procedure?'
+            }
+            onClick={() => {
+              //TODO : API call (applied roles query invalidate)
+              closeModal('AcceptModal')
+            }}
+            rightButtonText='Accept'
+          />
+        ),
+      })
+    } else {
+      if (auth.getValue().user?.isSignedNDA) {
+        openModal({
+          type: 'AcceptModal',
+          children: (
+            <CustomModal
+              vary='successful'
+              onClose={() => closeModal('AcceptModal')}
+              title={'Would you like to accept the role offer from TAD?'}
+              onClick={() => {
+                //TODO : API call (applied roles query invalidate)
+                closeModal('AcceptModal')
+              }}
+              rightButtonText='Accept'
+            />
+          ),
+        })
+      } else {
+        openModal({
+          type: 'SignedNDAModal',
+          children: (
+            <CustomModal
+              onClose={() => closeModal('SignedNDAModal')}
+              vary='info'
+              onClick={() => {
+                if (
+                  row.sourceLanguage === 'ko' ||
+                  row.targetLanguage === 'ko'
+                ) {
+                  setLanguage('KOR')
+                } else {
+                  setLanguage('ENG')
+                }
+                setSignNDA(true)
+                closeModal('SignedNDAModal')
+              }}
+              title='In order to proceed, agreement to the Non-Disclosure Agreement (NDA) is required.'
+              rightButtonText='Sign NDA'
+              leftButtonText='Later'
+            />
+          ),
+        })
+      }
+    }
   }
 
   return (
