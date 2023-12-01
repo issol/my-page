@@ -3,7 +3,9 @@ import { GridColumns } from '@mui/x-data-grid'
 import JobTypeRole from '@src/pages/components/job-type-role-chips'
 import { ProCertificationTestListType } from '@src/types/pro-certification-test/certification-test'
 
-export const getProCertificationTestListColumns = () => {
+export const getProCertificationTestListColumns = (
+  onClickApply: (row: ProCertificationTestListType) => void,
+) => {
   const columns: GridColumns<ProCertificationTestListType> = [
     {
       flex: 0.448,
@@ -61,7 +63,7 @@ export const getProCertificationTestListColumns = () => {
 
       headerName: 'Action',
       disableColumnMenu: true,
-      sortable: true,
+      sortable: false,
       headerAlign: 'center',
       align: 'center',
       renderHeader: () => (
@@ -72,7 +74,9 @@ export const getProCertificationTestListColumns = () => {
       renderCell: ({ row }: { row: ProCertificationTestListType }) => {
         return (
           <Box>
-            <Button variant='contained'>Apply</Button>
+            <Button variant='contained' onClick={() => onClickApply(row)}>
+              Apply
+            </Button>
           </Box>
         )
       },

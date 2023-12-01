@@ -16,6 +16,7 @@ type Props = {
   rowsPerPage: number
   setRowsPerPage: Dispatch<SetStateAction<number>>
   setFilters: Dispatch<SetStateAction<ProCertificationTestFilterType>>
+  onClickApply: (row: ProCertificationTestListType) => void
 }
 
 const CertificationTestList = ({
@@ -27,6 +28,7 @@ const CertificationTestList = ({
   rowsPerPage,
   setRowsPerPage,
   setFilters,
+  onClickApply,
 }: Props) => {
   return (
     <Box>
@@ -39,10 +41,11 @@ const CertificationTestList = ({
             backgroundColor: 'inherit',
           },
         }}
-        columns={getProCertificationTestListColumns()}
+        columns={getProCertificationTestListColumns(onClickApply)}
         pagination
         paginationMode='client'
         pageSize={rowsPerPage}
+        rowsPerPageOptions={[10, 25, 50]}
         rowCount={listCount}
         onPageChange={(newPage: number) => {
           setFilters((prevState: ProCertificationTestFilterType) => ({
@@ -59,6 +62,8 @@ const CertificationTestList = ({
           setRowsPerPage(newPageSize)
         }}
         loading={isLoading}
+        hideFooterSelectedRowCount
+        disableSelectionOnClick
       />
     </Box>
   )

@@ -1,5 +1,8 @@
 import { Box, Card } from '@mui/material'
-import { ProCertificationTestFilterType } from '@src/types/pro-certification-test/certification-test'
+import {
+  ProCertificationTestFilterType,
+  ProCertificationTestListType,
+} from '@src/types/pro-certification-test/certification-test'
 import { Suspense, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Filter from './filter'
@@ -9,6 +12,8 @@ import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { JobList } from '@src/shared/const/job/jobs'
 import CertificationTestList from './list'
 import { useGetProCertificationTestList } from '@src/queries/pro-certification-test/certification-tests'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 export type FilterType = {
   jobType: Array<{ label: string; value: string }>
@@ -34,6 +39,7 @@ const defaultFilter: ProCertificationTestFilterType = {
 }
 
 const ProCertificationTests = () => {
+  const { openModal, closeModal } = useModal()
   const [filters, setFilters] =
     useState<ProCertificationTestFilterType>(defaultFilter)
 
@@ -74,6 +80,21 @@ const ProCertificationTests = () => {
     setFilters(filter)
   }
 
+  const onClickApply = (data: ProCertificationTestListType) => {
+    openModal({
+      type: 'ApplyModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('ApplyModal')}
+          onClick={() => closeModal('ApplyModal')}
+          title='Are you sure you want to apply for'
+          vary='successful'
+          rightButtonText='Apply'
+        />
+      ),
+    })
+  }
+
   return (
     <Card>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -100,6 +121,7 @@ const ProCertificationTests = () => {
             setRowsPerPage={setRowsPerPage}
             setFilters={setFilters}
             isLoading={isLoading}
+            onClickApply={onClickApply}
           />
         </Suspense>
       </Box>
