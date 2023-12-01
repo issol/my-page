@@ -58,6 +58,7 @@ import {
 } from '@src/apis/company/company-price.api'
 import toast from 'react-hot-toast'
 import { decimalPlace } from '@src/shared/const/price/decimalPlace'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 type Props = {
   list: LanguagePairListType[]
@@ -100,6 +101,7 @@ const LanguagePair = ({
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
+  const [isWarn, setIsWarn] = useState(false)
   const [selectedCellParams, setSelectedCellParams] =
     useState<SelectedCellParams | null>(null)
   const [cellModesModel, setCellModesModel] = useState<GridCellModesModel>({})
@@ -208,6 +210,7 @@ const LanguagePair = ({
   }
 
   const handleEditCancel = () => {
+    setIsWarn(false)
     setEditRowsModel({})
     setIsEditingLanguagePair(null)
     // setCellModes(prevModes => ({
@@ -217,6 +220,7 @@ const LanguagePair = ({
   }
 
   const onClickEditLanguagePair = (row: LanguagePairListType) => {
+    setIsWarn(true)
     setEditRowsModel({
       [row.id]: {
         priceFactor: { mode: GridCellModes.Edit, value: row.priceFactor },
@@ -228,28 +232,20 @@ const LanguagePair = ({
   }
 
   const onClickCancelEditLanguagePair = () => {
-    openModal({
-      type: 'editCancelLanguagePairModal',
-      children: (
-        <LanguagePairActionModal
-          type='Cancel'
-          onClose={() => closeModal('editCancelLanguagePairModal')}
-          onClickAction={() => handleEditCancel()}
-        />
-      ),
-    })
+    handleEditCancel()
   }
 
   const onClickSaveEditLanguagePair = () => {
-    // console.log('hi')
-
     openModal({
       type: 'editSaveLanguagePairModal',
       children: (
         <LanguagePairActionModal
           type='Save'
           onClose={() => closeModal('editSaveLanguagePairModal')}
-          onClickAction={() => handleSave()}
+          onClickAction={() => {
+            setIsWarn(false)
+            handleSave()
+          }}
         />
       ),
     })
@@ -480,134 +476,144 @@ const LanguagePair = ({
     },
   ]
 
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
+    shouldWarn: isWarn,
+  })
+
   return (
-    <Card
-      sx={{
-        padding: '20px 0',
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <Box
+    <>
+      <ConfirmLeaveModal />
+      <Card
         sx={{
+          padding: '20px 0',
+          flex: 1,
           display: 'flex',
-          width: '100%',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 20px 20px 20px',
+          flexDirection: 'column',
         }}
       >
-        <Typography variant='body1' sx={{ fontWeight: 600 }}>
-          Language pairs ({listCount ?? 0})
-        </Typography>
-        <Button
-          variant='contained'
-          disabled={!existPriceUnit}
-          size='small'
-          onClick={onClickAddNewLanguagePair}
-        >
-          Add new pair
-        </Button>
-      </Box>
-      <Box
-        sx={{
-          width: '100%',
-          height: '262px',
-          '& .MuiDataGrid-columnHeaderTitle': {
-            textTransform: 'none',
-          },
-          '& .MuiDataGrid-main': {
-            height: '214px',
-          },
-        }}
-      >
-        <DataGrid
-          components={{
-            NoRowsOverlay: () => {
-              return (
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                ></Box>
-              )
-            },
-            NoResultsOverlay: () => {
-              return (
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                ></Box>
-              )
-            },
-          }}
+        <Box
           sx={{
-            '& .edit-row': {
-              outline: 'none !important',
-              input: {
-                border: '1px solid rgba(76, 78, 100, 0.22)',
-                borderRadius: '6px',
-                height: '30px',
-                padding: '0px 8px',
+            display: 'flex',
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0 20px 20px 20px',
+          }}
+        >
+          <Typography variant='body1' sx={{ fontWeight: 600 }}>
+            Language pairs ({listCount ?? 0})
+          </Typography>
+          <Button
+            variant='contained'
+            disabled={!existPriceUnit}
+            size='small'
+            onClick={onClickAddNewLanguagePair}
+          >
+            Add new pair
+          </Button>
+        </Box>
+        <Box
+          sx={{
+            width: '100%',
+            height: '262px',
+            '& .MuiDataGrid-columnHeaderTitle': {
+              textTransform: 'none',
+            },
+            '& .MuiDataGrid-main': {
+              height: '214px',
+            },
+          }}
+        >
+          <DataGrid
+            components={{
+              NoRowsOverlay: () => {
+                return (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  ></Box>
+                )
               },
-            },
-            '& .action-row': {
-              padding: '0 !important',
-              display: 'flex',
-              justifyContent: 'center',
-            },
-          }}
-          columns={columns}
-          loading={isLoading}
-          editMode='row'
-          rows={list ?? []}
-          autoHeight={false}
-          // disableSelectionOnClick
-          hideFooterSelectedRowCount
-          paginationMode='server'
-          pageSize={listPageSize}
-          rowsPerPageOptions={[5, 10, 25, 50]}
-          page={listPage}
-          rowCount={listCount ?? 0}
-          onCellClick={onCellClick}
-          onCellKeyDown={handleCellKeyDown}
-          cellModesModel={cellModesModel}
-          onCellModesModelChange={model => setCellModesModel(model)}
-          editRowsModel={editRowsModel}
-          onEditRowsModelChange={(editRowsModel, details) =>
-            handleEditRowModelChange(editRowsModel, details)
-          }
-          onCellFocusOut={(params, event) => (event.defaultMuiPrevented = true)}
-          getCellClassName={getCellClassName}
-          // cellModesModel={cellModesModel}
-          // onCellModesModelChange={model => setCellModesModel(model)}
-          onPageChange={(newPage: number) => {
-            // setFilters((prevState: OnboardingFilterType) => ({
-            //   ...prevState,
-            //   skip: newPage * onboardingListPageSize,
-            // }))
-            setListPage(newPage)
-          }}
-          onPageSizeChange={(newPageSize: number) => {
-            // setFilters((prevState: OnboardingFilterType) => ({
-            //   ...prevState,
-            //   take: newPageSize,
-            // }))
-            setListPageSize(newPageSize)
-          }}
-        />
-      </Box>
-    </Card>
+              NoResultsOverlay: () => {
+                return (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  ></Box>
+                )
+              },
+            }}
+            sx={{
+              '& .edit-row': {
+                outline: 'none !important',
+                input: {
+                  border: '1px solid rgba(76, 78, 100, 0.22)',
+                  borderRadius: '6px',
+                  height: '30px',
+                  padding: '0px 8px',
+                },
+              },
+              '& .action-row': {
+                padding: '0 !important',
+                display: 'flex',
+                justifyContent: 'center',
+              },
+            }}
+            columns={columns}
+            loading={isLoading}
+            editMode='row'
+            rows={list ?? []}
+            autoHeight={false}
+            // disableSelectionOnClick
+            hideFooterSelectedRowCount
+            paginationMode='server'
+            pageSize={listPageSize}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            page={listPage}
+            rowCount={listCount ?? 0}
+            onCellClick={onCellClick}
+            onCellKeyDown={handleCellKeyDown}
+            cellModesModel={cellModesModel}
+            onCellModesModelChange={model => setCellModesModel(model)}
+            editRowsModel={editRowsModel}
+            onEditRowsModelChange={(editRowsModel, details) =>
+              handleEditRowModelChange(editRowsModel, details)
+            }
+            onCellFocusOut={(params, event) =>
+              (event.defaultMuiPrevented = true)
+            }
+            getCellClassName={getCellClassName}
+            // cellModesModel={cellModesModel}
+            // onCellModesModelChange={model => setCellModesModel(model)}
+            onPageChange={(newPage: number) => {
+              // setFilters((prevState: OnboardingFilterType) => ({
+              //   ...prevState,
+              //   skip: newPage * onboardingListPageSize,
+              // }))
+              setListPage(newPage)
+            }}
+            onPageSizeChange={(newPageSize: number) => {
+              // setFilters((prevState: OnboardingFilterType) => ({
+              //   ...prevState,
+              //   take: newPageSize,
+              // }))
+              setListPageSize(newPageSize)
+            }}
+          />
+        </Box>
+      </Card>
+    </>
   )
 }
 
