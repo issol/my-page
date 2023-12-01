@@ -64,7 +64,7 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
           <AlertIcon type={vary} />
         </Box>
 
-        {row.status === 'Rejected by TAD' ? (
+        {row.status === 'Rejected by TAD' || row.status === 'Paused' ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <Typography variant='h6'>
@@ -93,18 +93,36 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
               </Box>
             </Box>
             <Divider />
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <Typography variant='h6'>Retest date</Typography>
-              <Typography
-                variant='body1'
-                // fontSize={16}
-                // sx={{ whiteSpace: 'pre-line !important' }}
+            {row.status === 'Rejected by TAD' ? (
+              <Box
+                sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}
               >
-                Please wait until{' '}
-                {FullDateTimezoneHelper(row.reason.retestDate, timezone)} to
-                reapply for the role.
-              </Typography>
-            </Box>
+                <Typography variant='h6'>Retest date</Typography>
+                <Typography
+                  variant='body1'
+                  // fontSize={16}
+                  // sx={{ whiteSpace: 'pre-line !important' }}
+                >
+                  Please wait until{' '}
+                  {FullDateTimezoneHelper(row.reason.retestDate, timezone)} to
+                  reapply for the role.
+                </Typography>
+              </Box>
+            ) : row.status === 'Paused' ? (
+              <Box
+                sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}
+              >
+                <Typography variant='h6'>Note</Typography>
+                <Typography
+                  variant='body1'
+                  // fontSize={16}
+                  // sx={{ whiteSpace: 'pre-line !important' }}
+                >
+                  Hold off on any further actions until TAD decides to continue
+                  the test.
+                </Typography>
+              </Box>
+            ) : null}
           </Box>
         ) : (
           <Typography
