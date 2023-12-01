@@ -207,7 +207,7 @@ const InvoiceClient = ({
 
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Divider />
-            <Box sx={{ display: 'flex', gap: '10px' }}>
+            <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
               <Typography
                 variant='subtitle1'
                 sx={{ fontSize: '14px', fontWeight: 600, width: '131px' }}
