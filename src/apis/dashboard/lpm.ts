@@ -3,6 +3,7 @@ import axios from '@src/configs/axios'
 import {
   DashboardPaginationQuery,
   DashboardQuery,
+  OrderQuery,
   RatioQuery,
   ReportItem,
 } from '@src/types/dashboard'
@@ -30,6 +31,20 @@ export const getRatio = async (params: RatioQuery) => {
   const { type, ...props } = params
   const { data } = await axios.get(`/api/enough/u/dashboard/ratio/${type}`, {
     params: { ...props },
+  })
+  return data
+}
+
+export const getOrders = async (params: OrderQuery) => {
+  const { data } = await axios.get(`/api/enough/u/dashboard/order/list`, {
+    params,
+  })
+  return data
+}
+
+export const getCount = async (params: DashboardQuery) => {
+  const { data } = await axios.get(`/api/enough/u/dashboard/order/count`, {
+    params: params,
   })
   return data
 }

@@ -27,7 +27,7 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import React, { MouseEvent, useCallback, useState } from 'react'
+import React, { MouseEvent, useCallback, useEffect, useState } from 'react'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import DownloadIcon from '@mui/icons-material/Download'
 import DashboardDataGrid from '@src/pages/dashboards/components/dataGrid'
@@ -48,13 +48,21 @@ import {
   ExpertiseRatioItem,
   PairRatioItem,
   ServiceRatioItem,
+  ViewMode,
 } from '@src/types/dashboard'
+import StatusAndList from '@src/pages/dashboards/components/statusAndList'
+import { useRecoilState, useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import { currentRoleSelector } from '@src/states/permission'
+import { dashboardState } from '@src/states/dashboard'
+import { useRouter } from 'next/router'
 dayjs.extend(weekday)
 
 type SelectedRangeDate = 'month' | 'week' | 'today'
+
 interface DashboardForm {
   dateRange?: Array<Date | null>
-  view: 'company' | 'mine'
+  view: ViewMode
   viewSwitch: boolean
   userViewDate: string
   selectedRangeDate: SelectedRangeDate
@@ -100,20 +108,24 @@ const toCapitalize = (str: string) => {
 }
 
 const Dashboards = () => {
-  const theme = useTheme()
+  const { contents: auth, state: authFetchState } =
+    useRecoilValueLoadable(authState)
+  const { contents: role, state: roleFetchState } =
+    useRecoilValueLoadable(currentRoleSelector)
+  const [state, setState] = useRecoilState(dashboardState)
+
   const { control, setValue } = useForm<DashboardForm>({
     defaultValues: {
-      view: 'mine',
-      viewSwitch: false,
+      viewSwitch: false, // true = company - false = personal
       dateRange: [DEFAULT_START_DATE, DEFAULT_LAST_DATE],
       userViewDate: getRangeDateTitle(DEFAULT_START_DATE, DEFAULT_LAST_DATE),
       selectedRangeDate: 'month',
     },
   })
 
-  const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
+  const [dateRange, selectedRangeDate, userViewDate] = useWatch({
     control,
-    name: ['viewSwitch', 'dateRange', 'selectedRangeDate', 'userViewDate'],
+    name: ['dateRange', 'selectedRangeDate', 'userViewDate'],
   })
 
   const { data: ReportData } = useDashboardReport({
@@ -129,6 +141,20 @@ const Dashboards = () => {
   const handleClose = () => {
     setAnchorEl(null)
   }
+
+  useEffect(() => {
+    if (authFetchState !== 'hasValue' || roleFetchState !== 'hasValue') return
+
+    if (role?.type === 'Master' || role?.type === 'Manager') {
+      setState({ view: 'company', userId: auth?.user?.id || null })
+      setValue('view', 'company')
+      setValue('viewSwitch', true)
+    } else {
+      setState({ view: 'mine', userId: auth?.user?.id || null })
+      setValue('view', 'mine')
+      setValue('viewSwitch', false)
+    }
+  }, [role, auth])
 
   const onChangeDateRange = useCallback(
     (type: SelectedRangeDate) => {
@@ -201,9 +227,10 @@ const Dashboards = () => {
                 sx={{
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: !viewSwitch
-                    ? 'rgba(102, 108, 255, 1)'
-                    : 'rgba(189, 189, 189, 1)',
+                  color:
+                    state.view === 'company'
+                      ? 'rgba(102, 108, 255, 1)'
+                      : 'rgba(189, 189, 189, 1)',
                 }}
               >
                 Company view
@@ -243,9 +270,10 @@ const Dashboards = () => {
                 sx={{
                   fontSize: '14px',
                   fontWeight: 600,
-                  color: viewSwitch
-                    ? 'rgba(102, 108, 255, 1)'
-                    : 'rgba(189, 189, 189, 1)',
+                  color:
+                    state.view === 'mine'
+                      ? 'rgba(102, 108, 255, 1)'
+                      : 'rgba(189, 189, 189, 1)',
                 }}
               >
                 Personal view
@@ -419,6 +447,13 @@ const Dashboards = () => {
             </Box>
           </GridItem>
         </Grid>
+        <StatusAndList
+          type='order'
+          from={getDateFormat(
+            (Array.isArray(dateRange) && dateRange[0]) || null,
+          )}
+          to={getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)}
+        />
         <Grid container spacing={5}>
           <DoughnutChart
             title='Clients'

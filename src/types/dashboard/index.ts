@@ -1,9 +1,17 @@
-export interface DashboardQuery {
+import { OrderStatusType } from '@src/types/common/orders.type'
+
+export type ViewMode = 'company' | 'mine'
+export interface ViewModeQuery {
+  userId: number | null
+  view: ViewMode
+}
+
+export interface DashboardQuery extends Partial<ViewModeQuery> {
   from: string // 시작 날짜
   to: string // 종료날짜
 }
 
-export interface DashboardPaginationQuery {
+export interface DashboardPaginationQuery extends Partial<ViewModeQuery> {
   take: number
   skip: number
 }
@@ -32,6 +40,18 @@ export type RequestItem = {
     phone: string
   }
 }
+export type OrderItem = {
+  id: number
+  projectName: string
+  category: string
+  serviceType: string
+  status: OrderStatusType
+  client: {
+    id: number
+    name: string
+    email: string
+  }
+}
 
 export type Currency =
   | 'convertedToJPY'
@@ -43,7 +63,7 @@ export type Currency =
   | 'onlySGD'
   | 'onlyUSD'
 
-export interface RatioQuery extends DashboardQuery {
+export interface RatioQuery extends DashboardQuery, Partial<ViewModeQuery> {
   type: string
   currency: Currency
 }
@@ -77,4 +97,14 @@ export interface RatioResponse<T> {
   totalOrderPrice: number
   currency: Currency
   report: Array<T>
+}
+
+export type ViewType = 'created' | 'invoiced' | 'canceled' | 'ongoing'
+export type SortType = 'status' | 'clientName' | 'projectName' | 'category'
+export interface OrderQuery
+  extends DashboardQuery,
+    DashboardPaginationQuery,
+    Partial<ViewModeQuery> {
+  type: ViewType
+  sort: SortType
 }

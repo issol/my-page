@@ -1,12 +1,16 @@
 import { GridColumns } from '@mui/x-data-grid'
-import { RequestItem } from '@src/types/dashboard'
+import { OrderItem, RequestItem } from '@src/types/dashboard'
 import { StatusSquare } from '@src/pages/dashboards/components/dashboardItem'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import { timezones } from '@src/@fake-db/autocomplete'
 import Typography from '@mui/material/Typography'
-import { JobTypeChip, ServiceTypeChip } from '@src/@core/components/chips/chips'
+import {
+  JobTypeChip,
+  OrderStatusChip,
+  ServiceTypeChip,
+} from '@src/@core/components/chips/chips'
 import { Box } from '@mui/material'
 import { Inbox } from '@mui/icons-material'
 import advancedFormat from 'dayjs/plugin/advancedFormat'
@@ -115,6 +119,71 @@ export const RequestColumns: GridColumns = [
         <Box display='flex' alignItems='center' gap='8px'>
           <Inbox />
           <Typography sx={{ width: '100%' }}>{`${date1}`}</Typography>
+        </Box>
+      )
+    },
+  },
+]
+
+export const StatusColumns: GridColumns = [
+  {
+    field: 'status',
+    headerName: 'status',
+    minWidth: 192,
+    renderCell: ({ row }: { row: OrderItem }) => {
+      return (
+        <div>
+          <OrderStatusChip
+            size='small'
+            status={row?.status}
+            label={row?.status}
+          />
+        </div>
+      )
+    },
+  },
+  {
+    field: 'client',
+    headerName: 'Client / Email',
+    minWidth: 192,
+    renderCell: ({ row }: { row: OrderItem }) => {
+      return (
+        <Box>
+          <Typography fontSize='14px' fontWeight={600}>
+            {row.client.name}
+          </Typography>
+          <Typography color='#4C4E6499' fontSize='14px'>
+            {row.client.email}
+          </Typography>
+        </Box>
+      )
+    },
+  },
+  {
+    field: 'projectName',
+    headerName: 'Project name',
+    minWidth: 220,
+    renderCell: ({ row }: { row: OrderItem }) => {
+      return <div>{row.projectName}</div>
+    },
+  },
+  {
+    field: 'category',
+    headerName: 'Category / Service type',
+    minWidth: 320,
+    renderCell: ({ row }: { row: OrderItem }) => {
+      return (
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          gap='10px'
+          sx={{ width: '340px' }}
+        >
+          <Box display='flex' gap='10px'>
+            <JobTypeChip type={row.category} label={row.category} />
+            <ServiceTypeChip label={row.serviceType} />
+          </Box>
         </Box>
       )
     },
