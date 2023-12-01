@@ -14,11 +14,6 @@ export type ProCertificationTestListType = {
   sourceLanguage: string
   targetLanguage: string
   basicTest: {
-    score: number | null
-    isPassed: boolean
-  } | null
-  skillTest: {
-    score: number | null
-    isPassed: boolean
-  } | null
+    isExist: boolean
+  }
 }

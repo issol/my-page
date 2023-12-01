@@ -260,7 +260,7 @@ const ProCertificationTest = () => {
               />
             </Suspense>
             <Suspense>
-              <ProCertificationTests />
+              <ProCertificationTests appliedRoles={appliedRoles!.data} />
             </Suspense>
           </Box>
         </>

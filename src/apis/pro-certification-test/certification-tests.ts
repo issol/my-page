@@ -14,57 +14,40 @@ export const getProCertificationTestList = async (
       id: 1,
       jobType: 'Job Type 1',
       role: 'Role 1',
-      sourceLanguage: 'KR',
-      targetLanguage: 'US',
+      sourceLanguage: 'ko',
+      targetLanguage: 'en',
       basicTest: {
-        score: 80,
-        isPassed: true,
-      },
-      skillTest: {
-        score: 85,
-        isPassed: true,
+        isExist: false,
       },
     },
     {
       id: 2,
       jobType: 'Job Type 2',
       role: 'Role 2',
-      sourceLanguage: 'US',
-      targetLanguage: 'KR',
+      sourceLanguage: 'ko',
+      targetLanguage: 'en',
       basicTest: {
-        score: 90,
-        isPassed: true,
-      },
-      skillTest: {
-        score: 95,
-        isPassed: true,
+        isExist: true,
       },
     },
     {
       id: 3,
       jobType: 'Job Type 3',
       role: 'Role 3',
-      sourceLanguage: 'KR',
-      targetLanguage: 'US',
-      basicTest: null,
-      skillTest: {
-        score: 85,
-        isPassed: false,
+      sourceLanguage: 'ko',
+      targetLanguage: 'en',
+      basicTest: {
+        isExist: true,
       },
     },
     {
       id: 4,
       jobType: 'Job Type 4',
       role: 'Role 4',
-      sourceLanguage: 'US',
-      targetLanguage: 'KR',
+      sourceLanguage: 'ko',
+      targetLanguage: 'en',
       basicTest: {
-        score: 80,
-        isPassed: false,
-      },
-      skillTest: {
-        score: 85,
-        isPassed: true,
+        isExist: false,
       },
     },
   ]
@@ -72,4 +55,10 @@ export const getProCertificationTestList = async (
     data: data,
     totalCount: data.length,
   }
+}
+
+export const getIsProBasicTestPassed = async (
+  targetLanguage: string,
+): Promise<boolean> => {
+  return true
 }

@@ -1,4 +1,4 @@
-import { Box, Card } from '@mui/material'
+import { Box, Card, Typography } from '@mui/material'
 import {
   ProCertificationTestFilterType,
   ProCertificationTestListType,
@@ -14,6 +14,10 @@ import CertificationTestList from './list'
 import { useGetProCertificationTestList } from '@src/queries/pro-certification-test/certification-tests'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { ProAppliedRolesType } from '@src/types/pro-certification-test/applied-roles'
+import AlertModal from '@src/@core/components/common-modal/alert-modal'
+import InformationModal from '@src/@core/components/common-modal/information-modal'
+import { getIsProBasicTestPassed } from '@src/apis/pro-certification-test/certification-tests'
 
 export type FilterType = {
   jobType: Array<{ label: string; value: string }>
@@ -38,7 +42,11 @@ const defaultFilter: ProCertificationTestFilterType = {
   targetLanguage: [],
 }
 
-const ProCertificationTests = () => {
+type Props = {
+  appliedRoles: ProAppliedRolesType[]
+}
+
+const ProCertificationTests = ({ appliedRoles }: Props) => {
   const { openModal, closeModal } = useModal()
   const [filters, setFilters] =
     useState<ProCertificationTestFilterType>(defaultFilter)
@@ -81,18 +89,151 @@ const ProCertificationTests = () => {
   }
 
   const onClickApply = (data: ProCertificationTestListType) => {
-    openModal({
-      type: 'ApplyModal',
-      children: (
-        <CustomModal
-          onClose={() => closeModal('ApplyModal')}
-          onClick={() => closeModal('ApplyModal')}
-          title='Are you sure you want to apply for'
-          vary='successful'
-          rightButtonText='Apply'
-        />
-      ),
-    })
+    const validAppliedRoles = appliedRoles.filter(
+      value =>
+        value.status === 'Awaiting approval' ||
+        value.status === 'Basic test Ready' ||
+        value.status === 'Skill test Ready' ||
+        value.status === 'Basic in progress' ||
+        value.status === 'Basic submitted' ||
+        value.status === 'Basic passed' ||
+        value.status === 'Skill in progress' ||
+        value.status === 'Skill submitted' ||
+        value.status === 'Paused' ||
+        value.status === 'Test assigned' ||
+        value.status === 'Role assigned',
+    )
+
+    if (!(validAppliedRoles.length >= 10)) {
+      openModal({
+        type: 'ExceedModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('ExceedModal')}
+            title={
+              <>
+                The maximum number of tests you can apply for at once is 10.
+                <br />
+                <br />
+                Please apply again after completing the other tests.
+              </>
+            }
+            vary='error'
+            noButton
+            rightButtonText=''
+            onClick={() => closeModal('ExceedModal')}
+            closeButton
+          />
+        ),
+      })
+    } else {
+      if (!data.basicTest.isExist) {
+        openModal({
+          type: 'NoBasicApplyModal',
+          children: (
+            <CustomModal
+              //TODO API 연결
+              onClick={() => closeModal('ApplyBasicPassedModal')}
+              onClose={() => closeModal('ApplyBasicPassedModal')}
+              title={
+                <>
+                  Are you sure you want to apply for
+                  <br />
+                  <br />
+                  <Typography
+                    component={'span'}
+                    variant='body2'
+                    fontWeight={600}
+                    fontSize={16}
+                  >
+                    {data.jobType} / {data.role}
+                  </Typography>
+                  <br />
+                  <Typography
+                    component={'span'}
+                    variant='body2'
+                    fontWeight={600}
+                    fontSize={16}
+                  >
+                    {data.sourceLanguage.toUpperCase()} &rarr;{' '}
+                    {data.targetLanguage.toUpperCase()}&nbsp; role?
+                  </Typography>
+                  <br />
+                  <br />
+                  <Typography
+                    component={'span'}
+                    variant='subtitle2'
+                    color='#666CFF'
+                    fontSize={14}
+                    fontWeight={500}
+                  >
+                    The role only requires a skill test.
+                  </Typography>
+                </>
+              }
+              rightButtonText='Apply'
+              vary='successful'
+            />
+          ),
+        })
+      } else {
+        getIsProBasicTestPassed(data.targetLanguage).then(res => {
+          openModal({
+            type: 'ApplyModal',
+            children: (
+              <CustomModal
+                //TODO API 연결
+                onClick={() => closeModal('ApplyBasicPassedModal')}
+                onClose={() => closeModal('ApplyBasicPassedModal')}
+                title={
+                  <>
+                    Are you sure you want to apply for
+                    <br />
+                    <br />
+                    <Typography
+                      component={'span'}
+                      variant='body2'
+                      fontWeight={600}
+                      fontSize={16}
+                    >
+                      {data.jobType} / {data.role}
+                    </Typography>
+                    <br />
+                    <Typography
+                      component={'span'}
+                      variant='body2'
+                      fontWeight={600}
+                      fontSize={16}
+                    >
+                      {data.sourceLanguage.toUpperCase()} &rarr;{' '}
+                      {data.targetLanguage.toUpperCase()}&nbsp; role?
+                    </Typography>
+                    {res ? (
+                      <>
+                        <br />
+                        <br />
+                        <Typography
+                          component={'span'}
+                          variant='subtitle2'
+                          color='#666CFF'
+                          fontSize={14}
+                          fontWeight={500}
+                        >
+                          The basic test will be waived for you considering your
+                          previous test record.
+                        </Typography>
+                      </>
+                    ) : null}
+                  </>
+                }
+                rightButtonText='Apply'
+                vary='successful'
+              />
+            ),
+          })
+        })
+      }
+    }
   }
 
   return (
