@@ -50,8 +50,7 @@ export const RequestColumns: GridColumns = [
     field: 'companyName',
     headerName: 'companyName',
     cellClassName: 'companyName__cell',
-    flex: 1,
-    minWidth: 120,
+    minWidth: 160,
     renderCell: ({ row }: { row: RequestItem }) => {
       return <Typography fontWeight={600}>{row.companyName}</Typography>
     },
@@ -59,7 +58,7 @@ export const RequestColumns: GridColumns = [
   {
     field: 'category',
     headerName: 'category',
-    flex: 1,
+
     minWidth: 340,
     renderCell: ({ row }: { row: RequestItem }) => {
       return (
@@ -90,7 +89,7 @@ export const RequestColumns: GridColumns = [
   {
     field: 'itemCount',
     headerName: 'itemCount',
-    flex: 1,
+    minWidth: 160,
     renderCell: ({ row }: { row: RequestItem }) => {
       return (
         <Box display='flex' alignItems='center' gap='8px'>
@@ -110,15 +109,23 @@ export const RequestColumns: GridColumns = [
         .code as keyof typeof timezones.countries
 
       const timeZone = timezones.countries[code].zones[0]
-      console.log('tz', timeZone)
-      const date1 = moment(row.desiredDueDate)
-        .tz(timeZone)
-        .format('MM/DD/YYYY hh:mm A (z)')
+      const date1 = dayjs(row.desiredDueDate).tz(timeZone)
+      const date2 = dayjs().tz(timeZone)
+      const remainTime = date1.diff(date2, 'hour')
+
+      let color = '#7F889B'
+      if (86400000 >= remainTime && remainTime > 0) {
+        color = '#FF4D49'
+      }
 
       return (
         <Box display='flex' alignItems='center' gap='8px'>
           <Inbox />
-          <Typography sx={{ width: '100%' }}>{`${date1}`}</Typography>
+          <Typography sx={{ width: '100%', color }}>{`${moment(
+            row.desiredDueDate,
+          )
+            .tz(timeZone)
+            .format('MM/DD/YYYY hh:mm A (z)')}`}</Typography>
         </Box>
       )
     },
