@@ -68,6 +68,10 @@ export const SectionTitle = styled('div')(() => {
       fontWeight: 500,
       margin: 0,
       marginBottom: '3px',
+      background: 'none',
+      border: 'none',
+      color: 'rgba(76, 78, 100, 0.87)',
+      cursor: 'pointer',
     },
 
     '& .info_icon': {
@@ -75,6 +79,11 @@ export const SectionTitle = styled('div')(() => {
       width: '15px',
       marginTop: '-6px',
       cursor: 'pointer',
+    },
+
+    '& .arrow_icon': {
+      marginLeft: '6px',
+      color: 'rgba(76, 78, 100, 0.54)',
     },
   }
 })

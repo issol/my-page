@@ -4,8 +4,10 @@ import { RequestColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
 import { Suspense, useState } from 'react'
 import { useDashboardRequest } from '@src/queries/dashboard/dashnaord-lpm'
+import { useRouter } from 'next/router'
 
 const DashboardDataGrid = () => {
+  const router = useRouter()
   const [skip, setSkip] = useState(0)
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(4)
@@ -31,6 +33,9 @@ const DashboardDataGrid = () => {
             setPage(newPage)
             setSkip(val => newPage * 4)
           }}
+          onRowClick={params =>
+            router.push(`/quotes/lpm/requests/${params.id}/`)
+          }
           pageSize={pageSize}
           onPageSizeChange={pageSize => setPageSize(pageSize)}
           paginationMode='server'

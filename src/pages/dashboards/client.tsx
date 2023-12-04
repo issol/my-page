@@ -220,9 +220,9 @@ const Dashboards = () => {
     },
   })
 
-  const [dateRange, selectedRangeDate, userViewDate] = useWatch({
+  const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
     control,
-    name: ['dateRange', 'selectedRangeDate', 'userViewDate'],
+    name: ['viewSwitch', 'dateRange', 'selectedRangeDate', 'userViewDate'],
   })
 
   const { data: ReportData } = useDashboardReport({
@@ -410,7 +410,7 @@ const Dashboards = () => {
                     render={({ field: { onChange, value } }) => (
                       <Switch
                         size='small'
-                        value={value}
+                        checked={value}
                         inputProps={{ 'aria-label': 'controlled' }}
                         sx={{
                           '.MuiSwitch-switchBase:not(.Mui-checked)': {

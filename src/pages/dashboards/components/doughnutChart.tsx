@@ -20,6 +20,8 @@ import { renderToString } from 'react-dom/server'
 import { Currency, RatioItem } from '@src/types/dashboard'
 import Typography from '@mui/material/Typography'
 import NoRatio from '@src/pages/dashboards/components/noRatio'
+import { KeyboardArrowRight } from '@mui/icons-material'
+import { useRouter } from 'next/router'
 
 const List = styled('ul')(() => {
   return {
@@ -102,6 +104,32 @@ const DoughnutChart = <T extends RatioItem>({
     currency,
   })
 
+  const charData = useMemo(() => {
+    const sortData = data?.report.sort((item1, item2) => item2.sum - item1.sum)
+    console.log(sortData)
+    const sliceData = sortData?.slice(0, 6) || []
+    const tempData = sortData?.slice(6) || []
+
+    if (sliceData.length === 0) return []
+    if (tempData.length === 0) return sliceData
+
+    const filter = ['count', 'sum', 'ratio', 'sortingOrder']
+    const key =
+      sliceData[0] &&
+      Object.keys(sliceData[0]).filter(str => !filter.includes(str))[0]
+
+    // @ts-ignore
+    const obj = { count: 0, ratio: 0, sortingOrder: 0, sum: 0, [key]: 'etc.' }
+
+    tempData?.forEach(item => {
+      obj.count = obj.count + item.count
+      obj.sum += item.sum
+      obj.ratio += item.ratio
+    })
+
+    return [...sliceData, obj]
+  }, [data?.report])
+
   const options: ApexOptions = {
     legend: { show: false },
     colors: colors,
@@ -111,7 +139,7 @@ const DoughnutChart = <T extends RatioItem>({
     },
     tooltip: {
       custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-        const price = data?.report[seriesIndex].sum.toFixed(0)
+        const price = charData[seriesIndex].sum.toFixed(0)
 
         return renderToString(
           <div
@@ -122,16 +150,16 @@ const DoughnutChart = <T extends RatioItem>({
             <div className='tooltip_container'>
               <div className='flex-center'>
                 <span className='tooltip_text_bold'>
-                  {(getName && getName(data?.report[seriesIndex])) ||
-                    data?.report[seriesIndex].name}
+                  {(getName && getName(charData[seriesIndex] as T)) ||
+                    charData[seriesIndex].name}
                 </span>
-                <span className='tooltip__count'>{`(${data?.report[seriesIndex].count})`}</span>
+                <span className='tooltip__count'>{`(${charData[seriesIndex].count})`}</span>
               </div>
               <div className='flex-center' style={{ marginTop: '10px' }}>
                 <span className='tooltip__sum'>{`${Number(
                   price,
                 ).toLocaleString()}`}</span>
-                <span className='tooltip__ratio'>{`${data?.report[seriesIndex].ratio}%`}</span>
+                <span className='tooltip__ratio'>{`${charData[seriesIndex].ratio}%`}</span>
               </div>
             </div>{' '}
           </div>,
@@ -225,7 +253,7 @@ const DoughnutChart = <T extends RatioItem>({
                   options={options}
                   width={276}
                   heigt={176}
-                  series={data?.report.map(item => item.ratio) || []}
+                  series={charData.map(item => item.ratio) || []}
                 />
                 <Typography
                   fontSize='20px'
@@ -239,13 +267,13 @@ const DoughnutChart = <T extends RatioItem>({
             </Suspense>
             <Box sx={{ position: 'absolute', right: 0 }}>
               <List>
-                {data?.report.map((item, index) => (
+                {charData.map((item, index) => (
                   <li key={`{item.name}-${index}`}>
                     <Box display='flex' alignItems='center'>
                       <StatusSquare color={colors[index]} />
                       <span className='company-name'>
-                        {(getName && getName(data?.report[index])) ||
-                          data?.report[index].name}
+                        {(getName && getName(charData[index] as T)) ||
+                          charData[index].name}
                       </span>
                     </Box>
                     <Box
@@ -255,7 +283,8 @@ const DoughnutChart = <T extends RatioItem>({
                     >
                       <span className='item-count'>({item.count})</span>
                       <span className='money'>
-                        {Number(item.sum.toFixed(0)).toLocaleString()}
+                        {CurrencyUnit[currency]}
+                        {Number(item.sum).toLocaleString()}
                       </span>
                       <span className='ratio'>{item.ratio || 0}%</span>
                     </Box>

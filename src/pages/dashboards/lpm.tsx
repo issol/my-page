@@ -57,12 +57,13 @@ import { dashboardState } from '@src/states/dashboard'
 import { useQueryClient } from 'react-query'
 import MemberSearchList from '@src/pages/dashboards/components/member-search'
 import { PermissionChip } from '@src/@core/components/chips/chips'
-import { LogoutOutlined } from '@mui/icons-material'
+import { KeyboardArrowRight, LogoutOutlined } from '@mui/icons-material'
 import {
   StatusJobColumns,
   StatusOrderColumns,
 } from '@src/shared/const/columns/dashboard'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 
 dayjs.extend(weekday)
 
@@ -117,6 +118,7 @@ export const toCapitalize = (str: string) => {
 
 const Dashboards = () => {
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const { contents: auth, state: authFetchState } =
     useRecoilValueLoadable(authState)
@@ -126,16 +128,16 @@ const Dashboards = () => {
 
   const { control, setValue } = useForm<DashboardForm>({
     defaultValues: {
-      viewSwitch: false, // true = company - false = personal
       dateRange: [DEFAULT_START_DATE, DEFAULT_LAST_DATE],
       userViewDate: getRangeDateTitle(DEFAULT_START_DATE, DEFAULT_LAST_DATE),
       selectedRangeDate: 'month',
+      viewSwitch: true,
     },
   })
 
-  const [dateRange, selectedRangeDate, userViewDate] = useWatch({
+  const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
     control,
-    name: ['dateRange', 'selectedRangeDate', 'userViewDate'],
+    name: ['viewSwitch', 'dateRange', 'selectedRangeDate', 'userViewDate'],
   })
 
   const { data: ReportData } = useDashboardReport({
@@ -165,7 +167,7 @@ const Dashboards = () => {
         role: role?.type,
       })
       setValue('view', 'company')
-      setValue('viewSwitch', true)
+      setValue('viewSwitch', false)
     } else {
       setState({
         view: 'personal',
@@ -173,7 +175,7 @@ const Dashboards = () => {
         role: role?.type,
       })
       setValue('view', 'personal')
-      setValue('viewSwitch', false)
+      setValue('viewSwitch', true)
     }
   }, [])
 
@@ -187,6 +189,7 @@ const Dashboards = () => {
   }, [state.userInfo])
 
   const onChangeViewMode = async (val: boolean) => {
+    console.log('@#4234234234234324')
     if (val) {
       setState({ ...state, view: 'personal' })
     } else {
@@ -266,230 +269,235 @@ const Dashboards = () => {
 
   return (
     <ApexChartWrapper>
-      <Grid
-        container
-        gap='24px'
-        sx={{ minWidth: '1320px', overflowX: 'auto', padding: '10px' }}
-      >
-        <Grid container gap='24px'>
-          {memberView ? (
-            <GridItem width={420} height={76}>
-              <Box sx={{ width: '100%' }}>
-                <Box display='flex' gap='16px' alignItems='center'>
-                  <Typography fontSize='24px' fontWeight={500}>
-                    {`${state.userInfo?.firstName}`}
-                    {state.userInfo?.middleName &&
-                      `(${state.userInfo?.middleName})`}{' '}
-                    {state.userInfo?.lastName}
-                  </Typography>
-                  {PermissionChip(state.userInfo?.type || 'General')}
-                </Box>
-                <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
-                  {`${state.userInfo?.department || '-'} | ${
-                    state.userInfo?.jobTitle || '-'
-                  }`}
+      <Grid container gap='24px' sx={{ minWidth: '1320px', padding: '10px' }}>
+        {memberView ? (
+          <GridItem width={420} height={76}>
+            <Box sx={{ width: '100%' }}>
+              <Box display='flex' gap='16px' alignItems='center'>
+                <Typography fontSize='24px' fontWeight={500}>
+                  {`${state.userInfo?.firstName}`}
+                  {state.userInfo?.middleName &&
+                    `(${state.userInfo?.middleName})`}{' '}
+                  {state.userInfo?.lastName}
                 </Typography>
+                {PermissionChip(state.userInfo?.type || 'General')}
               </Box>
-            </GridItem>
-          ) : (
-            <GridItem width={290} height={76}>
-              <Box
+              <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
+                {`${state.userInfo?.department || '-'} | ${
+                  state.userInfo?.jobTitle || '-'
+                }`}
+              </Typography>
+            </Box>
+          </GridItem>
+        ) : (
+          <GridItem width={290} height={76}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <Typography
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color:
+                    state.view === 'company'
+                      ? 'rgba(102, 108, 255, 1)'
+                      : 'rgba(189, 189, 189, 1)',
                 }}
               >
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    color:
-                      state.view === 'company'
-                        ? 'rgba(102, 108, 255, 1)'
-                        : 'rgba(189, 189, 189, 1)',
-                  }}
-                >
-                  Company view
-                </Typography>
-                <div style={{ width: '40px' }}>
-                  <Controller
-                    control={control}
-                    name='viewSwitch'
-                    defaultValue={false}
-                    render={({ field: { onChange, value } }) => (
-                      <Switch
-                        size='small'
-                        value={value}
-                        inputProps={{ 'aria-label': 'controlled' }}
-                        sx={{
-                          '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                            color: '#666CFF',
-                            '.MuiSwitch-thumb': {
-                              color: '#666CFF',
-                            },
-                          },
-                          '.MuiSwitch-track': {
-                            backgroundColor: '#666CFF',
-                          },
-                        }}
-                        onChange={(event, val) => {
-                          onChangeViewMode(val)
-                          onChange(val)
-                        }}
-                      />
-                    )}
-                  />
-                </div>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    color:
-                      state.view === 'personal'
-                        ? 'rgba(102, 108, 255, 1)'
-                        : 'rgba(189, 189, 189, 1)',
-                  }}
-                >
-                  Personal view
-                </Typography>
-              </Box>
-            </GridItem>
-          )}
-          <GridItem height={76} sm>
-            <Box
-              display='flex'
-              justifyContent='space-between'
-              sx={{ width: '100%' }}
-            >
-              <DatePickerWrapper>
+                Company view
+              </Typography>
+              <div style={{ width: '40px' }}>
                 <Controller
                   control={control}
-                  name='dateRange'
-                  render={({ field: { onChange } }) => (
-                    <DatePicker
-                      aria-label='date picker button'
-                      onChange={date => onChangeDatePicker(date, onChange)}
-                      startDate={(dateRange && dateRange[0]) || new Date()}
-                      endDate={dateRange && dateRange[1]}
-                      selectsRange
-                      customInput={
-                        <Box display='flex' alignItems='center'>
-                          <Typography fontSize='24px' fontWeight={500}>
-                            {userViewDate}
-                          </Typography>
-                          <CalendarTodayIcon
-                            sx={{ width: '45px' }}
-                            color='primary'
-                          />
-                        </Box>
-                      }
+                  name='viewSwitch'
+                  defaultValue={viewSwitch}
+                  render={({ field: { onChange, value } }) => (
+                    <Switch
+                      size='small'
+                      inputProps={{ 'aria-label': 'controlled' }}
+                      checked={value}
+                      sx={{
+                        '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                          color: '#666CFF',
+                          '.MuiSwitch-thumb': {
+                            color: '#666CFF',
+                          },
+                        },
+                        '.MuiSwitch-track': {
+                          backgroundColor: '#666CFF',
+                        },
+                      }}
+                      onChange={(event, val) => {
+                        onChange(val)
+                        onChangeViewMode(val)
+                      }}
                     />
                   )}
                 />
-              </DatePickerWrapper>
-              <ButtonGroup
-                color='primary'
-                aria-label='date selecor button group'
-              >
-                <Button
-                  variant={
-                    selectedRangeDate === 'month' ? 'contained' : 'outlined'
-                  }
-                  key='month'
-                  onClick={() => onChangeDateRange('month')}
-                >
-                  Month
-                </Button>
-                <Button
-                  key='week'
-                  variant={
-                    selectedRangeDate === 'week' ? 'contained' : 'outlined'
-                  }
-                  onClick={() => onChangeDateRange('week')}
-                >
-                  Week
-                </Button>
-                <Button
-                  key='today'
-                  variant={
-                    selectedRangeDate === 'today' ? 'contained' : 'outlined'
-                  }
-                  onClick={() => onChangeDateRange('today')}
-                >
-                  Today
-                </Button>
-              </ButtonGroup>
-            </Box>
-          </GridItem>
-          <GridItem width={76} height={76}>
-            <Box>
-              <Button onClick={handleClick}>
-                <MoreVertIcon
-                  sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
-                />
-              </Button>
-              <Menu
-                id='dashboard-menu'
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  'aria-labelledby': 'basic-button',
+              </div>
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color:
+                    state.view === 'personal'
+                      ? 'rgba(102, 108, 255, 1)'
+                      : 'rgba(189, 189, 189, 1)',
                 }}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
               >
-                <MenuItem
-                  onClick={handleClose}
-                  sx={{
-                    color: 'rgba(76, 78, 100, 0.87)',
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-                  >
-                    <DownloadIcon fontSize='small' />
-                  </ListItemIcon>
-                  <ListItemText>Download csv</ListItemText>
-                </MenuItem>
-                <MenuItem
-                  onClick={() => onChangeMemberView()}
-                  sx={{
-                    display:
-                      role?.type === 'Master' || role?.type === 'Manager'
-                        ? 'flex'
-                        : 'none',
-                    color: 'rgba(76, 78, 100, 0.87)',
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-                  >
-                    <RemoveRedEyeIcon fontSize='small' />
-                  </ListItemIcon>
-                  <ListItemText>
-                    {memberView ? 'Change Member' : 'View member dashboard'}
-                  </ListItemText>
-                </MenuItem>
-                {memberView && (
-                  <MenuItem
-                    onClick={() => onChangeMyDashboard()}
-                    sx={{
-                      display: 'flex',
-                      color: 'rgba(76, 78, 100, 0.87)',
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-                    >
-                      <LogoutOutlined fontSize='small' />
-                    </ListItemIcon>
-                    <ListItemText>Back to my dashboard</ListItemText>
-                  </MenuItem>
-                )}
-              </Menu>
+                Personal view
+              </Typography>
             </Box>
           </GridItem>
-        </Grid>
+        )}
+        <GridItem height={76} sm>
+          <Box
+            display='flex'
+            justifyContent='space-between'
+            sx={{ width: '100%' }}
+          >
+            <DatePickerWrapper>
+              <Controller
+                control={control}
+                name='dateRange'
+                render={({ field: { onChange } }) => (
+                  <DatePicker
+                    aria-label='date picker button'
+                    onChange={date => onChangeDatePicker(date, onChange)}
+                    startDate={(dateRange && dateRange[0]) || new Date()}
+                    endDate={dateRange && dateRange[1]}
+                    selectsRange
+                    minDate={dayjs().add(-5, 'year').toDate()}
+                    maxDate={dayjs().add(2, 'month').toDate()}
+                    customInput={
+                      <Box display='flex' alignItems='center'>
+                        <Typography fontSize='24px' fontWeight={500}>
+                          {userViewDate}
+                        </Typography>
+                        <CalendarTodayIcon
+                          sx={{ width: '45px' }}
+                          color='primary'
+                        />
+                      </Box>
+                    }
+                  />
+                )}
+              />
+            </DatePickerWrapper>
+            <ButtonGroup color='primary' aria-label='date selecor button group'>
+              <Button
+                variant={
+                  selectedRangeDate === 'month' ? 'contained' : 'outlined'
+                }
+                key='month'
+                onClick={() => onChangeDateRange('month')}
+              >
+                Month
+              </Button>
+              <Button
+                key='week'
+                variant={
+                  selectedRangeDate === 'week' ? 'contained' : 'outlined'
+                }
+                onClick={() => onChangeDateRange('week')}
+              >
+                Week
+              </Button>
+              <Button
+                key='today'
+                variant={
+                  selectedRangeDate === 'today' ? 'contained' : 'outlined'
+                }
+                onClick={() => onChangeDateRange('today')}
+              >
+                Today
+              </Button>
+            </ButtonGroup>
+          </Box>
+        </GridItem>
+        <GridItem width={76} height={76}>
+          <Box>
+            <Button onClick={handleClick}>
+              <MoreVertIcon
+                sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
+              />
+            </Button>
+            <Menu
+              id='dashboard-menu'
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+              <MenuItem
+                onClick={handleClose}
+                sx={{
+                  color: 'rgba(76, 78, 100, 0.87)',
+                }}
+              >
+                <ListItemIcon
+                  sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                >
+                  <DownloadIcon fontSize='small' />
+                </ListItemIcon>
+                <ListItemText>Download csv</ListItemText>
+              </MenuItem>
+              <MenuItem
+                onClick={() => onChangeMemberView()}
+                sx={{
+                  display:
+                    role?.type === 'Master' || role?.type === 'Manager'
+                      ? 'flex'
+                      : 'none',
+                  color: 'rgba(76, 78, 100, 0.87)',
+                }}
+              >
+                <ListItemIcon
+                  sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                >
+                  <RemoveRedEyeIcon fontSize='small' />
+                </ListItemIcon>
+                <ListItemText>
+                  {memberView ? 'Change Member' : 'View member dashboard'}
+                </ListItemText>
+              </MenuItem>
+              {memberView && (
+                <MenuItem
+                  onClick={() => onChangeMyDashboard()}
+                  sx={{
+                    display: 'flex',
+                    color: 'rgba(76, 78, 100, 0.87)',
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                  >
+                    <LogoutOutlined fontSize='small' />
+                  </ListItemIcon>
+                  <ListItemText>Back to my dashboard</ListItemText>
+                </MenuItem>
+              )}
+            </Menu>
+          </Box>
+        </GridItem>
+      </Grid>
+      <Grid
+        container
+        gap='24px'
+        sx={{
+          minWidth: '1320px',
+          height: 'calc(100vh - 220px)',
+          overflowX: 'auto',
+          overFlowY: 'scroll',
+          padding: '10px',
+        }}
+      >
         <Grid container gap='24px'>
           {!memberView && (
             <GridItem width={290} height={362}>
@@ -534,8 +542,15 @@ const Dashboards = () => {
             <Box sx={{ width: '100%' }}>
               <Box marginBottom='20px' sx={{ padding: '10px 20px 0' }}>
                 <SectionTitle>
-                  <span className='title'>New requests</span>
+                  <span
+                    role='button'
+                    className='title'
+                    onClick={() => router.push('/quotes/lpm/requests/')}
+                  >
+                    New requests
+                  </span>
                   <ErrorOutlineIcon className='info_icon' />
+                  <KeyboardArrowRight className='arrow_icon' />
                 </SectionTitle>
               </Box>
               <DashboardDataGrid />
@@ -606,7 +621,6 @@ const Dashboards = () => {
             type='language-pair'
             colors={SecondColors}
             getName={item => {
-              console.log(item)
               return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
             }}
           />
@@ -673,5 +687,5 @@ export default Dashboards
 
 Dashboards.acl = {
   action: 'read',
-  subject: 'members',
+  subject: 'client',
 }

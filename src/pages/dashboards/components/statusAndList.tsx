@@ -6,12 +6,15 @@ import {
   SubDateDescription,
 } from '@src/pages/dashboards/components/dashboardItem'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import dayjs from 'dayjs'
 import Grid from '@mui/material/Grid'
 import styled from '@emotion/styled'
 import AddIcon from '@mui/icons-material/Add'
 import Typography from '@mui/material/Typography'
-import { DoNotDisturbAlt, ReceiptLong } from '@mui/icons-material'
+import {
+  DoNotDisturbAlt,
+  KeyboardArrowRight,
+  ReceiptLong,
+} from '@mui/icons-material'
 import { DataGrid, GridColumns, GridSortModel } from '@mui/x-data-grid'
 
 import {
@@ -20,22 +23,24 @@ import {
 } from '@src/queries/dashboard/dashnaord-lpm'
 import { DashboardQuery, OrderType, ViewType } from '@src/types/dashboard'
 import { toCapitalize } from '@src/pages/dashboards/lpm'
+import { useRouter } from 'next/router'
 
-interface StatusAndListProps extends DashboardQuery {
+interface StatusAndListProps<T extends { id: number }> extends DashboardQuery {
   type: 'job' | 'order'
-  statusColumn: GridColumns
+  statusColumn: GridColumns<T>
   initSort: GridSortModel
   userViewDate: string
 }
 
-const StatusAndList = ({
+const StatusAndList = <T extends { id: number }>({
   type = 'order',
   to,
   from,
   statusColumn,
   initSort,
   userViewDate,
-}: StatusAndListProps) => {
+}: StatusAndListProps<T>) => {
+  const router = useRouter()
   const { data: countData } = useDashboardCount({ to, from })
   const [activeStatus, setActiveStatus] = useState<ViewType>('ongoing')
   const [sortModel, setSortModel] = useState<GridSortModel>(initSort)
@@ -55,6 +60,22 @@ const StatusAndList = ({
     ordering: sortModel[0]?.sort || (initSort[0].sort as OrderType),
   })
 
+  const movePage = () => {
+    if (type === 'order') {
+      router.push(`/orders/order-list/`)
+      return
+    }
+    router.push(`/orders/job-list/?menu=list`)
+  }
+
+  const moveDetailPage = (id: number) => {
+    if (type === 'order') {
+      router.push(`orders/order-list/detail/${id}/`)
+      return
+    }
+    router.push(`/orders/job-list/details/?orderId=238&jobId=260`)
+  }
+
   return (
     <Grid container flexDirection='row' gap='24px'>
       <Grid item display='flex' flexDirection='column' gap='24px'>
@@ -62,8 +83,16 @@ const StatusAndList = ({
           <Box sx={{ width: '100%' }}>
             <Box marginBottom='20px'>
               <SectionTitle>
-                <span className='title'>Ongoing {`${type}s`}</span>
+                <span
+                  role='button'
+                  className='title'
+                  onClick={() => movePage()}
+                >
+                  Ongoing {`${type}s`}
+                </span>
+
                 <ErrorOutlineIcon className='info_icon' />
+                <KeyboardArrowRight className='arrow_icon' />
               </SectionTitle>
             </Box>
             <StatusSectionList style={{ padding: '20px 0' }}>
@@ -83,7 +112,9 @@ const StatusAndList = ({
                     />
                   }
                 />
-                <span className='value'>{countData['ongoing']}</span>
+                <span className='value'>
+                  {countData['ongoing'].toLocaleString()}
+                </span>
               </li>
             </StatusSectionList>
           </Box>
@@ -92,8 +123,16 @@ const StatusAndList = ({
           <Box sx={{ width: '100%', height: '100%' }}>
             <Box marginBottom='20px'>
               <SectionTitle>
-                <span className='title'>{toCapitalize(type)} status</span>
+                <span
+                  role='button'
+                  className='title'
+                  onClick={() => movePage()}
+                >
+                  {toCapitalize(type)} status
+                </span>
+
                 <ErrorOutlineIcon className='info_icon' />
+                <KeyboardArrowRight className='arrow_icon' />
               </SectionTitle>
               <SubDateDescription textAlign='left'>
                 {userViewDate}
@@ -109,7 +148,9 @@ const StatusAndList = ({
                   color='rgba(102, 108, 255, 0.2)'
                   icon={<AddIcon sx={{ color: '#666CFF' }} />}
                 />
-                <span className='value'>{countData['created']}</span>
+                <span className='value'>
+                  {countData['created'].toLocaleString()}
+                </span>
               </li>
               <li
                 data-active={activeStatus === 'invoiced'}
@@ -120,7 +161,9 @@ const StatusAndList = ({
                   color='rgba(114, 225, 40, 0.2)'
                   icon={<ReceiptLong sx={{ color: '#64C623' }} />}
                 />
-                <span className='value'>{countData['invoiced']}</span>
+                <span className='value'>
+                  {countData['invoiced'].toLocaleString()}
+                </span>
               </li>
               <li
                 data-active={activeStatus === 'canceled'}
@@ -131,7 +174,9 @@ const StatusAndList = ({
                   color='rgba(224, 68, 64, 0.1)'
                   icon={<DoNotDisturbAlt sx={{ color: '#E04440' }} />}
                 />
-                <span className='value'>{countData['canceled']}</span>
+                <span className='value'>
+                  {countData['canceled'].toLocaleString()}
+                </span>
               </li>
             </StatusSectionList>
           </Box>
@@ -174,6 +219,9 @@ const StatusAndList = ({
               rows={data?.data || []}
               columns={statusColumn}
               rowCount={data?.totalCount || 0}
+              onRowClick={(params, event, details) => {
+                moveDetailPage(params.id as number)
+              }}
               rowsPerPageOptions={[6]}
               sortModel={sortModel}
               onSortModelChange={newSortModel => setSortModel(newSortModel)}

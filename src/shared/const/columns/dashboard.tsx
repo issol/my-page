@@ -229,7 +229,7 @@ export const StatusJobColumns: GridColumns = [
     },
   },
   {
-    field: 'proNmae',
+    field: 'proName',
     headerName: 'Pro / Email',
     minWidth: 192,
     renderHeader: () => <Box>Pro / Email</Box>,
@@ -262,6 +262,7 @@ export const StatusJobColumns: GridColumns = [
     headerName: 'Job',
     minWidth: 320,
     flex: 1,
+    sortable: false,
     renderHeader: () => <Box>Job</Box>,
     renderCell: ({ row }: { row: JobItem }) => {
       return (
