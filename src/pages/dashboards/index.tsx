@@ -62,6 +62,7 @@ import {
   StatusJobColumns,
   StatusOrderColumns,
 } from '@src/shared/const/columns/dashboard'
+import Image from 'next/image'
 
 dayjs.extend(weekday)
 
@@ -490,43 +491,45 @@ const Dashboards = () => {
           </GridItem>
         </Grid>
         <Grid container gap='24px'>
-          <GridItem width={290} height={362}>
-            <Box
-              display='flex'
-              flexDirection='column'
-              sx={{ width: '100%', height: '100%' }}
-            >
-              <Box marginBottom='20px'>
-                <SectionTitle>
-                  <span className='title'>Report</span>
-                  <ErrorOutlineIcon className='info_icon' />
-                </SectionTitle>
-                <SubDateDescription textAlign='left'>
-                  {dayjs('2023-01-24').format('MMMM D, YYYY')}
-                </SubDateDescription>
-                <Box
-                  component='ul'
-                  display='flex'
-                  flexDirection='column'
-                  sx={{ padding: 0 }}
-                >
-                  {ReportData &&
-                    Object.entries(ReportData).map(([key, value], index) => (
-                      <ReportItem
-                        key={`${key}-${index}`}
-                        label={toCapitalize(Status[index])}
-                        value={value}
-                        color={StatusColor[index]}
-                        isHidden={[
-                          Object.entries(ReportData).length - 1,
-                          3,
-                        ].includes(index)}
-                      />
-                    ))}
+          {!memberView && (
+            <GridItem width={290} height={362}>
+              <Box
+                display='flex'
+                flexDirection='column'
+                sx={{ width: '100%', height: '100%' }}
+              >
+                <Box marginBottom='20px'>
+                  <SectionTitle>
+                    <span className='title'>Report</span>
+                    <ErrorOutlineIcon className='info_icon' />
+                  </SectionTitle>
+                  <SubDateDescription textAlign='left'>
+                    {userViewDate}
+                  </SubDateDescription>
+                  <Box
+                    component='ul'
+                    display='flex'
+                    flexDirection='column'
+                    sx={{ padding: 0 }}
+                  >
+                    {ReportData &&
+                      Object.entries(ReportData).map(([key, value], index) => (
+                        <ReportItem
+                          key={`${key}-${index}`}
+                          label={toCapitalize(Status[index])}
+                          value={value}
+                          color={StatusColor[index]}
+                          isHidden={[
+                            Object.entries(ReportData).length - 1,
+                            3,
+                          ].includes(index)}
+                        />
+                      ))}
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          </GridItem>
+            </GridItem>
+          )}
           <GridItem height={362} sm padding='0'>
             <Box sx={{ width: '100%' }}>
               <Box marginBottom='20px' sx={{ padding: '10px 20px 0' }}>
@@ -538,8 +541,18 @@ const Dashboards = () => {
               <DashboardDataGrid />
             </Box>
           </GridItem>
+          {memberView && (
+            <GridItem width='269px' height={362} padding='0'>
+              <img
+                src='/images/dashboard/img_member_view.png'
+                alt='img'
+                style={{ width: '110%' }}
+              />
+            </GridItem>
+          )}
         </Grid>
         <StatusAndList
+          userViewDate={userViewDate}
           type='order'
           statusColumn={StatusOrderColumns}
           initSort={[
@@ -554,6 +567,7 @@ const Dashboards = () => {
           to={getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)}
         />
         <StatusAndList
+          userViewDate={userViewDate}
           type='job'
           statusColumn={StatusJobColumns}
           initSort={[
@@ -569,6 +583,7 @@ const Dashboards = () => {
         />
         <Grid container spacing={5}>
           <DoughnutChart
+            userViewDate={userViewDate}
             title='Clients'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
@@ -580,6 +595,7 @@ const Dashboards = () => {
             colors={Colors}
           />
           <DoughnutChart<PairRatioItem>
+            userViewDate={userViewDate}
             title='Language pairs'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
@@ -597,6 +613,7 @@ const Dashboards = () => {
         </Grid>
         <Grid container spacing={5}>
           <DoughnutChart<CategoryRatioItem>
+            userViewDate={userViewDate}
             title='Main categories'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
@@ -611,6 +628,7 @@ const Dashboards = () => {
             }}
           />
           <DoughnutChart<ServiceRatioItem>
+            userViewDate={userViewDate}
             title='Service types'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
@@ -627,6 +645,7 @@ const Dashboards = () => {
         </Grid>
         <Grid container spacing={5}>
           <DoughnutChart<ExpertiseRatioItem>
+            userViewDate={userViewDate}
             title='Area of expertises'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,

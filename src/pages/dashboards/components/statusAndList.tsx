@@ -25,6 +25,7 @@ interface StatusAndListProps extends DashboardQuery {
   type: 'job' | 'order'
   statusColumn: GridColumns
   initSort: GridSortModel
+  userViewDate: string
 }
 
 const StatusAndList = ({
@@ -33,6 +34,7 @@ const StatusAndList = ({
   from,
   statusColumn,
   initSort,
+  userViewDate,
 }: StatusAndListProps) => {
   const { data: countData } = useDashboardCount({ to, from })
   const [activeStatus, setActiveStatus] = useState<ViewType>('ongoing')
@@ -49,8 +51,8 @@ const StatusAndList = ({
     from,
     skip: skip,
     take: 6,
-    sort: sortModel[0].field,
-    ordering: sortModel[0].sort as OrderType,
+    sort: sortModel[0]?.field || initSort[0].field,
+    ordering: sortModel[0]?.sort || (initSort[0].sort as OrderType),
   })
 
   return (
@@ -94,7 +96,7 @@ const StatusAndList = ({
                 <ErrorOutlineIcon className='info_icon' />
               </SectionTitle>
               <SubDateDescription textAlign='left'>
-                {dayjs('2023-01-24').format('MMMM D, YYYY')}
+                {userViewDate}
               </SubDateDescription>
             </Box>
             <StatusSectionList>

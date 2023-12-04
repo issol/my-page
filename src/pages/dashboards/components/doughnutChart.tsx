@@ -80,6 +80,7 @@ interface DoughnutChartProps<T> {
   type: string
   colors: Array<string>
   getName?: (row?: T) => string
+  userViewDate: string
 }
 
 const DoughnutChart = <T extends RatioItem>({
@@ -89,6 +90,7 @@ const DoughnutChart = <T extends RatioItem>({
   type,
   colors,
   getName,
+  userViewDate,
 }: DoughnutChartProps<T>) => {
   const theme = useTheme()
 
@@ -199,7 +201,7 @@ const DoughnutChart = <T extends RatioItem>({
             <ErrorOutlineIcon className='info_icon' />
           </SectionTitle>
           <SubDateDescription textAlign='left'>
-            {dayjs('2023-01-24').format('MMMM D, YYYY')}
+            {userViewDate}
           </SubDateDescription>
         </Box>
         <Box display='flex' justifyContent='flex-end'>
