@@ -75,7 +75,7 @@ export const useDashboardRequest = (
   const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery(
-    [DEFAULT_QUERY_NAME, `${DEFAULT_QUERY_NAME}-request`, view, skip],
+    [DEFAULT_QUERY_NAME, `${DEFAULT_QUERY_NAME}-request`, view, userId, skip],
     () => {
       return getRequest({ ...query, skip, userId, view })
     },
@@ -104,6 +104,7 @@ export const useDashboardRatio = <T extends RatioItem>({
       DEFAULT_QUERY_NAME,
       `${DEFAULT_QUERY_NAME}-ratio-${props.type}`,
       view,
+      userId,
       currency,
       from,
       to,
@@ -146,6 +147,7 @@ export const useDashboardOrders = ({
       DEFAULT_QUERY_NAME,
       `${DEFAULT_QUERY_NAME}-count`,
       view,
+      userId,
       type,
       from,
       to,
@@ -169,7 +171,7 @@ export const useDashboardCount = ({ to, from }: DashboardQuery) => {
   const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery(
-    [DEFAULT_QUERY_NAME, `${DEFAULT_QUERY_NAME}-count`, to, from, view],
+    [DEFAULT_QUERY_NAME, `${DEFAULT_QUERY_NAME}-count`, userId, to, from, view],
     () => getCount({ to, from, userId, view }),
     {
       suspense: true,

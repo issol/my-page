@@ -61,6 +61,8 @@ import { useQueryClient } from 'react-query'
 import CopyOrdersList from '@src/pages/orders/order-list/components/copy-order-list'
 import useModal from '@src/hooks/useModal'
 import MemberSearchList from '@src/pages/dashboards/components/member-search'
+import { PermissionChip } from '@src/@core/components/chips/chips'
+import { LogoutOutlined } from '@mui/icons-material'
 dayjs.extend(weekday)
 
 type SelectedRangeDate = 'month' | 'week' | 'today'
@@ -141,6 +143,7 @@ const Dashboards = () => {
   })
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [memberView, setMemberView] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
   const open = Boolean(anchorEl)
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
@@ -155,15 +158,32 @@ const Dashboards = () => {
     if (state.view !== null) return
 
     if (role?.type === 'Master' || role?.type === 'Manager') {
-      setState({ view: 'company', userId: auth?.user?.id || null })
+      setState({
+        view: 'company',
+        userId: auth?.user?.id || null,
+        role: role?.type,
+      })
       setValue('view', 'company')
       setValue('viewSwitch', true)
     } else {
-      setState({ view: 'personal', userId: auth?.user?.id || null })
+      setState({
+        view: 'personal',
+        userId: auth?.user?.id || null,
+        role: role?.type,
+      })
       setValue('view', 'personal')
       setValue('viewSwitch', false)
     }
   }, [])
+
+  useEffect(() => {
+    if (state.userInfo) {
+      setMemberView(true)
+      return
+    }
+
+    setMemberView(false)
+  }, [state.userInfo])
 
   const onChangeViewMode = async (val: boolean) => {
     if (val) {
@@ -232,6 +252,17 @@ const Dashboards = () => {
     handleClose()
   }
 
+  const onChangeMyDashboard = async () => {
+    handleClose()
+    setState({
+      ...state,
+      userId: auth?.user?.id || null || state.userId,
+      userInfo: undefined,
+    })
+
+    await queryClient.invalidateQueries(DEFAULT_QUERY_NAME)
+  }
+
   return (
     <ApexChartWrapper>
       <Grid
@@ -240,68 +271,89 @@ const Dashboards = () => {
         sx={{ minWidth: '1320px', overflowX: 'auto', padding: '10px' }}
       >
         <Grid container gap='24px'>
-          <GridItem width={290} height={76}>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <Typography
+          {memberView ? (
+            <GridItem width={420} height={76}>
+              <Box sx={{ width: '100%' }}>
+                <Box display='flex' gap='16px' alignItems='center'>
+                  <Typography fontSize='24px' fontWeight={500}>
+                    {`${state.userInfo?.firstName}`}
+                    {state.userInfo?.middleName &&
+                      `(${state.userInfo?.middleName})`}{' '}
+                    {state.userInfo?.lastName}
+                  </Typography>
+                  {PermissionChip(state.userInfo?.type || 'General')}
+                </Box>
+                <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
+                  {`${state.userInfo?.department || '-'} | ${
+                    state.userInfo?.jobTitle || '-'
+                  }`}
+                </Typography>
+              </Box>
+            </GridItem>
+          ) : (
+            <GridItem width={290} height={76}>
+              <Box
                 sx={{
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color:
-                    state.view === 'company'
-                      ? 'rgba(102, 108, 255, 1)'
-                      : 'rgba(189, 189, 189, 1)',
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
-                Company view
-              </Typography>
-              <div style={{ width: '40px' }}>
-                <Controller
-                  control={control}
-                  name='viewSwitch'
-                  defaultValue={false}
-                  render={({ field: { onChange, value } }) => (
-                    <Switch
-                      size='small'
-                      value={value}
-                      inputProps={{ 'aria-label': 'controlled' }}
-                      sx={{
-                        '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                          color: '#666CFF',
-                          '.MuiSwitch-thumb': {
+                <Typography
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color:
+                      state.view === 'company'
+                        ? 'rgba(102, 108, 255, 1)'
+                        : 'rgba(189, 189, 189, 1)',
+                  }}
+                >
+                  Company view
+                </Typography>
+                <div style={{ width: '40px' }}>
+                  <Controller
+                    control={control}
+                    name='viewSwitch'
+                    defaultValue={false}
+                    render={({ field: { onChange, value } }) => (
+                      <Switch
+                        size='small'
+                        value={value}
+                        inputProps={{ 'aria-label': 'controlled' }}
+                        sx={{
+                          '.MuiSwitch-switchBase:not(.Mui-checked)': {
                             color: '#666CFF',
+                            '.MuiSwitch-thumb': {
+                              color: '#666CFF',
+                            },
                           },
-                        },
-                        '.MuiSwitch-track': {
-                          backgroundColor: '#666CFF',
-                        },
-                      }}
-                      onChange={(event, val) => {
-                        onChangeViewMode(val)
-                        onChange(val)
-                      }}
-                    />
-                  )}
-                />
-              </div>
-              <Typography
-                sx={{
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color:
-                    state.view === 'personal'
-                      ? 'rgba(102, 108, 255, 1)'
-                      : 'rgba(189, 189, 189, 1)',
-                }}
-              >
-                Personal view
-              </Typography>
-            </Box>
-          </GridItem>
+                          '.MuiSwitch-track': {
+                            backgroundColor: '#666CFF',
+                          },
+                        }}
+                        onChange={(event, val) => {
+                          onChangeViewMode(val)
+                          onChange(val)
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+                <Typography
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color:
+                      state.view === 'personal'
+                        ? 'rgba(102, 108, 255, 1)'
+                        : 'rgba(189, 189, 189, 1)',
+                  }}
+                >
+                  Personal view
+                </Typography>
+              </Box>
+            </GridItem>
+          )}
           <GridItem height={76} sm>
             <Box
               display='flex'
@@ -401,7 +453,10 @@ const Dashboards = () => {
                 <MenuItem
                   onClick={() => onChangeMemberView()}
                   sx={{
-                    display: 'flex',
+                    display:
+                      role?.type === 'Master' || role?.type === 'Manager'
+                        ? 'flex'
+                        : 'none',
                     color: 'rgba(76, 78, 100, 0.87)',
                   }}
                 >
@@ -410,8 +465,26 @@ const Dashboards = () => {
                   >
                     <RemoveRedEyeIcon fontSize='small' />
                   </ListItemIcon>
-                  <ListItemText>View member dashboard</ListItemText>
+                  <ListItemText>
+                    {memberView ? 'Change Member' : 'View member dashboard'}
+                  </ListItemText>
                 </MenuItem>
+                {memberView && (
+                  <MenuItem
+                    onClick={() => onChangeMyDashboard()}
+                    sx={{
+                      display: 'flex',
+                      color: 'rgba(76, 78, 100, 0.87)',
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                    >
+                      <LogoutOutlined fontSize='small' />
+                    </ListItemIcon>
+                    <ListItemText>Back to my dashboard</ListItemText>
+                  </MenuItem>
+                )}
               </Menu>
             </Box>
           </GridItem>

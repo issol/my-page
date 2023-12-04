@@ -130,7 +130,8 @@ const MemberSearchList = ({ open, onClose }: Props) => {
   }
 
   const onSelectedMember = async () => {
-    setState({ ...state, userId: selected || state.userId })
+    const item = data.find(item => item.userId === selected)
+    setState({ ...state, userId: selected || state.userId, userInfo: item })
     await queryClient.invalidateQueries(DEFAULT_QUERY_NAME)
     onClose()
   }
