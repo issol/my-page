@@ -9,7 +9,7 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'members',
       path: `/dashboards`,
-      role: ['LPM','TAD', 'ACCOUNT_MANAGER', 'CLIENT', 'PRO'],
+      role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT', 'PRO'],
     },
     {
       title: 'My page',
@@ -65,7 +65,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'mdi:account-star-outline',
       action: 'read',
       subject: 'client',
-      role: ['LPM','ACCOUNT_MANAGER'],
+      role: ['LPM', 'ACCOUNT_MANAGER'],
       children: [
         {
           title: 'Client List',
@@ -113,7 +113,7 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'members',
       path: `/account`,
-      role: ['LPM','TAD','ACCOUNT_MANAGER','CLIENT'],
+      role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT'],
     },
     {
       title: 'Onboarding',
@@ -242,7 +242,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:receipt-long',
       action: 'read',
       subject: 'invoice_receivable',
-      role: ['LPM','ACCOUNT_MANAGER'],
+      role: ['LPM', 'ACCOUNT_MANAGER'],
       children: [
         {
           title: 'Receivables',
@@ -268,6 +268,14 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'invoice_receivable',
       path: `/invoice/receivable`,
       role: ['CLIENT'],
+    },
+    {
+      title: 'Job openings',
+      icon: 'material-symbols:person-search-outline',
+      // action: 'read',
+      // subject: 'job_openings',
+      path: `/job-openings`,
+      role: ['PRO'],
     },
   ]
 }
