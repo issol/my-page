@@ -17,7 +17,6 @@ import dayjs from 'dayjs'
 import {
   DEFAULT_QUERY_NAME,
   useDashboardReport,
-  useDashboardRequest,
 } from '@src/queries/dashboard/dashnaord-lpm'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Switch from '@mui/material/Switch'
@@ -25,7 +24,7 @@ import Typography from '@mui/material/Typography'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import Button from '@mui/material/Button'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
+import DatePicker from 'react-datepicker'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import React, { MouseEvent, useCallback, useEffect, useState } from 'react'
@@ -35,7 +34,6 @@ import DashboardDataGrid from '@src/pages/dashboards/components/dataGrid'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
 // ** Custom Components Imports
-import { useTheme } from '@mui/material/styles'
 import DoughnutChart from '@src/pages/dashboards/components/doughnutChart'
 import weekday from 'dayjs/plugin/weekday'
 import {
@@ -56,13 +54,15 @@ import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { currentRoleSelector } from '@src/states/permission'
 import { dashboardState } from '@src/states/dashboard'
-import { useRouter } from 'next/router'
 import { useQueryClient } from 'react-query'
-import CopyOrdersList from '@src/pages/orders/order-list/components/copy-order-list'
-import useModal from '@src/hooks/useModal'
 import MemberSearchList from '@src/pages/dashboards/components/member-search'
 import { PermissionChip } from '@src/@core/components/chips/chips'
 import { LogoutOutlined } from '@mui/icons-material'
+import {
+  StatusJobColumns,
+  StatusOrderColumns,
+} from '@src/shared/const/columns/dashboard'
+
 dayjs.extend(weekday)
 
 type SelectedRangeDate = 'month' | 'week' | 'today'
@@ -110,7 +110,7 @@ const getDateFormat = (date: Date | null) => {
   return dayjs(date).format('YYYY-MM-DD')
 }
 
-const toCapitalize = (str: string) => {
+export const toCapitalize = (str: string) => {
   return str.replace(/\b\w/g, match => match.toUpperCase())
 }
 
@@ -541,6 +541,27 @@ const Dashboards = () => {
         </Grid>
         <StatusAndList
           type='order'
+          statusColumn={StatusOrderColumns}
+          initSort={[
+            {
+              field: 'category',
+              sort: 'desc',
+            },
+          ]}
+          from={getDateFormat(
+            (Array.isArray(dateRange) && dateRange[0]) || null,
+          )}
+          to={getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)}
+        />
+        <StatusAndList
+          type='job'
+          statusColumn={StatusJobColumns}
+          initSort={[
+            {
+              field: 'proName',
+              sort: 'desc',
+            },
+          ]}
           from={getDateFormat(
             (Array.isArray(dateRange) && dateRange[0]) || null,
           )}

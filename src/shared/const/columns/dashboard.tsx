@@ -1,5 +1,5 @@
 import { GridColumns } from '@mui/x-data-grid'
-import { OrderItem, RequestItem } from '@src/types/dashboard'
+import { JobItem, OrderItem, RequestItem } from '@src/types/dashboard'
 import { StatusSquare } from '@src/pages/dashboards/components/dashboardItem'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -125,11 +125,12 @@ export const RequestColumns: GridColumns = [
   },
 ]
 
-export const StatusColumns: GridColumns = [
+export const StatusOrderColumns: GridColumns = [
   {
     field: 'status',
     headerName: 'status',
     minWidth: 192,
+    renderHeader: () => <Box>status</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
       return (
         <div>
@@ -143,9 +144,10 @@ export const StatusColumns: GridColumns = [
     },
   },
   {
-    field: 'client',
+    field: 'clientName',
     headerName: 'Client / Email',
     minWidth: 192,
+    renderHeader: () => <Box>Client / Email</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
       return (
         <Box>
@@ -163,6 +165,7 @@ export const StatusColumns: GridColumns = [
     field: 'projectName',
     headerName: 'Project name',
     minWidth: 220,
+    renderHeader: () => <Box>Project name</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
       return <div>{row.projectName}</div>
     },
@@ -171,6 +174,8 @@ export const StatusColumns: GridColumns = [
     field: 'category',
     headerName: 'Category / Service type',
     minWidth: 320,
+    flex: 1,
+    renderHeader: () => <Box>Category / Service type</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
       return (
         <Box
@@ -188,6 +193,81 @@ export const StatusColumns: GridColumns = [
             )}
             {row.serviceType ? (
               <ServiceTypeChip label={row.serviceType} />
+            ) : (
+              '-'
+            )}
+          </Box>
+        </Box>
+      )
+    },
+  },
+]
+
+export const StatusJobColumns: GridColumns = [
+  {
+    field: 'status',
+    headerName: 'status',
+    minWidth: 192,
+    renderHeader: () => <Box>status</Box>,
+    renderCell: ({ row }: { row: JobItem }) => {
+      return (
+        <div>
+          <OrderStatusChip
+            size='small'
+            status={row?.status}
+            label={row?.status}
+          />
+        </div>
+      )
+    },
+  },
+  {
+    field: 'proNmae',
+    headerName: 'Pro / Email',
+    minWidth: 192,
+    renderHeader: () => <Box>Pro / Email</Box>,
+    renderCell: ({ row }: { row: JobItem }) => {
+      return (
+        <Box>
+          <Typography fontSize='14px' fontWeight={600}>
+            {`${row.pro?.firstName || '-'} ${row.pro?.middleName || '-'} ${
+              row.pro?.lastName || '-'
+            }` || '-'}
+          </Typography>
+          <Typography color='#4C4E6499' fontSize='14px'>
+            {row.pro?.email || '-'}
+          </Typography>
+        </Box>
+      )
+    },
+  },
+  {
+    field: 'jobName',
+    headerName: 'Job name',
+    minWidth: 220,
+    renderHeader: () => <Box>Job name</Box>,
+    renderCell: ({ row }: { row: JobItem }) => {
+      return <div>{row.jobName}</div>
+    },
+  },
+  {
+    field: 'job',
+    headerName: 'Job',
+    minWidth: 320,
+    flex: 1,
+    renderHeader: () => <Box>Job</Box>,
+    renderCell: ({ row }: { row: JobItem }) => {
+      return (
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          gap='10px'
+          sx={{ width: '340px' }}
+        >
+          <Box display='flex' gap='10px'>
+            {row.jobType ? (
+              <JobTypeChip type={row.jobType} label={row.jobType} />
             ) : (
               '-'
             )}

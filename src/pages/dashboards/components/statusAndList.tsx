@@ -3,7 +3,6 @@ import { Box } from '@mui/material'
 import {
   GridItem,
   SectionTitle,
-  StatusSquare,
   SubDateDescription,
 } from '@src/pages/dashboards/components/dashboardItem'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
@@ -13,29 +12,45 @@ import styled from '@emotion/styled'
 import AddIcon from '@mui/icons-material/Add'
 import Typography from '@mui/material/Typography'
 import { DoNotDisturbAlt, ReceiptLong } from '@mui/icons-material'
-import { StatusColumns } from '@src/shared/const/columns/dashboard'
-import { DataGrid } from '@mui/x-data-grid'
+import { DataGrid, GridColumns, GridSortModel } from '@mui/x-data-grid'
 
 import {
   useDashboardCount,
-  useDashboardOrders,
+  useDashboardCountList,
 } from '@src/queries/dashboard/dashnaord-lpm'
-import { DashboardQuery, ViewType } from '@src/types/dashboard'
+import { DashboardQuery, OrderType, ViewType } from '@src/types/dashboard'
+import { toCapitalize } from '@src/pages/dashboards'
 
 interface StatusAndListProps extends DashboardQuery {
   type: 'job' | 'order'
+  statusColumn: GridColumns
+  initSort: GridSortModel
 }
 
-const StatusAndList = ({ type = 'order', to, from }: StatusAndListProps) => {
+const StatusAndList = ({
+  type = 'order',
+  to,
+  from,
+  statusColumn,
+  initSort,
+}: StatusAndListProps) => {
   const { data: countData } = useDashboardCount({ to, from })
   const [activeStatus, setActiveStatus] = useState<ViewType>('ongoing')
-  const { data } = useDashboardOrders({
+  const [sortModel, setSortModel] = useState<GridSortModel>(initSort)
+
+  const [skip, setSkip] = useState(0)
+  const [page, setPage] = useState(0)
+  const [pageSize, setPageSize] = useState(6)
+
+  const { data } = useDashboardCountList({
+    countType: type,
     type: activeStatus,
     to,
     from,
-    skip: 0,
+    skip: skip,
     take: 6,
-    sort: 'category',
+    sort: sortModel[0].field,
+    ordering: sortModel[0].sort as OrderType,
   })
 
   return (
@@ -45,7 +60,7 @@ const StatusAndList = ({ type = 'order', to, from }: StatusAndListProps) => {
           <Box sx={{ width: '100%' }}>
             <Box marginBottom='20px'>
               <SectionTitle>
-                <span className='title'>Ongoing orders</span>
+                <span className='title'>Ongoing {`${type}s`}</span>
                 <ErrorOutlineIcon className='info_icon' />
               </SectionTitle>
             </Box>
@@ -75,7 +90,7 @@ const StatusAndList = ({ type = 'order', to, from }: StatusAndListProps) => {
           <Box sx={{ width: '100%', height: '100%' }}>
             <Box marginBottom='20px'>
               <SectionTitle>
-                <span className='title'>Order status</span>
+                <span className='title'>{toCapitalize(type)} status</span>
                 <ErrorOutlineIcon className='info_icon' />
               </SectionTitle>
               <SubDateDescription textAlign='left'>
@@ -128,7 +143,10 @@ const StatusAndList = ({ type = 'order', to, from }: StatusAndListProps) => {
             sx={{ padding: '0 20px', height: '72px' }}
           >
             <SectionTitle>
-              <span className='title'>Ongoin orders &gt; {activeStatus}</span>
+              <span className='title'>
+                Ongoing {type}s &gt; {toCapitalize(activeStatus)}{' '}
+                {`(${countData[activeStatus]})`}
+              </span>
             </SectionTitle>
           </Box>
           <Box
@@ -141,14 +159,22 @@ const StatusAndList = ({ type = 'order', to, from }: StatusAndListProps) => {
           >
             <DataGrid
               initialState={{
-                sorting: {
-                  sortModel: [{ field: 'client', sort: 'asc' }],
-                },
+                sorting: { sortModel },
               }}
+              page={page}
+              onPageChange={newPage => {
+                setPage(newPage)
+                setSkip(val => newPage * 4)
+              }}
+              pageSize={pageSize}
+              onPageSizeChange={pageSize => setPageSize(pageSize)}
+              paginationMode='server'
               rows={data?.data || []}
-              columns={StatusColumns}
+              columns={statusColumn}
               rowCount={data?.totalCount || 0}
               rowsPerPageOptions={[6]}
+              sortModel={sortModel}
+              onSortModelChange={newSortModel => setSortModel(newSortModel)}
             />
           </Box>
         </Box>

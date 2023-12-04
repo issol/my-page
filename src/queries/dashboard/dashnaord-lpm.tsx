@@ -10,17 +10,15 @@ import {
 } from '@src/apis/dashboard/lpm'
 import type { DashboardQuery, ViewMode } from '@src/types/dashboard'
 import {
-  Currency,
+  CountQuery,
   DashboardMemberQuery,
   DashboardPaginationQuery,
-  OrderQuery,
   RatioItem,
   RatioQuery,
   RatioResponse,
 } from '@src/types/dashboard'
-import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
+import { useRecoilValue } from 'recoil'
 import { dashboardState } from '@src/states/dashboard'
-import { useRouter } from 'next/router'
 
 export const DEFAULT_QUERY_NAME = 'dashboard'
 
@@ -127,15 +125,15 @@ export const useDashboardRatio = <T extends RatioItem>({
   )
 }
 
-export const useDashboardOrders = ({
+export const useDashboardCountList = ({
   from,
   to,
   type,
   skip,
   sort,
-
+  countType,
   ...props
-}: OrderQuery) => {
+}: CountQuery) => {
   const { userId: initUserId, view: initView } = getUserViewModeInfo()
   const { view: changeView, userId: changeUserId } =
     useRecoilValue(dashboardState)
@@ -148,13 +146,25 @@ export const useDashboardOrders = ({
       `${DEFAULT_QUERY_NAME}-count`,
       view,
       userId,
+      countType,
       type,
       from,
       to,
       skip,
       sort,
     ],
-    () => getOrders({ ...props, from, to, type, skip, sort, userId, view }),
+    () =>
+      getOrders({
+        ...props,
+        from,
+        to,
+        type,
+        skip,
+        sort,
+        userId,
+        view,
+        countType,
+      }),
     {
       suspense: true,
       keepPreviousData: true,

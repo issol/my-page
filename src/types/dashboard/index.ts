@@ -59,6 +59,14 @@ export type OrderItem = {
   }
 }
 
+export type JobItem = {
+  id: number
+  jobName: string
+  jobType: string
+  status: OrderStatusType
+  pro: Partial<MemberItem>
+}
+
 export type Currency =
   | 'convertedToJPY'
   | 'convertedToKRW'
@@ -122,12 +130,15 @@ export type MemberItem = {
 }
 
 export type ViewType = 'created' | 'invoiced' | 'canceled' | 'ongoing'
-export type SortType = 'status' | 'clientName' | 'projectName' | 'category'
 
-export interface OrderQuery
+export type OrderType = 'asc' | 'desc'
+
+export interface CountQuery
   extends DashboardQuery,
     DashboardPaginationQuery,
     Partial<ViewModeQuery> {
   type: ViewType
-  sort: SortType
+  countType: 'job' | 'order'
+  sort: string
+  ordering: OrderType
 }

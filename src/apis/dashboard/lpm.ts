@@ -1,10 +1,10 @@
 import { ClientDetailType } from '@src/types/client/client'
 import axios from '@src/configs/axios'
 import {
+  CountQuery,
   DashboardMemberQuery,
   DashboardPaginationQuery,
   DashboardQuery,
-  OrderQuery,
   RatioQuery,
   ReportItem,
 } from '@src/types/dashboard'
@@ -37,10 +37,13 @@ export const getRatio = async (params: RatioQuery) => {
   return data
 }
 
-export const getOrders = async (params: OrderQuery) => {
-  const { data } = await axios.get(`/api/enough/u/dashboard/order/list`, {
-    params,
-  })
+export const getOrders = async ({ countType, ...props }: CountQuery) => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/${countType}/list`,
+    {
+      params: { ...props },
+    },
+  )
   return data
 }
 
