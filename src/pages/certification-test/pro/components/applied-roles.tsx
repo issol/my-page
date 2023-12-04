@@ -341,6 +341,7 @@ const ProAppliedRoles = ({
                 backgroundColor: 'inherit',
               },
               maxHeight: '451px',
+              minHeight: '375px',
             }}
             autoHeight
             rows={appliedRoles?.data ?? []}
