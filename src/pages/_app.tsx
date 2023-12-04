@@ -132,7 +132,11 @@ const SentryIntegrations =
     ? [new SentryBrowser.BrowserTracing()]
     : [
         new SentryBrowser.BrowserTracing(),
-        new SentryBrowser.Replay({ maskAllText: false, maskAllInputs: false }),
+        new SentryBrowser.Replay({
+          maskAllText: false,
+          maskAllInputs: false,
+          blockAllMedia: false,
+        }),
       ]
 // console.log(JSON.parse(getUserDataFromBrowser()!).email)
 const userData = getUserDataFromBrowser()
