@@ -51,6 +51,7 @@ import {
   postProJobDeliveries,
 } from '@src/apis/job-detail.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -217,16 +218,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.csv'],
-      'application/pdf': ['.pdf'],
-      'text/plain': ['.txt'],
-      'application/vnd.ms-powerpoint': ['.ppt'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        ['.docx'],
-      'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
-      'image/vnd.adobe.photoshop': ['.psd', '.psb'],
+      ...srtUploadFileExtension.accept
     },
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files

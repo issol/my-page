@@ -31,6 +31,7 @@ import { S3FileType } from '@src/shared/const/signedURLFileType'
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 
 type Props = {
   info: AssignProListType
@@ -86,15 +87,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.cvs'],
-      'application/pdf': ['.pdf'],
-      'text/plain': ['.txt'],
-      'application/vnd.ms-powerpoint': ['.ppt'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        ['.docx'],
-      'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
+      ...srtUploadFileExtension.accept
     },
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files

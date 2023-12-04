@@ -64,6 +64,7 @@ import NoList from '@src/pages/components/no-list'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import SelectRequestRedeliveryReasonModal from './modal/select-request-redelivery-reason-modal'
 import { ReasonType } from '@src/types/quotes/quote'
+import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 
 type Props = {
   project: ProjectInfoType
@@ -158,16 +159,7 @@ const DeliveriesFeedback = ({
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.csv'],
-      'application/pdf': ['.pdf'],
-      'text/plain': ['.txt'],
-      'application/vnd.ms-powerpoint': ['.ppt'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        ['.docx'],
-      'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
-      'image/vnd.adobe.photoshop': ['.psd', '.psb'],
+      ...srtUploadFileExtension.accept
     },
     disabled: !canUseFeature('button-Deliveries&Feedback-Upload'),
     noKeyboard: true,
