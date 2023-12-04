@@ -12,7 +12,6 @@ import {
 export const getReport = async (
   params: DashboardQuery,
 ): Promise<ReportItem> => {
-  console.log('23423423234234', params)
   const { data } = await axios.get(`/api/enough/u/dashboard/summary`, {
     params,
   })

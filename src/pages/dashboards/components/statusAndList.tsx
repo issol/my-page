@@ -19,7 +19,7 @@ import {
   useDashboardCountList,
 } from '@src/queries/dashboard/dashnaord-lpm'
 import { DashboardQuery, OrderType, ViewType } from '@src/types/dashboard'
-import { toCapitalize } from '@src/pages/dashboards'
+import { toCapitalize } from '@src/pages/dashboards/lpm'
 
 interface StatusAndListProps extends DashboardQuery {
   type: 'job' | 'order'

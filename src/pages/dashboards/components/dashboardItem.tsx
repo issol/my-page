@@ -1,5 +1,12 @@
 import Grid from '@mui/material/Grid'
-import { Box, ButtonGroup, Card, MenuItem, Typography } from '@mui/material'
+import {
+  Box,
+  ButtonGroup,
+  Card,
+  LinearProgress,
+  MenuItem,
+  Typography,
+} from '@mui/material'
 import React, { ReactElement, useCallback } from 'react'
 import styled from '@emotion/styled'
 import Button from '@mui/material/Button'
@@ -10,6 +17,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import MenuList from '@mui/material/MenuList'
 import { ArrowDropDown } from '@mui/icons-material'
 import { Currency } from '@src/types/dashboard'
+import { validateColors } from '@iconify/tools'
 
 interface GridItemProps {
   width?: number | string
@@ -288,5 +296,65 @@ export const ConvertButtonGroup = ({
         )}
       </Popper>
     </React.Fragment>
+  )
+}
+
+export const TableStatusCircle = styled.span<{ color: string }>(({ color }) => {
+  return {
+    display: 'block',
+    width: '12px',
+    height: '12px',
+    borderRadius: '20px',
+    backgroundColor: color,
+  }
+})
+
+export const TitleIcon = styled.div(() => {
+  return {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '50px',
+    height: '50px',
+    backgroundColor: 'rgba(114, 225, 40, 0.2)',
+    borderRadius: '8px',
+  }
+})
+
+const Progress = styled.ul(() => {
+  return {
+    display: 'flex',
+    width: '100%',
+    height: '7px',
+    borderRadius: '20px',
+    backgroundColor: 'rgba(224, 224, 224, 1)',
+    listStyle: 'none',
+    overflow: 'hidden',
+    padding: 0,
+    margin: '20px 0 0',
+
+    '& > li': {
+      height: '8px',
+    },
+    '& > .item': {
+      '&_invoiced': {
+        backgroundColor: 'rgba(60, 61, 91, 1)',
+      },
+      '&_paid': {
+        backgroundColor: 'rgba(114, 225, 40, 1)',
+      },
+      '&_overdue': {
+        backgroundColor: 'rgba(224, 68, 64, 1)',
+      },
+    },
+  }
+})
+export const LinearMultiProgress = () => {
+  return (
+    <Progress>
+      <li className='item_invoiced' style={{ width: '30%' }} />
+      <li className='item_paid' style={{ width: '10%' }} />
+      <li className='item_overdue' style={{ width: '30%' }} />
+    </Progress>
   )
 }
