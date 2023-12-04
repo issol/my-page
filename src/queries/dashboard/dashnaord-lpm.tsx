@@ -2,6 +2,7 @@ import { useQuery } from 'react-query'
 
 import {
   getCount,
+  getMemberList,
   getOrders,
   getRatio,
   getReport,
@@ -10,6 +11,7 @@ import {
 import type { DashboardQuery, ViewMode } from '@src/types/dashboard'
 import {
   Currency,
+  DashboardMemberQuery,
   DashboardPaginationQuery,
   OrderQuery,
   RatioItem,
@@ -33,12 +35,20 @@ const getUserViewModeInfo = (): { userId: number | null; view: ViewMode } => {
 }
 
 export const useDashboardReport = (query: DashboardQuery) => {
-  const { userId, view: initView } = getUserViewModeInfo()
-  const { view: changeView } = useRecoilValue(dashboardState)
+  const { userId: initUserId, view: initView } = getUserViewModeInfo()
+  const { view: changeView, userId: changeUserId } =
+    useRecoilValue(dashboardState)
   const view = changeView ? changeView : initView
+  const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery(
-    [DEFAULT_QUERY_NAME, `${DEFAULT_QUERY_NAME}-report`, { ...query }, view],
+    [
+      DEFAULT_QUERY_NAME,
+      `${DEFAULT_QUERY_NAME}-report`,
+      { ...query },
+      view,
+      userId,
+    ],
     () => {
       return getReport({
         ...query,
@@ -47,7 +57,6 @@ export const useDashboardReport = (query: DashboardQuery) => {
       })
     },
     {
-      staleTime: 60 * 1000, // 1
       suspense: true,
       keepPreviousData: true,
       useErrorBoundary: (error: any) => error.response?.status >= 500,
@@ -59,9 +68,11 @@ export const useDashboardRequest = (
   query: DashboardPaginationQuery,
   skip: number,
 ) => {
-  const { userId, view: initView } = getUserViewModeInfo()
-  const { view: changeView } = useRecoilValue(dashboardState)
+  const { userId: initUserId, view: initView } = getUserViewModeInfo()
+  const { view: changeView, userId: changeUserId } =
+    useRecoilValue(dashboardState)
   const view = changeView ? changeView : initView
+  const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery(
     [DEFAULT_QUERY_NAME, `${DEFAULT_QUERY_NAME}-request`, view, skip],
@@ -82,9 +93,11 @@ export const useDashboardRatio = <T extends RatioItem>({
   to,
   ...props
 }: RatioQuery) => {
-  const { userId, view: initView } = getUserViewModeInfo()
-  const { view: changeView } = useRecoilValue(dashboardState)
+  const { userId: initUserId, view: initView } = getUserViewModeInfo()
+  const { view: changeView, userId: changeUserId } =
+    useRecoilValue(dashboardState)
   const view = changeView ? changeView : initView
+  const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery<RatioResponse<T>>(
     [
@@ -122,9 +135,11 @@ export const useDashboardOrders = ({
 
   ...props
 }: OrderQuery) => {
-  const { userId, view: initView } = getUserViewModeInfo()
-  const { view: changeView } = useRecoilValue(dashboardState)
+  const { userId: initUserId, view: initView } = getUserViewModeInfo()
+  const { view: changeView, userId: changeUserId } =
+    useRecoilValue(dashboardState)
   const view = changeView ? changeView : initView
+  const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery(
     [
@@ -147,13 +162,31 @@ export const useDashboardOrders = ({
 }
 
 export const useDashboardCount = ({ to, from }: DashboardQuery) => {
-  const { userId, view: initView } = getUserViewModeInfo()
-  const { view: changeView } = useRecoilValue(dashboardState)
+  const { userId: initUserId, view: initView } = getUserViewModeInfo()
+  const { view: changeView, userId: changeUserId } =
+    useRecoilValue(dashboardState)
   const view = changeView ? changeView : initView
+  const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery(
     [DEFAULT_QUERY_NAME, `${DEFAULT_QUERY_NAME}-count`, to, from, view],
     () => getCount({ to, from, userId, view }),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useDashboardMemberList = ({
+  search,
+  take,
+  skip,
+}: DashboardMemberQuery) => {
+  return useQuery(
+    ['member', search, take, skip],
+    () => getMemberList({ search, take, skip }),
     {
       suspense: true,
       keepPreviousData: true,

@@ -1,4 +1,5 @@
 import { OrderStatusType } from '@src/types/common/orders.type'
+import { RoleType, UserType } from '@src/context/types'
 
 export type ViewMode = 'company' | 'personal'
 export interface ViewModeQuery {
@@ -14,6 +15,11 @@ export interface DashboardQuery extends Partial<ViewModeQuery> {
 export interface DashboardPaginationQuery extends Partial<ViewModeQuery> {
   take: number
   skip: number
+}
+
+export interface DashboardMemberQuery
+  extends Pick<DashboardPaginationQuery, 'take' | 'skip'> {
+  search: string
 }
 
 export type ReportItem = {
@@ -99,8 +105,25 @@ export interface RatioResponse<T> {
   report: Array<T>
 }
 
+export type MemberItem = {
+  userId: number
+  permissionGroups: Array<string>
+  companyId: string
+  firstName: string
+  middleName: string | null
+  lastName: string
+  email: string
+  jobTitle: string
+  type: UserType
+  department: string | null
+  createdAt: string | Date
+  updatedAt: string | Date
+  deletedAt: string | Date
+}
+
 export type ViewType = 'created' | 'invoiced' | 'canceled' | 'ongoing'
 export type SortType = 'status' | 'clientName' | 'projectName' | 'category'
+
 export interface OrderQuery
   extends DashboardQuery,
     DashboardPaginationQuery,

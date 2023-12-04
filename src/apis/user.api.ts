@@ -15,6 +15,7 @@ import { UserDataType } from 'src/context/types'
 import { CurrencyType } from '@src/types/common/standard-price'
 import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
+import { DashboardMemberQuery } from '@src/types/dashboard'
 
 export type UserInfoResType = Omit<
   UserDataType,
@@ -54,8 +55,9 @@ export const updateClientUserInfo = async (
 
 /* pro 프로필 업데이트용 */
 export const updateConsumerUserInfo = async (
-  userInfo: (ProUserInfoType | ManagerUserInfoType | ProUserResumeInfoType) 
-  & { userId: number },
+  userInfo: (ProUserInfoType | ManagerUserInfoType | ProUserResumeInfoType) & {
+    userId: number
+  },
 ) => {
   await axios.put(`/api/enough/u/pu/edit`, userInfo)
 }

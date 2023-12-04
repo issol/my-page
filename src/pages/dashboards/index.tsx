@@ -58,6 +58,9 @@ import { currentRoleSelector } from '@src/states/permission'
 import { dashboardState } from '@src/states/dashboard'
 import { useRouter } from 'next/router'
 import { useQueryClient } from 'react-query'
+import CopyOrdersList from '@src/pages/orders/order-list/components/copy-order-list'
+import useModal from '@src/hooks/useModal'
+import MemberSearchList from '@src/pages/dashboards/components/member-search'
 dayjs.extend(weekday)
 
 type SelectedRangeDate = 'month' | 'week' | 'today'
@@ -138,6 +141,7 @@ const Dashboards = () => {
   })
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [openDialog, setOpenDialog] = useState(false)
   const open = Boolean(anchorEl)
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
@@ -221,6 +225,11 @@ const Dashboards = () => {
     const title = getDateFormatter(date[0], date[1]) || '-'
     setValue('userViewDate', title)
     onChange(date)
+  }
+
+  const onChangeMemberView = () => {
+    setOpenDialog(true)
+    handleClose()
   }
 
   return (
@@ -390,7 +399,7 @@ const Dashboards = () => {
                   <ListItemText>Download csv</ListItemText>
                 </MenuItem>
                 <MenuItem
-                  onClick={handleClose}
+                  onClick={() => onChangeMemberView()}
                   sx={{
                     display: 'flex',
                     color: 'rgba(76, 78, 100, 0.87)',
@@ -539,6 +548,10 @@ const Dashboards = () => {
           />
         </Grid>
       </Grid>
+      <MemberSearchList
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+      />
     </ApexChartWrapper>
   )
 }
