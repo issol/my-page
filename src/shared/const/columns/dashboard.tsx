@@ -150,10 +150,10 @@ export const StatusColumns: GridColumns = [
       return (
         <Box>
           <Typography fontSize='14px' fontWeight={600}>
-            {row.client.name}
+            {row.client.name || '-'}
           </Typography>
           <Typography color='#4C4E6499' fontSize='14px'>
-            {row.client.email}
+            {row.client.email || '-'}
           </Typography>
         </Box>
       )
@@ -181,8 +181,16 @@ export const StatusColumns: GridColumns = [
           sx={{ width: '340px' }}
         >
           <Box display='flex' gap='10px'>
-            <JobTypeChip type={row.category} label={row.category} />
-            <ServiceTypeChip label={row.serviceType} />
+            {row.category ? (
+              <JobTypeChip type={row.category} label={row.category} />
+            ) : (
+              '-'
+            )}
+            {row.serviceType ? (
+              <ServiceTypeChip label={row.serviceType} />
+            ) : (
+              '-'
+            )}
           </Box>
         </Box>
       )

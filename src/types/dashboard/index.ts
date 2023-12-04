@@ -1,6 +1,6 @@
 import { OrderStatusType } from '@src/types/common/orders.type'
 
-export type ViewMode = 'company' | 'mine'
+export type ViewMode = 'company' | 'personal'
 export interface ViewModeQuery {
   userId: number | null
   view: ViewMode

@@ -15,6 +15,7 @@ import {
 } from '@mui/material'
 import dayjs from 'dayjs'
 import {
+  DEFAULT_QUERY_NAME,
   useDashboardReport,
   useDashboardRequest,
 } from '@src/queries/dashboard/dashnaord-lpm'
@@ -56,6 +57,7 @@ import { authState } from '@src/states/auth'
 import { currentRoleSelector } from '@src/states/permission'
 import { dashboardState } from '@src/states/dashboard'
 import { useRouter } from 'next/router'
+import { useQueryClient } from 'react-query'
 dayjs.extend(weekday)
 
 type SelectedRangeDate = 'month' | 'week' | 'today'
@@ -108,6 +110,8 @@ const toCapitalize = (str: string) => {
 }
 
 const Dashboards = () => {
+  const queryClient = useQueryClient()
+
   const { contents: auth, state: authFetchState } =
     useRecoilValueLoadable(authState)
   const { contents: role, state: roleFetchState } =
@@ -144,22 +148,33 @@ const Dashboards = () => {
 
   useEffect(() => {
     if (authFetchState !== 'hasValue' || roleFetchState !== 'hasValue') return
+    if (state.view !== null) return
 
     if (role?.type === 'Master' || role?.type === 'Manager') {
       setState({ view: 'company', userId: auth?.user?.id || null })
       setValue('view', 'company')
       setValue('viewSwitch', true)
     } else {
-      setState({ view: 'mine', userId: auth?.user?.id || null })
-      setValue('view', 'mine')
+      setState({ view: 'personal', userId: auth?.user?.id || null })
+      setValue('view', 'personal')
       setValue('viewSwitch', false)
     }
-  }, [role, auth])
+  }, [])
+
+  const onChangeViewMode = async (val: boolean) => {
+    if (val) {
+      setState({ ...state, view: 'personal' })
+    } else {
+      setState({ ...state, view: 'company' })
+    }
+    await queryClient.invalidateQueries({
+      queryKey: [DEFAULT_QUERY_NAME],
+    })
+  }
 
   const onChangeDateRange = useCallback(
     (type: SelectedRangeDate) => {
       setValue('selectedRangeDate', type)
-      console.log('week', dayjs().weekday(-7).toDate())
 
       switch (type) {
         case 'month':
@@ -257,10 +272,8 @@ const Dashboards = () => {
                         },
                       }}
                       onChange={(event, val) => {
-                        if (val) {
-                          setValue('view', 'mine')
-                        }
-                        return onChange(val)
+                        onChangeViewMode(val)
+                        onChange(val)
                       }}
                     />
                   )}
@@ -271,7 +284,7 @@ const Dashboards = () => {
                   fontSize: '14px',
                   fontWeight: 600,
                   color:
-                    state.view === 'mine'
+                    state.view === 'personal'
                       ? 'rgba(102, 108, 255, 1)'
                       : 'rgba(189, 189, 189, 1)',
                 }}
@@ -439,9 +452,6 @@ const Dashboards = () => {
                   <span className='title'>New requests</span>
                   <ErrorOutlineIcon className='info_icon' />
                 </SectionTitle>
-                <SubDateDescription textAlign='left'>
-                  {dayjs('2023-01-24').format('MMMM D, YYYY')}
-                </SubDateDescription>
               </Box>
               <DashboardDataGrid />
             </Box>

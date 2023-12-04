@@ -27,10 +27,10 @@ interface StatusAndListProps extends DashboardQuery {
 }
 
 const StatusAndList = ({ type = 'order', to, from }: StatusAndListProps) => {
-  const { data: countData } = useDashboardCount()
+  const { data: countData } = useDashboardCount({ to, from })
   const [activeStatus, setActiveStatus] = useState<ViewType>('ongoing')
   const { data } = useDashboardOrders({
-    type: 'ongoing',
+    type: activeStatus,
     to,
     from,
     skip: 0,
@@ -45,14 +45,11 @@ const StatusAndList = ({ type = 'order', to, from }: StatusAndListProps) => {
           <Box sx={{ width: '100%' }}>
             <Box marginBottom='20px'>
               <SectionTitle>
-                <span className='title'>Order status</span>
+                <span className='title'>Ongoing orders</span>
                 <ErrorOutlineIcon className='info_icon' />
               </SectionTitle>
-              <SubDateDescription textAlign='left'>
-                {dayjs('2023-01-24').format('MMMM D, YYYY')}
-              </SubDateDescription>
             </Box>
-            <StatusSectionList>
+            <StatusSectionList style={{ padding: '20px 0' }}>
               <li
                 data-active={activeStatus === 'ongoing'}
                 onClick={() => setActiveStatus('ongoing')}
@@ -78,7 +75,7 @@ const StatusAndList = ({ type = 'order', to, from }: StatusAndListProps) => {
           <Box sx={{ width: '100%', height: '100%' }}>
             <Box marginBottom='20px'>
               <SectionTitle>
-                <span className='title'>Ongoin orders</span>
+                <span className='title'>Order status</span>
                 <ErrorOutlineIcon className='info_icon' />
               </SectionTitle>
               <SubDateDescription textAlign='left'>
