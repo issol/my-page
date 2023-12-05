@@ -79,6 +79,7 @@ import {
   SelectedRangeDate,
   toCapitalize,
 } from '@src/pages/dashboards/lpm'
+import BarChart from '@src/pages/dashboards/components/barChart'
 
 dayjs.extend(weekday)
 
@@ -216,27 +217,6 @@ const TADDashboards = () => {
     onChange(date)
   }
 
-  const onChangeMemberView = () => {
-    setOpenDialog(true)
-    handleClose()
-  }
-
-  const onChangeMyDashboard = async () => {
-    handleClose()
-    setState({
-      ...state,
-      userId: auth?.user?.id || null || state.userId,
-      userInfo: undefined,
-    })
-
-    await queryClient.invalidateQueries(DEFAULT_QUERY_NAME)
-  }
-
-  const isPermissionMemberView = () => {
-    if (role?.type !== 'LPM') return false
-    return role?.type === 'Master' || role?.type === 'Manager'
-  }
-
   return (
     <ApexChartWrapper>
       <Grid container gap='24px' sx={{ minWidth: '1320px', padding: '10px' }}>
@@ -366,8 +346,8 @@ const TADDashboards = () => {
         </Grid>
         <Grid container gap='24px'>
           <GridItem width={490} height={496}>
-            <Box sx={{ width: '100%', marginTop: '20px' }}>
-              <Box sx={{ padding: '0 20px' }}>
+            <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>
+              <Box>
                 <SectionTitle>
                   <span
                     role='button'
@@ -383,10 +363,28 @@ const TADDashboards = () => {
                   Total 210 Language pairs
                 </SubDateDescription>
               </Box>
+              <BarChart />
             </Box>
           </GridItem>
           <GridItem sm height={496}>
-            <Box></Box>
+            <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>
+              <Box>
+                <SectionTitle>
+                  <span
+                    role='button'
+                    className='title'
+                    onClick={() => router.push('/quotes/lpm/requests/')}
+                  >
+                    Job type/Role pool
+                  </span>
+                  <ErrorOutlineIcon className='info_icon' />
+                  <KeyboardArrowRight className='arrow_icon' />
+                </SectionTitle>
+                <SubDateDescription textAlign='left'>
+                  Total 210 Job type/Role
+                </SubDateDescription>
+              </Box>
+            </Box>
           </GridItem>
         </Grid>
         <StatusAndList
