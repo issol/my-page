@@ -80,6 +80,7 @@ import {
   toCapitalize,
 } from '@src/pages/dashboards/lpm'
 import BarChart from '@src/pages/dashboards/components/barChart'
+import JobDataTable from '@src/pages/dashboards/components/jobDataTable'
 
 dayjs.extend(weekday)
 
@@ -153,18 +154,6 @@ const TADDashboards = () => {
 
     setMemberView(false)
   }, [state.userInfo])
-
-  const onChangeViewMode = async (val: boolean) => {
-    console.log('@#4234234234234324')
-    if (val) {
-      setState({ ...state, view: 'personal' })
-    } else {
-      setState({ ...state, view: 'company' })
-    }
-    await queryClient.invalidateQueries({
-      queryKey: [DEFAULT_QUERY_NAME],
-    })
-  }
 
   const onChangeDateRange = useCallback(
     (type: SelectedRangeDate) => {
@@ -286,7 +275,15 @@ const TADDashboards = () => {
           </Box>
         </GridItem>
         <GridItem width={207} height={76}>
-          <Box></Box>
+          <Box>
+            <Button
+              variant='contained'
+              sx={{ display: 'flex', alignItems: 'center' }}
+            >
+              <DownloadIcon sx={{ width: '20px', marginRight: '4px' }} />{' '}
+              Download csv
+            </Button>
+          </Box>
         </GridItem>
       </Grid>
       <Grid
@@ -366,9 +363,9 @@ const TADDashboards = () => {
               <BarChart />
             </Box>
           </GridItem>
-          <GridItem sm height={496}>
+          <GridItem sm height={496} padding='0'>
             <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>
-              <Box>
+              <Box sx={{ padding: '20px 20px 10px' }}>
                 <SectionTitle>
                   <span
                     role='button'
@@ -384,6 +381,7 @@ const TADDashboards = () => {
                   Total 210 Job type/Role
                 </SubDateDescription>
               </Box>
+              <JobDataTable />
             </Box>
           </GridItem>
         </Grid>
@@ -406,7 +404,7 @@ const TADDashboards = () => {
         <Grid container spacing={5}>
           <DoughnutChart
             userViewDate={userViewDate}
-            title='Clients'
+            title='Applied job types'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
             )}
@@ -418,7 +416,7 @@ const TADDashboards = () => {
           />
           <DoughnutChart<PairRatioItem>
             userViewDate={userViewDate}
-            title='Language pairs'
+            title='Applied roles'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
             )}
@@ -435,7 +433,7 @@ const TADDashboards = () => {
         <Grid container spacing={5}>
           <DoughnutChart<CategoryRatioItem>
             userViewDate={userViewDate}
-            title='Main categories'
+            title='Applied source languages'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
             )}
@@ -450,7 +448,7 @@ const TADDashboards = () => {
           />
           <DoughnutChart<ServiceRatioItem>
             userViewDate={userViewDate}
-            title='Service types'
+            title='Applied target languages'
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
             )}

@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography'
 import {
   JobTypeChip,
   OrderStatusChip,
+  RoleChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { Box } from '@mui/material'
@@ -405,6 +406,95 @@ export const StatusJobColumns: GridColumns = [
           </Box>
         </Box>
       )
+    },
+  },
+]
+
+export const JobTableColumn = [
+  {
+    field: 'index',
+    headerName: '',
+    filterable: false,
+    minWidth: 60,
+    renderCell: ({ row }) => {
+      return (
+        <Box sx={{ width: '100%', textAlign: 'left' }}>{row.numbering}</Box>
+      )
+    },
+  },
+  {
+    field: 'jobType',
+    headerName: 'Job type',
+    minWidth: 180,
+    flex: 1,
+    renderHeader: () => <Box>Job type</Box>,
+    renderCell: ({ row }) => {
+      return (
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          gap='10px'
+          sx={{ width: '340px' }}
+        >
+          <Box display='flex' gap='10px'>
+            {row.jobType ? (
+              <JobTypeChip
+                sx={{ height: '24px' }}
+                type={row.jobType}
+                label={row.jobType}
+              />
+            ) : (
+              '-'
+            )}
+          </Box>
+        </Box>
+      )
+    },
+  },
+  {
+    field: 'role',
+    headerName: 'Role',
+    minWidth: 240,
+    flex: 1,
+    sortable: false,
+    renderHeader: () => <Box>Role</Box>,
+    renderCell: ({ row }) => {
+      return (
+        <Box display='flex' gap='10px'>
+          {row.role ? (
+            <RoleChip
+              sx={{ height: '24px' }}
+              type={row.role}
+              label={row.role}
+            />
+          ) : (
+            '-'
+          )}
+        </Box>
+      )
+    },
+  },
+  {
+    field: 'pros',
+    headerName: 'Pros',
+    minWidth: 140,
+
+    sortable: false,
+    renderHeader: () => <Box>Pros</Box>,
+    renderCell: ({ row }) => {
+      return <Box>{row.pros}</Box>
+    },
+  },
+  {
+    field: 'ratio',
+    headerName: '%',
+    minWidth: 110,
+
+    sortable: false,
+    renderHeader: () => <Box>%</Box>,
+    renderCell: ({ row }) => {
+      return <Box sx={{ textAlign: 'center' }}>{row.ratio}%</Box>
     },
   },
 ]
