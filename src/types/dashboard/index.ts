@@ -12,7 +12,9 @@ export interface DashboardQuery extends Partial<ViewModeQuery> {
   to: string // 종료날짜
 }
 
+export type RequestType = 'new' | 'recruiting'
 export interface DashboardPaginationQuery extends Partial<ViewModeQuery> {
+  type: RequestType
   take: number
   skip: number
 }

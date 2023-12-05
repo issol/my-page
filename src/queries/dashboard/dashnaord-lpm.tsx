@@ -73,7 +73,14 @@ export const useDashboardRequest = (
   const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery(
-    [DEFAULT_QUERY_NAME, `${DEFAULT_QUERY_NAME}-request`, view, userId, skip],
+    [
+      DEFAULT_QUERY_NAME,
+      `${DEFAULT_QUERY_NAME}-request`,
+      view,
+      userId,
+      query.type,
+      skip,
+    ],
     () => {
       return getRequest({ ...query, skip, userId, view })
     },

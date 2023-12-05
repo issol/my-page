@@ -1,29 +1,50 @@
 import { Box } from '@mui/material'
-import { DataGrid, GridRowsProp } from '@mui/x-data-grid'
+import { DataGrid, GridColumns, GridRowsProp } from '@mui/x-data-grid'
 import { RequestColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
 import { Suspense, useState } from 'react'
 import { useDashboardRequest } from '@src/queries/dashboard/dashnaord-lpm'
 import { useRouter } from 'next/router'
+import { RequestType } from '@src/types/dashboard'
 
-const DashboardDataGrid = () => {
+interface DashboardDataGridProps {
+  type?: RequestType
+  pageNumber: number
+  movePage: (id: number) => void
+  sectionHeight?: number
+  columns: GridColumns
+}
+
+const DashboardDataGrid = ({
+  type = 'new',
+  pageNumber = 4,
+  movePage,
+  columns,
+  sectionHeight = 260,
+}: DashboardDataGridProps) => {
   const router = useRouter()
   const [skip, setSkip] = useState(0)
   const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(4)
+  const [pageSize, setPageSize] = useState(pageNumber)
 
-  const {
-    data: RequestData,
-    isLoading,
-    isFetching,
-  } = useDashboardRequest({ skip, take: 4 }, skip)
+  const { data, isLoading, isFetching } = useDashboardRequest(
+    { skip, take: pageNumber, type },
+    skip,
+  )
 
   return (
-    <Box sx={{ width: '100%', height: '260px' }}>
+    <Box
+      sx={{
+        width: '100%',
+        height: `${sectionHeight}px`,
+        padding: 0,
+        margin: 0,
+      }}
+    >
       <Suspense fallback={<div>로딩 중</div>}>
         <CustomDataGrid
-          rows={RequestData.data || []}
-          columns={RequestColumns}
+          rows={data?.data || []}
+          columns={columns}
           headerHeight={0}
           components={{
             Header: () => null,
@@ -39,7 +60,7 @@ const DashboardDataGrid = () => {
           pageSize={pageSize}
           onPageSizeChange={pageSize => setPageSize(pageSize)}
           paginationMode='server'
-          rowCount={RequestData.totalCount}
+          rowCount={data?.totalCount || 0}
           rowsPerPageOptions={[5]}
           loading={isLoading || isFetching}
         />
@@ -65,6 +86,8 @@ const CustomDataGrid = styled(DataGrid)(() => {
     },
 
     '& .MuiDataGrid-row': {
+      maxHeight: 'auto !important',
+      minHeight: 'auto !important',
       paddingRight: '20px',
       cursor: 'pointer',
     },

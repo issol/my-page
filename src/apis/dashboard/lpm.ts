@@ -18,9 +18,12 @@ export const getReport = async (
   return data
 }
 
-export const getRequest = async (params: DashboardPaginationQuery) => {
+export const getRequest = async ({
+  type,
+  ...params
+}: DashboardPaginationQuery) => {
   const { data } = await axios.get(
-    `/api/enough/u/dashboard/client-request/list/new`,
+    `/api/enough/u/dashboard/client-request/list/${type}`,
     {
       params,
     },

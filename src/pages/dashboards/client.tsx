@@ -12,7 +12,6 @@ import {
 import {
   Box,
   ButtonGroup,
-  LinearProgress,
   ListItemIcon,
   ListItemText,
   Menu,
@@ -38,7 +37,6 @@ import DownloadIcon from '@mui/icons-material/Download'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
@@ -49,7 +47,6 @@ import weekday from 'dayjs/plugin/weekday'
 import {
   Colors,
   SecondColors,
-  Status,
   StatusColor,
 } from '@src/shared/const/dashboard/chart'
 import {
@@ -58,7 +55,6 @@ import {
   ExpertiseRatioItem,
   PairRatioItem,
   ServiceRatioItem,
-  ViewMode,
 } from '@src/types/dashboard'
 import StatusAndList from '@src/pages/dashboards/components/statusAndList'
 import { useRecoilState, useRecoilValueLoadable } from 'recoil'
@@ -69,24 +65,20 @@ import { useQueryClient } from 'react-query'
 import MemberSearchList from '@src/pages/dashboards/components/member-search'
 import { PermissionChip } from '@src/@core/components/chips/chips'
 import { LogoutOutlined, ReceiptLong } from '@mui/icons-material'
-import {
-  StatusJobColumns,
-  StatusOrderColumns,
-} from '@src/shared/const/columns/dashboard'
-import Image from 'next/image'
+import { StatusOrderColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
+import {
+  DashboardForm,
+  DEFAULT_LAST_DATE,
+  DEFAULT_START_DATE,
+  getDateFormat,
+  getDateFormatter,
+  getRangeDateTitle,
+  SelectedRangeDate,
+  toCapitalize,
+} from '@src/pages/dashboards/lpm'
 
 dayjs.extend(weekday)
-
-type SelectedRangeDate = 'month' | 'week' | 'today'
-
-interface DashboardForm {
-  dateRange?: Array<Date | null>
-  view: ViewMode
-  viewSwitch: boolean
-  userViewDate: string
-  selectedRangeDate: SelectedRangeDate
-}
 
 const StyledTableRow = styled(TableRow)(() => ({
   '&': {
@@ -129,8 +121,6 @@ const HeaderTableCell = styled(TableCell)(() => {
   }
 })
 
-const DEFAULT_START_DATE = dayjs().set('date', 1).toDate()
-const DEFAULT_LAST_DATE = dayjs().set('date', dayjs().daysInMonth()).toDate()
 const TableStatusColor = [
   'rgba(60, 61, 91, 1)',
   'rgba(114, 225, 40, 1)',
@@ -165,43 +155,7 @@ const rows = [
   },
 ]
 
-const getRangeDateTitle = (date1: Date, date2: Date | null) => {
-  const title = date2
-    ? dayjs(date2).set('date', dayjs(date1).daysInMonth()).format('DD, YYYY ')
-    : '-'
-  return `${dayjs(date1).format('MMMM D')} - ${title}`
-}
-
-const getDateFormatter = (date1: Date, date2: Date | null) => {
-  if (!date1) return
-
-  if (date1 && !date2) {
-    return `${dayjs(date1).format('MMMM D, YYYY')}`
-  }
-
-  if (!dayjs(date1).isSame(dayjs(date2), 'year')) {
-    const title = date2 ? dayjs(date2).format('MMMM D, YYYY') : '-'
-    return `${dayjs(date1).format('MMMM D, YYYY')} - ${title}`
-  }
-
-  if (!dayjs(date1).isSame(dayjs(date2), 'month')) {
-    const title = date2 ? dayjs(date2).format('MMMM D, YYYY') : '-'
-    return `${dayjs(date1).format('MMMM D')} - ${title}`
-  }
-
-  return `${dayjs(date1).format('MMMM D')} - ${dayjs(date2).format('D, YYYY')}`
-}
-
-const getDateFormat = (date: Date | null) => {
-  if (!date) return dayjs().format('YYYY-MM-DD')
-  return dayjs(date).format('YYYY-MM-DD')
-}
-
-export const toCapitalize = (str: string) => {
-  return str.replace(/\b\w/g, match => match.toUpperCase())
-}
-
-const Dashboards = () => {
+const ClientDashboards = () => {
   const queryClient = useQueryClient()
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
 
@@ -638,13 +592,7 @@ const Dashboards = () => {
                 <Box sx={{ width: '50%', padding: '40px 20px 40px 0' }}>
                   <Box display='flex' alignItems='center' gap='16px'>
                     <TitleIcon>
-                      <ReceiptLong
-                        sx={{
-                          width: '34px',
-                          height: '34px',
-                          color: 'rgba(114, 225, 40, 1)',
-                        }}
-                      />
+                      <ReceiptLong className='icon' />
                     </TitleIcon>
                     <Box display='flex' flexDirection='column'>
                       <Typography
@@ -801,9 +749,9 @@ const Dashboards = () => {
   )
 }
 
-export default Dashboards
+export default ClientDashboards
 
-Dashboards.acl = {
+ClientDashboards.acl = {
   action: 'read',
   subject: 'members',
 }

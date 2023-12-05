@@ -97,7 +97,7 @@ const DoughnutChart = <T extends RatioItem>({
   const theme = useTheme()
 
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
-  const { data } = useDashboardRatio<T>({
+  const { data, isSuccess } = useDashboardRatio<T>({
     from,
     to,
     type,
@@ -106,7 +106,6 @@ const DoughnutChart = <T extends RatioItem>({
 
   const charData = useMemo(() => {
     const sortData = data?.report.sort((item1, item2) => item2.sum - item1.sum)
-    console.log(sortData)
     const sliceData = sortData?.slice(0, 6) || []
     const tempData = sortData?.slice(6) || []
 
@@ -130,83 +129,87 @@ const DoughnutChart = <T extends RatioItem>({
     return [...sliceData, obj]
   }, [data?.report])
 
-  const options: ApexOptions = {
-    legend: { show: false },
-    colors: colors,
-    labels: [],
-    stroke: {
-      width: 5,
-    },
-    tooltip: {
-      custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-        const price = charData[seriesIndex].sum.toFixed(0)
+  const options: ApexOptions = useMemo(() => {
+    return {
+      legend: { show: false },
+      colors: colors,
+      labels: [],
+      stroke: {
+        width: 5,
+      },
+      tooltip: {
+        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+          const price = charData[seriesIndex]?.sum || 0
 
-        return renderToString(
-          <div
-            className='flex-center'
-            style={{ alignItems: 'flex-start', paddingTop: '10px' }}
-          >
-            <StatusSquare color={colors[seriesIndex]} />
-            <div className='tooltip_container'>
-              <div className='flex-center'>
-                <span className='tooltip_text_bold'>
-                  {(getName && getName(charData[seriesIndex] as T)) ||
-                    charData[seriesIndex].name}
-                </span>
-                <span className='tooltip__count'>{`(${charData[seriesIndex].count})`}</span>
-              </div>
-              <div className='flex-center' style={{ marginTop: '10px' }}>
-                <span className='tooltip__sum'>{`${Number(
-                  price,
-                ).toLocaleString()}`}</span>
-                <span className='tooltip__ratio'>{`${charData[seriesIndex].ratio}%`}</span>
-              </div>
-            </div>{' '}
-          </div>,
-        )
+          return renderToString(
+            <div
+              className='flex-center'
+              style={{ alignItems: 'flex-start', paddingTop: '10px' }}
+            >
+              <StatusSquare color={colors[seriesIndex]} />
+              <div className='tooltip_container'>
+                <div className='flex-center'>
+                  <span className='tooltip_text_bold'>
+                    {(getName && getName(charData[seriesIndex] as T)) ||
+                      charData[seriesIndex].name}
+                  </span>
+                  <span className='tooltip__count'>{`(${charData[seriesIndex].count})`}</span>
+                </div>
+                <div className='flex-center' style={{ marginTop: '10px' }}>
+                  <span className='tooltip__sum'>{`${Number(
+                    price,
+                  ).toLocaleString()}`}</span>
+                  <span className='tooltip__ratio'>{`${charData[seriesIndex].ratio}%`}</span>
+                </div>
+              </div>{' '}
+            </div>,
+          )
+        },
       },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    states: {
-      hover: {
-        filter: { type: 'none' },
+      dataLabels: {
+        enabled: false,
       },
-      active: {
-        filter: { type: 'none' },
+      states: {
+        hover: {
+          filter: { type: 'none' },
+        },
+        active: {
+          filter: { type: 'none' },
+        },
       },
-    },
-    chart: {
-      redrawOnParentResize: true,
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: '45%',
-          labels: {
-            show: false,
-            name: { show: false },
-            total: {
-              label: '',
-              show: true,
-              fontWeight: 600,
-              fontSize: '32px',
-              color: theme.palette.text.primary,
-              formatter: val =>
-                `${Number(data?.totalOrderPrice.toFixed(0)).toLocaleString()}`,
-            },
-            value: {
-              offsetY: 6,
-              fontWeight: 600,
-              fontSize: '1rem',
-              color: theme.palette.text.secondary,
+      chart: {
+        redrawOnParentResize: true,
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '45%',
+            labels: {
+              show: false,
+              name: { show: false },
+              total: {
+                label: '',
+                show: true,
+                fontWeight: 600,
+                fontSize: '32px',
+                color: theme.palette.text.primary,
+                formatter: val =>
+                  `${Number(
+                    data?.totalOrderPrice.toFixed(0),
+                  ).toLocaleString()}`,
+              },
+              value: {
+                offsetY: 6,
+                fontWeight: 600,
+                fontSize: '1rem',
+                color: theme.palette.text.secondary,
+              },
             },
           },
         },
       },
-    },
-  }
+    }
+  }, [charData])
 
   const onChangeCurrency = (type: Currency) => {
     setCurrency(type)

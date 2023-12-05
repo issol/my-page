@@ -15,7 +15,13 @@ import Grow from '@mui/material/Grow'
 import Paper from '@mui/material/Paper'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import MenuList from '@mui/material/MenuList'
-import { ArrowDropDown } from '@mui/icons-material'
+import {
+  ArrowDropDown,
+  PermIdentityOutlined,
+  ReceiptLong,
+  TrendingDown,
+  TrendingUp,
+} from '@mui/icons-material'
 import { Currency } from '@src/types/dashboard'
 import { validateColors } from '@iconify/tools'
 
@@ -327,6 +333,12 @@ export const TitleIcon = styled.div(() => {
     height: '50px',
     backgroundColor: 'rgba(114, 225, 40, 0.2)',
     borderRadius: '8px',
+
+    '& .icon': {
+      width: '34px',
+      height: '34px',
+      color: 'rgba(114, 225, 40, 1)',
+    },
   }
 })
 
@@ -358,6 +370,7 @@ const Progress = styled.ul(() => {
     },
   }
 })
+
 export const LinearMultiProgress = () => {
   return (
     <Progress>
@@ -365,5 +378,79 @@ export const LinearMultiProgress = () => {
       <li className='item_paid' style={{ width: '10%' }} />
       <li className='item_overdue' style={{ width: '30%' }} />
     </Progress>
+  )
+}
+
+export const OnboardingList = () => {
+  const overview = [
+    {
+      key: 'onboardedPros',
+      label: 'Onboarded Pros',
+      color: 'rgba(102, 108, 255, 1)',
+      backgroundColor: 'rgba(102, 108, 255, 0.2)',
+      icon: PermIdentityOutlined,
+    },
+    {
+      key: 'onboardingInProgress',
+      label: 'Onboarding in progress',
+      color: 'rgba(38, 198, 249, 1)',
+      backgroundColor: 'rgba(38, 198, 249, 0.2)',
+      icon: TrendingUp,
+    },
+    {
+      key: 'failedPros',
+      label: 'Failed Pros',
+      color: 'rgba(255, 77, 73, 1)',
+      backgroundColor: 'rgba(255, 77, 73, 0.2)',
+      icon: TrendingDown,
+    },
+  ]
+  return (
+    <Box
+      display='flex'
+      flexDirection='column'
+      gap='10px'
+      component='ul'
+      sx={{
+        listStyle: 'none',
+        padding: 0,
+        position: 'relative',
+      }}
+    >
+      {overview.map((item, index) => {
+        const Icon = item.icon
+        return (
+          <Box
+            display='flex'
+            gap='16px'
+            component='li'
+            key={`${item.label}-${index}`}
+          >
+            <TitleIcon style={{ backgroundColor: item.backgroundColor }}>
+              <Icon className='icon' style={{ color: item.color }} />
+            </TitleIcon>
+            <Box>
+              <Typography fontSize='20px' fontWeight={500}>
+                996
+              </Typography>
+              <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
+                {item.label}
+              </Typography>
+            </Box>
+          </Box>
+        )
+      })}
+      <img
+        src='/images/dashboard/img_tad_view.png'
+        alt='배경이미지'
+        style={{
+          position: 'absolute',
+          width: '246px',
+          right: '-20px',
+          bottom: '-20px',
+          opacity: 0.8,
+        }}
+      />
+    </Box>
   )
 }
