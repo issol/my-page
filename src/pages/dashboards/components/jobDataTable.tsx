@@ -101,6 +101,8 @@ const CustomJobTable = styled(DataGrid)(() => {
     },
 
     '& .MuiDataGrid-row': {
+      display: 'flex',
+      alignItems: 'center',
       maxHeight: '40px !important',
       minHeight: '40px !important',
       cursor: 'pointer',
