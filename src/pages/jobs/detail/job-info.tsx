@@ -1076,7 +1076,11 @@ const ProJobInfo = ({
                                     component={'span'}
                                   >
                                     {value.quantity} {value.unit} /{' '}
-                                    {jobPrices.currency} {value.unitPrice} per{' '}
+                                    {formatCurrency(
+                                      value?.unitPrice ?? 0,
+                                      jobPrices.initialPrice?.currency ?? 'KRW',
+                                      2,
+                                    )} per{' '}
                                     {value.title}
                                   </Typography>
                                 </li>
