@@ -62,6 +62,7 @@ const OpenLayout = ({ children, contentHeightFixed }: Props) => {
               hidden={hidden}
               settings={settings}
               saveSettings={saveSettings}
+              publicPage={true}
             />
           ),
         },

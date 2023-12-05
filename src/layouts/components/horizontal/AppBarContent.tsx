@@ -13,11 +13,13 @@ import { useGetNotificationList } from '@src/queries/notification.query'
 import { Suspense } from 'react'
 import { useInfiniteQuery, useMutation } from 'react-query'
 import { getNotificationList, markAsRead } from '@src/apis/notification.api'
+import { Button, Typography } from '@mui/material'
 
 interface Props {
   hidden: boolean
   settings: Settings
   saveSettings: (values: Settings) => void
+  publicPage?: boolean
 }
 
 // const notifications: NotificationsType[] = [
@@ -118,7 +120,7 @@ const shortcuts: ShortcutsType[] = [
 
 const AppBarContent = (props: Props) => {
   // ** Props
-  const { hidden, settings, saveSettings } = props
+  const { hidden, settings, saveSettings, publicPage } = props
 
   // const { data: notifications, refetch } = useGetNotificationList({
   //   isShowUnread: 0,
@@ -134,8 +136,16 @@ const AppBarContent = (props: Props) => {
       <LanguageDropdown settings={settings} saveSettings={saveSettings} />
       <ModeToggler settings={settings} saveSettings={saveSettings} />
       <ShortcutsDropdown settings={settings} shortcuts={shortcuts} /> */}
-
-      <UserDropdown settings={settings} />
+      {publicPage ? (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Button sx={{ textDecoration: 'underline', color: '#666CFF' }}>
+            Log in
+          </Button>
+          <Button variant='contained'>Sign up</Button>
+        </Box>
+      ) : (
+        <UserDropdown settings={settings} />
+      )}
     </Box>
   )
 }
