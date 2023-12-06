@@ -19,7 +19,7 @@ const Home = () => {
   const router = useRouter()
 
   useEffect(() => {
-    router.replace('/home')
+    router.replace('/dashboards/lpm')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
