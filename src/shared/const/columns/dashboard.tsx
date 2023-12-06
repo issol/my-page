@@ -16,6 +16,7 @@ import { Box } from '@mui/material'
 import { Inbox } from '@mui/icons-material'
 import advancedFormat from 'dayjs/plugin/advancedFormat'
 import moment from 'moment-timezone'
+import Link from 'next/link'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -496,5 +497,42 @@ export const JobTableColumn = [
     renderCell: ({ row }) => {
       return <Box sx={{ textAlign: 'center' }}>{row.ratio}%</Box>
     },
+  },
+]
+
+export const upcomingColumns: GridColumns = [
+  {
+    flex: 0.2,
+    minWidth: 180,
+    field: 'corporationId',
+    headerName: 'Job Number',
+    renderHeader: () => <Box>Job Number</Box>,
+    renderCell: ({ row }) => (
+      <Link href={''}>
+        <Typography fontSize='14px' sx={{ textDecoration: 'underline' }}>
+          {row.corporationId}
+        </Typography>
+      </Link>
+    ),
+  },
+  {
+    flex: 0.5,
+    minWidth: 250,
+    field: 'jobName',
+    headerName: 'Job name',
+    renderHeader: () => <Box>Job name</Box>,
+    renderCell: ({ row }) => (
+      <Typography fontSize='14px' fontWeight={600}>
+        23432
+      </Typography>
+    ),
+  },
+  {
+    flex: 0.3,
+    minWidth: 250,
+    field: 'dueAt',
+    headerName: 'dueAt',
+    renderHeader: () => <Box>Job due Date / Time left</Box>,
+    renderCell: ({ row }) => <Typography fontSize='14px'>23432</Typography>,
   },
 ]
