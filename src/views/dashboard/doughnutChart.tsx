@@ -19,7 +19,7 @@ import { useDashboardRatio } from '@src/queries/dashboard/dashnaord-lpm'
 import { renderToString } from 'react-dom/server'
 import { Currency, RatioItem } from '@src/types/dashboard'
 import Typography from '@mui/material/Typography'
-import NoRatio from '@src/pages/dashboards/components/noRatio'
+import NoRatio from '@src/views/dashboard/noRatio'
 import { KeyboardArrowRight } from '@mui/icons-material'
 import { useRouter } from 'next/router'
 

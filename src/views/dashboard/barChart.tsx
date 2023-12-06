@@ -5,10 +5,10 @@ import TablePagination from '@mui/material/TablePagination'
 import { ApexOptions } from 'apexcharts'
 
 // ** Custom Components Imports
-import ReactApexcharts from 'src/@core/components/react-apexcharts'
+import ReactApexcharts from '@src/@core/components/react-apexcharts'
 
 // ** Util Import
-import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import styled from '@emotion/styled'
 import { Box } from '@mui/material'
 import React, { useMemo } from 'react'

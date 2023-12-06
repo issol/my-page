@@ -16,11 +16,11 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import React, { MouseEvent, useCallback, useEffect, useState } from 'react'
-import DashboardDataGrid from '@src/pages/dashboards/components/dataGrid'
+import DashboardDataGrid from '@src/views/dashboard/dataGrid'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
 // ** Custom Components Imports
-import DoughnutChart from '@src/pages/dashboards/components/doughnutChart'
+import DoughnutChart from '@src/views/dashboard/doughnutChart'
 import weekday from 'dayjs/plugin/weekday'
 import { Colors, SecondColors } from '@src/shared/const/dashboard/chart'
 import {
@@ -28,13 +28,13 @@ import {
   PairRatioItem,
   ServiceRatioItem,
 } from '@src/types/dashboard'
-import StatusAndList from '@src/pages/dashboards/components/statusAndList'
+import StatusAndList from '@src/views/dashboard/statusAndList'
 import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { currentRoleSelector } from '@src/states/permission'
 import { dashboardState } from '@src/states/dashboard'
 import { useQueryClient } from 'react-query'
-import MemberSearchList from '@src/pages/dashboards/components/member-search'
+import MemberSearchList from '@src/views/dashboard/member-search'
 import { KeyboardArrowRight } from '@mui/icons-material'
 import {
   RecruitingRequestColumns,
@@ -51,10 +51,10 @@ import {
   getRangeDateTitle,
   SelectedRangeDate,
 } from '@src/pages/dashboards/lpm'
-import BarChart from '@src/pages/dashboards/components/barChart'
-import JobDataTable from '@src/pages/dashboards/components/jobDataTable'
+import BarChart from '@src/views/dashboard/barChart'
+import JobDataTable from '@src/views/dashboard/jobDataTable'
 import { DataGrid } from '@mui/x-data-grid'
-import RequestBarChart from '@src/pages/dashboards/components/requestBarChart'
+import RequestBarChart from '@src/views/dashboard/requestBarChart'
 
 dayjs.extend(weekday)
 

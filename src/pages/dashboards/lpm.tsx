@@ -30,11 +30,11 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import React, { MouseEvent, useCallback, useEffect, useState } from 'react'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import DownloadIcon from '@mui/icons-material/Download'
-import DashboardDataGrid from '@src/pages/dashboards/components/dataGrid'
+import DashboardDataGrid from '@src/views/dashboard/dataGrid'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
 // ** Custom Components Imports
-import DoughnutChart from '@src/pages/dashboards/components/doughnutChart'
+import DoughnutChart from '@src/views/dashboard/doughnutChart'
 import weekday from 'dayjs/plugin/weekday'
 import {
   Colors,
@@ -49,13 +49,13 @@ import {
   ServiceRatioItem,
   ViewMode,
 } from '@src/types/dashboard'
-import StatusAndList from '@src/pages/dashboards/components/statusAndList'
+import StatusAndList from '@src/views/dashboard/statusAndList'
 import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { currentRoleSelector } from '@src/states/permission'
 import { dashboardState } from '@src/states/dashboard'
 import { useQueryClient } from 'react-query'
-import MemberSearchList from '@src/pages/dashboards/components/member-search'
+import MemberSearchList from '@src/views/dashboard/member-search'
 import { PermissionChip } from '@src/@core/components/chips/chips'
 import { KeyboardArrowRight, LogoutOutlined } from '@mui/icons-material'
 import {
@@ -271,7 +271,7 @@ const LPMDashboards = () => {
   }
 
   const isPermissionMemberView = () => {
-    if (role?.type !== 'LPM') return false
+    if (role?.name !== 'LPM') return false
     return role?.type === 'Master' || role?.type === 'Manager'
   }
 

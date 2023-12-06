@@ -42,7 +42,7 @@ import TableRow from '@mui/material/TableRow'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
 // ** Custom Components Imports
-import DoughnutChart from '@src/pages/dashboards/components/doughnutChart'
+import DoughnutChart from '@src/views/dashboard/doughnutChart'
 import weekday from 'dayjs/plugin/weekday'
 import {
   Colors,
@@ -56,13 +56,13 @@ import {
   PairRatioItem,
   ServiceRatioItem,
 } from '@src/types/dashboard'
-import StatusAndList from '@src/pages/dashboards/components/statusAndList'
+import StatusAndList from '@src/views/dashboard/statusAndList'
 import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { currentRoleSelector } from '@src/states/permission'
 import { dashboardState } from '@src/states/dashboard'
 import { useQueryClient } from 'react-query'
-import MemberSearchList from '@src/pages/dashboards/components/member-search'
+import MemberSearchList from '@src/views/dashboard/member-search'
 import { PermissionChip } from '@src/@core/components/chips/chips'
 import { LogoutOutlined, ReceiptLong } from '@mui/icons-material'
 import { StatusOrderColumns } from '@src/shared/const/columns/dashboard'
