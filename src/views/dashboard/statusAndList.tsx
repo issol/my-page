@@ -70,7 +70,7 @@ const StatusAndList = <T extends { id: number }>({
 
   const moveDetailPage = (id: number) => {
     if (type === 'order') {
-      router.push(`orders/order-list/detail/${id}/`)
+      router.push(`/orders/order-list/detail/${id}/`)
       return
     }
     router.push(`/orders/job-list/details/?orderId=238&jobId=260`)
@@ -205,6 +205,7 @@ const StatusAndList = <T extends { id: number }>({
             }}
           >
             <DataGrid
+              autoHeight
               initialState={{
                 sorting: { sortModel },
               }}
