@@ -66,7 +66,7 @@ const JobList = ({
       >
         <DataGrid
           autoHeight
-          // getRowId={row => row?.orderId}
+          getRowId={row => row?.jobId}
           components={{
             NoRowsOverlay: () => NoList('There are no jobs'),
             NoResultsOverlay: () => NoList('There are no jobs'),
@@ -88,7 +88,7 @@ const JobList = ({
             event.stopPropagation(),
             [70000,70100,70200,70300,70400].includes(params.row.status as number)
               ? router.push(`/jobs/detail/${params.row.id}?assigned=false`)
-              : router.push(`/jobs/detail/${params.row.id}`)
+              : router.push(`/jobs/detail/${params.row.jobId}`)
           }}
           rowsPerPageOptions={[10, 25, 50]}
           pagination

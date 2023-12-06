@@ -10,7 +10,7 @@ export const useConfirmLeave = ({
   toUrl,
 }: {
   shouldWarn: boolean
-  toUrl: string
+  toUrl?: string
 }) => {
   const router = useRouter()
   const [hasConfirmed, setHasConfirmed] = useState(false)

@@ -124,7 +124,7 @@ export default function BankInfoForm({ control, errors }: Props) {
                 onBlur={onBlur}
                 onChange={e => {
                   const v = e.target.value
-                  if (!numberSpecialCharRegex.test(v) && !!v) return
+                  // if (!numberSpecialCharRegex.test(v) && !!v) return
                   onChange(e)
                 }}
                 inputProps={{ maxLength: 50 }}

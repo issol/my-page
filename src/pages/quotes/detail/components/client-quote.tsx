@@ -17,6 +17,7 @@ import {
   RejectQuoteReason,
   RequestRevisionReason,
 } from '@src/shared/const/reason/reason'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type Props = {
   downloadData: QuoteDownloadData
@@ -28,7 +29,7 @@ type Props = {
   updateProject?: UseMutationResult<
     void,
     unknown,
-    updateProjectInfoType,
+    {id: number; status: number; reason?: ReasonType},
     unknown
   >
   statusList: { value: number; label: string }[]
@@ -52,7 +53,7 @@ const ClientQuote = ({
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: 20800 },
+        { id: downloadData.quoteId, status: 20800 },
         {
           onSuccess: () => {
             closeModal('AcceptQuoteModal')
@@ -61,11 +62,11 @@ const ClientQuote = ({
       )
   }
 
-  const handleRequestRevision = (status: number, reason: CancelReasonType) => {
+  const handleRequestRevision = (status: number, reason: ReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: 20500, reason: reason },
+        { id: downloadData.quoteId, status: 20500, reason: reason },
         {
           onSuccess: () => {
             closeModal('RequestRevisionModal')
@@ -74,11 +75,11 @@ const ClientQuote = ({
       )
   }
 
-  const handleRejectQuote = (status: number, reason: CancelReasonType) => {
+  const handleRejectQuote = (status: number, reason: ReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: 201100, reason: reason },
+        { id: downloadData.quoteId, status: 201100, reason: reason },
         {
           onSuccess: () => {
             closeModal('RejectQuoteModal')
@@ -118,7 +119,7 @@ const ClientQuote = ({
               }Modal`,
             )
           }
-          onClick={(status: number, cancelReason: CancelReasonType) => {
+          onClick={(status: number, cancelReason: ReasonType) => {
             action === 'Request revision'
               ? handleRequestRevision(status, cancelReason)
               : handleRejectQuote(status, cancelReason)

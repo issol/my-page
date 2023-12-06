@@ -509,7 +509,7 @@ export function PermissionChip(permission: UserType) {
       : permission === 'Manager'
       ? '#26C6F980'
       : permission === 'General'
-      ? '#72E12880'
+      ? '#64C623'
       : ''
   return (
     <CustomChip

@@ -64,6 +64,7 @@ import NoList from '@src/pages/components/no-list'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import SelectRequestRedeliveryReasonModal from './modal/select-request-redelivery-reason-modal'
 import { ReasonType } from '@src/types/quotes/quote'
+import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 
 type Props = {
   project: ProjectInfoType
@@ -158,16 +159,7 @@ const DeliveriesFeedback = ({
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.csv'],
-      'application/pdf': ['.pdf'],
-      'text/plain': ['.txt'],
-      'application/vnd.ms-powerpoint': ['.ppt'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        ['.docx'],
-      'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
-      'image/vnd.adobe.photoshop': ['.psd', '.psb'],
+      ...srtUploadFileExtension.accept
     },
     disabled: !canUseFeature('button-Deliveries&Feedback-Upload'),
     noKeyboard: true,
@@ -420,7 +412,6 @@ const DeliveriesFeedback = ({
   //   },
   //   [],
   // )
-  // console.log(groupedFiles)
 
   interface GroupedDeliveryFileType {
     createdAt: string
@@ -441,7 +432,6 @@ const DeliveriesFeedback = ({
     },
     [],
   )
-  console.log(groupedFiles)
 
   const savedFileList = savedFiles?.map((file: DeliveryFileType) => (
     <Box key={uuidv4()}>
@@ -739,11 +729,6 @@ const DeliveriesFeedback = ({
     }
   }, [project])
 
-  console.log(uploadFileProcessing)
-  console.log(savedFiles)
-
-  console.log('project', project)
-  console.log('status list', statusList)
   return (
     <Grid container xs={12} spacing={4}>
       {updateDeliveries.isLoading ||
@@ -753,7 +738,7 @@ const DeliveriesFeedback = ({
       ) : null}
       <Grid
         item
-        xs={currentRole && currentRole.name === 'CLIENT' && isEditable ? 9 : 12}
+        xs={isEditable ? 9 : 12}
       >
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

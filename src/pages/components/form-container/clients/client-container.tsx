@@ -69,8 +69,8 @@ type Props = {
   getValue: UseFormGetValues<ClientFormType>
   watch: UseFormWatch<ClientFormType>
   trigger?: UseFormTrigger<ClientFormType>
-  setTaxable: (n: boolean) => void
-  setTax: (n: number | null) => void
+  setTaxable?: (n: boolean) => void
+  setTax?: (n: number | null) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'edit' | 'create'
   fromQuote: boolean

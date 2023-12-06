@@ -50,8 +50,8 @@ type Props = {
   clientList: Array<{ value: number; label: string; tax: number | null }>
   trigger?: UseFormTrigger<ClientFormType>
 
-  setTaxable: (n: boolean) => void
-  setTax: (n: number | null) => void
+  setTaxable?: (n: boolean) => void
+  setTax?: (n: number | null) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
   formType: 'create' | 'edit'
   getValue: UseFormGetValues<ClientFormType>
@@ -114,6 +114,11 @@ export default function RegisterClientForm({
   function getDetail(id: number, resetClientId = true) {
     return getClientDetail(id)
       .then(res => {
+        if (res.isTaxable && res.tax) {
+          setTaxable && setTaxable(res.isTaxable)
+          setTax && setTax(res.tax)
+        }
+
         setClientDetail(res)
         reset &&
           reset({
@@ -132,11 +137,7 @@ export default function RegisterClientForm({
             },
           })
 
-        if (res.isTaxable && res.tax) {
-          setTaxable(res.isTaxable)
-          setTax(res.tax)
-        }
-        if (res?.contactPersons?.length) {
+        if (res.contactPersons && res.contactPersons.length > 0) {
           const result = res.contactPersons.map(item => ({
             ...item,
             value: item.id,
@@ -152,6 +153,7 @@ export default function RegisterClientForm({
                   lastName: item.lastName!,
                 })} / ${item.jobTitle}`,
           }))
+
           if (!result[0].userId) {
             setContactPersonList(defaultFilter.concat(result))
           } else {
@@ -232,7 +234,7 @@ export default function RegisterClientForm({
                 }}
                 onChange={(e, v) => {
                   if (v) {
-                    setTax(selectedClient?.tax ?? null)
+                    setTax && setTax(selectedClient?.tax ?? null)
 
                     onChange(v.value)
                   } else {
@@ -290,6 +292,7 @@ export default function RegisterClientForm({
               label: item.label,
             }))
             const selectedPerson = personList.find(item => item.value === value)
+
             return (
               <Autocomplete
                 autoHighlight

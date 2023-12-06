@@ -350,7 +350,7 @@ const Contracts = ({
               alignItems: 'center',
             }}
           >
-            <Typography variant='h6'>Contracts</Typography>
+            <Typography variant='h6'>Contacts</Typography>
 
             <IconButton
               onClick={() => setEdit!(true)}

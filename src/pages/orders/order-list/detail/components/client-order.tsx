@@ -20,6 +20,7 @@ import {
 import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
 import PrintOrderPage from '@src/pages/orders/order-print/print-page'
 import { updateOrderType } from '../[id]'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type Props = {
   downloadData: OrderDownloadData
@@ -28,7 +29,7 @@ type Props = {
   downloadLanguage?: 'EN' | 'KO'
   setDownloadLanguage?: Dispatch<SetStateAction<'EN' | 'KO'>>
   type: 'detail' | 'history'
-  updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
+  updateProject?: UseMutationResult<void, unknown, { id: number, status: number, reason?: ReasonType }, unknown>
   statusList: { value: number; label: string }[]
   project: ProjectInfoType
 }
@@ -50,7 +51,7 @@ const ClientOrder = ({
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status },
+        { id: downloadData.orderId, status: status },
         {
           onSuccess: () => {
             closeModal('AcceptQuoteModal')
@@ -59,11 +60,11 @@ const ClientOrder = ({
       )
   }
 
-  const handleRequestRevision = (status: number, reason: CancelReasonType) => {
+  const handleRequestRevision = (status: number, reason: ReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, reason: reason },
+        { id: downloadData.orderId, status: status, reason: reason },
         {
           onSuccess: () => {
             closeModal('RequestRevisionModal')
@@ -72,11 +73,11 @@ const ClientOrder = ({
       )
   }
 
-  const handleRejectQuote = (status: number, reason: CancelReasonType) => {
+  const handleRejectQuote = (status: number, reason: ReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, reason: reason },
+        { id: downloadData.orderId, status: status, reason: reason },
         {
           onSuccess: () => {
             closeModal('RejectQuoteModal')
@@ -116,7 +117,7 @@ const ClientOrder = ({
               }Modal`,
             )
           }
-          onClick={(status: number, cancelReason: CancelReasonType) => {
+          onClick={(status: number, cancelReason: ReasonType) => {
             action === 'Request revision'
               ? handleRequestRevision(status, cancelReason)
               : handleRejectQuote(status, cancelReason)

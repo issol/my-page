@@ -102,7 +102,7 @@ const AssignProFilters = ({
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
   const clientList = useMemo(
-    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.clientId })) || [],
     [clientData],
   )
 

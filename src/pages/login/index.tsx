@@ -194,9 +194,7 @@ const LoginPage = () => {
               <Link href='' style={{ textDecoration: 'none' }}>
                 <Typography color='primary'>Sign in with Google</Typography>
               </Link>
-              <GoogleButton 
-                type='signin'
-              />
+              <GoogleButton type='signin' />
             </Box>
             <Box
               sx={{
@@ -233,6 +231,7 @@ const LoginPage = () => {
                 <Typography color='primary'>Sign in with LinkedIn</Typography>
               </Link>
             </Box>
+
             <Divider
               sx={{
                 '& .MuiDivider-wrapper': { px: 4 },

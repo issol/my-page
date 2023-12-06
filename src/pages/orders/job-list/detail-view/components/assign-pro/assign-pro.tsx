@@ -582,7 +582,7 @@ const AssignPro = ({
       sortable: false,
       renderHeader: () => <Box>Response rate</Box>,
       renderCell: ({ row }: { row: AssignProListType }) => {
-        return <Box>{row.responseRate?.toFixed(2) ?? '-'} %</Box>
+        return <Box>{row.responseRate? (row.responseRate*100).toFixed(2) : '-'} %</Box>
       },
     },
     {

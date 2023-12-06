@@ -37,6 +37,9 @@ import { currentRoleSelector, permissionState } from '@src/states/permission'
 import { current } from '@reduxjs/toolkit'
 import { HorizontalNavItemsType } from '@src/@core/layouts/types'
 import { UserRoleType } from '@src/context/types'
+import { useQuery } from 'react-query'
+import { getUserBeHealthz } from '@src/apis/common.api'
+import ErrorServerMaintenance from '@src/@core/components/error/error-server-maintenance'
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean
@@ -45,6 +48,18 @@ interface Props {
 const UserLayout = ({ children, contentHeightFixed }: Props) => {
   // ** Hooks
   const { settings, saveSettings } = useSettings()
+
+  const {
+    data: health,
+    isError,
+    isFetched,
+  } = useQuery('healthz', () => getUserBeHealthz(), {
+    refetchInterval: 600000,
+    refetchIntervalInBackground: true,
+    refetchOnMount: 'always',
+    // refetchOnWindowFocus: 'always',
+    retry: false,
+  })
 
   // const { currentRole } = useAppSelector(state => state.userAccess)
   const currentRoleStorage = getCurrentRole()
@@ -99,36 +114,47 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
         case 'TAD':
           setSortedMenu(
             HorizontalNavItems().filter(value => {
-              return TADMenu.includes(value.title) && value.role?.includes('TAD')
+              return (
+                TADMenu.includes(value.title) && value.role?.includes('TAD')
+              )
             }),
           )
           break
         case 'LPM':
           setSortedMenu(
             HorizontalNavItems().filter(value => {
-              return LPMMenu.includes(value.title) && value.role?.includes('LPM')
+              return (
+                LPMMenu.includes(value.title) && value.role?.includes('LPM')
+              )
             }),
           )
           break
         case 'PRO':
           setSortedMenu(
             HorizontalNavItems().filter(value => {
-              return PROMenu.includes(value.title) && value.role?.includes('PRO')
+              return (
+                PROMenu.includes(value.title) && value.role?.includes('PRO')
+              )
             }),
           )
           break
         case 'CLIENT':
           setSortedMenu(
             HorizontalNavItems().filter(value => {
-              return CLIENTMenu.includes(value.title) && value.role?.includes('CLIENT')
-            }
-            ),
+              return (
+                CLIENTMenu.includes(value.title) &&
+                value.role?.includes('CLIENT')
+              )
+            }),
           )
           break
         case 'ACCOUNT_MANAGER':
           setSortedMenu(
             HorizontalNavItems().filter(value => {
-              return LPMMenu.includes(value.title) && value.role?.includes('ACCOUNT_MANAGER')
+              return (
+                LPMMenu.includes(value.title) &&
+                value.role?.includes('ACCOUNT_MANAGER')
+              )
             }),
           )
           break
@@ -140,67 +166,73 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
   }, [permission, currentRoleState])
   return (
     <>
-      {currentRole && permission.state === 'hasValue' && (
-        <Layout
-          hidden={hidden}
-          settings={settings}
-          saveSettings={saveSettings}
-          contentHeightFixed={contentHeightFixed}
-          verticalLayoutProps={{
-            navMenu: {
-              navItems: VerticalNavItems(),
+      {isError ? (
+        <ErrorServerMaintenance />
+      ) : (
+        <>
+          {currentRole && permission.state === 'hasValue' && (
+            <Layout
+              hidden={hidden}
+              settings={settings}
+              saveSettings={saveSettings}
+              contentHeightFixed={contentHeightFixed}
+              verticalLayoutProps={{
+                navMenu: {
+                  navItems: VerticalNavItems(),
 
-              // Uncomment the below line when using server-side menu in vertical layout and comment the above line
-              // navItems: verticalMenuItems
-            },
-            appBar: {
-              content: props => (
-                <VerticalAppBarContent
-                  hidden={hidden}
-                  settings={settings}
-                  saveSettings={saveSettings}
-                  toggleNavVisibility={props.toggleNavVisibility}
-                />
-              ),
-            },
-          }}
-          horizontalLayoutProps={{
-            navMenu: {
-              navItems: sortedMenu,
-            },
-            appBar: {
-              content: () => (
-                <HorizontalAppBarContent
-                  hidden={hidden}
-                  settings={settings}
-                  saveSettings={saveSettings}
-                />
-              ),
-            },
-          }}
+                  // Uncomment the below line when using server-side menu in vertical layout and comment the above line
+                  // navItems: verticalMenuItems
+                },
+                appBar: {
+                  content: props => (
+                    <VerticalAppBarContent
+                      hidden={hidden}
+                      settings={settings}
+                      saveSettings={saveSettings}
+                      toggleNavVisibility={props.toggleNavVisibility}
+                    />
+                  ),
+                },
+              }}
+              horizontalLayoutProps={{
+                navMenu: {
+                  navItems: sortedMenu,
+                },
+                appBar: {
+                  content: () => (
+                    <HorizontalAppBarContent
+                      hidden={hidden}
+                      settings={settings}
+                      saveSettings={saveSettings}
+                    />
+                  ),
+                },
+              }}
 
-          // {...(settings.layout === 'horizontal' && {
-          //   horizontalLayoutProps: {
-          // navMenu: {
-          //   navItems: HorizontalNavItems(),
+              // {...(settings.layout === 'horizontal' && {
+              //   horizontalLayoutProps: {
+              // navMenu: {
+              //   navItems: HorizontalNavItems(),
 
-          //   // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
-          //   // navItems: horizontalMenuItems
-          // },
-          //   appBar: {
-          //     content: () => (
-          //       <HorizontalAppBarContent
-          //         hidden={hidden}
-          //         settings={settings}
-          //         saveSettings={saveSettings}
-          //       />
-          //     ),
-          //   },
-          // },
-          // })}
-        >
-          {children}
-        </Layout>
+              //   // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
+              //   // navItems: horizontalMenuItems
+              // },
+              //   appBar: {
+              //     content: () => (
+              //       <HorizontalAppBarContent
+              //         hidden={hidden}
+              //         settings={settings}
+              //         saveSettings={saveSettings}
+              //       />
+              //     ),
+              //   },
+              // },
+              // })}
+            >
+              {children}
+            </Layout>
+          )}
+        </>
       )}
     </>
   )

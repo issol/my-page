@@ -97,6 +97,12 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import CancelRequestModal from './modal/cancel-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+import { UseMutationResult } from 'react-query'
+
+interface GroupedDeliveryFileType {
+  createdAt: string
+  data: DeliveryFileType[]
+}
 
 interface GroupedDeliveryFileType {
   createdAt: string
@@ -123,6 +129,12 @@ type Props = {
     id: number
     form: InvoiceReceivablePatchParamsType
   }) => void
+  updateInvoiceStatus?: UseMutationResult<
+    void,
+    unknown,
+    {id: number; invoiceStatus: number; reason?: ReasonType},
+    unknown
+  >
   clientTimezone?: CountryType
   invoiceInfoControl?: Control<InvoiceProjectInfoFormType, any>
   getInvoiceInfo?: UseFormGetValues<InvoiceProjectInfoFormType>
@@ -156,6 +168,7 @@ const InvoiceInfo = ({
 
   onSave,
   onContactPersonSave,
+  updateInvoiceStatus,
   clientTimezone,
   invoiceInfoControl,
   getInvoiceInfo,
@@ -278,7 +291,7 @@ const InvoiceInfo = ({
 
     const statusLabel = statusList?.find(i => i.value === value)?.label || ''
     const data = getInvoiceInfo && getInvoiceInfo()
-    if (onSave && data) {
+    if (updateInvoiceStatus && data) {
       openModal({
         type: 'ChangeStatusModal',
         children: (
@@ -299,19 +312,14 @@ const InvoiceInfo = ({
             vary='successful'
             rightButtonText='Change'
             onClick={() => {
-              onSave(
+              updateInvoiceStatus.mutate(
+                { id: invoiceInfo.id, invoiceStatus: value as InvoiceReceivableStatusType },
                 {
-                  id: invoiceInfo.id,
-                  form: {
-                    // ...data,
-                    invoiceStatus: value as InvoiceReceivableStatusType,
-                  },
-                  type: 'basic',
-                },
-                () => {
-                  closeModal('ChangeStatusModal')
-                  setStatus(value)
-                },
+                  onSuccess: () => {
+                    closeModal('ChangeStatusModal')
+                    setStatus(value)
+                  }
+                }
               )
             }}
             onClose={() => closeModal('ChangeStatusModal')}
