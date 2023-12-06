@@ -137,7 +137,7 @@ export type OrderType = 'asc' | 'desc'
 
 export interface CountQuery
   extends DashboardQuery,
-    DashboardPaginationQuery,
+    Omit<DashboardPaginationQuery, 'type'>,
     Partial<ViewModeQuery> {
   type: ViewType
   countType: 'job' | 'order'

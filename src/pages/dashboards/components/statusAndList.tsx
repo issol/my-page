@@ -4,7 +4,7 @@ import {
   GridItem,
   SectionTitle,
   SubDateDescription,
-} from '@src/pages/dashboards/components/dashboardItem'
+} from '@src/views/dashboard/dashboardItem'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Grid from '@mui/material/Grid'
 import styled from '@emotion/styled'

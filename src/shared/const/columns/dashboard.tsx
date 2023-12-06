@@ -1,6 +1,6 @@
 import { GridColumns } from '@mui/x-data-grid'
 import { JobItem, OrderItem, RequestItem } from '@src/types/dashboard'
-import { StatusSquare } from '@src/pages/dashboards/components/dashboardItem'
+import { StatusSquare } from '@src/views/dashboard/dashboardItem'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
@@ -417,10 +417,8 @@ export const JobTableColumn = [
     headerName: '',
     filterable: false,
     minWidth: 60,
-    renderCell: ({ row }) => {
-      return (
-        <Box sx={{ width: '100%', textAlign: 'left' }}>{row.numbering}</Box>
-      )
+    renderCell: () => {
+      return <Box sx={{ textAlign: 'center' }}>23423</Box>
     },
   },
   {
@@ -429,28 +427,8 @@ export const JobTableColumn = [
     minWidth: 180,
     flex: 1,
     renderHeader: () => <Box>Job type</Box>,
-    renderCell: ({ row }) => {
-      return (
-        <Box
-          display='flex'
-          justifyContent='space-between'
-          alignItems='center'
-          gap='10px'
-          sx={{ width: '340px' }}
-        >
-          <Box display='flex' gap='10px'>
-            {row.jobType ? (
-              <JobTypeChip
-                sx={{ height: '24px' }}
-                type={row.jobType}
-                label={row.jobType}
-              />
-            ) : (
-              '-'
-            )}
-          </Box>
-        </Box>
-      )
+    renderCell: () => {
+      return <Box sx={{ textAlign: 'center' }}>23423</Box>
     },
   },
   {
@@ -460,20 +438,8 @@ export const JobTableColumn = [
     flex: 1,
     sortable: false,
     renderHeader: () => <Box>Role</Box>,
-    renderCell: ({ row }) => {
-      return (
-        <Box display='flex' gap='10px'>
-          {row.role ? (
-            <RoleChip
-              sx={{ height: '24px' }}
-              type={row.role}
-              label={row.role}
-            />
-          ) : (
-            '-'
-          )}
-        </Box>
-      )
+    renderCell: () => {
+      return <Box sx={{ textAlign: 'center' }}>23423</Box>
     },
   },
   {
@@ -483,8 +449,8 @@ export const JobTableColumn = [
 
     sortable: false,
     renderHeader: () => <Box>Pros</Box>,
-    renderCell: ({ row }) => {
-      return <Box>{row.pros}</Box>
+    renderCell: () => {
+      return <Box sx={{ textAlign: 'center' }}>23423</Box>
     },
   },
   {
@@ -494,8 +460,8 @@ export const JobTableColumn = [
 
     sortable: false,
     renderHeader: () => <Box>%</Box>,
-    renderCell: ({ row }) => {
-      return <Box sx={{ textAlign: 'center' }}>{row.ratio}%</Box>
+    renderCell: () => {
+      return <Box sx={{ textAlign: 'center' }}>23423</Box>
     },
   },
 ]

@@ -4,7 +4,7 @@ import {
   ReportItem,
   SectionTitle,
   SubDateDescription,
-} from '@src/pages/dashboards/components/dashboardItem'
+} from '@src/views/dashboard/dashboardItem'
 import {
   Box,
   ButtonGroup,
@@ -562,7 +562,7 @@ const LPMDashboards = () => {
                 <DashboardDataGrid
                   type='new'
                   pageNumber={4}
-                  movePage={(id: number) => {}}
+                  movePage={(id: number) => ''}
                   columns={RequestColumns}
                 />
               </Box>

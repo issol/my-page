@@ -6,7 +6,7 @@ import {
   SectionTitle,
   SubDateDescription,
   TitleIcon,
-} from '@src/pages/dashboards/components/dashboardItem'
+} from '@src/views/dashboard/dashboardItem'
 import {
   Box,
   ButtonGroup,
@@ -335,7 +335,7 @@ const TADDashboards = () => {
                 type='new'
                 sectionHeight={210}
                 pageNumber={3}
-                movePage={(id: number) => {}}
+                movePage={(id: number) => ''}
                 columns={RecruitingRequestColumns}
               />
             </Box>

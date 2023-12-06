@@ -4,7 +4,7 @@ import {
   JobList,
   SectionTitle,
   SubDateDescription,
-} from '@src/pages/dashboards/components/dashboardItem'
+} from '@src/views/dashboard/dashboardItem'
 import { Box, ButtonGroup, Stack } from '@mui/material'
 import dayjs from 'dayjs'
 import { useDashboardReport } from '@src/queries/dashboard/dashnaord-lpm'

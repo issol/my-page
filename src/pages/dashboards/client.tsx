@@ -8,7 +8,7 @@ import {
   SubDateDescription,
   TableStatusCircle,
   TitleIcon,
-} from '@src/pages/dashboards/components/dashboardItem'
+} from '@src/views/dashboard/dashboardItem'
 import {
   Box,
   ButtonGroup,

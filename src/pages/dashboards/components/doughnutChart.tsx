@@ -6,11 +6,11 @@ import {
   SectionTitle,
   StatusSquare,
   SubDateDescription,
-} from '@src/pages/dashboards/components/dashboardItem'
+} from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import dayjs from 'dayjs'
-import { CustomChart } from '@src/pages/dashboards/components/chart'
+import { CustomChart } from '@src/views/dashboard/chart'
 import { ApexOptions } from 'apexcharts'
 import { Colors } from '@src/shared/const/dashboard/chart'
 import { useTheme } from '@mui/material/styles'
