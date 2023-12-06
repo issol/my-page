@@ -6,6 +6,7 @@ import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
 import { timezones } from '@src/@fake-db/autocomplete'
 import Typography from '@mui/material/Typography'
+
 import {
   JobTypeChip,
   OrderStatusChip,
@@ -34,9 +35,9 @@ export const RequestColumns: GridColumns = [
       const timeZone = timezones.countries[code].zones[0]
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
-      const remainTime = date1.diff(date2, 'hour')
-
+      const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
       let color = '#7F889B'
+
       if (86400000 >= remainTime && remainTime > 0) {
         color = '#FF4D49'
       }
@@ -113,9 +114,9 @@ export const RequestColumns: GridColumns = [
       const timeZone = timezones.countries[code].zones[0]
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
-      const remainTime = date1.diff(date2, 'hour')
-
+      const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
       let color = '#7F889B'
+
       if (86400000 >= remainTime && remainTime > 0) {
         color = '#FF4D49'
       }
@@ -236,9 +237,10 @@ export const RecruitingRequestColumns: GridColumns = [
       const timeZone = timezones.countries[code].zones[0]
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
-      const remainTime = date1.diff(date2, 'hour')
-
+      const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
       let color = '#7F889B'
+
+      console.log(remainTime)
       if (86400000 >= remainTime && remainTime > 0) {
         color = '#FF4D49'
       }
