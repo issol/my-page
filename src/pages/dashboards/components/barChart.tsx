@@ -11,7 +11,7 @@ import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 import styled from '@emotion/styled'
 import { Box } from '@mui/material'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 const BarChart = () => {
   const theme = useTheme()
@@ -36,93 +36,116 @@ const BarChart = () => {
   const series = [
     {
       name: 'Sales',
-      data: [17165, 13850, 12375, 9567, 7880, 220],
+      data: [200, 80, 200, 800, 40, 400],
     },
   ]
 
-  const options: ApexOptions = {
-    chart: {
-      redrawOnParentResize: true,
-      width: '100%',
-      parentHeightOffset: 30,
-      toolbar: { show: false },
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 8,
-        barHeight: '50%',
-        horizontal: true,
-        distributed: true,
-        startingShape: 'rounded',
-        dataLabels: {
-          position: 'bottom',
+  const options: ApexOptions = useMemo(() => {
+    const max = Math.max(...series[0].data)
+
+    const getTick = () => {
+      if (max <= 400) {
+        return 6
+      }
+
+      if (max <= 1000) {
+        return 5
+      }
+
+      return 4
+    }
+
+    const tick = getTick()
+
+    return {
+      chart: {
+        redrawOnParentResize: true,
+        width: '100%',
+        parentHeightOffset: 30,
+        toolbar: { show: false },
+      },
+      plotOptions: {
+        bar: {
+          borderRadius: 4,
+          barHeight: '50%',
+          horizontal: true,
+          distributed: true,
+          startingShape: 'rounded',
+          dataLabels: {
+            position: 'top',
+          },
         },
       },
-    },
-    dataLabels: {
-      enabled: false,
-      textAnchor: 'start',
-      style: {
-        fontSize: '12px',
-        fontWeight: 600,
-        colors: ['#fff'],
+      dataLabels: {
+        enabled: true,
+        textAnchor: 'start',
+        style: {
+          fontSize: '12px',
+          fontWeight: 600,
+          colors: ['#000'],
+        },
+        formatter: function (val, opt) {
+          return `${val}`
+        },
+        offsetY: 0,
+        offsetX: 24,
       },
-      formatter: function (val, opt) {
-        return opt.w.globals.labels[opt.dataPointIndex] + ':  ' + val
+      grid: {
+        strokeDashArray: 8,
+        borderColor: theme.palette.divider,
+        xaxis: {
+          lines: { show: true },
+        },
+        yaxis: {
+          lines: { show: false },
+        },
       },
-      offsetY: 0,
-      offsetX: 0,
-    },
-    grid: {
-      strokeDashArray: 8,
-      borderColor: theme.palette.divider,
+      colors: [
+        hexToRGBA(theme.palette.primary.light, 1),
+        hexToRGBA(theme.palette.success.light, 1),
+        hexToRGBA(theme.palette.warning.light, 1),
+        hexToRGBA(theme.palette.info.light, 1),
+        hexToRGBA(theme.palette.error.light, 1),
+      ],
+      legend: { show: false },
+      states: {
+        hover: {
+          filter: { type: 'none' },
+        },
+        active: {
+          filter: { type: 'none' },
+        },
+      },
       xaxis: {
-        lines: { show: true },
+        min: 0,
+        max: max,
+        axisTicks: { show: false },
+        axisBorder: { show: false },
+        categories: ['', '', '', '', '', ''],
+        tickAmount: tick,
+        labels: {
+          formatter: val => {
+            return `${Number(val)}`
+          },
+          style: {
+            fontSize: '0.875rem',
+            colors: theme.palette.text.disabled,
+          },
+        },
       },
       yaxis: {
-        lines: { show: false },
-      },
-    },
-    colors: [
-      hexToRGBA(theme.palette.primary.light, 1),
-      hexToRGBA(theme.palette.success.light, 1),
-      hexToRGBA(theme.palette.warning.light, 1),
-      hexToRGBA(theme.palette.info.light, 1),
-      hexToRGBA(theme.palette.error.light, 1),
-    ],
-    legend: { show: false },
-    states: {
-      hover: {
-        filter: { type: 'none' },
-      },
-      active: {
-        filter: { type: 'none' },
-      },
-    },
-    xaxis: {
-      axisTicks: { show: false },
-      axisBorder: { show: false },
-      categories: ['', '', '', '', '', ''],
-      labels: {
-        formatter: val => `${Number(val) / 1000}k`,
-        style: {
-          fontSize: '0.875rem',
-          colors: theme.palette.text.disabled,
+        labels: {
+          align: theme.direction === 'rtl' ? 'right' : 'left',
+          style: {
+            fontWeight: 600,
+            fontSize: '0.875rem',
+            cssClass: 'data-label',
+            colors: theme.palette.text.primary,
+          },
         },
       },
-    },
-    yaxis: {
-      labels: {
-        align: theme.direction === 'rtl' ? 'right' : 'left',
-        style: {
-          fontWeight: 600,
-          fontSize: '0.875rem',
-          cssClass: 'data-label',
-          colors: theme.palette.text.primary,
-        },
-      },
-    },
-  }
+    }
+  }, [])
 
   return (
     <div style={{ position: 'relative' }}>
