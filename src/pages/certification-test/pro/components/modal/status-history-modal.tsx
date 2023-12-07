@@ -9,7 +9,7 @@ import { Loadable } from 'recoil'
 
 type Props = {
   onClose: any
-  history: Array<ProAppliedRolesStatusHistoryType>
+  history: Array<ProAppliedRolesStatusHistoryType> | null
   statusList: { value: number; label: string }[]
   auth: Loadable<{
     user: UserDataType | null
@@ -65,7 +65,7 @@ const StatusHistoryModal = ({ onClose, history, statusList, auth }: Props) => {
                 display: 'none',
               },
             }}
-            rowCount={history.length ?? 0}
+            rowCount={history === null || history.length ? 0 : history.length}
             // autoPageSize
             // pagination
             // paginationMode='client'

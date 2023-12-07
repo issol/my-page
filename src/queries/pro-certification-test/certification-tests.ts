@@ -7,10 +7,12 @@ import { useQuery } from 'react-query'
 
 export const useGetProCertificationTestList = (
   filters: ProCertificationTestFilterType,
+  userId: number,
+  userCompany: string,
 ) => {
   return useQuery<{ data: ProCertificationTestListType[]; totalCount: number }>(
     ['CertificationTest-list', filters],
-    () => getProCertificationTestList(filters),
+    () => getProCertificationTestList(filters, userId, userCompany),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,

@@ -43,13 +43,12 @@ export const getProCertificationTestListColumns = (
       renderCell: ({ row }: { row: ProCertificationTestListType }) => {
         return (
           <Typography variant='body1' sx={{ fontWeight: 600 }}>
-            {row.sourceLanguage &&
-            row.targetLanguage &&
-            row.sourceLanguage !== '' &&
-            row.targetLanguage !== '' ? (
+            {row.source &&
+            row.target &&
+            row.source !== '' &&
+            row.target !== '' ? (
               <>
-                {row.sourceLanguage.toUpperCase()} &rarr;{' '}
-                {row.targetLanguage.toUpperCase()}
+                {row.source.toUpperCase()} &rarr; {row.target.toUpperCase()}
               </>
             ) : null}
           </Typography>

@@ -11,10 +11,13 @@ import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
-export const useGetProAppliedRoles = (filters: ProAppliedRolesFilterType) => {
+export const useGetProAppliedRoles = (
+  filters: ProAppliedRolesFilterType,
+  userId: number,
+) => {
   return useQuery<{ data: ProAppliedRolesType[]; totalCount: number }>(
     ['Applied-roles', filters],
-    () => getProAppliedRoles(filters),
+    () => getProAppliedRoles(userId, filters),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,

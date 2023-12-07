@@ -18,6 +18,8 @@ import { ProAppliedRolesType } from '@src/types/pro-certification-test/applied-r
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import InformationModal from '@src/@core/components/common-modal/information-modal'
 import { getIsProBasicTestPassed } from '@src/apis/pro-certification-test/certification-tests'
+import { Loadable } from 'recoil'
+import { ClientUserType, UserDataType } from '@src/context/types'
 
 export type FilterType = {
   jobType: Array<{ label: string; value: string }>
@@ -38,15 +40,20 @@ const defaultFilter: ProCertificationTestFilterType = {
   role: [],
   skip: 0,
   take: 10,
-  sourceLanguage: [],
-  targetLanguage: [],
+  source: [],
+  target: [],
 }
 
 type Props = {
+  auth: Loadable<{
+    user: UserDataType | null
+    company: ClientUserType | null | undefined
+    loading: boolean
+  }>
   appliedRoles: ProAppliedRolesType[]
 }
 
-const ProCertificationTests = ({ appliedRoles }: Props) => {
+const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
   const { openModal, closeModal } = useModal()
   const [filters, setFilters] =
     useState<ProCertificationTestFilterType>(defaultFilter)
@@ -57,7 +64,11 @@ const ProCertificationTests = ({ appliedRoles }: Props) => {
   )
 
   const { data: certificationTestList, isLoading } =
-    useGetProCertificationTestList(filters)
+    useGetProCertificationTestList(
+      filters,
+      auth.getValue()?.user?.userId!,
+      auth.getValue().user?.company!,
+    )
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
@@ -72,6 +83,8 @@ const ProCertificationTests = ({ appliedRoles }: Props) => {
   const onReset = () => {
     reset(defaultValues)
     setFilters(defaultFilter)
+    setJobTypeOptions(JobList)
+    setRoleOptions(OnboardingListRolePair)
   }
 
   const onSubmit = (data: FilterType) => {
@@ -80,8 +93,8 @@ const ProCertificationTests = ({ appliedRoles }: Props) => {
     const filter: ProCertificationTestFilterType = {
       jobType: jobType.map(item => item.value),
       role: role.map(item => item.value),
-      sourceLanguage: sourceLanguage.map(item => item.value),
-      targetLanguage: targetLanguage.map(item => item.value),
+      source: sourceLanguage.map(item => item.value),
+      target: targetLanguage.map(item => item.value),
       skip: 0,
       take: 10,
     }
@@ -104,7 +117,7 @@ const ProCertificationTests = ({ appliedRoles }: Props) => {
         value.status === 'Role assigned',
     )
 
-    if (!(validAppliedRoles.length >= 10)) {
+    if (validAppliedRoles.length >= 10) {
       openModal({
         type: 'ExceedModal',
         children: (
@@ -155,8 +168,8 @@ const ProCertificationTests = ({ appliedRoles }: Props) => {
                     fontWeight={600}
                     fontSize={16}
                   >
-                    {data.sourceLanguage.toUpperCase()} &rarr;{' '}
-                    {data.targetLanguage.toUpperCase()}&nbsp; role?
+                    {data.source.toUpperCase()} &rarr;{' '}
+                    {data.target.toUpperCase()}&nbsp; role?
                   </Typography>
                   <br />
                   <br />
@@ -177,60 +190,103 @@ const ProCertificationTests = ({ appliedRoles }: Props) => {
           ),
         })
       } else {
-        getIsProBasicTestPassed(data.targetLanguage).then(res => {
-          openModal({
-            type: 'ApplyModal',
-            children: (
-              <CustomModal
-                //TODO API 연결
-                onClick={() => closeModal('ApplyBasicPassedModal')}
-                onClose={() => closeModal('ApplyBasicPassedModal')}
-                title={
-                  <>
-                    Are you sure you want to apply for
-                    <br />
-                    <br />
-                    <Typography
-                      component={'span'}
-                      variant='body2'
-                      fontWeight={600}
-                      fontSize={16}
-                    >
-                      {data.jobType} / {data.role}
-                    </Typography>
-                    <br />
-                    <Typography
-                      component={'span'}
-                      variant='body2'
-                      fontWeight={600}
-                      fontSize={16}
-                    >
-                      {data.sourceLanguage.toUpperCase()} &rarr;{' '}
-                      {data.targetLanguage.toUpperCase()}&nbsp; role?
-                    </Typography>
-                    {res ? (
-                      <>
-                        <br />
-                        <br />
-                        <Typography
-                          component={'span'}
-                          variant='subtitle2'
-                          color='#666CFF'
-                          fontSize={14}
-                          fontWeight={500}
-                        >
-                          The basic test will be waived for you considering your
-                          previous test record.
-                        </Typography>
-                      </>
-                    ) : null}
-                  </>
-                }
-                rightButtonText='Apply'
-                vary='successful'
-              />
-            ),
-          })
+        getIsProBasicTestPassed(
+          data.target,
+          auth.getValue().user?.userId!,
+        ).then(res => {
+          if (res) {
+            openModal({
+              type: 'ApplyModal',
+              children: (
+                <CustomModal
+                  //TODO API 연결
+                  onClick={() => closeModal('ApplyBasicPassedModal')}
+                  onClose={() => closeModal('ApplyBasicPassedModal')}
+                  title={
+                    <>
+                      Are you sure you want to apply for
+                      <br />
+                      <br />
+                      <Typography
+                        component={'span'}
+                        variant='body2'
+                        fontWeight={600}
+                        fontSize={16}
+                      >
+                        {data.jobType} / {data.role}
+                      </Typography>
+                      <br />
+                      <Typography
+                        component={'span'}
+                        variant='body2'
+                        fontWeight={600}
+                        fontSize={16}
+                      >
+                        {data.source.toUpperCase()} &rarr;{' '}
+                        {data.target.toUpperCase()}&nbsp; role?
+                      </Typography>
+                      {res ? (
+                        <>
+                          <br />
+                          <br />
+                          <Typography
+                            component={'span'}
+                            variant='subtitle2'
+                            color='#666CFF'
+                            fontSize={14}
+                            fontWeight={500}
+                          >
+                            The basic test will be waived for you considering
+                            your previous test record.
+                          </Typography>
+                        </>
+                      ) : null}
+                    </>
+                  }
+                  rightButtonText='Apply'
+                  vary='successful'
+                />
+              ),
+            })
+          } else {
+            openModal({
+              type: 'NoBasicApplyModal',
+              children: (
+                <CustomModal
+                  //TODO API 연결
+                  onClick={() => closeModal('ApplyBasicPassedModal')}
+                  onClose={() => closeModal('ApplyBasicPassedModal')}
+                  title={
+                    <>
+                      Are you sure you want to apply for
+                      <br />
+                      <br />
+                      <Typography
+                        component={'span'}
+                        variant='body2'
+                        fontWeight={600}
+                        fontSize={16}
+                      >
+                        {data.jobType} / {data.role}
+                      </Typography>
+                      <br />
+                      <Typography
+                        component={'span'}
+                        variant='body2'
+                        fontWeight={600}
+                        fontSize={16}
+                      >
+                        {data.source.toUpperCase()} &rarr;{' '}
+                        {data.target.toUpperCase()}&nbsp; role?
+                      </Typography>
+                    </>
+                  }
+                  rightButtonText='Apply'
+                  vary='successful'
+                />
+              ),
+            })
+          }
         })
       }
     }

@@ -57,7 +57,7 @@ const ProCertificationTest = () => {
   }
 
   const { data: appliedRoles, isLoading: appliedRolesLoading } =
-    useGetProAppliedRoles(filters)
+    useGetProAppliedRoles(filters, auth.getValue().user?.userId!)
 
   const { data: ndaData, isLoading: ndaLoading } = useGetProContract({
     type: 'NDA',
@@ -260,7 +260,10 @@ const ProCertificationTest = () => {
               />
             </Suspense>
             <Suspense>
-              <ProCertificationTests appliedRoles={appliedRoles!.data} />
+              <ProCertificationTests
+                appliedRoles={appliedRoles!.data}
+                auth={auth}
+              />
             </Suspense>
           </Box>
         </>

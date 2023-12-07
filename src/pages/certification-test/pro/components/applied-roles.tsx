@@ -75,7 +75,7 @@ const ProAppliedRoles = ({
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
 
-  const viewHistory = (history: ProAppliedRolesStatusHistoryType[]) => {
+  const viewHistory = (history: ProAppliedRolesStatusHistoryType[] | null) => {
     openModal({
       type: 'ViewHistoryModal',
       children: (
@@ -339,6 +339,9 @@ const ProAppliedRoles = ({
               overflowX: 'scroll',
               '& .MuiDataGrid-row:hover': {
                 backgroundColor: 'inherit',
+              },
+              '& .MuiDataGrid-virtualScroller': {
+                height: '270px !important',
               },
               maxHeight: '451px',
               minHeight: '375px',
