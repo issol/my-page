@@ -1,5 +1,6 @@
 import Grid from '@mui/material/Grid'
 import {
+  ConvertButtonGroup,
   GridItem,
   ReportItem,
   SectionTitle,
@@ -44,6 +45,7 @@ import {
 } from '@src/shared/const/dashboard/chart'
 import {
   CategoryRatioItem,
+  Currency,
   ExpertiseRatioItem,
   PairRatioItem,
   ServiceRatioItem,
@@ -151,6 +153,7 @@ const LPMDashboards = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [memberView, setMemberView] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
+  const [currency, setCurrency] = useState<Currency>('convertedToUSD')
   const open = Boolean(anchorEl)
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
@@ -192,7 +195,6 @@ const LPMDashboards = () => {
   }, [state.userInfo])
 
   const onChangeViewMode = async (val: boolean) => {
-    console.log('@#4234234234234324')
     if (val) {
       setState({ ...state, view: 'personal' })
     } else {
@@ -273,6 +275,10 @@ const LPMDashboards = () => {
   const isPermissionMemberView = () => {
     if (role?.name !== 'LPM') return false
     return role?.type === 'Master' || role?.type === 'Manager'
+  }
+
+  const onChangeCurrency = (type: Currency) => {
+    setCurrency(type)
   }
 
   return (
@@ -609,6 +615,216 @@ const LPMDashboards = () => {
           )}
           to={getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)}
         />
+        <Grid container gap='24px'>
+          <GridItem height={229} xs={6}>
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <Box>
+                <SectionTitle>
+                  <span
+                    role='button'
+                    className='title'
+                    onClick={() => router.push('/quotes/lpm/requests/')}
+                  >
+                    Receivables - Paid this month
+                  </span>
+                  <ErrorOutlineIcon className='info_icon' />
+                  <KeyboardArrowRight className='arrow_icon' />
+                </SectionTitle>
+                <Box display='flex' justifyContent='flex-end'>
+                  <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
+                </Box>
+              </Box>
+              <Box display='flex' alignItems='center'>
+                <Box sx={{ marginTop: '20px' }}>
+                  <Typography
+                    fontSize='14px'
+                    color='rgba(102, 108, 255, 1)'
+                    fontWeight={600}
+                  >
+                    Paid this month
+                  </Typography>
+                  <Typography fontSize='34px' fontWeight={500}>
+                    $128,450,810
+                  </Typography>
+                  <Typography
+                    fontSize='12px'
+                    color='rgba(76, 78, 100, 0.6)'
+                    sx={{ marginTop: '-8px' }}
+                  >
+                    Receivable amount
+                  </Typography>
+                </Box>
+                <span
+                  style={{
+                    display: 'block',
+                    margin: '40px 20px 0',
+                    width: '1px',
+                    height: '58px',
+                    backgroundColor: 'rgba(76, 78, 100, 0.12)',
+                  }}
+                />
+                <Box sx={{ marginTop: '20px' }}>
+                  <Box sx={{ height: '20px' }} />
+                  <Typography fontSize='34px' fontWeight={500}>
+                    12345
+                  </Typography>
+                  <Typography
+                    fontSize='12px'
+                    color='rgba(76, 78, 100, 0.6)'
+                    sx={{ marginTop: '-8px' }}
+                  >
+                    Counts
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </GridItem>
+          <GridItem height={229} sm>
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <Box>
+                <SectionTitle>
+                  <span
+                    role='button'
+                    className='title'
+                    onClick={() => router.push('/quotes/lpm/requests/')}
+                  >
+                    Payables - Paid this month
+                  </span>
+                  <ErrorOutlineIcon className='info_icon' />
+                  <KeyboardArrowRight className='arrow_icon' />
+                </SectionTitle>
+                <Box display='flex' justifyContent='flex-end'>
+                  <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
+                </Box>
+              </Box>
+              <Box display='flex' alignItems='center'>
+                <Box sx={{ marginTop: '20px' }}>
+                  <Typography
+                    fontSize='14px'
+                    color='rgba(102, 108, 255, 1)'
+                    fontWeight={600}
+                  >
+                    Paid this month
+                  </Typography>
+                  <Typography fontSize='34px' fontWeight={500}>
+                    $128,450,810
+                  </Typography>
+                  <Typography
+                    fontSize='12px'
+                    color='rgba(76, 78, 100, 0.6)'
+                    sx={{ marginTop: '-8px' }}
+                  >
+                    Receivable amount
+                  </Typography>
+                </Box>
+                <span
+                  style={{
+                    display: 'block',
+                    margin: '40px 20px 0',
+                    width: '1px',
+                    height: '58px',
+                    backgroundColor: 'rgba(76, 78, 100, 0.12)',
+                  }}
+                />
+                <Box sx={{ marginTop: '20px' }}>
+                  <Box sx={{ height: '20px' }} />
+                  <Typography fontSize='34px' fontWeight={500}>
+                    12345
+                  </Typography>
+                  <Typography
+                    fontSize='12px'
+                    color='rgba(76, 78, 100, 0.6)'
+                    sx={{ marginTop: '-8px' }}
+                  >
+                    Counts
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </GridItem>
+        </Grid>
+        <Grid container gap='24px'>
+          <GridItem height={525} xs={6}>
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <Box>
+                <SectionTitle>
+                  <span
+                    role='button'
+                    className='title'
+                    onClick={() => router.push('/quotes/lpm/requests/')}
+                  >
+                    Receivables - Total
+                  </span>
+                  <ErrorOutlineIcon className='info_icon' />
+                  <KeyboardArrowRight className='arrow_icon' />
+                </SectionTitle>
+                <Box display='flex' justifyContent='flex-end'>
+                  <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
+                </Box>
+              </Box>
+              <Box>sd</Box>
+            </Box>
+          </GridItem>
+          <GridItem height={525} sm>
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <Box>
+                <SectionTitle>
+                  <span
+                    role='button'
+                    className='title'
+                    onClick={() => router.push('/quotes/lpm/requests/')}
+                  >
+                    Payables - Total
+                  </span>
+                  <ErrorOutlineIcon className='info_icon' />
+                  <KeyboardArrowRight className='arrow_icon' />
+                </SectionTitle>
+                <Box display='flex' justifyContent='flex-end'>
+                  <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
+                </Box>
+              </Box>
+              <Box>sd</Box>
+            </Box>
+          </GridItem>
+        </Grid>
+        <Grid container>
+          <GridItem height={362} sm padding='0px'>
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <Box marginBottom='20px' sx={{ padding: '20px' }}>
+                <SectionTitle>
+                  <span
+                    role='button'
+                    className='title'
+                    onClick={() => router.push('/quotes/lpm/requests/')}
+                  >
+                    🚨 Long-standing receivables - Action required (27)
+                  </span>
+                  <ErrorOutlineIcon className='info_icon' />
+                </SectionTitle>
+              </Box>
+              <Box>sd</Box>
+            </Box>
+          </GridItem>
+        </Grid>
+        <Grid container>
+          <GridItem height={362} sm padding='0px'>
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <Box marginBottom='20px' sx={{ padding: '20px' }}>
+                <SectionTitle>
+                  <span
+                    role='button'
+                    className='title'
+                    onClick={() => router.push('/quotes/lpm/requests/')}
+                  >
+                    🚨 Long-standing payables - Action required (27)
+                  </span>
+                  <ErrorOutlineIcon className='info_icon' />
+                </SectionTitle>
+              </Box>
+              <Box>sd</Box>
+            </Box>
+          </GridItem>
+        </Grid>
         <Grid container spacing={5}>
           <DoughnutChart
             userViewDate={userViewDate}

@@ -18,6 +18,16 @@ export const SecondColors = [
   '#6D788D',
 ]
 
+export const ThirdColors = [
+  '#9024C3',
+  '#921010',
+  '#6638A1',
+  '#1351EF',
+  '#FFBFE9',
+  '#FF985E',
+  '#4C4E64',
+]
+
 export const StatusColor = [
   '#6D788D',
   '#FDB528',

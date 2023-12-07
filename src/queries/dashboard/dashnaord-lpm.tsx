@@ -213,3 +213,7 @@ export const useDashboardMemberList = ({
     },
   )
 }
+
+export const useJobRolePoolList = () => {
+  return useQuery([DEFAULT_QUERY_NAME, 'role'], () => {})
+}

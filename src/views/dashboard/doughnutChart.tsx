@@ -17,7 +17,7 @@ import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
 import { useDashboardRatio } from '@src/queries/dashboard/dashnaord-lpm'
 import { renderToString } from 'react-dom/server'
-import { Currency, RatioItem } from '@src/types/dashboard'
+import { APIType, Currency, RatioItem } from '@src/types/dashboard'
 import Typography from '@mui/material/Typography'
 import NoRatio from '@src/views/dashboard/noRatio'
 import { KeyboardArrowRight } from '@mui/icons-material'
@@ -80,6 +80,7 @@ interface DoughnutChartProps<T> {
   from: string
   to: string
   type: string
+  apiType?: APIType
   colors: Array<string>
   getName?: (row?: T) => string
   userViewDate: string
@@ -90,6 +91,7 @@ const DoughnutChart = <T extends RatioItem>({
   from,
   to,
   type,
+  apiType = 'u',
   colors,
   getName,
   userViewDate,
@@ -102,6 +104,7 @@ const DoughnutChart = <T extends RatioItem>({
     to,
     type,
     currency,
+    apiType,
   })
 
   const charData = useMemo(() => {
@@ -195,7 +198,7 @@ const DoughnutChart = <T extends RatioItem>({
                 color: theme.palette.text.primary,
                 formatter: val =>
                   `${Number(
-                    data?.totalOrderPrice.toFixed(0),
+                    (data?.totalOrderPrice || 0).toFixed(0),
                   ).toLocaleString()}`,
               },
               value: {
@@ -264,7 +267,7 @@ const DoughnutChart = <T extends RatioItem>({
                   sx={{ textAlign: 'center' }}
                 >
                   {data?.totalOrderPrice && CurrencyUnit[currency]}
-                  {data?.totalOrderPrice.toLocaleString()}
+                  {(data?.totalOrderPrice || 0).toLocaleString()}
                 </Typography>
               </Box>
             </Suspense>

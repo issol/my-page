@@ -32,10 +32,13 @@ export const getRequest = async ({
 }
 
 export const getRatio = async (params: RatioQuery) => {
-  const { type, ...props } = params
-  const { data } = await axios.get(`/api/enough/u/dashboard/ratio/${type}`, {
-    params: { ...props },
-  })
+  const { type, apiType, ...props } = params
+  const { data } = await axios.get(
+    `/api/enough/${apiType}/dashboard/ratio/${type}`,
+    {
+      params: { ...props },
+    },
+  )
   return data
 }
 
@@ -57,6 +60,11 @@ export const getCount = async (params: DashboardQuery) => {
 }
 
 export const getMemberList = async (params: DashboardMemberQuery) => {
-  const { data } = await axios.get('api/enough/a/role/us', { params })
+  const { data } = await axios.get('/api/enough/a/role/us', { params })
+  return data
+}
+
+export const getJobRolePool = async () => {
+  const { data } = await axios.get('/api/enough/cert/dashboard/job-type/count')
   return data
 }

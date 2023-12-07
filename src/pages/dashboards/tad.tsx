@@ -43,6 +43,7 @@ import {
   SecondColors,
   Status,
   StatusColor,
+  ThirdColors,
 } from '@src/shared/const/dashboard/chart'
 import {
   CategoryRatioItem,
@@ -85,7 +86,6 @@ import JobDataTable from '@src/views/dashboard/jobDataTable'
 dayjs.extend(weekday)
 
 const TADDashboards = () => {
-  const queryClient = useQueryClient()
   const router = useRouter()
 
   const { contents: auth, state: authFetchState } =
@@ -103,57 +103,12 @@ const TADDashboards = () => {
     },
   })
 
-  const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
+  const [dateRange, selectedRangeDate, userViewDate] = useWatch({
     control,
-    name: ['viewSwitch', 'dateRange', 'selectedRangeDate', 'userViewDate'],
+    name: ['dateRange', 'selectedRangeDate', 'userViewDate'],
   })
 
-  const { data: ReportData } = useDashboardReport({
-    from: getDateFormat((Array.isArray(dateRange) && dateRange[0]) || null),
-    to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
-  })
-
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [memberView, setMemberView] = useState(false)
   const [openDialog, setOpenDialog] = useState(false)
-  const open = Boolean(anchorEl)
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
-
-  useEffect(() => {
-    if (authFetchState !== 'hasValue' || roleFetchState !== 'hasValue') return
-
-    if (role?.type === 'Master' || role?.type === 'Manager') {
-      setState({
-        view: 'company',
-        userId: auth?.user?.id || null,
-        role: role?.type,
-      })
-      setValue('view', 'company')
-      setValue('viewSwitch', false)
-    } else {
-      setState({
-        view: 'personal',
-        userId: auth?.user?.id || null,
-        role: role?.type,
-      })
-      setValue('view', 'personal')
-      setValue('viewSwitch', true)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (state.userInfo) {
-      setMemberView(true)
-      return
-    }
-
-    setMemberView(false)
-  }, [state.userInfo])
 
   const onChangeDateRange = useCallback(
     (type: SelectedRangeDate) => {
@@ -403,6 +358,7 @@ const TADDashboards = () => {
 
         <Grid container spacing={5}>
           <DoughnutChart
+            apiType='cert'
             userViewDate={userViewDate}
             title='Applied job types'
             from={getDateFormat(
@@ -411,10 +367,11 @@ const TADDashboards = () => {
             to={getDateFormat(
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
-            type='client'
+            type='job-type'
             colors={Colors}
           />
-          <DoughnutChart<PairRatioItem>
+          <DoughnutChart
+            apiType='cert'
             userViewDate={userViewDate}
             title='Applied roles'
             from={getDateFormat(
@@ -423,15 +380,13 @@ const TADDashboards = () => {
             to={getDateFormat(
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
-            type='language-pair'
-            colors={SecondColors}
-            getName={item => {
-              return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
-            }}
+            type='role'
+            colors={ThirdColors}
           />
         </Grid>
         <Grid container spacing={5}>
           <DoughnutChart<CategoryRatioItem>
+            apiType='cert'
             userViewDate={userViewDate}
             title='Applied source languages'
             from={getDateFormat(
@@ -440,13 +395,12 @@ const TADDashboards = () => {
             to={getDateFormat(
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
-            type='category'
-            colors={Colors}
-            getName={item => {
-              return `${item?.category || '-'}`
-            }}
+            type='source-language'
+            colors={SecondColors}
           />
+
           <DoughnutChart<ServiceRatioItem>
+            apiType='cert'
             userViewDate={userViewDate}
             title='Applied target languages'
             from={getDateFormat(
@@ -455,11 +409,8 @@ const TADDashboards = () => {
             to={getDateFormat(
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
-            type='service-type'
+            type='target-language'
             colors={SecondColors}
-            getName={item => {
-              return `${item?.serviceType || '-'}`
-            }}
           />
         </Grid>
       </Grid>

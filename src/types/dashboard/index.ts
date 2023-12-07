@@ -79,9 +79,12 @@ export type Currency =
   | 'onlySGD'
   | 'onlyUSD'
 
+export type APIType = 'u' | 'cert'
+
 export interface RatioQuery extends DashboardQuery, Partial<ViewModeQuery> {
   type: string
   currency: Currency
+  apiType?: APIType
 }
 
 export interface RatioItem {
@@ -90,6 +93,7 @@ export interface RatioItem {
   ratio: number
   sortingOrder: number
   sum: number
+  apiType?: APIType
 }
 
 export interface PairRatioItem extends RatioItem {
