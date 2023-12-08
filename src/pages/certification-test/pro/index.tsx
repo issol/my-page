@@ -93,8 +93,6 @@ const ProCertificationTest = () => {
     { value: 501600, label: 'Skill in progress' },
     { value: 501700, label: 'Skill submitted' },
     { value: 501800, label: 'Skill failed' },
-    { value: 501900, label: 'Skill passed' },
-    { value: 502000, label: 'Skill passed' },
     { value: 502100, label: 'Contract required' },
     { value: 502200, label: 'Certified' },
     { value: 502300, label: 'Test in preparation' },
@@ -138,7 +136,7 @@ const ProCertificationTest = () => {
               title={<Typography variant='h5'>Certification test</Typography>}
             />
           </Box>
-          {auth.getValue().user?.isSignedNDA ? null : (
+          {auth.getValue().user?.isSignToNDA ? null : (
             <Box
               sx={{
                 border: '2px solid #666CFF',
@@ -180,7 +178,11 @@ const ProCertificationTest = () => {
               </Box>
             </Box>
           )}
-          {auth.getValue().user?.isSignedContract ? null : (
+          {!auth.getValue().user?.isSignToContract &&
+          appliedRoles?.data &&
+          appliedRoles?.data.filter(
+            value => value.status === 'Contract required',
+          ).length === 0 ? null : (
             <Box
               sx={{
                 border: '2px solid #666CFF',

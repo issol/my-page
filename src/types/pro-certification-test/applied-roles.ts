@@ -42,7 +42,7 @@ export type ProAppliedRolesType = {
     message: string
     reason: string
     retestDate: string
-  }
+  } | null
 
   testGuideline: CurrentTestType
   statusHistory: Array<ProAppliedRolesStatusHistoryType>

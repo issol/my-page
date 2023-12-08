@@ -1,6 +1,6 @@
 export const S3FileType = {
   RESUME: 'resume',
-  CONTRACTS: 'contracts',
+  CONTRACTS: 'contract',
   GUIDELINE: 'guideline',
   JOB: 'job',
   CLIENT_GUIDELINE: 'client-guideline',
@@ -12,4 +12,5 @@ export const S3FileType = {
   ORDER_DELIVERY: 'delivery',
   TAX_INVOICE: 'tax-invoice',
   NOTES_TO_CLIENT: 'notes-to-client',
+  PRO_CONTRACT: 'contract',
 } as const

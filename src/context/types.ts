@@ -40,8 +40,8 @@ export type UserDataType = {
   username?: string
   userCorporationId?: string
   createdAt?: string
-  isSignedNDA?: boolean
-  isSignedContract?: boolean
+  isSignToNDA?: boolean
+  isSignToContract?: boolean
   //⬇️ extraData
   middleName?: string
   legalNamePronunciation?: string

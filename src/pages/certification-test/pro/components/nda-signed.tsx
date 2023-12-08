@@ -14,8 +14,10 @@ import { currentVersionType } from '@src/apis/contract.api'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
 import dayjs from 'dayjs'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
 
-import { EditorState, convertFromRaw } from 'draft-js'
+import { EditorState, convertFromRaw, convertToRaw } from 'draft-js'
 import {
   ChangeEvent,
   Dispatch,
@@ -23,7 +25,22 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { Loadable } from 'recoil'
+import { Loadable, useSetRecoilState } from 'recoil'
+import {
+  getContractFilePath,
+  getFilePath,
+} from '@src/shared/transformer/filePath.transformer'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
+import { signContract } from '@src/apis/pro-certification-test/certification-tests'
+import { useMutation } from 'react-query'
+import { FileType } from '@src/types/common/file.type'
+import toast from 'react-hot-toast'
+import { getUserInfo } from '@src/apis/user.api'
+import { saveUserDataToBrowser } from '@src/shared/auth/storage'
+import { currentRoleSelector } from '@src/states/permission'
+import { useRouter } from 'next/router'
+import { authState } from '@src/states/auth'
 
 type Props = {
   nda: currentVersionType
@@ -41,6 +58,49 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
   const { openModal, closeModal } = useModal()
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
   const [checked, setChecked] = useState<boolean>(false)
+  const setCurrentRole = useSetRecoilState(currentRoleSelector)
+  const setAuth = useSetRecoilState(authState)
+  const router = useRouter()
+
+  const signContractMutation = useMutation(
+    (data: { type: 'nda' | 'contract'; file: string[] }) =>
+      signContract(data.type, data.file),
+    {
+      onSuccess: () => {
+        getUserInfo(auth.getValue().user?.userId!)
+          .then(value => {
+            console.log(value)
+
+            const profile = value
+            const userInfo = {
+              ...profile,
+              id: value.userId,
+              email: value.email,
+              username: `${profile.firstName} ${
+                profile?.middleName ? '(' + profile?.middleName + ')' : ''
+              } ${profile.lastName}`,
+              firstName: profile.firstName,
+              timezone: profile.timezone,
+            }
+            saveUserDataToBrowser(userInfo)
+            setAuth(prev => ({ ...prev, user: userInfo }))
+
+            // 컴퍼니 데이터 패칭이 늦어 auth-provider에서 company 데이터가 도착하기 전에 로직체크가 됨
+            // user, company 데이터를 동시에 set 하도록 변경
+
+            setCurrentRole(
+              value?.roles && value?.roles.length > 0 ? value?.roles[0] : null,
+            )
+          })
+          .catch(e => {
+            router.push('/login')
+          })
+
+        setSignNDA(false)
+        setChecked(false)
+      },
+    },
+  )
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked)
@@ -114,6 +174,11 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
           auth.getValue().user?.birthday!,
         )
 
+        let signatureDateIndex = getAllIndexes(
+          copyContent?.blocks[i]?.text!,
+          language === 'ENG' ? 'Signature date: ' : '서명 일자: ',
+        )
+
         let nameStyle = nameIndex.map(value => ({
           style: 'color-#666CFF',
           length: auth.getValue().user?.username?.length,
@@ -132,7 +197,11 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
           offset: value,
         }))
 
-        console.log('hi')
+        let signatureDateStyle = signatureDateIndex.map(value => ({
+          style: 'BOLD',
+          length: now.length + 16,
+          offset: value,
+        }))
 
         copyContent.blocks[i].type = 'unstyled'
         copyContent.blocks[i].inlineStyleRanges = [
@@ -140,14 +209,7 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
           ...nameStyle,
           ...addressStyle,
           ...dateOfBirthStyle,
-          {
-            style: 'BOLD',
-            length: now.length + 16,
-            offset:
-              language === 'ENG'
-                ? copyContent?.blocks[i]?.text!.indexOf('Signature date: ')
-                : copyContent?.blocks[i]?.text!.indexOf('서명 일자: '),
-          },
+          ...signatureDateStyle,
         ]
 
         copyContent.blocks[i].entityRanges = []
@@ -185,9 +247,71 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
 
   const onClickSubmit = () => {
     //TODO API 연결 (성공 후 유저 데이터 쿼리 초기화 isSignedNDA 재조회 필요)
-    setSignNDA(false)
-    setChecked(false)
-    // closeModal('CancelSignNDAModal')
+
+    const input = document.getElementById('downloadItem')
+    let fileInfo: FileType[] = []
+
+    if (input) {
+      html2canvas(input).then(canvas => {
+        const imgData = canvas.toDataURL('image/png')
+        const pdf = new jsPDF('p', 'mm')
+        const imgWidth = 210
+        const imgHeight = (canvas.height * imgWidth) / canvas.width
+        const pageHeight = 295
+        let heightLeft = imgHeight
+        let position = 0
+        heightLeft -= pageHeight
+        pdf.addImage(imgData, 'JPEG', 0, 10, imgWidth, imgHeight)
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight
+          pdf.addPage()
+          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
+          heightLeft -= pageHeight
+        }
+
+        let downloadFile = pdf.output('blob')
+        let data = new FormData()
+
+        if (downloadFile) {
+          data.append('data', downloadFile, `[${language}] NDA`)
+        }
+
+        const path: string = getContractFilePath(
+          auth.getValue().user?.id!,
+          `[${language}] NDA.pdf`,
+        )
+
+        const promise = [
+          getUploadUrlforCommon(S3FileType.PRO_CONTRACT, path).then(res => {
+            fileInfo.push({
+              name: `[${language}] NDA.pdf`,
+              size: downloadFile.size,
+              file: path,
+              type: 'pdf',
+              // type: 'imported',
+            })
+            return uploadFileToS3(res.url, data)
+          }),
+        ]
+
+        Promise.all(promise)
+          .then(res => {
+            // updateProject.mutate({ deliveries: fileInfo })
+            signContractMutation.mutate({
+              type: 'nda',
+              file: fileInfo.map(file => file.name),
+            })
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    }
   }
 
   return (
@@ -201,7 +325,7 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
         gap: '24px',
       }}
     >
-      <StyledViewer>
+      <StyledViewer id='downloadItem'>
         <Card>
           <Box
             sx={{
@@ -218,7 +342,7 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
                 marginBottom: '20px',
               }}
             >
-              <Typography variant='h6'>{nda.title}</Typography>
+              <Typography variant='h6'>[{language} NDA]</Typography>
               <Box
                 sx={{
                   display: 'flex',

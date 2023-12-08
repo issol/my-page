@@ -1,5 +1,6 @@
 import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
+import { FileType } from '@src/types/common/file.type'
 import {
   ProCertificationTestFilterType,
   ProCertificationTestListType,
@@ -75,6 +76,18 @@ export const getIsProBasicTestPassed = async (
   const { data } = await axios.get(
     `/api/enough/cert/test/pro/${userId}/check-Passed-Basic?targetLanguage=${targetLanguage}`,
   )
+
+  return data
+}
+
+export const signContract = async (
+  type: 'nda' | 'contract',
+  file: string[],
+) => {
+  const { data } = await axios.patch(`/api/enough/onboard/contract/sign`, {
+    type: type,
+    file: file,
+  })
 
   return data
 }

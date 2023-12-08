@@ -31,6 +31,9 @@ import NDASigned from './nda-signed'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import ReasonModal from './modal/reson-modal'
 import TestGuidelineModal from './modal/test-guideline-modal'
+import NoList from '@src/pages/components/no-list'
+import { useMutation, useQueryClient } from 'react-query'
+import { patchTestStatus } from '@src/apis/onboarding.api'
 
 type Props = {
   role: UserRoleType
@@ -71,9 +74,22 @@ const ProAppliedRoles = ({
   appliedRolesLoading,
 }: Props) => {
   const { openModal, closeModal } = useModal()
+  const queryClient = useQueryClient()
 
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
+
+  const patchTestStatusMutation = useMutation(
+    (value: { id: number; status: string }) =>
+      patchTestStatus(value.id, value.status),
+    {
+      onSuccess: (data, variables) => {
+        // queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
+        // queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(['Applied-roles'])
+      },
+    },
+  )
 
   const viewHistory = (history: ProAppliedRolesStatusHistoryType[] | null) => {
     openModal({
@@ -90,24 +106,38 @@ const ProAppliedRoles = ({
   }
 
   const onClickStartTest = (row: ProAppliedRolesType) => {
-    if (auth.getValue().user?.isSignedNDA) {
+    if (auth.getValue().user?.isSignToNDA) {
       openModal({
         type: 'BeforeStartTestModal',
         children: (
           <CustomModal
             soloButton
             onClick={() => {
-              window.open(
-                row.status === 'Basic test Ready' ||
-                  row.status === 'Basic in progress'
-                  ? row.basicTest?.testPaperFormLink
-                  : row.status === 'Skill test Ready' ||
-                    row.status === 'Skill in progress'
-                  ? row.skillTest?.testPaperFormLink
-                  : '',
-                '_blank',
+              patchTestStatusMutation.mutate(
+                {
+                  id: row.id,
+                  status:
+                    row.status === 'Basic test Ready'
+                      ? 'Basic in progress'
+                      : 'Skill in progress',
+                },
+                {
+                  onSuccess: () => {
+                    window.open(
+                      row.status === 'Basic test Ready' ||
+                        row.status === 'Basic in progress'
+                        ? row.basicTest?.testPaperFormLink
+                        : row.status === 'Skill test Ready' ||
+                          row.status === 'Skill in progress'
+                        ? row.skillTest?.testPaperFormLink
+                        : '',
+                      '_blank',
+                    )
+                    closeModal('BeforeStartTestModal')
+                  },
+                },
               )
-              closeModal('BeforeStartTestModal')
+
               //TODO : API call (applied roles query invalidate)
             }}
             vary='guideline-info'
@@ -151,17 +181,20 @@ const ProAppliedRoles = ({
   }
 
   const onClickReason = (row: ProAppliedRolesType) => {
-    openModal({
-      type: 'ReasonModal',
-      children: (
-        <ReasonModal
-          onClose={() => closeModal('ReasonModal')}
-          vary={row.status === 'Basic failed' ? 'error' : 'question-info'}
-          row={row}
-          timezone={auth.getValue().user?.timezone!}
-        />
-      ),
-    })
+    if (row.reason === null) return
+    else {
+      openModal({
+        type: 'ReasonModal',
+        children: (
+          <ReasonModal
+            onClose={() => closeModal('ReasonModal')}
+            vary={row.status === 'Basic failed' ? 'error' : 'question-info'}
+            row={row}
+            timezone={auth.getValue().user?.timezone!}
+          />
+        ),
+      })
+    }
   }
 
   const onClickTestGuideLine = (row: ProAppliedRolesType) => {
@@ -207,7 +240,21 @@ const ProAppliedRoles = ({
           }
           onClick={() => {
             //TODO : API call (applied roles query invalidate)
-            closeModal('SubmitModal')
+
+            patchTestStatusMutation.mutate(
+              {
+                id: row.id,
+                status:
+                  row.status === 'Basic in progress'
+                    ? 'Basic submitted'
+                    : 'Skill submitted',
+              },
+              {
+                onSuccess: () => {
+                  closeModal('SubmitModal')
+                },
+              },
+            )
           }}
           rightButtonText='Submit'
         />
@@ -229,7 +276,21 @@ const ProAppliedRoles = ({
           }
           onClick={() => {
             //TODO : API call (applied roles query invalidate), status 별 분기
-            closeModal('DeclineModal')
+
+            patchTestStatusMutation.mutate(
+              {
+                id: row.id,
+                status:
+                  row.status === 'Test assigned'
+                    ? 'Test declined'
+                    : 'Role declined',
+              },
+              {
+                onSuccess: () => {
+                  closeModal('DeclineModal')
+                },
+              },
+            )
           }}
           rightButtonText='Decline'
         />
@@ -250,14 +311,25 @@ const ProAppliedRoles = ({
             }
             onClick={() => {
               //TODO : API call (applied roles query invalidate)
-              closeModal('AcceptModal')
+
+              patchTestStatusMutation.mutate(
+                {
+                  id: row.id,
+                  status: 'Basic test Ready',
+                },
+                {
+                  onSuccess: () => {
+                    closeModal('AcceptModal')
+                  },
+                },
+              )
             }}
             rightButtonText='Accept'
           />
         ),
       })
     } else {
-      if (auth.getValue().user?.isSignedNDA) {
+      if (auth.getValue().user?.isSignToNDA) {
         openModal({
           type: 'AcceptModal',
           children: (
@@ -267,7 +339,17 @@ const ProAppliedRoles = ({
               title={'Would you like to accept the role offer from TAD?'}
               onClick={() => {
                 //TODO : API call (applied roles query invalidate)
-                closeModal('AcceptModal')
+                patchTestStatusMutation.mutate(
+                  {
+                    id: row.id,
+                    status: 'Contract required',
+                  },
+                  {
+                    onSuccess: () => {
+                      closeModal('AcceptModal')
+                    },
+                  },
+                )
               }}
               rightButtonText='Accept'
             />
@@ -345,6 +427,10 @@ const ProAppliedRoles = ({
               },
               maxHeight: '451px',
               minHeight: '375px',
+            }}
+            components={{
+              NoRowsOverlay: () => NoList('There is no applied role.'),
+              NoResultsOverlay: () => NoList('There is no applied role.'),
             }}
             autoHeight
             rows={appliedRoles?.data ?? []}

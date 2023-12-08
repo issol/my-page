@@ -6,7 +6,11 @@ import {
 import { Suspense, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Filter from './filter'
-import { RoleSelectType, SelectType } from '@src/types/onboarding/list'
+import {
+  AddRolePayloadType,
+  RoleSelectType,
+  SelectType,
+} from '@src/types/onboarding/list'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { JobList } from '@src/shared/const/job/jobs'
@@ -20,6 +24,8 @@ import InformationModal from '@src/@core/components/common-modal/information-mod
 import { getIsProBasicTestPassed } from '@src/apis/pro-certification-test/certification-tests'
 import { Loadable } from 'recoil'
 import { ClientUserType, UserDataType } from '@src/context/types'
+import { useMutation, useQueryClient } from 'react-query'
+import { addCreatedAppliedRole } from '@src/apis/onboarding.api'
 
 export type FilterType = {
   jobType: Array<{ label: string; value: string }>
@@ -55,12 +61,25 @@ type Props = {
 
 const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
   const { openModal, closeModal } = useModal()
+  const queryClient = useQueryClient()
   const [filters, setFilters] =
     useState<ProCertificationTestFilterType>(defaultFilter)
 
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,
+  )
+
+  const applyTestMutation = useMutation(
+    (jobInfo: AddRolePayloadType[]) => addCreatedAppliedRole(jobInfo),
+    {
+      onSuccess: (data, variables) => {
+        closeModal('ApplyBasicPassedModal')
+        queryClient.invalidateQueries(['Applied-roles'])
+        queryClient.invalidateQueries(['CertificationTest-list'])
+        // queryClient.invalidateQueries(['pro-overview'])
+      },
+    },
   )
 
   const { data: certificationTestList, isLoading } =
@@ -146,7 +165,18 @@ const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
           children: (
             <CustomModal
               //TODO API 연결
-              onClick={() => closeModal('ApplyBasicPassedModal')}
+              onClick={() => {
+                applyTestMutation.mutate([
+                  {
+                    userId: auth.getValue().user?.userId!,
+                    userCompany: auth.getValue().user?.company!,
+                    jobType: data.jobType,
+                    role: data.role,
+                    source: data.source,
+                    target: data.target,
+                  },
+                ])
+              }}
               onClose={() => closeModal('ApplyBasicPassedModal')}
               title={
                 <>
@@ -200,7 +230,19 @@ const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
               children: (
                 <CustomModal
                   //TODO API 연결
-                  onClick={() => closeModal('ApplyBasicPassedModal')}
+                  onClick={() => {
+                    applyTestMutation.mutate([
+                      {
+                        userId: auth.getValue().user?.userId!,
+                        userCompany: auth.getValue().user?.company!,
+                        jobType: data.jobType,
+                        role: data.role,
+                        source: data.source,
+                        target: data.target,
+                      },
+                    ])
+                    closeModal('ApplyBasicPassedModal')
+                  }}
                   onClose={() => closeModal('ApplyBasicPassedModal')}
                   title={
                     <>

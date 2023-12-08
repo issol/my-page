@@ -68,13 +68,13 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <Typography variant='h6'>
-                {row.reason.type}&nbsp; reason
+                {row.reason?.type}&nbsp; reason
               </Typography>
-              <Typography variant='body1'>{row.reason.reason}</Typography>
+              <Typography variant='body1'>{row.reason?.reason}</Typography>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <Typography variant='h6'>
-                Message from {row.reason.from}
+                Message from {row.reason?.from}
               </Typography>
               <Box
                 sx={{
@@ -88,7 +88,7 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
                   // fontSize={16}
                   sx={{ whiteSpace: 'pre-line !important' }}
                 >
-                  {row.reason.message}
+                  {row.reason?.message}
                 </Typography>
               </Box>
             </Box>
@@ -104,7 +104,7 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
                   // sx={{ whiteSpace: 'pre-line !important' }}
                 >
                   Please wait until{' '}
-                  {FullDateTimezoneHelper(row.reason.retestDate, timezone)} to
+                  {FullDateTimezoneHelper(row.reason?.retestDate, timezone)} to
                   reapply for the role.
                 </Typography>
               </Box>
@@ -171,8 +171,8 @@ const ReasonModal = ({ vary, row, onClose, timezone }: Props) => {
                 You failed the skill test.
                 <br />
                 <br /> To reapply to the same role, please wait until{' '}
-                {dayjs(row.skillTest.testStartedAt).format('MM/DD/YYYY')}&nbsp;
-                before proceeding.
+                {dayjs(row.skillTest.testStartedAt).format('MM/DD/YYYY')}
+                &nbsp; before proceeding.
               </>
             ) : row.status === 'Test assigned' ? (
               <>

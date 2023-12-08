@@ -22,7 +22,6 @@ export const getProAppliedRoles = async (
   const { data } = await axios.get(
     `/api/enough/cert/test/pro/${userId}/applied-role?${makeQuery(filters)}`,
   )
-
   return data
   // const statusTypes: ProAppliedRolesStatusType[] = [
   //   'Awaiting approval',
@@ -53,10 +52,9 @@ export const getProAppliedRoles = async (
   //   targetLanguage: 'en',
   //   basicTest: {
   //     score: 80,
-  //     isPassed: true,
+  //     isPassed: null,
   //     isExist: true,
-
-  //     isSkipped: false,
+  //     isSkipped: true,
   //     testPaperFormLink: 'https://www.naver.com',
   //     testStartedAt: '2022-01-01',
   //   },
@@ -64,12 +62,10 @@ export const getProAppliedRoles = async (
   //     score: 85,
   //     isPassed: false,
   //     isExist: false,
-
   //     testPaperFormLink: 'https://www.naver.com',
   //     testStartedAt: '2022-01-02',
   //   },
   //   status: status,
-
   //   reason: {
   //     type: 'Paused',
   //     from: 'User',
@@ -270,81 +266,20 @@ export const getProAppliedRoles = async (
   //   },
   //   statusHistory: [],
   // }))
-
   // return { data: testData, totalCount: testData.length }
 }
 
 export const getProContractDetail = async (
   props: ContractParam,
 ): Promise<currentVersionType> => {
-  // const { data } = await axios.get(
-  //   `/api/enough/onboard/contract?type=${props.type}&language=${props.language}`,
-  // )
-  // return data
-
-  const data = {
-    documentId: 16,
-    userId: 28,
-    title:
-      props.type === 'PRIVACY'
-        ? props.language === 'ENG'
-          ? '[EN] Privacy Contract'
-          : '[KO] Privacy Contract'
-        : props.type === 'FREELANCER'
-        ? props.language === 'ENG'
-          ? '[EN] Freelancer contract'
-          : '[KO] Freelancer contract'
-        : props.type === 'NDA'
-        ? props.language === 'ENG'
-          ? '[EN] NDA'
-          : '[KO] NDA'
-        : '',
-    writer: 'ALL (ROLE) MASTER',
-    email: 'enuff-all-master@glozinc.com',
-    updatedAt: '2023-11-29T02:44:02.968Z',
-    content: {
-      blocks: [
-        {
-          key: '3hdk6',
-          data: {},
-          text:
-            props.language === 'ENG'
-              ? 'Legal name: {Legal name}\nPermanent address: {Address}\nDate of birth: {Date of birth}\n\n1. Agreement {Legal name}(also known as “contractor”) will provide Glocalize Inc. US and Glocalize Inc. Korea (“Glocalize” or “Glocalize Inc.”) with as to the specifications detailed in the terms and conditions below.\n\nDUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.\n\nI understand & agree to meet Glocalize Inc. service delivery expectation as needed.\n\n2. Default Payment Terms Except where different payment terms have been agreed in writing with a Contractor, Glocalize will start the transaction for start the transactions for authorized invoices which comply with these requirements on a “45-47 net days”. This means that all of your work submitted and invoiced (through order forms)'
-              : '법적 이름: {Legal name}\n영구 주소: {Address}\n생년월일: {Date of birth}\n\n1. 계약 {Legal name}(이하 "계약자")은 아래의 약관에 명시된 사항에 따라 Glocalize Inc. US 및 Glocalize Inc. Korea(이하 "Glocalize" 또는 "Glocalize Inc.")에 서비스를 제공할 것입니다.\n\n계약자의 의무와 책임: 계약자는 당사자간에 상호 합의한 시간에 필요에 따라 Glocalize Inc.에 지역화 서비스를 제공해야 합니다.\n\n나는 Glocalize Inc.의 서비스 제공 기대치를 이해하고 필요에 따라 충족시키겠다는 것에 동의합니다.\n\n2. 기본 결제 조건 계약자와 서면으로 다른 결제 조건이 합의된 경우를 제외하고, Glocalize는 이러한 요구 사항을 준수하는 승인된 인보이스에 대해 "45-47 순일"에 거래를 시작합니다. 이는 제출하고 청구한 모든 작업(주문 양식을 통해)이라는 의미입니다.',
-          type: 'unstyled',
-          depth: 0,
-          entityRanges: [],
-          inlineStyleRanges: [
-            {
-              style: 'color-rgba(76,78,100,0.87)',
-              length: 12,
-              offset: 97,
-            },
-            {
-              style: 'bgcolor-rgb(255,255,255)',
-              length: 12,
-              offset: 97,
-            },
-            {
-              style: 'fontsize-16',
-              length: 12,
-              offset: 97,
-            },
-            {
-              style:
-                'fontfamily-Inter, sans-serif, -apple-system, "system-ui", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol',
-              length: 12,
-              offset: 97,
-            },
-          ],
-        },
-      ],
-      entityMap: {},
-    },
-  }
+  const { data } = await axios.get(
+    `/api/enough/onboard/contract?type=${props.type}&language=${props.language}`,
+  )
 
   let now = dayjs(new Date()).format('MM/DD/YYYY')
-  let copyContent = { ...data.content }
+  let copyContent = { ...data.currentVersion.content }
+
+  console.log(copyContent)
 
   for (let i = 0; i < copyContent.blocks?.length; i++) {
     if (i === copyContent.blocks.length - 1) {
@@ -354,7 +289,81 @@ export const getProContractDetail = async (
     }
   }
 
-  const result = { ...data, content: copyContent }
+  return { ...data, content: copyContent }
 
-  return result
+  // const data = {
+  //   documentId: 16,
+  //   userId: 28,
+  //   title:
+  //     props.type === 'PRIVACY'
+  //       ? props.language === 'ENG'
+  //         ? '[EN] Privacy Contract'
+  //         : '[KO] Privacy Contract'
+  //       : props.type === 'FREELANCER'
+  //       ? props.language === 'ENG'
+  //         ? '[EN] Freelancer contract'
+  //         : '[KO] Freelancer contract'
+  //       : props.type === 'NDA'
+  //       ? props.language === 'ENG'
+  //         ? '[EN] NDA'
+  //         : '[KO] NDA'
+  //       : '',
+  //   writer: 'ALL (ROLE) MASTER',
+  //   email: 'enuff-all-master@glozinc.com',
+  //   updatedAt: '2023-11-29T02:44:02.968Z',
+  //   content: {
+  //     blocks: [
+  //       {
+  //         key: '3hdk6',
+  //         data: {},
+  //         text:
+  //           props.language === 'ENG'
+  //             ? 'Legal name: {Legal name}\nPermanent address: {Address}\nDate of birth: {Date of birth}\n\n1. Agreement {Legal name}(also known as “contractor”) will provide Glocalize Inc. US and Glocalize Inc. Korea (“Glocalize” or “Glocalize Inc.”) with as to the specifications detailed in the terms and conditions below.\n\nDUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.\n\nI understand & agree to meet Glocalize Inc. service delivery expectation as needed.\n\n2. Default Payment Terms Except where different payment terms have been agreed in writing with a Contractor, Glocalize will start the transaction for start the transactions for authorized invoices which comply with these requirements on a “45-47 net days”. This means that all of your work submitted and invoiced (through order forms)'
+  //             : '법적 이름: {Legal name}\n영구 주소: {Address}\n생년월일: {Date of birth}\n\n1. 계약 {Legal name}(이하 "계약자")은 아래의 약관에 명시된 사항에 따라 Glocalize Inc. US 및 Glocalize Inc. Korea(이하 "Glocalize" 또는 "Glocalize Inc.")에 서비스를 제공할 것입니다.\n\n계약자의 의무와 책임: 계약자는 당사자간에 상호 합의한 시간에 필요에 따라 Glocalize Inc.에 지역화 서비스를 제공해야 합니다.\n\n나는 Glocalize Inc.의 서비스 제공 기대치를 이해하고 필요에 따라 충족시키겠다는 것에 동의합니다.\n\n2. 기본 결제 조건 계약자와 서면으로 다른 결제 조건이 합의된 경우를 제외하고, Glocalize는 이러한 요구 사항을 준수하는 승인된 인보이스에 대해 "45-47 순일"에 거래를 시작합니다. 이는 제출하고 청구한 모든 작업(주문 양식을 통해)이라는 의미입니다.',
+  //         type: 'unstyled',
+  //         depth: 0,
+  //         entityRanges: [],
+  //         inlineStyleRanges: [
+  //           {
+  //             style: 'color-rgba(76,78,100,0.87)',
+  //             length: 12,
+  //             offset: 97,
+  //           },
+  //           {
+  //             style: 'bgcolor-rgb(255,255,255)',
+  //             length: 12,
+  //             offset: 97,
+  //           },
+  //           {
+  //             style: 'fontsize-16',
+  //             length: 12,
+  //             offset: 97,
+  //           },
+  //           {
+  //             style:
+  //               'fontfamily-Inter, sans-serif, -apple-system, "system-ui", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol',
+  //             length: 12,
+  //             offset: 97,
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //     entityMap: {},
+  //   },
+  // }
+
+  // let now = dayjs(new Date()).format('MM/DD/YYYY')
+  // let copyContent = { ...data.content }
+
+  // for (let i = 0; i < copyContent.blocks?.length; i++) {
+  //   if (i === copyContent.blocks.length - 1) {
+  //     copyContent.blocks[i].text = `${copyContent?.blocks[i]?.text} \n\n${
+  //       props.language === 'ENG' ? 'Signature date:' : '서명 일자:'
+  //     } ${now}`
+  //   }
+  // }
+
+  // const result = { ...data, content: copyContent }
+
+  // return result
 }

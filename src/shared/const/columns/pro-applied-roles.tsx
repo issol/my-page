@@ -127,181 +127,63 @@ export const getProAppliedRolesColumns = (
             row.status === 'Rejected by TAD' ||
             row.status === 'Test declined' ||
             row.status === 'Role declined' ? (
-              <Typography variant='body2' fontSize={16}>
+              <Typography
+                variant='body2'
+                fontSize={16}
+                color='rgba(76, 78, 100, 0.38)'
+              >
                 -
               </Typography>
-            ) : row.status === 'Basic submitted' ? (
-              <Typography variant='body2' fontSize={16}>
-                Basic: - / Skill: -
-              </Typography>
-            ) : row.status === 'Basic failed' ? (
-              <Typography variant='body2' fontSize={16}>
-                <Typography
-                  component={'span'}
-                  variant='body1'
-                  fontWeight={600}
-                  color='#FF4D49'
-                >
-                  Basic: F
-                </Typography>{' '}
-                / Skill: -
-              </Typography>
-            ) : row.status === 'Basic passed' ? (
-              <Typography variant='body2' fontSize={16}>
-                <Typography
-                  component={'span'}
-                  variant='body1'
-                  fontWeight={600}
-                  color='#72E128'
-                >
-                  Basic: P
-                </Typography>{' '}
-                / Skill: -
-              </Typography>
-            ) : row.status === 'Skill test Ready' ? (
-              <Typography variant='body2' fontSize={16}>
-                <Typography
-                  component={'span'}
-                  variant='body1'
-                  fontWeight={600}
-                  color={row.basicTest.isPassed ? '#72E128' : '#FF4D49'}
-                >
-                  Basic: {row.basicTest.isPassed ? 'P' : 'F'}
-                </Typography>{' '}
-                / Skill: -
-              </Typography>
-            ) : row.status === 'Skill in progress' ? (
-              <Typography
-                variant='body1'
-                fontWeight={600}
-                color={'#72E128'}
-                sx={{ display: 'flex', alignItems: 'center' }}
-              >
-                Basic:
-                {row.basicTest.isPassed ? (
-                  ' P'
-                ) : (
-                  <>
-                    &nbsp;
-                    <Icon icon='mdi:check' fontSize={18} />
-                  </>
-                )}
-                &nbsp;
-                <Typography variant='body2' fontSize={16}>
-                  / Skill: -
-                </Typography>
-              </Typography>
-            ) : row.status === 'Skill submitted' ? (
-              <Typography
-                variant='body1'
-                fontWeight={600}
-                color={'#72E128'}
-                sx={{ display: 'flex', alignItems: 'center' }}
-              >
-                Basic:
-                {row.basicTest.isPassed ? (
-                  ' P'
-                ) : (
-                  <>
-                    &nbsp;
-                    <Icon icon='mdi:check' fontSize={18} />
-                  </>
-                )}
-                &nbsp;
-                <Typography variant='body2' fontSize={16}>
-                  / Skill: -
-                </Typography>
-              </Typography>
-            ) : row.status === 'Skill failed' ? (
-              <Typography
-                sx={{ display: 'flex', alignItems: 'center' }}
-                variant='body2'
-                fontSize={16}
-              >
-                <Typography variant='body1' fontWeight={600} color={'#72E128'}>
-                  Basic:
-                  {row.basicTest.isPassed ? (
-                    ' P'
-                  ) : (
-                    <>
-                      &nbsp;
-                      <Icon icon='mdi:check' fontSize={18} />
-                    </>
-                  )}
-                </Typography>
-                &nbsp;/&nbsp;
-                <Typography
-                  variant='body2'
-                  fontSize={16}
-                  color='#FF4D49'
-                  fontWeight={600}
-                >
-                  Skill: F
-                </Typography>
-              </Typography>
-            ) : row.status === 'Contract required' ? (
-              <Typography
-                sx={{ display: 'flex', alignItems: 'center' }}
-                variant='body2'
-                fontSize={16}
-              >
-                <Typography variant='body1' fontWeight={600} color={'#72E128'}>
-                  Basic:
-                  {row.basicTest.isPassed ? (
-                    ' P'
-                  ) : (
-                    <>
-                      &nbsp;
-                      <Icon icon='mdi:check' fontSize={18} />
-                    </>
-                  )}
-                </Typography>
-                &nbsp;/&nbsp;
-                <Typography
-                  variant='body2'
-                  fontSize={16}
-                  color='#72E128'
-                  fontWeight={600}
-                >
-                  Skill: P
-                </Typography>
-              </Typography>
-            ) : row.status === 'Certified' ? (
+            ) : (
               <>
                 <Typography
+                  // component={'span'}
                   variant='body1'
-                  fontWeight={600}
-                  color={'#72E128'}
-                  component={'span'}
-                  sx={{ display: 'flex', alignItems: 'center' }}
+                  fontWeight={row.basicTest.isPassed !== null ? 600 : 400}
+                  color={
+                    row.basicTest.isPassed === null
+                      ? 'rgba(76, 78, 100, 0.38)'
+                      : row.basicTest.isPassed
+                      ? '#72E128'
+                      : '#FF4D49'
+                  }
                 >
-                  Basic:
-                  <>
-                    &nbsp;
-                    <Icon icon='mdi:check' fontSize={18} />
-                  </>
-                </Typography>
-                <Typography variant='body2' fontSize={16}>
+                  Basic:{' '}
+                  {row.basicTest.isPassed === null
+                    ? row.basicTest.isSkipped
+                      ? '→'
+                      : '-'
+                    : row.basicTest.isPassed
+                    ? 'P'
+                    : 'F'}
+                </Typography>{' '}
+                <Typography
+                  variant='body1'
+                  fontWeight={400}
+                  color={'rgba(76, 78, 100, 0.38)'}
+                >
                   &nbsp;/&nbsp;
                 </Typography>
-
                 <Typography
                   variant='body2'
+                  fontWeight={row.skillTest.isPassed !== null ? 600 : 400}
                   fontSize={16}
-                  color='#72E128'
-                  fontWeight={600}
-                  component={'span'}
-                  sx={{ display: 'flex', alignItems: 'center' }}
+                  color={
+                    row.skillTest.isPassed === null
+                      ? 'rgba(76, 78, 100, 0.38)'
+                      : row.skillTest.isPassed
+                      ? '#72E128'
+                      : '#FF4D49'
+                  }
                 >
-                  Skill:
-                  <>
-                    &nbsp;
-                    <Icon icon='mdi:check' fontSize={18} />
-                  </>
+                  Skill:{' '}
+                  {row.skillTest.isPassed === null
+                    ? '-'
+                    : row.skillTest.isPassed
+                    ? 'P'
+                    : 'F'}
                 </Typography>
               </>
-            ) : (
-              ''
             )}
           </>
         )

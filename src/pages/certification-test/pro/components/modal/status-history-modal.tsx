@@ -64,6 +64,9 @@ const StatusHistoryModal = ({ onClose, history, statusList, auth }: Props) => {
               '&::-webkit-scrollbar': {
                 display: 'none',
               },
+              '& .MuiDataGrid-virtualScroller': {
+                height: '219px !important',
+              },
             }}
             rowCount={history === null || history.length ? 0 : history.length}
             // autoPageSize

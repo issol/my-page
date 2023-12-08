@@ -1,5 +1,6 @@
 import { Box } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
+import NoList from '@src/pages/components/no-list'
 import { getProCertificationTestListColumns } from '@src/shared/const/columns/pro-certification-tests'
 import {
   ProCertificationTestFilterType,
@@ -40,6 +41,10 @@ const CertificationTestList = ({
           '& .MuiDataGrid-row:hover': {
             backgroundColor: 'inherit',
           },
+        }}
+        components={{
+          NoRowsOverlay: () => NoList('There is no certification test.'),
+          NoResultsOverlay: () => NoList('There is no certification test.'),
         }}
         columns={getProCertificationTestListColumns(onClickApply)}
         pagination

@@ -14,12 +14,14 @@ export const StyledViewer = styled(EditorWrapper)<{
   error?: boolean
   maxHeight?: boolean
   noPadding?: boolean
+  minHeight?: boolean
 }>`
   .rdw-editor-main {
     border: none !important;
     margin-top: ${({ noPadding }) => (noPadding ? '0 !important' : '10px')};
     padding: ${({ noPadding }) => (noPadding ? '0 !important' : '0 0.8rem')};
     max-height: ${({ maxHeight }) => (maxHeight ? `300px` : '800px')};
+    min-height: 100px !important;
   }
   .rdw-editor-toolbar {
     display: none;

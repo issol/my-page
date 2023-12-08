@@ -10,6 +10,10 @@ export function getFilePath(name: string[], fileName: string) {
   return result + '/' + fileName
 }
 
+export function getContractFilePath(userId: number, fileName: string) {
+  return 'user/' + userId + '/contracts/' + fileName
+}
+
 export function getResumeFilePath(userId: number, fileName: string) {
   return 'user/' + userId + '/resume/' + fileName
 }
