@@ -25,6 +25,7 @@ import {
 import { DashboardQuery, OrderType, ViewType } from '@src/types/dashboard'
 import { toCapitalize } from '@src/pages/dashboards/lpm'
 import { useRouter } from 'next/router'
+import DefaultDataGrid from '@src/views/dashboard/dataGrid/default'
 
 interface StatusAndListProps<T extends { id: number }> extends DashboardQuery {
   type: 'job' | 'order'
@@ -46,11 +47,9 @@ const StatusAndDataGrid = <T extends { id: number }>({
   const router = useRouter()
   const { data: countData } = useDashboardCount({ to, from })
   const [activeStatus, setActiveStatus] = useState<ViewType>('ongoing')
-  const [sortModel, setSortModel] = useState<GridSortModel>(initSort)
 
   const [skip, setSkip] = useState(0)
-  const [page, setPage] = useState(0)
-  const [pageSize, setPageSize] = useState(6)
+  const [sortModel, setSortModel] = useState<GridSortModel>(initSort)
 
   const { data } = useDashboardCountList({
     countType: type,
@@ -185,28 +184,14 @@ const StatusAndDataGrid = <T extends { id: number }>({
               margin: 0,
             }}
           >
-            <DataGrid
-              autoHeight
-              initialState={{
-                sorting: { sortModel },
-              }}
-              page={page}
-              onPageChange={newPage => {
-                setPage(newPage)
-                setSkip(val => newPage * 4)
-              }}
-              pageSize={pageSize}
-              onPageSizeChange={pageSize => setPageSize(pageSize)}
-              paginationMode='server'
-              rows={data?.data || []}
+            <DefaultDataGrid
+              data={data}
               columns={statusColumn}
-              rowCount={data?.totalCount || 0}
-              onRowClick={(params, event, details) => {
-                moveDetailPage(params.id as number)
-              }}
-              rowsPerPageOptions={[6]}
+              defaultPageSize={6}
               sortModel={sortModel}
-              onSortModelChange={newSortModel => setSortModel(newSortModel)}
+              setSortModel={setSortModel}
+              setSkip={setSkip}
+              onRowClick={params => moveDetailPage(params.id as number)}
             />
           </Box>
         </Box>
