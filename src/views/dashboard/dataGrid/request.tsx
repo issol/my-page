@@ -15,7 +15,7 @@ interface DashboardDataGridProps {
   columns: GridColumns
 }
 
-const DashboardDataGrid = ({
+const RequestDashboardDataGrid = ({
   type = 'new',
   pageNumber = 4,
   movePage,
@@ -107,4 +107,4 @@ const CustomDataGrid = styled(DataGrid)(() => {
   }
 })
 
-export default DashboardDataGrid
+export default RequestDashboardDataGrid

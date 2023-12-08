@@ -34,7 +34,6 @@ const TotalChart = ({
   setOpenInfoDialog,
 }: TotalChartProps) => {
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
-  const Icon = icon
 
   const TempProgress: Array<TotalItem> = [
     {
@@ -80,11 +79,7 @@ const TotalChart = ({
         countLabel='Total counts'
       />
       <Box sx={{ margin: '20px 0' }}>
-        <ChartBoxIcon
-          icon={<Icon sx={{ color: `rgba(${iconColor}, 1)` }} />}
-          backgroundColor={`rgba(${iconColor}, 0.2)`}
-          boxSize=''
-        />
+        <ChartBoxIcon icon={icon} color={iconColor} boxSize='' />
         <LinearMultiProgress items={TempProgress} />
       </Box>
       <TableContainer component={Paper}>
@@ -128,11 +123,12 @@ const TotalChart = ({
 
 const Cell = styled(TableCell)<{ color?: string }>(({ color }) => {
   return {
-    padding: '10px !important',
+    padding: '5px !important',
     fontWeight: 500,
     textTransform: 'capitalize',
 
     '&.body__cell': {
+      padding: '10px !important',
       fontSize: '14px',
       fontWeight: 600,
       border: 'none',

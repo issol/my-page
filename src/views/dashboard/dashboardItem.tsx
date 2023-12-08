@@ -20,6 +20,7 @@ import {
   KeyboardArrowRight,
   PermIdentityOutlined,
   ReceiptLong,
+  SvgIconComponent,
   TrendingDown,
   TrendingUp,
 } from '@mui/icons-material'
@@ -328,14 +329,14 @@ export const TableStatusCircle = styled.span<{ color: string }>(({ color }) => {
 })
 
 export const TitleIcon = styled.div<Omit<ChartBoxIconProps, 'icon'>>(
-  ({ backgroundColor, boxSize }) => {
+  ({ color, boxSize }) => {
     return {
       width: `${boxSize || '50px'}`,
       height: `${boxSize || '50px'}`,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: backgroundColor,
+      backgroundColor: color,
       borderRadius: '8px',
 
       '& .icon': {
@@ -348,19 +349,16 @@ export const TitleIcon = styled.div<Omit<ChartBoxIconProps, 'icon'>>(
 )
 
 interface ChartBoxIconProps {
-  icon: ReactElement
-  backgroundColor: string
+  icon: SvgIconComponent
+  color: string
   boxSize?: string
 }
 
-export const ChartBoxIcon = ({
-  icon,
-  boxSize,
-  backgroundColor,
-}: ChartBoxIconProps) => {
+export const ChartBoxIcon = ({ icon, boxSize, color }: ChartBoxIconProps) => {
+  const Icon = icon
   return (
-    <TitleIcon boxSize={boxSize} backgroundColor={backgroundColor}>
-      {icon}
+    <TitleIcon boxSize={boxSize} color={`rgba(${color},0.1)`}>
+      <Icon sx={{ color: `rgba(${color},1)` }} />
     </TitleIcon>
   )
 }
@@ -454,150 +452,6 @@ export const LinearMultiProgress = ({ items }: LinearMultiProgressProps) => {
         />
       ))}
     </Progress>
-  )
-}
-
-const overview = [
-  {
-    key: 'onboardedPros',
-    label: 'Onboarded Pros',
-    color: 'rgba(102, 108, 255, 1)',
-    backgroundColor: 'rgba(102, 108, 255, 0.2)',
-    icon: PermIdentityOutlined,
-  },
-  {
-    key: 'onboardingInProgress',
-    label: 'Onboarding in progress',
-    color: 'rgba(38, 198, 249, 1)',
-    backgroundColor: 'rgba(38, 198, 249, 0.2)',
-    icon: TrendingUp,
-  },
-  {
-    key: 'failedPros',
-    label: 'Failed Pros',
-    color: 'rgba(255, 77, 73, 1)',
-    backgroundColor: 'rgba(255, 77, 73, 0.2)',
-    icon: TrendingDown,
-  },
-]
-
-export const OnboardingList = () => {
-  return (
-    <Box
-      display='flex'
-      flexDirection='column'
-      gap='10px'
-      component='ul'
-      sx={{
-        listStyle: 'none',
-        padding: 0,
-        position: 'relative',
-      }}
-    >
-      {overview.map((item, index) => {
-        const Icon = item.icon
-        return (
-          <Box
-            display='flex'
-            gap='16px'
-            component='li'
-            key={`${item.label}-${index}`}
-          >
-            <TitleIcon style={{ backgroundColor: item.backgroundColor }}>
-              <Icon className='icon' style={{ color: item.color }} />
-            </TitleIcon>
-            <Box>
-              <Typography fontSize='20px' fontWeight={500}>
-                996
-              </Typography>
-              <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
-                {item.label}
-              </Typography>
-            </Box>
-          </Box>
-        )
-      })}
-      <img
-        src='/images/dashboard/img_tad_view.png'
-        alt='배경이미지'
-        style={{
-          position: 'absolute',
-          width: '246px',
-          right: '-20px',
-          bottom: '-20px',
-          opacity: 0.8,
-        }}
-      />
-    </Box>
-  )
-}
-
-const jobOverview = [
-  {
-    key: 'jobRequest',
-    label: 'Job requests',
-    color: 'rgba(102, 108, 255, 1)',
-    backgroundColor: 'rgba(102, 108, 255, 0.2)',
-    icon: PermIdentityOutlined,
-  },
-  {
-    key: 'jobsInProgress',
-    label: 'Jobs in progress',
-    color: 'rgba(38, 198, 249, 1)',
-    backgroundColor: 'rgba(38, 198, 249, 0.2)',
-    icon: TrendingUp,
-  },
-]
-
-export const JobList = () => {
-  return (
-    <Box
-      display='flex'
-      flexDirection='column'
-      gap='10px'
-      component='ul'
-      sx={{
-        height: '100%',
-        listStyle: 'none',
-        padding: 0,
-        position: 'relative',
-        marginTop: '20px',
-      }}
-    >
-      {jobOverview.map((item, index) => {
-        const Icon = item.icon
-        return (
-          <Box
-            display='flex'
-            gap='16px'
-            component='li'
-            key={`${item.label}-${index}`}
-          >
-            <TitleIcon style={{ backgroundColor: item.backgroundColor }}>
-              <Icon className='icon' style={{ color: item.color }} />
-            </TitleIcon>
-            <Box>
-              <Typography fontSize='20px' fontWeight={500}>
-                5
-              </Typography>
-              <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
-                {item.label}
-              </Typography>
-            </Box>
-          </Box>
-        )
-      })}
-      <img
-        src='/images/dashboard/img_tad_view.png'
-        alt='배경이미지'
-        style={{
-          position: 'absolute',
-          width: '261px',
-          left: '-10px',
-          bottom: '30px',
-        }}
-      />
-    </Box>
   )
 }
 

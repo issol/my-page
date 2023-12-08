@@ -1,38 +1,17 @@
 import Grid from '@mui/material/Grid'
 import {
   GridItem,
-  OnboardingList,
-  ReportItem,
   SectionTitle,
   SubDateDescription,
-  TitleIcon,
 } from '@src/views/dashboard/dashboardItem'
-import {
-  Box,
-  ButtonGroup,
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuItem,
-} from '@mui/material'
+import { Box } from '@mui/material'
 import dayjs from 'dayjs'
-import {
-  DEFAULT_QUERY_NAME,
-  useDashboardReport,
-} from '@src/queries/dashboard/dashnaord-lpm'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import Switch from '@mui/material/Switch'
-import Typography from '@mui/material/Typography'
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Button from '@mui/material/Button'
-import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import DatePicker from 'react-datepicker'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import React, { MouseEvent, useCallback, useEffect, useState } from 'react'
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
+import React, { useState } from 'react'
 import DownloadIcon from '@mui/icons-material/Download'
-import DashboardDataGrid from '@src/views/dashboard/dataGrid'
+import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
 // ** Custom Components Imports
@@ -41,32 +20,14 @@ import weekday from 'dayjs/plugin/weekday'
 import {
   Colors,
   SecondColors,
-  Status,
-  StatusColor,
   ThirdColors,
 } from '@src/shared/const/dashboard/chart'
-import {
-  CategoryRatioItem,
-  ExpertiseRatioItem,
-  PairRatioItem,
-  ServiceRatioItem,
-} from '@src/types/dashboard'
+import { CategoryRatioItem, ServiceRatioItem } from '@src/types/dashboard'
 import StatusAndList from '@src/views/dashboard/statusAndList'
-import { useRecoilState, useRecoilValueLoadable } from 'recoil'
-import { authState } from '@src/states/auth'
-import { currentRoleSelector } from '@src/states/permission'
-import { dashboardState } from '@src/states/dashboard'
-import { useQueryClient } from 'react-query'
 import MemberSearchList from '@src/views/dashboard/member-search'
-import { PermissionChip } from '@src/@core/components/chips/chips'
-import {
-  KeyboardArrowRight,
-  LogoutOutlined,
-  ReceiptLong,
-} from '@mui/icons-material'
+import { KeyboardArrowRight } from '@mui/icons-material'
 import {
   RecruitingRequestColumns,
-  StatusJobColumns,
   StatusOrderColumns,
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
@@ -75,16 +36,12 @@ import {
   DEFAULT_LAST_DATE,
   DEFAULT_START_DATE,
   getDateFormat,
-  getDateFormatter,
   getRangeDateTitle,
-  SelectedRangeDate,
-  toCapitalize,
 } from '@src/pages/dashboards/lpm'
 import BarChart from '@src/views/dashboard/barChart'
 import JobDataTable from '@src/views/dashboard/jobDataTable'
-import InfoDialog from '@src/views/dashboard/infoDialog'
-import useInfoDialog from '@src/hooks/useInfoDialog'
 import ChartDateHeader from '@src/views/dashboard/chartDateHeader'
+import OnboardingList from '@src/views/dashboard/list/onboarding'
 
 dayjs.extend(weekday)
 
