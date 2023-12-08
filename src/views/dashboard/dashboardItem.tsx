@@ -17,13 +17,15 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import MenuList from '@mui/material/MenuList'
 import {
   ArrowDropDown,
+  KeyboardArrowRight,
   PermIdentityOutlined,
   ReceiptLong,
   TrendingDown,
   TrendingUp,
 } from '@mui/icons-material'
-import { Currency } from '@src/types/dashboard'
+import { Currency, TotalItem } from '@src/types/dashboard'
 import { validateColors } from '@iconify/tools'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 
 interface GridItemProps {
   width?: number | string
@@ -90,6 +92,7 @@ export const SectionTitle = styled('div')(() => {
     '& .arrow_icon': {
       marginLeft: '6px',
       color: 'rgba(76, 78, 100, 0.54)',
+      cursor: 'pointer',
     },
   }
 })
@@ -324,23 +327,101 @@ export const TableStatusCircle = styled.span<{ color: string }>(({ color }) => {
   }
 })
 
-export const TitleIcon = styled.div(() => {
-  return {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '50px',
-    height: '50px',
-    backgroundColor: 'rgba(114, 225, 40, 0.2)',
-    borderRadius: '8px',
+export const TitleIcon = styled.div<Omit<ChartBoxIconProps, 'icon'>>(
+  ({ backgroundColor, boxSize }) => {
+    return {
+      width: `${boxSize || '50px'}`,
+      height: `${boxSize || '50px'}`,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: backgroundColor,
+      borderRadius: '8px',
 
-    '& .icon': {
-      width: '34px',
-      height: '34px',
-      color: 'rgba(114, 225, 40, 1)',
-    },
-  }
-})
+      '& .icon': {
+        width: '34px',
+        height: '34px',
+        color: 'rgba(114, 225, 40, 1)',
+      },
+    }
+  },
+)
+
+interface ChartBoxIconProps {
+  icon: ReactElement
+  backgroundColor: string
+  boxSize?: string
+}
+
+export const ChartBoxIcon = ({
+  icon,
+  boxSize,
+  backgroundColor,
+}: ChartBoxIconProps) => {
+  return (
+    <TitleIcon boxSize={boxSize} backgroundColor={backgroundColor}>
+      {icon}
+    </TitleIcon>
+  )
+}
+
+interface TotalValueViewProps {
+  label: string
+  amountLabel: string
+  countLabel: string
+}
+
+export const TotalValueView = ({
+  label,
+  amountLabel,
+  countLabel,
+}: TotalValueViewProps) => {
+  return (
+    <Box display='flex' alignItems='center'>
+      <Box sx={{ marginTop: '20px' }}>
+        <Typography
+          fontSize='14px'
+          color='rgba(102, 108, 255, 1)'
+          fontWeight={600}
+        >
+          {label}
+        </Typography>
+        <Typography fontSize='34px' fontWeight={500}>
+          $128,450,810
+        </Typography>
+        <Typography
+          fontSize='12px'
+          color='rgba(76, 78, 100, 0.6)'
+          sx={{ marginTop: '-8px' }}
+        >
+          {amountLabel}
+        </Typography>
+      </Box>
+      <span
+        style={{
+          display: 'block',
+          margin: '40px 20px 0',
+          width: '1px',
+          height: '58px',
+          backgroundColor: 'rgba(76, 78, 100, 0.12)',
+        }}
+      />
+      <Box sx={{ marginTop: '20px' }}>
+        <Box sx={{ height: '20px' }} />
+        <Typography fontSize='34px' fontWeight={500}>
+          12345
+        </Typography>
+        <Typography
+          fontSize='12px'
+          color='rgba(76, 78, 100, 0.6)'
+          sx={{ marginTop: '-8px' }}
+        >
+          {countLabel}
+        </Typography>
+      </Box>
+    </Box>
+  )
+}
 
 const Progress = styled.ul(() => {
   return {
@@ -357,26 +438,21 @@ const Progress = styled.ul(() => {
     '& > li': {
       height: '8px',
     },
-    '& > .item': {
-      '&_invoiced': {
-        backgroundColor: 'rgba(60, 61, 91, 1)',
-      },
-      '&_paid': {
-        backgroundColor: 'rgba(114, 225, 40, 1)',
-      },
-      '&_overdue': {
-        backgroundColor: 'rgba(224, 68, 64, 1)',
-      },
-    },
   }
 })
 
-export const LinearMultiProgress = () => {
+interface LinearMultiProgressProps {
+  items: Array<TotalItem>
+}
+export const LinearMultiProgress = ({ items }: LinearMultiProgressProps) => {
   return (
     <Progress>
-      <li className='item_invoiced' style={{ width: '30%' }} />
-      <li className='item_paid' style={{ width: '10%' }} />
-      <li className='item_overdue' style={{ width: '30%' }} />
+      {items.map((item, index) => (
+        <li
+          key={`${item.label}-${index}`}
+          style={{ width: `${item.ratio}%`, backgroundColor: item.color }}
+        />
+      ))}
     </Progress>
   )
 }
@@ -521,6 +597,58 @@ export const JobList = () => {
           bottom: '30px',
         }}
       />
+    </Box>
+  )
+}
+
+interface SectionTitleProps {
+  title: string
+  openDialog: (open: boolean, key: string) => void
+  handleClick?: () => void
+  marginBottom?: string
+  padding?: string
+  subTitle?: string
+  prefix?: string
+  postfix?: string
+}
+export const Title = ({
+  title,
+  handleClick,
+  marginBottom,
+  padding,
+  openDialog,
+  subTitle,
+  prefix,
+  postfix,
+}: SectionTitleProps) => {
+  return (
+    <Box marginBottom={marginBottom} sx={{ padding }}>
+      <SectionTitle>
+        <span
+          role='button'
+          className='title'
+          onClick={() => {
+            handleClick && handleClick()
+          }}
+        >
+          {prefix}
+          {title}
+          {postfix}
+        </span>
+        <ErrorOutlineIcon
+          className='info_icon'
+          onClick={() => openDialog(true, title)}
+        />
+        <KeyboardArrowRight
+          className='arrow_icon'
+          onClick={() => {
+            handleClick && handleClick()
+          }}
+        />
+      </SectionTitle>
+      {subTitle && (
+        <SubDateDescription textAlign='left'>{subTitle}</SubDateDescription>
+      )}
     </Box>
   )
 }

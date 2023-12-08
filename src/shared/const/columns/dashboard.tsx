@@ -25,9 +25,11 @@ dayjs.extend(advancedFormat)
 
 export const RequestColumns: GridColumns = [
   {
-    field: 'desiredDueDate',
-    headerName: 'desiredStatus',
-    cellClassName: 'desiredDueDate-status__cell',
+    field: 'companyName',
+    headerName: 'companyName',
+    cellClassName: 'companyName__cell',
+    minWidth: 240,
+    flex: 0.2,
     renderCell: ({ row }: { row: RequestItem }) => {
       const code = row.desiredDueTimezone
         .code as keyof typeof timezones.countries
@@ -41,28 +43,25 @@ export const RequestColumns: GridColumns = [
       if (86400000 >= remainTime && remainTime > 0) {
         color = '#FF4D49'
       }
+
       return (
-        <StatusSquare
-          style={{ margin: 0, padding: '0', marginLeft: '20px' }}
-          color={color}
-        />
+        <Box display='flex' alignItems='center' gap='10px'>
+          <StatusSquare
+            style={{ margin: 0, padding: '0', marginLeft: '20px' }}
+            color={color}
+          />
+          <Typography fontWeight={600} fontSize='14px'>
+            {row.companyName}
+          </Typography>
+        </Box>
       )
-    },
-  },
-  {
-    field: 'companyName',
-    headerName: 'companyName',
-    cellClassName: 'companyName__cell',
-    minWidth: 160,
-    renderCell: ({ row }: { row: RequestItem }) => {
-      return <Typography fontWeight={600}>{row.companyName}</Typography>
     },
   },
   {
     field: 'category',
     headerName: 'category',
-
     minWidth: 340,
+    flex: 0.3,
     renderCell: ({ row }: { row: RequestItem }) => {
       return (
         <Box
@@ -92,7 +91,8 @@ export const RequestColumns: GridColumns = [
   {
     field: 'itemCount',
     headerName: 'itemCount',
-    minWidth: 160,
+    minWidth: 140,
+    flex: 0.2,
     renderCell: ({ row }: { row: RequestItem }) => {
       return (
         <Box display='flex' alignItems='center' gap='8px'>
@@ -105,7 +105,7 @@ export const RequestColumns: GridColumns = [
   {
     field: 'desiredDueDate_date',
     headerName: 'desiredDueDate',
-    flex: 1,
+    flex: 0.3,
     cellClassName: 'desiredDueDate-date__cell',
     renderCell: ({ row }: { row: RequestItem }) => {
       const code = row.desiredDueTimezone
@@ -122,7 +122,13 @@ export const RequestColumns: GridColumns = [
       }
 
       return (
-        <Box display='flex' alignItems='center' gap='8px'>
+        <Box
+          display='flex'
+          alignItems='center'
+          justifyContent='flex-end'
+          gap='8px'
+          sx={{ marginLeft: '24px' }}
+        >
           <Inbox />
           <Typography sx={{ width: '100%', color }}>{`${moment(
             row.desiredDueDate,
@@ -137,9 +143,10 @@ export const RequestColumns: GridColumns = [
 
 export const RecruitingRequestColumns: GridColumns = [
   {
-    field: 'desiredDueDate',
-    headerName: 'desiredStatus',
-    cellClassName: 'desiredDueDate-status__cell',
+    field: 'companyName',
+    headerName: 'companyName',
+    cellClassName: 'companyName__cell',
+    minWidth: 180,
     renderCell: ({ row }: { row: RequestItem }) => {
       const code = row.desiredDueTimezone
         .code as keyof typeof timezones.countries
@@ -147,38 +154,31 @@ export const RecruitingRequestColumns: GridColumns = [
       const timeZone = timezones.countries[code].zones[0]
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
-      const remainTime = date1.diff(date2, 'hour')
-
+      const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
       let color = '#7F889B'
+
       if (86400000 >= remainTime && remainTime > 0) {
         color = '#FF4D49'
       }
+
       return (
-        <StatusSquare
-          style={{ margin: 0, padding: '0', marginLeft: '20px' }}
-          color={color}
-        />
-      )
-    },
-  },
-  {
-    field: 'companyName',
-    headerName: 'companyName',
-    cellClassName: 'companyName__cell',
-    minWidth: 160,
-    renderCell: ({ row }: { row: RequestItem }) => {
-      return (
-        <Typography fontWeight={600} fontSize='14px'>
-          {row.companyName}
-        </Typography>
+        <Box display='flex' alignItems='center' gap='10px'>
+          <StatusSquare
+            style={{ margin: 0, padding: '0', marginLeft: '20px' }}
+            color={color}
+          />
+          <Typography fontWeight={600} fontSize='14px'>
+            {row.companyName}
+          </Typography>
+        </Box>
       )
     },
   },
   {
     field: 'category',
     headerName: 'category',
-
     minWidth: 340,
+    flex: 1,
     renderCell: ({ row }: { row: RequestItem }) => {
       return (
         <Box
@@ -228,7 +228,8 @@ export const RecruitingRequestColumns: GridColumns = [
   {
     field: 'desiredDueDate_date',
     headerName: 'desiredDueDate',
-    flex: 1,
+    minWidth: 220,
+
     cellClassName: 'desiredDueDate-date__cell',
     renderCell: ({ row }: { row: RequestItem }) => {
       const code = row.desiredDueTimezone

@@ -43,6 +43,7 @@ const DashboardDataGrid = ({
     >
       <Suspense fallback={<div>로딩 중</div>}>
         <CustomDataGrid
+          autoHeight
           rows={data?.data || []}
           columns={columns}
           headerHeight={0}
@@ -74,21 +75,23 @@ const CustomDataGrid = styled(DataGrid)(() => {
     '& .MuiDataGrid-columnHeaders, & .MuiDataGrid-columnHeader': {
       display: 'none',
     },
+    '& .MuiDataGrid-virtualScrollerRenderZone': {
+      width: 'max-content',
+    },
     '& .MuiDataGrid-virtualScroller': {
-      marginTop: '0 !important',
+      width: 'max-content',
     },
     '& .MuiDataGrid-cell--withRenderer': {
       padding: '0 20px 0 0  !important',
     },
     '& .desiredDueDate-status__cell': {
-      minWidth: '22px !important',
-      flex: 1,
+      minWidth: '52px !important',
     },
 
     '& .MuiDataGrid-row': {
+      width: 'max-content !important',
       maxHeight: 'auto !important',
       minHeight: 'auto !important',
-      paddingRight: '20px',
       cursor: 'pointer',
     },
 

@@ -10,7 +10,7 @@ import { Box, ButtonGroup, Stack } from '@mui/material'
 import dayjs from 'dayjs'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Typography from '@mui/material/Typography'
-import { Controller, useForm, useWatch } from 'react-hook-form'
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form'
 import Button from '@mui/material/Button'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
@@ -43,13 +43,14 @@ import CurrencyList from '@src/views/dashboard/currencyList'
 import InvoiceTab from '@src/views/dashboard/invoiceTab'
 import SwiperControls from '@src/views/dashboard/swiper'
 import Chip from '@mui/material/Chip'
+import ChartDateHeader from '@src/views/dashboard/chartDateHeader'
 
 dayjs.extend(weekday)
 
 const TADDashboards = () => {
   const router = useRouter()
 
-  const { control, setValue } = useForm<DashboardForm>({
+  const { control, setValue, ...props } = useForm<DashboardForm>({
     defaultValues: {
       dateRange: [DEFAULT_START_DATE, DEFAULT_LAST_DATE],
       userViewDate: getRangeDateTitle(DEFAULT_START_DATE, DEFAULT_LAST_DATE),
@@ -62,8 +63,6 @@ const TADDashboards = () => {
     control,
     name: ['dateRange', 'selectedRangeDate', 'userViewDate'],
   })
-
-  const [openDialog, setOpenDialog] = useState(false)
 
   const onChangeDateRange = useCallback(
     (type: SelectedRangeDate) => {
@@ -117,246 +116,27 @@ const TADDashboards = () => {
   }
 
   return (
-    <ApexChartWrapper sx={{ overflow: 'scroll' }}>
-      <Grid
-        container
-        gap='24px'
-        sx={{ minWidth: '1320px', padding: '10px', overflow: 'auto' }}
-      >
-        <GridItem height={76} sm>
-          <Box
-            display='flex'
-            justifyContent='space-between'
-            sx={{ width: '100%' }}
-          >
-            <DatePickerWrapper>
-              <Controller
-                control={control}
-                name='dateRange'
-                render={({ field: { onChange } }) => (
-                  <DatePicker
-                    aria-label='date picker button'
-                    onChange={date => onChangeDatePicker(date, onChange)}
-                    startDate={(dateRange && dateRange[0]) || new Date()}
-                    endDate={dateRange && dateRange[1]}
-                    selectsRange
-                    minDate={dayjs().add(-5, 'year').toDate()}
-                    maxDate={dayjs().add(2, 'month').toDate()}
-                    customInput={
-                      <Box display='flex' alignItems='center'>
-                        <Typography fontSize='24px' fontWeight={500}>
-                          {userViewDate}
-                        </Typography>
-                        <CalendarTodayIcon
-                          sx={{ width: '45px' }}
-                          color='primary'
-                        />
-                      </Box>
-                    }
-                  />
-                )}
-              />
-            </DatePickerWrapper>
-            <ButtonGroup color='primary' aria-label='date selecor button group'>
-              <Button
-                variant={
-                  selectedRangeDate === 'month' ? 'contained' : 'outlined'
-                }
-                key='month'
-                onClick={() => onChangeDateRange('month')}
-              >
-                Month
-              </Button>
-              <Button
-                key='week'
-                variant={
-                  selectedRangeDate === 'week' ? 'contained' : 'outlined'
-                }
-                onClick={() => onChangeDateRange('week')}
-              >
-                Week
-              </Button>
-              <Button
-                key='today'
-                variant={
-                  selectedRangeDate === 'today' ? 'contained' : 'outlined'
-                }
-                onClick={() => onChangeDateRange('today')}
-              >
-                Today
-              </Button>
-            </ButtonGroup>
-          </Box>
-        </GridItem>
-      </Grid>
-      <Grid
-        container
-        gap='24px'
-        sx={{
-          minWidth: '1320px',
-          overflowX: 'auto',
-          overFlowY: 'scroll',
-          padding: '10px',
-        }}
-      >
-        <Grid container gap='24px'>
-          <GridItem width={265} height={387}>
-            <Box sx={{ width: '100%', height: '100%' }}>
-              <Box>
-                <SectionTitle>
-                  <span
-                    role='button'
-                    className='title'
-                    onClick={() => router.push('/quotes/lpm/requests/')}
-                  >
-                    Job overview
-                  </span>
-                  <ErrorOutlineIcon className='info_icon' />
-                  <KeyboardArrowRight className='arrow_icon' />
-                </SectionTitle>
-              </Box>
-              <JobList />
-            </Box>
-          </GridItem>
-          <GridItem sm height={387} padding='0px'>
-            <Box sx={{ width: '100%', height: '100%' }}>
-              <Box sx={{ padding: '20px' }}>
-                <SectionTitle>
-                  <span role='button' className='title'>
-                    Upcoming deadlines
-                  </span>
-                </SectionTitle>
-              </Box>
-              <DataGrid
-                hideFooter
-                components={{
-                  NoRowsOverlay: () => (
-                    <Stack
-                      height='50%'
-                      alignItems='center'
-                      justifyContent='center'
-                    >
-                      No rows in DataGrid
-                    </Stack>
-                  ),
-                }}
-                rows={[
-                  {
-                    id: 206,
-                    corporationId: 'O-000133-DTP-001',
-                    orderId: 192,
-                    jobName: 'test',
-                    dueAt: '2023-11-02T15:00:00.000Z',
-                  },
-                  {
-                    id: 207,
-                    corporationId: 'O-000133-DTP-001',
-                    orderId: 192,
-                    jobName: 'test',
-                    dueAt: '2023-11-02T15:00:00.000Z',
-                  },
-                  {
-                    id: 208,
-                    corporationId: 'O-000133-DTP-001',
-                    orderId: 192,
-                    jobName: 'test',
-                    dueAt: '2023-11-02T15:00:00.000Z',
-                  },
-                  {
-                    id: 209,
-                    corporationId: 'O-000133-DTP-001',
-                    orderId: 192,
-                    jobName: 'test',
-                    dueAt: '2023-11-02T15:00:00.000Z',
-                  },
-                  {
-                    id: 2010,
-                    corporationId: 'O-000133-DTP-001',
-                    orderId: 192,
-                    jobName: 'test',
-                    dueAt: '2023-11-02T15:00:00.000Z',
-                  },
-                ]}
-                columns={upcomingColumns}
-                disableSelectionOnClick
-                pagination={undefined}
-              />
-            </Box>
-          </GridItem>
+    <FormProvider {...props} setValue={setValue} control={control}>
+      <ApexChartWrapper sx={{ overflow: 'scroll' }}>
+        <Grid
+          container
+          gap='24px'
+          sx={{ minWidth: '1320px', padding: '10px', overflow: 'auto' }}
+        >
+          <ChartDateHeader />
         </Grid>
-        <Grid container gap='24px'>
-          <GridItem xs={6} height={490} padding='0px'>
-            <Box display='flex' sx={{ width: '100%', height: '100%' }}>
-              <Box sx={{ width: '50%', padding: '20px' }}>
-                <SectionTitle>
-                  <span className='title'>Job requests</span>
-                  <ErrorOutlineIcon className='info_icon' />
-                </SectionTitle>
-                <SubDateDescription textAlign='left'>
-                  Based On March 1 - 31, 2023
-                </SubDateDescription>
-                <RequestBarChart />
-              </Box>
-              <Box
-                sx={{
-                  width: '50%',
-                  borderLeft: '1px solid #d9d9d9',
-                  padding: '20px',
-                }}
-              >
-                <SectionTitle>
-                  <span className='title'>Expected income</span>
-                </SectionTitle>
-                <Box
-                  display='flex'
-                  alignItems='center'
-                  justifyContent='flex-end'
-                  gap='4px'
-                >
-                  <Typography fontSize='14px' color='#4C4E6499'>
-                    Request date
-                  </Typography>
-                  <Switch
-                    size='small'
-                    inputProps={{ 'aria-label': 'controlled' }}
-                    checked={false}
-                    sx={{
-                      '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                        color: '#666CFF',
-                        '.MuiSwitch-thumb': {
-                          color: '#666CFF',
-                        },
-                      },
-                      '.MuiSwitch-track': {
-                        backgroundColor: '#666CFF',
-                      },
-                    }}
-                  />
-                  <Typography fontSize='14px' color='#4C4E6499'>
-                    Due date
-                  </Typography>
-                </Box>
-                <CurrencyList />
-              </Box>
-            </Box>
-          </GridItem>
-          <GridItem sm height={490}>
-            <Box sx={{ width: '100%', height: '100%' }}>
-              <Box>
-                <SectionTitle>
-                  <span className='title'>Completed deliveries</span>
-                  <ErrorOutlineIcon className='info_icon' />
-                </SectionTitle>
-                <SubDateDescription textAlign='left'>
-                  Based On March 1 - 31, 2023
-                </SubDateDescription>
-              </Box>
-            </Box>
-          </GridItem>
-        </Grid>
-        <Grid container gap='24px'>
-          <Grid container item xs={6} gap='24px'>
-            <GridItem height={184}>
+        <Grid
+          container
+          gap='24px'
+          sx={{
+            minWidth: '1320px',
+            overflowX: 'auto',
+            overFlowY: 'scroll',
+            padding: '10px',
+          }}
+        >
+          <Grid container gap='24px'>
+            <GridItem width={265} height={387}>
               <Box sx={{ width: '100%', height: '100%' }}>
                 <Box>
                   <SectionTitle>
@@ -365,226 +145,383 @@ const TADDashboards = () => {
                       className='title'
                       onClick={() => router.push('/quotes/lpm/requests/')}
                     >
-                      Invoiced amount
+                      Job overview
                     </span>
                     <ErrorOutlineIcon className='info_icon' />
                     <KeyboardArrowRight className='arrow_icon' />
                   </SectionTitle>
+                </Box>
+                <JobList />
+              </Box>
+            </GridItem>
+            <GridItem sm height={387} padding='0px'>
+              <Box sx={{ width: '100%', height: '100%' }}>
+                <Box sx={{ padding: '20px' }}>
+                  <SectionTitle>
+                    <span role='button' className='title'>
+                      Upcoming deadlines
+                    </span>
+                  </SectionTitle>
+                </Box>
+                <DataGrid
+                  hideFooter
+                  components={{
+                    NoRowsOverlay: () => (
+                      <Stack
+                        height='50%'
+                        alignItems='center'
+                        justifyContent='center'
+                      >
+                        No rows in DataGrid
+                      </Stack>
+                    ),
+                  }}
+                  rows={[
+                    {
+                      id: 206,
+                      corporationId: 'O-000133-DTP-001',
+                      orderId: 192,
+                      jobName: 'test',
+                      dueAt: '2023-11-02T15:00:00.000Z',
+                    },
+                    {
+                      id: 207,
+                      corporationId: 'O-000133-DTP-001',
+                      orderId: 192,
+                      jobName: 'test',
+                      dueAt: '2023-11-02T15:00:00.000Z',
+                    },
+                    {
+                      id: 208,
+                      corporationId: 'O-000133-DTP-001',
+                      orderId: 192,
+                      jobName: 'test',
+                      dueAt: '2023-11-02T15:00:00.000Z',
+                    },
+                    {
+                      id: 209,
+                      corporationId: 'O-000133-DTP-001',
+                      orderId: 192,
+                      jobName: 'test',
+                      dueAt: '2023-11-02T15:00:00.000Z',
+                    },
+                    {
+                      id: 2010,
+                      corporationId: 'O-000133-DTP-001',
+                      orderId: 192,
+                      jobName: 'test',
+                      dueAt: '2023-11-02T15:00:00.000Z',
+                    },
+                  ]}
+                  columns={upcomingColumns}
+                  disableSelectionOnClick
+                  pagination={undefined}
+                />
+              </Box>
+            </GridItem>
+          </Grid>
+          <Grid container gap='24px'>
+            <GridItem xs={6} height={490} padding='0px'>
+              <Box display='flex' sx={{ width: '100%', height: '100%' }}>
+                <Box sx={{ width: '50%', padding: '20px' }}>
+                  <SectionTitle>
+                    <span className='title'>Job requests</span>
+                    <ErrorOutlineIcon className='info_icon' />
+                  </SectionTitle>
                   <SubDateDescription textAlign='left'>
-                    March 1 - 31, 2023
+                    Based On March 1 - 31, 2023
                   </SubDateDescription>
+                  <RequestBarChart />
                 </Box>
                 <Box
-                  display='flex'
-                  alignItems='center'
-                  sx={{ padding: '40px 0 ' }}
+                  sx={{
+                    width: '50%',
+                    borderLeft: '1px solid #d9d9d9',
+                    padding: '20px',
+                  }}
                 >
-                  <CurrencyAmount amounts={[100, 2300, 500, 300]} />
+                  <SectionTitle>
+                    <span className='title'>Expected income</span>
+                  </SectionTitle>
+                  <Box
+                    display='flex'
+                    alignItems='center'
+                    justifyContent='flex-end'
+                    gap='4px'
+                  >
+                    <Typography fontSize='14px' color='#4C4E6499'>
+                      Request date
+                    </Typography>
+                    <Switch
+                      size='small'
+                      inputProps={{ 'aria-label': 'controlled' }}
+                      checked={false}
+                      sx={{
+                        '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                          color: '#666CFF',
+                          '.MuiSwitch-thumb': {
+                            color: '#666CFF',
+                          },
+                        },
+                        '.MuiSwitch-track': {
+                          backgroundColor: '#666CFF',
+                        },
+                      }}
+                    />
+                    <Typography fontSize='14px' color='#4C4E6499'>
+                      Due date
+                    </Typography>
+                  </Box>
+                  <CurrencyList />
                 </Box>
               </Box>
             </GridItem>
-            <GridItem height={184}>
+            <GridItem sm height={490}>
               <Box sx={{ width: '100%', height: '100%' }}>
                 <Box>
                   <SectionTitle>
-                    <span
-                      role='button'
-                      className='title'
-                      onClick={() => router.push('/quotes/lpm/requests/')}
-                    >
-                      Payment amount
-                    </span>
+                    <span className='title'>Completed deliveries</span>
                     <ErrorOutlineIcon className='info_icon' />
-                    <KeyboardArrowRight className='arrow_icon' />
                   </SectionTitle>
                   <SubDateDescription textAlign='left'>
-                    March 1 - 31, 2023
+                    Based On March 1 - 31, 2023
                   </SubDateDescription>
-                </Box>
-                <Box
-                  display='flex'
-                  alignItems='center'
-                  sx={{ padding: '40px 0 ' }}
-                >
-                  <CurrencyAmount amounts={[100, 2300, 500, 300]} />
                 </Box>
               </Box>
             </GridItem>
           </Grid>
-
-          <GridItem sm height={392}>
-            <Box sx={{ width: '100%', height: '100%' }}>
-              <Box sx={{ marginBottom: '20p      x' }}>
-                <SectionTitle>
-                  <span
-                    role='button'
-                    className='title'
-                    onClick={() => router.push('/quotes/lpm/requests/')}
+          <Grid container gap='24px'>
+            <Grid container item xs={6} gap='24px'>
+              <GridItem height={184}>
+                <Box sx={{ width: '100%', height: '100%' }}>
+                  <Box>
+                    <SectionTitle>
+                      <span
+                        role='button'
+                        className='title'
+                        onClick={() => router.push('/quotes/lpm/requests/')}
+                      >
+                        Invoiced amount
+                      </span>
+                      <ErrorOutlineIcon className='info_icon' />
+                      <KeyboardArrowRight className='arrow_icon' />
+                    </SectionTitle>
+                    <SubDateDescription textAlign='left'>
+                      March 1 - 31, 2023
+                    </SubDateDescription>
+                  </Box>
+                  <Box
+                    display='flex'
+                    alignItems='center'
+                    sx={{ padding: '40px 0 ' }}
                   >
-                    Invoice overview
-                  </span>
-                  <ErrorOutlineIcon className='info_icon' />
-                  <KeyboardArrowRight className='arrow_icon' />
-                </SectionTitle>
-                <SubDateDescription textAlign='left'>
-                  March 1 - 31, 2023
-                </SubDateDescription>
+                    <CurrencyAmount amounts={[100, 2300, 500, 300]} />
+                  </Box>
+                </Box>
+              </GridItem>
+              <GridItem height={184}>
+                <Box sx={{ width: '100%', height: '100%' }}>
+                  <Box>
+                    <SectionTitle>
+                      <span
+                        role='button'
+                        className='title'
+                        onClick={() => router.push('/quotes/lpm/requests/')}
+                      >
+                        Payment amount
+                      </span>
+                      <ErrorOutlineIcon className='info_icon' />
+                      <KeyboardArrowRight className='arrow_icon' />
+                    </SectionTitle>
+                    <SubDateDescription textAlign='left'>
+                      March 1 - 31, 2023
+                    </SubDateDescription>
+                  </Box>
+                  <Box
+                    display='flex'
+                    alignItems='center'
+                    sx={{ padding: '40px 0 ' }}
+                  >
+                    <CurrencyAmount amounts={[100, 2300, 500, 300]} />
+                  </Box>
+                </Box>
+              </GridItem>
+            </Grid>
+
+            <GridItem sm height={392}>
+              <Box sx={{ width: '100%', height: '100%' }}>
+                <Box sx={{ marginBottom: '20p      x' }}>
+                  <SectionTitle>
+                    <span
+                      role='button'
+                      className='title'
+                      onClick={() => router.push('/quotes/lpm/requests/')}
+                    >
+                      Invoice overview
+                    </span>
+                    <ErrorOutlineIcon className='info_icon' />
+                    <KeyboardArrowRight className='arrow_icon' />
+                  </SectionTitle>
+                  <SubDateDescription textAlign='left'>
+                    March 1 - 31, 2023
+                  </SubDateDescription>
+                </Box>
+                <InvoiceTab />
               </Box>
-              <InvoiceTab />
-            </Box>
-          </GridItem>
-        </Grid>
-        <Grid container gap='24px'>
-          <GridItem xs={6} height={223}>
-            <Box sx={{ width: '100%', height: '100%' }}>
-              <Box>
-                <SectionTitle>
-                  <span className='title'>Monthly task output (12)</span>
-                </SectionTitle>
-                <SubDateDescription textAlign='left'>
-                  March 1 - 31, 2023
-                </SubDateDescription>
+            </GridItem>
+          </Grid>
+          <Grid container gap='24px'>
+            <GridItem xs={6} height={223}>
+              <Box sx={{ width: '100%', height: '100%' }}>
+                <Box>
+                  <SectionTitle>
+                    <span className='title'>Monthly task output (12)</span>
+                  </SectionTitle>
+                  <SubDateDescription textAlign='left'>
+                    March 1 - 31, 2023
+                  </SubDateDescription>
+                </Box>
               </Box>
-            </Box>
-          </GridItem>
-          <GridItem sm height={223}>
-            <Box sx={{ width: '100%', height: '100%' }}>
-              <Box>
-                <SectionTitle>
-                  <span className='title'>Deadline compliance</span>
-                </SectionTitle>
-                <SubDateDescription textAlign='left'>
-                  March 1 - 31, 2023
-                </SubDateDescription>
-              </Box>
-              <Box
-                display='flex'
-                flexDirection='column'
-                gap='20px'
-                sx={{ marginTop: '20px' }}
-              >
+            </GridItem>
+            <GridItem sm height={223}>
+              <Box sx={{ width: '100%', height: '100%' }}>
+                <Box>
+                  <SectionTitle>
+                    <span className='title'>Deadline compliance</span>
+                  </SectionTitle>
+                  <SubDateDescription textAlign='left'>
+                    March 1 - 31, 2023
+                  </SubDateDescription>
+                </Box>
                 <Box
                   display='flex'
-                  alignItems='center'
-                  justifyContent='space-between'
+                  flexDirection='column'
+                  gap='20px'
+                  sx={{ marginTop: '20px' }}
                 >
-                  <Box display='flex' alignItems='center' gap='16px'>
-                    <TitleIcon
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        backgroundColor: 'rgba(114, 225, 40, 0.1)',
-                      }}
-                    >
-                      <CheckCircleSharp
-                        className='icon'
+                  <Box
+                    display='flex'
+                    alignItems='center'
+                    justifyContent='space-between'
+                  >
+                    <Box display='flex' alignItems='center' gap='16px'>
+                      <TitleIcon
                         style={{
-                          width: '24px',
-                          height: '24px',
-                          color: 'rgba(114, 225, 40, 1)',
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: 'rgba(114, 225, 40, 0.1)',
                         }}
-                      />
-                    </TitleIcon>
-                    <Box display='flex' flexDirection='column'>
-                      <Typography
-                        fontSize='12px'
-                        color='rgba(76, 78, 100, 0.6)'
                       >
-                        Timely delivery
-                        <Chip
-                          label='78%'
-                          sx={{
-                            height: '20px',
-                            backgroundColor: 'rgba(114, 225, 40, 0.1)',
+                        <CheckCircleSharp
+                          className='icon'
+                          style={{
+                            width: '24px',
+                            height: '24px',
                             color: 'rgba(114, 225, 40, 1)',
-                            marginLeft: '10px',
-                            fontSize: '12px',
                           }}
                         />
+                      </TitleIcon>
+                      <Box display='flex' flexDirection='column'>
+                        <Typography
+                          fontSize='12px'
+                          color='rgba(76, 78, 100, 0.6)'
+                        >
+                          Timely delivery
+                          <Chip
+                            label='78%'
+                            sx={{
+                              height: '20px',
+                              backgroundColor: 'rgba(114, 225, 40, 0.1)',
+                              color: 'rgba(114, 225, 40, 1)',
+                              marginLeft: '10px',
+                              fontSize: '12px',
+                            }}
+                          />
+                        </Typography>
+                        <Typography
+                          fontSize='16px'
+                          fontWeight={600}
+                          color='rgba(76, 78, 100, 0.87)'
+                          sx={{ marginTop: '-2px' }}
+                        >
+                          13
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box>
+                      <Typography fontSize='12px'>
+                        Average early submission time
                       </Typography>
-                      <Typography
-                        fontSize='16px'
-                        fontWeight={600}
-                        color='rgba(76, 78, 100, 0.87)'
-                        sx={{ marginTop: '-2px' }}
-                      >
-                        13
+                      <Typography fontSize='12px' color='rgba(100, 198, 35, 1)'>
+                        01 day(s) 03 hour(s) 23 min(s)
                       </Typography>
                     </Box>
                   </Box>
-                  <Box>
-                    <Typography fontSize='12px'>
-                      Average early submission time
-                    </Typography>
-                    <Typography fontSize='12px' color='rgba(100, 198, 35, 1)'>
-                      01 day(s) 03 hour(s) 23 min(s)
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box
-                  display='flex'
-                  alignItems='center'
-                  justifyContent='space-between'
-                >
-                  <Box display='flex' alignItems='center' gap='16px'>
-                    <TitleIcon
-                      style={{
-                        width: '40px',
-                        height: '40px',
-                        backgroundColor: 'rgba(224, 68, 64, 0.1)',
-                      }}
-                    >
-                      <WatchLaterRounded
-                        className='icon'
+                  <Box
+                    display='flex'
+                    alignItems='center'
+                    justifyContent='space-between'
+                  >
+                    <Box display='flex' alignItems='center' gap='16px'>
+                      <TitleIcon
                         style={{
-                          width: '24px',
-                          height: '24px',
-                          color: 'rgba(224, 68, 64, 1)',
+                          width: '40px',
+                          height: '40px',
+                          backgroundColor: 'rgba(224, 68, 64, 0.1)',
                         }}
-                      />
-                    </TitleIcon>
-                    <Box display='flex' flexDirection='column'>
-                      <Typography
-                        fontSize='12px'
-                        color='rgba(76, 78, 100, 0.6)'
                       >
-                        Late delivery
-                        <Chip
-                          label='21%'
-                          sx={{
-                            height: '20px',
-                            backgroundColor: 'rgba(224, 68, 64, 0.1)',
+                        <WatchLaterRounded
+                          className='icon'
+                          style={{
+                            width: '24px',
+                            height: '24px',
                             color: 'rgba(224, 68, 64, 1)',
-                            marginLeft: '10px',
-                            fontSize: '12px',
                           }}
                         />
+                      </TitleIcon>
+                      <Box display='flex' flexDirection='column'>
+                        <Typography
+                          fontSize='12px'
+                          color='rgba(76, 78, 100, 0.6)'
+                        >
+                          Late delivery
+                          <Chip
+                            label='21%'
+                            sx={{
+                              height: '20px',
+                              backgroundColor: 'rgba(224, 68, 64, 0.1)',
+                              color: 'rgba(224, 68, 64, 1)',
+                              marginLeft: '10px',
+                              fontSize: '12px',
+                            }}
+                          />
+                        </Typography>
+                        <Typography
+                          fontSize='16px'
+                          fontWeight={600}
+                          color='rgba(76, 78, 100, 0.87)'
+                          sx={{ marginTop: '-2px' }}
+                        >
+                          13
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box>
+                      <Typography fontSize='12px'>
+                        Average late submission time
                       </Typography>
-                      <Typography
-                        fontSize='16px'
-                        fontWeight={600}
-                        color='rgba(76, 78, 100, 0.87)'
-                        sx={{ marginTop: '-2px' }}
-                      >
-                        13
+                      <Typography fontSize='12px' color='rgba(255, 77, 73, 1)'>
+                        01 day(s) 03 hour(s) 23 min(s)
                       </Typography>
                     </Box>
-                  </Box>
-                  <Box>
-                    <Typography fontSize='12px'>
-                      Average late submission time
-                    </Typography>
-                    <Typography fontSize='12px' color='rgba(255, 77, 73, 1)'>
-                      01 day(s) 03 hour(s) 23 min(s)
-                    </Typography>
                   </Box>
                 </Box>
               </Box>
-            </Box>
-          </GridItem>
+            </GridItem>
+          </Grid>
         </Grid>
-      </Grid>
-    </ApexChartWrapper>
+      </ApexChartWrapper>
+    </FormProvider>
   )
 }
 

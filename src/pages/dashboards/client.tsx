@@ -25,7 +25,7 @@ import {
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
-import { Controller, useForm, useWatch } from 'react-hook-form'
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form'
 import Button from '@mui/material/Button'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
@@ -77,6 +77,7 @@ import {
   SelectedRangeDate,
   toCapitalize,
 } from '@src/pages/dashboards/lpm'
+import ChartDateHeader from '@src/views/dashboard/chartDateHeader'
 
 dayjs.extend(weekday)
 
@@ -165,7 +166,7 @@ const ClientDashboards = () => {
     useRecoilValueLoadable(currentRoleSelector)
   const [state, setState] = useRecoilState(dashboardState)
 
-  const { control, setValue } = useForm<DashboardForm>({
+  const { control, setValue, ...props } = useForm<DashboardForm>({
     defaultValues: {
       viewSwitch: false, // true = company - false = personal
       dateRange: [DEFAULT_START_DATE, DEFAULT_LAST_DATE],
@@ -238,57 +239,6 @@ const ClientDashboards = () => {
     })
   }
 
-  const onChangeDateRange = useCallback(
-    (type: SelectedRangeDate) => {
-      setValue('selectedRangeDate', type)
-
-      switch (type) {
-        case 'month':
-          const dates = [
-            dayjs().set('date', 1).toDate(),
-            dayjs().set('date', dayjs().daysInMonth()).toDate(),
-          ]
-
-          const title1 = getDateFormatter(dates[0], dates[1]) || '-'
-          setValue('userViewDate', title1)
-          setValue('dateRange', dates)
-          break
-        case 'today':
-          const title2 = getDateFormatter(new Date(), null) || '-'
-
-          setValue('userViewDate', title2)
-          setValue('dateRange', [new Date(), null])
-          break
-        case 'week':
-          const title3 =
-            getDateFormatter(
-              dayjs().day(0).toDate(),
-              dayjs().day(6).toDate(),
-            ) || '-'
-          setValue('userViewDate', title3)
-          setValue('dateRange', [
-            dayjs().day(0).toDate(),
-            dayjs().day(6).toDate(),
-          ])
-          break
-        default:
-          break
-      }
-    },
-    [dateRange, selectedRangeDate],
-  )
-
-  const onChangeDatePicker = (
-    date: Array<Date | null> | null,
-    onChange: (date: Array<Date | null> | null) => void,
-  ) => {
-    if (!date || !date[0]) return
-
-    const title = getDateFormatter(date[0], date[1]) || '-'
-    setValue('userViewDate', title)
-    onChange(date)
-  }
-
   const onChangeMemberView = () => {
     setOpenDialog(true)
     handleClose()
@@ -310,442 +260,387 @@ const ClientDashboards = () => {
   }
 
   return (
-    <ApexChartWrapper>
-      <Grid
-        container
-        gap='24px'
-        sx={{ minWidth: '1320px', overflowX: 'auto', padding: '10px' }}
-      >
-        <Grid container gap='24px'>
-          {memberView ? (
-            <GridItem width={420} height={76}>
-              <Box sx={{ width: '100%' }}>
-                <Box display='flex' gap='16px' alignItems='center'>
-                  <Typography fontSize='24px' fontWeight={500}>
-                    {`${state.userInfo?.firstName}`}
-                    {state.userInfo?.middleName &&
-                      `(${state.userInfo?.middleName})`}{' '}
-                    {state.userInfo?.lastName}
+    <FormProvider {...props} setValue={setValue} control={control}>
+      <ApexChartWrapper>
+        <Grid
+          container
+          gap='24px'
+          sx={{ minWidth: '1320px', overflowX: 'auto', padding: '10px' }}
+        >
+          <Grid container gap='24px'>
+            {memberView ? (
+              <GridItem width={420} height={76}>
+                <Box sx={{ width: '100%' }}>
+                  <Box display='flex' gap='16px' alignItems='center'>
+                    <Typography fontSize='24px' fontWeight={500}>
+                      {`${state.userInfo?.firstName}`}
+                      {state.userInfo?.middleName &&
+                        `(${state.userInfo?.middleName})`}{' '}
+                      {state.userInfo?.lastName}
+                    </Typography>
+                    {PermissionChip(state.userInfo?.type || 'General')}
+                  </Box>
+                  <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
+                    {`${state.userInfo?.department || '-'} | ${
+                      state.userInfo?.jobTitle || '-'
+                    }`}
                   </Typography>
-                  {PermissionChip(state.userInfo?.type || 'General')}
                 </Box>
-                <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
-                  {`${state.userInfo?.department || '-'} | ${
-                    state.userInfo?.jobTitle || '-'
-                  }`}
-                </Typography>
-              </Box>
-            </GridItem>
-          ) : (
-            <GridItem width={290} height={76}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
-              >
-                <Typography
+              </GridItem>
+            ) : (
+              <GridItem width={290} height={76}>
+                <Box
                   sx={{
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    color:
-                      state.view === 'company'
-                        ? 'rgba(102, 108, 255, 1)'
-                        : 'rgba(189, 189, 189, 1)',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
-                  Company view
-                </Typography>
-                <div style={{ width: '40px' }}>
-                  <Controller
-                    control={control}
-                    name='viewSwitch'
-                    defaultValue={false}
-                    render={({ field: { onChange, value } }) => (
-                      <Switch
-                        size='small'
-                        checked={value}
-                        inputProps={{ 'aria-label': 'controlled' }}
-                        sx={{
-                          '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                            color: '#666CFF',
-                            '.MuiSwitch-thumb': {
-                              color: '#666CFF',
-                            },
-                          },
-                          '.MuiSwitch-track': {
-                            backgroundColor: '#666CFF',
-                          },
-                        }}
-                        onChange={(event, val) => {
-                          onChangeViewMode(val)
-                          onChange(val)
-                        }}
-                      />
-                    )}
-                  />
-                </div>
-                <Typography
-                  sx={{
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    color:
-                      state.view === 'personal'
-                        ? 'rgba(102, 108, 255, 1)'
-                        : 'rgba(189, 189, 189, 1)',
-                  }}
-                >
-                  Personal view
-                </Typography>
-              </Box>
-            </GridItem>
-          )}
-          <GridItem height={76} sm>
-            <Box
-              display='flex'
-              justifyContent='space-between'
-              sx={{ width: '100%' }}
-            >
-              <DatePickerWrapper>
-                <Controller
-                  control={control}
-                  name='dateRange'
-                  render={({ field: { onChange } }) => (
-                    <DatePicker
-                      aria-label='date picker button'
-                      onChange={date => onChangeDatePicker(date, onChange)}
-                      startDate={(dateRange && dateRange[0]) || new Date()}
-                      endDate={dateRange && dateRange[1]}
-                      selectsRange
-                      customInput={
-                        <Box display='flex' alignItems='center'>
-                          <Typography fontSize='24px' fontWeight={500}>
-                            {userViewDate}
-                          </Typography>
-                          <CalendarTodayIcon
-                            sx={{ width: '45px' }}
-                            color='primary'
-                          />
-                        </Box>
-                      }
-                    />
-                  )}
-                />
-              </DatePickerWrapper>
-              <ButtonGroup
-                color='primary'
-                aria-label='date selecor button group'
-              >
-                <Button
-                  variant={
-                    selectedRangeDate === 'month' ? 'contained' : 'outlined'
-                  }
-                  key='month'
-                  onClick={() => onChangeDateRange('month')}
-                >
-                  Month
-                </Button>
-                <Button
-                  key='week'
-                  variant={
-                    selectedRangeDate === 'week' ? 'contained' : 'outlined'
-                  }
-                  onClick={() => onChangeDateRange('week')}
-                >
-                  Week
-                </Button>
-                <Button
-                  key='today'
-                  variant={
-                    selectedRangeDate === 'today' ? 'contained' : 'outlined'
-                  }
-                  onClick={() => onChangeDateRange('today')}
-                >
-                  Today
-                </Button>
-              </ButtonGroup>
-            </Box>
-          </GridItem>
-          <GridItem width={76} height={76}>
-            <Box>
-              <Button onClick={handleClick}>
-                <MoreVertIcon
-                  sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
-                />
-              </Button>
-              <Menu
-                id='dashboard-menu'
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                  'aria-labelledby': 'basic-button',
-                }}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-              >
-                <MenuItem
-                  onClick={handleClose}
-                  sx={{
-                    color: 'rgba(76, 78, 100, 0.87)',
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-                  >
-                    <DownloadIcon fontSize='small' />
-                  </ListItemIcon>
-                  <ListItemText>Download csv</ListItemText>
-                </MenuItem>
-                <MenuItem
-                  onClick={() => onChangeMemberView()}
-                  sx={{
-                    display:
-                      role?.type === 'Master' || role?.type === 'Manager'
-                        ? 'flex'
-                        : 'none',
-                    color: 'rgba(76, 78, 100, 0.87)',
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-                  >
-                    <RemoveRedEyeIcon fontSize='small' />
-                  </ListItemIcon>
-                  <ListItemText>
-                    {memberView ? 'Change Member' : 'View member dashboard'}
-                  </ListItemText>
-                </MenuItem>
-                {memberView && (
-                  <MenuItem
-                    onClick={() => onChangeMyDashboard()}
+                  <Typography
                     sx={{
-                      display: 'flex',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      color:
+                        state.view === 'company'
+                          ? 'rgba(102, 108, 255, 1)'
+                          : 'rgba(189, 189, 189, 1)',
+                    }}
+                  >
+                    Company view
+                  </Typography>
+                  <div style={{ width: '40px' }}>
+                    <Controller
+                      control={control}
+                      name='viewSwitch'
+                      defaultValue={false}
+                      render={({ field: { onChange, value } }) => (
+                        <Switch
+                          size='small'
+                          checked={value}
+                          inputProps={{ 'aria-label': 'controlled' }}
+                          sx={{
+                            '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                              color: '#666CFF',
+                              '.MuiSwitch-thumb': {
+                                color: '#666CFF',
+                              },
+                            },
+                            '.MuiSwitch-track': {
+                              backgroundColor: '#666CFF',
+                            },
+                          }}
+                          onChange={(event, val) => {
+                            onChangeViewMode(val)
+                            onChange(val)
+                          }}
+                        />
+                      )}
+                    />
+                  </div>
+                  <Typography
+                    sx={{
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      color:
+                        state.view === 'personal'
+                          ? 'rgba(102, 108, 255, 1)'
+                          : 'rgba(189, 189, 189, 1)',
+                    }}
+                  >
+                    Personal view
+                  </Typography>
+                </Box>
+              </GridItem>
+            )}
+            <ChartDateHeader />
+            <GridItem width={76} height={76}>
+              <Box>
+                <Button onClick={handleClick}>
+                  <MoreVertIcon
+                    sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
+                  />
+                </Button>
+                <Menu
+                  id='dashboard-menu'
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleClose}
+                  MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                  }}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                >
+                  <MenuItem
+                    onClick={handleClose}
+                    sx={{
                       color: 'rgba(76, 78, 100, 0.87)',
                     }}
                   >
                     <ListItemIcon
                       sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
                     >
-                      <LogoutOutlined fontSize='small' />
+                      <DownloadIcon fontSize='small' />
                     </ListItemIcon>
-                    <ListItemText>Back to my dashboard</ListItemText>
+                    <ListItemText>Download csv</ListItemText>
                   </MenuItem>
-                )}
-              </Menu>
-            </Box>
-          </GridItem>
-        </Grid>
-        <Grid container gap='24px'>
-          {!memberView && (
-            <GridItem width={290} height={375}>
-              <Box
-                display='flex'
-                flexDirection='column'
-                sx={{ width: '100%', height: '100%' }}
-              >
-                <Box marginBottom='20px'>
+                  <MenuItem
+                    onClick={() => onChangeMemberView()}
+                    sx={{
+                      display:
+                        role?.type === 'Master' || role?.type === 'Manager'
+                          ? 'flex'
+                          : 'none',
+                      color: 'rgba(76, 78, 100, 0.87)',
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                    >
+                      <RemoveRedEyeIcon fontSize='small' />
+                    </ListItemIcon>
+                    <ListItemText>
+                      {memberView ? 'Change Member' : 'View member dashboard'}
+                    </ListItemText>
+                  </MenuItem>
+                  {memberView && (
+                    <MenuItem
+                      onClick={() => onChangeMyDashboard()}
+                      sx={{
+                        display: 'flex',
+                        color: 'rgba(76, 78, 100, 0.87)',
+                      }}
+                    >
+                      <ListItemIcon
+                        sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                      >
+                        <LogoutOutlined fontSize='small' />
+                      </ListItemIcon>
+                      <ListItemText>Back to my dashboard</ListItemText>
+                    </MenuItem>
+                  )}
+                </Menu>
+              </Box>
+            </GridItem>
+          </Grid>
+          <Grid container gap='24px'>
+            {!memberView && (
+              <GridItem width={290} height={375}>
+                <Box
+                  display='flex'
+                  flexDirection='column'
+                  sx={{ width: '100%', height: '100%' }}
+                >
+                  <Box marginBottom='20px'>
+                    <SectionTitle>
+                      <span className='title'>Report</span>
+                      <ErrorOutlineIcon className='info_icon' />
+                    </SectionTitle>
+                    <SubDateDescription textAlign='left'>
+                      {userViewDate}
+                    </SubDateDescription>
+                    <Box
+                      component='ul'
+                      display='flex'
+                      flexDirection='column'
+                      sx={{ padding: 0 }}
+                    >
+                      {ReportData &&
+                        Object.entries(ReportData).map(
+                          ([key, value], index) => (
+                            <ReportItem
+                              key={`${key}-${index}`}
+                              label={toCapitalize(key)}
+                              value={value}
+                              color={StatusColor[index]}
+                              isHidden={[
+                                Object.entries(ReportData).length - 1,
+                              ].includes(index)}
+                            />
+                          ),
+                        )}
+                    </Box>
+                  </Box>
+                </Box>
+              </GridItem>
+            )}
+            <GridItem height={375} sm padding='20px'>
+              <Box sx={{ width: '100%', height: '100%' }}>
+                <Box>
                   <SectionTitle>
-                    <span className='title'>Report</span>
+                    <span className='title'>Invoices</span>
                     <ErrorOutlineIcon className='info_icon' />
                   </SectionTitle>
                   <SubDateDescription textAlign='left'>
                     {userViewDate}
                   </SubDateDescription>
-                  <Box
-                    component='ul'
-                    display='flex'
-                    flexDirection='column'
-                    sx={{ padding: 0 }}
-                  >
-                    {ReportData &&
-                      Object.entries(ReportData).map(([key, value], index) => (
-                        <ReportItem
-                          key={`${key}-${index}`}
-                          label={toCapitalize(key)}
-                          value={value}
-                          color={StatusColor[index]}
-                          isHidden={[
-                            Object.entries(ReportData).length - 1,
-                          ].includes(index)}
-                        />
-                      ))}
+                  <Box display='flex' justifyContent='flex-end'>
+                    <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
                   </Box>
                 </Box>
-              </Box>
-            </GridItem>
-          )}
-          <GridItem height={375} sm padding='20px'>
-            <Box sx={{ width: '100%', height: '100%' }}>
-              <Box>
-                <SectionTitle>
-                  <span className='title'>Invoices</span>
-                  <ErrorOutlineIcon className='info_icon' />
-                </SectionTitle>
-                <SubDateDescription textAlign='left'>
-                  {userViewDate}
-                </SubDateDescription>
-                <Box display='flex' justifyContent='flex-end'>
-                  <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
-                </Box>
-              </Box>
-              <Box display='flex'>
-                <Box sx={{ width: '50%', padding: '40px 20px 40px 0' }}>
-                  <Box display='flex' alignItems='center' gap='16px'>
-                    <TitleIcon>
-                      <ReceiptLong className='icon' />
-                    </TitleIcon>
-                    <Box display='flex' flexDirection='column'>
-                      <Typography
-                        fontWeight={500}
-                        fontSize='34px'
-                        letterSpacing='0.25px'
-                        lineHeight='40px'
-                      >{`5,200`}</Typography>
-                      <Typography
-                        fontSize='12px'
-                        color='rgba(76, 78, 100, 0.6)'
-                      >
-                        In total
-                      </Typography>
+                <Box display='flex'>
+                  <Box sx={{ width: '50%', padding: '40px 20px 40px 0' }}>
+                    <Box display='flex' alignItems='center' gap='16px'>
+                      {/*<TitleIcon>*/}
+                      {/*  <ReceiptLong className='icon' />*/}
+                      {/*</TitleIcon>*/}
+                      <Box display='flex' flexDirection='column'>
+                        <Typography
+                          fontWeight={500}
+                          fontSize='34px'
+                          letterSpacing='0.25px'
+                          lineHeight='40px'
+                        >{`5,200`}</Typography>
+                        <Typography
+                          fontSize='12px'
+                          color='rgba(76, 78, 100, 0.6)'
+                        >
+                          In total
+                        </Typography>
+                      </Box>
                     </Box>
+                    {/*<LinearMultiProgress />*/}
                   </Box>
-                  <LinearMultiProgress />
-                </Box>
-                <Box sx={{ width: '50%', marginLeft: '40px' }}>
-                  <Table sx={{ height: '240px' }} aria-label='invoices table'>
-                    <TableHead>
-                      <StyledTableRow>
-                        <HeaderTableCell>Status</HeaderTableCell>
-                        <HeaderTableCell align='center'>Count</HeaderTableCell>
-                        <HeaderTableCell align='right'>Prices</HeaderTableCell>
-                      </StyledTableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rows.map((row, index) => (
-                        <StyledTableRow key={row.name}>
-                          <StyledTableCell>
-                            <span>
-                              <TableStatusCircle
-                                color={TableStatusColor[index]}
-                              />
-                              {row.name}
-                            </span>
-                          </StyledTableCell>
-                          <StyledTableCell align='center' scope='row'>
-                            {row.count}
-                          </StyledTableCell>
-                          <StyledTableCell>
-                            <span style={{ justifyContent: 'flex-end' }}>
-                              {row.sum}
-                              <span className='ratio'>{`${
-                                row.sum / 3000
-                              }%`}</span>
-                            </span>
-                          </StyledTableCell>
+                  <Box sx={{ width: '50%', marginLeft: '40px' }}>
+                    <Table sx={{ height: '240px' }} aria-label='invoices table'>
+                      <TableHead>
+                        <StyledTableRow>
+                          <HeaderTableCell>Status</HeaderTableCell>
+                          <HeaderTableCell align='center'>
+                            Count
+                          </HeaderTableCell>
+                          <HeaderTableCell align='right'>
+                            Prices
+                          </HeaderTableCell>
                         </StyledTableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHead>
+                      <TableBody>
+                        {rows.map((row, index) => (
+                          <StyledTableRow key={row.name}>
+                            <StyledTableCell>
+                              <span>
+                                <TableStatusCircle
+                                  color={TableStatusColor[index]}
+                                />
+                                {row.name}
+                              </span>
+                            </StyledTableCell>
+                            <StyledTableCell align='center' scope='row'>
+                              {row.count}
+                            </StyledTableCell>
+                            <StyledTableCell>
+                              <span style={{ justifyContent: 'flex-end' }}>
+                                {row.sum}
+                                <span className='ratio'>{`${
+                                  row.sum / 3000
+                                }%`}</span>
+                              </span>
+                            </StyledTableCell>
+                          </StyledTableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          </GridItem>
-          {memberView && (
-            <GridItem width='269px' height={375} padding='0'>
-              <img
-                src='/images/dashboard/img_member_view.png'
-                alt='img'
-                style={{ width: '110%' }}
-              />
             </GridItem>
-          )}
+            {memberView && (
+              <GridItem width='269px' height={375} padding='0'>
+                <img
+                  src='/images/dashboard/img_member_view.png'
+                  alt='img'
+                  style={{ width: '110%' }}
+                />
+              </GridItem>
+            )}
+          </Grid>
+          <StatusAndList
+            userViewDate={userViewDate}
+            type='order'
+            statusColumn={StatusOrderColumns}
+            initSort={[
+              {
+                field: 'category',
+                sort: 'desc',
+              },
+            ]}
+            from={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[0]) || null,
+            )}
+            to={getDateFormat(
+              (Array.isArray(dateRange) && dateRange[1]) || null,
+            )}
+          />
+          <Grid container spacing={5}>
+            <DoughnutChart<PairRatioItem>
+              userViewDate={userViewDate}
+              title='Language pairs'
+              from={getDateFormat(
+                (Array.isArray(dateRange) && dateRange[0]) || null,
+              )}
+              to={getDateFormat(
+                (Array.isArray(dateRange) && dateRange[1]) || null,
+              )}
+              type='language-pair'
+              colors={SecondColors}
+              getName={item => {
+                console.log(item)
+                return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
+              }}
+            />
+            <DoughnutChart<CategoryRatioItem>
+              userViewDate={userViewDate}
+              title='Categories'
+              from={getDateFormat(
+                (Array.isArray(dateRange) && dateRange[0]) || null,
+              )}
+              to={getDateFormat(
+                (Array.isArray(dateRange) && dateRange[1]) || null,
+              )}
+              type='category'
+              colors={Colors}
+              getName={item => {
+                return `${item?.category || '-'}`
+              }}
+            />
+          </Grid>
+          <Grid container spacing={5}>
+            <DoughnutChart<ServiceRatioItem>
+              userViewDate={userViewDate}
+              title='Service types'
+              from={getDateFormat(
+                (Array.isArray(dateRange) && dateRange[0]) || null,
+              )}
+              to={getDateFormat(
+                (Array.isArray(dateRange) && dateRange[1]) || null,
+              )}
+              type='service-type'
+              colors={SecondColors}
+              getName={item => {
+                return `${item?.serviceType || '-'}`
+              }}
+            />
+            <DoughnutChart<ExpertiseRatioItem>
+              userViewDate={userViewDate}
+              title='Area of expertises'
+              from={getDateFormat(
+                (Array.isArray(dateRange) && dateRange[0]) || null,
+              )}
+              to={getDateFormat(
+                (Array.isArray(dateRange) && dateRange[1]) || null,
+              )}
+              type='expertise'
+              colors={Colors}
+              getName={item => {
+                return `${item?.expertise || '-'}`
+              }}
+            />
+          </Grid>
         </Grid>
-        <StatusAndList
-          userViewDate={userViewDate}
-          type='order'
-          statusColumn={StatusOrderColumns}
-          initSort={[
-            {
-              field: 'category',
-              sort: 'desc',
-            },
-          ]}
-          from={getDateFormat(
-            (Array.isArray(dateRange) && dateRange[0]) || null,
-          )}
-          to={getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)}
+        <MemberSearchList
+          open={openDialog}
+          onClose={() => setOpenDialog(false)}
         />
-        <Grid container spacing={5}>
-          <DoughnutChart<PairRatioItem>
-            userViewDate={userViewDate}
-            title='Language pairs'
-            from={getDateFormat(
-              (Array.isArray(dateRange) && dateRange[0]) || null,
-            )}
-            to={getDateFormat(
-              (Array.isArray(dateRange) && dateRange[1]) || null,
-            )}
-            type='language-pair'
-            colors={SecondColors}
-            getName={item => {
-              console.log(item)
-              return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
-            }}
-          />
-          <DoughnutChart<CategoryRatioItem>
-            userViewDate={userViewDate}
-            title='Categories'
-            from={getDateFormat(
-              (Array.isArray(dateRange) && dateRange[0]) || null,
-            )}
-            to={getDateFormat(
-              (Array.isArray(dateRange) && dateRange[1]) || null,
-            )}
-            type='category'
-            colors={Colors}
-            getName={item => {
-              return `${item?.category || '-'}`
-            }}
-          />
-        </Grid>
-        <Grid container spacing={5}>
-          <DoughnutChart<ServiceRatioItem>
-            userViewDate={userViewDate}
-            title='Service types'
-            from={getDateFormat(
-              (Array.isArray(dateRange) && dateRange[0]) || null,
-            )}
-            to={getDateFormat(
-              (Array.isArray(dateRange) && dateRange[1]) || null,
-            )}
-            type='service-type'
-            colors={SecondColors}
-            getName={item => {
-              return `${item?.serviceType || '-'}`
-            }}
-          />
-          <DoughnutChart<ExpertiseRatioItem>
-            userViewDate={userViewDate}
-            title='Area of expertises'
-            from={getDateFormat(
-              (Array.isArray(dateRange) && dateRange[0]) || null,
-            )}
-            to={getDateFormat(
-              (Array.isArray(dateRange) && dateRange[1]) || null,
-            )}
-            type='expertise'
-            colors={Colors}
-            getName={item => {
-              return `${item?.expertise || '-'}`
-            }}
-          />
-        </Grid>
-      </Grid>
-      <MemberSearchList
-        open={openDialog}
-        onClose={() => setOpenDialog(false)}
-      />
-    </ApexChartWrapper>
+      </ApexChartWrapper>
+    </FormProvider>
   )
 }
 

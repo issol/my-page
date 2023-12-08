@@ -81,6 +81,14 @@ export type Currency =
 
 export type APIType = 'u' | 'cert'
 
+export type TotalItem = {
+  label: string
+  color: string
+  count: number
+  price: number
+  ratio: number
+}
+
 export interface RatioQuery extends DashboardQuery, Partial<ViewModeQuery> {
   type: string
   currency: Currency
