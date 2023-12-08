@@ -181,10 +181,13 @@ export const patchInvoiceStatus = async (
   invoiceStatus: number,
   reason?: ReasonType,
 ) => {
-  const { data } = await axios.patch(`/api/enough/u/invoice/receivable/${id}/set-status`, {
-    invoiceStatus: invoiceStatus,
-    reason: reason,
-  })
+  const { data } = await axios.patch(
+    `/api/enough/u/invoice/receivable/${id}/set-status`,
+    {
+      invoiceStatus: invoiceStatus,
+      reason: reason,
+    },
+  )
 
   return data
 }
@@ -194,7 +197,10 @@ export const patchInvoiceContactPerson = async (
   id: number,
   form: InvoiceReceivablePatchParamsType,
 ) => {
-  const { data } = await axios.patch(`/api/enough/u/invoice/receivable/${id}/set-contact-person`, { ...form })
+  const { data } = await axios.patch(
+    `/api/enough/u/invoice/receivable/${id}/set-contact-person`,
+    { ...form },
+  )
 
   return data
 }
