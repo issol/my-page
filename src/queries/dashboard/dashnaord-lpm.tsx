@@ -2,17 +2,23 @@ import { useQuery } from 'react-query'
 
 import {
   getCount,
+  getLongStanding,
   getMemberList,
   getOrders,
   getRatio,
   getReport,
   getRequest,
 } from '@src/apis/dashboard/lpm'
-import type { DashboardQuery, ViewMode } from '@src/types/dashboard'
+import type {
+  DashboardQuery,
+  RequestQuery,
+  ViewMode,
+} from '@src/types/dashboard'
 import {
   CountQuery,
   DashboardMemberQuery,
   DashboardPaginationQuery,
+  LongStandingQuery,
   RatioItem,
   RatioQuery,
   RatioResponse,
@@ -21,6 +27,8 @@ import { useRecoilValue } from 'recoil'
 import { dashboardState } from '@src/states/dashboard'
 
 export const DEFAULT_QUERY_NAME = 'dashboard'
+export const NO_DATE_EFFECT = 'noDateEffect'
+export const PAGINATION = 'pagination'
 
 const getUserViewModeInfo = (): { userId: number | null; view: ViewMode } => {
   const auth = JSON.parse(window.sessionStorage.getItem('userData') || '')
@@ -62,10 +70,7 @@ export const useDashboardReport = (query: DashboardQuery) => {
   )
 }
 
-export const useDashboardRequest = (
-  query: DashboardPaginationQuery,
-  skip: number,
-) => {
+export const useDashboardRequest = (query: RequestQuery, skip: number) => {
   const { userId: initUserId, view: initView } = getUserViewModeInfo()
   const { view: changeView, userId: changeUserId } =
     useRecoilValue(dashboardState)
@@ -216,4 +221,31 @@ export const useDashboardMemberList = ({
 
 export const useJobRolePoolList = () => {
   return useQuery([DEFAULT_QUERY_NAME, 'role'], () => {})
+}
+
+export const useLongStanding = (params: LongStandingQuery) => {
+  const { userId: initUserId, view: initView } = getUserViewModeInfo()
+  const { view: changeView, userId: changeUserId } =
+    useRecoilValue(dashboardState)
+  const view = changeView ? changeView : initView
+  const userId = changeUserId ? changeUserId : initUserId
+
+  return useQuery(
+    [
+      DEFAULT_QUERY_NAME,
+      NO_DATE_EFFECT,
+      PAGINATION,
+      view,
+      userId,
+      params.dataType,
+      params.skip,
+      { sort: params.sort, ordering: params.ordering },
+    ],
+    () => getLongStanding({ ...params, view, userId }),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
 }

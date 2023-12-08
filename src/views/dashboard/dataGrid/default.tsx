@@ -15,7 +15,7 @@ interface DefaultDataGridProps<T> {
   setSortModel: Dispatch<GridSortModel>
   defaultPageSize: number
   setSkip: Dispatch<number>
-  onRowClick: (
+  onRowClick?: (
     params: GridRowParams,
     event: MuiEvent<React.MouseEvent>,
     details: GridCallbackDetails,
@@ -48,7 +48,7 @@ const DefaultDataGrid = <T extends { totalCount: number; data: Array<T> }>({
       pageSize={pageSize}
       onPageSizeChange={pageSize => setPageSize(pageSize)}
       paginationMode='server'
-      rows={data.data || []}
+      rows={data?.data || []}
       columns={columns}
       rowCount={data?.totalCount || 0}
       onRowClick={onRowClick}

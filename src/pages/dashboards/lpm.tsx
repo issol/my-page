@@ -34,6 +34,8 @@ import {
 import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import { Archive, MonetizationOn } from '@mui/icons-material'
 import {
+  PayablesColumns,
+  ReceivableColumns,
   RequestColumns,
   StatusJobColumns,
   StatusOrderColumns,
@@ -43,6 +45,7 @@ import Information from '@src/views/dashboard/dialog/information'
 import Total from '@src/views/dashboard/chart/total'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
+import LongStandingDataGrid from '@src/views/dashboard/dataGrid/longStanding'
 
 dayjs.extend(weekday)
 
@@ -305,7 +308,16 @@ const LPMDashboards = () => {
                   postfix=' (32)'
                   openDialog={setOpenInfoDialog}
                 />
-                <Box>sd</Box>
+                <LongStandingDataGrid
+                  type='receivable'
+                  columns={ReceivableColumns}
+                  initSort={[
+                    {
+                      field: 'client',
+                      sort: 'desc',
+                    },
+                  ]}
+                />
               </Box>
             </GridItem>
           </Grid>
@@ -320,7 +332,16 @@ const LPMDashboards = () => {
                   postfix=' (22)'
                   openDialog={setOpenInfoDialog}
                 />
-                <Box>sd</Box>
+                <LongStandingDataGrid
+                  type='payable'
+                  columns={PayablesColumns}
+                  initSort={[
+                    {
+                      field: 'category',
+                      sort: 'desc',
+                    },
+                  ]}
+                />
               </Box>
             </GridItem>
           </Grid>

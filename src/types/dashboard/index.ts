@@ -13,10 +13,27 @@ export interface DashboardQuery extends Partial<ViewModeQuery> {
 }
 
 export type RequestType = 'new' | 'recruiting'
-export interface DashboardPaginationQuery extends Partial<ViewModeQuery> {
-  type: RequestType
+
+export type ViewType = 'created' | 'invoiced' | 'canceled' | 'ongoing'
+
+export type OrderType = 'asc' | 'desc'
+
+export interface SortOptions {
+  sort: string
+  ordering: OrderType
+}
+
+export interface DashboardPaginationQuery
+  extends Partial<ViewModeQuery>,
+    Partial<SortOptions> {
   take: number
   skip: number
+}
+
+export interface RequestQuery
+  extends DashboardPaginationQuery,
+    Partial<ViewModeQuery> {
+  type: RequestType
 }
 
 export interface DashboardMemberQuery
@@ -143,10 +160,6 @@ export type MemberItem = {
   deletedAt: string | Date
 }
 
-export type ViewType = 'created' | 'invoiced' | 'canceled' | 'ongoing'
-
-export type OrderType = 'asc' | 'desc'
-
 export interface CountQuery
   extends DashboardQuery,
     Omit<DashboardPaginationQuery, 'type'>,
@@ -155,4 +168,53 @@ export interface CountQuery
   countType: 'job' | 'order'
   sort: string
   ordering: OrderType
+}
+
+export type LongStandingReceivableItem = {
+  id: number
+  corporationId: string
+  status: string
+  projectName: string
+  category: string
+  serviceType: string
+  totalPrice: number
+  currency: Currency
+  client: {
+    id: number
+    name: string
+    email: string
+  }
+}
+
+export type LongStandingPayablesItem = {
+  id: number
+  corporationId: string
+  currency: Currency
+  totalPrice: number
+  invoicedAt: string
+  invoicedTimezone: {
+    code: string
+    label: string
+    phone: string
+  }
+  payDueAt: string
+  payDueTimezone: {
+    code: string
+    label: string
+    phone: string
+  }
+  statusUpdatedAt: string
+  pro: {
+    userId: number
+    email: string
+    firstName: string
+    middleName: string
+    lastName: 'Last'
+  }
+  status: string
+}
+
+export type LongStandingDataType = 'receivable' | 'payable'
+export interface LongStandingQuery extends DashboardPaginationQuery {
+  dataType: LongStandingDataType
 }

@@ -1,5 +1,11 @@
 import { GridColumns } from '@mui/x-data-grid'
-import { JobItem, OrderItem, RequestItem } from '@src/types/dashboard'
+import {
+  JobItem,
+  LongStandingPayablesItem,
+  LongStandingReceivableItem,
+  OrderItem,
+  RequestItem,
+} from '@src/types/dashboard'
 import { StatusSquare } from '@src/views/dashboard/dashboardItem'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
@@ -12,6 +18,7 @@ import {
   OrderStatusChip,
   RoleChip,
   ServiceTypeChip,
+  WorkStatusChip,
 } from '@src/@core/components/chips/chips'
 import { Box } from '@mui/material'
 import { Inbox } from '@mui/icons-material'
@@ -503,5 +510,161 @@ export const upcomingColumns: GridColumns = [
     headerName: 'dueAt',
     renderHeader: () => <Box>Job due Date / Time left</Box>,
     renderCell: ({ row }) => <Typography fontSize='14px'>23432</Typography>,
+  },
+]
+
+export const ReceivableColumns: GridColumns = [
+  {
+    field: 'corporationId',
+    headerName: 'No',
+    minWidth: 192,
+    renderHeader: () => <Box>No.</Box>,
+    renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      return <Box>{row.corporationId}</Box>
+    },
+  },
+  {
+    field: 'status',
+    headerName: 'status',
+    minWidth: 192,
+    renderHeader: () => <Box>Status</Box>,
+    renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      return <Box>{WorkStatusChip(row.status)}</Box>
+    },
+  },
+  {
+    field: 'client',
+    headerName: 'client / Email',
+    minWidth: 220,
+    renderHeader: () => <Box>Client / Email</Box>,
+    renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      return (
+        <Box>
+          <Typography fontSize='14px' fontWeight={600}>
+            {row.client.name || '-'}
+          </Typography>
+          <Typography color='#4C4E6499' fontSize='14px'>
+            {row.client.email || '-'}
+          </Typography>
+        </Box>
+      )
+    },
+  },
+  {
+    field: 'projectName',
+    headerName: 'Project name',
+    minWidth: 220,
+    renderHeader: () => <Box>Project name</Box>,
+    renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      return <div>{row.projectName}</div>
+    },
+  },
+  {
+    field: 'category',
+    headerName: 'Category / Service type',
+    minWidth: 320,
+    flex: 1,
+    renderHeader: () => <Box>Category / Service type</Box>,
+    renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      return (
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          gap='10px'
+          sx={{ width: '340px' }}
+        >
+          <Box display='flex' gap='10px'>
+            {row.category ? (
+              <JobTypeChip type={row.category} label={row.category} />
+            ) : (
+              '-'
+            )}
+            {row.serviceType ? (
+              <ServiceTypeChip label={row.serviceType} />
+            ) : (
+              '-'
+            )}
+          </Box>
+        </Box>
+      )
+    },
+  },
+  {
+    field: 'totalPrice',
+    headerName: 'Total price',
+    minWidth: 220,
+    renderHeader: () => <Box>Total price</Box>,
+    renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      return <Box>{row.totalPrice.toLocaleString()}</Box>
+    },
+  },
+]
+
+export const PayablesColumns: GridColumns = [
+  {
+    field: 'corporationId',
+    headerName: 'No',
+    minWidth: 192,
+    renderHeader: () => <Box>No.</Box>,
+    renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
+      return <Box>{row.corporationId}</Box>
+    },
+  },
+  {
+    field: 'status',
+    headerName: 'status',
+    minWidth: 192,
+    renderHeader: () => <Box>Status</Box>,
+    renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
+      return <Box>{WorkStatusChip(row.status)}</Box>
+    },
+  },
+  {
+    field: 'pro',
+    headerName: 'Pro / Email',
+    minWidth: 220,
+    renderHeader: () => <Box>Pro / Email</Box>,
+    renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
+      return (
+        <Box>
+          <Typography fontSize='14px' fontWeight={600}>
+            {`${row.pro?.firstName || '-'} ${row.pro?.middleName || '-'} ${
+              row.pro?.lastName || '-'
+            }` || '-'}
+          </Typography>
+          <Typography color='#4C4E6499' fontSize='14px'>
+            {row.pro.email || '-'}
+          </Typography>
+        </Box>
+      )
+    },
+  },
+  {
+    field: 'invoicedAt',
+    headerName: 'invoicedAt',
+    minWidth: 220,
+    renderHeader: () => <Box>Invoice date</Box>,
+    renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
+      return <div>{row.invoicedAt}</div>
+    },
+  },
+  {
+    field: 'invoicedAt',
+    headerName: 'payDueAt',
+    minWidth: 220,
+    renderHeader: () => <Box>Payment due</Box>,
+    renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
+      return <div>{row.payDueAt}</div>
+    },
+  },
+  {
+    field: 'totalPrice',
+    headerName: 'Total price',
+    minWidth: 220,
+    renderHeader: () => <Box>Total price</Box>,
+    renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
+      return <Box>{row.totalPrice.toLocaleString()}</Box>
+    },
   },
 ]

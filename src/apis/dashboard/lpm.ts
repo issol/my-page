@@ -1,12 +1,13 @@
-import { ClientDetailType } from '@src/types/client/client'
 import axios from '@src/configs/axios'
 import {
   CountQuery,
   DashboardMemberQuery,
   DashboardPaginationQuery,
   DashboardQuery,
+  LongStandingQuery,
   RatioQuery,
   ReportItem,
+  RequestQuery,
 } from '@src/types/dashboard'
 
 export const getReport = async (
@@ -18,10 +19,7 @@ export const getReport = async (
   return data
 }
 
-export const getRequest = async ({
-  type,
-  ...params
-}: DashboardPaginationQuery) => {
+export const getRequest = async ({ type, ...params }: RequestQuery) => {
   const { data } = await axios.get(
     `/api/enough/u/dashboard/client-request/list/${type}`,
     {
@@ -66,5 +64,16 @@ export const getMemberList = async (params: DashboardMemberQuery) => {
 
 export const getJobRolePool = async () => {
   const { data } = await axios.get('/api/enough/cert/dashboard/job-type/count')
+  return data
+}
+
+export const getLongStanding = async ({
+  dataType,
+  ...params
+}: LongStandingQuery) => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/invoice/${dataType}/list/long-standing`,
+    { params },
+  )
   return data
 }
