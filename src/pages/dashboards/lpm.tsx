@@ -39,7 +39,7 @@ import {
   StatusOrderColumns,
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
-import InfoDialog from '@src/views/dashboard/infoDialog'
+import Information from '@src/views/dashboard/dialog/information'
 import TotalChart from '@src/views/dashboard/totalChart'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
@@ -409,7 +409,7 @@ const LPMDashboards = () => {
           </Grid>
         </Grid>
 
-        <InfoDialog
+        <Information
           open={isShowInfoDialog}
           keyName={infoDialogKey}
           infoType='LPM'

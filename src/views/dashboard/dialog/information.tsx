@@ -64,7 +64,7 @@ interface InfoDialogProps {
   infoType: 'LPM' | 'TAD' | 'CLIENT' | 'PRO'
   close: () => void
 }
-const InfoDialog = ({ keyName, open, infoType, close }: InfoDialogProps) => {
+const Information = ({ keyName, open, infoType, close }: InfoDialogProps) => {
   const [title, content] = useMemo(() => {
     const _content1 = INFO_CONTENTS[infoType][keyName]
     if (_content1) {
@@ -143,4 +143,4 @@ const InfoDialog = ({ keyName, open, infoType, close }: InfoDialogProps) => {
   )
 }
 
-export default InfoDialog
+export default Information

@@ -18,7 +18,7 @@ import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import { dashboardState } from '@src/states/dashboard'
 import { authState } from '@src/states/auth'
 import { currentRoleSelector } from '@src/states/permission'
-import MemberSearchList from '@src/views/dashboard/member-search'
+import MemberSearchList from '@src/views/dashboard/dialog/memberSearch'
 
 interface SwitchTypeHeaderProps {
   isShowMemberView: boolean
