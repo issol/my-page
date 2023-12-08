@@ -1,119 +1,44 @@
 import Grid from '@mui/material/Grid'
 import {
+  ChartBoxIcon,
   GridItem,
-  JobList,
   SectionTitle,
   SubDateDescription,
-  TitleIcon,
 } from '@src/views/dashboard/dashboardItem'
-import { Box, ButtonGroup, Stack } from '@mui/material'
+import { Box, Stack } from '@mui/material'
 import dayjs from 'dayjs'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Typography from '@mui/material/Typography'
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form'
-import Button from '@mui/material/Button'
-import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import DatePicker from 'react-datepicker'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import React, { useCallback, useState } from 'react'
+import { FormProvider } from 'react-hook-form'
+import React from 'react'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
-// ** Custom Components Imports
 import weekday from 'dayjs/plugin/weekday'
 import {
-  CheckCircleOutlined,
   CheckCircleSharp,
   KeyboardArrowRight,
   WatchLaterRounded,
 } from '@mui/icons-material'
 import { upcomingColumns } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
-import {
-  DashboardForm,
-  DEFAULT_LAST_DATE,
-  DEFAULT_START_DATE,
-  getDateFormatter,
-  getRangeDateTitle,
-  SelectedRangeDate,
-} from '@src/pages/dashboards/lpm'
 import { DataGrid } from '@mui/x-data-grid'
 import RequestBarChart from '@src/views/dashboard/requestBarChart'
 import Switch from '@mui/material/Switch'
 import CurrencyList from '@src/views/dashboard/currencyList'
 import InvoiceTab from '@src/views/dashboard/invoiceTab'
-import SwiperControls from '@src/views/dashboard/swiper'
 import Chip from '@mui/material/Chip'
 import ChartDateHeader from '@src/views/dashboard/chartDateHeader'
+import UseDashboardControl from '@src/hooks/useDashboardControl'
+import JobList from '@src/views/dashboard/list/job'
 
 dayjs.extend(weekday)
 
-const TADDashboards = () => {
+const ProDashboards = () => {
   const router = useRouter()
-
-  const { control, setValue, ...props } = useForm<DashboardForm>({
-    defaultValues: {
-      dateRange: [DEFAULT_START_DATE, DEFAULT_LAST_DATE],
-      userViewDate: getRangeDateTitle(DEFAULT_START_DATE, DEFAULT_LAST_DATE),
-      selectedRangeDate: 'month',
-      viewSwitch: true,
-    },
-  })
-
-  const [dateRange, selectedRangeDate, userViewDate] = useWatch({
-    control,
-    name: ['dateRange', 'selectedRangeDate', 'userViewDate'],
-  })
-
-  const onChangeDateRange = useCallback(
-    (type: SelectedRangeDate) => {
-      setValue('selectedRangeDate', type)
-
-      switch (type) {
-        case 'month':
-          const dates = [
-            dayjs().set('date', 1).toDate(),
-            dayjs().set('date', dayjs().daysInMonth()).toDate(),
-          ]
-
-          const title1 = getDateFormatter(dates[0], dates[1]) || '-'
-          setValue('userViewDate', title1)
-          setValue('dateRange', dates)
-          break
-        case 'today':
-          const title2 = getDateFormatter(new Date(), null) || '-'
-
-          setValue('userViewDate', title2)
-          setValue('dateRange', [new Date(), null])
-          break
-        case 'week':
-          const title3 =
-            getDateFormatter(
-              dayjs().day(0).toDate(),
-              dayjs().day(6).toDate(),
-            ) || '-'
-          setValue('userViewDate', title3)
-          setValue('dateRange', [
-            dayjs().day(0).toDate(),
-            dayjs().day(6).toDate(),
-          ])
-          break
-        default:
-          break
-      }
-    },
-    [dateRange, selectedRangeDate],
-  )
-
-  const onChangeDatePicker = (
-    date: Array<Date | null> | null,
-    onChange: (date: Array<Date | null> | null) => void,
-  ) => {
-    if (!date || !date[0]) return
-
-    const title = getDateFormatter(date[0], date[1]) || '-'
-    setValue('userViewDate', title)
-    onChange(date)
-  }
+  const { formHook, infoDialog } = UseDashboardControl()
+  const { control, setValue, ...props } = formHook
+  const { isShowInfoDialog, infoDialogKey, setOpenInfoDialog, close } =
+    infoDialog
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
@@ -405,22 +330,12 @@ const TADDashboards = () => {
                     justifyContent='space-between'
                   >
                     <Box display='flex' alignItems='center' gap='16px'>
-                      <TitleIcon
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          backgroundColor: 'rgba(114, 225, 40, 0.1)',
-                        }}
-                      >
-                        <CheckCircleSharp
-                          className='icon'
-                          style={{
-                            width: '24px',
-                            height: '24px',
-                            color: 'rgba(114, 225, 40, 1)',
-                          }}
-                        />
-                      </TitleIcon>
+                      <ChartBoxIcon
+                        icon={CheckCircleSharp}
+                        boxSize='40px'
+                        color='114, 225, 40'
+                      />
+
                       <Box display='flex' flexDirection='column'>
                         <Typography
                           fontSize='12px'
@@ -463,22 +378,12 @@ const TADDashboards = () => {
                     justifyContent='space-between'
                   >
                     <Box display='flex' alignItems='center' gap='16px'>
-                      <TitleIcon
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          backgroundColor: 'rgba(224, 68, 64, 0.1)',
-                        }}
-                      >
-                        <WatchLaterRounded
-                          className='icon'
-                          style={{
-                            width: '24px',
-                            height: '24px',
-                            color: 'rgba(224, 68, 64, 1)',
-                          }}
-                        />
-                      </TitleIcon>
+                      <ChartBoxIcon
+                        icon={WatchLaterRounded}
+                        boxSize='40px'
+                        color='224, 68, 64'
+                      />
+
                       <Box display='flex' flexDirection='column'>
                         <Typography
                           fontSize='12px'
@@ -559,9 +464,9 @@ const CurrencyAmount = ({ amounts }: { amounts: Array<number> }) => {
   )
 }
 
-export default TADDashboards
+export default ProDashboards
 
-TADDashboards.acl = {
+ProDashboards.acl = {
   action: 'read',
   subject: 'client',
 }

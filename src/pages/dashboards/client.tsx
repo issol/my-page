@@ -2,38 +2,18 @@ import Grid from '@mui/material/Grid'
 import {
   ConvertButtonGroup,
   GridItem,
-  LinearMultiProgress,
   ReportItem,
   SectionTitle,
   SubDateDescription,
   TableStatusCircle,
-  TitleIcon,
 } from '@src/views/dashboard/dashboardItem'
-import {
-  Box,
-  ButtonGroup,
-  ListItemIcon,
-  ListItemText,
-  Menu,
-  MenuItem,
-} from '@mui/material'
+import { Box } from '@mui/material'
 import dayjs from 'dayjs'
-import {
-  DEFAULT_QUERY_NAME,
-  useDashboardReport,
-} from '@src/queries/dashboard/dashnaord-lpm'
+import { useDashboardReport } from '@src/queries/dashboard/dashnaord-lpm'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
-import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form'
-import Button from '@mui/material/Button'
-import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import DatePicker from 'react-datepicker'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import MoreVertIcon from '@mui/icons-material/MoreVert'
-import React, { MouseEvent, useCallback, useEffect, useState } from 'react'
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
-import DownloadIcon from '@mui/icons-material/Download'
+import { FormProvider, useWatch } from 'react-hook-form'
+import React, { useState } from 'react'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -57,27 +37,11 @@ import {
   ServiceRatioItem,
 } from '@src/types/dashboard'
 import StatusAndList from '@src/views/dashboard/statusAndList'
-import { useRecoilState, useRecoilValueLoadable } from 'recoil'
-import { authState } from '@src/states/auth'
-import { currentRoleSelector } from '@src/states/permission'
-import { dashboardState } from '@src/states/dashboard'
-import { useQueryClient } from 'react-query'
-import MemberSearchList from '@src/views/dashboard/member-search'
-import { PermissionChip } from '@src/@core/components/chips/chips'
-import { LogoutOutlined, ReceiptLong } from '@mui/icons-material'
 import { StatusOrderColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
-import {
-  DashboardForm,
-  DEFAULT_LAST_DATE,
-  DEFAULT_START_DATE,
-  getDateFormat,
-  getDateFormatter,
-  getRangeDateTitle,
-  SelectedRangeDate,
-  toCapitalize,
-} from '@src/pages/dashboards/lpm'
-import ChartDateHeader from '@src/views/dashboard/chartDateHeader'
+import { getDateFormat, toCapitalize } from '@src/pages/dashboards/lpm'
+import UseDashboardControl from '@src/hooks/useDashboardControl'
+import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
 
 dayjs.extend(weekday)
 
@@ -157,27 +121,15 @@ const rows = [
 ]
 
 const ClientDashboards = () => {
-  const queryClient = useQueryClient()
-  const [currency, setCurrency] = useState<Currency>('convertedToUSD')
+  const { formHook, infoDialog, memberView } = UseDashboardControl()
+  const { control, setValue, ...props } = formHook
+  const { isShowMemberView, showMemberView, hiddenMemberView } = memberView
+  const { isShowInfoDialog, infoDialogKey, setOpenInfoDialog, close } =
+    infoDialog
 
-  const { contents: auth, state: authFetchState } =
-    useRecoilValueLoadable(authState)
-  const { contents: role, state: roleFetchState } =
-    useRecoilValueLoadable(currentRoleSelector)
-  const [state, setState] = useRecoilState(dashboardState)
-
-  const { control, setValue, ...props } = useForm<DashboardForm>({
-    defaultValues: {
-      viewSwitch: false, // true = company - false = personal
-      dateRange: [DEFAULT_START_DATE, DEFAULT_LAST_DATE],
-      userViewDate: getRangeDateTitle(DEFAULT_START_DATE, DEFAULT_LAST_DATE),
-      selectedRangeDate: 'month',
-    },
-  })
-
-  const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
+  const [dateRange, userViewDate] = useWatch({
     control,
-    name: ['viewSwitch', 'dateRange', 'selectedRangeDate', 'userViewDate'],
+    name: ['dateRange', 'userViewDate'],
   })
 
   const { data: ReportData } = useDashboardReport({
@@ -185,75 +137,7 @@ const ClientDashboards = () => {
     to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const [memberView, setMemberView] = useState(false)
-  const [openDialog, setOpenDialog] = useState(false)
-  const open = Boolean(anchorEl)
-  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
-
-  useEffect(() => {
-    if (authFetchState !== 'hasValue' || roleFetchState !== 'hasValue') return
-    if (state.view !== null) return
-
-    if (role?.type === 'Master' || role?.type === 'Manager') {
-      setState({
-        view: 'company',
-        userId: auth?.user?.id || null,
-        role: role?.type,
-      })
-      setValue('view', 'company')
-      setValue('viewSwitch', true)
-    } else {
-      setState({
-        view: 'personal',
-        userId: auth?.user?.id || null,
-        role: role?.type,
-      })
-      setValue('view', 'personal')
-      setValue('viewSwitch', false)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (state.userInfo) {
-      setMemberView(true)
-      return
-    }
-
-    setMemberView(false)
-  }, [state.userInfo])
-
-  const onChangeViewMode = async (val: boolean) => {
-    if (val) {
-      setState({ ...state, view: 'personal' })
-    } else {
-      setState({ ...state, view: 'company' })
-    }
-    await queryClient.invalidateQueries({
-      queryKey: [DEFAULT_QUERY_NAME],
-    })
-  }
-
-  const onChangeMemberView = () => {
-    setOpenDialog(true)
-    handleClose()
-  }
-
-  const onChangeMyDashboard = async () => {
-    handleClose()
-    setState({
-      ...state,
-      userId: auth?.user?.id || null || state.userId,
-      userInfo: undefined,
-    })
-
-    await queryClient.invalidateQueries(DEFAULT_QUERY_NAME)
-  }
+  const [currency, setCurrency] = useState<Currency>('convertedToUSD')
 
   const onChangeCurrency = (type: Currency) => {
     setCurrency(type)
@@ -267,160 +151,11 @@ const ClientDashboards = () => {
           gap='24px'
           sx={{ minWidth: '1320px', overflowX: 'auto', padding: '10px' }}
         >
-          <Grid container gap='24px'>
-            {memberView ? (
-              <GridItem width={420} height={76}>
-                <Box sx={{ width: '100%' }}>
-                  <Box display='flex' gap='16px' alignItems='center'>
-                    <Typography fontSize='24px' fontWeight={500}>
-                      {`${state.userInfo?.firstName}`}
-                      {state.userInfo?.middleName &&
-                        `(${state.userInfo?.middleName})`}{' '}
-                      {state.userInfo?.lastName}
-                    </Typography>
-                    {PermissionChip(state.userInfo?.type || 'General')}
-                  </Box>
-                  <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
-                    {`${state.userInfo?.department || '-'} | ${
-                      state.userInfo?.jobTitle || '-'
-                    }`}
-                  </Typography>
-                </Box>
-              </GridItem>
-            ) : (
-              <GridItem width={290} height={76}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      color:
-                        state.view === 'company'
-                          ? 'rgba(102, 108, 255, 1)'
-                          : 'rgba(189, 189, 189, 1)',
-                    }}
-                  >
-                    Company view
-                  </Typography>
-                  <div style={{ width: '40px' }}>
-                    <Controller
-                      control={control}
-                      name='viewSwitch'
-                      defaultValue={false}
-                      render={({ field: { onChange, value } }) => (
-                        <Switch
-                          size='small'
-                          checked={value}
-                          inputProps={{ 'aria-label': 'controlled' }}
-                          sx={{
-                            '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                              color: '#666CFF',
-                              '.MuiSwitch-thumb': {
-                                color: '#666CFF',
-                              },
-                            },
-                            '.MuiSwitch-track': {
-                              backgroundColor: '#666CFF',
-                            },
-                          }}
-                          onChange={(event, val) => {
-                            onChangeViewMode(val)
-                            onChange(val)
-                          }}
-                        />
-                      )}
-                    />
-                  </div>
-                  <Typography
-                    sx={{
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      color:
-                        state.view === 'personal'
-                          ? 'rgba(102, 108, 255, 1)'
-                          : 'rgba(189, 189, 189, 1)',
-                    }}
-                  >
-                    Personal view
-                  </Typography>
-                </Box>
-              </GridItem>
-            )}
-            <ChartDateHeader />
-            <GridItem width={76} height={76}>
-              <Box>
-                <Button onClick={handleClick}>
-                  <MoreVertIcon
-                    sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
-                  />
-                </Button>
-                <Menu
-                  id='dashboard-menu'
-                  anchorEl={anchorEl}
-                  open={open}
-                  onClose={handleClose}
-                  MenuListProps={{
-                    'aria-labelledby': 'basic-button',
-                  }}
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                >
-                  <MenuItem
-                    onClick={handleClose}
-                    sx={{
-                      color: 'rgba(76, 78, 100, 0.87)',
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-                    >
-                      <DownloadIcon fontSize='small' />
-                    </ListItemIcon>
-                    <ListItemText>Download csv</ListItemText>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => onChangeMemberView()}
-                    sx={{
-                      display:
-                        role?.type === 'Master' || role?.type === 'Manager'
-                          ? 'flex'
-                          : 'none',
-                      color: 'rgba(76, 78, 100, 0.87)',
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-                    >
-                      <RemoveRedEyeIcon fontSize='small' />
-                    </ListItemIcon>
-                    <ListItemText>
-                      {memberView ? 'Change Member' : 'View member dashboard'}
-                    </ListItemText>
-                  </MenuItem>
-                  {memberView && (
-                    <MenuItem
-                      onClick={() => onChangeMyDashboard()}
-                      sx={{
-                        display: 'flex',
-                        color: 'rgba(76, 78, 100, 0.87)',
-                      }}
-                    >
-                      <ListItemIcon
-                        sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-                      >
-                        <LogoutOutlined fontSize='small' />
-                      </ListItemIcon>
-                      <ListItemText>Back to my dashboard</ListItemText>
-                    </MenuItem>
-                  )}
-                </Menu>
-              </Box>
-            </GridItem>
-          </Grid>
+          <SwitchTypeHeader
+            isShowMemberView={isShowMemberView}
+            hiddenMemberView={hiddenMemberView}
+            showMemberView={showMemberView}
+          />
           <Grid container gap='24px'>
             {!memberView && (
               <GridItem width={290} height={375}>
@@ -635,10 +370,6 @@ const ClientDashboards = () => {
             />
           </Grid>
         </Grid>
-        <MemberSearchList
-          open={openDialog}
-          onClose={() => setOpenDialog(false)}
-        />
       </ApexChartWrapper>
     </FormProvider>
   )

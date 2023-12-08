@@ -7,9 +7,9 @@ import {
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import { FormProvider, useWatch } from 'react-hook-form'
 import Button from '@mui/material/Button'
-import React, { useState } from 'react'
+import React from 'react'
 import DownloadIcon from '@mui/icons-material/Download'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
@@ -24,45 +24,31 @@ import {
 } from '@src/shared/const/dashboard/chart'
 import { CategoryRatioItem, ServiceRatioItem } from '@src/types/dashboard'
 import StatusAndList from '@src/views/dashboard/statusAndList'
-import MemberSearchList from '@src/views/dashboard/member-search'
 import { KeyboardArrowRight } from '@mui/icons-material'
 import {
   RecruitingRequestColumns,
   StatusOrderColumns,
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
-import {
-  DashboardForm,
-  DEFAULT_LAST_DATE,
-  DEFAULT_START_DATE,
-  getDateFormat,
-  getRangeDateTitle,
-} from '@src/pages/dashboards/lpm'
+import { getDateFormat } from '@src/pages/dashboards/lpm'
 import BarChart from '@src/views/dashboard/barChart'
 import JobDataTable from '@src/views/dashboard/jobDataTable'
 import ChartDateHeader from '@src/views/dashboard/chartDateHeader'
 import OnboardingList from '@src/views/dashboard/list/onboarding'
+import UseDashboardControl from '@src/hooks/useDashboardControl'
 
 dayjs.extend(weekday)
 
 const TADDashboards = () => {
   const router = useRouter()
-
-  const { control, setValue, ...props } = useForm<DashboardForm>({
-    defaultValues: {
-      dateRange: [DEFAULT_START_DATE, DEFAULT_LAST_DATE],
-      userViewDate: getRangeDateTitle(DEFAULT_START_DATE, DEFAULT_LAST_DATE),
-      selectedRangeDate: 'month',
-      viewSwitch: true,
-    },
-  })
-
+  const { formHook, infoDialog } = UseDashboardControl()
+  const { control, setValue, ...props } = formHook
+  const { isShowInfoDialog, infoDialogKey, setOpenInfoDialog, close } =
+    infoDialog
   const [dateRange, userViewDate] = useWatch({
     control,
     name: ['dateRange', 'userViewDate'],
   })
-
-  const [openDialog, setOpenDialog] = useState(false)
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
@@ -256,10 +242,6 @@ const TADDashboards = () => {
             />
           </Grid>
         </Grid>
-        <MemberSearchList
-          open={openDialog}
-          onClose={() => setOpenDialog(false)}
-        />
       </ApexChartWrapper>
     </FormProvider>
   )
