@@ -24,14 +24,14 @@ export type ProAppliedRolesType = {
     isPassed: boolean | null
     isExist: boolean
     isSkipped: boolean
-    testPaperFormLink: string
+    testPaperFormUrl: string
     testStartedAt: string | null
   }
   skillTest: {
     score: number | null
     isPassed: boolean
     isExist: boolean
-    testPaperFormLink: string
+    testPaperFormUrl: string
     testStartedAt: string | null
   }
   status: ProAppliedRolesStatusType

@@ -126,10 +126,10 @@ const ProAppliedRoles = ({
                     window.open(
                       row.status === 'Basic test Ready' ||
                         row.status === 'Basic in progress'
-                        ? row.basicTest?.testPaperFormLink
+                        ? row.basicTest?.testPaperFormUrl
                         : row.status === 'Skill test Ready' ||
                           row.status === 'Skill in progress'
-                        ? row.skillTest?.testPaperFormLink
+                        ? row.skillTest?.testPaperFormUrl
                         : '',
                       '_blank',
                     )
@@ -181,7 +181,11 @@ const ProAppliedRoles = ({
   }
 
   const onClickReason = (row: ProAppliedRolesType) => {
-    if (row.reason === null) return
+    if (
+      (row.status === 'Rejected by TAD' || row.status === 'Paused') &&
+      row.reason === null
+    )
+      return
     else {
       openModal({
         type: 'ReasonModal',
@@ -213,10 +217,10 @@ const ProAppliedRoles = ({
     //TODO Status 별로 업데이트 체크
     window.open(
       row.status === 'Basic test Ready' || row.status === 'Basic in progress'
-        ? row.basicTest?.testPaperFormLink
+        ? row.basicTest?.testPaperFormUrl
         : row.status === 'Skill test Ready' ||
           row.status === 'Skill in progress'
-        ? row.skillTest?.testPaperFormLink
+        ? row.skillTest?.testPaperFormUrl
         : '',
       '_blank',
     )

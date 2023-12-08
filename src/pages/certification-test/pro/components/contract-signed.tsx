@@ -1,4 +1,3 @@
-import { Icon } from '@iconify/react'
 import TabContext from '@mui/lab/TabContext'
 import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
@@ -17,12 +16,19 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { StyledViewer } from '@src/@core/components/editor/customEditor'
 import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 import { currentVersionType } from '@src/apis/contract.api'
+import { signContract } from '@src/apis/pro-certification-test/certification-tests'
+import { getUserInfo } from '@src/apis/user.api'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
+import { saveUserDataToBrowser } from '@src/shared/auth/storage'
+import { authState } from '@src/states/auth'
+import { currentRoleSelector } from '@src/states/permission'
+import { FileType } from '@src/types/common/file.type'
 import dayjs from 'dayjs'
 
 import { EditorState, convertFromRaw } from 'draft-js'
 import { set } from 'lodash'
+import { useRouter } from 'next/router'
 import {
   ChangeEvent,
   Dispatch,
@@ -32,7 +38,14 @@ import {
   useState,
   MouseEvent,
 } from 'react'
-import { Loadable } from 'recoil'
+import { useMutation } from 'react-query'
+import { Loadable, useSetRecoilState } from 'recoil'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
+import { getContractFilePath } from '@src/shared/transformer/filePath.transformer'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
+import toast from 'react-hot-toast'
 
 type Props = {
   privacyContract: currentVersionType
@@ -73,12 +86,63 @@ const ContractSigned = ({
   const [privacyChecked, setPrivacyChecked] = useState<boolean>(false)
   const [freelancerChecked, setFreelancerChecked] = useState<boolean>(false)
 
+  const [freelancerFile, setFreelancerFile] = useState<HTMLElement | null>(null)
+  const [privacyFile, setPrivacyFile] = useState<HTMLElement | null>(null)
+
+  const setCurrentRole = useSetRecoilState(currentRoleSelector)
+  const setAuth = useSetRecoilState(authState)
+  const router = useRouter()
+
+  const signContractMutation = useMutation(
+    (data: { type: 'nda' | 'contract'; file: string[] }) =>
+      signContract(data.type, data.file),
+    {
+      onSuccess: () => {
+        getUserInfo(auth.getValue().user?.userId!)
+          .then(value => {
+            console.log(value)
+
+            const profile = value
+            const userInfo = {
+              ...profile,
+              id: value.userId,
+              email: value.email,
+              username: `${profile.firstName} ${
+                profile?.middleName ? '(' + profile?.middleName + ')' : ''
+              } ${profile.lastName}`,
+              firstName: profile.firstName,
+              timezone: profile.timezone,
+            }
+            saveUserDataToBrowser(userInfo)
+            setAuth(prev => ({ ...prev, user: userInfo }))
+
+            // 컴퍼니 데이터 패칭이 늦어 auth-provider에서 company 데이터가 도착하기 전에 로직체크가 됨
+            // user, company 데이터를 동시에 set 하도록 변경
+
+            setCurrentRole(
+              value?.roles && value?.roles.length > 0 ? value?.roles[0] : null,
+            )
+          })
+          .catch(e => {
+            router.push('/login')
+          })
+
+        setSignContract(false)
+        setPrivacyChecked(false)
+        setFreelancerChecked(false)
+      },
+    },
+  )
+
   const handlePrivacyChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setPrivacyFile(document.getElementById('privacyDownloadItem'))
     setPrivacyChecked(event.target.checked)
   }
 
   const handleFreelancerChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setFreelancerFile(document.getElementById('freelancerDownloadItem'))
     setValue('privacy')
+
     setFreelancerChecked(event.target.checked)
   }
   const getAddress = (address: any) => {
@@ -297,11 +361,126 @@ const ContractSigned = ({
   }
 
   const onClickSubmit = () => {
-    //TODO API 연결 (성공 후 유저 데이터 쿼리 초기화 isSignedContract 재조회 필요)
-    setSignContract(false)
-    setPrivacyChecked(false)
+    //TODO API 연결 (성공 후 유저 데이터 쿼리 초기화 isSignedNDA 재조회 필요)
 
-    // closeModal('CancelSignNDAModal')
+    let fileInfo: FileType[] = []
+
+    if (freelancerFile && privacyFile) {
+      let data = new FormData()
+
+      const clonedFreelancerFile = freelancerFile.cloneNode(true) as HTMLElement
+      clonedFreelancerFile.style.position = 'absolute'
+      clonedFreelancerFile.style.left = '-9999px'
+      document.body.appendChild(clonedFreelancerFile)
+
+      const clonedPrivacyFile = privacyFile.cloneNode(true) as HTMLElement
+      clonedPrivacyFile.style.position = 'absolute'
+      clonedPrivacyFile.style.left = '-9999px'
+      document.body.appendChild(clonedPrivacyFile)
+
+      const freelancerPromise = html2canvas(clonedFreelancerFile).then(
+        canvas => {
+          const imgData = canvas.toDataURL('image/png')
+          const pdf = new jsPDF('p', 'mm')
+          const imgWidth = 210
+          const imgHeight = (canvas.height * imgWidth) / canvas.width
+          const pageHeight = 295
+          let heightLeft = imgHeight
+          let position = 0
+          heightLeft -= pageHeight
+          pdf.addImage(imgData, 'JPEG', 0, 10, imgWidth, imgHeight)
+          while (heightLeft >= 0) {
+            position = heightLeft - imgHeight
+            pdf.addPage()
+            pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
+            heightLeft -= pageHeight
+          }
+
+          let downloadFile = pdf.output('blob')
+
+          if (downloadFile) {
+            data.append(
+              'freelancer',
+              downloadFile,
+              `[${freelancerContractLanguage}] Freelancer contract.pdf`,
+            )
+          }
+        },
+      )
+      const privacyPromise = html2canvas(clonedPrivacyFile).then(canvas => {
+        const imgData = canvas.toDataURL('image/png')
+        const pdf = new jsPDF('p', 'mm')
+        const imgWidth = 210
+        const imgHeight = (canvas.height * imgWidth) / canvas.width
+        const pageHeight = 295
+        let heightLeft = imgHeight
+        let position = 0
+        heightLeft -= pageHeight
+        pdf.addImage(imgData, 'JPEG', 0, 10, imgWidth, imgHeight)
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight
+          pdf.addPage()
+          pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight)
+          heightLeft -= pageHeight
+        }
+
+        let downloadFile = pdf.output('blob')
+
+        if (downloadFile) {
+          data.append(
+            'privacy',
+            downloadFile,
+            `[${privacyContractLanguage}] Privacy contract.pdf`,
+          )
+        }
+      })
+
+      let paths: { path: string; size: number; name: string }[] = []
+      Promise.all([freelancerPromise, privacyPromise]).then(() => {
+        for (let [key, value] of data.entries()) {
+          const val = value as File
+          paths.push({
+            name: val.name,
+            path: getContractFilePath(
+              auth.getValue().user?.id!,
+              val.name as string,
+            ),
+            size: val.size,
+          })
+        }
+
+        const promiseArr = paths.map((url, idx) => {
+          return getUploadUrlforCommon(S3FileType.PRO_CONTRACT, url.path).then(
+            res => {
+              fileInfo.push({
+                name: url.name,
+                size: url.size,
+                file: url.path,
+              })
+              return uploadFileToS3(res.url, data)
+            },
+          )
+        })
+        Promise.all(promiseArr)
+          .then(res => {
+            console.log(res)
+            console.log(fileInfo)
+
+            signContractMutation.mutate({
+              type: 'contract',
+              file: fileInfo.map(file => file.name),
+            })
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    }
   }
 
   const handleMenuChange = (event: SyntheticEvent, newValue: MenuType) => {
@@ -359,7 +538,7 @@ const ContractSigned = ({
                 gap: '24px',
               }}
             >
-              <StyledViewer>
+              <StyledViewer id='freelancerDownloadItem'>
                 <Box
                   sx={{
                     padding: '20px',
@@ -378,7 +557,7 @@ const ContractSigned = ({
                     }}
                   >
                     <Typography variant='h6'>
-                      {freelancerContract.title}
+                      [{freelancerContractLanguage} Freelancer contract]
                     </Typography>
                     <Box
                       sx={{
@@ -496,7 +675,7 @@ const ContractSigned = ({
                 gap: '24px',
               }}
             >
-              <StyledViewer>
+              <StyledViewer id='privacyDownloadItem'>
                 <Box
                   sx={{
                     padding: '20px',
@@ -515,7 +694,7 @@ const ContractSigned = ({
                     }}
                   >
                     <Typography variant='h6'>
-                      {privacyContract.title}
+                      [{privacyContractLanguage} Privacy contract]
                     </Typography>
                     <Box
                       sx={{

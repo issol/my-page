@@ -64,6 +64,11 @@ const ProCertificationTest = () => {
     language: ndaLanguage,
   })
 
+  console.log(
+    appliedRoles?.data.filter(value => value.status === 'Contract required')
+      .length,
+  )
+
   const { data: privacyContractData, isLoading: privacyContractLoading } =
     useGetProContract({
       type: 'PRIVACY',
@@ -178,11 +183,11 @@ const ProCertificationTest = () => {
               </Box>
             </Box>
           )}
-          {!auth.getValue().user?.isSignToContract &&
+          {auth.getValue().user?.isSignToContract &&
           appliedRoles?.data &&
           appliedRoles?.data.filter(
             value => value.status === 'Contract required',
-          ).length === 0 ? null : (
+          ).length > 0 ? (
             <Box
               sx={{
                 border: '2px solid #666CFF',
@@ -242,8 +247,8 @@ const ProCertificationTest = () => {
                   alt='success'
                 />
               </Box>
-            </Box>
-          )}
+            </Box> // 'Contract required' 상태인 객체가 하나도 없는 경우의 코드
+          ) : null}
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <Suspense>
               <ProAppliedRoles
