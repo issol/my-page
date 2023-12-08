@@ -6,6 +6,7 @@ import {
   SectionTitle,
   StatusSquare,
   SubDateDescription,
+  Title,
 } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
@@ -84,6 +85,7 @@ interface DoughnutChartProps<T> {
   colors: Array<string>
   getName?: (row?: T) => string
   userViewDate: string
+  setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
 const DoughnutChart = <T extends RatioItem>({
@@ -95,6 +97,7 @@ const DoughnutChart = <T extends RatioItem>({
   colors,
   getName,
   userViewDate,
+  setOpenInfoDialog,
 }: DoughnutChartProps<T>) => {
   const theme = useTheme()
 
@@ -229,15 +232,13 @@ const DoughnutChart = <T extends RatioItem>({
           overflow: 'hidden',
         }}
       >
-        <Box sx={{ marginBottom: '30px' }}>
-          <SectionTitle>
-            <span className='title'>{title}</span>
-            <ErrorOutlineIcon className='info_icon' />
-          </SectionTitle>
-          <SubDateDescription textAlign='left'>
-            {userViewDate}
-          </SubDateDescription>
-        </Box>
+        <Title
+          marginBottom='30px'
+          title={title}
+          subTitle={userViewDate}
+          openDialog={setOpenInfoDialog}
+        />
+
         <Box display='flex' justifyContent='flex-end'>
           <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
         </Box>

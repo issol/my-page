@@ -211,6 +211,7 @@ const LPMDashboards = () => {
                 sort: 'desc',
               },
             ]}
+            setOpenInfoDialog={setOpenInfoDialog}
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
             )}
@@ -228,6 +229,7 @@ const LPMDashboards = () => {
                 sort: 'desc',
               },
             ]}
+            setOpenInfoDialog={setOpenInfoDialog}
             from={getDateFormat(
               (Array.isArray(dateRange) && dateRange[0]) || null,
             )}
@@ -334,6 +336,7 @@ const LPMDashboards = () => {
               )}
               type='client'
               colors={Colors}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
             <DoughnutChart<PairRatioItem>
               userViewDate={userViewDate}
@@ -349,6 +352,7 @@ const LPMDashboards = () => {
               getName={item => {
                 return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
               }}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
           <Grid container spacing={5}>
@@ -366,6 +370,7 @@ const LPMDashboards = () => {
               getName={item => {
                 return `${item?.category || '-'}`
               }}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
             <DoughnutChart<ServiceRatioItem>
               userViewDate={userViewDate}
@@ -381,6 +386,7 @@ const LPMDashboards = () => {
               getName={item => {
                 return `${item?.serviceType || '-'}`
               }}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
           <Grid container spacing={5}>
@@ -398,6 +404,7 @@ const LPMDashboards = () => {
               getName={item => {
                 return `${item?.expertise || '-'}`
               }}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
         </Grid>

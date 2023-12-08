@@ -1,4 +1,4 @@
-import React, { Dispatch } from 'react'
+import React, { Dispatch, useMemo } from 'react'
 import { Box } from '@mui/system'
 import { Dialog, Button } from '@mui/material'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
@@ -48,6 +48,16 @@ const INFO_CONTENTS: Record<InfoKey, Record<string, string>> = {
   PRO: {},
 }
 
+/**
+ * 다이얼로그와 타이틀이 상이할 때 정의
+ */
+export const ReplaceTitle: Record<string, string> = {
+  Clients: 'Sales per client',
+  'Language pairs': 'Sales per language',
+  'Main categories': 'Sales per category',
+  'Service types': 'Sales per service type',
+  'Area of expertises': 'Sales per area of expertise',
+}
 interface InfoDialogProps {
   keyName: string
   open: boolean
@@ -55,8 +65,16 @@ interface InfoDialogProps {
   close: () => void
 }
 const InfoDialog = ({ keyName, open, infoType, close }: InfoDialogProps) => {
-  const content = INFO_CONTENTS[infoType][keyName]
-  console.log(keyName, infoType, content)
+  const [title, content] = useMemo(() => {
+    const _content1 = INFO_CONTENTS[infoType][keyName]
+    if (_content1) {
+      return [keyName, _content1]
+    }
+
+    const _content2 = INFO_CONTENTS[infoType][ReplaceTitle[keyName]]
+    return [ReplaceTitle[keyName], _content2]
+  }, [keyName])
+
   return (
     <Dialog maxWidth='xs' aria-labelledby='info-dialog' open={open}>
       <Box
@@ -117,7 +135,7 @@ const InfoDialog = ({ keyName, open, infoType, close }: InfoDialogProps) => {
           color='rgba(76, 78, 100, 0.87)'
           sx={{ padding: '8px 0', textAlign: 'center' }}
         >
-          {keyName}
+          {title}
         </Typography>
         <Typography textAlign='center'>{content}</Typography>
       </Box>

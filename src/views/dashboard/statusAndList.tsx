@@ -4,6 +4,7 @@ import {
   GridItem,
   SectionTitle,
   SubDateDescription,
+  Title,
 } from '@src/views/dashboard/dashboardItem'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Grid from '@mui/material/Grid'
@@ -30,6 +31,7 @@ interface StatusAndListProps<T extends { id: number }> extends DashboardQuery {
   statusColumn: GridColumns<T>
   initSort: GridSortModel
   userViewDate: string
+  setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
 const StatusAndList = <T extends { id: number }>({
@@ -39,6 +41,7 @@ const StatusAndList = <T extends { id: number }>({
   statusColumn,
   initSort,
   userViewDate,
+  setOpenInfoDialog,
 }: StatusAndListProps<T>) => {
   const router = useRouter()
   const { data: countData } = useDashboardCount({ to, from })
@@ -81,20 +84,13 @@ const StatusAndList = <T extends { id: number }>({
       <Grid item display='flex' flexDirection='column' gap='24px'>
         <GridItem width={290} height={175}>
           <Box sx={{ width: '100%' }}>
-            <Box marginBottom='20px'>
-              <SectionTitle>
-                <span
-                  role='button'
-                  className='title'
-                  onClick={() => movePage()}
-                >
-                  Ongoing {`${type}s`}
-                </span>
+            <Title
+              title={`Ongoing ${type}s`}
+              marginBottom='20px'
+              handleClick={() => movePage()}
+              openDialog={setOpenInfoDialog}
+            />
 
-                <ErrorOutlineIcon className='info_icon' />
-                <KeyboardArrowRight className='arrow_icon' />
-              </SectionTitle>
-            </Box>
             <StatusSectionList style={{ padding: '20px 0' }}>
               <li
                 data-active={activeStatus === 'ongoing'}
@@ -121,23 +117,13 @@ const StatusAndList = <T extends { id: number }>({
         </GridItem>
         <GridItem width={290} height={290}>
           <Box sx={{ width: '100%', height: '100%' }}>
-            <Box marginBottom='20px'>
-              <SectionTitle>
-                <span
-                  role='button'
-                  className='title'
-                  onClick={() => movePage()}
-                >
-                  {toCapitalize(type)} status
-                </span>
-
-                <ErrorOutlineIcon className='info_icon' />
-                <KeyboardArrowRight className='arrow_icon' />
-              </SectionTitle>
-              <SubDateDescription textAlign='left'>
-                {userViewDate}
-              </SubDateDescription>
-            </Box>
+            <Title
+              title={`${toCapitalize(type)} status`}
+              marginBottom='20px'
+              handleClick={() => movePage()}
+              openDialog={setOpenInfoDialog}
+              subTitle={userViewDate}
+            />
             <StatusSectionList>
               <li
                 data-active={activeStatus === 'created'}
@@ -184,18 +170,13 @@ const StatusAndList = <T extends { id: number }>({
       </Grid>
       <GridItem sm height={489} padding='0'>
         <Box sx={{ width: '100%' }}>
-          <Box
-            display='flex'
-            alignItems='center'
-            sx={{ padding: '0 20px', height: '72px' }}
-          >
-            <SectionTitle>
-              <span className='title'>
-                Ongoing {type}s &gt; {toCapitalize(activeStatus)}{' '}
-                {`(${countData[activeStatus]})`}
-              </span>
-            </SectionTitle>
-          </Box>
+          <Title
+            title={`Ongoing ${type}s > ${toCapitalize(activeStatus)}`}
+            postfix={`(${countData[activeStatus]})`}
+            marginBottom='20px'
+            padding='20px 20px 0'
+            handleClick={() => movePage()}
+          />
           <Box
             sx={{
               width: '100%',

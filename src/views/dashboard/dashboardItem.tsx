@@ -457,7 +457,7 @@ export const LinearMultiProgress = ({ items }: LinearMultiProgressProps) => {
 
 interface SectionTitleProps {
   title: string
-  openDialog: (open: boolean, key: string) => void
+  openDialog?: (open: boolean, key: string) => void
   handleClick?: () => void
   marginBottom?: string
   padding?: string
@@ -489,16 +489,20 @@ export const Title = ({
           {title}
           {postfix}
         </span>
-        <ErrorOutlineIcon
-          className='info_icon'
-          onClick={() => openDialog(true, title)}
-        />
-        <KeyboardArrowRight
-          className='arrow_icon'
-          onClick={() => {
-            handleClick && handleClick()
-          }}
-        />
+        {openDialog && (
+          <>
+            <ErrorOutlineIcon
+              className='info_icon'
+              onClick={() => openDialog(true, title)}
+            />
+            <KeyboardArrowRight
+              className='arrow_icon'
+              onClick={() => {
+                handleClick && handleClick()
+              }}
+            />
+          </>
+        )}
       </SectionTitle>
       {subTitle && (
         <SubDateDescription textAlign='left'>{subTitle}</SubDateDescription>
