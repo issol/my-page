@@ -34,7 +34,7 @@ interface StatusAndListProps<T extends { id: number }> extends DashboardQuery {
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
-const StatusAndList = <T extends { id: number }>({
+const StatusAndDataGrid = <T extends { id: number }>({
   type = 'order',
   to,
   from,
@@ -287,4 +287,4 @@ const StatusSectionList = styled('ul')(() => {
   }
 })
 
-export default StatusAndList
+export default StatusAndDataGrid

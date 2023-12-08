@@ -1,19 +1,15 @@
-// ** MUI Imports
 import { useTheme } from '@mui/material/styles'
 import TablePagination from '@mui/material/TablePagination'
-// ** Third Party Imports
+
 import { ApexOptions } from 'apexcharts'
 
-// ** Custom Components Imports
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
 
-// ** Util Import
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import styled from '@emotion/styled'
-import { Box } from '@mui/material'
 import React, { useMemo } from 'react'
 
-const BarChart = () => {
+const TADLanguagePoolBarChart = () => {
   const theme = useTheme()
 
   const [page, setPage] = React.useState(2)
@@ -223,4 +219,4 @@ const CustomPagination = styled(TablePagination)(() => {
   }
 })
 
-export default BarChart
+export default TADLanguagePoolBarChart

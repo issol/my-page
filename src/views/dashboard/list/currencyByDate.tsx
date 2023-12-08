@@ -1,8 +1,9 @@
 import styled from '@emotion/styled'
 import { Box, Typography } from '@mui/material'
 import dayjs from 'dayjs'
+import React from 'react'
 
-const CurrencyList = () => {
+const CurrencyByDateList = () => {
   return (
     <Box>
       <Typography fontSize='14px' color='#4C4E64DE' fontWeight={600}>
@@ -27,6 +28,40 @@ const CurrencyList = () => {
         </li>
       </CurrencyItemList>
     </Box>
+  )
+}
+
+export const CurrencyAmount = ({ amounts }: { amounts: Array<number> }) => {
+  const CurrencyItems = [
+    { path: '/images/dashboard/img_usd.png', currency: '$' },
+    { path: '/images/dashboard/img_krw.png', currency: '₩' },
+    { path: '/images/dashboard/img_jpy.png', currency: '¥' },
+    { path: '/images/dashboard/img_sgd.png', currency: 'SGD' },
+  ]
+  return (
+    <>
+      {amounts.map((amount, index) => (
+        <Box key={`amount-${index}`} display='flex' alignItems='center'>
+          <img
+            style={{ height: '32px' }}
+            src={CurrencyItems[index].path}
+            alt='us icon'
+          />
+          <span style={{ fontSize: '16px', padding: '0 3px' }}>
+            {CurrencyItems[index].currency}
+          </span>
+          <Typography
+            display='flex'
+            alignItems='center'
+            fontSize='20px'
+            fontWeight={500}
+            sx={{ width: '96px' }}
+          >
+            {amount.toLocaleString()}
+          </Typography>
+        </Box>
+      ))}
+    </>
   )
 }
 
@@ -59,4 +94,4 @@ const CurrencyItemList = styled.ul(() => {
   }
 })
 
-export default CurrencyList
+export default CurrencyByDateList

@@ -21,8 +21,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
-// ** Custom Components Imports
-import DoughnutChart from '@src/views/dashboard/doughnutChart'
+import Doughnut from '@src/views/dashboard/chart/doughnut'
 import weekday from 'dayjs/plugin/weekday'
 import {
   Colors,
@@ -36,7 +35,7 @@ import {
   PairRatioItem,
   ServiceRatioItem,
 } from '@src/types/dashboard'
-import StatusAndList from '@src/views/dashboard/statusAndList'
+import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import { StatusOrderColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
 import { getDateFormat, toCapitalize } from '@src/pages/dashboards/lpm'
@@ -287,7 +286,7 @@ const ClientDashboards = () => {
               </GridItem>
             )}
           </Grid>
-          <StatusAndList
+          <StatusAndDataGrid
             userViewDate={userViewDate}
             type='order'
             statusColumn={StatusOrderColumns}
@@ -303,9 +302,10 @@ const ClientDashboards = () => {
             to={getDateFormat(
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
+            setOpenInfoDialog={setOpenInfoDialog}
           />
           <Grid container spacing={5}>
-            <DoughnutChart<PairRatioItem>
+            <Doughnut<PairRatioItem>
               userViewDate={userViewDate}
               title='Language pairs'
               from={getDateFormat(
@@ -320,8 +320,9 @@ const ClientDashboards = () => {
                 console.log(item)
                 return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
               }}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
-            <DoughnutChart<CategoryRatioItem>
+            <Doughnut<CategoryRatioItem>
               userViewDate={userViewDate}
               title='Categories'
               from={getDateFormat(
@@ -335,10 +336,11 @@ const ClientDashboards = () => {
               getName={item => {
                 return `${item?.category || '-'}`
               }}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
           <Grid container spacing={5}>
-            <DoughnutChart<ServiceRatioItem>
+            <Doughnut<ServiceRatioItem>
               userViewDate={userViewDate}
               title='Service types'
               from={getDateFormat(
@@ -352,8 +354,9 @@ const ClientDashboards = () => {
               getName={item => {
                 return `${item?.serviceType || '-'}`
               }}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
-            <DoughnutChart<ExpertiseRatioItem>
+            <Doughnut<ExpertiseRatioItem>
               userViewDate={userViewDate}
               title='Area of expertises'
               from={getDateFormat(
@@ -367,6 +370,7 @@ const ClientDashboards = () => {
               getName={item => {
                 return `${item?.expertise || '-'}`
               }}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
         </Grid>

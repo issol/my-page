@@ -18,7 +18,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import styled from '@emotion/styled'
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from '@src/@core/components/mui/chip'
 
 interface TotalChartProps {
   title: string
@@ -27,7 +27,7 @@ interface TotalChartProps {
   iconColor: string
 }
 
-const TotalChart = ({
+const TotalProgressChart = ({
   title,
   iconColor,
   icon,
@@ -160,4 +160,4 @@ const Cell = styled(TableCell)<{ color?: string }>(({ color }) => {
   }
 })
 
-export default TotalChart
+export default TotalProgressChart

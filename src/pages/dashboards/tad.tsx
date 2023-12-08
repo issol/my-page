@@ -14,8 +14,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
-// ** Custom Components Imports
-import DoughnutChart from '@src/views/dashboard/doughnutChart'
+import Doughnut from '@src/views/dashboard/chart/doughnut'
 import weekday from 'dayjs/plugin/weekday'
 import {
   Colors,
@@ -23,7 +22,7 @@ import {
   ThirdColors,
 } from '@src/shared/const/dashboard/chart'
 import { CategoryRatioItem, ServiceRatioItem } from '@src/types/dashboard'
-import StatusAndList from '@src/views/dashboard/statusAndList'
+import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import { KeyboardArrowRight } from '@mui/icons-material'
 import {
   RecruitingRequestColumns,
@@ -31,11 +30,12 @@ import {
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import { getDateFormat } from '@src/pages/dashboards/lpm'
-import BarChart from '@src/views/dashboard/barChart'
-import JobDataTable from '@src/views/dashboard/jobDataTable'
-import ChartDateHeader from '@src/views/dashboard/chartDateHeader'
+import TADLanguagePoolBarChart from '@src/views/dashboard/chart/languagePollBar'
+
+import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
 import OnboardingList from '@src/views/dashboard/list/onboarding'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
+import TADJobDataGrid from '@src/views/dashboard/dataGrid/jobAndRolePool'
 
 dayjs.extend(weekday)
 
@@ -53,7 +53,7 @@ const TADDashboards = () => {
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
-        <Grid container gap='24px' sx={{ minWidth: '1320px', padding: '10px' }}>
+        <Grid container gap='24px' sx={{ padding: '10px' }}>
           <ChartDateHeader />
           <GridItem width={207} height={76}>
             <Box>
@@ -66,18 +66,6 @@ const TADDashboards = () => {
               </Button>
             </Box>
           </GridItem>
-        </Grid>
-        <Grid
-          container
-          gap='24px'
-          sx={{
-            minWidth: '1320px',
-            height: 'calc(100vh - 220px)',
-            overflowX: 'auto',
-            overFlowY: 'scroll',
-            padding: '10px',
-          }}
-        >
           <Grid container gap='24px'>
             <GridItem width={490} height={267}>
               <Box sx={{ width: '100%' }}>
@@ -141,7 +129,7 @@ const TADDashboards = () => {
                     Total 210 Language pairs
                   </SubDateDescription>
                 </Box>
-                <BarChart />
+                <TADLanguagePoolBarChart />
               </Box>
             </GridItem>
             <GridItem sm height={496} padding='0'>
@@ -162,11 +150,11 @@ const TADDashboards = () => {
                     Total 210 Job type/Role
                   </SubDateDescription>
                 </Box>
-                <JobDataTable />
+                <TADJobDataGrid />
               </Box>
             </GridItem>
           </Grid>
-          <StatusAndList
+          <StatusAndDataGrid
             userViewDate={userViewDate}
             type='order'
             statusColumn={StatusOrderColumns}
@@ -182,10 +170,11 @@ const TADDashboards = () => {
             to={getDateFormat(
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
+            setOpenInfoDialog={setOpenInfoDialog}
           />
 
           <Grid container spacing={5}>
-            <DoughnutChart
+            <Doughnut
               apiType='cert'
               userViewDate={userViewDate}
               title='Applied job types'
@@ -197,8 +186,9 @@ const TADDashboards = () => {
               )}
               type='job-type'
               colors={Colors}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
-            <DoughnutChart
+            <Doughnut
               apiType='cert'
               userViewDate={userViewDate}
               title='Applied roles'
@@ -210,10 +200,11 @@ const TADDashboards = () => {
               )}
               type='role'
               colors={ThirdColors}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
           <Grid container spacing={5}>
-            <DoughnutChart<CategoryRatioItem>
+            <Doughnut<CategoryRatioItem>
               apiType='cert'
               userViewDate={userViewDate}
               title='Applied source languages'
@@ -225,9 +216,10 @@ const TADDashboards = () => {
               )}
               type='source-language'
               colors={SecondColors}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
 
-            <DoughnutChart<ServiceRatioItem>
+            <Doughnut<ServiceRatioItem>
               apiType='cert'
               userViewDate={userViewDate}
               title='Applied target languages'
@@ -239,6 +231,7 @@ const TADDashboards = () => {
               )}
               type='target-language'
               colors={SecondColors}
+              setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
         </Grid>

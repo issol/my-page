@@ -14,13 +14,12 @@ import React, { useState } from 'react'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 
-// ** Custom Components Imports
-import DoughnutChart from '@src/views/dashboard/doughnutChart'
+import Doughnut from '@src/views/dashboard/chart/doughnut'
 import weekday from 'dayjs/plugin/weekday'
 import {
+  Status,
   Colors,
   SecondColors,
-  Status,
   StatusColor,
 } from '@src/shared/const/dashboard/chart'
 import {
@@ -31,7 +30,8 @@ import {
   ServiceRatioItem,
   ViewMode,
 } from '@src/types/dashboard'
-import StatusAndList from '@src/views/dashboard/statusAndList'
+
+import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import { Archive, MonetizationOn } from '@mui/icons-material'
 import {
   RequestColumns,
@@ -40,7 +40,7 @@ import {
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import Information from '@src/views/dashboard/dialog/information'
-import TotalChart from '@src/views/dashboard/totalChart'
+import Total from '@src/views/dashboard/chart/total'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
 
@@ -201,7 +201,7 @@ const LPMDashboards = () => {
             {/*  </GridItem>*/}
             {/*)}*/}
           </Grid>
-          <StatusAndList
+          <StatusAndDataGrid
             userViewDate={userViewDate}
             type='order'
             statusColumn={StatusOrderColumns}
@@ -219,7 +219,7 @@ const LPMDashboards = () => {
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
           />
-          <StatusAndList
+          <StatusAndDataGrid
             userViewDate={userViewDate}
             type='job'
             statusColumn={StatusJobColumns}
@@ -278,7 +278,7 @@ const LPMDashboards = () => {
           </Grid>
           <Grid container gap='24px'>
             <GridItem height={525} xs={6}>
-              <TotalChart
+              <Total
                 title='Receivables - Total'
                 iconColor='114, 225, 40'
                 icon={Archive}
@@ -286,7 +286,7 @@ const LPMDashboards = () => {
               />
             </GridItem>
             <GridItem height={525} sm>
-              <TotalChart
+              <Total
                 title='Payables - Total'
                 icon={MonetizationOn}
                 iconColor='102, 108, 255'
@@ -325,7 +325,7 @@ const LPMDashboards = () => {
             </GridItem>
           </Grid>
           <Grid container spacing={5}>
-            <DoughnutChart
+            <Doughnut
               userViewDate={userViewDate}
               title='Clients'
               from={getDateFormat(
@@ -338,7 +338,7 @@ const LPMDashboards = () => {
               colors={Colors}
               setOpenInfoDialog={setOpenInfoDialog}
             />
-            <DoughnutChart<PairRatioItem>
+            <Doughnut<PairRatioItem>
               userViewDate={userViewDate}
               title='Language pairs'
               from={getDateFormat(
@@ -356,7 +356,7 @@ const LPMDashboards = () => {
             />
           </Grid>
           <Grid container spacing={5}>
-            <DoughnutChart<CategoryRatioItem>
+            <Doughnut<CategoryRatioItem>
               userViewDate={userViewDate}
               title='Main categories'
               from={getDateFormat(
@@ -372,7 +372,7 @@ const LPMDashboards = () => {
               }}
               setOpenInfoDialog={setOpenInfoDialog}
             />
-            <DoughnutChart<ServiceRatioItem>
+            <Doughnut<ServiceRatioItem>
               userViewDate={userViewDate}
               title='Service types'
               from={getDateFormat(
@@ -390,7 +390,7 @@ const LPMDashboards = () => {
             />
           </Grid>
           <Grid container spacing={5}>
-            <DoughnutChart<ExpertiseRatioItem>
+            <Doughnut<ExpertiseRatioItem>
               userViewDate={userViewDate}
               title='Area of expertises'
               from={getDateFormat(

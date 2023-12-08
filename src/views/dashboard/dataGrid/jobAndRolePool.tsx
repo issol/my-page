@@ -61,10 +61,10 @@ const TempData = {
   ],
 }
 
-const JobDataTable = () => {
+const TADJobDataGrid = () => {
   return (
     <div style={{ height: '400px', width: '100%' }}>
-      <CustomJobTable
+      <CustomDataGrid
         columns={JobTableColumn}
         rows={TempData.data.map((item, index) => ({
           numbering: index + 1,
@@ -76,7 +76,7 @@ const JobDataTable = () => {
   )
 }
 
-const CustomJobTable = styled(DataGrid)(() => {
+const CustomDataGrid = styled(DataGrid)(() => {
   return {
     '& .MuiDataGrid-virtualScroller': {
       marginTop: '38px !important',
@@ -124,4 +124,4 @@ const CustomJobTable = styled(DataGrid)(() => {
   }
 })
 
-export default JobDataTable
+export default TADJobDataGrid

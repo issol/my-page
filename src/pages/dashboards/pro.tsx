@@ -22,14 +22,17 @@ import {
 import { upcomingColumns } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import { DataGrid } from '@mui/x-data-grid'
-import RequestBarChart from '@src/views/dashboard/requestBarChart'
+
 import Switch from '@mui/material/Switch'
-import CurrencyList from '@src/views/dashboard/currencyList'
+import CurrencyByDateList, {
+  CurrencyAmount,
+} from '@src/views/dashboard/list/currencyByDate'
 import InvoiceTab from '@src/views/dashboard/invoiceTab'
 import Chip from '@mui/material/Chip'
-import ChartDateHeader from '@src/views/dashboard/chartDateHeader'
+import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import JobList from '@src/views/dashboard/list/job'
+import ProJobRequestBarChart from '@src/views/dashboard/chart/jobRequestBar'
 
 dayjs.extend(weekday)
 
@@ -156,7 +159,7 @@ const ProDashboards = () => {
                   <SubDateDescription textAlign='left'>
                     Based On March 1 - 31, 2023
                   </SubDateDescription>
-                  <RequestBarChart />
+                  <ProJobRequestBarChart />
                 </Box>
                 <Box
                   sx={{
@@ -197,7 +200,7 @@ const ProDashboards = () => {
                       Due date
                     </Typography>
                   </Box>
-                  <CurrencyList />
+                  <CurrencyByDateList />
                 </Box>
               </Box>
             </GridItem>
@@ -427,40 +430,6 @@ const ProDashboards = () => {
         </Grid>
       </ApexChartWrapper>
     </FormProvider>
-  )
-}
-
-const CurrencyAmount = ({ amounts }: { amounts: Array<number> }) => {
-  const CurrencyItems = [
-    { path: '/images/dashboard/img_usd.png', currency: '$' },
-    { path: '/images/dashboard/img_krw.png', currency: '₩' },
-    { path: '/images/dashboard/img_jpy.png', currency: '¥' },
-    { path: '/images/dashboard/img_sgd.png', currency: 'SGD' },
-  ]
-  return (
-    <>
-      {amounts.map((amount, index) => (
-        <Box display='flex' alignItems='center'>
-          <img
-            style={{ height: '32px' }}
-            src={CurrencyItems[index].path}
-            alt='us icon'
-          />
-          <span style={{ fontSize: '16px', padding: '0 3px' }}>
-            {CurrencyItems[index].currency}
-          </span>
-          <Typography
-            display='flex'
-            alignItems='center'
-            fontSize='20px'
-            fontWeight={500}
-            sx={{ width: '96px' }}
-          >
-            {amount.toLocaleString()}
-          </Typography>
-        </Box>
-      ))}
-    </>
   )
 }
 

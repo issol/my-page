@@ -18,7 +18,7 @@ const series = [
   },
 ]
 
-const RequestBarChart = () => {
+const ProJobRequestBarChart = () => {
   const theme = useTheme()
 
   const options: ApexOptions = {
@@ -127,4 +127,4 @@ export const CustomChart = styled(ReactApexcharts)(() => {
     },
   }
 })
-export default RequestBarChart
+export default ProJobRequestBarChart
