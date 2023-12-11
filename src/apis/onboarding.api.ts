@@ -75,6 +75,12 @@ export const addCreatedAppliedRole = async (payload: AddRolePayloadType[]) => {
   await axios.post('/api/enough/cert/request/role/generate', { data: payload })
 }
 
+export const addCreateProAppliedRole = async (
+  payload: AddRolePayloadType[],
+) => {
+  await axios.post('/api/enough/cert/request/role', { data: payload })
+}
+
 export const patchAppliedRole = async (
   id: number,
   reply: string,

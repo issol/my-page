@@ -25,7 +25,10 @@ import { getIsProBasicTestPassed } from '@src/apis/pro-certification-test/certif
 import { Loadable } from 'recoil'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { useMutation, useQueryClient } from 'react-query'
-import { addCreatedAppliedRole } from '@src/apis/onboarding.api'
+import {
+  addCreateProAppliedRole,
+  addCreatedAppliedRole,
+} from '@src/apis/onboarding.api'
 
 export type FilterType = {
   jobType: Array<{ label: string; value: string }>
@@ -71,7 +74,7 @@ const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
   )
 
   const applyTestMutation = useMutation(
-    (jobInfo: AddRolePayloadType[]) => addCreatedAppliedRole(jobInfo),
+    (jobInfo: AddRolePayloadType[]) => addCreateProAppliedRole(jobInfo),
     {
       onSuccess: (data, variables) => {
         closeModal('ApplyBasicPassedModal')

@@ -33,7 +33,7 @@ import ReasonModal from './modal/reson-modal'
 import TestGuidelineModal from './modal/test-guideline-modal'
 import NoList from '@src/pages/components/no-list'
 import { useMutation, useQueryClient } from 'react-query'
-import { patchTestStatus } from '@src/apis/onboarding.api'
+import { patchAppliedRole, patchTestStatus } from '@src/apis/onboarding.api'
 
 type Props = {
   role: UserRoleType
@@ -91,6 +91,17 @@ const ProAppliedRoles = ({
     },
   )
 
+  const replyAssignedMutation = useMutation(
+    (value: { id: number; reply: string }) =>
+      patchAppliedRole(value.id, value.reply),
+    {
+      onSuccess: (data, variables) => {
+        // queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
+        // queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(['Applied-roles'])
+      },
+    },
+  )
   const viewHistory = (history: ProAppliedRolesStatusHistoryType[] | null) => {
     openModal({
       type: 'ViewHistoryModal',
@@ -280,21 +291,28 @@ const ProAppliedRoles = ({
           }
           onClick={() => {
             //TODO : API call (applied roles query invalidate), status 별 분기
+            replyAssignedMutation.mutate({
+              id: row.id,
+              reply:
+                row.status === 'Test assigned'
+                  ? 'decline_test_pro'
+                  : 'decline_role_pro',
+            })
 
-            patchTestStatusMutation.mutate(
-              {
-                id: row.id,
-                status:
-                  row.status === 'Test assigned'
-                    ? 'Test declined'
-                    : 'Role declined',
-              },
-              {
-                onSuccess: () => {
-                  closeModal('DeclineModal')
-                },
-              },
-            )
+            // patchTestStatusMutation.mutate(
+            //   {
+            //     id: row.id,
+            //     status:
+            //       row.status === 'Test assigned'
+            //         ? 'Test declined'
+            //         : 'Role declined',
+            //   },
+            //   {
+            //     onSuccess: () => {
+            //       closeModal('DeclineModal')
+            //     },
+            //   },
+            // )
           }}
           rightButtonText='Decline'
         />
@@ -315,18 +333,22 @@ const ProAppliedRoles = ({
             }
             onClick={() => {
               //TODO : API call (applied roles query invalidate)
+              replyAssignedMutation.mutate({
+                id: row.id,
+                reply: 'assign_test_pro',
+              })
 
-              patchTestStatusMutation.mutate(
-                {
-                  id: row.id,
-                  status: 'Basic test Ready',
-                },
-                {
-                  onSuccess: () => {
-                    closeModal('AcceptModal')
-                  },
-                },
-              )
+              // patchTestStatusMutation.mutate(
+              //   {
+              //     id: row.id,
+              //     status: 'Basic test Ready',
+              //   },
+              //   {
+              //     onSuccess: () => {
+              //       closeModal('AcceptModal')
+              //     },
+              //   },
+              // )
             }}
             rightButtonText='Accept'
           />
@@ -343,17 +365,22 @@ const ProAppliedRoles = ({
               title={'Would you like to accept the role offer from TAD?'}
               onClick={() => {
                 //TODO : API call (applied roles query invalidate)
-                patchTestStatusMutation.mutate(
-                  {
-                    id: row.id,
-                    status: 'Contract required',
-                  },
-                  {
-                    onSuccess: () => {
-                      closeModal('AcceptModal')
-                    },
-                  },
-                )
+                replyAssignedMutation.mutate({
+                  id: row.id,
+                  reply: 'assign_role_pro',
+                })
+
+                // patchTestStatusMutation.mutate(
+                //   {
+                //     id: row.id,
+                //     status: ''Contract required,
+                //   },
+                //   {
+                //     onSuccess: () => {
+                //       closeModal('AcceptModal')
+                //     },
+                //   },
+                // )
               }}
               rightButtonText='Accept'
             />
