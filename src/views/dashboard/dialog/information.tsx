@@ -1,4 +1,4 @@
-import React, { Dispatch, useMemo } from 'react'
+import React, { Dispatch, ReactElement, useMemo } from 'react'
 import { Box } from '@mui/system'
 import { Dialog, Button } from '@mui/material'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import CloseIcon from '@mui/icons-material/Close'
 
 type InfoKey = 'LPM' | 'TAD' | 'CLIENT' | 'PRO'
-const INFO_CONTENTS: Record<InfoKey, Record<string, string>> = {
+const INFO_CONTENTS: Record<InfoKey, Record<string, string | ReactElement>> = {
   LPM: {
     'New requests':
       'It shows only those client requests that have not yet been processed. They are sorted according to how close they are to the desired due date, with those that are one day or less away from the desired due date displayed in red.',
@@ -43,7 +43,45 @@ const INFO_CONTENTS: Record<InfoKey, Record<string, string>> = {
     'Sales per area of expertise':
       "It shows the area(s) of expertise whose sales occurred during the time period set by the date filter, and includes only those whose order's project due date falls within the specified time period. If there are more than 7 areas of expertise, then it will show the 6 with the highest count and the rest will be grouped together as etc.",
   },
-  TAD: {},
+  TAD: {
+    'Number of Pros': (
+      <ul>
+        <li>
+          <b>Onboarded Pros</b> shows the number of Pros who have a certified
+          role and finished signing contracts.
+        </li>
+        <li>
+          <b>Onboarding in progress</b> shows the number of new Pros whose
+          onboarding process is in progress. It does not include cases where a
+          Pro has been already onboarded and is taking a new test.
+        </li>
+        <li>
+          <b>Failed Pros</b> shows the number of Pros who failed the test and
+          are unable to perform tasks. It does not include cases where a Pro who
+          failed a particular test has another Certified role or is taking
+          another test.
+        </li>
+      </ul>
+    ),
+    'Language pool':
+      'It shows the languages in which Pros are certified, from the most to least. This is based on the number of Pros who have that language, and multiple certifications for the same language by a single Pro are not counted as duplicates.',
+    'Job type/Role pool':
+      'It shows the Job type/Role in which Pros are certified, from the most to least. This is based on the number of Pros who have that Job type/Role, and multiple certifications for the same Job type/Role by a single Pro are not counted as duplicates.',
+    'Recruiting requests':
+      'It shows only those recruiting requests with an ongoing status. They are sorted from closest to the due date to the top, and those having one day or fewer until their due date are colored red.',
+    'Application status':
+      'Applied displays tests assigned during the set period, and it does not include tests requested by Pro/TAD but not actually assigned. Passed shows certified roles assigned during the set period, and Failed shows the list of fails from the Basic test and Skill test during the set period, while excluding tests taken in other time periods.',
+    'Ongoing applications':
+      'Ongoing displays test in progress as of the current time. It includes all the tests from Basic tests being taken at the moment to Skill tests before TAD determines pass or fail.',
+    'Applied job types':
+      'It shows the job type(s) applied during the time period set by the date filter. If there are more than 7 job types applied, it shows the 6 with the highest count, and the rest are grouped together as etc. It includes both direct test applications made by Pro and tests assigned by TAD.',
+    'Applied roles':
+      'It shows the role(s) applied during the time period set by the date filter. If there are more than 7 roles applied, it shows the 6 with the highest count, and the rest are grouped together as etc. It includes both direct test applications made by Pro and tests assigned by TAD.',
+    'Applied source languages':
+      'It shows the source language(s) applied during the time period set by the date filter. If there are more than 7 source languages applied, it shows the 6 with the highest count, and the rest are grouped together as etc. It includes both direct test applications made by Pro and tests assigned by TAD.',
+    'Applied target languages':
+      'It shows the target language(s) applied during the time period set by the date filter. If there are more than 7 target languages applied, it shows the 6 with the highest count, and the rest are grouped together as etc. It includes both direct test applications made by Pro and tests assigned by TAD.',
+  },
   CLIENT: {},
   PRO: {},
 }

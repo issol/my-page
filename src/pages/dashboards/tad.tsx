@@ -25,6 +25,7 @@ import { CategoryRatioItem, ServiceRatioItem } from '@src/types/dashboard'
 import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import { KeyboardArrowRight } from '@mui/icons-material'
 import {
+  RecruitingRequestColumn,
   RecruitingRequestColumns,
   StatusOrderColumns,
 } from '@src/shared/const/columns/dashboard'
@@ -36,6 +37,7 @@ import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
 import OnboardingList from '@src/views/dashboard/list/onboarding'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import TADJobDataGrid from '@src/views/dashboard/dataGrid/jobAndRolePool'
+import Information from '@src/views/dashboard/dialog/information'
 
 dayjs.extend(weekday)
 
@@ -99,13 +101,13 @@ const TADDashboards = () => {
                     <ErrorOutlineIcon className='info_icon' />
                     <KeyboardArrowRight className='arrow_icon' />
                   </SectionTitle>
-                </Box>{' '}
+                </Box>
                 <DashboardDataGrid
                   path='recruiting/dashboard/recruiting/list/ongoing'
                   sectionHeight={220}
                   pageNumber={3}
                   movePage={(id: number) => ''}
-                  columns={[]}
+                  columns={RecruitingRequestColumn}
                 />
               </Box>
             </GridItem>
@@ -235,6 +237,12 @@ const TADDashboards = () => {
             />
           </Grid>
         </Grid>
+        <Information
+          open={isShowInfoDialog}
+          keyName={infoDialogKey}
+          infoType='TAD'
+          close={close}
+        />
       </ApexChartWrapper>
     </FormProvider>
   )

@@ -255,9 +255,11 @@ export const useLongStanding = (params: LongStandingQuery) => {
   )
 }
 
+export type OverviewType = 'onboarded' | 'onboarding' | 'failed'
 export const useTADOnboarding = () => {
-  return useQuery([DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'Onboarding'], () =>
-    getOnboardingOverview(),
+  return useQuery<Record<OverviewType, number>>(
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'Onboarding'],
+    () => getOnboardingOverview(),
   )
 }
 

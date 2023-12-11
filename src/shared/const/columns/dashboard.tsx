@@ -4,6 +4,7 @@ import {
   LongStandingPayablesItem,
   LongStandingReceivableItem,
   OrderItem,
+  RecruitingRequest,
   RequestItem,
 } from '@src/types/dashboard'
 import { StatusSquare } from '@src/views/dashboard/dashboardItem'
@@ -23,7 +24,7 @@ import {
   WorkStatusChip,
 } from '@src/@core/components/chips/chips'
 import { Box } from '@mui/material'
-import { Inbox } from '@mui/icons-material'
+import { Inbox, Person } from '@mui/icons-material'
 import advancedFormat from 'dayjs/plugin/advancedFormat'
 import moment from 'moment-timezone'
 import Link from 'next/link'
@@ -263,6 +264,129 @@ export const RecruitingRequestColumns: GridColumns = [
           )
             .tz(timeZone)
             .format('MM/DD/YYYY hh:mm A (z)')}`}</Typography>
+        </Box>
+      )
+    },
+  },
+]
+
+// "id": 33,
+//   "jobType": "Documents/Text",
+//   "role": "Translator",
+//   "sourceLanguage": "ko",
+//   "targetLanguage": "en",
+//   "openings": 1,
+//   "dueAt": "2023-05-30T06:00:00.000Z",
+//   "dueTimezone": "KR",
+//   "deadlineWarning": false
+
+export const RecruitingRequestColumn: GridColumns = [
+  {
+    field: 'sourceLanguage',
+    headerName: '',
+    minWidth: 180,
+    flex: 0.1,
+    renderCell: ({ row }: { row: RecruitingRequest }) => {
+      const code = row.dueTimezone as keyof typeof timezones.countries
+
+      const timeZone = timezones.countries[code]?.zones[0]
+      const date1 = dayjs(row.dueAt).tz(timeZone)
+      const date2 = dayjs().tz(timeZone)
+      const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
+      let color = '#7F889B'
+
+      if (86400000 >= remainTime && remainTime > 0) {
+        color = '#FF4D49'
+      }
+
+      return (
+        <Box display='flex' alignItems='center' gap='10px'>
+          <StatusSquare
+            style={{ margin: 0, padding: '0', marginLeft: '20px' }}
+            color={color}
+          />
+          <Typography
+            fontWeight={600}
+            fontSize='16px'
+            sx={{ textTransform: 'uppercase' }}
+          >
+            {`${row.sourceLanguage} -> ${row.targetLanguage}`}
+          </Typography>
+        </Box>
+      )
+    },
+  },
+  {
+    field: 'jobType',
+    headerName: '',
+    minWidth: 320,
+    flex: 0.4,
+    renderCell: ({ row }: { row: RecruitingRequest }) => {
+      return (
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          gap='10px'
+          sx={{ width: '340px' }}
+        >
+          <Box display='flex' gap='10px'>
+            {row.jobType ? (
+              <JobTypeChip type={row.jobType} label={row.jobType} />
+            ) : (
+              '-'
+            )}
+            {row.role ? <RoleChip type={row.role} label={row.role} /> : '-'}
+          </Box>
+          <span
+            style={{
+              display: 'block',
+              width: '1px',
+              height: '20px',
+              margin: '0 10px',
+              backgroundColor: 'rgba(76, 78, 100, 0.12)',
+            }}
+          ></span>
+        </Box>
+      )
+    },
+  },
+  {
+    field: 'openings',
+    headerName: '',
+    flex: 0.2,
+    renderCell: ({ row }: { row: RecruitingRequest }) => (
+      <Box display='flex' alignItems='center' gap='8px'>
+        <Person />
+        <Typography fontSize='16px'>{`${row.openings} person`}</Typography>
+      </Box>
+    ),
+  },
+  {
+    field: 'dueAt',
+    headerName: '',
+    flex: 0.3,
+    renderCell: ({ row }: { row: RecruitingRequest }) => {
+      const code = row.dueTimezone as keyof typeof timezones.countries
+
+      const timeZone = timezones.countries[code]?.zones[0]
+      const date1 = dayjs(row.dueAt).tz(timeZone)
+      const date2 = dayjs().tz(timeZone)
+      const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
+      let color = '#7F889B'
+
+      if (86400000 >= remainTime && remainTime > 0) {
+        color = '#FF4D49'
+      }
+
+      return (
+        <Box display='flex' alignItems='center' gap='8px'>
+          <Inbox />
+          <Typography fontSize='16px' sx={{ width: '100%', color }}>
+            {row.dueAt && timeZone
+              ? `${moment(row.dueAt).tz(timeZone)?.format('MM/DD/YYYY (z)')}`
+              : '-'}
+          </Typography>
         </Box>
       )
     },

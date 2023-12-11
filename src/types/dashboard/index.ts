@@ -68,6 +68,19 @@ export type RequestItem = {
     phone: string
   }
 }
+
+export type RecruitingRequest = {
+  id: 33
+  jobType: string
+  role: string
+  sourceLanguage: string
+  targetLanguage: string
+  openings: number
+  dueAt: string
+  dueTimezone: string
+  deadlineWarning: boolean
+}
+
 export type OrderItem = {
   id: number
   projectName: string

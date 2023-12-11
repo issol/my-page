@@ -6,9 +6,17 @@ import {
 import { Box, Typography } from '@mui/material'
 import React from 'react'
 import { ChartBoxIcon } from '@src/views/dashboard/dashboardItem'
-import { useTADOnboarding } from '@src/queries/dashboard/dashnaord-lpm'
+import {
+  OverviewType,
+  useTADOnboarding,
+} from '@src/queries/dashboard/dashnaord-lpm'
 
-const overview = [
+const overview: Array<{
+  key: OverviewType
+  label: string
+  color: string
+  icon: SVGElement
+}> = [
   {
     key: 'onboardedPros',
     label: 'Onboarded Pros',
@@ -31,6 +39,7 @@ const overview = [
 
 const OnboardingList = () => {
   const { data } = useTADOnboarding()
+
   return (
     <Box
       display='flex'
@@ -54,7 +63,7 @@ const OnboardingList = () => {
             <ChartBoxIcon icon={item.icon} color={item.color} />
             <Box>
               <Typography fontSize='20px' fontWeight={500}>
-                996
+                {(data && data[item.key]) || 0}
               </Typography>
               <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
                 {item.label}

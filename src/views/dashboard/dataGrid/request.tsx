@@ -53,7 +53,7 @@ const RequestDashboardDataGrid = ({
           page={page}
           onPageChange={newPage => {
             setPage(newPage)
-            setSkip(val => newPage * 4)
+            setSkip(val => newPage * pageNumber)
           }}
           onRowClick={params =>
             router.push(`/quotes/lpm/requests/${params.id}/`)
@@ -62,7 +62,7 @@ const RequestDashboardDataGrid = ({
           onPageSizeChange={pageSize => setPageSize(pageSize)}
           paginationMode='server'
           rowCount={data?.totalCount || 0}
-          rowsPerPageOptions={[5]}
+          rowsPerPageOptions={[]}
           loading={isLoading || isFetching}
         />
       </Suspense>
