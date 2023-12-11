@@ -1,13 +1,6 @@
 import Grid from '@mui/material/Grid'
-import {
-  Box,
-  ButtonGroup,
-  Card,
-  LinearProgress,
-  MenuItem,
-  Typography,
-} from '@mui/material'
-import React, { ReactElement, useCallback } from 'react'
+import { Box, ButtonGroup, Card, MenuItem, Typography } from '@mui/material'
+import React, { ReactElement, useState } from 'react'
 import styled from '@emotion/styled'
 import Button from '@mui/material/Button'
 import Popper from '@mui/material/Popper'
@@ -18,15 +11,11 @@ import MenuList from '@mui/material/MenuList'
 import {
   ArrowDropDown,
   KeyboardArrowRight,
-  PermIdentityOutlined,
-  ReceiptLong,
   SvgIconComponent,
-  TrendingDown,
-  TrendingUp,
 } from '@mui/icons-material'
 import { Currency, TotalItem } from '@src/types/dashboard'
-import { validateColors } from '@iconify/tools'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
+import { usePaidThisMonthAmount } from '@src/queries/dashboard/dashnaord-lpm'
 
 interface GridItemProps {
   width?: number | string
@@ -193,7 +182,7 @@ const ReportLabel = styled(Typography)`
 `
 //convertedToJPY, convertedToKRW, convertedToSGD, convertedToUSD, onlyJPY, onlyKRW, onlySGD, onlyUSD
 //['$', '¥', '₩', '$']
-export const CurrencyUnit = {
+export const CurrencyUnit: Record<Currency, string> = {
   convertedToUSD: '$',
   convertedToJPY: '¥',
   convertedToKRW: '₩',
@@ -364,60 +353,74 @@ export const ChartBoxIcon = ({ icon, boxSize, color }: ChartBoxIconProps) => {
 }
 
 interface TotalValueViewProps {
+  type: 'payable' | 'receivable'
   label: string
   amountLabel: string
   countLabel: string
 }
 
 export const TotalValueView = ({
+  type,
   label,
   amountLabel,
   countLabel,
 }: TotalValueViewProps) => {
+  const [currency, setCurrency] = useState<Currency>('convertedToUSD')
+  const { data } = usePaidThisMonthAmount(type, currency)
+  const onChangeCurrency = (type: Currency) => {
+    setCurrency(type)
+  }
+
   return (
-    <Box display='flex' alignItems='center'>
-      <Box sx={{ marginTop: '20px' }}>
-        <Typography
-          fontSize='14px'
-          color='rgba(102, 108, 255, 1)'
-          fontWeight={600}
-        >
-          {label}
-        </Typography>
-        <Typography fontSize='34px' fontWeight={500}>
-          $128,450,810
-        </Typography>
-        <Typography
-          fontSize='12px'
-          color='rgba(76, 78, 100, 0.6)'
-          sx={{ marginTop: '-8px' }}
-        >
-          {amountLabel}
-        </Typography>
+    <>
+      <Box display='flex' justifyContent='flex-end'>
+        <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
       </Box>
-      <span
-        style={{
-          display: 'block',
-          margin: '40px 20px 0',
-          width: '1px',
-          height: '58px',
-          backgroundColor: 'rgba(76, 78, 100, 0.12)',
-        }}
-      />
-      <Box sx={{ marginTop: '20px' }}>
-        <Box sx={{ height: '20px' }} />
-        <Typography fontSize='34px' fontWeight={500}>
-          12345
-        </Typography>
-        <Typography
-          fontSize='12px'
-          color='rgba(76, 78, 100, 0.6)'
-          sx={{ marginTop: '-8px' }}
-        >
-          {countLabel}
-        </Typography>
+      <Box display='flex' alignItems='center'>
+        <Box sx={{ marginTop: '20px' }}>
+          <Typography
+            fontSize='14px'
+            color='rgba(102, 108, 255, 1)'
+            fontWeight={600}
+          >
+            {label}
+          </Typography>
+          <Typography fontSize='34px' fontWeight={500}>
+            {CurrencyUnit[data?.currency as Currency] || '$'}
+            {data?.totalPrice || 0}
+          </Typography>
+          <Typography
+            fontSize='12px'
+            color='rgba(76, 78, 100, 0.6)'
+            sx={{ marginTop: '-8px' }}
+          >
+            {amountLabel}
+          </Typography>
+        </Box>
+        <span
+          style={{
+            display: 'block',
+            margin: '40px 20px 0',
+            width: '1px',
+            height: '58px',
+            backgroundColor: 'rgba(76, 78, 100, 0.12)',
+          }}
+        />
+        <Box sx={{ marginTop: '20px' }}>
+          <Box sx={{ height: '20px' }} />
+          <Typography fontSize='34px' fontWeight={500}>
+            {data?.count || 0}
+          </Typography>
+          <Typography
+            fontSize='12px'
+            color='rgba(76, 78, 100, 0.6)'
+            sx={{ marginTop: '-8px' }}
+          >
+            {countLabel}
+          </Typography>
+        </Box>
       </Box>
-    </Box>
+    </>
   )
 }
 
@@ -441,14 +444,18 @@ const Progress = styled.ul(() => {
 
 interface LinearMultiProgressProps {
   items: Array<TotalItem>
+  colors: Array<string>
 }
-export const LinearMultiProgress = ({ items }: LinearMultiProgressProps) => {
+export const LinearMultiProgress = ({
+  items,
+  colors,
+}: LinearMultiProgressProps) => {
   return (
     <Progress>
       {items.map((item, index) => (
         <li
-          key={`${item.label}-${index}`}
-          style={{ width: `${item.ratio}%`, backgroundColor: item.color }}
+          key={`${item.name}-${index}`}
+          style={{ width: `${item.ratio}%`, backgroundColor: colors[index] }}
         />
       ))}
     </Progress>
@@ -495,13 +502,15 @@ export const Title = ({
               className='info_icon'
               onClick={() => openDialog(true, title)}
             />
-            <KeyboardArrowRight
-              className='arrow_icon'
-              onClick={() => {
-                handleClick && handleClick()
-              }}
-            />
           </>
+        )}
+        {handleClick && (
+          <KeyboardArrowRight
+            className='arrow_icon'
+            onClick={() => {
+              handleClick()
+            }}
+          />
         )}
       </SectionTitle>
       {subTitle && (

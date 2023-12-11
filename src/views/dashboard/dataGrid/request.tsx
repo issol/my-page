@@ -8,7 +8,7 @@ import { useRouter } from 'next/router'
 import { RequestType } from '@src/types/dashboard'
 
 interface DashboardDataGridProps {
-  type?: RequestType
+  path: string
   pageNumber: number
   movePage: (id: number) => void
   sectionHeight?: number
@@ -16,7 +16,7 @@ interface DashboardDataGridProps {
 }
 
 const RequestDashboardDataGrid = ({
-  type = 'new',
+  path,
   pageNumber = 4,
   movePage,
   columns,
@@ -28,7 +28,7 @@ const RequestDashboardDataGrid = ({
   const [pageSize, setPageSize] = useState(pageNumber)
 
   const { data, isLoading, isFetching } = useDashboardRequest(
-    { skip, take: pageNumber, type },
+    { skip, take: pageNumber, path },
     skip,
   )
 

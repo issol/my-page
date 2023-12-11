@@ -42,7 +42,10 @@ import {
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import Information from '@src/views/dashboard/dialog/information'
-import Total from '@src/views/dashboard/chart/total'
+import Total, {
+  payableColors,
+  ReceivableColors,
+} from '@src/views/dashboard/chart/total'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
 import LongStandingDataGrid from '@src/views/dashboard/dataGrid/longStanding'
@@ -185,7 +188,7 @@ const LPMDashboards = () => {
                     openDialog={setOpenInfoDialog}
                   />
                   <DashboardDataGrid
-                    type='new'
+                    path='u/dashboard/client-request/list/new'
                     pageNumber={4}
                     movePage={(id: number) => ''}
                     columns={RequestColumns}
@@ -249,11 +252,9 @@ const LPMDashboards = () => {
                     handleClick={() => router.push('/quotes/lpm/requests/')}
                     openDialog={setOpenInfoDialog}
                   />
-                  <Box display='flex' justifyContent='flex-end'>
-                    <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
-                  </Box>
                 </Box>
                 <TotalValueView
+                  type='receivable'
                   label='Paid this month'
                   amountLabel='Receivable amount'
                   countLabel='Counts'
@@ -267,11 +268,9 @@ const LPMDashboards = () => {
                     title='Payables - Paid this month'
                     openDialog={setOpenInfoDialog}
                   />
-                  <Box display='flex' justifyContent='flex-end'>
-                    <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
-                  </Box>
                 </Box>
                 <TotalValueView
+                  type='payable'
                   label='Paid this month'
                   amountLabel='Receivable amount'
                   countLabel='Counts'
@@ -282,67 +281,57 @@ const LPMDashboards = () => {
           <Grid container gap='24px'>
             <GridItem height={525} xs={6}>
               <Total
+                type='receivable'
                 title='Receivables - Total'
                 iconColor='114, 225, 40'
                 icon={Archive}
                 setOpenInfoDialog={setOpenInfoDialog}
+                statusList={['Invoiced', 'Paid', 'Overdue', 'Canceled']}
+                colors={ReceivableColors}
               />
             </GridItem>
             <GridItem height={525} sm>
               <Total
+                type='payable'
                 title='Payables - Total'
                 icon={MonetizationOn}
                 iconColor='102, 108, 255'
+                setOpenInfoDialog={setOpenInfoDialog}
+                statusList={['Invoiced', 'Paid', 'Overdue']}
+                colors={payableColors}
+              />
+            </GridItem>
+          </Grid>
+          <Grid container>
+            <GridItem height={547} sm padding='0px'>
+              <LongStandingDataGrid
+                title='Long-standing receivables - Action required'
+                type='receivable'
+                columns={ReceivableColumns}
+                initSort={[
+                  {
+                    field: 'clientName',
+                    sort: 'desc',
+                  },
+                ]}
                 setOpenInfoDialog={setOpenInfoDialog}
               />
             </GridItem>
           </Grid>
           <Grid container>
-            <GridItem height={362} sm padding='0px'>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <Title
-                  marginBottom='20px'
-                  padding='20px'
-                  title='Long-standing receivables - Action required'
-                  prefix='🚨 '
-                  postfix=' (32)'
-                  openDialog={setOpenInfoDialog}
-                />
-                <LongStandingDataGrid
-                  type='receivable'
-                  columns={ReceivableColumns}
-                  initSort={[
-                    {
-                      field: 'client',
-                      sort: 'desc',
-                    },
-                  ]}
-                />
-              </Box>
-            </GridItem>
-          </Grid>
-          <Grid container>
-            <GridItem height={362} sm padding='0px'>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <Title
-                  marginBottom='20px'
-                  padding='20px'
-                  title='Long-standing payables - Action required'
-                  prefix='🚨 '
-                  postfix=' (22)'
-                  openDialog={setOpenInfoDialog}
-                />
-                <LongStandingDataGrid
-                  type='payable'
-                  columns={PayablesColumns}
-                  initSort={[
-                    {
-                      field: 'category',
-                      sort: 'desc',
-                    },
-                  ]}
-                />
-              </Box>
+            <GridItem height={547} sm padding='0px'>
+              <LongStandingDataGrid
+                title='Long-standing payables - Action required'
+                type='payable'
+                columns={PayablesColumns}
+                initSort={[
+                  {
+                    field: 'proName',
+                    sort: 'desc',
+                  },
+                ]}
+                setOpenInfoDialog={setOpenInfoDialog}
+              />
             </GridItem>
           </Grid>
           <Grid container spacing={5}>

@@ -1,5 +1,8 @@
 import { OrderStatusType } from '@src/types/common/orders.type'
 import { RoleType, UserType } from '@src/context/types'
+import { QuoteStatusType } from '@src/types/common/quotes.type'
+import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
 
 export type ViewMode = 'company' | 'personal'
 export interface ViewModeQuery {
@@ -33,7 +36,7 @@ export interface DashboardPaginationQuery
 export interface RequestQuery
   extends DashboardPaginationQuery,
     Partial<ViewModeQuery> {
-  type: RequestType
+  path: string
 }
 
 export interface DashboardMemberQuery
@@ -99,10 +102,9 @@ export type Currency =
 export type APIType = 'u' | 'cert'
 
 export type TotalItem = {
-  label: string
-  color: string
+  name: string
   count: number
-  price: number
+  sum: number
   ratio: number
 }
 
@@ -173,7 +175,7 @@ export interface CountQuery
 export type LongStandingReceivableItem = {
   id: number
   corporationId: string
-  status: string
+  status: QuoteStatusType
   projectName: string
   category: string
   serviceType: string
@@ -211,7 +213,7 @@ export type LongStandingPayablesItem = {
     middleName: string
     lastName: 'Last'
   }
-  status: string
+  status: InvoiceReceivableStatusType
 }
 
 export type LongStandingDataType = 'receivable' | 'payable'

@@ -1,39 +1,54 @@
 import DefaultDataGrid from '@src/views/dashboard/dataGrid/default'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { GridColumns, GridSortModel } from '@mui/x-data-grid'
-import { LongStandingDataType } from '@src/types/dashboard'
+import { LongStandingDataType, OrderType } from '@src/types/dashboard'
 import { Box } from '@mui/material'
+import { useLongStanding } from '@src/queries/dashboard/dashnaord-lpm'
+import { Title } from '@src/views/dashboard/dashboardItem'
 
-interface LongStandingDataGridProps<T extends { id: number }> {
+interface LongStandingDataGridProps {
+  title: string
   type: LongStandingDataType
-  columns: GridColumns<T>
+  columns: GridColumns
   initSort: GridSortModel
+  setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
-const LongStandingDataGrid = <T extends { id: number }>({
+const LongStandingDataGrid = ({
+  title,
   type,
   columns,
   initSort,
-}: LongStandingDataGridProps<T>) => {
+  setOpenInfoDialog,
+}: LongStandingDataGridProps) => {
   const [skip, setSkip] = useState(0)
   const [sortModel, setSortModel] = useState<GridSortModel>(initSort)
-  // const { data } = useLongStanding({
-  //   dataType: type,
-  //   skip: skip,
-  //   take: 7,
-  //   sort: sortModel[0]?.field || initSort[0].field,
-  //   ordering: sortModel[0]?.sort || (initSort[0].sort as OrderType),
-  // })
+  const { data } = useLongStanding({
+    dataType: type,
+    skip: skip,
+    take: 7,
+    sort: sortModel[0]?.field || initSort[0].field,
+    ordering: sortModel[0]?.sort || (initSort[0].sort as OrderType),
+  })
   return (
-    <Box>
-      <DefaultDataGrid
-        data={[]}
-        columns={columns}
-        defaultPageSize={7}
-        sortModel={sortModel}
-        setSortModel={setSortModel}
-        setSkip={setSkip}
+    <Box sx={{ width: '100%', height: '100%' }}>
+      <Title
+        padding='20px'
+        title={title}
+        prefix='🚨 '
+        postfix={`(${data?.totalCount || 0})`}
+        openDialog={setOpenInfoDialog}
       />
+      <Box>
+        <DefaultDataGrid
+          data={data}
+          columns={columns}
+          defaultPageSize={7}
+          sortModel={sortModel}
+          setSortModel={setSortModel}
+          setSkip={setSkip}
+        />
+      </Box>
     </Box>
   )
 }

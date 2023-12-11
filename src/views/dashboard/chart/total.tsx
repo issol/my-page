@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import { Box, Typography } from '@mui/material'
 import {
   ChartBoxIcon,
   ConvertButtonGroup,
@@ -6,7 +6,7 @@ import {
   Title,
   TotalValueView,
 } from '@src/views/dashboard/dashboardItem'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Currency, TotalItem } from '@src/types/dashboard'
 import { SvgIconComponent } from '@mui/icons-material'
 
@@ -19,68 +19,121 @@ import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import styled from '@emotion/styled'
 import CustomChip from '@src/@core/components/mui/chip'
+import { useTotalPrice } from '@src/queries/dashboard/dashnaord-lpm'
+
+export const ReceivableColors = [
+  'rgba(60, 61, 91, 1)',
+  'rgba(114, 225, 40, 1)',
+  'rgba(224, 68, 64, 1)',
+  'rgba(224, 224, 224, 1)',
+]
+
+export const payableColors = [
+  'rgba(60, 61, 91, 1)',
+  'rgba(102, 108, 255, 1)',
+  'rgba(224, 68, 64, 1)',
+]
 
 interface TotalChartProps {
   title: string
   setOpenInfoDialog: (open: boolean, key: string) => void
   icon: SvgIconComponent
   iconColor: string
+  type: 'payable' | 'receivable'
+  statusList: Array<string>
+  colors: Array<string>
 }
 
 const TotalProgressChart = ({
+  type,
   title,
   iconColor,
   icon,
   setOpenInfoDialog,
+  statusList,
+  colors,
 }: TotalChartProps) => {
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
+  const { data } = useTotalPrice(type, currency)
 
-  const TempProgress: Array<TotalItem> = [
-    {
-      label: 'Invoiced',
-      color: 'rgba(60, 61, 91, 1)',
-      count: 234332,
-      price: 100000,
-      ratio: 32.0,
-    },
-    {
-      label: 'Paid',
-      color: 'rgba(114, 225, 40, 1)',
-      count: 234332,
-      price: 100000,
-      ratio: 15.6,
-    },
-    {
-      label: 'Overdue',
-      color: 'rgba(224, 68, 64, 1)',
-      count: 234332,
-      price: 100000,
-      ratio: 42.0,
-    },
-    {
-      label: 'Canceled',
-      color: 'rgba(224, 224, 224, 1)',
-      count: 234332,
-      price: 100000,
-      ratio: 18.0,
-    },
-  ]
+  const items: Array<[string, TotalItem]> = useMemo(() => {
+    const map = new Map()
+
+    statusList.forEach(key => {
+      map.set(key, {})
+    })
+
+    data?.report.forEach(item => {
+      if (map.has(item.name)) {
+        map.set(item.name, item)
+      }
+    })
+
+    return [...map]
+  }, [data])
+
+  const onChangeCurrency = (type: Currency) => {
+    setCurrency(type)
+  }
+
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
       <Box>
         <Title title={title} openDialog={setOpenInfoDialog} />
+      </Box>
+      <Box>
         <Box display='flex' justifyContent='flex-end'>
-          <ConvertButtonGroup onChangeCurrency={setCurrency} />
+          <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
+        </Box>
+        <Box display='flex' alignItems='center'>
+          <Box sx={{ marginTop: '20px' }}>
+            <Typography
+              fontSize='14px'
+              color='rgba(102, 108, 255, 1)'
+              fontWeight={600}
+            >
+              Total
+            </Typography>
+            <Typography fontSize='34px' fontWeight={500}>
+              $128,450,810
+            </Typography>
+            <Typography
+              fontSize='12px'
+              color='rgba(76, 78, 100, 0.6)'
+              sx={{ marginTop: '-8px' }}
+            >
+              Total amount
+            </Typography>
+          </Box>
+          <span
+            style={{
+              display: 'block',
+              margin: '40px 20px 0',
+              width: '1px',
+              height: '58px',
+              backgroundColor: 'rgba(76, 78, 100, 0.12)',
+            }}
+          />
+          <Box sx={{ marginTop: '20px' }}>
+            <Box sx={{ height: '20px' }} />
+            <Typography fontSize='34px' fontWeight={500}>
+              12345
+            </Typography>
+            <Typography
+              fontSize='12px'
+              color='rgba(76, 78, 100, 0.6)'
+              sx={{ marginTop: '-8px' }}
+            >
+              Total counts
+            </Typography>
+          </Box>
         </Box>
       </Box>
-      <TotalValueView
-        label='Total'
-        amountLabel='Total amount'
-        countLabel='Total counts'
-      />
-      <Box sx={{ margin: '20px 0' }}>
-        <ChartBoxIcon icon={icon} color={iconColor} boxSize='' />
-        <LinearMultiProgress items={TempProgress} />
+      <Box display='flex' gap='10px' sx={{ margin: '20px 0' }}>
+        <Box>
+          <ChartBoxIcon icon={icon} color={iconColor} boxSize='50px' />
+        </Box>
+        <LinearMultiProgress items={data?.report || []} colors={colors} />
       </Box>
       <TableContainer component={Paper}>
         <Table aria-label='total table'>
@@ -92,23 +145,23 @@ const TotalProgressChart = ({
             </TableRow>
           </TableHead>
           <TableBody>
-            {TempProgress.map(row => (
+            {(items || []).map(([, row], index) => (
               <TableRow
-                key={row.label}
+                key={row.name}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
-                <Cell color={row.color} className='body__cell'>
+                <Cell color={colors[index]} className='body__cell'>
                   <div className='flex__center'>
                     <span className='status__circle' />
-                    {row.label}
+                    {row.name}
                   </div>
                 </Cell>
                 <Cell className='body__cell' align='center'>
-                  {row.count.toLocaleString()}
+                  {row.count?.toLocaleString()}
                 </Cell>
                 <Cell className='body__cell' align='right'>
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    {row.price.toLocaleString()}
+                    {row.sum?.toLocaleString()}
                     <div className='ratio_chip flex__center'>{row.ratio}%</div>
                   </div>
                 </Cell>

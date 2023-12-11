@@ -6,6 +6,7 @@ import {
 import { Box, Typography } from '@mui/material'
 import React from 'react'
 import { ChartBoxIcon } from '@src/views/dashboard/dashboardItem'
+import { useTADOnboarding } from '@src/queries/dashboard/dashnaord-lpm'
 
 const overview = [
   {
@@ -29,6 +30,7 @@ const overview = [
 ]
 
 const OnboardingList = () => {
+  const { data } = useTADOnboarding()
   return (
     <Box
       display='flex'

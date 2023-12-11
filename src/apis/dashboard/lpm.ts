@@ -1,6 +1,7 @@
 import axios from '@src/configs/axios'
 import {
   CountQuery,
+  Currency,
   DashboardMemberQuery,
   DashboardPaginationQuery,
   DashboardQuery,
@@ -9,6 +10,10 @@ import {
   ReportItem,
   RequestQuery,
 } from '@src/types/dashboard'
+import {
+  usePaidThisMonthAmount,
+  useTADOnboarding,
+} from '@src/queries/dashboard/dashnaord-lpm'
 
 export const getReport = async (
   params: DashboardQuery,
@@ -19,13 +24,10 @@ export const getReport = async (
   return data
 }
 
-export const getRequest = async ({ type, ...params }: RequestQuery) => {
-  const { data } = await axios.get(
-    `/api/enough/u/dashboard/client-request/list/${type}`,
-    {
-      params,
-    },
-  )
+export const getRequest = async ({ path, ...params }: RequestQuery) => {
+  const { data } = await axios.get(`/api/enough/${path}`, {
+    params,
+  })
   return data
 }
 
@@ -74,6 +76,39 @@ export const getLongStanding = async ({
   const { data } = await axios.get(
     `/api/enough/u/dashboard/invoice/${dataType}/list/long-standing`,
     { params },
+  )
+  return data
+}
+
+export const getOnboardingOverview = async () => {
+  const { data } = await axios.get(`/api/enough/cert/dashboard/onboard/count`)
+  return data
+}
+
+export const getLanguagePool = async () => {
+  const { data } = await axios.get(`/api/enough/cert/dashboard/language/count`)
+  return data
+}
+
+/* LPM Query*/
+export const getPaidThisMonth = async (
+  type: 'payable' | 'receivable',
+  currency: Currency,
+) => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/invoice/${type}/paid/total-price`,
+    { params: { currency } },
+  )
+  return data
+}
+
+export const getTotalPrice = async (
+  type: 'payable' | 'receivable',
+  currency: Currency,
+) => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/invoice/${type}/count`,
+    { params: { currency } },
   )
   return data
 }

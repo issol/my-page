@@ -8,8 +8,8 @@ import {
 } from '@mui/x-data-grid'
 import React, { Dispatch, useState } from 'react'
 
-interface DefaultDataGridProps<T> {
-  data: T
+interface DefaultDataGridProps {
+  data?: { data: Array<any>; totalCount: number; count: number }
   columns: GridColumns
   sortModel: GridSortModel
   setSortModel: Dispatch<GridSortModel>
@@ -22,7 +22,7 @@ interface DefaultDataGridProps<T> {
   ) => void
 }
 
-const DefaultDataGrid = <T extends { totalCount: number; data: Array<T> }>({
+const DefaultDataGrid = ({
   data,
   columns,
   defaultPageSize,
@@ -30,7 +30,7 @@ const DefaultDataGrid = <T extends { totalCount: number; data: Array<T> }>({
   setSortModel,
   setSkip,
   onRowClick,
-}: DefaultDataGridProps<T>) => {
+}: DefaultDataGridProps) => {
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(defaultPageSize)
 

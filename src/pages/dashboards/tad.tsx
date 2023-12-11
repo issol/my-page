@@ -99,13 +99,13 @@ const TADDashboards = () => {
                     <ErrorOutlineIcon className='info_icon' />
                     <KeyboardArrowRight className='arrow_icon' />
                   </SectionTitle>
-                </Box>
+                </Box>{' '}
                 <DashboardDataGrid
-                  type='new'
+                  path='recruiting/dashboard/recruiting/list/ongoing'
                   sectionHeight={220}
                   pageNumber={3}
                   movePage={(id: number) => ''}
-                  columns={RecruitingRequestColumns}
+                  columns={[]}
                 />
               </Box>
             </GridItem>

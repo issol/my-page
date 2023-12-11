@@ -4,14 +4,19 @@ import {
   getCount,
   getLongStanding,
   getMemberList,
+  getOnboardingOverview,
   getOrders,
+  getPaidThisMonth,
   getRatio,
   getReport,
   getRequest,
+  getTotalPrice,
 } from '@src/apis/dashboard/lpm'
 import type {
+  Currency,
   DashboardQuery,
   RequestQuery,
+  TotalItem,
   ViewMode,
 } from '@src/types/dashboard'
 import {
@@ -83,7 +88,7 @@ export const useDashboardRequest = (query: RequestQuery, skip: number) => {
       `${DEFAULT_QUERY_NAME}-request`,
       view,
       userId,
-      query.type,
+      query.path,
       skip,
     ],
     () => {
@@ -230,7 +235,7 @@ export const useLongStanding = (params: LongStandingQuery) => {
   const view = changeView ? changeView : initView
   const userId = changeUserId ? changeUserId : initUserId
 
-  return useQuery(
+  return useQuery<{ data: Array<any>; count: number; totalCount: number }>(
     [
       DEFAULT_QUERY_NAME,
       NO_DATE_EFFECT,
@@ -242,6 +247,53 @@ export const useLongStanding = (params: LongStandingQuery) => {
       { sort: params.sort, ordering: params.ordering },
     ],
     () => getLongStanding({ ...params, view, userId }),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useTADOnboarding = () => {
+  return useQuery([DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'Onboarding'], () =>
+    getOnboardingOverview(),
+  )
+}
+
+/* LPM Query*/
+
+/**
+ * Receivables/Payables - Paid this month
+ * @param type
+ * @param currency
+ */
+export const usePaidThisMonthAmount = (
+  type: 'payable' | 'receivable',
+  currency: Currency,
+) => {
+  return useQuery<{ totalPrice: number; currency: Currency; count: number }>(
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'PaidThisMonth', type, currency],
+    () => getPaidThisMonth(type, currency),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useTotalPrice = (
+  type: 'payable' | 'receivable',
+  currency: Currency,
+) => {
+  return useQuery<{
+    totalPrice: number
+    currency: Currency
+    report: Array<TotalItem>
+  }>(
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'totalPrice', type, currency],
+    () => getTotalPrice(type, currency),
     {
       suspense: true,
       keepPreviousData: true,

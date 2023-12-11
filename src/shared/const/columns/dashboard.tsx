@@ -14,8 +14,10 @@ import { timezones } from '@src/@fake-db/autocomplete'
 import Typography from '@mui/material/Typography'
 
 import {
+  InvoiceReceivableChip,
   JobTypeChip,
   OrderStatusChip,
+  QuoteStatusChip,
   RoleChip,
   ServiceTypeChip,
   WorkStatusChip,
@@ -533,7 +535,7 @@ export const ReceivableColumns: GridColumns = [
     },
   },
   {
-    field: 'client',
+    field: 'clientName',
     headerName: 'client / Email',
     minWidth: 220,
     renderHeader: () => <Box>Client / Email</Box>,
@@ -603,7 +605,7 @@ export const ReceivableColumns: GridColumns = [
 
 export const PayablesColumns: GridColumns = [
   {
-    field: 'corporationId',
+    field: 'id',
     headerName: 'No',
     minWidth: 192,
     renderHeader: () => <Box>No.</Box>,
@@ -617,11 +619,11 @@ export const PayablesColumns: GridColumns = [
     minWidth: 192,
     renderHeader: () => <Box>Status</Box>,
     renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
-      return <Box>{WorkStatusChip(row.status)}</Box>
+      return <Box>{row.status}</Box>
     },
   },
   {
-    field: 'pro',
+    field: 'proName',
     headerName: 'Pro / Email',
     minWidth: 220,
     renderHeader: () => <Box>Pro / Email</Box>,
@@ -641,7 +643,7 @@ export const PayablesColumns: GridColumns = [
     },
   },
   {
-    field: 'invoicedAt',
+    field: 'invoiceDate',
     headerName: 'invoicedAt',
     minWidth: 220,
     renderHeader: () => <Box>Invoice date</Box>,
@@ -650,7 +652,7 @@ export const PayablesColumns: GridColumns = [
     },
   },
   {
-    field: 'invoicedAt',
+    field: 'paymentDueDate',
     headerName: 'payDueAt',
     minWidth: 220,
     renderHeader: () => <Box>Payment due</Box>,
