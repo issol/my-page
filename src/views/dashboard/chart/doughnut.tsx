@@ -136,24 +136,17 @@ const Doughnut = <T extends RatioItem>({
           donut: {
             size: '45%',
             labels: {
-              show: false,
+              show: true,
               name: { show: false },
               total: {
                 label: '',
                 show: true,
+                showAlways: true,
                 fontWeight: 600,
                 fontSize: '32px',
-                color: theme.palette.text.primary,
+                color: '#4C4E6499',
                 formatter: val =>
-                  `${Number(
-                    (data?.totalOrderPrice || 0).toFixed(0),
-                  ).toLocaleString()}`,
-              },
-              value: {
-                offsetY: 6,
-                fontWeight: 600,
-                fontSize: '1rem',
-                color: theme.palette.text.secondary,
+                  `(${Number(data?.totalCount || 0).toLocaleString()})`,
               },
             },
           },
@@ -199,7 +192,7 @@ const Doughnut = <T extends RatioItem>({
             }}
           >
             <Suspense fallback={<div>로딩 중</div>}>
-              <Box sx={{ position: 'absolute', left: '-50px' }}>
+              <Box sx={{ position: 'absolute', left: '-45px' }}>
                 <CustomChart
                   type='donut'
                   options={options}
@@ -215,8 +208,8 @@ const Doughnut = <T extends RatioItem>({
                     visibility: isHiddenValue ? 'hidden' : 'visible',
                   }}
                 >
-                  {data?.totalOrderPrice && CurrencyUnit[currency]}
-                  {(data?.totalOrderPrice || 0).toLocaleString()}
+                  {data?.totalPrice && CurrencyUnit[currency]}
+                  {(data?.totalPrice || 0).toLocaleString()}
                 </Typography>
               </Box>
             </Suspense>

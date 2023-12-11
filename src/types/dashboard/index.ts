@@ -173,8 +173,8 @@ export interface ExpertiseRatioItem extends RatioItem {
   expertise: string
 }
 export interface RatioResponse<T> {
-  totalOrderCount: number
-  totalOrderPrice: number
+  totalCount: number
+  totalPrice: number
   currency: Currency
   report: Array<T>
 }
