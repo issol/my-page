@@ -117,3 +117,11 @@ export const getLanguagePool = async (base: 'source' | 'target' | 'pair') => {
   )
   return data
 }
+
+export const getJobType = async (base: 'jobType' | 'role' | 'pair') => {
+  const { data } = await axios.get(
+    `/api/enough/cert/dashboard/job-type/count`,
+    { params: { base } },
+  )
+  return data
+}

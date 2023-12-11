@@ -1,6 +1,7 @@
 import { DataGrid } from '@mui/x-data-grid/DataGrid'
 import { JobTableColumn } from '@src/shared/const/columns/dashboard'
 import styled from 'styled-components'
+import { useJobType } from '@src/queries/dashboard/dashnaord-lpm'
 
 const TempData = {
   take: 7,
@@ -62,14 +63,18 @@ const TempData = {
 }
 
 const TADJobDataGrid = () => {
+  const { data } = useJobType('pair')
   return (
     <div style={{ height: '400px', width: '100%' }}>
       <CustomDataGrid
         columns={JobTableColumn}
-        rows={TempData.data.map((item, index) => ({
+        rows={(data?.report || []).map((item, index) => ({
+          id: `${item.jobType}-${index}`,
           numbering: index + 1,
           ...item,
         }))}
+        rowCount={data?.totalCount || 0}
+        pageSize={7}
         rowsPerPageOptions={[]}
       />
     </div>

@@ -1,6 +1,7 @@
 import { GridColumns } from '@mui/x-data-grid'
 import {
   JobItem,
+  JobTypeAndRole,
   LongStandingPayablesItem,
   LongStandingReceivableItem,
   OrderItem,
@@ -547,57 +548,105 @@ export const StatusJobColumns: GridColumns = [
   },
 ]
 
-export const JobTableColumn = [
+export const JobTableColumn: GridColumns = [
   {
-    field: 'index',
+    field: 'numbering',
     headerName: '',
     filterable: false,
-    minWidth: 60,
-    renderCell: () => {
-      return <Box sx={{ textAlign: 'center' }}>23423</Box>
+    sortable: false,
+    disableColumnMenu: true,
+    renderCell: ({ row }: { row: JobTypeAndRole }) => {
+      return <Box sx={{ textAlign: 'center' }}>{row?.numbering}</Box>
     },
   },
   {
     field: 'jobType',
     headerName: 'Job type',
+    filterable: false,
+    sortable: false,
+    disableColumnMenu: true,
     minWidth: 180,
     flex: 1,
     renderHeader: () => <Box>Job type</Box>,
-    renderCell: () => {
-      return <Box sx={{ textAlign: 'center' }}>23423</Box>
+    renderCell: ({ row }: { row: JobTypeAndRole }) => {
+      return (
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          gap='10px'
+          sx={{ width: '180px' }}
+        >
+          <Box display='flex' gap='10px'>
+            {row.jobType ? (
+              <JobTypeChip
+                sx={{ height: '24px' }}
+                type={row.jobType}
+                label={row.jobType}
+              />
+            ) : (
+              '-'
+            )}
+          </Box>
+        </Box>
+      )
     },
   },
   {
     field: 'role',
     headerName: 'Role',
+    filterable: false,
+    sortable: false,
+    disableColumnMenu: true,
     minWidth: 240,
     flex: 1,
-    sortable: false,
     renderHeader: () => <Box>Role</Box>,
-    renderCell: () => {
-      return <Box sx={{ textAlign: 'center' }}>23423</Box>
+    renderCell: ({ row }: { row: JobTypeAndRole }) => {
+      return (
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          gap='10px'
+          sx={{ width: '180px' }}
+        >
+          <Box display='flex' gap='10px'>
+            {row.role ? (
+              <RoleChip
+                sx={{ height: '24px' }}
+                type={row.role}
+                label={row.role}
+              />
+            ) : (
+              '-'
+            )}
+          </Box>
+        </Box>
+      )
     },
   },
   {
     field: 'pros',
     headerName: 'Pros',
-    minWidth: 140,
-
+    filterable: false,
     sortable: false,
+    disableColumnMenu: true,
+    minWidth: 140,
     renderHeader: () => <Box>Pros</Box>,
-    renderCell: () => {
-      return <Box sx={{ textAlign: 'center' }}>23423</Box>
+    renderCell: ({ row }: { row: JobTypeAndRole }) => {
+      return <Box sx={{ textAlign: 'center' }}>{row.count}</Box>
     },
   },
   {
     field: 'ratio',
     headerName: '%',
-    minWidth: 110,
-
+    filterable: false,
     sortable: false,
+    disableColumnMenu: true,
+    minWidth: 110,
     renderHeader: () => <Box>%</Box>,
-    renderCell: () => {
-      return <Box sx={{ textAlign: 'center' }}>23423</Box>
+    renderCell: ({ row }: { row: JobTypeAndRole }) => {
+      return <Box sx={{ textAlign: 'center' }}>{row.ratio}%</Box>
     },
   },
 ]

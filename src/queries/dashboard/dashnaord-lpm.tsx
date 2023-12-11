@@ -2,6 +2,7 @@ import { useQuery } from 'react-query'
 
 import {
   getCount,
+  getJobType,
   getLanguagePool,
   getLongStanding,
   getMemberList,
@@ -23,7 +24,7 @@ import type {
 import {
   CountQuery,
   DashboardMemberQuery,
-  DashboardPaginationQuery,
+  JobTypeAndRole,
   LongStandingQuery,
   RatioItem,
   RatioQuery,
@@ -225,10 +226,6 @@ export const useDashboardMemberList = ({
   )
 }
 
-export const useJobRolePoolList = () => {
-  return useQuery([DEFAULT_QUERY_NAME, 'role'], () => {})
-}
-
 export const useLongStanding = (params: LongStandingQuery) => {
   const { userId: initUserId, view: initView } = getUserViewModeInfo()
   const { view: changeView, userId: changeUserId } =
@@ -316,7 +313,29 @@ export const useLanguagePool = (base: 'source' | 'target' | 'pair') => {
       ratio: number
       sortingOrder: number
     }>
-  }>([DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'LanguagePool', base], () =>
-    getLanguagePool(base),
+  }>(
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'LanguagePool', base],
+    () => getLanguagePool(base),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useJobType = (base: 'jobType' | 'role' | 'pair') => {
+  return useQuery<{
+    count: number
+    totalCount: number
+    report: Array<JobTypeAndRole>
+  }>(
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'JobType', base],
+    () => getJobType(base),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
   )
 }

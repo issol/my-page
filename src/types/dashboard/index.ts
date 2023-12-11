@@ -121,6 +121,15 @@ export type TotalItem = {
   ratio: number
 }
 
+export type JobTypeAndRole = {
+  numbering?: number
+  jobType: string
+  role: string
+  count: number
+  ratio: number
+  sortingOrder: number
+}
+
 export interface RatioQuery extends DashboardQuery, Partial<ViewModeQuery> {
   type: string
   currency: Currency
