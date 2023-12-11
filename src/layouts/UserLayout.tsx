@@ -43,9 +43,14 @@ import ErrorServerMaintenance from '@src/@core/components/error/error-server-mai
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean
+  publicPage?: boolean
 }
 
-const UserLayout = ({ children, contentHeightFixed }: Props) => {
+const UserLayout = ({
+  children,
+  contentHeightFixed,
+  publicPage = false,
+}: Props) => {
   // ** Hooks
   const { settings, saveSettings } = useSettings()
 
@@ -168,6 +173,52 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
     <>
       {isError ? (
         <ErrorServerMaintenance />
+      ) : publicPage ? (
+        <Layout
+          hidden={hidden}
+          settings={settings}
+          saveSettings={saveSettings}
+          contentHeightFixed={contentHeightFixed}
+          verticalLayoutProps={{
+            navMenu: {
+              navItems: VerticalNavItems(),
+
+              // Uncomment the below line when using server-side menu in vertical layout and comment the above line
+              // navItems: verticalMenuItems
+            },
+            // appBar: {
+            //   content: props => (
+            //     <VerticalAppBarContent
+            //       hidden={hidden}
+            //       settings={settings}
+            //       saveSettings={saveSettings}
+            //       toggleNavVisibility={props.toggleNavVisibility}
+            //     />
+            //   ),
+            // },
+          }}
+          horizontalLayoutProps={{
+            navMenu: {
+              navItems: HorizontalNavItems().filter(value => {
+                return (
+                  PROMenu.includes(value.title) && value.role?.includes('PRO')
+                )
+              }),
+            },
+            appBar: {
+              content: () => (
+                <HorizontalAppBarContent
+                  hidden={hidden}
+                  settings={settings}
+                  saveSettings={saveSettings}
+                  publicPage={true}
+                />
+              ),
+            },
+          }}
+        >
+          {children}
+        </Layout>
       ) : (
         <>
           {currentRole && permission.state === 'hasValue' && (

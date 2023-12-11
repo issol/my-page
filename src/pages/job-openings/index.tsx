@@ -3,6 +3,8 @@ import PageHeader from '@src/@core/components/page-header'
 import BlankLayout from '@src/@core/layouts/BlankLayout'
 import BlankLayoutWithAppBar from '@src/@core/layouts/BlankLayoutWithAppBar'
 import OpenLayout from '@src/@core/layouts/OpenLayout'
+import UserLayout from '@src/layouts/UserLayout'
+import { getUserDataFromBrowser } from '@src/shared/auth/storage'
 import { ReactNode } from 'react'
 
 const JobOpenings = () => {
@@ -26,4 +28,8 @@ const JobOpenings = () => {
 export default JobOpenings
 
 JobOpenings.guestGuard = true
-JobOpenings.getLayout = (page: ReactNode) => <OpenLayout>{page}</OpenLayout>
+JobOpenings.getLayout = function getLayout(page: ReactNode) {
+  const userData = getUserDataFromBrowser()
+
+  return <UserLayout publicPage={userData ? false : true}>{page}</UserLayout>
+}

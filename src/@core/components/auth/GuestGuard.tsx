@@ -24,9 +24,9 @@ const GuestGuard = (props: GuestGuardProps) => {
       return
     }
 
-    if (getUserDataFromBrowser()) {
-      router.replace('/')
-    }
+    // if (getUserDataFromBrowser()) {
+    //   router.replace('/')
+    // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.route])
 

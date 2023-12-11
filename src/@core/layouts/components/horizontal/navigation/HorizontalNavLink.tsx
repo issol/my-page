@@ -112,20 +112,20 @@ const HorizontalNavLink = (props: Props) => {
               e.preventDefault()
               e.stopPropagation()
             } else if (!(ability && ability.can(item?.action, item?.subject))) {
-              e.preventDefault()
-              e.stopPropagation()
-              openModal({
-                type: 'LoginRequiredModal',
-                children: (
-                  <CustomModal
-                    onClose={() => closeModal('LoginRequiredModal')}
-                    onClick={() => closeModal('LoginRequiredModal')}
-                    title='Check'
-                    rightButtonText='Okay'
-                    vary='successful'
-                  />
-                ),
-              })
+              // e.preventDefault()
+              // e.stopPropagation()
+              // openModal({
+              //   type: 'LoginRequiredModal',
+              //   children: (
+              //     <CustomModal
+              //       onClose={() => closeModal('LoginRequiredModal')}
+              //       onClick={() => closeModal('LoginRequiredModal')}
+              //       title='Check'
+              //       rightButtonText='Okay'
+              //       vary='successful'
+              //     />
+              //   ),
+              // })
             }
           }}
           sx={{
