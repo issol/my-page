@@ -249,7 +249,7 @@ export default function CertificationTest({
                                     selectedJobInfo.id,
                                     basicTest,
                                     skillTest,
-                                    'Basic in progress',
+                                    'Basic test Ready',
                                   )
                                 }
                                 disabled={paused}
@@ -630,7 +630,7 @@ export default function CertificationTest({
                                       selectedJobInfo.id,
                                       basicTest,
                                       skillTest,
-                                      'Skill in progress',
+                                      'Skill test Ready',
                                     )
                                   }
                                 >
@@ -656,7 +656,7 @@ export default function CertificationTest({
                                     selectedJobInfo.id,
                                     basicTest,
                                     skillTest,
-                                    'Skill in progress',
+                                    'Skill test Ready',
                                   )
                                 }
                               >
