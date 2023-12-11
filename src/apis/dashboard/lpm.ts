@@ -85,12 +85,7 @@ export const getOnboardingOverview = async () => {
   return data
 }
 
-export const getLanguagePool = async () => {
-  const { data } = await axios.get(`/api/enough/cert/dashboard/language/count`)
-  return data
-}
-
-/* LPM Query*/
+/* LPM */
 export const getPaidThisMonth = async (
   type: 'payable' | 'receivable',
   currency: Currency,
@@ -109,6 +104,16 @@ export const getTotalPrice = async (
   const { data } = await axios.get(
     `/api/enough/u/dashboard/invoice/${type}/count`,
     { params: { currency } },
+  )
+  return data
+}
+
+/* TAD */
+
+export const getLanguagePool = async (base: 'source' | 'target' | 'pair') => {
+  const { data } = await axios.get(
+    `/api/enough/cert/dashboard/language/count`,
+    { params: { base } },
   )
   return data
 }

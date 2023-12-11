@@ -7,13 +7,20 @@ import ReactApexcharts from '@src/@core/components/react-apexcharts'
 
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import styled from '@emotion/styled'
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
+import {
+  useDashboardRequest,
+  useLanguagePool,
+} from '@src/queries/dashboard/dashnaord-lpm'
 
 const TADLanguagePoolBarChart = () => {
   const theme = useTheme()
 
-  const [page, setPage] = React.useState(2)
-  const [rowsPerPage, setRowsPerPage] = React.useState(10)
+  const [page, setPage] = React.useState(0)
+  const [rowsPerPage, setRowPerPage] = React.useState(6)
+  const [filter, setFilter] = useState<'source' | 'target' | 'pair'>('pair')
+
+  const { data, isLoading, isFetching } = useLanguagePool('pair')
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -25,33 +32,33 @@ const TADLanguagePoolBarChart = () => {
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
+    setRowPerPage(parseInt(event.target.value, 10))
   }
 
-  const series = [
-    {
-      name: 'Sales',
-      data: [200, 80, 200, 800, 40, 400],
-    },
-  ]
+  const [series, labels] = useMemo(() => {
+    const sliceData = data?.report.slice(
+      page * rowsPerPage,
+      page * rowsPerPage + 6,
+    )
+
+    const seriesData = [
+      {
+        name: 'series',
+        data: sliceData?.map(item => item.count) || [],
+      },
+    ]
+    const labels =
+      sliceData?.map(item => {
+        if (filter === 'source') return item.sourceLanguage
+        if (filter === 'target') return item.targetLanguage
+        return [item.sourceLanguage, `-> ${item.targetLanguage}`]
+      }) || []
+
+    return [seriesData, labels]
+  }, [data, page])
 
   const options: ApexOptions = useMemo(() => {
     const max = Math.max(...series[0].data)
-
-    const getTick = () => {
-      if (max <= 400) {
-        return 6
-      }
-
-      if (max <= 1000) {
-        return 5
-      }
-
-      return 4
-    }
-
-    const tick = getTick()
 
     return {
       chart: {
@@ -59,11 +66,12 @@ const TADLanguagePoolBarChart = () => {
         width: '100%',
         parentHeightOffset: 30,
         toolbar: { show: false },
+        offsetX: -8,
       },
       plotOptions: {
         bar: {
-          borderRadius: 4,
-          barHeight: '50%',
+          borderRadius: 8,
+          barHeight: '70%',
           horizontal: true,
           distributed: true,
           startingShape: 'rounded',
@@ -76,7 +84,7 @@ const TADLanguagePoolBarChart = () => {
         enabled: true,
         textAnchor: 'start',
         style: {
-          fontSize: '12px',
+          fontSize: '14px',
           fontWeight: 600,
           colors: ['#000'],
         },
@@ -97,11 +105,12 @@ const TADLanguagePoolBarChart = () => {
         },
       },
       colors: [
-        hexToRGBA(theme.palette.primary.light, 1),
-        hexToRGBA(theme.palette.success.light, 1),
-        hexToRGBA(theme.palette.warning.light, 1),
-        hexToRGBA(theme.palette.info.light, 1),
-        hexToRGBA(theme.palette.error.light, 1),
+        '#666CFF',
+        '#72E128',
+        '#FDB528',
+        '#26C6F9',
+        '#FF4D49',
+        '#6D788D',
       ],
       legend: { show: false },
       states: {
@@ -112,60 +121,38 @@ const TADLanguagePoolBarChart = () => {
           filter: { type: 'none' },
         },
       },
+      tooltip: {
+        enabled: true,
+      },
       xaxis: {
         min: 0,
-        max: max,
+        max: Math.ceil(max / 100) * 100,
         axisTicks: { show: false },
         axisBorder: { show: false },
-        categories: ['', '', '', '', '', ''],
-        tickAmount: tick,
+        categories: labels,
+        tickAmount: 6,
         labels: {
-          formatter: val => {
-            return `${Number(val)}`
-          },
-          style: {
-            fontSize: '0.875rem',
-            colors: theme.palette.text.disabled,
-          },
+          rotate: 0,
         },
       },
       yaxis: {
         labels: {
-          align: theme.direction === 'rtl' ? 'right' : 'left',
+          align: 'left',
+          offsetY: 6,
           style: {
             fontWeight: 600,
-            fontSize: '0.875rem',
+            fontSize: '14px',
             cssClass: 'data-label',
             colors: theme.palette.text.primary,
           },
         },
       },
     }
-  }, [])
+  }, [labels])
 
   return (
     <div style={{ position: 'relative' }}>
       <div style={{ display: 'flex' }}>
-        <ul
-          style={{
-            width: '92px',
-            listStyle: 'none',
-            display: 'flex',
-            flexDirection: 'column',
-            padding: 0,
-            margin: '43px 0 0',
-            gap: '25px',
-            fontSize: '14px',
-            fontWeight: 600,
-          }}
-        >
-          <li>ab32</li>
-          <li>ab32</li>
-          <li>ab32</li>
-          <li>ab32</li>
-          <li>ab32</li>
-          <li>ab32</li>
-        </ul>
         <CustomBarChart
           type='bar'
           width={390}
@@ -175,10 +162,10 @@ const TADLanguagePoolBarChart = () => {
         />
       </div>
       <CustomPagination
-        count={100}
+        count={data?.totalCount || 0}
         page={page}
         onPageChange={handleChangePage}
-        rowsPerPage={6}
+        rowsPerPage={rowsPerPage}
         rowsPerPageOptions={[]}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
@@ -189,9 +176,9 @@ const TADLanguagePoolBarChart = () => {
 const CustomBarChart = styled(ReactApexcharts)(() => {
   return {
     '& .data-label': {
-      height: '320px',
-      lineHeight: '24px',
-      backgroundColor: 'red',
+      fontSize: '14px',
+      fontWeight: 600,
+      textTransform: 'uppercase',
     },
   }
 })

@@ -2,6 +2,7 @@ import { useQuery } from 'react-query'
 
 import {
   getCount,
+  getLanguagePool,
   getLongStanding,
   getMemberList,
   getOnboardingOverview,
@@ -301,5 +302,21 @@ export const useTotalPrice = (
       keepPreviousData: true,
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },
+  )
+}
+
+/* TAD Query*/
+export const useLanguagePool = (base: 'source' | 'target' | 'pair') => {
+  return useQuery<{
+    totalCount: number
+    report: Array<{
+      sourceLanguage?: string
+      targetLanguage?: string
+      count: number
+      ratio: number
+      sortingOrder: number
+    }>
+  }>([DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'LanguagePool', base], () =>
+    getLanguagePool(base),
   )
 }

@@ -31,7 +31,7 @@ import {
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import { getDateFormat } from '@src/pages/dashboards/lpm'
-import TADLanguagePoolBarChart from '@src/views/dashboard/chart/languagePollBar'
+import TADLanguagePoolBarChart from '@src/views/dashboard/chart/languagePoolBar'
 
 import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
 import OnboardingList from '@src/views/dashboard/list/onboarding'
