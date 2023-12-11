@@ -130,10 +130,8 @@ const TADLanguagePoolBarChart = () => {
         axisTicks: { show: false },
         axisBorder: { show: false },
         categories: labels,
-        tickAmount: 6,
-        labels: {
-          rotate: 0,
-        },
+        tickAmount: 5,
+        labels: {},
       },
       yaxis: {
         labels: {
