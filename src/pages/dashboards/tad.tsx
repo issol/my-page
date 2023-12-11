@@ -27,10 +27,11 @@ import { KeyboardArrowRight } from '@mui/icons-material'
 import {
   RecruitingRequestColumn,
   RecruitingRequestColumns,
+  StatusApplicationColumns,
   StatusOrderColumns,
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
-import { getDateFormat } from '@src/pages/dashboards/lpm'
+import { getDateFormat, toCapitalize } from '@src/pages/dashboards/lpm'
 import TADLanguagePoolBarChart from '@src/views/dashboard/chart/languagePoolBar'
 
 import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
@@ -158,11 +159,11 @@ const TADDashboards = () => {
           </Grid>
           <StatusAndDataGrid
             userViewDate={userViewDate}
-            type='order'
-            statusColumn={StatusOrderColumns}
+            type='application'
+            statusColumn={StatusApplicationColumns}
             initSort={[
               {
-                field: 'category',
+                field: 'status',
                 sort: 'desc',
               },
             ]}
@@ -189,6 +190,7 @@ const TADDashboards = () => {
               type='job-type'
               colors={Colors}
               setOpenInfoDialog={setOpenInfoDialog}
+              isHiddenValue={true}
             />
             <Doughnut
               apiType='cert'
@@ -203,6 +205,7 @@ const TADDashboards = () => {
               type='role'
               colors={ThirdColors}
               setOpenInfoDialog={setOpenInfoDialog}
+              isHiddenValue={true}
             />
           </Grid>
           <Grid container spacing={5}>
@@ -219,6 +222,8 @@ const TADDashboards = () => {
               type='source-language'
               colors={SecondColors}
               setOpenInfoDialog={setOpenInfoDialog}
+              getName={row => `${toCapitalize(row?.name || '')}`}
+              isHiddenValue={true}
             />
 
             <Doughnut<ServiceRatioItem>
@@ -233,7 +238,9 @@ const TADDashboards = () => {
               )}
               type='target-language'
               colors={SecondColors}
+              getName={row => `${toCapitalize(row?.name || '')}`}
               setOpenInfoDialog={setOpenInfoDialog}
+              isHiddenValue={true}
             />
           </Grid>
         </Grid>

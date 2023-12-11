@@ -28,6 +28,7 @@ interface DoughnutChartProps<T> {
   getName?: (row?: T) => string
   userViewDate: string
   setOpenInfoDialog: (open: boolean, key: string) => void
+  isHiddenValue?: boolean
 }
 
 const Doughnut = <T extends RatioItem>({
@@ -40,6 +41,7 @@ const Doughnut = <T extends RatioItem>({
   getName,
   userViewDate,
   setOpenInfoDialog,
+  isHiddenValue = false,
 }: DoughnutChartProps<T>) => {
   const theme = useTheme()
 
@@ -86,6 +88,7 @@ const Doughnut = <T extends RatioItem>({
         width: 5,
       },
       tooltip: {
+        enabled: !isHiddenValue,
         custom: function ({ series, seriesIndex, dataPointIndex, w }) {
           const price = charData[seriesIndex]?.sum || 0
 
@@ -196,7 +199,7 @@ const Doughnut = <T extends RatioItem>({
             }}
           >
             <Suspense fallback={<div>로딩 중</div>}>
-              <Box sx={{ position: 'absolute', left: '-40px' }}>
+              <Box sx={{ position: 'absolute', left: '-50px' }}>
                 <CustomChart
                   type='donut'
                   options={options}
@@ -207,7 +210,10 @@ const Doughnut = <T extends RatioItem>({
                 <Typography
                   fontSize='20px'
                   fontWeight={500}
-                  sx={{ textAlign: 'center' }}
+                  sx={{
+                    textAlign: 'center',
+                    visibility: isHiddenValue ? 'hidden' : 'visible',
+                  }}
                 >
                   {data?.totalOrderPrice && CurrencyUnit[currency]}
                   {(data?.totalOrderPrice || 0).toLocaleString()}
@@ -220,18 +226,19 @@ const Doughnut = <T extends RatioItem>({
                   <li key={`{item.name}-${index}`}>
                     <Box display='flex' alignItems='center'>
                       <StatusSquare color={colors[index]} />
-                      <span className='company-name'>
+                      <span className='name'>
                         {(getName && getName(charData[index] as T)) ||
                           charData[index].name}
+                        <span className='item-count'>({item.count})</span>
                       </span>
                     </Box>
-                    <Box
-                      display='flex'
-                      justifyContent='space-between'
-                      sx={{ width: '100%' }}
-                    >
-                      <span className='item-count'>({item.count})</span>
-                      <span className='money'>
+                    <Box display='flex' justifyContent='space-between'>
+                      <span
+                        className='money'
+                        style={{
+                          visibility: isHiddenValue ? 'hidden' : 'visible',
+                        }}
+                      >
                         {CurrencyUnit[currency]}
                         {Number(item.sum).toLocaleString()}
                       </span>
@@ -263,10 +270,10 @@ const List = styled('ul')(() => {
       color: '#4C4E64DE',
     },
 
-    '& > li  .company-name': {
+    '& > li  .name': {
       display: 'block',
       fontWeight: 600,
-      width: '150px',
+      width: '220px',
     },
 
     '& > li  .left__items': {
@@ -274,7 +281,11 @@ const List = styled('ul')(() => {
       display: 'flex',
     },
 
-    '& > li  .item-count': {},
+    '& > li  .item-count': {
+      marginLeft: '3px',
+      color: 'rgba(76, 78, 100, 0.6)',
+      fontWeight: 400,
+    },
 
     '& > li  .money': {
       width: '120px',

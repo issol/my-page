@@ -7,7 +7,7 @@ import {
   getLongStanding,
   getMemberList,
   getOnboardingOverview,
-  getOrders,
+  getOngoing,
   getPaidThisMonth,
   getRatio,
   getReport,
@@ -24,11 +24,13 @@ import type {
 import {
   CountQuery,
   DashboardMemberQuery,
+  DashboardOngoingCountQuery,
   JobTypeAndRole,
   LongStandingQuery,
   RatioItem,
   RatioQuery,
   RatioResponse,
+  ViewType,
 } from '@src/types/dashboard'
 import { useRecoilValue } from 'recoil'
 import { dashboardState } from '@src/states/dashboard'
@@ -162,18 +164,18 @@ export const useDashboardCountList = ({
   return useQuery(
     [
       DEFAULT_QUERY_NAME,
-      `${DEFAULT_QUERY_NAME}-count`,
+      'countList',
       view,
       userId,
-      countType,
       type,
+      countType,
       from,
       to,
       skip,
       sort,
     ],
     () =>
-      getOrders({
+      getOngoing({
         ...props,
         from,
         to,
@@ -192,16 +194,20 @@ export const useDashboardCountList = ({
   )
 }
 
-export const useDashboardCount = ({ to, from }: DashboardQuery) => {
+export const useDashboardCount = ({
+  to,
+  from,
+  countType,
+}: DashboardOngoingCountQuery) => {
   const { userId: initUserId, view: initView } = getUserViewModeInfo()
   const { view: changeView, userId: changeUserId } =
     useRecoilValue(dashboardState)
   const view = changeView ? changeView : initView
   const userId = changeUserId ? changeUserId : initUserId
 
-  return useQuery(
-    [DEFAULT_QUERY_NAME, `${DEFAULT_QUERY_NAME}-count`, userId, to, from, view],
-    () => getCount({ to, from, userId, view }),
+  return useQuery<Record<ViewType, number>>(
+    [DEFAULT_QUERY_NAME, `ongoingCount`, userId, to, from, view, countType],
+    () => getCount({ to, from, userId, view, countType }),
     {
       suspense: true,
       keepPreviousData: true,

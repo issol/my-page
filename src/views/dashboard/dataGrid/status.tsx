@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement, Suspense, useState } from 'react'
 import { Box } from '@mui/material'
 import {
   GridItem,
@@ -12,9 +12,12 @@ import styled from '@emotion/styled'
 import AddIcon from '@mui/icons-material/Add'
 import Typography from '@mui/material/Typography'
 import {
+  Approval,
+  CheckCircleOutline,
   DoNotDisturbAlt,
   KeyboardArrowRight,
   ReceiptLong,
+  SmsFailedRounded,
 } from '@mui/icons-material'
 import { DataGrid, GridColumns, GridSortModel } from '@mui/x-data-grid'
 
@@ -27,12 +30,49 @@ import { toCapitalize } from '@src/pages/dashboards/lpm'
 import { useRouter } from 'next/router'
 import DefaultDataGrid from '@src/views/dashboard/dataGrid/default'
 
+const StatusDefined: Record<ViewType, { icon: ReactElement; color: string }> = {
+  ongoing: {
+    icon: <DoNotDisturbAlt sx={{ color: 'rgba(224, 68, 64, 1)' }} />,
+    color: 'rgba(224, 68, 64, 0.2)',
+  },
+  created: {
+    icon: <AddIcon sx={{ color: 'rgba(102, 108, 255, 1)' }} />,
+    color: 'rgba(102, 108, 255, 0.2)',
+  },
+  invoiced: {
+    icon: <ReceiptLong sx={{ color: 'rgba(100, 198, 35, 1)' }} />,
+    color: 'rgba(100, 198, 35, 0.2)',
+  },
+  canceled: {
+    icon: <DoNotDisturbAlt sx={{ color: 'rgba(224, 68, 64, 1)' }} />,
+    color: 'rgba(224, 68, 64, 0.2)',
+  },
+  applied: {
+    icon: <AddIcon sx={{ color: 'rgba(102, 108, 255, 1)' }} />,
+    color: 'rgba(102, 108, 255, 0.2)',
+  },
+  passed: {
+    icon: <CheckCircleOutline sx={{ color: 'rgba(100, 198, 35, 1)' }} />,
+    color: 'rgba(114, 225, 40, 0.2)',
+  },
+  failed: {
+    icon: <SmsFailedRounded sx={{ color: 'rgba(224, 68, 64, 1)' }} />,
+    color: 'rgba(224, 68, 64, 0.2)',
+  },
+  approved: {
+    icon: <Approval sx={{ color: 'rgba(100, 198, 35, 1)' }} />,
+    color: 'rgba(100, 198, 35, 0.2)',
+  },
+}
+
 interface StatusAndListProps<T extends { id: number }> extends DashboardQuery {
-  type: 'job' | 'order'
+  type: 'job' | 'order' | 'application'
   statusColumn: GridColumns<T>
   initSort: GridSortModel
   userViewDate: string
   setOpenInfoDialog: (open: boolean, key: string) => void
+  movePage?: () => void
+  moveDetailPage?: (id: number) => void
 }
 
 const StatusAndDataGrid = <T extends { id: number }>({
@@ -45,12 +85,13 @@ const StatusAndDataGrid = <T extends { id: number }>({
   setOpenInfoDialog,
 }: StatusAndListProps<T>) => {
   const router = useRouter()
-  const { data: countData } = useDashboardCount({ to, from })
+
   const [activeStatus, setActiveStatus] = useState<ViewType>('ongoing')
 
   const [skip, setSkip] = useState(0)
   const [sortModel, setSortModel] = useState<GridSortModel>(initSort)
 
+  const { data: countData } = useDashboardCount({ countType: type, to, from })
   const { data } = useDashboardCountList({
     countType: type,
     type: activeStatus,
@@ -79,124 +120,104 @@ const StatusAndDataGrid = <T extends { id: number }>({
   }
 
   return (
-    <Grid container flexDirection='row' gap='24px'>
-      <Grid item display='flex' flexDirection='column' gap='24px'>
-        <GridItem width={290} height={175}>
+    <Suspense fallback={<div>로딩 중</div>}>
+      <Grid container flexDirection='row' gap='24px'>
+        <Grid item display='flex' flexDirection='column' gap='24px'>
+          <GridItem width={300} height={175}>
+            <Box sx={{ width: '100%' }}>
+              <Title
+                title={`Ongoing ${type}s`}
+                marginBottom='20px'
+                handleClick={() => movePage()}
+                openDialog={setOpenInfoDialog}
+              />
+
+              <StatusSectionList style={{ padding: '20px 0' }}>
+                <li
+                  data-active={activeStatus === 'ongoing'}
+                  onClick={() => setActiveStatus('ongoing')}
+                >
+                  <StatusIcon
+                    label='Ongoing'
+                    color='rgba(253, 181, 40, 0.2)'
+                    icon={
+                      <img
+                        width={24}
+                        height={24}
+                        src='/images/icons/dashnoard_loading_icon.svg'
+                        alt='아이콘'
+                      />
+                    }
+                  />
+                  <span className='value'>
+                    {countData && countData['ongoing'].toLocaleString()}
+                  </span>
+                </li>
+              </StatusSectionList>
+            </Box>
+          </GridItem>
+          <GridItem width={300} height={290}>
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <Title
+                title={`${toCapitalize(type)} status`}
+                marginBottom='20px'
+                handleClick={() => movePage()}
+                openDialog={setOpenInfoDialog}
+                subTitle={userViewDate}
+              />
+              <StatusSectionList>
+                {Object.entries(countData || []).map(([key, value], index) => {
+                  if (key === 'ongoing') return null
+                  return (
+                    <li
+                      key={`${key}-${index}`}
+                      data-active={activeStatus === key}
+                      onClick={() => setActiveStatus(key as ViewType)}
+                    >
+                      <StatusIcon
+                        label={toCapitalize(key)}
+                        color={StatusDefined[key as ViewType]?.color}
+                        icon={StatusDefined[key as ViewType]?.icon}
+                      />
+                      <span className='value'>{value.toLocaleString()}</span>
+                    </li>
+                  )
+                })}
+              </StatusSectionList>
+            </Box>
+          </GridItem>
+        </Grid>
+        <GridItem sm height={489} padding='0'>
           <Box sx={{ width: '100%' }}>
             <Title
-              title={`Ongoing ${type}s`}
+              title={`Ongoing ${type}s > ${toCapitalize(activeStatus)}`}
+              postfix={`(${(countData && countData[activeStatus]) || 0})`}
               marginBottom='20px'
+              padding='20px 20px 0'
               handleClick={() => movePage()}
-              openDialog={setOpenInfoDialog}
             />
-
-            <StatusSectionList style={{ padding: '20px 0' }}>
-              <li
-                data-active={activeStatus === 'ongoing'}
-                onClick={() => setActiveStatus('ongoing')}
-              >
-                <StatusIcon
-                  label='Ongoing'
-                  color='rgba(253, 181, 40, 0.2)'
-                  icon={
-                    <img
-                      width={24}
-                      height={24}
-                      src='/images/icons/dashnoard_loading_icon.svg'
-                      alt='아이콘'
-                    />
-                  }
-                />
-                <span className='value'>
-                  {countData['ongoing'].toLocaleString()}
-                </span>
-              </li>
-            </StatusSectionList>
-          </Box>
-        </GridItem>
-        <GridItem width={290} height={290}>
-          <Box sx={{ width: '100%', height: '100%' }}>
-            <Title
-              title={`${toCapitalize(type)} status`}
-              marginBottom='20px'
-              handleClick={() => movePage()}
-              openDialog={setOpenInfoDialog}
-              subTitle={userViewDate}
-            />
-            <StatusSectionList>
-              <li
-                data-active={activeStatus === 'created'}
-                onClick={() => setActiveStatus('created')}
-              >
-                <StatusIcon
-                  label='Created'
-                  color='rgba(102, 108, 255, 0.2)'
-                  icon={<AddIcon sx={{ color: '#666CFF' }} />}
-                />
-                <span className='value'>
-                  {countData['created'].toLocaleString()}
-                </span>
-              </li>
-              <li
-                data-active={activeStatus === 'invoiced'}
-                onClick={() => setActiveStatus('invoiced')}
-              >
-                <StatusIcon
-                  label='Invoiced'
-                  color='rgba(114, 225, 40, 0.2)'
-                  icon={<ReceiptLong sx={{ color: '#64C623' }} />}
-                />
-                <span className='value'>
-                  {countData['invoiced'].toLocaleString()}
-                </span>
-              </li>
-              <li
-                data-active={activeStatus === 'canceled'}
-                onClick={() => setActiveStatus('canceled')}
-              >
-                <StatusIcon
-                  label='Canceled'
-                  color='rgba(224, 68, 64, 0.1)'
-                  icon={<DoNotDisturbAlt sx={{ color: '#E04440' }} />}
-                />
-                <span className='value'>
-                  {countData['canceled'].toLocaleString()}
-                </span>
-              </li>
-            </StatusSectionList>
+            <Box
+              sx={{
+                width: '100%',
+                height: `calc(489px - 72px)`,
+                padding: 0,
+                margin: 0,
+              }}
+            >
+              <DefaultDataGrid
+                data={data}
+                columns={statusColumn}
+                defaultPageSize={6}
+                sortModel={sortModel}
+                setSortModel={setSortModel}
+                setSkip={setSkip}
+                onRowClick={params => moveDetailPage(params.id as number)}
+              />
+            </Box>
           </Box>
         </GridItem>
       </Grid>
-      <GridItem sm height={489} padding='0'>
-        <Box sx={{ width: '100%' }}>
-          <Title
-            title={`Ongoing ${type}s > ${toCapitalize(activeStatus)}`}
-            postfix={`(${countData[activeStatus]})`}
-            marginBottom='20px'
-            padding='20px 20px 0'
-            handleClick={() => movePage()}
-          />
-          <Box
-            sx={{
-              width: '100%',
-              height: `calc(489px - 72px)`,
-              padding: 0,
-              margin: 0,
-            }}
-          >
-            <DefaultDataGrid
-              data={data}
-              columns={statusColumn}
-              defaultPageSize={6}
-              sortModel={sortModel}
-              setSortModel={setSortModel}
-              setSkip={setSkip}
-              onRowClick={params => moveDetailPage(params.id as number)}
-            />
-          </Box>
-        </Box>
-      </GridItem>
-    </Grid>
+    </Suspense>
   )
 }
 

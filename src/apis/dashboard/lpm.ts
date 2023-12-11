@@ -3,17 +3,13 @@ import {
   CountQuery,
   Currency,
   DashboardMemberQuery,
-  DashboardPaginationQuery,
+  DashboardOngoingCountQuery,
   DashboardQuery,
   LongStandingQuery,
   RatioQuery,
   ReportItem,
   RequestQuery,
 } from '@src/types/dashboard'
-import {
-  usePaidThisMonthAmount,
-  useTADOnboarding,
-} from '@src/queries/dashboard/dashnaord-lpm'
 
 export const getReport = async (
   params: DashboardQuery,
@@ -42,9 +38,11 @@ export const getRatio = async (params: RatioQuery) => {
   return data
 }
 
-export const getOrders = async ({ countType, ...props }: CountQuery) => {
+export const getOngoing = async ({ countType, ...props }: CountQuery) => {
+  const apiType = countType === 'application' ? 'cert' : 'u'
+
   const { data } = await axios.get(
-    `/api/enough/u/dashboard/${countType}/list`,
+    `/api/enough/${apiType}/dashboard/${countType}/list`,
     {
       params: { ...props },
     },
@@ -52,10 +50,18 @@ export const getOrders = async ({ countType, ...props }: CountQuery) => {
   return data
 }
 
-export const getCount = async (params: DashboardQuery) => {
-  const { data } = await axios.get(`/api/enough/u/dashboard/order/count`, {
-    params: params,
-  })
+export const getCount = async ({
+  countType,
+  ...params
+}: DashboardOngoingCountQuery) => {
+  const apiType = countType === 'application' ? 'cert' : 'u'
+
+  const { data } = await axios.get(
+    `/api/enough/${apiType}/dashboard/${countType}/count`,
+    {
+      params: params,
+    },
+  )
   return data
 }
 

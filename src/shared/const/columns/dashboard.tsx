@@ -548,6 +548,81 @@ export const StatusJobColumns: GridColumns = [
   },
 ]
 
+export const StatusApplicationColumns: GridColumns = [
+  {
+    field: 'status',
+    headerName: 'status',
+    minWidth: 192,
+    renderHeader: () => <Box>status</Box>,
+    renderCell: ({ row }: { row: JobItem }) => {
+      return (
+        <div>
+          <OrderStatusChip
+            size='small'
+            status={row?.status}
+            label={row?.status}
+          />
+        </div>
+      )
+    },
+  },
+  {
+    field: 'proName',
+    headerName: 'Legal name / Email',
+    minWidth: 192,
+    renderHeader: () => <Box>Pro / Email</Box>,
+    renderCell: ({ row }: { row: JobItem }) => {
+      return (
+        <Box>
+          <Typography fontSize='14px' fontWeight={600}>
+            {`${row.pro?.firstName || '-'} ${row.pro?.middleName || '-'} ${
+              row.pro?.lastName || '-'
+            }` || '-'}
+          </Typography>
+          <Typography color='#4C4E6499' fontSize='14px'>
+            {row.pro?.email || '-'}
+          </Typography>
+        </Box>
+      )
+    },
+  },
+  {
+    field: 'jobName',
+    headerName: 'Job name',
+    minWidth: 220,
+    renderHeader: () => <Box>Job name</Box>,
+    renderCell: ({ row }: { row: JobItem }) => {
+      return <div>{row.jobName}</div>
+    },
+  },
+  {
+    field: 'job',
+    headerName: 'Job',
+    minWidth: 320,
+    flex: 1,
+    sortable: false,
+    renderHeader: () => <Box>Job</Box>,
+    renderCell: ({ row }: { row: JobItem }) => {
+      return (
+        <Box
+          display='flex'
+          justifyContent='space-between'
+          alignItems='center'
+          gap='10px'
+          sx={{ width: '340px' }}
+        >
+          <Box display='flex' gap='10px'>
+            {row.jobType ? (
+              <JobTypeChip type={row.jobType} label={row.jobType} />
+            ) : (
+              '-'
+            )}
+          </Box>
+        </Box>
+      )
+    },
+  },
+]
 export const JobTableColumn: GridColumns = [
   {
     field: 'numbering',

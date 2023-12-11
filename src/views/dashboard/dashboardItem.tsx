@@ -70,6 +70,7 @@ export const SectionTitle = styled('div')(() => {
       border: 'none',
       color: 'rgba(76, 78, 100, 0.87)',
       cursor: 'pointer',
+      letterSpacing: '0.15px',
     },
 
     '& .info_icon': {

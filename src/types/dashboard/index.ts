@@ -17,7 +17,15 @@ export interface DashboardQuery extends Partial<ViewModeQuery> {
 
 export type RequestType = 'new' | 'recruiting'
 
-export type ViewType = 'created' | 'invoiced' | 'canceled' | 'ongoing'
+export type ViewType =
+  | 'created'
+  | 'invoiced'
+  | 'canceled'
+  | 'ongoing'
+  | 'applied'
+  | 'passed'
+  | 'failed'
+  | 'approved'
 
 export type OrderType = 'asc' | 'desc'
 
@@ -44,6 +52,9 @@ export interface DashboardMemberQuery
   search: string
 }
 
+export interface DashboardOngoingCountQuery extends DashboardQuery {
+  countType: 'job' | 'order' | 'application'
+}
 export type ReportItem = {
   requests: number
   quotes: number
@@ -189,7 +200,7 @@ export interface CountQuery
     Omit<DashboardPaginationQuery, 'type'>,
     Partial<ViewModeQuery> {
   type: ViewType
-  countType: 'job' | 'order'
+  countType: 'job' | 'order' | 'application'
   sort: string
   ordering: OrderType
 }
