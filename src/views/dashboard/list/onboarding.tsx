@@ -1,5 +1,6 @@
 import {
   PermIdentityOutlined,
+  SvgIconComponent,
   TrendingDown,
   TrendingUp,
 } from '@mui/icons-material'
@@ -15,22 +16,22 @@ const overview: Array<{
   key: OverviewType
   label: string
   color: string
-  icon: SVGElement
+  icon: SvgIconComponent
 }> = [
   {
-    key: 'onboardedPros',
+    key: 'onboarded',
     label: 'Onboarded Pros',
     color: '102, 108, 255',
     icon: PermIdentityOutlined,
   },
   {
-    key: 'onboardingInProgress',
+    key: 'onboarding',
     label: 'Onboarding in progress',
     color: '38, 198, 249',
     icon: TrendingUp,
   },
   {
-    key: 'failedPros',
+    key: 'failed',
     label: 'Failed Pros',
     color: '255, 77, 73',
     icon: TrendingDown,
