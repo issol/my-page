@@ -224,7 +224,7 @@ const ProjectInfo = ({
             }
             title={
               <>
-                re you sure you want to change the status to Without invoice?{' '}
+                Are you sure you want to change the status to Without invoice?{' '}
                 <br />
                 <br />
                 The client's status will also be updated accordingly.{' '}
