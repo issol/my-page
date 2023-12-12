@@ -1,11 +1,14 @@
 import Grid from '@mui/material/Grid'
 import {
+  ChartBoxIcon,
   ConvertButtonGroup,
   GridItem,
   ReportItem,
   SectionTitle,
   SubDateDescription,
   TableStatusCircle,
+  Title,
+  TotalValueView,
 } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
@@ -41,83 +44,14 @@ import styled from '@emotion/styled'
 import { getDateFormat, toCapitalize } from '@src/pages/dashboards/lpm'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
+import Total, {
+  payableColors,
+  ReceivableColors,
+} from '@src/views/dashboard/chart/total'
+import { Add, Archive, MonetizationOn, ReceiptLong } from '@mui/icons-material'
+import ClientReport from '@src/views/dashboard/list/clientReport'
 
 dayjs.extend(weekday)
-
-const StyledTableRow = styled(TableRow)(() => ({
-  '&': {
-    height: '44px',
-  },
-}))
-
-const StyledTableCell = styled(TableCell)(() => {
-  return {
-    padding: '0 !important',
-    border: 'none',
-    fontSize: '14px',
-    fontWeight: '600 !important',
-
-    '& > span': {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '10px',
-    },
-
-    '& .ratio': {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: '48px',
-      height: '20px',
-      borderRadius: '64px',
-      color: '#fff',
-      backgroundColor: 'rgba(109, 120, 141, 1)',
-    },
-  }
-})
-
-const HeaderTableCell = styled(TableCell)(() => {
-  return {
-    padding: '0 !important',
-    fontWeight: '500 !important',
-    fontSize: '12px',
-    textTransform: 'capitalize',
-  }
-})
-
-const TableStatusColor = [
-  'rgba(60, 61, 91, 1)',
-  'rgba(114, 225, 40, 1)',
-  'rgba(224, 68, 64, 1)',
-  'rgba(224, 224, 224, 1)',
-]
-
-const rows = [
-  {
-    name: 'Invoiced',
-    count: 123,
-    sum: 123,
-    sortingOrder: 1,
-  },
-  {
-    name: 'Paid',
-    count: 123,
-    sum: 123,
-    sortingOrder: 2,
-  },
-  {
-    name: 'Overdue',
-    count: 123,
-    sum: 123,
-    sortingOrder: 3,
-  },
-  {
-    name: 'Canceled',
-    count: 123,
-    sum: 123,
-    sortingOrder: 4,
-  },
-]
 
 const ClientDashboards = () => {
   const { formHook, infoDialog, memberView } = UseDashboardControl()
@@ -196,95 +130,41 @@ const ClientDashboards = () => {
                 </Box>
               </GridItem>
             )}
-            <GridItem height={375} sm padding='20px'>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <Box>
-                  <SectionTitle>
-                    <span className='title'>Invoices</span>
-                    <ErrorOutlineIcon className='info_icon' />
-                  </SectionTitle>
-                  <SubDateDescription textAlign='left'>
-                    {userViewDate}
-                  </SubDateDescription>
-                  <Box display='flex' justifyContent='flex-end'>
-                    <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
+          </Grid>
+          <Grid container gap='24px'>
+            <Grid item display='flex' flexDirection='column' gap='24px' xs={6}>
+              <GridItem height={219} sm>
+                <Box sx={{ width: '100%', height: '100%' }}>
+                  <Box>
+                    <Title
+                      title='Receivables - Paid this month'
+                      openDialog={setOpenInfoDialog}
+                    />
                   </Box>
+                  <TotalValueView
+                    type='receivable'
+                    label='Paid this month'
+                    amountLabel='Receivable amount'
+                    countLabel='Counts'
+                  />
                 </Box>
-                <Box display='flex'>
-                  <Box sx={{ width: '50%', padding: '40px 20px 40px 0' }}>
-                    <Box display='flex' alignItems='center' gap='16px'>
-                      {/*<TitleIcon>*/}
-                      {/*  <ReceiptLong className='icon' />*/}
-                      {/*</TitleIcon>*/}
-                      <Box display='flex' flexDirection='column'>
-                        <Typography
-                          fontWeight={500}
-                          fontSize='34px'
-                          letterSpacing='0.25px'
-                          lineHeight='40px'
-                        >{`5,200`}</Typography>
-                        <Typography
-                          fontSize='12px'
-                          color='rgba(76, 78, 100, 0.6)'
-                        >
-                          In total
-                        </Typography>
-                      </Box>
-                    </Box>
-                    {/*<LinearMultiProgress />*/}
-                  </Box>
-                  <Box sx={{ width: '50%', marginLeft: '40px' }}>
-                    <Table sx={{ height: '240px' }} aria-label='invoices table'>
-                      <TableHead>
-                        <StyledTableRow>
-                          <HeaderTableCell>Status</HeaderTableCell>
-                          <HeaderTableCell align='center'>
-                            Count
-                          </HeaderTableCell>
-                          <HeaderTableCell align='right'>
-                            Prices
-                          </HeaderTableCell>
-                        </StyledTableRow>
-                      </TableHead>
-                      <TableBody>
-                        {rows.map((row, index) => (
-                          <StyledTableRow key={row.name}>
-                            <StyledTableCell>
-                              <span>
-                                <TableStatusCircle
-                                  color={TableStatusColor[index]}
-                                />
-                                {row.name}
-                              </span>
-                            </StyledTableCell>
-                            <StyledTableCell align='center' scope='row'>
-                              {row.count}
-                            </StyledTableCell>
-                            <StyledTableCell>
-                              <span style={{ justifyContent: 'flex-end' }}>
-                                {row.sum}
-                                <span className='ratio'>{`${
-                                  row.sum / 3000
-                                }%`}</span>
-                              </span>
-                            </StyledTableCell>
-                          </StyledTableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Box>
-                </Box>
-              </Box>
-            </GridItem>
-            {memberView && (
-              <GridItem width='269px' height={375} padding='0'>
-                <img
-                  src='/images/dashboard/img_member_view.png'
-                  alt='img'
-                  style={{ width: '110%' }}
-                />
               </GridItem>
-            )}
+              <ClientReport
+                userViewDate={userViewDate}
+                setOpenInfoDialog={setOpenInfoDialog}
+              />
+            </Grid>
+            <GridItem sm height={532}>
+              <Total
+                type='payable'
+                title='Payables - Total'
+                iconColor='114, 225, 40'
+                icon={ReceiptLong}
+                setOpenInfoDialog={setOpenInfoDialog}
+                statusList={['Invoiced', 'Paid', 'Overdue', 'Canceled']}
+                colors={ReceivableColors}
+              />
+            </GridItem>
           </Grid>
           <StatusAndDataGrid
             userViewDate={userViewDate}
