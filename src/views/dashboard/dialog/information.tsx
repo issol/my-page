@@ -46,16 +46,16 @@ const INFO_CONTENTS: Record<InfoKey, Record<string, string | ReactElement>> = {
   TAD: {
     'Number of Pros': (
       <ul>
-        <li>
+        <li style={{ textAlign: 'left' }}>
           <b>Onboarded Pros</b> shows the number of Pros who have a certified
           role and finished signing contracts.
         </li>
-        <li>
+        <li style={{ textAlign: 'left' }}>
           <b>Onboarding in progress</b> shows the number of new Pros whose
           onboarding process is in progress. It does not include cases where a
           Pro has been already onboarded and is taking a new test.
         </li>
-        <li>
+        <li style={{ textAlign: 'left' }}>
           <b>Failed Pros</b> shows the number of Pros who failed the test and
           are unable to perform tasks. It does not include cases where a Pro who
           failed a particular test has another Certified role or is taking
@@ -95,6 +95,7 @@ export const ReplaceTitle: Record<string, string> = {
   'Main categories': 'Sales per category',
   'Service types': 'Sales per service type',
   'Area of expertises': 'Sales per area of expertise',
+  'Onboarding overview': 'Number of Pros',
 }
 interface InfoDialogProps {
   keyName: string

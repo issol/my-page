@@ -3,6 +3,7 @@ import {
   GridItem,
   SectionTitle,
   SubDateDescription,
+  Title,
 } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
@@ -73,17 +74,10 @@ const TADDashboards = () => {
             <GridItem width={490} height={267}>
               <Box sx={{ width: '100%' }}>
                 <Box sx={{ margin: '20px 0' }}>
-                  <SectionTitle>
-                    <span
-                      role='button'
-                      className='title'
-                      onClick={() => router.push('/quotes/lpm/requests/')}
-                    >
-                      Onboarding overview
-                    </span>
-                    <ErrorOutlineIcon className='info_icon' />
-                    <KeyboardArrowRight className='arrow_icon' />
-                  </SectionTitle>
+                  <Title
+                    title='Onboarding overview'
+                    openDialog={setOpenInfoDialog}
+                  />
                 </Box>
                 <OnboardingList />
               </Box>
@@ -91,17 +85,10 @@ const TADDashboards = () => {
             <GridItem sm height={267} padding='0px'>
               <Box sx={{ width: '100%', marginTop: '20px' }}>
                 <Box sx={{ padding: '0 20px' }}>
-                  <SectionTitle>
-                    <span
-                      role='button'
-                      className='title'
-                      onClick={() => router.push('/quotes/lpm/requests/')}
-                    >
-                      Recruiting requests
-                    </span>
-                    <ErrorOutlineIcon className='info_icon' />
-                    <KeyboardArrowRight className='arrow_icon' />
-                  </SectionTitle>
+                  <Title
+                    title='Recruiting requests'
+                    openDialog={setOpenInfoDialog}
+                  />
                 </Box>
                 <DashboardDataGrid
                   path='recruiting/dashboard/recruiting/list/ongoing'
@@ -115,46 +102,10 @@ const TADDashboards = () => {
           </Grid>
           <Grid container gap='24px'>
             <GridItem width={490} height={496}>
-              <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>
-                <Box>
-                  <SectionTitle>
-                    <span
-                      role='button'
-                      className='title'
-                      onClick={() => router.push('/quotes/lpm/requests/')}
-                    >
-                      Language pool
-                    </span>
-                    <ErrorOutlineIcon className='info_icon' />
-                    <KeyboardArrowRight className='arrow_icon' />
-                  </SectionTitle>
-                  <SubDateDescription textAlign='left'>
-                    Total 210 Language pairs
-                  </SubDateDescription>
-                </Box>
-                <TADLanguagePoolBarChart />
-              </Box>
+              <TADLanguagePoolBarChart setOpenInfoDialog={setOpenInfoDialog} />
             </GridItem>
             <GridItem sm height={496} padding='0'>
-              <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>
-                <Box sx={{ padding: '20px 20px 10px' }}>
-                  <SectionTitle>
-                    <span
-                      role='button'
-                      className='title'
-                      onClick={() => router.push('/quotes/lpm/requests/')}
-                    >
-                      Job type/Role pool
-                    </span>
-                    <ErrorOutlineIcon className='info_icon' />
-                    <KeyboardArrowRight className='arrow_icon' />
-                  </SectionTitle>
-                  <SubDateDescription textAlign='left'>
-                    Total 210 Job type/Role
-                  </SubDateDescription>
-                </Box>
-                <TADJobDataGrid />
-              </Box>
+              <TADJobDataGrid setOpenInfoDialog={setOpenInfoDialog} />
             </GridItem>
           </Grid>
           <StatusAndDataGrid

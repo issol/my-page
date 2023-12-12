@@ -2,82 +2,40 @@ import { DataGrid } from '@mui/x-data-grid/DataGrid'
 import { JobTableColumn } from '@src/shared/const/columns/dashboard'
 import styled from 'styled-components'
 import { useJobType } from '@src/queries/dashboard/dashnaord-lpm'
+import { Box } from '@mui/material'
+import { Title } from '@src/views/dashboard/dashboardItem'
+import React from 'react'
 
-const TempData = {
-  take: 7,
-  skip: 0,
-  totalCount: 323,
-  sort: 'jobType-role',
-  ordering: 'desc', // default
-  data: [
-    {
-      id: 26,
-      jobType: 'Dubbing',
-      role: 'Audio describer',
-      pros: 323,
-      ratio: 3.2,
-    },
-    {
-      id: 27,
-      jobType: 'Dubbing',
-      role: 'Audio describer',
-      pros: 323,
-      ratio: 3.2,
-    },
-    {
-      id: 28,
-      jobType: 'Dubbing',
-      role: 'Audio describer',
-      pros: 323,
-      ratio: 3.2,
-    },
-    {
-      id: 29,
-      jobType: 'Dubbing',
-      role: 'Audio describer',
-      pros: 323,
-      ratio: 3.2,
-    },
-    {
-      id: 30,
-      jobType: 'Dubbing',
-      role: 'Audio describer',
-      pros: 323,
-      ratio: 3.2,
-    },
-    {
-      id: 31,
-      jobType: 'Dubbing',
-      role: 'Audio describer',
-      pros: 323,
-      ratio: 3.2,
-    },
-    {
-      id: 32,
-      jobType: 'Dubbing',
-      role: 'Audio describer',
-      pros: 323,
-      ratio: 3.2,
-    },
-  ],
+interface TADJobDataGridProps {
+  setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
-const TADJobDataGrid = () => {
+const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
   const { data } = useJobType('pair')
+
   return (
-    <div style={{ height: '400px', width: '100%' }}>
-      <CustomDataGrid
-        columns={JobTableColumn}
-        rows={(data?.report || []).map((item, index) => ({
-          id: `${item.jobType}-${index}`,
-          numbering: index + 1,
-          ...item,
-        }))}
-        rowCount={data?.totalCount || 0}
-        pageSize={7}
-        rowsPerPageOptions={[]}
-      />
-    </div>
+    <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>
+      <Box sx={{ padding: '20px 20px 10px' }}>
+        <Title
+          title='Job type/Role pool'
+          subTitle={`Total ${data?.totalCount || 0} Job type/Role`}
+          openDialog={setOpenInfoDialog}
+        />
+      </Box>
+      <div style={{ height: '400px', width: '100%' }}>
+        <CustomDataGrid
+          columns={JobTableColumn}
+          rows={(data?.report || []).map((item, index) => ({
+            id: `${item.jobType}-${index}`,
+            numbering: index + 1,
+            ...item,
+          }))}
+          rowCount={data?.totalCount || 0}
+          pageSize={7}
+          rowsPerPageOptions={[]}
+        />
+      </div>
+    </Box>
   )
 }
 

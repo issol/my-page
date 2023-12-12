@@ -4,16 +4,19 @@ import TablePagination from '@mui/material/TablePagination'
 import { ApexOptions } from 'apexcharts'
 
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
-
-import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import styled from '@emotion/styled'
 import React, { useMemo, useState } from 'react'
-import {
-  useDashboardRequest,
-  useLanguagePool,
-} from '@src/queries/dashboard/dashnaord-lpm'
+import { useLanguagePool } from '@src/queries/dashboard/dashnaord-lpm'
+import { Box } from '@mui/material'
+import { Title } from '@src/views/dashboard/dashboardItem'
 
-const TADLanguagePoolBarChart = () => {
+interface TADLanguagePoolBarChartProps {
+  setOpenInfoDialog: (open: boolean, key: string) => void
+}
+
+const TADLanguagePoolBarChart = ({
+  setOpenInfoDialog,
+}: TADLanguagePoolBarChartProps) => {
   const theme = useTheme()
 
   const [page, setPage] = React.useState(0)
@@ -149,25 +152,34 @@ const TADLanguagePoolBarChart = () => {
   }, [labels])
 
   return (
-    <div style={{ position: 'relative' }}>
-      <div style={{ display: 'flex' }}>
-        <CustomBarChart
-          type='bar'
-          width={390}
-          height={350}
-          series={series}
-          options={options}
+    <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>
+      <Box>
+        <Title
+          title='Language pool'
+          subTitle={`Total ${data?.totalCount || 0} Language pairs`}
+          openDialog={setOpenInfoDialog}
+        />
+      </Box>
+      <div style={{ position: 'relative' }}>
+        <div style={{ display: 'flex' }}>
+          <CustomBarChart
+            type='bar'
+            width={390}
+            height={350}
+            series={series}
+            options={options}
+          />
+        </div>
+        <CustomPagination
+          count={data?.totalCount || 0}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={[]}
+          onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </div>
-      <CustomPagination
-        count={data?.totalCount || 0}
-        page={page}
-        onPageChange={handleChangePage}
-        rowsPerPage={rowsPerPage}
-        rowsPerPageOptions={[]}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
-    </div>
+    </Box>
   )
 }
 
