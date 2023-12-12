@@ -19,6 +19,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'pro_mypage',
       path: `/mypage/pro`,
       role: ['PRO'],
+      externalLink: true,
     },
     // TODO: 아래 메뉴 용도 확인 필요
     // {

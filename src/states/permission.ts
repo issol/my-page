@@ -486,6 +486,7 @@ export const permissionSelector = selector<PermissionObjectType>({
             subject: 'pro_mypage',
             can: 'delete',
           },
+
           {
             subject: 'pro_payment',
             can: 'read',
