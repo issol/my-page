@@ -125,6 +125,7 @@ const HorizontalNavLink = (props: Props) => {
                     <LoginRequiredModal
                       onClose={() => closeModal('LoginRequiredModal')}
                       onClick={() => closeModal('LoginRequiredModal')}
+                      path={item.path}
                     />
                   ),
                 })

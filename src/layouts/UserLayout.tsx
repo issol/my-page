@@ -30,7 +30,7 @@ import {
   PROMenu,
   CLIENTMenu,
 } from '@src/shared/const/menu/menu'
-import { getCurrentRole } from 'src/shared/auth/storage'
+import { getCurrentRole, getUserDataFromBrowser } from 'src/shared/auth/storage'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useRecoilValueLoadable } from 'recoil'
 import { currentRoleSelector, permissionState } from '@src/states/permission'
@@ -40,19 +40,16 @@ import { UserRoleType } from '@src/context/types'
 import { useQuery } from 'react-query'
 import { getUserBeHealthz } from '@src/apis/common.api'
 import ErrorServerMaintenance from '@src/@core/components/error/error-server-maintenance'
+import { authState } from '@src/states/auth'
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean
-  publicPage?: boolean
 }
 
-const UserLayout = ({
-  children,
-  contentHeightFixed,
-  publicPage = false,
-}: Props) => {
+const UserLayout = ({ children, contentHeightFixed }: Props) => {
   // ** Hooks
   const { settings, saveSettings } = useSettings()
+  const userData = useRecoilValueLoadable(authState)
 
   const {
     data: health,
@@ -93,7 +90,12 @@ const UserLayout = ({
     settings.layout = 'vertical'
   }
 
-  console.log(currentRoleState)
+  const [publicPage, setPublicPage] = useState(false)
+
+  useEffect(() => {
+    const user = userData.getValue().user
+    setPublicPage(user ? false : true)
+  }, [userData])
 
   useEffect(() => {
     const current =
@@ -176,16 +178,6 @@ const UserLayout = ({
               // Uncomment the below line when using server-side menu in vertical layout and comment the above line
               // navItems: verticalMenuItems
             },
-            // appBar: {
-            //   content: props => (
-            //     <VerticalAppBarContent
-            //       hidden={hidden}
-            //       settings={settings}
-            //       saveSettings={saveSettings}
-            //       toggleNavVisibility={props.toggleNavVisibility}
-            //     />
-            //   ),
-            // },
           }}
           horizontalLayoutProps={{
             navMenu: {
