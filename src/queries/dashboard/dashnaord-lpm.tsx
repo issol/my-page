@@ -194,6 +194,7 @@ export const useDashboardCountList = ({
   )
 }
 
+export type DashboardCountResult = Record<ViewType, number>
 export const useDashboardCount = ({
   to,
   from,
@@ -205,7 +206,7 @@ export const useDashboardCount = ({
   const view = changeView ? changeView : initView
   const userId = changeUserId ? changeUserId : initUserId
 
-  return useQuery<Record<ViewType, number>>(
+  return useQuery<DashboardCountResult>(
     [DEFAULT_QUERY_NAME, `ongoingCount`, userId, to, from, view, countType],
     () => getCount({ to, from, userId, view, countType }),
     {
@@ -260,6 +261,7 @@ export const useLongStanding = (params: LongStandingQuery) => {
 }
 
 export type OverviewType = 'onboarded' | 'onboarding' | 'failed'
+export type TADOnboardingResult = Record<OverviewType, number>
 export const useTADOnboarding = () => {
   return useQuery<Record<OverviewType, number>>(
     [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'Onboarding'],
@@ -309,17 +311,18 @@ export const useTotalPrice = (
 }
 
 /* TAD Query*/
+export interface LanguagePoolResult {
+  totalCount: number
+  report: Array<{
+    sourceLanguage?: string
+    targetLanguage?: string
+    count: number
+    ratio: number
+    sortingOrder: number
+  }>
+}
 export const useLanguagePool = (base: 'source' | 'target' | 'pair') => {
-  return useQuery<{
-    totalCount: number
-    report: Array<{
-      sourceLanguage?: string
-      targetLanguage?: string
-      count: number
-      ratio: number
-      sortingOrder: number
-    }>
-  }>(
+  return useQuery<LanguagePoolResult>(
     [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'LanguagePool', base],
     () => getLanguagePool(base),
     {
@@ -330,6 +333,10 @@ export const useLanguagePool = (base: 'source' | 'target' | 'pair') => {
   )
 }
 
+export interface JobTypeAndRoleResult {
+  totalCount: number
+  report: Array<JobTypeAndRole>
+}
 export const useJobType = (base: 'jobType' | 'role' | 'pair') => {
   return useQuery<{
     count: number

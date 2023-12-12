@@ -16,7 +16,12 @@ import {
   SecondColors,
   ThirdColors,
 } from '@src/shared/const/dashboard/chart'
-import { CategoryRatioItem, ServiceRatioItem } from '@src/types/dashboard'
+import {
+  CategoryRatioItem,
+  RatioItem,
+  RecruitingRequest,
+  ServiceRatioItem,
+} from '@src/types/dashboard'
 import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import {
   RecruitingRequestColumn,
@@ -33,7 +38,14 @@ import TADJobDataGrid from '@src/views/dashboard/dataGrid/jobAndRolePool'
 import Information from '@src/views/dashboard/dialog/information'
 import CSVDownload from '@src/views/dashboard/csvDownload'
 import { useQuery, useQueryClient } from 'react-query'
-import { DEFAULT_QUERY_NAME } from '@src/queries/dashboard/dashnaord-lpm'
+import {
+  DashboardCountResult,
+  DEFAULT_QUERY_NAME,
+  JobTypeAndRoleResult,
+  LanguagePoolResult,
+  OverviewType,
+  TADOnboardingResult,
+} from '@src/queries/dashboard/dashnaord-lpm'
 import { TADHeader1, TADHeader2 } from '@src/shared/const/dashboard/csvTemplate'
 import onboarding from '@src/views/dashboard/list/onboarding'
 
@@ -76,33 +88,38 @@ const TADDashboards = () => {
 
     const Onboarding = data.filter(item =>
       item[0].includes('Onboarding'),
-    )[0][1] as any
+    )[0][1] as TADOnboardingResult
 
     const OngoingCount = data.filter(item =>
       item[0].includes('ongoingCount'),
-    )[0][1] as any
+    )[0][1] as DashboardCountResult
+    // {
+    //   totalCount: number
+    //   count: number
+    //   report: Array<RecruitingRequest>
+    // }
 
     const LanguagePool = data.filter(item =>
       item[0].includes('LanguagePool'),
-    )[0][1] as any
+    )[0][1] as LanguagePoolResult
     const JobTypeAndRole = data.filter(item =>
       item[0].includes('JobTypeAndRole'),
-    )[0][1] as any
+    )[0][1] as JobTypeAndRoleResult
 
     const ratios = data.filter(item => item[0].includes('ratio'))
 
     const jobTypes = ratios.filter(item =>
       item[0].includes('Applied job types'),
-    )[0][1] as any
+    )[0][1] as { totalCount: number; count: number; report: Array<RatioItem> }
     const roles = ratios.filter(item =>
       item[0].includes('Applied roles'),
-    )[0][1] as any
+    )[0][1] as { totalCount: number; count: number; report: Array<RatioItem> }
     const sourceLanguages = ratios.filter(item =>
       item[0].includes('Applied source languages'),
-    )[0][1] as any
+    )[0][1] as { totalCount: number; count: number; report: Array<RatioItem> }
     const targetLanguages = ratios.filter(item =>
       item[0].includes('Applied target languages'),
-    )[0][1] as any
+    )[0][1] as { totalCount: number; count: number; report: Array<RatioItem> }
 
     const filterLanguage = LanguagePool.report.map(item => {
       return {
@@ -124,7 +141,7 @@ const TADDashboards = () => {
 
     const filterJobTypes = jobTypes.report.map(item => {
       return {
-        'Applied job types': item.name,
+        'Applied job types': item.name || '',
         'Applied job types Number': item.count,
         'Applied job types Percent': item.ratio,
       }
@@ -132,7 +149,7 @@ const TADDashboards = () => {
 
     const filterRoles = roles.report.map(item => {
       return {
-        'Applied roles': item.name,
+        'Applied roles': item.name || '',
         'Applied roles Number': item.count,
         'Applied roles Percent': item.ratio,
       }
@@ -140,7 +157,7 @@ const TADDashboards = () => {
 
     const filterSourceLanguages = sourceLanguages.report.map(item => {
       return {
-        'Applied source languages': item.name,
+        'Applied source languages': item.name || '',
         'Applied source languages Number': item.count,
         'Applied source languages Percent': item.ratio,
       }
@@ -148,7 +165,7 @@ const TADDashboards = () => {
 
     const filterTargetLanguages = targetLanguages.report.map(item => {
       return {
-        'Applied target languages': item.name,
+        'Applied target languages': item.name || '',
         'Applied target languages Number': item.count,
         'Applied target languages Percent': item.ratio,
       }
@@ -286,7 +303,7 @@ const TADDashboards = () => {
             />
           </Grid>
           <Grid container spacing={5}>
-            <Doughnut<CategoryRatioItem>
+            <Doughnut
               apiType='cert'
               userViewDate={userViewDate}
               title='Applied source languages'
@@ -303,7 +320,7 @@ const TADDashboards = () => {
               isHiddenValue={true}
             />
 
-            <Doughnut<ServiceRatioItem>
+            <Doughnut
               apiType='cert'
               userViewDate={userViewDate}
               title='Applied target languages'

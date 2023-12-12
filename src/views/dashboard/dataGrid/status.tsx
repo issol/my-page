@@ -205,6 +205,7 @@ const StatusAndDataGrid = <T extends { id: number }>({
               }}
             >
               <DefaultDataGrid
+                title={`Ongoing ${type}s`}
                 data={data}
                 columns={statusColumn}
                 defaultPageSize={6}
