@@ -49,6 +49,7 @@ import Total, {
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
 import LongStandingDataGrid from '@src/views/dashboard/dataGrid/longStanding'
+import Notice from '@src/views/dashboard/notice'
 
 dayjs.extend(weekday)
 
@@ -116,12 +117,6 @@ const LPMDashboards = () => {
     to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
 
-  const [currency, setCurrency] = useState<Currency>('convertedToUSD')
-
-  const onChangeCurrency = (type: Currency) => {
-    setCurrency(type)
-  }
-
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
@@ -132,6 +127,7 @@ const LPMDashboards = () => {
             padding: '10px',
           }}
         >
+          <Notice />
           <SwitchTypeHeader
             isShowMemberView={isShowMemberView}
             hiddenMemberView={hiddenMemberView}

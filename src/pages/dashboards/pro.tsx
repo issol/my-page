@@ -33,6 +33,7 @@ import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import JobList from '@src/views/dashboard/list/job'
 import ProJobRequestBarChart from '@src/views/dashboard/chart/jobRequestBar'
+import Notice from '@src/views/dashboard/notice'
 
 dayjs.extend(weekday)
 
@@ -51,6 +52,7 @@ const ProDashboards = () => {
           gap='24px'
           sx={{ minWidth: '1320px', padding: '10px', overflow: 'auto' }}
         >
+          <Notice />
           <ChartDateHeader />
         </Grid>
         <Grid

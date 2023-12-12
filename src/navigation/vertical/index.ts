@@ -4,13 +4,6 @@ import { VerticalNavItemsType } from 'src/@core/layouts/types'
 const navigation = (): VerticalNavItemsType => {
   return [
     {
-      title: 'Dashboards',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      path: `/dashboards`,
-    },
-    {
       title: 'My page',
       icon: 'iconamoon:profile-circle-fill',
       action: 'read',

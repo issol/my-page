@@ -356,6 +356,7 @@ export const RecruitingRequestColumn: GridColumns = [
     field: 'openings',
     headerName: '',
     flex: 0.2,
+    minWidth: 160,
     renderCell: ({ row }: { row: RecruitingRequest }) => (
       <Box display='flex' alignItems='center' gap='8px'>
         <Person />
@@ -367,6 +368,7 @@ export const RecruitingRequestColumn: GridColumns = [
     field: 'dueAt',
     headerName: '',
     flex: 0.3,
+    minWidth: 180,
     renderCell: ({ row }: { row: RecruitingRequest }) => {
       const code = row.dueTimezone as keyof typeof timezones.countries
 

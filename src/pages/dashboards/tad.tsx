@@ -48,6 +48,7 @@ import {
 } from '@src/queries/dashboard/dashnaord-lpm'
 import { TADHeader1, TADHeader2 } from '@src/shared/const/dashboard/csvTemplate'
 import onboarding from '@src/views/dashboard/list/onboarding'
+import Notice from '@src/views/dashboard/notice'
 
 dayjs.extend(weekday)
 
@@ -93,11 +94,6 @@ const TADDashboards = () => {
     const OngoingCount = data.filter(item =>
       item[0].includes('ongoingCount'),
     )[0][1] as DashboardCountResult
-    // {
-    //   totalCount: number
-    //   count: number
-    //   report: Array<RecruitingRequest>
-    // }
 
     const LanguagePool = data.filter(item =>
       item[0].includes('LanguagePool'),
@@ -207,6 +203,7 @@ const TADDashboards = () => {
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
         <Grid container gap='24px' sx={{ padding: '10px' }}>
+          <Notice />
           <ChartDateHeader />
           <GridItem width={207} height={76}>
             <Box>

@@ -7,9 +7,38 @@ const navigation = (): HorizontalNavItemsType => {
       title: 'Dashboards',
       icon: 'mdi:home-outline',
       action: 'read',
-      subject: 'members',
-      path: `/dashboards`,
-      role: ['LPM','TAD', 'ACCOUNT_MANAGER', 'CLIENT', 'PRO'],
+      subject: 'dashboards',
+      role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT', 'PRO'],
+      children: [
+        {
+          title: 'Dashboards LPM',
+          path: `/dashboards/lpm`,
+          action: 'read',
+          icon: 'mdi:playlist-check',
+          subject: 'client',
+        },
+        {
+          title: 'Dashboards TAD',
+          path: `/dashboards/tad`,
+          action: 'read',
+          icon: 'ic:baseline-perm-contact-calendar',
+          subject: 'client',
+        },
+        {
+          title: 'Dashboards Client',
+          path: `/dashboards/client`,
+          action: 'read',
+          icon: 'ic:baseline-perm-contact-calendar',
+          subject: 'client',
+        },
+        {
+          title: 'Dashboards Pro',
+          path: `/dashboards/pro`,
+          action: 'read',
+          icon: 'ic:baseline-perm-contact-calendar',
+          subject: 'client',
+        },
+      ],
     },
     {
       title: 'My page',
@@ -65,7 +94,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'mdi:account-star-outline',
       action: 'read',
       subject: 'client',
-      role: ['LPM','ACCOUNT_MANAGER'],
+      role: ['LPM', 'ACCOUNT_MANAGER'],
       children: [
         {
           title: 'Client List',
@@ -113,7 +142,7 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'members',
       path: `/account`,
-      role: ['LPM','TAD','ACCOUNT_MANAGER','CLIENT'],
+      role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT'],
     },
     {
       title: 'Onboarding',
@@ -242,7 +271,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:receipt-long',
       action: 'read',
       subject: 'invoice_receivable',
-      role: ['LPM','ACCOUNT_MANAGER'],
+      role: ['LPM', 'ACCOUNT_MANAGER'],
       children: [
         {
           title: 'Receivables',

@@ -50,6 +50,7 @@ import Total, {
 } from '@src/views/dashboard/chart/total'
 import { Add, Archive, MonetizationOn, ReceiptLong } from '@mui/icons-material'
 import ClientReport from '@src/views/dashboard/list/clientReport'
+import Notice from '@src/views/dashboard/notice'
 
 dayjs.extend(weekday)
 
@@ -70,12 +71,6 @@ const ClientDashboards = () => {
     to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
 
-  const [currency, setCurrency] = useState<Currency>('convertedToUSD')
-
-  const onChangeCurrency = (type: Currency) => {
-    setCurrency(type)
-  }
-
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
@@ -84,6 +79,7 @@ const ClientDashboards = () => {
           gap='24px'
           sx={{ minWidth: '1320px', overflowX: 'auto', padding: '10px' }}
         >
+          <Notice />
           <SwitchTypeHeader
             isShowMemberView={isShowMemberView}
             hiddenMemberView={hiddenMemberView}
@@ -263,5 +259,5 @@ export default ClientDashboards
 
 ClientDashboards.acl = {
   action: 'read',
-  subject: 'members',
+  subject: 'client',
 }
