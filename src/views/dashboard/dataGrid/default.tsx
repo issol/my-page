@@ -7,8 +7,10 @@ import {
   MuiEvent,
 } from '@mui/x-data-grid'
 import React, { Dispatch, useState } from 'react'
+import NoList from '@src/pages/components/no-list'
 
 interface DefaultDataGridProps {
+  title: string
   data?: { data: Array<any>; totalCount: number; count: number }
   columns: GridColumns
   sortModel: GridSortModel
@@ -23,6 +25,7 @@ interface DefaultDataGridProps {
 }
 
 const DefaultDataGrid = ({
+  title,
   data,
   columns,
   defaultPageSize,
@@ -55,6 +58,10 @@ const DefaultDataGrid = ({
       rowsPerPageOptions={[]}
       sortModel={sortModel}
       onSortModelChange={newSortModel => setSortModel(newSortModel)}
+      components={{
+        NoRowsOverlay: () => NoList(`There is no ${title}`),
+        NoResultsOverlay: () => NoList(`There is no ${title}`),
+      }}
     />
   )
 }

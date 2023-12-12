@@ -5,6 +5,7 @@ import { LongStandingDataType, OrderType } from '@src/types/dashboard'
 import { Box } from '@mui/material'
 import { useLongStanding } from '@src/queries/dashboard/dashnaord-lpm'
 import { Title } from '@src/views/dashboard/dashboardItem'
+import NoList from '@src/pages/components/no-list'
 
 interface LongStandingDataGridProps {
   title: string
@@ -30,6 +31,11 @@ const LongStandingDataGrid = ({
     sort: sortModel[0]?.field || initSort[0].field,
     ordering: sortModel[0]?.sort || (initSort[0].sort as OrderType),
   })
+
+  const getNoListTitle = () => {
+    const _title = title.split('-').slice(0, 2)
+    return `${_title.join(' ')}`
+  }
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
       <Title
@@ -41,6 +47,7 @@ const LongStandingDataGrid = ({
       />
       <Box>
         <DefaultDataGrid
+          title={getNoListTitle()}
           data={data}
           columns={columns}
           defaultPageSize={7}

@@ -122,6 +122,10 @@ export type Currency =
   | 'onlyKRW'
   | 'onlySGD'
   | 'onlyUSD'
+  | 'JPY'
+  | 'KRW'
+  | 'SGD'
+  | 'USD'
 
 export type APIType = 'u' | 'cert'
 
@@ -142,6 +146,7 @@ export type JobTypeAndRole = {
 }
 
 export interface RatioQuery extends DashboardQuery, Partial<ViewModeQuery> {
+  filter?: string
   title: string
   type: string
   currency: Currency

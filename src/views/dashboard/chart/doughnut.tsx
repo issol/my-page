@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo, useState } from 'react'
+import React, { ReactElement, Suspense, useMemo, useState } from 'react'
 import {
   ConvertButtonGroup,
   CurrencyUnit,
@@ -17,6 +17,8 @@ import { APIType, Currency, RatioItem } from '@src/types/dashboard'
 import Typography from '@mui/material/Typography'
 import NoRatio from '@src/views/dashboard/noRatio'
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
+import OptionsMenu from '@src/@core/components/option-menu'
+import { OptionType } from '@src/@core/components/option-menu/types'
 
 interface DoughnutChartProps<T> {
   title: string
@@ -29,6 +31,7 @@ interface DoughnutChartProps<T> {
   userViewDate: string
   setOpenInfoDialog: (open: boolean, key: string) => void
   isHiddenValue?: boolean
+  menuOptions?: Array<{ key: string; text: string }>
 }
 
 const Doughnut = <T extends RatioItem>({
@@ -41,16 +44,19 @@ const Doughnut = <T extends RatioItem>({
   getName,
   userViewDate,
   setOpenInfoDialog,
+  menuOptions,
   isHiddenValue = false,
 }: DoughnutChartProps<T>) => {
   const theme = useTheme()
 
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
+  const [filter, setFilter] = useState('')
   const { data, isSuccess } = useDashboardRatio<T>({
     title,
     from,
     to,
     type,
+    filter,
     currency,
     apiType,
   })
@@ -79,6 +85,20 @@ const Doughnut = <T extends RatioItem>({
 
     return [...sliceData, obj]
   }, [data?.report])
+
+  const filterMenuOptions: Array<OptionType> = useMemo(() => {
+    if (!menuOptions) return []
+    return menuOptions.map(item => {
+      return {
+        text: item.text,
+        menuItemProps: {
+          onClick: () => {
+            setFilter(item.key)
+          },
+        },
+      } as OptionType
+    })
+  }, [menuOptions])
 
   const options: ApexOptions = useMemo(() => {
     return {
@@ -160,6 +180,13 @@ const Doughnut = <T extends RatioItem>({
     setCurrency(type)
   }
 
+  const getTitle = () => {
+    if (filter) {
+      return menuOptions?.find(item => item.key === filter)?.text || title
+    }
+    return title
+  }
+
   return (
     <GridItem xs={6} height={416}>
       <Box
@@ -171,13 +198,23 @@ const Doughnut = <T extends RatioItem>({
           overflow: 'hidden',
         }}
       >
-        <Title
-          marginBottom='30px'
-          title={title}
-          subTitle={userViewDate}
-          openDialog={setOpenInfoDialog}
-        />
+        <Box display='flex' justifyContent='space-between'>
+          <Title
+            marginBottom='30px'
+            title={getTitle()}
+            subTitle={userViewDate}
+            openDialog={setOpenInfoDialog}
+          />
 
+          {menuOptions && (
+            <OptionsMenu
+              iconButtonProps={{
+                size: 'small',
+              }}
+              options={filterMenuOptions}
+            />
+          )}
+        </Box>
         <Box
           display='flex'
           justifyContent='flex-end'

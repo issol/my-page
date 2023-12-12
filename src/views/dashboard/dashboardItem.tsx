@@ -81,6 +81,7 @@ export const SectionTitle = styled('div')(() => {
     },
 
     '& .arrow_icon': {
+      marginTop: '3px',
       marginLeft: '6px',
       color: 'rgba(76, 78, 100, 0.54)',
       cursor: 'pointer',
@@ -192,6 +193,10 @@ export const CurrencyUnit: Record<Currency, string> = {
   onlyJPY: '¥',
   onlyKRW: '₩',
   onlySGD: '$',
+  USD: '$',
+  JPY: '¥',
+  KRW: '₩',
+  SGD: '$',
 }
 const options = {
   'Convert to USD': 'convertedToUSD',

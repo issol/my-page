@@ -8,7 +8,7 @@ import {
   RecruitingRequest,
   RequestItem,
 } from '@src/types/dashboard'
-import { StatusSquare } from '@src/views/dashboard/dashboardItem'
+import { CurrencyUnit, StatusSquare } from '@src/views/dashboard/dashboardItem'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
@@ -846,7 +846,12 @@ export const ReceivableColumns: GridColumns = [
     minWidth: 220,
     renderHeader: () => <Box>Total price</Box>,
     renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
-      return <Box>{row.totalPrice.toLocaleString()}</Box>
+      return (
+        <Box>
+          {CurrencyUnit[row.currency]}
+          {row.totalPrice.toLocaleString()}
+        </Box>
+      )
     },
   },
 ]
@@ -896,7 +901,25 @@ export const PayablesColumns: GridColumns = [
     minWidth: 220,
     renderHeader: () => <Box>Invoice date</Box>,
     renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
-      return <div>{row.invoicedAt}</div>
+      if (!row.invoicedAt) return <div>-</div>
+      if (!row.invoicedTimezone) {
+        return (
+          <div>{`${
+            dayjs(row.invoicedAt).format('MM/DD/YYYY hh:mm A') || '-'
+          }`}</div>
+        )
+      }
+
+      const code = row.invoicedTimezone
+        ?.code as keyof typeof timezones.countries
+
+      const timeZone = timezones.countries[code].zones[0]
+      console.log(timeZone)
+      const date = moment(row.invoicedAt)
+        .tz(timeZone)
+        .format('MM/DD/YYYY hh:mm A (z)')
+
+      return <div>{`${date || '-'}`}</div>
     },
   },
   {
@@ -905,7 +928,23 @@ export const PayablesColumns: GridColumns = [
     minWidth: 220,
     renderHeader: () => <Box>Payment due</Box>,
     renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
-      return <div>{row.payDueAt}</div>
+      if (!row.payDueAt) return <div>-</div>
+      if (!row.payDueTimezone) {
+        return (
+          <div>{`${
+            dayjs(row.payDueAt).format('MM/DD/YYYY hh:mm A') || '-'
+          }`}</div>
+        )
+      }
+
+      const code = row.payDueTimezone?.code as keyof typeof timezones.countries
+
+      const timeZone = timezones.countries[code].zones[0]
+      const date = moment(row.payDueAt)
+        .tz(timeZone)
+        .format('MM/DD/YYYY hh:mm A (z)')
+
+      return <div>{`${date || '-'}`}</div>
     },
   },
   {
@@ -914,7 +953,12 @@ export const PayablesColumns: GridColumns = [
     minWidth: 220,
     renderHeader: () => <Box>Total price</Box>,
     renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
-      return <Box>{row.totalPrice.toLocaleString()}</Box>
+      return (
+        <Box>
+          {CurrencyUnit[row.currency]}
+          {row.totalPrice.toLocaleString()}
+        </Box>
+      )
     },
   },
 ]

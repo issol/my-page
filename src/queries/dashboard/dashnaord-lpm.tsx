@@ -102,6 +102,7 @@ export const useDashboardRequest = (query: RequestQuery, skip: number) => {
 
 export const useDashboardRatio = <T extends RatioItem>({
   currency,
+  filter,
   from,
   to,
   title,
@@ -114,10 +115,21 @@ export const useDashboardRatio = <T extends RatioItem>({
   const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery<RatioResponse<T>>(
-    [DEFAULT_QUERY_NAME, 'ratio', title, view, userId, currency, from, to],
+    [
+      DEFAULT_QUERY_NAME,
+      'ratio',
+      title,
+      view,
+      userId,
+      currency,
+      filter,
+      from,
+      to,
+    ],
     () => {
       return getRatio({
         ...props,
+        filter,
         currency,
         from,
         to,

@@ -196,16 +196,6 @@ const LPMDashboards = () => {
                 </Box>
               </GridItem>
             )}
-
-            {/*{memberView && (*/}
-            {/*  <GridItem width='269px' height={362} padding='0'>*/}
-            {/*    <img*/}
-            {/*      src='/images/dashboard/img_member_view.png'*/}
-            {/*      alt='img'*/}
-            {/*      style={{ width: '110%' }}*/}
-            {/*    />*/}
-            {/*  </GridItem>*/}
-            {/*)}*/}
           </Grid>
           <StatusAndDataGrid
             userViewDate={userViewDate}
@@ -362,6 +352,20 @@ const LPMDashboards = () => {
               getName={item => {
                 return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
               }}
+              menuOptions={[
+                {
+                  key: 'pair',
+                  text: 'Language pairs',
+                },
+                {
+                  key: 'source',
+                  text: 'Source languages',
+                },
+                {
+                  key: 'target',
+                  text: 'Target languages',
+                },
+              ]}
               setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
@@ -380,6 +384,35 @@ const LPMDashboards = () => {
               getName={item => {
                 return `${item?.category || '-'}`
               }}
+              menuOptions={[
+                {
+                  key: 'T/Translation',
+                  text: 'Translation',
+                },
+                {
+                  key: 'T/Dubbing',
+                  text: 'Dubbing',
+                },
+                {
+                  key: 'T/Translation',
+                  text: 'Interpretation',
+                },
+                {
+                  key: 'T/Misc.',
+                  text: 'Misc.',
+                },
+                {
+                  key: 'T/Misc',
+                  text: 'Subtitle',
+                },
+                { key: 'C/Documents/Text', text: 'Documents/Text' },
+                { key: 'C/Documents/Text', text: 'Dubbing' },
+                { key: 'C/Interpretation', text: 'Interpretation' },
+                { key: 'C/Misc.', text: 'Misc.' },
+                { key: 'C/OTT/Subtitle', text: 'OTT/Subtitle' },
+                { key: 'C/Webcomics', text: 'Webcomics' },
+                { key: 'C/Webnovel', text: 'Webnovel' },
+              ]}
               setOpenInfoDialog={setOpenInfoDialog}
             />
             <Doughnut<ServiceRatioItem>
