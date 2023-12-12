@@ -142,6 +142,7 @@ export type JobTypeAndRole = {
 }
 
 export interface RatioQuery extends DashboardQuery, Partial<ViewModeQuery> {
+  title: string
   type: string
   currency: Currency
   apiType?: APIType

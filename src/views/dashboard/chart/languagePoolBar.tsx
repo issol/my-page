@@ -54,7 +54,7 @@ const TADLanguagePoolBarChart = ({
       sliceData?.map(item => {
         if (filter === 'source') return item.sourceLanguage
         if (filter === 'target') return item.targetLanguage
-        return [item.sourceLanguage, `-> ${item.targetLanguage}`]
+        return [item.sourceLanguage, ` -> ${item.targetLanguage}`]
       }) || []
 
     return [seriesData, labels]
@@ -69,7 +69,6 @@ const TADLanguagePoolBarChart = ({
         width: '100%',
         parentHeightOffset: 30,
         toolbar: { show: false },
-        offsetX: -8,
       },
       plotOptions: {
         bar: {
@@ -87,6 +86,7 @@ const TADLanguagePoolBarChart = ({
         enabled: true,
         textAnchor: 'start',
         style: {
+          fontFamily: 'Inter',
           fontSize: '14px',
           fontWeight: 600,
           colors: ['#000'],
@@ -134,15 +134,16 @@ const TADLanguagePoolBarChart = ({
         axisBorder: { show: false },
         categories: labels,
         tickAmount: 5,
-        labels: {},
       },
       yaxis: {
         labels: {
           align: 'left',
+          offsetX: 0,
           offsetY: 6,
           style: {
+            fontFamily: 'Inter',
             fontWeight: 600,
-            fontSize: '14px',
+            fontSize: '12px',
             cssClass: 'data-label',
             colors: theme.palette.text.primary,
           },
@@ -152,7 +153,13 @@ const TADLanguagePoolBarChart = ({
   }, [labels])
 
   return (
-    <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        marginTop: '20px',
+      }}
+    >
       <Box>
         <Title
           title='Language pool'

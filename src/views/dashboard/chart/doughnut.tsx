@@ -47,6 +47,7 @@ const Doughnut = <T extends RatioItem>({
 
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
   const { data, isSuccess } = useDashboardRatio<T>({
+    title,
     from,
     to,
     type,
@@ -177,7 +178,11 @@ const Doughnut = <T extends RatioItem>({
           openDialog={setOpenInfoDialog}
         />
 
-        <Box display='flex' justifyContent='flex-end'>
+        <Box
+          display='flex'
+          justifyContent='flex-end'
+          sx={{ visibility: isHiddenValue ? 'hidden' : 'visible' }}
+        >
           <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
         </Box>
         {!data && <NoRatio title={title} />}

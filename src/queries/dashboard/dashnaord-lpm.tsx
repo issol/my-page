@@ -74,6 +74,7 @@ export const useDashboardReport = (query: DashboardQuery) => {
     {
       suspense: true,
       keepPreviousData: true,
+
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },
   )
@@ -87,14 +88,7 @@ export const useDashboardRequest = (query: RequestQuery, skip: number) => {
   const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery(
-    [
-      DEFAULT_QUERY_NAME,
-      `${DEFAULT_QUERY_NAME}-request`,
-      view,
-      userId,
-      query.path,
-      skip,
-    ],
+    [DEFAULT_QUERY_NAME, 'request', view, userId, query.path, skip],
     () => {
       return getRequest({ ...query, skip, userId, view })
     },
@@ -110,6 +104,7 @@ export const useDashboardRatio = <T extends RatioItem>({
   currency,
   from,
   to,
+  title,
   ...props
 }: RatioQuery) => {
   const { userId: initUserId, view: initView } = getUserViewModeInfo()
@@ -119,15 +114,7 @@ export const useDashboardRatio = <T extends RatioItem>({
   const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery<RatioResponse<T>>(
-    [
-      DEFAULT_QUERY_NAME,
-      `${DEFAULT_QUERY_NAME}-ratio-${props.type}`,
-      view,
-      userId,
-      currency,
-      from,
-      to,
-    ],
+    [DEFAULT_QUERY_NAME, 'ratio', title, view, userId, currency, from, to],
     () => {
       return getRatio({
         ...props,
@@ -136,6 +123,7 @@ export const useDashboardRatio = <T extends RatioItem>({
         to,
         userId,
         view,
+        title,
       })
     },
     {
@@ -336,7 +324,7 @@ export const useJobType = (base: 'jobType' | 'role' | 'pair') => {
     totalCount: number
     report: Array<JobTypeAndRole>
   }>(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'JobType', base],
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'JobTypeAndRole', base],
     () => getJobType(base),
     {
       suspense: true,
