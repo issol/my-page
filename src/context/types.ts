@@ -40,6 +40,8 @@ export type UserDataType = {
   username?: string
   userCorporationId?: string
   createdAt?: string
+  isSignToNDA?: boolean
+  isSignToContract?: boolean
   //⬇️ extraData
   middleName?: string
   legalNamePronunciation?: string
@@ -59,7 +61,9 @@ export type UserDataType = {
   userId: number
   department?: string
   dateOfBirth?: string
+  birthday?: string
   address: ClientAddressType<number>
+  addresses: ClientAddressType<number>[]
   fromSNS?: null | 'GOOGLE'
   roles?: Array<UserRoleType>
 }

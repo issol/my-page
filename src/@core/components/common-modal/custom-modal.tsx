@@ -1,7 +1,8 @@
-import { Box, Button, TextField, Typography } from '@mui/material'
+import { Box, Button, IconButton, TextField, Typography } from '@mui/material'
 
 import AlertIcon from '../alert-icon'
 import { useState } from 'react'
+import { Icon } from '@iconify/react'
 
 type Props = {
   onClose: any
@@ -9,13 +10,22 @@ type Props = {
   title: string | JSX.Element
   subtitle?: string
   subtitleColor?: 'primary' | 'secondary'
-  vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
+  vary:
+    | 'error'
+    | 'info'
+    | 'error-report'
+    | 'progress'
+    | 'successful'
+    | 'guideline-info'
+    | 'question-info'
   textarea?: boolean
   textareaRequired?: boolean
   textareaPlaceholder?: string
   leftButtonText?: string
   rightButtonText: string
   soloButton?: boolean
+  noButton?: boolean
+  closeButton?: boolean
 }
 
 const CustomModal = ({
@@ -31,6 +41,8 @@ const CustomModal = ({
   textareaRequired,
   textareaPlaceholder,
   soloButton,
+  noButton,
+  closeButton,
 }: Props) => {
   const [text, setText] = useState('')
 
@@ -42,8 +54,17 @@ const CustomModal = ({
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
+        position: closeButton ? 'relative' : 'inherit',
       }}
     >
+      {closeButton ? (
+        <IconButton
+          sx={{ position: 'absolute', top: '10px', right: '10px' }}
+          onClick={onClose}
+        >
+          <Icon icon='mdi:close'></Icon>
+        </IconButton>
+      ) : null}
       <Box
         sx={{
           padding: '20px',
@@ -106,28 +127,30 @@ const CustomModal = ({
             </Box>
           </Box>
         ) : null}
-        <Box
-          sx={{
-            display: 'flex',
-            gap: '16px',
-            justifyContent: 'center',
-            mt: '16px',
-          }}
-        >
-          {soloButton ? null : (
-            <Button variant='outlined' onClick={onClose}>
-              {leftButtonText ?? 'Cancel'}
-            </Button>
-          )}
-
-          <Button
-            variant='contained'
-            onClick={() => (textarea ? onClick(text) : onClick())}
-            disabled={textareaRequired ? textarea && text === '' : false}
+        {noButton ? null : (
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '16px',
+              justifyContent: 'center',
+              mt: '16px',
+            }}
           >
-            {rightButtonText}
-          </Button>
-        </Box>
+            {soloButton ? null : (
+              <Button variant='outlined' onClick={onClose}>
+                {leftButtonText ?? 'Cancel'}
+              </Button>
+            )}
+
+            <Button
+              variant='contained'
+              onClick={() => (textarea ? onClick(text) : onClick())}
+              disabled={textareaRequired ? textarea && text === '' : false}
+            >
+              {rightButtonText}
+            </Button>
+          </Box>
+        )}
       </Box>
     </Box>
   )

@@ -11,6 +11,7 @@ import {
 } from '@src/types/invoice/common.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { ProAppliedRolesStatusType } from '@src/types/pro-certification-test/applied-roles'
 
 export function getProInvoiceStatusColor(status: InvoiceProStatusType) {
   const color =
@@ -160,7 +161,10 @@ export function getProJobStatusColor(status: ProJobStatusType) {
       ? '#0D0D0D'
       : status === 70500 // Unassigned
       ? '#6D788D'
-      : status === 601000 || status === 601100 || status === 70200 || status === 70400 // Canceled, Payment canceled, Declined
+      : status === 601000 ||
+        status === 601100 ||
+        status === 70200 ||
+        status === 70400 // Canceled, Payment canceled, Declined
       ? '#FF4D49'
       : null
 
@@ -190,9 +194,44 @@ export function getJobStatusColor(status: JobStatusType) {
       ? '#75571C'
       : status === 60800 //'Paid'
       ? '#1B8332'
-      // TODO: 컬러 확정되면 업데이트 필요
-      : status === 601100 //'Payment canceled'
+      : // TODO: 컬러 확정되면 업데이트 필요
+      status === 601100 //'Payment canceled'
       ? '#1B8332'
       : ''
+  return color
+}
+
+export function getProAppliedRolesStatusColor(
+  status: ProAppliedRolesStatusType,
+) {
+  const color =
+    status === 'Awaiting approval' ||
+    status === 'Test assigned' ||
+    status === 'Role assigned' ||
+    status === 'Paused' ||
+    status === 'Test in preparation'
+      ? '#6D788D'
+      : status === 'Rejected by TAD' ||
+        status === 'Test declined' ||
+        status === 'Role declined' ||
+        status === 'Basic failed' ||
+        status === 'Skill failed'
+      ? '#FF4D49'
+      : status === 'Basic test Ready' || status === 'Skill test Ready'
+      ? '#8232C0'
+      : status === 'Basic in progress'
+      ? '#FDB528'
+      : status === 'Basic submitted'
+      ? '#00237D'
+      : status === 'Basic passed' ||
+        status === 'Contract required' ||
+        status === 'Certified'
+      ? '#64C623'
+      : status === 'Skill in progress'
+      ? '#D18A00'
+      : status === 'Skill submitted'
+      ? '#1A6BBA'
+      : ''
+
   return color
 }

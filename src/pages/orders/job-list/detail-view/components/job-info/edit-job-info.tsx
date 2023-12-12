@@ -69,6 +69,7 @@ import { JobStatusType } from '@src/types/jobs/common.type'
 import { log } from 'npmlog'
 import { FormErrors } from '@src/shared/const/formErrors'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 
 type Props = {
   row: JobType
@@ -209,15 +210,7 @@ const EditJobInfo = ({
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.cvs'],
-      'application/pdf': ['.pdf'],
-      'text/plain': ['.txt'],
-      'application/vnd.ms-powerpoint': ['.ppt'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        ['.docx'],
-      'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
+      ...srtUploadFileExtension.accept
     },
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files

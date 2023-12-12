@@ -76,6 +76,7 @@ import {
   convertLocalTimezoneToUTC,
 } from '@src/shared/helpers/date.helper'
 import { changeTimezoneFromLocalTimezoneISOString } from '@src/shared/helpers/timezone.helper'
+import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 
 export default function AddNewRequest() {
   const router = useRouter()
@@ -98,15 +99,7 @@ export default function AddNewRequest() {
   // ** file managing
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.cvs'],
-      'application/pdf': ['.pdf'],
-      'text/plain': ['.txt'],
-      'application/vnd.ms-powerpoint': ['.ppt'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        ['.docx'],
-      'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
+      ...srtUploadFileExtension.accept
     },
     maxSize: MAXIMUM_FILE_SIZE,
     onDrop: (acceptedFiles: File[]) => {

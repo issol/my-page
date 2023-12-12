@@ -151,6 +151,14 @@ const navigation = (): HorizontalNavItemsType => {
       role: ['TAD'],
     },
     {
+      title: 'Certification Test',
+      icon: 'mi:clipboard-check',
+      action: 'read',
+      subject: 'pro_certification_test',
+      path: `/certification-test/pro`,
+      role: ['PRO'],
+    },
+    {
       title: 'Company',
       icon: 'mdi:briefcase-outline',
       action: 'update',

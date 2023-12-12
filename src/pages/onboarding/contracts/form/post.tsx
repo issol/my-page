@@ -1,7 +1,7 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { Button, Card } from '@mui/material'
+import { Button, Card, IconButton } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
@@ -43,6 +43,9 @@ import {
   ContractTypeEnum,
   ContractLangEnum,
 } from 'src/apis/contract.api'
+import { Icon } from '@iconify/react'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 const ContractForm = () => {
   const router = useRouter()
@@ -52,6 +55,7 @@ const ContractForm = () => {
   const [showError, setShowError] = useState(false)
   const auth = useRecoilValueLoadable(authState)
   const { setModal } = useContext(ModalContext)
+  const { openModal, closeModal } = useModal()
 
   useEffect(() => {
     if (!type || !language) router.push('/onboarding/contracts/')
@@ -184,6 +188,67 @@ const ContractForm = () => {
     })
   }
 
+  const onClickHelpIcon = () => {
+    openModal({
+      type: 'HelpModal',
+      children: (
+        <CustomModal
+          noButton
+          closeButton
+          vary='info'
+          rightButtonText=''
+          onClick={() => closeModal('HelpModal')}
+          onClose={() => closeModal('HelpModal')}
+          title={
+            <>
+              <Typography variant='h6' sx={{ mb: '10px' }}>
+                Writing guidelines
+              </Typography>
+              In the area where each Pro’s legal name, date of birth, and
+              permanent address should be entered, please type as follows. Be
+              sure to include the special characters {}.
+              <Typography
+                textAlign={'left'}
+                variant='body2'
+                sx={{ fontSize: '16px' }}
+              >
+                <ul>
+                  <li>
+                    Pro’s legal name ={' '}
+                    <Typography
+                      component={'span'}
+                      variant='body2'
+                      sx={{ fontSize: '16px' }}
+                      color='#666CFF'
+                    >{`{Legal name}`}</Typography>
+                  </li>
+                  <li>
+                    Pro’s date of birth ={' '}
+                    <Typography
+                      component={'span'}
+                      variant='body2'
+                      sx={{ fontSize: '16px' }}
+                      color='#666CFF'
+                    >{`{Date of birth}`}</Typography>
+                  </li>
+                  <li>
+                    Pro’s permanent address ={' '}
+                    <Typography
+                      component={'span'}
+                      variant='body2'
+                      sx={{ fontSize: '16px' }}
+                      color='#666CFF'
+                    >{`{Address}`}</Typography>
+                  </li>
+                </ul>
+              </Typography>
+            </>
+          }
+        />
+      ),
+    })
+  }
+
   return (
     <form>
       <StyledEditor
@@ -194,7 +259,12 @@ const ContractForm = () => {
           <Grid item xs={9}>
             <Card sx={{ padding: '30px 20px 20px' }}>
               <Box display='flex' justifyContent='space-between' mb='26px'>
-                <Typography variant='h6'>{getTitle()}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <Typography variant='h6'>{getTitle()}</Typography>
+                  <IconButton onClick={onClickHelpIcon}>
+                    <Icon icon='mdi:alert-circle-outline' />
+                  </IconButton>
+                </Box>
 
                 <Box display='flex' alignItems='center' gap='8px'>
                   <CustomChip

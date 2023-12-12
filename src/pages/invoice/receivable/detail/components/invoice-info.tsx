@@ -132,7 +132,7 @@ type Props = {
   updateInvoiceStatus?: UseMutationResult<
     void,
     unknown,
-    {id: number; invoiceStatus: number; reason?: ReasonType},
+    { id: number; invoiceStatus: number; reason?: ReasonType },
     unknown
   >
   clientTimezone?: CountryType
@@ -313,13 +313,16 @@ const InvoiceInfo = ({
             rightButtonText='Change'
             onClick={() => {
               updateInvoiceStatus.mutate(
-                { id: invoiceInfo.id, invoiceStatus: value as InvoiceReceivableStatusType },
+                {
+                  id: invoiceInfo.id,
+                  invoiceStatus: value as InvoiceReceivableStatusType,
+                },
                 {
                   onSuccess: () => {
                     closeModal('ChangeStatusModal')
                     setStatus(value)
-                  }
-                }
+                  },
+                },
               )
             }}
             onClose={() => closeModal('ChangeStatusModal')}

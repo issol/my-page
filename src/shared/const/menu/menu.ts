@@ -17,7 +17,13 @@ export const LPMMenu = [
   'Requests',
 ]
 
-export const PROMenu = ['My page', 'Jobs', 'Invoices', 'Job openings']
+export const PROMenu = [
+  'My page',
+  'Jobs',
+  'Invoices',
+  'Certification Test',
+  'Job openings',
+]
 
 export const CLIENTMenu = [
   'Quotes',

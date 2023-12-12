@@ -519,6 +519,10 @@ export const permissionSelector = selector<PermissionObjectType>({
             subject: 'client_payment',
             can: 'delete',
           },
+          {
+            subject: 'pro_certification_test',
+            can: 'read',
+          },
         ]
       }
     }

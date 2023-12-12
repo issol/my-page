@@ -103,17 +103,7 @@ const UserLayout = ({
         ? currentRoleStorage
         : null
 
-    console.log(currentRoleStorage)
-
-    console.log(currentRoleState.getValue())
-
     setCurrentRole(current)
-    // console.log(current)
-
-    console.log(
-      HorizontalNavItems().filter(value => PROMenu.includes(value.title)),
-    )
-
     if (permission.state === 'hasValue' && current) {
       switch (current.name) {
         case 'TAD':

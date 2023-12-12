@@ -35,15 +35,11 @@ export const getProJobColumns = (
   }
 
   const getJobDateDiff = (jobDueDate: string) => {
-    console.log(jobDueDate)
 
     const now = dayjs()
     const dueDate = dayjs(jobDueDate)
-    console.log(dueDate)
 
     const diff = dueDate.diff(now, 'second')
-
-    console.log(diff)
 
     const isPast = diff < 0
 

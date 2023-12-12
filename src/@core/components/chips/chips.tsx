@@ -13,6 +13,7 @@ import { RoleType, UserType } from '@src/context/types'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import {
   getOrderStatusColor,
+  getProAppliedRolesStatusColor,
   getProInvoiceStatusColor,
   getProJobStatusColor,
   getReceivableStatusColor,
@@ -21,6 +22,7 @@ import { OrderStatusType } from '@src/types/common/orders.type'
 import { statusType } from '@src/types/common/status.type'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
+import { ProAppliedRolesStatusType } from '@src/types/pro-certification-test/applied-roles'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -319,8 +321,8 @@ export function JobsStatusChip(
       ? '#75571C'
       : status === 601000 //'Canceled'
       ? '#FF4D49'
-      // TODO 컬러 확정되면 업뎃해야함
-      : status === 601100 //'Payment canceled'
+      : // TODO 컬러 확정되면 업뎃해야함
+      status === 601100 //'Payment canceled'
       ? '#FFFFFF'
       : ''
 
@@ -338,10 +340,7 @@ export function JobsStatusChip(
   )
 }
 
-export function assignmentStatusChip(
-  status: number,
-  statusList: statusType[],
-  ) {
+export function assignmentStatusChip(status: number, statusList: statusType[]) {
   const color =
     status === 70000 //Requested
       ? '#FDB528'
@@ -392,7 +391,7 @@ export function assignmentStatusChip(
 export function invoicePayableStatusChip(
   status: number,
   statusList: statusType[],
-  ) {
+) {
   const color =
     status === 40000 //Invoiced
       ? '#9B6CD8'
@@ -509,7 +508,7 @@ export function PermissionChip(permission: UserType) {
       : permission === 'Manager'
       ? '#26C6F980'
       : permission === 'General'
-      ? '#72E12880'
+      ? '#64C623'
       : ''
   return (
     <CustomChip
@@ -554,6 +553,25 @@ export function ClientRequestStatusChip(status: RequestStatusType) {
 
 export function ProJobStatusChip(label: string, status: ProJobStatusType) {
   const color = getProJobStatusColor(status)
+
+  return (
+    <CustomChip
+      label={label}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function ProAppliedRolesStatusChip(
+  label: string,
+  status: ProAppliedRolesStatusType,
+) {
+  const color = getProAppliedRolesStatusColor(status)
 
   return (
     <CustomChip

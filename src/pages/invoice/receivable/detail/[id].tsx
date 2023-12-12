@@ -278,7 +278,6 @@ const ReceivableInvoiceDetail = () => {
       },
     },
   )
-
   const updateInvoiceStatusMutation = useMutation(
     (data: { id: number; invoiceStatus: number; reason?: ReasonType }) =>
       patchInvoiceStatus(Number(data.id), data.invoiceStatus, data.reason),
