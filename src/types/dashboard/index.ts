@@ -214,7 +214,7 @@ export interface CountQuery
 export type LongStandingReceivableItem = {
   id: number
   corporationId: string
-  status: QuoteStatusType
+  status: InvoiceReceivableStatusType
   projectName: string
   category: string
   serviceType: string

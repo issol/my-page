@@ -16,7 +16,9 @@ import { timezones } from '@src/@fake-db/autocomplete'
 import Typography from '@mui/material/Typography'
 
 import {
+  invoicePayableStatusChip,
   InvoiceReceivableChip,
+  JobsStatusChip,
   JobTypeChip,
   OrderStatusChip,
   QuoteStatusChip,
@@ -29,6 +31,12 @@ import { Inbox, Person } from '@mui/icons-material'
 import advancedFormat from 'dayjs/plugin/advancedFormat'
 import moment from 'moment-timezone'
 import Link from 'next/link'
+import {
+  InvoiceStatusList,
+  JobStatusList,
+  OrderChipLabel,
+} from '@src/shared/const/dashboard/chip'
+import { JobStatusType } from '@src/types/jobs/jobs.type'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -403,12 +411,16 @@ export const StatusOrderColumns: GridColumns = [
     minWidth: 192,
     renderHeader: () => <Box>status</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
+      const label =
+        typeof row?.status === 'number'
+          ? OrderChipLabel[row?.status]
+          : row?.status
       return (
         <div>
           <OrderStatusChip
             size='small'
             status={row?.status}
-            label={row?.status}
+            label={label || '-'}
           />
         </div>
       )
@@ -480,16 +492,9 @@ export const StatusJobColumns: GridColumns = [
     headerName: 'status',
     minWidth: 192,
     renderHeader: () => <Box>status</Box>,
-    renderCell: ({ row }: { row: JobItem }) => {
-      return (
-        <div>
-          <OrderStatusChip
-            size='small'
-            status={row?.status}
-            label={row?.status}
-          />
-        </div>
-      )
+    renderCell: ({ row }: { row: OrderItem }) => {
+      const status = row?.status as JobStatusType
+      return <div>{JobsStatusChip(status, JobStatusList)}</div>
     },
   },
   {
@@ -781,7 +786,8 @@ export const ReceivableColumns: GridColumns = [
     minWidth: 192,
     renderHeader: () => <Box>Status</Box>,
     renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
-      return <Box>{WorkStatusChip(row.status)}</Box>
+      const status = row.status as number
+      return <Box>{invoicePayableStatusChip(status, InvoiceStatusList)}</Box>
     },
   },
   {
@@ -873,8 +879,9 @@ export const PayablesColumns: GridColumns = [
     headerName: 'status',
     minWidth: 192,
     renderHeader: () => <Box>Status</Box>,
-    renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
-      return <Box>{row.status}</Box>
+    renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      const status = row.status as number
+      return <Box>{invoicePayableStatusChip(status, InvoiceStatusList)}</Box>
     },
   },
   {
