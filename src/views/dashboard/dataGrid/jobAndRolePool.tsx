@@ -4,22 +4,64 @@ import styled from 'styled-components'
 import { useJobType } from '@src/queries/dashboard/dashnaord-lpm'
 import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
-import React from 'react'
+import React, { useState } from 'react'
+import OptionsMenu from '@src/@core/components/option-menu'
 
 interface TADJobDataGridProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
 const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
-  const { data } = useJobType('pair')
+  const [filter, setFilter] = useState<'jobType' | 'role' | 'pair'>('pair')
+
+  const { data } = useJobType(filter)
+
+  const getTitle = () => {
+    if (filter === 'jobType') return 'Job types'
+    if (filter === 'role') return 'Roles'
+    return 'Job type/Role pool'
+  }
 
   return (
     <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>
-      <Box sx={{ padding: '20px 20px 10px' }}>
+      <Box
+        display='flex'
+        justifyContent='space-between'
+        sx={{ padding: '20px 20px 10px' }}
+      >
         <Title
-          title='Job type/Role pool'
+          title={`${getTitle()}`}
           subTitle={`Total ${data?.totalCount || 0} Job type/Role`}
           openDialog={setOpenInfoDialog}
+        />
+        <OptionsMenu
+          iconButtonProps={{ size: 'small', className: 'card-more-options' }}
+          options={[
+            {
+              text: 'Job type/Role',
+              menuItemProps: {
+                onClick: () => {
+                  setFilter('pair')
+                },
+              },
+            },
+            {
+              text: 'Job types',
+              menuItemProps: {
+                onClick: () => {
+                  setFilter('jobType')
+                },
+              },
+            },
+            {
+              text: 'Roles',
+              menuItemProps: {
+                onClick: () => {
+                  setFilter('role')
+                },
+              },
+            },
+          ]}
         />
       </Box>
       <div style={{ height: '400px', width: '100%' }}>

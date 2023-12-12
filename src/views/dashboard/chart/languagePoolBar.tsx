@@ -1,14 +1,14 @@
 import { useTheme } from '@mui/material/styles'
 import TablePagination from '@mui/material/TablePagination'
 
-import { ApexOptions } from 'apexcharts'
-
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import styled from '@emotion/styled'
 import React, { useMemo, useState } from 'react'
 import { useLanguagePool } from '@src/queries/dashboard/dashnaord-lpm'
 import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
+import { ApexOptions } from 'apexcharts'
+import OptionsMenu from '@src/@core/components/option-menu'
 
 interface TADLanguagePoolBarChartProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
@@ -23,7 +23,7 @@ const TADLanguagePoolBarChart = ({
   const [rowsPerPage, setRowPerPage] = React.useState(6)
   const [filter, setFilter] = useState<'source' | 'target' | 'pair'>('pair')
 
-  const { data, isLoading, isFetching } = useLanguagePool('pair')
+  const { data, isLoading, isFetching } = useLanguagePool(filter)
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -60,6 +60,8 @@ const TADLanguagePoolBarChart = ({
     return [seriesData, labels]
   }, [data, page])
 
+  //@ts-ignore
+  // NOTE: dataLabel formmater 에 두줄 민드는 기능이 지원하나 타입스크립트에서 지원안함. 차후 CSS로 조정 필요
   const options: ApexOptions = useMemo(() => {
     const max = Math.max(...series[0].data)
 
@@ -87,15 +89,21 @@ const TADLanguagePoolBarChart = ({
         textAnchor: 'start',
         style: {
           fontFamily: 'Inter',
-          fontSize: '14px',
+          fontSize: '12px',
           fontWeight: 600,
           colors: ['#000'],
         },
-        formatter: function (val, opt) {
-          return `${val}`
+
+        formatter: function (val, { seriesIndex, dataPointIndex, w }) {
+          return [
+            `${val}`,
+            `(${
+              data?.report[page * rowsPerPage + dataPointIndex].ratio || 0
+            }%)`,
+          ]
         },
-        offsetY: 0,
-        offsetX: 24,
+        offsetY: -8,
+        offsetX: 25,
       },
       grid: {
         strokeDashArray: 8,
@@ -138,7 +146,7 @@ const TADLanguagePoolBarChart = ({
       yaxis: {
         labels: {
           align: 'left',
-          offsetX: 0,
+          offsetX: 5,
           offsetY: 6,
           style: {
             fontFamily: 'Inter',
@@ -160,11 +168,40 @@ const TADLanguagePoolBarChart = ({
         marginTop: '20px',
       }}
     >
-      <Box>
+      <Box display='flex' justifyContent='space-between'>
         <Title
           title='Language pool'
           subTitle={`Total ${data?.totalCount || 0} Language pairs`}
           openDialog={setOpenInfoDialog}
+        />
+        <OptionsMenu
+          iconButtonProps={{ size: 'small', className: 'card-more-options' }}
+          options={[
+            {
+              text: 'Language pairs',
+              menuItemProps: {
+                onClick: () => {
+                  setFilter('pair')
+                },
+              },
+            },
+            {
+              text: 'Source languages',
+              menuItemProps: {
+                onClick: () => {
+                  setFilter('source')
+                },
+              },
+            },
+            {
+              text: 'Target languages',
+              menuItemProps: {
+                onClick: () => {
+                  setFilter('target')
+                },
+              },
+            },
+          ]}
         />
       </Box>
       <div style={{ position: 'relative' }}>
@@ -193,7 +230,7 @@ const TADLanguagePoolBarChart = ({
 const CustomBarChart = styled(ReactApexcharts)(() => {
   return {
     '& .data-label': {
-      fontSize: '14px',
+      fontSize: '12px',
       fontWeight: 600,
       textTransform: 'uppercase',
     },

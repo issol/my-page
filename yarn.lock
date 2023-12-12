@@ -5190,9 +5190,9 @@ anymatch@^3.0.0, anymatch@^3.0.3, anymatch@~3.1.2:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
-apexcharts-clevision@3.28.5:
+apexcharts-clevision@^3.28.5:
   version "3.28.5"
-  resolved "https://registry.npmjs.org/apexcharts-clevision/-/apexcharts-clevision-3.28.5.tgz"
+  resolved "https://registry.yarnpkg.com/apexcharts-clevision/-/apexcharts-clevision-3.28.5.tgz#83ef5e80120499dca9e54f9efd53b07f4492271f"
   integrity sha512-FaxvmpCGxUyusUGzS1iAt3yL00UG5Bus73fhEhnK1QuH+expzz53f4lJFxwP1kY31vpR9WTzZx52CZzDEk4UOg==
   dependencies:
     svg.draggable.js "^2.2.2"
