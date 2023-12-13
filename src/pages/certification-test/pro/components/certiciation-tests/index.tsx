@@ -169,18 +169,25 @@ const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
             <CustomModal
               //TODO API 연결
               onClick={() => {
-                applyTestMutation.mutate([
+                applyTestMutation.mutate(
+                  [
+                    {
+                      userId: auth.getValue().user?.userId!,
+                      userCompany: auth.getValue().user?.company!,
+                      jobType: data.jobType,
+                      role: data.role,
+                      source: data.source,
+                      target: data.target,
+                    },
+                  ],
                   {
-                    userId: auth.getValue().user?.userId!,
-                    userCompany: auth.getValue().user?.company!,
-                    jobType: data.jobType,
-                    role: data.role,
-                    source: data.source,
-                    target: data.target,
+                    onSuccess: () => {
+                      closeModal('NoBasicApplyModal')
+                    },
                   },
-                ])
+                )
               }}
-              onClose={() => closeModal('ApplyBasicPassedModal')}
+              onClose={() => closeModal('NoBasicApplyModal')}
               title={
                 <>
                   Are you sure you want to apply for
@@ -234,19 +241,25 @@ const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
                 <CustomModal
                   //TODO API 연결
                   onClick={() => {
-                    applyTestMutation.mutate([
+                    applyTestMutation.mutate(
+                      [
+                        {
+                          userId: auth.getValue().user?.userId!,
+                          userCompany: auth.getValue().user?.company!,
+                          jobType: data.jobType,
+                          role: data.role,
+                          source: data.source,
+                          target: data.target,
+                        },
+                      ],
                       {
-                        userId: auth.getValue().user?.userId!,
-                        userCompany: auth.getValue().user?.company!,
-                        jobType: data.jobType,
-                        role: data.role,
-                        source: data.source,
-                        target: data.target,
+                        onSuccess: () => {
+                          closeModal('ApplyModal')
+                        },
                       },
-                    ])
-                    closeModal('ApplyBasicPassedModal')
+                    )
                   }}
-                  onClose={() => closeModal('ApplyBasicPassedModal')}
+                  onClose={() => closeModal('ApplyModal')}
                   title={
                     <>
                       Are you sure you want to apply for
@@ -299,8 +312,26 @@ const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
               children: (
                 <CustomModal
                   //TODO API 연결
-                  onClick={() => closeModal('ApplyBasicPassedModal')}
-                  onClose={() => closeModal('ApplyBasicPassedModal')}
+                  onClick={() => {
+                    applyTestMutation.mutate(
+                      [
+                        {
+                          userId: auth.getValue().user?.userId!,
+                          userCompany: auth.getValue().user?.company!,
+                          jobType: data.jobType,
+                          role: data.role,
+                          source: data.source,
+                          target: data.target,
+                        },
+                      ],
+                      {
+                        onSuccess: () => {
+                          closeModal('NoBasicApplyModal')
+                        },
+                      },
+                    )
+                  }}
+                  onClose={() => closeModal('NoBasicApplyModal')}
                   title={
                     <>
                       Are you sure you want to apply for
