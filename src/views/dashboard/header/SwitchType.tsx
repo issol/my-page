@@ -19,14 +19,18 @@ import { dashboardState } from '@src/states/dashboard'
 import { authState } from '@src/states/auth'
 import { currentRoleSelector } from '@src/states/permission'
 import MemberSearchList from '@src/views/dashboard/dialog/memberSearch'
+import { CSVDataType } from '@src/types/dashboard'
+import { CSVOptionsMenuDownload } from '@src/views/dashboard/csvDownload'
 
 interface SwitchTypeHeaderProps {
+  csvData: CSVDataType
   isShowMemberView: boolean
   hiddenMemberView: () => void
   showMemberView: () => void
 }
 
 const SwitchTypeHeader = ({
+  csvData,
   isShowMemberView,
   showMemberView,
   hiddenMemberView,
@@ -224,19 +228,7 @@ const SwitchTypeHeader = ({
             }}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           >
-            <MenuItem
-              onClick={handleClose}
-              sx={{
-                color: 'rgba(76, 78, 100, 0.87)',
-              }}
-            >
-              <ListItemIcon
-                sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-              >
-                <DownloadIcon fontSize='small' />
-              </ListItemIcon>
-              <ListItemText>Download csv</ListItemText>
-            </MenuItem>
+            <CSVOptionsMenuDownload data={csvData} onClose={handleClose} />
             <MenuItem
               onClick={() => onChangeMemberView()}
               sx={{

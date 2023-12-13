@@ -29,7 +29,7 @@ import OnboardingList from '@src/views/dashboard/list/onboarding'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import TADJobDataGrid from '@src/views/dashboard/dataGrid/jobAndRolePool'
 import Information from '@src/views/dashboard/dialog/information'
-import CSVDownload from '@src/views/dashboard/csvDownload'
+import { CSVDownload } from '@src/views/dashboard/csvDownload'
 import { useQueryClient } from 'react-query'
 import {
   DashboardCountResult,
@@ -40,10 +40,24 @@ import Notice from '@src/views/dashboard/notice'
 
 dayjs.extend(weekday)
 
+export const mergeData = (array1: Array<Object>, array2: Array<Object>) => {
+  let tempArray1 = array1
+  let tempArray2 = array2
+  if (array1.length === 0) {
+    tempArray1 = array2
+    tempArray2 = array1
+  }
+  return tempArray1.reduce<Array<Record<string, any>>>(
+    (acc, element, index) => [...acc, { ...element, ...tempArray2[index] }],
+    [],
+  )
+}
+
 const TADDashboards = () => {
   const router = useRouter()
   const cache = useQueryClient()
   const data = cache.getQueriesData([DEFAULT_QUERY_NAME])
+
   const { formHook, infoDialog } = UseDashboardControl()
   const { control, setValue, ...props } = formHook
   const { isShowInfoDialog, infoDialogKey, setOpenInfoDialog, close } =
@@ -61,13 +75,6 @@ const TADDashboards = () => {
   const [roles, setRoles] = useState<CSVDataType>([])
   const [sourceLanguages, setSourceLanguages] = useState<CSVDataType>([])
   const [targetLanguages, setTargetLanguages] = useState<CSVDataType>([])
-
-  const mergeData = (array1: Array<Object>, array2: Array<Object>) => {
-    return array1.reduce<Array<Record<string, any>>>(
-      (acc, element, index) => [...acc, { ...element, ...array2[index] }],
-      [],
-    )
-  }
 
   useEffect(() => {
     const Onboarding = data.filter(item =>

@@ -1,13 +1,17 @@
 import DefaultDataGrid from '@src/views/dashboard/dataGrid/default'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { GridColumns, GridSortModel } from '@mui/x-data-grid'
-import { LongStandingDataType, OrderType } from '@src/types/dashboard'
+import {
+  CSVDataRecordProps,
+  LongStandingDataType,
+  OrderType,
+} from '@src/types/dashboard'
 import { Box } from '@mui/material'
 import { useLongStanding } from '@src/queries/dashboard/dashnaord-lpm'
 import { Title } from '@src/views/dashboard/dashboardItem'
 import NoList from '@src/pages/components/no-list'
 
-interface LongStandingDataGridProps {
+interface LongStandingDataGridProps extends CSVDataRecordProps {
   title: string
   type: LongStandingDataType
   columns: GridColumns
@@ -21,6 +25,7 @@ const LongStandingDataGrid = ({
   columns,
   initSort,
   setOpenInfoDialog,
+  setDataRecord,
 }: LongStandingDataGridProps) => {
   const [skip, setSkip] = useState(0)
   const [sortModel, setSortModel] = useState<GridSortModel>(initSort)
@@ -36,6 +41,19 @@ const LongStandingDataGrid = ({
     const _title = title.split('-').slice(0, 2)
     return `${_title.join(' ')}`
   }
+
+  useEffect(() => {
+    const filterItems = data?.data.map(item => {
+      return {
+        [`${title} status`]: item.status,
+        [`${title} price`]: item.totalPrice,
+        '  ': '',
+      }
+    })
+
+    setDataRecord(filterItems || [])
+  }, [data?.data])
+
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
       <Title

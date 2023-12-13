@@ -30,6 +30,7 @@ import {
   RatioItem,
   RatioQuery,
   RatioResponse,
+  ReportItem,
   ViewType,
 } from '@src/types/dashboard'
 import { useRecoilValue } from 'recoil'
@@ -56,7 +57,7 @@ export const useDashboardReport = (query: DashboardQuery) => {
   const view = changeView ? changeView : initView
   const userId = changeUserId ? changeUserId : initUserId
 
-  return useQuery<Record<string, number>>(
+  return useQuery<ReportItem>(
     [
       DEFAULT_QUERY_NAME,
       `${DEFAULT_QUERY_NAME}-report`,
@@ -276,11 +277,17 @@ export const useTADOnboarding = () => {
  * @param type
  * @param currency
  */
+
+export type PaidThisMonthAmount = {
+  totalPrice: number
+  currency: Currency
+  count: number
+}
 export const usePaidThisMonthAmount = (
   type: 'payable' | 'receivable',
   currency: Currency,
 ) => {
-  return useQuery<{ totalPrice: number; currency: Currency; count: number }>(
+  return useQuery<PaidThisMonthAmount>(
     [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'PaidThisMonth', type, currency],
     () => getPaidThisMonth(type, currency),
     {
@@ -291,16 +298,18 @@ export const usePaidThisMonthAmount = (
   )
 }
 
+export interface TotalPriceResult {
+  totalPrice: number
+  totalCount: number
+  currency: Currency
+  report: Array<TotalItem>
+}
+
 export const useTotalPrice = (
   type: 'payable' | 'receivable',
   currency: Currency,
 ) => {
-  return useQuery<{
-    totalPrice: number
-    totalCount: number
-    currency: Currency
-    report: Array<TotalItem>
-  }>(
+  return useQuery<TotalPriceResult>(
     [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'totalPrice', type, currency],
     () => getTotalPrice(type, currency),
     {

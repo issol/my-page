@@ -71,6 +71,8 @@ export type ReportItem = {
   receivables: number
   payables: number
   canceled: number
+  invoiceReceivables?: number
+  invoicePayables?: number
 }
 
 export type RequestItem = {

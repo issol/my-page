@@ -31,7 +31,7 @@ import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { OptionType } from '@src/@core/components/option-menu/types'
 
-interface DoughnutChartProps<T> extends CSVDataRecordProps {
+interface DoughnutChartProps<T> extends Partial<CSVDataRecordProps> {
   title: string
   from: string
   to: string
@@ -85,17 +85,20 @@ const Doughnut = <T extends RatioItem>({
 
   useEffect(() => {
     const title = getTitle()
-    const filterList = data?.report.map(item => {
+    const arr = new Array(title.length).join(' ')
+    const filterList = data?.report.map((item, index) => {
+      const name = (getName && getName(charData[index] as T)) || item.name
       return {
-        [`${title}`]: item.name || '',
+        //@ts-ignore
+        [`${title}`]: name,
         [`${title} Number`]: item.count,
         [`${title} Percent`]: item.ratio,
-        '     ': '',
+        [arr]: ' ',
       }
     })
 
-    setDataRecord(filterList || [])
-  }, [isSuccess])
+    if (setDataRecord) setDataRecord(filterList || [])
+  }, [data, filter])
 
   const charData = useMemo(() => {
     const sortData = data?.report.sort((item1, item2) => item2.sum - item1.sum)

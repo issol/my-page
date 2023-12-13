@@ -56,7 +56,7 @@ const TotalProgressChart = ({
 }: TotalChartProps) => {
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
   const { data } = useTotalPrice(type, currency)
-
+  console.log('AVAVA', data)
   const items: Array<[string, TotalItem]> = useMemo(() => {
     const map = new Map()
 
@@ -76,8 +76,6 @@ const TotalProgressChart = ({
   const onChangeCurrency = (type: Currency) => {
     setCurrency(type)
   }
-
-  console.log('TOTAL', data)
 
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
