@@ -499,7 +499,7 @@ export const Title = ({
           }}
         >
           {prefix}
-          {title.split('/')[0]}
+          {title.split('@')[0]}
           {postfix}
         </span>
         {openDialog && (

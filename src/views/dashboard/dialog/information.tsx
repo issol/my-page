@@ -117,10 +117,10 @@ export const ReplaceTitle: Record<string, string> = {
   'Service types': 'Sales per service type',
   'Area of expertises': 'Sales per area of expertise',
   'Onboarding overview': 'Number of Pros',
-  'Language pairs/client': 'Expense per language',
+  'Language pairs@client': 'Expense per language',
   Categories: 'Expense per category',
-  'Service types/client': 'Expense per service type',
-  'Area of expertises/client': 'Expense per area of expertise',
+  'Service types@client': 'Expense per service type',
+  'Area of expertises@client': 'Expense per area of expertise',
 }
 interface InfoDialogProps {
   keyName: string

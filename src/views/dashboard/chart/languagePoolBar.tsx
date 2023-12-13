@@ -9,6 +9,7 @@ import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
 import { ApexOptions } from 'apexcharts'
 import OptionsMenu from '@src/@core/components/option-menu'
+import { useRouter } from 'next/router'
 
 interface TADLanguagePoolBarChartProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
@@ -37,6 +38,7 @@ const TADLanguagePoolBarChart = ({
   ) => {
     setRowPerPage(parseInt(event.target.value, 10))
   }
+  const router = useRouter()
 
   const [series, labels] = useMemo(() => {
     const sliceData = data?.report.slice(
@@ -173,6 +175,7 @@ const TADLanguagePoolBarChart = ({
           title='Language pool'
           subTitle={`Total ${data?.totalCount || 0} Language pairs`}
           openDialog={setOpenInfoDialog}
+          handleClick={() => router.push('/pro')}
         />
         <OptionsMenu
           iconButtonProps={{ size: 'small', className: 'card-more-options' }}

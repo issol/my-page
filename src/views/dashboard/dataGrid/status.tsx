@@ -78,7 +78,7 @@ interface StatusAndListProps<T extends { id: number; orderId?: number }>
   userViewDate: string
   setOpenInfoDialog: (open: boolean, key: string) => void
   movePage?: () => void
-  moveDetailPage?: (id: number) => void
+  moveDetailPage?: (params: GridRowParams<T>) => void
 }
 
 const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
@@ -87,6 +87,8 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
   from,
   statusColumn,
   initSort,
+  movePage,
+  moveDetailPage,
   userViewDate,
   setOpenInfoDialog,
 }: StatusAndListProps<T>) => {
@@ -109,28 +111,6 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
     ordering: sortModel[0]?.sort || (initSort[0].sort as OrderType),
   })
 
-  const movePage = () => {
-    if (type === 'order') {
-      router.push(`/orders/order-list/`)
-      return
-    }
-    router.push(`/orders/job-list/?menu=list`)
-  }
-
-  const moveDetailPage = (params: GridRowParams<T>) => {
-    if (type === 'order') {
-      router.push(`/orders/order-list/detail/${params.id}/`)
-      return
-    }
-
-    // TODO : orderId 추가되면 다시 확인하기
-    // router.push(
-    //   `/orders/job-list/details/?orderId=${params?.orderId || 0}&jobId=${
-    //     params.id
-    //   }`,
-    // )
-  }
-
   return (
     <Suspense fallback={<div>로딩 중</div>}>
       <Grid container flexDirection='row' gap='24px'>
@@ -140,7 +120,7 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
               <Title
                 title={`Ongoing ${type}s`}
                 marginBottom='20px'
-                handleClick={() => movePage()}
+                handleClick={movePage && movePage}
                 openDialog={setOpenInfoDialog}
               />
 
@@ -173,7 +153,7 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
               <Title
                 title={`${toCapitalize(type)} status`}
                 marginBottom='20px'
-                handleClick={() => movePage()}
+                handleClick={movePage && movePage}
                 openDialog={setOpenInfoDialog}
                 subTitle={userViewDate}
               />
@@ -206,7 +186,7 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
               postfix={`(${(countData && countData[activeStatus]) || 0})`}
               marginBottom='20px'
               padding='20px 20px 0'
-              handleClick={() => movePage()}
+              handleClick={movePage && movePage}
             />
             <Box
               sx={{
@@ -224,7 +204,7 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
                 sortModel={sortModel}
                 setSortModel={setSortModel}
                 setSkip={setSkip}
-                onRowClick={params => moveDetailPage(params)}
+                onRowClick={params => moveDetailPage && moveDetailPage(params)}
               />
             </Box>
           </Box>

@@ -17,6 +17,7 @@ import {
   ThirdColors,
 } from '@src/shared/const/dashboard/chart'
 import {
+  ApplicationItem,
   CategoryRatioItem,
   RatioItem,
   RecruitingRequest,
@@ -240,9 +241,13 @@ const TADDashboards = () => {
               <TADJobDataGrid setOpenInfoDialog={setOpenInfoDialog} />
             </GridItem>
           </Grid>
-          <StatusAndDataGrid
+          <StatusAndDataGrid<ApplicationItem>
             userViewDate={userViewDate}
             type='application'
+            movePage={() => router.push('/onboarding')}
+            moveDetailPage={params =>
+              router.push(`/onboarding/detail/${params.id}/`)
+            }
             statusColumn={StatusApplicationColumns}
             initSort={[
               {

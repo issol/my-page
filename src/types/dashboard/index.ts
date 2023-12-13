@@ -109,9 +109,16 @@ export type JobItem = {
   id: number
   jobName: string
   jobType: string
+
   status: OrderStatusType
   pro: Partial<MemberItem>
 }
+
+export type ApplicationItem = {
+  role?: string
+  sourceLanguage: string
+  targetLanguage: string
+} & JobItem
 
 export type Currency =
   | 'convertedToJPY'

@@ -197,7 +197,7 @@ const ClientDashboards = () => {
           <Grid container spacing={5}>
             <Doughnut<PairRatioItem>
               userViewDate={userViewDate}
-              title='Language pairs/client'
+              title='Language pairs@client'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -232,7 +232,7 @@ const ClientDashboards = () => {
           <Grid container spacing={5}>
             <Doughnut<ServiceRatioItem>
               userViewDate={userViewDate}
-              title='Service types/client'
+              title='Service types@client'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -248,7 +248,7 @@ const ClientDashboards = () => {
             />
             <Doughnut<ExpertiseRatioItem>
               userViewDate={userViewDate}
-              title='Area of expertises/client'
+              title='Area of expertises@client'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}

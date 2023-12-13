@@ -6,12 +6,14 @@ import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
 import React, { useState } from 'react'
 import OptionsMenu from '@src/@core/components/option-menu'
+import { useRouter } from 'next/router'
 
 interface TADJobDataGridProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
 const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
+  const router = useRouter()
   const [filter, setFilter] = useState<'jobType' | 'role' | 'pair'>('pair')
 
   const { data } = useJobType(filter)
@@ -19,7 +21,7 @@ const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
   const getTitle = () => {
     if (filter === 'jobType') return 'Job types'
     if (filter === 'role') return 'Roles'
-    return 'Job type/Role pool'
+    if (filter === 'pair') return 'Job type/Role pool'
   }
 
   return (
@@ -33,6 +35,7 @@ const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
           title={`${getTitle()}`}
           subTitle={`Total ${data?.totalCount || 0} Job type/Role`}
           openDialog={setOpenInfoDialog}
+          handleClick={() => router.push('/pro')}
         />
         <OptionsMenu
           iconButtonProps={{ size: 'small', className: 'card-more-options' }}

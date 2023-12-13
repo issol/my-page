@@ -1,5 +1,6 @@
 import { GridColumns } from '@mui/x-data-grid'
 import {
+  ApplicationItem,
   JobItem,
   JobTypeAndRole,
   LongStandingPayablesItem,
@@ -17,14 +18,11 @@ import Typography from '@mui/material/Typography'
 
 import {
   invoicePayableStatusChip,
-  InvoiceReceivableChip,
   JobsStatusChip,
   JobTypeChip,
   OrderStatusChip,
-  QuoteStatusChip,
   RoleChip,
   ServiceTypeChip,
-  WorkStatusChip,
 } from '@src/@core/components/chips/chips'
 import { Box } from '@mui/material'
 import { Inbox, Person } from '@mui/icons-material'
@@ -278,16 +276,6 @@ export const RecruitingRequestColumns: GridColumns = [
     },
   },
 ]
-
-// "id": 33,
-//   "jobType": "Documents/Text",
-//   "role": "Translator",
-//   "sourceLanguage": "ko",
-//   "targetLanguage": "en",
-//   "openings": 1,
-//   "dueAt": "2023-05-30T06:00:00.000Z",
-//   "dueTimezone": "KR",
-//   "deadlineWarning": false
 
 export const RecruitingRequestColumn: GridColumns = [
   {
@@ -561,7 +549,7 @@ export const StatusApplicationColumns: GridColumns = [
     headerName: 'status',
     minWidth: 192,
     renderHeader: () => <Box>status</Box>,
-    renderCell: ({ row }: { row: JobItem }) => {
+    renderCell: ({ row }: { row: ApplicationItem }) => {
       return (
         <div>
           <OrderStatusChip
@@ -577,8 +565,8 @@ export const StatusApplicationColumns: GridColumns = [
     field: 'proName',
     headerName: 'Legal name / Email',
     minWidth: 192,
-    renderHeader: () => <Box>Pro / Email</Box>,
-    renderCell: ({ row }: { row: JobItem }) => {
+    renderHeader: () => <Box>Legal name / Email</Box>,
+    renderCell: ({ row }: { row: ApplicationItem }) => {
       return (
         <Box>
           <Typography fontSize='14px' fontWeight={600}>
@@ -594,37 +582,32 @@ export const StatusApplicationColumns: GridColumns = [
     },
   },
   {
-    field: 'jobName',
-    headerName: 'Job name',
+    field: 'jobType',
+    headerName: 'Job Type/ Role',
     minWidth: 220,
-    renderHeader: () => <Box>Job name</Box>,
-    renderCell: ({ row }: { row: JobItem }) => {
-      return <div>{row.jobName}</div>
+    flex: 0.4,
+    renderHeader: () => <Box>Job Type/ Role</Box>,
+    renderCell: ({ row }: { row: ApplicationItem }) => {
+      console.log(row.role)
+      return (
+        <Box display='flex' gap='10px'>
+          <JobTypeChip type={row.jobType} label={row.jobType} />
+          <RoleChip type={row.role || ''} label={row.role || ''} />
+        </Box>
+      )
     },
   },
   {
-    field: 'job',
-    headerName: 'Job',
-    minWidth: 320,
-    flex: 1,
-    sortable: false,
-    renderHeader: () => <Box>Job</Box>,
-    renderCell: ({ row }: { row: JobItem }) => {
+    field: 'sourceLanguage',
+    headerName: 'Language pair',
+    minWidth: 220,
+    flex: 0.4,
+    renderHeader: () => <Box>Language pair</Box>,
+    renderCell: ({ row }: { row: ApplicationItem }) => {
+      console.log(row.role)
       return (
-        <Box
-          display='flex'
-          justifyContent='space-between'
-          alignItems='center'
-          gap='10px'
-          sx={{ width: '340px' }}
-        >
-          <Box display='flex' gap='10px'>
-            {row.jobType ? (
-              <JobTypeChip type={row.jobType} label={row.jobType} />
-            ) : (
-              '-'
-            )}
-          </Box>
+        <Box display='flex' gap='10px'>
+          {`${row.sourceLanguage.toUpperCase()} -> ${row.targetLanguage.toUpperCase()}`}
         </Box>
       )
     },
