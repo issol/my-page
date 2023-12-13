@@ -39,6 +39,7 @@ import {
   roleSelector,
   roleState,
 } from '@src/states/permission'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -137,11 +138,27 @@ export default function NewGeneralClientForm() {
       const data: ContactPersonType & { userId: number } & {
         clientId: number
         companyId: string
+        extraData: {
+          timezone: CountryType
+          jobTitle?: string
+          mobilePhone?: string
+          telephone?: string
+          fax?: string
+          department?: string
+        }
       } = {
         ...getValues(),
         userId: auth.getValue().user?.userId!,
         clientId: auth.getValue().company?.clientId!,
         companyId: auth.getValue().company?.companyId!,
+        extraData: {
+          timezone: getValues().timezone!,
+          jobTitle: getValues().jobTitle,
+          mobilePhone: getValues().mobile ?? '',
+          telephone: getValues().phone ?? '',
+          department: getValues().department ?? '',
+          fax: getValues().fax ?? '',
+        },
       }
       createClientMutation.mutate(data)
     }

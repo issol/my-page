@@ -93,7 +93,7 @@ export default function ClientInformationHome() {
               })
                 .then(() => {
                   toast.success(
-                    'The source code has been copied to your clipboard.',
+                    'Requested successfully.',
                     {
                       duration: 3000,
                       position: 'bottom-left',

@@ -19,6 +19,8 @@ import useModal from '@src/hooks/useModal'
 
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+
 import { useMutation } from 'react-query'
 import { getUserInfo, updateClientUserInfo, updateConsumerUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
 import useAuth from '@src/hooks/useAuth'
@@ -57,6 +59,20 @@ const MyAccount = () => {
     return ''
   }
 
+  useEffect(() => {
+    if (userInfo && !userInfo.firstName) {
+      openModal({
+        type: 'UpdatePersonalInformation',
+        children: (
+          <SimpleAlertModal
+            message='Please update your personal information first.'
+            onClose={() => closeModal('UpdatePersonalInformation')}
+            vary={'info'}
+          />
+        ),
+      })
+    }
+  }, [])
   const saveUserInfoMutation = useMutation(
     (data: (ManagerUserInfoType | ContactPersonType | ProUserInfoType) & { userId: number }) => (
       ['LPM','TAD','ACCOUNT_MANAGER'].includes(getCurrentUserRole())
