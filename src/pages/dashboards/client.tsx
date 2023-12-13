@@ -88,77 +88,80 @@ const ClientDashboards = () => {
             showMemberView={showMemberView}
           />
           <Grid container gap='24px'>
-            {!memberView && (
-              <GridItem width={290} height={375}>
-                <Box
-                  display='flex'
-                  flexDirection='column'
-                  sx={{ width: '100%', height: '100%' }}
-                >
-                  <Box marginBottom='20px'>
-                    <Title
-                      title='Report'
-                      subTitle={userViewDate}
-                      openDialog={setOpenInfoDialog}
-                    />
+            <Grid item display='flex' flexDirection='column' gap='24px' xs={6}>
+              {!isShowMemberView && (
+                <>
+                  <GridItem height={219} sm>
+                    <Box sx={{ width: '100%', height: '100%' }}>
+                      <Box>
+                        <Title
+                          title='Invoices - Paid this month'
+                          openDialog={setOpenInfoDialog}
+                        />
+                      </Box>
+                      <TotalValueView
+                        type='receivable'
+                        label='Paid this month'
+                        amountLabel='Receivable amount'
+                        countLabel='Counts'
+                      />
+                    </Box>
+                  </GridItem>
+                  <ClientReport
+                    reportData={
+                      ReportData || {
+                        canceled: 0,
+                        invoicePayables: 0,
+                        invoiceReceivables: 0,
+                        orders: 0,
+                        quotes: 0,
+                        requests: 0,
+                      }
+                    }
+                    userViewDate={userViewDate}
+                    setOpenInfoDialog={setOpenInfoDialog}
+                  />
+                </>
+              )}
+              {isShowMemberView && (
+                <GridItem height={532} sm padding='0px'>
+                  <Box display='flex' flexDirection='column'>
                     <Box
-                      component='ul'
-                      display='flex'
-                      flexDirection='column'
-                      sx={{ padding: 0 }}
+                      sx={{
+                        width: '100%',
+                        height: '320px',
+                        overflow: 'hidden',
+                      }}
                     >
-                      {ReportData &&
-                        Object.entries(ReportData).map(
-                          ([key, value], index) => (
-                            <ReportItem
-                              key={`${key}-${index}`}
-                              label={toCapitalize(key)}
-                              value={value}
-                              color={StatusColor[index]}
-                              isHidden={[
-                                Object.entries(ReportData).length - 1,
-                              ].includes(index)}
-                            />
-                          ),
-                        )}
+                      <img
+                        src='/images/dashboard/img_client.png'
+                        alt='dashboard_img'
+                        style={{ width: '100%' }}
+                      />
+                    </Box>
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '220px',
+                        padding: '20px 20px 0',
+                      }}
+                    >
+                      <Box>
+                        <Title
+                          title='Invoices - Paid this month'
+                          openDialog={setOpenInfoDialog}
+                        />
+                      </Box>
+                      <TotalValueView
+                        type='receivable'
+                        label='Paid this month'
+                        amountLabel='Receivable amount'
+                        countLabel='Counts'
+                      />
                     </Box>
                   </Box>
-                </Box>
-              </GridItem>
-            )}
-          </Grid>
-          <Grid container gap='24px'>
-            <Grid item display='flex' flexDirection='column' gap='24px' xs={6}>
-              <GridItem height={219} sm>
-                <Box sx={{ width: '100%', height: '100%' }}>
-                  <Box>
-                    <Title
-                      title='Invoices - Paid this month'
-                      openDialog={setOpenInfoDialog}
-                    />
-                  </Box>
-                  <TotalValueView
-                    type='receivable'
-                    label='Paid this month'
-                    amountLabel='Receivable amount'
-                    countLabel='Counts'
-                  />
-                </Box>
-              </GridItem>
-              <ClientReport
-                reportData={
-                  ReportData || {
-                    canceled: 0,
-                    invoicePayables: 0,
-                    invoiceReceivables: 0,
-                    orders: 0,
-                    quotes: 0,
-                    requests: 0,
-                  }
-                }
-                userViewDate={userViewDate}
-                setOpenInfoDialog={setOpenInfoDialog}
-              />
+                </GridItem>
+              )}
             </Grid>
             <GridItem sm height={532}>
               <Total
