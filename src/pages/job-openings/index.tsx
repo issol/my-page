@@ -18,6 +18,7 @@ import { JobList } from '@src/shared/const/job/jobs'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { useForm } from 'react-hook-form'
+import List from './list'
 
 export type FilterType = {
   jobType: Array<{ label: string; value: string }>
@@ -61,12 +62,15 @@ const JobOpenings = () => {
     OnboardingListRolePair,
   )
 
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+
   const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
     defaultValues,
     mode: 'onSubmit',
   })
 
-  const { data: jobOpenings } = useGetJobOpeningList(filters)
+  const { data: jobOpenings, isLoading } = useGetJobOpeningList(filters)
 
   const onReset = () => {
     reset(defaultValues)
@@ -99,13 +103,13 @@ const JobOpenings = () => {
   }
 
   return (
-    <Box display='flex' flexDirection='column'>
+    <Box display='flex' flexDirection='column' gap='24px'>
       <Box
         display='flex'
         width={'100%'}
         alignItems='center'
         justifyContent='space-between'
-        padding='10px 0 24px'
+        padding='10px 0'
       >
         <PageHeader
           title={<Typography variant='h5'>Job openings</Typography>}
@@ -123,6 +127,16 @@ const JobOpenings = () => {
         jobTypeOptions={jobTypeOptions}
         roleOptions={roleOptions}
         languageList={languageList}
+      />
+      <List
+        list={jobOpenings?.data ?? []}
+        listCount={jobOpenings?.totalCount ?? 0}
+        page={page}
+        setPage={setPage}
+        rowsPerPage={rowsPerPage}
+        setRowsPerPage={setRowsPerPage}
+        setFilters={setFilters}
+        isLoading={isLoading}
       />
     </Box>
   )

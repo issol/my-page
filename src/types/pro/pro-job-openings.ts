@@ -1,3 +1,5 @@
+import { CountryType } from '../sign/personalInfoTypes'
+
 export type JobOpeningListType = {
   id: number
   jobType: string
@@ -5,8 +7,8 @@ export type JobOpeningListType = {
   sourceLanguage: string
   targetLanguage: string
   yearsOfExperience: string
-  dueDate: string
-  dueDateTimezone: string
+  dueDate: Date
+  dueDateTimezone: CountryType
 }
 
 export type JobOpeningListFilterType = {

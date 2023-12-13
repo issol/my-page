@@ -1,4 +1,4 @@
-import { Box } from '@mui/material'
+import { Box, Card, CardHeader, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import {
   JobOpeningListFilterType,
@@ -6,6 +6,7 @@ import {
 } from '@src/types/pro/pro-job-openings'
 import { Dispatch, SetStateAction } from 'react'
 import NoList from '../components/no-list'
+import { getJobOpeningsColumn } from '@src/shared/const/columns/job-openings'
 
 type Props = {
   list: Array<JobOpeningListType>
@@ -29,44 +30,58 @@ const List = ({
   setFilters,
 }: Props) => {
   return (
-    <Box>
-      {/* <DataGrid
-        autoHeight
-        rows={list}
-        sx={{
-          overflowX: 'scroll',
-          '& .MuiDataGrid-row:hover': {
-            backgroundColor: 'inherit',
-          },
-        }}
-        components={{
-          NoRowsOverlay: () => NoList('There is no job openings.'),
-          NoResultsOverlay: () => NoList('There is no job openings.'),
-        }}
-        columns={getProCertificationTestListColumns(onClickApply)}
-        pagination
-        paginationMode='client'
-        pageSize={rowsPerPage}
-        rowsPerPageOptions={[10, 25, 50]}
-        rowCount={listCount}
-        onPageChange={(newPage: number) => {
-          setFilters((prevState: ProCertificationTestFilterType) => ({
-            ...prevState,
-            skip: newPage * rowsPerPage,
-          }))
-          setPage(newPage)
-        }}
-        onPageSizeChange={(newPageSize: number) => {
-          setFilters((prevState: ProCertificationTestFilterType) => ({
-            ...prevState,
-            take: newPageSize,
-          }))
-          setRowsPerPage(newPageSize)
-        }}
-        loading={isLoading}
-        hideFooterSelectedRowCount
-        disableSelectionOnClick
-      /> */}
-    </Box>
+    <Card>
+      <CardHeader
+        title={
+          <Box display='flex' justifyContent='space-between'>
+            <Typography variant='h6'>
+              Job openings ({listCount ?? 0})
+            </Typography>
+          </Box>
+        }
+        sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
+      ></CardHeader>
+      <Box>
+        <DataGrid
+          autoHeight
+          rows={list}
+          sx={{
+            overflowX: 'scroll',
+            '& .MuiDataGrid-row:hover': {
+              backgroundColor: 'inherit',
+            },
+          }}
+          components={{
+            NoRowsOverlay: () => NoList('There is no job openings.'),
+            NoResultsOverlay: () => NoList('There is no job openings.'),
+          }}
+          columns={getJobOpeningsColumn()}
+          pagination
+          paginationMode='client'
+          pageSize={rowsPerPage}
+          rowsPerPageOptions={[10, 25, 50]}
+          rowCount={listCount}
+          onPageChange={(newPage: number) => {
+            setFilters((prevState: JobOpeningListFilterType) => ({
+              ...prevState,
+              skip: newPage * rowsPerPage,
+            }))
+            setPage(newPage)
+          }}
+          onPageSizeChange={(newPageSize: number) => {
+            setFilters((prevState: JobOpeningListFilterType) => ({
+              ...prevState,
+              take: newPageSize,
+            }))
+            setRowsPerPage(newPageSize)
+          }}
+          loading={isLoading}
+          hideFooterSelectedRowCount
+          disableSelectionOnClick
+        />
+      </Box>
+    </Card>
   )
 }
+
+export default List

@@ -4,6 +4,7 @@ import {
   JobOpeningListFilterType,
   JobOpeningListType,
 } from '@src/types/pro/pro-job-openings'
+import { addDays, format } from 'date-fns'
 
 export const getJobOpenings = async (
   filters: JobOpeningListFilterType,
@@ -15,6 +16,11 @@ export const getJobOpenings = async (
   //   `/api/enough/cert/test/pro/${userId}/applied-role?${makeQuery(filters)}`,
   // )
   // return data
+  const getRandomDate = (): Date => {
+    const randomDays = Math.floor(Math.random() * 30)
+    return addDays(new Date(), randomDays)
+  }
+
   const testData: JobOpeningListType[] = [
     {
       id: 1,
@@ -23,8 +29,8 @@ export const getJobOpenings = async (
       sourceLanguage: 'en',
       targetLanguage: 'ko',
       yearsOfExperience: '1-2 year(s)',
-      dueDate: 'Less than 1 day left',
-      dueDateTimezone: 'UTC',
+      dueDate: getRandomDate(),
+      dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
     },
     {
       id: 2,
@@ -33,8 +39,8 @@ export const getJobOpenings = async (
       sourceLanguage: 'ko',
       targetLanguage: 'en',
       yearsOfExperience: '3-5 years',
-      dueDate: '1-2 days left',
-      dueDateTimezone: 'UTC',
+      dueDate: getRandomDate(),
+      dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
     },
     {
       id: 3,
@@ -43,8 +49,8 @@ export const getJobOpenings = async (
       sourceLanguage: 'en',
       targetLanguage: 'ko',
       yearsOfExperience: '6-9 years',
-      dueDate: '3-6 days left',
-      dueDateTimezone: 'UTC',
+      dueDate: getRandomDate(),
+      dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
     },
     {
       id: 4,
@@ -53,8 +59,8 @@ export const getJobOpenings = async (
       sourceLanguage: 'ko',
       targetLanguage: 'en',
       yearsOfExperience: '10+ years',
-      dueDate: '1 week left',
-      dueDateTimezone: 'UTC',
+      dueDate: getRandomDate(),
+      dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
     },
     {
       id: 5,
@@ -63,59 +69,10 @@ export const getJobOpenings = async (
       sourceLanguage: 'en',
       targetLanguage: 'ko',
       yearsOfExperience: '1-2 year(s)',
-      dueDate: '1-2 weeks left',
-      dueDateTimezone: 'UTC',
+      dueDate: getRandomDate(),
+      dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
     },
-    {
-      id: 6,
-      jobType: 'Contract',
-      role: 'Designer',
-      sourceLanguage: 'ko',
-      targetLanguage: 'en',
-      yearsOfExperience: '3-5 years',
-      dueDate: '2 weeks and more',
-      dueDateTimezone: 'UTC',
-    },
-    {
-      id: 7,
-      jobType: 'Full-time',
-      role: 'Tester',
-      sourceLanguage: 'en',
-      targetLanguage: 'ko',
-      yearsOfExperience: '6-9 years',
-      dueDate: 'Less than 1 day left',
-      dueDateTimezone: 'UTC',
-    },
-    {
-      id: 8,
-      jobType: 'Part-time',
-      role: 'Manager',
-      sourceLanguage: 'ko',
-      targetLanguage: 'en',
-      yearsOfExperience: '10+ years',
-      dueDate: '1-2 days left',
-      dueDateTimezone: 'UTC',
-    },
-    {
-      id: 9,
-      jobType: 'Contract',
-      role: 'Developer',
-      sourceLanguage: 'en',
-      targetLanguage: 'ko',
-      yearsOfExperience: '1-2 year(s)',
-      dueDate: '3-6 days left',
-      dueDateTimezone: 'UTC',
-    },
-    {
-      id: 10,
-      jobType: 'Full-time',
-      role: 'Designer',
-      sourceLanguage: 'ko',
-      targetLanguage: 'en',
-      yearsOfExperience: '3-5 years',
-      dueDate: '1 week left',
-      dueDateTimezone: 'UTC',
-    },
+    // ... add more data as needed
   ]
 
   return {
