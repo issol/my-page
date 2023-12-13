@@ -330,6 +330,7 @@ export const useLanguagePool = (base: 'source' | 'target' | 'pair') => {
       suspense: true,
       keepPreviousData: true,
       useErrorBoundary: (error: any) => error.response?.status >= 500,
+      enabled: true,
     },
   )
 }

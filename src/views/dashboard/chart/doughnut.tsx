@@ -1,4 +1,10 @@
-import React, { ReactElement, Suspense, useMemo, useState } from 'react'
+import React, {
+  ReactElement,
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import {
   ConvertButtonGroup,
   CurrencyUnit,
@@ -13,14 +19,19 @@ import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
 import { useDashboardRatio } from '@src/queries/dashboard/dashnaord-lpm'
 import { renderToString } from 'react-dom/server'
-import { APIType, Currency, RatioItem } from '@src/types/dashboard'
+import {
+  APIType,
+  CSVDataRecordProps,
+  Currency,
+  RatioItem,
+} from '@src/types/dashboard'
 import Typography from '@mui/material/Typography'
 import NoRatio from '@src/views/dashboard/noRatio'
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { OptionType } from '@src/@core/components/option-menu/types'
 
-interface DoughnutChartProps<T> {
+interface DoughnutChartProps<T> extends CSVDataRecordProps {
   title: string
   from: string
   to: string
@@ -46,9 +57,9 @@ const Doughnut = <T extends RatioItem>({
   setOpenInfoDialog,
   menuOptions,
   isHiddenValue = false,
+  dataRecord,
+  setDataRecord,
 }: DoughnutChartProps<T>) => {
-  const theme = useTheme()
-
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
   const [filter, setFilter] = useState('')
   const { data, isSuccess } = useDashboardRatio<T>({
@@ -60,6 +71,31 @@ const Doughnut = <T extends RatioItem>({
     currency,
     apiType,
   })
+
+  const onChangeCurrency = (type: Currency) => {
+    setCurrency(type)
+  }
+
+  const getTitle = () => {
+    if (filter) {
+      return menuOptions?.find(item => item.key === filter)?.text || title
+    }
+    return title
+  }
+
+  useEffect(() => {
+    const title = getTitle()
+    const filterList = data?.report.map(item => {
+      return {
+        [`${title}`]: item.name || '',
+        [`${title} Number`]: item.count,
+        [`${title} Percent`]: item.ratio,
+        '     ': '',
+      }
+    })
+
+    setDataRecord(filterList || [])
+  }, [isSuccess])
 
   const charData = useMemo(() => {
     const sortData = data?.report.sort((item1, item2) => item2.sum - item1.sum)
@@ -175,17 +211,6 @@ const Doughnut = <T extends RatioItem>({
       },
     }
   }, [charData])
-
-  const onChangeCurrency = (type: Currency) => {
-    setCurrency(type)
-  }
-
-  const getTitle = () => {
-    if (filter) {
-      return menuOptions?.find(item => item.key === filter)?.text || title
-    }
-    return title
-  }
 
   return (
     <GridItem xs={6} height={416}>

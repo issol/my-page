@@ -588,7 +588,6 @@ export const StatusApplicationColumns: GridColumns = [
     flex: 0.4,
     renderHeader: () => <Box>Job Type/ Role</Box>,
     renderCell: ({ row }: { row: ApplicationItem }) => {
-      console.log(row.role)
       return (
         <Box display='flex' gap='10px'>
           <JobTypeChip type={row.jobType} label={row.jobType} />
@@ -604,7 +603,6 @@ export const StatusApplicationColumns: GridColumns = [
     flex: 0.4,
     renderHeader: () => <Box>Language pair</Box>,
     renderCell: ({ row }: { row: ApplicationItem }) => {
-      console.log(row.role)
       return (
         <Box display='flex' gap='10px'>
           {`${row.sourceLanguage.toUpperCase()} -> ${row.targetLanguage.toUpperCase()}`}

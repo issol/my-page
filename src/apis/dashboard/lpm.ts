@@ -115,7 +115,7 @@ export const getTotalPrice = async (
 }
 
 /* TAD */
-
+export type LanguagePoolBase = 'source' | 'target' | 'pair'
 export const getLanguagePool = async (base: 'source' | 'target' | 'pair') => {
   const { data } = await axios.get(
     `/api/enough/cert/dashboard/language/count`,
@@ -124,7 +124,8 @@ export const getLanguagePool = async (base: 'source' | 'target' | 'pair') => {
   return data
 }
 
-export const getJobType = async (base: 'jobType' | 'role' | 'pair') => {
+export type JonAndRoleBase = 'jobType' | 'role' | 'pair'
+export const getJobType = async (base: JonAndRoleBase) => {
   const { data } = await axios.get(
     `/api/enough/cert/dashboard/job-type/count`,
     { params: { base } },

@@ -3,8 +3,17 @@ import { RoleType, UserType } from '@src/context/types'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
+import { Dispatch } from 'react'
 
 export type ViewMode = 'company' | 'personal'
+
+export type CSVDataType = Array<Object>
+
+export interface CSVDataRecordProps {
+  dataRecord: CSVDataType
+  setDataRecord: Dispatch<CSVDataType>
+}
+
 export interface ViewModeQuery {
   userId: number | null
   view: ViewMode

@@ -3,9 +3,10 @@ import React, { useRef } from 'react'
 import dayjs from 'dayjs'
 import Button from '@mui/material/Button'
 import DownloadIcon from '@mui/icons-material/Download'
+import { CSVDataType } from '@src/types/dashboard'
 
 interface CSVDownloadProps {
-  data: Array<Record<string, number>>
+  data: CSVDataType
 }
 
 const CSVDownload = ({ data }: CSVDownloadProps) => {

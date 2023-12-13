@@ -72,7 +72,6 @@ const ClientDashboards = () => {
     to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
 
-  console.log(ReportData)
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
@@ -207,7 +206,6 @@ const ClientDashboards = () => {
               type='language-pair'
               colors={SecondColors}
               getName={item => {
-                console.log(item)
                 return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
               }}
               setOpenInfoDialog={setOpenInfoDialog}
