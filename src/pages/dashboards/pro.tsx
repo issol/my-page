@@ -11,7 +11,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Typography from '@mui/material/Typography'
 import { FormProvider } from 'react-hook-form'
 import React from 'react'
-import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
+import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import weekday from 'dayjs/plugin/weekday'
 import {

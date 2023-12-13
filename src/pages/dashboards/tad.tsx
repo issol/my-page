@@ -7,7 +7,7 @@ import Button from '@mui/material/Button'
 import React, { useEffect, useState } from 'react'
 import DownloadIcon from '@mui/icons-material/Download'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
-import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
+import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import Doughnut from '@src/views/dashboard/chart/doughnut'
 import weekday from 'dayjs/plugin/weekday'

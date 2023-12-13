@@ -77,7 +77,7 @@ const TotalProgressChart = ({
     setCurrency(type)
   }
 
-  console.log(data)
+  console.log('TOTAL', data)
 
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
@@ -165,6 +165,7 @@ const TotalProgressChart = ({
                 </Cell>
                 <Cell className='body__cell' align='right'>
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    {CurrencyUnit[data?.currency || ('$' as Currency)]}
                     {row.sum?.toLocaleString()}
                     <div className='ratio_chip flex__center'>{row.ratio}%</div>
                   </div>

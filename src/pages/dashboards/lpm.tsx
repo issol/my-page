@@ -12,7 +12,7 @@ import { useDashboardReport } from '@src/queries/dashboard/dashnaord-lpm'
 import { FormProvider, useWatch } from 'react-hook-form'
 import React, { useState } from 'react'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
-import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
+import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import Doughnut from '@src/views/dashboard/chart/doughnut'
 import weekday from 'dayjs/plugin/weekday'

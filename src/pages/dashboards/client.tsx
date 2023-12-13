@@ -22,7 +22,7 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
-import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
+import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import Doughnut from '@src/views/dashboard/chart/doughnut'
 import weekday from 'dayjs/plugin/weekday'
@@ -163,12 +163,12 @@ const ClientDashboards = () => {
             <GridItem sm height={532}>
               <Total
                 // TODO : Invoice 상태로 보여져야하는데 작업이 안됨
-                type='payable'
+                type='receivable'
                 title='Invoices - Total'
                 iconColor='114, 225, 40'
                 icon={ReceiptLong}
                 setOpenInfoDialog={setOpenInfoDialog}
-                statusList={['Invoiced', 'Paid', 'Overdue']}
+                statusList={['Invoiced', 'Paid', 'Overdue', 'Canceled']}
                 colors={ReceivableColors}
               />
             </GridItem>

@@ -19,7 +19,12 @@ import {
   ReceiptLong,
   SmsFailedRounded,
 } from '@mui/icons-material'
-import { DataGrid, GridColumns, GridSortModel } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridColumns,
+  GridRowParams,
+  GridSortModel,
+} from '@mui/x-data-grid'
 
 import {
   useDashboardCount,
@@ -65,7 +70,8 @@ const StatusDefined: Record<ViewType, { icon: ReactElement; color: string }> = {
   },
 }
 
-interface StatusAndListProps<T extends { id: number }> extends DashboardQuery {
+interface StatusAndListProps<T extends { id: number; orderId?: number }>
+  extends DashboardQuery {
   type: 'job' | 'order' | 'application'
   statusColumn: GridColumns<T>
   initSort: GridSortModel
@@ -75,7 +81,7 @@ interface StatusAndListProps<T extends { id: number }> extends DashboardQuery {
   moveDetailPage?: (id: number) => void
 }
 
-const StatusAndDataGrid = <T extends { id: number }>({
+const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
   type = 'order',
   to,
   from,
@@ -111,12 +117,18 @@ const StatusAndDataGrid = <T extends { id: number }>({
     router.push(`/orders/job-list/?menu=list`)
   }
 
-  const moveDetailPage = (id: number) => {
+  const moveDetailPage = (params: GridRowParams<T>) => {
     if (type === 'order') {
-      router.push(`/orders/order-list/detail/${id}/`)
+      router.push(`/orders/order-list/detail/${params.id}/`)
       return
     }
-    router.push(`/orders/job-list/details/?orderId=238&jobId=260`)
+
+    // TODO : orderId 추가되면 다시 확인하기
+    // router.push(
+    //   `/orders/job-list/details/?orderId=${params?.orderId || 0}&jobId=${
+    //     params.id
+    //   }`,
+    // )
   }
 
   return (
@@ -212,7 +224,7 @@ const StatusAndDataGrid = <T extends { id: number }>({
                 sortModel={sortModel}
                 setSortModel={setSortModel}
                 setSkip={setSkip}
-                onRowClick={params => moveDetailPage(params.id as number)}
+                onRowClick={params => moveDetailPage(params)}
               />
             </Box>
           </Box>
