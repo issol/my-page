@@ -89,7 +89,7 @@ export default function BasicTestActionModal({
             Are you sure{' '}
             {type === 'Skipped'
               ? 'you want to skip'
-              : type === 'Basic in progress'
+              : type === 'Basic test Ready'
               ? 'you want to proceed'
               : type === 'Basic failed'
               ? 'you want to fail'
@@ -150,7 +150,7 @@ export default function BasicTestActionModal({
           >
             {type === 'Skipped'
               ? 'Skip'
-              : type === 'Basic in progress'
+              : type === 'Basic test Ready'
               ? 'Proceed'
               : type === 'Basic failed'
               ? 'Fail'
