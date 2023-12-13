@@ -8,7 +8,7 @@ import {
 import {
   ProAppliedRolesStatusType,
   ProAppliedRolesType,
-} from '@src/types/pro-certification-test/applied-roles'
+} from '@src/types/pro/pro-applied-roles'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import dayjs from 'dayjs'
 

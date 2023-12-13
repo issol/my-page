@@ -16,7 +16,7 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 import { Typography } from '@mui/material'
-import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
+import { useGetProjectCalendarData } from '@src/queries/pro/pro-project.query'
 import { CalendarEventType, SortingType } from '@src/apis/pro/pro-projects.api'
 
 import { ClientProjectCalendarEventType } from '@src/apis/client.api'

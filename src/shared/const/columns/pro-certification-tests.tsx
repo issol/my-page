@@ -1,7 +1,7 @@
 import { Box, Button, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import JobTypeRole from '@src/pages/components/job-type-role-chips'
-import { ProCertificationTestListType } from '@src/types/pro-certification-test/certification-test'
+import { ProCertificationTestListType } from '@src/types/pro/pro-certification-test'
 
 export const getProCertificationTestListColumns = (
   onClickApply: (row: ProCertificationTestListType) => void,

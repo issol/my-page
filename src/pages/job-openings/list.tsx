@@ -1,26 +1,24 @@
 import { Box } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import NoList from '@src/pages/components/no-list'
-import { getProCertificationTestListColumns } from '@src/shared/const/columns/pro-certification-tests'
 import {
-  ProCertificationTestFilterType,
-  ProCertificationTestListType,
-} from '@src/types/pro/pro-certification-test'
+  JobOpeningListFilterType,
+  JobOpeningListType,
+} from '@src/types/pro/pro-job-openings'
 import { Dispatch, SetStateAction } from 'react'
+import NoList from '../components/no-list'
 
 type Props = {
-  list: Array<ProCertificationTestListType>
+  list: Array<JobOpeningListType>
   listCount: number
   isLoading: boolean
   page: number
   setPage: Dispatch<SetStateAction<number>>
   rowsPerPage: number
   setRowsPerPage: Dispatch<SetStateAction<number>>
-  setFilters: Dispatch<SetStateAction<ProCertificationTestFilterType>>
-  onClickApply: (row: ProCertificationTestListType) => void
+  setFilters: Dispatch<SetStateAction<JobOpeningListFilterType>>
 }
 
-const CertificationTestList = ({
+const List = ({
   list,
   listCount,
   isLoading,
@@ -29,11 +27,10 @@ const CertificationTestList = ({
   rowsPerPage,
   setRowsPerPage,
   setFilters,
-  onClickApply,
 }: Props) => {
   return (
     <Box>
-      <DataGrid
+      {/* <DataGrid
         autoHeight
         rows={list}
         sx={{
@@ -43,8 +40,8 @@ const CertificationTestList = ({
           },
         }}
         components={{
-          NoRowsOverlay: () => NoList('There is no certification test.'),
-          NoResultsOverlay: () => NoList('There is no certification test.'),
+          NoRowsOverlay: () => NoList('There is no job openings.'),
+          NoResultsOverlay: () => NoList('There is no job openings.'),
         }}
         columns={getProCertificationTestListColumns(onClickApply)}
         pagination
@@ -69,9 +66,7 @@ const CertificationTestList = ({
         loading={isLoading}
         hideFooterSelectedRowCount
         disableSelectionOnClick
-      />
+      /> */}
     </Box>
   )
 }
-
-export default CertificationTestList

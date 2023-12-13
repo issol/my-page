@@ -10,14 +10,14 @@ import { DataGrid } from '@mui/x-data-grid'
 
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
-import { useGetProAppliedRoles } from '@src/queries/pro-certification-test/applied-roles'
+import { useGetProAppliedRoles } from '@src/queries/pro/pro-applied-roles'
 
 import { getProAppliedRolesColumns } from '@src/shared/const/columns/pro-applied-roles'
 import {
   ProAppliedRolesFilterType,
   ProAppliedRolesType,
   ProAppliedRolesStatusHistoryType,
-} from '@src/types/pro-certification-test/applied-roles'
+} from '@src/types/pro/pro-applied-roles'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { Loadable } from 'recoil'
 import StatusHistoryModal from './modal/status-history-modal'

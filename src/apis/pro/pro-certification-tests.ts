@@ -4,7 +4,7 @@ import { FileType } from '@src/types/common/file.type'
 import {
   ProCertificationTestFilterType,
   ProCertificationTestListType,
-} from '@src/types/pro-certification-test/certification-test'
+} from '@src/types/pro/pro-certification-test'
 
 export const getProCertificationTestList = async (
   filters: ProCertificationTestFilterType,

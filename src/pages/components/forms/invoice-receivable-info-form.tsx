@@ -41,7 +41,7 @@ import {
 } from 'react-hook-form'
 
 // ** fetch
-import { useGetWorkNameList } from '@src/queries/pro-project/project.query'
+import { useGetWorkNameList } from '@src/queries/pro/pro-project.query'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'

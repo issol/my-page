@@ -32,7 +32,7 @@ import {
 } from '@src/shared/transformer/filePath.transformer'
 import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { signContract } from '@src/apis/pro-certification-test/certification-tests'
+import { signContract } from '@src/apis/pro/pro-certification-tests'
 import { useMutation } from 'react-query'
 import { FileType } from '@src/types/common/file.type'
 import toast from 'react-hot-toast'

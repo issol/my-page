@@ -8,11 +8,11 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import {
   useGetProAppliedRoles,
   useGetProContract,
-} from '@src/queries/pro-certification-test/applied-roles'
+} from '@src/queries/pro/pro-applied-roles'
 import {
   ProAppliedRolesFilterType,
   ProAppliedRolesStatusHistoryType,
-} from '@src/types/pro-certification-test/applied-roles'
+} from '@src/types/pro/pro-applied-roles'
 import useModal from '@src/hooks/useModal'
 import StatusHistoryModal from './components/modal/status-history-modal'
 import ProCertificationTests from './components/certiciation-tests'

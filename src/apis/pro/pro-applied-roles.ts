@@ -4,7 +4,7 @@ import {
   ProAppliedRolesFilterType,
   ProAppliedRolesStatusType,
   ProAppliedRolesType,
-} from '@src/types/pro-certification-test/applied-roles'
+} from '@src/types/pro/pro-applied-roles'
 import {
   ContractDetailType,
   ContractParam,

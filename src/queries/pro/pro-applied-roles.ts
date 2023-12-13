@@ -2,11 +2,11 @@ import { ContractParam } from '@src/apis/contract.api'
 import {
   getProAppliedRoles,
   getProContractDetail,
-} from '@src/apis/pro-certification-test/applied-roles'
+} from '@src/apis/pro/pro-applied-roles'
 import {
   ProAppliedRolesFilterType,
   ProAppliedRolesType,
-} from '@src/types/pro-certification-test/applied-roles'
+} from '@src/types/pro/pro-applied-roles'
 import dayjs from 'dayjs'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'

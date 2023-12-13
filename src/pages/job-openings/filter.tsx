@@ -1,5 +1,3 @@
-import { ProCertificationTestFilterType } from '@src/types/pro/pro-certification-test'
-import { Dispatch, SetStateAction } from 'react'
 import {
   Control,
   Controller,
@@ -7,6 +5,8 @@ import {
   UseFormTrigger,
 } from 'react-hook-form'
 import { FilterType } from '.'
+import { Dispatch, SetStateAction } from 'react'
+import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import {
   Autocomplete,
   Box,
@@ -18,10 +18,11 @@ import {
   Grid,
   TextField,
 } from '@mui/material'
-import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { JobList } from '@src/shared/const/job/jobs'
 import _ from 'lodash'
+import { ExperiencedYearsForFilter } from '@src/shared/const/experienced-years'
+import { DueDateForFilter, PostedDateForFilter } from '@src/shared/const/date'
 
 type Props = {
   handleSubmit: UseFormHandleSubmit<FilterType>
@@ -63,8 +64,6 @@ type Props = {
 }
 
 const Filter = ({
-  // filter,
-  // setFilter,
   handleSubmit,
   onReset,
   control,
@@ -80,18 +79,15 @@ const Filter = ({
   return (
     <Card
       sx={{
-        // boxShadow: '0px 0px 10px 0px rgba(76, 78, 100, 0.22)',
-        boxShadow: 'none',
-        borderBottomLeftRadius: 'inherit',
-        borderBottomRightRadius: 'inherit',
+        boxShadow: '0px 0px 10px 0px rgba(76, 78, 100, 0.22)',
         borderBottom: '1px solid rgba(76, 78, 100, 0.22)',
       }}
     >
-      <CardHeader title={`Certification tests (${listCount ?? 0})`} />
+      <CardHeader title={'Discover the perfect job for you.'} />
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={6} rowSpacing={4} sx={{ padding: '0' }}>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <Controller
                 control={control}
                 name='jobType'
@@ -152,7 +148,7 @@ const Filter = ({
                 )}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <Controller
                 control={control}
                 name='role'
@@ -218,7 +214,40 @@ const Filter = ({
                 )}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
+              <Controller
+                control={control}
+                name='experience'
+                render={({ field: { onChange, value } }) => (
+                  <Autocomplete
+                    multiple
+                    fullWidth
+                    onChange={(event, item) => {
+                      onChange(item)
+                    }}
+                    value={value}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.value === newValue.value
+                    }}
+                    disableCloseOnSelect
+                    limitTags={1}
+                    options={ExperiencedYearsForFilter}
+                    id='source'
+                    getOptionLabel={option => option.label}
+                    renderInput={params => (
+                      <TextField {...params} label='Years of experience' />
+                    )}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props}>
+                        <Checkbox checked={selected} sx={{ mr: 2 }} />
+                        {option.label}
+                      </li>
+                    )}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={3}>
               <Controller
                 control={control}
                 name='sourceLanguage'
@@ -245,7 +274,7 @@ const Filter = ({
                     id='source'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Source' />
+                      <TextField {...params} label='Source language' />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -257,7 +286,7 @@ const Filter = ({
                 )}
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={3}>
               <Controller
                 control={control}
                 name='targetLanguage'
@@ -284,7 +313,73 @@ const Filter = ({
                     id='target'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Target' />
+                      <TextField {...params} label='Target language' />
+                    )}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props}>
+                        <Checkbox checked={selected} sx={{ mr: 2 }} />
+                        {option.label}
+                      </li>
+                    )}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <Controller
+                control={control}
+                name='dueDate'
+                render={({ field: { onChange, value } }) => (
+                  <Autocomplete
+                    multiple
+                    fullWidth
+                    onChange={(event, item) => {
+                      onChange(item)
+                    }}
+                    value={value}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.value === newValue.value
+                    }}
+                    disableCloseOnSelect
+                    limitTags={1}
+                    options={DueDateForFilter}
+                    id='source'
+                    getOptionLabel={option => option.label}
+                    renderInput={params => (
+                      <TextField {...params} label='Due date' />
+                    )}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props}>
+                        <Checkbox checked={selected} sx={{ mr: 2 }} />
+                        {option.label}
+                      </li>
+                    )}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <Controller
+                control={control}
+                name='postedDate'
+                render={({ field: { onChange, value } }) => (
+                  <Autocomplete
+                    multiple
+                    fullWidth
+                    onChange={(event, item) => {
+                      onChange(item)
+                    }}
+                    value={value}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.value === newValue.value
+                    }}
+                    disableCloseOnSelect
+                    limitTags={1}
+                    options={PostedDateForFilter}
+                    id='source'
+                    getOptionLabel={option => option.label}
+                    renderInput={params => (
+                      <TextField {...params} label='Posted date' />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
