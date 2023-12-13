@@ -135,7 +135,7 @@ const LPMDashboards = () => {
           />
           <Grid container gap='24px'>
             {!isShowMemberView && (
-              <GridItem width={290} height={362}>
+              <GridItem width={300} height={362}>
                 <Box
                   display='flex'
                   flexDirection='column'

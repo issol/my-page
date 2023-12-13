@@ -143,7 +143,7 @@ const SwitchTypeHeader = ({
           </Box>
         </GridItem>
       ) : (
-        <GridItem width={290} height={76}>
+        <GridItem width={300} height={76}>
           <Box
             sx={{
               display: 'flex',
