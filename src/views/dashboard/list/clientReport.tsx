@@ -15,11 +15,13 @@ import Typography from '@mui/material/Typography'
 import React from 'react'
 
 interface ClientReportProps {
+  reportData: Record<string, number>
   userViewDate: string
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
 const ClientReport = ({
+  reportData,
   userViewDate,
   setOpenInfoDialog,
 }: ClientReportProps) => {
@@ -46,7 +48,7 @@ const ClientReport = ({
               </Typography>
             </Box>
             <Typography fontWeight={600} fontSize='14px'>
-              1,234
+              {reportData.requests.toLocaleString()}
             </Typography>
           </Box>
           <Box
@@ -66,7 +68,7 @@ const ClientReport = ({
               </Typography>
             </Box>
             <Typography fontWeight={600} fontSize='14px'>
-              1,234
+              {reportData.quotes.toLocaleString()}
             </Typography>
           </Box>
           <Box
@@ -86,7 +88,7 @@ const ClientReport = ({
               </Typography>
             </Box>
             <Typography fontWeight={600} fontSize='14px'>
-              1,234
+              {reportData.orders.toLocaleString()}
             </Typography>
           </Box>
           <Box
@@ -106,7 +108,9 @@ const ClientReport = ({
               </Typography>
             </Box>
             <Typography fontWeight={600} fontSize='14px'>
-              1,234
+              {(
+                reportData.invoicePayables + reportData.invoiceReceivables
+              ).toLocaleString()}
             </Typography>
           </Box>
           <Box
@@ -126,7 +130,7 @@ const ClientReport = ({
               </Typography>
             </Box>
             <Typography fontWeight={600} fontSize='14px'>
-              1,234
+              {reportData.canceled.toLocaleString()}
             </Typography>
           </Box>
         </Box>

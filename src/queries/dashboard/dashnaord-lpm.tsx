@@ -56,7 +56,7 @@ export const useDashboardReport = (query: DashboardQuery) => {
   const view = changeView ? changeView : initView
   const userId = changeUserId ? changeUserId : initUserId
 
-  return useQuery(
+  return useQuery<Record<string, number>>(
     [
       DEFAULT_QUERY_NAME,
       `${DEFAULT_QUERY_NAME}-report`,
@@ -297,6 +297,7 @@ export const useTotalPrice = (
 ) => {
   return useQuery<{
     totalPrice: number
+    totalCount: number
     currency: Currency
     report: Array<TotalItem>
   }>(

@@ -65,7 +65,7 @@ const TADDashboards = () => {
     control,
     name: ['dateRange', 'userViewDate'],
   })
-  const [headers, setHeaders] = useState<Record<string, number | string>>({})
+
   const [CSVData, setCSVData] = useState<Array<Record<string, number>>>([])
 
   const mergeData = (
@@ -79,14 +79,6 @@ const TADDashboards = () => {
   }
 
   useEffect(() => {
-    const csvList = [
-      'Onboarding',
-      'LanguagePool',
-      'JobTypeAndRole',
-      'ongoingCount',
-      'ratio',
-    ]
-
     const Onboarding = data.filter(item =>
       item[0].includes('Onboarding'),
     )[0][1] as TADOnboardingResult

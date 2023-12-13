@@ -51,6 +51,7 @@ import Total, {
 import { Add, Archive, MonetizationOn, ReceiptLong } from '@mui/icons-material'
 import ClientReport from '@src/views/dashboard/list/clientReport'
 import Notice from '@src/views/dashboard/notice'
+import Information from '@src/views/dashboard/dialog/information'
 
 dayjs.extend(weekday)
 
@@ -71,6 +72,7 @@ const ClientDashboards = () => {
     to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
 
+  console.log(ReportData)
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
@@ -94,13 +96,11 @@ const ClientDashboards = () => {
                   sx={{ width: '100%', height: '100%' }}
                 >
                   <Box marginBottom='20px'>
-                    <SectionTitle>
-                      <span className='title'>Report</span>
-                      <ErrorOutlineIcon className='info_icon' />
-                    </SectionTitle>
-                    <SubDateDescription textAlign='left'>
-                      {userViewDate}
-                    </SubDateDescription>
+                    <Title
+                      title='Report'
+                      subTitle={userViewDate}
+                      openDialog={setOpenInfoDialog}
+                    />
                     <Box
                       component='ul'
                       display='flex'
@@ -133,7 +133,7 @@ const ClientDashboards = () => {
                 <Box sx={{ width: '100%', height: '100%' }}>
                   <Box>
                     <Title
-                      title='Receivables - Paid this month'
+                      title='Invoices - Paid this month'
                       openDialog={setOpenInfoDialog}
                     />
                   </Box>
@@ -146,18 +146,29 @@ const ClientDashboards = () => {
                 </Box>
               </GridItem>
               <ClientReport
+                reportData={
+                  ReportData || {
+                    canceled: 0,
+                    invoicePayables: 0,
+                    invoiceReceivables: 0,
+                    orders: 0,
+                    quotes: 0,
+                    requests: 0,
+                  }
+                }
                 userViewDate={userViewDate}
                 setOpenInfoDialog={setOpenInfoDialog}
               />
             </Grid>
             <GridItem sm height={532}>
               <Total
+                // TODO : Invoice 상태로 보여져야하는데 작업이 안됨
                 type='payable'
-                title='Payables - Total'
+                title='Invoices - Total'
                 iconColor='114, 225, 40'
                 icon={ReceiptLong}
                 setOpenInfoDialog={setOpenInfoDialog}
-                statusList={['Invoiced', 'Paid', 'Overdue', 'Canceled']}
+                statusList={['Invoiced', 'Paid', 'Overdue']}
                 colors={ReceivableColors}
               />
             </GridItem>
@@ -183,7 +194,7 @@ const ClientDashboards = () => {
           <Grid container spacing={5}>
             <Doughnut<PairRatioItem>
               userViewDate={userViewDate}
-              title='Language pairs'
+              title='Language pairs/client'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -218,7 +229,7 @@ const ClientDashboards = () => {
           <Grid container spacing={5}>
             <Doughnut<ServiceRatioItem>
               userViewDate={userViewDate}
-              title='Service types'
+              title='Service types/client'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -234,7 +245,7 @@ const ClientDashboards = () => {
             />
             <Doughnut<ExpertiseRatioItem>
               userViewDate={userViewDate}
-              title='Area of expertises'
+              title='Area of expertises/client'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -250,6 +261,12 @@ const ClientDashboards = () => {
             />
           </Grid>
         </Grid>
+        <Information
+          open={isShowInfoDialog}
+          keyName={infoDialogKey}
+          infoType='CLIENT'
+          close={close}
+        />
       </ApexChartWrapper>
     </FormProvider>
   )

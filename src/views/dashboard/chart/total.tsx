@@ -2,6 +2,7 @@ import { Box, Typography } from '@mui/material'
 import {
   ChartBoxIcon,
   ConvertButtonGroup,
+  CurrencyUnit,
   LinearMultiProgress,
   Title,
   TotalValueView,
@@ -76,6 +77,8 @@ const TotalProgressChart = ({
     setCurrency(type)
   }
 
+  console.log(data)
+
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
       <Box>
@@ -95,7 +98,8 @@ const TotalProgressChart = ({
               Total
             </Typography>
             <Typography fontSize='34px' fontWeight={500}>
-              $128,450,810
+              {CurrencyUnit[data?.currency || ('$' as Currency)]}
+              {data?.totalPrice.toLocaleString() || 0}
             </Typography>
             <Typography
               fontSize='12px'
@@ -117,7 +121,7 @@ const TotalProgressChart = ({
           <Box sx={{ marginTop: '20px' }}>
             <Box sx={{ height: '20px' }} />
             <Typography fontSize='34px' fontWeight={500}>
-              12345
+              {data?.totalCount.toLocaleString() || 0}
             </Typography>
             <Typography
               fontSize='12px'

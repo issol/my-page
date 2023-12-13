@@ -82,7 +82,28 @@ const INFO_CONTENTS: Record<InfoKey, Record<string, string | ReactElement>> = {
     'Applied target languages':
       'It shows the target language(s) applied during the time period set by the date filter. If there are more than 7 target languages applied, it shows the 6 with the highest count, and the rest are grouped together as etc. It includes both direct test applications made by Pro and tests assigned by TAD.',
   },
-  CLIENT: {},
+  CLIENT: {
+    Report:
+      'It shows the number of new requests, quotes, orders, and invoices created during the specified time period. Canceled is the sum of the number of all requests, quotes, orders, and invoices that have been canceled during the specified time period.',
+    'Invoices - Paid this month':
+      'It shows the total price and number of invoices that changed to a Paid status this month. The prices do not include taxes and are converted based on the exchange rate at the time the order was created.',
+    'Invoices - Total':
+      'It shows invoices in each status as of the current time. Invoiced includes invoiced orders that are being processed. Paid shows paid orders, Overdue shows the orders that have passed the due date but have not been paid yet, and Canceled shows canceled orders. The prices are converted based on the exchange rate at the time the order was created.',
+    'Long-standing invoices - Action required':
+      'It shows invoices that have been in a certain status for a long time and are not being processed. It does not include invoices in the Paid or Canceled status.',
+    'Order status':
+      'Created shows new orders created during the set period. Invoiced shows orders invoiced during the set period, and Canceled shows orders canceled during the set period. All three statuses show orders processed during the set period, and do not include the ones processed in other periods.',
+    'Ongoing orders':
+      'Ongoing shows orders in progress at present. It shows all orders ranging from those in progress to those before invoiced.',
+    'Expense per language':
+      "It shows the language(s) whose expense occurred during the time period set by the date filter, and includes only those whose order's project due date falls within the specified time period. If there are more than 7 languages, then it will show the 6 with the highest count and the rest will be grouped together as etc.",
+    'Expense per category':
+      "It shows the category(-ies) whose expense occurred during the time period set by the date filter, and includes only those whose order's project due date falls within the specified time period. If there are more than 7 categories, then it will show the 6 with the highest count and the rest will be grouped together as etc.",
+    'Expense per service type':
+      "It shows the service type(s) whose expense occurred during the time period set by the date filter, and includes only those whose order's project due date falls within the specified time period. If there are more than 7 service types, then it will show the 6 with the highest count and the rest will be grouped together as etc.",
+    'Expense per area of expertise':
+      "It shows the area(s) of expertise whose expense occurred during the time period set by the date filter, and includes only those whose order's project due date falls within the specified time period. If there are more than 7 areas of expertise, then it will show the 6 with the highest count and the rest will be grouped together as etc.",
+  },
   PRO: {},
 }
 
@@ -96,6 +117,10 @@ export const ReplaceTitle: Record<string, string> = {
   'Service types': 'Sales per service type',
   'Area of expertises': 'Sales per area of expertise',
   'Onboarding overview': 'Number of Pros',
+  'Language pairs/client': 'Expense per language',
+  Categories: 'Expense per category',
+  'Service types/client': 'Expense per service type',
+  'Area of expertises/client': 'Expense per area of expertise',
 }
 interface InfoDialogProps {
   keyName: string
