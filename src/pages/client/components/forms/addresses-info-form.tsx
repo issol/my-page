@@ -48,6 +48,8 @@ type Props = {
   // ** all-required는 client address form을 수정할때, role이 CLIENT인 유저가 최초로 정보를 등록할 때 사용
   type?: 'all-required' | 'default'
   getValues: UseFormGetValues<ClientAddressFormType>
+  // billing address 사용유무를 결정함. 일부 폼에서는 billing address를 사용하지 않음
+  useBillingAddress?: boolean
 }
 
 export default function ClientAddressesForm({
@@ -62,9 +64,25 @@ export default function ClientAddressesForm({
   isValid,
   type = 'default',
   getValues,
+  useBillingAddress,
 }: Props) {
   const country = getTypeList('CountryCode')
-  const basicAddress = fields.filter(item => !['billing','additional'].includes(item.addressType!))
+  const basicAddress = fields
+  .filter(item => {
+    // 필터링 조건 설정
+    if (useBillingAddress) {
+      return item.addressType !== 'additional';
+    } else {
+      return item.addressType !== 'billing' && item.addressType !== 'additional';
+    }
+  })
+  .sort((a, b) => {
+    // 'shipping'이 항상 첫 번째 위치에 오도록 정렬
+    if (a.addressType === 'shipping') return -1;
+    if (b.addressType === 'shipping') return 1;
+    return 0;
+  });
+
   const additionalAddress = fields.filter(
     item => item.addressType === 'additional',
   )
@@ -171,17 +189,17 @@ export default function ClientAddressesForm({
     )
   }
 
-  function setShippingAddress(isSameWithBilling: boolean) {
-    const id = fields.filter(item => item.addressType === 'shipping')[0].id
+  function setAddress(useCopy: boolean, copyFromField: 'billing' | 'shipping', copyToField: 'billing' | 'shipping') {
+    const id = fields.filter(item => item.addressType === copyToField)[0].id
     const idx = fields.map(item => item.id).indexOf(id)
 
-    const billingAddress = getValues()?.clientAddresses?.find(
-      item => item.addressType === 'billing',
+    const fromAddress = getValues()?.clientAddresses?.find(
+      item => item.addressType === copyFromField,
     )
-    if (isSameWithBilling) {
-      update(idx, { ...billingAddress, addressType: 'shipping' })
+    if (useCopy) {
+      update(idx, { ...fromAddress, addressType: copyToField })
     } else {
-      update(idx, { addressType: 'shipping' })
+      update(idx, { addressType: copyToField })
     }
   }
 
@@ -207,7 +225,7 @@ export default function ClientAddressesForm({
                 {item.addressType === 'billing' ? 'Billing' : 'Shipping'}{' '}
                 address
               </Typography>
-              {/* {item.addressType === 'shipping' &&
+              {item.addressType === 'billing' &&
               checked !== undefined &&
               setChecked ? (
                 <Box>
@@ -215,7 +233,7 @@ export default function ClientAddressesForm({
                     checked={checked}
                     onChange={e => {
                       setChecked(e.target.checked)
-                      setShippingAddress(e.target.checked)
+                      setAddress(e.target.checked, 'shipping', 'billing')
                     }}
                   />
                   <Typography
@@ -223,10 +241,10 @@ export default function ClientAddressesForm({
                     component='label'
                     htmlFor='hideBlocked'
                   >
-                    Same as the billing address
+                    Same as the shipping address
                   </Typography>
                 </Box>
-              ) : null} */}
+              ) : null}
             </Grid>
             {renderFormTemplate(item.id)}
             <Grid item xs={12}>
