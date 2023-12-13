@@ -620,7 +620,7 @@ const Row = ({
                       <FullWidthDatePicker
                         {...DateTimePickerDefaultOptions}
                         selected={!value ? null : new Date(value)}
-                        onChange={(e,v) => {
+                        onChange={(e, v) => {
                           if (e) {
                             onChange(new Date(e.toString()).toISOString())
                           }

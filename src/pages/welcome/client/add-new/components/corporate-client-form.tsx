@@ -241,6 +241,7 @@ export default function CorporateClientForm({
               isValid={isAddressValid}
               type='all-required'
               getValues={getAddress}
+              useBillingAddress={true}
             />
             <Grid item xs={12} display='flex' justifyContent='space-between'>
               <Button

@@ -38,6 +38,9 @@ import {
   roleSelector,
   roleState,
 } from '@src/states/permission'
+import useAuth from '@src/hooks/useAuth'
+import useModal from '@src/hooks/useModal'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -69,12 +72,14 @@ export default function NewClientProfileForm() {
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
+  const { openModal, closeModal } = useModal()
 
   // const currentRole = getCurrentRole()
   const role = useRecoilValueLoadable(roleState)
 
   // ** Hooks
   const auth = useRecoilValueLoadable(authState)
+  const updateAuth = useAuth()
 
   useEffect(() => {
     if (
@@ -101,7 +106,35 @@ export default function NewClientProfileForm() {
     ) => createClient(data),
     {
       onSuccess: () => {
-        router.push('/home')
+        const { userId, email, accessToken } = router.query
+        if (userId && email && accessToken) {
+          const userIdAsNumber = Number(userId)
+          const emailAsString: string = email as string
+          const accessTokenAsString: string = accessToken as string
+          updateAuth
+          .updateUserInfo({
+            userId: userIdAsNumber,
+            email: emailAsString,
+            accessToken: accessTokenAsString,
+          })
+          .then(() => router.push('/home'))
+        } else {
+          //토큰 확인 안됨, 로그아웃 시켜서 재 로그인 유도
+          openModal({
+            type: 'logout',
+            children: (
+              <SimpleAlertModal
+                message={`Your company has been registered. Please sign in again.`}
+                onClose={() => {
+                  closeModal('logout')
+                  updateAuth.logout()
+                }}
+                vary={'successful'}
+              />
+            ),
+          })
+          
+        }
       },
       onError: () => onError(),
     },

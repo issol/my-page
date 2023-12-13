@@ -6,6 +6,7 @@ export type AlertType =
   | 'successful'
   | 'question-info'
   | 'info-pie'
+  | 'guideline-info'
 
 export default function AlertIcon({ type }: { type: AlertType }) {
   const basePath = '/images/icons/project-icons/'
@@ -27,6 +28,9 @@ export default function AlertIcon({ type }: { type: AlertType }) {
 
       case 'info-pie':
         return 'status-info-pie.png'
+
+      case 'guideline-info':
+        return 'status-guideline-info.png'
       default:
         return ''
     }

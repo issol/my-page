@@ -901,7 +901,7 @@ export default function QuotesDetail() {
       if (project && project.status === 'New') {
         updateQuoteStatusMutation.mutate({
           id: Number(id),
-          status: 20400 
+          status: 20400,
         })
       }
     }
@@ -910,7 +910,11 @@ export default function QuotesDetail() {
   useEffect(() => {
     // LPM에서 status가 Revision requested일때 quote의 편집화면에 진입하면 status를 Under revision(20600) 으로 패치한다.
     if (currentRole && currentRole.name === 'LPM') {
-      console.log("status update",project?.status,(editProject || editItems || editClient || editTeam))
+      console.log(
+        'status update',
+        project?.status,
+        editProject || editItems || editClient || editTeam,
+      )
       if (
         project &&
         project.status === 'Revision requested' &&
@@ -918,7 +922,7 @@ export default function QuotesDetail() {
       ) {
         updateQuoteStatusMutation.mutate({
           id: Number(id),
-          status: 20600 
+          status: 20600,
         })
       }
     }
@@ -1015,9 +1019,7 @@ export default function QuotesDetail() {
         sourceLanguage: item.source,
         targetLanguage: item.target,
         sortingOrder: idx + 1,
-        dueAt: item.dueAt || item.dueAt !== "" 
-          ? item.dueAt
-          : null,
+        dueAt: item.dueAt || item.dueAt !== '' ? item.dueAt : null,
       }
     })
     const langs: LanguagePairsType[] = getItem('languagePairs').map(item => {
@@ -1736,8 +1738,8 @@ export default function QuotesDetail() {
                       updateStatus={(status: number, callback?: () => void) =>
                         updateQuoteStatusMutation.mutate(
                           {
-                          id: Number(id),
-                          status: status
+                            id: Number(id),
+                            status: status,
                           },
                           {
                             onSuccess: () => {

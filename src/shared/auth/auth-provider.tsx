@@ -118,6 +118,8 @@ const AuthProvider = ({ children }: Props) => {
           router.replace('/signup/finish/client')
         } else if (isClientGeneral && !auth.getValue().user?.firstName) {
           router.replace('/welcome/client/add-new/general-client')
+        } else if (!auth.getValue().user?.firstName) {
+          router.replace('/company/my-account')
         }
         return
       } else if (redirectPath) {
