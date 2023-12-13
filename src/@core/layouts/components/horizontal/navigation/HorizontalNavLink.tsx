@@ -40,25 +40,29 @@ interface Props {
 }
 
 const ListItem = styled(MuiListItem)<
-  ListItemProps & { component?: ElementType; href: string; target?: '_blank' | undefined }
+  ListItemProps & {
+    component?: ElementType
+    href: string
+    target?: '_blank' | undefined
+  }
 >(({ theme }) => ({
   width: 'auto',
   paddingTop: theme.spacing(2.25),
   color: theme.palette.text.primary,
   paddingBottom: theme.spacing(2.25),
   '&:hover': {
-    backgroundColor: theme.palette.action.hover
+    backgroundColor: theme.palette.action.hover,
   },
   '&.active, &.active:hover': {
-    backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08)
+    backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08),
   },
   '&.active .MuiTypography-root, &.active .MuiListItemIcon-root': {
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
   },
   '&:focus-visible': {
     outline: 0,
-    backgroundColor: theme.palette.action.focus
-  }
+    backgroundColor: theme.palette.action.focus,
+  },
 }))
 
 const HorizontalNavLink = (props: Props) => {
@@ -74,16 +78,22 @@ const HorizontalNavLink = (props: Props) => {
   const Wrapper = !hasParent ? List : Fragment
 
   const isNavLinkActive = () => {
-    if (router.pathname === item.path || handleURLQueries(router, item.path)) {
-      return true
-    } else {
-      return false
+    if (item.path === '/dashboards') {
+      return router.pathname.includes('dashboards')
     }
+    return router.pathname === item.path || handleURLQueries(router, item.path)
   }
 
   return (
     <CanViewNavLink navLink={item}>
-      <Wrapper {...(!hasParent ? { component: 'div', sx: { py: settings.skin === 'bordered' ? 2.625 : 2.75 } } : {})}>
+      <Wrapper
+        {...(!hasParent
+          ? {
+              component: 'div',
+              sx: { py: settings.skin === 'bordered' ? 2.625 : 2.75 },
+            }
+          : {})}
+      >
         <ListItem
           component={Link}
           disabled={item.disabled}
@@ -98,7 +108,9 @@ const HorizontalNavLink = (props: Props) => {
             }
           }}
           sx={{
-            ...(item.disabled ? { pointerEvents: 'none' } : { cursor: 'pointer' }),
+            ...(item.disabled
+              ? { pointerEvents: 'none' }
+              : { cursor: 'pointer' }),
             ...(!hasParent
               ? {
                   borderRadius: '8px',
@@ -106,29 +118,42 @@ const HorizontalNavLink = (props: Props) => {
                     backgroundColor: 'primary.main',
                     '&:focus-visible': { backgroundColor: 'primary.dark' },
                     '& .MuiTypography-root, & .MuiListItemIcon-root': {
-                      color: 'common.white'
-                    }
-                  }
+                      color: 'common.white',
+                    },
+                  },
                 }
               : {
                   '&.active, &.active:hover': {
                     '&:focus-visible': {
-                      backgroundColor: theme => hexToRGBA(theme.palette.primary.main, 0.24)
-                    }
-                  }
-                })
+                      backgroundColor: theme =>
+                        hexToRGBA(theme.palette.primary.main, 0.24),
+                    },
+                  },
+                }),
           }}
         >
-          <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
-                ...(menuTextTruncate && { overflow: 'hidden' })
+                ...(menuTextTruncate && { overflow: 'hidden' }),
               }}
             >
-              <ListItemIcon sx={{ mr: hasParent ? 3 : 2.5, color: 'text.primary' }}>
-                <UserIcon icon={icon} fontSize={icon === navSubItemIcon ? '0.5rem' : '1.5rem'} />
+              <ListItemIcon
+                sx={{ mr: hasParent ? 3 : 2.5, color: 'text.primary' }}
+              >
+                <UserIcon
+                  icon={icon}
+                  fontSize={icon === navSubItemIcon ? '0.5rem' : '1.5rem'}
+                />
               </ListItemIcon>
               <Typography {...(menuTextTruncate && { noWrap: true })}>
                 <Translations text={item.title} />
@@ -139,7 +164,14 @@ const HorizontalNavLink = (props: Props) => {
                 size='small'
                 label={item.badgeContent}
                 color={item.badgeColor || 'primary'}
-                sx={{ ml: 1.5, '& .MuiChip-label': { px: 2.5, lineHeight: 1.385, textTransform: 'capitalize' } }}
+                sx={{
+                  ml: 1.5,
+                  '& .MuiChip-label': {
+                    px: 2.5,
+                    lineHeight: 1.385,
+                    textTransform: 'capitalize',
+                  },
+                }}
               />
             ) : null}
           </Box>
