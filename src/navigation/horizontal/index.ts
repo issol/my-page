@@ -7,7 +7,7 @@ const navigation = (): HorizontalNavItemsType => {
       title: 'Dashboards',
       icon: 'mdi:home-outline',
       action: 'read',
-      subject: 'members',
+      subject: 'client',
       path: `/dashboards`,
       role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT', 'PRO'],
       externalLink: true,

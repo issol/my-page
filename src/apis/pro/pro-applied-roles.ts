@@ -271,25 +271,27 @@ export const getProAppliedRoles = async (
 
 export const getProContractDetail = async (
   props: ContractParam,
-): Promise<currentVersionType> => {
+): Promise<currentVersionType | null> => {
   const { data } = await axios.get(
     `/api/enough/onboard/contract?type=${props.type}&language=${props.language}`,
   )
 
-  let now = dayjs(new Date()).format('MM/DD/YYYY')
-  let copyContent = { ...data.currentVersion.content }
+  if (data) {
+    let now = dayjs(new Date()).format('MM/DD/YYYY')
+    let copyContent = { ...data.currentVersion.content }
 
-  console.log(copyContent)
-
-  for (let i = 0; i < copyContent.blocks?.length; i++) {
-    if (i === copyContent.blocks.length - 1) {
-      copyContent.blocks[i].text = `${copyContent?.blocks[i]?.text} \n\n${
-        props.language === 'ENG' ? 'Signature date:' : '서명 일자:'
-      } ${now}`
+    for (let i = 0; i < copyContent.blocks?.length; i++) {
+      if (i === copyContent.blocks.length - 1) {
+        copyContent.blocks[i].text = `${copyContent?.blocks[i]?.text} \n\n${
+          props.language === 'ENG' ? 'Signature date:' : '서명 일자:'
+        } ${now}`
+      }
     }
-  }
 
-  return { ...data, content: copyContent }
+    return { ...data, content: copyContent }
+  } else {
+    return null
+  }
 
   // const data = {
   //   documentId: 16,
