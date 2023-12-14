@@ -17,9 +17,38 @@ export type JobOpeningListFilterType = {
   source?: string[]
   target?: string[]
   experience?: string[]
-  dueDate?: string[]
-  postedDate?: string[]
+  dueDate?: { from?: string; to?: string }[]
+  postedDate?: { from?: string; to?: string }[]
 
   skip: number
   take: number
+}
+
+export type JobOpeningDetailType = {
+  id: number
+  jobType: string
+  role: string
+  sourceLanguage: string
+  targetLanguage: string
+  yearsOfExperience: string
+  dueDate: string
+  vendorTimezone: CountryType
+  postedTimezone: CountryType
+  postedDate: string
+  content: {
+    blocks: Array<{
+      key: string
+      text: string
+      type: string
+      depth: number
+      inlineStyleRanges: Array<{
+        offset: number
+        length: number
+        style: string
+      }>
+      entityRanges: Array<any>
+      data: any
+    }>
+    entityMap: any
+  }
 }

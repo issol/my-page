@@ -19,6 +19,14 @@ import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { useForm } from 'react-hook-form'
 import List from './list'
+import {
+  addDays,
+  format,
+  subDays,
+  subHours,
+  subMinutes,
+  subMonths,
+} from 'date-fns'
 
 export type FilterType = {
   jobType: Array<{ label: string; value: string }>
@@ -79,6 +87,83 @@ const JobOpenings = () => {
     setRoleOptions(OnboardingListRolePair)
   }
 
+  const formatDueDateForFilter = (
+    date: {
+      label: string
+      value: string
+    }[],
+  ) => {
+    return date
+      .map(item => {
+        const now = new Date()
+        let from, to
+
+        switch (item.value) {
+          case '0':
+            to = format(now, 'yyyy-MM-dd HH:mm:ss')
+            break
+          case '2':
+            from = format(now, 'yyyy-MM-dd HH:mm:ss')
+            to = format(addDays(now, 2), 'yyyy-MM-dd HH:mm:ss')
+            break
+          case '3':
+            from = format(now, 'yyyy-MM-dd HH:mm:ss')
+            to = format(addDays(now, 6), 'yyyy-MM-dd HH:mm:ss')
+            break
+          case '9':
+            from = format(now, 'yyyy-MM-dd HH:mm:ss')
+            to = format(addDays(now, 7), 'yyyy-MM-dd HH:mm:ss')
+            break
+          case '10':
+            from = format(now, 'yyyy-MM-dd HH:mm:ss')
+            to = format(addDays(now, 14), 'yyyy-MM-dd HH:mm:ss')
+            break
+          case '11':
+            from = format(addDays(now, 14), 'yyyy-MM-dd HH:mm:ss')
+            break
+        }
+
+        return {
+          ...(from !== undefined && { from }),
+          ...(to !== undefined && { to }),
+        }
+      })
+      .filter(item => item.from || item.to)
+  }
+
+  const formatPostedDateForFilter = (
+    date: {
+      label: string
+      value: string
+    }[],
+  ) => {
+    return date.map(item => {
+      const now = new Date()
+      let from,
+        to = format(subMinutes(now, 1), 'yyyy-MM-dd HH:mm:ss')
+
+      switch (item.value) {
+        case '0':
+          from = format(subHours(now, 24), 'yyyy-MM-dd HH:mm:ss')
+          break
+        case '2':
+          from = format(subHours(now, 48), 'yyyy-MM-dd HH:mm:ss')
+          break
+        case '3':
+          from = format(subDays(now, 7), 'yyyy-MM-dd HH:mm:ss')
+          break
+        case '9':
+          from = format(subDays(now, 14), 'yyyy-MM-dd HH:mm:ss')
+          break
+        case '10':
+          from = format(subMonths(now, 1), 'yyyy-MM-dd HH:mm:ss')
+          break
+      }
+
+      return { from, to }
+    })
+  }
+
   const onSubmit = (data: FilterType) => {
     const {
       jobType,
@@ -94,11 +179,14 @@ const JobOpenings = () => {
       role: role.map(item => item.value),
       source: sourceLanguage.map(item => item.value),
       target: targetLanguage.map(item => item.value),
-      dueDate: dueDate.map(item => item.value),
-      postedDate: postedDate.map(item => item.value),
+      dueDate: formatDueDateForFilter(dueDate),
+      postedDate: formatPostedDateForFilter(postedDate),
       skip: 0,
       take: 10,
     }
+
+    console.log(filter)
+
     setFilters(filter)
   }
 
