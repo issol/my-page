@@ -86,6 +86,7 @@ const Doughnut = <T extends RatioItem>({
   useEffect(() => {
     const title = getTitle()
     const arr = new Array(title.length).join(' ')
+
     const filterList = data?.report.map((item, index) => {
       const name = (getName && getName(charData[index] as T)) || item.name
       return {

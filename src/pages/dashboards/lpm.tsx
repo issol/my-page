@@ -218,6 +218,7 @@ const LPMDashboards = () => {
     }
 
     const mergeData1 = mergeData(receivables, payables)
+    mergeData1[0] = { ...mergeData1[0], '   ': '' }
     const mergeData2 = mergeData(mergeData1, clients)
     const mergeData3 = mergeData(mergeData2, languagePairs)
     const mergeData4 = mergeData(mergeData3, categories)

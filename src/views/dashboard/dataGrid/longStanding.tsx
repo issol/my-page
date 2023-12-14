@@ -43,15 +43,7 @@ const LongStandingDataGrid = ({
   }
 
   useEffect(() => {
-    const filterItems = data?.data.map(item => {
-      return {
-        [`${title} status`]: item.status,
-        [`${title} price`]: item.totalPrice,
-        '  ': '',
-      }
-    })
-
-    setDataRecord(filterItems || [])
+    setDataRecord([{ [title]: data?.totalCount || 0 }])
   }, [data?.data])
 
   return (
