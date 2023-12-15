@@ -1199,9 +1199,8 @@ const ProJobInfo = ({
       </Grid>
       <Grid item xs={2.75}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {fileList && fileList.length === 0 ||
-          (![70000, 70100, 70200, 70300, 70400, 70500].includes(jobInfo.status) &&
-          ![60200, 60300, 60400, 60500, 60600].includes(jobInfo.status))
+          {(fileList && fileList.length === 0 ||
+           [70000, 70100, 70200, 70300, 70400, 70500, 601000].includes(jobInfo.status))
             ? null 
             : (
             <Card>
