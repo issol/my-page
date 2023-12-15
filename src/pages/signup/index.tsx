@@ -158,8 +158,11 @@ enum Roles {
 
 const SignUpPage = () => {
   const router = useRouter()
+  const { jobId } = router.query
   const { email } = router.query
   const { setModal } = useContext(ModalContext)
+
+  console.log(jobId)
 
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [showPassword, setShowPassword] = useState<boolean>(false)
@@ -238,14 +241,24 @@ const SignUpPage = () => {
   function signUpOnsuccess(res: loginResType) {
     if (role.includes(Roles.PRO)) {
       router.push(
-        {
-          pathname: '/signup/finish/pro',
-          query: {
-            userId: res.userId,
-            email: res.email,
-            accessToken: res.accessToken,
-          },
-        },
+        jobId
+          ? {
+              pathname: '/signup/finish/pro',
+              query: {
+                userId: res.userId,
+                email: res.email,
+                accessToken: res.accessToken,
+                jobId: jobId,
+              },
+            }
+          : {
+              pathname: '/signup/finish/pro',
+              query: {
+                userId: res.userId,
+                email: res.email,
+                accessToken: res.accessToken,
+              },
+            },
         '/signup/finish/pro',
       )
     } else if (role.includes(Roles.CLIENT)) {
@@ -508,7 +521,7 @@ const SignUpPage = () => {
                 </Link>
                 <GoogleButton
                   type='signup'
-                // handleCredentialResponse={handleCredentialResponse}
+                  // handleCredentialResponse={handleCredentialResponse}
                 />
               </Box>
               <Box

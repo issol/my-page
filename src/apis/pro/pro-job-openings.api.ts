@@ -89,8 +89,8 @@ export const getJobOpeningDetail = async (
   //TODO Endpoint 추가
   const testData: JobOpeningDetailType = {
     id: 1,
-    jobType: 'Full-time',
-    role: 'Software Developer',
+    jobType: 'OTT/Subtitle',
+    role: 'SDH author',
     sourceLanguage: 'en',
     targetLanguage: 'ko',
     yearsOfExperience: '5',

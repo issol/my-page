@@ -31,6 +31,7 @@ export const useGetJobOpeningDetail = (id: number) => {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,
       suspense: true,
+      enabled: !!id,
 
       useErrorBoundary: (error: any) => error.response?.status >= 500,
     },

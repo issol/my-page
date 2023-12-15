@@ -31,6 +31,7 @@ type Props = {
   onClose: any
   onClick: any
   path: string
+  jobId?: number
 }
 
 const defaultValues = {
@@ -43,7 +44,7 @@ interface FormData {
   password: string
 }
 
-const LoginRequiredModal = ({ onClose, onClick, path }: Props) => {
+const LoginRequiredModal = ({ onClose, onClick, path, jobId }: Props) => {
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const auth = useAuth()
@@ -297,7 +298,14 @@ const LoginRequiredModal = ({ onClose, onClick, path }: Props) => {
                 Don’t you have an account?&nbsp;&nbsp;
               </Typography>
               <Link
-                href='/signup'
+                href={
+                  jobId
+                    ? {
+                        pathname: '/signup',
+                        query: { jobId: jobId },
+                      }
+                    : '/signup'
+                }
                 style={{ textDecoration: 'none' }}
                 onClick={e => {
                   closeModal('LoginRequiredModal')

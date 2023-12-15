@@ -152,6 +152,7 @@ const JobOpeningDetail = () => {
             onClick={() => closeModal('LoginRequiredModal')}
             onClose={() => closeModal('LoginRequiredModal')}
             path={router.asPath}
+            jobId={data.id}
           />
         ),
       })
@@ -435,7 +436,7 @@ const JobOpeningDetail = () => {
                       convertDateByTimezone(
                         data?.dueDate!,
                         data?.vendorTimezone.code!,
-                        auth.getValue().user?.timezone.code ?? 'KR',
+                        auth.getValue().user?.timezone?.code ?? 'KR',
                       ),
                     )}
                   </Grid>
