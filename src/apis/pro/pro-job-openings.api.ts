@@ -4,6 +4,7 @@ import {
   JobOpeningDetailType,
   JobOpeningListFilterType,
   JobOpeningListType,
+  applyResponseEnum,
 } from '@src/types/pro/pro-job-openings'
 import { addDays, format } from 'date-fns'
 
@@ -85,11 +86,12 @@ export const getJobOpenings = async (
 export const getJobOpeningDetail = async (
   id: number,
 ): Promise<JobOpeningDetailType> => {
+  //TODO Endpoint 추가
   const testData: JobOpeningDetailType = {
     id: 1,
     jobType: 'Full-time',
     role: 'Software Developer',
-    sourceLanguage: 'us',
+    sourceLanguage: 'en',
     targetLanguage: 'ko',
     yearsOfExperience: '5',
     dueDate: new Date().toISOString(),
@@ -268,4 +270,16 @@ export const getJobOpeningDetail = async (
   }
 
   return testData
+}
+
+export const getJobOpeningApplyStatus = async (): Promise<{ code: number }> => {
+  //TODO Endpoint 추가
+  return { code: applyResponseEnum.ALREADY_APPLIED }
+}
+
+export const createJobInfo = async (
+  userId: number,
+  payload: { jobType: string; role: string; source: string; target: string },
+) => {
+  await axios.post(`/api/enough/u/job-info/${userId}`, { ...payload })
 }

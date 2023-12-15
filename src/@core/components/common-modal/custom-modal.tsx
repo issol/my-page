@@ -26,6 +26,7 @@ type Props = {
   soloButton?: boolean
   noButton?: boolean
   closeButton?: boolean
+  buttonDirection?: 'row' | 'column-reverse'
 }
 
 const CustomModal = ({
@@ -43,6 +44,7 @@ const CustomModal = ({
   soloButton,
   noButton,
   closeButton,
+  buttonDirection,
 }: Props) => {
   const [text, setText] = useState('')
 
@@ -133,11 +135,21 @@ const CustomModal = ({
               display: 'flex',
               gap: '16px',
               justifyContent: 'center',
-              mt: '16px',
+              alignItems: 'center',
+              flexDirection: buttonDirection ?? 'row',
+              width: '100%',
+              mt: '30px',
             }}
           >
             {soloButton ? null : (
-              <Button variant='outlined' onClick={onClose}>
+              <Button
+                variant='outlined'
+                onClick={onClose}
+                sx={{
+                  width:
+                    buttonDirection === 'column-reverse' ? '210px' : 'auto',
+                }}
+              >
                 {leftButtonText ?? 'Cancel'}
               </Button>
             )}
@@ -145,6 +157,9 @@ const CustomModal = ({
             <Button
               variant='contained'
               onClick={() => (textarea ? onClick(text) : onClick())}
+              sx={{
+                width: buttonDirection === 'column-reverse' ? '210px' : 'auto',
+              }}
               disabled={textareaRequired ? textarea && text === '' : false}
             >
               {rightButtonText}

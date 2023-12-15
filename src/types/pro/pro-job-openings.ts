@@ -1,5 +1,15 @@
 import { CountryType } from '../sign/personalInfoTypes'
 
+export enum applyResponseEnum {
+  ALREADY_APPLIED = 10,
+  ALREADY_HAVE_A_ROLE = 11,
+  TESTING_IN_PROGRESS = 12,
+  TEST_COUNT_EXCEEDED = 13,
+  TEST_EXISTS = 20, // role-and-test api 호출
+  UNABLE_PROCEED_TEST = 21,
+  TEST_NOT_EXIST = 22, // 시험이 존재하지 않기 때문에 온보딩 리스트에 신청 가능합니다
+}
+
 export type JobOpeningListType = {
   id: number
   jobType: string
