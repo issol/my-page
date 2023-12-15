@@ -5,11 +5,14 @@ import {
   DashboardMemberQuery,
   DashboardOngoingCountQuery,
   DashboardQuery,
+  ExpectedIncomeQuery,
   LongStandingQuery,
   RatioQuery,
   ReportItem,
   RequestQuery,
+  UpcomingItem,
 } from '@src/types/dashboard'
+import dayjs from 'dayjs'
 
 export const getReport = async (
   params: DashboardQuery,
@@ -28,9 +31,10 @@ export const getRequest = async ({ path, ...params }: RequestQuery) => {
 }
 
 export const getRatio = async (params: RatioQuery) => {
-  const { type, apiType, ...props } = params
+  const { type, apiType, path, ...props } = params
+  const fullPath = path || `ratio/${type}`
   const { data } = await axios.get(
-    `/api/enough/${apiType}/dashboard/ratio/${type}`,
+    `/api/enough/${apiType}/dashboard/${fullPath}`,
     {
       params: { ...props },
     },
@@ -129,6 +133,30 @@ export const getJobType = async (base: JonAndRoleBase) => {
   const { data } = await axios.get(
     `/api/enough/cert/dashboard/job-type/count`,
     { params: { base } },
+  )
+  return data
+}
+
+/* Pros */
+export const getJobOverView = async () => {
+  const { data } = await axios.get(`/api/enough/u/dashboard/job/overview`)
+  return data
+}
+
+// NOTE 상위 다섯개 고정값
+export const getUpcomingDeadline = async () => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/job/list/upcoming-deadline`,
+    { params: { take: 5, skip: 0 } },
+  )
+  return data
+}
+
+///api/enough/u/dashboard/job/expected-income
+export const getExpectedIncome = async (params: ExpectedIncomeQuery) => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/job/expected-income`,
+    { params },
   )
   return data
 }

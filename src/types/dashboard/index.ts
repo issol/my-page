@@ -4,6 +4,7 @@ import { QuoteStatusType } from '@src/types/common/quotes.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { Dispatch } from 'react'
+import { getExpectedIncome } from '@src/apis/dashboard/lpm'
 
 export type ViewMode = 'company' | 'personal'
 
@@ -140,6 +141,10 @@ export type Currency =
   | 'onlyKRW'
   | 'onlySGD'
   | 'onlyUSD'
+  | 'incomeUSD'
+  | 'incomeJPY'
+  | 'incomeKRW'
+  | 'incomeSGD'
   | 'JPY'
   | 'KRW'
   | 'SGD'
@@ -167,6 +172,7 @@ export interface RatioQuery extends DashboardQuery, Partial<ViewModeQuery> {
   filter?: string
   title: string
   type: string
+  path?: string
   currency: Currency
   apiType?: APIType
 }
@@ -217,6 +223,15 @@ export type MemberItem = {
   createdAt: string | Date
   updatedAt: string | Date
   deletedAt: string | Date
+}
+
+export type UpcomingItem = {
+  id: number
+  corporationId: string
+  name: string | null
+  dueAt: string
+  dueTimezone: string | null
+  deadlineWarning: boolean
 }
 
 export interface CountQuery
@@ -276,4 +291,20 @@ export type LongStandingPayablesItem = {
 export type LongStandingDataType = 'receivable' | 'payable'
 export interface LongStandingQuery extends DashboardPaginationQuery {
   dataType: LongStandingDataType
+}
+
+export type ExpectedIncomeSort = 'requestDate' | 'dueDate'
+export interface ExpectedIncomeQuery {
+  month: number
+  sort: ExpectedIncomeSort
+}
+
+export type ExpectedIncome = {
+  month: string
+  incomeKRW: number
+  incomeUSD: number
+  incomeJPY: number
+  incomeSGD: number
+  acceptedCount: number
+  rejectedCount: number
 }

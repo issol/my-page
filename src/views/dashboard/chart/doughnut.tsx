@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import {
   ConvertButtonGroup,
   CurrencyUnit,
@@ -15,7 +9,6 @@ import {
 import Box from '@mui/material/Box'
 
 import { ApexOptions } from 'apexcharts'
-import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
 import { useDashboardRatio } from '@src/queries/dashboard/dashnaord-lpm'
 import { renderToString } from 'react-dom/server'
@@ -33,32 +26,38 @@ import { OptionType } from '@src/@core/components/option-menu/types'
 
 interface DoughnutChartProps<T> extends Partial<CSVDataRecordProps> {
   title: string
+  userViewDate?: string
+  subTitle?: string
   from: string
   to: string
   type: string
   apiType?: APIType
+  path?: string
   colors: Array<string>
   getName?: (row?: T) => string
-  userViewDate: string
   setOpenInfoDialog: (open: boolean, key: string) => void
   isHiddenValue?: boolean
   menuOptions?: Array<{ key: string; text: string }>
+  height?: number
 }
 
 const Doughnut = <T extends RatioItem>({
   title,
+  userViewDate,
+  subTitle,
+  path,
   from,
   to,
   type,
   apiType = 'u',
   colors,
   getName,
-  userViewDate,
   setOpenInfoDialog,
   menuOptions,
   isHiddenValue = false,
   dataRecord,
   setDataRecord,
+  height = 416,
 }: DoughnutChartProps<T>) => {
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
   const [filter, setFilter] = useState('')
@@ -70,6 +69,7 @@ const Doughnut = <T extends RatioItem>({
     filter,
     currency,
     apiType,
+    path,
   })
 
   const onChangeCurrency = (type: Currency) => {
@@ -217,7 +217,7 @@ const Doughnut = <T extends RatioItem>({
   }, [charData])
 
   return (
-    <GridItem xs={6} height={416}>
+    <GridItem xs={6} height={height}>
       <Box
         display='flex'
         flexDirection='column'
@@ -231,7 +231,7 @@ const Doughnut = <T extends RatioItem>({
           <Title
             marginBottom='30px'
             title={getTitle()}
-            subTitle={userViewDate}
+            subTitle={userViewDate || subTitle}
             openDialog={setOpenInfoDialog}
           />
 
@@ -263,7 +263,14 @@ const Doughnut = <T extends RatioItem>({
             }}
           >
             <Suspense fallback={<div>로딩 중</div>}>
-              <Box sx={{ position: 'absolute', left: '-45px' }}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '-45px',
+                  transform: 'translateY(-50%)',
+                }}
+              >
                 <CustomChart
                   type='donut'
                   options={options}

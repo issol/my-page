@@ -8,6 +8,7 @@ import {
   OrderItem,
   RecruitingRequest,
   RequestItem,
+  UpcomingItem,
 } from '@src/types/dashboard'
 import { CurrencyUnit, StatusSquare } from '@src/views/dashboard/dashboardItem'
 import dayjs from 'dayjs'
@@ -721,7 +722,7 @@ export const upcomingColumns: GridColumns = [
     field: 'corporationId',
     headerName: 'Job Number',
     renderHeader: () => <Box>Job Number</Box>,
-    renderCell: ({ row }) => (
+    renderCell: ({ row }: { row: UpcomingItem }) => (
       <Link href={''}>
         <Typography fontSize='14px' sx={{ textDecoration: 'underline' }}>
           {row.corporationId}
@@ -735,9 +736,9 @@ export const upcomingColumns: GridColumns = [
     field: 'jobName',
     headerName: 'Job name',
     renderHeader: () => <Box>Job name</Box>,
-    renderCell: ({ row }) => (
+    renderCell: ({ row }: { row: UpcomingItem }) => (
       <Typography fontSize='14px' fontWeight={600}>
-        23432
+        {row?.name || '-'}
       </Typography>
     ),
   },
@@ -747,7 +748,9 @@ export const upcomingColumns: GridColumns = [
     field: 'dueAt',
     headerName: 'dueAt',
     renderHeader: () => <Box>Job due Date / Time left</Box>,
-    renderCell: ({ row }) => <Typography fontSize='14px'>23432</Typography>,
+    renderCell: ({ row }: { row: UpcomingItem }) => (
+      <Typography fontSize='14px'>23432</Typography>
+    ),
   },
 ]
 

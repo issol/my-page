@@ -2,6 +2,8 @@ import { useQuery } from 'react-query'
 
 import {
   getCount,
+  getExpectedIncome,
+  getJobOverView,
   getJobType,
   getLanguagePool,
   getLongStanding,
@@ -13,6 +15,7 @@ import {
   getReport,
   getRequest,
   getTotalPrice,
+  getUpcomingDeadline,
 } from '@src/apis/dashboard/lpm'
 import type {
   Currency,
@@ -25,6 +28,8 @@ import {
   CountQuery,
   DashboardMemberQuery,
   DashboardOngoingCountQuery,
+  ExpectedIncome,
+  ExpectedIncomeQuery,
   JobTypeAndRole,
   LongStandingQuery,
   RatioItem,
@@ -356,6 +361,52 @@ export const useJobType = (base: 'jobType' | 'role' | 'pair') => {
   }>(
     [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'JobTypeAndRole', base],
     () => getJobType(base),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+/* Pros */
+export interface JobOverViewResult {
+  requested: number
+  inProgress: number
+}
+export const useJobOverview = () => {
+  return useQuery<JobOverViewResult>(
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'JobOverview'],
+    () => getJobOverView(),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useUpcomingDeadline = () => {
+  return useQuery(
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'UpcomingDeadline'],
+    () => getUpcomingDeadline(),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useExpectedIncome = (params: ExpectedIncomeQuery) => {
+  return useQuery<{ report: Array<ExpectedIncome> }>(
+    [
+      DEFAULT_QUERY_NAME,
+      NO_DATE_EFFECT,
+      'ExpectedIncome',
+      { sort: params.sort, month: params.month },
+    ],
+    () => getExpectedIncome(params),
     {
       suspense: true,
       keepPreviousData: true,

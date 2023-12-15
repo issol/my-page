@@ -2,31 +2,63 @@ import styled from '@emotion/styled'
 import { Box, Typography } from '@mui/material'
 import dayjs from 'dayjs'
 import React from 'react'
+import { ExpectedIncome } from '@src/types/dashboard'
+import { CurrencyUnit } from '@src/views/dashboard/dashboardItem'
 
-const CurrencyByDateList = () => {
+export interface CurrencyByDateListProps {
+  data: { report: Array<ExpectedIncome> }
+}
+
+const CurrencyByDateList = ({ data }: CurrencyByDateListProps) => {
+  const isItemValues = (item: ExpectedIncome) => {
+    return !!(
+      item.incomeUSD ||
+      item.incomeKRW ||
+      item.incomeJPY ||
+      item.incomeSGD
+    )
+  }
+
   return (
-    <Box>
-      <Typography fontSize='14px' color='#4C4E64DE' fontWeight={600}>
-        {dayjs().format('MMM')}
-      </Typography>
-      <CurrencyItemList>
-        <li>
-          <span className='currency_box'>$</span>
-          <span className='price'>500</span>
-        </li>
-        <li>
-          <span className='currency_box' color='#fff'>
-            $
-          </span>
-          <span className='price'>500</span>
-        </li>
-        <li>
-          <span className='currency_box' color='#fff'>
-            $
-          </span>
-          <span className='price'>500</span>
-        </li>
-      </CurrencyItemList>
+    <Box className='scroll_bar' sx={{ maxHeight: '364px', overflowY: 'auto' }}>
+      {data.report.map(item => (
+        <Box key={`${item.month}`} sx={{ height: '100%' }}>
+          <Typography
+            fontSize='14px'
+            color='#4C4E64DE'
+            fontWeight={600}
+            sx={{ marginBottom: '5px' }}
+          >
+            {item.month}
+          </Typography>
+          <CurrencyItemList
+            style={{ height: 'fit-content', padding: 0, margin: 0 }}
+          >
+            <li style={{ display: item.incomeUSD ? 'flex' : 'none' }}>
+              <span className='currency_box'>{CurrencyUnit['USD']}</span>
+              <span className='price'>{item.incomeUSD.toLocaleString()}</span>
+            </li>
+            <li style={{ display: item.incomeKRW ? 'flex' : 'none' }}>
+              <span className='currency_box'>{CurrencyUnit['KRW']}</span>
+              <span className='price'>{item.incomeKRW.toLocaleString()}</span>
+            </li>
+            <li style={{ display: item.incomeJPY ? 'flex' : 'none' }}>
+              <span className='currency_box'>{CurrencyUnit['JPY']}</span>
+              <span className='price'>{item.incomeJPY.toLocaleString()}</span>
+            </li>
+            <li style={{ display: item.incomeSGD ? 'flex' : 'none' }}>
+              <span className='currency_box'>{CurrencyUnit['SGD']}</span>
+              <span className='price'>{item.incomeSGD.toLocaleString()}</span>
+            </li>
+            {!isItemValues(item) && (
+              <li>
+                <span className='currency_box'>-</span>
+                <span className='price'></span>
+              </li>
+            )}
+          </CurrencyItemList>
+        </Box>
+      ))}
     </Box>
   )
 }
@@ -68,15 +100,16 @@ export const CurrencyAmount = ({ amounts }: { amounts: Array<number> }) => {
 const CurrencyItemList = styled.ul(() => {
   return {
     display: 'flex',
+    justifyContent: 'space-between',
     listStyle: 'none',
     padding: 0,
     flexWrap: 'wrap',
 
     '& > li': {
-      width: '50%',
       display: 'flex',
+      width: '50%',
       gap: '8px',
-      marginBottom: '5px',
+      marginBottom: '10px',
     },
 
     '& .currency_box': {

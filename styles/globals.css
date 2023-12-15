@@ -52,3 +52,16 @@ input::-webkit-inner-spin-button {
 .fc-popover {
   max-width: 217px;
 }
+
+.scroll_bar { overflow: auto; }
+
+.scroll_bar::-webkit-scrollbar {
+
+  width: 7px;
+
+}
+
+.scroll_bar::-webkit-scrollbar-thumb {
+  background-color: hsla(0, 0%, 42%, 0.49);
+  border-radius: 100px;
+}

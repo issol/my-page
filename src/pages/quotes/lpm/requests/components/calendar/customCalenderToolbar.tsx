@@ -22,10 +22,10 @@ const DISABLED_COLOR = 'rgba(76, 78, 100, 0.26)'
 
 const CustomCalenderToolbar = forwardRef(
   (
-    props: { children: ReactElement },
+    props: { children?: ReactElement; height?: number },
     ref: ForwardedRef<FullCalendar | null>,
   ) => {
-    const { children } = props
+    const { height, children } = props
 
     const calenderRef = ref as MutableRefObject<FullCalendar>
 
@@ -64,7 +64,15 @@ const CustomCalenderToolbar = forwardRef(
     }
 
     return (
-      <Box display='flex' alignItems='center' justifyContent='space-between'>
+      <Box
+        display='flex'
+        alignItems='center'
+        justifyContent='space-between'
+        sx={{
+          width: '100%',
+          height: height || 'auto',
+        }}
+      >
         <Box display='flex' alignItems='center'>
           <ButtonGroup>
             <Button disabled={isDisabledPrev} onClick={handleCalenderMonthPrev}>

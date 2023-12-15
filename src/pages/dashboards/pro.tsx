@@ -9,7 +9,7 @@ import { Box, Stack } from '@mui/material'
 import dayjs from 'dayjs'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Typography from '@mui/material/Typography'
-import { FormProvider } from 'react-hook-form'
+import { FormProvider, useWatch } from 'react-hook-form'
 import React from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
@@ -22,18 +22,20 @@ import {
 import { upcomingColumns } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import { DataGrid } from '@mui/x-data-grid'
-
-import Switch from '@mui/material/Switch'
-import CurrencyByDateList, {
-  CurrencyAmount,
-} from '@src/views/dashboard/list/currencyByDate'
+import { CurrencyAmount } from '@src/views/dashboard/list/currencyByDate'
 import InvoiceTab from '@src/views/dashboard/invoiceTab'
 import Chip from '@mui/material/Chip'
 import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import JobList from '@src/views/dashboard/list/job'
-import ProJobRequestBarChart from '@src/views/dashboard/chart/jobRequestBar'
 import Notice from '@src/views/dashboard/notice'
+import { useUpcomingDeadline } from '@src/queries/dashboard/dashnaord-lpm'
+import Expectedincome from '@src/views/dashboard/list/expectedIncome'
+import Doughnut from '@src/views/dashboard/chart/doughnut'
+import { CategoryRatioItem } from '@src/types/dashboard'
+import { Colors } from '@src/shared/const/dashboard/chart'
+import { getDateFormat } from '@src/pages/dashboards/lpm'
+import ProCalendar from '@src/views/dashboard/calendar'
 
 dayjs.extend(weekday)
 
@@ -43,6 +45,13 @@ const ProDashboards = () => {
   const { control, setValue, ...props } = formHook
   const { isShowInfoDialog, infoDialogKey, setOpenInfoDialog, close } =
     infoDialog
+
+  const [dateRange, userViewDate] = useWatch({
+    control,
+    name: ['dateRange', 'userViewDate'],
+  })
+
+  const { data: upcomingData } = useUpcomingDeadline()
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
@@ -102,47 +111,11 @@ const ProDashboards = () => {
                         alignItems='center'
                         justifyContent='center'
                       >
-                        No rows in DataGrid
+                        There are no deadlines
                       </Stack>
                     ),
                   }}
-                  rows={[
-                    {
-                      id: 206,
-                      corporationId: 'O-000133-DTP-001',
-                      orderId: 192,
-                      jobName: 'test',
-                      dueAt: '2023-11-02T15:00:00.000Z',
-                    },
-                    {
-                      id: 207,
-                      corporationId: 'O-000133-DTP-001',
-                      orderId: 192,
-                      jobName: 'test',
-                      dueAt: '2023-11-02T15:00:00.000Z',
-                    },
-                    {
-                      id: 208,
-                      corporationId: 'O-000133-DTP-001',
-                      orderId: 192,
-                      jobName: 'test',
-                      dueAt: '2023-11-02T15:00:00.000Z',
-                    },
-                    {
-                      id: 209,
-                      corporationId: 'O-000133-DTP-001',
-                      orderId: 192,
-                      jobName: 'test',
-                      dueAt: '2023-11-02T15:00:00.000Z',
-                    },
-                    {
-                      id: 2010,
-                      corporationId: 'O-000133-DTP-001',
-                      orderId: 192,
-                      jobName: 'test',
-                      dueAt: '2023-11-02T15:00:00.000Z',
-                    },
-                  ]}
+                  rows={upcomingData || []}
                   columns={upcomingColumns}
                   disableSelectionOnClick
                   pagination={undefined}
@@ -151,74 +124,29 @@ const ProDashboards = () => {
             </GridItem>
           </Grid>
           <Grid container gap='24px'>
-            <GridItem xs={6} height={490} padding='0px'>
-              <Box display='flex' sx={{ width: '100%', height: '100%' }}>
-                <Box sx={{ width: '50%', padding: '20px' }}>
-                  <SectionTitle>
-                    <span className='title'>Job requests</span>
-                    <ErrorOutlineIcon className='info_icon' />
-                  </SectionTitle>
-                  <SubDateDescription textAlign='left'>
-                    Based On March 1 - 31, 2023
-                  </SubDateDescription>
-                  <ProJobRequestBarChart />
-                </Box>
-                <Box
-                  sx={{
-                    width: '50%',
-                    borderLeft: '1px solid #d9d9d9',
-                    padding: '20px',
-                  }}
-                >
-                  <SectionTitle>
-                    <span className='title'>Expected income</span>
-                  </SectionTitle>
-                  <Box
-                    display='flex'
-                    alignItems='center'
-                    justifyContent='flex-end'
-                    gap='4px'
-                  >
-                    <Typography fontSize='14px' color='#4C4E6499'>
-                      Request date
-                    </Typography>
-                    <Switch
-                      size='small'
-                      inputProps={{ 'aria-label': 'controlled' }}
-                      checked={false}
-                      sx={{
-                        '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                          color: '#666CFF',
-                          '.MuiSwitch-thumb': {
-                            color: '#666CFF',
-                          },
-                        },
-                        '.MuiSwitch-track': {
-                          backgroundColor: '#666CFF',
-                        },
-                      }}
-                    />
-                    <Typography fontSize='14px' color='#4C4E6499'>
-                      Due date
-                    </Typography>
-                  </Box>
-                  <CurrencyByDateList />
-                </Box>
-              </Box>
+            <GridItem sm height={490} padding='0px'>
+              <Expectedincome
+                dateRange={dateRange || [new Date(), new Date()]}
+              />
             </GridItem>
-            <GridItem sm height={490}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <Box>
-                  <SectionTitle>
-                    <span className='title'>Completed deliveries</span>
-                    <ErrorOutlineIcon className='info_icon' />
-                  </SectionTitle>
-                  <SubDateDescription textAlign='left'>
-                    Based On March 1 - 31, 2023
-                  </SubDateDescription>
-                </Box>
-              </Box>
-            </GridItem>
+            <Doughnut<CategoryRatioItem>
+              title='Completed deliveries'
+              subTitle='Based on March 1 - 31, 2023'
+              height={490}
+              from={getDateFormat(
+                (Array.isArray(dateRange) && dateRange[0]) || null,
+              )}
+              to={getDateFormat(
+                (Array.isArray(dateRange) && dateRange[1]) || null,
+              )}
+              type='category'
+              colors={Colors}
+              isHiddenValue={true}
+              path={`job/ratio/service-type?month=${dayjs(
+                (dateRange && dateRange[0]) || new Date(),
+              ).get('month')}`}
+              setOpenInfoDialog={setOpenInfoDialog}
+            />
           </Grid>
           <Grid container gap='24px'>
             <Grid container item xs={6} gap='24px'>
@@ -280,7 +208,7 @@ const ProDashboards = () => {
 
             <GridItem sm height={392}>
               <Box sx={{ width: '100%', height: '100%' }}>
-                <Box sx={{ marginBottom: '20p      x' }}>
+                <Box sx={{ marginBottom: '20px' }}>
                   <SectionTitle>
                     <span
                       role='button'
@@ -311,6 +239,13 @@ const ProDashboards = () => {
                     March 1 - 31, 2023
                   </SubDateDescription>
                 </Box>
+                <Box
+                  sx={{
+                    backgroundColor: 'red',
+                    width: '100%',
+                    height: '100%',
+                  }}
+                ></Box>
               </Box>
             </GridItem>
             <GridItem sm height={223}>
@@ -427,6 +362,11 @@ const ProDashboards = () => {
                   </Box>
                 </Box>
               </Box>
+            </GridItem>
+          </Grid>
+          <Grid container>
+            <GridItem height={876} sm padding='0 0 20px'>
+              <ProCalendar />
             </GridItem>
           </Grid>
         </Grid>

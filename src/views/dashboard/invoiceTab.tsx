@@ -13,6 +13,8 @@ import { CustomChart } from '@src/views/dashboard/chart/jobRequestBar'
 import { useTheme } from '@mui/material/styles'
 import { ApexOptions } from 'apexcharts'
 import dayjs from 'dayjs'
+import { useExpectedIncome } from '@src/queries/dashboard/dashnaord-lpm'
+import { ExpectedIncomeSort } from '@src/types/dashboard'
 
 const series = [
   {
@@ -22,6 +24,8 @@ const series = [
 ]
 const InvoiceTab = () => {
   const theme = useTheme()
+  const [sort, setSort] = useState<ExpectedIncomeSort>('requestDate')
+  // const {} = useExpectedIncome()
 
   const options: ApexOptions = {
     chart: {
