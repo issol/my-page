@@ -14,29 +14,16 @@ import dayjs from 'dayjs'
 import { useTheme } from '@mui/material/styles'
 import { CurrencyByDateListProps } from '@src/views/dashboard/list/currencyByDate'
 
-// const series = [
-//   {
-//     name: 'Accept',
-//     data: [44, 55, 41, 67, 22, 43],
-//   },
-//   {
-//     name: 'Request',
-//     data: [13, 23, 20, 8, 13, 27],
-//   },
-// ]
-
-// interface ProJobRequestBarChartProps {}
-
-const ProJobRequestBarChart = ({ data }: CurrencyByDateListProps) => {
+const ProJobRequestBarChart = ({ report }: CurrencyByDateListProps) => {
   const theme = useTheme()
 
-  const [series, categories, sameValueIndex] = useMemo(() => {
+  const [series, categories, values] = useMemo(() => {
     const accept: Array<number> = []
     const request: Array<number> = []
     const _sameValueIndex: Array<number> = []
     const _categories: Array<string> = []
 
-    data.report.forEach((item, index) => {
+    report.forEach((item, index) => {
       if (item.rejectedCount === 0) _sameValueIndex.push(index)
 
       accept.push(item.acceptedCount || 0)
@@ -56,7 +43,7 @@ const ProJobRequestBarChart = ({ data }: CurrencyByDateListProps) => {
     ]
 
     return [_series, _categories, _sameValueIndex]
-  }, [data])
+  }, [report])
 
   const options: ApexOptions = {
     chart: {
@@ -107,7 +94,7 @@ const ProJobRequestBarChart = ({ data }: CurrencyByDateListProps) => {
         height={280}
         options={options}
         series={series}
-        sameValueIndex={sameValueIndex}
+        values={values}
       />
       <Box display='flex' justifyContent='flex-end' gap='30px'>
         <Typography
@@ -152,11 +139,10 @@ const ProJobRequestBarChart = ({ data }: CurrencyByDateListProps) => {
 }
 
 export const CustomChart = styled(ReactApexcharts)<{
-  sameValueIndex: Array<number>
-}>(({ sameValueIndex }) => {
-  console.log(sameValueIndex)
+  values?: Array<number>
+}>(({ values }) => {
   const obj: Record<string, any> = {}
-  sameValueIndex?.forEach(index => {
+  values?.forEach(index => {
     obj[`.apexcharts-series:nth-of-type(1) > path:nth-of-type(${index + 1})`] =
       {
         clipPath: 'inset(0% 0% -10px 0% round 10px)',

@@ -53,14 +53,16 @@ const CustomCalenderToolbar = forwardRef(
       const calenderApi = calenderRef.current?.getApi()
       calenderApi?.prev()
       currentDateForDisabledState()
-      setTitle(calenderApi?.view.title || '')
+      const date = calenderApi?.view.title.split(' – ')
+      setTitle(`${date[0]}` || '')
     }
 
     const handleCalenderMonthNext = () => {
       const calenderApi = calenderRef.current?.getApi()
       calenderApi?.next()
       currentDateForDisabledState()
-      setTitle(calenderApi?.view.title || '')
+      const date = calenderApi?.view.title.split(' – ')
+      setTitle(`${date[0]}` || '')
     }
 
     return (

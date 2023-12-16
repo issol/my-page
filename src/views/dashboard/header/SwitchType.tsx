@@ -23,7 +23,7 @@ import { CSVDataType } from '@src/types/dashboard'
 import { CSVOptionsMenuDownload } from '@src/views/dashboard/csvDownload'
 
 interface SwitchTypeHeaderProps {
-  csvData: CSVDataType
+  csvData?: CSVDataType
   isShowMemberView: boolean
   hiddenMemberView: () => void
   showMemberView: () => void

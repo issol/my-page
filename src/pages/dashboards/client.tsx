@@ -1,54 +1,32 @@
 import Grid from '@mui/material/Grid'
 import {
-  ChartBoxIcon,
-  ConvertButtonGroup,
   GridItem,
-  ReportItem,
-  SectionTitle,
-  SubDateDescription,
-  TableStatusCircle,
   Title,
   TotalValueView,
 } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
 import { useDashboardReport } from '@src/queries/dashboard/dashnaord-lpm'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import Typography from '@mui/material/Typography'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useState } from 'react'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
+import React from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import Doughnut from '@src/views/dashboard/chart/doughnut'
 import weekday from 'dayjs/plugin/weekday'
-import {
-  Colors,
-  SecondColors,
-  StatusColor,
-} from '@src/shared/const/dashboard/chart'
+import { Colors, SecondColors } from '@src/shared/const/dashboard/chart'
 import {
   CategoryRatioItem,
-  Currency,
   ExpertiseRatioItem,
   PairRatioItem,
   ServiceRatioItem,
 } from '@src/types/dashboard'
 import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import { StatusOrderColumns } from '@src/shared/const/columns/dashboard'
-import styled from '@emotion/styled'
-import { getDateFormat, toCapitalize } from '@src/pages/dashboards/lpm'
+import { getDateFormat } from '@src/pages/dashboards/lpm'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
-import Total, {
-  payableColors,
-  ReceivableColors,
-} from '@src/views/dashboard/chart/total'
-import { Add, Archive, MonetizationOn, ReceiptLong } from '@mui/icons-material'
+import Total, { ReceivableColors } from '@src/views/dashboard/chart/total'
+import { ReceiptLong } from '@mui/icons-material'
 import ClientReport from '@src/views/dashboard/list/clientReport'
 import Notice from '@src/views/dashboard/notice'
 import Information from '@src/views/dashboard/dialog/information'

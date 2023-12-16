@@ -308,3 +308,24 @@ export type ExpectedIncome = {
   acceptedCount: number
   rejectedCount: number
 }
+
+export interface TotalAmountQuery {
+  year: number
+  month: number
+  amountType: 'invoiced' | 'payment'
+}
+
+export type TotalAmountItem = {
+  totalAmountKRW: number
+  totalAmountUSD: number
+  totalAmountJPY: number
+  totalAmountSGD: number
+}
+
+export type InvoiceOverviewItem = {
+  month: string
+  invoiceKRW: number
+  invoiceUSD: number
+  invoiceJPY: number
+  invoiceSGD: number
+}

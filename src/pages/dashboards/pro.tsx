@@ -1,6 +1,5 @@
 import Grid from '@mui/material/Grid'
 import {
-  ChartBoxIcon,
   GridItem,
   SectionTitle,
   SubDateDescription,
@@ -8,23 +7,20 @@ import {
 import { Box, Stack } from '@mui/material'
 import dayjs from 'dayjs'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import Typography from '@mui/material/Typography'
 import { FormProvider, useWatch } from 'react-hook-form'
 import React from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import weekday from 'dayjs/plugin/weekday'
-import {
-  CheckCircleSharp,
-  KeyboardArrowRight,
-  WatchLaterRounded,
-} from '@mui/icons-material'
+import { KeyboardArrowRight } from '@mui/icons-material'
 import { upcomingColumns } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import { DataGrid } from '@mui/x-data-grid'
-import { CurrencyAmount } from '@src/views/dashboard/list/currencyByDate'
+import {
+  CurrencyAmount,
+  getProDateFormat,
+} from '@src/views/dashboard/list/currencyByDate'
 import InvoiceTab from '@src/views/dashboard/invoiceTab'
-import Chip from '@mui/material/Chip'
 import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import JobList from '@src/views/dashboard/list/job'
@@ -32,10 +28,11 @@ import Notice from '@src/views/dashboard/notice'
 import { useUpcomingDeadline } from '@src/queries/dashboard/dashnaord-lpm'
 import Expectedincome from '@src/views/dashboard/list/expectedIncome'
 import Doughnut from '@src/views/dashboard/chart/doughnut'
-import { CategoryRatioItem } from '@src/types/dashboard'
+import { ServiceRatioItem } from '@src/types/dashboard'
 import { Colors } from '@src/shared/const/dashboard/chart'
 import { getDateFormat } from '@src/pages/dashboards/lpm'
 import ProCalendar from '@src/views/dashboard/calendar'
+import Deadline from '@src/views/dashboard/deadline'
 
 dayjs.extend(weekday)
 
@@ -52,6 +49,11 @@ const ProDashboards = () => {
   })
 
   const { data: upcomingData } = useUpcomingDeadline()
+
+  const getDate = (dateType: dayjs.UnitType) => {
+    const date = (dateRange && dateRange[0]) || new Date()
+    return dayjs(date).get(dateType)
+  }
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
@@ -129,7 +131,7 @@ const ProDashboards = () => {
                 dateRange={dateRange || [new Date(), new Date()]}
               />
             </GridItem>
-            <Doughnut<CategoryRatioItem>
+            <Doughnut<ServiceRatioItem>
               title='Completed deliveries'
               subTitle='Based on March 1 - 31, 2023'
               height={490}
@@ -141,68 +143,33 @@ const ProDashboards = () => {
               )}
               type='category'
               colors={Colors}
+              getName={item => {
+                return `${item?.serviceType || '-'}`
+              }}
               isHiddenValue={true}
-              path={`job/ratio/service-type?month=${dayjs(
-                (dateRange && dateRange[0]) || new Date(),
-              ).get('month')}`}
+              path={`job/ratio/service-type?month=${
+                getDate('month') + 1
+              }&year=${getDate('year')}`}
               setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
           <Grid container gap='24px'>
             <Grid container item xs={6} gap='24px'>
               <GridItem height={184}>
-                <Box sx={{ width: '100%', height: '100%' }}>
-                  <Box>
-                    <SectionTitle>
-                      <span
-                        role='button'
-                        className='title'
-                        onClick={() => router.push('/quotes/lpm/requests/')}
-                      >
-                        Invoiced amount
-                      </span>
-                      <ErrorOutlineIcon className='info_icon' />
-                      <KeyboardArrowRight className='arrow_icon' />
-                    </SectionTitle>
-                    <SubDateDescription textAlign='left'>
-                      March 1 - 31, 2023
-                    </SubDateDescription>
-                  </Box>
-                  <Box
-                    display='flex'
-                    alignItems='center'
-                    sx={{ padding: '40px 0 ' }}
-                  >
-                    <CurrencyAmount amounts={[100, 2300, 500, 300]} />
-                  </Box>
-                </Box>
+                <CurrencyAmount
+                  title='Invoiced amount'
+                  amountType='invoiced'
+                  year={getDate('year')}
+                  month={getDate('month')}
+                />
               </GridItem>
               <GridItem height={184}>
-                <Box sx={{ width: '100%', height: '100%' }}>
-                  <Box>
-                    <SectionTitle>
-                      <span
-                        role='button'
-                        className='title'
-                        onClick={() => router.push('/quotes/lpm/requests/')}
-                      >
-                        Payment amount
-                      </span>
-                      <ErrorOutlineIcon className='info_icon' />
-                      <KeyboardArrowRight className='arrow_icon' />
-                    </SectionTitle>
-                    <SubDateDescription textAlign='left'>
-                      March 1 - 31, 2023
-                    </SubDateDescription>
-                  </Box>
-                  <Box
-                    display='flex'
-                    alignItems='center'
-                    sx={{ padding: '40px 0 ' }}
-                  >
-                    <CurrencyAmount amounts={[100, 2300, 500, 300]} />
-                  </Box>
-                </Box>
+                <CurrencyAmount
+                  title='Payment amount'
+                  amountType='payment'
+                  year={getDate('year')}
+                  month={getDate('month')}
+                />
               </GridItem>
             </Grid>
 
@@ -221,10 +188,13 @@ const ProDashboards = () => {
                     <KeyboardArrowRight className='arrow_icon' />
                   </SectionTitle>
                   <SubDateDescription textAlign='left'>
-                    March 1 - 31, 2023
+                    {getProDateFormat(getDate('year'), getDate('month'))}
                   </SubDateDescription>
                 </Box>
-                <InvoiceTab />
+                <InvoiceTab
+                  year={getDate('year')}
+                  month={getDate('month') + 1}
+                />
               </Box>
             </GridItem>
           </Grid>
@@ -233,140 +203,34 @@ const ProDashboards = () => {
               <Box sx={{ width: '100%', height: '100%' }}>
                 <Box>
                   <SectionTitle>
-                    <span className='title'>Monthly task output (12)</span>
+                    <span className='title'>Monthly task output (0)</span>
                   </SectionTitle>
                   <SubDateDescription textAlign='left'>
-                    March 1 - 31, 2023
-                  </SubDateDescription>
-                </Box>
-                <Box
-                  sx={{
-                    backgroundColor: 'red',
-                    width: '100%',
-                    height: '100%',
-                  }}
-                ></Box>
-              </Box>
-            </GridItem>
-            <GridItem sm height={223}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <Box>
-                  <SectionTitle>
-                    <span className='title'>Deadline compliance</span>
-                  </SectionTitle>
-                  <SubDateDescription textAlign='left'>
-                    March 1 - 31, 2023
+                    {getProDateFormat(getDate('year'), getDate('month'))}
                   </SubDateDescription>
                 </Box>
                 <Box
                   display='flex'
-                  flexDirection='column'
-                  gap='20px'
-                  sx={{ marginTop: '20px' }}
+                  alignItems='center'
+                  justifyContent='center'
+                  sx={{
+                    width: '100%',
+                    height: '70%',
+                    fontSize: '14px',
+                    color: '#4C4E6499',
+                  }}
                 >
-                  <Box
-                    display='flex'
-                    alignItems='center'
-                    justifyContent='space-between'
-                  >
-                    <Box display='flex' alignItems='center' gap='16px'>
-                      <ChartBoxIcon
-                        icon={CheckCircleSharp}
-                        boxSize='40px'
-                        color='114, 225, 40'
-                      />
-
-                      <Box display='flex' flexDirection='column'>
-                        <Typography
-                          fontSize='12px'
-                          color='rgba(76, 78, 100, 0.6)'
-                        >
-                          Timely delivery
-                          <Chip
-                            label='78%'
-                            sx={{
-                              height: '20px',
-                              backgroundColor: 'rgba(114, 225, 40, 0.1)',
-                              color: 'rgba(114, 225, 40, 1)',
-                              marginLeft: '10px',
-                              fontSize: '12px',
-                            }}
-                          />
-                        </Typography>
-                        <Typography
-                          fontSize='16px'
-                          fontWeight={600}
-                          color='rgba(76, 78, 100, 0.87)'
-                          sx={{ marginTop: '-2px' }}
-                        >
-                          13
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box>
-                      <Typography fontSize='12px'>
-                        Average early submission time
-                      </Typography>
-                      <Typography fontSize='12px' color='rgba(100, 198, 35, 1)'>
-                        01 day(s) 03 hour(s) 23 min(s)
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box
-                    display='flex'
-                    alignItems='center'
-                    justifyContent='space-between'
-                  >
-                    <Box display='flex' alignItems='center' gap='16px'>
-                      <ChartBoxIcon
-                        icon={WatchLaterRounded}
-                        boxSize='40px'
-                        color='224, 68, 64'
-                      />
-
-                      <Box display='flex' flexDirection='column'>
-                        <Typography
-                          fontSize='12px'
-                          color='rgba(76, 78, 100, 0.6)'
-                        >
-                          Late delivery
-                          <Chip
-                            label='21%'
-                            sx={{
-                              height: '20px',
-                              backgroundColor: 'rgba(224, 68, 64, 0.1)',
-                              color: 'rgba(224, 68, 64, 1)',
-                              marginLeft: '10px',
-                              fontSize: '12px',
-                            }}
-                          />
-                        </Typography>
-                        <Typography
-                          fontSize='16px'
-                          fontWeight={600}
-                          color='rgba(76, 78, 100, 0.87)'
-                          sx={{ marginTop: '-2px' }}
-                        >
-                          13
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box>
-                      <Typography fontSize='12px'>
-                        Average late submission time
-                      </Typography>
-                      <Typography fontSize='12px' color='rgba(255, 77, 73, 1)'>
-                        01 day(s) 03 hour(s) 23 min(s)
-                      </Typography>
-                    </Box>
-                  </Box>
+                  There are no task output
                 </Box>
               </Box>
+            </GridItem>
+            <GridItem sm height={223}>
+              <Deadline year={getDate('year')} month={getDate('month')} />
             </GridItem>
           </Grid>
           <Grid container>
             <GridItem height={876} sm padding='0 0 20px'>
-              <ProCalendar />
+              <ProCalendar year={getDate('year')} month={getDate('month')} />
             </GridItem>
           </Grid>
         </Grid>

@@ -1,38 +1,50 @@
 import React, { useRef } from 'react'
-import { Calender } from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
-import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
+import {
+  Calender,
+  CustomEvent,
+} from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
+import FullCalendar, { CalendarOptions } from '@fullcalendar/react'
 import { calendarDefaultOptions } from '@src/shared/const/calender'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import Box from '@mui/material/Box'
+import { CalendarEventType } from '@src/types/common/calendar.type'
+import { ProJobCalendarResult } from '@src/queries/dashboard/dashnaord-lpm'
 
 interface CalendarProps {
+  event: Array<CalendarEventType<ProJobCalendarResult>>
   containerWidth: number
 }
 
-const Calendar = ({ containerWidth }: CalendarProps) => {
+const Calendar = ({ event, containerWidth }: CalendarProps) => {
   // ** Refs
   const containerRef = useRef<HTMLDivElement>(null)
   const calendarRef = useRef<FullCalendar>(null)
 
+  const finalEvent = event.map(item => {
+    return {
+      ...item,
+      title: item.name,
+      start: item.statusUpdatedAt,
+      end: item.statusUpdatedAt,
+    }
+  })
+
   const calendarOptions = {
     ...calendarDefaultOptions,
-    //events: finalEvent as CalendarOptions['events'],
+    events: finalEvent as CalendarOptions['events'],
     ref: calendarRef,
     direction: 'ltr' as CalendarOptions['direction'],
-    eventClassNames({ event: calendarEvent }: any) {
-      const colorName = calendarEvent._def.extendedProps.calendar
-      return [`bg-${colorName}`]
+    eventContent: (arg: any) => {
+      return (
+        <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
+          <span>{arg.event?._def?.title}</span>
+        </CustomEvent>
+      )
     },
     eventClick({ event }: any) {
       // setCurrentListId(Number(event?.id))
     },
-  }
-
-  const handleMonthChange = async (payload: DatesSetArg) => {
-    const currDate = payload.view.currentStart
-    const currYear = currDate.getFullYear()
-    const currMonth = currDate.getMonth() + 1
   }
 
   return (
@@ -66,14 +78,7 @@ const Calendar = ({ containerWidth }: CalendarProps) => {
         />
         <CustomCalenderToolbar ref={calendarRef} height={56} />
       </Box>
-      <FullCalendar
-        {...calendarOptions}
-        height={780}
-        events={[
-          { title: 'event 1', date: '2019-04-01' },
-          { title: 'event 2', date: '2019-04-02' },
-        ]}
-      />
+      <FullCalendar {...calendarOptions} height={780} />
     </Calender>
   )
 }

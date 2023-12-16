@@ -2,7 +2,9 @@ import { useQuery } from 'react-query'
 
 import {
   getCount,
+  getDeadlineCompliance,
   getExpectedIncome,
+  getInvoiceOverview,
   getJobOverView,
   getJobType,
   getLanguagePool,
@@ -11,9 +13,11 @@ import {
   getOnboardingOverview,
   getOngoing,
   getPaidThisMonth,
+  getProJobCalendar,
   getRatio,
   getReport,
   getRequest,
+  getTotalAmount,
   getTotalPrice,
   getUpcomingDeadline,
 } from '@src/apis/dashboard/lpm'
@@ -30,12 +34,15 @@ import {
   DashboardOngoingCountQuery,
   ExpectedIncome,
   ExpectedIncomeQuery,
+  InvoiceOverviewItem,
   JobTypeAndRole,
   LongStandingQuery,
   RatioItem,
   RatioQuery,
   RatioResponse,
   ReportItem,
+  TotalAmountItem,
+  TotalAmountQuery,
   ViewType,
 } from '@src/types/dashboard'
 import { useRecoilValue } from 'recoil'
@@ -407,6 +414,101 @@ export const useExpectedIncome = (params: ExpectedIncomeQuery) => {
       { sort: params.sort, month: params.month },
     ],
     () => getExpectedIncome(params),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useTotalAmount = (params: TotalAmountQuery) => {
+  return useQuery<TotalAmountItem>(
+    [
+      DEFAULT_QUERY_NAME,
+      NO_DATE_EFFECT,
+      'TotalAmount',
+      params.month,
+      params.year,
+    ],
+    () => getTotalAmount(params),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useInvoiceOverview = (
+  params: Omit<TotalAmountQuery, 'amountType'>,
+) => {
+  return useQuery<Array<InvoiceOverviewItem>>(
+    [
+      DEFAULT_QUERY_NAME,
+      NO_DATE_EFFECT,
+      'InvoiceOverview',
+      params.month,
+      params.year,
+    ],
+    () => getInvoiceOverview(params),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+interface DeadlineComplianceResult {
+  delayedCount: number
+  delayedRatio: number
+  onTimeCount: number
+  onTimeRatio: number
+  delayedAverage: number
+  onTimeAverage: number
+}
+export const useDeadlineCompliance = (
+  params: Omit<TotalAmountQuery, 'amountType'>,
+) => {
+  return useQuery<DeadlineComplianceResult>(
+    [
+      DEFAULT_QUERY_NAME,
+      NO_DATE_EFFECT,
+      'DeadlineCompliance',
+      params.month,
+      params.year,
+    ],
+    () => getDeadlineCompliance(params),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export type ProJobCalendarResult = {
+  id: number
+  corporationId: string
+  name: string
+  status: number
+  statusUpdatedAt: string
+  invoiceId: number | null
+}
+
+export const useProJonCalendar = (
+  params: Omit<TotalAmountQuery, 'amountType'>,
+) => {
+  return useQuery<Array<ProJobCalendarResult>>(
+    [
+      DEFAULT_QUERY_NAME,
+      NO_DATE_EFFECT,
+      'ProJonCalendar',
+      params.month,
+      params.year,
+    ],
+    () => getProJobCalendar(params),
     {
       suspense: true,
       keepPreviousData: true,

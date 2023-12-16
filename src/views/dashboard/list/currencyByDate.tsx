@@ -1,15 +1,30 @@
 import styled from '@emotion/styled'
 import { Box, Typography } from '@mui/material'
-import dayjs from 'dayjs'
-import React from 'react'
-import { ExpectedIncome } from '@src/types/dashboard'
-import { CurrencyUnit } from '@src/views/dashboard/dashboardItem'
+import React, { useCallback } from 'react'
+import { ExpectedIncome, TotalAmountQuery } from '@src/types/dashboard'
+import {
+  CurrencyUnit,
+  SectionTitle,
+  SubDateDescription,
+} from '@src/views/dashboard/dashboardItem'
+import { useTotalAmount } from '@src/queries/dashboard/dashnaord-lpm'
+import dayjs, { Dayjs } from 'dayjs'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
+import { KeyboardArrowRight } from '@mui/icons-material'
+import { useRouter } from 'next/router'
 
 export interface CurrencyByDateListProps {
-  data: { report: Array<ExpectedIncome> }
+  date?: Date
+  report: Array<ExpectedIncome>
 }
 
-const CurrencyByDateList = ({ data }: CurrencyByDateListProps) => {
+export const getProDateFormat = (year: number, month: number) => {
+  const date = dayjs(`${year}-${month}`)
+  const lastDate = dayjs(date).set('date', date.daysInMonth())
+  return lastDate.format('MMMM 1 - DD, YYYY')
+}
+
+const CurrencyByDateList = ({ report, date }: CurrencyByDateListProps) => {
   const isItemValues = (item: ExpectedIncome) => {
     return !!(
       item.incomeUSD ||
@@ -19,9 +34,41 @@ const CurrencyByDateList = ({ data }: CurrencyByDateListProps) => {
     )
   }
 
+  const isEmptyList = useCallback(() => {
+    if (report.length !== 0) return
+    const _date = dayjs(date).set('date', 1)
+    const monthList = Array(6)
+      .fill(0)
+      .map((i, index) => {
+        return _date.add(index, 'month')
+      })
+
+    return monthList.map((date, index) => (
+      <Box key={`${date}-index`} sx={{ height: '100%' }}>
+        <Typography
+          fontSize='14px'
+          color='#4C4E64DE'
+          fontWeight={600}
+          sx={{ marginBottom: '5px' }}
+        >
+          {date.format('MMM')}
+        </Typography>
+        <CurrencyItemList
+          style={{ height: 'fit-content', padding: 0, margin: 0 }}
+        >
+          <li>
+            <span className='currency_box'>-</span>
+            <span className='price'>0</span>
+          </li>
+        </CurrencyItemList>
+      </Box>
+    ))
+  }, [date])
+
   return (
     <Box className='scroll_bar' sx={{ maxHeight: '364px', overflowY: 'auto' }}>
-      {data.report.map(item => (
+      {isEmptyList()}
+      {report.map(item => (
         <Box key={`${item.month}`} sx={{ height: '100%' }}>
           <Typography
             fontSize='14px'
@@ -63,24 +110,47 @@ const CurrencyByDateList = ({ data }: CurrencyByDateListProps) => {
   )
 }
 
-export const CurrencyAmount = ({ amounts }: { amounts: Array<number> }) => {
+interface CurrencyAmountProps extends TotalAmountQuery {
+  title: string
+}
+export const CurrencyAmount = ({ title, ...params }: CurrencyAmountProps) => {
+  const router = useRouter()
+  const { data } = useTotalAmount(params)
+
   const CurrencyItems = [
     { path: '/images/dashboard/img_usd.png', currency: '$' },
     { path: '/images/dashboard/img_krw.png', currency: '₩' },
     { path: '/images/dashboard/img_jpy.png', currency: '¥' },
     { path: '/images/dashboard/img_sgd.png', currency: 'SGD' },
   ]
+
   return (
-    <>
-      {amounts.map((amount, index) => (
-        <Box key={`amount-${index}`} display='flex' alignItems='center'>
+    <Box sx={{ width: '100%', height: '100%' }}>
+      <Box>
+        <SectionTitle>
+          <span
+            role='button'
+            className='title'
+            onClick={() => router.push('/quotes/lpm/requests/')}
+          >
+            {title}
+          </span>
+          <ErrorOutlineIcon className='info_icon' />
+          <KeyboardArrowRight className='arrow_icon' />
+        </SectionTitle>
+        <SubDateDescription textAlign='left'>
+          {getProDateFormat(params.year, params.month)}
+        </SubDateDescription>
+      </Box>
+      <Box display='flex' alignItems='center' sx={{ padding: '40px 0 ' }}>
+        <Box display='flex' alignItems='center'>
           <img
             style={{ height: '32px' }}
-            src={CurrencyItems[index].path}
+            src={CurrencyItems[0].path}
             alt='us icon'
           />
           <span style={{ fontSize: '16px', padding: '0 3px' }}>
-            {CurrencyItems[index].currency}
+            {CurrencyItems[0].currency}
           </span>
           <Typography
             display='flex'
@@ -89,11 +159,68 @@ export const CurrencyAmount = ({ amounts }: { amounts: Array<number> }) => {
             fontWeight={500}
             sx={{ width: '96px' }}
           >
-            {amount.toLocaleString()}
+            {data?.totalAmountUSD.toLocaleString()}
           </Typography>
         </Box>
-      ))}
-    </>
+        <Box display='flex' alignItems='center'>
+          <img
+            style={{ height: '32px' }}
+            src={CurrencyItems[1].path}
+            alt='us icon'
+          />
+          <span style={{ fontSize: '16px', padding: '0 3px' }}>
+            {CurrencyItems[1].currency}
+          </span>
+          <Typography
+            display='flex'
+            alignItems='center'
+            fontSize='20px'
+            fontWeight={500}
+            sx={{ width: '96px' }}
+          >
+            {data?.totalAmountKRW.toLocaleString()}
+          </Typography>
+        </Box>
+        <Box display='flex' alignItems='center'>
+          <img
+            style={{ height: '32px' }}
+            src={CurrencyItems[2].path}
+            alt='us icon'
+          />
+          <span style={{ fontSize: '16px', padding: '0 3px' }}>
+            {CurrencyItems[2].currency}
+          </span>
+          <Typography
+            display='flex'
+            alignItems='center'
+            fontSize='20px'
+            fontWeight={500}
+            sx={{ width: '96px' }}
+          >
+            {data?.totalAmountJPY.toLocaleString()}
+          </Typography>
+        </Box>
+        <Box display='flex' alignItems='center'>
+          <img
+            style={{ height: '32px' }}
+            src={CurrencyItems[3].path}
+            alt='us icon'
+          />
+          <span style={{ fontSize: '16px', padding: '0 3px' }}>
+            {CurrencyItems[3].currency}
+          </span>
+          <Typography
+            display='flex'
+            alignItems='center'
+            fontSize='20px'
+            fontWeight={500}
+            sx={{ width: '96px' }}
+          >
+            {data?.totalAmountSGD.toLocaleString()}
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
   )
 }
 

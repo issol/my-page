@@ -10,9 +10,8 @@ import {
   RatioQuery,
   ReportItem,
   RequestQuery,
-  UpcomingItem,
+  TotalAmountQuery,
 } from '@src/types/dashboard'
-import dayjs from 'dayjs'
 
 export const getReport = async (
   params: DashboardQuery,
@@ -158,5 +157,45 @@ export const getExpectedIncome = async (params: ExpectedIncomeQuery) => {
     `/api/enough/u/dashboard/job/expected-income`,
     { params },
   )
+  return data
+}
+
+export const getTotalAmount = async ({
+  amountType,
+  ...params
+}: TotalAmountQuery) => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/invoice/payable/total-amount/pro/${amountType}`,
+    { params },
+  )
+  return data
+}
+
+export const getInvoiceOverview = async (
+  params: Omit<TotalAmountQuery, 'amountType'>,
+) => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/invoice/payable/overview/pro`,
+    { params },
+  )
+  return data
+}
+
+export const getDeadlineCompliance = async (
+  params: Omit<TotalAmountQuery, 'amountType'>,
+) => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/job/deadline-compliance-rate`,
+    { params },
+  )
+  return data
+}
+
+export const getProJobCalendar = async (
+  params: Omit<TotalAmountQuery, 'amountType'>,
+) => {
+  const { data } = await axios.get(`/api/enough/u/dashboard/job/calendar`, {
+    params,
+  })
   return data
 }
