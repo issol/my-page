@@ -384,7 +384,7 @@ const JobOpeningDetail = () => {
                 <Icon
                   icon='material-symbols:arrow-back-ios-new'
                   style={{ cursor: 'pointer' }}
-                  onClick={() => router.back()}
+                  onClick={() => router.push('/job-openings')}
                 />
                 <Typography variant='h5'>Job openings list</Typography>
               </Box>
