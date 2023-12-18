@@ -62,6 +62,14 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import {
+  account_manage,
+  invoice_payable,
+  invoice_receivable,
+  invoice_receivable_accounting_info,
+} from '@src/shared/const/permission-class'
+import { MarkDayInfo } from '@src/types/invoice/receivable.type'
+import { markInvoiceAsPaid } from '@src/apis/invoice/receivable.api'
 
 type MenuType = 'info' | 'history'
 
@@ -76,7 +84,11 @@ export default function PayableDetail() {
   const queryClient = useQueryClient()
 
   const { data: isUpdatable } = useCheckInvoicePayableEditable(Number(id))
-  const isAccountManager = ability.can('read', 'account_manage')
+  const User = new invoice_payable(auth.getValue().user?.id!)
+  const AccountingTeam = new account_manage(auth.getValue().user?.id!)
+
+  const isDeletable = ability.can('delete', User)
+  const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
   const { data: statusList } = useGetStatusList('InvoicePayable')
 
   // ** store
@@ -86,7 +98,9 @@ export default function PayableDetail() {
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('info')
 
-  const { data, isLoading: isPayableDetailLoading } = useGetPayableDetail(Number(id))
+  const { data, isLoading: isPayableDetailLoading } = useGetPayableDetail(
+    Number(id),
+  )
   const { data: jobList } = useGetPayableJobList(Number(id))
 
   const [editInfo, setEditInfo] = useState(false)
@@ -116,6 +130,22 @@ export default function PayableDetail() {
     },
   )
 
+  const makeInvoiceMarked = useMutation(
+    (info: MarkDayInfo) => markInvoiceAsPaid(data?.id!, info),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: 'invoiceReceivableDetail',
+        })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
   function onCompleteRevisionInvoice() {
     if (auth.state === 'hasValue' && auth.getValue().user)
       openModal({
@@ -129,7 +159,7 @@ export default function PayableDetail() {
             onClick={() => {
               //TODO: api 연결해야함
               updateMutation.mutate({
-                invoiceStatus: 40200
+                invoiceStatus: 40200,
               })
               closeModal('CompleteRevisionModal')
             }}
@@ -172,6 +202,29 @@ export default function PayableDetail() {
         />
       ),
     })
+  }
+
+  const onMarkAsPaidClick = () => {
+    if (auth.state === 'hasValue' && auth.getValue().user) {
+      openModal({
+        type: 'markAsPaid',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('markAsPaid')}
+            onClick={() => {
+              closeModal('markAsPaid')
+              makeInvoiceMarked.mutate({
+                paidAt: Date(),
+                paidDateTimezone: auth.getValue().user?.timezone!,
+              })
+            }}
+            title='Are you sure you want to mark this invoice as paid?'
+            vary='successful'
+            rightButtonText='Mark as paid'
+          />
+        ),
+      })
+    }
   }
 
   /* Open pdf download modal */
@@ -279,10 +332,11 @@ export default function PayableDetail() {
 
   return (
     <Grid container spacing={6}>
-      {(updateMutation.isLoading ||
-        deleteMutation.isLoading || 
-        isPayableDetailLoading) ?
-        <OverlaySpinner /> : null }
+      {updateMutation.isLoading ||
+      deleteMutation.isLoading ||
+      isPayableDetailLoading ? (
+        <OverlaySpinner />
+      ) : null}
       <Grid item xs={12}>
         <Box
           display='flex'
@@ -318,7 +372,6 @@ export default function PayableDetail() {
               </Button>
             </Box>
           )}
-          
         </Box>
       </Grid>
       <Grid item xs={12}>
@@ -374,7 +427,8 @@ export default function PayableDetail() {
           </TabPanel>
         </TabContext>
       </Grid>
-      {!isUpdatable || editInfo ? null : (
+
+      {!isDeletable || editInfo ? null : (
         <Grid item xs={4}>
           <Card sx={{ marginLeft: '12px' }}>
             <CardContent>
@@ -384,10 +438,31 @@ export default function PayableDetail() {
                 color='error'
                 size='large'
                 onClick={onClickDelete}
+                disabled={
+                  ![40000, 40100, 40200, 40400].includes(data?.invoiceStatus!)
+                }
               >
                 Delete this invoice
               </Button>
             </CardContent>
+          </Card>
+        </Grid>
+      )}
+      {!isAccountInfoUpdatable || editInfo ? null : (
+        <Grid item xs={4}>
+          <Card sx={{ padding: '20px', width: '100%', marginLeft: '12px' }}>
+            <Button
+              variant='contained'
+              fullWidth
+              size='large'
+              disabled={
+                // !isUpdatable ||
+                ![40000, 40200, 40400].includes(data?.invoiceStatus!)
+              }
+              onClick={onMarkAsPaidClick}
+            >
+              Mark as paid
+            </Button>
           </Card>
         </Grid>
       )}

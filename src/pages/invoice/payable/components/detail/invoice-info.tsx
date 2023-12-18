@@ -57,9 +57,9 @@ type Props = {
     value: number
   }>
   auth: {
-    user: UserDataType | null;
-    company: ClientUserType | null | undefined;
-    loading: boolean;
+    user: UserDataType | null
+    company: ClientUserType | null | undefined
+    loading: boolean
   }
   editInfo: boolean
   setEditInfo: (n: boolean) => void
@@ -215,7 +215,6 @@ export default function InvoiceInfo({
           </Card>
         </Grid>
       )}
-      
     </Grid>
   )
 }

@@ -224,45 +224,47 @@ export default function InvoiceDetailCard({
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Status</CustomTypo>
                 {
-                // isUpdatable ? (
-                //   <Autocomplete
-                //     autoHighlight
-                //     fullWidth
-                //     value={
-                //       InvoicePayableStatus.find(
-                //         item => item.value === data?.invoiceStatus,
-                //       ) ?? null
-                //     }
-                //     onChange={(e, v) => {
-                //       if (v?.value) {
-                //         onInvoiceStatusChange(
-                //           v.value as InvoicePayableStatusType,
-                //         )
-                //       }
-                //     }}
-                //     options={InvoicePayableStatus}
-                //     getOptionLabel={option => option.label}
-                //     renderInput={params => (
-                //       <TextField {...params} label='Status' />
-                //     )}
-                //   />
-                // ) : 
-                currentRole && currentRole.name === 'LPM' ? (
-                  <Box sx={{ width: '50%' }}>
-                    {invoicePayableStatusChip(
-                      data?.invoiceStatus as InvoicePayableStatusType,
-                      statusList
-                    )}
-                  </Box>
-                ) : currentRole && currentRole.name === 'PRO' ? (
-                  <Box sx={{ width: '50%' }}>
-                    {invoicePayableStatusChip(
-                      data?.invoiceStatus as InvoiceProStatusType,
-                      statusList
-                    )}
-                  </Box>
-                
-                ) : null}
+                  // isUpdatable ? (
+                  //   <Autocomplete
+                  //     autoHighlight
+                  //     fullWidth
+                  //     value={
+                  //       InvoicePayableStatus.find(
+                  //         item => item.value === data?.invoiceStatus,
+                  //       ) ?? null
+                  //     }
+                  //     onChange={(e, v) => {
+                  //       if (v?.value) {
+                  //         onInvoiceStatusChange(
+                  //           v.value as InvoicePayableStatusType,
+                  //         )
+                  //       }
+                  //     }}
+                  //     options={InvoicePayableStatus}
+                  //     getOptionLabel={option => option.label}
+                  //     renderInput={params => (
+                  //       <TextField {...params} label='Status' />
+                  //     )}
+                  //   />
+                  // ) :
+                  currentRole &&
+                  (currentRole.name === 'LPM' ||
+                    currentRole.name === 'ACCOUNT_MANAGER') ? (
+                    <Box sx={{ width: '50%' }}>
+                      {invoicePayableStatusChip(
+                        data?.invoiceStatus as InvoicePayableStatusType,
+                        statusList,
+                      )}
+                    </Box>
+                  ) : currentRole && currentRole.name === 'PRO' ? (
+                    <Box sx={{ width: '50%' }}>
+                      {invoicePayableStatusChip(
+                        data?.invoiceStatus as InvoiceProStatusType,
+                        statusList,
+                      )}
+                    </Box>
+                  ) : null
+                }
               </LabelContainer>
             </Grid>
             <Grid item xs={12}>
@@ -292,7 +294,7 @@ export default function InvoiceDetailCard({
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Tax rate</CustomTypo>
                 <CustomTypo variant='body2'>
-                  {data?.taxRate ? `- ${Number(data.taxRate)}%` : '-'}
+                  {data?.taxRate ? `${Number(data.taxRate)}%` : '-'}
                 </CustomTypo>
               </LabelContainer>
             </Grid>
