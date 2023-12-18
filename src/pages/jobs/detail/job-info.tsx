@@ -205,7 +205,7 @@ const ProJobInfo = ({
         <Box
           sx={{ display: 'flex', gap: '10px', alignItems: 'center', mb: '5px' }}
         >
-          {file.isDownloaded ? null : (
+          {jobDetailDots.includes('download') && file.isDownloaded ? null : (
             <Badge
               variant='dot'
               color='primary'
@@ -257,6 +257,7 @@ const ProJobInfo = ({
         </FileBox>
       </Box>
     ))
+
   const handleJobStatus = (response: 'Decline' | 'Notify') => {
     // TODO API 연결
     selectAssignMutation.mutate(
@@ -1198,13 +1199,10 @@ const ProJobInfo = ({
       </Grid>
       <Grid item xs={2.75}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {fileList && fileList.length === 0 ||
-          (jobInfo.status !== 70000 &&
-            jobInfo.status !== 70100 &&
-            jobInfo.status !== 70200 &&
-            jobInfo.status !== 70300 &&
-            jobInfo.status !== 70400 &&
-            jobInfo.status !== 70500) ? null : (
+          {(fileList && fileList.length === 0 ||
+           [70000, 70100, 70200, 70300, 70400, 70500, 601000].includes(jobInfo.status))
+            ? null 
+            : (
             <Card>
               <Box
                 sx={{
@@ -1243,7 +1241,8 @@ const ProJobInfo = ({
                       fileList.length === 0 ||
                       jobInfo.status === 70200 ||
                       jobInfo.status === 70400 ||
-                      jobInfo.status === 70500
+                      jobInfo.status === 70500 ||
+                      jobInfo.status === 601000
                     }
                   >
                     Download all
