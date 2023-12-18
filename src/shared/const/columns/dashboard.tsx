@@ -52,7 +52,7 @@ export const RequestColumns: GridColumns = [
       const code = row.desiredDueTimezone
         .code as keyof typeof timezones.countries
 
-      const timeZone = timezones.countries[code].zones[0]
+      const timeZone = timezones.countries[code]?.zones[0]
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -126,14 +126,31 @@ export const RequestColumns: GridColumns = [
     flex: 0.3,
     cellClassName: 'desiredDueDate-date__cell',
     renderCell: ({ row }: { row: RequestItem }) => {
+      let color = '#7F889B'
       const code = row.desiredDueTimezone
         .code as keyof typeof timezones.countries
 
-      const timeZone = timezones.countries[code].zones[0]
+      if (!code) {
+        return (
+          <Box
+            display='flex'
+            alignItems='center'
+            justifyContent='flex-end'
+            gap='8px'
+            sx={{ marginLeft: '24px' }}
+          >
+            <Inbox />
+            <Typography sx={{ width: '100%', color }}>{`${moment(
+              row.desiredDueDate,
+            ).format('MM/DD/YYYY hh:mm A')}`}</Typography>
+          </Box>
+        )
+      }
+
+      const timeZone = timezones.countries[code]?.zones[0]
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
-      let color = '#7F889B'
 
       if (86400000 >= remainTime && remainTime > 0) {
         color = '#FF4D49'
@@ -152,7 +169,7 @@ export const RequestColumns: GridColumns = [
             row.desiredDueDate,
           )
             .tz(timeZone)
-            .format('MM/DD/YYYY hh:mm A (z)')}`}</Typography>
+            ?.format('MM/DD/YYYY hh:mm A (z)')}`}</Typography>
         </Box>
       )
     },

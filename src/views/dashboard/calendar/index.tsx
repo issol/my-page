@@ -9,7 +9,10 @@ import {
 } from '@src/queries/dashboard/dashnaord-lpm'
 import { TotalAmountQuery } from '@src/types/dashboard'
 import { useGetStatusList } from '@src/queries/common.query'
-import { getJobStatusColor } from '@src/shared/helpers/colors.helper'
+import {
+  getJobStatusColor,
+  getOrderStatusColor,
+} from '@src/shared/helpers/colors.helper'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -17,24 +20,7 @@ import { Theme } from '@mui/material/styles'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { useSettings } from '@src/@core/hooks/useSettings'
 
-const TEMPData: Array<ProJobCalendarResult> = [
-  {
-    id: 113,
-    corporationId: 'O-000101-DB-005',
-    name: 'job test',
-    status: 60600,
-    statusUpdatedAt: '2023-09-26T19:10:19.347Z',
-    invoiceId: null,
-  },
-  {
-    id: 107,
-    corporationId: 'O-000101-DB-004',
-    name: 'job4',
-    status: 60600,
-    statusUpdatedAt: '2023-09-26T18:06:54.690Z',
-    invoiceId: null,
-  },
-]
+const StatusSort = []
 
 const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
@@ -59,25 +45,43 @@ const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
       return
     }
 
-    const items = statusList.map(value => ({
-      ...value,
-      color: getJobStatusColor(value.value as JobStatusType),
-    }))
+    const items = statusList.map(item => {
+      let Label = item.label
+      if (item.label === 'Delivered') Label = `${item.label} to LPM`
+      if (item.label === 'Requested') Label = `${item.label} from LPM`
+      return {
+        ...item,
+        label: Label,
+        color: getJobStatusColor(item.value as JobStatusType),
+      }
+    })
 
     setStatuses(items)
   }, [statusList])
 
   useEffect(() => {
-    if (!isSuccess) {
+    if (!isSuccess || data?.length === 0) {
       setEvent([])
       return
     }
 
-    setEvent(TEMPData)
+    if (!Array.isArray(data)) return
+
+    const eventsList = data.map(item => {
+      return {
+        ...item,
+        extendedProps: {
+          calendar: getJobStatusColor(item.status as JobStatusType),
+        },
+        allDay: true,
+      }
+    })
+
+    setEvent(eventsList)
   }, [data, isSuccess])
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', backgroundColor: '#fff' }}>
       <CalendarWrapper
         className='app-calendar'
         sx={{

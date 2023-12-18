@@ -14,6 +14,7 @@ import { getProDateFormat } from '@src/views/dashboard/list/currencyByDate'
 
 const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   const { data } = useDeadlineCompliance(params)
+
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
       <Box>
@@ -67,7 +68,9 @@ const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
               Average early submission time
             </Typography>
             <Typography fontSize='12px' color='rgba(100, 198, 35, 1)'>
-              01 day(s) 03 hour(s) 23 min(s)
+              {data?.onTimeAverage?.days || 0} day(s){' '}
+              {data?.onTimeAverage?.hours || 0} hour(s){' '}
+              {data?.onTimeAverage?.minutes || 0} min(s)
             </Typography>
           </Box>
         </Box>
@@ -108,7 +111,9 @@ const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
               Average late submission time
             </Typography>
             <Typography fontSize='12px' color='rgba(255, 77, 73, 1)'>
-              01 day(s) 03 hour(s) 23 min(s)
+              {data?.delayedAverage?.days || 0} day(s){' '}
+              {data?.delayedAverage?.hours || 0} hour(s){' '}
+              {data?.delayedAverage?.minutes || 0} min(s)
             </Typography>
           </Box>
         </Box>

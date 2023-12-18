@@ -460,13 +460,20 @@ export const useInvoiceOverview = (
   )
 }
 
+type DeadlineAverageTime = {
+  days: number
+  hours: number
+  minutes: number
+  seconds: number
+  milliseconds: number
+}
 interface DeadlineComplianceResult {
   delayedCount: number
   delayedRatio: number
   onTimeCount: number
   onTimeRatio: number
-  delayedAverage: number
-  onTimeAverage: number
+  delayedAverage?: DeadlineAverageTime
+  onTimeAverage?: DeadlineAverageTime
 }
 export const useDeadlineCompliance = (
   params: Omit<TotalAmountQuery, 'amountType'>,

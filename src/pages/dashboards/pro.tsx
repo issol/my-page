@@ -57,7 +57,7 @@ const ProDashboards = () => {
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
-      <ApexChartWrapper sx={{ overflow: 'scroll' }}>
+      <ApexChartWrapper>
         <Grid
           container
           gap='24px'
@@ -71,8 +71,6 @@ const ProDashboards = () => {
           gap='24px'
           sx={{
             minWidth: '1320px',
-            overflowX: 'auto',
-            overFlowY: 'scroll',
             padding: '10px',
           }}
         >
@@ -153,8 +151,14 @@ const ProDashboards = () => {
               setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
-          <Grid container gap='24px'>
-            <Grid container item xs={6} gap='24px'>
+          <Grid display='flex' container>
+            <Grid
+              container
+              item
+              xs={6}
+              gap='24px'
+              sx={{ paddingRight: '24px' }}
+            >
               <GridItem height={184}>
                 <CurrencyAmount
                   title='Invoiced amount'
@@ -173,33 +177,36 @@ const ProDashboards = () => {
               </GridItem>
             </Grid>
 
-            <GridItem sm height={392}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <Box sx={{ marginBottom: '20px' }}>
-                  <SectionTitle>
-                    <span
-                      role='button'
-                      className='title'
-                      onClick={() => router.push('/quotes/lpm/requests/')}
-                    >
-                      Invoice overview
-                    </span>
-                    <ErrorOutlineIcon className='info_icon' />
-                    <KeyboardArrowRight className='arrow_icon' />
-                  </SectionTitle>
-                  <SubDateDescription textAlign='left'>
-                    {getProDateFormat(getDate('year'), getDate('month'))}
-                  </SubDateDescription>
+            <Grid container item xs={6}>
+              <GridItem height={392}>
+                <Box sx={{ width: '100%', height: '100%' }}>
+                  <Box sx={{ marginBottom: '20px' }}>
+                    <SectionTitle>
+                      <span
+                        role='button'
+                        className='title'
+                        onClick={() => router.push('/quotes/lpm/requests/')}
+                      >
+                        Invoice overview
+                      </span>
+                      <ErrorOutlineIcon className='info_icon' />
+                      <KeyboardArrowRight className='arrow_icon' />
+                    </SectionTitle>
+                    <SubDateDescription textAlign='left'>
+                      {getProDateFormat(getDate('year'), getDate('month'))}
+                    </SubDateDescription>
+                  </Box>
+                  <InvoiceTab
+                    year={getDate('year')}
+                    month={getDate('month') + 1}
+                  />
                 </Box>
-                <InvoiceTab
-                  year={getDate('year')}
-                  month={getDate('month') + 1}
-                />
-              </Box>
-            </GridItem>
+              </GridItem>
+            </Grid>
           </Grid>
+
           <Grid container gap='24px'>
-            <GridItem xs={6} height={223}>
+            <GridItem sm height={223}>
               <Box sx={{ width: '100%', height: '100%' }}>
                 <Box>
                   <SectionTitle>
@@ -224,14 +231,12 @@ const ProDashboards = () => {
                 </Box>
               </Box>
             </GridItem>
-            <GridItem sm height={223}>
+            <GridItem xs={6} height={223}>
               <Deadline year={getDate('year')} month={getDate('month')} />
             </GridItem>
           </Grid>
           <Grid container>
-            <GridItem height={876} sm padding='0 0 20px'>
-              <ProCalendar year={getDate('year')} month={getDate('month')} />
-            </GridItem>
+            <ProCalendar year={getDate('year')} month={getDate('month')} />
           </Grid>
         </Grid>
       </ApexChartWrapper>

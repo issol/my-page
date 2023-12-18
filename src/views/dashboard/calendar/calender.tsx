@@ -78,7 +78,24 @@ const Calendar = ({ event, containerWidth }: CalendarProps) => {
         />
         <CustomCalenderToolbar ref={calendarRef} height={56} />
       </Box>
-      <FullCalendar {...calendarOptions} height={780} />
+      <Box
+        sx={{
+          position: 'relative',
+        }}
+      >
+        <FullCalendar {...calendarOptions} height={780} />
+        <span
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: -20,
+            display: 'block',
+            width: `${containerWidth}px`,
+            height: '1px',
+            backgroundColor: 'rgba(76, 78, 100, 0.12)',
+          }}
+        />
+      </Box>
     </Calender>
   )
 }
