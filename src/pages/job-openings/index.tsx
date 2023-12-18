@@ -48,19 +48,21 @@ const defaultValues: FilterType = {
   experience: [],
 }
 
-const defaultFilter: JobOpeningListFilterType = {
-  jobType: [],
-  role: [],
-  skip: 0,
-  take: 10,
-  source: [],
-  target: [],
-  dueDate: [],
-  postedDate: [],
-  experience: [],
-}
-
 const JobOpenings = () => {
+  const auth = useRecoilValueLoadable(authState)
+
+  const defaultFilter: JobOpeningListFilterType = {
+    company: auth.getValue()?.user?.company ?? '',
+    jobType: [],
+    role: [],
+    skip: 0,
+    take: 10,
+    source: [],
+    target: [],
+    dueDate: [],
+    postedDate: [],
+    yearsOfExperience: [],
+  }
   const [filters, setFilters] =
     useState<JobOpeningListFilterType>(defaultFilter)
   const languageList = getGloLanguage()
@@ -172,15 +174,18 @@ const JobOpenings = () => {
       targetLanguage,
       dueDate,
       postedDate,
+      experience,
     } = data
 
     const filter: JobOpeningListFilterType = {
+      company: auth.getValue()?.user?.company ?? '',
       jobType: jobType.map(item => item.value),
       role: role.map(item => item.value),
       source: sourceLanguage.map(item => item.value),
       target: targetLanguage.map(item => item.value),
       dueDate: formatDueDateForFilter(dueDate),
       postedDate: formatPostedDateForFilter(postedDate),
+      yearsOfExperience: experience.map(item => item.value),
       skip: 0,
       take: 10,
     }

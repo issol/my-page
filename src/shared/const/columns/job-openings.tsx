@@ -131,7 +131,10 @@ export const getJobOpeningsColumn = () => {
       renderCell: ({ row }: { row: JobOpeningListType }) => {
         return (
           <Typography variant='body1'>
-            {calculateRemainingTime(row.dueDate, row.dueDateTimezone.code)}
+            {calculateRemainingTime(
+              row.dueDate,
+              row.dueDateTimezone?.code ?? 'KR',
+            )}
           </Typography>
         )
       },

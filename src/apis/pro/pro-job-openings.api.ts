@@ -14,73 +14,75 @@ export const getJobOpenings = async (
   data: JobOpeningListType[]
   totalCount: number
 }> => {
+  const { data } = await axios.get(
+    `/api/enough/recruiting/job-opening?${makeQuery(filters)}`,
+  )
+  return data
   // const { data } = await axios.get(
   //   `/api/enough/cert/test/pro/${userId}/applied-role?${makeQuery(filters)}`,
   // )
   // return data
-  const getRandomDate = (): Date => {
-    const randomDays = Math.floor(Math.random() * 30)
-    return addDays(new Date(), randomDays)
-  }
-
-  const testData: JobOpeningListType[] = [
-    {
-      id: 1,
-      jobType: 'Full-time',
-      role: 'Developer',
-      sourceLanguage: 'en',
-      targetLanguage: 'ko',
-      yearsOfExperience: '1-2 year(s)',
-      dueDate: getRandomDate(),
-      dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
-    },
-    {
-      id: 2,
-      jobType: 'Part-time',
-      role: 'Designer',
-      sourceLanguage: 'ko',
-      targetLanguage: 'en',
-      yearsOfExperience: '3-5 years',
-      dueDate: getRandomDate(),
-      dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
-    },
-    {
-      id: 3,
-      jobType: 'Contract',
-      role: 'Tester',
-      sourceLanguage: 'en',
-      targetLanguage: 'ko',
-      yearsOfExperience: '6-9 years',
-      dueDate: getRandomDate(),
-      dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
-    },
-    {
-      id: 4,
-      jobType: 'Full-time',
-      role: 'Manager',
-      sourceLanguage: 'ko',
-      targetLanguage: 'en',
-      yearsOfExperience: '10+ years',
-      dueDate: getRandomDate(),
-      dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
-    },
-    {
-      id: 5,
-      jobType: 'Part-time',
-      role: 'Developer',
-      sourceLanguage: 'en',
-      targetLanguage: 'ko',
-      yearsOfExperience: '1-2 year(s)',
-      dueDate: getRandomDate(),
-      dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
-    },
-    // ... add more data as needed
-  ]
-
-  return {
-    data: testData,
-    totalCount: testData.length,
-  }
+  // const getRandomDate = (): Date => {
+  //   const randomDays = Math.floor(Math.random() * 30)
+  //   return addDays(new Date(), randomDays)
+  // }
+  // const testData: JobOpeningListType[] = [
+  //   {
+  //     id: 1,
+  //     jobType: 'Full-time',
+  //     role: 'Developer',
+  //     sourceLanguage: 'en',
+  //     targetLanguage: 'ko',
+  //     yearsOfExperience: '1-2 year(s)',
+  //     dueDate: getRandomDate(),
+  //     dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
+  //   },
+  //   {
+  //     id: 2,
+  //     jobType: 'Part-time',
+  //     role: 'Designer',
+  //     sourceLanguage: 'ko',
+  //     targetLanguage: 'en',
+  //     yearsOfExperience: '3-5 years',
+  //     dueDate: getRandomDate(),
+  //     dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
+  //   },
+  //   {
+  //     id: 3,
+  //     jobType: 'Contract',
+  //     role: 'Tester',
+  //     sourceLanguage: 'en',
+  //     targetLanguage: 'ko',
+  //     yearsOfExperience: '6-9 years',
+  //     dueDate: getRandomDate(),
+  //     dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
+  //   },
+  //   {
+  //     id: 4,
+  //     jobType: 'Full-time',
+  //     role: 'Manager',
+  //     sourceLanguage: 'ko',
+  //     targetLanguage: 'en',
+  //     yearsOfExperience: '10+ years',
+  //     dueDate: getRandomDate(),
+  //     dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
+  //   },
+  //   {
+  //     id: 5,
+  //     jobType: 'Part-time',
+  //     role: 'Developer',
+  //     sourceLanguage: 'en',
+  //     targetLanguage: 'ko',
+  //     yearsOfExperience: '1-2 year(s)',
+  //     dueDate: getRandomDate(),
+  //     dueDateTimezone: { code: 'KR', label: 'Korea, Republic of', phone: '82' },
+  //   },
+  //   // ... add more data as needed
+  // ]
+  // return {
+  //   data: testData,
+  //   totalCount: testData.length,
+  // }
 }
 
 export const getJobOpeningDetail = async (
@@ -272,9 +274,15 @@ export const getJobOpeningDetail = async (
   return testData
 }
 
-export const getJobOpeningApplyStatus = async (): Promise<{ code: number }> => {
+export const getJobOpeningApplyStatus = async (
+  postingId: number,
+): Promise<{ code: number }> => {
   //TODO Endpoint 추가
-  return { code: applyResponseEnum.ALREADY_APPLIED }
+  const { data } = await axios.get(
+    `/api/enough/recruiting/job-opening/${postingId}`,
+  )
+  // return { code: applyResponseEnum.ALREADY_APPLIED }
+  return data
 }
 
 export const createJobInfo = async (

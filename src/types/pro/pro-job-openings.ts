@@ -26,9 +26,10 @@ export type JobOpeningListFilterType = {
   role?: string[]
   source?: string[]
   target?: string[]
-  experience?: string[]
+  yearsOfExperience?: string[]
   dueDate?: { from?: string; to?: string }[]
   postedDate?: { from?: string; to?: string }[]
+  company: string
 
   skip: number
   take: number

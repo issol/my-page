@@ -44,6 +44,7 @@ import { AddRolePayloadType } from '@src/types/onboarding/list'
 import { addCreateProAppliedRole } from '@src/apis/onboarding.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { c } from 'msw/lib/glossary-de6278a9'
+import { JobPostingDetailType } from '@src/apis/jobPosting.api'
 
 const JobOpeningDetail = () => {
   const router = useRouter()
@@ -143,7 +144,7 @@ const JobOpeningDetail = () => {
     },
   )
 
-  const onClickApplyNow = (data: JobOpeningDetailType) => {
+  const onClickApplyNow = (data: JobPostingDetailType) => {
     if (auth.getValue().user === null) {
       openModal({
         type: 'LoginRequiredModal',
@@ -157,7 +158,7 @@ const JobOpeningDetail = () => {
         ),
       })
     } else {
-      getJobOpeningApplyStatus().then(res => {
+      getJobOpeningApplyStatus(data.id).then(res => {
         switch (res.code) {
           case applyResponseEnum.TEST_EXISTS:
             openModal({
@@ -400,8 +401,8 @@ const JobOpeningDetail = () => {
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
                       Posted date: &nbsp;
                       {FullDateTimezoneHelper(
-                        data?.postedDate,
-                        data?.postedTimezone,
+                        data?.createdAt,
+                        data?.createdTimezone,
                       )}
                     </Typography>
                   </Box>
@@ -435,7 +436,7 @@ const JobOpeningDetail = () => {
                       'Due date',
                       convertDateByTimezone(
                         data?.dueDate!,
-                        data?.vendorTimezone.code!,
+                        data?.dueDateTimezone?.code! ?? 'KR',
                         auth.getValue().user?.timezone?.code ?? 'KR',
                       ),
                     )}

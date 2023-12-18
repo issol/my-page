@@ -7,6 +7,7 @@ import {
 import { Dispatch, SetStateAction } from 'react'
 import NoList from '../components/no-list'
 import { getJobOpeningsColumn } from '@src/shared/const/columns/job-openings'
+import { useRouter } from 'next/router'
 
 type Props = {
   list: Array<JobOpeningListType>
@@ -29,6 +30,7 @@ const List = ({
   setRowsPerPage,
   setFilters,
 }: Props) => {
+  const router = useRouter()
   return (
     <Card>
       <CardHeader
@@ -48,7 +50,7 @@ const List = ({
           sx={{
             overflowX: 'scroll',
             '& .MuiDataGrid-row:hover': {
-              backgroundColor: 'inherit',
+              cursor: 'pointer',
             },
           }}
           components={{
@@ -60,6 +62,9 @@ const List = ({
           paginationMode='client'
           pageSize={rowsPerPage}
           rowsPerPageOptions={[10, 25, 50]}
+          onRowClick={(params: any) => {
+            router.push(`/job-openings/detail/${params.row.id}`)
+          }}
           rowCount={listCount}
           onPageChange={(newPage: number) => {
             setFilters((prevState: JobOpeningListFilterType) => ({

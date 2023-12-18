@@ -1,4 +1,8 @@
 import {
+  JobPostingDetailType,
+  getJobPostingDetail,
+} from '@src/apis/jobPosting.api'
+import {
   getJobOpeningDetail,
   getJobOpenings,
 } from '@src/apis/pro/pro-job-openings.api'
@@ -24,9 +28,9 @@ export const useGetJobOpeningList = (filters: JobOpeningListFilterType) => {
 }
 
 export const useGetJobOpeningDetail = (id: number) => {
-  return useQuery<JobOpeningDetailType>(
+  return useQuery<JobPostingDetailType>(
     ['pro-job-opening-detail', id],
-    () => getJobOpeningDetail(id),
+    () => getJobPostingDetail(id),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,
