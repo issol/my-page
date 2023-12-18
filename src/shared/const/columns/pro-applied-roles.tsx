@@ -8,7 +8,7 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import {
   ProAppliedRolesType,
   ProAppliedRolesStatusHistoryType,
-} from '@src/types/pro-certification-test/applied-roles'
+} from '@src/types/pro/pro-applied-roles'
 
 import { Dispatch, SetStateAction } from 'react'
 import { Loadable } from 'recoil'

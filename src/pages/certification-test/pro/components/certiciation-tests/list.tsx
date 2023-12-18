@@ -5,7 +5,7 @@ import { getProCertificationTestListColumns } from '@src/shared/const/columns/pr
 import {
   ProCertificationTestFilterType,
   ProCertificationTestListType,
-} from '@src/types/pro-certification-test/certification-test'
+} from '@src/types/pro/pro-certification-test'
 import { Dispatch, SetStateAction } from 'react'
 
 type Props = {

@@ -1,0 +1,25 @@
+<svg width="105" height="106" viewBox="0 0 105 106" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M89.5495 38.2939L105 29.6074L52.1847 0.5L0 30.3694V47.2852L11.1937 53.5334L0 59.7816V76.9303L52.1847 105.5L104.212 77.0022L88.9189 68.3157L52.1847 88.5842L15.2928 68.1633L26.6441 62.0675L52.1847 75.9354L93.3333 53.381L52.1847 30.8266L26.8018 44.9993L15.4504 38.7511L52.1847 17.7206L89.5495 38.2939ZM62.4324 52.9238L52.1847 58.5624L41.9369 52.9238L52.1847 47.4376L62.4324 52.9238Z" fill="#6F74FB"/>
+<mask id="mask0_8580_349920" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="105" height="106">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M89.5495 38.2939L105 29.6074L52.1847 0.5L0 30.3694V47.2852L11.1937 53.5334L0 59.7816V76.9303L52.1847 105.5L104.212 77.0022L88.9189 68.3157L52.1847 88.5842L15.2928 68.1633L26.6441 62.0675L52.1847 75.9354L93.3333 53.381L52.1847 30.8266L26.8018 44.9993L15.4504 38.7511L52.1847 17.7206L89.5495 38.2939ZM62.4324 52.9238L52.1847 58.5624L41.9369 52.9238L52.1847 47.4376L62.4324 52.9238Z" fill="#6F74FB"/>
+</mask>
+<g mask="url(#mask0_8580_349920)">
+<path d="M52.1846 75.9354V58.5624L15.4503 38.7511L-0.000114441 47.2852L52.1846 75.9354Z" fill="url(#paint0_linear_8580_349920)" fill-opacity="0.3"/>
+<path d="M52.1846 30.8265V47.4376L62.4323 52.9238L77.5675 44.6945L52.1846 30.8265Z" fill="url(#paint1_linear_8580_349920)" fill-opacity="0.3"/>
+<path d="M52.1846 105.5V88.5842L15.2927 68.1633L-0.157772 77.0022L52.1846 105.5Z" fill="url(#paint2_linear_8580_349920)" fill-opacity="0.3"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_8580_349920" x1="5.5179" y1="43.7801" x2="34.9328" y2="61.8784" gradientUnits="userSpaceOnUse">
+<stop/>
+<stop offset="1" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="paint1_linear_8580_349920" x1="75.5278" y1="50.7998" x2="53.0429" y2="40.0754" gradientUnits="userSpaceOnUse">
+<stop/>
+<stop offset="1" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="paint2_linear_8580_349920" x1="9.45935" y1="75.6306" x2="36.2625" y2="91.6588" gradientUnits="userSpaceOnUse">
+<stop/>
+<stop offset="1" stop-opacity="0"/>
+</linearGradient>
+</defs>
+</svg>

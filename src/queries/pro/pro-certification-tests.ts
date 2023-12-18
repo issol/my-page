@@ -1,8 +1,8 @@
-import { getProCertificationTestList } from '@src/apis/pro-certification-test/certification-tests'
+import { getProCertificationTestList } from '@src/apis/pro/pro-certification-tests'
 import {
   ProCertificationTestFilterType,
   ProCertificationTestListType,
-} from '@src/types/pro-certification-test/certification-test'
+} from '@src/types/pro/pro-certification-test'
 import { useQuery } from 'react-query'
 
 export const useGetProCertificationTestList = (

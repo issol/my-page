@@ -10,6 +10,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'client',
       path: `/dashboards`,
       role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT', 'PRO'],
+      externalLink: true,
     },
     {
       title: 'My page',
@@ -18,6 +19,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'pro_mypage',
       path: `/mypage/pro`,
       role: ['PRO'],
+      externalLink: true,
     },
     // TODO: 아래 메뉴 용도 확인 필요
     // {
@@ -51,6 +53,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'job_list',
       path: `/jobs`,
       role: ['PRO'],
+      externalLink: true,
     },
     {
       title: 'Invoices',
@@ -59,6 +62,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'invoice_pro',
       path: '/invoice/pro',
       role: ['PRO'],
+      externalLink: true,
     },
     {
       title: 'Clients',
@@ -153,6 +157,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'pro_certification_test',
       path: `/certification-test/pro`,
       role: ['PRO'],
+      externalLink: true,
     },
     {
       title: 'Company',
@@ -276,6 +281,15 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'invoice_receivable',
       path: `/invoice/receivable`,
       role: ['CLIENT'],
+    },
+    {
+      title: 'Job openings',
+      icon: 'material-symbols:person-search-outline',
+      // action: 'read',
+      // subject: 'job_openings',
+      path: `/job-openings`,
+      role: ['PRO'],
+      externalLink: true,
     },
   ]
 }
