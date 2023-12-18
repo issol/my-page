@@ -75,6 +75,7 @@ import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 export default function JobPostingPost() {
   const router = useRouter()
@@ -270,7 +271,7 @@ export default function JobPostingPost() {
       yearsOfExperience: data?.yearsOfExperience?.value ?? '',
       openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
-      dueDateTimezone: data.dueDateTimezone?.code ?? '',
+      dueDateTimezone: data.dueDateTimezone ?? null,
       postLink: data.postLink,
       content:
         content.getCurrentContent().getPlainText('\u0001') === ''
@@ -337,6 +338,7 @@ export default function JobPostingPost() {
                               autoHighlight
                               fullWidth
                               options={JobPostingStatus}
+                              disableClearable={value.value === ''}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -350,7 +352,6 @@ export default function JobPostingPost() {
                                   {...params}
                                   error={Boolean(errors.status)}
                                   label='Status*'
-                                  placeholder='Status*'
                                 />
                               )}
                             />
@@ -376,6 +377,7 @@ export default function JobPostingPost() {
                               fullWidth
                               options={JobList}
                               value={value}
+                              disableClearable={value.value === ''}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -388,7 +390,6 @@ export default function JobPostingPost() {
                                   {...params}
                                   error={Boolean(errors.jobType)}
                                   label='Job type*'
-                                  placeholder='Job type*'
                                 />
                               )}
                             />
@@ -413,6 +414,7 @@ export default function JobPostingPost() {
                               fullWidth
                               options={RoleList}
                               value={value}
+                              disableClearable={value.value === ''}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -425,7 +427,6 @@ export default function JobPostingPost() {
                                   {...params}
                                   error={Boolean(errors.role)}
                                   label='Role*'
-                                  placeholder='Role*'
                                 />
                               )}
                             />
@@ -449,6 +450,7 @@ export default function JobPostingPost() {
                               autoHighlight
                               fullWidth
                               options={languageList}
+                              disableClearable={value.value === ''}
                               value={value}
                               // filterSelectedOptions
                               onChange={(e, v) => {
@@ -462,7 +464,6 @@ export default function JobPostingPost() {
                                   {...params}
                                   error={Boolean(errors.sourceLanguage)}
                                   label='Source*'
-                                  placeholder='Source*'
                                 />
                               )}
                             />
@@ -487,6 +488,7 @@ export default function JobPostingPost() {
                               autoHighlight
                               fullWidth
                               options={languageList}
+                              disableClearable={value.value === ''}
                               value={value}
                               // filterSelectedOptions
                               onChange={(e, v) => {
@@ -500,7 +502,6 @@ export default function JobPostingPost() {
                                   {...params}
                                   error={Boolean(errors.targetLanguage)}
                                   label='Target*'
-                                  placeholder='Target*'
                                 />
                               )}
                             />
@@ -539,7 +540,6 @@ export default function JobPostingPost() {
                               value={value}
                               error={Boolean(errors.openings)}
                               label='Number of linguist'
-                              placeholder='Number of linguist'
                               InputProps={{
                                 type: 'number',
                               }}
@@ -563,6 +563,7 @@ export default function JobPostingPost() {
                               autoHighlight
                               fullWidth
                               options={ExperiencedYears}
+                              disableClearable={!value || value.value === ''}
                               value={value}
                               // filterSelectedOptions
                               onChange={(e, v) => {
@@ -576,7 +577,6 @@ export default function JobPostingPost() {
                                   {...params}
                                   error={Boolean(errors.yearsOfExperience)}
                                   label='Years of experience'
-                                  placeholder='Years of experience'
                                 />
                               )}
                             />
@@ -594,8 +594,10 @@ export default function JobPostingPost() {
                               selected={value ? new Date(value) : null}
                               id='dueDate'
                               onChange={onChange}
-                              placeholderText='Due date'
-                              customInput={<CustomInput label='Due date' icon='calendar' />}
+                              placeholderText='MM/DD/YYYY'
+                              customInput={
+                                <CustomInput label='Due date' icon='calendar' />
+                              }
                             />
                           )}
                         />
@@ -617,18 +619,21 @@ export default function JobPostingPost() {
                               value={value}
                               options={countries as CountryType[]}
                               onChange={(e, v) => onChange(v)}
-                              disableClearable
+                              // disableClearable
                               disabled={!currDueDate}
                               renderOption={(props, option) => (
                                 <Box component='li' {...props} key={uuidv4()}>
                                   {getGmtTimeEng(option.code)}
                                 </Box>
                               )}
+                              getOptionLabel={option =>
+                                getGmtTimeEng(option.code) ?? ''
+                              }
                               renderInput={params => (
                                 <TextField
                                   {...params}
                                   label='Due date timezone'
-                                  error={Boolean(errors.dueDateTimezone)}
+                                  // error={Boolean(errors.dueDateTimezone)}
                                   inputProps={{
                                     ...params.inputProps,
                                   }}
@@ -637,11 +642,6 @@ export default function JobPostingPost() {
                             />
                           )}
                         />
-                        {errors.dueDateTimezone && (
-                          <FormHelperText sx={{ color: 'error.main' }}>
-                            {errors.dueDateTimezone?.message}
-                          </FormHelperText>
-                        )}
                       </Grid>
                     </Grid>
 
