@@ -28,7 +28,7 @@ import { useGetPayableHistory } from '@src/queries/invoice/payable.query'
 import { restoreInvoicePayable } from '@src/apis/invoice/payable.api'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 // ** types
 import { PayableHistoryType } from '@src/types/invoice/payable.type'
@@ -136,7 +136,7 @@ export default function PayableHistory({
                       isUpdatable={false}
                       data={{
                         ...data,
-                        invoicedAtTimezone: data.invoicedAtTimezone,
+                        invoicedTimezone: data.invoicedTimezone,
                       }}
                       editInfo={false}
                       setEditInfo={() => {
@@ -151,7 +151,7 @@ export default function PayableHistory({
                 <InvoiceAmount
                   data={{
                     ...data,
-                    invoicedAtTimezone: data.invoicedAtTimezone,
+                    invoicedTimezone: data.invoicedTimezone,
                   }}
                 />
               </Grid>
@@ -257,7 +257,7 @@ export default function PayableHistory({
         if (auth.state === 'hasValue' && auth.getValue().user)
           return (
             <Typography variant='body1'>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row?.invoicedAt,
                 auth.getValue().user?.timezone?.code!,
               )}

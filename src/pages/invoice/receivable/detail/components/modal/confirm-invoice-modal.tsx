@@ -11,12 +11,13 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
 
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import { countries } from '@src/@fake-db/autocomplete'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { v4 as uuidv4 } from 'uuid'
+import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
 
 type Props = {
   onClose: any
@@ -36,6 +37,25 @@ const ConfirmInvoiceModal = ({
     taxInvoiceDueAt: string | null
     taxInvoiceDueTimezone: CountryType | null
   }>({ taxInvoiceDueAt: null, taxInvoiceDueTimezone: contactPersonTimezone })
+
+  const [timeZoneList, setTimeZoneList] = useState<{
+    code: string;
+    label: string;
+    phone: string;
+  }[]>([])
+
+  useEffect(() => {
+    const timezoneList = getTimeZoneFromLocalStorage()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: ''
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [])
+
   return (
     <DatePickerWrapper>
       <Box
@@ -112,17 +132,17 @@ const ConfirmInvoiceModal = ({
                     ? null
                     : data.taxInvoiceDueTimezone
                 }
-                options={countries as CountryType[]}
+                options={timeZoneList as CountryType[]}
                 onChange={(e, v) => {
                   setData({
                     ...data,
                     taxInvoiceDueTimezone: v as CountryType,
                   })
                 }}
-                getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+                getOptionLabel={option => timeZoneFormatter(option) ?? ''}
                 renderOption={(props, option) => (
                   <Box component='li' {...props} key={uuidv4()}>
-                    {getGmtTimeEng(option.code)}
+                    {timeZoneFormatter(option)}
                   </Box>
                 )}
                 renderInput={params => (

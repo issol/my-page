@@ -35,7 +35,7 @@ import { ModalContext } from '@src/context/ModalContext'
 import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-preview-download-modal'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { setDate } from 'date-fns'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import { useQueryClient } from 'react-query'
@@ -490,7 +490,7 @@ const Pro = () => {
       renderCell: ({ row }: ProListCellType) => {
         return (
           <Typography variant='body1'>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.onboardedAt,
               auth.getValue().user?.timezone!,
             )}

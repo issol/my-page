@@ -25,7 +25,7 @@ import {
 } from 'react-hook-form'
 import PriceHistoryRow from '../prices/price-history-row'
 import languageHelper from '@src/shared/helpers/language.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { boolean } from 'yup'
 import { JobPricesDetailType, jobPriceHistoryType } from '@src/types/jobs/jobs.type'
 import ProjectInfo from '@src/pages/orders/order-list/detail/components/project-info'
@@ -99,7 +99,7 @@ const ViewHistoryPrices = ({
               Date&Time
             </Typography>
             <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-              {FullDateTimezoneHelper(jobPrices?.historyAt, auth.getValue().user?.timezone,)}
+              {convertTimeToTimezone(jobPrices?.historyAt, auth.getValue().user?.timezone,)}
             </Typography>
           </Box>
         </Box>

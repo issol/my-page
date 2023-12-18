@@ -20,7 +20,7 @@ import { addJobFeedback, saveJobInfo } from '@src/apis/job-detail.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 // import { JobStatus } from '@src/shared/const/status/statuses'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -670,7 +670,7 @@ const ViewJobInfo = ({
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
                 {row.startedAt && row.startTimezone
-                  ? FullDateTimezoneHelper(row.startedAt, row.startTimezone)
+                  ? convertTimeToTimezone(row.startedAt, row.startTimezone)
                   : '-'}
               </Typography>
             </Box>
@@ -684,7 +684,7 @@ const ViewJobInfo = ({
                 Job due date
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
-                {FullDateTimezoneHelper(row.dueAt, row.dueTimezone)}
+                {convertTimeToTimezone(row.dueAt, row.dueTimezone)}
               </Typography>
             </Box>
           </Box>
@@ -796,7 +796,7 @@ const ViewJobInfo = ({
                     >
                       <Typography variant='body1' fontWeight={600}>
                         {delivery.deliveredDate
-                          ? FullDateTimezoneHelper(
+                          ? convertTimeToTimezone(
                               delivery.deliveredDate,
                               auth?.user?.timezone!,
                             )

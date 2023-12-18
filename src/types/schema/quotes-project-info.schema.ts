@@ -22,9 +22,8 @@ export const quotesProjectInfoSchema = yup.object().shape({
   quoteDate: yup.object().shape({
     date: yup.date().required(FormErrors.required),
     timezone: yup.object().shape({
-      code: yup.string().required(),
+      code: yup.string().nullable(),
       label: yup.string().required(),
-      phone: yup.string().required(),
     }),
   }),
   projectDueDate: yup.object().shape({
@@ -32,7 +31,6 @@ export const quotesProjectInfoSchema = yup.object().shape({
     timezone: yup.object().shape({
       code: yup.string().nullable(),
       label: yup.string().nullable(),
-      phone: yup.string().nullable(),
     }),
   }),
   quoteDeadline: yup.object().shape({
@@ -40,7 +38,6 @@ export const quotesProjectInfoSchema = yup.object().shape({
     timezone: yup.object().shape({
       code: yup.string().nullable(),
       label: yup.string().nullable(),
-      phone: yup.string().nullable(),
     }),
   }),
   quoteExpiryDate: yup.object().shape({
@@ -48,7 +45,6 @@ export const quotesProjectInfoSchema = yup.object().shape({
     timezone: yup.object().shape({
       code: yup.string().nullable(),
       label: yup.string().nullable(),
-      phone: yup.string().nullable(),
     }),
   }),
   estimatedDeliveryDate: yup.object().shape({
@@ -56,7 +52,6 @@ export const quotesProjectInfoSchema = yup.object().shape({
     timezone: yup.object().shape({
       code: yup.string().nullable(),
       label: yup.string().nullable(),
-      phone: yup.string().nullable(),
     }),
   }),
   showDescription: yup.boolean().required(),

@@ -26,7 +26,7 @@ import {
 import Row from './row'
 import PriceHistoryRow from './price-history-row'
 import languageHelper from '@src/shared/helpers/language.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { boolean } from 'yup'
 import {
   JobPricesDetailType,
@@ -181,7 +181,7 @@ const ViewPrices = ({
                 Date&Time
               </Typography>
               <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                {FullDateTimezoneHelper(
+                {convertTimeToTimezone(
                   priceHistory.historyAt,
                   auth.getValue().user?.timezone,
                 )}
@@ -292,7 +292,7 @@ const ViewPrices = ({
                 </Typography>
                 <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
                   {/* TODO: pro가 assign된 시간, 타임존 정보 필요함 */}
-                  {FullDateTimezoneHelper(
+                  {convertTimeToTimezone(
                     row.historyAt,
                     auth.getValue().user?.timezone,
                   )}

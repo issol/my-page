@@ -39,7 +39,7 @@ import {
 import { GridColumns } from '@mui/x-data-grid'
 import ProjectTeam from './components/project-team'
 import VersionHistory from './components/version-history'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { changeTimeZoneOffset, convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 
 import { authState } from '@src/states/auth'
@@ -304,7 +304,6 @@ const OrderDetail = () => {
         timezone: {
           code: '',
           label: '',
-          phone: '',
         },
         phone: '',
         mobile: '',
@@ -465,6 +464,16 @@ const OrderDetail = () => {
   function onProjectInfoSave() {
     const projectInfo = {
       ...getProjectInfo(),
+      orderedAt: changeTimeZoneOffset(
+        getProjectInfo().orderedAt.toISOString(),
+        getProjectInfo().orderTimezone,
+      ),
+      projectDueAt: getProjectInfo().projectDueAt
+        ? changeTimeZoneOffset(
+            getProjectInfo().projectDueAt.toISOString(),
+            getProjectInfo().projectDueTimezone,
+          )
+        : null,
       showDescription: getProjectInfo().showDescription ? '1' : '0',
       isTaxable: getProjectInfo().isTaxable ? '1' : '0',
     }
@@ -750,7 +759,7 @@ const OrderDetail = () => {
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.confirmedAt,
               auth.getValue().user?.timezone!,
             )}
@@ -985,10 +994,26 @@ const OrderDetail = () => {
     if (projectInfo) {
       const res = {
         ...projectInfo,
-        orderedAt: new Date(projectInfo?.orderedAt),
+        orderedAt: new Date(
+          convertTimeToTimezone(
+            projectInfo?.orderedAt,
+            projectInfo?.orderTimezone,
+            true
+          )!
+        ),
+        projectDueAt: projectInfo?.projectDueAt 
+          ? new Date(
+              convertTimeToTimezone(
+                projectInfo?.projectDueAt,
+                projectInfo?.projectDueTimezone,
+                true
+              )!
+            )
+          : undefined,
         status: currentStatus?.value ?? 10000,
       }
       const { items, ...filteredRes } = res
+
       projectInfoReset(filteredRes)
     }
 

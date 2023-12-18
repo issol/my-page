@@ -12,7 +12,7 @@ import {
   FileBox,
   FileName,
 } from '@src/pages/invoice/receivable/detail/components/invoice-info'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { authState } from '@src/states/auth'
 import { JobsFileType, ProJobDeliveryType } from '@src/types/jobs/jobs.type'
@@ -56,7 +56,7 @@ const Deliveries = ({ delivery, downloadAllFiles, downloadOneFile }: Props) => {
                 }}
               >
                 <Typography variant='body1' fontWeight={600} fontSize={14}>
-                  {FullDateTimezoneHelper(
+                  {convertTimeToTimezone(
                     value.deliveredDate,
                     auth.getValue().user?.timezone,
                   )}

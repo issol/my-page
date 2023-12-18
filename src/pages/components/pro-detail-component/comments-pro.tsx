@@ -16,7 +16,7 @@ import Icon from 'src/@core/components/icon'
 import Button from '@mui/material/Button'
 import CustomPagination from 'src/pages/components/custom-pagination'
 import Grid from '@mui/material/Grid'
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import Chip from 'src/@core/components/mui/chip'
 import { Dispatch, SetStateAction, ChangeEvent } from 'react'
 import TextField from '@mui/material/TextField'
@@ -340,7 +340,7 @@ export default function CommentsAboutPro({
                     </Box>
                     <Box>
                       <Typography variant='body2'>
-                        {FullDateTimezoneHelper(value.updatedAt, user.timezone)}
+                        {convertTimeToTimezone(value.updatedAt, user.timezone)}
                       </Typography>
                     </Box>
                     {selectedComment && selectedComment?.id === value.id ? (

@@ -70,10 +70,10 @@ export type QuotesProjectInfoAddNewType = {
   serviceType: Array<string>
   expertise?: Array<string>
   quoteDate: { date: Date; timezone: CountryType }
-  projectDueDate: { date: string; timezone: CountryType }
-  quoteDeadline: { date: string; timezone: CountryType }
+  projectDueDate: { date: Date; timezone: CountryType }
+  quoteDeadline: { date: Date; timezone: CountryType }
   quoteExpiryDate: { date: Date; timezone: CountryType }
-  estimatedDeliveryDate: { date: string; timezone: CountryType }
+  estimatedDeliveryDate: { date: Date; timezone: CountryType }
   showDescription: boolean
   tax: number | null
   isTaxable: boolean

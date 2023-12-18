@@ -6,7 +6,7 @@ import TestTypeChip from 'src/pages/certification-test/components/list/list-item
 import JobTypeRole from 'src/pages/components/job-type-role-chips'
 
 import { TestMaterialListType } from 'src/types/certification-test/list'
-import { FullDateTimezoneHelper } from '../../helpers/date.helper'
+import { convertTimeToTimezone } from '../../helpers/date.helper'
 
 export const getColumns = (timezone: CountryType) => {
   const materialColumns: GridColumns<TestMaterialListType> = [
@@ -87,7 +87,7 @@ export const getColumns = (timezone: CountryType) => {
       sortable: true,
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: { row: TestMaterialListType }) => {
-        return <Box>{FullDateTimezoneHelper(row.updatedAt, timezone)}</Box>
+        return <Box>{convertTimeToTimezone(row.updatedAt, timezone)}</Box>
       },
     },
   ]

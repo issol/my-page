@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import {
   Autocomplete,
   Box,
@@ -36,8 +36,9 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 
 // ** helpers
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
 
 type Props = {
   control: Control<InvoiceProjectInfoFormType, any>
@@ -56,6 +57,23 @@ export default function InvoiceAccountingInfoForm({
   clientTimezone,
 }: Props) {
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
+  const [timeZoneList, setTimeZoneList] = useState<{
+    code: string;
+    label: string;
+    phone: string;
+  }[]>([])
+
+  useEffect(() => {
+    const timezoneList = getTimeZoneFromLocalStorage()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: ''
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [])
 
   useEffect(() => {
     if (clientTimezone) {
@@ -138,14 +156,14 @@ export default function InvoiceAccountingInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (
@@ -196,14 +214,14 @@ export default function InvoiceAccountingInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (
@@ -251,14 +269,14 @@ export default function InvoiceAccountingInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (

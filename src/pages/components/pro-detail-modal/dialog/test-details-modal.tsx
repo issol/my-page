@@ -50,7 +50,7 @@ import {
 } from 'react-hook-form'
 import { TestStatus } from 'src/shared/const/status/statuses'
 import { CardProps } from '../../../onboarding/components/list/filters'
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 // import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 
@@ -408,7 +408,7 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {FullDateTimezoneHelper(row.createdAt, user.timezone)}
+          {convertTimeToTimezone(row.createdAt, user.timezone)}
         </Box>
       ),
     },
@@ -572,7 +572,7 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {FullDateTimezoneHelper(row.updatedAt, user.timezone)}
+          {convertTimeToTimezone(row.updatedAt, user.timezone)}
         </Box>
       ),
     },

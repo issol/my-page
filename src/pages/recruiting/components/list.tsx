@@ -13,7 +13,7 @@ import styled from 'styled-components'
 // ** helpers
 import {
   FullDateHelper,
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
 } from 'src/shared/helpers/date.helper'
 import {
   JobTypeChip,
@@ -152,13 +152,13 @@ export default function RecruitingList({
           ) : (
             <Tooltip
               placement='bottom'
-              title={`${FullDateTimezoneHelper(
+              title={`${convertTimeToTimezone(
                 row.dueDate,
                 row.dueDateTimezone,
               )}`}
             >
               <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-                <>{FullDateTimezoneHelper(row.dueDate, row.dueDateTimezone)}</>
+                <>{convertTimeToTimezone(row.dueDate, row.dueDateTimezone)}</>
               </Typography>
             </Tooltip>
           )}

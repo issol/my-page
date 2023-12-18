@@ -58,7 +58,7 @@ import {
   InvoiceReceivablePatchParamsType,
   InvoiceVersionHistoryType,
 } from '@src/types/invoice/receivable.type'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import InvoiceVersionHistory from './components/version-history'
 import VersionHistoryModal from '@src/pages/quotes/detail/components/version-history-detail'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
@@ -553,7 +553,7 @@ const ReceivableInvoiceDetail = () => {
       renderCell: ({ row }: { row: InvoiceVersionHistoryType }) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row?.managerConfirmedAt,
               row?.managerConfirmTimezone,
             )}
@@ -745,38 +745,72 @@ const ReceivableInvoiceDetail = () => {
         ...invoiceInfo,
         invoiceDescription: invoiceInfo.description,
         invoiceDateTimezone: invoiceInfo.invoicedTimezone,
-        invoiceDate: new Date(invoiceInfo.invoicedAt),
+        // invoiceDate: new Date(invoiceInfo.invoicedAt),
+        invoiceDate: new Date(
+          convertTimeToTimezone(
+            invoiceInfo.invoicedAt,
+            invoiceInfo?.invoicedTimezone,
+            true
+          )!
+        ),
         taxInvoiceIssued: invoiceInfo.taxInvoiceIssued,
         showDescription: invoiceInfo.showDescription,
         paymentDueDate: {
-          date: invoiceInfo.payDueAt,
+          date: convertTimeToTimezone(
+            invoiceInfo.payDueAt,
+            invoiceInfo.payDueTimezone ?? clientTimezone!,
+            true
+          )!,
           timezone: invoiceInfo.payDueTimezone ?? clientTimezone!,
         },
         invoiceConfirmDate: {
-          date: invoiceInfo.clientConfirmedAt ?? null,
-
+          date: invoiceInfo.clientConfirmedAt && invoiceInfo.clientConfirmTimezone
+            ? convertTimeToTimezone(
+                invoiceInfo.clientConfirmedAt,
+                invoiceInfo.clientConfirmTimezone,
+                true
+              )!
+            : null,
           timezone: invoiceInfo.clientConfirmTimezone ?? null,
         },
         taxInvoiceDueDate: {
-          date: invoiceInfo.taxInvoiceDueAt ?? null,
-
-          // date:
-          //   client?.contactPerson !== null &&
-          //   client?.contactPerson.userId !== null
-          //     ? invoiceInfo.taxInvoiceDueAt
-          //     : null,
+          date: invoiceInfo.taxInvoiceDueAt && invoiceInfo.taxInvoiceDueTimezone
+          ? convertTimeToTimezone(
+              invoiceInfo.taxInvoiceDueAt,
+              invoiceInfo.taxInvoiceDueTimezone,
+              true
+            )!
+          : null,
           timezone: invoiceInfo.taxInvoiceDueTimezone! ?? null,
         },
         paymentDate: {
-          date: invoiceInfo.paidAt,
+          date: invoiceInfo.paidAt && invoiceInfo.paidDateTimezone
+            ? convertTimeToTimezone(
+                invoiceInfo.paidAt,
+                invoiceInfo.paidDateTimezone,
+                true
+              )!
+            : null,
           timezone: invoiceInfo.paidDateTimezone ?? null,
         },
         taxInvoiceIssuanceDate: {
-          date: invoiceInfo.taxInvoiceIssuedAt ?? '',
+          date: invoiceInfo.taxInvoiceIssuedAt && invoiceInfo.taxInvoiceIssuedDateTimezone
+            ? convertTimeToTimezone(
+                invoiceInfo.taxInvoiceIssuedAt,
+                invoiceInfo.taxInvoiceIssuedDateTimezone,
+                true
+              )!
+            : null,
           timezone: invoiceInfo.taxInvoiceIssuedDateTimezone ?? null!,
         },
         salesRecognitionDate: {
-          date: invoiceInfo.salesCheckedAt ?? '',
+          date: invoiceInfo.salesCheckedAt && invoiceInfo.taxInvoiceIssuedDateTimezone
+          ? convertTimeToTimezone(
+              invoiceInfo.taxInvoiceIssuedAt,
+              invoiceInfo.taxInvoiceIssuedDateTimezone,
+              true
+            )!
+          : null,
           timezone: invoiceInfo.salesCheckedDateTimezone! ?? null,
         },
 

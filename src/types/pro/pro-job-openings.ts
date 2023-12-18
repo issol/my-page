@@ -17,7 +17,7 @@ export type JobOpeningListType = {
   sourceLanguage: string
   targetLanguage: string
   yearsOfExperience: string
-  dueDate: Date
+  dueAt: Date
   dueDateTimezone: CountryType
 }
 

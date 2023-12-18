@@ -58,8 +58,8 @@ export type InvoiceProjectInfoFormType = {
   invoiceConfirmDate?: { date: string | null; timezone: CountryType | null }
   taxInvoiceDueDate?: { date: string | null; timezone: CountryType }
   paymentDate?: { date: string | null; timezone: CountryType | null }
-  taxInvoiceIssuanceDate?: { date: string; timezone: CountryType }
-  salesRecognitionDate?: { date: string; timezone: CountryType }
+  taxInvoiceIssuanceDate?: { date: string | null; timezone: CountryType }
+  salesRecognitionDate?: { date: string | null; timezone: CountryType }
   salesCategory?: string
   taxInvoiceIssued: boolean
   setReminder: boolean

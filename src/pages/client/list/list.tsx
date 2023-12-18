@@ -5,9 +5,9 @@ import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import { ClientRowType } from '@src/apis/client.api'
 import { ClientStatusChip } from '@src/@core/components/chips/chips'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { StyledNextLink } from '@src/@core/components/customLink'
 import { useRouter } from 'next/router'
+import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 
 type ClientListCellType = {
   row: ClientRowType
@@ -102,7 +102,7 @@ export default function ClientList({
       sortable: false,
       renderHeader: () => <Box>Time zone</Box>,
       renderCell: ({ row }: ClientListCellType) => {
-        return <div>{getGmtTimeEng(row?.timezone?.code)}</div>
+        return <div>{row?.timezone?.label}</div>
       },
     },
     {
@@ -116,7 +116,13 @@ export default function ClientList({
       renderHeader: () => <Box>Telephone</Box>,
       renderCell: ({ row }: ClientListCellType) => {
         return (
-          <div>{row?.phone ? `+${row.timezone.phone}) ${row.phone}` : '-'}</div>
+          <div>{
+            !row?.phone 
+              ? '-'
+              : contryCodeAndPhoneNumberFormatter(
+                splitContryCodeAndPhoneNumber(row.phone)
+              )
+          }</div>
         )
       },
     },

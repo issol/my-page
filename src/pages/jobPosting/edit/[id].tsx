@@ -81,7 +81,8 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 
 export default function JobPostingEdit() {
   const router = useRouter()
@@ -108,6 +109,23 @@ export default function JobPostingEdit() {
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
   const [link, setLink] = useState<Array<LinkType>>([])
+  const [timeZoneList, setTimeZoneList] = useState<{
+    code: string;
+    label: string;
+    phone: string;
+  }[]>([])
+
+  useEffect(() => {
+    const timezoneList = getTimeZoneFromLocalStorage()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: ''
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [])
 
   const defaultValues = {
     status: { value: '' as StatusType, label: '' as StatusType },
@@ -146,7 +164,7 @@ export default function JobPostingEdit() {
       )
     } else if (
       currDueDate &&
-      !watch('dueDateTimezone')?.code &&
+      !watch('dueDateTimezone')?.label &&
       auth.state === 'hasValue' &&
       auth.getValue().user
     ) {
@@ -704,12 +722,12 @@ export default function JobPostingEdit() {
                               fullWidth
                               value={value}
                               disabled={!currDueDate}
-                              options={countries as CountryType[]}
+                              options={timeZoneList as CountryType[]}
                               onChange={(e, v) => onChange(v)}
                               // disableClearable
                               renderOption={(props, option) => (
                                 <Box component='li' {...props} key={uuidv4()}>
-                                  {getGmtTimeEng(option.code)}
+                                  {timeZoneFormatter(option)}
                                 </Box>
                               )}
                               getOptionLabel={option =>
@@ -725,6 +743,7 @@ export default function JobPostingEdit() {
                                   }}
                                 />
                               )}
+                              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
                             />
                           )}
                         />

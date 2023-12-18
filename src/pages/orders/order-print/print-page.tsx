@@ -17,11 +17,11 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getAddress } from '@src/shared/helpers/address-helper'
-import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
 import { useMutation } from 'react-query'
@@ -116,7 +116,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
             {lang === 'EN' ? 'Order date:' : '주문일:'}
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-            {FullDateTimezoneHelper(data.orderedAt, user?.timezone)}
+            {convertTimeToTimezone(data.orderedAt, user?.timezone)}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -134,7 +134,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
               {lang === 'EN' ? 'Project due date:' : '마감일:'}
             </Typography>
             <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 data.projectDueAt?.date,
                 data.projectDueAt?.timezone,
               )}
@@ -234,14 +234,16 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
               : data.client?.client?.email}
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-            {getPhoneNumber(
-              data.contactPerson !== null
-                ? data.contactPerson?.mobile!
-                : data.client.client?.mobile,
-              data.contactPerson !== null
-                ? data.contactPerson?.timezone?.phone
-                : data.client?.client?.timezone?.phone,
-            )}
+            {data.contactPerson?.mobile
+              ? contryCodeAndPhoneNumberFormatter(
+                  splitContryCodeAndPhoneNumber(data.contactPerson.mobile)
+                )
+              : data.client.client?.mobile
+                ? contryCodeAndPhoneNumberFormatter(
+                    splitContryCodeAndPhoneNumber(data.client.client.mobile)
+                  )
+                : '-'
+            }
           </Typography>
         </Box>
       </Box>

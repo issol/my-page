@@ -10,7 +10,7 @@ import { ExtraNumberChip } from '@src/@core/components/chips/chips'
 import styled from 'styled-components'
 
 // ** helpers
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 
 // ** nextJS
 import { useRouter } from 'next/router'

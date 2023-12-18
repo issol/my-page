@@ -2,10 +2,10 @@ import { Fragment, useEffect } from 'react'
 
 // ** helpers
 import { formatCurrency } from '@src/shared/helpers/price.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getAddress } from '@src/shared/helpers/address-helper'
-import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 
 // ** types
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
@@ -170,7 +170,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   {columnName.quoteDate}:
                 </Typography>
                 <Typography variant='subtitle1' fontSize={14}>
-                  {FullDateTimezoneHelper(
+                  {convertTimeToTimezone(
                     data?.quoteDate?.date,
                     user?.timezone,
                   )}
@@ -263,14 +263,16 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   : data?.client?.client?.email}
               </Typography>
               <Typography variant='subtitle1' fontSize={14}>
-                {getPhoneNumber(
-                  data?.contactPerson !== null
-                    ? data?.contactPerson?.mobile
-                    : data?.client?.client?.mobile,
-                  data?.contactPerson !== null
-                    ? data?.contactPerson?.timezone?.phone
-                    : data?.client?.client?.timezone?.phone,
-                )}
+                {data?.contactPerson?.mobile
+                  ? contryCodeAndPhoneNumberFormatter(
+                      splitContryCodeAndPhoneNumber(data.contactPerson.mobile)
+                    )
+                  : data?.client?.client?.mobile
+                    ? contryCodeAndPhoneNumberFormatter(
+                        splitContryCodeAndPhoneNumber(data.client.client.mobile)
+                      )
+                    : '-'
+                }
               </Typography>
             </Box>
           </Grid>
@@ -309,7 +311,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   {columnName.estimatedDeliveryDate} :
                 </Typography>
                 <Typography variant='subtitle1' fontSize={14}>
-                  {FullDateTimezoneHelper(
+                  {convertTimeToTimezone(
                     data?.estimatedDeliveryDate?.date,
                     data?.estimatedDeliveryDate?.timezone,
                   )}
@@ -326,7 +328,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   {columnName.projectDueDate} :
                 </Typography>
                 <Typography variant='subtitle1' fontSize={14}>
-                  {FullDateTimezoneHelper(
+                  {convertTimeToTimezone(
                     data?.projectDueDate?.date,
                     data?.projectDueDate?.timezone,
                   )}

@@ -15,7 +15,7 @@ import {
 } from '@src/@core/components/chips/chips'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import {
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
   convertDateByTimezone,
   convertUTCISOStringToLocalTimezoneISOString,
 } from '@src/shared/helpers/date.helper'
@@ -25,21 +25,25 @@ import styled from 'styled-components'
 
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { convertLanguageCodeToPair } from 'src/shared/helpers/language.helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   data: RequestDetailType | undefined
   openReasonModal: () => void
 }
 export default function RequestDetailCard({ data, openReasonModal }: Props) {
+  const auth = useRecoilValueLoadable(authState)
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
         <LabelContainer>
           <CustomTypo fontWeight={600}>Request date</CustomTypo>
           <CustomTypo variant='body2'>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               data?.requestedAt,
-              data?.contactPerson?.timezone,
+              auth.getValue().user?.timezone
             )}
           </CustomTypo>
         </LabelContainer>
@@ -144,9 +148,9 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Desired due date</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                           item?.desiredDueDate,
-                          item?.desiredDueTimezone?.code!
+                          auth.getValue().user?.timezone
                         )
                       }
                       {/* {

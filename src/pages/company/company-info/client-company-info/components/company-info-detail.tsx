@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react'
 import { Box, Divider, IconButton, Typography } from '@mui/material'
 import { ClientUserType } from '@src/context/types'
 import { MMDDYYYYHelper } from '@src/shared/helpers/date.helper'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 
 type Props = {
   companyInfo: ClientUserType | null | undefined
@@ -94,7 +94,7 @@ export default function CompanyInfoDetail({ companyInfo }: Props) {
             Time zone:
           </Typography>
           <Typography variant='subtitle2' fontSize={16}>
-            {getGmtTimeEng(companyInfo?.timezone?.code)}
+            {companyInfo?.timezone?.label}
           </Typography>
         </Box>
       </Box>
@@ -109,9 +109,12 @@ export default function CompanyInfoDetail({ companyInfo }: Props) {
             Mobile phone:
           </Typography>
           <Typography variant='subtitle2' fontSize={16}>
-            {companyInfo?.mobile
-              ? `+${companyInfo?.timezone?.phone})  ${companyInfo.mobile}`
-              : '-'}
+            {!companyInfo?.mobile
+              ? '-'
+              : contryCodeAndPhoneNumberFormatter(
+                splitContryCodeAndPhoneNumber(companyInfo.mobile)
+              )
+            }
           </Typography>
         </Box>
         <Box display='flex' alignItems='center' gap='8px' flex={1}>
@@ -120,9 +123,12 @@ export default function CompanyInfoDetail({ companyInfo }: Props) {
             Telephone:
           </Typography>
           <Typography variant='subtitle2' fontSize={16}>
-            {companyInfo?.phone
-              ? `+${companyInfo?.timezone?.phone}) ${companyInfo?.phone}`
-              : '-'}
+            {!companyInfo?.phone
+              ? '-'
+              : contryCodeAndPhoneNumberFormatter(
+                splitContryCodeAndPhoneNumber(companyInfo.phone)
+              )
+            }
           </Typography>
         </Box>
       </Box>
@@ -137,9 +143,12 @@ export default function CompanyInfoDetail({ companyInfo }: Props) {
             Fax:
           </Typography>
           <Typography variant='subtitle2' fontSize={16}>
-            {companyInfo?.fax
-              ? `+${companyInfo?.timezone?.phone}) ${companyInfo?.fax}`
-              : '-'}
+            {!companyInfo?.fax
+              ? '-'
+              : contryCodeAndPhoneNumberFormatter(
+                splitContryCodeAndPhoneNumber(companyInfo.fax)
+              )
+            }
           </Typography>
         </Box>
         <Box display='flex' alignItems='center' gap='8px' flex={1}>

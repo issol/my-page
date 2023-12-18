@@ -26,9 +26,8 @@ export const clientCompanyInfoSchema = yup.object().shape({
     .url(FormErrors.invalidUrl)
     .nullable(),
   timezone: yup.object().shape({
-    code: yup.string().required(FormErrors.required),
+    code: yup.string().nullable(),
     label: yup.string().required(FormErrors.required),
-    phone: yup.string().required(FormErrors.required),
   }),
 })
 

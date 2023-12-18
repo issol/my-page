@@ -25,9 +25,8 @@ export const getProfileSchema = (type: 'join' | 'edit') => {
     preferredName: yup.string().nullable(),
     preferredNamePronunciation: yup.string().nullable(),
     timezone: yup.object().shape({
-      code: yup.string().required(FormErrors.required),
+      code: yup.string().nullable(),
       label: yup.string().required(FormErrors.required),
-      phone: yup.string().required(FormErrors.required),
     }),
     mobile: yup.string().nullable(),
     phone: yup.string().nullable(),
@@ -112,9 +111,8 @@ export const managerProfileSchema = yup.object().shape({
   email: yup.string().nullable(),
   department: yup.string().nullable(),
   timezone: yup.object().shape({
-    code: yup.string().required(FormErrors.required),
+    code: yup.string().nullable(),
     label: yup.string().required(FormErrors.required),
-    phone: yup.string().required(FormErrors.required),
   }),
   mobile: yup.string().nullable(),
   phone: yup.string().nullable(),

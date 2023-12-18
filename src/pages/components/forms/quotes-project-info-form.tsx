@@ -73,10 +73,11 @@ import {
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { useMutation } from 'react-query'
 import { addWorkName } from '@src/apis/common.api'
 import dayjs from 'dayjs'
+import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
 
 type Props = {
   control: Control<QuotesProjectInfoAddNewType, any>
@@ -102,6 +103,24 @@ export default function ProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
+  const [timeZoneList, setTimeZoneList] = useState<{
+    code: string;
+    label: string;
+    phone: string;
+  }[]>([])
+
+  useEffect(() => {
+    const timezoneList = getTimeZoneFromLocalStorage()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: ''
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [])
+
   const auth = useRecoilValueLoadable(authState)
 
   const addWorkNameMutation = useMutation(
@@ -280,8 +299,6 @@ export default function ProjectInfoForm({
               placeholderText='MM/DD/YYYY, HH:MM'
               selected={!value ? null : formattedNow(new Date(value))}
               onChange={e => {
-                console.log(e)
-
                 onChange(e)
               }}
               customInput={
@@ -311,14 +328,14 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (
@@ -665,11 +682,18 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
-              selected={!value ? null : new Date(value)}
+              selected={!value ? null : formattedNow(new Date(value))}
               onChange={onChange}
               placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
-                <CustomInput label='Quote deadline' icon='calendar' />
+                <CustomInput
+                  label='Quote deadline'
+                  icon='calendar'
+                  readOnly 
+                  value={
+                    value ? dateValue(formattedNow(new Date(value))) : ''
+                  }
+                />
               }
             />
           )}
@@ -685,15 +709,15 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (
@@ -731,12 +755,19 @@ export default function ProjectInfoForm({
             >
               <FullWidthDatePicker
                 {...DateTimePickerDefaultOptions}
-                selected={!value ? null : new Date(value)}
+                selected={!value ? null : formattedNow(new Date(value))}
                 onChange={onChange}
                 isClearable
                 placeholderText='MM/DD/YYYY, HH:MM'
                 customInput={
-                  <CustomInput label='Quote expiry date' icon='calendar' />
+                  <CustomInput
+                    label='Quote expiry date'
+                    icon='calendar' 
+                    readOnly 
+                    value={
+                      value ? dateValue(formattedNow(new Date(value))) : ''
+                    }
+                  />
                 }
               />
             </Box>
@@ -753,15 +784,15 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (
@@ -786,11 +817,18 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
-              selected={!value ? null : new Date(value)}
+              selected={!value ? null : formattedNow(new Date(value))}
               onChange={onChange}
               placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
-                <CustomInput label='Estimated delivery date' icon='calendar' />
+                <CustomInput
+                  label='Estimated delivery date'
+                  icon='calendar'
+                  readOnly 
+                  value={
+                    value ? dateValue(formattedNow(new Date(value))) : ''
+                  }
+                />
               }
             />
           )}
@@ -806,15 +844,15 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (
@@ -839,11 +877,18 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
-              selected={!value ? null : new Date(value)}
+              selected={!value ? null : formattedNow(new Date(value))}
               onChange={onChange}
               placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
-                <CustomInput label='Project due date' icon='calendar' />
+                <CustomInput
+                  label='Project due date'
+                  icon='calendar'
+                  readOnly 
+                  value={
+                    value ? dateValue(formattedNow(new Date(value))) : ''
+                  }
+                />
               }
             />
           )}
@@ -859,15 +904,15 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (

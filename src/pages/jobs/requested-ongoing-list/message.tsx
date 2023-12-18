@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material'
 import useModal from '@src/hooks/useModal'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { authState } from '@src/states/auth'
 import { useRecoilValueLoadable } from 'recoil'
@@ -192,7 +192,7 @@ const ProJobsMessage = ({ row }: Props) => {
                       </Typography>
                     </Box>
                     <Typography variant='subtitle2'>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         item.createdAt,
                         auth.getValue().user?.timezone,
                       )}

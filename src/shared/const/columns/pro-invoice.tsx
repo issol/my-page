@@ -7,7 +7,7 @@ import {
 } from '@src/@core/components/chips/chips'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType } from '@src/context/types'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { InvoiceProStatusType } from '@src/types/invoice/common.type'
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
@@ -84,9 +84,9 @@ export const getInvoiceProListColumns = (
         </Typography>
       ),
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(
+        const date = convertTimeToTimezone(
           row.invoicedAt,
-          auth.getValue().user?.timezone.code,
+          auth.getValue().user?.timezone,
         )
         return (
           <Tooltip title={date}>
@@ -107,9 +107,9 @@ export const getInvoiceProListColumns = (
         </Typography>
       ),
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(
+        const date = convertTimeToTimezone(
           row.paidAt,
-          row.paidDateTimezone?.code,
+          row.paidDateTimezone,
         )
         return (
           <Tooltip title={date}>

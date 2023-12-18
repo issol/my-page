@@ -14,7 +14,7 @@ import {
   TextField,
 } from '@mui/material'
 import { CountryType, PersonalInfo } from '@src/types/sign/personalInfoTypes'
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Control, Controller, FieldErrors, UseFormWatch } from 'react-hook-form'
 import { Pronunciation } from 'src/shared/const/pronunciation'
 import styled from 'styled-components'
@@ -26,6 +26,9 @@ import { v4 as uuidv4 } from 'uuid'
 // ** Data
 import { countries } from 'src/@fake-db/autocomplete'
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+import MuiPhone from '../../phone/mui-phone'
 
 type Props = {
   control: Control<Omit<PersonalInfo, 'address'>, any>
@@ -33,6 +36,24 @@ type Props = {
   watch: UseFormWatch<Omit<PersonalInfo, 'address'>>
 }
 export default function ProProfileForm({ control, errors, watch }: Props) {
+  const [timeZoneList, setTimeZoneList] = useState<{
+    code: string;
+    label: string;
+    phone: string;
+  }[]>([])
+
+  useEffect(() => {
+    const timezoneList = getTimeZoneFromLocalStorage()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: ''
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [])
+
   return (
     <Fragment>
       <Grid item xs={6}>
@@ -185,12 +206,12 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
               autoHighlight
               fullWidth
               {...field}
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {option.label} ({option.code}) +{option.phone}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (
@@ -203,6 +224,7 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
                   }}
                 />
               )}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
             />
           )}
         />
@@ -218,28 +240,10 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
           control={control}
           rules={{ required: false }}
           render={({ field: { value, onChange, onBlur } }) => (
-            <TextField
-              fullWidth
-              label='Telephone'
-              variant='outlined'
-              value={value}
-              onBlur={onBlur}
-              onChange={e => {
-                if (isInvalidPhoneNumber(e.target.value)) return
-                onChange(e)
-              }}
-              inputProps={{ maxLength: 50 }}
-              error={Boolean(errors.mobile)}
-              placeholder={
-                !watch('timezone')?.phone ? `+ 1) 012 345 6789` : `012 345 6789`
-              }
-              InputProps={{
-                startAdornment: watch('timezone')?.phone && (
-                  <InputAdornment position='start'>
-                    {'+' + watch('timezone')?.phone}
-                  </InputAdornment>
-                ),
-              }}
+            <MuiPhone
+              value={value || ''}
+              onChange={onChange}
+              label={'Telephone'}
             />
           )}
         />
@@ -255,28 +259,10 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
           control={control}
           rules={{ required: false }}
           render={({ field: { value, onChange, onBlur } }) => (
-            <TextField
-              fullWidth
-              label='Mobile phone'
-              variant='outlined'
-              value={value}
-              onBlur={onBlur}
-              onChange={e => {
-                if (isInvalidPhoneNumber(e.target.value)) return
-                onChange(e)
-              }}
-              inputProps={{ maxLength: 50 }}
-              error={Boolean(errors.mobile)}
-              placeholder={
-                !watch('timezone')?.phone ? `+ 1) 012 345 6789` : `012 345 6789`
-              }
-              InputProps={{
-                startAdornment: watch('timezone')?.phone && (
-                  <InputAdornment position='start'>
-                    {'+' + watch('timezone')?.phone}
-                  </InputAdornment>
-                ),
-              }}
+            <MuiPhone
+              value={value || ''}
+              onChange={onChange}
+              label={'Mobile phone'}
             />
           )}
         />
