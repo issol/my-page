@@ -730,9 +730,6 @@ export default function JobPostingEdit() {
                                   {timeZoneFormatter(option)}
                                 </Box>
                               )}
-                              getOptionLabel={option =>
-                                getGmtTimeEng(option.code) ?? ''
-                              }
                               renderInput={params => (
                                 <TextField
                                   {...params}
