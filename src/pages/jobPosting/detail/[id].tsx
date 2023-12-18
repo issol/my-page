@@ -328,7 +328,7 @@ const JobPostingDetail = () => {
                       'Due date',
                       convertDateByTimezone(
                         data?.dueDate,
-                        data?.dueDateTimezone!,
+                        data?.dueDateTimezone?.code! ?? 'KR',
                         auth.getValue().user?.timezone.code!,
                       ),
                     )}

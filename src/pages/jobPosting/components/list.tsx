@@ -219,9 +219,16 @@ export default function JobPostingList({
               NoRowsOverlay: () => noData(),
               NoResultsOverlay: () => noData(),
             }}
+            sx={{
+              '& .MuiDataGrid-row:hover': {
+                // backgroundColor: 'inherit',
+                cursor: 'pointer',
+              },
+            }}
             onRowClick={e => moveToDetail(e)}
             rows={list.data}
             rowCount={list.totalCount || 0}
+            hideFooterSelectedRowCount
             loading={isLoading}
             rowsPerPageOptions={[10, 25, 50]}
             pagination
