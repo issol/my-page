@@ -39,7 +39,6 @@ const DefaultDataGrid = ({
 
   return (
     <DataGrid
-      autoHeight
       initialState={{
         sorting: { sortModel },
       }}

@@ -179,18 +179,18 @@ const LPMDashboards = () => {
 
     const filterPayableTotal = payableTotal.report.map(item => {
       return {
-        'total Count': item.count,
-        'total Price': item.sum,
-        'total Number': item.count,
+        'Payables total Count': item.count,
+        'Payables total Price': item.sum,
+        'Payables total Number': item.count,
         ' ': ' ',
       }
     })
 
     const filterReceivableTotal = receivableTotal.report.map(item => {
       return {
-        'total Count': item.count,
-        'total Price': item.sum,
-        'total Number': item.count,
+        'Receivables total Count': item.count,
+        'Receivables total Price': item.sum,
+        'Receivables total Number': item.count,
         ' ': ' ',
       }
     })

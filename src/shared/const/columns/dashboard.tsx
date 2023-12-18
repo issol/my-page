@@ -825,6 +825,9 @@ export const ReceivableColumns: GridColumns = [
     flex: 1,
     renderHeader: () => <Box>Category / Service type</Box>,
     renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      if (!row.category && !row.serviceType) {
+        return <Box sx={{ width: '340px' }}>-</Box>
+      }
       return (
         <Box
           display='flex'
@@ -863,6 +866,29 @@ export const ReceivableColumns: GridColumns = [
       )
     },
   },
+]
+
+export const InvoiceColumns: GridColumns = [
+  ...ReceivableColumns.slice(0, 2),
+  {
+    field: 'clientName',
+    headerName: 'LSP / Email',
+    minWidth: 220,
+    renderHeader: () => <Box>LSP / Email</Box>,
+    renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      return (
+        <Box>
+          <Typography fontSize='14px' fontWeight={600}>
+            {row.client.name || '-'}
+          </Typography>
+          <Typography color='#4C4E6499' fontSize='14px'>
+            {row.client.email || '-'}
+          </Typography>
+        </Box>
+      )
+    },
+  },
+  ...ReceivableColumns.slice(3, 6),
 ]
 
 export const PayablesColumns: GridColumns = [

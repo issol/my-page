@@ -37,6 +37,7 @@ export const payableColors = [
 
 interface TotalChartProps {
   title: string
+  handleTitleClick?: () => void
   setOpenInfoDialog: (open: boolean, key: string) => void
   icon: SvgIconComponent
   iconColor: string
@@ -53,10 +54,11 @@ const TotalProgressChart = ({
   setOpenInfoDialog,
   statusList,
   colors,
+  handleTitleClick,
 }: TotalChartProps) => {
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
   const { data } = useTotalPrice(type, currency)
-  console.log('AVAVA', data)
+
   const items: Array<[string, TotalItem]> = useMemo(() => {
     const map = new Map()
 
@@ -80,7 +82,11 @@ const TotalProgressChart = ({
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
       <Box>
-        <Title title={title} openDialog={setOpenInfoDialog} />
+        <Title
+          title={title}
+          openDialog={setOpenInfoDialog}
+          handleClick={handleTitleClick}
+        />
       </Box>
       <Box>
         <Box display='flex' justifyContent='flex-end'>
@@ -155,17 +161,19 @@ const TotalProgressChart = ({
                 <Cell color={colors[index]} className='body__cell'>
                   <div className='flex__center'>
                     <span className='status__circle' />
-                    {row.name}
+                    {row?.name || '-'}
                   </div>
                 </Cell>
                 <Cell className='body__cell' align='center'>
-                  {row.count?.toLocaleString()}
+                  {(row?.count || 0).toLocaleString()}
                 </Cell>
                 <Cell className='body__cell' align='right'>
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                     {CurrencyUnit[data?.currency || ('$' as Currency)]}
-                    {row.sum?.toLocaleString()}
-                    <div className='ratio_chip flex__center'>{row.ratio}%</div>
+                    {(row?.sum || 0).toLocaleString()}
+                    <div className='ratio_chip flex__center'>
+                      {row?.ratio || '0.0'}%
+                    </div>
                   </div>
                 </Cell>
               </TableRow>

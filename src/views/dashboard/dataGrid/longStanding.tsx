@@ -1,6 +1,12 @@
 import DefaultDataGrid from '@src/views/dashboard/dataGrid/default'
 import React, { useEffect, useState } from 'react'
-import { GridColumns, GridSortModel } from '@mui/x-data-grid'
+import {
+  GridCallbackDetails,
+  GridColumns,
+  GridRowParams,
+  GridSortModel,
+  MuiEvent,
+} from '@mui/x-data-grid'
 import {
   CSVDataRecordProps,
   LongStandingDataType,
@@ -11,22 +17,29 @@ import { useLongStanding } from '@src/queries/dashboard/dashnaord-lpm'
 import { Title } from '@src/views/dashboard/dashboardItem'
 import NoList from '@src/pages/components/no-list'
 
-interface LongStandingDataGridProps extends CSVDataRecordProps {
+interface LongStandingDataGridProps<T extends { id: number; status?: number }>
+  extends CSVDataRecordProps {
   title: string
   type: LongStandingDataType
   columns: GridColumns
   initSort: GridSortModel
   setOpenInfoDialog: (open: boolean, key: string) => void
+  onRowClick?: (
+    params: GridRowParams<T>,
+    event: MuiEvent<React.MouseEvent>,
+    details: GridCallbackDetails,
+  ) => void
 }
 
-const LongStandingDataGrid = ({
+const LongStandingDataGrid = <T extends { id: number; status?: number }>({
   title,
   type,
   columns,
   initSort,
   setOpenInfoDialog,
   setDataRecord,
-}: LongStandingDataGridProps) => {
+  onRowClick,
+}: LongStandingDataGridProps<T>) => {
   const [skip, setSkip] = useState(0)
   const [sortModel, setSortModel] = useState<GridSortModel>(initSort)
   const { data } = useLongStanding({
@@ -55,7 +68,7 @@ const LongStandingDataGrid = ({
         postfix={`(${data?.totalCount || 0})`}
         openDialog={setOpenInfoDialog}
       />
-      <Box>
+      <Box sx={{ height: 'calc(100% - 80px)' }}>
         <DefaultDataGrid
           title={getNoListTitle()}
           data={data}
@@ -64,6 +77,7 @@ const LongStandingDataGrid = ({
           sortModel={sortModel}
           setSortModel={setSortModel}
           setSkip={setSkip}
+          onRowClick={onRowClick}
         />
       </Box>
     </Box>

@@ -227,7 +227,12 @@ const Doughnut = <T extends RatioItem>({
           overflow: 'hidden',
         }}
       >
-        <Box display='flex' justifyContent='space-between'>
+        <Box
+          display='flex'
+          alignItems='center'
+          justifyContent='space-between'
+          sx={{ position: 'relative' }}
+        >
           <Title
             marginBottom='30px'
             title={getTitle()}
@@ -236,12 +241,14 @@ const Doughnut = <T extends RatioItem>({
           />
 
           {menuOptions && (
-            <OptionsMenu
-              iconButtonProps={{
-                size: 'small',
-              }}
-              options={filterMenuOptions}
-            />
+            <Box sx={{ position: 'absolute', right: 0, top: 0 }}>
+              <OptionsMenu
+                iconButtonProps={{
+                  size: 'small',
+                }}
+                options={filterMenuOptions}
+              />
+            </Box>
           )}
         </Box>
         <Box
