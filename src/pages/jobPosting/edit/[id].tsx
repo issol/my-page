@@ -60,7 +60,7 @@ import {
   updateJobPosting,
   StatusType,
 } from '@src/apis/jobPosting.api'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 
 // ** types
 import {
@@ -86,6 +86,7 @@ import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 export default function JobPostingEdit() {
   const router = useRouter()
   const id = Number(router.query.id)
+  const queryClient = useQueryClient()
 
   const languageList = getGloLanguage()
 
@@ -311,7 +312,9 @@ export default function JobPostingEdit() {
     (form: FormType) => updateJobPosting(id, form),
     {
       onSuccess: res => {
-        router.push(`/jobPosting/detail/${res?.id}`)
+        router.push(`/jobPosting/detail/${id}`)
+        queryClient.invalidateQueries(['get-jobPosting/list'])
+        queryClient.invalidateQueries(['get-jobPosting/detail'])
         toast.success('Success', {
           position: 'bottom-left',
         })

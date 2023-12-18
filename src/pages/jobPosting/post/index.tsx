@@ -53,7 +53,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** fetches
 import { FormType, postJobPosting, StatusType } from '@src/apis/jobPosting.api'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 
 // ** types
 import {
@@ -80,6 +80,7 @@ import { FormErrors } from '@src/shared/const/formErrors'
 export default function JobPostingPost() {
   const router = useRouter()
   const languageList = getGloLanguage()
+  const queryClient = useQueryClient()
 
   // ** contexts
   const auth = useRecoilValueLoadable(authState)
@@ -249,6 +250,9 @@ export default function JobPostingPost() {
   const postMutation = useMutation((form: FormType) => postJobPosting(form), {
     onSuccess: res => {
       router.push(`/jobPosting/detail/${res?.id}`)
+      queryClient.invalidateQueries(['get-jobPosting/list'])
+      queryClient.invalidateQueries(['get-jobPosting/detail'])
+
       toast.success('Success', {
         position: 'bottom-left',
       })
