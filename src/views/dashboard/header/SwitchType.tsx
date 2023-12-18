@@ -51,6 +51,8 @@ const SwitchTypeHeader = ({
   const { contents: role, state: roleFetchState } =
     useRecoilValueLoadable(currentRoleSelector)
 
+  const [state, setState] = useRecoilState(dashboardState)
+
   const { control, setValue } = useFormContext<DashboardForm>()
   const [sticky, setSticky] = useState(false)
   const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
@@ -84,6 +86,7 @@ const SwitchTypeHeader = ({
   }
 
   const onChangeMemberView = () => {
+    setState({ ...state })
     setIsOpenMemberDialog(true)
     handleClose()
   }
@@ -178,12 +181,7 @@ const SwitchTypeHeader = ({
           height={76}
           sx={{ display: sticky ? 'none' : 'flex' }}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
+          <Box display='flex' alignItems='center'>
             <Typography
               sx={{
                 fontSize: '14px',
@@ -318,7 +316,9 @@ const SwitchTypeHeader = ({
       </GridItem>
       <MemberSearchList
         open={isOpenMemberDialog}
-        onClose={() => setIsOpenMemberDialog(false)}
+        onClose={() => {
+          setIsOpenMemberDialog(false)
+        }}
       />
     </>
   )

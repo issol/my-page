@@ -173,11 +173,13 @@ const LPMDashboards = () => {
       },
     )
 
-    const filterOngoingJob = Object.entries(ongoingJob).map(([key, value]) => {
-      return { jobStatus: key, jobNumber: value, '    ': '  ' }
-    })
+    const filterOngoingJob = Object.entries(ongoingJob || {}).map(
+      ([key, value]) => {
+        return { jobStatus: key, jobNumber: value, '    ': '  ' }
+      },
+    )
 
-    const filterPayableTotal = payableTotal.report.map(item => {
+    const filterPayableTotal = (payableTotal?.report || []).map(item => {
       return {
         'Payables total Count': item.count,
         'Payables total Price': item.sum,
@@ -186,7 +188,7 @@ const LPMDashboards = () => {
       }
     })
 
-    const filterReceivableTotal = receivableTotal.report.map(item => {
+    const filterReceivableTotal = (receivableTotal?.report || []).map(item => {
       return {
         'Receivables total Count': item.count,
         'Receivables total Price': item.sum,
@@ -294,23 +296,30 @@ const LPMDashboards = () => {
                 </Box>
               </GridItem>
             )}
-            {!isShowMemberView && (
-              <GridItem height={362} sm padding='0'>
-                <Box sx={{ width: '100%' }}>
-                  <Title
-                    title='New requests'
-                    padding='10px 20px 0'
-                    marginBottom='20px'
-                    handleClick={() => router.push('/quotes/lpm/requests/')}
-                    openDialog={setOpenInfoDialog}
-                  />
-                  <DashboardDataGrid
-                    path='u/dashboard/client-request/list/new'
-                    pageNumber={4}
-                    movePage={(id: number) => ''}
-                    columns={RequestColumns}
-                  />
-                </Box>
+            <GridItem height={362} sm padding='0'>
+              <Box sx={{ width: '100%' }}>
+                <Title
+                  title='New requests'
+                  padding='10px 20px 0'
+                  marginBottom='20px'
+                  handleClick={() => router.push('/quotes/lpm/requests/')}
+                  openDialog={setOpenInfoDialog}
+                />
+                <DashboardDataGrid
+                  path='u/dashboard/client-request/list/new'
+                  pageNumber={4}
+                  movePage={(id: number) => ''}
+                  columns={RequestColumns}
+                />
+              </Box>
+            </GridItem>
+            {isShowMemberView && (
+              <GridItem width={269} height={362}>
+                <img
+                  src='/images/dashboard/img_member_view.png'
+                  alt='img'
+                  style={{ width: '128%' }}
+                />
               </GridItem>
             )}
           </Grid>
