@@ -434,7 +434,7 @@ const PersonalInfoPro = () => {
 
   useEffect(() => {
     if (!router.isReady) return
-    if (step === 2) {
+    if (step === 2 && router.query.jobId) {
       getJobOpeningDetail(Number(router.query.jobId)).then(res => {
         if (res) {
           openModal({
