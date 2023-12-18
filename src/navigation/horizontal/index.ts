@@ -157,6 +157,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'pro_certification_test',
       path: `/certification-test/pro`,
       role: ['PRO'],
+      externalLink: true,
     },
     {
       title: 'Company',
