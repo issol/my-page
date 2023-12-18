@@ -771,7 +771,13 @@ const ReceivableInvoiceDetail = () => {
                 true
               )!
             : null,
-          timezone: invoiceInfo.clientConfirmTimezone ?? null,
+          timezone: invoiceInfo.clientConfirmTimezone 
+            ? {
+              ...invoiceInfo.clientConfirmTimezone,
+              code: '',
+              phone: '',
+            }
+            : null,
         },
         taxInvoiceDueDate: {
           date: invoiceInfo.taxInvoiceDueAt && invoiceInfo.taxInvoiceDueTimezone
@@ -781,7 +787,13 @@ const ReceivableInvoiceDetail = () => {
               true
             )!
           : null,
-          timezone: invoiceInfo.taxInvoiceDueTimezone! ?? null,
+          timezone: invoiceInfo.taxInvoiceDueTimezone
+            ? {
+              ...invoiceInfo.taxInvoiceDueTimezone,
+              code: '',
+              phone: '',
+            }
+            : null,
         },
         paymentDate: {
           date: invoiceInfo.paidAt && invoiceInfo.paidDateTimezone
