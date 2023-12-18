@@ -3,6 +3,7 @@ import { Box } from '@mui/material'
 import {
   SectionTitle,
   SubDateDescription,
+  Title,
 } from '@src/views/dashboard/dashboardItem'
 import Typography from '@mui/material/Typography'
 import Switch from '@mui/material/Switch'
@@ -17,8 +18,12 @@ import { ExpectedIncomeSort } from '@src/types/dashboard'
 
 interface ExpectedIncomeProps {
   dateRange: Array<Date | null>
+  setOpenInfoDialog: (open: boolean, key: string) => void
 }
-const ExpectedIncome = ({ dateRange }: ExpectedIncomeProps) => {
+const ExpectedIncome = ({
+  dateRange,
+  setOpenInfoDialog,
+}: ExpectedIncomeProps) => {
   const date = dayjs(dateRange[0])
 
   const [checked, setChecked] = useState(false)
@@ -35,11 +40,11 @@ const ExpectedIncome = ({ dateRange }: ExpectedIncomeProps) => {
   return (
     <Box display='flex' sx={{ width: '100%', height: '100%' }}>
       <Box sx={{ width: '50%', padding: '20px' }}>
-        <SectionTitle>
-          <span className='title'>Job requests</span>
-          <ErrorOutlineIcon className='info_icon' />
-        </SectionTitle>
-        <SubDateDescription textAlign='left'>{getDate()}</SubDateDescription>
+        <Title
+          title='Job requests'
+          subTitle={getDate()}
+          openDialog={setOpenInfoDialog}
+        />
         <ProJobRequestBarChart report={data?.report || []} />
       </Box>
       <Box

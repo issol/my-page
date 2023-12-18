@@ -1,6 +1,5 @@
 import Grid from '@mui/material/Grid'
 import {
-  ConvertButtonGroup,
   GridItem,
   ReportItem,
   Title,
@@ -12,7 +11,6 @@ import {
   DashboardCountResult,
   DEFAULT_QUERY_NAME,
   PaidThisMonthAmount,
-  TADOnboardingResult,
   TotalPriceResult,
   useDashboardReport,
 } from '@src/queries/dashboard/dashnaord-lpm'
@@ -24,15 +22,14 @@ import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 import Doughnut from '@src/views/dashboard/chart/doughnut'
 import weekday from 'dayjs/plugin/weekday'
 import {
-  Status,
   Colors,
   SecondColors,
+  Status,
   StatusColor,
 } from '@src/shared/const/dashboard/chart'
 import {
   CategoryRatioItem,
   CSVDataType,
-  Currency,
   ExpertiseRatioItem,
   PairRatioItem,
   ServiceRatioItem,

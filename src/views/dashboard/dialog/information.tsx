@@ -104,7 +104,40 @@ const INFO_CONTENTS: Record<InfoKey, Record<string, string | ReactElement>> = {
     'Expense per area of expertise':
       "It shows the area(s) of expertise whose expense occurred during the time period set by the date filter, and includes only those whose order's project due date falls within the specified time period. If there are more than 7 areas of expertise, then it will show the 6 with the highest count and the rest will be grouped together as etc.",
   },
-  PRO: {},
+  PRO: {
+    'Job overview':
+      'In this section, you can see how many job requests need your approval or decline, as well as the number of jobs currently in progress.',
+    'Job requests': (
+      <div>
+        In this section, you can view the total composition of job requests and
+        their breakdown by job type. Additionally, you can also access monthly
+        averages of job requests and the cumulative distribution of job types.{' '}
+        <br /> <br />
+        You can estimate expected income based on the job request date and job
+        due date.
+        <br /> <br />
+        This income is estimated based on the job request data and may differ
+        from the actual invoiced amount.
+      </div>
+    ),
+    'Completed deliveries':
+      "This is a graph that shows the trend of monthly completed deliveries. The data displayed goes back 5 months from the current date, and if there is no data for a particular month, it won't be displayed on the graph.",
+    'Monthly revenue overview': (
+      <div>
+        This is a graph that shows the trend of monthly invoice generation
+        amounts. The data displayed goes back 5 months from the current date,
+        and if there is no data for a particular month, it won't be displayed on
+        the graph. <br /> <br />
+        The graph only
+        <b>represents invoice amounts generated in the same currency</b>.
+        Therefore, if the currency used for invoice generation changes in the
+        middle, you should view the data for the respective month when the
+        change occurred. <br /> <br />
+        The rate is a measure compared to the overall average of invoiced
+        amounts.
+      </div>
+    ),
+  },
 }
 
 /**
@@ -121,6 +154,7 @@ export const ReplaceTitle: Record<string, string> = {
   Categories: 'Expense per category',
   'Service types@client': 'Expense per service type',
   'Area of expertises@client': 'Expense per area of expertise',
+  'Invoice overview': 'Monthly revenue overview',
 }
 interface InfoDialogProps {
   keyName: string

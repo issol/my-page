@@ -3,6 +3,7 @@ import {
   GridItem,
   SectionTitle,
   SubDateDescription,
+  Title,
 } from '@src/views/dashboard/dashboardItem'
 import { Box, Stack } from '@mui/material'
 import dayjs from 'dayjs'
@@ -33,6 +34,7 @@ import { Colors } from '@src/shared/const/dashboard/chart'
 import { getDateFormat } from '@src/pages/dashboards/lpm'
 import ProCalendar from '@src/views/dashboard/calendar'
 import Deadline from '@src/views/dashboard/deadline'
+import Information from '@src/views/dashboard/dialog/information'
 
 dayjs.extend(weekday)
 
@@ -77,31 +79,13 @@ const ProDashboards = () => {
           <Grid container gap='24px'>
             <GridItem width={265} height={387}>
               <Box sx={{ width: '100%', height: '100%' }}>
-                <Box>
-                  <SectionTitle>
-                    <span
-                      role='button'
-                      className='title'
-                      onClick={() => router.push('/quotes/lpm/requests/')}
-                    >
-                      Job overview
-                    </span>
-                    <ErrorOutlineIcon className='info_icon' />
-                    <KeyboardArrowRight className='arrow_icon' />
-                  </SectionTitle>
-                </Box>
+                <Title title='Job overview' openDialog={setOpenInfoDialog} />
                 <JobList />
               </Box>
             </GridItem>
             <GridItem sm height={387} padding='0px'>
               <Box sx={{ width: '100%', height: '100%' }}>
-                <Box sx={{ padding: '20px' }}>
-                  <SectionTitle>
-                    <span role='button' className='title'>
-                      Upcoming deadlines
-                    </span>
-                  </SectionTitle>
-                </Box>
+                <Title padding='20px' title='Upcoming deadlines' />
                 <DataGrid
                   hideFooter
                   components={{
@@ -126,12 +110,16 @@ const ProDashboards = () => {
           <Grid container gap='24px'>
             <GridItem sm height={490} padding='0px'>
               <Expectedincome
+                setOpenInfoDialog={setOpenInfoDialog}
                 dateRange={dateRange || [new Date(), new Date()]}
               />
             </GridItem>
             <Doughnut<ServiceRatioItem>
               title='Completed deliveries'
-              subTitle='Based on March 1 - 31, 2023'
+              subTitle={`Based On ${getProDateFormat(
+                getDate('year'),
+                getDate('month'),
+              )}`}
               height={490}
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
@@ -180,22 +168,15 @@ const ProDashboards = () => {
             <Grid container item xs={6}>
               <GridItem height={392}>
                 <Box sx={{ width: '100%', height: '100%' }}>
-                  <Box sx={{ marginBottom: '20px' }}>
-                    <SectionTitle>
-                      <span
-                        role='button'
-                        className='title'
-                        onClick={() => router.push('/quotes/lpm/requests/')}
-                      >
-                        Invoice overview
-                      </span>
-                      <ErrorOutlineIcon className='info_icon' />
-                      <KeyboardArrowRight className='arrow_icon' />
-                    </SectionTitle>
-                    <SubDateDescription textAlign='left'>
-                      {getProDateFormat(getDate('year'), getDate('month'))}
-                    </SubDateDescription>
-                  </Box>
+                  <Title
+                    title='Invoice overview'
+                    marginBottom='20px'
+                    subTitle={getProDateFormat(
+                      getDate('year'),
+                      getDate('month'),
+                    )}
+                    openDialog={setOpenInfoDialog}
+                  />
                   <InvoiceTab
                     year={getDate('year')}
                     month={getDate('month') + 1}
@@ -239,6 +220,12 @@ const ProDashboards = () => {
             <ProCalendar year={getDate('year')} month={getDate('month')} />
           </Grid>
         </Grid>
+        <Information
+          open={isShowInfoDialog}
+          keyName={infoDialogKey}
+          infoType='PRO'
+          close={close}
+        />
       </ApexChartWrapper>
     </FormProvider>
   )
