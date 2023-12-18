@@ -130,7 +130,19 @@ const TADDashboards = () => {
       <ApexChartWrapper>
         <Grid container gap='24px' sx={{ padding: '10px' }}>
           <Notice />
-          <ChartDateHeader />
+          <Grid
+            item
+            sm
+            sx={{
+              position: 'sticky',
+              left: 0,
+              top: '148px',
+              zIndex: 10,
+              backgroundColor: '#fff',
+            }}
+          >
+            <ChartDateHeader />
+          </Grid>
           <GridItem width={207} height={76}>
             <Box>
               <CSVDownload data={CSVData} />

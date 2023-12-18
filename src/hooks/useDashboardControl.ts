@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { DashboardForm, getRangeDateTitle } from '@src/pages/dashboards/lpm'
 import useInfoDialog from '@src/hooks/useInfoDialog'
@@ -10,6 +10,7 @@ export const DEFAULT_LAST_DATE = dayjs()
   .toDate()
 
 const UseDashboardControl = () => {
+  const headerRef = useRef<HTMLElement>(null)
   const formHook = useForm<DashboardForm>({
     defaultValues: {
       dateRange: [DEFAULT_START_DATE, DEFAULT_LAST_DATE],
@@ -31,6 +32,9 @@ const UseDashboardControl = () => {
 
   return {
     formHook,
+    header: {
+      headerRef,
+    },
     infoDialog: {
       isShowInfoDialog,
       infoDialogKey: key,
