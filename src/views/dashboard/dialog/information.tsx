@@ -5,7 +5,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Typography from '@mui/material/Typography'
 import CloseIcon from '@mui/icons-material/Close'
 
-type InfoKey = 'LPM' | 'TAD' | 'CLIENT' | 'PRO'
+type InfoKey = 'LPM' | 'TAD' | 'CLIENT' | 'PRO' | 'ACCOUNT'
 const INFO_CONTENTS: Record<InfoKey, Record<string, string | ReactElement>> = {
   LPM: {
     'New requests':
@@ -138,6 +138,18 @@ const INFO_CONTENTS: Record<InfoKey, Record<string, string | ReactElement>> = {
       </div>
     ),
   },
+  ACCOUNT: {
+    'Sales recognition':
+      'It shows sales recognitions during the time period set by the date filter. Only the orders whose sales recognition date falls within that time period are included. The amount is the sum of the amounts in the same currency.',
+    'Paid Receivables':
+      'It shows the number and the amount of the receivables paid during the time period set by the date filter, excluding those that have been canceled. The amount is the sum of the amounts in the same currency.',
+    'Paid Payables':
+      'It shows the number and the amount of the payables paid during the time period set by the date filter, excluding those that have been canceled. The amount is the sum of the amounts in the same currency.',
+    'Clients’ payment method per office':
+      'It shows the number and the ratio of clients who use the payment method by office.',
+    'Pros’ payment method':
+      'It shows the number and the ratio of Pros who use the payment method.',
+  },
 }
 
 /**
@@ -159,7 +171,7 @@ export const ReplaceTitle: Record<string, string> = {
 interface InfoDialogProps {
   keyName: string
   open: boolean
-  infoType: 'LPM' | 'TAD' | 'CLIENT' | 'PRO'
+  infoType: InfoKey
   close: () => void
 }
 const Information = ({ keyName, open, infoType, close }: InfoDialogProps) => {
