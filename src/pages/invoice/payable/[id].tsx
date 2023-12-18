@@ -70,6 +70,8 @@ import {
 } from '@src/shared/const/permission-class'
 import { MarkDayInfo } from '@src/types/invoice/receivable.type'
 import { markInvoiceAsPaid } from '@src/apis/invoice/receivable.api'
+import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
+import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 
 type MenuType = 'info' | 'history'
 
@@ -121,6 +123,7 @@ export default function PayableDetail() {
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/list' })
       },
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
@@ -130,13 +133,13 @@ export default function PayableDetail() {
     },
   )
 
-  const makeInvoiceMarked = useMutation(
-    (info: MarkDayInfo) => markInvoiceAsPaid(data?.id!, info),
+  const updateStatusMutation = useMutation(
+    (data: { id: number; status: InvoicePayableStatusType }) =>
+      updateInvoicePayable(data.id, { invoiceStatus: data.status }),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: 'invoiceReceivableDetail',
-        })
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/list' })
       },
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
@@ -202,29 +205,6 @@ export default function PayableDetail() {
         />
       ),
     })
-  }
-
-  const onMarkAsPaidClick = () => {
-    if (auth.state === 'hasValue' && auth.getValue().user) {
-      openModal({
-        type: 'markAsPaid',
-        children: (
-          <CustomModal
-            onClose={() => closeModal('markAsPaid')}
-            onClick={() => {
-              closeModal('markAsPaid')
-              makeInvoiceMarked.mutate({
-                paidAt: Date(),
-                paidDateTimezone: auth.getValue().user?.timezone!,
-              })
-            }}
-            title='Are you sure you want to mark this invoice as paid?'
-            vary='successful'
-            rightButtonText='Mark as paid'
-          />
-        ),
-      })
-    }
   }
 
   /* Open pdf download modal */
@@ -330,6 +310,22 @@ export default function PayableDetail() {
     }
   }
 
+  function onChangeStatusToPaid() {
+    openModal({
+      type: 'changeStatus',
+      children: (
+        <ModalWithButtonName
+          message={`Are you sure you want to mark this invoice as paid?`}
+          onClick={() => {
+            updateStatusMutation.mutate({ id: Number(id), status: 40300 })
+          }}
+          onClose={() => closeModal('changeStatus')}
+          rightButtonName='Mark as paid'
+        />
+      ),
+    })
+  }
+
   return (
     <Grid container spacing={6}>
       {updateMutation.isLoading ||
@@ -409,6 +405,10 @@ export default function PayableDetail() {
                 auth={auth.getValue()}
                 editInfo={editInfo}
                 setEditInfo={setEditInfo}
+                isDeletable={isDeletable}
+                onClickDelete={onClickDelete}
+                isAccountInfoUpdatable={isAccountInfoUpdatable}
+                onMarkAsPaidClick={onChangeStatusToPaid}
               />
             </Suspense>
           </TabPanel>
@@ -427,45 +427,6 @@ export default function PayableDetail() {
           </TabPanel>
         </TabContext>
       </Grid>
-
-      {!isDeletable || editInfo ? null : (
-        <Grid item xs={4}>
-          <Card sx={{ marginLeft: '12px' }}>
-            <CardContent>
-              <Button
-                variant='outlined'
-                fullWidth
-                color='error'
-                size='large'
-                onClick={onClickDelete}
-                disabled={
-                  ![40000, 40100, 40200, 40400].includes(data?.invoiceStatus!)
-                }
-              >
-                Delete this invoice
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-      )}
-      {!isAccountInfoUpdatable || editInfo ? null : (
-        <Grid item xs={4}>
-          <Card sx={{ padding: '20px', width: '100%', marginLeft: '12px' }}>
-            <Button
-              variant='contained'
-              fullWidth
-              size='large'
-              disabled={
-                // !isUpdatable ||
-                ![40000, 40200, 40400].includes(data?.invoiceStatus!)
-              }
-              onClick={onMarkAsPaidClick}
-            >
-              Mark as paid
-            </Button>
-          </Card>
-        </Grid>
-      )}
     </Grid>
   )
 }

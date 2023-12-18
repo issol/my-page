@@ -9,7 +9,10 @@ import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 
 // ** helpers
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
+import {
+  formatCurrency,
+  getCurrencyMark,
+} from '@src/shared/helpers/price.helper'
 
 // ** contexts
 
@@ -17,7 +20,10 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { InvoicePayableStatusType, InvoiceProStatusType } from '@src/types/invoice/common.type'
+import {
+  InvoicePayableStatusType,
+  InvoiceProStatusType,
+} from '@src/types/invoice/common.type'
 
 type CellType = {
   row: InvoicePayableListType
@@ -81,11 +87,7 @@ export default function PayableList({
       disableColumnMenu: true,
       renderHeader: () => <Box>No.</Box>,
       renderCell: ({ row }: CellType) => {
-        return (
-          <>
-            {row.corporationId}
-          </>
-        )
+        return <>{row.corporationId}</>
       },
     },
     {
@@ -98,7 +100,10 @@ export default function PayableList({
           <>
             {/* {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)} */}
             {/* TODO: invoiceStatus 넘버로 오는지 확인 필요 */}
-            {invoicePayableStatusChip(row.invoiceStatus as InvoiceProStatusType, statusList)}
+            {invoicePayableStatusChip(
+              row.invoiceStatus as InvoiceProStatusType,
+              statusList,
+            )}
           </>
         )
       },
@@ -176,10 +181,7 @@ export default function PayableList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
-        const price = `${formatCurrency(
-          row.totalPrice,
-          row.currency,
-        )}`
+        const price = `${formatCurrency(row.totalPrice, row.currency)}`
         return (
           <Tooltip title={price}>
             <Typography fontWeight={600}>{price}</Typography>
@@ -216,6 +218,7 @@ export default function PayableList({
         rows={list.data}
         rowCount={list.totalCount}
         loading={isLoading}
+        hideFooterSelectedRowCount
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={skip}
@@ -227,11 +230,11 @@ export default function PayableList({
         onCellClick={(params, event) => {
           // 체크박스 클릭 시에는 행 클릭 이벤트 무시
           if (params.field === '__check__') {
-            event.stopPropagation();
-            return;
+            event.stopPropagation()
+            return
           }
           // 그 외의 경우에는 정상적으로 행 클릭 처리
-          router.push(`/invoice/payable/${params.id}`);
+          router.push(`/invoice/payable/${params.id}`)
         }}
         sx={{
           overflowX: 'scroll',
