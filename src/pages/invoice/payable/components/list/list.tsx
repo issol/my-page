@@ -224,8 +224,14 @@ export default function PayableList({
         onPageChange={setSkip}
         disableSelectionOnClick
         onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-        onCellClick={params => {
-          router.push(`/invoice/payable/${params.id}`)
+        onCellClick={(params, event) => {
+          // 체크박스 클릭 시에는 행 클릭 이벤트 무시
+          if (params.field === '__check__') {
+            event.stopPropagation();
+            return;
+          }
+          // 그 외의 경우에는 정상적으로 행 클릭 처리
+          router.push(`/invoice/payable/${params.id}`);
         }}
         sx={{
           overflowX: 'scroll',
