@@ -64,9 +64,9 @@ type Props = {
   editInfo: boolean
   setEditInfo: (n: boolean) => void
   isDeletable: boolean
-  onClickDelete: () => void
+  onClickDelete?: () => void
   isAccountInfoUpdatable: boolean
-  onMarkAsPaidClick: () => void
+  onMarkAsPaidClick?: () => void
 }
 export default function InvoiceInfo({
   payableId,
@@ -232,7 +232,7 @@ export default function InvoiceInfo({
                 fullWidth
                 color='error'
                 size='large'
-                onClick={onClickDelete}
+                onClick={() => onClickDelete && onClickDelete()}
                 disabled={
                   ![40000, 40100, 40200, 40400].includes(data?.invoiceStatus!)
                 }
@@ -254,7 +254,7 @@ export default function InvoiceInfo({
                 // !isUpdatable ||
                 ![40000, 40200, 40400].includes(data?.invoiceStatus!)
               }
-              onClick={onMarkAsPaidClick}
+              onClick={() => onMarkAsPaidClick && onMarkAsPaidClick()}
             >
               Mark as paid
             </Button>
