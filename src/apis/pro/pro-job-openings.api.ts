@@ -289,5 +289,5 @@ export const createJobInfo = async (
   userId: number,
   payload: { jobType: string; role: string; source: string; target: string },
 ) => {
-  await axios.post(`/api/enough/u/job-info/${userId}`, { ...payload })
+  await axios.post(`/api/enough/u/job-info/${userId}`, { data: [payload] })
 }

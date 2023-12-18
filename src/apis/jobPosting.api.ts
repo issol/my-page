@@ -31,7 +31,7 @@ export const getJobPostingList = async (
       `/api/enough/recruiting/jobposting?${makeQuery({
         ...filters,
         company: 'GloZ',
-        notStarted: 1,
+        // notStarted: 1,
       })}`,
     )
     return data

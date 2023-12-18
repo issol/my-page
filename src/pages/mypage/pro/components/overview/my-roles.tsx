@@ -10,7 +10,10 @@ import Button from '@mui/material/Button'
 
 import { v4 as uuidv4 } from 'uuid'
 import CustomPagination from 'src/pages/components/custom-pagination'
-import { AppliedRoleType, CertifiedRoleType } from 'src/types/onboarding/details'
+import {
+  AppliedRoleType,
+  CertifiedRoleType,
+} from 'src/types/onboarding/details'
 import NoList from '@src/pages/components/no-list'
 
 type Props = {
@@ -148,8 +151,7 @@ export default function MyRoles({
                     )
                   })
               : null}
-            {certifiedRoleInfo &&
-              certifiedRoleInfo.length ? (
+            {certifiedRoleInfo && certifiedRoleInfo.length ? (
               <Grid item xs={12}>
                 <CustomPagination
                   listCount={certifiedRoleInfo.length}

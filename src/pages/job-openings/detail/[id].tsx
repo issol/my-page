@@ -186,6 +186,7 @@ const JobOpeningDetail = () => {
                 />
               ),
             })
+            break
 
           case applyResponseEnum.UNABLE_PROCEED_TEST:
             openModal({
@@ -204,6 +205,7 @@ const JobOpeningDetail = () => {
                 />
               ),
             })
+            break
 
           case applyResponseEnum.TEST_NOT_EXIST:
             createJobInfoMutation.mutate({
@@ -212,6 +214,7 @@ const JobOpeningDetail = () => {
               source: data.sourceLanguage,
               target: data.targetLanguage,
             })
+            break
 
           case applyResponseEnum.ALREADY_HAVE_A_ROLE:
             openModal({
@@ -244,6 +247,7 @@ const JobOpeningDetail = () => {
                 />
               ),
             })
+            break
 
           case applyResponseEnum.TEST_COUNT_EXCEEDED:
             openModal({
@@ -273,6 +277,7 @@ const JobOpeningDetail = () => {
                 />
               ),
             })
+            break
 
           case applyResponseEnum.TESTING_IN_PROGRESS:
             openModal({
@@ -292,6 +297,7 @@ const JobOpeningDetail = () => {
                 />
               ),
             })
+            break
 
           case applyResponseEnum.ALREADY_APPLIED:
             openModal({
@@ -322,6 +328,7 @@ const JobOpeningDetail = () => {
                 />
               ),
             })
+            break
         }
       })
     }
@@ -379,7 +386,7 @@ const JobOpeningDetail = () => {
                   style={{ cursor: 'pointer' }}
                   onClick={() => router.back()}
                 />
-                <Typography variant='h5'>Job posting list</Typography>
+                <Typography variant='h5'>Job openings list</Typography>
               </Box>
             }
           />
