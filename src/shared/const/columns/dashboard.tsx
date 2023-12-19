@@ -85,7 +85,12 @@ export const RequestColumns: GridColumns = [
     minWidth: 340,
     flex: 0.3,
     renderCell: ({ row }: { row: RequestItem }) => {
-      console.log('CATEGORY', row.serviceType)
+      if (
+        !row?.category &&
+        (!row?.serviceType || row.serviceType?.length === 0)
+      ) {
+        return <Box>-</Box>
+      }
       return (
         <Box
           display='flex'
@@ -95,22 +100,27 @@ export const RequestColumns: GridColumns = [
           sx={{ width: '340px' }}
         >
           <Box display='flex' gap='10px'>
-            <JobTypeChip
-              size='small'
-              type={row.category}
-              label={row.category}
-            />
-            <ServiceTypeChip size='small' label={row.serviceType} />
+            {row.category ? (
+              <JobTypeChip
+                size='small'
+                type={row.category}
+                label={row.category}
+              />
+            ) : (
+              '-'
+            )}
+            {row.serviceType?.length !== 0 ? (
+              <ServiceTypeChip size='small' label={row.serviceType} />
+            ) : (
+              '-'
+            )}
+            {row.serviceType?.length > 1 ? (
+              <ExtraNumberChip
+                size='small'
+                label={`+ ${row.serviceType?.length - 1}`}
+              />
+            ) : null}
           </Box>
-          <span
-            style={{
-              display: 'block',
-              width: '1px',
-              height: '20px',
-              margin: '0 10px',
-              backgroundColor: 'rgba(76, 78, 100, 0.12)',
-            }}
-          ></span>
         </Box>
       )
     },

@@ -82,7 +82,7 @@ export type RequestItem = {
   client: number
   companyName: string
   category: string
-  serviceType: string
+  serviceType: Array<string>
   itemCount: number
   desiredDueDate: string
   desiredDueTimezone: {
