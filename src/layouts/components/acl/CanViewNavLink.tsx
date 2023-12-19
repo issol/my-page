@@ -18,10 +18,6 @@ const CanViewNavLink = (props: Props) => {
 
   // ** Hook
   const ability = useContext(AbilityContext)
-  console.log(navLink)
-
-  console.log(ability && ability.can(navLink?.action, navLink?.subject))
-  console.log(ability)
 
   if (navLink?.externalLink) {
     return <>{children}</>
