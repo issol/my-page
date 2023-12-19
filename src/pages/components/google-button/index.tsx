@@ -32,7 +32,7 @@ type Props = {
   type: 'signin' | 'signup'
 }
 
-export default function GoogleButton({ type }:Props) {
+export default function GoogleButton({ type }: Props) {
   const router = useRouter()
   const emailRef = useRef('')
 
@@ -153,7 +153,7 @@ export default function GoogleButton({ type }:Props) {
         onReady={generateGoogleLoginButton}
       />
       <GoogleButtonWrapper>
-        <div id='buttonDiv' data-type="icon"></div>
+        <div id='buttonDiv' data-type='icon'></div>
       </GoogleButtonWrapper>
     </>
   )
