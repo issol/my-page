@@ -40,6 +40,7 @@ export const mergeData = (array1: Array<Object>, array2: Array<Object>) => {
   )
 }
 
+// NOTE : 데이터가 많아지는 경우 Suspense 단위로 분리
 const AccountDashboards = () => {
   const router = useRouter()
 
@@ -60,6 +61,7 @@ const AccountDashboards = () => {
     from: getDateFormat((Array.isArray(dateRange) && dateRange[0]) || null),
     to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
+
   const { data: Receivable } = useAccountCount(
     'invoice/receivable/paid/count',
     {

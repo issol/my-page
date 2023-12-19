@@ -19,8 +19,6 @@ interface AccountDoughnutProps {
 }
 
 const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
-  console.log('data', data)
-
   const options: ApexOptions = useMemo(() => {
     return {
       legend: { show: false },
@@ -40,13 +38,13 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
               <div className='tooltip_container'>
                 <div className='flex-center'>
                   <span className='tooltip_text_bold'>
-                    {data[seriesIndex].name || '-'}
+                    {data[seriesIndex]?.name || '-'}
                   </span>
-                  <span className='tooltip__count'>{`(${data[seriesIndex].count})`}</span>
+                  <span className='tooltip__count'>{`(${data[seriesIndex]?.count})`}</span>
                 </div>
                 <div className='flex-center' style={{ marginTop: '10px' }}>
                   <span className='tooltip__sum'></span>
-                  <span className='tooltip__ratio'>{`${data[seriesIndex].ratio}%`}</span>
+                  <span className='tooltip__ratio'>{`${data[seriesIndex]?.ratio}%`}</span>
                 </div>
               </div>{' '}
             </div>,
@@ -89,7 +87,7 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
         },
       },
     }
-  }, [data])
+  }, [data, totalCount])
 
   return (
     <Box display='flex' alignItems='center' sx={{ position: 'relative' }}>
