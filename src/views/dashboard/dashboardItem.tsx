@@ -1,5 +1,12 @@
 import Grid from '@mui/material/Grid'
-import { Box, ButtonGroup, Card, MenuItem, Typography } from '@mui/material'
+import {
+  Box,
+  ButtonGroup,
+  Card,
+  MenuItem,
+  Theme,
+  Typography,
+} from '@mui/material'
 import React, { ReactElement, useState } from 'react'
 import styled from '@emotion/styled'
 import Button from '@mui/material/Button'
@@ -16,12 +23,14 @@ import {
 import { Currency, TotalItem } from '@src/types/dashboard'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import { usePaidThisMonthAmount } from '@src/queries/dashboard/dashnaord-lpm'
+import { SxProps } from '@mui/system'
 
 interface GridItemProps {
   width?: number | string
   height: number
   sm?: boolean
   xs?: number
+  sx?: SxProps<Theme>
   padding?: string
   spacing?: number
   children: ReactElement
@@ -32,6 +41,7 @@ export const GridItem = ({
   sm = false,
   xs = undefined,
   padding = '20px',
+  sx,
   children,
 }: GridItemProps) => {
   return (
@@ -43,6 +53,8 @@ export const GridItem = ({
           justifyContent: 'center',
           height,
           padding,
+
+          ...sx,
         }}
       >
         {children}
@@ -193,6 +205,10 @@ export const CurrencyUnit: Record<Currency, string> = {
   onlyJPY: '¥',
   onlyKRW: '₩',
   onlySGD: '$',
+  incomeUSD: '$',
+  incomeJPY: '¥',
+  incomeKRW: '₩',
+  incomeSGD: '$',
   USD: '$',
   JPY: '¥',
   KRW: '₩',
@@ -392,8 +408,8 @@ export const TotalValueView = ({
             {label}
           </Typography>
           <Typography fontSize='34px' fontWeight={500}>
-            {CurrencyUnit[data?.currency as Currency] || '$'}
-            {data?.totalPrice || 0}
+            {CurrencyUnit[currency] || '$'}
+            {(data?.totalPrice || 0).toLocaleString()}
           </Typography>
           <Typography
             fontSize='12px'
@@ -415,7 +431,7 @@ export const TotalValueView = ({
         <Box sx={{ marginTop: '20px' }}>
           <Box sx={{ height: '20px' }} />
           <Typography fontSize='34px' fontWeight={500}>
-            {data?.count || 0}
+            {(data?.count || 0).toLocaleString()}
           </Typography>
           <Typography
             fontSize='12px'

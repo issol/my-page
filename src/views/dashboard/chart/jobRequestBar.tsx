@@ -1,4 +1,10 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 import styled from '@emotion/styled'
@@ -6,20 +12,38 @@ import { Box, Typography } from '@mui/material'
 
 import dayjs from 'dayjs'
 import { useTheme } from '@mui/material/styles'
+import { CurrencyByDateListProps } from '@src/views/dashboard/list/currencyByDate'
 
-const series = [
-  {
-    name: 'PRODUCT A',
-    data: [44, 55, 41, 67, 22, 43],
-  },
-  {
-    name: 'PRODUCT B',
-    data: [13, 23, 20, 8, 13, 27],
-  },
-]
-
-const ProJobRequestBarChart = () => {
+const ProJobRequestBarChart = ({ report }: CurrencyByDateListProps) => {
   const theme = useTheme()
+
+  const [series, categories, values] = useMemo(() => {
+    const accept: Array<number> = []
+    const request: Array<number> = []
+    const _sameValueIndex: Array<number> = []
+    const _categories: Array<string> = []
+
+    report.forEach((item, index) => {
+      if (item.rejectedCount === 0) _sameValueIndex.push(index)
+
+      accept.push(item.acceptedCount || 0)
+      request.push(item.rejectedCount || 0)
+      _categories.push(item.month)
+    })
+
+    const _series = [
+      {
+        name: 'Accept',
+        data: accept,
+      },
+      {
+        name: 'Request',
+        data: request,
+      },
+    ]
+
+    return [_series, _categories, _sameValueIndex]
+  }, [report])
 
   const options: ApexOptions = {
     chart: {
@@ -42,18 +66,8 @@ const ProJobRequestBarChart = () => {
       tickAmount: 8,
       axisTicks: { show: false },
       axisBorder: { show: false },
-      categories: [
-        '2023-06',
-        '2023-07',
-        '2023-08',
-        '2023-09',
-        '2023-10',
-        '2023-11',
-      ],
+      categories: categories,
       labels: {
-        formatter: (value: string, timestamp?: number, opts?: any) => {
-          return `${dayjs(value).format('MMM')}`
-        },
         style: {
           colors: 'rgba(76, 78, 100, 0.38)',
         },
@@ -72,9 +86,16 @@ const ProJobRequestBarChart = () => {
     },
     legend: { show: false },
   }
+
   return (
     <Box sx={{ marginTop: '50px' }}>
-      <CustomChart type='bar' height={280} options={options} series={series} />
+      <CustomChart
+        type='bar'
+        height={280}
+        options={options}
+        series={series}
+        values={values}
+      />
       <Box display='flex' justifyContent='flex-end' gap='30px'>
         <Typography
           display='flex'
@@ -117,7 +138,17 @@ const ProJobRequestBarChart = () => {
   )
 }
 
-export const CustomChart = styled(ReactApexcharts)(() => {
+export const CustomChart = styled(ReactApexcharts)<{
+  values?: Array<number>
+}>(({ values }) => {
+  const obj: Record<string, any> = {}
+  values?.forEach(index => {
+    obj[`.apexcharts-series:nth-of-type(1) > path:nth-of-type(${index + 1})`] =
+      {
+        clipPath: 'inset(0% 0% -10px 0% round 10px)',
+      }
+  })
+
   return {
     '.apexcharts-series:nth-of-type(1) > path': {
       clipPath: 'inset(-10px 0% 0% 0% round 10px)',
@@ -125,6 +156,8 @@ export const CustomChart = styled(ReactApexcharts)(() => {
     '.apexcharts-series:nth-of-type(2) > path': {
       clipPath: 'inset(0% 0% -10px 0% round 10px)',
     },
+
+    ...obj,
   }
 })
 export default ProJobRequestBarChart

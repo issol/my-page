@@ -8,6 +8,7 @@ import {
   OrderItem,
   RecruitingRequest,
   RequestItem,
+  UpcomingItem,
 } from '@src/types/dashboard'
 import { CurrencyUnit, StatusSquare } from '@src/views/dashboard/dashboardItem'
 import dayjs from 'dayjs'
@@ -17,7 +18,9 @@ import { timezones } from '@src/@fake-db/autocomplete'
 import Typography from '@mui/material/Typography'
 
 import {
+  ExtraNumberChip,
   invoicePayableStatusChip,
+  InvoiceReceivableChip,
   JobsStatusChip,
   JobTypeChip,
   OrderStatusChip,
@@ -30,11 +33,13 @@ import advancedFormat from 'dayjs/plugin/advancedFormat'
 import moment from 'moment-timezone'
 import Link from 'next/link'
 import {
+  InvoiceReceivable,
   InvoiceStatusList,
   JobStatusList,
   OrderChipLabel,
 } from '@src/shared/const/dashboard/chip'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -51,7 +56,7 @@ export const RequestColumns: GridColumns = [
       const code = row.desiredDueTimezone
         .code as keyof typeof timezones.countries
 
-      const timeZone = timezones.countries[code].zones[0]
+      const timeZone = timezones.countries[code]?.zones[0]
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -80,6 +85,7 @@ export const RequestColumns: GridColumns = [
     minWidth: 340,
     flex: 0.3,
     renderCell: ({ row }: { row: RequestItem }) => {
+      console.log('CATEGORY', row.serviceType)
       return (
         <Box
           display='flex'
@@ -89,8 +95,12 @@ export const RequestColumns: GridColumns = [
           sx={{ width: '340px' }}
         >
           <Box display='flex' gap='10px'>
-            <JobTypeChip type={row.category} label={row.category} />
-            <ServiceTypeChip label={row.serviceType} />
+            <JobTypeChip
+              size='small'
+              type={row.category}
+              label={row.category}
+            />
+            <ServiceTypeChip size='small' label={row.serviceType} />
           </Box>
           <span
             style={{
@@ -125,14 +135,31 @@ export const RequestColumns: GridColumns = [
     flex: 0.3,
     cellClassName: 'desiredDueDate-date__cell',
     renderCell: ({ row }: { row: RequestItem }) => {
+      let color = '#7F889B'
       const code = row.desiredDueTimezone
         .code as keyof typeof timezones.countries
 
-      const timeZone = timezones.countries[code].zones[0]
+      if (!code) {
+        return (
+          <Box
+            display='flex'
+            alignItems='center'
+            justifyContent='flex-end'
+            gap='8px'
+            sx={{ marginLeft: '24px' }}
+          >
+            <Inbox />
+            <Typography sx={{ width: '100%', color }}>{`${moment(
+              row.desiredDueDate,
+            ).format('MM/DD/YYYY hh:mm A')}`}</Typography>
+          </Box>
+        )
+      }
+
+      const timeZone = timezones.countries[code]?.zones[0]
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
-      let color = '#7F889B'
 
       if (86400000 >= remainTime && remainTime > 0) {
         color = '#FF4D49'
@@ -151,7 +178,7 @@ export const RequestColumns: GridColumns = [
             row.desiredDueDate,
           )
             .tz(timeZone)
-            .format('MM/DD/YYYY hh:mm A (z)')}`}</Typography>
+            ?.format('MM/DD/YYYY hh:mm A (z)')}`}</Typography>
         </Box>
       )
     },
@@ -448,6 +475,12 @@ export const StatusOrderColumns: GridColumns = [
     flex: 1,
     renderHeader: () => <Box>Category / Service type</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
+      if (
+        !row?.category &&
+        (!row?.serviceType || row.serviceType?.length === 0)
+      ) {
+        return <Box>-</Box>
+      }
       return (
         <Box
           display='flex'
@@ -458,15 +491,25 @@ export const StatusOrderColumns: GridColumns = [
         >
           <Box display='flex' gap='10px'>
             {row.category ? (
-              <JobTypeChip type={row.category} label={row.category} />
+              <JobTypeChip
+                size='small'
+                type={row.category}
+                label={row.category}
+              />
             ) : (
               '-'
             )}
-            {row.serviceType ? (
-              <ServiceTypeChip label={row.serviceType} />
+            {row.serviceType?.length !== 0 ? (
+              <ServiceTypeChip size='small' label={row.serviceType} />
             ) : (
               '-'
             )}
+            {row.serviceType?.length > 1 ? (
+              <ExtraNumberChip
+                size='small'
+                label={`+ ${row.serviceType?.length - 1}`}
+              />
+            ) : null}
           </Box>
         </Box>
       )
@@ -588,7 +631,6 @@ export const StatusApplicationColumns: GridColumns = [
     flex: 0.4,
     renderHeader: () => <Box>Job Type/ Role</Box>,
     renderCell: ({ row }: { row: ApplicationItem }) => {
-      console.log(row.role)
       return (
         <Box display='flex' gap='10px'>
           <JobTypeChip type={row.jobType} label={row.jobType} />
@@ -604,7 +646,6 @@ export const StatusApplicationColumns: GridColumns = [
     flex: 0.4,
     renderHeader: () => <Box>Language pair</Box>,
     renderCell: ({ row }: { row: ApplicationItem }) => {
-      console.log(row.role)
       return (
         <Box display='flex' gap='10px'>
           {`${row.sourceLanguage.toUpperCase()} -> ${row.targetLanguage.toUpperCase()}`}
@@ -723,7 +764,7 @@ export const upcomingColumns: GridColumns = [
     field: 'corporationId',
     headerName: 'Job Number',
     renderHeader: () => <Box>Job Number</Box>,
-    renderCell: ({ row }) => (
+    renderCell: ({ row }: { row: UpcomingItem }) => (
       <Link href={''}>
         <Typography fontSize='14px' sx={{ textDecoration: 'underline' }}>
           {row.corporationId}
@@ -737,9 +778,9 @@ export const upcomingColumns: GridColumns = [
     field: 'jobName',
     headerName: 'Job name',
     renderHeader: () => <Box>Job name</Box>,
-    renderCell: ({ row }) => (
+    renderCell: ({ row }: { row: UpcomingItem }) => (
       <Typography fontSize='14px' fontWeight={600}>
-        23432
+        {row?.name || '-'}
       </Typography>
     ),
   },
@@ -749,7 +790,9 @@ export const upcomingColumns: GridColumns = [
     field: 'dueAt',
     headerName: 'dueAt',
     renderHeader: () => <Box>Job due Date / Time left</Box>,
-    renderCell: ({ row }) => <Typography fontSize='14px'>23432</Typography>,
+    renderCell: ({ row }: { row: UpcomingItem }) => (
+      <Typography fontSize='14px'>23432</Typography>
+    ),
   },
 ]
 
@@ -769,8 +812,11 @@ export const ReceivableColumns: GridColumns = [
     minWidth: 192,
     renderHeader: () => <Box>Status</Box>,
     renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
-      const status = row.status as number
-      return <Box>{invoicePayableStatusChip(status, InvoiceStatusList)}</Box>
+      const status = row.status as InvoiceReceivableStatusType
+      if (!status) return <Box>-</Box>
+      return (
+        <Box>{InvoiceReceivableChip(InvoiceReceivable[status], status)}</Box>
+      )
     },
   },
   {
@@ -807,6 +853,9 @@ export const ReceivableColumns: GridColumns = [
     flex: 1,
     renderHeader: () => <Box>Category / Service type</Box>,
     renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      if (!row.category && !row.serviceType) {
+        return <Box sx={{ width: '340px' }}>-</Box>
+      }
       return (
         <Box
           display='flex'
@@ -845,6 +894,29 @@ export const ReceivableColumns: GridColumns = [
       )
     },
   },
+]
+
+export const InvoiceColumns: GridColumns = [
+  ...ReceivableColumns.slice(0, 2),
+  {
+    field: 'clientName',
+    headerName: 'LSP / Email',
+    minWidth: 220,
+    renderHeader: () => <Box>LSP / Email</Box>,
+    renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
+      return (
+        <Box>
+          <Typography fontSize='14px' fontWeight={600}>
+            {row.client.name || '-'}
+          </Typography>
+          <Typography color='#4C4E6499' fontSize='14px'>
+            {row.client.email || '-'}
+          </Typography>
+        </Box>
+      )
+    },
+  },
+  ...ReceivableColumns.slice(3, 6),
 ]
 
 export const PayablesColumns: GridColumns = [

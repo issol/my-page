@@ -53,6 +53,23 @@ input::-webkit-inner-spin-button {
   max-width: 217px;
 }
 
+.scroll_bar { overflow: auto; }
+
+.scroll_bar::-webkit-scrollbar {
+
+  width: 7px;
+
+}
+
+.scroll_bar::-webkit-scrollbar-thumb {
+  background-color: hsla(0, 0%, 42%, 0.49);
+  border-radius: 100px;
+}
+
+.sticky_header {
+  width: 100%;
+}
+
 /*TODO : 임시 배경색 넣어둔 부분 - 차후 삭제할 것*/
 .client_bg  {
   background-color: rgba(238, 240, 229, 0.6) !important;

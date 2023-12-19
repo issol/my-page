@@ -87,11 +87,10 @@ const HorizontalNavLink = (props: Props) => {
   const ability = useContext(AbilityContext)
 
   const isNavLinkActive = () => {
-    if (router.pathname === item.path || handleURLQueries(router, item.path)) {
-      return true
-    } else {
-      return false
+    if (item.path === '/dashboards') {
+      return router.pathname.includes('dashboards')
     }
+    return router.pathname === item.path || handleURLQueries(router, item.path)
   }
 
   return (

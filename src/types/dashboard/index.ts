@@ -3,8 +3,18 @@ import { RoleType, UserType } from '@src/context/types'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
+import { Dispatch } from 'react'
+import { getExpectedIncome } from '@src/apis/dashboard/lpm'
 
 export type ViewMode = 'company' | 'personal'
+
+export type CSVDataType = Array<Object>
+
+export interface CSVDataRecordProps {
+  dataRecord: CSVDataType
+  setDataRecord: Dispatch<CSVDataType>
+}
+
 export interface ViewModeQuery {
   userId: number | null
   view: ViewMode
@@ -62,6 +72,8 @@ export type ReportItem = {
   receivables: number
   payables: number
   canceled: number
+  invoiceReceivables?: number
+  invoicePayables?: number
 }
 
 export type RequestItem = {
@@ -96,7 +108,7 @@ export type OrderItem = {
   id: number
   projectName: string
   category: string
-  serviceType: string
+  serviceType: Array<string>
   status: OrderStatusType
   client: {
     id: number
@@ -129,6 +141,10 @@ export type Currency =
   | 'onlyKRW'
   | 'onlySGD'
   | 'onlyUSD'
+  | 'incomeUSD'
+  | 'incomeJPY'
+  | 'incomeKRW'
+  | 'incomeSGD'
   | 'JPY'
   | 'KRW'
   | 'SGD'
@@ -156,6 +172,7 @@ export interface RatioQuery extends DashboardQuery, Partial<ViewModeQuery> {
   filter?: string
   title: string
   type: string
+  path?: string
   currency: Currency
   apiType?: APIType
 }
@@ -206,6 +223,15 @@ export type MemberItem = {
   createdAt: string | Date
   updatedAt: string | Date
   deletedAt: string | Date
+}
+
+export type UpcomingItem = {
+  id: number
+  corporationId: string
+  name: string | null
+  dueAt: string
+  dueTimezone: string | null
+  deadlineWarning: boolean
 }
 
 export interface CountQuery
@@ -265,4 +291,47 @@ export type LongStandingPayablesItem = {
 export type LongStandingDataType = 'receivable' | 'payable'
 export interface LongStandingQuery extends DashboardPaginationQuery {
   dataType: LongStandingDataType
+}
+
+export type ExpectedIncomeSort = 'requestDate' | 'dueDate'
+export interface ExpectedIncomeQuery {
+  month: number
+  sort: ExpectedIncomeSort
+}
+
+export type ExpectedIncome = {
+  month: string
+  incomeKRW: number
+  incomeUSD: number
+  incomeJPY: number
+  incomeSGD: number
+  acceptedCount: number
+  rejectedCount: number
+}
+
+export interface TotalAmountQuery {
+  year: number
+  month: number
+  amountType: 'invoiced' | 'payment'
+}
+
+export type TotalAmountItem = {
+  totalAmountKRW: number
+  totalAmountUSD: number
+  totalAmountJPY: number
+  totalAmountSGD: number
+}
+
+export type InvoiceOverviewItem = {
+  month: string
+  invoiceKRW: number
+  invoiceUSD: number
+  invoiceJPY: number
+  invoiceSGD: number
+}
+
+export type Office = 'Korea' | 'US' | 'Singapore' | 'Japan'
+export type PaymentType = {
+  userType: 'client' | 'pro'
+  office?: Office
 }

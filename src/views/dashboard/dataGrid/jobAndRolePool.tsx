@@ -4,15 +4,20 @@ import styled from 'styled-components'
 import { useJobType } from '@src/queries/dashboard/dashnaord-lpm'
 import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { useRouter } from 'next/router'
+import { CSVDataRecordProps } from '@src/types/dashboard'
 
-interface TADJobDataGridProps {
+interface TADJobDataGridProps extends CSVDataRecordProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
-const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
+const TADJobDataGrid = ({
+  dataRecord,
+  setDataRecord,
+  setOpenInfoDialog,
+}: TADJobDataGridProps) => {
   const router = useRouter()
   const [filter, setFilter] = useState<'jobType' | 'role' | 'pair'>('pair')
 
@@ -23,6 +28,36 @@ const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
     if (filter === 'role') return 'Roles'
     if (filter === 'pair') return 'Job type/Role pool'
   }
+
+  useEffect(() => {
+    const filterJobTypeAndRole = data?.report.map(item => {
+      if (filter === 'pair') {
+        return {
+          'Job Type': item.jobType,
+          Role: item.role,
+          Number: item.count,
+          Percent: item.ratio,
+          '   ': '',
+        }
+      }
+      if (filter === 'role') {
+        return {
+          Role: item.role,
+          Number: item.count,
+          Percent: item.ratio,
+          '   ': '',
+        }
+      }
+      return {
+        'Job Type': item.jobType,
+        Number: item.count,
+        Percent: item.ratio,
+        '   ': '',
+      }
+    })
+
+    setDataRecord(filterJobTypeAndRole || [])
+  }, [filter])
 
   return (
     <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>

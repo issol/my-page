@@ -28,6 +28,14 @@ export const ThirdColors = [
   '#4C4E64',
 ]
 
+export const FourthColors = [
+  '#A9E0FF',
+  '#FF9E90',
+  '#CBFFEC',
+  '#6D788D',
+  '#FFF387',
+]
+
 export const StatusColor = [
   '#6D788D',
   '#FDB528',
@@ -36,6 +44,7 @@ export const StatusColor = [
   '#666CFF',
   '#FF4D49',
 ]
+
 export const Status = [
   'requests',
   'quotes',

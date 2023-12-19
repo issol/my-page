@@ -1,5 +1,6 @@
 // TODO : 서버로부터 오브젝트로 상태값 상태라벨 모두 받아야함
 import { statusType } from '@src/types/common/status.type'
+import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 
 export const OrderChipLabel: Record<number, string> = {
   10000: 'New',
@@ -42,3 +43,19 @@ export const InvoiceStatusList: statusType[] = [
   { label: 'Paid', value: 40300 },
   { label: '-', value: 40400 },
 ]
+
+export const InvoiceReceivable: Record<InvoiceReceivableStatusType, string> = {
+  30000: 'New',
+  30100: 'In preparation',
+  30200: 'Internal review',
+  30300: 'Invoice sent',
+  30400: 'Client review',
+  30500: 'Under revision',
+  30600: 'Revised',
+  30700: 'Invoice confirmed',
+  30800: 'Tax invoice issued',
+  30900: 'Paid',
+  301000: 'Overdue',
+  301100: 'Overdue (Reminder sent)',
+  301200: 'Canceled',
+}

@@ -180,10 +180,12 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
           </GridItem>
         </Grid>
         <GridItem sm height={489} padding='0'>
-          <Box sx={{ width: '100%' }}>
+          <Box sx={{ width: '100%', height: '100%' }}>
             <Title
               title={`Ongoing ${type}s > ${toCapitalize(activeStatus)}`}
-              postfix={`(${(countData && countData[activeStatus]) || 0})`}
+              postfix={`(${
+                countData && (countData[activeStatus] || 0).toLocaleString()
+              })`}
               marginBottom='20px'
               padding='20px 20px 0'
               handleClick={movePage && movePage}
@@ -191,7 +193,7 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
             <Box
               sx={{
                 width: '100%',
-                height: `calc(489px - 72px)`,
+                height: `calc(100% - 80px)`,
                 padding: 0,
                 margin: 0,
               }}

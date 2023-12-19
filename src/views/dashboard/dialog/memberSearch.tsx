@@ -16,7 +16,7 @@ import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { useGetOrderList } from '@src/queries/order/order.query'
 import { OrderListType } from '@src/types/orders/order-list'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   DEFAULT_QUERY_NAME,
   useDashboardMemberList,
@@ -49,6 +49,15 @@ const MemberSearchList = ({ open, onClose }: Props) => {
     take: pageSize,
     skip: skip * pageSize,
   })
+
+  useEffect(() => {
+    if (open) {
+      setSelected(null)
+      setActiveSearch('')
+      setSkip(0)
+      setPageSize(10)
+    }
+  }, [open])
 
   const columns: GridColumns = [
     {

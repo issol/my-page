@@ -1,5 +1,12 @@
 import { GridItem } from '@src/views/dashboard/dashboardItem'
-import { Box, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/material'
+import {
+  Box,
+  Grid,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+} from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { PermissionChip } from '@src/@core/components/chips/chips'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
@@ -10,7 +17,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import DownloadIcon from '@mui/icons-material/Download'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { LogoutOutlined } from '@mui/icons-material'
-import React, { MouseEvent, useEffect, useState } from 'react'
+import React, { MouseEvent, useEffect, useRef, useState } from 'react'
 import { DashboardForm } from '@src/pages/dashboards/lpm'
 import { DEFAULT_QUERY_NAME } from '@src/queries/dashboard/dashnaord-lpm'
 import { useQueryClient } from 'react-query'
@@ -19,18 +26,24 @@ import { dashboardState } from '@src/states/dashboard'
 import { authState } from '@src/states/auth'
 import { currentRoleSelector } from '@src/states/permission'
 import MemberSearchList from '@src/views/dashboard/dialog/memberSearch'
+import { CSVDataType } from '@src/types/dashboard'
+import { CSVOptionsMenuDownload } from '@src/views/dashboard/csvDownload'
+import { headers } from 'next/headers'
 
 interface SwitchTypeHeaderProps {
+  csvData?: CSVDataType
   isShowMemberView: boolean
   hiddenMemberView: () => void
   showMemberView: () => void
 }
 
 const SwitchTypeHeader = ({
+  csvData,
   isShowMemberView,
   showMemberView,
   hiddenMemberView,
 }: SwitchTypeHeaderProps) => {
+  const dateHeaderRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
 
   const { contents: auth, state: authFetchState } =
@@ -38,7 +51,10 @@ const SwitchTypeHeader = ({
   const { contents: role, state: roleFetchState } =
     useRecoilValueLoadable(currentRoleSelector)
 
+  const [state, setState] = useRecoilState(dashboardState)
+
   const { control, setValue } = useFormContext<DashboardForm>()
+  const [sticky, setSticky] = useState(false)
   const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
     control,
     name: ['viewSwitch', 'dateRange', 'selectedRangeDate', 'userViewDate'],
@@ -70,6 +86,7 @@ const SwitchTypeHeader = ({
   }
 
   const onChangeMemberView = () => {
+    setState({ ...state })
     setIsOpenMemberDialog(true)
     handleClose()
   }
@@ -112,6 +129,22 @@ const SwitchTypeHeader = ({
     }
   }, [])
 
+  const scrollHandler = () => {
+    if (window.scrollY <= 152) {
+      setSticky(false)
+    }
+    if (window.scrollY > 152 && window.scrollY < 224) {
+      setSticky(true)
+    }
+  }
+
+  useEffect(() => {
+    window.addEventListener('scroll', scrollHandler)
+    return () => {
+      window.removeEventListener('scroll', scrollHandler)
+    }
+  }, [sticky])
+
   useEffect(() => {
     if (dashboardStateValue.userInfo) {
       showMemberView()
@@ -143,13 +176,12 @@ const SwitchTypeHeader = ({
           </Box>
         </GridItem>
       ) : (
-        <GridItem width={300} height={76}>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
+        <GridItem
+          width={300}
+          height={76}
+          sx={{ display: sticky ? 'none' : 'flex' }}
+        >
+          <Box display='flex' alignItems='center'>
             <Typography
               sx={{
                 fontSize: '14px',
@@ -206,8 +238,27 @@ const SwitchTypeHeader = ({
           </Box>
         </GridItem>
       )}
-      <ChartDateHeader />
-      <GridItem width={76} height={76}>
+      <Grid
+        component='div'
+        item
+        sm={!sticky}
+        xs={sticky ? 12 : undefined}
+        ref={dateHeaderRef}
+        sx={{
+          position: 'sticky',
+          left: 0,
+          top: '148px',
+          zIndex: 10,
+          backgroundColor: '#fff',
+        }}
+      >
+        <ChartDateHeader />
+      </Grid>
+      <GridItem
+        width={76}
+        height={76}
+        sx={{ display: sticky ? 'none' : 'flex' }}
+      >
         <Box>
           <Button onClick={handleClick}>
             <MoreVertIcon
@@ -224,19 +275,10 @@ const SwitchTypeHeader = ({
             }}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
           >
-            <MenuItem
-              onClick={handleClose}
-              sx={{
-                color: 'rgba(76, 78, 100, 0.87)',
-              }}
-            >
-              <ListItemIcon
-                sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-              >
-                <DownloadIcon fontSize='small' />
-              </ListItemIcon>
-              <ListItemText>Download csv</ListItemText>
-            </MenuItem>
+            <CSVOptionsMenuDownload
+              data={csvData || []}
+              onClose={handleClose}
+            />
             <MenuItem
               onClick={() => onChangeMemberView()}
               sx={{
@@ -274,7 +316,9 @@ const SwitchTypeHeader = ({
       </GridItem>
       <MemberSearchList
         open={isOpenMemberDialog}
-        onClose={() => setIsOpenMemberDialog(false)}
+        onClose={() => {
+          setIsOpenMemberDialog(false)
+        }}
       />
     </>
   )

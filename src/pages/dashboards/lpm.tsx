@@ -1,6 +1,5 @@
 import Grid from '@mui/material/Grid'
 import {
-  ConvertButtonGroup,
   GridItem,
   ReportItem,
   Title,
@@ -8,23 +7,29 @@ import {
 } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
-import { useDashboardReport } from '@src/queries/dashboard/dashnaord-lpm'
+import {
+  DashboardCountResult,
+  DEFAULT_QUERY_NAME,
+  PaidThisMonthAmount,
+  TotalPriceResult,
+  useDashboardReport,
+} from '@src/queries/dashboard/dashnaord-lpm'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import Doughnut from '@src/views/dashboard/chart/doughnut'
 import weekday from 'dayjs/plugin/weekday'
 import {
-  Status,
   Colors,
   SecondColors,
+  Status,
   StatusColor,
 } from '@src/shared/const/dashboard/chart'
 import {
   CategoryRatioItem,
-  Currency,
+  CSVDataType,
   ExpertiseRatioItem,
   PairRatioItem,
   ServiceRatioItem,
@@ -50,6 +55,8 @@ import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
 import LongStandingDataGrid from '@src/views/dashboard/dataGrid/longStanding'
 import Notice from '@src/views/dashboard/notice'
+import { mergeData } from '@src/pages/dashboards/tad'
+import { useQueryClient } from 'react-query'
 
 dayjs.extend(weekday)
 
@@ -101,6 +108,9 @@ export interface DashboardForm {
 
 const LPMDashboards = () => {
   const router = useRouter()
+  const cache = useQueryClient()
+  const data = cache.getQueriesData([DEFAULT_QUERY_NAME])
+
   const { formHook, infoDialog, memberView } = UseDashboardControl()
   const { control, setValue, ...props } = formHook
   const { isShowMemberView, showMemberView, hiddenMemberView } = memberView
@@ -112,10 +122,122 @@ const LPMDashboards = () => {
     name: ['dateRange', 'userViewDate'],
   })
 
+  const [CSVData, setCSVData] = useState<CSVDataType>([])
+  const [receivables, setReceivables] = useState<CSVDataType>([])
+  const [payables, setPayables] = useState<CSVDataType>([])
+  const [clients, setClients] = useState<CSVDataType>([])
+  const [languagePairs, setLanguagePairs] = useState<CSVDataType>([])
+  const [categories, setCategories] = useState<CSVDataType>([])
+  const [serviceTypes, setServiceTypes] = useState<CSVDataType>([])
+  const [expertises, setExpertises] = useState<CSVDataType>([])
+
   const { data: ReportData } = useDashboardReport({
     from: getDateFormat((Array.isArray(dateRange) && dateRange[0]) || null),
     to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
+
+  useEffect(() => {
+    const ongoingCounts = data.filter(item => item[0].includes('ongoingCount'))
+    const paidThisMonths = data.filter(item =>
+      item[0].includes('PaidThisMonth'),
+    )
+    const totalPrices = data.filter(item => item[0].includes('totalPrice'))
+
+    const ongoingOrder = ongoingCounts.filter(item =>
+      item[0].includes('order'),
+    )[0][1] as DashboardCountResult
+
+    const ongoingJob = ongoingCounts.filter(item =>
+      item[0].includes('job'),
+    )[0][1] as DashboardCountResult
+
+    const receivableTotal = totalPrices.filter(item =>
+      item[0].includes('receivable'),
+    )[0][1] as TotalPriceResult
+
+    const payableTotal = totalPrices.filter(item =>
+      item[0].includes('payable'),
+    )[0][1] as TotalPriceResult
+
+    const receivableMonth = paidThisMonths.filter(item =>
+      item[0].includes('receivable'),
+    )[0][1] as PaidThisMonthAmount
+
+    const payableMonth = paidThisMonths.filter(item =>
+      item[0].includes('payable'),
+    )[0][1] as PaidThisMonthAmount | null
+
+    const filterOngoingOrder = Object.entries(ongoingOrder).map(
+      ([key, value]) => {
+        return { orderStatus: key, orderNumber: value, '   ': '  ' }
+      },
+    )
+
+    const filterOngoingJob = Object.entries(ongoingJob || {}).map(
+      ([key, value]) => {
+        return { jobStatus: key, jobNumber: value, '    ': '  ' }
+      },
+    )
+
+    const filterPayableTotal = (payableTotal?.report || []).map(item => {
+      return {
+        'Payables total Count': item.count,
+        'Payables total Price': item.sum,
+        'Payables total Number': item.count,
+        ' ': ' ',
+      }
+    })
+
+    const filterReceivableTotal = (receivableTotal?.report || []).map(item => {
+      return {
+        'Receivables total Count': item.count,
+        'Receivables total Price': item.sum,
+        'Receivables total Number': item.count,
+        ' ': ' ',
+      }
+    })
+
+    const mergeObjectData1 = mergeData(filterOngoingOrder, filterOngoingJob)
+    const mergeObjectData2 = mergeData(mergeObjectData1, filterPayableTotal)
+
+    mergeObjectData2[0] = {
+      'Payables - paid this month Price': payableMonth?.totalPrice || 0,
+      'Payables - paid this month Number': payableMonth?.count || 0,
+      ' ': ' ',
+      ...mergeObjectData2[0],
+    }
+
+    const mergeObjectData3 = mergeData(mergeObjectData2, filterReceivableTotal)
+
+    mergeObjectData3[0] = {
+      'Receivables - paid this month Price': receivableMonth?.totalPrice || 0,
+      'Receivables - paid this month Number': receivableMonth?.count || 0,
+      '': '',
+      ...mergeObjectData3[0],
+    }
+
+    const mergeData1 = mergeData(receivables, payables)
+    mergeData1[0] = { ...mergeData1[0], '   ': '' }
+    const mergeData2 = mergeData(mergeData1, clients)
+    const mergeData3 = mergeData(mergeData2, languagePairs)
+    const mergeData4 = mergeData(mergeData3, categories)
+    const mergeData5 = mergeData(mergeData4, serviceTypes)
+    const mergeData6 = mergeData(mergeData5, expertises)
+    const mergeData7 = mergeData(mergeData6, mergeObjectData3)
+
+    mergeData7[0] = {
+      Requests: ReportData?.requests || 0,
+      Quotes: ReportData?.quotes || 0,
+      Orders: ReportData?.orders || 0,
+      Receivables: ReportData?.invoiceReceivables || 0,
+      Payables: ReportData?.invoicePayables || 0,
+      Canceled: ReportData?.canceled || 0,
+      '': '',
+      ...mergeData7[0],
+    }
+
+    setCSVData(mergeData7)
+  }, [receivables, payables, clients, languagePairs, serviceTypes, expertises])
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
@@ -132,6 +254,7 @@ const LPMDashboards = () => {
             isShowMemberView={isShowMemberView}
             hiddenMemberView={hiddenMemberView}
             showMemberView={showMemberView}
+            csvData={CSVData}
           />
           <Grid container gap='24px'>
             {!isShowMemberView && (
@@ -144,6 +267,7 @@ const LPMDashboards = () => {
                   <Box marginBottom='20px'>
                     <Title
                       title='Report'
+                      subTitle={userViewDate}
                       openDialog={() => setOpenInfoDialog(true, 'Report')}
                     />
 
@@ -173,23 +297,31 @@ const LPMDashboards = () => {
                 </Box>
               </GridItem>
             )}
-            {!isShowMemberView && (
-              <GridItem height={362} sm padding='0'>
-                <Box sx={{ width: '100%' }}>
-                  <Title
-                    title='New requests'
-                    padding='10px 20px 0'
-                    marginBottom='20px'
-                    handleClick={() => router.push('/quotes/lpm/requests/')}
-                    openDialog={setOpenInfoDialog}
-                  />
-                  <DashboardDataGrid
-                    path='u/dashboard/client-request/list/new'
-                    pageNumber={4}
-                    movePage={(id: number) => ''}
-                    columns={RequestColumns}
-                  />
-                </Box>
+            <GridItem height={362} sm padding='0'>
+              <Box sx={{ width: '100%' }}>
+                <Title
+                  title='New requests'
+                  padding='10px 20px 0'
+                  marginBottom='20px'
+                  handleClick={() => router.push('/quotes/lpm/requests/')}
+                  openDialog={setOpenInfoDialog}
+                />
+                <DashboardDataGrid
+                  sectionHeight={280}
+                  path='u/dashboard/client-request/list/new'
+                  pageNumber={4}
+                  movePage={(id: number) => ''}
+                  columns={RequestColumns}
+                />
+              </Box>
+            </GridItem>
+            {isShowMemberView && (
+              <GridItem width={269} height={362}>
+                <img
+                  src='/images/dashboard/img_member_view.png'
+                  alt='img'
+                  style={{ width: '128%' }}
+                />
               </GridItem>
             )}
           </Grid>
@@ -200,7 +332,7 @@ const LPMDashboards = () => {
             initSort={[
               {
                 field: 'category',
-                sort: 'desc',
+                sort: 'asc',
               },
             ]}
             setOpenInfoDialog={setOpenInfoDialog}
@@ -218,7 +350,7 @@ const LPMDashboards = () => {
             initSort={[
               {
                 field: 'proName',
-                sort: 'desc',
+                sort: 'asc',
               },
             ]}
             setOpenInfoDialog={setOpenInfoDialog}
@@ -300,6 +432,8 @@ const LPMDashboards = () => {
                     sort: 'desc',
                   },
                 ]}
+                dataRecord={receivables}
+                setDataRecord={setReceivables}
                 setOpenInfoDialog={setOpenInfoDialog}
               />
             </GridItem>
@@ -316,6 +450,8 @@ const LPMDashboards = () => {
                     sort: 'desc',
                   },
                 ]}
+                dataRecord={payables}
+                setDataRecord={setPayables}
                 setOpenInfoDialog={setOpenInfoDialog}
               />
             </GridItem>
@@ -332,6 +468,7 @@ const LPMDashboards = () => {
               )}
               type='client'
               colors={Colors}
+              setDataRecord={setClients}
               setOpenInfoDialog={setOpenInfoDialog}
             />
             <Doughnut<PairRatioItem>
@@ -362,6 +499,7 @@ const LPMDashboards = () => {
                   text: 'Target languages',
                 },
               ]}
+              setDataRecord={setLanguagePairs}
               setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
@@ -409,6 +547,7 @@ const LPMDashboards = () => {
                 { key: 'C/Webcomics', text: 'Webcomics' },
                 { key: 'C/Webnovel', text: 'Webnovel' },
               ]}
+              setDataRecord={setCategories}
               setOpenInfoDialog={setOpenInfoDialog}
             />
             <Doughnut<ServiceRatioItem>
@@ -425,6 +564,7 @@ const LPMDashboards = () => {
               getName={item => {
                 return `${item?.serviceType || '-'}`
               }}
+              setDataRecord={setServiceTypes}
               setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
@@ -443,6 +583,7 @@ const LPMDashboards = () => {
               getName={item => {
                 return `${item?.expertise || '-'}`
               }}
+              setDataRecord={setExpertises}
               setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>

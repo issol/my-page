@@ -1,4 +1,4 @@
-import React, { ReactElement, Suspense, useMemo, useState } from 'react'
+import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import {
   ConvertButtonGroup,
   CurrencyUnit,
@@ -9,46 +9,56 @@ import {
 import Box from '@mui/material/Box'
 
 import { ApexOptions } from 'apexcharts'
-import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
 import { useDashboardRatio } from '@src/queries/dashboard/dashnaord-lpm'
 import { renderToString } from 'react-dom/server'
-import { APIType, Currency, RatioItem } from '@src/types/dashboard'
+import {
+  APIType,
+  CSVDataRecordProps,
+  Currency,
+  RatioItem,
+} from '@src/types/dashboard'
 import Typography from '@mui/material/Typography'
 import NoRatio from '@src/views/dashboard/noRatio'
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { OptionType } from '@src/@core/components/option-menu/types'
 
-interface DoughnutChartProps<T> {
+interface DoughnutChartProps<T> extends Partial<CSVDataRecordProps> {
   title: string
+  userViewDate?: string
+  subTitle?: string
   from: string
   to: string
   type: string
   apiType?: APIType
+  path?: string
   colors: Array<string>
   getName?: (row?: T) => string
-  userViewDate: string
   setOpenInfoDialog: (open: boolean, key: string) => void
   isHiddenValue?: boolean
   menuOptions?: Array<{ key: string; text: string }>
+  height?: number
 }
 
 const Doughnut = <T extends RatioItem>({
   title,
+  userViewDate,
+  subTitle,
+  path,
   from,
   to,
   type,
   apiType = 'u',
   colors,
   getName,
-  userViewDate,
   setOpenInfoDialog,
   menuOptions,
   isHiddenValue = false,
+  dataRecord,
+  setDataRecord,
+  height = 416,
 }: DoughnutChartProps<T>) => {
-  const theme = useTheme()
-
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
   const [filter, setFilter] = useState('')
   const { data, isSuccess } = useDashboardRatio<T>({
@@ -59,7 +69,37 @@ const Doughnut = <T extends RatioItem>({
     filter,
     currency,
     apiType,
+    path,
   })
+
+  const onChangeCurrency = (type: Currency) => {
+    setCurrency(type)
+  }
+
+  const getTitle = () => {
+    if (filter) {
+      return menuOptions?.find(item => item.key === filter)?.text || title
+    }
+    return title
+  }
+
+  useEffect(() => {
+    const title = getTitle()
+    const arr = new Array(title.length).join(' ')
+
+    const filterList = data?.report.map((item, index) => {
+      const name = (getName && getName(charData[index] as T)) || item.name
+      return {
+        //@ts-ignore
+        [`${title}`]: name,
+        [`${title} Number`]: item.count,
+        [`${title} Percent`]: item.ratio,
+        [arr]: ' ',
+      }
+    })
+
+    if (setDataRecord) setDataRecord(filterList || [])
+  }, [data, filter])
 
   const charData = useMemo(() => {
     const sortData = data?.report.sort((item1, item2) => item2.sum - item1.sum)
@@ -176,19 +216,8 @@ const Doughnut = <T extends RatioItem>({
     }
   }, [charData])
 
-  const onChangeCurrency = (type: Currency) => {
-    setCurrency(type)
-  }
-
-  const getTitle = () => {
-    if (filter) {
-      return menuOptions?.find(item => item.key === filter)?.text || title
-    }
-    return title
-  }
-
   return (
-    <GridItem xs={6} height={416}>
+    <GridItem xs={6} height={height}>
       <Box
         display='flex'
         flexDirection='column'
@@ -198,21 +227,28 @@ const Doughnut = <T extends RatioItem>({
           overflow: 'hidden',
         }}
       >
-        <Box display='flex' justifyContent='space-between'>
+        <Box
+          display='flex'
+          alignItems='center'
+          justifyContent='space-between'
+          sx={{ position: 'relative' }}
+        >
           <Title
             marginBottom='30px'
             title={getTitle()}
-            subTitle={userViewDate}
+            subTitle={userViewDate || subTitle}
             openDialog={setOpenInfoDialog}
           />
 
           {menuOptions && (
-            <OptionsMenu
-              iconButtonProps={{
-                size: 'small',
-              }}
-              options={filterMenuOptions}
-            />
+            <Box sx={{ position: 'absolute', right: 0, top: 0 }}>
+              <OptionsMenu
+                iconButtonProps={{
+                  size: 'small',
+                }}
+                options={filterMenuOptions}
+              />
+            </Box>
           )}
         </Box>
         <Box
@@ -234,7 +270,14 @@ const Doughnut = <T extends RatioItem>({
             }}
           >
             <Suspense fallback={<div>로딩 중</div>}>
-              <Box sx={{ position: 'absolute', left: '-45px' }}>
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '-45px',
+                  transform: 'translateY(-50%)',
+                }}
+              >
                 <CustomChart
                   type='donut'
                   options={options}
@@ -290,14 +333,13 @@ const Doughnut = <T extends RatioItem>({
   )
 }
 
-const List = styled('ul')(() => {
+export const List = styled('ul')(() => {
   return {
     width: '100%',
     listStyle: 'none',
     padding: '0 0 0 16px',
 
     '& > li': {
-      width: '100%',
       height: '35px',
       display: 'flex',
       alignItems: 'center',
@@ -346,7 +388,7 @@ const List = styled('ul')(() => {
   }
 })
 
-const CustomChart = styled(ReactApexcharts)(() => {
+export const CustomChart = styled(ReactApexcharts)(() => {
   return {
     '& .apexcharts-tooltip': {
       display: 'flex',

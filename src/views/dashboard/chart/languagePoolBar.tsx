@@ -3,19 +3,22 @@ import TablePagination from '@mui/material/TablePagination'
 
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import styled from '@emotion/styled'
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useLanguagePool } from '@src/queries/dashboard/dashnaord-lpm'
 import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
 import { ApexOptions } from 'apexcharts'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { useRouter } from 'next/router'
+import { CSVDataRecordProps } from '@src/types/dashboard'
 
-interface TADLanguagePoolBarChartProps {
+interface TADLanguagePoolBarChartProps extends CSVDataRecordProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
 const TADLanguagePoolBarChart = ({
+  dataRecord,
+  setDataRecord,
   setOpenInfoDialog,
 }: TADLanguagePoolBarChartProps) => {
   const theme = useTheme()
@@ -24,7 +27,38 @@ const TADLanguagePoolBarChart = ({
   const [rowsPerPage, setRowPerPage] = React.useState(6)
   const [filter, setFilter] = useState<'source' | 'target' | 'pair'>('pair')
 
-  const { data, isLoading, isFetching } = useLanguagePool(filter)
+  const { isSuccess, data, isLoading, isFetching } = useLanguagePool(filter)
+
+  useEffect(() => {
+    const filterLanguage = data?.report.map(item => {
+      if (filter === 'source') {
+        return {
+          'Source languages': item?.sourceLanguage || '-',
+          'Source languages Number?': item?.count || 0,
+          'Source languages Percent?': item?.ratio || 0,
+          ' ': '',
+        }
+      }
+
+      if (filter === 'target') {
+        return {
+          'Target languages': item?.targetLanguage || '-',
+          'Target languages Number': item?.count || 0,
+          'Target languages Percent': item?.ratio || 0,
+          ' ': '',
+        }
+      }
+
+      return {
+        'Source languages': item?.sourceLanguage || '-',
+        'Target languages': item?.targetLanguage || '-',
+        'Languages pair Number': item?.count || 0,
+        'Languages pair Percent': item?.ratio || 0,
+        ' ': '',
+      }
+    })
+    setDataRecord(filterLanguage || [])
+  }, [filter])
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
