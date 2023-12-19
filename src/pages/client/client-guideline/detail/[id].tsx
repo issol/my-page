@@ -65,6 +65,7 @@ import { S3FileType } from 'src/shared/const/signedURLFileType'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { timezoneSelector } from '@src/states/permission'
+import { time } from 'console'
 
 type CellType = {
   row: {
@@ -651,6 +652,7 @@ const ClientGuidelineDetail = () => {
                             {convertTimeToTimezone(
                               new Date(),
                               auth.getValue().user?.timezone!,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>
