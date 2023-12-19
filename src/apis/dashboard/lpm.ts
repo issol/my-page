@@ -7,6 +7,7 @@ import {
   DashboardQuery,
   ExpectedIncomeQuery,
   LongStandingQuery,
+  PaymentType,
   RatioQuery,
   ReportItem,
   RequestQuery,
@@ -197,6 +198,27 @@ export const getProJobCalendar = async (
   const { data } = await axios.get(`/api/enough/u/dashboard/job/calendar`, {
     params,
   })
+
+  return data
+}
+
+export const getAccountData = async (path: string, params: DashboardQuery) => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/accounting/${path}`,
+    { params },
+  )
+
+  return data
+}
+
+export const getAccountPaymentType = async ({
+  office,
+  userType,
+}: PaymentType) => {
+  const { data } = await axios.get(
+    `/api/enough/u/dashboard/accounting/${userType}/payment-type/count`,
+    { params: { office } },
+  )
 
   return data
 }

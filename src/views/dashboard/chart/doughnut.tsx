@@ -333,14 +333,13 @@ const Doughnut = <T extends RatioItem>({
   )
 }
 
-const List = styled('ul')(() => {
+export const List = styled('ul')(() => {
   return {
     width: '100%',
     listStyle: 'none',
     padding: '0 0 0 16px',
 
     '& > li': {
-      width: '100%',
       height: '35px',
       display: 'flex',
       alignItems: 'center',
@@ -389,7 +388,7 @@ const List = styled('ul')(() => {
   }
 })
 
-const CustomChart = styled(ReactApexcharts)(() => {
+export const CustomChart = styled(ReactApexcharts)(() => {
   return {
     '& .apexcharts-tooltip': {
       display: 'flex',

@@ -306,6 +306,7 @@ const LPMDashboards = () => {
                   openDialog={setOpenInfoDialog}
                 />
                 <DashboardDataGrid
+                  sectionHeight={280}
                   path='u/dashboard/client-request/list/new'
                   pageNumber={4}
                   movePage={(id: number) => ''}
@@ -330,7 +331,7 @@ const LPMDashboards = () => {
             initSort={[
               {
                 field: 'category',
-                sort: 'desc',
+                sort: 'asc',
               },
             ]}
             setOpenInfoDialog={setOpenInfoDialog}
@@ -348,7 +349,7 @@ const LPMDashboards = () => {
             initSort={[
               {
                 field: 'proName',
-                sort: 'desc',
+                sort: 'asc',
               },
             ]}
             setOpenInfoDialog={setOpenInfoDialog}

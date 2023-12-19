@@ -108,7 +108,7 @@ export type OrderItem = {
   id: number
   projectName: string
   category: string
-  serviceType: string
+  serviceType: Array<string>
   status: OrderStatusType
   client: {
     id: number
@@ -328,4 +328,10 @@ export type InvoiceOverviewItem = {
   invoiceUSD: number
   invoiceJPY: number
   invoiceSGD: number
+}
+
+export type Office = 'Korea' | 'US' | 'Singapore' | 'Japan'
+export type PaymentType = {
+  userType: 'client' | 'pro'
+  office?: Office
 }

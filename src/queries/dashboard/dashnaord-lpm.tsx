@@ -1,6 +1,8 @@
 import { useQuery } from 'react-query'
 
 import {
+  getAccountData,
+  getAccountPaymentType,
   getCount,
   getDeadlineCompliance,
   getExpectedIncome,
@@ -37,6 +39,7 @@ import {
   InvoiceOverviewItem,
   JobTypeAndRole,
   LongStandingQuery,
+  PaymentType,
   RatioItem,
   RatioQuery,
   RatioResponse,
@@ -516,6 +519,55 @@ export const useProJonCalendar = (
       params.year,
     ],
     () => getProJobCalendar(params),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export type AccountItem = {
+  currency: Currency
+  count?: number
+  prices: number
+}
+interface AccountCountResult {
+  report: Array<AccountItem>
+}
+
+export const useAccountCount = (path: string, params: DashboardQuery) => {
+  return useQuery<AccountCountResult | null>(
+    [
+      DEFAULT_QUERY_NAME,
+      NO_DATE_EFFECT,
+      'AccountCount',
+      path,
+      params.from,
+      params.to,
+    ],
+    () => getAccountData(path, params),
+    {
+      suspense: true,
+      keepPreviousData: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export interface AccountRatioResult {
+  totalCount: number
+  report: Array<{
+    count: number
+    paymentMethod?: string
+    type?: string
+    ratio: number
+  }>
+}
+export const useAccountRatio = ({ office, userType }: PaymentType) => {
+  return useQuery<AccountRatioResult>(
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'AccountRatio', userType],
+    () => getAccountPaymentType({ office, userType }),
     {
       suspense: true,
       keepPreviousData: true,

@@ -18,7 +18,9 @@ import { timezones } from '@src/@fake-db/autocomplete'
 import Typography from '@mui/material/Typography'
 
 import {
+  ExtraNumberChip,
   invoicePayableStatusChip,
+  InvoiceReceivableChip,
   JobsStatusChip,
   JobTypeChip,
   OrderStatusChip,
@@ -31,11 +33,13 @@ import advancedFormat from 'dayjs/plugin/advancedFormat'
 import moment from 'moment-timezone'
 import Link from 'next/link'
 import {
+  InvoiceReceivable,
   InvoiceStatusList,
   JobStatusList,
   OrderChipLabel,
 } from '@src/shared/const/dashboard/chip'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -81,6 +85,7 @@ export const RequestColumns: GridColumns = [
     minWidth: 340,
     flex: 0.3,
     renderCell: ({ row }: { row: RequestItem }) => {
+      console.log('CATEGORY', row.serviceType)
       return (
         <Box
           display='flex'
@@ -90,8 +95,12 @@ export const RequestColumns: GridColumns = [
           sx={{ width: '340px' }}
         >
           <Box display='flex' gap='10px'>
-            <JobTypeChip type={row.category} label={row.category} />
-            <ServiceTypeChip label={row.serviceType} />
+            <JobTypeChip
+              size='small'
+              type={row.category}
+              label={row.category}
+            />
+            <ServiceTypeChip size='small' label={row.serviceType} />
           </Box>
           <span
             style={{
@@ -466,6 +475,9 @@ export const StatusOrderColumns: GridColumns = [
     flex: 1,
     renderHeader: () => <Box>Category / Service type</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
+      if (!row.category && row.serviceType.length === 0) {
+        return <Box>-</Box>
+      }
       return (
         <Box
           display='flex'
@@ -476,15 +488,25 @@ export const StatusOrderColumns: GridColumns = [
         >
           <Box display='flex' gap='10px'>
             {row.category ? (
-              <JobTypeChip type={row.category} label={row.category} />
+              <JobTypeChip
+                size='small'
+                type={row.category}
+                label={row.category}
+              />
             ) : (
               '-'
             )}
-            {row.serviceType ? (
-              <ServiceTypeChip label={row.serviceType} />
+            {row.serviceType.length !== 0 ? (
+              <ServiceTypeChip size='small' label={row.serviceType} />
             ) : (
               '-'
             )}
+            {row.serviceType.length > 1 ? (
+              <ExtraNumberChip
+                size='small'
+                label={`+ ${row.serviceType.length - 1}`}
+              />
+            ) : null}
           </Box>
         </Box>
       )
@@ -787,8 +809,11 @@ export const ReceivableColumns: GridColumns = [
     minWidth: 192,
     renderHeader: () => <Box>Status</Box>,
     renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
-      const status = row.status as number
-      return <Box>{invoicePayableStatusChip(status, InvoiceStatusList)}</Box>
+      const status = row.status as InvoiceReceivableStatusType
+      if (!status) return <Box>-</Box>
+      return (
+        <Box>{InvoiceReceivableChip(InvoiceReceivable[status], status)}</Box>
+      )
     },
   },
   {

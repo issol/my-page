@@ -43,7 +43,7 @@ const RequestDashboardDataGrid = ({
     >
       <Suspense fallback={<div>로딩 중</div>}>
         <CustomDataGrid
-          autoHeight
+          getRowHeight={() => 54}
           rows={data?.data || []}
           columns={columns}
           headerHeight={0}
@@ -74,6 +74,9 @@ const CustomDataGrid = styled(DataGrid)(() => {
   return {
     '& .MuiDataGrid-columnHeaders, & .MuiDataGrid-columnHeader': {
       display: 'none',
+    },
+    '& .MuiDataGrid-footerContainer': {
+      borderTop: 'none !important',
     },
     '& .MuiDataGrid-virtualScrollerRenderZone': {
       width: 'max-content',
