@@ -22,25 +22,24 @@ export const getRefreshToken = async () => {
 
   return data
 }
-
 export const googleAuth = async (credential: string) => {
   try {
     const { data } = await axios.post(
       `/api/enough/a/google/x-gu-grant?credential=${credential}`,
     )
     return data
-  // } catch (e: any) {
-  //   if (e.response.data.statusCode === 403) {
-  //     throw 'NOT_A_MEMBER'
-  //   } else if (e.response.data.statusCode >= 500) {
-  //     throw 'SERVER_ERROR'
-  //   } else {
-  //     throw new Error(e)
-  //   }
-  // }
+    // } catch (e: any) {
+    //   if (e.response.data.statusCode === 403) {
+    //     throw 'NOT_A_MEMBER'
+    //   } else if (e.response.data.statusCode >= 500) {
+    //     throw 'SERVER_ERROR'
+    //   } else {
+    //     throw new Error(e)
+    //   }
+    // }
   } catch (error) {
     // e.response의 존재 여부 확인
-    console.log("googleAuth-e",error)
+    console.log('googleAuth-e', error)
     const err = error as AxiosError
     throw err
     // if (e.response && e.response.data) {

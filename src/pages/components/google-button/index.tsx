@@ -32,7 +32,7 @@ type Props = {
   type: 'signin' | 'signup'
 }
 
-export default function GoogleButton({ type }:Props) {
+export default function GoogleButton({ type }: Props) {
   const router = useRouter()
   const emailRef = useRef('')
 
@@ -130,7 +130,9 @@ export default function GoogleButton({ type }:Props) {
 
   function generateGoogleLoginButton() {
     window?.google?.accounts?.id?.initialize({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      client_id:
+        process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+        '644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com',
       callback: handleCredentialResponse,
     })
     //** 이거 활성화 하면 화면 오른쪽 상단에 구글 로그인이 보여짐 */
@@ -153,7 +155,7 @@ export default function GoogleButton({ type }:Props) {
         onReady={generateGoogleLoginButton}
       />
       <GoogleButtonWrapper>
-        <div id='buttonDiv' data-type="icon"></div>
+        <div id='buttonDiv' data-type='icon'></div>
       </GoogleButtonWrapper>
     </>
   )
