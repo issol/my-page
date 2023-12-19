@@ -331,7 +331,7 @@ const LPMDashboards = () => {
             statusColumn={StatusOrderColumns}
             initSort={[
               {
-                field: 'category',
+                field: 'clientName',
                 sort: 'asc',
               },
             ]}
@@ -342,6 +342,10 @@ const LPMDashboards = () => {
             to={getDateFormat(
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
+            movePage={() => router.push('/orders/order-list/')}
+            moveDetailPage={params =>
+              router.push(`/orders/order-list/detail/${params.id}`)
+            }
           />
           <StatusAndDataGrid
             userViewDate={userViewDate}
@@ -360,6 +364,7 @@ const LPMDashboards = () => {
             to={getDateFormat(
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
+            movePage={() => router.push('/orders/job-list/?menu=list')}
           />
           <Grid container gap='24px'>
             <GridItem height={229} xs={6}>
@@ -367,7 +372,7 @@ const LPMDashboards = () => {
                 <Box>
                   <Title
                     title='Receivables - Paid this month'
-                    handleClick={() => router.push('/quotes/lpm/requests/')}
+                    handleClick={() => router.push('/invoice/receivable/')}
                     openDialog={setOpenInfoDialog}
                   />
                 </Box>
@@ -385,6 +390,7 @@ const LPMDashboards = () => {
                   <Title
                     title='Payables - Paid this month'
                     openDialog={setOpenInfoDialog}
+                    handleClick={() => router.push('/invoice/payable/')}
                   />
                 </Box>
                 <TotalValueView
@@ -406,6 +412,7 @@ const LPMDashboards = () => {
                 setOpenInfoDialog={setOpenInfoDialog}
                 statusList={['Invoiced', 'Paid', 'Overdue', 'Canceled']}
                 colors={ReceivableColors}
+                handleTitleClick={() => router.push('/invoice/receivable/')}
               />
             </GridItem>
             <GridItem height={525} sm>
@@ -417,6 +424,7 @@ const LPMDashboards = () => {
                 setOpenInfoDialog={setOpenInfoDialog}
                 statusList={['Invoiced', 'Paid', 'Overdue']}
                 colors={payableColors}
+                handleTitleClick={() => router.push('/invoice/payable/')}
               />
             </GridItem>
           </Grid>
@@ -429,12 +437,15 @@ const LPMDashboards = () => {
                 initSort={[
                   {
                     field: 'clientName',
-                    sort: 'desc',
+                    sort: 'asc',
                   },
                 ]}
                 dataRecord={receivables}
                 setDataRecord={setReceivables}
                 setOpenInfoDialog={setOpenInfoDialog}
+                onRowClick={params =>
+                  router.push(`/invoice/receivable/detail/${params.id}/`)
+                }
               />
             </GridItem>
           </Grid>
@@ -447,12 +458,15 @@ const LPMDashboards = () => {
                 initSort={[
                   {
                     field: 'proName',
-                    sort: 'desc',
+                    sort: 'asc',
                   },
                 ]}
                 dataRecord={payables}
                 setDataRecord={setPayables}
                 setOpenInfoDialog={setOpenInfoDialog}
+                onRowClick={params =>
+                  router.push(`/invoice/payable/${params.id}/?menu=info`)
+                }
               />
             </GridItem>
           </Grid>
@@ -483,7 +497,13 @@ const LPMDashboards = () => {
               type='language-pair'
               colors={SecondColors}
               getName={item => {
-                return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
+                if (item?.sourceLanguage && item?.targetLanguage) {
+                  return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
+                }
+                if (item?.sourceLanguage && !item?.targetLanguage) {
+                  return `${item?.sourceLanguage}`.toUpperCase()
+                }
+                return `${item?.targetLanguage}`.toUpperCase()
               }}
               menuOptions={[
                 {

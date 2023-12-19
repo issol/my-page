@@ -534,12 +534,22 @@ export const StatusJobColumns: GridColumns = [
     minWidth: 192,
     renderHeader: () => <Box>Pro / Email</Box>,
     renderCell: ({ row }: { row: JobItem }) => {
+      if (!row.pro?.firstName && !row.pro?.middleName && !row.pro?.lastName) {
+        return <Box>-</Box>
+      }
+      let name = '-'
+
+      if (row.pro?.firstName && row.pro?.lastName && !row.pro?.middleName) {
+        name = `${row.pro?.firstName} ${row.pro?.lastName}`
+      }
+
+      if (row.pro?.firstName && row.pro?.lastName && row.pro?.middleName) {
+        name = `${row.pro?.firstName} ${row.pro?.middleName} ${row.pro?.lastName}`
+      }
       return (
         <Box>
           <Typography fontSize='14px' fontWeight={600}>
-            {`${row.pro?.firstName || '-'} ${row.pro?.middleName || '-'} ${
-              row.pro?.lastName || '-'
-            }` || '-'}
+            {name}
           </Typography>
           <Typography color='#4C4E6499' fontSize='14px'>
             {row.pro?.email || '-'}
@@ -554,7 +564,7 @@ export const StatusJobColumns: GridColumns = [
     minWidth: 220,
     renderHeader: () => <Box>Job name</Box>,
     renderCell: ({ row }: { row: JobItem }) => {
-      return <div>{row.jobName}</div>
+      return <div>{row?.jobName || '-'}</div>
     },
   },
   {
@@ -853,8 +863,11 @@ export const ReceivableColumns: GridColumns = [
     flex: 1,
     renderHeader: () => <Box>Category / Service type</Box>,
     renderCell: ({ row }: { row: LongStandingReceivableItem }) => {
-      if (!row.category && !row.serviceType) {
-        return <Box sx={{ width: '340px' }}>-</Box>
+      if (
+        !row?.category &&
+        (!row?.serviceType || row.serviceType?.length === 0)
+      ) {
+        return <Box>-</Box>
       }
       return (
         <Box
@@ -866,15 +879,25 @@ export const ReceivableColumns: GridColumns = [
         >
           <Box display='flex' gap='10px'>
             {row.category ? (
-              <JobTypeChip type={row.category} label={row.category} />
+              <JobTypeChip
+                size='small'
+                type={row.category}
+                label={row.category}
+              />
             ) : (
               '-'
             )}
-            {row.serviceType ? (
-              <ServiceTypeChip label={row.serviceType} />
+            {row.serviceType?.length !== 0 ? (
+              <ServiceTypeChip size='small' label={row.serviceType} />
             ) : (
               '-'
             )}
+            {row.serviceType?.length > 1 ? (
+              <ExtraNumberChip
+                size='small'
+                label={`+ ${row.serviceType?.length - 1}`}
+              />
+            ) : null}
           </Box>
         </Box>
       )
@@ -945,15 +968,25 @@ export const PayablesColumns: GridColumns = [
     minWidth: 220,
     renderHeader: () => <Box>Pro / Email</Box>,
     renderCell: ({ row }: { row: LongStandingPayablesItem }) => {
+      if (!row.pro?.firstName && !row.pro?.middleName && !row.pro?.lastName) {
+        return <Box>-</Box>
+      }
+      let name = '-'
+
+      if (row.pro?.firstName && row.pro?.lastName && !row.pro?.middleName) {
+        name = `${row.pro?.firstName} ${row.pro?.lastName}`
+      }
+
+      if (row.pro?.firstName && row.pro?.lastName && row.pro?.middleName) {
+        name = `${row.pro?.firstName} ${row.pro?.middleName} ${row.pro?.lastName}`
+      }
       return (
         <Box>
           <Typography fontSize='14px' fontWeight={600}>
-            {`${row.pro?.firstName || '-'} ${row.pro?.middleName || '-'} ${
-              row.pro?.lastName || '-'
-            }` || '-'}
+            {name}
           </Typography>
           <Typography color='#4C4E6499' fontSize='14px'>
-            {row.pro.email || '-'}
+            {row.pro?.email || '-'}
           </Typography>
         </Box>
       )

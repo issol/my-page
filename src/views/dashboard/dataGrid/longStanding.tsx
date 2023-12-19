@@ -65,7 +65,7 @@ const LongStandingDataGrid = <T extends { id: number; status?: number }>({
         padding='20px'
         title={title}
         prefix='🚨 '
-        postfix={`(${data?.totalCount || 0})`}
+        postfix={`(${(data?.totalCount || 0).toLocaleString()})`}
         openDialog={setOpenInfoDialog}
       />
       <Box sx={{ height: 'calc(100% - 80px)' }}>

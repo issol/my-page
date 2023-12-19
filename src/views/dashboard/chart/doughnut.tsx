@@ -101,6 +101,10 @@ const Doughnut = <T extends RatioItem>({
     if (setDataRecord) setDataRecord(filterList || [])
   }, [data, filter])
 
+  const getTotalPrice = () => {
+    return data?.totalPrice ? data?.totalPrice : data?.totalOrderPrice
+  }
+
   const charData = useMemo(() => {
     const sortData = data?.report.sort((item1, item2) => item2.sum - item1.sum)
     const sliceData = sortData?.slice(0, 6) || []
@@ -206,8 +210,12 @@ const Doughnut = <T extends RatioItem>({
                 fontWeight: 600,
                 fontSize: '32px',
                 color: '#4C4E6499',
-                formatter: val =>
-                  `(${Number(data?.totalCount || 0).toLocaleString()})`,
+                formatter: val => {
+                  const total = data?.totalCount
+                    ? data?.totalCount
+                    : data?.totalOrderCount
+                  return `(${Number(total || 0).toLocaleString()})`
+                },
               },
             },
           },
@@ -293,8 +301,8 @@ const Doughnut = <T extends RatioItem>({
                     visibility: isHiddenValue ? 'hidden' : 'visible',
                   }}
                 >
-                  {data?.totalPrice && CurrencyUnit[currency]}
-                  {(data?.totalPrice || 0).toLocaleString()}
+                  {getTotalPrice() && CurrencyUnit[currency]}
+                  {(getTotalPrice() || 0).toLocaleString()}
                 </Typography>
               </Box>
             </Suspense>
@@ -320,7 +328,9 @@ const Doughnut = <T extends RatioItem>({
                         {CurrencyUnit[currency]}
                         {Number(item.sum).toLocaleString()}
                       </span>
-                      <span className='ratio'>{item.ratio || 0}%</span>
+                      <span className='ratio'>
+                        {(item.ratio || 0).toFixed(2)}%
+                      </span>
                     </Box>
                   </li>
                 ))}
