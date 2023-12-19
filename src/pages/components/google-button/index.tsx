@@ -63,9 +63,9 @@ export default function GoogleButton({ type }:Props) {
           router.replace('/')
         }
       },
-      onError: err => {
-        logger.debug('Fail Google login', err)
-        if (err === 'NOT_A_MEMBER') {
+      onError: (res: any) => {
+        console.log('Fail Google login', res)
+        if (res.response?.data?.statusCode === 403) {
           router.replace(
             {
               pathname: '/signup/',
@@ -101,7 +101,7 @@ export default function GoogleButton({ type }:Props) {
           //     '/signup/',
           //   )
           // }
-        } else if (err === 'SERVER_ERROR') {
+        } else if (res.response?.data?.statusCode >= 500) {
           openModal({
             type: 'server-error-modal',
             children: (
