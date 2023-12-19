@@ -24,7 +24,7 @@ import {
 } from '@src/pages/invoice/receivable/detail/components/invoice-info'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import {
   byteToGB,
   byteToMB,
@@ -219,7 +219,7 @@ const ProJobInfo = ({
             fontWeight={400}
             color={file.isDownloaded ? 'rgba(76, 78, 100, 0.60)' : '#666CFF'}
           >
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               file.createdAt,
               auth.getValue().user?.timezone,
             )}
@@ -443,7 +443,7 @@ const ProJobInfo = ({
                 }}
                 secondItem={{
                   title: 'Due date',
-                  value: FullDateTimezoneHelper(
+                  value: convertTimeToTimezone(
                     jobInfo.dueAt,
                     auth.getValue()?.user?.timezone,
                   ),
@@ -511,7 +511,7 @@ const ProJobInfo = ({
             fontSize={14}
             color='#e04440'
           >
-            {FullDateTimezoneHelper(jobDueDate, auth.getValue().user?.timezone)}
+            {convertTimeToTimezone(jobDueDate, auth.getValue().user?.timezone)}
           </Typography>
           <Typography
             variant='body1'
@@ -847,7 +847,7 @@ const ProJobInfo = ({
                       }}
                     >
                       <Typography variant='body2'>
-                        {FullDateTimezoneHelper(
+                        {convertTimeToTimezone(
                           jobInfo.requestedAt,
                           auth.getValue()?.user?.timezone,
                         )}
@@ -898,7 +898,7 @@ const ProJobInfo = ({
                       }}
                     >
                       <Typography variant='body2'>
-                        {FullDateTimezoneHelper(
+                        {convertTimeToTimezone(
                           jobInfo.status !== 60100 &&
                             jobInfo.status !== 70000 &&
                             jobInfo.status !== 70100 &&
@@ -971,7 +971,7 @@ const ProJobInfo = ({
                         </Box>
                       ) : (
                         <Typography variant='body2'>
-                          {FullDateTimezoneHelper(
+                          {convertTimeToTimezone(
                             jobInfo.dueAt,
                             auth.getValue()?.user?.timezone,
                           )}

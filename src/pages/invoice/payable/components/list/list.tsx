@@ -8,7 +8,7 @@ import { invoicePayableStatusChip } from '@src/@core/components/chips/chips'
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import {
   formatCurrency,
   getCurrencyMark,
@@ -129,9 +129,9 @@ export default function PayableList({
       renderHeader: () => <Box>Invoice date</Box>,
       renderCell: ({ row }: CellType) => {
         if (auth.state === 'hasValue' && auth.getValue().user) {
-          const date = FullDateTimezoneHelper(
+          const date = convertTimeToTimezone(
             row.invoicedAt,
-            auth.getValue().user?.timezone.code,
+            auth.getValue().user?.timezone,
           )
           return (
             <Tooltip title={date}>
@@ -147,9 +147,9 @@ export default function PayableList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Payment due</Box>,
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(
+        const date = convertTimeToTimezone(
           row.payDueAt,
-          row.payDueTimezone?.code,
+          auth.getValue().user?.timezone,
         )
         return (
           <Tooltip title={date}>
@@ -164,9 +164,9 @@ export default function PayableList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Payment date</Box>,
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(
+        const date = convertTimeToTimezone(
           row.paidAt,
-          row.paidDateTimezone?.code,
+          auth.getValue().user?.timezone,
         )
         return (
           <Tooltip title={date}>

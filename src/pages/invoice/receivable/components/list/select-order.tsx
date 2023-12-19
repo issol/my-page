@@ -435,7 +435,6 @@ export default function SelectOrder({
         .filter(job => job !== undefined) as OrderListType[]
 
       const hasEditable = selected.some(order => order.isEditable === true)
-      console.log(hasEditable)
 
       if (from === 'detail') {
         addOrderToInvoiceMutation.mutate(selected.map(order => order.id))

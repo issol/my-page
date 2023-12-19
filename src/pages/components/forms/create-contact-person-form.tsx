@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 import {
   Autocomplete,
@@ -25,7 +25,9 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 // ** components
 import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
 import { v4 as uuidv4 } from 'uuid'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import MuiPhone from '../phone/mui-phone'
+import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
 
 type Props<T extends number | string = number> = {
   control: Control<ContactPersonType, any>
@@ -38,6 +40,23 @@ export default function CreateContactPersonForm<
   T extends number | string = number,
 >(props: Props<T>) {
   const { control, errors, watch } = props
+  const [timeZoneList, setTimeZoneList] = useState<{
+    code: string;
+    label: string;
+    phone: string;
+  }[]>([])
+
+  useEffect(() => {
+    const timezoneList = getTimeZoneFromLocalStorage()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: ''
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [])
 
   function renderTextFieldForm(
     key: keyof Omit<ContactPersonType, 'timezone'>,
@@ -77,27 +96,10 @@ export default function CreateContactPersonForm<
           control={control}
           rules={{ required: false }}
           render={({ field: { value, onChange } }) => (
-            <TextField
-              fullWidth
-              autoFocus
+            <MuiPhone
+              value={value as string || ''}
+              onChange={onChange}
               label={label}
-              variant='outlined'
-              value={value ?? ''}
-              onChange={e => {
-                if (isInvalidPhoneNumber(e.target.value)) return
-                onChange(e)
-              }}
-              inputProps={{ maxLength: 50 }}
-              placeholder={
-                !watch(`timezone`)?.phone ? `+ 1) 012 345 6789` : `012 345 6789`
-              }
-              InputProps={{
-                startAdornment: watch(`timezone`)?.phone && (
-                  <InputAdornment position='start'>
-                    {'+' + watch(`timezone`)?.phone}
-                  </InputAdornment>
-                ),
-              }}
             />
           )}
         />
@@ -131,49 +133,18 @@ export default function CreateContactPersonForm<
           name={`timezone`}
           control={control}
           render={({ field: { value, onChange } }) => (
-            // <Autocomplete
-            //   fullWidth
-            //   {...field}
-            //   options={countries as CountryType[]}
-            //   onChange={(e, v) => field.onChange(v)}
-            //   disableClearable
-            //   renderOption={(props, option) => (
-            //     <Box component='li' {...props} key={uuidv4()}>
-            //       {option.label} ({option.code}) +{option.phone}
-            //     </Box>
-            //   )}
-            //   renderInput={params => (
-            //     <TextField
-            //       {...params}
-            //       label='Time zone*'
-            //       error={Boolean(errors.timezone)}
-            //       inputProps={{
-            //         ...params.inputProps,
-            //       }}
-            //     />
-            //   )}
-            // />
             <Autocomplete
               fullWidth
-              value={value ?? undefined}
-              options={countries as CountryType[]}
+              value={value ?? { code: '', label: '', phone: '' }}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => {
-                if (v) {
-                  onChange(v)
-                } else {
-                  onChange(undefined)
-                }
+                if (!v) onChange(null)
+                else onChange(v)
               }}
-              getOptionLabel={option => {
-                if (typeof option !== 'string') {
-                  return getGmtTimeEng(option.code) ?? ''
-                } else {
-                  return ''
-                }
-              }}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (

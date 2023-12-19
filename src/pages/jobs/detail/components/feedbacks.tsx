@@ -9,7 +9,7 @@ import {
 import { v4 as uuidv4 } from 'uuid'
 import CustomChip from '@src/@core/components/mui/chip'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { Icon } from '@iconify/react'
@@ -82,7 +82,7 @@ const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
                         !value.isChecked ? '#666CFF' : 'rgba(76, 78, 100, 0.60)'
                       }
                     >
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         value.createdAt,
                         auth.getValue().user?.timezone,
                       )}

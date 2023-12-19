@@ -9,7 +9,7 @@ import {
 } from '@src/@core/components/chips/chips'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 import { RequestListType } from '@src/types/requests/list.type'
@@ -147,13 +147,9 @@ export const getRequestListColumns = (
       renderHeader: () => <Box>Request date</Box>,
       renderCell: ({ row }: CellType) => (
         <Box>
-          {FullDateTimezoneHelper(
+          {convertTimeToTimezone(
             row.requestedAt,
-            auth.getValue().user?.timezone! ?? {
-              code: 'KR',
-              label: 'Korea, Republic of',
-              public: '82',
-            },
+            auth.getValue().user?.timezone
           )}
         </Box>
       ),
@@ -169,11 +165,9 @@ export const getRequestListColumns = (
         const dueDate = row.items.length
           ? row.items[0]?.desiredDueDate
           : undefined
-        const timezone =
-          (row.items.length && row.items[0]?.desiredDueTimezone?.code) || ''
         return (
           <Box>
-            {!dueDate ? '-' : FullDateTimezoneHelper(dueDate, timezone)}
+            {!dueDate ? '-' : convertTimeToTimezone(dueDate, auth.getValue().user?.timezone)}
           </Box>
         )
       },

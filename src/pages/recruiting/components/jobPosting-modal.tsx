@@ -13,7 +13,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 
 // ** helpers
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import {
   JobTypeChip,
   renderStatusChip,
@@ -153,10 +153,10 @@ export default function JobPostingListModal({
       renderCell: ({ row }: CellType) => (
         <Tooltip
           placement='bottom'
-          title={`${FullDateTimezoneHelper(row.dueDate, row.dueDateTimezone)}`}
+          title={`${convertTimeToTimezone(row.dueDate, row.dueDateTimezone)}`}
         >
           <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-            <>{FullDateTimezoneHelper(row.dueDate, row.dueDateTimezone)}</>
+            <>{convertTimeToTimezone(row.dueDate, row.dueDateTimezone)}</>
           </Typography>
         </Tooltip>
       ),

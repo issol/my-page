@@ -12,7 +12,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useModal from '@src/hooks/useModal'
 import { useGetJobHistory } from '@src/queries/jobs/jobs.query'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { JobHistoryType } from '@src/types/jobs/jobs.type'
 import { useContext, useState } from 'react'
 import HistoryDetail from './history-detail'
@@ -103,7 +103,7 @@ export default function JobHistory({
       renderCell: ({ row }: CellType) => {
         return (
           <Typography>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.requestedAt,
               auth.getValue().user?.timezone?.code!,
             )}

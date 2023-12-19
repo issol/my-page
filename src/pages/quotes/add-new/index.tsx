@@ -62,7 +62,7 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
-import { findEarliestDate } from '@src/shared/helpers/date.helper'
+import { changeTimeZoneOffset, convertTimeToTimezone, findEarliestDate } from '@src/shared/helpers/date.helper'
 
 // ** contexts
 import { useRecoilValueLoadable } from 'recoil'
@@ -84,6 +84,7 @@ import {
 } from '@src/shared/helpers/price.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+import { string } from 'yup'
 
 export type languageType = {
   id: number | string
@@ -323,7 +324,7 @@ export default function AddNewQuote() {
 
       projectInfoReset({
         projectDueDate: {
-          date: findEarliestDate(desiredDueDates),
+          date: new Date(convertTimeToTimezone(findEarliestDate(desiredDueDates), items[0].desiredDueTimezone, true)!),
         },
         category: isCategoryNotSame ? '' : items[0].category,
         serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
@@ -466,6 +467,7 @@ export default function AddNewQuote() {
     //   (acc, item) => acc + item.totalPrice,
     //   0,
     // )
+    console.log("rawProjectInfo",rawProjectInfo)
     const projectInfo = {
       ...rawProjectInfo,
       tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
@@ -473,6 +475,49 @@ export default function AddNewQuote() {
       //   ...rawProjectInfo.quoteDate,
       //   date: rawProjectInfo.quoteDate.date.toISOString(),
       // },
+      quoteDate: { 
+        ...rawProjectInfo.quoteDate,
+        date: changeTimeZoneOffset(
+          rawProjectInfo.quoteDate.date.toISOString(),
+          rawProjectInfo.quoteDate.timezone
+        ),
+      },
+      projectDueDate: {
+        ...rawProjectInfo.projectDueDate,
+        date: rawProjectInfo.projectDueDate.date
+          ? changeTimeZoneOffset(
+              rawProjectInfo.projectDueDate.date.toISOString(),
+              rawProjectInfo.projectDueDate.timezone
+            )
+          : null
+      },
+      quoteDeadline: {
+        ...rawProjectInfo.quoteDeadline,
+        date: rawProjectInfo.quoteDeadline.date
+          ? changeTimeZoneOffset(
+              rawProjectInfo.quoteDeadline.date.toISOString(),
+              rawProjectInfo.quoteDeadline.timezone
+            )
+          : null
+      },
+      quoteExpiryDate: {
+        ...rawProjectInfo.quoteExpiryDate,
+        date: rawProjectInfo.quoteExpiryDate.date
+          ? changeTimeZoneOffset(
+              rawProjectInfo.quoteExpiryDate.date.toISOString(),
+              rawProjectInfo.quoteExpiryDate.timezone
+            )
+          : null
+      },
+      estimatedDeliveryDate: {
+        ...rawProjectInfo.estimatedDeliveryDate,
+        date: rawProjectInfo.estimatedDeliveryDate.date
+          ? changeTimeZoneOffset(
+              rawProjectInfo.estimatedDeliveryDate.date.toISOString(),
+              rawProjectInfo.estimatedDeliveryDate.timezone
+            )
+          : null
+      },
       subtotal: subPrice,
     }
 
@@ -517,10 +562,10 @@ export default function AddNewQuote() {
       ...teams,
       ...clients,
       ...projectInfo,
-      quoteDate: {
-        date: new Date(projectInfo.quoteDate.date),
-        timezone: projectInfo.quoteDate.timezone,
-      },
+      // quoteDate: {
+      //   date: new Date(projectInfo.quoteDate.date),
+      //   timezone: projectInfo.quoteDate.timezone,
+      // },
       requestId: requestId ?? null,
     }
 

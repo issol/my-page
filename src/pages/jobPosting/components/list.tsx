@@ -8,7 +8,7 @@ import CardHeader from '@mui/material/CardHeader'
 import { StyledNextLink } from 'src/@core/components/customLink'
 
 // ** helpers
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import {
   JobTypeChip,
   renderStatusChip,
@@ -142,13 +142,13 @@ export default function JobPostingList({
           ) : (
             <Tooltip
               placement='bottom'
-              title={`${FullDateTimezoneHelper(
+              title={`${convertTimeToTimezone(
                 row.dueDate,
                 row.dueDateTimezone,
               )}`}
             >
               <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-                <>{FullDateTimezoneHelper(row.dueDate, row.dueDateTimezone)}</>
+                <>{convertTimeToTimezone(row.dueDate, row.dueDateTimezone)}</>
               </Typography>
             </Tooltip>
           )}

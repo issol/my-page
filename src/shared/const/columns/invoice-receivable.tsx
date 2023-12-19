@@ -8,7 +8,7 @@ import {
 } from '@src/@core/components/chips/chips'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import {
   formatByRoundingProcedure,
@@ -199,10 +199,11 @@ export const getInvoiceReceivableListColumns = (
       ),
       renderCell: ({ row }: CellType) => {
         if (auth.state === 'hasValue' && auth.getValue().user) {
-          const date = FullDateTimezoneHelper(
+          const date = convertTimeToTimezone(
             row.invoicedAt,
-            auth.getValue().user?.timezone?.code,
+            auth.getValue().user?.timezone,
           )
+          console.log("date",row.invoicedAt, )
           return (
             <Tooltip title={date}>
               <Typography variant='body2'>{date}</Typography>
@@ -221,9 +222,9 @@ export const getInvoiceReceivableListColumns = (
         </Typography>
       ),
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(
+        const date = convertTimeToTimezone(
           row.payDueAt,
-          row.payDueTimezone?.code,
+          auth.getValue().user?.timezone,
         )
         return (
           <Tooltip title={date}>
@@ -243,9 +244,9 @@ export const getInvoiceReceivableListColumns = (
         </Typography>
       ),
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(
+        const date = convertTimeToTimezone(
           row.paidAt,
-          row.paidDateTimezone?.code,
+          auth.getValue().user?.timezone,
         )
         return (
           <Tooltip title={date}>
@@ -277,9 +278,9 @@ export const getInvoiceReceivableListColumns = (
             : subtotal.toLocaleString('ko-KR')
         }`
 
-        const date = FullDateTimezoneHelper(
+        const date = convertTimeToTimezone(
           row.salesCheckedAt,
-          row?.salesCheckedDateTimezone?.code,
+          row?.salesCheckedDateTimezone,
         )
         return (
           <Tooltip

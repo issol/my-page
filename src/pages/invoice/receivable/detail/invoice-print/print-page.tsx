@@ -11,11 +11,11 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getAddress } from '@src/shared/helpers/address-helper'
-import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
 import { useMutation } from 'react-query'
@@ -135,7 +135,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
             {data.corporationId}
-            {/* {FullDateTimezoneHelper(data.invoicedAt, user.timezone)} */}
+            {/* {convertTimeToTimezone(data.invoicedAt, user.timezone)} */}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -150,7 +150,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
             {/* {data.orderCorporationId.map((value, idx) => {
               return <>{formatOrderId(data.orderCorporationId)}</>
             })} */}
-            {/* {FullDateTimezoneHelper(data.invoicedAt, user.timezone)} */}
+            {/* {convertTimeToTimezone(data.invoicedAt, user.timezone)} */}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -161,7 +161,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
             {lang === 'EN' ? 'Invoice date:' : '정산 요청일:'}
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-            {FullDateTimezoneHelper(data.invoicedAt, user.timezone)}
+            {convertTimeToTimezone(data.invoicedAt, user.timezone)}
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -179,7 +179,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
               {lang === 'EN' ? 'Payment due:' : '납부 기한:'}
             </Typography>
             <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 data.paymentDueAt.date,
                 data.paymentDueAt.timezone,
               )}
@@ -281,14 +281,16 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
               : data.client.client.email}
           </Typography>
           <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
-            {getPhoneNumber(
-              data.contactPerson !== null
-                ? data.contactPerson.mobile!
-                : data.client.client.mobile,
-              data.contactPerson !== null
-                ? data.contactPerson.timezone?.phone
-                : data.client.client.timezone.phone,
-            )}
+            {data?.contactPerson?.mobile
+              ? contryCodeAndPhoneNumberFormatter(
+                  splitContryCodeAndPhoneNumber(data.contactPerson.mobile)
+                )
+              : data?.client?.client?.mobile
+                ? contryCodeAndPhoneNumberFormatter(
+                    splitContryCodeAndPhoneNumber(data.client.client.mobile)
+                  )
+                : '-'
+            }
           </Typography>
         </Box>
       </Box>

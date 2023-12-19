@@ -21,7 +21,7 @@ import {
   FileName,
 } from '@src/pages/invoice/receivable/detail/components/invoice-info'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FileType } from '@src/types/common/file.type'
 import { JobsFileType, ProJobDetailType } from '@src/types/jobs/jobs.type'

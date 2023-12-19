@@ -6,7 +6,7 @@ import {
 } from '@src/@core/components/chips/chips'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
@@ -106,7 +106,7 @@ const ViewJobInfo = ({ row, jobStatusList }: Props) => {
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
                 {row.startedAt
-                  ? FullDateTimezoneHelper(row.startedAt, row.startTimezone)
+                  ? convertTimeToTimezone(row.startedAt, row.startTimezone)
                   : '-'}
               </Typography>
             </Box>
@@ -120,7 +120,7 @@ const ViewJobInfo = ({ row, jobStatusList }: Props) => {
                 Job due date
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
-                {FullDateTimezoneHelper(row.dueAt, row.dueTimezone)}
+                {convertTimeToTimezone(row.dueAt, row.dueTimezone)}
               </Typography>
             </Box>
           </Box>

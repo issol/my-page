@@ -91,7 +91,7 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
-import { findEarliestDate, formattedNow } from '@src/shared/helpers/date.helper'
+import { changeTimeZoneOffset, convertTimeToTimezone, findEarliestDate, formattedNow } from '@src/shared/helpers/date.helper'
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -438,7 +438,7 @@ export default function AddNewOrder() {
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
-      dueAt: project.projectDueAt,
+      dueAt: String(project.projectDueAt),
       priceId: null,
       detail: [],
       totalPrice: 0,
@@ -487,9 +487,6 @@ export default function AddNewOrder() {
         target: item.target,
       }
     })
-
-    console.log(items)
-    console.log(langs)
 
     const itemPriceIds = new Set(items.map(item => item.priceId))
 
@@ -563,9 +560,26 @@ export default function AddNewOrder() {
     const projectInfo = {
       ...rawProjectInfo,
       // isTaxable : taxable,
+      orderedAt: changeTimeZoneOffset(
+        rawProjectInfo.orderedAt.toISOString(),
+        rawProjectInfo.orderTimezone,
+      ),
+      orderTimezone: {
+        ...rawProjectInfo.orderTimezone,
+        code: '',
+        phone: '',
+      },
+      projectDueAt: changeTimeZoneOffset(
+        rawProjectInfo.projectDueAt.toISOString(),
+        rawProjectInfo.projectDueTimezone,
+      ),
+      projectDueTimezone: {
+        ...rawProjectInfo.projectDueTimezone,
+        code: '',
+        phone: '',
+      },
       isTaxable: rawProjectInfo.isTaxable ? '1' : '0',
       tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
-      orderedAt: rawProjectInfo.orderedAt.toISOString(),
       subtotal: subPrice,
     }
 
@@ -751,7 +765,8 @@ export default function AddNewOrder() {
       )
       projectInfoReset({
         orderedAt: formattedNow(new Date()),
-        projectDueAt: findEarliestDate(desiredDueDates),
+        projectDueAt: new Date(convertTimeToTimezone(findEarliestDate(desiredDueDates), items[0].desiredDueTimezone, true)!),
+        // projectDueAt: findEarliestDate(desiredDueDates),
         // projectDueDate: {
         //   date: findEarliestDate(desiredDueDates),
         // },
@@ -853,6 +868,7 @@ export default function AddNewOrder() {
         .then(res => {
           projectInfoReset({
             // status: 'In preparation' as OrderStatusType,
+            // orderedAt: formattedNow(new Date()),
             orderedAt: formattedNow(new Date()),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
@@ -863,10 +879,11 @@ export default function AddNewOrder() {
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
             revenueFrom: undefined,
-            projectDueAt: res?.projectDueAt ?? null,
+            projectDueAt: res?.projectDueAt
+              ? new Date(convertTimeToTimezone(res?.projectDueAt, res?.projectDueTimezone ,true)!)
+              : undefined,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
-              phone: '',
               code: '',
             },
 
@@ -1025,10 +1042,11 @@ export default function AddNewOrder() {
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
             revenueFrom: res.revenueFrom,
-            projectDueAt: res?.projectDueAt ?? null,
+            projectDueAt: res?.projectDueAt
+              ? new Date(convertTimeToTimezone(res?.projectDueAt, res?.projectDueTimezone,true)!)
+              : undefined,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
-              phone: '',
               code: '',
             },
 

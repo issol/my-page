@@ -17,7 +17,7 @@ import DeleteAccount from './delete-account'
 import AccountDeleteFailedModal from './account-delete-fail-modal'
 import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 type Props = {
   user: UserDataType
@@ -138,8 +138,10 @@ export default function MyAccount({ user }: Props) {
                 <LabelContainer>
                   <Typography fontWeight={600}>Sign-up date</Typography>
                   <Typography variant='body2'>
-                    {dayjs(user.createdAt).format('MM/DD/YYYY')}&nbsp;
-                    {getGmtTimeEng(user.timezone?.code)}
+                    {convertTimeToTimezone(
+                      user.createdAt,
+                      user.timezone?.label
+                    )}
                   </Typography>
                 </LabelContainer>
                 <LabelContainer>

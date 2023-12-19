@@ -16,7 +16,7 @@ import {
 import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** contexts
@@ -113,7 +113,7 @@ export default function ProInvoiceList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Invoice date</Box>,
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(
+        const date = convertTimeToTimezone(
           row.invoicedAt,
           auth.getValue().user?.timezone.code,
         )
@@ -130,7 +130,7 @@ export default function ProInvoiceList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Payment due</Box>,
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(
+        const date = convertTimeToTimezone(
           row.payDueAt,
           row.payDueTimezone?.code,
         )
@@ -147,7 +147,7 @@ export default function ProInvoiceList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Payment date</Box>,
       renderCell: ({ row }: CellType) => {
-        const date = FullDateTimezoneHelper(
+        const date = convertTimeToTimezone(
           row.paidAt,
           row.paidDateTimezone?.code,
         )

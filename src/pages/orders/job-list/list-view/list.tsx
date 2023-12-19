@@ -17,7 +17,7 @@ import {
 import { JobTypeChip } from '@src/@core/components/chips/chips'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** context
@@ -161,13 +161,13 @@ export default function JobsList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip
-            title={FullDateTimezoneHelper(
+            title={convertTimeToTimezone(
               row?.startedAt,
               auth.getValue().user?.timezone?.code!,
             )}
           >
             <div>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row?.startedAt,
                 auth.getValue().user?.timezone?.code!,
               )}
@@ -185,13 +185,13 @@ export default function JobsList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip
-            title={FullDateTimezoneHelper(
+            title={convertTimeToTimezone(
               row?.dueAt,
               auth.getValue().user?.timezone?.code!,
             )}
           >
             <div>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row?.dueAt,
                 auth.getValue().user?.timezone?.code!,
               )}

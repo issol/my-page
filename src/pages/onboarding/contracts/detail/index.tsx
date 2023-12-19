@@ -37,7 +37,7 @@ import Icon from 'src/@core/components/icon'
 import { ModalContext } from 'src/context/ModalContext'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 
 // ** fetcher
@@ -290,7 +290,7 @@ const ContractDetail = () => {
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => (
         <Box sx={{ overflowX: 'scroll' }}>
-          {FullDateTimezoneHelper(
+          {convertTimeToTimezone(
             row.updatedAt,
             auth.getValue().user?.timezone!,
           )}
@@ -466,7 +466,7 @@ const ContractDetail = () => {
                     <Typography variant='body2'>{contract?.email}</Typography>
                   </Box>
                   <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       contract?.updatedAt,
                       auth.getValue().user?.timezone!,
                     )}
@@ -582,7 +582,7 @@ const ContractDetail = () => {
                       </Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         currentRow?.updatedAt,
                         auth.getValue().user?.timezone!,
                       )}

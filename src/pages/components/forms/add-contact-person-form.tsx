@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 
 import {
   Autocomplete,
@@ -38,7 +38,9 @@ import {
 // ** Data
 import { countries } from 'src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import MuiPhone from '../phone/mui-phone'
+import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
 
 type Props<T extends number | string = number> = {
   fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
@@ -53,6 +55,23 @@ export default function AddContactPersonForm<
   T extends number | string = number,
 >(props: Props<T>) {
   const { fields, control, errors, watch, index } = props
+  const [timeZoneList, setTimeZoneList] = useState<{
+    code: string;
+    label: string;
+    phone: string;
+  }[]>([])
+
+  useEffect(() => {
+    const timezoneList = getTimeZoneFromLocalStorage()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: ''
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [])
 
   const personType: Array<PersonType> = ['Mr.', 'Ms.']
 
@@ -130,29 +149,10 @@ export default function AddContactPersonForm<
           control={control}
           rules={{ required: false }}
           render={({ field: { value, onChange } }) => (
-            <TextField
-              fullWidth
+            <MuiPhone
+              value={value as string || ''}
+              onChange={onChange}
               label={label}
-              variant='outlined'
-              value={value ?? ''}
-              onChange={e => {
-                if (isInvalidPhoneNumber(e.target.value)) return
-                onChange(e)
-              }}
-              inputProps={{ maxLength: 50 }}
-              placeholder={
-                !watch(`contactPersons.${idx}.timezone`)?.phone
-                  ? `+ 1) 012 345 6789`
-                  : `012 345 6789`
-              }
-              InputProps={{
-                startAdornment: watch(`contactPersons.${idx}.timezone`)
-                  ?.phone && (
-                  <InputAdornment position='start'>
-                    {'+' + watch(`contactPersons.${idx}.timezone`)?.phone}
-                  </InputAdornment>
-                ),
-              }}
             />
           )}
         />
@@ -218,25 +218,15 @@ export default function AddContactPersonForm<
                   render={({ field: { value, onChange } }) => (
                     <Autocomplete
                       fullWidth
-                      value={value ?? undefined}
-                      options={countries as CountryType[]}
+                      value={value || { code: '', label: '', phone: '' }}
+                      options={timeZoneList as CountryType[]}
                       onChange={(e, v) => {
-                        if (v) {
-                          onChange(v)
-                        } else {
-                          onChange(undefined)
-                        }
-                      }}
-                      getOptionLabel={option => {
-                        if (typeof option !== 'string') {
-                          return getGmtTimeEng(option.code) ?? ''
-                        } else {
-                          return ''
-                        }
+                        if (!v) onChange(null)
+                        else onChange(v)
                       }}
                       renderOption={(props, option) => (
                         <Box component='li' {...props} key={uuidv4()}>
-                          {getGmtTimeEng(option.code)}
+                          {timeZoneFormatter(option)}
                         </Box>
                       )}
                       renderInput={params => (
@@ -251,6 +241,7 @@ export default function AddContactPersonForm<
                           }}
                         />
                       )}
+                      getOptionLabel={option => timeZoneFormatter(option) ?? ''}
                     />
                   )}
                 />

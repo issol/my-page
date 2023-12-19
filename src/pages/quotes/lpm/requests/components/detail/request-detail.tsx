@@ -18,7 +18,7 @@ import {
 } from '@src/@core/components/chips/chips'
 import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
 import {
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
   convertDateByTimezone,
   convertUTCISOStringToLocalTimezoneISOString,
 } from '@src/shared/helpers/date.helper'
@@ -54,9 +54,9 @@ export default function RequestDetailCard({
         <LabelContainer>
           <CustomTypo fontWeight={600}>Request date</CustomTypo>
           <CustomTypo variant='body2'>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               data?.requestedAt,
-              data?.contactPerson?.timezone?.code,
+              user?.timezone
             )}
           </CustomTypo>
         </LabelContainer>
@@ -198,9 +198,9 @@ export default function RequestDetailCard({
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Desired due date</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         item.desiredDueDate,
-                        item?.desiredDueTimezone?.code!
+                        user?.timezone
                       )}
                       {/* {
                         convertDateByTimezone(

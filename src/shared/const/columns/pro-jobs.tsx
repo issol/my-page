@@ -7,7 +7,7 @@ import {
 } from '@src/@core/components/chips/chips'
 import useModal from '@src/hooks/useModal'
 import ProJobsMessage from '@src/pages/jobs/requested-ongoing-list/message'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { authState } from '@src/states/auth'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import dayjs from 'dayjs'
@@ -57,7 +57,7 @@ export const getProJobColumns = (
             fontSize={14}
             color='#e04440'
           >
-            {FullDateTimezoneHelper(jobDueDate, auth.getValue().user?.timezone)}
+            {convertTimeToTimezone(jobDueDate, auth.getValue().user?.timezone)}
           </Typography>
           <Typography
             variant='body1'
@@ -75,7 +75,7 @@ export const getProJobColumns = (
       return (
         <>
           <Typography variant='body1' fontWeight={600} fontSize={14}>
-            {FullDateTimezoneHelper(jobDueDate, auth.getValue().user?.timezone)}
+            {convertTimeToTimezone(jobDueDate, auth.getValue().user?.timezone)}
           </Typography>
           <Typography
             variant='body1'
@@ -90,7 +90,7 @@ export const getProJobColumns = (
     } else if (!isPast) {
       return (
         <Typography variant='body1' fontWeight={600} fontSize={14}>
-          {FullDateTimezoneHelper(jobDueDate, auth.getValue().user?.timezone)}
+          {convertTimeToTimezone(jobDueDate, auth.getValue().user?.timezone)}
         </Typography>
       )
     }

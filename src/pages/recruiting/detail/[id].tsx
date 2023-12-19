@@ -39,10 +39,9 @@ import { authState } from '@src/states/auth'
 // ** helpers
 import {
   convertDateByTimezone,
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
-import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -211,7 +210,7 @@ const RecruitingDetail = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.createdAt,
               auth.getValue().user?.timezone!,
             )}
@@ -369,7 +368,7 @@ const RecruitingDetail = () => {
                       </Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         currentVersion?.createdAt,
                         auth.getValue().user?.timezone!,
                       )}
@@ -422,7 +421,7 @@ const RecruitingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTimeEng(auth.getValue().user?.timezone?.code),
+                      auth.getValue().user?.timezone?.label,
                     )}
                   </Grid>
                 </Grid>
@@ -553,7 +552,7 @@ const RecruitingDetail = () => {
                             variant='body2'
                             sx={{ alignSelf: 'flex-end' }}
                           >
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               new Date(),
                               auth.getValue().user?.timezone!,
                             )}
@@ -609,7 +608,7 @@ const RecruitingDetail = () => {
                           )}
                           {renderTable(
                             'Due date timezone',
-                            getGmtTimeEng(auth.getValue().user?.timezone?.code),
+                            auth.getValue().user?.timezone?.label,
                           )}
                         </Grid>
                       </Grid>

@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
 import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
 import { UserDataType } from '@src/context/types'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { transformMessage } from '@src/shared/transformer/notification-message'
 import { NotificationType } from '@src/types/common/notification.type'
@@ -106,7 +106,7 @@ const NotificationList = ({
       renderCell: ({ row }: CellType) => {
         return (
           <Typography>
-            {FullDateTimezoneHelper(row.createdAt, user.timezone)}
+            {convertTimeToTimezone(row.createdAt, user.timezone)}
           </Typography>
         )
       },

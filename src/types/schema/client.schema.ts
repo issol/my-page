@@ -1,6 +1,6 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
-import { CountryType } from '../sign/personalInfoTypes'
+import { CountryType, TimeZoneType } from '../sign/personalInfoTypes'
 import { AddressType, ClientAddressType } from './client-address.schema'
 
 export type ClientFormType = {

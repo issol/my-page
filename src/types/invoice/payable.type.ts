@@ -57,7 +57,7 @@ export type InvoicePayableDetailType = {
   id: number
   corporationId: string
   invoicedAt: string
-  invoicedAtTimezone: CountryType
+  invoicedTimezone: CountryType
   invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
 
   pro?: {
@@ -113,7 +113,7 @@ export type PayableHistoryType = {
   account: string
   corporationId: string
   invoicedAt: string
-  invoicedAtTimezone: CountryType
+  invoicedTimezone: CountryType
   invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
   invoiceConfirmedAt: string | null
   pro?: { name: string; email: string }

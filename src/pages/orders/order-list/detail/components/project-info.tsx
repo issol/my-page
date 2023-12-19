@@ -10,6 +10,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+
 import {
   JobTypeChip,
   OrderStatusChip,
@@ -18,7 +22,7 @@ import {
 import Icon from '@src/@core/components/icon'
 import {
   FullDateHelper,
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
 } from '@src/shared/helpers/date.helper'
 
 import {
@@ -101,6 +105,7 @@ const ProjectInfo = ({
       }
     >
   >([])
+  const auth = useRecoilValueLoadable(authState)
 
   const [showDescription, setShowDescription] = useState<boolean>(
     project.showDescription,
@@ -498,9 +503,10 @@ const ProjectInfo = ({
                       width: '100%',
                     }}
                   >
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.orderedAt,
-                      project.orderTimezone,
+                      // project.orderTimezone,
+                      auth.getValue().user?.timezone
                     )}
                   </Typography>
                 </Box>
@@ -991,9 +997,10 @@ const ProjectInfo = ({
                       width: '100%',
                     }}
                   >
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.projectDueAt,
-                      project.projectDueTimezone,
+                      // project.projectDueTimezone,
+                      auth.getValue().user?.timezone
                     )}
                   </Typography>
                 </Box>

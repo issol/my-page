@@ -45,7 +45,7 @@ export type OrderProjectInfoFormType = {
   revenueFrom: RevenueFormType | null
   orderedAt: Date
   orderTimezone: CountryType
-  projectDueAt: string
+  projectDueAt: Date
   projectDueTimezone: CountryType
 
   tax: number | null
@@ -92,13 +92,11 @@ export type CreateOrderInfoRes = {
   tax: number
   orderedAt: string
   orderTimezone: {
-    phone: string
     code: string
     label: string
   }
   projectDueAt: string
   projectDueTimezone: {
-    phone: string
     code: string
     label: string
   }
