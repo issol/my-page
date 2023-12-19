@@ -12,10 +12,11 @@ import {
 } from '@src/types/invoice/receivable.type'
 import PrintInvoicePage from '../invoice-print/print-page'
 import ConfirmInvoiceModal from './modal/confirm-invoice-modal'
-import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { CountryType, TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import { confirmInvoiceFromClient } from '@src/apis/invoice/receivable.api'
 import { ItemType } from '@src/types/common/item.type'
 import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   downloadData: InvoiceDownloadData
@@ -34,6 +35,7 @@ type Props = {
     languagePairs: Array<LanguagePairTypeInItem>
     subtotal: number
   }>
+  timezoneList: TimeZoneType[]
 }
 
 const ClientInvoice = ({
@@ -47,6 +49,7 @@ const ClientInvoice = ({
   onClickDownloadInvoice,
   invoiceInfo,
   orders,
+  timezoneList,
 }: // statusList,
 // project,
 Props) => {
@@ -85,19 +88,21 @@ Props) => {
         code: '',
         phone: '',
       },
-      taxInvoiceDueAt: data?.taxInvoiceDueAt && data?.taxInvoiceDueTimezone
-        ? changeTimeZoneOffset(
-            new Date(data?.taxInvoiceDueAt).toISOString(),
-            data?.taxInvoiceDueTimezone,
-          )
-        : null,
-      taxInvoiceDueTimezone: data?.taxInvoiceDueAt && data?.taxInvoiceDueTimezone
-        ? {
-            ...data?.taxInvoiceDueTimezone,
-            code: '',
-            phone: '',
-          }
-        : null,
+      taxInvoiceDueAt:
+        data?.taxInvoiceDueAt && data?.taxInvoiceDueTimezone
+          ? changeTimeZoneOffset(
+              new Date(data?.taxInvoiceDueAt).toISOString(),
+              data?.taxInvoiceDueTimezone,
+            )
+          : null,
+      taxInvoiceDueTimezone:
+        data?.taxInvoiceDueAt && data?.taxInvoiceDueTimezone
+          ? {
+              ...data?.taxInvoiceDueTimezone,
+              code: '',
+              phone: '',
+            }
+          : null,
     }
     confirmInvoiceMutation.mutate({ ...res })
   }
@@ -169,6 +174,7 @@ Props) => {
           type={'preview'}
           user={user!}
           lang={downloadLanguage ?? 'EN'}
+          timezoneList={timezoneList}
         />
       </Grid>
       {type === 'history' ? null : (

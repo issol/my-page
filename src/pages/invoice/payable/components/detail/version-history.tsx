@@ -40,6 +40,7 @@ import InvoiceJobList from './job-list'
 import { toast } from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import NoList from '@src/pages/components/no-list'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   invoiceId: number
@@ -62,6 +63,7 @@ export default function PayableHistory({
   statusList,
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const queryClient = useQueryClient()
 
@@ -260,6 +262,7 @@ export default function PayableHistory({
               {convertTimeToTimezone(
                 row?.invoicedAt,
                 auth.getValue().user?.timezone?.code!,
+                timezone.getValue(),
               )}
             </Typography>
           )
