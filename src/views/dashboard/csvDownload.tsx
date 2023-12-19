@@ -7,11 +7,12 @@ import { CSVDataType } from '@src/types/dashboard'
 import { ListItemIcon, ListItemText, MenuItem } from '@mui/material'
 
 interface CSVDownloadProps {
+  title?: string
   data: CSVDataType
   onClose?: () => void
 }
 
-export const CSVDownload = ({ data }: CSVDownloadProps) => {
+export const CSVDownload = ({ title, data }: CSVDownloadProps) => {
   const csvRef = useRef<
     CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }
   >(null)
@@ -27,7 +28,7 @@ export const CSVDownload = ({ data }: CSVDownloadProps) => {
       <CSVLink
         ref={csvRef}
         data={data}
-        filename={dayjs().format('YYYY-MM-DD')}
+        filename={title || dayjs().format('YYYY-MM-DD')}
         target='_blank'
       />
       <Button

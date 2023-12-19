@@ -3,10 +3,10 @@ import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 import weekday from 'dayjs/plugin/weekday'
-import { Office } from '@src/types/dashboard'
+import { CSVDataType, Office } from '@src/types/dashboard'
 import { useRouter } from 'next/router'
 import { getDateFormat } from '@src/pages/dashboards/lpm'
 
@@ -42,8 +42,6 @@ export const mergeData = (array1: Array<Object>, array2: Array<Object>) => {
 
 const AccountDashboards = () => {
   const router = useRouter()
-  const cache = useQueryClient()
-  const data = cache.getQueriesData([DEFAULT_QUERY_NAME])
 
   const { formHook, infoDialog } = UseDashboardControl()
   const { control, setValue, ...props } = formHook
@@ -54,7 +52,9 @@ const AccountDashboards = () => {
     control,
     name: ['dateRange', 'userViewDate'],
   })
+
   const [office, setOffice] = useState<Office>('Japan')
+  const [CSVData, setCSVData] = useState<CSVDataType>([])
 
   const { data: Sales } = useAccountCount('sales-recognition', {
     from: getDateFormat((Array.isArray(dateRange) && dateRange[0]) || null),
@@ -74,6 +74,57 @@ const AccountDashboards = () => {
 
   const { data: Client } = useAccountRatio({ userType: 'client', office })
   const { data: Pro } = useAccountRatio({ userType: 'pro' })
+
+  useEffect(() => {
+    const filterSales =
+      Sales?.report.map(item => ({
+        'Sales Currency': item?.currency || '-',
+        'Sales Prices': item?.prices || '-',
+        ' ': '',
+      })) || []
+    const filterReceivable =
+      Receivable?.report.map(item => ({
+        'Receivable Currency': item?.currency || '-',
+        'Receivable Count': item?.count || 0,
+        'Receivable Prices': item?.prices || '-',
+        '  ': '',
+      })) || []
+    const filterPayable =
+      Payable?.report.map(item => ({
+        'Payable Currency': item?.currency || '-',
+        'Payable Count': item?.count || 0,
+        'Payable Prices': item?.prices || '-',
+        '   ': '',
+      })) || []
+    const filterClient =
+      Client?.report.map(item => ({
+        'Client Payment Method': item?.paymentMethod || '-',
+        'Client Number': item?.count || 0,
+        'Client Percent': item?.ratio || 0,
+        '    ': '',
+      })) || []
+    const filterPro =
+      Pro?.report.map(item => ({
+        'Pro Payment Method': item?.type || '-',
+        'Pro Number': item?.count || 0,
+        'Pro Percent': item?.ratio || 0,
+        '     ': '',
+      })) || []
+
+    const mergeData1 = mergeData(filterSales, filterReceivable)
+    const mergeData2 = mergeData(mergeData1, filterPayable)
+    const mergeData3 = mergeData(mergeData2, filterClient)
+    const mergeData4 = mergeData(mergeData3, filterPro)
+    setCSVData(mergeData4)
+  }, [Sales, Receivable, Payable, Client, Pro])
+
+  const getFileTitle = () => {
+    const from = getDateFormat(
+      (Array.isArray(dateRange) && dateRange[0]) || null,
+    )
+    const to = getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)
+    return `account-data-${from}-${to}`
+  }
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
@@ -95,7 +146,7 @@ const AccountDashboards = () => {
           </Grid>
           <GridItem width={207} height={76}>
             <Box>
-              <CSVDownload data={[]} />
+              <CSVDownload title={`${getFileTitle()}`} data={CSVData || []} />
             </Box>
           </GridItem>
         </Grid>
@@ -124,6 +175,7 @@ const AccountDashboards = () => {
                 openDialog={setOpenInfoDialog}
                 subTitle={userViewDate}
                 padding='20px'
+                handleClick={() => router.push('/invoice/receivable/')}
               />
               <AccountTable
                 headers={[
@@ -142,6 +194,7 @@ const AccountDashboards = () => {
                 openDialog={setOpenInfoDialog}
                 subTitle={userViewDate}
                 padding='20px'
+                handleClick={() => router.push('/invoice/payable/')}
               />
               <AccountTable
                 headers={[

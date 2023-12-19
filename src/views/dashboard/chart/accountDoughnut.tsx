@@ -112,7 +112,7 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
               <Box display='flex' alignItems='center'>
                 <StatusSquare color={FourthColors[index]} />
                 <span className='name'>
-                  {toCapitalize(item.name || '')}
+                  {toCapitalize(item.name || '-')}
                   <span className='item-count'>({item.count})</span>
                 </span>
               </Box>
