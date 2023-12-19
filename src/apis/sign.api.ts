@@ -25,33 +25,32 @@ export const getRefreshToken = async () => {
 
 export const googleAuth = async (credential: string) => {
   // try {
-    const { data } = await axios.post(
-      `/api/enough/a/google/x-gu-grant?credential=${credential}`,
-    )
-    return data
+  await axios.post(`/api/enough/a/google/x-gu-grant?credential=${credential}`)
+
   // } catch (e: any) {
-  //   if (e.response.data.statusCode === 403) {
-  //     throw 'NOT_A_MEMBER'
-  //   } else if (e.response.data.statusCode >= 500) {
-  //     throw 'SERVER_ERROR'
-  //   } else {
-  //     throw new Error(e)
-  //   }
+
+  // if (e.response.data.statusCode === 403) {
+  //   throw 'NOT_A_MEMBER'
+  // } else if (e.response.data.statusCode >= 500) {
+  //   throw 'SERVER_ERROR'
+  // } else {
+  //   throw new Error(e)
+  // }
   // }
   // } catch (error) {
-    // e.response의 존재 여부 확인
-    // console.log("googleAuth-e",error)
-    // const err = error as AxiosError
-    // throw err
-    // if (e.response && e.response.data) {
-    //   if (e.response.data.statusCode === 403) {
-    //     throw 'NOT_A_MEMBER';
-    //   } else if (e.response.data.statusCode >= 500) {
-    //     throw 'SERVER_ERROR';
-    //   }
-    // }
-    // // 그 외의 경우, 일반적인 오류 처리
-    // throw new Error(e.message || 'Unknown error');
+  // e.response의 존재 여부 확인
+  // console.log("googleAuth-e",error)
+  // const err = error as AxiosError
+  // throw err
+  // if (e.response && e.response.data) {
+  //   if (e.response.data.statusCode === 403) {
+  //     throw 'NOT_A_MEMBER';
+  //   } else if (e.response.data.statusCode >= 500) {
+  //     throw 'SERVER_ERROR';
+  //   }
+  // }
+  // // 그 외의 경우, 일반적인 오류 처리
+  // throw new Error(e.message || 'Unknown error');
   // }
 }
 
