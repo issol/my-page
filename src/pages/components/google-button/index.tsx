@@ -124,7 +124,27 @@ export default function GoogleButton({ type }: Props) {
       //@ts-ignore
       const email = jwt_decode(response.credential)?.email as string
       emailRef.current = email
-      googleMutation.mutate(response.credential)
+      // googleMutation.mutate(response.credential)
+      googleAuth(response.credential)
+        .then(res => {
+          logger.info('google auth success res : ', res)
+          if (!res.accessToken) {
+            openModal({
+              type: 'signup-not-approval-modal',
+              children: (
+                <SignupNotApprovalModal
+                  onClose={() => closeModal('signup-not-approval-modal')}
+                />
+              ),
+            })
+          } else {
+            auth.updateUserInfo(res)
+            router.replace('/')
+          }
+        })
+        .catch(err => {
+          logger.info('google auth fail err : ', err)
+        })
     }
   }
 
