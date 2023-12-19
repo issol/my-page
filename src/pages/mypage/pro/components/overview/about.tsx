@@ -9,15 +9,15 @@ import Icon from 'src/@core/components/icon'
 import { v4 as uuidv4 } from 'uuid'
 
 //** data */
-import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import {
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
   MMDDYYYYHelper,
 } from '@src/shared/helpers/date.helper'
 import { ProStatus } from '@src/shared/const/status/statuses'
 import { Fragment } from 'react'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
+import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 
 type Props = {
   userInfo: {
@@ -133,7 +133,10 @@ export default function About({ userInfo }: Props) {
           <Label>
             {!userInfo.mobilePhone
               ? '-'
-              : '+' + userInfo.timezone.phone + ') ' + userInfo.mobilePhone}
+              : contryCodeAndPhoneNumberFormatter(
+                  splitContryCodeAndPhoneNumber(userInfo.mobilePhone)
+                )
+            }
           </Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -142,7 +145,10 @@ export default function About({ userInfo }: Props) {
           <Label>
             {!userInfo.telephone
               ? '-'
-              : '+' + userInfo.timezone.phone + ') ' + userInfo.telephone}
+              : contryCodeAndPhoneNumberFormatter(
+                  splitContryCodeAndPhoneNumber(userInfo.telephone)
+                )
+            }
           </Label>
         </Box>
 

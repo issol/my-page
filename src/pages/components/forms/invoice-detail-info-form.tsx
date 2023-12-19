@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -18,6 +18,7 @@ import {
 } from '@mui/material'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import dayjs from 'dayjs'
 
 // ** values
 import { countries } from 'src/@fake-db/autocomplete'
@@ -27,7 +28,7 @@ import { TaxInfo } from '@src/shared/const/tax/tax-info'
 import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
 
 // ** helpers
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 
 // ** types & schema
 import {
@@ -50,6 +51,7 @@ import InformationModal from '@src/@core/components/common-modal/information-mod
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
 
 type Props = {
   data: InvoicePayableDetailType | undefined
@@ -69,6 +71,23 @@ export default function InvoiceDetailInfoForm({
   statusList,
 }: Props) {
   const { openModal, closeModal } = useModal()
+  const [timeZoneList, setTimeZoneList] = useState<{
+    code: string;
+    label: string;
+    phone: string;
+  }[]>([])
+
+  useEffect(() => {
+    const timezoneList = getTimeZoneFromLocalStorage()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: ''
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [])
 
   // const { data: statusList, isLoading } = useGetInvoicePayableStatus()
 
@@ -82,6 +101,10 @@ export default function InvoiceDetailInfoForm({
         )}
       </>
     )
+  }
+
+  const dateValue = (date: Date) => {
+    return dayjs(date).format('MM/DD/YYYY, hh:mm A')
   }
 
   return (
@@ -117,7 +140,7 @@ export default function InvoiceDetailInfoForm({
         <TextField
           fullWidth
           disabled
-          value={data?.invoicedAt}
+          value={data?.invoicedAt ? dateValue(new Date(data.invoicedAt)) : '-'}
           label='Invoice date*'
           placeholder='Invoice date*'
         />
@@ -127,7 +150,7 @@ export default function InvoiceDetailInfoForm({
         <TextField
           fullWidth
           disabled
-          value={getGmtTimeEng(data?.invoicedAtTimezone?.code)}
+          value={timeZoneFormatter(data?.invoicedTimezone!)}
           label='Time zone*'
           placeholder='Time zone*'
         />
@@ -259,14 +282,14 @@ export default function InvoiceDetailInfoForm({
               disabled={isAccountManager}
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (
@@ -312,14 +335,14 @@ export default function InvoiceDetailInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option)}
                 </Box>
               )}
               renderInput={params => (

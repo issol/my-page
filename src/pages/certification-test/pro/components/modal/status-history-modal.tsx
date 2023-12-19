@@ -4,7 +4,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import NoList from '@src/pages/components/no-list'
 import { getProAppliedRolesStatusHistoryColumns } from '@src/shared/const/columns/pro-applied-roles'
-import { ProAppliedRolesStatusHistoryType } from '@src/types/pro-certification-test/applied-roles'
+import { ProAppliedRolesStatusHistoryType } from '@src/types/pro/pro-applied-roles'
 import { Loadable } from 'recoil'
 
 type Props = {

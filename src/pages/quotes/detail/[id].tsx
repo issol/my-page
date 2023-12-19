@@ -122,9 +122,10 @@ import { getClientPriceList } from '@src/apis/company/company-price.api'
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import {
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
   convertLocalTimezoneToUTC,
   formatDateToISOString,
+  changeTimeZoneOffset,
 } from '@src/shared/helpers/date.helper'
 import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
@@ -402,8 +403,8 @@ export default function QuotesDetail() {
     if (!isProjectLoading && project && statusList) {
       const defaultTimezone = {
         code: '',
-        phone: '',
         label: '',
+        phone: '',
       }
       projectInfoReset({
         status:
@@ -418,23 +419,61 @@ export default function QuotesDetail() {
         showDescription: project.showDescription,
 
         quoteDate: {
-          date: new Date(project.quoteDate),
+          date: new Date(
+            convertTimeToTimezone(
+              project.quoteDate,
+              project.quoteDateTimezone ?? defaultTimezone,
+              true
+            )!
+          ),
           timezone: project.quoteDateTimezone ?? defaultTimezone,
         },
         projectDueDate: {
-          date: project.projectDueAt,
+          date: project.projectDueAt
+            ? new Date(
+                convertTimeToTimezone(
+                  project.projectDueAt,
+                  project.projectDueTimezone ?? defaultTimezone,
+                  true
+                )!
+              )
+            : undefined,
           timezone: project.projectDueTimezone ?? defaultTimezone,
         },
         quoteDeadline: {
-          date: project.quoteDeadline,
+          date: project.quoteDeadline
+            ? new Date(
+                convertTimeToTimezone(
+                  project.quoteDeadline,
+                  project.quoteDeadlineTimezone ?? defaultTimezone,
+                  true
+                )!
+              )
+            : undefined,
           timezone: project.quoteDeadlineTimezone ?? defaultTimezone,
         },
         quoteExpiryDate: {
-          date: new Date(project.quoteExpiryDate),
+          date: project.quoteExpiryDate
+            ? new Date(
+                convertTimeToTimezone(
+                  project.quoteExpiryDate,
+                  project.quoteExpiryDateTimezone ?? defaultTimezone,
+                  true
+                )!
+              )
+            : undefined,
           timezone: project.quoteExpiryDateTimezone ?? defaultTimezone,
         },
         estimatedDeliveryDate: {
-          date: project.estimatedAt,
+          date: project.estimatedAt
+            ? new Date(
+                convertTimeToTimezone(
+                  project.estimatedAt,
+                  project.estimatedTimezone ?? defaultTimezone,
+                  true
+                )!
+              )
+            : undefined,
           timezone: project.estimatedTimezone ?? defaultTimezone,
         },
       })
@@ -791,7 +830,7 @@ export default function QuotesDetail() {
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.confirmedAt,
               auth.getValue().user?.timezone!,
             )}
@@ -984,6 +1023,49 @@ export default function QuotesDetail() {
   function onProjectInfoSave() {
     const projectInfo = {
       ...getProjectInfoValues(),
+      quoteDate: { 
+        ...getProjectInfoValues().quoteDate,
+        date: changeTimeZoneOffset(
+          getProjectInfoValues().quoteDate.date.toISOString(),
+          getProjectInfoValues().quoteDate.timezone
+        ),
+      },
+      projectDueDate: {
+        ...getProjectInfoValues().projectDueDate,
+        date: getProjectInfoValues().projectDueDate.date
+          ? changeTimeZoneOffset(
+              getProjectInfoValues().projectDueDate.date.toISOString(),
+              getProjectInfoValues().projectDueDate.timezone
+            )
+          : null,
+      },
+      quoteDeadline: {
+        ...getProjectInfoValues().quoteDeadline,
+        date: getProjectInfoValues().quoteDeadline.date
+          ? changeTimeZoneOffset(
+              getProjectInfoValues().quoteDeadline.date.toISOString(),
+              getProjectInfoValues().quoteDeadline.timezone
+            )
+          : null,
+      },
+      quoteExpiryDate: {
+        ...getProjectInfoValues().quoteExpiryDate,
+        date: getProjectInfoValues().quoteExpiryDate.date
+          ? changeTimeZoneOffset(
+              getProjectInfoValues().quoteExpiryDate.date.toISOString(),
+              getProjectInfoValues().quoteExpiryDate.timezone
+            )
+          : null,
+      },
+      estimatedDeliveryDate: {
+        ...getProjectInfoValues().estimatedDeliveryDate,
+        date: getProjectInfoValues().estimatedDeliveryDate.date
+          ? changeTimeZoneOffset(
+              getProjectInfoValues().estimatedDeliveryDate.date.toISOString(),
+              getProjectInfoValues().estimatedDeliveryDate.timezone
+            )
+          : null,
+      },
       showDescription: getProjectInfoValues().showDescription ? '1' : '0',
       isTaxable: getProjectInfoValues().isTaxable ? '1' : '0',
     }

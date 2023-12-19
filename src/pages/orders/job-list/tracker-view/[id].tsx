@@ -34,7 +34,7 @@ import { updateIsDelivered } from '@src/apis/jobs.api'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** types
@@ -174,13 +174,13 @@ export default function JobTrackerDetail() {
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip
-            title={FullDateTimezoneHelper(
+            title={convertTimeToTimezone(
               row?.itemDueDate,
               auth.getValue().user?.timezone?.code!,
             )}
           >
             <div>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row?.itemDueDate,
                 auth.getValue().user?.timezone?.code!,
               )}
@@ -219,13 +219,13 @@ export default function JobTrackerDetail() {
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip
-            title={FullDateTimezoneHelper(
+            title={convertTimeToTimezone(
               row?.jobDueDate,
               auth.getValue().user?.timezone?.code!,
             )}
           >
             <div style={{ overflow: 'scroll' }}>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row?.jobDueDate,
                 auth.getValue().user?.timezone?.code!,
               )}

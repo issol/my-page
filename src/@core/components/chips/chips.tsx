@@ -22,7 +22,7 @@ import { OrderStatusType } from '@src/types/common/orders.type'
 import { statusType } from '@src/types/common/status.type'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
-import { ProAppliedRolesStatusType } from '@src/types/pro-certification-test/applied-roles'
+import { ProAppliedRolesStatusType } from '@src/types/pro/pro-applied-roles'
 
 export function renderStatusChip(status: string) {
   const color =

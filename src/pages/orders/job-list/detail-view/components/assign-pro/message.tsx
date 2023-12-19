@@ -15,7 +15,7 @@ import { assignmentStatusChip } from '@src/@core/components/chips/chips'
 import { ChangeEvent, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import CustomChip from 'src/@core/components/mui/chip'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
@@ -263,7 +263,7 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
                   </Typography>
                 </Box>
                 <Typography variant='subtitle2'>
-                  {FullDateTimezoneHelper(item.createdAt, user.timezone)}
+                  {convertTimeToTimezone(item.createdAt, user.timezone)}
                 </Typography>
                 <Box>{item.content}</Box>
               </Box>

@@ -49,7 +49,7 @@ import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 // ** values
 import { InvoicePayableStatus } from '@src/shared/const/status/statuses'
@@ -58,6 +58,8 @@ import {
   InvoiceProChip,
   invoicePayableStatusChip,
 } from '@src/@core/components/chips/chips'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   isUpdatable: boolean
@@ -80,7 +82,7 @@ export default function InvoiceDetailCard({
   statusList,
 }: Props) {
   const { openModal, closeModal } = useModal()
-
+  const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
 
   const currentRole = getCurrentRole()
@@ -212,9 +214,9 @@ export default function InvoiceDetailCard({
                 <CustomTypo fontWeight={600}>Invoice date</CustomTypo>
                 <CustomTypo variant='body2'>
                   {data?.invoicedAt
-                    ? FullDateTimezoneHelper(
+                    ? convertTimeToTimezone(
                         data.invoicedAt,
-                        data.invoicedAtTimezone,
+                        auth.getValue().user?.timezone
                       )
                     : '-'}
                 </CustomTypo>
@@ -224,45 +226,47 @@ export default function InvoiceDetailCard({
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Status</CustomTypo>
                 {
-                // isUpdatable ? (
-                //   <Autocomplete
-                //     autoHighlight
-                //     fullWidth
-                //     value={
-                //       InvoicePayableStatus.find(
-                //         item => item.value === data?.invoiceStatus,
-                //       ) ?? null
-                //     }
-                //     onChange={(e, v) => {
-                //       if (v?.value) {
-                //         onInvoiceStatusChange(
-                //           v.value as InvoicePayableStatusType,
-                //         )
-                //       }
-                //     }}
-                //     options={InvoicePayableStatus}
-                //     getOptionLabel={option => option.label}
-                //     renderInput={params => (
-                //       <TextField {...params} label='Status' />
-                //     )}
-                //   />
-                // ) : 
-                currentRole && currentRole.name === 'LPM' ? (
-                  <Box sx={{ width: '50%' }}>
-                    {invoicePayableStatusChip(
-                      data?.invoiceStatus as InvoicePayableStatusType,
-                      statusList
-                    )}
-                  </Box>
-                ) : currentRole && currentRole.name === 'PRO' ? (
-                  <Box sx={{ width: '50%' }}>
-                    {invoicePayableStatusChip(
-                      data?.invoiceStatus as InvoiceProStatusType,
-                      statusList
-                    )}
-                  </Box>
-                
-                ) : null}
+                  // isUpdatable ? (
+                  //   <Autocomplete
+                  //     autoHighlight
+                  //     fullWidth
+                  //     value={
+                  //       InvoicePayableStatus.find(
+                  //         item => item.value === data?.invoiceStatus,
+                  //       ) ?? null
+                  //     }
+                  //     onChange={(e, v) => {
+                  //       if (v?.value) {
+                  //         onInvoiceStatusChange(
+                  //           v.value as InvoicePayableStatusType,
+                  //         )
+                  //       }
+                  //     }}
+                  //     options={InvoicePayableStatus}
+                  //     getOptionLabel={option => option.label}
+                  //     renderInput={params => (
+                  //       <TextField {...params} label='Status' />
+                  //     )}
+                  //   />
+                  // ) :
+                  currentRole &&
+                  (currentRole.name === 'LPM' ||
+                    currentRole.name === 'ACCOUNT_MANAGER') ? (
+                    <Box sx={{ width: '50%' }}>
+                      {invoicePayableStatusChip(
+                        data?.invoiceStatus as InvoicePayableStatusType,
+                        statusList,
+                      )}
+                    </Box>
+                  ) : currentRole && currentRole.name === 'PRO' ? (
+                    <Box sx={{ width: '50%' }}>
+                      {invoicePayableStatusChip(
+                        data?.invoiceStatus as InvoiceProStatusType,
+                        statusList,
+                      )}
+                    </Box>
+                  ) : null
+                }
               </LabelContainer>
             </Grid>
             <Grid item xs={12}>
@@ -292,7 +296,7 @@ export default function InvoiceDetailCard({
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Tax rate</CustomTypo>
                 <CustomTypo variant='body2'>
-                  {data?.taxRate ? `- ${Number(data.taxRate)}%` : '-'}
+                  {data?.taxRate ? `${Number(data.taxRate)}%` : '-'}
                 </CustomTypo>
               </LabelContainer>
             </Grid>
@@ -306,9 +310,9 @@ export default function InvoiceDetailCard({
                       <CustomTypo fontWeight={600}>Payment due</CustomTypo>
                       <CustomTypo variant='body2'>
                         {data?.payDueAt
-                          ? FullDateTimezoneHelper(
+                          ? convertTimeToTimezone(
                               data?.payDueAt,
-                              data?.payDueTimezone?.code,
+                              auth.getValue().user?.timezone
                             )
                           : '-'}
                       </CustomTypo>
@@ -322,9 +326,9 @@ export default function InvoiceDetailCard({
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Payment date</CustomTypo>
                 <CustomTypo variant='body2'>
-                  {FullDateTimezoneHelper(
+                  {convertTimeToTimezone(
                     data?.paidAt,
-                    data?.paidDateTimezone?.code,
+                    auth.getValue().user?.timezone
                   )}
                 </CustomTypo>
               </LabelContainer>

@@ -4,8 +4,7 @@ import IconifyIcon from '@src/@core/components/icon'
 
 import { getAddress } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import {
   ClientType,
   OrderFeatureType,
@@ -115,11 +114,11 @@ const OrderDetailClient = ({
                     Time zone:
                   </Typography>
                   <Typography variant='body2'>
-                    {getGmtTimeEng(
+                    {
                       client?.contactPerson !== null
-                        ? client?.contactPerson?.timezone?.code
-                        : client?.client?.timezone?.code,
-                    )}
+                        ? client?.contactPerson?.timezone?.label
+                        : client?.client?.timezone?.label
+                    }
                   </Typography>
                 </Box>
               </Box>
@@ -136,14 +135,16 @@ const OrderDetailClient = ({
                     Telephone:
                   </Typography>
                   <Typography variant='body2'>
-                    {getPhoneNumber(
-                      client?.contactPerson !== null
-                        ? client?.contactPerson?.phone!
-                        : client?.client?.phone,
-                      client?.contactPerson !== null
-                        ? client?.contactPerson?.timezone?.phone
-                        : client?.client?.timezone?.phone,
-                    )}
+                    {client?.contactPerson?.phone
+                      ? contryCodeAndPhoneNumberFormatter(
+                          splitContryCodeAndPhoneNumber(client.contactPerson.phone)
+                        )
+                      : client?.client?.phone
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(client.client.phone)
+                          )
+                        : '-'
+                    }
                   </Typography>
                 </Box>
               </Box>
@@ -163,14 +164,16 @@ const OrderDetailClient = ({
                     Mobile phone:
                   </Typography>
                   <Typography variant='body2'>
-                    {getPhoneNumber(
-                      client?.contactPerson !== null
-                        ? client?.contactPerson?.mobile!
-                        : client?.client?.mobile,
-                      client?.contactPerson !== null
-                        ? client?.contactPerson?.timezone?.phone
-                        : client?.client?.timezone?.phone,
-                    )}
+                    {client?.contactPerson?.mobile
+                      ? contryCodeAndPhoneNumberFormatter(
+                          splitContryCodeAndPhoneNumber(client.contactPerson.mobile)
+                        )
+                      : client?.client?.mobile
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(client.client.mobile)
+                          )
+                        : '-'
+                    }
                   </Typography>
                 </Box>
               </Box>
@@ -187,14 +190,16 @@ const OrderDetailClient = ({
                     Fax:
                   </Typography>
                   <Typography variant='body2'>
-                    {getPhoneNumber(
-                      client?.contactPerson !== null
-                        ? client?.contactPerson?.fax!
-                        : client?.client?.fax,
-                      client?.contactPerson !== null
-                        ? client?.contactPerson?.timezone?.phone
-                        : client?.client?.timezone?.phone,
-                    )}
+                    {client?.contactPerson?.fax
+                      ? contryCodeAndPhoneNumberFormatter(
+                          splitContryCodeAndPhoneNumber(client.contactPerson.fax)
+                        )
+                      : client?.client?.fax
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(client.client.fax)
+                          )
+                        : '-'
+                    }
                   </Typography>
                 </Box>
               </Box>

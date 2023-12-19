@@ -10,7 +10,7 @@ import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import CustomPagination from 'src/pages/components/custom-pagination'
 import Grid from '@mui/material/Grid'
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import Chip from 'src/@core/components/mui/chip'
 import TextField from '@mui/material/TextField'
 import { log } from 'console'
@@ -332,7 +332,7 @@ export default function JobFeedback({
                     </Box>
                     <Box>
                       <Typography variant='body2'>
-                        {FullDateTimezoneHelper(value.createdAt, auth?.user?.timezone)}
+                        {convertTimeToTimezone(value.createdAt, auth?.user?.timezone)}
                       </Typography>
                     </Box>
                     {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}

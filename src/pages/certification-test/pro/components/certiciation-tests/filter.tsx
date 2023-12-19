@@ -1,4 +1,4 @@
-import { ProCertificationTestFilterType } from '@src/types/pro-certification-test/certification-test'
+import { ProCertificationTestFilterType } from '@src/types/pro/pro-certification-test'
 import { Dispatch, SetStateAction } from 'react'
 import {
   Control,
@@ -24,8 +24,6 @@ import { JobList } from '@src/shared/const/job/jobs'
 import _ from 'lodash'
 
 type Props = {
-  // filter: ProCertificationTestFilterType
-  // setFilter: Dispatch<SetStateAction<ProCertificationTestFilterType>>
   handleSubmit: UseFormHandleSubmit<FilterType>
   onReset: () => void
   control: Control<FilterType, any>

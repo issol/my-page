@@ -2,7 +2,7 @@ import { Box, Card, Typography } from '@mui/material'
 import {
   ProCertificationTestFilterType,
   ProCertificationTestListType,
-} from '@src/types/pro-certification-test/certification-test'
+} from '@src/types/pro/pro-certification-test'
 import { Suspense, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Filter from './filter'
@@ -15,13 +15,13 @@ import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { JobList } from '@src/shared/const/job/jobs'
 import CertificationTestList from './list'
-import { useGetProCertificationTestList } from '@src/queries/pro-certification-test/certification-tests'
+import { useGetProCertificationTestList } from '@src/queries/pro/pro-certification-tests'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { ProAppliedRolesType } from '@src/types/pro-certification-test/applied-roles'
+import { ProAppliedRolesType } from '@src/types/pro/pro-applied-roles'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import InformationModal from '@src/@core/components/common-modal/information-modal'
-import { getIsProBasicTestPassed } from '@src/apis/pro-certification-test/certification-tests'
+import { getIsProBasicTestPassed } from '@src/apis/pro/pro-certification-tests'
 import { Loadable } from 'recoil'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { useMutation, useQueryClient } from 'react-query'
@@ -169,18 +169,25 @@ const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
             <CustomModal
               //TODO API 연결
               onClick={() => {
-                applyTestMutation.mutate([
+                applyTestMutation.mutate(
+                  [
+                    {
+                      userId: auth.getValue().user?.userId!,
+                      userCompany: auth.getValue().user?.company!,
+                      jobType: data.jobType,
+                      role: data.role,
+                      source: data.source,
+                      target: data.target,
+                    },
+                  ],
                   {
-                    userId: auth.getValue().user?.userId!,
-                    userCompany: auth.getValue().user?.company!,
-                    jobType: data.jobType,
-                    role: data.role,
-                    source: data.source,
-                    target: data.target,
+                    onSuccess: () => {
+                      closeModal('NoBasicApplyModal')
+                    },
                   },
-                ])
+                )
               }}
-              onClose={() => closeModal('ApplyBasicPassedModal')}
+              onClose={() => closeModal('NoBasicApplyModal')}
               title={
                 <>
                   Are you sure you want to apply for
@@ -234,19 +241,25 @@ const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
                 <CustomModal
                   //TODO API 연결
                   onClick={() => {
-                    applyTestMutation.mutate([
+                    applyTestMutation.mutate(
+                      [
+                        {
+                          userId: auth.getValue().user?.userId!,
+                          userCompany: auth.getValue().user?.company!,
+                          jobType: data.jobType,
+                          role: data.role,
+                          source: data.source,
+                          target: data.target,
+                        },
+                      ],
                       {
-                        userId: auth.getValue().user?.userId!,
-                        userCompany: auth.getValue().user?.company!,
-                        jobType: data.jobType,
-                        role: data.role,
-                        source: data.source,
-                        target: data.target,
+                        onSuccess: () => {
+                          closeModal('ApplyModal')
+                        },
                       },
-                    ])
-                    closeModal('ApplyBasicPassedModal')
+                    )
                   }}
-                  onClose={() => closeModal('ApplyBasicPassedModal')}
+                  onClose={() => closeModal('ApplyModal')}
                   title={
                     <>
                       Are you sure you want to apply for
@@ -299,8 +312,26 @@ const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
               children: (
                 <CustomModal
                   //TODO API 연결
-                  onClick={() => closeModal('ApplyBasicPassedModal')}
-                  onClose={() => closeModal('ApplyBasicPassedModal')}
+                  onClick={() => {
+                    applyTestMutation.mutate(
+                      [
+                        {
+                          userId: auth.getValue().user?.userId!,
+                          userCompany: auth.getValue().user?.company!,
+                          jobType: data.jobType,
+                          role: data.role,
+                          source: data.source,
+                          target: data.target,
+                        },
+                      ],
+                      {
+                        onSuccess: () => {
+                          closeModal('NoBasicApplyModal')
+                        },
+                      },
+                    )
+                  }}
+                  onClose={() => closeModal('NoBasicApplyModal')}
                   title={
                     <>
                       Are you sure you want to apply for

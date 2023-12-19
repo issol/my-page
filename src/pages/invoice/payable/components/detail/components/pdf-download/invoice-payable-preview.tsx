@@ -2,8 +2,8 @@ import { Fragment, useEffect } from 'react'
 
 // ** helpers
 import { formatCurrency } from '@src/shared/helpers/price.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 
 // ** types
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
@@ -55,8 +55,6 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
   const { closeModal } = useModal()
   const dispatch = useAppDispatch()
   const columnName = lang === 'EN' ? invoiceEn : invoiceKo
-
-  console.log(data)
 
   useEffect(() => {
     if (type === 'download') {
@@ -151,7 +149,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                 {columnName.invoiceDate}:
               </Typography>
               <Typography variant='subtitle1' fontSize={14}>
-                {FullDateTimezoneHelper(data?.invoicedAt, user?.timezone)}
+                {convertTimeToTimezone(data?.invoicedAt, user?.timezone)}
               </Typography>
             </Box>
           </Box>
@@ -204,7 +202,12 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
               {data.pro?.email}
             </Typography>
             <Typography variant='subtitle1' fontSize={14}>
-              {getPhoneNumber(data?.pro?.mobile, data.pro?.timezone?.phone)}
+              {!data?.pro?.mobile
+                ? '-'
+                : contryCodeAndPhoneNumberFormatter(
+                    splitContryCodeAndPhoneNumber(data.pro.mobile)
+                  )
+              }
             </Typography>
           </Box>
         </Grid>

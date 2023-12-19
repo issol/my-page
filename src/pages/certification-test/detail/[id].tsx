@@ -12,7 +12,7 @@ import { useContext, useEffect, useState, Fragment } from 'react'
 import Divider from '@mui/material/Divider'
 import CustomChip from 'src/@core/components/mui/chip'
 
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import { convertFromRaw, EditorState } from 'draft-js'
 import _ from 'lodash'
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -154,7 +154,7 @@ const CertificationTestDetail = () => {
         if (auth.state === 'hasValue') {
           return (
             <Box>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row.updatedAt,
                 auth.getValue().user?.timezone!,
               )}
@@ -550,7 +550,7 @@ const CertificationTestDetail = () => {
                           }}
                         >
                           <Typography variant='body2'>
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               currentRow.updatedAt,
                               auth.getValue().user?.timezone!,
                             )}
@@ -836,7 +836,7 @@ const CertificationTestDetail = () => {
                         }}
                       >
                         <Typography variant='body2'>
-                          {FullDateTimezoneHelper(
+                          {convertTimeToTimezone(
                             currentVersion?.updatedAt,
                             auth.getValue().user?.timezone!,
                           )}

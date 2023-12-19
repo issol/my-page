@@ -41,7 +41,7 @@ import CustomAvatar from 'src/@core/components/mui/avatar'
 
 import { NotificationType } from '@src/types/common/notification.type'
 import { useRouter } from 'next/router'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 import {
   FetchNextPageOptions,
@@ -405,7 +405,7 @@ const NotificationDropdown = (props: Props) => {
                                   {transformMessage(item) ?? '-'}
                                 </MenuItemTitle>
                                 <MenuItemSubtitle variant='body2' fontSize={12}>
-                                  {FullDateTimezoneHelper(
+                                  {convertTimeToTimezone(
                                     item.createdAt,
                                     auth.getValue().user?.timezone,
                                   )}

@@ -99,6 +99,7 @@ import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetStatusList } from '@src/queries/common.query'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { getMultipleOrder } from '@src/apis/invoice/common.api'
+import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
 
 export type languageType = {
   id: number | string
@@ -142,7 +143,6 @@ export default function AddNewInvoice() {
 
   useEffect(() => {
     if (!router.isReady) return
-    console.log(router.query.orderId)
 
     const orderId = router.query.orderId
       ? typeof router.query.orderId === 'object'
@@ -305,8 +305,6 @@ export default function AddNewInvoice() {
     resolver: yupResolver(invoiceProjectInfoSchema),
   })
 
-  console.log(getProjectInfoValues())
-
   // ** step4
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
@@ -435,8 +433,6 @@ export default function AddNewInvoice() {
       ...rawProjectInfo,
     }
 
-    console.log(clients.contactPersonId)
-
     const res: InvoiceReceivablePatchParamsType = {
       projectManagerId: teams.projectManagerId!,
       supervisorId: teams.supervisorId ?? null,
@@ -444,16 +440,30 @@ export default function AddNewInvoice() {
       clientId: clients.clientId,
       contactPersonId: clients.contactPersonId,
       orderId: typeof orderId === 'number' ? [orderId] : orderId,
-      invoicedAt: projectInfo.invoiceDate.toISOString(),
-      invoicedTimezone: projectInfo.invoiceDateTimezone,
-      payDueAt: projectInfo.paymentDueDate.date,
+      invoicedAt: changeTimeZoneOffset(
+        projectInfo.invoiceDate.toISOString(),
+        projectInfo.invoiceDateTimezone,
+      )!,
+      invoicedTimezone: {
+        ...projectInfo.invoiceDateTimezone,
+        code: '',
+        phone: '',
+      },
+      payDueAt: changeTimeZoneOffset(
+        new Date(projectInfo.paymentDueDate.date).toISOString(),
+        projectInfo.paymentDueDate.timezone,
+      )!,
       description: projectInfo.invoiceDescription,
       projectName: projectInfo.projectName,
       revenueFrom: projectInfo.revenueFrom,
       tax: projectInfo.tax ? projectInfo.tax.toString() : '',
       isTaxable: projectInfo.isTaxable ? '1' : '0',
       addressType: clients.addressType,
-      payDueTimezone: projectInfo.paymentDueDate.timezone,
+      payDueTimezone: {
+        ...projectInfo.paymentDueDate.timezone,
+        code: '',
+        phone: '',
+      },
       // invoiceConfirmedAt: projectInfo.invoiceConfirmDate?.date,
       // invoiceConfirmTimezone: projectInfo.invoiceConfirmDate?.timezone,
       // taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date,
@@ -462,7 +472,7 @@ export default function AddNewInvoice() {
       invoiceDescription: projectInfo.invoiceDescription,
       setReminder: projectInfo.setReminder ? '1' : '0',
     }
-
+    console.log("res",res)
     openModal({
       type: 'CreateInvoiceModal',
       children: (
@@ -527,7 +537,7 @@ export default function AddNewInvoice() {
     if (id) {
       getMultipleOrder(id)
         .then(res => {
-          console.log(res)
+          console.log("getMultipleOrder",res)
 
           const isClientRegistered =
             res.clientInfo.contactPerson !== null &&

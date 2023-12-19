@@ -7,7 +7,7 @@ import {
 } from '@src/@core/styles/typography'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import Link from 'next/link'
 import { useContext } from 'react'
@@ -156,7 +156,7 @@ export default function HistoryAssignPro({
       renderCell: ({ row }: CellType) => {
         return (
           <Typography>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.assignmentDate,
               auth.getValue().user?.timezone?.code!,
             )}

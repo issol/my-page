@@ -39,10 +39,9 @@ import { authState } from '@src/states/auth'
 // ** helpers
 import {
   convertDateByTimezone,
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
-import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -179,7 +178,7 @@ const JobPostingDetail = () => {
         if (auth.state === 'hasValue' && auth.getValue().user) {
           return (
             <Box sx={{ overflowX: 'scroll' }}>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row.createdAt,
                 auth.getValue().user?.timezone!,
               )}
@@ -295,7 +294,7 @@ const JobPostingDetail = () => {
                       <Typography variant='body2'>{data?.email}</Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         data?.createdAt,
                         auth.getValue().user?.timezone!,
                       )}
@@ -328,7 +327,7 @@ const JobPostingDetail = () => {
                       'Due date',
                       convertDateByTimezone(
                         data?.dueDate,
-                        data?.dueDateTimezone!,
+                        data?.dueDateTimezone?.code! ?? 'KR',
                         auth.getValue().user?.timezone.code!,
                       ),
                     )}
@@ -341,7 +340,7 @@ const JobPostingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTimeEng(auth.getValue().user?.timezone?.code),
+                      auth.getValue().user?.timezone?.label,
                     )}
                   </Grid>
                 </Grid>

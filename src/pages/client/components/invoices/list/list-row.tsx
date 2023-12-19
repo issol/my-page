@@ -11,7 +11,7 @@ import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { ClientInvoiceListType } from '@src/types/client/client-projects.type'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { useGetStatusList } from '@src/queries/common.query'
@@ -158,7 +158,7 @@ export default function ClientInvoicesRows(props: {
           size='small'
         >
           <Typography variant='body1'>
-            {FullDateTimezoneHelper(row.invoicedAt, user.timezone)}
+            {convertTimeToTimezone(row.invoicedAt, user.timezone)}
           </Typography>
         </TableCell>
         {separateLine()}
@@ -174,7 +174,7 @@ export default function ClientInvoicesRows(props: {
           size='small'
         >
           <Typography variant='body1'>
-            {FullDateTimezoneHelper(row.payDueAt, row.payDueTimezone)}
+            {convertTimeToTimezone(row.payDueAt, row.payDueTimezone)}
           </Typography>
         </TableCell>
         {separateLine()}

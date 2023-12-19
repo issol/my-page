@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 import styled from 'styled-components'
 
@@ -81,7 +81,7 @@ export default function ContactPersonDetailModal({
               <Label>Time zone</Label>
               <Typography variant='body2'>
                 {data?.timezone?.code
-                  ? getGmtTimeEng(data?.timezone.code)
+                  ? data?.timezone.label
                   : '-'}
               </Typography>
             </InfoContainer>
@@ -90,9 +90,12 @@ export default function ContactPersonDetailModal({
             <InfoContainer>
               <Label>Telephone</Label>
               <Typography variant='body2'>
-                {data?.phone
-                  ? `+${data?.timezone?.phone})  ${data?.phone}`
-                  : '-'}
+                {!data?.phone
+                  ? '-'
+                  : contryCodeAndPhoneNumberFormatter(
+                    splitContryCodeAndPhoneNumber(data.phone)
+                  )
+                }
               </Typography>
             </InfoContainer>
           </Grid>
@@ -101,9 +104,12 @@ export default function ContactPersonDetailModal({
             <InfoContainer>
               <Label>Mobile phone</Label>
               <Typography variant='body2'>
-                {data?.mobile
-                  ? `+${data?.timezone?.phone})  ${data?.mobile}`
-                  : '-'}
+                {!data?.mobile
+                  ? '-'
+                  : contryCodeAndPhoneNumberFormatter(
+                    splitContryCodeAndPhoneNumber(data.mobile)
+                  )
+                }
               </Typography>
             </InfoContainer>
           </Grid>
@@ -111,7 +117,12 @@ export default function ContactPersonDetailModal({
             <InfoContainer>
               <Label>Fax</Label>
               <Typography variant='body2'>
-                {data?.fax ? `+${data?.timezone?.phone})  ${data?.fax}` : '-'}
+                {!data?.fax
+                  ? '-'
+                  : contryCodeAndPhoneNumberFormatter(
+                    splitContryCodeAndPhoneNumber(data.fax)
+                  )
+                }
               </Typography>
             </InfoContainer>
           </Grid>

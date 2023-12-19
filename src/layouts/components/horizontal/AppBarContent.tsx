@@ -13,11 +13,16 @@ import { useGetNotificationList } from '@src/queries/notification.query'
 import { Suspense } from 'react'
 import { useInfiniteQuery, useMutation } from 'react-query'
 import { getNotificationList, markAsRead } from '@src/apis/notification.api'
+import { Button, Typography } from '@mui/material'
+import useModal from '@src/hooks/useModal'
+import LoginRequiredModal from '@src/@core/components/common-modal/login-modal'
+import { useRouter } from 'next/router'
 
 interface Props {
   hidden: boolean
   settings: Settings
   saveSettings: (values: Settings) => void
+  publicPage?: boolean
 }
 
 // const notifications: NotificationsType[] = [
@@ -118,7 +123,11 @@ const shortcuts: ShortcutsType[] = [
 
 const AppBarContent = (props: Props) => {
   // ** Props
-  const { hidden, settings, saveSettings } = props
+  const { hidden, settings, saveSettings, publicPage } = props
+  const { openModal, closeModal } = useModal()
+  const router = useRouter()
+
+  console.log(router)
 
   // const { data: notifications, refetch } = useGetNotificationList({
   //   isShowUnread: 0,
@@ -134,8 +143,37 @@ const AppBarContent = (props: Props) => {
       <LanguageDropdown settings={settings} saveSettings={saveSettings} />
       <ModeToggler settings={settings} saveSettings={saveSettings} />
       <ShortcutsDropdown settings={settings} shortcuts={shortcuts} /> */}
-
-      <UserDropdown settings={settings} />
+      {publicPage ? (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <Button
+            sx={{ textDecoration: 'underline', color: '#666CFF' }}
+            onClick={() =>
+              openModal({
+                type: 'LoginRequiredModal',
+                children: (
+                  <LoginRequiredModal
+                    onClose={() => closeModal('LoginRequiredModal')}
+                    onClick={() => closeModal('LoginRequiredModal')}
+                    path={router.pathname ?? '/'}
+                  />
+                ),
+              })
+            }
+          >
+            Log in
+          </Button>
+          <Button
+            variant='contained'
+            onClick={() => {
+              router.push('/signup')
+            }}
+          >
+            Sign up
+          </Button>
+        </Box>
+      ) : (
+        <UserDropdown settings={settings} />
+      )}
     </Box>
   )
 }

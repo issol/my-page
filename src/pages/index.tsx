@@ -12,6 +12,7 @@ import Spinner from 'src/@core/components/spinner'
 import UserLayout from '@src/layouts/UserLayout'
 import { useAppSelector } from '@src/hooks/useRedux'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { setAllTimeZoneList } from '@src/shared/helpers/timezone.helper'
 
 const Home = () => {
   // ** Hooks
@@ -21,6 +22,10 @@ const Home = () => {
   useEffect(() => {
     router.replace('/home')
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    setAllTimeZoneList()
   }, [])
 
   return <Spinner sx={{ height: '100%' }} />

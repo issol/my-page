@@ -610,8 +610,6 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
     })
   }
 
-  console.log(userInfo)
-
   return (
     <Fragment>
       { (updateUserInfoMutation.isLoading ||

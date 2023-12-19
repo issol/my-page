@@ -1,5 +1,5 @@
 // ** React Imports
-import { ReactNode, useEffect, useContext } from 'react'
+import { ReactNode, useEffect, useContext, useState } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -49,6 +49,9 @@ import { useAppSelector } from 'src/hooks/useRedux'
 import useAuth from '@src/hooks/useAuth'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import MuiPhone from '@src/pages/components/phone/mui-phone'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -83,7 +86,7 @@ const defaultValues = {
   middleName: '',
   lastName: '',
   jonTitle: '',
-  timezone: { code: '', label: '', phone: '' },
+  timezone: { code: '', label: '' },
   mobile: '',
   phone: '',
   fax: '',
@@ -95,6 +98,24 @@ const PersonalInfoManager = () => {
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
+
+  const [timeZoneList, setTimeZoneList] = useState<{
+    code: string;
+    label: string;
+    phone: string
+  }[]>([])
+
+  useEffect(() => {
+    const timezoneList = getTimeZoneFromLocalStorage()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: ''
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [])
 
   // ** Hooks
   const auth = useRecoilValueLoadable(authState)
@@ -359,12 +380,12 @@ const PersonalInfoManager = () => {
                           autoHighlight
                           fullWidth
                           {...field}
-                          options={countries as CountryType[]}
+                          options={timeZoneList as CountryType[]}
                           onChange={(e, v) => field.onChange(v)}
                           disableClearable
                           renderOption={(props, option) => (
                             <Box component='li' {...props} key={uuidv4()}>
-                              {option.label} ({option.code}) +{option.phone}
+                              {timeZoneFormatter(option)}
                             </Box>
                           )}
                           renderInput={params => (
@@ -377,6 +398,7 @@ const PersonalInfoManager = () => {
                               }}
                             />
                           )}
+                          getOptionLabel={option => timeZoneFormatter(option) ?? ''}
                         />
                       )}
                     />
@@ -392,33 +414,10 @@ const PersonalInfoManager = () => {
                       control={control}
                       rules={{ required: false }}
                       render={({ field: { value, onChange, onBlur } }) => (
-                        <TextField
-                          autoFocus
-                          id='outlined-basic'
-                          label='Mobile phone'
-                          variant='outlined'
-                          value={value}
-                          onBlur={onBlur}
-                          onChange={e => {
-                            if (e.target.value.length > 50) {
-                              return
-                            }
-                            onChange(e)
-                          }}
-                          inputProps={{ maxLength: 50 }}
-                          error={Boolean(errors.mobilePhone)}
-                          placeholder={
-                            !watch('timezone').phone
-                              ? `+ 1) 012 345 6789`
-                              : `012 345 6789`
-                          }
-                          InputProps={{
-                            startAdornment: watch('timezone').phone && (
-                              <InputAdornment position='start'>
-                                {'+' + watch('timezone').phone}
-                              </InputAdornment>
-                            ),
-                          }}
+                        <MuiPhone
+                          value={value || ''}
+                          onChange={onChange}
+                          label={'Mobile phone'}
                         />
                       )}
                     />
@@ -437,31 +436,10 @@ const PersonalInfoManager = () => {
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
-                        <TextField
-                          autoFocus
-                          id='outlined-basic'
-                          label='Telephone'
-                          variant='outlined'
-                          value={value}
-                          onBlur={onBlur}
-                          onChange={e => {
-                            if (isInvalidPhoneNumber(e.target.value)) return
-                            onChange(e)
-                          }}
-                          inputProps={{ maxLength: 50 }}
-                          error={Boolean(errors.telephone)}
-                          placeholder={
-                            !watch('timezone').phone
-                              ? `+ 1) 012 345 6789`
-                              : `012 345 6789`
-                          }
-                          InputProps={{
-                            startAdornment: watch('timezone').phone && (
-                              <InputAdornment position='start'>
-                                {'+' + watch('timezone').phone}
-                              </InputAdornment>
-                            ),
-                          }}
+                        <MuiPhone
+                          value={value || ''}
+                          onChange={onChange}
+                          label={'Telephone'}
                         />
                       )}
                     />
@@ -477,31 +455,10 @@ const PersonalInfoManager = () => {
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
-                        <TextField
-                          autoFocus
-                          id='outlined-basic'
-                          label='Fax'
-                          variant='outlined'
-                          value={value}
-                          onBlur={onBlur}
-                          onChange={e => {
-                            if (isInvalidPhoneNumber(e.target.value)) return
-                            onChange(e)
-                          }}
-                          inputProps={{ maxLength: 50 }}
-                          error={Boolean(errors.fax)}
-                          placeholder={
-                            !watch('timezone').phone
-                              ? `+ 1) 012 345 6789`
-                              : `012 345 6789`
-                          }
-                          InputProps={{
-                            startAdornment: watch('timezone').phone && (
-                              <InputAdornment position='start'>
-                                {'+' + watch('timezone').phone}
-                              </InputAdornment>
-                            ),
-                          }}
+                        <MuiPhone
+                          value={value || ''}
+                          onChange={onChange}
+                          label={'Fax'}
                         />
                       )}
                     />

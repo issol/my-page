@@ -178,16 +178,18 @@ export default function CopyOrdersList({ onClose, onCopy }: Props) {
           </Grid>
           <Grid item xs={12}>
             <DataGrid
-              autoHeight
+              // autoHeight
               components={{
                 NoRowsOverlay: () => NoList(),
                 NoResultsOverlay: () => NoList(),
               }}
               sx={{
                 overflowX: 'scroll',
+                overflowY: 'scroll',
                 '.MuiDataGrid-row': {
                   cursor: 'pointer',
                 },
+                height: '350px',
               }}
               columns={columns}
               rows={orderList?.data ?? []}

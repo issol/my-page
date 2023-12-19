@@ -423,14 +423,28 @@ function OnboardingDetail() {
     skillTestId?: number,
     skillTestStatus?: string,
   ) => {
-    patchTestStatusMutation.mutate({
-      id: id,
-      status: type,
-    })
+    patchTestStatusMutation.mutate(
+      {
+        id: id,
+        status: type,
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries(['Applied-roles'])
+        },
+      },
+    )
   }
 
   const handleActionSkillTest = (id: number, status: string) => {
-    patchTestStatusMutation.mutate({ id: id, status: status })
+    patchTestStatusMutation.mutate(
+      { id: id, status: status },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries(['Applied-roles'])
+        },
+      },
+    )
   }
 
   const onClickRejectOrPause = (jobInfo: AppliedRoleType, type: string) => {

@@ -35,7 +35,7 @@ import {
 
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 
 // ** components
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
@@ -400,7 +400,7 @@ export default function ClientMemo({ clientId, memo }: Props) {
                     {currentMemo.memoId !== item.id ? (
                       <Fragment>
                         <Typography variant='body2'>
-                          {FullDateTimezoneHelper(
+                          {convertTimeToTimezone(
                             item.createdAt,
                             auth.getValue().user?.timezone.code!,
                           )}

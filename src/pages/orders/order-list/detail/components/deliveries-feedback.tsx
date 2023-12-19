@@ -42,7 +42,7 @@ import { updateOrderType } from '../[id]'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { v4 as uuidv4 } from 'uuid'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { CancelReasonType } from '@src/types/requests/detail.type'
@@ -441,7 +441,7 @@ const DeliveriesFeedback = ({
         fontWeight={400}
         sx={{ mb: '5px' }}
       >
-        {FullDateTimezoneHelper(file.createdAt, auth.getValue().user?.timezone)}
+        {convertTimeToTimezone(file.createdAt, auth.getValue().user?.timezone)}
       </Typography>
       <Box
         sx={{
@@ -825,7 +825,7 @@ const DeliveriesFeedback = ({
                         fontWeight={400}
                         sx={{ mb: '5px' }}
                       >
-                        {FullDateTimezoneHelper(
+                        {convertTimeToTimezone(
                           value.createdAt,
                           auth.getValue().user?.timezone,
                         )}

@@ -32,7 +32,7 @@ import {
   assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
 import { Icon } from '@iconify/react'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
 import Message from './message'
@@ -672,7 +672,7 @@ const AssignPro = ({
         return (
           <Box>
             {row.assignmentStatus
-              ? FullDateTimezoneHelper(row.assignmentDate, user.timezone)
+              ? convertTimeToTimezone(row.assignmentDate, user.timezone)
               : '-'}
           </Box>
         )
@@ -767,7 +767,7 @@ const AssignPro = ({
         return (
           <Box>
             {row.assignmentStatus
-              ? FullDateTimezoneHelper(row.assignmentDate, user.timezone)
+              ? convertTimeToTimezone(row.assignmentDate, user.timezone)
               : '-'}
           </Box>
         )

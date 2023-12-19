@@ -19,7 +19,6 @@ export function getInvoiceDetailInfoSchema(isAccountManager: boolean) {
       timezone: yup.object().shape({
         code: yup.string().nullable(),
         label: yup.string().nullable(),
-        phone: yup.string().nullable(),
       }),
     }),
     paymentDate: yup.object().shape({
@@ -27,7 +26,6 @@ export function getInvoiceDetailInfoSchema(isAccountManager: boolean) {
       timezone: yup.object().shape({
         code: yup.string().nullable(),
         label: yup.string().nullable(),
-        phone: yup.string().nullable(),
       }),
     }),
     invoiceDescription: yup.string().nullable(),
@@ -41,17 +39,15 @@ export const invoiceDetailInfoSchema = yup.object().shape({
   paymentDueAt: yup.object().shape({
     date: yup.date().nullable(),
     timezone: yup.object().shape({
-      code: yup.string().required(FormErrors.required),
+      code: yup.string().nullable(),
       label: yup.string().required(FormErrors.required),
-      phone: yup.string().required(FormErrors.required),
     }),
   }),
   paymentDate: yup.object().shape({
     date: yup.date().nullable(),
     timezone: yup.object().shape({
-      code: yup.string().required(FormErrors.required),
+      code: yup.string().nullable(),
       label: yup.string().required(FormErrors.required),
-      phone: yup.string().required(FormErrors.required),
     }),
   }),
   invoiceDescription: yup.string().nullable(),

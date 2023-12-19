@@ -19,7 +19,7 @@ import CalendarContainer from './calendar-view/calendar-container'
 import {
   useGetProjectList,
   useGetWorkNameList,
-} from '@src/queries/pro-project/project.query'
+} from '@src/queries/pro/pro-project.query'
 import {
   FilterType as ActiveFilterType,
   SortingType,

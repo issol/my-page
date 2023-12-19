@@ -26,9 +26,9 @@ export const invoiceProjectInfoSchema = yup.object().shape({
   paymentDueDate: yup.object().shape({
     date: yup.date().required(FormErrors.required),
     timezone: yup.object().shape({
-      code: yup.string().required(FormErrors.required),
+      code: yup.string().nullable(),
       label: yup.string().required(FormErrors.required),
-      phone: yup.string().required(FormErrors.required),
+      phone: yup.string().nullable(),
     }),
   }),
 

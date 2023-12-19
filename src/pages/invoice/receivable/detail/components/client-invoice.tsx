@@ -15,6 +15,7 @@ import ConfirmInvoiceModal from './modal/confirm-invoice-modal'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { confirmInvoiceFromClient } from '@src/apis/invoice/receivable.api'
 import { ItemType } from '@src/types/common/item.type'
+import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
 
 type Props = {
   downloadData: InvoiceDownloadData
@@ -73,11 +74,30 @@ Props) => {
     taxInvoiceDueAt: string | null
     taxInvoiceDueTimezone: CountryType | null
   }) => {
-    //TODO API 연결
     const res = {
       ...data,
-      clientConfirmedAt: Date(),
-      clientConfirmTimezone: user.timezone,
+      clientConfirmedAt: changeTimeZoneOffset(
+        new Date().toISOString(),
+        user.timezone,
+      )!,
+      clientConfirmTimezone: {
+        ...user.timezone,
+        code: '',
+        phone: '',
+      },
+      taxInvoiceDueAt: data?.taxInvoiceDueAt && data?.taxInvoiceDueTimezone
+        ? changeTimeZoneOffset(
+            new Date(data?.taxInvoiceDueAt).toISOString(),
+            data?.taxInvoiceDueTimezone,
+          )
+        : null,
+      taxInvoiceDueTimezone: data?.taxInvoiceDueAt && data?.taxInvoiceDueTimezone
+        ? {
+            ...data?.taxInvoiceDueTimezone,
+            code: '',
+            phone: '',
+          }
+        : null,
     }
     confirmInvoiceMutation.mutate({ ...res })
   }

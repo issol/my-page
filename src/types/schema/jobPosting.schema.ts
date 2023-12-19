@@ -67,6 +67,5 @@ export const jobPostingFormSchema = yup.object().shape({
   dueDateTimezone: yup.object().shape({
     code: yup.string().nullable(),
     label: yup.string().nullable(),
-    phone: yup.string().nullable(),
   }),
 })

@@ -37,7 +37,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** helpers
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -196,7 +196,7 @@ const ClientGuidelineDetail = () => {
         if (auth.state === 'hasValue' && auth.getValue().user)
           return (
             <Box sx={{ overflowX: 'scroll' }}>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row.updatedAt,
                 auth.getValue().user?.timezone!,
               )}
@@ -452,7 +452,7 @@ const ClientGuidelineDetail = () => {
                       </Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         currentVersion?.updatedAt,
                         auth.getValue().user?.timezone!,
                       )}
@@ -643,7 +643,7 @@ const ClientGuidelineDetail = () => {
                             variant='body2'
                             sx={{ alignSelf: 'flex-end' }}
                           >
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               new Date(),
                               auth.getValue().user?.timezone!,
                             )}

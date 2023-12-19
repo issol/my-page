@@ -30,7 +30,7 @@ import {
   PROMenu,
   CLIENTMenu,
 } from '@src/shared/const/menu/menu'
-import { getCurrentRole } from 'src/shared/auth/storage'
+import { getCurrentRole, getUserDataFromBrowser } from 'src/shared/auth/storage'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useRecoilValueLoadable } from 'recoil'
 import { currentRoleSelector, permissionState } from '@src/states/permission'
@@ -40,6 +40,7 @@ import { UserRoleType } from '@src/context/types'
 import { useQuery } from 'react-query'
 import { getUserBeHealthz } from '@src/apis/common.api'
 import ErrorServerMaintenance from '@src/@core/components/error/error-server-maintenance'
+import { authState } from '@src/states/auth'
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean
@@ -47,7 +48,9 @@ interface Props {
 
 const UserLayout = ({ children, contentHeightFixed }: Props) => {
   // ** Hooks
+  const layoutEl = document.querySelector('.layout-content-wrapper')
   const { settings, saveSettings } = useSettings()
+  const userData = useRecoilValueLoadable(authState)
 
   const {
     data: health,
@@ -70,25 +73,18 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
 
   const [currentRole, setCurrentRole] = useState<UserRoleType | null>(null)
 
-  // ** Vars for server side navigation
-  // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()
-  // const { menuItems: horizontalMenuItems } = ServerSideHorizontalNavItems()
-
-  /**
-   *  The below variable will hide the current layout menu at given screen size.
-   *  The menu will be accessible from the Hamburger icon only (Vertical Overlay Menu).
-   *  You can change the screen size from which you want to hide the current layout menu.
-   *  Please refer useMediaQuery() hook: https://mui.com/material-ui/react-use-media-query/,
-   *  to know more about what values can be passed to this hook.
-   *  ! Do not change this value unless you know what you are doing. It can break the template.
-   */
   const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
 
   if (hidden && settings.layout === 'horizontal') {
     settings.layout = 'vertical'
   }
 
-  console.log(currentRoleState)
+  const [publicPage, setPublicPage] = useState(false)
+
+  useEffect(() => {
+    const user = userData.getValue().user
+    setPublicPage(!user)
+  }, [userData])
 
   useEffect(() => {
     const current =
@@ -99,6 +95,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
         : null
 
     setCurrentRole(current)
+
     if (permission.state === 'hasValue' && current) {
       switch (current.name) {
         case 'TAD':
@@ -137,6 +134,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
               )
             }),
           )
+          layoutEl?.classList.add('client_bg')
           break
         case 'ACCOUNT_MANAGER':
           setSortedMenu(
@@ -158,6 +156,42 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
     <>
       {isError ? (
         <ErrorServerMaintenance />
+      ) : publicPage ? (
+        <Layout
+          hidden={hidden}
+          settings={settings}
+          saveSettings={saveSettings}
+          contentHeightFixed={contentHeightFixed}
+          verticalLayoutProps={{
+            navMenu: {
+              navItems: VerticalNavItems(),
+
+              // Uncomment the below line when using server-side menu in vertical layout and comment the above line
+              // navItems: verticalMenuItems
+            },
+          }}
+          horizontalLayoutProps={{
+            navMenu: {
+              navItems: HorizontalNavItems().filter(value => {
+                return (
+                  PROMenu.includes(value.title) && value.role?.includes('PRO')
+                )
+              }),
+            },
+            appBar: {
+              content: () => (
+                <HorizontalAppBarContent
+                  hidden={hidden}
+                  settings={settings}
+                  saveSettings={saveSettings}
+                  publicPage={true}
+                />
+              ),
+            },
+          }}
+        >
+          {children}
+        </Layout>
       ) : (
         <>
           {currentRole && permission.state === 'hasValue' && (

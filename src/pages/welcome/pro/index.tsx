@@ -91,6 +91,13 @@ import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useAuth from '@src/hooks/useAuth'
+import { useGetJobOpeningDetail } from '@src/queries/pro/pro-job-openings'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { getJobOpeningDetail } from '@src/apis/pro/pro-job-openings.api'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+import MuiPhone from '@src/pages/components/phone/mui-phone'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -140,11 +147,16 @@ const PersonalInfoPro = () => {
 
   const theme = useTheme()
   const router = useRouter()
+  const jobId = router.query
+  console.log(router.query)
+  console.log(jobId)
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
   const MAXIMUM_FILE_SIZE = FILE_SIZE.PRO_RESUME
 
   const languageList = getGloLanguage()
+
+  const { openModal, closeModal } = useModal()
 
   // ** states
   const [step, setStep] = useState<1 | 2>(1)
@@ -156,6 +168,23 @@ const PersonalInfoPro = () => {
 
   // ** State
   const [files, setFiles] = useState<File[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<{
+    code: string;
+    label: string;
+    phone: string
+  }[]>([])
+
+  useEffect(() => {
+    const timezoneList = getTimeZoneFromLocalStorage()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: ''
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [])
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
@@ -171,7 +200,7 @@ const PersonalInfoPro = () => {
     //   setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
     // },
     onDrop: (acceptedFiles: File[]) => {
-      setFiles((prevFiles) => [...prevFiles, ...acceptedFiles]);
+      setFiles(prevFiles => [...prevFiles, ...acceptedFiles])
     },
   })
 
@@ -422,6 +451,97 @@ const PersonalInfoPro = () => {
     update(index, newVal)
     trigger('jobInfo')
   }
+
+  useEffect(() => {
+    if (!router.isReady) return
+    if (step === 2 && router.query.jobId) {
+      getJobOpeningDetail(Number(router.query.jobId)).then(res => {
+        if (res) {
+          openModal({
+            type: 'FillInDataModal',
+            children: (
+              <CustomModal
+                onClose={() => closeModal('FillInDataModal')}
+                onClick={() => {
+                  closeModal('FillInDataModal')
+                  const jobInfo = jobInfoFields[0]
+                  const index = 0
+                  let newVal = {
+                    ...jobInfo,
+                    ['jobType']: res.jobType,
+                    ['role']: res.role,
+                    ['source']: res.sourceLanguage ?? '',
+                    ['target']: res.targetLanguage ?? '',
+                  }
+                  update(index, newVal)
+                  trigger('jobInfo')
+                }}
+                vary='info'
+                rightButtonText='Okay'
+                leftButtonText='No, thanks'
+                title={
+                  <Box>
+                    <Typography variant='h6'>
+                      It appears that you are signing up to apply for a job.
+                    </Typography>
+                    <Typography variant='body1' sx={{ mt: '20px' }}>
+                      Would you like the application form to be{' '}
+                      <Typography
+                        variant='body1'
+                        fontWeight={600}
+                        component={'span'}
+                      >
+                        automatically filled with the relevant information
+                      </Typography>{' '}
+                      regarding the job?
+                    </Typography>
+                  </Box>
+                }
+              />
+            ),
+          })
+        }
+      })
+    }
+  }, [router.isReady, step])
+
+  // useEffect(() => {
+  //   if (data && !isLoading) {
+  //     openModal({
+  //       type: 'FillInDataModal',
+  //       children: (
+  //         <CustomModal
+  //           onClose={() => closeModal('FillInDataModal')}
+  //           onClick={() => {
+  //             closeModal('FillInDataModal')
+  //             const jobInfo = jobInfoFields
+  //           }}
+  //           vary='info'
+  //           rightButtonText='Okay'
+  //           leftButtonText='No, thanks'
+  //           title={
+  //             <Box>
+  //               <Typography variant='h6'>
+  //                 It appears that you are signing up to apply for a job.
+  //               </Typography>
+  //               <Typography variant='body1'>
+  //                 Would you like the application form to be{' '}
+  //                 <Typography
+  //                   variant='body1'
+  //                   fontWeight={600}
+  //                   component={'span'}
+  //                 >
+  //                   automatically filled with the relevant information
+  //                 </Typography>{' '}
+  //                 regarding the job?
+  //               </Typography>
+  //             </Box>
+  //           }
+  //         />
+  //       ),
+  //     })
+  //   }
+  // }, [data, isLoading])
 
   return (
     <Box className='content-right'>
@@ -750,24 +870,25 @@ const PersonalInfoPro = () => {
                             autoHighlight
                             fullWidth
                             {...field}
-                            options={countries as CountryType[]}
+                            options={timeZoneList as CountryType[]}
                             onChange={(e, v) => field.onChange(v)}
                             disableClearable
                             renderOption={(props, option) => (
                               <Box component='li' {...props} key={uuidv4()}>
-                                {option.label} ({option.code}) +{option.phone}
+                                {timeZoneFormatter(option)}
                               </Box>
                             )}
                             renderInput={params => (
                               <TextField
                                 {...params}
-                                label='Time zone*'
+                                label='Timezone*'
                                 error={Boolean(errors.timezone)}
                                 inputProps={{
                                   ...params.inputProps,
                                 }}
                               />
                             )}
+                            getOptionLabel={option => timeZoneFormatter(option) ?? ''}
                           />
                         )}
                       />
@@ -786,31 +907,10 @@ const PersonalInfoPro = () => {
                         control={control}
                         rules={{ required: false }}
                         render={({ field: { value, onChange, onBlur } }) => (
-                          <TextField
-                            autoFocus
-                            id='outlined-basic'
-                            label='Mobile phone'
-                            variant='outlined'
-                            value={value}
-                            onBlur={onBlur}
-                            onChange={e => {
-                              if (isInvalidPhoneNumber(e.target.value)) return
-                              onChange(e)
-                            }}
-                            inputProps={{ maxLength: 50 }}
-                            error={Boolean(errors.mobile)}
-                            placeholder={
-                              !watch('timezone').phone
-                                ? `+ 1) 012 345 6789`
-                                : `012 345 6789`
-                            }
-                            InputProps={{
-                              startAdornment: watch('timezone').phone && (
-                                <InputAdornment position='start'>
-                                  {'+' + watch('timezone').phone}
-                                </InputAdornment>
-                              ),
-                            }}
+                          <MuiPhone
+                            value={value || ''}
+                            onChange={onChange}
+                            label={'Mobile phone'}
                           />
                         )}
                       />
@@ -827,31 +927,10 @@ const PersonalInfoPro = () => {
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange, onBlur } }) => (
-                          <TextField
-                            autoFocus
-                            id='outlined-basic'
-                            label='Telephone'
-                            variant='outlined'
-                            value={value}
-                            onBlur={onBlur}
-                            onChange={e => {
-                              if (isInvalidPhoneNumber(e.target.value)) return
-                              onChange(e)
-                            }}
-                            inputProps={{ maxLength: 50 }}
-                            error={Boolean(errors.phone)}
-                            placeholder={
-                              !watch('timezone').phone
-                                ? `+ 1) 012 345 6789`
-                                : `012 345 6789`
-                            }
-                            InputProps={{
-                              startAdornment: watch('timezone').phone && (
-                                <InputAdornment position='start'>
-                                  {'+' + watch('timezone').phone}
-                                </InputAdornment>
-                              ),
-                            }}
+                          <MuiPhone
+                            value={value || ''}
+                            onChange={onChange}
+                            label={'Telephone'}
                           />
                         )}
                       />

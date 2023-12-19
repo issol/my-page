@@ -23,6 +23,7 @@ import {
   Suspense,
   useEffect,
 } from 'react'
+import { useQueryClient } from 'react-query'
 import styled from 'styled-components'
 
 import DeliveriesFeedback from './deliveries-feedback'
@@ -30,10 +31,12 @@ import ProJobInfo from './job-info'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { statusType } from '@src/types/common/status.type'
+import { JobListFilterType } from '../requested-ongoing-list'
 type MenuType = 'jobInfo' | 'feedback'
 
 const ProJobsDetail = () => {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { id, assigned } = router.query
   const [value, setValue] = useState<MenuType>('jobInfo')
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
@@ -66,6 +69,21 @@ const ProJobsDetail = () => {
 
   const { data: jobDetailDots } = useGetProJobDots(Number(id))
 
+  const onClickBack = () => {
+    const filter: JobListFilterType = {
+      take: 10,
+      skip: 0,
+      search: '',
+      client: null,
+      dueDateFrom: '',
+      dueDateTo: '',
+      listType: 'requested-ongoing',
+    }
+    queryClient.invalidateQueries(['proJobList', filter])
+    router.push('/jobs')
+
+  }
+
   useEffect(() => {
     if (
       jobStatusList &&
@@ -97,7 +115,7 @@ const ProJobsDetail = () => {
         <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <IconButton
             sx={{ padding: '0 !important', height: '24px' }}
-            onClick={() => router.push('/jobs')}
+            onClick={() => onClickBack()}
           >
             <Icon icon='mdi:chevron-left' width={24} height={24} />
           </IconButton>
@@ -114,7 +132,26 @@ const ProJobsDetail = () => {
           >
             <CustomTab
               value='jobInfo'
-              label='Job info'
+              label={
+                <>
+                  Job info
+                  {jobDetailDots.includes('download') ||
+                  jobDetailDots.includes('name') ||
+                  jobDetailDots.includes('status') ||
+                  jobDetailDots.includes('contactPersonId') ||
+                  jobDetailDots.includes('dueAt') ||
+                  jobDetailDots.includes('dueAtTimezone') ||
+                  jobDetailDots.includes('prices') ||
+                  jobDetailDots.includes('description')
+                  ? (
+                    <Badge
+                      variant='dot'
+                      color='primary'
+                      sx={{ marginLeft: '8px' }}
+                    ></Badge>
+                  ) : null}
+                </>
+              }
               iconPosition='start'
               icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
@@ -132,12 +169,11 @@ const ProJobsDetail = () => {
                 label={
                   <>
                     Deliveries & Feedback
-                    {jobDetailDots.includes('feedback') ||
-                    jobDetailDots.includes('download') ? (
+                    {jobDetailDots.includes('feedback') ? (
                       <Badge
                         variant='dot'
                         color='primary'
-                        sx={{ marginLeft: '4px' }}
+                        sx={{ marginLeft: '8px' }}
                       ></Badge>
                     ) : null}
                   </>

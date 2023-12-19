@@ -11,7 +11,7 @@ import {
 } from '@src/types/invoice/common.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
-import { ProAppliedRolesStatusType } from '@src/types/pro-certification-test/applied-roles'
+import { ProAppliedRolesStatusType } from '@src/types/pro/pro-applied-roles'
 
 export function getProInvoiceStatusColor(status: InvoiceProStatusType) {
   const color =

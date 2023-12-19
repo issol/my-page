@@ -47,9 +47,8 @@ export const companyInfoSchema = yup.object().shape({
       return value.startsWith('https://') || value.startsWith('http://')
     }),
   timezone: yup.object().shape({
-    code: yup.string().required(FormErrors.required),
+    code: yup.string().nullable(),
     label: yup.string().required(FormErrors.required),
-    phone: yup.string().required(FormErrors.required),
   }),
   isTaxable: yup.boolean().required(FormErrors.required),
   tax: yup

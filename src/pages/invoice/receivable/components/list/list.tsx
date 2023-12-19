@@ -18,7 +18,7 @@ import {
 } from '@src/types/invoice/receivable.type'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** contexts

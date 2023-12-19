@@ -23,7 +23,6 @@ import styled from 'styled-components'
 // ** types & schema
 import { ClientDetailType } from '@src/types/client/client'
 import { TitleTypography } from '@src/@core/styles/typography'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { ClientStatus } from '@src/shared/const/status/statuses'
 import {
   CompanyInfoFormType,
@@ -53,10 +52,11 @@ import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-mod
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 
 type Props = {
   clientId: number
@@ -271,7 +271,7 @@ export default function ClientInfo({
                   Business commencement date:&nbsp;
                   <Typography variant='body2' component={'span'}>
                     {clientInfo.commencementDate
-                      ? FullDateTimezoneHelper(
+                      ? convertTimeToTimezone(
                           clientInfo.commencementDate,
                           auth.getValue().user?.timezone,
                         )
@@ -315,7 +315,7 @@ export default function ClientInfo({
                 >
                   Time zone:&nbsp;
                   <Typography variant='body2' component={'span'}>
-                    {getGmtTimeEng(clientInfo?.timezone?.code)}
+                    {clientInfo?.timezone?.label}
                   </Typography>
                 </Typography>
               </InfoBox>
@@ -335,9 +335,12 @@ export default function ClientInfo({
                   Telephone:
                 </Typography>
                 <Typography variant='body2' component={'span'}>
-                  {clientInfo?.phone
-                    ? `+${clientInfo?.timezone?.phone})  ${clientInfo.phone}`
-                    : '-'}
+                  {!clientInfo?.phone
+                    ? '-'
+                    : contryCodeAndPhoneNumberFormatter(
+                      splitContryCodeAndPhoneNumber(clientInfo.phone)
+                    )
+                  }
                 </Typography>
               </InfoBox>
               <InfoBox>
@@ -355,9 +358,12 @@ export default function ClientInfo({
                 >
                   Mobile phone:&nbsp;
                   <Typography variant='body2' component={'span'}>
-                    {clientInfo?.mobile
-                      ? `+${clientInfo?.timezone?.phone})  ${clientInfo.mobile}`
-                      : '-'}
+                    {!clientInfo?.mobile
+                      ? '-'
+                      : contryCodeAndPhoneNumberFormatter(
+                        splitContryCodeAndPhoneNumber(clientInfo.mobile)
+                      )
+                    }
                   </Typography>
                 </Typography>
               </InfoBox>
@@ -376,9 +382,12 @@ export default function ClientInfo({
                 >
                   Fax:&nbsp;
                   <Typography variant='body2' component={'span'}>
-                    {clientInfo?.fax
-                      ? `+${clientInfo?.timezone?.phone})  ${clientInfo.fax}`
-                      : '-'}
+                    {!clientInfo?.fax
+                      ? '-'
+                      : contryCodeAndPhoneNumberFormatter(
+                        splitContryCodeAndPhoneNumber(clientInfo.fax)
+                      )
+                    }
                   </Typography>
                 </Typography>
               </InfoBox>

@@ -1,6 +1,7 @@
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { FilterType } from 'src/pages/jobPosting'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 export type StatusType = 'Ongoing' | 'Paused' | 'Fulfilled' | 'Not started' | ''
 export type JobPostingDataType = {
@@ -30,7 +31,7 @@ export const getJobPostingList = async (
       `/api/enough/recruiting/jobposting?${makeQuery({
         ...filters,
         company: 'GloZ',
-        notStarted: 1,
+        // notStarted: 1,
       })}`,
     )
     return data
@@ -54,13 +55,14 @@ export type JobPostingDetailType = {
   targetLanguage: string
   dueDate: string
   openings: number
-  dueDateTimezone: string
+  dueDateTimezone: CountryType
   yearsOfExperience: string
   postLink: Array<{ id: number; category: string; link: string }> // postLink로 보낸 값
   jobPostLink: string // short url
   createdAt: string
   content: any
   view: number
+  createdTimezone: CountryType
 }
 export const getJobPostingDetail = async (
   id: number,

@@ -1,5 +1,5 @@
 // ** React Imports
-import { ElementType, Fragment } from 'react'
+import { ElementType, Fragment, useContext } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -32,6 +32,12 @@ import CanViewNavLink from 'src/layouts/components/acl/CanViewNavLink'
 // ** Util Imports
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 import { handleURLQueries } from 'src/@core/layouts/utils'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import LoginRequiredModal from '@src/@core/components/common-modal/login-modal'
 
 interface Props {
   item: NavLink
@@ -68,6 +74,8 @@ const ListItem = styled(MuiListItem)<
 const HorizontalNavLink = (props: Props) => {
   // ** Props
   const { item, settings, hasParent } = props
+  const { openModal, closeModal } = useModal()
+  const user = useRecoilValueLoadable(authState)
 
   // ** Hook & Vars
   const router = useRouter()
@@ -76,6 +84,7 @@ const HorizontalNavLink = (props: Props) => {
   const icon = item.icon ? item.icon : navSubItemIcon
 
   const Wrapper = !hasParent ? List : Fragment
+  const ability = useContext(AbilityContext)
 
   const isNavLinkActive = () => {
     if (item.path === '/dashboards') {
@@ -105,6 +114,21 @@ const HorizontalNavLink = (props: Props) => {
             if (item.path === undefined) {
               e.preventDefault()
               e.stopPropagation()
+            } else if (!(ability && ability.can(item?.action, item?.subject))) {
+              if (!user.getValue().user) {
+                e.preventDefault()
+                e.stopPropagation()
+                openModal({
+                  type: 'LoginRequiredModal',
+                  children: (
+                    <LoginRequiredModal
+                      onClose={() => closeModal('LoginRequiredModal')}
+                      onClick={() => closeModal('LoginRequiredModal')}
+                      path={item.path}
+                    />
+                  ),
+                })
+              }
             }
           }}
           sx={{

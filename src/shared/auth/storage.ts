@@ -1,5 +1,6 @@
 // ** Config
 
+import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import authConfig from 'src/configs/auth'
 import { ClientUserType, UserDataType, UserRoleType } from 'src/context/types'
 
@@ -125,4 +126,19 @@ export function getCurrentRole(): UserRoleType | null {
   } else {
     return null
   }
+}
+
+// Timezone
+export const setTimeZoneToLocalStorage = (timeZones:TimeZoneType[]) => {
+  if (typeof window === 'object') {
+    localStorage.setItem('timezones', JSON.stringify(timeZones))
+  }
+}
+
+export const getTimeZoneFromLocalStorage = (): TimeZoneType[] => {
+  if (typeof window === 'object') {
+    const storedData = window.localStorage.getItem('timezones');
+    return storedData ? JSON.parse(storedData) : [];
+  }
+  return []
 }

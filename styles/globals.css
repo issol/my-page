@@ -69,3 +69,12 @@ input::-webkit-inner-spin-button {
 .sticky_header {
   width: 100%;
 }
+
+/*TODO : 임시 배경색 넣어둔 부분 - 차후 삭제할 것*/
+.client_bg  {
+  background-color: rgba(238, 240, 229, 0.6) !important;
+}
+
+.pro_bg {
+  background-color: rgba(221, 230, 237, 0.5) !important;
+}
