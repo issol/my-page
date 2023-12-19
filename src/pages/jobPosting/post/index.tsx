@@ -76,7 +76,7 @@ import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { FormErrors } from '@src/shared/const/formErrors'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 
 export default function JobPostingPost() {

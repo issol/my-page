@@ -40,7 +40,7 @@ import { countries } from 'src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import MuiPhone from '../phone/mui-phone'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
 

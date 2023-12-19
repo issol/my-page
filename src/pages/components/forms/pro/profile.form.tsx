@@ -27,7 +27,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { countries } from 'src/@fake-db/autocomplete'
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import MuiPhone from '../../phone/mui-phone'
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'

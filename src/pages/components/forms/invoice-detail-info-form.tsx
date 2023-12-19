@@ -51,7 +51,7 @@ import InformationModal from '@src/@core/components/common-modal/information-mod
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
 

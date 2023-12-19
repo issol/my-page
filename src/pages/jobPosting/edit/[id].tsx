@@ -81,7 +81,7 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { timezoneSelector } from '@src/states/permission'
 

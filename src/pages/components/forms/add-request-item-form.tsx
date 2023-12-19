@@ -56,7 +56,7 @@ import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { FormErrors } from '@src/shared/const/formErrors'
 import dayjs from 'dayjs'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
 

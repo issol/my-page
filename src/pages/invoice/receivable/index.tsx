@@ -45,6 +45,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import SelectOrder from './components/list/select-order'
 import { useQueryClient } from 'react-query'
+import { timezoneSelector } from '@src/states/permission'
 
 export type FilterType = {
   invoiceDate: Date[]
@@ -110,6 +111,7 @@ export default function Receivable() {
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const [menu, setMenu] = useState<ToggleMenuType>('list')
 
@@ -389,6 +391,7 @@ export default function Receivable() {
                   statusList!,
                   currentRole!,
                   auth,
+                  timezone.getValue(),
                 )}
                 type='list'
               />

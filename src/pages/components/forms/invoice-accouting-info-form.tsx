@@ -38,7 +38,7 @@ import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 // ** helpers
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
 

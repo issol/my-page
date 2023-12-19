@@ -31,6 +31,7 @@ const List = ({
   setFilters,
 }: Props) => {
   const router = useRouter()
+
   return (
     <Card>
       <CardHeader

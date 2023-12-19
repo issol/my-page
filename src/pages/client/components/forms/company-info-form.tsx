@@ -52,7 +52,7 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { FormErrors } from '@src/shared/const/formErrors'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
 

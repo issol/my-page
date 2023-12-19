@@ -29,6 +29,8 @@ import { useGetMessage } from '@src/queries/order/job.query'
 import { readMessage, sendMessageToPro } from '@src/apis/job-detail.api'
 import { useEffect } from 'react'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   info: AssignProListType
@@ -51,8 +53,17 @@ type Props = {
   statusList: Array<{ value: number; label: string }>
 }
 
-const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Props) => {
+const Message = ({
+  info,
+  user,
+  row,
+  orderDetail,
+  item,
+  refetch,
+  statusList,
+}: Props) => {
   const { openModal, closeModal } = useModal()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [message, setMessage] = useState<string>('')
   const handleChangeMessage = (event: ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value)
@@ -78,10 +89,10 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
     (data: { jobId: number; proId: number }) =>
       readMessage(data.jobId, data.proId),
     {
-      onSuccess: () =>{
+      onSuccess: () => {
         messageRefetch()
-      }
-    }
+      },
+    },
   )
 
   const handleSendMessage = () => {
@@ -93,12 +104,12 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
   }
 
   const scrollToBottom = () => {
-    const box = document.getElementById('message-box');
+    const box = document.getElementById('message-box')
     if (box) {
-      box.scrollTop = box.scrollHeight;
+      box.scrollTop = box.scrollHeight
     }
   }
-  
+
   useEffect(() => {
     messageRefetch()
   }, [messageRefetch])
@@ -107,7 +118,7 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
     if (messageList && !messageListLoading) {
       readMessageMutation.mutate({
         jobId: row.id,
-        proId: info.userId
+        proId: info.userId,
       })
       scrollToBottom()
     }
@@ -115,8 +126,7 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
 
   return (
     <Box sx={{ padding: '50px 60px', position: 'relative' }}>
-      { sendMessageToProMutation.isLoading ?
-        <OverlaySpinner /> : null }
+      {sendMessageToProMutation.isLoading ? <OverlaySpinner /> : null}
       <IconButton
         sx={{ position: 'absolute', top: '20px', right: '20px' }}
         onClick={() => {
@@ -215,61 +225,67 @@ const Message = ({ info, user, row, orderDetail, item, refetch, statusList }: Pr
         </Box>
         <Divider />
         <Box
-          id="message-box"
+          id='message-box'
           sx={{
             maxHeight: '500px',
             overflowY: 'scroll',
           }}
         >
-        {messageList?.contents &&
-          messageList?.contents.map((item, index) => (
-            <>
-              <Box
-                key={uuidv4()}
-                sx={{ 
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                  paddingTop: '20px', 
-                  paddingBottom: '20px',
-                }}
-              >
-                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  {item.isPro ? (
-                    <CustomChip
-                      label={'Pro'}
-                      skin='light'
-                      sx={{
-                        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128`,
-                        color: '#72E128',
-                      }}
-                      size='small'
-                    />
-                  ) : null}
-                  <Typography 
-                    variant='subtitle1'
-                    fontWeight={500}
-                    color={user.email === item.email ? 'primary' : 'default'}
+          {messageList?.contents &&
+            messageList?.contents.map((item, index) => (
+              <>
+                <Box
+                  key={uuidv4()}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    paddingTop: '20px',
+                    paddingBottom: '20px',
+                  }}
+                >
+                  <Box
+                    sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                   >
-                    {getLegalName({
-                      firstName: info.firstName,
-                      middleName: info.middleName,
-                      lastName: info.lastName,
-                    })}
+                    {item.isPro ? (
+                      <CustomChip
+                        label={'Pro'}
+                        skin='light'
+                        sx={{
+                          background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128`,
+                          color: '#72E128',
+                        }}
+                        size='small'
+                      />
+                    ) : null}
+                    <Typography
+                      variant='subtitle1'
+                      fontWeight={500}
+                      color={user.email === item.email ? 'primary' : 'default'}
+                    >
+                      {getLegalName({
+                        firstName: info.firstName,
+                        middleName: info.middleName,
+                        lastName: info.lastName,
+                      })}
+                    </Typography>
+                    <Divider orientation='vertical' variant='middle' flexItem />
+                    <Typography variant='body2' fontWeight={400}>
+                      {item.email}
+                    </Typography>
+                  </Box>
+                  <Typography variant='subtitle2'>
+                    {convertTimeToTimezone(
+                      item.createdAt,
+                      user.timezone,
+                      timezone.getValue(),
+                    )}
                   </Typography>
-                  <Divider orientation='vertical' variant='middle' flexItem />
-                  <Typography variant='body2' fontWeight={400}>
-                    {item.email}
-                  </Typography>
+                  <Box>{item.content}</Box>
                 </Box>
-                <Typography variant='subtitle2'>
-                  {convertTimeToTimezone(item.createdAt, user.timezone)}
-                </Typography>
-                <Box>{item.content}</Box>
-              </Box>
-              <Divider />
-            </>
-          ))}
+                <Divider />
+              </>
+            ))}
         </Box>
         <Box>
           <TextField

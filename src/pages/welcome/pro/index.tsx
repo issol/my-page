@@ -96,7 +96,7 @@ import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getJobOpeningDetail } from '@src/apis/pro/pro-job-openings.api'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import MuiPhone from '@src/pages/components/phone/mui-phone'
 import { timezoneSelector } from '@src/states/permission'
 

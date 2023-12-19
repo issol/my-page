@@ -17,7 +17,7 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 import { countries } from '@src/@fake-db/autocomplete'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { v4 as uuidv4 } from 'uuid'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
 

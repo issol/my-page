@@ -35,7 +35,7 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
 

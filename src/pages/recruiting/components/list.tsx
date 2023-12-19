@@ -26,6 +26,8 @@ import { useRouter } from 'next/router'
 
 // ** types
 import { RecruitingDataType } from 'src/apis/recruiting.api'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: RecruitingDataType
@@ -52,6 +54,7 @@ export default function RecruitingList({
   isLoading,
 }: Props) {
   const router = useRouter()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   function moveToDetail(row: GridRowParams) {
     router.push(`/recruiting/detail/${row.id}`)
@@ -155,10 +158,17 @@ export default function RecruitingList({
               title={`${convertTimeToTimezone(
                 row.dueDate,
                 row.dueDateTimezone,
+                timezone.getValue(),
               )}`}
             >
               <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-                <>{convertTimeToTimezone(row.dueDate, row.dueDateTimezone)}</>
+                <>
+                  {convertTimeToTimezone(
+                    row.dueDate,
+                    row.dueDateTimezone,
+                    timezone.getValue(),
+                  )}
+                </>
               </Typography>
             </Tooltip>
           )}

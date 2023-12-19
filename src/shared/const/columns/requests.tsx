@@ -11,10 +11,11 @@ import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+import { timezoneSelector } from '@src/states/permission'
 import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 import { RequestListType } from '@src/types/requests/list.type'
 import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
-import { Loadable } from 'recoil'
+import { Loadable, useRecoilValueLoadable } from 'recoil'
 
 type CellType = {
   row: RequestListType

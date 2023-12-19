@@ -15,7 +15,7 @@ import {
 import { countries } from '@src/@fake-db/autocomplete'
 import { UserDataType } from '@src/context/types'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import {
   contryCodeAndPhoneNumberFormatter,
   splitContryCodeAndPhoneNumber,

@@ -27,7 +27,7 @@ import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
 import { v4 as uuidv4 } from 'uuid'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import MuiPhone from '../phone/mui-phone'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
 

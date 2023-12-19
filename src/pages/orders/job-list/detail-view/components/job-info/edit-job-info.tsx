@@ -70,7 +70,7 @@ import { log } from 'npmlog'
 import { FormErrors } from '@src/shared/const/formErrors'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
 

@@ -18,12 +18,15 @@ import AccountDeleteFailedModal from './account-delete-fail-modal'
 import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   user: UserDataType
 }
 export default function MyAccount({ user }: Props) {
   const router = useRouter()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const { openModal, closeModal } = useModal()
 
   const [changePw, setChangePw] = useState(false)
@@ -140,22 +143,23 @@ export default function MyAccount({ user }: Props) {
                   <Typography variant='body2'>
                     {convertTimeToTimezone(
                       user.createdAt,
-                      user.timezone?.label
+                      user.timezone?.label,
+                      timezone.getValue(),
                     )}
                   </Typography>
                 </LabelContainer>
                 <LabelContainer>
-                  <Typography fontWeight={600}>{user.fromSNS !== null ? 'Connected account' : 'Password' }</Typography>
-                  {user.fromSNS !== null ?
-                    (
+                  <Typography fontWeight={600}>
+                    {user.fromSNS !== null ? 'Connected account' : 'Password'}
+                  </Typography>
+                  {user.fromSNS !== null ? (
                     <img
                       src={`/images/logos/${user.fromSNS?.toLowerCase()}.png`}
                       alt='linked in'
                       width='24px'
                       height='24px'
                     />
-                  ) :
-                    (
+                  ) : (
                     <Button
                       variant='outlined'
                       size='small'

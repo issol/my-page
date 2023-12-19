@@ -2,10 +2,7 @@ import logger from '@src/@core/utils/logger'
 import moment from 'moment-timezone'
 import { timezones } from 'src/@fake-db/autocomplete'
 import { IANAZone } from 'luxon'
-import {
-  getTimeZoneFromLocalStorage,
-  setTimeZoneToLocalStorage,
-} from '../auth/storage'
+
 import { CountryType, TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import { SetterOrUpdater } from 'recoil'
 

@@ -11,9 +11,10 @@ import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 import { formatCurrency } from '@src/shared/helpers/price.helper'
+import { timezoneSelector } from '@src/states/permission'
 import { QuotesListType } from '@src/types/common/quotes.type'
 
-import { Loadable } from 'recoil'
+import { Loadable, useRecoilValueLoadable } from 'recoil'
 
 type QuotesListCellType = {
   row: QuotesListType
@@ -27,6 +28,7 @@ export const getQuoteListColumns = (
     loading: boolean
   }>,
 ) => {
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const columns: GridColumns<QuotesListType> = [
     {
       field: 'corporationId',
@@ -174,6 +176,7 @@ export const getQuoteListColumns = (
             {convertTimeToTimezone(
               row.quoteDate,
               auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )
@@ -200,6 +203,7 @@ export const getQuoteListColumns = (
             {convertTimeToTimezone(
               role.name === 'CLIENT' ? row.estimatedAt : row.quoteDeadline,
               auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )
@@ -222,6 +226,7 @@ export const getQuoteListColumns = (
             {convertTimeToTimezone(
               role.name === 'CLIENT' ? row.projectDueAt : row.quoteExpiryDate,
               auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )

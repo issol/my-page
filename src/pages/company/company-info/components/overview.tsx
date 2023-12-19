@@ -35,7 +35,7 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB } from '@src/shared/helpers/file-size.helper'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import MuiPhone from '@src/pages/components/phone/mui-phone'
 import {
   contryCodeAndPhoneNumberFormatter,

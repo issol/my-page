@@ -77,7 +77,7 @@ import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import logger from '@src/@core/utils/logger'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 
 export default function RecruitingPost() {

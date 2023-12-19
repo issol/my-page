@@ -58,6 +58,7 @@ import {
 import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { contract as Contract } from '@src/shared/const/permission-class'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: {
@@ -75,6 +76,7 @@ const ContractDetail = () => {
   const router = useRouter()
   const invalidate = useInvalidateContractQuery()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const ability = useContext(AbilityContext)
   const type = router.query.type as ContractType
   const language = router.query.language as LangType
@@ -293,6 +295,7 @@ const ContractDetail = () => {
           {convertTimeToTimezone(
             row.updatedAt,
             auth.getValue().user?.timezone!,
+            timezone.getValue(),
           )}
         </Box>
       ),
@@ -469,6 +472,7 @@ const ContractDetail = () => {
                     {convertTimeToTimezone(
                       contract?.updatedAt,
                       auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </Typography>
                 </Box>
@@ -585,6 +589,7 @@ const ContractDetail = () => {
                       {convertTimeToTimezone(
                         currentRow?.updatedAt,
                         auth.getValue().user?.timezone!,
+                        timezone.getValue(),
                       )}
                     </Typography>
                   </Box>

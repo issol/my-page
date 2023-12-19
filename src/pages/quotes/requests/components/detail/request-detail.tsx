@@ -27,6 +27,7 @@ import { RequestDetailType } from '@src/types/requests/detail.type'
 import { convertLanguageCodeToPair } from 'src/shared/helpers/language.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   data: RequestDetailType | undefined
@@ -34,6 +35,7 @@ type Props = {
 }
 export default function RequestDetailCard({ data, openReasonModal }: Props) {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   return (
     <Grid container spacing={6}>
@@ -43,7 +45,8 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
           <CustomTypo variant='body2'>
             {convertTimeToTimezone(
               data?.requestedAt,
-              auth.getValue().user?.timezone
+              auth.getValue().user?.timezone,
+              timezone.getValue(),
             )}
           </CustomTypo>
         </LabelContainer>
@@ -149,10 +152,10 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                     <CustomTypo fontWeight={600}>Desired due date</CustomTypo>
                     <CustomTypo variant='body2'>
                       {convertTimeToTimezone(
-                          item?.desiredDueDate,
-                          auth.getValue().user?.timezone
-                        )
-                      }
+                        item?.desiredDueDate,
+                        auth.getValue().user?.timezone,
+                        timezone.getValue(),
+                      )}
                       {/* {
                         convertUTCISOStringToLocalTimezoneISOString(
                           item.desiredDueDate,

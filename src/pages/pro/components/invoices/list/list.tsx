@@ -17,7 +17,10 @@ import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 
 // ** helpers
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
-import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
+import {
+  formatCurrency,
+  getCurrencyMark,
+} from '@src/shared/helpers/price.helper'
 
 // ** contexts
 import { useContext } from 'react'
@@ -26,6 +29,7 @@ import { authState } from '@src/states/auth'
 import { ProInvoiceListType } from '@src/types/invoice/common.type'
 import { useGetStatusList } from '@src/queries/common.query'
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: InvoicePayableListType
@@ -58,6 +62,7 @@ export default function ProInvoiceList({
 }: Props) {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   function NoList() {
     return (
@@ -98,12 +103,7 @@ export default function ProInvoiceList({
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
-        return (
-          invoicePayableStatusChip(
-            row.invoiceStatus, 
-            statusList!
-          )
-        )
+        return invoicePayableStatusChip(row.invoiceStatus, statusList!)
       },
     },
 
@@ -116,6 +116,7 @@ export default function ProInvoiceList({
         const date = convertTimeToTimezone(
           row.invoicedAt,
           auth.getValue().user?.timezone.code,
+          timezone.getValue(),
         )
         return (
           <Tooltip title={date}>
@@ -133,6 +134,7 @@ export default function ProInvoiceList({
         const date = convertTimeToTimezone(
           row.payDueAt,
           row.payDueTimezone?.code,
+          timezone.getValue(),
         )
         return (
           <Tooltip title={date}>
@@ -150,6 +152,7 @@ export default function ProInvoiceList({
         const date = convertTimeToTimezone(
           row.paidAt,
           row.paidDateTimezone?.code,
+          timezone.getValue(),
         )
         return (
           <Tooltip title={date}>
@@ -164,9 +167,7 @@ export default function ProInvoiceList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
-        return (
-          `${formatCurrency(row.totalPrice, row.currency)}`
-        )
+        return `${formatCurrency(row.totalPrice, row.currency)}`
       },
     },
   ]
@@ -190,9 +191,7 @@ export default function ProInvoiceList({
         rows={list?.data}
         rowCount={list?.totalCount ?? 0}
         loading={isLoading}
-        onCellClick={params =>
-          router.push(`/invoice/payable/${params.id}`)
-        }
+        onCellClick={params => router.push(`/invoice/payable/${params.id}`)}
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={skip}

@@ -72,7 +72,7 @@ import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import dayjs from 'dayjs'
 import { useMutation } from 'react-query'
 import { addWorkName } from '@src/apis/common.api'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 
 type Props = {

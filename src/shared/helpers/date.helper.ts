@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import { convertCountryCodeToTimezone, getTimezone } from './timezone.helper'
 
 import { DateTime, IANAZone } from 'luxon'
-import { getTimeZoneFromLocalStorage } from '../auth/storage'
+
 import { countries } from '@src/@fake-db/autocomplete'
 
 export function convertDateByTimezone(date: string, from: string, to: string) {

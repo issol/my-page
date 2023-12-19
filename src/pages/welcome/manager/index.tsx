@@ -49,7 +49,7 @@ import { useAppSelector } from 'src/hooks/useRedux'
 import useAuth from '@src/hooks/useAuth'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
 import { timezoneSelector } from '@src/states/permission'

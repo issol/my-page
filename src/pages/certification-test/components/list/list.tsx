@@ -14,6 +14,7 @@ import {
 import { getColumns } from '@src/shared/const/columns/certification-test'
 import { NextRouter } from 'next/router'
 import { UserDataType } from '@src/context/types'
+import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 
 type Props = {
   testMaterialListPage: number
@@ -24,6 +25,7 @@ type Props = {
   setFilters: any
   router: NextRouter
   user: UserDataType
+  timezoneList: TimeZoneType[]
 }
 
 export default function TestMaterialList({
@@ -35,6 +37,7 @@ export default function TestMaterialList({
   setFilters,
   router,
   user,
+  timezoneList,
 }: Props) {
   return (
     <Grid item xs={12}>
@@ -111,7 +114,7 @@ export default function TestMaterialList({
                 )
               },
             }}
-            columns={getColumns(user.timezone)}
+            columns={getColumns(user.timezone, timezoneList)}
             rows={testMaterialList?.data ?? []}
             paginationMode={'server'}
             autoHeight

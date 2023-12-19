@@ -85,7 +85,7 @@ import FallbackSpinner from '@src/@core/components/spinner'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { recruiting } from '@src/shared/const/permission-class'
 import logger from '@src/@core/utils/logger'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timezoneSelector } from '@src/states/permission'
 
 export default function RecruitingEdit() {
