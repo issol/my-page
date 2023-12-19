@@ -124,33 +124,15 @@ export default function GoogleButton({ type }: Props) {
       //@ts-ignore
       const email = jwt_decode(response.credential)?.email as string
       emailRef.current = email
-      // googleMutation.mutate(response.credential)
-      googleAuth(response.credential)
-        .then(res => {
-          logger.info('google auth success res : ', res)
-          if (!res.accessToken) {
-            openModal({
-              type: 'signup-not-approval-modal',
-              children: (
-                <SignupNotApprovalModal
-                  onClose={() => closeModal('signup-not-approval-modal')}
-                />
-              ),
-            })
-          } else {
-            auth.updateUserInfo(res)
-            router.replace('/')
-          }
-        })
-        .catch(err => {
-          logger.info('google auth fail err : ', err)
-        })
+      googleMutation.mutate(response.credential)
     }
   }
 
   function generateGoogleLoginButton() {
     window?.google?.accounts?.id?.initialize({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      client_id:
+        process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+        '644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com',
       callback: handleCredentialResponse,
     })
     //** 이거 활성화 하면 화면 오른쪽 상단에 구글 로그인이 보여짐 */
