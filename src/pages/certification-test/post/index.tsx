@@ -95,6 +95,7 @@ import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { log } from 'npmlog'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -124,10 +125,11 @@ const TestMaterialPost = () => {
   const { setModal } = useContext(ModalContext)
 
   // ** states
-  const { data: testDetail, isFetched } = useGetTestDetail(
-    Number(id!),
-    Boolean(edit!),
-  )
+  const {
+    data: testDetail,
+    isFetched,
+    refetch,
+  } = useGetTestDetail(Number(id), Boolean(edit))
   const [content, setContent] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
@@ -541,9 +543,13 @@ const TestMaterialPost = () => {
 
   const postTestMutation = useMutation((form: TestFormType) => postTest(form), {
     onSuccess: data => {
+      console.log(data)
+
       router.replace(`/certification-test/detail/${data.id}`)
-      queryClient.invalidateQueries('test-material-list')
-      queryClient.invalidateQueries(`test-detail-${id}-${edit}`)
+      // refetch()
+      // queryClient.invalidateQueries('test-material-list')
+      // queryClient.invalidateQueries(['test-detail'])
+      resetFormSelection()
       toast.success(`Success`, {
         position: 'bottom-left',
       })

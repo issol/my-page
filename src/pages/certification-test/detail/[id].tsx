@@ -56,12 +56,15 @@ type CellType = {
 /* eslint-disable */
 const CertificationTestDetail = () => {
   const router = useRouter()
-  const { id } = router.query
+
+  const id = Number(router.query.id)
+
   const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
   const { setModal } = useContext(ModalContext)
 
-  const { data } = useGetTestDetail(Number(id!), true)
+  const { data } = useGetTestDetail(id, true)
+
   const [pageSize, setPageSize] = useState(5)
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
   const [openDetail, setOpenDetail] = useState(false)
