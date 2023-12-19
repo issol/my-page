@@ -24,7 +24,7 @@ export const getRefreshToken = async () => {
 }
 
 export const googleAuth = async (credential: string) => {
-  try {
+  // try {
     const { data } = await axios.post(
       `/api/enough/a/google/x-gu-grant?credential=${credential}`,
     )
@@ -38,11 +38,11 @@ export const googleAuth = async (credential: string) => {
   //     throw new Error(e)
   //   }
   // }
-  } catch (error) {
+  // } catch (error) {
     // e.response의 존재 여부 확인
-    console.log("googleAuth-e",error)
-    const err = error as AxiosError
-    throw err
+    // console.log("googleAuth-e",error)
+    // const err = error as AxiosError
+    // throw err
     // if (e.response && e.response.data) {
     //   if (e.response.data.statusCode === 403) {
     //     throw 'NOT_A_MEMBER';
@@ -52,7 +52,7 @@ export const googleAuth = async (credential: string) => {
     // }
     // // 그 외의 경우, 일반적인 오류 처리
     // throw new Error(e.message || 'Unknown error');
-  }
+  // }
 }
 
 /* TODO: linked in signup, login은 일단 holding중 */
