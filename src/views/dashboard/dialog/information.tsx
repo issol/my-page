@@ -158,7 +158,7 @@ const INFO_CONTENTS: Record<InfoKey, Record<string, string | ReactElement>> = {
 export const ReplaceTitle: Record<string, string> = {
   Clients: 'Sales per client',
   'Language pairs': 'Sales per language',
-  'Main categories': 'Sales per category',
+
   'Service types': 'Sales per service type',
   'Area of expertises': 'Sales per area of expertise',
   'Onboarding overview': 'Number of Pros',
@@ -167,7 +167,22 @@ export const ReplaceTitle: Record<string, string> = {
   'Service types@client': 'Expense per service type',
   'Area of expertises@client': 'Expense per area of expertise',
   'Invoice overview': 'Monthly revenue overview',
+  'Source languages': 'Sales per language',
+  'Target languages': 'Sales per language',
+  // Main categories
+  'Main categories': 'Sales per category',
+  Translation: 'Sales per category',
+  Dubbing: 'Sales per category',
+  Interpretation: 'Sales per category',
+  'Misc.': 'Sales per category',
+  Subtitle: 'Sales per category',
+  'Documents/Text': 'Sales per category',
+  'OTT/Subtitle': 'Sales per category',
+  Webcomics: 'Sales per category',
+  Webnovel: 'Sales per category',
 }
+
+const menuOptions = []
 interface InfoDialogProps {
   keyName: string
   open: boolean

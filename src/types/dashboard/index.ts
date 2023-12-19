@@ -82,7 +82,7 @@ export type RequestItem = {
   client: number
   companyName: string
   category: string
-  serviceType: string
+  serviceType: Array<string>
   itemCount: number
   desiredDueDate: string
   desiredDueTimezone: {
@@ -203,8 +203,10 @@ export interface ExpertiseRatioItem extends RatioItem {
   expertise: string
 }
 export interface RatioResponse<T> {
-  totalCount: number
-  totalPrice: number
+  totalCount?: number
+  totalPrice?: number
+  totalOrderCount?: number
+  totalOrderPrice?: number
   currency: Currency
   report: Array<T>
 }
@@ -250,7 +252,7 @@ export type LongStandingReceivableItem = {
   status: InvoiceReceivableStatusType
   projectName: string
   category: string
-  serviceType: string
+  serviceType: Array<string>
   totalPrice: number
   currency: Currency
   client: {

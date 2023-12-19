@@ -133,7 +133,7 @@ const SwitchTypeHeader = ({
     if (window.scrollY <= 152) {
       setSticky(false)
     }
-    if (window.scrollY > 152 && window.scrollY < 224) {
+    if (window.scrollY > 152) {
       setSticky(true)
     }
   }
@@ -157,7 +157,11 @@ const SwitchTypeHeader = ({
   return (
     <>
       {isShowMemberView ? (
-        <GridItem width={420} height={76}>
+        <GridItem
+          width={420}
+          height={76}
+          sx={{ display: sticky ? 'none' : 'flex' }}
+        >
           <Box sx={{ width: '100%' }}>
             <Box display='flex' gap='16px' alignItems='center'>
               <Typography fontSize='24px' fontWeight={500}>
