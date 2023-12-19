@@ -37,6 +37,7 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useCalenderResize from '@src/hooks/useCalenderResize'
+import { timezoneSelector } from '@src/states/permission'
 
 const CalendarContainer = () => {
   // ** Hooks
@@ -44,6 +45,7 @@ const CalendarContainer = () => {
   const router = useRouter()
   const currentRole = getCurrentRole()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   // ** calendar values
   const leftSidebarWidth = 260
@@ -174,7 +176,12 @@ const CalendarContainer = () => {
             onRowClick={onRowClick}
             isLoading={isLoading}
             role={currentRole!}
-            columns={getRequestListColumns(statusList!, currentRole!, auth)}
+            columns={getRequestListColumns(
+              statusList!,
+              currentRole!,
+              auth,
+              timezone.getValue(),
+            )}
             type='calendar'
           />
         </Card>

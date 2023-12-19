@@ -37,6 +37,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useQueryClient } from 'react-query'
 import useCalenderResize from '@src/hooks/useCalenderResize'
+import { timezoneSelector } from '@src/states/permission'
 
 // ** components
 export type FilterType = {
@@ -85,6 +86,7 @@ export default function Requests() {
   const currentRole = getCurrentRole()
   const [menu, setMenu] = useState<MenuType>('list')
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const [requestListPage, setRequestListPage] = useState<number>(0)
   const [requestListPageSize, setRequestPageSize] = useState<number>(10)
@@ -352,6 +354,7 @@ export default function Requests() {
                     statusList!,
                     currentRole!,
                     auth,
+                    timezone.getValue(),
                   )}
                   type='list'
                 />

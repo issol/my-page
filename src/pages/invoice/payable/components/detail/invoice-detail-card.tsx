@@ -60,6 +60,7 @@ import {
 } from '@src/@core/components/chips/chips'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   isUpdatable: boolean
@@ -83,6 +84,7 @@ export default function InvoiceDetailCard({
 }: Props) {
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const ability = useContext(AbilityContext)
 
   const currentRole = getCurrentRole()
@@ -216,7 +218,8 @@ export default function InvoiceDetailCard({
                   {data?.invoicedAt
                     ? convertTimeToTimezone(
                         data.invoicedAt,
-                        auth.getValue().user?.timezone
+                        auth.getValue().user?.timezone,
+                        timezone.getValue(),
                       )
                     : '-'}
                 </CustomTypo>
@@ -312,7 +315,8 @@ export default function InvoiceDetailCard({
                         {data?.payDueAt
                           ? convertTimeToTimezone(
                               data?.payDueAt,
-                              auth.getValue().user?.timezone
+                              auth.getValue().user?.timezone,
+                              timezone.getValue(),
                             )
                           : '-'}
                       </CustomTypo>
@@ -328,7 +332,8 @@ export default function InvoiceDetailCard({
                 <CustomTypo variant='body2'>
                   {convertTimeToTimezone(
                     data?.paidAt,
-                    auth.getValue().user?.timezone
+                    auth.getValue().user?.timezone,
+                    timezone.getValue(),
                   )}
                 </CustomTypo>
               </LabelContainer>

@@ -56,7 +56,11 @@ import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   clientId: number
@@ -80,6 +84,7 @@ export default function ClientInfo({
   const { openModal, closeModal } = useModal()
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const {
     control,
@@ -274,6 +279,7 @@ export default function ClientInfo({
                       ? convertTimeToTimezone(
                           clientInfo.commencementDate,
                           auth.getValue().user?.timezone,
+                          timezone.getValue(),
                         )
                       : '-'}
                   </Typography>
@@ -338,9 +344,8 @@ export default function ClientInfo({
                   {!clientInfo?.phone
                     ? '-'
                     : contryCodeAndPhoneNumberFormatter(
-                      splitContryCodeAndPhoneNumber(clientInfo.phone)
-                    )
-                  }
+                        splitContryCodeAndPhoneNumber(clientInfo.phone),
+                      )}
                 </Typography>
               </InfoBox>
               <InfoBox>
@@ -361,9 +366,8 @@ export default function ClientInfo({
                     {!clientInfo?.mobile
                       ? '-'
                       : contryCodeAndPhoneNumberFormatter(
-                        splitContryCodeAndPhoneNumber(clientInfo.mobile)
-                      )
-                    }
+                          splitContryCodeAndPhoneNumber(clientInfo.mobile),
+                        )}
                   </Typography>
                 </Typography>
               </InfoBox>
@@ -385,9 +389,8 @@ export default function ClientInfo({
                     {!clientInfo?.fax
                       ? '-'
                       : contryCodeAndPhoneNumberFormatter(
-                        splitContryCodeAndPhoneNumber(clientInfo.fax)
-                      )
-                    }
+                          splitContryCodeAndPhoneNumber(clientInfo.fax),
+                        )}
                   </Typography>
                 </Typography>
               </InfoBox>

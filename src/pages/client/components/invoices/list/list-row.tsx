@@ -15,6 +15,8 @@ import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { useGetStatusList } from '@src/queries/common.query'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 export default function ClientInvoicesRows(props: {
   row: ClientInvoiceListType
@@ -24,6 +26,7 @@ export default function ClientInvoicesRows(props: {
   isSelected: (index: number) => boolean
 }) {
   const { row, user, selected, handleRowClick, isSelected } = props
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { data: statusList } = useGetStatusList('InvoiceReceivable')
   const statusLabel =
@@ -158,7 +161,11 @@ export default function ClientInvoicesRows(props: {
           size='small'
         >
           <Typography variant='body1'>
-            {convertTimeToTimezone(row.invoicedAt, user.timezone)}
+            {convertTimeToTimezone(
+              row.invoicedAt,
+              user.timezone,
+              timezone.getValue(),
+            )}
           </Typography>
         </TableCell>
         {separateLine()}
@@ -174,7 +181,11 @@ export default function ClientInvoicesRows(props: {
           size='small'
         >
           <Typography variant='body1'>
-            {convertTimeToTimezone(row.payDueAt, row.payDueTimezone)}
+            {convertTimeToTimezone(
+              row.payDueAt,
+              row.payDueTimezone,
+              timezone.getValue(),
+            )}
           </Typography>
         </TableCell>
         {separateLine()}

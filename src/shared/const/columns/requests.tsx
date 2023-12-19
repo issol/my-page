@@ -13,6 +13,7 @@ import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 import { RequestListType } from '@src/types/requests/list.type'
+import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import { Loadable } from 'recoil'
 
 type CellType = {
@@ -30,6 +31,7 @@ export const getRequestListColumns = (
     company: ClientUserType | null | undefined
     loading: boolean
   }>,
+  timezoneList: TimeZoneType[],
 ) => {
   const columns: GridColumns<RequestListType> = [
     {
@@ -149,7 +151,8 @@ export const getRequestListColumns = (
         <Box>
           {convertTimeToTimezone(
             row.requestedAt,
-            auth.getValue().user?.timezone
+            auth.getValue().user?.timezone,
+            timezoneList,
           )}
         </Box>
       ),
@@ -167,7 +170,13 @@ export const getRequestListColumns = (
           : undefined
         return (
           <Box>
-            {!dueDate ? '-' : convertTimeToTimezone(dueDate, auth.getValue().user?.timezone)}
+            {!dueDate
+              ? '-'
+              : convertTimeToTimezone(
+                  dueDate,
+                  auth.getValue().user?.timezone,
+                  timezoneList,
+                )}
           </Box>
         )
       },
