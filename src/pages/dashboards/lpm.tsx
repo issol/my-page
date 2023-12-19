@@ -267,6 +267,7 @@ const LPMDashboards = () => {
                   <Box marginBottom='20px'>
                     <Title
                       title='Report'
+                      subTitle={userViewDate}
                       openDialog={() => setOpenInfoDialog(true, 'Report')}
                     />
 

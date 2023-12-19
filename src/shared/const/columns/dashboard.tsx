@@ -475,7 +475,10 @@ export const StatusOrderColumns: GridColumns = [
     flex: 1,
     renderHeader: () => <Box>Category / Service type</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
-      if (!row.category && row.serviceType.length === 0) {
+      if (
+        !row?.category &&
+        (!row?.serviceType || row.serviceType?.length === 0)
+      ) {
         return <Box>-</Box>
       }
       return (
@@ -496,15 +499,15 @@ export const StatusOrderColumns: GridColumns = [
             ) : (
               '-'
             )}
-            {row.serviceType.length !== 0 ? (
+            {row.serviceType?.length !== 0 ? (
               <ServiceTypeChip size='small' label={row.serviceType} />
             ) : (
               '-'
             )}
-            {row.serviceType.length > 1 ? (
+            {row.serviceType?.length > 1 ? (
               <ExtraNumberChip
                 size='small'
-                label={`+ ${row.serviceType.length - 1}`}
+                label={`+ ${row.serviceType?.length - 1}`}
               />
             ) : null}
           </Box>

@@ -8,6 +8,7 @@ import {
 } from '@mui/x-data-grid'
 import React, { Dispatch, useState } from 'react'
 import NoList from '@src/pages/components/no-list'
+import styled from '@emotion/styled'
 
 interface DefaultDataGridProps {
   title: string
@@ -38,7 +39,7 @@ const DefaultDataGrid = ({
   const [pageSize, setPageSize] = useState(defaultPageSize)
 
   return (
-    <DataGrid
+    <CustomDataGrid
       initialState={{
         sorting: { sortModel },
       }}
@@ -64,5 +65,13 @@ const DefaultDataGrid = ({
     />
   )
 }
+
+const CustomDataGrid = styled(DataGrid)(() => {
+  return {
+    '& .MuiDataGrid-row': {
+      cursor: 'pointer',
+    },
+  }
+})
 
 export default DefaultDataGrid
