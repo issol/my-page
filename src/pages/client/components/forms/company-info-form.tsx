@@ -53,6 +53,8 @@ import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { FormErrors } from '@src/shared/const/formErrors'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
 import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   mode: 'create' | 'update'
@@ -72,24 +74,27 @@ export default function CompanyInfoForm({
 }: Props) {
   const clientType: Array<ClientType> = ['Company', 'Mr', 'Ms']
   const country = getTypeList('CountryCode')
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string;
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   // console.log('errors', errors)
   function renderCompanyTypeBtn(
@@ -129,7 +134,7 @@ export default function CompanyInfoForm({
           rules={{ required: false }}
           render={({ field: { value, onChange } }) => (
             <MuiPhone
-              value={value as string || ''}
+              value={(value as string) || ''}
               onChange={onChange}
               label={'Mobile phone'}
             />
@@ -258,10 +263,12 @@ export default function CompanyInfoForm({
                   onChange(undefined)
                 }
               }}
-              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (

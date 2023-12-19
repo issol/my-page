@@ -73,6 +73,7 @@ import dayjs from 'dayjs'
 import { useMutation } from 'react-query'
 import { addWorkName } from '@src/apis/common.api'
 import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   control: Control<OrderProjectInfoFormType, any>
@@ -98,11 +99,13 @@ export default function ProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string;
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
 
   const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
@@ -137,17 +140,19 @@ export default function ProjectInfoForm({
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   useEffect(() => {
     if (clientTimezone && !getValues().projectDueTimezone) {
@@ -292,10 +297,12 @@ export default function ProjectInfoForm({
               }
               options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (
@@ -654,10 +661,10 @@ export default function ProjectInfoForm({
               placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
                 <Box>
-                  <CustomInput 
-                    label='Project due date' 
-                    icon='calendar' 
-                    readOnly 
+                  <CustomInput
+                    label='Project due date'
+                    icon='calendar'
+                    readOnly
                     value={
                       value ? dateValue(formattedNow(new Date(value))) : ''
                     }
@@ -682,10 +689,12 @@ export default function ProjectInfoForm({
               }
               options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (

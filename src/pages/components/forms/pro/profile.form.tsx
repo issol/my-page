@@ -29,6 +29,8 @@ import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
 import MuiPhone from '../../phone/mui-phone'
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   control: Control<Omit<PersonalInfo, 'address'>, any>
@@ -36,24 +38,26 @@ type Props = {
   watch: UseFormWatch<Omit<PersonalInfo, 'address'>>
 }
 export default function ProProfileForm({ control, errors, watch }: Props) {
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string;
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
-
+  }, [timezone])
   return (
     <Fragment>
       <Grid item xs={6}>
@@ -211,7 +215,7 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
               disableClearable
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (
@@ -224,7 +228,9 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
                   }}
                 />
               )}
-              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
             />
           )}
         />

@@ -16,9 +16,13 @@ import { countries } from '@src/@fake-db/autocomplete'
 import { UserDataType } from '@src/context/types'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
 import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
-import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import { timezoneSelector } from '@src/states/permission'
 import { CountryType, ManagerInfo } from '@src/types/sign/personalInfoTypes'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
@@ -28,6 +32,7 @@ import {
   UseFormReset,
   UseFormWatch,
 } from 'react-hook-form'
+import { useRecoilValueLoadable } from 'recoil'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -56,23 +61,27 @@ const Contracts = ({
   onClickSave,
   onClickCancel,
 }: Props) => {
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string;
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   return (
     <Card sx={{ padding: '24px' }}>
@@ -226,7 +235,7 @@ const Contracts = ({
                     }}
                     renderOption={(props, option) => (
                       <Box component='li' {...props} key={uuidv4()}>
-                        {timeZoneFormatter(option)}
+                        {timeZoneFormatter(option, timezone.getValue())}
                       </Box>
                     )}
                     renderInput={params => (
@@ -236,7 +245,9 @@ const Contracts = ({
                         // error={Boolean(errors.dueTimezone)}
                       />
                     )}
-                    getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+                    getOptionLabel={option =>
+                      timeZoneFormatter(option, timezone.getValue()) ?? ''
+                    }
                   />
                 )}
               />
@@ -398,9 +409,8 @@ const Contracts = ({
                   {!userInfo.mobilePhone
                     ? '-'
                     : contryCodeAndPhoneNumberFormatter(
-                      splitContryCodeAndPhoneNumber(userInfo.mobilePhone)
-                    )
-                  }
+                        splitContryCodeAndPhoneNumber(userInfo.mobilePhone),
+                      )}
                 </Label>
               </Box>
               <Box
@@ -417,9 +427,8 @@ const Contracts = ({
                   {!userInfo.telephone
                     ? '-'
                     : contryCodeAndPhoneNumberFormatter(
-                        splitContryCodeAndPhoneNumber(userInfo.telephone)
-                      )
-                  }
+                        splitContryCodeAndPhoneNumber(userInfo.telephone),
+                      )}
                 </Label>
               </Box>
             </Box>
@@ -438,9 +447,8 @@ const Contracts = ({
                   {!userInfo.fax
                     ? '-'
                     : contryCodeAndPhoneNumberFormatter(
-                      splitContryCodeAndPhoneNumber(userInfo.fax)
-                    )
-                  }
+                        splitContryCodeAndPhoneNumber(userInfo.fax),
+                      )}
                 </Label>
               </Box>
             </Box>

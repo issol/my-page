@@ -39,6 +39,8 @@ import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   control: Control<InvoiceProjectInfoFormType, any>
@@ -57,24 +59,27 @@ export default function InvoiceAccountingInfoForm({
   clientTimezone,
 }: Props) {
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string;
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
-
+  }, [timezone])
   useEffect(() => {
     if (clientTimezone) {
       setValue('paymentDate.timezone', clientTimezone, setValueOptions)
@@ -160,10 +165,12 @@ export default function InvoiceAccountingInfoForm({
               }
               options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (
@@ -218,10 +225,12 @@ export default function InvoiceAccountingInfoForm({
               }
               options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (
@@ -273,10 +282,12 @@ export default function InvoiceAccountingInfoForm({
               }
               options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (

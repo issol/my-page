@@ -37,7 +37,12 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB } from '@src/shared/helpers/file-size.helper'
 import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
-import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   companyInfo: CompanyInfoType
@@ -84,23 +89,27 @@ const CompanyInfoOverview = ({
   const { openModal, closeModal } = useModal()
 
   const country = getTypeList('CountryCode')
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string;
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   const setCompanyImage = (file: File) => {
     const reader = new FileReader()
@@ -407,7 +416,7 @@ const CompanyInfoOverview = ({
                         }}
                         renderOption={(props, option) => (
                           <Box component='li' {...props} key={uuidv4()}>
-                            {timeZoneFormatter(option)}
+                            {timeZoneFormatter(option, timezone.getValue())}
                           </Box>
                         )}
                         renderInput={params => (
@@ -418,7 +427,7 @@ const CompanyInfoOverview = ({
                           />
                         )}
                         getOptionLabel={option =>
-                          timeZoneFormatter(option) ?? ''
+                          timeZoneFormatter(option, timezone.getValue()) ?? ''
                         }
                       />
                     )}
@@ -664,9 +673,8 @@ const CompanyInfoOverview = ({
                   {!companyInfo.phone
                     ? '-'
                     : contryCodeAndPhoneNumberFormatter(
-                      splitContryCodeAndPhoneNumber(companyInfo.phone)
-                    )
-                  }
+                        splitContryCodeAndPhoneNumber(companyInfo.phone),
+                      )}
                 </Typography>
               </Box>
               <Box
@@ -689,9 +697,8 @@ const CompanyInfoOverview = ({
                   {!companyInfo.fax
                     ? '-'
                     : contryCodeAndPhoneNumberFormatter(
-                      splitContryCodeAndPhoneNumber(companyInfo.fax)
-                    )
-                  }
+                        splitContryCodeAndPhoneNumber(companyInfo.fax),
+                      )}
                 </Typography>
               </Box>
             </Box>

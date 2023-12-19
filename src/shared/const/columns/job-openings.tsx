@@ -10,18 +10,22 @@ import dayjs from 'dayjs'
 import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 export const getJobOpeningsColumn = () => {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const calculateRemainingTime = (dueDate: Date, timezone: CountryType) => {
     const timezoneList = getTimeZoneFromLocalStorage()
-    const timezoneCode = timezoneList.find(list => list.timezone === timezone.label)?.timezoneCode
+    const timezoneCode = timezoneList.find(
+      list => list.timezone === timezone.label,
+    )?.timezoneCode
     const now = new Date()
     const diffInHours = differenceInHours(dueDate, now)
     const diffInDays = differenceInDays(dueDate, now)
 
-    console.log("calculateRemainingTime",dueDate,diffInHours,diffInDays)
+    console.log('calculateRemainingTime', dueDate, diffInHours, diffInDays)
     if (diffInDays >= 3) {
       return `${Math.floor(diffInDays)} days left (${timezoneCode})`
     } else if (diffInDays > 0) {
@@ -38,44 +42,48 @@ export const getJobOpeningsColumn = () => {
   }
 
   //TODO: day, hour 나오게 수정해야 함
-  const calculateTimeLeft = (timeStr: Date, timezone: CountryType) => {
-    const timezoneList = getTimeZoneFromLocalStorage()
-    const timezoneCode = timezoneList.find(list => list.timezone === timezone.label)?.timezoneCode
+  // const calculateTimeLeft = (timeStr: Date, timezone: CountryType) => {
+  //   const timezoneList = getTimeZoneFromLocalStorage()
+  //   const timezoneCode = timezoneList.find(
+  //     list => list.timezone === timezone.label,
+  //   )?.timezoneCode
 
-    // 'Z'를 제거하고 UTC 시간대로 파싱
-    const futureTime = new Date(timeStr);
+  //   // 'Z'를 제거하고 UTC 시간대로 파싱
+  //   const futureTime = new Date(timeStr)
 
-    // 현재 시간 (UTC 기준)
-    const currentTime = new Date();
+  //   // 현재 시간 (UTC 기준)
+  //   const currentTime = new Date()
 
-    const timeLeft = futureTime.getTime() - currentTime.getTime();
+  //   const timeLeft = futureTime.getTime() - currentTime.getTime()
 
-    // 남은 시간이 음수이거나 0일 경우
-    if (timeLeft <= 0) {
-      return (
-        <Typography variant='body1' color='#ff4d49'>
-          0 hours left ({timezoneCode})
-        </Typography>
-      )
-    }
+  //   // 남은 시간이 음수이거나 0일 경우
+  //   if (timeLeft <= 0) {
+  //     return (
+  //       <Typography variant='body1' color='#ff4d49'>
+  //         0 hours left ({timezoneCode})
+  //       </Typography>
+  //     )
+  //   }
 
-    // 남은 시간을 일과 시간 단위로 계산
-    const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-    const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  //   // 남은 시간을 일과 시간 단위로 계산
+  //   const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24))
+  //   const hoursLeft = Math.floor(
+  //     (timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+  //   )
 
-    // 조건에 맞는 문자열 반환
-    if (daysLeft >= 3) {
-        return `${daysLeft} days left (${timezoneCode})`;
-    } else if (daysLeft > 0) {
-        return `${daysLeft} days and ${hoursLeft} hours left (${timezoneCode})`;
-    } else {
-      return (
-        <Typography variant='body1' color='#ff4d49'>
-          {hoursLeft} hours left ({timezoneCode})
-        </Typography>
-      )
-    }
-}
+  //   // 조건에 맞는 문자열 반환
+  //   if (daysLeft >= 3) {
+  //     return `${daysLeft} days left (${timezoneCode})`
+  //   } else if (daysLeft > 0) {
+  //     return `${daysLeft} days and ${hoursLeft} hours left (${timezoneCode})`
+  //   } else {
+  //     return (
+  //       <Typography variant='body1' color='#ff4d49'>
+  //         {hoursLeft} hours left ({timezoneCode})
+  //       </Typography>
+  //     )
+  //   }
+  // }
 
   const columns: GridColumns<JobOpeningListType> = [
     {
@@ -176,11 +184,12 @@ export const getJobOpeningsColumn = () => {
       renderCell: ({ row }: { row: JobOpeningListType }) => {
         return (
           <Typography variant='body1'>
-            {calculateTimeLeft(
+            {/* {calculateTimeLeft(
               row.dueAt,
               // row.dueDateTimezone?.code ?? 'KR',
-              auth.getValue().user?.timezone!
-            )}
+              row.deadlineTimezone,
+              // auth.getValue().user?.timezone!
+            )} */}
             {/* {calculateRemainingTime(
               row.dueAt,
               // row.dueDateTimezone?.code ?? 'KR',

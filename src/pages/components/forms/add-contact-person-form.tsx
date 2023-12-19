@@ -41,6 +41,8 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import MuiPhone from '../phone/mui-phone'
 import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props<T extends number | string = number> = {
   fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
@@ -55,23 +57,26 @@ export default function AddContactPersonForm<
   T extends number | string = number,
 >(props: Props<T>) {
   const { fields, control, errors, watch, index } = props
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string;
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   const personType: Array<PersonType> = ['Mr.', 'Ms.']
 
@@ -150,7 +155,7 @@ export default function AddContactPersonForm<
           rules={{ required: false }}
           render={({ field: { value, onChange } }) => (
             <MuiPhone
-              value={value as string || ''}
+              value={(value as string) || ''}
               onChange={onChange}
               label={label}
             />
@@ -164,7 +169,7 @@ export default function AddContactPersonForm<
   return (
     <Fragment>
       {fields.length && fields[0] !== undefined
-        ? fields.map((item) => (
+        ? fields.map(item => (
             <Fragment key={item.id}>
               <Grid item xs={12}>
                 <Controller
@@ -182,10 +187,20 @@ export default function AddContactPersonForm<
                 />
               </Grid>
               <Grid item xs={4}>
-                {renderTextFieldForm(fieldIndex, 'firstName', 'First name*', 50)}
+                {renderTextFieldForm(
+                  fieldIndex,
+                  'firstName',
+                  'First name*',
+                  50,
+                )}
               </Grid>
               <Grid item xs={4}>
-                {renderTextFieldForm(fieldIndex, 'middleName', 'Middle name', 50)}
+                {renderTextFieldForm(
+                  fieldIndex,
+                  'middleName',
+                  'Middle name',
+                  50,
+                )}
               </Grid>
               <Grid item xs={4}>
                 {renderTextFieldForm(fieldIndex, 'lastName', 'Last name*', 50)}
@@ -226,7 +241,7 @@ export default function AddContactPersonForm<
                       }}
                       renderOption={(props, option) => (
                         <Box component='li' {...props} key={uuidv4()}>
-                          {timeZoneFormatter(option)}
+                          {timeZoneFormatter(option, timezone.getValue())}
                         </Box>
                       )}
                       renderInput={params => (
@@ -241,7 +256,9 @@ export default function AddContactPersonForm<
                           }}
                         />
                       )}
-                      getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+                      getOptionLabel={option =>
+                        timeZoneFormatter(option, timezone.getValue()) ?? ''
+                      }
                     />
                   )}
                 />

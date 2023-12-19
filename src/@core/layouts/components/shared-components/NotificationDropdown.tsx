@@ -64,6 +64,7 @@ import useInterval from '@src/hooks/useInterval'
 import { transformMessage } from '@src/shared/transformer/notification-message'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 interface Props {
   settings: Settings
@@ -184,6 +185,7 @@ const NotificationDropdown = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false)
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { ref, inView } = useInView()
 
@@ -408,6 +410,7 @@ const NotificationDropdown = (props: Props) => {
                                   {convertTimeToTimezone(
                                     item.createdAt,
                                     auth.getValue().user?.timezone,
+                                    timezone.getValue(),
                                   )}
                                 </MenuItemSubtitle>
                               </Box>

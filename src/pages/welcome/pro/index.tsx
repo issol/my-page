@@ -98,6 +98,7 @@ import { getJobOpeningDetail } from '@src/apis/pro/pro-job-openings.api'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
+import { timezoneSelector } from '@src/states/permission'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -168,23 +169,27 @@ const PersonalInfoPro = () => {
 
   // ** State
   const [files, setFiles] = useState<File[]>([])
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
@@ -875,7 +880,7 @@ const PersonalInfoPro = () => {
                             disableClearable
                             renderOption={(props, option) => (
                               <Box component='li' {...props} key={uuidv4()}>
-                                {timeZoneFormatter(option)}
+                                {timeZoneFormatter(option, timezone.getValue())}
                               </Box>
                             )}
                             renderInput={params => (
@@ -888,7 +893,10 @@ const PersonalInfoPro = () => {
                                 }}
                               />
                             )}
-                            getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+                            getOptionLabel={option =>
+                              timeZoneFormatter(option, timezone.getValue()) ??
+                              ''
+                            }
                           />
                         )}
                       />

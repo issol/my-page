@@ -36,6 +36,8 @@ import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   control: Control<ClientCompanyInfoType, any>
@@ -47,23 +49,27 @@ export default function ClientCompanyInfoForm({
   errors,
   watch,
 }: Props) {
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string;
-  }[]>([])
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   function renderPhoneField(key: keyof ClientCompanyInfoType, label: string) {
     return (
@@ -74,7 +80,7 @@ export default function ClientCompanyInfoForm({
           rules={{ required: false }}
           render={({ field: { value, onChange } }) => (
             <MuiPhone
-              value={value as string || ''}
+              value={(value as string) || ''}
               onChange={onChange}
               label={label}
             />
@@ -135,7 +141,7 @@ export default function ClientCompanyInfoForm({
               disableClearable
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {timeZoneFormatter(option)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (
@@ -148,7 +154,9 @@ export default function ClientCompanyInfoForm({
                   }}
                 />
               )}
-              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
             />
           )}
         />
