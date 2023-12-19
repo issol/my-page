@@ -28,14 +28,28 @@ export const googleAuth = async (credential: string): Promise<loginResType> => {
       `/api/enough/a/google/x-gu-grant?credential=${credential}`,
     )
     return data
+  // } catch (e: any) {
+  //   console.log("")
+  //   if (e.response.data.statusCode === 403) {
+  //     throw 'NOT_A_MEMBER'
+  //   } else if (e.response.data.statusCode >= 500) {
+  //     throw 'SERVER_ERROR'
+  //   } else {
+  //     throw new Error(e)
+  //   }
+  // }
   } catch (e: any) {
-    if (e.response.data.statusCode === 403) {
-      throw 'NOT_A_MEMBER'
-    } else if (e.response.data.statusCode >= 500) {
-      throw 'SERVER_ERROR'
-    } else {
-      throw new Error(e)
+    // e.response의 존재 여부 확인
+    console.log("googleAuth-e",e)
+    if (e.response && e.response.data) {
+      if (e.response.data.statusCode === 403) {
+        throw 'NOT_A_MEMBER';
+      } else if (e.response.data.statusCode >= 500) {
+        throw 'SERVER_ERROR';
+      }
     }
+    // 그 외의 경우, 일반적인 오류 처리
+    throw new Error(e.message || 'Unknown error');
   }
 }
 
