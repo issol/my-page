@@ -56,10 +56,7 @@ export const RequestColumns: GridColumns = [
     minWidth: 240,
     flex: 0.2,
     renderCell: ({ row }: { row: RequestItem }) => {
-      const code = row.desiredDueTimezone
-        .code as keyof typeof timezones.countries
-
-      const timeZone = timezones.countries[code]?.zones[0]
+      const timeZone = row.desiredDueTimezone.label
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -149,10 +146,9 @@ export const RequestColumns: GridColumns = [
     cellClassName: 'desiredDueDate-date__cell',
     renderCell: ({ row }: { row: RequestItem }) => {
       let color = '#7F889B'
-      const code = row.desiredDueTimezone
-        .code as keyof typeof timezones.countries
+      const timeZone = row.desiredDueTimezone.label
 
-      if (!code) {
+      if (!timeZone) {
         return (
           <Box
             display='flex'
@@ -169,7 +165,6 @@ export const RequestColumns: GridColumns = [
         )
       }
 
-      const timeZone = timezones.countries[code]?.zones[0]
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -1053,15 +1048,9 @@ export const PayablesColumns: GridColumns = [
         )
       }
 
-      const code = row.invoicedTimezone
-        ?.code as keyof typeof timezones.countries
-
-      const timeZone = timezones.countries[code].zones[0]
-      console.log(timeZone)
       const date = moment(row.invoicedAt)
-        .tz(timeZone)
+        .tz(row.invoicedTimezone.label)
         .format('MM/DD/YYYY hh:mm A (z)')
-
       return <div>{`${date || '-'}`}</div>
     },
   },
@@ -1079,14 +1068,9 @@ export const PayablesColumns: GridColumns = [
           }`}</div>
         )
       }
-
-      const code = row.payDueTimezone?.code as keyof typeof timezones.countries
-
-      const timeZone = timezones.countries[code].zones[0]
       const date = moment(row.payDueAt)
-        .tz(timeZone)
+        .tz(row.payDueTimezone.label)
         .format('MM/DD/YYYY hh:mm A (z)')
-
       return <div>{`${date || '-'}`}</div>
     },
   },
