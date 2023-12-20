@@ -11,6 +11,7 @@ import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import Link from 'next/link'
 import { useContext } from 'react'
+import { timezoneSelector } from '@src/states/permission'
 
 type AssignProType = {
   id: string
@@ -56,6 +57,7 @@ export default function HistoryAssignPro({
   setPageSize,
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const columns: GridColumns<AssignProType> = [
     {
       field: 'corporationId',
@@ -141,7 +143,9 @@ export default function HistoryAssignPro({
       renderHeader: () => <Box>Assignment status</Box>,
       /* TODO : Chip디자인 추가해야 함 */
       renderCell: ({ row }: CellType) => (
-        <Typography>{row.assignmentStatus} {'123'}</Typography>
+        <Typography>
+          {row.assignmentStatus} {'123'}
+        </Typography>
       ),
     },
     {
@@ -159,6 +163,7 @@ export default function HistoryAssignPro({
             {convertTimeToTimezone(
               row.assignmentDate,
               auth.getValue().user?.timezone?.code!,
+              timezone.getValue(),
             )}
           </Typography>
         )

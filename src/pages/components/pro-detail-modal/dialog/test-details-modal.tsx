@@ -64,6 +64,8 @@ import {
   cancelReviewer,
 } from 'src/apis/onboarding.api'
 import { UserDataType } from '@src/context/types'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 // type AssignReviewerType = {
 //   jobType: { label: string; value: string }
@@ -133,6 +135,7 @@ export default function TestDetailsModal({
 }: Props) {
   const { setModal } = useContext(ModalContext)
   const [info, setInfo] = useState<TestType>(skillTest)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   // const { data: reviewerList1 } = useGetReviewerList()
   // const { data: history1 } = useGetHistory(skillTest.testId)
   const history = useQuery<{
@@ -408,7 +411,11 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {convertTimeToTimezone(row.createdAt, user.timezone)}
+          {convertTimeToTimezone(
+            row.createdAt,
+            user.timezone,
+            timezone.getValue(),
+          )}
         </Box>
       ),
     },
@@ -572,7 +579,11 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {convertTimeToTimezone(row.updatedAt, user.timezone)}
+          {convertTimeToTimezone(
+            row.updatedAt,
+            user.timezone,
+            timezone.getValue(),
+          )}
         </Box>
       ),
     },

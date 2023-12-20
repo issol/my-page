@@ -91,7 +91,12 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
-import { changeTimeZoneOffset, convertTimeToTimezone, findEarliestDate, formattedNow } from '@src/shared/helpers/date.helper'
+import {
+  changeTimeZoneOffset,
+  convertTimeToTimezone,
+  findEarliestDate,
+  formattedNow,
+} from '@src/shared/helpers/date.helper'
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -108,6 +113,7 @@ import {
 import { getClientDetail } from '@src/apis/client.api'
 import { set } from 'lodash'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { timezoneSelector } from '@src/states/permission'
 
 export type languageType = {
   id: number | string
@@ -161,6 +167,7 @@ export default function AddNewOrder() {
   const quoteId = router.query?.quoteId
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
   const [isWarn, setIsWarn] = useState(true)
@@ -765,7 +772,14 @@ export default function AddNewOrder() {
       )
       projectInfoReset({
         orderedAt: formattedNow(new Date()),
-        projectDueAt: new Date(convertTimeToTimezone(findEarliestDate(desiredDueDates), items[0].desiredDueTimezone, true)!),
+        projectDueAt: new Date(
+          convertTimeToTimezone(
+            findEarliestDate(desiredDueDates),
+            items[0].desiredDueTimezone,
+            timezone.getValue(),
+            true,
+          )!,
+        ),
         // projectDueAt: findEarliestDate(desiredDueDates),
         // projectDueDate: {
         //   date: findEarliestDate(desiredDueDates),
@@ -880,7 +894,14 @@ export default function AddNewOrder() {
             expertise: res?.expertise ?? [],
             revenueFrom: undefined,
             projectDueAt: res?.projectDueAt
-              ? new Date(convertTimeToTimezone(res?.projectDueAt, res?.projectDueTimezone ,true)!)
+              ? new Date(
+                  convertTimeToTimezone(
+                    res?.projectDueAt,
+                    res?.projectDueTimezone,
+                    timezone.getValue(),
+                    true,
+                  )!,
+                )
               : undefined,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
@@ -1043,7 +1064,14 @@ export default function AddNewOrder() {
             expertise: res?.expertise ?? [],
             revenueFrom: res.revenueFrom,
             projectDueAt: res?.projectDueAt
-              ? new Date(convertTimeToTimezone(res?.projectDueAt, res?.projectDueTimezone,true)!)
+              ? new Date(
+                  convertTimeToTimezone(
+                    res?.projectDueAt,
+                    res?.projectDueTimezone,
+                    timezone.getValue(),
+                    true,
+                  )!,
+                )
               : undefined,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
@@ -1133,8 +1161,7 @@ export default function AddNewOrder() {
 
   return (
     <Grid container spacing={6}>
-      { isFatching ?
-        <OverlaySpinner /> : null }
+      {isFatching ? <OverlaySpinner /> : null}
       <ConfirmLeaveModal />
       <PageHeader
         title={

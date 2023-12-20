@@ -36,6 +36,7 @@ import { getInvoiceReceivableListColumns } from '@src/shared/const/columns/invoi
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useCalenderResize from '@src/hooks/useCalenderResize'
+import { timezoneSelector } from '@src/states/permission'
 
 const CalendarContainer = () => {
   // ** Hooks
@@ -54,6 +55,7 @@ const CalendarContainer = () => {
     currentRole?.name === 'CLIENT' ? '1' : '0',
   )
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const statuses = statusList?.map(i => ({
     value: i.value,
@@ -166,6 +168,7 @@ const CalendarContainer = () => {
               statusList!,
               currentRole!,
               auth,
+              timezone.getValue(),
             )}
             list={
               currentList?.length

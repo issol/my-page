@@ -18,7 +18,7 @@ export type JobOpeningListType = {
   targetLanguage: string
   yearsOfExperience: string
   dueAt: Date
-  dueDateTimezone: CountryType
+  deadlineTimezone: CountryType
 }
 
 export type JobOpeningListFilterType = {

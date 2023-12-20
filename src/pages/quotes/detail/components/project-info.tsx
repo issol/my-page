@@ -46,6 +46,7 @@ import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modal
 
 import _ from 'lodash'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   project: ProjectInfoType | undefined
@@ -78,6 +79,7 @@ export default function QuotesProjectInfoDetail({
   statusList,
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [contactPersonEdit, setContactPersonEdit] = useState(false)
   const { openModal, closeModal } = useModal()
 
@@ -277,7 +279,8 @@ export default function QuotesProjectInfoDetail({
                 {/* {FullDateHelper(project.quoteDate)} */}
                 {convertTimeToTimezone(
                   project.quoteDate,
-                  auth.getValue().user?.timezone!
+                  auth.getValue().user?.timezone!,
+                  timezone.getValue(),
                 )}
               </CustomTypo>
             </LabelContainer>
@@ -662,7 +665,8 @@ export default function QuotesProjectInfoDetail({
                   <CustomTypo variant='body2'>
                     {convertTimeToTimezone(
                       project.estimatedAt,
-                      auth.getValue().user?.timezone!
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -673,7 +677,8 @@ export default function QuotesProjectInfoDetail({
                   <CustomTypo variant='body2'>
                     {convertTimeToTimezone(
                       project.projectDueAt,
-                      auth.getValue().user?.timezone!
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -684,7 +689,8 @@ export default function QuotesProjectInfoDetail({
                   <CustomTypo variant='body2'>
                     {convertTimeToTimezone(
                       project.quoteExpiryDate,
-                      auth.getValue().user?.timezone!
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -698,7 +704,8 @@ export default function QuotesProjectInfoDetail({
                   <CustomTypo variant='body2'>
                     {convertTimeToTimezone(
                       project.quoteDeadline,
-                      auth.getValue().user?.timezone!
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -707,12 +714,11 @@ export default function QuotesProjectInfoDetail({
                 <LabelContainer>
                   <CustomTypo fontWeight={600}>Quote expiry date</CustomTypo>
                   <CustomTypo variant='body2'>
-                    {
-                      convertTimeToTimezone(
-                        project.quoteExpiryDate,
-                        auth.getValue().user?.timezone!
-                      )
-                    }
+                    {convertTimeToTimezone(
+                      project.quoteExpiryDate,
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
+                    )}
                   </CustomTypo>
                 </LabelContainer>
               </Grid>
@@ -724,7 +730,8 @@ export default function QuotesProjectInfoDetail({
                   <CustomTypo variant='body2'>
                     {convertTimeToTimezone(
                       project.estimatedAt,
-                      auth.getValue().user?.timezone!
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -735,7 +742,8 @@ export default function QuotesProjectInfoDetail({
                   <CustomTypo variant='body2'>
                     {convertTimeToTimezone(
                       project.projectDueAt,
-                      auth.getValue().user?.timezone!
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>

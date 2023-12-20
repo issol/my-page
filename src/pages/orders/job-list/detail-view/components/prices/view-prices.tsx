@@ -36,6 +36,7 @@ import ProjectInfo from '@src/pages/orders/order-list/detail/components/project-
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   row: JobType
@@ -101,6 +102,7 @@ const ViewPrices = ({
   jobPriceHistory,
 }: Props) => {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: 7,
@@ -184,6 +186,7 @@ const ViewPrices = ({
                 {convertTimeToTimezone(
                   priceHistory.historyAt,
                   auth.getValue().user?.timezone,
+                  timezone.getValue(),
                 )}
               </Typography>
             </Box>
@@ -295,6 +298,7 @@ const ViewPrices = ({
                   {convertTimeToTimezone(
                     row.historyAt,
                     auth.getValue().user?.timezone,
+                    timezone.getValue(),
                   )}
                 </Typography>
               </Box>

@@ -31,6 +31,8 @@ import { StyledNextLink } from '@src/@core/components/customLink'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import { UserDataType, UserRoleType } from '@src/context/types'
 import { convertLanguageCodeToPair } from 'src/shared/helpers/language.helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   data: RequestDetailType | undefined
@@ -47,6 +49,7 @@ export default function RequestDetailCard({
   onStatusChange,
 }: Props) {
   const { data: statusList, isLoading } = useGetClientRequestStatus()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   return (
     <Grid container spacing={6}>
@@ -56,7 +59,8 @@ export default function RequestDetailCard({
           <CustomTypo variant='body2'>
             {convertTimeToTimezone(
               data?.requestedAt,
-              user?.timezone
+              user?.timezone,
+              timezone.getValue(),
             )}
           </CustomTypo>
         </LabelContainer>
@@ -200,7 +204,8 @@ export default function RequestDetailCard({
                     <CustomTypo variant='body2'>
                       {convertTimeToTimezone(
                         item.desiredDueDate,
-                        user?.timezone
+                        user?.timezone,
+                        timezone.getValue(),
                       )}
                       {/* {
                         convertDateByTimezone(

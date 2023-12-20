@@ -8,9 +8,13 @@ import {
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
-import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
+import {
+  formatCurrency,
+  getCurrencyMark,
+} from '@src/shared/helpers/price.helper'
 import { InvoiceProStatusType } from '@src/types/invoice/common.type'
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
+import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 
 import { Loadable } from 'recoil'
 
@@ -28,6 +32,7 @@ export const getInvoiceProListColumns = (
     company: ClientUserType | null | undefined
     loading: boolean
   }>,
+  timezoneList: TimeZoneType[],
 ) => {
   const columns: GridColumns<InvoicePayableListType> = [
     {
@@ -67,7 +72,10 @@ export const getInvoiceProListColumns = (
           <>
             {/* {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)} */}
             {/* TODO: invoiceStatus 넘버로 오는지 확인 필요 */}
-            {invoicePayableStatusChip(row.invoiceStatus as InvoiceProStatusType, statusList)}
+            {invoicePayableStatusChip(
+              row.invoiceStatus as InvoiceProStatusType,
+              statusList,
+            )}
           </>
         )
       },
@@ -87,6 +95,7 @@ export const getInvoiceProListColumns = (
         const date = convertTimeToTimezone(
           row.invoicedAt,
           auth.getValue().user?.timezone,
+          timezoneList,
         )
         return (
           <Tooltip title={date}>
@@ -110,6 +119,7 @@ export const getInvoiceProListColumns = (
         const date = convertTimeToTimezone(
           row.paidAt,
           row.paidDateTimezone,
+          timezoneList,
         )
         return (
           <Tooltip title={date}>
@@ -129,10 +139,7 @@ export const getInvoiceProListColumns = (
         </Typography>
       ),
       renderCell: ({ row }: CellType) => {
-        const price = `${formatCurrency(
-          row.totalPrice,
-          row.currency
-        )}`
+        const price = `${formatCurrency(row.totalPrice, row.currency)}`
 
         return <Typography fontWeight={600}>{price}</Typography>
       },

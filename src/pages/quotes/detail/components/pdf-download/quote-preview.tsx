@@ -5,7 +5,10 @@ import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getAddress } from '@src/shared/helpers/address-helper'
-import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
 
 // ** types
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
@@ -47,6 +50,8 @@ import MakeTable from './rows'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   data: QuoteDownloadData
@@ -57,6 +62,7 @@ type Props = {
 
 const PrintQuotePage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const { closeModal } = useModal()
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -173,6 +179,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   {convertTimeToTimezone(
                     data?.quoteDate?.date,
                     user?.timezone,
+                    timezone.getValue(),
                   )}
                 </Typography>
               </Box>
@@ -250,10 +257,12 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
               </Box>
               {getAddress(data?.clientAddress) === '-' ? null : (
                 <Typography variant='subtitle1' fontSize={14}>
-                  {lang === 'KO' 
-                    ? getAddress(data.clientAddress)?.replace('Korea, Republic of,','대한민국')
-                    : getAddress(data.clientAddress)
-                  }
+                  {lang === 'KO'
+                    ? getAddress(data.clientAddress)?.replace(
+                        'Korea, Republic of,',
+                        '대한민국',
+                      )
+                    : getAddress(data.clientAddress)}
                 </Typography>
               )}
 
@@ -265,14 +274,13 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
               <Typography variant='subtitle1' fontSize={14}>
                 {data?.contactPerson?.mobile
                   ? contryCodeAndPhoneNumberFormatter(
-                      splitContryCodeAndPhoneNumber(data.contactPerson.mobile)
+                      splitContryCodeAndPhoneNumber(data.contactPerson.mobile),
                     )
                   : data?.client?.client?.mobile
-                    ? contryCodeAndPhoneNumberFormatter(
-                        splitContryCodeAndPhoneNumber(data.client.client.mobile)
-                      )
-                    : '-'
-                }
+                  ? contryCodeAndPhoneNumberFormatter(
+                      splitContryCodeAndPhoneNumber(data.client.client.mobile),
+                    )
+                  : '-'}
               </Typography>
             </Box>
           </Grid>
@@ -314,6 +322,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   {convertTimeToTimezone(
                     data?.estimatedDeliveryDate?.date,
                     data?.estimatedDeliveryDate?.timezone,
+                    timezone.getValue(),
                   )}
                 </Typography>
               </Box>
@@ -331,6 +340,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   {convertTimeToTimezone(
                     data?.projectDueDate?.date,
                     data?.projectDueDate?.timezone,
+                    timezone.getValue(),
                   )}
                 </Typography>
               </Box>

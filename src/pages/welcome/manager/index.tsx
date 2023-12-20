@@ -49,9 +49,10 @@ import { useAppSelector } from 'src/hooks/useRedux'
 import useAuth from '@src/hooks/useAuth'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
+import { timezoneSelector } from '@src/states/permission'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -99,23 +100,27 @@ const PersonalInfoManager = () => {
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   // ** Hooks
   const auth = useRecoilValueLoadable(authState)
@@ -385,7 +390,7 @@ const PersonalInfoManager = () => {
                           disableClearable
                           renderOption={(props, option) => (
                             <Box component='li' {...props} key={uuidv4()}>
-                              {timeZoneFormatter(option)}
+                              {timeZoneFormatter(option, timezone.getValue())}
                             </Box>
                           )}
                           renderInput={params => (
@@ -398,7 +403,9 @@ const PersonalInfoManager = () => {
                               }}
                             />
                           )}
-                          getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+                          getOptionLabel={option =>
+                            timeZoneFormatter(option, timezone.getValue()) ?? ''
+                          }
                         />
                       )}
                     />

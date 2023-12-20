@@ -49,6 +49,7 @@ import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: CurrentTestType
@@ -60,6 +61,7 @@ const CertificationTestDetail = () => {
   const id = Number(router.query.id)
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const ability = useContext(AbilityContext)
   const { setModal } = useContext(ModalContext)
 
@@ -160,6 +162,7 @@ const CertificationTestDetail = () => {
               {convertTimeToTimezone(
                 row.updatedAt,
                 auth.getValue().user?.timezone!,
+                timezone.getValue(),
               )}
             </Box>
           )
@@ -556,6 +559,7 @@ const CertificationTestDetail = () => {
                             {convertTimeToTimezone(
                               currentRow.updatedAt,
                               auth.getValue().user?.timezone!,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>
@@ -842,6 +846,7 @@ const CertificationTestDetail = () => {
                           {convertTimeToTimezone(
                             currentVersion?.updatedAt,
                             auth.getValue().user?.timezone!,
+                            timezone.getValue(),
                           )}
                         </Typography>
                       </Box>

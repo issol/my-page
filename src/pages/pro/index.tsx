@@ -39,6 +39,7 @@ import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { setDate } from 'date-fns'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import { useQueryClient } from 'react-query'
+import { timezoneSelector } from '@src/states/permission'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -53,6 +54,7 @@ const defaultValues: ProFilterType = {
 
 const Pro = () => {
   const queryClient = useQueryClient()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(10)
   const [filters, setFilters] = useState<ProListFilterType>({
@@ -493,6 +495,7 @@ const Pro = () => {
             {convertTimeToTimezone(
               row.onboardedAt,
               auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Typography>
         )

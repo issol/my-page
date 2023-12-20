@@ -76,7 +76,8 @@ import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { FormErrors } from '@src/shared/const/formErrors'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
+import { timezoneSelector } from '@src/states/permission'
 
 export default function JobPostingPost() {
   const router = useRouter()
@@ -90,23 +91,27 @@ export default function JobPostingPost() {
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
   const [link, setLink] = useState<Array<LinkType>>([])
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   const defaultValues = {
     status: { value: '' as StatusType, label: '' as StatusType },
@@ -645,7 +650,10 @@ export default function JobPostingPost() {
                               disabled={!currDueDate}
                               renderOption={(props, option) => (
                                 <Box component='li' {...props} key={uuidv4()}>
-                                  {timeZoneFormatter(option)}
+                                  {timeZoneFormatter(
+                                    option,
+                                    timezone.getValue(),
+                                  )}
                                 </Box>
                               )}
                               renderInput={params => (
@@ -658,7 +666,12 @@ export default function JobPostingPost() {
                                   }}
                                 />
                               )}
-                              getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+                              getOptionLabel={option =>
+                                timeZoneFormatter(
+                                  option,
+                                  timezone.getValue(),
+                                ) ?? ''
+                              }
                             />
                           )}
                         />

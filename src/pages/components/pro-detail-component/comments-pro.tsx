@@ -25,6 +25,8 @@ import { UserDataType } from '@src/context/types'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 import pro_comment from '@src/shared/const/permission-class/pro-comment'
 import { AnyAbility } from '@casl/ability'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 type Props = {
   userInfo: DetailUserType
   user: UserDataType
@@ -76,6 +78,7 @@ export default function CommentsAboutPro({
   onClickDeleteComment,
   ability,
 }: Props) {
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   function getLegalName(row: {
     firstName: string
     middleName: string
@@ -92,10 +95,10 @@ export default function CommentsAboutPro({
     return null
   } else {
     userInfo.commentsOnPro?.sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return dateB - dateA;
-    });
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+      return dateB - dateA
+    })
   }
 
   return (
@@ -340,7 +343,11 @@ export default function CommentsAboutPro({
                     </Box>
                     <Box>
                       <Typography variant='body2'>
-                        {convertTimeToTimezone(value.updatedAt, user.timezone)}
+                        {convertTimeToTimezone(
+                          value.updatedAt,
+                          user.timezone,
+                          timezone.getValue(),
+                        )}
                       </Typography>
                     </Box>
                     {selectedComment && selectedComment?.id === value.id ? (

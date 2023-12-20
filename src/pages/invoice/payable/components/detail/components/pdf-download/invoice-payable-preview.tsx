@@ -3,7 +3,10 @@ import { Fragment, useEffect } from 'react'
 // ** helpers
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
-import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
 
 // ** types
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
@@ -42,6 +45,8 @@ import useModal from '@src/hooks/useModal'
 // ** types & helpers
 import { ItemType } from '@src/types/common/item.type'
 import languageHelper from '@src/shared/helpers/language.helper'
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   data: InvoicePayableDownloadData
@@ -52,6 +57,7 @@ type Props = {
 
 const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const { closeModal } = useModal()
   const dispatch = useAppDispatch()
   const columnName = lang === 'EN' ? invoiceEn : invoiceKo
@@ -149,7 +155,11 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                 {columnName.invoiceDate}:
               </Typography>
               <Typography variant='subtitle1' fontSize={14}>
-                {convertTimeToTimezone(data?.invoicedAt, user?.timezone)}
+                {convertTimeToTimezone(
+                  data?.invoicedAt,
+                  user?.timezone,
+                  timezone.getValue(),
+                )}
               </Typography>
             </Box>
           </Box>
@@ -205,9 +215,8 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
               {!data?.pro?.mobile
                 ? '-'
                 : contryCodeAndPhoneNumberFormatter(
-                    splitContryCodeAndPhoneNumber(data.pro.mobile)
-                  )
-              }
+                    splitContryCodeAndPhoneNumber(data.pro.mobile),
+                  )}
             </Typography>
           </Box>
         </Grid>

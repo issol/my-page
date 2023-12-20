@@ -70,7 +70,9 @@ import { log } from 'npmlog'
 import { FormErrors } from '@src/shared/const/formErrors'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   row: JobType
@@ -137,23 +139,27 @@ const EditJobInfo = ({
     }[]
   >([])
   const [isFileUploading, setIsFileUploading] = useState<boolean>(false)
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
@@ -228,7 +234,7 @@ const EditJobInfo = ({
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      ...srtUploadFileExtension.accept
+      ...srtUploadFileExtension.accept,
     },
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files
@@ -810,10 +816,12 @@ const EditJobInfo = ({
                     value={value || { code: '', label: '', phone: '' }}
                     options={timeZoneList as CountryType[]}
                     onChange={(e, v) => onChange(v)}
-                    getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+                    getOptionLabel={option =>
+                      timeZoneFormatter(option, timezone.getValue()) ?? ''
+                    }
                     renderOption={(props, option) => (
                       <Box component='li' {...props} key={uuidv4()}>
-                        {timeZoneFormatter(option)}
+                        {timeZoneFormatter(option, timezone.getValue())}
                       </Box>
                     )}
                     renderInput={params => (
@@ -879,7 +887,7 @@ const EditJobInfo = ({
                     }}
                     renderOption={(props, option) => (
                       <Box component='li' {...props} key={uuidv4()}>
-                        {timeZoneFormatter(option)}
+                        {timeZoneFormatter(option, timezone.getValue())}
                       </Box>
                     )}
                     renderInput={params => (
@@ -889,7 +897,9 @@ const EditJobInfo = ({
                         error={Boolean(errors.dueTimezone)}
                       />
                     )}
-                    getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+                    getOptionLabel={option =>
+                      timeZoneFormatter(option, timezone.getValue()) ?? ''
+                    }
                   />
                 )}
               />

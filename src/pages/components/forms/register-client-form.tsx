@@ -42,7 +42,12 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { id } from 'date-fns/locale'
-import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   control: Control<ClientFormType, any>
@@ -77,6 +82,7 @@ export default function RegisterClientForm({
   trigger,
   reset,
 }: Props) {
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const defaultFilter: Array<any> = [
     { value: NOT_APPLICABLE, label: 'Not applicable' },
   ]
@@ -410,8 +416,10 @@ export default function RegisterClientForm({
                   handleShowLabelAndPlaceHolder(
                     Boolean(
                       getValue('contacts.timezone') &&
-                      timeZoneFormatter(getValue('contacts.timezone')!) !==
-                        '-',
+                        timeZoneFormatter(
+                          getValue('contacts.timezone')!,
+                          timezone.getValue(),
+                        ) !== '-',
                     ),
                   )
                     ? 'Time zone'
@@ -420,8 +428,8 @@ export default function RegisterClientForm({
                 value={
                   value &&
                   getValue().contactPersonId &&
-                  timeZoneFormatter(value) !== '-'
-                    ? timeZoneFormatter(value)
+                  timeZoneFormatter(value, timezone.getValue()) !== '-'
+                    ? timeZoneFormatter(value, timezone.getValue())
                     : ''
                 }
                 disabled={true}
@@ -431,9 +439,10 @@ export default function RegisterClientForm({
                       {handleShowLabelAndPlaceHolder(
                         Boolean(
                           getValue('contacts.timezone') &&
-                          timeZoneFormatter(
-                            getValue('contacts.timezone')!,
-                          ) !== '-',
+                            timeZoneFormatter(
+                              getValue('contacts.timezone')!,
+                              timezone.getValue(),
+                            ) !== '-',
                         ),
                       ) ? null : (
                         <Box sx={{ width: '100%' }}>Time zone</Box>
@@ -464,7 +473,7 @@ export default function RegisterClientForm({
                 !value || value === '' || !getValue().contactPersonId
                   ? '-'
                   : contryCodeAndPhoneNumberFormatter(
-                      splitContryCodeAndPhoneNumber(value)
+                      splitContryCodeAndPhoneNumber(value),
                     )
               }
               disabled={true}
@@ -502,7 +511,7 @@ export default function RegisterClientForm({
                 !value || value === '' || !getValue().contactPersonId
                   ? '-'
                   : contryCodeAndPhoneNumberFormatter(
-                      splitContryCodeAndPhoneNumber(value)
+                      splitContryCodeAndPhoneNumber(value),
                     )
               }
               disabled={true}
@@ -538,7 +547,7 @@ export default function RegisterClientForm({
                 !value || value === '' || !getValue().contactPersonId
                   ? '-'
                   : contryCodeAndPhoneNumberFormatter(
-                      splitContryCodeAndPhoneNumber(value)
+                      splitContryCodeAndPhoneNumber(value),
                     )
               }
               disabled={true}

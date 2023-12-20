@@ -41,6 +41,7 @@ import { useQuery } from 'react-query'
 import { getUserBeHealthz } from '@src/apis/common.api'
 import ErrorServerMaintenance from '@src/@core/components/error/error-server-maintenance'
 import { authState } from '@src/states/auth'
+import { setAllTimeZoneList } from '@src/shared/helpers/timezone.helper'
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean

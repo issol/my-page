@@ -77,29 +77,34 @@ import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import logger from '@src/@core/utils/logger'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
+import { timezoneSelector } from '@src/states/permission'
 
 export default function RecruitingPost() {
   const router = useRouter()
   const languageList = getGloLanguage()
 
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
+  }, [timezone])
 
   /* dialog states */
   const [openDialog, setOpenDialog] = useState(false)
@@ -623,7 +628,9 @@ export default function RecruitingPost() {
                           id='dueDate'
                           onChange={onChange}
                           placeholderText='Due date'
-                          customInput={<CustomInput label='Due date' icon='calendar' />}
+                          customInput={
+                            <CustomInput label='Due date' icon='calendar' />
+                          }
                         />
                       )}
                     />
@@ -650,7 +657,7 @@ export default function RecruitingPost() {
                             disableClearable
                             renderOption={(props, option) => (
                               <Box component='li' {...props} key={uuidv4()}>
-                                {timeZoneFormatter(option)}
+                                {timeZoneFormatter(option, timezone.getValue())}
                               </Box>
                             )}
                             renderInput={params => (
@@ -663,7 +670,10 @@ export default function RecruitingPost() {
                                 }}
                               />
                             )}
-                            getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+                            getOptionLabel={option =>
+                              timeZoneFormatter(option, timezone.getValue()) ??
+                              ''
+                            }
                           />
                         )
                       }}

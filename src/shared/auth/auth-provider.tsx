@@ -25,13 +25,16 @@ import {
   currentRoleSelector,
   permissionSelector,
   roleSelector,
+  timezoneSelector,
 } from '@src/states/permission'
+import { setAllTimeZoneList } from '../helpers/timezone.helper'
 
 type Props = {
   children: ReactNode
 }
 
 const AuthProvider = ({ children }: Props) => {
+  const router = useRouter()
   const [auth, setAuth] = useRecoilStateLoadable<{
     user: UserDataType | null
     company: ClientUserType | undefined | null
@@ -42,10 +45,17 @@ const AuthProvider = ({ children }: Props) => {
   const [roles, setRoles] = useRecoilStateLoadable(roleSelector)
   const [currentRole, setCurrentRole] =
     useRecoilStateLoadable(currentRoleSelector)
+  const [timezone, setTimezone] = useRecoilStateLoadable(timezoneSelector)
 
   const { data: companyData, refetch } = useGetClientUserInfo()
 
-  const router = useRouter()
+  useEffect(() => {
+    if (router.isReady) {
+      setAllTimeZoneList(setTimezone)
+    } else {
+      return
+    }
+  }, [router])
 
   const hasTadAndLpm = useCallback((role: UserRoleType[]): boolean => {
     return (
@@ -114,7 +124,10 @@ const AuthProvider = ({ children }: Props) => {
       } else if (isClient) {
         const isClientGeneral =
           roles.getValue().find(i => i.name === 'CLIENT')?.type === 'General'
-        if (auth.getValue().company === undefined || !auth.getValue().company?.clientId) {
+        if (
+          auth.getValue().company === undefined ||
+          !auth.getValue().company?.clientId
+        ) {
           router.replace('/signup/finish/client')
         } else if (isClientGeneral && !auth.getValue().user?.firstName) {
           router.replace('/welcome/client/add-new/general-client')
@@ -150,7 +163,7 @@ const AuthProvider = ({ children }: Props) => {
 
       if (storedToken) {
         setAuth(prev => ({ ...prev, loading: true }))
-        const browserUserData = getUserDataFromBrowser() 
+        const browserUserData = getUserDataFromBrowser()
         const browserCompanyData = getCompanyDataFromBrowser()
 
         setAuth(prev => ({

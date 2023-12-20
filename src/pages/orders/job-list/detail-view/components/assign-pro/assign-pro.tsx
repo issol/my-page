@@ -57,6 +57,8 @@ import {
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import toast from 'react-hot-toast'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -116,6 +118,7 @@ const AssignPro = ({
   setJobId,
 }: Props) => {
   const queryClient = useQueryClient()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
   const [hideOffBoard, setHideOffBoard] = useState<boolean>(true)
@@ -392,12 +395,17 @@ const AssignPro = ({
     setValue('target', [
       { value: row.targetLanguage, label: languageHelper(row.targetLanguage)! },
     ])
-    setValue('category', orderDetail.category ? [
-      {
-        value: orderDetail.category,
-        label: orderDetail.category,
-      },
-    ] : [])
+    setValue(
+      'category',
+      orderDetail.category
+        ? [
+            {
+              value: orderDetail.category,
+              label: orderDetail.category,
+            },
+          ]
+        : [],
+    )
     setValue('serviceType', [
       {
         value: row.serviceType ?? '',
@@ -582,7 +590,11 @@ const AssignPro = ({
       sortable: false,
       renderHeader: () => <Box>Response rate</Box>,
       renderCell: ({ row }: { row: AssignProListType }) => {
-        return <Box>{row.responseRate? (row.responseRate*100).toFixed(2) : '-'} %</Box>
+        return (
+          <Box>
+            {row.responseRate ? (row.responseRate * 100).toFixed(2) : '-'} %
+          </Box>
+        )
       },
     },
     {
@@ -672,7 +684,11 @@ const AssignPro = ({
         return (
           <Box>
             {row.assignmentStatus
-              ? convertTimeToTimezone(row.assignmentDate, user.timezone)
+              ? convertTimeToTimezone(
+                  row.assignmentDate,
+                  user.timezone,
+                  timezone.getValue(),
+                )
               : '-'}
           </Box>
         )
@@ -767,7 +783,11 @@ const AssignPro = ({
         return (
           <Box>
             {row.assignmentStatus
-              ? convertTimeToTimezone(row.assignmentDate, user.timezone)
+              ? convertTimeToTimezone(
+                  row.assignmentDate,
+                  user.timezone,
+                  timezone.getValue(),
+                )
               : '-'}
           </Box>
         )

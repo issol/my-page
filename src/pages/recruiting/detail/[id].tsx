@@ -56,6 +56,7 @@ import {
 } from 'src/apis/recruiting.api'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { recruiting } from '@src/shared/const/permission-class'
+import { timezoneSelector } from '@src/states/permission'
 
 // ** types
 
@@ -65,6 +66,7 @@ type CellType = {
 
 const RecruitingDetail = () => {
   const router = useRouter()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const id = Number(router.query?.id)
   const queryClient = useQueryClient()
 
@@ -213,6 +215,7 @@ const RecruitingDetail = () => {
             {convertTimeToTimezone(
               row.createdAt,
               auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )
@@ -371,6 +374,7 @@ const RecruitingDetail = () => {
                       {convertTimeToTimezone(
                         currentVersion?.createdAt,
                         auth.getValue().user?.timezone!,
+                        timezone.getValue(),
                       )}
                     </Typography>
                   </Box>
@@ -555,6 +559,7 @@ const RecruitingDetail = () => {
                             {convertTimeToTimezone(
                               new Date(),
                               auth.getValue().user?.timezone!,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>

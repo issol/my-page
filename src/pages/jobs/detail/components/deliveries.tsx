@@ -15,6 +15,7 @@ import {
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 import { JobsFileType, ProJobDeliveryType } from '@src/types/jobs/jobs.type'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
@@ -27,6 +28,7 @@ type Props = {
 }
 const Deliveries = ({ delivery, downloadAllFiles, downloadOneFile }: Props) => {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   function getFileSize(files: Array<JobsFileType> | [] | undefined) {
     if (!files || !files.length) return 0
@@ -59,6 +61,7 @@ const Deliveries = ({ delivery, downloadAllFiles, downloadOneFile }: Props) => {
                   {convertTimeToTimezone(
                     value.deliveredDate,
                     auth.getValue().user?.timezone,
+                    timezone.getValue(),
                   )}
                 </Typography>
               </Box>

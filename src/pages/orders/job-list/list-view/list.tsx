@@ -26,6 +26,7 @@ import { authState } from '@src/states/auth'
 import { useContext } from 'react'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { statusType } from '@src/types/common/status.type'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: JobsListType
@@ -54,6 +55,7 @@ export default function JobsList({
   statusList,
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const router = useRouter()
 
   console.log('list', list)
@@ -164,12 +166,14 @@ export default function JobsList({
             title={convertTimeToTimezone(
               row?.startedAt,
               auth.getValue().user?.timezone?.code!,
+              timezone.getValue(),
             )}
           >
             <div>
               {convertTimeToTimezone(
                 row?.startedAt,
                 auth.getValue().user?.timezone?.code!,
+                timezone.getValue(),
               )}
             </div>
           </Tooltip>
@@ -188,12 +192,14 @@ export default function JobsList({
             title={convertTimeToTimezone(
               row?.dueAt,
               auth.getValue().user?.timezone?.code!,
+              timezone.getValue(),
             )}
           >
             <div>
               {convertTimeToTimezone(
                 row?.dueAt,
                 auth.getValue().user?.timezone?.code!,
+                timezone.getValue(),
               )}
             </div>
           </Tooltip>

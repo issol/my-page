@@ -55,6 +55,7 @@ import { useMutation } from 'react-query'
 import { CurrentHistoryType } from 'src/apis/recruiting.api'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { job_posting } from '@src/shared/const/permission-class'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: CurrentHistoryType
@@ -70,6 +71,7 @@ const JobPostingDetail = () => {
   const ability = useContext(AbilityContext)
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { data, refetch, isSuccess, isError } = useGetJobPostingDetail(
     id,
@@ -181,6 +183,7 @@ const JobPostingDetail = () => {
               {convertTimeToTimezone(
                 row.createdAt,
                 auth.getValue().user?.timezone!,
+                timezone.getValue(),
               )}
             </Box>
           )
@@ -297,6 +300,7 @@ const JobPostingDetail = () => {
                       {convertTimeToTimezone(
                         data?.createdAt,
                         auth.getValue().user?.timezone!,
+                        timezone.getValue(),
                       )}
                     </Typography>
                   </Box>
