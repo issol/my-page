@@ -17,6 +17,8 @@ import { CalendarEventType } from '@src/types/common/calendar.type'
 import { useSettings } from '@src/@core/hooks/useSettings'
 import uniqBy from 'lodash/uniqBy'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
+import { useRouter } from 'next/router'
+import find from 'lodash/find'
 
 const statusObject: Record<string, number> = {
   'Requested from LPM': 1,
@@ -34,6 +36,7 @@ const statusObject: Record<string, number> = {
 }
 
 const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
+  const router = useRouter()
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const { containerRef, containerWidth } = useCalenderResize()
@@ -48,7 +51,7 @@ const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
     Array<CalendarEventType<ProJobCalendarResult>>
   >([])
   const [statuses, setStatuses] = useState<
-    Array<{ color: string; value: number; label: string }>
+    Array<{ color: string; value: number; label: string; sort: number }>
   >([])
 
   useEffect(() => {
@@ -92,16 +95,27 @@ const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   }, [jobStatusList])
 
   useEffect(() => {
-    if (!isSuccess || data?.length === 0) {
+    if (!isSuccess || !Array.isArray(data) || data?.length === 0) {
       setEvent([])
       return
     }
 
-    if (!Array.isArray(data)) return
-
     const eventsList = data.map(item => {
+      const progress = [60200, 60400, 70300]
+      const cancel = [601000, 70400]
+
+      let sort = find(statuses, { value: item.status })?.sort
+      if (progress.includes(item.status)) {
+        sort = 3
+      }
+
+      if (cancel.includes(item.status)) {
+        sort = 12
+      }
+
       return {
         ...item,
+        sort: sort,
         extendedProps: {
           calendar: getProJobStatusColor(item.status as ProJobStatusType),
         },
@@ -109,7 +123,7 @@ const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
       }
     }) as Array<CalendarEventType<ProJobCalendarResult>>
 
-    setEvent(eventsList)
+    setEvent(eventsList.sort((a, b) => a.status - b.status))
   }, [data, isSuccess])
 
   return (

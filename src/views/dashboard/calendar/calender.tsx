@@ -10,6 +10,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import Box from '@mui/material/Box'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { ProJobCalendarResult } from '@src/queries/dashboard/dashnaord-lpm'
+import dayjs from 'dayjs'
 
 interface CalendarProps {
   event: Array<CalendarEventType<ProJobCalendarResult>>
@@ -35,6 +36,10 @@ const Calendar = ({ event, containerWidth }: CalendarProps) => {
     events: finalEvent as CalendarOptions['events'],
     ref: calendarRef,
     direction: 'ltr' as CalendarOptions['direction'],
+    validRange: {
+      start: dayjs().add(-24, 'month').format('YYYY-MM-DD'),
+      end: dayjs().set('date', dayjs().daysInMonth()).format('YYYY-MM-DD'),
+    },
     eventContent: (arg: any) => {
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>

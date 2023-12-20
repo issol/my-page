@@ -8,7 +8,11 @@ import { Typography } from '@mui/material'
 
 type Props = {
   alertIconStatus?: string
-  status: Array<{ value: number | string; label: string; color: string }>
+  status: Array<{
+    value: number | string
+    label: string
+    color: string
+  }>
 
   mdAbove: boolean
   leftSidebarWidth: number
