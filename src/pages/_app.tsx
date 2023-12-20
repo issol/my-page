@@ -189,6 +189,13 @@ const GAScriptsDynamic = dynamic(() => import('@src/shared/scripts/ga'), {
   suspense: true,
 })
 
+const AuthProviderDynamic = dynamic(
+  () => import('@src/shared/auth/auth-provider'),
+  {
+    ssr: false,
+  },
+)
+
 // ** Pace Loader
 if (themeConfig.routingLoader) {
   Router.events.on('routeChangeStart', () => {
@@ -302,7 +309,7 @@ const App = (props: ExtendedAppProps) => {
                   }
                 }}
               >
-                <AuthProvider>
+                <AuthProviderDynamic>
                   <SettingsProvider
                     {...(setConfig ? { pageSettings: setConfig() } : {})}
                   >
@@ -340,7 +347,7 @@ const App = (props: ExtendedAppProps) => {
                       }}
                     </SettingsConsumer>
                   </SettingsProvider>
-                </AuthProvider>
+                </AuthProviderDynamic>
               </ErrorBoundary>
             </Suspense>
           </CacheProvider>

@@ -19,8 +19,20 @@ export const getJobOpeningsColumn = () => {
   //TODO: day, hour 나오게 수정해야 함
   const calculateTimeLeft = (timeStr: Date, timezone: CountryType) => {
     const timezoneList = timezoneValue.getValue()
+
+    // console.log(timezoneList)
+
+    // console.log(timezone)
+
+    // const filteredTimezone = timezoneList.map(list => {
+    //   return {
+    //     code: list.timezoneCode,
+    //     label: list.timezone,
+    //     phone: '',
+    //   }
+    // })
     const timezoneCode = timezoneList.find(
-      list => list.timezone === timezone.label,
+      list => list.timezone === timezone?.label,
     )?.timezoneCode
 
     // 'Z'를 제거하고 UTC 시간대로 파싱

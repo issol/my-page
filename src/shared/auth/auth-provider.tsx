@@ -34,6 +34,7 @@ type Props = {
 }
 
 const AuthProvider = ({ children }: Props) => {
+  const router = useRouter()
   const [auth, setAuth] = useRecoilStateLoadable<{
     user: UserDataType | null
     company: ClientUserType | undefined | null
@@ -49,14 +50,12 @@ const AuthProvider = ({ children }: Props) => {
   const { data: companyData, refetch } = useGetClientUserInfo()
 
   useEffect(() => {
-    setAllTimeZoneList(setTimezone)
-  }, [])
-
-  useEffect(() => {
-    console.log(timezone.getValue(), 'auth')
-  }, [timezone])
-
-  const router = useRouter()
+    if (router.isReady) {
+      setAllTimeZoneList(setTimezone)
+    } else {
+      return
+    }
+  }, [router])
 
   const hasTadAndLpm = useCallback((role: UserRoleType[]): boolean => {
     return (
