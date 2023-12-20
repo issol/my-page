@@ -153,7 +153,7 @@ const Doughnut = <T extends RatioItem>({
         width: 5,
       },
       tooltip: {
-        enabled: !isHiddenValue,
+        enabled: true,
         custom: function ({ series, seriesIndex, dataPointIndex, w }) {
           const price = charData[seriesIndex]?.sum || 0
 
@@ -172,9 +172,11 @@ const Doughnut = <T extends RatioItem>({
                   <span className='tooltip__count'>{`(${charData[seriesIndex].count})`}</span>
                 </div>
                 <div className='flex-center' style={{ marginTop: '10px' }}>
-                  <span className='tooltip__sum'>{`${Number(
-                    price,
-                  ).toLocaleString()}`}</span>
+                  {!isHiddenValue && (
+                    <span className='tooltip__sum'>{`${Number(
+                      price,
+                    ).toLocaleString()}`}</span>
+                  )}
                   <span className='tooltip__ratio'>{`${charData[seriesIndex].ratio}%`}</span>
                 </div>
               </div>{' '}

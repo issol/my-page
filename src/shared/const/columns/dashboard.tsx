@@ -26,6 +26,7 @@ import {
   OrderStatusChip,
   RoleChip,
   ServiceTypeChip,
+  TestStatusChip,
 } from '@src/@core/components/chips/chips'
 import { Box } from '@mui/material'
 import { Inbox, Person } from '@mui/icons-material'
@@ -40,6 +41,7 @@ import {
 } from '@src/shared/const/dashboard/chip'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
+import { TestStatusColor } from '@src/shared/const/chipColors'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -366,11 +368,19 @@ export const RecruitingRequestColumn: GridColumns = [
         >
           <Box display='flex' gap='10px'>
             {row.jobType ? (
-              <JobTypeChip type={row.jobType} label={row.jobType} />
+              <JobTypeChip
+                size='small'
+                type={row.jobType}
+                label={row.jobType}
+              />
             ) : (
               '-'
             )}
-            {row.role ? <RoleChip type={row.role} label={row.role} /> : '-'}
+            {row.role ? (
+              <RoleChip size='small' type={row.role} label={row.role} />
+            ) : (
+              '-'
+            )}
           </Box>
           <span
             style={{
@@ -615,10 +625,9 @@ export const StatusApplicationColumns: GridColumns = [
     renderCell: ({ row }: { row: ApplicationItem }) => {
       return (
         <div>
-          <OrderStatusChip
-            size='small'
-            status={row?.status}
-            label={row?.status}
+          <TestStatusChip
+            label={row.status as string}
+            status={row.status as string}
           />
         </div>
       )
@@ -630,12 +639,31 @@ export const StatusApplicationColumns: GridColumns = [
     minWidth: 192,
     renderHeader: () => <Box>Legal name / Email</Box>,
     renderCell: ({ row }: { row: ApplicationItem }) => {
+      if (!row.pro?.firstName && !row.pro?.middleName && !row.pro?.lastName) {
+        return (
+          <Box>
+            <Typography fontSize='14px' fontWeight={600}>
+              -
+            </Typography>
+            <Typography color='#4C4E6499' fontSize='14px'>
+              {row.pro?.email || '-'}
+            </Typography>
+          </Box>
+        )
+      }
+      let name = '-'
+
+      if (row.pro?.firstName && row.pro?.lastName && !row.pro?.middleName) {
+        name = `${row.pro?.firstName} ${row.pro?.lastName}`
+      }
+
+      if (row.pro?.firstName && row.pro?.lastName && row.pro?.middleName) {
+        name = `${row.pro?.firstName} ${row.pro?.middleName} ${row.pro?.lastName}`
+      }
       return (
         <Box>
           <Typography fontSize='14px' fontWeight={600}>
-            {`${row.pro?.firstName || '-'} ${row.pro?.middleName || '-'} ${
-              row.pro?.lastName || '-'
-            }` || '-'}
+            {name}
           </Typography>
           <Typography color='#4C4E6499' fontSize='14px'>
             {row.pro?.email || '-'}
@@ -653,8 +681,8 @@ export const StatusApplicationColumns: GridColumns = [
     renderCell: ({ row }: { row: ApplicationItem }) => {
       return (
         <Box display='flex' gap='10px'>
-          <JobTypeChip type={row.jobType} label={row.jobType} />
-          <RoleChip type={row.role || ''} label={row.role || ''} />
+          <JobTypeChip size='small' type={row.jobType} label={row.jobType} />
+          <RoleChip size='small' type={row.role || ''} label={row.role || ''} />
         </Box>
       )
     },
