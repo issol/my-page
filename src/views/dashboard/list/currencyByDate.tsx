@@ -14,7 +14,6 @@ import { KeyboardArrowRight } from '@mui/icons-material'
 import { useRouter } from 'next/router'
 
 export interface CurrencyByDateListProps {
-  date?: Date
   report: Array<ExpectedIncome>
 }
 
@@ -24,7 +23,7 @@ export const getProDateFormat = (year: number, month: number) => {
   return lastDate.format('MMMM 1 - DD, YYYY')
 }
 
-const CurrencyByDateList = ({ report, date }: CurrencyByDateListProps) => {
+const CurrencyByDateList = ({ report }: CurrencyByDateListProps) => {
   const isItemValues = (item: ExpectedIncome) => {
     return !!(
       item.incomeUSD ||
@@ -34,40 +33,8 @@ const CurrencyByDateList = ({ report, date }: CurrencyByDateListProps) => {
     )
   }
 
-  const isEmptyList = useCallback(() => {
-    if (report.length !== 0) return
-    const _date = dayjs(date).set('date', 1)
-    const monthList = Array(6)
-      .fill(0)
-      .map((i, index) => {
-        return _date.add(index, 'month')
-      })
-
-    return monthList.map((date, index) => (
-      <Box key={`${date}-index`} sx={{ height: '100%' }}>
-        <Typography
-          fontSize='14px'
-          color='#4C4E64DE'
-          fontWeight={600}
-          sx={{ marginBottom: '5px' }}
-        >
-          {date.format('MMM')}
-        </Typography>
-        <CurrencyItemList
-          style={{ height: 'fit-content', padding: 0, margin: 0 }}
-        >
-          <li>
-            <span className='currency_box'>-</span>
-            <span className='price'>0</span>
-          </li>
-        </CurrencyItemList>
-      </Box>
-    ))
-  }, [date])
-
   return (
     <Box className='scroll_bar' sx={{ maxHeight: '364px', overflowY: 'auto' }}>
-      {isEmptyList()}
       {report.map(item => (
         <Box key={`${item.month}`} sx={{ height: '100%' }}>
           <Typography

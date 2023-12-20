@@ -7,13 +7,11 @@ import {
 } from '@src/views/dashboard/dashboardItem'
 import { Box, Stack } from '@mui/material'
 import dayjs from 'dayjs'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import { FormProvider, useWatch } from 'react-hook-form'
 import React from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import weekday from 'dayjs/plugin/weekday'
-import { KeyboardArrowRight } from '@mui/icons-material'
 import { upcomingColumns } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import { DataGrid } from '@mui/x-data-grid'
@@ -54,6 +52,7 @@ const ProDashboards = () => {
 
   const getDate = (dateType: dayjs.UnitType) => {
     const date = (dateRange && dateRange[0]) || new Date()
+    if (dateType === 'month') return dayjs(date).get(dateType) + 1
     return dayjs(date).get(dateType)
   }
 
@@ -79,7 +78,11 @@ const ProDashboards = () => {
           <Grid container gap='24px'>
             <GridItem width={265} height={387}>
               <Box sx={{ width: '100%', height: '100%' }}>
-                <Title title='Job overview' openDialog={setOpenInfoDialog} />
+                <Title
+                  title='Job overview'
+                  openDialog={setOpenInfoDialog}
+                  handleClick={() => router.push('/jobs/')}
+                />
                 <JobList />
               </Box>
             </GridItem>
@@ -187,29 +190,18 @@ const ProDashboards = () => {
           </Grid>
 
           <Grid container gap='24px'>
-            <GridItem sm height={223}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <Box>
-                  <SectionTitle>
-                    <span className='title'>Monthly task output (0)</span>
-                  </SectionTitle>
-                  <SubDateDescription textAlign='left'>
-                    {getProDateFormat(getDate('year'), getDate('month'))}
-                  </SubDateDescription>
-                </Box>
-                <Box
-                  display='flex'
-                  alignItems='center'
-                  justifyContent='center'
-                  sx={{
-                    width: '100%',
-                    height: '70%',
-                    fontSize: '14px',
-                    color: '#4C4E6499',
-                  }}
-                >
-                  There are no task output
-                </Box>
+            <GridItem sm height={223} padding='0px'>
+              <Box
+                display='flex'
+                alignItems='center'
+                justifyContent='center'
+                sx={{ width: '100%', height: '100%', overflow: 'hidden' }}
+              >
+                <img
+                  style={{ width: '110%' }}
+                  alt='empty_imgage'
+                  src='/images/dashboard/img_montly.png'
+                />
               </Box>
             </GridItem>
             <GridItem xs={6} height={223}>

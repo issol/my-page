@@ -29,6 +29,8 @@ import MemberSearchList from '@src/views/dashboard/dialog/memberSearch'
 import { CSVDataType } from '@src/types/dashboard'
 import { CSVOptionsMenuDownload } from '@src/views/dashboard/csvDownload'
 import { headers } from 'next/headers'
+import UseStickyHeader from '@src/hooks/useStickyHeader'
+import useStickyHeader from '@src/hooks/useStickyHeader'
 
 interface SwitchTypeHeaderProps {
   csvData?: CSVDataType
@@ -43,7 +45,6 @@ const SwitchTypeHeader = ({
   showMemberView,
   hiddenMemberView,
 }: SwitchTypeHeaderProps) => {
-  const dateHeaderRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
 
   const { contents: auth, state: authFetchState } =
@@ -51,10 +52,10 @@ const SwitchTypeHeader = ({
   const { contents: role, state: roleFetchState } =
     useRecoilValueLoadable(currentRoleSelector)
 
+  const { isSticky } = useStickyHeader()
   const [state, setState] = useRecoilState(dashboardState)
 
   const { control, setValue } = useFormContext<DashboardForm>()
-  const [sticky, setSticky] = useState(false)
   const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
     control,
     name: ['viewSwitch', 'dateRange', 'selectedRangeDate', 'userViewDate'],
@@ -129,22 +130,6 @@ const SwitchTypeHeader = ({
     }
   }, [])
 
-  const scrollHandler = () => {
-    if (window.scrollY <= 152) {
-      setSticky(false)
-    }
-    if (window.scrollY > 152) {
-      setSticky(true)
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener('scroll', scrollHandler)
-    return () => {
-      window.removeEventListener('scroll', scrollHandler)
-    }
-  }, [sticky])
-
   useEffect(() => {
     if (dashboardStateValue.userInfo) {
       showMemberView()
@@ -160,7 +145,7 @@ const SwitchTypeHeader = ({
         <GridItem
           width={420}
           height={76}
-          sx={{ display: sticky ? 'none' : 'flex' }}
+          sx={{ display: isSticky ? 'none' : 'flex' }}
         >
           <Box sx={{ width: '100%' }}>
             <Box display='flex' gap='16px' alignItems='center'>
@@ -183,7 +168,7 @@ const SwitchTypeHeader = ({
         <GridItem
           width={300}
           height={76}
-          sx={{ display: sticky ? 'none' : 'flex' }}
+          sx={{ display: isSticky ? 'none' : 'flex' }}
         >
           <Box display='flex' alignItems='center'>
             <Typography
@@ -245,9 +230,8 @@ const SwitchTypeHeader = ({
       <Grid
         component='div'
         item
-        sm={!sticky}
-        xs={sticky ? 12 : undefined}
-        ref={dateHeaderRef}
+        sm={!isSticky}
+        xs={isSticky ? 12 : undefined}
         sx={{
           position: 'sticky',
           left: 0,
@@ -261,7 +245,7 @@ const SwitchTypeHeader = ({
       <GridItem
         width={76}
         height={76}
-        sx={{ display: sticky ? 'none' : 'flex' }}
+        sx={{ display: isSticky ? 'none' : 'flex' }}
       >
         <Box>
           <Button onClick={handleClick}>

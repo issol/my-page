@@ -39,6 +39,7 @@ import {
 import Notice from '@src/views/dashboard/notice'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import find from 'lodash/find'
+import useStickyHeader from '@src/hooks/useStickyHeader'
 
 dayjs.extend(weekday)
 
@@ -61,6 +62,7 @@ const TADDashboards = () => {
   const data = cache.getQueriesData([DEFAULT_QUERY_NAME])
 
   const gloLanguage = getGloLanguage()
+  const { isSticky } = useStickyHeader()
 
   const { formHook, infoDialog } = UseDashboardControl()
   const { control, setValue, ...props } = formHook
@@ -79,8 +81,6 @@ const TADDashboards = () => {
   const [roles, setRoles] = useState<CSVDataType>([])
   const [sourceLanguages, setSourceLanguages] = useState<CSVDataType>([])
   const [targetLanguages, setTargetLanguages] = useState<CSVDataType>([])
-
-  console.log('STESTSERT', gloLanguage)
 
   useEffect(() => {
     const Onboarding = data.filter(item =>
@@ -156,8 +156,10 @@ const TADDashboards = () => {
         <Grid container gap='24px' sx={{ padding: '10px' }}>
           <Notice />
           <Grid
+            component='div'
             item
-            sm
+            sm={!isSticky}
+            xs={isSticky ? 12 : undefined}
             sx={{
               position: 'sticky',
               left: 0,
@@ -168,7 +170,11 @@ const TADDashboards = () => {
           >
             <ChartDateHeader />
           </Grid>
-          <GridItem width={207} height={76}>
+          <GridItem
+            width={207}
+            height={76}
+            sx={{ display: isSticky ? 'none' : 'flex' }}
+          >
             <Box>
               <CSVDownload title={`${getFileTitle()}`} data={CSVData} />
             </Box>

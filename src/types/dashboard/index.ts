@@ -297,6 +297,7 @@ export interface LongStandingQuery extends DashboardPaginationQuery {
 
 export type ExpectedIncomeSort = 'requestDate' | 'dueDate'
 export interface ExpectedIncomeQuery {
+  year: number
   month: number
   sort: ExpectedIncomeSort
 }

@@ -85,6 +85,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
     const user = userData.getValue().user
     setPublicPage(!user)
   }, [userData])
+  console.log('@#$@#$@', sortedMenu)
 
   useEffect(() => {
     const current =

@@ -451,13 +451,13 @@ export const StatusOrderColumns: GridColumns = [
           ? OrderChipLabel[row?.status]
           : row?.status
       return (
-        <div>
+        <Box>
           <OrderStatusChip
             size='small'
             status={row?.status}
             label={label || '-'}
           />
-        </div>
+        </Box>
       )
     },
   },
@@ -485,7 +485,7 @@ export const StatusOrderColumns: GridColumns = [
     minWidth: 220,
     renderHeader: () => <Box>Project name</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
-      return <div>{row.projectName}</div>
+      return <Box>{row.projectName}</Box>
     },
   },
   {
@@ -584,7 +584,7 @@ export const StatusJobColumns: GridColumns = [
     minWidth: 220,
     renderHeader: () => <Box>Job name</Box>,
     renderCell: ({ row }: { row: JobItem }) => {
-      return <div>{row?.jobName || '-'}</div>
+      return <Box>{row?.jobName || '-'}</Box>
     },
   },
   {
@@ -624,12 +624,12 @@ export const StatusApplicationColumns: GridColumns = [
     renderHeader: () => <Box>status</Box>,
     renderCell: ({ row }: { row: ApplicationItem }) => {
       return (
-        <div>
+        <Box>
           <TestStatusChip
             label={row.status as string}
             status={row.status as string}
           />
-        </div>
+        </Box>
       )
     },
   },

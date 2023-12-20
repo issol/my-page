@@ -1,20 +1,16 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Box } from '@mui/material'
-import {
-  SectionTitle,
-  SubDateDescription,
-  Title,
-} from '@src/views/dashboard/dashboardItem'
+import { SectionTitle, Title } from '@src/views/dashboard/dashboardItem'
 import Typography from '@mui/material/Typography'
 import Switch from '@mui/material/Switch'
 import CurrencyByDateList, {
   getProDateFormat,
 } from '@src/views/dashboard/list/currencyByDate'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import ProJobRequestBarChart from '@src/views/dashboard/chart/jobRequestBar'
 import dayjs from 'dayjs'
 import { useExpectedIncome } from '@src/queries/dashboard/dashnaord-lpm'
-import { ExpectedIncomeSort } from '@src/types/dashboard'
+import { ExpectedIncome, ExpectedIncomeSort } from '@src/types/dashboard'
+import find from 'lodash/find'
 
 interface ExpectedIncomeProps {
   dateRange: Array<Date | null>
@@ -28,14 +24,40 @@ const ExpectedIncome = ({
 
   const [checked, setChecked] = useState(false)
   const [sort, setSort] = useState<ExpectedIncomeSort>('requestDate')
-  const { data } = useExpectedIncome({
+  const { data, isSuccess } = useExpectedIncome({
+    year: date.get('year'),
     month: date.get('month'),
     sort,
   })
 
   const getDate = () => {
-    return `Based On ${getProDateFormat(date.get('year'), date.get('month'))}`
+    return `Based On ${getProDateFormat(
+      date.get('year'),
+      date.get('month') + 1,
+    )}`
   }
+
+  const CalendarList: Array<ExpectedIncome> = useMemo(() => {
+    if (!isSuccess) return []
+    const _date = dayjs(date).set('date', 1)
+
+    return Array(6)
+      .fill(0)
+      .map((i, index) => {
+        const dateItem = _date.add(-index, 'month').format('MMM')
+        const item = find(data?.report, { month: dateItem })
+        if (item) return { ...item }
+        return {
+          incomeJPY: 0,
+          incomeKRW: 0,
+          incomeSGD: 0,
+          incomeUSD: 0,
+          month: dateItem,
+          acceptedCount: 0,
+          rejectedCount: 0,
+        }
+      })
+  }, [data, dateRange])
 
   return (
     <Box display='flex' sx={{ width: '100%', height: '100%' }}>
@@ -45,7 +67,7 @@ const ExpectedIncome = ({
           subTitle={getDate()}
           openDialog={setOpenInfoDialog}
         />
-        <ProJobRequestBarChart report={data?.report || []} />
+        <ProJobRequestBarChart report={[...CalendarList].reverse() || []} />
       </Box>
       <Box
         sx={{
@@ -91,7 +113,7 @@ const ExpectedIncome = ({
             Due date
           </Typography>
         </Box>
-        <CurrencyByDateList date={date.toDate()} report={data?.report || []} />
+        <CurrencyByDateList report={CalendarList || []} />
       </Box>
     </Box>
   )
