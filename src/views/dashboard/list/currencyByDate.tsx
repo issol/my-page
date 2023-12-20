@@ -6,6 +6,7 @@ import {
   CurrencyUnit,
   SectionTitle,
   SubDateDescription,
+  Title,
 } from '@src/views/dashboard/dashboardItem'
 import { useTotalAmount } from '@src/queries/dashboard/dashnaord-lpm'
 import dayjs, { Dayjs } from 'dayjs'
@@ -79,8 +80,13 @@ const CurrencyByDateList = ({ report }: CurrencyByDateListProps) => {
 
 interface CurrencyAmountProps extends TotalAmountQuery {
   title: string
+  setOpenInfoDialog: (open: boolean, key: string) => void
 }
-export const CurrencyAmount = ({ title, ...params }: CurrencyAmountProps) => {
+export const CurrencyAmount = ({
+  title,
+  setOpenInfoDialog,
+  ...params
+}: CurrencyAmountProps) => {
   const router = useRouter()
   const { data } = useTotalAmount(params)
 
@@ -94,20 +100,12 @@ export const CurrencyAmount = ({ title, ...params }: CurrencyAmountProps) => {
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
       <Box>
-        <SectionTitle>
-          <span
-            role='button'
-            className='title'
-            onClick={() => router.push('/quotes/lpm/requests/')}
-          >
-            {title}
-          </span>
-          <ErrorOutlineIcon className='info_icon' />
-          <KeyboardArrowRight className='arrow_icon' />
-        </SectionTitle>
-        <SubDateDescription textAlign='left'>
-          {getProDateFormat(params.year, params.month)}
-        </SubDateDescription>
+        <Title
+          title={title}
+          subTitle={getProDateFormat(params.year, params.month)}
+          openDialog={setOpenInfoDialog}
+          handleClick={() => router.push('/invoice/pro/')}
+        />
       </Box>
       <Box display='flex' alignItems='center' sx={{ padding: '40px 0 ' }}>
         <Box display='flex' alignItems='center'>

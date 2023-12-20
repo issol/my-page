@@ -42,6 +42,7 @@ import {
 import { JobStatusType } from '@src/types/jobs/jobs.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import { TestStatusColor } from '@src/shared/const/chipColors'
+import { useRouter } from 'next/router'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -826,11 +827,18 @@ export const upcomingColumns: GridColumns = [
     field: 'jobName',
     headerName: 'Job name',
     renderHeader: () => <Box>Job name</Box>,
-    renderCell: ({ row }: { row: UpcomingItem }) => (
-      <Typography fontSize='14px' fontWeight={600}>
-        {row?.name || '-'}
-      </Typography>
-    ),
+    renderCell: ({ row }: { row: UpcomingItem }) => {
+      const router = useRouter()
+      return (
+        <Typography
+          fontSize='14px'
+          fontWeight={600}
+          onClick={() => router.push(`/jobs/detail/${row.id}/`)}
+        >
+          {row?.name || '-'}
+        </Typography>
+      )
+    },
   },
   {
     flex: 0.3,
@@ -839,7 +847,7 @@ export const upcomingColumns: GridColumns = [
     headerName: 'dueAt',
     renderHeader: () => <Box>Job due Date / Time left</Box>,
     renderCell: ({ row }: { row: UpcomingItem }) => (
-      <Typography fontSize='14px'>23432</Typography>
+      <Typography fontSize='14px'>-</Typography>
     ),
   },
 ]

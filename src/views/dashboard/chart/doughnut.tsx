@@ -28,6 +28,7 @@ interface DoughnutChartProps<T> extends Partial<CSVDataRecordProps> {
   title: string
   userViewDate?: string
   subTitle?: string
+  emptyTitle?: string
   from: string
   to: string
   type: string
@@ -45,6 +46,7 @@ const Doughnut = <T extends RatioItem>({
   title,
   userViewDate,
   subTitle,
+  emptyTitle,
   path,
   from,
   to,
@@ -268,7 +270,7 @@ const Doughnut = <T extends RatioItem>({
         >
           <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
         </Box>
-        {!data && <NoRatio title={title} />}
+        {!data && <NoRatio title={emptyTitle || title} />}
         {data && (
           <Box
             display='flex'

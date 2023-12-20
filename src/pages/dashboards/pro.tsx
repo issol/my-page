@@ -119,6 +119,7 @@ const ProDashboards = () => {
             </GridItem>
             <Doughnut<ServiceRatioItem>
               title='Completed deliveries'
+              emptyTitle='delivery this month'
               subTitle={`Based On ${getProDateFormat(
                 getDate('year'),
                 getDate('month'),
@@ -136,9 +137,9 @@ const ProDashboards = () => {
                 return `${item?.serviceType || '-'}`
               }}
               isHiddenValue={true}
-              path={`job/ratio/service-type?month=${
-                getDate('month') + 1
-              }&year=${getDate('year')}`}
+              path={`job/ratio/service-type?month=${getDate(
+                'month',
+              )}&year=${getDate('year')}`}
               setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
@@ -156,6 +157,7 @@ const ProDashboards = () => {
                   amountType='invoiced'
                   year={getDate('year')}
                   month={getDate('month')}
+                  setOpenInfoDialog={setOpenInfoDialog}
                 />
               </GridItem>
               <GridItem height={184}>
@@ -164,6 +166,7 @@ const ProDashboards = () => {
                   amountType='payment'
                   year={getDate('year')}
                   month={getDate('month')}
+                  setOpenInfoDialog={setOpenInfoDialog}
                 />
               </GridItem>
             </Grid>

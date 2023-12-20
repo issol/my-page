@@ -137,6 +137,20 @@ const INFO_CONTENTS: Record<InfoKey, Record<string, string | ReactElement>> = {
         amounts.
       </div>
     ),
+    'Payment amount': (
+      <div>
+        This area shows the amount you will receive this month.
+        <br /> <br />
+        You can view the total Payment amount in four different currencies.
+      </div>
+    ),
+    'Invoiced amount': (
+      <div>
+        This area displays the amount that has been invoiced on this month.
+        <br /> <br />
+        You can view the total Invoice amount in four different currencies.
+      </div>
+    ),
   },
   ACCOUNT: {
     'Sales recognition':
