@@ -395,12 +395,15 @@ export const RecruitingRequestColumn: GridColumns = [
     headerName: '',
     flex: 0.2,
     minWidth: 160,
-    renderCell: ({ row }: { row: RecruitingRequest }) => (
-      <Box display='flex' alignItems='center' gap='8px'>
-        <Person />
-        <Typography fontSize='16px'>{`${row.openings} person`}</Typography>
-      </Box>
-    ),
+    renderCell: ({ row }: { row: RecruitingRequest }) => {
+      const unit = row.openings > 1 ? 'people' : 'person'
+      return (
+        <Box display='flex' alignItems='center' gap='8px'>
+          <Person />
+          <Typography fontSize='16px'>{`${row.openings} ${unit}`}</Typography>
+        </Box>
+      )
+    },
   },
   {
     field: 'dueAt',
