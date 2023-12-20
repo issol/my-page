@@ -319,9 +319,7 @@ export const RecruitingRequestColumn: GridColumns = [
     minWidth: 180,
     flex: 0.1,
     renderCell: ({ row }: { row: RecruitingRequest }) => {
-      const code = row.dueTimezone as keyof typeof timezones.countries
-
-      const timeZone = timezones.countries[code]?.zones[0]
+      const timeZone = row.dueTimezone.label
       const date1 = dayjs(row.dueAt).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -409,9 +407,7 @@ export const RecruitingRequestColumn: GridColumns = [
     flex: 0.3,
     minWidth: 180,
     renderCell: ({ row }: { row: RecruitingRequest }) => {
-      const code = row.dueTimezone as keyof typeof timezones.countries
-
-      const timeZone = timezones.countries[code]?.zones[0]
+      const timeZone = row.dueTimezone.label
       const date1 = dayjs(row.dueAt).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -841,9 +837,70 @@ export const upcomingColumns: GridColumns = [
     field: 'dueAt',
     headerName: 'dueAt',
     renderHeader: () => <Box>Job due Date / Time left</Box>,
-    renderCell: ({ row }: { row: UpcomingItem }) => (
-      <Typography fontSize='14px'>-</Typography>
-    ),
+    renderCell: ({ row }: { row: UpcomingItem }) => {
+      if (!row.dueAt) {
+        return <Box>-</Box>
+      }
+      const timeZone = row.dueTimezone?.label
+      let date = dayjs(row.dueAt).format('MM/DD/YYYY hh:mm A')
+
+      if (timeZone) {
+        date = moment(row.dueAt).tz(timeZone)?.format('MM/DD/YYYY hh:mm A (z)')
+      }
+
+      const getPad = (num: number) => String(num).padStart(2, '0')
+
+      const day = dayjs().diff(row.dueAt, 'day')
+      const hour = dayjs().add(-day, 'day').diff(row.dueAt, 'hour')
+      const min = dayjs()
+        .add(-day, 'day')
+        .add(-hour, 'hour')
+        .diff(row.dueAt, 'minute')
+
+      if (day === 0) {
+        let isOver = false
+
+        if (hour >= 0 && min >= 0) {
+          isOver = true
+        }
+        return (
+          <Box>
+            <Typography>{date}</Typography>
+            <Typography
+              fontSize='14px'
+              color={isOver ? '#E04440' : '#666CFF'}
+            >{`${getPad(Math.abs(hour))} hour(s) ${getPad(
+              Math.abs(min),
+            )} min(s) ${isOver ? 'over' : 'left'}`}</Typography>
+          </Box>
+        )
+      }
+
+      if (day >= 0 && hour >= 0 && min >= 0) {
+        return (
+          <Box>
+            <Typography>{date}</Typography>
+            <Typography
+              fontSize='14px'
+              color='#E04440'
+              fontWeight={600}
+            >{`${getPad(day)} day(s) ${getPad(hour)} hour(s) ${getPad(
+              min,
+            )}min(s) over`}</Typography>
+          </Box>
+        )
+      }
+      return (
+        <Box>
+          <Typography>{date}</Typography>
+          <Typography fontSize='14px'>{`${getPad(
+            Math.abs(day),
+          )} day(s) ${getPad(Math.abs(hour))} hour(s) ${getPad(
+            Math.abs(min),
+          )}min(s) left`}</Typography>
+        </Box>
+      )
+    },
   },
 ]
 

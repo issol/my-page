@@ -100,7 +100,11 @@ export type RecruitingRequest = {
   targetLanguage: string
   openings: number
   dueAt: string
-  dueTimezone: string
+  dueTimezone: {
+    code: string
+    label: string
+    phone: string
+  }
   deadlineWarning: boolean
 }
 
@@ -232,7 +236,11 @@ export type UpcomingItem = {
   corporationId: string
   name: string | null
   dueAt: string
-  dueTimezone: string | null
+  dueTimezone: {
+    code: string
+    label: string
+    phone: string
+  }
   deadlineWarning: boolean
 }
 
