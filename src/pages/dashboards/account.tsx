@@ -6,7 +6,7 @@ import { FormProvider, useWatch } from 'react-hook-form'
 import React, { useEffect, useMemo, useState } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 import weekday from 'dayjs/plugin/weekday'
-import { CSVDataType, Office } from '@src/types/dashboard'
+import { CSVDataType, Office, RatioItem } from '@src/types/dashboard'
 import { useRouter } from 'next/router'
 import { getDateFormat } from '@src/pages/dashboards/lpm'
 
@@ -14,9 +14,7 @@ import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import Information from '@src/views/dashboard/dialog/information'
 import { CSVDownload } from '@src/views/dashboard/csvDownload'
-import { useQueryClient } from 'react-query'
 import {
-  DEFAULT_QUERY_NAME,
   useAccountCount,
   useAccountRatio,
 } from '@src/queries/dashboard/dashnaord-lpm'
@@ -24,6 +22,7 @@ import Notice from '@src/views/dashboard/notice'
 import AccountTable from '@src/views/dashboard/accountTable'
 import AccountDoughnut from '@src/views/dashboard/chart/accountDoughnut'
 import OptionsMenu from '@src/@core/components/option-menu'
+import sortBy from 'lodash/sortBy'
 
 dayjs.extend(weekday)
 
@@ -32,6 +31,14 @@ const ClientData = [
   { count: 0, name: 'PayPal', type: '', ratio: 0 },
   { count: 0, name: 'Check', type: '', ratio: 0 },
   { count: 0, name: 'Wise', type: '', ratio: 0 },
+]
+
+const ProData = [
+  { count: 0, name: 'Korea domestic transfer', type: '', ratio: 0 },
+  { count: 0, name: 'US ACH (US residents only)', type: '', ratio: 0 },
+  { count: 0, name: 'PayPal', type: '', ratio: 0 },
+  { count: 0, name: 'Transferwise (Wise)', type: '', ratio: 0 },
+  { count: 0, name: 'International wire', type: '', ratio: 0 },
 ]
 
 export const mergeData = (array1: Array<Object>, array2: Array<Object>) => {
@@ -139,11 +146,40 @@ const AccountDashboards = () => {
     if (Client?.report.length === 0) {
       return ClientData
     }
-    return Client?.report.map(item => ({
-      ...item,
-      name: item?.paymentMethod || '',
-    }))
+
+    return sortBy(
+      Client?.report.map(item => ({
+        ...item,
+        name: item?.paymentMethod || '',
+      })),
+      ['count', 'name'],
+    ).reverse()
   }, [Client])
+
+  const proData = useMemo(() => {
+    if (Pro?.report.length === 0) {
+      return ProData
+    }
+
+    console.log(
+      sortBy(
+        Pro?.report.map(item => ({
+          ...item,
+          name: item?.type || '',
+        })),
+        ['count', 'name'],
+      ),
+    )
+
+    return sortBy(
+      Pro?.report.map(item => ({
+        ...item,
+        name: item?.type || '',
+      })),
+      ['count', 'name'],
+    ).reverse()
+  }, [Pro])
+
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
@@ -247,18 +283,18 @@ const AccountDashboards = () => {
                     }}
                     options={[
                       {
-                        text: 'Korea',
+                        text: 'Japan',
                         menuItemProps: {
                           onClick: () => {
-                            setOffice('Korea')
+                            setOffice('Japan')
                           },
                         },
                       },
                       {
-                        text: 'US',
+                        text: 'Korea',
                         menuItemProps: {
                           onClick: () => {
-                            setOffice('US')
+                            setOffice('Korea')
                           },
                         },
                       },
@@ -271,10 +307,10 @@ const AccountDashboards = () => {
                         },
                       },
                       {
-                        text: 'Japan',
+                        text: 'US',
                         menuItemProps: {
                           onClick: () => {
-                            setOffice('Japan')
+                            setOffice('US')
                           },
                         },
                       },
@@ -303,12 +339,7 @@ const AccountDashboards = () => {
                 />
               </Box>
               <AccountDoughnut
-                data={
-                  Pro?.report.map(item => ({
-                    ...item,
-                    name: item?.type || '',
-                  })) || []
-                }
+                data={proData || []}
                 totalCount={Pro?.totalCount || 0}
               />
             </Box>

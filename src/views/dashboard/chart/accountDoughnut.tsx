@@ -123,12 +123,14 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
                 <StatusSquare color={FourthColors[index]} />
                 <span className='name'>
                   {toCapitalize(item.name || '-')}
-                  <span className='item-count'>({item.count})</span>
+                  <span className='item-count'>
+                    ({(item.count || 0).toLocaleString()})
+                  </span>
                 </span>
               </Box>
               <Box display='flex'>
                 <span style={{ width: '80px' }} />
-                <span className='ratio'>{item.ratio || 0}%</span>
+                <span className='ratio'>{item.ratio || '0.0'}%</span>
               </Box>
             </li>
           ))}

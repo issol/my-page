@@ -566,7 +566,7 @@ export interface AccountRatioResult {
 }
 export const useAccountRatio = ({ office, userType }: PaymentType) => {
   return useQuery<AccountRatioResult>(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'AccountRatio', userType],
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'AccountRatio', userType, office],
     () => getAccountPaymentType({ office, userType }),
     {
       suspense: true,
