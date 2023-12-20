@@ -32,6 +32,8 @@ import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   info: AssignProListType
@@ -52,7 +54,14 @@ type Props = {
   >
   statusList: Array<{ value: number; label: string }>
 }
-const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }: Props) => {
+const SourceFileUpload = ({
+  info,
+  row,
+  orderDetail,
+  item,
+  refetch,
+  statusList,
+}: Props) => {
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
@@ -87,7 +96,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      ...srtUploadFileExtension.accept
+      ...srtUploadFileExtension.accept,
     },
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files
@@ -99,6 +108,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
           setFileSize(result)
           if (result > MAXIMUM_FILE_SIZE) {
             //  TODO : show exceed file size modal
+            onFileUploadReject()
             return acc
           } else {
             const found = acc.find(f => f.name === file.name)
@@ -111,6 +121,22 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
       setFiles(uniqueFiles)
     },
   })
+
+  function onFileUploadReject() {
+    openModal({
+      type: 'rejectDrop',
+      children: (
+        <CustomModal
+          title='The maximum file size you can upload is 100 GB.'
+          soloButton
+          rightButtonText='Okay'
+          onClick={() => closeModal('rejectDrop')}
+          vary='error'
+          onClose={() => closeModal('rejectDrop')}
+        />
+      ),
+    })
+  }
 
   const handleRemoveFile = (file: FileType) => {
     const uploadedFiles = files
@@ -175,11 +201,11 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
           size: number
           name: string
           type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-          }>
-        } = {
-          jobId: row.id,
-          files: []
-        }
+        }>
+      } = {
+        jobId: row.id,
+        files: [],
+      }
       const paths: string[] = files.map(file => {
         // console.log(file.name)
 
@@ -344,9 +370,11 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
           }}
         >
           <div {...getRootProps({ className: 'dropzone' })}>
-            <Button 
+            <Button
               variant='outlined'
-              disabled={[60500, 60600, 60700, 601000, 60800, 60900].includes(row.status)} // Delivered, Approved, invoiced, canceled, Paid, without invoice
+              disabled={[60500, 60600, 60700, 601000, 60800, 60900].includes(
+                row.status,
+              )} // Delivered, Approved, invoiced, canceled, Paid, without invoice
             >
               <input {...getInputProps()} />
               <Icon
