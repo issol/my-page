@@ -318,5 +318,5 @@ export default AccountDashboards
 
 AccountDashboards.acl = {
   action: 'read',
-  subject: 'client',
+  subject: 'dashboard_ACCOUNT',
 }

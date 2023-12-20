@@ -624,5 +624,5 @@ export default LPMDashboards
 
 LPMDashboards.acl = {
   action: 'read',
-  subject: 'client',
+  subject: 'dashboard_LPM',
 }

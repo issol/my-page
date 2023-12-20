@@ -571,6 +571,24 @@ export const permissionSelector = selector<PermissionObjectType>({
             subject: 'pro_certification_test',
             can: 'read',
           },
+          // 대시보드
+          {
+            can: 'read',
+            subject: 'dashboard_ACCOUNT',
+          },
+          {
+            can: 'read',
+            subject: 'dashboard_CLIENT',
+          },
+          {
+            can: 'read',
+            subject: 'dashboard_LPM',
+          },
+          {
+            can: 'read',
+            subject: 'dashboard_TAD',
+          },
+          { can: 'read', subject: 'dashboard_PRO' },
         ]
       }
     }
