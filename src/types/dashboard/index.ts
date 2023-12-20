@@ -63,6 +63,7 @@ export interface DashboardMemberQuery
 }
 
 export interface DashboardOngoingCountQuery extends DashboardQuery {
+  filter?: string
   countType: 'job' | 'order' | 'application'
 }
 export type ReportItem = {

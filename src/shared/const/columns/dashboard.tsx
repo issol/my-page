@@ -56,7 +56,7 @@ export const RequestColumns: GridColumns = [
     minWidth: 240,
     flex: 0.2,
     renderCell: ({ row }: { row: RequestItem }) => {
-      const timeZone = row.desiredDueTimezone.label
+      const timeZone = row.desiredDueTimezone?.label
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -110,7 +110,7 @@ export const RequestColumns: GridColumns = [
               '-'
             )}
             {row.serviceType?.length !== 0 ? (
-              <ServiceTypeChip size='small' label={row.serviceType} />
+              <ServiceTypeChip size='small' label={row.serviceType[0]} />
             ) : (
               '-'
             )}
@@ -319,7 +319,8 @@ export const RecruitingRequestColumn: GridColumns = [
     minWidth: 180,
     flex: 0.1,
     renderCell: ({ row }: { row: RecruitingRequest }) => {
-      const timeZone = row.dueTimezone.label
+      const timeZone = row.dueTimezone?.label
+
       const date1 = dayjs(row.dueAt).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -407,7 +408,7 @@ export const RecruitingRequestColumn: GridColumns = [
     flex: 0.3,
     minWidth: 180,
     renderCell: ({ row }: { row: RecruitingRequest }) => {
-      const timeZone = row.dueTimezone.label
+      const timeZone = row.dueTimezone?.label
       const date1 = dayjs(row.dueAt).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -512,7 +513,7 @@ export const StatusOrderColumns: GridColumns = [
               '-'
             )}
             {row.serviceType?.length !== 0 ? (
-              <ServiceTypeChip size='small' label={row.serviceType} />
+              <ServiceTypeChip size='small' label={row.serviceType[0]} />
             ) : (
               '-'
             )}
@@ -986,7 +987,7 @@ export const ReceivableColumns: GridColumns = [
               '-'
             )}
             {row.serviceType?.length !== 0 ? (
-              <ServiceTypeChip size='small' label={row.serviceType} />
+              <ServiceTypeChip size='small' label={row.serviceType[0]} />
             ) : (
               '-'
             )}
