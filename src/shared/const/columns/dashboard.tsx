@@ -26,6 +26,7 @@ import {
   OrderStatusChip,
   RoleChip,
   ServiceTypeChip,
+  TestStatusChip,
 } from '@src/@core/components/chips/chips'
 import { Box } from '@mui/material'
 import { Inbox, Person } from '@mui/icons-material'
@@ -40,6 +41,8 @@ import {
 } from '@src/shared/const/dashboard/chip'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
+import { TestStatusColor } from '@src/shared/const/chipColors'
+import { useRouter } from 'next/router'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -53,10 +56,7 @@ export const RequestColumns: GridColumns = [
     minWidth: 240,
     flex: 0.2,
     renderCell: ({ row }: { row: RequestItem }) => {
-      const code = row.desiredDueTimezone
-        .code as keyof typeof timezones.countries
-
-      const timeZone = timezones.countries[code]?.zones[0]
+      const timeZone = row.desiredDueTimezone?.label
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -110,7 +110,7 @@ export const RequestColumns: GridColumns = [
               '-'
             )}
             {row.serviceType?.length !== 0 ? (
-              <ServiceTypeChip size='small' label={row.serviceType} />
+              <ServiceTypeChip size='small' label={row.serviceType[0]} />
             ) : (
               '-'
             )}
@@ -146,10 +146,9 @@ export const RequestColumns: GridColumns = [
     cellClassName: 'desiredDueDate-date__cell',
     renderCell: ({ row }: { row: RequestItem }) => {
       let color = '#7F889B'
-      const code = row.desiredDueTimezone
-        .code as keyof typeof timezones.countries
+      const timeZone = row.desiredDueTimezone.label
 
-      if (!code) {
+      if (!timeZone) {
         return (
           <Box
             display='flex'
@@ -166,7 +165,6 @@ export const RequestColumns: GridColumns = [
         )
       }
 
-      const timeZone = timezones.countries[code]?.zones[0]
       const date1 = dayjs(row.desiredDueDate).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -321,9 +319,8 @@ export const RecruitingRequestColumn: GridColumns = [
     minWidth: 180,
     flex: 0.1,
     renderCell: ({ row }: { row: RecruitingRequest }) => {
-      const code = row.dueTimezone as keyof typeof timezones.countries
+      const timeZone = row.dueTimezone?.label
 
-      const timeZone = timezones.countries[code]?.zones[0]
       const date1 = dayjs(row.dueAt).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -366,11 +363,19 @@ export const RecruitingRequestColumn: GridColumns = [
         >
           <Box display='flex' gap='10px'>
             {row.jobType ? (
-              <JobTypeChip type={row.jobType} label={row.jobType} />
+              <JobTypeChip
+                size='small'
+                type={row.jobType}
+                label={row.jobType}
+              />
             ) : (
               '-'
             )}
-            {row.role ? <RoleChip type={row.role} label={row.role} /> : '-'}
+            {row.role ? (
+              <RoleChip size='small' type={row.role} label={row.role} />
+            ) : (
+              '-'
+            )}
           </Box>
           <span
             style={{
@@ -403,9 +408,7 @@ export const RecruitingRequestColumn: GridColumns = [
     flex: 0.3,
     minWidth: 180,
     renderCell: ({ row }: { row: RecruitingRequest }) => {
-      const code = row.dueTimezone as keyof typeof timezones.countries
-
-      const timeZone = timezones.countries[code]?.zones[0]
+      const timeZone = row.dueTimezone?.label
       const date1 = dayjs(row.dueAt).tz(timeZone)
       const date2 = dayjs().tz(timeZone)
       const remainTime = dayjs(date1).valueOf() - dayjs(date2).valueOf()
@@ -441,13 +444,13 @@ export const StatusOrderColumns: GridColumns = [
           ? OrderChipLabel[row?.status]
           : row?.status
       return (
-        <div>
+        <Box>
           <OrderStatusChip
             size='small'
             status={row?.status}
             label={label || '-'}
           />
-        </div>
+        </Box>
       )
     },
   },
@@ -475,7 +478,7 @@ export const StatusOrderColumns: GridColumns = [
     minWidth: 220,
     renderHeader: () => <Box>Project name</Box>,
     renderCell: ({ row }: { row: OrderItem }) => {
-      return <div>{row.projectName}</div>
+      return <Box>{row.projectName}</Box>
     },
   },
   {
@@ -510,7 +513,7 @@ export const StatusOrderColumns: GridColumns = [
               '-'
             )}
             {row.serviceType?.length !== 0 ? (
-              <ServiceTypeChip size='small' label={row.serviceType} />
+              <ServiceTypeChip size='small' label={row.serviceType[0]} />
             ) : (
               '-'
             )}
@@ -574,7 +577,7 @@ export const StatusJobColumns: GridColumns = [
     minWidth: 220,
     renderHeader: () => <Box>Job name</Box>,
     renderCell: ({ row }: { row: JobItem }) => {
-      return <div>{row?.jobName || '-'}</div>
+      return <Box>{row?.jobName || '-'}</Box>
     },
   },
   {
@@ -614,13 +617,12 @@ export const StatusApplicationColumns: GridColumns = [
     renderHeader: () => <Box>status</Box>,
     renderCell: ({ row }: { row: ApplicationItem }) => {
       return (
-        <div>
-          <OrderStatusChip
-            size='small'
-            status={row?.status}
-            label={row?.status}
+        <Box>
+          <TestStatusChip
+            label={row.status as string}
+            status={row.status as string}
           />
-        </div>
+        </Box>
       )
     },
   },
@@ -630,12 +632,31 @@ export const StatusApplicationColumns: GridColumns = [
     minWidth: 192,
     renderHeader: () => <Box>Legal name / Email</Box>,
     renderCell: ({ row }: { row: ApplicationItem }) => {
+      if (!row.pro?.firstName && !row.pro?.middleName && !row.pro?.lastName) {
+        return (
+          <Box>
+            <Typography fontSize='14px' fontWeight={600}>
+              -
+            </Typography>
+            <Typography color='#4C4E6499' fontSize='14px'>
+              {row.pro?.email || '-'}
+            </Typography>
+          </Box>
+        )
+      }
+      let name = '-'
+
+      if (row.pro?.firstName && row.pro?.lastName && !row.pro?.middleName) {
+        name = `${row.pro?.firstName} ${row.pro?.lastName}`
+      }
+
+      if (row.pro?.firstName && row.pro?.lastName && row.pro?.middleName) {
+        name = `${row.pro?.firstName} ${row.pro?.middleName} ${row.pro?.lastName}`
+      }
       return (
         <Box>
           <Typography fontSize='14px' fontWeight={600}>
-            {`${row.pro?.firstName || '-'} ${row.pro?.middleName || '-'} ${
-              row.pro?.lastName || '-'
-            }` || '-'}
+            {name}
           </Typography>
           <Typography color='#4C4E6499' fontSize='14px'>
             {row.pro?.email || '-'}
@@ -653,8 +674,8 @@ export const StatusApplicationColumns: GridColumns = [
     renderCell: ({ row }: { row: ApplicationItem }) => {
       return (
         <Box display='flex' gap='10px'>
-          <JobTypeChip type={row.jobType} label={row.jobType} />
-          <RoleChip type={row.role || ''} label={row.role || ''} />
+          <JobTypeChip size='small' type={row.jobType} label={row.jobType} />
+          <RoleChip size='small' type={row.role || ''} label={row.role || ''} />
         </Box>
       )
     },
@@ -798,11 +819,18 @@ export const upcomingColumns: GridColumns = [
     field: 'jobName',
     headerName: 'Job name',
     renderHeader: () => <Box>Job name</Box>,
-    renderCell: ({ row }: { row: UpcomingItem }) => (
-      <Typography fontSize='14px' fontWeight={600}>
-        {row?.name || '-'}
-      </Typography>
-    ),
+    renderCell: ({ row }: { row: UpcomingItem }) => {
+      const router = useRouter()
+      return (
+        <Typography
+          fontSize='14px'
+          fontWeight={600}
+          onClick={() => router.push(`/jobs/detail/${row.id}/`)}
+        >
+          {row?.name || '-'}
+        </Typography>
+      )
+    },
   },
   {
     flex: 0.3,
@@ -810,9 +838,70 @@ export const upcomingColumns: GridColumns = [
     field: 'dueAt',
     headerName: 'dueAt',
     renderHeader: () => <Box>Job due Date / Time left</Box>,
-    renderCell: ({ row }: { row: UpcomingItem }) => (
-      <Typography fontSize='14px'>23432</Typography>
-    ),
+    renderCell: ({ row }: { row: UpcomingItem }) => {
+      if (!row.dueAt) {
+        return <Box>-</Box>
+      }
+      const timeZone = row.dueTimezone?.label
+      let date = dayjs(row.dueAt).format('MM/DD/YYYY hh:mm A')
+
+      if (timeZone) {
+        date = moment(row.dueAt).tz(timeZone)?.format('MM/DD/YYYY hh:mm A (z)')
+      }
+
+      const getPad = (num: number) => String(num).padStart(2, '0')
+
+      const day = dayjs().diff(row.dueAt, 'day')
+      const hour = dayjs().add(-day, 'day').diff(row.dueAt, 'hour')
+      const min = dayjs()
+        .add(-day, 'day')
+        .add(-hour, 'hour')
+        .diff(row.dueAt, 'minute')
+
+      if (day === 0) {
+        let isOver = false
+
+        if (hour >= 0 && min >= 0) {
+          isOver = true
+        }
+        return (
+          <Box>
+            <Typography>{date}</Typography>
+            <Typography
+              fontSize='14px'
+              color={isOver ? '#E04440' : '#666CFF'}
+            >{`${getPad(Math.abs(hour))} hour(s) ${getPad(
+              Math.abs(min),
+            )} min(s) ${isOver ? 'over' : 'left'}`}</Typography>
+          </Box>
+        )
+      }
+
+      if (day >= 0 && hour >= 0 && min >= 0) {
+        return (
+          <Box>
+            <Typography>{date}</Typography>
+            <Typography
+              fontSize='14px'
+              color='#E04440'
+              fontWeight={600}
+            >{`${getPad(day)} day(s) ${getPad(hour)} hour(s) ${getPad(
+              min,
+            )}min(s) over`}</Typography>
+          </Box>
+        )
+      }
+      return (
+        <Box>
+          <Typography>{date}</Typography>
+          <Typography fontSize='14px'>{`${getPad(
+            Math.abs(day),
+          )} day(s) ${getPad(Math.abs(hour))} hour(s) ${getPad(
+            Math.abs(min),
+          )}min(s) left`}</Typography>
+        </Box>
+      )
+    },
   },
 ]
 
@@ -898,7 +987,7 @@ export const ReceivableColumns: GridColumns = [
               '-'
             )}
             {row.serviceType?.length !== 0 ? (
-              <ServiceTypeChip size='small' label={row.serviceType} />
+              <ServiceTypeChip size='small' label={row.serviceType[0]} />
             ) : (
               '-'
             )}
@@ -1017,15 +1106,9 @@ export const PayablesColumns: GridColumns = [
         )
       }
 
-      const code = row.invoicedTimezone
-        ?.code as keyof typeof timezones.countries
-
-      const timeZone = timezones.countries[code].zones[0]
-      console.log(timeZone)
       const date = moment(row.invoicedAt)
-        .tz(timeZone)
+        .tz(row.invoicedTimezone.label)
         .format('MM/DD/YYYY hh:mm A (z)')
-
       return <div>{`${date || '-'}`}</div>
     },
   },
@@ -1043,14 +1126,9 @@ export const PayablesColumns: GridColumns = [
           }`}</div>
         )
       }
-
-      const code = row.payDueTimezone?.code as keyof typeof timezones.countries
-
-      const timeZone = timezones.countries[code].zones[0]
       const date = moment(row.payDueAt)
-        .tz(timeZone)
+        .tz(row.payDueTimezone.label)
         .format('MM/DD/YYYY hh:mm A (z)')
-
       return <div>{`${date || '-'}`}</div>
     },
   },

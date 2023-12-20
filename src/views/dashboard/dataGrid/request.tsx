@@ -1,5 +1,10 @@
 import { Box } from '@mui/material'
-import { DataGrid, GridColumns, GridRowsProp } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridColumns,
+  GridRowParams,
+  GridRowsProp,
+} from '@mui/x-data-grid'
 import { RequestColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
 import { Suspense, useState } from 'react'
@@ -10,7 +15,7 @@ import { RequestType } from '@src/types/dashboard'
 interface DashboardDataGridProps {
   path: string
   pageNumber: number
-  movePage: (id: number) => void
+  movePage: (params: GridRowParams) => void
   sectionHeight?: number
   columns: GridColumns
 }
@@ -55,9 +60,7 @@ const RequestDashboardDataGrid = ({
             setPage(newPage)
             setSkip(val => newPage * pageNumber)
           }}
-          onRowClick={params =>
-            router.push(`/quotes/lpm/requests/${params.id}/`)
-          }
+          onRowClick={params => movePage(params)}
           pageSize={pageSize}
           onPageSizeChange={pageSize => setPageSize(pageSize)}
           paginationMode='server'

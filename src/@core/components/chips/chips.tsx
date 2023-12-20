@@ -23,6 +23,7 @@ import { statusType } from '@src/types/common/status.type'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import { ProAppliedRolesStatusType } from '@src/types/pro/pro-applied-roles'
+import { TestStatusColor } from '@src/shared/const/chipColors'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -573,6 +574,25 @@ export function ProAppliedRolesStatusChip(
 ) {
   const color = getProAppliedRolesStatusColor(status)
 
+  return (
+    <CustomChip
+      label={label}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+interface TestStatusChipProps {
+  label: string
+  status: string
+}
+export const TestStatusChip = ({ label, status }: TestStatusChipProps) => {
+  const color = TestStatusColor[status as keyof typeof TestStatusColor]
   return (
     <CustomChip
       label={label}

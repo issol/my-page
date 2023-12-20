@@ -63,7 +63,7 @@ export const getCount = async ({
   const { data } = await axios.get(
     `/api/enough/${apiType}/dashboard/${countType}/count`,
     {
-      params: params,
+      params: { ...params, type: params?.filter },
     },
   )
   return data

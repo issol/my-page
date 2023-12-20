@@ -310,7 +310,7 @@ const LPMDashboards = () => {
                   sectionHeight={280}
                   path='u/dashboard/client-request/list/new'
                   pageNumber={4}
-                  movePage={(id: number) => ''}
+                  movePage={params => router.push('/')}
                   columns={RequestColumns}
                 />
               </Box>

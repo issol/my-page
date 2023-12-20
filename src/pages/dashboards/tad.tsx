@@ -37,6 +37,9 @@ import {
   TADOnboardingResult,
 } from '@src/queries/dashboard/dashnaord-lpm'
 import Notice from '@src/views/dashboard/notice'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
+import find from 'lodash/find'
+import useStickyHeader from '@src/hooks/useStickyHeader'
 
 dayjs.extend(weekday)
 
@@ -57,6 +60,9 @@ const TADDashboards = () => {
   const router = useRouter()
   const cache = useQueryClient()
   const data = cache.getQueriesData([DEFAULT_QUERY_NAME])
+
+  const gloLanguage = getGloLanguage()
+  const { isSticky } = useStickyHeader()
 
   const { formHook, infoDialog } = UseDashboardControl()
   const { control, setValue, ...props } = formHook
@@ -85,7 +91,18 @@ const TADDashboards = () => {
       item[0].includes('ongoingCount'),
     )[0][1] as DashboardCountResult
 
-    const mergeData1 = mergeData(languagePool, jobTypeAndRole)
+    const fullLangPool = languagePool.map((item: any) => ({
+      ...item,
+      'Source languages':
+        find(gloLanguage, {
+          value: item['Source languages'],
+        })?.label || '-',
+      'Target languages':
+        find(gloLanguage, {
+          value: item['Target languages'],
+        })?.label || '-',
+    }))
+    const mergeData1 = mergeData(fullLangPool, jobTypeAndRole)
     const mergeData2 = mergeData(mergeData1, jobTypes)
     const mergeData3 = mergeData(mergeData2, roles)
     const mergeData4 = mergeData(mergeData3, sourceLanguages)
@@ -125,14 +142,24 @@ const TADDashboards = () => {
     targetLanguages,
   ])
 
+  const getFileTitle = () => {
+    const from = getDateFormat(
+      (Array.isArray(dateRange) && dateRange[0]) || null,
+    )
+    const to = getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)
+    return `tad-data-${from}-${to}`
+  }
+
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
         <Grid container gap='24px' sx={{ padding: '10px' }}>
           <Notice />
           <Grid
+            component='div'
             item
-            sm
+            sm={!isSticky}
+            xs={isSticky ? 12 : undefined}
             sx={{
               position: 'sticky',
               left: 0,
@@ -143,9 +170,13 @@ const TADDashboards = () => {
           >
             <ChartDateHeader />
           </Grid>
-          <GridItem width={207} height={76}>
+          <GridItem
+            width={207}
+            height={76}
+            sx={{ display: isSticky ? 'none' : 'flex' }}
+          >
             <Box>
-              <CSVDownload data={CSVData} />
+              <CSVDownload title={`${getFileTitle()}`} data={CSVData} />
             </Box>
           </GridItem>
           <Grid container gap='24px'>
@@ -166,13 +197,16 @@ const TADDashboards = () => {
                   <Title
                     title='Recruiting requests'
                     openDialog={setOpenInfoDialog}
+                    handleClick={() => router.push('/recruiting/')}
                   />
                 </Box>
                 <DashboardDataGrid
                   path='recruiting/dashboard/recruiting/list/ongoing'
                   sectionHeight={220}
                   pageNumber={3}
-                  movePage={(id: number) => ''}
+                  movePage={params =>
+                    router.push(`/recruiting/detail/${params.id}/`)
+                  }
                   columns={RecruitingRequestColumn}
                 />
               </Box>
@@ -198,15 +232,15 @@ const TADDashboards = () => {
             userViewDate={userViewDate}
             type='application'
             movePage={() => router.push('/onboarding')}
-            // moveDetailPage={params =>
-            //   //TODO : 이동하면 에러남 ID 값 확인해봐야 함
-            //   router.push(`/onboarding/detail/${params.id}/`)
-            // }
+            moveDetailPage={params =>
+              //TODO : 이동하면 에러남 ID 값 확인해봐야 함
+              router.push(`/onboarding/detail/${params.id}/`)
+            }
             statusColumn={StatusApplicationColumns}
             initSort={[
               {
                 field: 'status',
-                sort: 'desc',
+                sort: 'asc',
               },
             ]}
             from={getDateFormat(
@@ -270,7 +304,7 @@ const TADDashboards = () => {
               setOpenInfoDialog={setOpenInfoDialog}
               dataRecord={sourceLanguages}
               setDataRecord={setSourceLanguages}
-              getName={row => `${toCapitalize(row?.name || '')}`}
+              getName={row => `${row?.name}`.toUpperCase()}
               isHiddenValue={true}
             />
 
@@ -286,7 +320,7 @@ const TADDashboards = () => {
               )}
               type='target-language'
               colors={SecondColors}
-              getName={row => `${toCapitalize(row?.name || '')}`}
+              getName={row => `${row?.name}`.toUpperCase()}
               setOpenInfoDialog={setOpenInfoDialog}
               dataRecord={targetLanguages}
               setDataRecord={setTargetLanguages}

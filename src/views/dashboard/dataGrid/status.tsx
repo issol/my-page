@@ -92,8 +92,6 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
   userViewDate,
   setOpenInfoDialog,
 }: StatusAndListProps<T>) => {
-  const router = useRouter()
-
   const [activeStatus, setActiveStatus] = useState<ViewType>('ongoing')
 
   const [skip, setSkip] = useState(0)
@@ -193,7 +191,7 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
             <Box
               sx={{
                 width: '100%',
-                height: `calc(100% - 80px)`,
+                height: `calc(100% - 84px)`,
                 padding: 0,
                 margin: 0,
               }}

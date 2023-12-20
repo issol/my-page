@@ -21,13 +21,14 @@ const TADLanguagePoolBarChart = ({
   setDataRecord,
   setOpenInfoDialog,
 }: TADLanguagePoolBarChartProps) => {
+  const router = useRouter()
   const theme = useTheme()
 
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowPerPage] = React.useState(6)
   const [filter, setFilter] = useState<'source' | 'target' | 'pair'>('pair')
 
-  const { isSuccess, data, isLoading, isFetching } = useLanguagePool(filter)
+  const { data, isLoading } = useLanguagePool(filter)
 
   useEffect(() => {
     const filterLanguage = data?.report.map(item => {
@@ -72,7 +73,6 @@ const TADLanguagePoolBarChart = ({
   ) => {
     setRowPerPage(parseInt(event.target.value, 10))
   }
-  const router = useRouter()
 
   const [series, labels] = useMemo(() => {
     const sliceData = data?.report.slice(
@@ -100,6 +100,9 @@ const TADLanguagePoolBarChart = ({
   // NOTE: dataLabel formmater 에 두줄 민드는 기능이 지원하나 타입스크립트에서 지원안함. 차후 CSS로 조정 필요
   const options: ApexOptions = useMemo(() => {
     const max = Math.max(...series[0].data)
+    const x = Number(max.toString(10)[0])
+    const n = max.toString(10).slice(1).length
+    const maxNumber = (x + 1) * Math.pow(10, n)
 
     return {
       chart: {
@@ -173,7 +176,7 @@ const TADLanguagePoolBarChart = ({
       },
       xaxis: {
         min: 0,
-        max: Math.ceil(max / 100) * 100,
+        max: maxNumber,
         axisTicks: { show: false },
         axisBorder: { show: false },
         categories: labels,
@@ -196,6 +199,12 @@ const TADLanguagePoolBarChart = ({
     }
   }, [labels])
 
+  const getSubTitle = () => {
+    if (filter === 'source') return 'Source languages'
+    if (filter === 'target') return 'Target languages'
+    return 'Language pairs'
+  }
+
   return (
     <Box
       sx={{
@@ -207,39 +216,44 @@ const TADLanguagePoolBarChart = ({
       <Box display='flex' justifyContent='space-between'>
         <Title
           title='Language pool'
-          subTitle={`Total ${data?.totalCount || 0} Language pairs`}
+          subTitle={`Total ${data?.totalCount || 0} ${getSubTitle()}`}
           openDialog={setOpenInfoDialog}
           handleClick={() => router.push('/pro')}
         />
-        <OptionsMenu
-          iconButtonProps={{ size: 'small', className: 'card-more-options' }}
-          options={[
-            {
-              text: 'Language pairs',
-              menuItemProps: {
-                onClick: () => {
-                  setFilter('pair')
+        <Box>
+          <OptionsMenu
+            iconButtonProps={{ size: 'small', className: 'card-more-options' }}
+            options={[
+              {
+                text: 'Language pairs',
+                menuItemProps: {
+                  onClick: () => {
+                    setFilter('pair')
+                    setPage(0)
+                  },
                 },
               },
-            },
-            {
-              text: 'Source languages',
-              menuItemProps: {
-                onClick: () => {
-                  setFilter('source')
+              {
+                text: 'Source languages',
+                menuItemProps: {
+                  onClick: () => {
+                    setFilter('source')
+                    setPage(0)
+                  },
                 },
               },
-            },
-            {
-              text: 'Target languages',
-              menuItemProps: {
-                onClick: () => {
-                  setFilter('target')
+              {
+                text: 'Target languages',
+                menuItemProps: {
+                  onClick: () => {
+                    setFilter('target')
+                    setPage(0)
+                  },
                 },
               },
-            },
-          ]}
-        />
+            ]}
+          />
+        </Box>
       </Box>
       <div style={{ position: 'relative' }}>
         <div style={{ display: 'flex' }}>

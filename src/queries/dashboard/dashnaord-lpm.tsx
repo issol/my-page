@@ -414,7 +414,7 @@ export const useExpectedIncome = (params: ExpectedIncomeQuery) => {
       DEFAULT_QUERY_NAME,
       NO_DATE_EFFECT,
       'ExpectedIncome',
-      { sort: params.sort, month: params.month },
+      { year: params.year, sort: params.sort, month: params.month },
     ],
     () => getExpectedIncome(params),
     {
