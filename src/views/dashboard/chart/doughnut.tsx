@@ -357,6 +357,7 @@ export const List = styled('ul')(() => {
       height: '35px',
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'space-between',
       fontSize: '14px',
       color: '#4C4E64DE',
     },

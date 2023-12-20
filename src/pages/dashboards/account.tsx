@@ -3,7 +3,7 @@ import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 import weekday from 'dayjs/plugin/weekday'
 import { CSVDataType, Office } from '@src/types/dashboard'
@@ -26,6 +26,13 @@ import AccountDoughnut from '@src/views/dashboard/chart/accountDoughnut'
 import OptionsMenu from '@src/@core/components/option-menu'
 
 dayjs.extend(weekday)
+
+const ClientData = [
+  { count: 0, name: 'Direct deposit', type: '', ratio: 0 },
+  { count: 0, name: 'PayPal', type: '', ratio: 0 },
+  { count: 0, name: 'Check', type: '', ratio: 0 },
+  { count: 0, name: 'Wise', type: '', ratio: 0 },
+]
 
 export const mergeData = (array1: Array<Object>, array2: Array<Object>) => {
   let tempArray1 = array1
@@ -128,6 +135,15 @@ const AccountDashboards = () => {
     return `account-data-${from}-${to}`
   }
 
+  const clientData = useMemo(() => {
+    if (Client?.report.length === 0) {
+      return ClientData
+    }
+    return Client?.report.map(item => ({
+      ...item,
+      name: item?.paymentMethod || '',
+    }))
+  }, [Client])
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
@@ -267,12 +283,7 @@ const AccountDashboards = () => {
                 </Box>
               </Box>
               <AccountDoughnut
-                data={
-                  Client?.report.map(item => ({
-                    ...item,
-                    name: item?.paymentMethod || '',
-                  })) || []
-                }
+                data={clientData || []}
                 totalCount={Client?.totalCount || 0}
               />
             </Box>
