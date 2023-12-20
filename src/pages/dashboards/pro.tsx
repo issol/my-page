@@ -106,7 +106,6 @@ const ProDashboards = () => {
                         </Stack>
                       ),
                     }}
-                    //upcomingData
                     rows={upcomingData || []}
                     columns={upcomingColumns}
                     disableSelectionOnClick
