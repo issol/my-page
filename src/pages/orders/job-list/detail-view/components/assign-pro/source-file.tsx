@@ -1,5 +1,12 @@
 import { Icon } from '@iconify/react'
-import { Box, Button, Divider, IconButton, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import FileItem from '@src/@core/components/fileItem'
 import useModal from '@src/hooks/useModal'
 import { FileType } from '@src/types/common/file.type'
@@ -34,6 +41,10 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
+import { authState } from '@src/states/auth'
 
 type Props = {
   info: AssignProListType
@@ -62,11 +73,17 @@ const SourceFileUpload = ({
   refetch,
   statusList,
 }: Props) => {
+  const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<File[]>([])
+
+  const [groupedFiles, setGroupedFiles] = useState<
+    { createdAt: string; data: FileType[] }[]
+  >([])
 
   // console.log(row)
 
@@ -255,6 +272,23 @@ const SourceFileUpload = ({
         (file: { name: string; size: number }) => (result += Number(file.size)),
       )
       setFileSize(result)
+
+      const groupedFiles: { createdAt: string; data: FileType[] }[] =
+        sourceFileList.reduce(
+          (acc: { createdAt: string; data: FileType[] }[], curr: FileType) => {
+            const existingGroup = acc.find(
+              group => group.createdAt === curr.createdAt,
+            )
+            if (existingGroup) {
+              existingGroup.data.push(curr)
+            } else {
+              acc.push({ createdAt: curr.createdAt!, data: [curr] })
+            }
+            return acc
+          },
+          [],
+        )
+      setGroupedFiles(groupedFiles)
     }
   }, [sourceFileList, files])
 
@@ -345,17 +379,119 @@ const SourceFileUpload = ({
           </Box>
           <Box
             sx={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-
-              width: '100%',
-              gap: '20px',
-              padding: '20px 20px 0 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              mt: '24px',
             }}
           >
             {sourceFileList &&
               sourceFileList?.length > 0 &&
-              uploadedFileList(sourceFileList!, 'SOURCE')}
+              // uploadedFileList(sourceFileList!, 'SOURCE')}
+              groupedFiles.map(value => {
+                return (
+                  <Box key={uuidv4()}>
+                    <Typography
+                      variant='body2'
+                      fontSize={14}
+                      fontWeight={400}
+                      sx={{ mb: '5px' }}
+                    >
+                      {convertTimeToTimezone(
+                        value.createdAt,
+                        auth.getValue().user?.timezone,
+                        timezone.getValue(),
+                      )}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2,1fr)',
+                        gridGap: '16px',
+                      }}
+                    >
+                      {value.data.map(item => {
+                        return (
+                          <Box
+                            key={uuidv4()}
+                            sx={{
+                              display: 'flex',
+                              marginBottom: '8px',
+                              width: '100%',
+                              justifyContent: 'space-between',
+                              borderRadius: '8px',
+                              padding: '10px 12px',
+                              border: '1px solid rgba(76, 78, 100, 0.22)',
+                              background: '#f9f8f9',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  marginRight: '8px',
+                                  display: 'flex',
+                                }}
+                              >
+                                <Icon
+                                  icon='material-symbols:file-present-outline'
+                                  style={{
+                                    color: 'rgba(76, 78, 100, 0.54)',
+                                  }}
+                                  fontSize={24}
+                                />
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                }}
+                              >
+                                <Tooltip title={item.name}>
+                                  <Typography
+                                    variant='body1'
+                                    fontSize={14}
+                                    fontWeight={600}
+                                    lineHeight={'20px'}
+                                    sx={{
+                                      overflow: 'hidden',
+                                      wordBreak: 'break-all',
+                                      textOverflow: 'ellipsis',
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 1,
+                                      WebkitBoxOrient: 'vertical',
+                                    }}
+                                  >
+                                    {item.name}
+                                  </Typography>
+                                </Tooltip>
+
+                                <Typography
+                                  variant='caption'
+                                  lineHeight={'14px'}
+                                >
+                                  {formatFileSize(item.size)}
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            {/* <IconButton
+                              onClick={() => downloadOneFile(item)}
+                              disabled={isFileUploading || !isUpdatable}
+                            >
+                              <Icon icon='mdi:download' fontSize={24} />
+                            </IconButton> */}
+                          </Box>
+                        )
+                      })}
+                    </Box>
+                  </Box>
+                )
+              })}
           </Box>
         </Box>
 
