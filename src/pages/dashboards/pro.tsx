@@ -8,7 +8,7 @@ import {
 import { Box, Stack } from '@mui/material'
 import dayjs from 'dayjs'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React from 'react'
+import React, { useCallback } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import weekday from 'dayjs/plugin/weekday'
@@ -50,11 +50,14 @@ const ProDashboards = () => {
 
   const { data: upcomingData } = useUpcomingDeadline()
 
-  const getDate = (dateType: dayjs.UnitType) => {
-    const date = (dateRange && dateRange[0]) || new Date()
-    if (dateType === 'month') return dayjs(date).get(dateType) + 1
-    return dayjs(date).get(dateType)
-  }
+  const getDate = useCallback(
+    (dateType: dayjs.UnitType) => {
+      const date = (dateRange && dateRange[0]) || new Date()
+      if (dateType === 'month') return dayjs(date).get(dateType) + 1
+      return dayjs(date).get(dateType)
+    },
+    [dateRange],
+  )
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>

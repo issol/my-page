@@ -67,7 +67,11 @@ const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
             <Typography fontSize='12px'>
               Average early submission time
             </Typography>
-            <Typography fontSize='12px' color='rgba(100, 198, 35, 1)'>
+            <Typography
+              align='right'
+              fontSize='12px'
+              color='rgba(100, 198, 35, 1)'
+            >
               {data?.onTimeAverage?.days || 0} day(s){' '}
               {data?.onTimeAverage?.hours || 0} hour(s){' '}
               {data?.onTimeAverage?.minutes || 0} min(s)
@@ -110,7 +114,11 @@ const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
             <Typography fontSize='12px'>
               Average late submission time
             </Typography>
-            <Typography fontSize='12px' color='rgba(255, 77, 73, 1)'>
+            <Typography
+              align='right'
+              fontSize='12px'
+              color='rgba(255, 77, 73, 1)'
+            >
               {data?.delayedAverage?.days || 0} day(s){' '}
               {data?.delayedAverage?.hours || 0} hour(s){' '}
               {data?.delayedAverage?.minutes || 0} min(s)

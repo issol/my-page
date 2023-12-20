@@ -9,25 +9,37 @@ import {
 } from '@src/queries/dashboard/dashnaord-lpm'
 import { TotalAmountQuery } from '@src/types/dashboard'
 import { useGetStatusList } from '@src/queries/common.query'
-import {
-  getJobStatusColor,
-  getOrderStatusColor,
-} from '@src/shared/helpers/colors.helper'
-import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { getProJobStatusColor } from '@src/shared/helpers/colors.helper'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Theme } from '@mui/material/styles'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { useSettings } from '@src/@core/hooks/useSettings'
+import uniqBy from 'lodash/uniqBy'
+import { ProJobStatusType } from '@src/types/jobs/common.type'
 
-const StatusSort = []
+const statusObject: Record<string, number> = {
+  'Requested from LPM': 1,
+  'Awaiting approval': 2,
+  'In progress': 3,
+  'Job overdue': 4,
+  'Delivered to LPM': 5,
+  Approved: 6,
+  Invoiced: 7,
+  Paid: 8,
+  'Without invoice': 9,
+  Unassigned: 10,
+  Declined: 11,
+  Canceled: 12,
+}
 
 const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const { containerRef, containerWidth } = useCalenderResize()
   const { data, isSuccess } = useProJonCalendar(params)
-  const { data: statusList } = useGetStatusList('Job')
+  const { data: jobStatusList } = useGetStatusList('Job')
+  const { data: jobAssignmentStatusList } = useGetStatusList('JobAssignment')
   const { settings } = useSettings()
 
   const { skin, direction } = settings
@@ -40,24 +52,44 @@ const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   >([])
 
   useEffect(() => {
-    if (!statusList || statusList?.length === 0) {
+    if (
+      !jobStatusList ||
+      jobStatusList?.length === 0 ||
+      !jobAssignmentStatusList ||
+      jobAssignmentStatusList?.length === 0
+    ) {
       setStatuses([])
       return
     }
 
-    const items = statusList.map(item => {
-      let Label = item.label
-      if (item.label === 'Delivered') Label = `${item.label} to LPM`
-      if (item.label === 'Requested') Label = `${item.label} from LPM`
-      return {
-        ...item,
-        label: Label,
-        color: getJobStatusColor(item.value as JobStatusType),
-      }
-    })
+    const list = [...jobStatusList, ...jobAssignmentStatusList] as Array<{
+      color: string
+      value: number
+      label: string
+    }>
 
-    setStatuses(items)
-  }, [statusList])
+    const filter = uniqBy(list, 'label')
+
+    const items = filter
+      .map(item => {
+        let Label = item.label
+        const sort = statusObject[Label]
+        return {
+          ...item,
+          label: Label,
+          color: getProJobStatusColor(item.value as ProJobStatusType),
+          sort: statusObject[Label],
+        }
+      })
+      .filter(item => item.sort) as Array<{
+      color: string
+      value: number
+      label: string
+      sort: number
+    }>
+
+    setStatuses(items.sort((a, b) => a.sort - b.sort))
+  }, [jobStatusList])
 
   useEffect(() => {
     if (!isSuccess || data?.length === 0) {
@@ -71,11 +103,11 @@ const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
       return {
         ...item,
         extendedProps: {
-          calendar: getJobStatusColor(item.status as JobStatusType),
+          calendar: getProJobStatusColor(item.status as ProJobStatusType),
         },
         allDay: true,
       }
-    })
+    }) as Array<CalendarEventType<ProJobCalendarResult>>
 
     setEvent(eventsList)
   }, [data, isSuccess])
