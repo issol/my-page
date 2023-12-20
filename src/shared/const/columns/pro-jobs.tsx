@@ -13,6 +13,8 @@ import { ProJobListType } from '@src/types/jobs/jobs.type'
 import dayjs from 'dayjs'
 import { useRecoilValueLoadable } from 'recoil'
 import { MouseEvent } from 'react'
+import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
+import { timezoneSelector } from '@src/states/permission'
 
 export const getProJobColumns = (
   statusList: {
@@ -22,6 +24,7 @@ export const getProJobColumns = (
 ) => {
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const onClickMessage = (
     event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
@@ -35,7 +38,6 @@ export const getProJobColumns = (
   }
 
   const getJobDateDiff = (jobDueDate: string) => {
-
     const now = dayjs()
     const dueDate = dayjs(jobDueDate)
 
@@ -57,7 +59,11 @@ export const getProJobColumns = (
             fontSize={14}
             color='#e04440'
           >
-            {convertTimeToTimezone(jobDueDate, auth.getValue().user?.timezone)}
+            {convertTimeToTimezone(
+              jobDueDate,
+              auth.getValue().user?.timezone,
+              timezone.getValue(),
+            )}
           </Typography>
           <Typography
             variant='body1'
@@ -75,7 +81,11 @@ export const getProJobColumns = (
       return (
         <>
           <Typography variant='body1' fontWeight={600} fontSize={14}>
-            {convertTimeToTimezone(jobDueDate, auth.getValue().user?.timezone)}
+            {convertTimeToTimezone(
+              jobDueDate,
+              auth.getValue().user?.timezone,
+              timezone.getValue(),
+            )}
           </Typography>
           <Typography
             variant='body1'
@@ -90,7 +100,11 @@ export const getProJobColumns = (
     } else if (!isPast) {
       return (
         <Typography variant='body1' fontWeight={600} fontSize={14}>
-          {convertTimeToTimezone(jobDueDate, auth.getValue().user?.timezone)}
+          {convertTimeToTimezone(
+            jobDueDate,
+            auth.getValue().user?.timezone,
+            timezone.getValue(),
+          )}
         </Typography>
       )
     }

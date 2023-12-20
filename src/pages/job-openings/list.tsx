@@ -31,6 +31,7 @@ const List = ({
   setFilters,
 }: Props) => {
   const router = useRouter()
+
   return (
     <Card>
       <CardHeader
@@ -54,8 +55,8 @@ const List = ({
             },
           }}
           components={{
-            NoRowsOverlay: () => NoList('There is no job openings.'),
-            NoResultsOverlay: () => NoList('There is no job openings.'),
+            NoRowsOverlay: () => NoList('There are no job openings.'),
+            NoResultsOverlay: () => NoList('There are no job openings.'),
           }}
           columns={getJobOpeningsColumn()}
           pagination

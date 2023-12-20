@@ -8,11 +8,13 @@ import Error404 from '@src/pages/404'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import PrintInvoicePage from './print-page'
+import { timezoneSelector } from '@src/states/permission'
 
 const InvoicePrint = () => {
   const invoice = useAppSelector(state => state.invoice.invoiceTotalData)
   const lang = useAppSelector(state => state.invoice.lang)
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   if (!invoice) {
     return <Error404 />
   } else if (auth.state === 'hasValue' && auth.getValue().user) {
@@ -23,6 +25,7 @@ const InvoicePrint = () => {
           type='download'
           user={auth.getValue().user!}
           lang={lang}
+          timezoneList={timezone.getValue()}
         />
       </div>
     )

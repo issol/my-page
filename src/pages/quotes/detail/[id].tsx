@@ -152,6 +152,7 @@ import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/roun
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import dayjs from 'dayjs'
 import { ReasonType } from '@src/types/quotes/quote'
+import { timezoneSelector } from '@src/states/permission'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -175,6 +176,7 @@ export default function QuotesDetail() {
   const { data: statusList } = useGetStatusList('Quote')
   const ability = useContext(AbilityContext)
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const currentRole = getCurrentRole()
   const { id } = router.query
 
@@ -423,8 +425,9 @@ export default function QuotesDetail() {
             convertTimeToTimezone(
               project.quoteDate,
               project.quoteDateTimezone ?? defaultTimezone,
-              true
-            )!
+              timezone.getValue(),
+              true,
+            )!,
           ),
           timezone: project.quoteDateTimezone ?? defaultTimezone,
         },
@@ -434,8 +437,9 @@ export default function QuotesDetail() {
                 convertTimeToTimezone(
                   project.projectDueAt,
                   project.projectDueTimezone ?? defaultTimezone,
-                  true
-                )!
+                  timezone.getValue(),
+                  true,
+                )!,
               )
             : undefined,
           timezone: project.projectDueTimezone ?? defaultTimezone,
@@ -446,8 +450,9 @@ export default function QuotesDetail() {
                 convertTimeToTimezone(
                   project.quoteDeadline,
                   project.quoteDeadlineTimezone ?? defaultTimezone,
-                  true
-                )!
+                  timezone.getValue(),
+                  true,
+                )!,
               )
             : undefined,
           timezone: project.quoteDeadlineTimezone ?? defaultTimezone,
@@ -458,8 +463,9 @@ export default function QuotesDetail() {
                 convertTimeToTimezone(
                   project.quoteExpiryDate,
                   project.quoteExpiryDateTimezone ?? defaultTimezone,
-                  true
-                )!
+                  timezone.getValue(),
+                  true,
+                )!,
               )
             : undefined,
           timezone: project.quoteExpiryDateTimezone ?? defaultTimezone,
@@ -470,8 +476,9 @@ export default function QuotesDetail() {
                 convertTimeToTimezone(
                   project.estimatedAt,
                   project.estimatedTimezone ?? defaultTimezone,
-                  true
-                )!
+                  timezone.getValue(),
+                  true,
+                )!,
               )
             : undefined,
           timezone: project.estimatedTimezone ?? defaultTimezone,
@@ -833,6 +840,7 @@ export default function QuotesDetail() {
             {convertTimeToTimezone(
               row.confirmedAt,
               auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )
@@ -1023,11 +1031,11 @@ export default function QuotesDetail() {
   function onProjectInfoSave() {
     const projectInfo = {
       ...getProjectInfoValues(),
-      quoteDate: { 
+      quoteDate: {
         ...getProjectInfoValues().quoteDate,
         date: changeTimeZoneOffset(
           getProjectInfoValues().quoteDate.date.toISOString(),
-          getProjectInfoValues().quoteDate.timezone
+          getProjectInfoValues().quoteDate.timezone,
         ),
       },
       projectDueDate: {
@@ -1035,7 +1043,7 @@ export default function QuotesDetail() {
         date: getProjectInfoValues().projectDueDate.date
           ? changeTimeZoneOffset(
               getProjectInfoValues().projectDueDate.date.toISOString(),
-              getProjectInfoValues().projectDueDate.timezone
+              getProjectInfoValues().projectDueDate.timezone,
             )
           : null,
       },
@@ -1044,7 +1052,7 @@ export default function QuotesDetail() {
         date: getProjectInfoValues().quoteDeadline.date
           ? changeTimeZoneOffset(
               getProjectInfoValues().quoteDeadline.date.toISOString(),
-              getProjectInfoValues().quoteDeadline.timezone
+              getProjectInfoValues().quoteDeadline.timezone,
             )
           : null,
       },
@@ -1053,7 +1061,7 @@ export default function QuotesDetail() {
         date: getProjectInfoValues().quoteExpiryDate.date
           ? changeTimeZoneOffset(
               getProjectInfoValues().quoteExpiryDate.date.toISOString(),
-              getProjectInfoValues().quoteExpiryDate.timezone
+              getProjectInfoValues().quoteExpiryDate.timezone,
             )
           : null,
       },
@@ -1062,7 +1070,7 @@ export default function QuotesDetail() {
         date: getProjectInfoValues().estimatedDeliveryDate.date
           ? changeTimeZoneOffset(
               getProjectInfoValues().estimatedDeliveryDate.date.toISOString(),
-              getProjectInfoValues().estimatedDeliveryDate.timezone
+              getProjectInfoValues().estimatedDeliveryDate.timezone,
             )
           : null,
       },

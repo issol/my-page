@@ -56,7 +56,9 @@ import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { FormErrors } from '@src/shared/const/formErrors'
 import dayjs from 'dayjs'
-import { getTimeZoneFromLocalStorage } from '@src/shared/auth/storage'
+
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   control: Control<RequestType, any>
@@ -77,24 +79,27 @@ export default function AddRequestForm({
   const languageList = getGloLanguage()
 
   const { data: units } = useGetUnitOptions()
-  const [timeZoneList, setTimeZoneList] = useState<{
-    code: string;
-    label: string;
-    phone: string;
-  }[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   useEffect(() => {
-    const timezoneList = getTimeZoneFromLocalStorage()
+    const timezoneList = timezone.getValue()
     const filteredTimezone = timezoneList.map(list => {
       return {
         code: list.timezoneCode,
         label: list.timezone,
-        phone: ''
+        phone: '',
       }
     })
     setTimeZoneList(filteredTimezone)
-  }, [])
-
+  }, [timezone])
   function renderErrorMsg(
     errors:
       | FieldError
@@ -414,7 +419,7 @@ export default function AddRequestForm({
                     }}
                     renderOption={(props, option) => (
                       <Box component='li' {...props} key={uuidv4()}>
-                        {timeZoneFormatter(option)}
+                        {timeZoneFormatter(option, timezone.getValue())}
                       </Box>
                     )}
                     renderInput={params => (
@@ -427,7 +432,9 @@ export default function AddRequestForm({
                         }}
                       />
                     )}
-                    getOptionLabel={option => timeZoneFormatter(option) ?? ''}
+                    getOptionLabel={option =>
+                      timeZoneFormatter(option, timezone.getValue()) ?? ''
+                    }
                   />
                 )}
               />

@@ -47,6 +47,7 @@ import Link from 'next/link'
 // ** etc
 import { toast } from 'react-hot-toast'
 import { job_list } from '@src/shared/const/permission-class'
+import { timezoneSelector } from '@src/states/permission'
 
 export type DetailFilterType = {
   workName: string
@@ -85,6 +86,7 @@ export default function JobTrackerDetail() {
   const workName = router.query.workName
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const ability = useContext(AbilityContext)
 
   const User = new job_list(auth.getValue().user?.id!)
@@ -177,12 +179,14 @@ export default function JobTrackerDetail() {
             title={convertTimeToTimezone(
               row?.itemDueDate,
               auth.getValue().user?.timezone?.code!,
+              timezone.getValue(),
             )}
           >
             <div>
               {convertTimeToTimezone(
                 row?.itemDueDate,
                 auth.getValue().user?.timezone?.code!,
+                timezone.getValue(),
               )}
             </div>
           </Tooltip>
@@ -222,12 +226,14 @@ export default function JobTrackerDetail() {
             title={convertTimeToTimezone(
               row?.jobDueDate,
               auth.getValue().user?.timezone?.code!,
+              timezone.getValue(),
             )}
           >
             <div style={{ overflow: 'scroll' }}>
               {convertTimeToTimezone(
                 row?.jobDueDate,
                 auth.getValue().user?.timezone?.code!,
+                timezone.getValue(),
               )}
             </div>
           </Tooltip>

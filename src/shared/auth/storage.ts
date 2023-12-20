@@ -46,7 +46,10 @@ export function getCompanyDataFromBrowser() {
 
 export function saveCompanyDataToBrowser(companyInfo: ClientUserType) {
   if (typeof window === 'object') {
-    window.sessionStorage.setItem(authConfig.companyInfo, JSON.stringify(companyInfo))
+    window.sessionStorage.setItem(
+      authConfig.companyInfo,
+      JSON.stringify(companyInfo),
+    )
   }
 }
 
@@ -129,16 +132,16 @@ export function getCurrentRole(): UserRoleType | null {
 }
 
 // Timezone
-export const setTimeZoneToLocalStorage = (timeZones:TimeZoneType[]) => {
-  if (typeof window === 'object') {
-    localStorage.setItem('timezones', JSON.stringify(timeZones))
-  }
-}
+// export const setTimeZoneToLocalStorage = (timeZones:TimeZoneType[]) => {
+//   if (typeof window === 'object') {
+//     localStorage.setItem('timezones', JSON.stringify(timeZones))
+//   }
+// }
 
-export const getTimeZoneFromLocalStorage = (): TimeZoneType[] => {
-  if (typeof window === 'object') {
-    const storedData = window.localStorage.getItem('timezones');
-    return storedData ? JSON.parse(storedData) : [];
-  }
-  return []
-}
+// export const getTimeZoneFromLocalStorage = (): TimeZoneType[] => {
+//   if (typeof window === 'object') {
+//     const storedData = window.localStorage.getItem('timezones');
+//     return storedData ? JSON.parse(storedData) : [];
+//   }
+//   return []
+// }

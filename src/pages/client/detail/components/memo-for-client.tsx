@@ -52,6 +52,7 @@ import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal
 // ** permission class
 import { client_comment } from '@src/shared/const/permission-class'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   clientId: number
@@ -62,6 +63,7 @@ export default function ClientMemo({ clientId, memo }: Props) {
   const ability = useContext(AbilityContext)
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const User = new client_comment(auth.getValue().user?.id!)
 
   const isUpdatable = ability.can('update', User)
@@ -403,6 +405,7 @@ export default function ClientMemo({ clientId, memo }: Props) {
                           {convertTimeToTimezone(
                             item.createdAt,
                             auth.getValue().user?.timezone.code!,
+                            timezone.getValue(),
                           )}
                         </Typography>
                         <Typography>{item.memo}</Typography>

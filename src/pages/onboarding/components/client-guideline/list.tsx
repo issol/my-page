@@ -17,6 +17,8 @@ import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import { useRouter } from 'next/router'
 import { JobTypeChip, ServiceTypeChip } from '@src/@core/components/chips/chips'
 import { UserDataType } from '@src/context/types'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: {
@@ -73,6 +75,7 @@ export default function ClientGuideLineList({
   page,
 }: Props) {
   const router = useRouter()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   function moveToDetail(id: number) {
     router.push(`/${page}/client-guideline/detail/${id}`)
@@ -133,7 +136,11 @@ export default function ClientGuideLineList({
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => (
         <Box sx={{ overflowX: 'scroll' }}>
-          {convertTimeToTimezone(row.createdAt, user.timezone!)}
+          {convertTimeToTimezone(
+            row.createdAt,
+            user.timezone!,
+            timezone.getValue(),
+          )}
         </Box>
       ),
     },

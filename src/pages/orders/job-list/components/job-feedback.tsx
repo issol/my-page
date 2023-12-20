@@ -20,6 +20,8 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { ProJobFeedbackType } from '@src/types/jobs/jobs.type'
 import { Icon } from '@iconify/react'
 import Image from 'next/image'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   feedbacks: ProJobFeedbackType[] | undefined
@@ -56,15 +58,15 @@ export default function JobFeedback({
   handleChangePage,
   canUseAddComment,
 }: Props) {
-
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   if (!feedbacks) {
     return null
   } else {
     feedbacks?.sort((a, b) => {
-      const dateA = new Date(a.createdAt).getTime();
-      const dateB = new Date(b.createdAt).getTime();
-      return dateB - dateA;
-    });
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+      return dateB - dateA
+    })
   }
 
   return (
@@ -87,16 +89,14 @@ export default function JobFeedback({
         >
           Job feedback
         </Box>
-        {useJobFeedbackForm ? null : (
-          canUseAddComment ? (
-            <Button
-              variant='contained'
-              onClick={() => setUseJobFeedbackForm(true)}
-            >
-              Add feedback
-            </Button>
-          ) : null
-        )}
+        {useJobFeedbackForm ? null : canUseAddComment ? (
+          <Button
+            variant='contained'
+            onClick={() => setUseJobFeedbackForm(true)}
+          >
+            Add feedback
+          </Button>
+        ) : null}
       </Typography>
       {feedbacks && feedbacks.length ? (
         <Divider sx={{ my: theme => `${theme.spacing(4)} !important` }} />
@@ -212,94 +212,91 @@ export default function JobFeedback({
           </Box>
         ) : null}
         {feedbacks && feedbacks.length ? (
-          feedbacks
-            .slice(offset, offset + rowsPerPage)
-            .map(value => {
-              return (
-                <>
+          feedbacks.slice(offset, offset + rowsPerPage).map(value => {
+            return (
+              <>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '14px',
+                  }}
+                >
                   <Box
                     sx={{
                       display: 'flex',
-                      flexDirection: 'column',
-                      gap: '14px',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', gap: '8px' }}>
-                        <Chip
-                          size='small'
-                          skin='light'
-                          label={'Writer'}
-                          color='error'
-                          sx={{
-                            textTransform: 'capitalize',
-                            '& .MuiChip-label': { lineHeight: '18px' },
-                            mr: 1,
-                          }}
+                    <Box sx={{ display: 'flex', gap: '8px' }}>
+                      <Chip
+                        size='small'
+                        skin='light'
+                        label={'Writer'}
+                        color='error'
+                        sx={{
+                          textTransform: 'capitalize',
+                          '& .MuiChip-label': { lineHeight: '18px' },
+                          mr: 1,
+                        }}
+                      />
+                      <Typography
+                        variant='body1'
+                        sx={{
+                          fontSize: '14px',
+                          fontWeight: 500,
+                          lineHeight: '21px',
+                          letterSpacing: '0.1px',
+                          color:
+                            value.email === auth?.user?.email
+                              ? '#666CFF'
+                              : 'rgba(76, 78, 100, 0.87)',
+                        }}
+                      >
+                        {value.name}
+                      </Typography>
+                      <Divider
+                        orientation='vertical'
+                        variant='middle'
+                        flexItem
+                      />
+                      <Typography
+                        variant='body2'
+                        sx={{
+                          fontSize: '14px',
+
+                          lineHeight: '21px',
+                          letterSpacing: '0.15px',
+                        }}
+                      >
+                        {value.email}
+                      </Typography>
+                    </Box>
+                    {value.isChecked ? (
+                      <Box display='flex' justifyContent='flex-end'>
+                        <Image
+                          src='/images/icons/job-icons/icon-check.svg'
+                          alt='logo'
+                          width={44}
+                          height={24}
                         />
                         <Typography
                           variant='body1'
                           sx={{
+                            color: 'rgba(76, 78, 100, 0.6)',
+                            fontWeight: 600,
                             fontSize: '14px',
-                            fontWeight: 500,
-                            lineHeight: '21px',
-                            letterSpacing: '0.1px',
-                            color:
-                              value.email === auth?.user?.email
-                                ? '#666CFF'
-                                : 'rgba(76, 78, 100, 0.87)',
-                          }}
-                        >
-                          {value.name}
-                        </Typography>
-                        <Divider
-                          orientation='vertical'
-                          variant='middle'
-                          flexItem
-                        />
-                        <Typography
-                          variant='body2'
-                          sx={{
-                            fontSize: '14px',
-
                             lineHeight: '21px',
                             letterSpacing: '0.15px',
                           }}
                         >
-                          {value.email}
+                          {'Read by Pro'}
                         </Typography>
                       </Box>
-                      { value.isChecked ? (
-                            <Box display='flex' justifyContent='flex-end'>
-                              <Image
-                                src='/images/icons/job-icons/icon-check.svg'
-                                alt='logo'
-                                width={44}
-                                height={24}
-                              />
-                              <Typography
-                                variant='body1'
-                                sx={{
-                                  color:'rgba(76, 78, 100, 0.6)',
-                                  fontWeight: 600,
-                                  fontSize: '14px',
-                                  lineHeight: '21px',
-                                  letterSpacing: '0.15px',
-                                }}
-                              >
-                                {'Read by Pro'}
-                              </Typography>
-                            </Box>
-                          ) : null
-                        }
-                      {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
-                      {/* <Box sx={{ display: 'flex' }}>
+                    ) : null}
+                    {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
+                    {/* <Box sx={{ display: 'flex' }}>
                         {selectedComment && selectedComment?.id === value.id ? (
                           <></>
                         ) : (
@@ -329,14 +326,18 @@ export default function JobFeedback({
                           </>
                         )}
                       </Box> */}
-                    </Box>
-                    <Box>
-                      <Typography variant='body2'>
-                        {convertTimeToTimezone(value.createdAt, auth?.user?.timezone)}
-                      </Typography>
-                    </Box>
-                    {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
-                    {/* {selectedComment && selectedComment?.id === value.id ? (
+                  </Box>
+                  <Box>
+                    <Typography variant='body2'>
+                      {convertTimeToTimezone(
+                        value.createdAt,
+                        auth?.user?.timezone,
+                        timezone.getValue(),
+                      )}
+                    </Typography>
+                  </Box>
+                  {/* comment edit/delete 컴포넌트, 추후 사용시 활용(맞춰야 함) */}
+                  {/* {selectedComment && selectedComment?.id === value.id ? (
                       <Box
                         sx={{
                           display: 'flex',
@@ -378,15 +379,15 @@ export default function JobFeedback({
                     ) : (
                       <Box>{value.comment}</Box>
                     )} */}
-                    <Box>{value.feedback}</Box>
-                  </Box>
-                  
-                  <Divider
-                    sx={{ my: theme => `${theme.spacing(4)} !important` }}
-                  />
-                </>
-              )
-            })
+                  <Box>{value.feedback}</Box>
+                </Box>
+
+                <Divider
+                  sx={{ my: theme => `${theme.spacing(4)} !important` }}
+                />
+              </>
+            )
+          })
         ) : useJobFeedbackForm ? null : (
           <Box>-</Box>
         )}

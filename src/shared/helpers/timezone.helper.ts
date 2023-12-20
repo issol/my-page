@@ -2,8 +2,9 @@ import logger from '@src/@core/utils/logger'
 import moment from 'moment-timezone'
 import { timezones } from 'src/@fake-db/autocomplete'
 import { IANAZone } from 'luxon'
-import { getTimeZoneFromLocalStorage, setTimeZoneToLocalStorage } from '../auth/storage'
+
 import { CountryType, TimeZoneType } from '@src/types/sign/personalInfoTypes'
+import { SetterOrUpdater } from 'recoil'
 
 const displayName = new Intl.DisplayNames(['en-US'], {
   type: 'region',
@@ -77,7 +78,7 @@ export const getGmtTimeEng = (code: string | null | undefined) => {
 
 export const getTimezone = (value: any, code: string) => {
   if (!value) return ''
-  
+
   /* @ts-ignore */
   const timeZone = timezones.countries[code]?.zones[0]
 
@@ -93,19 +94,37 @@ export const getTimezone = (value: any, code: string) => {
   return timeZoneAbbr
 }
 
-export const setAllTimeZoneList = () => {
+export const setAllTimeZoneList = (
+  setTimezone: SetterOrUpdater<
+    {
+      offset: number
+      offsetFormatted: string
+      timezone: string
+      timezoneCode: string
+    }[]
+  >,
+) => {
   // 모든 타임존의 리스트를 가져옵니다.
-  const timeZones = moment.tz.names();
+  const timeZones = moment.tz.names()
+
+  console.log(timeZones, 'timezone')
 
   // 타임존을 GMT 오프셋으로 변환하고 포맷팅합니다.
   const formattedTimeZones = timeZones.map(tz => {
     // 현재 타임존의 GMT 오프셋을 구합니다.
-    const offset = moment.tz(tz).utcOffset();
+    const offset = moment.tz(tz).utcOffset()
     const timezoneCode = moment.tz(tz).format('z')
     // 오프셋을 시간:분 포맷으로 변환합니다.
-    const offsetHours = Math.floor(Math.abs(offset) / 60);
-    const offsetMinutes = Math.abs(offset) % 60;
-    const offsetFormatted = offset >= 0 ? `+${offsetHours.toString().padStart(2, '0')}:${offsetMinutes.toString().padStart(2, '0')}` : `-${offsetHours.toString().padStart(2, '0')}:${offsetMinutes.toString().padStart(2, '0')}`;
+    const offsetHours = Math.floor(Math.abs(offset) / 60)
+    const offsetMinutes = Math.abs(offset) % 60
+    const offsetFormatted =
+      offset >= 0
+        ? `+${offsetHours.toString().padStart(2, '0')}:${offsetMinutes
+            .toString()
+            .padStart(2, '0')}`
+        : `-${offsetHours.toString().padStart(2, '0')}:${offsetMinutes
+            .toString()
+            .padStart(2, '0')}`
 
     return {
       offset: offset,
@@ -113,35 +132,44 @@ export const setAllTimeZoneList = () => {
       timezone: tz,
       timezoneCode: timezoneCode,
     }
-  });
-  
+  })
+
   const finalTimeZoneList = formattedTimeZones.sort((a, b) => {
     const offsetA = a.offset
     const offsetB = b.offset
-    return offsetA - offsetB;
-  });
+    return offsetA - offsetB
+  })
 
-  setTimeZoneToLocalStorage(finalTimeZoneList)
-};
+  console.log(finalTimeZoneList)
+  setTimezone(finalTimeZoneList)
 
-export const timeZoneFormatter = (timeZone: CountryType) => {
+  // setTimeZoneToLocalStorage(finalTimeZoneList)
+}
+
+export const timeZoneFormatter = (
+  timeZone: CountryType,
+  timezoneList: TimeZoneType[],
+) => {
   try {
     if (timeZone.code === '' || timeZone.label === '') return ''
-    const localStorageTimeZoneList: TimeZoneType[] = getTimeZoneFromLocalStorage() as TimeZoneType[]
-    const filteredTimeZone = localStorageTimeZoneList.find(list => list.timezone === timeZone.label)
+    const localStorageTimeZoneList: TimeZoneType[] =
+      timezoneList as TimeZoneType[]
+    const filteredTimeZone = localStorageTimeZoneList.find(
+      list => list.timezone === timeZone.label,
+    )
     const formatter = new Intl.DateTimeFormat('en', {
       timeZone: filteredTimeZone?.timezone,
       timeZoneName: 'long',
     })
-  
+
     const timeZoneName = formatter
       .formatToParts(new Date())
       .find(part => part.type === 'timeZoneName')!.value
 
-    if (!filteredTimeZone) new Error(`input timezone is null`);
-    return `(GMT${filteredTimeZone?.offsetFormatted}) ${timeZoneName} - ${filteredTimeZone?.timezone}`;
+    if (!filteredTimeZone) new Error(`input timezone is null`)
+    return `(GMT${filteredTimeZone?.offsetFormatted}) ${timeZoneName} - ${filteredTimeZone?.timezone}`
   } catch (e) {
-    console.log('timeZoneFormatter-e',e)
+    console.log('timeZoneFormatter-e', e)
     return ''
   }
 }

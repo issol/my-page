@@ -15,6 +15,7 @@ import { authState } from '@src/states/auth'
 import { Icon } from '@iconify/react'
 import { ProJobFeedbackType } from '@src/types/jobs/jobs.type'
 import { UseMutateFunction } from 'react-query'
+import { timezoneSelector } from '@src/states/permission'
 type Props = {
   feedbacks: Array<ProJobFeedbackType>
   checkFeedback: UseMutateFunction<unknown, unknown, number, unknown>
@@ -22,8 +23,7 @@ type Props = {
 
 const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
   const auth = useRecoilValueLoadable(authState)
-
-  console.log(feedbacks)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   return (
     <>
@@ -85,6 +85,7 @@ const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
                       {convertTimeToTimezone(
                         value.createdAt,
                         auth.getValue().user?.timezone,
+                        timezone.getValue(),
                       )}
                     </Typography>
                   </Box>

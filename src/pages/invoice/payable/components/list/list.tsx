@@ -24,6 +24,7 @@ import {
   InvoicePayableStatusType,
   InvoiceProStatusType,
 } from '@src/types/invoice/common.type'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: InvoicePayableListType
@@ -61,6 +62,7 @@ export default function PayableList({
   isLoading,
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const router = useRouter()
 
   function NoList() {
@@ -132,6 +134,7 @@ export default function PayableList({
           const date = convertTimeToTimezone(
             row.invoicedAt,
             auth.getValue().user?.timezone,
+            timezone.getValue(),
           )
           return (
             <Tooltip title={date}>
@@ -150,6 +153,7 @@ export default function PayableList({
         const date = convertTimeToTimezone(
           row.payDueAt,
           auth.getValue().user?.timezone,
+          timezone.getValue(),
         )
         return (
           <Tooltip title={date}>
@@ -167,6 +171,7 @@ export default function PayableList({
         const date = convertTimeToTimezone(
           row.paidAt,
           auth.getValue().user?.timezone,
+          timezone.getValue(),
         )
         return (
           <Tooltip title={date}>

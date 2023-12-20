@@ -21,6 +21,7 @@ import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { JobItemType } from '@src/types/common/item.type'
 import { useGetJobInfo } from '@src/queries/order/job.query'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: JobHistoryType
@@ -42,7 +43,6 @@ type Props = {
     jobTitle: string
   }[]
   statusList: Array<{ value: number; label: string }>
-
 }
 
 export default function JobHistory({
@@ -56,14 +56,13 @@ export default function JobHistory({
 }: Props) {
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [listSort, setListSort] = useState<'desc' | 'asc'>('desc')
 
-  const {
-    data: originJobInfo,
-    isLoading: originJobInfoLoading,
-  } = useGetJobInfo(jobId, false)
+  const { data: originJobInfo, isLoading: originJobInfoLoading } =
+    useGetJobInfo(jobId, false)
 
   const { data: list, isLoading } = useGetJobHistory(jobId, {
     skip,
@@ -106,6 +105,7 @@ export default function JobHistory({
             {convertTimeToTimezone(
               row.requestedAt,
               auth.getValue().user?.timezone?.code!,
+              timezone.getValue(),
             )}
           </Typography>
         )

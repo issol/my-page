@@ -49,6 +49,7 @@ import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: CurrentTestType
@@ -56,12 +57,16 @@ type CellType = {
 /* eslint-disable */
 const CertificationTestDetail = () => {
   const router = useRouter()
-  const { id } = router.query
+
+  const id = Number(router.query.id)
+
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const ability = useContext(AbilityContext)
   const { setModal } = useContext(ModalContext)
 
-  const { data } = useGetTestDetail(Number(id!), true)
+  const { data } = useGetTestDetail(id, true)
+
   const [pageSize, setPageSize] = useState(5)
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
   const [openDetail, setOpenDetail] = useState(false)
@@ -157,6 +162,7 @@ const CertificationTestDetail = () => {
               {convertTimeToTimezone(
                 row.updatedAt,
                 auth.getValue().user?.timezone!,
+                timezone.getValue(),
               )}
             </Box>
           )
@@ -553,6 +559,7 @@ const CertificationTestDetail = () => {
                             {convertTimeToTimezone(
                               currentRow.updatedAt,
                               auth.getValue().user?.timezone!,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>
@@ -839,6 +846,7 @@ const CertificationTestDetail = () => {
                           {convertTimeToTimezone(
                             currentVersion?.updatedAt,
                             auth.getValue().user?.timezone!,
+                            timezone.getValue(),
                           )}
                         </Typography>
                       </Box>

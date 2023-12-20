@@ -16,6 +16,7 @@ import {
   getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
 import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
+import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import { Loadable } from 'recoil'
 
 type CellType = {
@@ -33,6 +34,7 @@ export const getInvoiceReceivableListColumns = (
     company: ClientUserType | null | undefined
     loading: boolean
   }>,
+  timezoneList: TimeZoneType[],
 ) => {
   const columns: GridColumns<InvoiceReceivableListType> = [
     {
@@ -202,8 +204,9 @@ export const getInvoiceReceivableListColumns = (
           const date = convertTimeToTimezone(
             row.invoicedAt,
             auth.getValue().user?.timezone,
+            timezoneList,
           )
-          console.log("date",row.invoicedAt, )
+          console.log('date', row.invoicedAt)
           return (
             <Tooltip title={date}>
               <Typography variant='body2'>{date}</Typography>
@@ -225,6 +228,7 @@ export const getInvoiceReceivableListColumns = (
         const date = convertTimeToTimezone(
           row.payDueAt,
           auth.getValue().user?.timezone,
+          timezoneList,
         )
         return (
           <Tooltip title={date}>
@@ -247,6 +251,7 @@ export const getInvoiceReceivableListColumns = (
         const date = convertTimeToTimezone(
           row.paidAt,
           auth.getValue().user?.timezone,
+          timezoneList,
         )
         return (
           <Tooltip title={date}>
@@ -281,6 +286,7 @@ export const getInvoiceReceivableListColumns = (
         const date = convertTimeToTimezone(
           row.salesCheckedAt,
           row?.salesCheckedDateTimezone,
+          timezoneList,
         )
         return (
           <Tooltip

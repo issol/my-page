@@ -1,10 +1,13 @@
 import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
 import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
+import { timezones } from '@src/@fake-db/autocomplete'
 import { UserDataType } from '@src/context/types'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { transformMessage } from '@src/shared/transformer/notification-message'
+import { timezoneSelector } from '@src/states/permission'
 import { NotificationType } from '@src/types/common/notification.type'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   list: Array<NotificationType>
@@ -35,6 +38,7 @@ const NotificationList = ({
   onClickMarkAllAsRead,
   onClickNotification,
 }: Props) => {
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   function NoList() {
     return (
       <Box
@@ -106,7 +110,11 @@ const NotificationList = ({
       renderCell: ({ row }: CellType) => {
         return (
           <Typography>
-            {convertTimeToTimezone(row.createdAt, user.timezone)}
+            {convertTimeToTimezone(
+              row.createdAt,
+              user.timezone,
+              timezone.getValue(),
+            )}
           </Typography>
         )
       },
