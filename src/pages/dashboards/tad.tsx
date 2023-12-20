@@ -343,5 +343,5 @@ export default TADDashboards
 
 TADDashboards.acl = {
   action: 'read',
-  subject: 'client',
+  subject: 'dashboard_TAD',
 }

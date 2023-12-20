@@ -10,7 +10,6 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'client',
       path: `/dashboards`,
       role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT', 'PRO'],
-      externalLink: true,
     },
     {
       title: 'My page',

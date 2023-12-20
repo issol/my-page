@@ -380,5 +380,5 @@ export default ClientDashboards
 
 ClientDashboards.acl = {
   action: 'read',
-  subject: 'client',
+  subject: 'dashboard_CLIENT',
 }

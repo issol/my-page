@@ -73,6 +73,7 @@ const ProDashboards = () => {
               left: 0,
               top: '148px',
               zIndex: 10,
+              minWidth: '420px',
             }}
           >
             <ChartDateHeader />
@@ -219,6 +220,7 @@ const ProDashboards = () => {
               <ProCalendar year={getDate('year')} month={getDate('month')} />
             </Grid>
           </Grid>
+
           <Information
             open={isShowInfoDialog}
             keyName={infoDialogKey}
@@ -235,5 +237,5 @@ export default ProDashboards
 
 ProDashboards.acl = {
   action: 'read',
-  subject: 'client',
+  subject: 'dashboard_PRO',
 }
