@@ -31,6 +31,7 @@ import {
   CategoryRatioItem,
   CSVDataType,
   ExpertiseRatioItem,
+  JobItem,
   PairRatioItem,
   ServiceRatioItem,
   ViewMode,
@@ -347,7 +348,7 @@ const LPMDashboards = () => {
               router.push(`/orders/order-list/detail/${params.id}`)
             }
           />
-          <StatusAndDataGrid
+          <StatusAndDataGrid<JobItem>
             userViewDate={userViewDate}
             type='job'
             statusColumn={StatusJobColumns}
@@ -365,6 +366,11 @@ const LPMDashboards = () => {
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
             movePage={() => router.push('/orders/job-list/?menu=list')}
+            moveDetailPage={params =>
+              router.push(
+                `/orders/job-list/details/?orderId=${params.row?.orderId}&jobId=${params.row.id}`,
+              )
+            }
           />
           <Grid container gap='24px'>
             <GridItem height={229} xs={6}>

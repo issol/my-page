@@ -124,6 +124,7 @@ export type OrderItem = {
 
 export type JobItem = {
   id: number
+  orderId?: number
   jobName: string
   jobType: string
 
