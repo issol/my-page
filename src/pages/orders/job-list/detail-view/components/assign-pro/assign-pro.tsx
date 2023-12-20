@@ -377,7 +377,7 @@ const AssignPro = ({
             title='Please enter all required fields to make a request.'
             vary='error'
             soloButton={true}
-            rightButtonText='Okey'
+            rightButtonText='Okay'
             onClick={() => {
               //TODO Job info 탭으로 이동하는거 추가해야 함
               closeModal('AssignDenyModal')

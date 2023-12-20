@@ -246,7 +246,7 @@ export default function ItemForm({
             <CustomModal
               title='This item cannot be deleted because jobs have already been created from it.'
               soloButton={true}
-              rightButtonText='Okey'
+              rightButtonText='Okay'
               onClose={() => closeModal('deleteNotAllowedModal')}
               onClick={() => closeModal('deleteNotAllowedModal')}
               vary='error'
