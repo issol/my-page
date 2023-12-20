@@ -80,7 +80,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
     }[],
   ): number {
     return rows.reduce((total, row) => {
-      return total + Number(row.quantity) * Number(row.prices)
+      return total + Number(row.quantity) * Number(row.unitPrice)
     }, 0)
   }
 
@@ -336,7 +336,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                                 <div className='flex-start-box'>
                                   <h6 className='subtitle2'>
                                     {formatCurrency(
-                                      value.prices,
+                                      value.unitPrice,
                                       data.currency,
                                     )}
                                   </h6>
@@ -347,7 +347,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                                 <div className='table-row-fourth-content'>
                                   <h6 className='subtitle2'>
                                     {formatCurrency(
-                                      value.quantity * Number(value.prices),
+                                      value.quantity * Number(value.unitPrice),
                                       data.currency,
                                     )}
                                   </h6>
@@ -461,7 +461,9 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                             fontSize: '14px',
                           }}
                         >
-                          {Math.sign(data.tax) === 1 ? '+' : '-'}{' '}
+                          {/* {Math.sign(data.tax) === 1 ? '+' : '-'}{' '} */}
+                          {/* //TODO tax가 플러스가 되는 케이스가 있는지 확인 필요 */}
+                          {'-'}{' '}
                           {formatCurrency(data.tax, data.currency)}
                         </Typography>
                       </Box>
