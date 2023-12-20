@@ -35,6 +35,9 @@ export const payableColors = [
   'rgba(224, 68, 64, 1)',
 ]
 
+export const ReceivableStatusList = ['Invoiced', 'Paid', 'Overdue', 'Canceled']
+export const PayableStatusList = ['Invoiced', 'Paid', 'Overdue']
+
 interface TotalChartProps {
   title: string
   handleTitleClick?: () => void
@@ -77,6 +80,11 @@ const TotalProgressChart = ({
 
   const onChangeCurrency = (type: Currency) => {
     setCurrency(type)
+  }
+
+  const getTempName = (index: number) => {
+    if (type === 'receivable') return ReceivableStatusList[index]
+    return PayableStatusList[index]
   }
 
   return (
@@ -161,7 +169,7 @@ const TotalProgressChart = ({
                 <Cell color={colors[index]} className='body__cell'>
                   <div className='flex__center'>
                     <span className='status__circle' />
-                    {row?.name || '-'}
+                    {row?.name || getTempName(index)}
                   </div>
                 </Cell>
                 <Cell className='body__cell' align='center'>

@@ -196,7 +196,7 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
                 margin: 0,
               }}
             >
-              <DefaultDataGrid
+              <DefaultDataGrid<T>
                 title={`Ongoing ${type}s`}
                 data={data}
                 columns={statusColumn}

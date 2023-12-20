@@ -19,15 +19,18 @@ interface AccountDoughnutProps {
 }
 
 const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
+  const isNoRatio = data.every(item => item.ratio === 0)
+
   const options: ApexOptions = useMemo(() => {
     return {
       legend: { show: false },
-      colors: FourthColors,
+      colors: isNoRatio ? ['#F1F1F3'] : FourthColors,
       labels: [],
       stroke: {
-        width: 5,
+        width: isNoRatio ? 0 : 5,
       },
       tooltip: {
+        enabled: !isNoRatio,
         custom: function ({ series, seriesIndex, dataPointIndex, w }) {
           return renderToString(
             <div
@@ -67,11 +70,20 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
       },
       plotOptions: {
         pie: {
+          offsetX: 0,
+          offsetY: 62,
+          customScale: isNoRatio ? 1.4 : 1.5,
           donut: {
-            size: '45%',
+            size: isNoRatio ? '60%' : '45%',
+            expandOnClick: false,
             labels: {
               show: true,
               name: { show: false },
+              value: {
+                fontSize: '13px',
+                color: '#4C4E6499',
+                offsetY: 5,
+              },
               total: {
                 label: '',
                 show: true,
@@ -87,36 +99,38 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
         },
       },
     }
-  }, [data, totalCount])
+  }, [data, totalCount, isNoRatio])
 
   return (
-    <Box display='flex' alignItems='center' sx={{ position: 'relative' }}>
+    <Box display='flex' alignItems='center' sx={{ width: '100%' }}>
       {data.length === 0 && <NoRatio title='' />}
       <Suspense fallback={<div>로딩 중</div>}>
-        <Box sx={{ position: 'absolute', left: -48, top: 24 }}>
+        <Box>
           <CustomChart
             type='donut'
             options={options}
-            width={276}
+            width={192}
             heigt={176}
-            series={data.map(item => item.ratio) || []}
+            series={isNoRatio ? [100] : data.map(item => item.ratio)}
           />
         </Box>
       </Suspense>
-      <Box style={{ position: 'absolute', right: 20, top: 24 }}>
+      <Box sx={{ width: '100%', marginRight: '20px' }}>
         <List>
           {data.map((item, index) => (
-            <li key={`{item.name}-${index}`} style={{ width: '50%' }}>
+            <li key={`{item.name}-${index}`}>
               <Box display='flex' alignItems='center'>
                 <StatusSquare color={FourthColors[index]} />
                 <span className='name'>
                   {toCapitalize(item.name || '-')}
-                  <span className='item-count'>({item.count})</span>
+                  <span className='item-count'>
+                    ({(item.count || 0).toLocaleString()})
+                  </span>
                 </span>
               </Box>
               <Box display='flex'>
                 <span style={{ width: '80px' }} />
-                <span className='ratio'>{item.ratio || 0}%</span>
+                <span className='ratio'>{item.ratio || '0.0'}%</span>
               </Box>
             </li>
           ))}

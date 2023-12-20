@@ -30,13 +30,13 @@ export const getRequest = async ({ path, ...params }: RequestQuery) => {
   return data
 }
 
-export const getRatio = async (params: RatioQuery) => {
+export const getRatio = async ({ filter, ...params }: RatioQuery) => {
   const { type, apiType, path, ...props } = params
   const fullPath = path || `ratio/${type}`
   const { data } = await axios.get(
     `/api/enough/${apiType}/dashboard/${fullPath}`,
     {
-      params: { ...props },
+      params: { ...props, type: filter },
     },
   )
   return data
