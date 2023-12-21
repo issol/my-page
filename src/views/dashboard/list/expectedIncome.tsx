@@ -13,24 +13,24 @@ import { ExpectedIncome, ExpectedIncomeSort } from '@src/types/dashboard'
 import find from 'lodash/find'
 
 interface ExpectedIncomeProps {
-  dateRange: Array<Date | null>
+  date: Date | null
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 const ExpectedIncome = ({
-  dateRange,
+  date: calendarDate,
   setOpenInfoDialog,
 }: ExpectedIncomeProps) => {
-  const date = dayjs(dateRange[0])
+  const date = dayjs(calendarDate)
 
   const [checked, setChecked] = useState(false)
   const [sort, setSort] = useState<ExpectedIncomeSort>('requestDate')
   const { data, isSuccess } = useExpectedIncome({
     year: date.get('year'),
-    month: date.get('month'),
+    month: date.get('month') - 1,
     sort,
   })
 
-  const getDate = () => {
+  const getSubTitle = () => {
     return `Based On ${getProDateFormat(
       date.get('year'),
       date.get('month') + 1,
@@ -57,14 +57,14 @@ const ExpectedIncome = ({
           rejectedCount: 0,
         }
       })
-  }, [data, dateRange])
+  }, [data, calendarDate])
 
   return (
     <Box display='flex' sx={{ width: '100%', height: '100%' }}>
       <Box sx={{ width: '50%', padding: '20px' }}>
         <Title
           title='Job requests'
-          subTitle={getDate()}
+          subTitle={getSubTitle()}
           openDialog={setOpenInfoDialog}
         />
         <ProJobRequestBarChart report={[...CalendarList].reverse() || []} />
