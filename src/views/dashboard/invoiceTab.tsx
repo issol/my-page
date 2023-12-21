@@ -95,6 +95,8 @@ const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   }
 
   useEffect(() => {
+    if (!Array.isArray(data)) return
+
     data?.forEach((item, index) => {
       tabData['USD'].push(item.invoiceUSD || 0)
       tabData['JPY'].push(item.invoiceJPY || 0)
