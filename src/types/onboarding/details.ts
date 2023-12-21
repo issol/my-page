@@ -82,3 +82,13 @@ export type CertifiedRoleType = {
   target: string
   deletedAt: string | null
 }
+
+export enum checkDuplicateResponseEnum {
+  CAN_BE_CREATED = 1, // 시험 및 롤 요청 가능
+  ALREADY_HAVE_A_ROLE = 30, // 이미 certified role 가지고 있음
+  ROLE_REQUEST_DUPLICATED = 31, // TAD가 중복 언어+롤 role assign 요청함 (Pro가 수락/거절 선택 전)
+  TEST_REQUEST_DUPLICATED = 32, // Pro가 중복 언어+롤 test apply 요청함
+  NOT_RESPONDED_PRO = 33, // TAD가 중복 언어+롤 test assign 요청함 (Pro가 수락/거절 선택 전)
+  REQUEST_ACCEPTED_PRO = 34, // Pro가 해당 언어+롤 테스트 진행중
+  ALREADY_REQUESTED_ROLE = 35, // 이미 언어+롤 role assign 받은상태 에서 test apply 요청했을때
+}

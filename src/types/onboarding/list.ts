@@ -112,10 +112,10 @@ export interface SelectedJobInfoType extends OnboardingJobInfoType {
 
 export interface AddRoleType {
   jobInfo: {
-    jobType: string
-    role: string
-    source: string
-    target: string
+    jobType: { value: string; label: string }
+    role: { value: string; label: string; jobType: string[] }
+    source: { value: string; label: string } | null
+    target: { value: string; label: string } | null
   }[]
 }
 
@@ -124,8 +124,8 @@ export interface AddRolePayloadType {
   userCompany: string
   jobType: string
   role: string
-  source: string
-  target: string
+  source: string | null
+  target: string | null
   firstName?: string
   middleName?: string
   lastName?: string
@@ -151,6 +151,10 @@ export interface RoleSelectType extends SelectType {
   jobType: string[]
 }
 
+export interface OnboardingRoleSelectType extends SelectType {
+  jobType: string
+}
+
 export type OnboardingListCellType = {
   row: OnboardingListType
 }
@@ -166,4 +170,13 @@ export type OnboardingFilterType = {
   experience?: string[]
   testStatus?: string[]
   order?: string
+}
+
+export type CheckDuplicateType = {
+  userId: number
+  jobType: string
+  role: string
+  source: string
+  target: string
+  checkType: 'role' | 'test'
 }
