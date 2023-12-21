@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import { PermissionChip } from '@src/@core/components/chips/chips'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import Switch from '@mui/material/Switch'
-import ChartDate from '@src/views/dashboard/header/chartDate'
+import ChartDateHeader from '@src/views/dashboard/header/chartDate'
 import Button from '@mui/material/Button'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -31,9 +31,6 @@ import { CSVOptionsMenuDownload } from '@src/views/dashboard/csvDownload'
 import { headers } from 'next/headers'
 import UseStickyHeader from '@src/hooks/useStickyHeader'
 import useStickyHeader from '@src/hooks/useStickyHeader'
-import Fab from '@mui/material/Fab'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import FloatingCalendar from '@src/views/dashboard/header/floating'
 
 interface SwitchTypeHeaderProps {
   csvData?: CSVDataType
@@ -55,6 +52,7 @@ const SwitchTypeHeader = ({
   const { contents: role, state: roleFetchState } =
     useRecoilValueLoadable(currentRoleSelector)
 
+  const { isSticky } = useStickyHeader()
   const [state, setState] = useRecoilState(dashboardState)
 
   const { control, setValue } = useFormContext<DashboardForm>()
@@ -70,11 +68,9 @@ const SwitchTypeHeader = ({
   const [isOpenMemberDialog, setIsOpenMemberDialog] = useState(false)
 
   const open = Boolean(anchorEl)
-
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
   }
-
   const handleClose = () => {
     setAnchorEl(null)
   }
@@ -145,11 +141,12 @@ const SwitchTypeHeader = ({
 
   return (
     <>
-      <FloatingCalendar>
-        <ChartDate />
-      </FloatingCalendar>
       {isShowMemberView ? (
-        <GridItem width={420} height={76}>
+        <GridItem
+          width={420}
+          height={76}
+          sx={{ display: isSticky ? 'none' : 'flex' }}
+        >
           <Box sx={{ width: '100%' }}>
             <Box display='flex' gap='16px' alignItems='center'>
               <Typography fontSize='24px' fontWeight={500}>
@@ -168,7 +165,11 @@ const SwitchTypeHeader = ({
           </Box>
         </GridItem>
       ) : (
-        <GridItem width={300} height={76}>
+        <GridItem
+          width={300}
+          height={76}
+          sx={{ display: isSticky ? 'none' : 'flex' }}
+        >
           <Box display='flex' alignItems='center'>
             <Typography
               sx={{
@@ -226,8 +227,26 @@ const SwitchTypeHeader = ({
           </Box>
         </GridItem>
       )}
-      <ChartDate />
-      <GridItem width={76} height={76} sx={{ display: 'flex' }}>
+      <Grid
+        component='div'
+        item
+        sm={!isSticky}
+        xs={isSticky ? 12 : undefined}
+        sx={{
+          position: 'sticky',
+          left: 0,
+          top: '148px',
+          zIndex: 10,
+          backgroundColor: '#fff',
+        }}
+      >
+        <ChartDateHeader />
+      </Grid>
+      <GridItem
+        width={76}
+        height={76}
+        sx={{ display: isSticky ? 'none' : 'flex' }}
+      >
         <Box>
           <Button onClick={handleClick}>
             <MoreVertIcon
