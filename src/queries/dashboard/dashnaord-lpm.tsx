@@ -302,9 +302,15 @@ export const usePaidThisMonthAmount = (
   type: 'payable' | 'receivable',
   currency: Currency,
 ) => {
+  const { userId: initUserId, view: initView } = getUserViewModeInfo()
+  const { view: changeView, userId: changeUserId } =
+    useRecoilValue(dashboardState)
+  const view = changeView ? changeView : initView
+  const userId = changeUserId ? changeUserId : initUserId
+
   return useQuery<PaidThisMonthAmount>(
     [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'PaidThisMonth', type, currency],
-    () => getPaidThisMonth(type, currency),
+    () => getPaidThisMonth({ type, currency, userId, view }),
     {
       suspense: true,
       keepPreviousData: true,

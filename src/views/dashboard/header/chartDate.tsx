@@ -15,7 +15,7 @@ import {
 } from '@src/pages/dashboards/lpm'
 import styled from '@emotion/styled'
 
-const ChartDateHeader = () => {
+const ChartDate = () => {
   const { control, setValue } = useFormContext<DashboardForm>()
 
   const [dateRange, selectedRangeDate, userViewDate] = useWatch({
@@ -144,4 +144,4 @@ const DateButton = styled(Button)(() => {
     },
   }
 })
-export default ChartDateHeader
+export default ChartDate

@@ -24,7 +24,7 @@ import { useRouter } from 'next/router'
 import { getDateFormat, toCapitalize } from '@src/pages/dashboards/lpm'
 import TADLanguagePoolBarChart from '@src/views/dashboard/chart/languagePoolBar'
 
-import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
+import ChartDate from '@src/views/dashboard/header/chartDate'
 import OnboardingList from '@src/views/dashboard/list/onboarding'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import TADJobDataGrid from '@src/views/dashboard/dataGrid/jobAndRolePool'
@@ -168,7 +168,7 @@ const TADDashboards = () => {
               backgroundColor: '#fff',
             }}
           >
-            <ChartDateHeader />
+            <ChartDate />
           </Grid>
           <GridItem
             width={207}

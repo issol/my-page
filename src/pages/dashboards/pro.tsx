@@ -1,10 +1,5 @@
 import Grid from '@mui/material/Grid'
-import {
-  GridItem,
-  SectionTitle,
-  SubDateDescription,
-  Title,
-} from '@src/views/dashboard/dashboardItem'
+import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import { Box, Stack } from '@mui/material'
 import dayjs from 'dayjs'
 import { FormProvider, useWatch } from 'react-hook-form'
@@ -20,7 +15,6 @@ import {
   getProDateFormat,
 } from '@src/views/dashboard/list/currencyByDate'
 import InvoiceTab from '@src/views/dashboard/invoiceTab'
-import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import JobList from '@src/views/dashboard/list/job'
 import Notice from '@src/views/dashboard/notice'
@@ -33,6 +27,7 @@ import { getDateFormat } from '@src/pages/dashboards/lpm'
 import ProCalendar from '@src/views/dashboard/calendar'
 import Deadline from '@src/views/dashboard/deadline'
 import Information from '@src/views/dashboard/dialog/information'
+import ProChartDate from '@src/views/dashboard/header/proChartDate'
 
 dayjs.extend(weekday)
 
@@ -43,20 +38,19 @@ const ProDashboards = () => {
   const { isShowInfoDialog, infoDialogKey, setOpenInfoDialog, close } =
     infoDialog
 
-  const [dateRange, userViewDate] = useWatch({
+  const [date, userViewDate] = useWatch({
     control,
-    name: ['dateRange', 'userViewDate'],
+    name: ['date', 'userViewDate'],
   })
 
   const { data: upcomingData } = useUpcomingDeadline()
 
   const getDate = useCallback(
     (dateType: dayjs.UnitType) => {
-      const date = (dateRange && dateRange[0]) || new Date()
       if (dateType === 'month') return dayjs(date).get(dateType) + 1
       return dayjs(date).get(dateType)
     },
-    [dateRange],
+    [date],
   )
 
   return (
@@ -76,7 +70,7 @@ const ProDashboards = () => {
               minWidth: '420px',
             }}
           >
-            <ChartDateHeader />
+            <ProChartDate />
           </Grid>
 
           <Grid container gap='24px'>
@@ -119,7 +113,7 @@ const ProDashboards = () => {
               <GridItem sm height={490} padding='0px'>
                 <Expectedincome
                   setOpenInfoDialog={setOpenInfoDialog}
-                  dateRange={dateRange || [new Date(), new Date()]}
+                  date={date || new Date()}
                 />
               </GridItem>
               <Doughnut<ServiceRatioItem>
@@ -130,12 +124,8 @@ const ProDashboards = () => {
                   getDate('month'),
                 )}`}
                 height={490}
-                from={getDateFormat(
-                  (Array.isArray(dateRange) && dateRange[0]) || null,
-                )}
-                to={getDateFormat(
-                  (Array.isArray(dateRange) && dateRange[1]) || null,
-                )}
+                from={getDateFormat(date || new Date())}
+                to={getDateFormat(date || new Date())}
                 type='category'
                 colors={Colors}
                 getName={item => {

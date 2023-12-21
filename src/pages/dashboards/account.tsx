@@ -10,7 +10,7 @@ import { CSVDataType, Office, RatioItem } from '@src/types/dashboard'
 import { useRouter } from 'next/router'
 import { getDateFormat } from '@src/pages/dashboards/lpm'
 
-import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
+import ChartDate from '@src/views/dashboard/header/chartDate'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import Information from '@src/views/dashboard/dialog/information'
 import { CSVDownload } from '@src/views/dashboard/csvDownload'
@@ -196,7 +196,7 @@ const AccountDashboards = () => {
               backgroundColor: '#fff',
             }}
           >
-            <ChartDateHeader />
+            <ChartDate />
           </Grid>
           <GridItem width={207} height={76}>
             <Box>

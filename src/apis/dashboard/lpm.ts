@@ -12,6 +12,7 @@ import {
   ReportItem,
   RequestQuery,
   TotalAmountQuery,
+  ViewModeQuery,
 } from '@src/types/dashboard'
 
 export const getReport = async (
@@ -96,13 +97,18 @@ export const getOnboardingOverview = async () => {
 }
 
 /* LPM */
-export const getPaidThisMonth = async (
-  type: 'payable' | 'receivable',
-  currency: Currency,
-) => {
+interface PaidThisMonthQuery extends ViewModeQuery {
+  type: 'payable' | 'receivable'
+  currency: Currency
+}
+export const getPaidThisMonth = async ({
+  type,
+  currency,
+  ...props
+}: PaidThisMonthQuery) => {
   const { data } = await axios.get(
     `/api/enough/u/dashboard/invoice/${type}/paid/total-price`,
-    { params: { currency } },
+    { params: { ...props, currency } },
   )
   return data
 }
