@@ -1,5 +1,10 @@
 import { Box } from '@mui/material'
-import { DataGrid, GridColumns, GridRowsProp } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridColumns,
+  GridRowParams,
+  GridRowsProp,
+} from '@mui/x-data-grid'
 import { RequestColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
 import { Suspense, useState } from 'react'
@@ -10,7 +15,7 @@ import { RequestType } from '@src/types/dashboard'
 interface DashboardDataGridProps {
   path: string
   pageNumber: number
-  movePage: (id: number) => void
+  movePage: (params: GridRowParams) => void
   sectionHeight?: number
   columns: GridColumns
 }
@@ -43,7 +48,7 @@ const RequestDashboardDataGrid = ({
     >
       <Suspense fallback={<div>로딩 중</div>}>
         <CustomDataGrid
-          autoHeight
+          getRowHeight={() => 54}
           rows={data?.data || []}
           columns={columns}
           headerHeight={0}
@@ -55,9 +60,7 @@ const RequestDashboardDataGrid = ({
             setPage(newPage)
             setSkip(val => newPage * pageNumber)
           }}
-          onRowClick={params =>
-            router.push(`/quotes/lpm/requests/${params.id}/`)
-          }
+          onRowClick={params => movePage(params)}
           pageSize={pageSize}
           onPageSizeChange={pageSize => setPageSize(pageSize)}
           paginationMode='server'
@@ -74,6 +77,9 @@ const CustomDataGrid = styled(DataGrid)(() => {
   return {
     '& .MuiDataGrid-columnHeaders, & .MuiDataGrid-columnHeader': {
       display: 'none',
+    },
+    '& .MuiDataGrid-footerContainer': {
+      borderTop: 'none !important',
     },
     '& .MuiDataGrid-virtualScrollerRenderZone': {
       width: 'max-content',

@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material'
 import useModal from '@src/hooks/useModal'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { authState } from '@src/states/auth'
 import { useRecoilValueLoadable } from 'recoil'
@@ -20,6 +20,7 @@ import { useQueryClient, useMutation } from 'react-query'
 import { readMessage, sendMessageToPro } from '@src/apis/job-detail.api'
 import { useGetMessage } from '@src/queries/order/job.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   row: ProJobListType
@@ -29,8 +30,10 @@ const ProJobsMessage = ({ row }: Props) => {
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [message, setMessage] = useState<string>('')
-  const [isScrollToBottomRunning, setIsScrollToBottomRunning] = useState<boolean>(false)
+  const [isScrollToBottomRunning, setIsScrollToBottomRunning] =
+    useState<boolean>(false)
   const handleChangeMessage = (event: ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value)
   }
@@ -56,11 +59,11 @@ const ProJobsMessage = ({ row }: Props) => {
     (data: { jobId: number; proId: number }) =>
       readMessage(data.jobId, data.proId),
     {
-      onSuccess: () =>{
+      onSuccess: () => {
         messageRefetch()
         queryClient.invalidateQueries(['proJobList'])
-      }
-    }
+      },
+    },
   )
 
   const handleSendMessage = () => {
@@ -72,9 +75,9 @@ const ProJobsMessage = ({ row }: Props) => {
   }
 
   const scrollToBottom = () => {
-    const box = document.getElementById('message-box');
+    const box = document.getElementById('message-box')
     if (box) {
-      box.scrollTop = box.scrollHeight;
+      box.scrollTop = box.scrollHeight
     }
   }
 
@@ -86,7 +89,7 @@ const ProJobsMessage = ({ row }: Props) => {
     if (messageList && !messageListLoading) {
       readMessageMutation.mutate({
         jobId: row.jobId,
-        proId: auth.getValue()?.user?.id!
+        proId: auth.getValue()?.user?.id!,
       })
       scrollToBottom()
     }
@@ -103,8 +106,7 @@ const ProJobsMessage = ({ row }: Props) => {
         borderRadius: '10px',
       }}
     >
-      { sendMessageToProMutation.isLoading ?
-        <OverlaySpinner /> : null }
+      {sendMessageToProMutation.isLoading ? <OverlaySpinner /> : null}
       <Box sx={{ padding: '50px 60px', position: 'relative' }}>
         <IconButton
           sx={{ position: 'absolute', top: '20px', right: '20px' }}
@@ -134,75 +136,80 @@ const ProJobsMessage = ({ row }: Props) => {
           </Box>
           <Divider />
           <Box
-            id="message-box"
+            id='message-box'
             sx={{
               maxHeight: '500px',
               overflowY: 'scroll',
             }}
           >
-          {messageList?.contents && messageList.contents.length > 0
-            ? messageList?.contents.map((item, index) => (
-                <>
-                  <Box
-                    key={uuidv4()}
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '10px',
-                      paddingTop: '20px', 
-                      paddingBottom: '20px',
-                    }}
-                  >
+            {messageList?.contents && messageList.contents.length > 0
+              ? messageList?.contents.map((item, index) => (
+                  <>
                     <Box
-                      sx={{ 
-                        display: 'flex', 
-                        gap: '8px', 
-                        alignItems: 'center', 
+                      key={uuidv4()}
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        paddingTop: '20px',
+                        paddingBottom: '20px',
                       }}
                     >
-                      {!item.isPro ? (
-                        <CustomChip
-                          label={'LPM'}
-                          skin='light'
-                          sx={{
-                            background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #21AEDB`,
-                            color: '#21AEDB',
-                          }}
-                          size='small'
-                        />
-                      ) : null}
-                      <Typography
-                        variant='subtitle1'
-                        fontWeight={500}
-                        color={auth.getValue()?.user?.email === item.email ? 'primary' : 'default'}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: '8px',
+                          alignItems: 'center',
+                        }}
                       >
-                        {getLegalName({
-                          firstName: item.firstName,
-                          middleName: item.middleName,
-                          lastName: item.lastName,
-                        })}
+                        {!item.isPro ? (
+                          <CustomChip
+                            label={'LPM'}
+                            skin='light'
+                            sx={{
+                              background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #21AEDB`,
+                              color: '#21AEDB',
+                            }}
+                            size='small'
+                          />
+                        ) : null}
+                        <Typography
+                          variant='subtitle1'
+                          fontWeight={500}
+                          color={
+                            auth.getValue()?.user?.email === item.email
+                              ? 'primary'
+                              : 'default'
+                          }
+                        >
+                          {getLegalName({
+                            firstName: item.firstName,
+                            middleName: item.middleName,
+                            lastName: item.lastName,
+                          })}
+                        </Typography>
+                        <Divider
+                          orientation='vertical'
+                          variant='middle'
+                          flexItem
+                        />
+                        <Typography variant='body2' fontWeight={400}>
+                          {item.email}
+                        </Typography>
+                      </Box>
+                      <Typography variant='subtitle2'>
+                        {convertTimeToTimezone(
+                          item.createdAt,
+                          auth.getValue().user?.timezone,
+                          timezone.getValue(),
+                        )}
                       </Typography>
-                      <Divider
-                        orientation='vertical'
-                        variant='middle'
-                        flexItem
-                      />
-                      <Typography variant='body2' fontWeight={400}>
-                        {item.email}
-                      </Typography>
+                      <Box>{item.content}</Box>
                     </Box>
-                    <Typography variant='subtitle2'>
-                      {FullDateTimezoneHelper(
-                        item.createdAt,
-                        auth.getValue().user?.timezone,
-                      )}
-                    </Typography>
-                    <Box>{item.content}</Box>
-                  </Box>
-                  {index !== messageList.contents!.length - 1 && <Divider />}
-                </>
-              ))
-            : null}
+                    {index !== messageList.contents!.length - 1 && <Divider />}
+                  </>
+                ))
+              : null}
           </Box>
           {row.status === 60700 ||
           row.status === 60800 ||

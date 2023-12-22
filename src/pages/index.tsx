@@ -12,6 +12,7 @@ import Spinner from 'src/@core/components/spinner'
 import UserLayout from '@src/layouts/UserLayout'
 import { useAppSelector } from '@src/hooks/useRedux'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { setAllTimeZoneList } from '@src/shared/helpers/timezone.helper'
 
 const Home = () => {
   // ** Hooks

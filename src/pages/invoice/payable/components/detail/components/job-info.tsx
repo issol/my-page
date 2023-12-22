@@ -6,20 +6,23 @@ import {
 } from '@src/@core/components/chips/chips'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { timezoneSelector } from '@src/states/permission'
 
 // ** types
 import { JobType } from '@src/types/common/item.type'
 import { statusType } from '@src/types/common/status.type'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   row: JobType
   jobStatusList: Array<statusType>
 }
 const ViewJobInfo = ({ row, jobStatusList }: Props) => {
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Card sx={{ padding: '20px' }}>
@@ -106,7 +109,11 @@ const ViewJobInfo = ({ row, jobStatusList }: Props) => {
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
                 {row.startedAt
-                  ? FullDateTimezoneHelper(row.startedAt, row.startTimezone)
+                  ? convertTimeToTimezone(
+                      row.startedAt,
+                      row.startTimezone,
+                      timezone.getValue(),
+                    )
                   : '-'}
               </Typography>
             </Box>
@@ -120,7 +127,11 @@ const ViewJobInfo = ({ row, jobStatusList }: Props) => {
                 Job due date
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
-                {FullDateTimezoneHelper(row.dueAt, row.dueTimezone)}
+                {convertTimeToTimezone(
+                  row.dueAt,
+                  row.dueTimezone,
+                  timezone.getValue(),
+                )}
               </Typography>
             </Box>
           </Box>

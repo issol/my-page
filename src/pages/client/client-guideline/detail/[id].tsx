@@ -37,7 +37,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** helpers
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -64,6 +64,8 @@ import { client_guideline } from '@src/shared/const/permission-class'
 import { S3FileType } from 'src/shared/const/signedURLFileType'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { timezoneSelector } from '@src/states/permission'
+import { time } from 'console'
 
 type CellType = {
   row: {
@@ -109,6 +111,7 @@ const ClientGuidelineDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { data, refetch, isError } = useGetGuideLineDetail(id)
   const MAXIMUM_FILE_SIZE = FILE_SIZE.CLIENT_GUIDELINE
@@ -196,9 +199,10 @@ const ClientGuidelineDetail = () => {
         if (auth.state === 'hasValue') {
           return (
             <Box sx={{ overflowX: 'scroll' }}>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row.updatedAt,
                 auth.getValue().user?.timezone!,
+                timezone.getValue(),
               )}
             </Box>
           )
@@ -453,9 +457,10 @@ const ClientGuidelineDetail = () => {
                       </Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         currentVersion?.updatedAt,
                         auth.getValue().user?.timezone!,
+                        timezone.getValue(),
                       )}
                     </Typography>
                   </Box>
@@ -644,9 +649,10 @@ const ClientGuidelineDetail = () => {
                             variant='body2'
                             sx={{ alignSelf: 'flex-end' }}
                           >
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               new Date(),
                               auth.getValue().user?.timezone!,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>

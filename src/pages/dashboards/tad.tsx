@@ -3,9 +3,7 @@ import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
 import { FormProvider, useWatch } from 'react-hook-form'
-import Button from '@mui/material/Button'
 import React, { useEffect, useState } from 'react'
-import DownloadIcon from '@mui/icons-material/Download'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
@@ -16,13 +14,7 @@ import {
   SecondColors,
   ThirdColors,
 } from '@src/shared/const/dashboard/chart'
-import {
-  ApplicationItem,
-  CategoryRatioItem,
-  RatioItem,
-  RecruitingRequest,
-  ServiceRatioItem,
-} from '@src/types/dashboard'
+import { ApplicationItem, CSVDataType } from '@src/types/dashboard'
 import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import {
   RecruitingRequestColumn,
@@ -32,31 +24,46 @@ import { useRouter } from 'next/router'
 import { getDateFormat, toCapitalize } from '@src/pages/dashboards/lpm'
 import TADLanguagePoolBarChart from '@src/views/dashboard/chart/languagePoolBar'
 
-import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
+import ChartDate from '@src/views/dashboard/header/chartDate'
 import OnboardingList from '@src/views/dashboard/list/onboarding'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import TADJobDataGrid from '@src/views/dashboard/dataGrid/jobAndRolePool'
 import Information from '@src/views/dashboard/dialog/information'
-import CSVDownload from '@src/views/dashboard/csvDownload'
-import { useQuery, useQueryClient } from 'react-query'
+import { CSVDownload } from '@src/views/dashboard/csvDownload'
+import { useQueryClient } from 'react-query'
 import {
   DashboardCountResult,
   DEFAULT_QUERY_NAME,
-  JobTypeAndRoleResult,
-  LanguagePoolResult,
-  OverviewType,
   TADOnboardingResult,
 } from '@src/queries/dashboard/dashnaord-lpm'
-import { TADHeader1, TADHeader2 } from '@src/shared/const/dashboard/csvTemplate'
-import onboarding from '@src/views/dashboard/list/onboarding'
 import Notice from '@src/views/dashboard/notice'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
+import find from 'lodash/find'
+import useStickyHeader from '@src/hooks/useStickyHeader'
 
 dayjs.extend(weekday)
+
+export const mergeData = (array1: Array<Object>, array2: Array<Object>) => {
+  let tempArray1 = array1
+  let tempArray2 = array2
+  if (array1.length === 0) {
+    tempArray1 = array2
+    tempArray2 = array1
+  }
+  return tempArray1.reduce<Array<Record<string, any>>>(
+    (acc, element, index) => [...acc, { ...element, ...tempArray2[index] }],
+    [],
+  )
+}
 
 const TADDashboards = () => {
   const router = useRouter()
   const cache = useQueryClient()
   const data = cache.getQueriesData([DEFAULT_QUERY_NAME])
+
+  const gloLanguage = getGloLanguage()
+  const { isSticky } = useStickyHeader()
+
   const { formHook, infoDialog } = UseDashboardControl()
   const { control, setValue, ...props } = formHook
   const { isShowInfoDialog, infoDialogKey, setOpenInfoDialog, close } =
@@ -67,17 +74,13 @@ const TADDashboards = () => {
     name: ['dateRange', 'userViewDate'],
   })
 
-  const [CSVData, setCSVData] = useState<Array<Record<string, number>>>([])
-
-  const mergeData = (
-    array1: Array<Record<string, Number | string>>,
-    array2: Array<Record<string, Number | string>>,
-  ) => {
-    return array1.reduce<Array<Record<string, any>>>(
-      (acc, element, index) => [...acc, { ...element, ...array2[index] }],
-      [],
-    )
-  }
+  const [CSVData, setCSVData] = useState<CSVDataType>([])
+  const [languagePool, setLanguagePool] = useState<CSVDataType>([])
+  const [jobTypeAndRole, setJobTypeAndRole] = useState<CSVDataType>([])
+  const [jobTypes, setJobTypes] = useState<CSVDataType>([])
+  const [roles, setRoles] = useState<CSVDataType>([])
+  const [sourceLanguages, setSourceLanguages] = useState<CSVDataType>([])
+  const [targetLanguages, setTargetLanguages] = useState<CSVDataType>([])
 
   useEffect(() => {
     const Onboarding = data.filter(item =>
@@ -88,89 +91,29 @@ const TADDashboards = () => {
       item[0].includes('ongoingCount'),
     )[0][1] as DashboardCountResult
 
-    const LanguagePool = data.filter(item =>
-      item[0].includes('LanguagePool'),
-    )[0][1] as LanguagePoolResult
-    const JobTypeAndRole = data.filter(item =>
-      item[0].includes('JobTypeAndRole'),
-    )[0][1] as JobTypeAndRoleResult
-
-    const ratios = data.filter(item => item[0].includes('ratio'))
-
-    const jobTypes = ratios.filter(item =>
-      item[0].includes('Applied job types'),
-    )[0][1] as { totalCount: number; count: number; report: Array<RatioItem> }
-    const roles = ratios.filter(item =>
-      item[0].includes('Applied roles'),
-    )[0][1] as { totalCount: number; count: number; report: Array<RatioItem> }
-    const sourceLanguages = ratios.filter(item =>
-      item[0].includes('Applied source languages'),
-    )[0][1] as { totalCount: number; count: number; report: Array<RatioItem> }
-    const targetLanguages = ratios.filter(item =>
-      item[0].includes('Applied target languages'),
-    )[0][1] as { totalCount: number; count: number; report: Array<RatioItem> }
-
-    const filterLanguage = LanguagePool.report.map(item => {
-      return {
-        'Source languages': item.sourceLanguage || '-',
-        'Target languages': item.targetLanguage || '-',
-        Number: item.count || 0,
-        Percent: item.ratio || 0,
-      }
-    })
-
-    const filterJobTypeAndRole = JobTypeAndRole.report.map(item => {
-      return {
-        'Job Type': item.jobType,
-        Role: item.role,
-        Number: item.count,
-        Percent: item.ratio,
-      }
-    })
-
-    const filterJobTypes = jobTypes.report.map(item => {
-      return {
-        'Applied job types': item.name || '',
-        'Applied job types Number': item.count,
-        'Applied job types Percent': item.ratio,
-      }
-    })
-
-    const filterRoles = roles.report.map(item => {
-      return {
-        'Applied roles': item.name || '',
-        'Applied roles Number': item.count,
-        'Applied roles Percent': item.ratio,
-      }
-    })
-
-    const filterSourceLanguages = sourceLanguages.report.map(item => {
-      return {
-        'Applied source languages': item.name || '',
-        'Applied source languages Number': item.count,
-        'Applied source languages Percent': item.ratio,
-      }
-    })
-
-    const filterTargetLanguages = targetLanguages.report.map(item => {
-      return {
-        'Applied target languages': item.name || '',
-        'Applied target languages Number': item.count,
-        'Applied target languages Percent': item.ratio,
-      }
-    })
-
-    const mergeData1 = mergeData(filterLanguage, filterJobTypeAndRole)
-    const mergeData2 = mergeData(mergeData1, filterJobTypes)
-    const mergeData3 = mergeData(mergeData2, filterRoles)
-    const mergeData4 = mergeData(mergeData3, filterSourceLanguages)
-    const mergeData5 = mergeData(mergeData4, filterTargetLanguages)
+    const fullLangPool = languagePool.map((item: any) => ({
+      ...item,
+      'Source languages':
+        find(gloLanguage, {
+          value: item['Source languages'],
+        })?.label || '-',
+      'Target languages':
+        find(gloLanguage, {
+          value: item['Target languages'],
+        })?.label || '-',
+    }))
+    const mergeData1 = mergeData(fullLangPool, jobTypeAndRole)
+    const mergeData2 = mergeData(mergeData1, jobTypes)
+    const mergeData3 = mergeData(mergeData2, roles)
+    const mergeData4 = mergeData(mergeData3, sourceLanguages)
+    const mergeData5 = mergeData(mergeData4, targetLanguages)
 
     mergeData5[0] = {
-      ...mergeData5[0],
       'Onboarded Pros': Onboarding?.onboarded || 0,
       'Onboarding in progress': Onboarding?.onboarding || 0,
       'Failed Pros': Onboarding?.failed || 0,
+      '        ': '',
+      ...mergeData5[0],
       'Application Status': 'Applied',
       'Application Status Number': OngoingCount.applied,
     }
@@ -190,17 +133,50 @@ const TADDashboards = () => {
       'Application Status Number': OngoingCount.failed,
     }
     setCSVData(mergeData5)
-  }, [])
+  }, [
+    languagePool,
+    jobTypeAndRole,
+    jobTypes,
+    roles,
+    sourceLanguages,
+    targetLanguages,
+  ])
+
+  const getFileTitle = () => {
+    const from = getDateFormat(
+      (Array.isArray(dateRange) && dateRange[0]) || null,
+    )
+    const to = getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)
+    return `tad-data-${from}-${to}`
+  }
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
         <Grid container gap='24px' sx={{ padding: '10px' }}>
           <Notice />
-          <ChartDateHeader />
-          <GridItem width={207} height={76}>
+          <Grid
+            component='div'
+            item
+            sm={!isSticky}
+            xs={isSticky ? 12 : undefined}
+            sx={{
+              position: 'sticky',
+              left: 0,
+              top: '148px',
+              zIndex: 10,
+              backgroundColor: '#fff',
+            }}
+          >
+            <ChartDate />
+          </Grid>
+          <GridItem
+            width={207}
+            height={76}
+            sx={{ display: isSticky ? 'none' : 'flex' }}
+          >
             <Box>
-              <CSVDownload data={CSVData} />
+              <CSVDownload title={`${getFileTitle()}`} data={CSVData} />
             </Box>
           </GridItem>
           <Grid container gap='24px'>
@@ -221,13 +197,16 @@ const TADDashboards = () => {
                   <Title
                     title='Recruiting requests'
                     openDialog={setOpenInfoDialog}
+                    handleClick={() => router.push('/recruiting/')}
                   />
                 </Box>
                 <DashboardDataGrid
                   path='recruiting/dashboard/recruiting/list/ongoing'
                   sectionHeight={220}
                   pageNumber={3}
-                  movePage={(id: number) => ''}
+                  movePage={params =>
+                    router.push(`/recruiting/detail/${params.id}/`)
+                  }
                   columns={RecruitingRequestColumn}
                 />
               </Box>
@@ -235,25 +214,33 @@ const TADDashboards = () => {
           </Grid>
           <Grid container gap='24px'>
             <GridItem width={490} height={496}>
-              <TADLanguagePoolBarChart setOpenInfoDialog={setOpenInfoDialog} />
+              <TADLanguagePoolBarChart
+                setOpenInfoDialog={setOpenInfoDialog}
+                dataRecord={languagePool}
+                setDataRecord={setLanguagePool}
+              />
             </GridItem>
             <GridItem sm height={496} padding='0'>
-              <TADJobDataGrid setOpenInfoDialog={setOpenInfoDialog} />
+              <TADJobDataGrid
+                setOpenInfoDialog={setOpenInfoDialog}
+                dataRecord={jobTypeAndRole}
+                setDataRecord={setJobTypeAndRole}
+              />
             </GridItem>
           </Grid>
           <StatusAndDataGrid<ApplicationItem>
             userViewDate={userViewDate}
             type='application'
             movePage={() => router.push('/onboarding')}
-            // moveDetailPage={params =>
-            //   //TODO : 이동하면 에러남 ID 값 확인해봐야 함
-            //   router.push(`/onboarding/detail/${params.id}/`)
-            // }
+            moveDetailPage={params =>
+              //TODO : 이동하면 에러남 ID 값 확인해봐야 함
+              router.push(`/onboarding/detail/${params.id}/`)
+            }
             statusColumn={StatusApplicationColumns}
             initSort={[
               {
                 field: 'status',
-                sort: 'desc',
+                sort: 'asc',
               },
             ]}
             from={getDateFormat(
@@ -279,6 +266,8 @@ const TADDashboards = () => {
               type='job-type'
               colors={Colors}
               setOpenInfoDialog={setOpenInfoDialog}
+              dataRecord={jobTypes}
+              setDataRecord={setJobTypes}
               isHiddenValue={true}
             />
             <Doughnut
@@ -294,6 +283,8 @@ const TADDashboards = () => {
               type='role'
               colors={ThirdColors}
               setOpenInfoDialog={setOpenInfoDialog}
+              dataRecord={roles}
+              setDataRecord={setRoles}
               isHiddenValue={true}
             />
           </Grid>
@@ -311,7 +302,9 @@ const TADDashboards = () => {
               type='source-language'
               colors={SecondColors}
               setOpenInfoDialog={setOpenInfoDialog}
-              getName={row => `${toCapitalize(row?.name || '')}`}
+              dataRecord={sourceLanguages}
+              setDataRecord={setSourceLanguages}
+              getName={row => `${row?.name}`.toUpperCase()}
               isHiddenValue={true}
             />
 
@@ -327,8 +320,10 @@ const TADDashboards = () => {
               )}
               type='target-language'
               colors={SecondColors}
-              getName={row => `${toCapitalize(row?.name || '')}`}
+              getName={row => `${row?.name}`.toUpperCase()}
               setOpenInfoDialog={setOpenInfoDialog}
+              dataRecord={targetLanguages}
+              setDataRecord={setTargetLanguages}
               isHiddenValue={true}
             />
           </Grid>
@@ -348,5 +343,5 @@ export default TADDashboards
 
 TADDashboards.acl = {
   action: 'read',
-  subject: 'client',
+  subject: 'dashboard_TAD',
 }

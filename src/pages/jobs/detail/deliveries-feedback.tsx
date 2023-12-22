@@ -21,7 +21,7 @@ import {
   FileName,
 } from '@src/pages/invoice/receivable/detail/components/invoice-info'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FileType } from '@src/types/common/file.type'
 import { JobsFileType, ProJobDetailType } from '@src/types/jobs/jobs.type'
@@ -67,7 +67,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
 
   const { data, refetch } = useGetProJobDeliveriesFeedbacks(jobInfo.id)
 
-  const [ isFileUploading, setIsFileUploading ] = useState<boolean>(false)
+  const [isFileUploading, setIsFileUploading] = useState<boolean>(false)
   const updateDeliveries = useMutation(
     (params: {
       jobId: number
@@ -218,7 +218,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      ...srtUploadFileExtension.accept
+      ...srtUploadFileExtension.accept,
     },
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files
@@ -381,10 +381,11 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
 
   return (
     <Grid container xs={12} spacing={4}>
-      {(patchFeedbackCheckMutation.isLoading ||
-        updateDeliveries.isLoading ||
-        isFileUploading) ?
-        <OverlaySpinner /> : null }
+      {patchFeedbackCheckMutation.isLoading ||
+      updateDeliveries.isLoading ||
+      isFileUploading ? (
+        <OverlaySpinner />
+      ) : null}
       <Grid item xs={8.75}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <Card
@@ -542,14 +543,20 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
               >
                 <Button
                   variant='outlined'
-                  disabled={(withoutFiles ? files.length > 0 : files.length < 1) || jobInfo.status === 601000}
+                  disabled={
+                    (withoutFiles ? files.length > 0 : files.length < 1) ||
+                    jobInfo.status === 601000
+                  }
                   onClick={onClickPartialDelivery}
                 >
                   Partial delivery
                 </Button>
                 <Button
                   variant='contained'
-                  disabled={(withoutFiles ? files.length > 0 : files.length < 1) || jobInfo.status === 601000}
+                  disabled={
+                    (withoutFiles ? files.length > 0 : files.length < 1) ||
+                    jobInfo.status === 601000
+                  }
                   onClick={onClickFinalDelivery}
                 >
                   Final delivery

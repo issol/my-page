@@ -18,7 +18,7 @@ const NoRatio = ({ title }: { title: string }) => {
   )
 }
 
-const DataList = styled('ul')(() => {
+export const DataList = styled('ul')(() => {
   return {
     '& > .circle': {
       position: 'relative',

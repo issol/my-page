@@ -23,6 +23,17 @@ import AppBarContent from './components/horizontal/app-bar-content'
 
 // ** Util Import
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
+import { useEffect, useRef } from 'react'
+import HorizontalNavItems from '@src/navigation/horizontal'
+import {
+  CLIENTMenu,
+  LPMMenu,
+  PROMenu,
+  TADMenu,
+} from '@src/shared/const/menu/menu'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { useRecoilValueLoadable } from 'recoil'
+import { currentRoleSelector, permissionState } from '@src/states/permission'
 
 const HorizontalLayoutWrapper = styled('div')({
   height: '100%',
@@ -77,9 +88,15 @@ const HorizontalLayout = (props: LayoutProps) => {
   } = props
 
   // ** Vars
+  const ref = useRef<HTMLElement>(null)
   const { skin, appBar, navHidden, appBarBlur, contentWidth } = settings
   const appBarProps = horizontalLayoutProps?.appBar?.componentProps
   const userNavMenuContent = horizontalLayoutProps?.navMenu?.content
+
+  const currentRoleStorage = getCurrentRole()
+
+  const currentRoleState = useRecoilValueLoadable(currentRoleSelector)
+  const permission = useRecoilValueLoadable(permissionState)
 
   let userAppBarStyle = {}
   if (appBarProps && appBarProps.sx) {
@@ -88,9 +105,33 @@ const HorizontalLayout = (props: LayoutProps) => {
   const userAppBarProps = Object.assign({}, appBarProps)
   delete userAppBarProps.sx
 
+  // TODO : 임시 배경색 넣어둔 부분 - 차후 삭제할 것
+  useEffect(() => {
+    const current =
+      currentRoleState.state === 'hasValue'
+        ? currentRoleState.getValue()
+        : currentRoleStorage
+        ? currentRoleStorage
+        : null
+
+    if (permission.state === 'hasValue' && current) {
+      switch (current.name) {
+        case 'PRO':
+          ref?.current?.classList.add('pro_bg')
+          break
+        case 'CLIENT':
+          ref?.current?.classList.add('client_bg')
+          break
+        default:
+          break
+      }
+    }
+  }, [permission, currentRoleState])
+
   return (
     <HorizontalLayoutWrapper className='layout-wrapper'>
       <MainContentWrapper
+        ref={ref}
         className='layout-content-wrapper'
         sx={{ ...(contentHeightFixed && { maxHeight: '100vh' }) }}
       >

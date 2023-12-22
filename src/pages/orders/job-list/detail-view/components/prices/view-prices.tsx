@@ -26,7 +26,7 @@ import {
 import Row from './row'
 import PriceHistoryRow from './price-history-row'
 import languageHelper from '@src/shared/helpers/language.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { boolean } from 'yup'
 import {
   JobPricesDetailType,
@@ -36,6 +36,7 @@ import ProjectInfo from '@src/pages/orders/order-list/detail/components/project-
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   row: JobType
@@ -101,6 +102,7 @@ const ViewPrices = ({
   jobPriceHistory,
 }: Props) => {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: 7,
@@ -181,9 +183,10 @@ const ViewPrices = ({
                 Date&Time
               </Typography>
               <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                {FullDateTimezoneHelper(
+                {convertTimeToTimezone(
                   priceHistory.historyAt,
                   auth.getValue().user?.timezone,
+                  timezone.getValue(),
                 )}
               </Typography>
             </Box>
@@ -292,9 +295,10 @@ const ViewPrices = ({
                 </Typography>
                 <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
                   {/* TODO: pro가 assign된 시간, 타임존 정보 필요함 */}
-                  {FullDateTimezoneHelper(
+                  {convertTimeToTimezone(
                     row.historyAt,
                     auth.getValue().user?.timezone,
+                    timezone.getValue(),
                   )}
                 </Typography>
               </Box>

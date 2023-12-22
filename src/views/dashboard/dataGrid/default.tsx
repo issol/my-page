@@ -8,8 +8,9 @@ import {
 } from '@mui/x-data-grid'
 import React, { Dispatch, useState } from 'react'
 import NoList from '@src/pages/components/no-list'
+import styled from '@emotion/styled'
 
-interface DefaultDataGridProps {
+interface DefaultDataGridProps<T extends { id: number; orderId?: number }> {
   title: string
   data?: { data: Array<any>; totalCount: number; count: number }
   columns: GridColumns
@@ -24,7 +25,7 @@ interface DefaultDataGridProps {
   ) => void
 }
 
-const DefaultDataGrid = ({
+const DefaultDataGrid = <T extends { id: number; orderId?: number }>({
   title,
   data,
   columns,
@@ -33,13 +34,12 @@ const DefaultDataGrid = ({
   setSortModel,
   setSkip,
   onRowClick,
-}: DefaultDataGridProps) => {
+}: DefaultDataGridProps<T>) => {
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(defaultPageSize)
 
   return (
-    <DataGrid
-      autoHeight
+    <CustomDataGrid
       initialState={{
         sorting: { sortModel },
       }}
@@ -65,5 +65,13 @@ const DefaultDataGrid = ({
     />
   )
 }
+
+const CustomDataGrid = styled(DataGrid)(() => {
+  return {
+    '& .MuiDataGrid-row': {
+      cursor: 'pointer',
+    },
+  }
+})
 
 export default DefaultDataGrid

@@ -8,12 +8,13 @@ import {
 } from '@src/@core/components/chips/chips'
 
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 import { formatCurrency } from '@src/shared/helpers/price.helper'
+import { timezoneSelector } from '@src/states/permission'
 import { QuotesListType } from '@src/types/common/quotes.type'
 
-import { Loadable } from 'recoil'
+import { Loadable, useRecoilValueLoadable } from 'recoil'
 
 type QuotesListCellType = {
   row: QuotesListType
@@ -27,6 +28,7 @@ export const getQuoteListColumns = (
     loading: boolean
   }>,
 ) => {
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const columns: GridColumns<QuotesListType> = [
     {
       field: 'corporationId',
@@ -171,9 +173,10 @@ export const getQuoteListColumns = (
       renderCell: ({ row }: QuotesListCellType) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.quoteDate,
               auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )
@@ -197,11 +200,10 @@ export const getQuoteListColumns = (
       renderCell: ({ row }: QuotesListCellType) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               role.name === 'CLIENT' ? row.estimatedAt : row.quoteDeadline,
-              role.name === 'CLIENT'
-                ? row.estimatedTimezone
-                : row.quoteDeadlineTimezone,
+              auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )
@@ -221,11 +223,10 @@ export const getQuoteListColumns = (
       renderCell: ({ row }: QuotesListCellType) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               role.name === 'CLIENT' ? row.projectDueAt : row.quoteExpiryDate,
-              role.name === 'CLIENT'
-                ? row.projectDueTimezone
-                : row.quoteExpiryDateTimezone,
+              auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )

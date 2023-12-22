@@ -14,10 +14,17 @@ import {
 } from '@mui/material'
 import { countries } from '@src/@fake-db/autocomplete'
 import { UserDataType } from '@src/context/types'
+import MuiPhone from '@src/pages/components/phone/mui-phone'
+
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import { timezoneSelector } from '@src/states/permission'
 import { CountryType, ManagerInfo } from '@src/types/sign/personalInfoTypes'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Control,
   Controller,
@@ -25,6 +32,7 @@ import {
   UseFormReset,
   UseFormWatch,
 } from 'react-hook-form'
+import { useRecoilValueLoadable } from 'recoil'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -53,6 +61,28 @@ const Contracts = ({
   onClickSave,
   onClickCancel,
 }: Props) => {
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
+
   return (
     <Card sx={{ padding: '24px' }}>
       {edit ? (
@@ -196,7 +226,7 @@ const Contracts = ({
                   <Autocomplete
                     fullWidth
                     value={value || { code: '', label: '', phone: '' }}
-                    options={countries as CountryType[]}
+                    options={timeZoneList as CountryType[]}
                     onChange={(e, v) => {
                       // console.log(value)
 
@@ -205,7 +235,7 @@ const Contracts = ({
                     }}
                     renderOption={(props, option) => (
                       <Box component='li' {...props} key={uuidv4()}>
-                        {getGmtTimeEng(option.code)}
+                        {timeZoneFormatter(option, timezone.getValue())}
                       </Box>
                     )}
                     renderInput={params => (
@@ -215,12 +245,27 @@ const Contracts = ({
                         // error={Boolean(errors.dueTimezone)}
                       />
                     )}
-                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+                    getOptionLabel={option =>
+                      timeZoneFormatter(option, timezone.getValue()) ?? ''
+                    }
                   />
                 )}
               />
             </Grid>
             <Grid item xs={6}>
+              <Controller
+                name='mobilePhone'
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <MuiPhone
+                    value={value || ''}
+                    onChange={onChange}
+                    label={'Mobile phone'}
+                  />
+                )}
+              />
+            </Grid>
+            {/* <Grid item xs={6}>
               <Controller
                 name='mobilePhone'
                 control={control}
@@ -252,36 +297,16 @@ const Contracts = ({
                   />
                 )}
               />
-            </Grid>
+            </Grid> */}
             <Grid item xs={6}>
               <Controller
                 name='telephone'
                 control={control}
                 render={({ field: { onChange, value } }) => (
-                  <TextField
-                    fullWidth
+                  <MuiPhone
                     value={value || ''}
-                    placeholder={
-                      !watch('timezone')?.phone
-                        ? `+ 1) 012 345 6789`
-                        : `012 345 6789`
-                    }
-                    onChange={e => {
-                      if (isInvalidPhoneNumber(e.target.value)) return
-                      onChange(e)
-                    }}
-                    InputProps={{
-                      startAdornment: watch('timezone') &&
-                        watch('timezone').phone && (
-                          <InputAdornment position='start'>
-                            {'+' + watch('timezone').phone}
-                          </InputAdornment>
-                        ),
-                      inputProps: {
-                        maxLength: 50,
-                      },
-                    }}
-                    label='Telephone'
+                    onChange={onChange}
+                    label={'Telephone'}
                   />
                 )}
               />
@@ -291,30 +316,10 @@ const Contracts = ({
                 name='fax'
                 control={control}
                 render={({ field: { onChange, value } }) => (
-                  <TextField
-                    fullWidth
+                  <MuiPhone
                     value={value || ''}
-                    placeholder={
-                      !watch('timezone')?.phone
-                        ? `+ 1) 012 345 6789`
-                        : `012 345 6789`
-                    }
-                    onChange={e => {
-                      if (isInvalidPhoneNumber(e.target.value)) return
-                      onChange(e)
-                    }}
-                    InputProps={{
-                      startAdornment: watch('timezone') &&
-                        watch('timezone').phone && (
-                          <InputAdornment position='start'>
-                            {'+' + watch('timezone').phone}
-                          </InputAdornment>
-                        ),
-                      inputProps: {
-                        maxLength: 50,
-                      },
-                    }}
-                    label='Fax'
+                    onChange={onChange}
+                    label={'Fax'}
                   />
                 )}
               />
@@ -386,7 +391,7 @@ const Contracts = ({
               >
                 <Icon icon='mdi:earth' style={{ opacity: '0.7' }} />
                 <LabelTitle>Timezone:</LabelTitle>
-                <Label>{getGmtTimeEng(userInfo.timezone?.code) || '-'}</Label>
+                <Label>{userInfo.timezone?.label || '-'}</Label>
               </Box>
             </Box>
             <Box sx={{ display: 'flex' }}>
@@ -403,10 +408,9 @@ const Contracts = ({
                 <Label>
                   {!userInfo.mobilePhone
                     ? '-'
-                    : '+' +
-                      userInfo.timezone.phone +
-                      ') ' +
-                      userInfo.mobilePhone}
+                    : contryCodeAndPhoneNumberFormatter(
+                        splitContryCodeAndPhoneNumber(userInfo.mobilePhone),
+                      )}
                 </Label>
               </Box>
               <Box
@@ -422,7 +426,9 @@ const Contracts = ({
                 <Label>
                   {!userInfo.telephone
                     ? '-'
-                    : '+' + userInfo.timezone.phone + ') ' + userInfo.telephone}
+                    : contryCodeAndPhoneNumberFormatter(
+                        splitContryCodeAndPhoneNumber(userInfo.telephone),
+                      )}
                 </Label>
               </Box>
             </Box>
@@ -440,7 +446,9 @@ const Contracts = ({
                 <Label>
                   {!userInfo.fax
                     ? '-'
-                    : '+' + userInfo.timezone.phone + ') ' + userInfo.fax}
+                    : contryCodeAndPhoneNumberFormatter(
+                        splitContryCodeAndPhoneNumber(userInfo.fax),
+                      )}
                 </Label>
               </Box>
             </Box>

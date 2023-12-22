@@ -27,7 +27,7 @@ import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInpu
 import dayjs from 'dayjs'
 import { countries } from '@src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import CustomCheckbox from '@src/@core/components/custom-checkbox/basic'
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { FileType } from '@src/types/common/file.type'
@@ -70,6 +70,9 @@ import { log } from 'npmlog'
 import { FormErrors } from '@src/shared/const/formErrors'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
+
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   row: JobType
@@ -136,6 +139,27 @@ const EditJobInfo = ({
     }[]
   >([])
   const [isFileUploading, setIsFileUploading] = useState<boolean>(false)
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
 
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
@@ -210,7 +234,7 @@ const EditJobInfo = ({
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      ...srtUploadFileExtension.accept
+      ...srtUploadFileExtension.accept,
     },
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files
@@ -789,13 +813,15 @@ const EditJobInfo = ({
                   <Autocomplete
                     fullWidth
                     disabled={Boolean(row.pro)}
-                    value={value || null}
-                    options={countries as CountryType[]}
+                    value={value || { code: '', label: '', phone: '' }}
+                    options={timeZoneList as CountryType[]}
                     onChange={(e, v) => onChange(v)}
-                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+                    getOptionLabel={option =>
+                      timeZoneFormatter(option, timezone.getValue()) ?? ''
+                    }
                     renderOption={(props, option) => (
                       <Box component='li' {...props} key={uuidv4()}>
-                        {getGmtTimeEng(option.code)}
+                        {timeZoneFormatter(option, timezone.getValue())}
                       </Box>
                     )}
                     renderInput={params => (
@@ -853,15 +879,15 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
                     fullWidth
-                    value={value || null}
-                    options={countries as CountryType[]}
+                    value={value || { code: '', label: '', phone: '' }}
+                    options={timeZoneList as CountryType[]}
                     onChange={(e, v) => {
                       if (!v) onChange(null)
                       else onChange(v)
                     }}
                     renderOption={(props, option) => (
                       <Box component='li' {...props} key={uuidv4()}>
-                        {getGmtTimeEng(option.code)}
+                        {timeZoneFormatter(option, timezone.getValue())}
                       </Box>
                     )}
                     renderInput={params => (
@@ -871,7 +897,9 @@ const EditJobInfo = ({
                         error={Boolean(errors.dueTimezone)}
                       />
                     )}
-                    getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+                    getOptionLabel={option =>
+                      timeZoneFormatter(option, timezone.getValue()) ?? ''
+                    }
                   />
                 )}
               />

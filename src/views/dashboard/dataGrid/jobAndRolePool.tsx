@@ -4,17 +4,23 @@ import styled from 'styled-components'
 import { useJobType } from '@src/queries/dashboard/dashnaord-lpm'
 import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { useRouter } from 'next/router'
+import { CSVDataRecordProps } from '@src/types/dashboard'
 
-interface TADJobDataGridProps {
+interface TADJobDataGridProps extends CSVDataRecordProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
-const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
+const TADJobDataGrid = ({
+  dataRecord,
+  setDataRecord,
+  setOpenInfoDialog,
+}: TADJobDataGridProps) => {
   const router = useRouter()
   const [filter, setFilter] = useState<'jobType' | 'role' | 'pair'>('pair')
+  const [page, setPage] = useState(0)
 
   const { data } = useJobType(filter)
 
@@ -24,6 +30,36 @@ const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
     if (filter === 'pair') return 'Job type/Role pool'
   }
 
+  useEffect(() => {
+    const filterJobTypeAndRole = data?.report.map(item => {
+      if (filter === 'pair') {
+        return {
+          'Job Type': item.jobType,
+          Role: item.role,
+          Number: item.count,
+          Percent: item.ratio,
+          '   ': '',
+        }
+      }
+      if (filter === 'role') {
+        return {
+          Role: item.role,
+          Number: item.count,
+          Percent: item.ratio,
+          '   ': '',
+        }
+      }
+      return {
+        'Job Type': item.jobType,
+        Number: item.count,
+        Percent: item.ratio,
+        '   ': '',
+      }
+    })
+
+    setDataRecord(filterJobTypeAndRole || [])
+  }, [filter])
+
   return (
     <Box sx={{ width: '100%', height: '100%', marginTop: '20px' }}>
       <Box
@@ -32,42 +68,47 @@ const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
         sx={{ padding: '20px 20px 10px' }}
       >
         <Title
-          title={`${getTitle()}`}
-          subTitle={`Total ${data?.totalCount || 0} Job type/Role`}
+          title='Job type/Role pool'
+          subTitle={`Total ${data?.totalCount || 0} ${getTitle()}`}
           openDialog={setOpenInfoDialog}
           handleClick={() => router.push('/pro')}
         />
-        <OptionsMenu
-          iconButtonProps={{ size: 'small', className: 'card-more-options' }}
-          options={[
-            {
-              text: 'Job type/Role',
-              menuItemProps: {
-                onClick: () => {
-                  setFilter('pair')
+        <Box>
+          <OptionsMenu
+            iconButtonProps={{ size: 'small', className: 'card-more-options' }}
+            options={[
+              {
+                text: 'Job type/Role',
+                menuItemProps: {
+                  onClick: () => {
+                    setFilter('pair')
+                    setPage(0)
+                  },
                 },
               },
-            },
-            {
-              text: 'Job types',
-              menuItemProps: {
-                onClick: () => {
-                  setFilter('jobType')
+              {
+                text: 'Job types',
+                menuItemProps: {
+                  onClick: () => {
+                    setFilter('jobType')
+                    setPage(0)
+                  },
                 },
               },
-            },
-            {
-              text: 'Roles',
-              menuItemProps: {
-                onClick: () => {
-                  setFilter('role')
+              {
+                text: 'Roles',
+                menuItemProps: {
+                  onClick: () => {
+                    setFilter('role')
+                    setPage(0)
+                  },
                 },
               },
-            },
-          ]}
-        />
+            ]}
+          />
+        </Box>
       </Box>
-      <div style={{ height: '400px', width: '100%' }}>
+      <div style={{ height: `calc(100% - 105px)`, width: '100%' }}>
         <CustomDataGrid
           columns={JobTableColumn}
           rows={(data?.report || []).map((item, index) => ({
@@ -75,8 +116,10 @@ const TADJobDataGrid = ({ setOpenInfoDialog }: TADJobDataGridProps) => {
             numbering: index + 1,
             ...item,
           }))}
-          rowCount={data?.totalCount || 0}
+          page={page}
+          onPageChange={() => setPage(page + 1)}
           pageSize={7}
+          rowCount={data?.totalCount || 0}
           rowsPerPageOptions={[]}
         />
       </div>

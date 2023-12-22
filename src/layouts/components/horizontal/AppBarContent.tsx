@@ -172,7 +172,15 @@ const AppBarContent = (props: Props) => {
           </Button>
         </Box>
       ) : (
-        <UserDropdown settings={settings} />
+        <Box>
+          {!process.env.NEXT_PUBLIC_DISPLAY_MODE
+            ? 'local'
+            : process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Development' || process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Test'
+              ? process.env.NEXT_PUBLIC_DISPLAY_MODE
+              : null
+          }
+          <UserDropdown settings={settings} />
+        </Box>
       )}
     </Box>
   )

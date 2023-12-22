@@ -15,6 +15,8 @@ import {
 import { JobTypeChip } from '@src/@core/components/chips/chips'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import styled from 'styled-components'
+import { authState } from '@src/states/auth'
+import { useRecoilValueLoadable } from 'recoil'
 
 // ** values
 import { QuotesStatus } from '@src/shared/const/status/statuses'
@@ -22,7 +24,7 @@ import { ProjectInfoType, QuoteStatusType } from '@src/types/common/quotes.type'
 import { Fragment, useEffect, useState } from 'react'
 import {
   FullDateHelper,
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
 } from '@src/shared/helpers/date.helper'
 import { QuoteStatusChip } from '@src/@core/components/chips/chips'
 import { UserRoleType } from '@src/context/types'
@@ -44,6 +46,7 @@ import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modal
 
 import _ from 'lodash'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   project: ProjectInfoType | undefined
@@ -75,6 +78,8 @@ export default function QuotesProjectInfoDetail({
   updateProject,
   statusList,
 }: Props) {
+  const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [contactPersonEdit, setContactPersonEdit] = useState(false)
   const { openModal, closeModal } = useModal()
 
@@ -272,9 +277,10 @@ export default function QuotesProjectInfoDetail({
               <CustomTypo fontWeight={600}>Quote date</CustomTypo>
               <CustomTypo variant='body2'>
                 {/* {FullDateHelper(project.quoteDate)} */}
-                {FullDateTimezoneHelper(
+                {convertTimeToTimezone(
                   project.quoteDate,
-                  project.quoteDateTimezone,
+                  auth.getValue().user?.timezone!,
+                  timezone.getValue(),
                 )}
               </CustomTypo>
             </LabelContainer>
@@ -657,9 +663,10 @@ export default function QuotesProjectInfoDetail({
                     Estimated delivery date
                   </CustomTypo>
                   <CustomTypo variant='body2'>
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.estimatedAt,
-                      project.estimatedTimezone,
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -668,9 +675,10 @@ export default function QuotesProjectInfoDetail({
                 <LabelContainer>
                   <CustomTypo fontWeight={600}>Project due date</CustomTypo>
                   <CustomTypo variant='body2'>
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.projectDueAt,
-                      project.projectDueTimezone,
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -679,9 +687,10 @@ export default function QuotesProjectInfoDetail({
                 <LabelContainer>
                   <CustomTypo fontWeight={600}>Quote expiry date</CustomTypo>
                   <CustomTypo variant='body2'>
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.quoteExpiryDate,
-                      project.quoteExpiryDateTimezone,
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -693,9 +702,10 @@ export default function QuotesProjectInfoDetail({
                 <LabelContainer>
                   <CustomTypo fontWeight={600}>Quote deadline</CustomTypo>
                   <CustomTypo variant='body2'>
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.quoteDeadline,
-                      project.quoteDeadlineTimezone,
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -704,9 +714,10 @@ export default function QuotesProjectInfoDetail({
                 <LabelContainer>
                   <CustomTypo fontWeight={600}>Quote expiry date</CustomTypo>
                   <CustomTypo variant='body2'>
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.quoteExpiryDate,
-                      project.quoteExpiryDateTimezone,
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -717,9 +728,10 @@ export default function QuotesProjectInfoDetail({
                     Estimated delivery date
                   </CustomTypo>
                   <CustomTypo variant='body2'>
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.estimatedAt,
-                      project.estimatedTimezone,
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>
@@ -728,9 +740,10 @@ export default function QuotesProjectInfoDetail({
                 <LabelContainer>
                   <CustomTypo fontWeight={600}>Project due date</CustomTypo>
                   <CustomTypo variant='body2'>
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.projectDueAt,
-                      project.projectDueTimezone,
+                      auth.getValue().user?.timezone!,
+                      timezone.getValue(),
                     )}
                   </CustomTypo>
                 </LabelContainer>

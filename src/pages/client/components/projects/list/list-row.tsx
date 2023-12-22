@@ -22,8 +22,10 @@ import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { ClientProjectListType } from '@src/types/client/client-projects.type'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 export default function ClientProjectsRows(props: {
   row: ClientProjectListType
@@ -33,6 +35,7 @@ export default function ClientProjectsRows(props: {
   isSelected: (index: number) => boolean
 }) {
   const { row, user, selected, handleRowClick, isSelected } = props
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
   const separateLine = () => {
@@ -204,7 +207,11 @@ export default function ClientProjectsRows(props: {
           size='small'
         >
           <Typography variant='body1'>
-            {FullDateTimezoneHelper(row.dueDate, user.timezone)}
+            {convertTimeToTimezone(
+              row.dueDate,
+              user.timezone,
+              timezone.getValue(),
+            )}
           </Typography>
         </TableCell>
         {separateLine()}
@@ -232,7 +239,11 @@ export default function ClientProjectsRows(props: {
               <Grid item xs={3.2}>
                 <Title>Order date</Title>
                 <Desc>
-                  {FullDateTimezoneHelper(row.orderDate, user.timezone)}
+                  {convertTimeToTimezone(
+                    row.orderDate,
+                    user.timezone,
+                    timezone.getValue(),
+                  )}
                 </Desc>
               </Grid>
               <Grid item xs={3}>

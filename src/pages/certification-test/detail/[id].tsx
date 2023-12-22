@@ -12,7 +12,7 @@ import { useContext, useEffect, useState, Fragment } from 'react'
 import Divider from '@mui/material/Divider'
 import CustomChip from 'src/@core/components/mui/chip'
 
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import { convertFromRaw, EditorState } from 'draft-js'
 import _ from 'lodash'
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -49,6 +49,7 @@ import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: CurrentTestType
@@ -60,6 +61,7 @@ const CertificationTestDetail = () => {
   const id = Number(router.query.id)
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const ability = useContext(AbilityContext)
   const { setModal } = useContext(ModalContext)
 
@@ -157,9 +159,10 @@ const CertificationTestDetail = () => {
         if (auth.state === 'hasValue') {
           return (
             <Box>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row.updatedAt,
                 auth.getValue().user?.timezone!,
+                timezone.getValue(),
               )}
             </Box>
           )
@@ -553,9 +556,10 @@ const CertificationTestDetail = () => {
                           }}
                         >
                           <Typography variant='body2'>
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               currentRow.updatedAt,
                               auth.getValue().user?.timezone!,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>
@@ -839,9 +843,10 @@ const CertificationTestDetail = () => {
                         }}
                       >
                         <Typography variant='body2'>
-                          {FullDateTimezoneHelper(
+                          {convertTimeToTimezone(
                             currentVersion?.updatedAt,
                             auth.getValue().user?.timezone!,
+                            timezone.getValue(),
                           )}
                         </Typography>
                       </Box>

@@ -14,7 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** data
 import { ClientStatus } from '@src/shared/const/status/statuses'
@@ -49,8 +49,12 @@ import { getTypeList } from '@src/shared/transformer/type.transformer'
 import styled from 'styled-components'
 import { DatePickerDefaultOptions } from '@src/shared/const/datePicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { FormErrors } from '@src/shared/const/formErrors'
+import MuiPhone from '@src/pages/components/phone/mui-phone'
+
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   mode: 'create' | 'update'
@@ -70,9 +74,27 @@ export default function CompanyInfoForm({
 }: Props) {
   const clientType: Array<ClientType> = ['Company', 'Mr', 'Ms']
   const country = getTypeList('CountryCode')
-  const timezone = watch('timezone')
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
-  console.log(timezone)
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
 
   // console.log('errors', errors)
   function renderCompanyTypeBtn(
@@ -111,27 +133,10 @@ export default function CompanyInfoForm({
           control={control}
           rules={{ required: false }}
           render={({ field: { value, onChange } }) => (
-            <TextField
-              fullWidth
-              label={label}
-              variant='outlined'
-              value={value ?? ''}
-              onChange={e => {
-                if (isInvalidPhoneNumber(e.target.value)) return
-                onChange(e)
-              }}
-              inputProps={{ maxLength: 50 }}
-              error={Boolean(errors[key])}
-              placeholder={
-                !watch('timezone')?.phone ? `+ 1) 012 345 6789` : `012 345 6789`
-              }
-              InputProps={{
-                startAdornment: watch('timezone')?.phone && (
-                  <InputAdornment position='start'>
-                    {'+' + watch('timezone')?.phone}
-                  </InputAdornment>
-                ),
-              }}
+            <MuiPhone
+              value={(value as string) || ''}
+              onChange={onChange}
+              label={'Mobile phone'}
             />
           )}
         />
@@ -249,8 +254,8 @@ export default function CompanyInfoForm({
           render={({ field: { onChange, value } }) => (
             <Autocomplete
               fullWidth
-              value={value ?? undefined}
-              options={countries as CountryType[]}
+              value={value || { code: '', label: '', phone: '' }}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => {
                 if (v) {
                   onChange(v)
@@ -258,10 +263,12 @@ export default function CompanyInfoForm({
                   onChange(undefined)
                 }
               }}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (

@@ -18,6 +18,7 @@ import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useQueryClient } from 'react-query'
+import { timezoneSelector } from '@src/states/permission'
 
 const defaultValues: TestMaterialFilterType = {
   testType: [],
@@ -30,6 +31,7 @@ const defaultValues: TestMaterialFilterType = {
 const CertificationTest = () => {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const queryClient = useQueryClient()
 
@@ -162,6 +164,7 @@ const CertificationTest = () => {
             setFilters={setFilters}
             router={router}
             user={auth.getValue().user!}
+            timezoneList={timezone.getValue()}
           />
         </Grid>
       )}

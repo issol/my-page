@@ -57,12 +57,16 @@ type Props = {
     value: number
   }>
   auth: {
-    user: UserDataType | null;
-    company: ClientUserType | null | undefined;
-    loading: boolean;
+    user: UserDataType | null
+    company: ClientUserType | null | undefined
+    loading: boolean
   }
   editInfo: boolean
   setEditInfo: (n: boolean) => void
+  isDeletable: boolean
+  onClickDelete?: () => void
+  isAccountInfoUpdatable: boolean
+  onMarkAsPaidClick?: () => void
 }
 export default function InvoiceInfo({
   payableId,
@@ -74,6 +78,10 @@ export default function InvoiceInfo({
   auth,
   editInfo,
   setEditInfo,
+  isDeletable,
+  onClickDelete,
+  isAccountInfoUpdatable,
+  onMarkAsPaidClick,
 }: Props) {
   const queryClient = useQueryClient()
 
@@ -215,7 +223,44 @@ export default function InvoiceInfo({
           </Card>
         </Grid>
       )}
-      
+      {!isDeletable || editInfo ? null : (
+        <Grid item xs={4}>
+          <Card sx={{ padding: '20px', width: '100%' }}>
+            <CardContent>
+              <Button
+                variant='outlined'
+                fullWidth
+                color='error'
+                size='large'
+                onClick={() => onClickDelete && onClickDelete()}
+                disabled={
+                  ![40000, 40100, 40200, 40400].includes(data?.invoiceStatus!)
+                }
+              >
+                Delete this invoice
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+      )}
+      {!isAccountInfoUpdatable || editInfo ? null : (
+        <Grid item xs={4}>
+          <Card sx={{ padding: '20px', width: '100%' }}>
+            <Button
+              variant='contained'
+              fullWidth
+              size='large'
+              disabled={
+                // !isUpdatable ||
+                ![40000, 40200, 40400].includes(data?.invoiceStatus!)
+              }
+              onClick={() => onMarkAsPaidClick && onMarkAsPaidClick()}
+            >
+              Mark as paid
+            </Button>
+          </Card>
+        </Grid>
+      )}
     </Grid>
   )
 }

@@ -1,4 +1,10 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 import styled from '@emotion/styled'
@@ -6,75 +12,109 @@ import { Box, Typography } from '@mui/material'
 
 import dayjs from 'dayjs'
 import { useTheme } from '@mui/material/styles'
+import { CurrencyByDateListProps } from '@src/views/dashboard/list/currencyByDate'
 
-const series = [
-  {
-    name: 'PRODUCT A',
-    data: [44, 55, 41, 67, 22, 43],
-  },
-  {
-    name: 'PRODUCT B',
-    data: [13, 23, 20, 8, 13, 27],
-  },
-]
-
-const ProJobRequestBarChart = () => {
+const ProJobRequestBarChart = ({ report }: CurrencyByDateListProps) => {
   const theme = useTheme()
 
-  const options: ApexOptions = {
-    chart: {
-      type: 'bar',
-      stacked: true,
-      toolbar: {
-        show: false,
-      },
-    },
+  const [series, categories, values] = useMemo(() => {
+    const total: Array<number> = []
+    const assigned: Array<number> = []
+    const _sameValueIndex: Array<number> = []
+    const _categories: Array<string> = []
 
-    plotOptions: {
-      bar: {
-        columnWidth: '24%',
-        horizontal: false,
-        borderRadius: 30,
-        dataLabels: {},
+    for (const item of report) {
+    }
+
+    report.forEach((item, index) => {
+      const _total = (item.acceptedCount || 0) + (item.rejectedCount || 0)
+      const _assigned = item.acceptedCount || 0
+
+      if (_total == _assigned) {
+        _sameValueIndex.push(index)
+        total.push((item.acceptedCount || 0) + (item.rejectedCount || 0))
+      } else {
+        total.push((item.acceptedCount || 0) + (item.rejectedCount || 0))
+        assigned.push(item.acceptedCount || 0)
+      }
+      _categories.push(item.month)
+    })
+
+    const _series = [
+      {
+        name: 'Total',
+        data: total,
       },
-    },
-    xaxis: {
-      tickAmount: 8,
-      axisTicks: { show: false },
-      axisBorder: { show: false },
-      categories: [
-        '2023-06',
-        '2023-07',
-        '2023-08',
-        '2023-09',
-        '2023-10',
-        '2023-11',
-      ],
-      labels: {
-        formatter: (value: string, timestamp?: number, opts?: any) => {
-          return `${dayjs(value).format('MMM')}`
-        },
-        style: {
-          colors: 'rgba(76, 78, 100, 0.38)',
+      {
+        name: 'Assigned',
+        data: assigned,
+      },
+    ]
+
+    return [_series, _categories, _sameValueIndex]
+  }, [report])
+
+  const options: ApexOptions = useMemo(() => {
+    const max = Math.max(
+      ...report.map(item => item.rejectedCount + item.acceptedCount),
+    )
+
+    return {
+      chart: {
+        type: 'bar',
+        stacked: true,
+        toolbar: {
+          show: false,
         },
       },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    colors: ['#666CFF', '#FDB528'],
-    grid: {
-      strokeDashArray: 8,
-      borderColor: theme.palette.divider,
+      plotOptions: {
+        bar: {
+          columnWidth: '24%',
+          horizontal: false,
+          borderRadius: 30,
+          dataLabels: {},
+        },
+      },
+      xaxis: {
+        tickAmount: 8,
+        axisTicks: { show: false },
+        axisBorder: { show: false },
+        categories: categories,
+        labels: {
+          style: {
+            colors: 'rgba(76, 78, 100, 0.38)',
+          },
+        },
+      },
       yaxis: {
-        lines: { show: true },
+        min: 0,
+        max: max,
+        tickAmount: 3,
       },
-    },
-    legend: { show: false },
-  }
+      dataLabels: {
+        enabled: false,
+      },
+      colors: ['#666CFF', '#FDB528'],
+      grid: {
+        strokeDashArray: 8,
+        borderColor: theme.palette.divider,
+        yaxis: {
+          lines: { show: true },
+        },
+      },
+      legend: { show: false },
+    }
+  }, [report])
+
   return (
     <Box sx={{ marginTop: '50px' }}>
-      <CustomChart type='bar' height={280} options={options} series={series} />
+      <CustomChart
+        type='bar'
+        height={280}
+        options={options}
+        series={series}
+        values={values}
+      />
       <Box display='flex' justifyContent='flex-end' gap='30px'>
         <Typography
           display='flex'
@@ -117,7 +157,17 @@ const ProJobRequestBarChart = () => {
   )
 }
 
-export const CustomChart = styled(ReactApexcharts)(() => {
+export const CustomChart = styled(ReactApexcharts)<{
+  values?: Array<number>
+}>(({ values }) => {
+  const obj: Record<string, any> = {}
+  values?.forEach(index => {
+    obj[`.apexcharts-series:nth-of-type(1) > path:nth-of-type(${index + 1})`] =
+      {
+        clipPath: 'inset(10px 0% 0px 0% round 10px)',
+      }
+  })
+
   return {
     '.apexcharts-series:nth-of-type(1) > path': {
       clipPath: 'inset(-10px 0% 0% 0% round 10px)',
@@ -125,6 +175,8 @@ export const CustomChart = styled(ReactApexcharts)(() => {
     '.apexcharts-series:nth-of-type(2) > path': {
       clipPath: 'inset(0% 0% -10px 0% round 10px)',
     },
+
+    ...obj,
   }
 })
 export default ProJobRequestBarChart

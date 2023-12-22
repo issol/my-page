@@ -3,8 +3,18 @@ import { RoleType, UserType } from '@src/context/types'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
+import { Dispatch } from 'react'
+import { getExpectedIncome } from '@src/apis/dashboard/lpm'
 
 export type ViewMode = 'company' | 'personal'
+
+export type CSVDataType = Array<Object>
+
+export interface CSVDataRecordProps {
+  dataRecord: CSVDataType
+  setDataRecord: Dispatch<CSVDataType>
+}
+
 export interface ViewModeQuery {
   userId: number | null
   view: ViewMode
@@ -53,6 +63,7 @@ export interface DashboardMemberQuery
 }
 
 export interface DashboardOngoingCountQuery extends DashboardQuery {
+  filter?: string
   countType: 'job' | 'order' | 'application'
 }
 export type ReportItem = {
@@ -62,6 +73,8 @@ export type ReportItem = {
   receivables: number
   payables: number
   canceled: number
+  invoiceReceivables?: number
+  invoicePayables?: number
 }
 
 export type RequestItem = {
@@ -70,7 +83,7 @@ export type RequestItem = {
   client: number
   companyName: string
   category: string
-  serviceType: string
+  serviceType: Array<string>
   itemCount: number
   desiredDueDate: string
   desiredDueTimezone: {
@@ -88,7 +101,11 @@ export type RecruitingRequest = {
   targetLanguage: string
   openings: number
   dueAt: string
-  dueTimezone: string
+  dueTimezone: {
+    code: string
+    label: string
+    phone: string
+  }
   deadlineWarning: boolean
 }
 
@@ -96,7 +113,7 @@ export type OrderItem = {
   id: number
   projectName: string
   category: string
-  serviceType: string
+  serviceType: Array<string>
   status: OrderStatusType
   client: {
     id: number
@@ -107,6 +124,7 @@ export type OrderItem = {
 
 export type JobItem = {
   id: number
+  orderId?: number
   jobName: string
   jobType: string
 
@@ -129,6 +147,10 @@ export type Currency =
   | 'onlyKRW'
   | 'onlySGD'
   | 'onlyUSD'
+  | 'incomeUSD'
+  | 'incomeJPY'
+  | 'incomeKRW'
+  | 'incomeSGD'
   | 'JPY'
   | 'KRW'
   | 'SGD'
@@ -156,6 +178,7 @@ export interface RatioQuery extends DashboardQuery, Partial<ViewModeQuery> {
   filter?: string
   title: string
   type: string
+  path?: string
   currency: Currency
   apiType?: APIType
 }
@@ -186,8 +209,10 @@ export interface ExpertiseRatioItem extends RatioItem {
   expertise: string
 }
 export interface RatioResponse<T> {
-  totalCount: number
-  totalPrice: number
+  totalCount?: number
+  totalPrice?: number
+  totalOrderCount?: number
+  totalOrderPrice?: number
   currency: Currency
   report: Array<T>
 }
@@ -208,6 +233,19 @@ export type MemberItem = {
   deletedAt: string | Date
 }
 
+export type UpcomingItem = {
+  id: number
+  corporationId: string
+  name: string | null
+  dueAt: string
+  dueTimezone: {
+    code: string
+    label: string
+    phone: string
+  }
+  deadlineWarning: boolean
+}
+
 export interface CountQuery
   extends DashboardQuery,
     Omit<DashboardPaginationQuery, 'type'>,
@@ -224,7 +262,7 @@ export type LongStandingReceivableItem = {
   status: InvoiceReceivableStatusType
   projectName: string
   category: string
-  serviceType: string
+  serviceType: Array<string>
   totalPrice: number
   currency: Currency
   client: {
@@ -265,4 +303,48 @@ export type LongStandingPayablesItem = {
 export type LongStandingDataType = 'receivable' | 'payable'
 export interface LongStandingQuery extends DashboardPaginationQuery {
   dataType: LongStandingDataType
+}
+
+export type ExpectedIncomeSort = 'requestDate' | 'dueDate'
+export interface ExpectedIncomeQuery {
+  year: number
+  month: number
+  sort: ExpectedIncomeSort
+}
+
+export type ExpectedIncome = {
+  month: string
+  incomeKRW: number
+  incomeUSD: number
+  incomeJPY: number
+  incomeSGD: number
+  acceptedCount: number
+  rejectedCount: number
+}
+
+export interface TotalAmountQuery {
+  year: number
+  month: number
+  amountType: 'invoiced' | 'payment'
+}
+
+export type TotalAmountItem = {
+  totalAmountKRW: number
+  totalAmountUSD: number
+  totalAmountJPY: number
+  totalAmountSGD: number
+}
+
+export type InvoiceOverviewItem = {
+  month: string
+  invoiceKRW: number
+  invoiceUSD: number
+  invoiceJPY: number
+  invoiceSGD: number
+}
+
+export type Office = 'Korea' | 'US' | 'Singapore' | 'Japan'
+export type PaymentType = {
+  userType: 'client' | 'pro'
+  office?: Office
 }

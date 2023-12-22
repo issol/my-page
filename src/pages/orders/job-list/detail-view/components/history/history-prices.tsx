@@ -25,26 +25,28 @@ import {
 } from 'react-hook-form'
 import PriceHistoryRow from '../prices/price-history-row'
 import languageHelper from '@src/shared/helpers/language.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { boolean } from 'yup'
-import { JobPricesDetailType, jobPriceHistoryType } from '@src/types/jobs/jobs.type'
+import {
+  JobPricesDetailType,
+  jobPriceHistoryType,
+} from '@src/types/jobs/jobs.type'
 import ProjectInfo from '@src/pages/orders/order-list/detail/components/project-info'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { statusType } from '@src/types/common/status.type'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   jobInfo: JobType
   jobPrices: jobPriceHistoryType
 }
-const ViewHistoryPrices = ({
-  jobInfo,
-  jobPrices,
-}: Props) => {
+const ViewHistoryPrices = ({ jobInfo, jobPrices }: Props) => {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
-  const [ languagePair, setLanguagePair ] = useState<{
+  const [languagePair, setLanguagePair] = useState<{
     sourceLanguage: string
     targetLanguage: string
   }>({
@@ -55,12 +57,12 @@ const ViewHistoryPrices = ({
     if (jobPrices?.sourceLanguage && jobPrices?.targetLanguage) {
       setLanguagePair({
         sourceLanguage: jobPrices.sourceLanguage,
-        targetLanguage: jobPrices.targetLanguage
+        targetLanguage: jobPrices.targetLanguage,
       })
     } else {
       setLanguagePair({
         sourceLanguage: jobInfo.sourceLanguage,
-        targetLanguage: jobInfo.targetLanguage
+        targetLanguage: jobInfo.targetLanguage,
       })
     }
   }, [jobInfo, jobPrices])
@@ -99,7 +101,11 @@ const ViewHistoryPrices = ({
               Date&Time
             </Typography>
             <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-              {FullDateTimezoneHelper(jobPrices?.historyAt, auth.getValue().user?.timezone,)}
+              {convertTimeToTimezone(
+                jobPrices?.historyAt,
+                auth.getValue().user?.timezone,
+                timezone.getValue(),
+              )}
             </Typography>
           </Box>
         </Box>
@@ -145,7 +151,6 @@ const ViewHistoryPrices = ({
       </Box>
     </Card>
   )
-
 }
 
 export default ViewHistoryPrices

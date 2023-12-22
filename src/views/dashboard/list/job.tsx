@@ -1,24 +1,35 @@
-import { PermIdentityOutlined, TrendingUp } from '@mui/icons-material'
+import {
+  PermIdentityOutlined,
+  SvgIconComponent,
+  TrendingUp,
+} from '@mui/icons-material'
 import { Box, Typography } from '@mui/material'
 import React from 'react'
 import { ChartBoxIcon } from '@src/views/dashboard/dashboardItem'
-
-const jobOverview = [
-  {
-    key: 'jobRequest',
+import { useJobOverview } from '@src/queries/dashboard/dashnaord-lpm'
+//inProgress
+// :
+// 0
+// requested
+// :
+// 0
+const jobOverview: Record<
+  string,
+  { label: string; color: string; icon: SvgIconComponent }
+> = {
+  requested: {
     label: 'Job requests',
     color: '102, 108, 255',
     icon: PermIdentityOutlined,
   },
-  {
-    key: 'jobsInProgress',
+  inProgress: {
     label: 'Jobs in progress',
     color: '38, 198, 249',
     icon: TrendingUp,
   },
-]
-
+}
 const JobList = () => {
+  const { data } = useJobOverview()
   return (
     <Box
       display='flex'
@@ -33,21 +44,19 @@ const JobList = () => {
         marginTop: '20px',
       }}
     >
-      {jobOverview.map((item, index) => {
+      {Object.entries(data || {}).map(([key, value], index) => {
         return (
-          <Box
-            display='flex'
-            gap='16px'
-            component='li'
-            key={`${item.label}-${index}`}
-          >
-            <ChartBoxIcon icon={item.icon} color={item.color} />
+          <Box display='flex' gap='16px' component='li' key={`${key}-${index}`}>
+            <ChartBoxIcon
+              icon={jobOverview[key].icon}
+              color={jobOverview[key].color}
+            />
             <Box>
               <Typography fontSize='20px' fontWeight={500}>
-                5
+                {value}
               </Typography>
               <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
-                {item.label}
+                {jobOverview[key].label}
               </Typography>
             </Box>
           </Box>

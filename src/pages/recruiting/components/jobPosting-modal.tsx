@@ -13,7 +13,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 
 // ** helpers
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import {
   JobTypeChip,
   renderStatusChip,
@@ -24,6 +24,8 @@ import {
 import { JobPostingDataType } from 'src/apis/jobPosting.api'
 import { useState } from 'react'
 import { Icon } from '@iconify/react'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: JobPostingDataType
@@ -56,6 +58,7 @@ export default function JobPostingListModal({
   isLoading,
 }: Props) {
   const [selected, setSelected] = useState('')
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const columns = [
     {
       flex: 0.2,
@@ -153,10 +156,20 @@ export default function JobPostingListModal({
       renderCell: ({ row }: CellType) => (
         <Tooltip
           placement='bottom'
-          title={`${FullDateTimezoneHelper(row.dueDate, row.dueDateTimezone)}`}
+          title={`${convertTimeToTimezone(
+            row.dueDate,
+            row.dueDateTimezone,
+            timezone.getValue(),
+          )}`}
         >
           <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-            <>{FullDateTimezoneHelper(row.dueDate, row.dueDateTimezone)}</>
+            <>
+              {convertTimeToTimezone(
+                row.dueDate,
+                row.dueDateTimezone,
+                timezone.getValue(),
+              )}
+            </>
           </Typography>
         </Tooltip>
       ),

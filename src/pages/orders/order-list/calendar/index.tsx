@@ -104,6 +104,7 @@ const OrderListCalendar = () => {
 
   useEffect(() => {
     if (data?.data?.length && !isLoading) {
+      console.log(data.data)
       setEvent([...data.data])
     } else {
       setEvent([])

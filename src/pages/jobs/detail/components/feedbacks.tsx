@@ -9,12 +9,13 @@ import {
 import { v4 as uuidv4 } from 'uuid'
 import CustomChip from '@src/@core/components/mui/chip'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { Icon } from '@iconify/react'
 import { ProJobFeedbackType } from '@src/types/jobs/jobs.type'
 import { UseMutateFunction } from 'react-query'
+import { timezoneSelector } from '@src/states/permission'
 type Props = {
   feedbacks: Array<ProJobFeedbackType>
   checkFeedback: UseMutateFunction<unknown, unknown, number, unknown>
@@ -22,8 +23,7 @@ type Props = {
 
 const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
   const auth = useRecoilValueLoadable(authState)
-
-  console.log(feedbacks)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   return (
     <>
@@ -82,9 +82,10 @@ const Feedbacks = ({ feedbacks, checkFeedback }: Props) => {
                         !value.isChecked ? '#666CFF' : 'rgba(76, 78, 100, 0.60)'
                       }
                     >
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         value.createdAt,
                         auth.getValue().user?.timezone,
+                        timezone.getValue(),
                       )}
                     </Typography>
                   </Box>

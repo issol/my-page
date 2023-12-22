@@ -290,6 +290,8 @@ const ProInvoiceDetail = () => {
                 auth={auth.getValue()}
                 editInfo={false}
                 setEditInfo={() => null}
+                isDeletable={false}
+                isAccountInfoUpdatable={false}
               />
             </Suspense>
           </TabPanel>

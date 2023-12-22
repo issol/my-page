@@ -1,8 +1,10 @@
-import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { CountryType, TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import dayjs from 'dayjs'
 import { convertCountryCodeToTimezone, getTimezone } from './timezone.helper'
 
 import { DateTime, IANAZone } from 'luxon'
+
+import { countries } from '@src/@fake-db/autocomplete'
 
 export function convertDateByTimezone(date: string, from: string, to: string) {
   /**
@@ -51,6 +53,73 @@ export function FullDateTimezoneHelper(
   }
 }
 
+export const changeTimeZoneOffset = (
+  dateStr: string,
+  toTimeZone: CountryType,
+) => {
+  //입력 받은 ISOString(로컬 타임존이 설정되어 있음)를 includeOffset 옵션을 이용하여 offset을 제거한다
+  const removeOffsetDate = DateTime.fromISO(dateStr).toISO({
+    includeOffset: false,
+  })
+  //오프셋이 제거된 ISOString에 변경하고자 하는 타임존을 적용한 후 UTC->ISO 처리한다.
+  const setNewOffsetDate = DateTime.fromISO(removeOffsetDate!, {
+    zone: toTimeZone.label,
+    setZone: true,
+  })
+    .toUTC()
+    .toISO()
+  return setNewOffsetDate
+}
+
+export const convertTimeToTimezone = (
+  dateStr: string | Date | undefined | null,
+  timezoneInfo: CountryType | string | undefined | null,
+  timezoneList: TimeZoneType[],
+  useISOString?: boolean,
+): string => {
+  if (dateStr === undefined || dateStr === null) return '-'
+
+  try {
+    let toTimeZone = ''
+    if (typeof timezoneInfo !== 'string') {
+      // 이전 방식, 국가 코드가 들어오는 케이스 대응, 마이그레이션 이후 삭제해야 함
+      if (countries.some(country => country.code === timezoneInfo?.code)) {
+        const rtn: any = dayjs(dateStr).format('MM/DD/YYYY, hh:mm A')
+        return `${rtn} (${getTimezone(dateStr, timezoneInfo?.code!)})`
+      }
+      // 신규 방식, 타임존과 타임존 약어가 들어오는 경우 신규 방식으로 처리
+      else if (IANAZone.isValidZone(timezoneInfo?.label!)) {
+        toTimeZone = timezoneInfo?.label!
+      } else {
+        // 이 케이스가 있다면 분석해야 함
+        console.log('convertTimeToTimezone - unknown case', timezoneInfo)
+      }
+    } else {
+      toTimeZone = timezoneInfo
+    }
+
+    const utcDate = DateTime.fromISO(String(dateStr), { zone: 'utc' })
+
+    // Convert the date to the specified timezone
+    const convertDate = utcDate.setZone(toTimeZone)
+
+    // convertTimeToTimezone 함수를 사용하는 형태에 string만 보내는 케이스가 없어질 경우, 아래 코드는 삭제되고 timezoneInfo.code를 Abbr에 사용함
+    const localStorageTimeZoneList: TimeZoneType[] =
+      timezoneList as TimeZoneType[]
+    const timezoneAbbr = localStorageTimeZoneList.find(
+      list => list.timezone === toTimeZone,
+    )?.timezoneCode
+    // 위 코드 삭제시 사용할 코드
+    // const timezoneAbbr = timezoneInfo.code
+
+    return useISOString && useISOString
+      ? convertDate.toISO({ includeOffset: false })!
+      : convertDate.toFormat('MM/dd/yyyy, hh:mm a ') + `(${timezoneAbbr})`
+  } catch (e) {
+    return '-'
+  }
+}
+
 // output ex : 01/31/2023
 export function MMDDYYYYHelper(value: string | Date | undefined | null) {
   if (!value || new Date(value) === undefined) return ''
@@ -68,7 +137,6 @@ export function FullDateHelper(value: any): string | undefined {
 // output ex : 20180913
 // 사업자등록증 조회시 날짜 포맷
 export const formatDateToYYYYMMDD = (date?: string) => {
-  console.log('date', date)
   if (date) {
     const currentDate = new Date(date)
     const year = currentDate.getFullYear()
@@ -79,6 +147,7 @@ export const formatDateToYYYYMMDD = (date?: string) => {
   return
 }
 
+// Request의 item array에서 desiredDueDate 값 중 가장 빠른 시간을 찾는 함수
 export function findEarliestDate(dateStrings: string[]) {
   if (!dateStrings || dateStrings.length === 0) {
     return ''

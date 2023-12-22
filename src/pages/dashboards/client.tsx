@@ -1,61 +1,68 @@
 import Grid from '@mui/material/Grid'
 import {
-  ChartBoxIcon,
-  ConvertButtonGroup,
   GridItem,
-  ReportItem,
-  SectionTitle,
-  SubDateDescription,
-  TableStatusCircle,
   Title,
   TotalValueView,
 } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
-import { useDashboardReport } from '@src/queries/dashboard/dashnaord-lpm'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import Typography from '@mui/material/Typography'
+import {
+  DashboardCountResult,
+  DEFAULT_QUERY_NAME,
+  PaidThisMonthAmount,
+  TotalPriceResult,
+  useDashboardReport,
+} from '@src/queries/dashboard/dashnaord-lpm'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useState } from 'react'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
+import React, { useEffect, useState } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import Doughnut from '@src/views/dashboard/chart/doughnut'
 import weekday from 'dayjs/plugin/weekday'
-import {
-  Colors,
-  SecondColors,
-  StatusColor,
-} from '@src/shared/const/dashboard/chart'
+import { Colors, SecondColors } from '@src/shared/const/dashboard/chart'
 import {
   CategoryRatioItem,
-  Currency,
+  CSVDataType,
   ExpertiseRatioItem,
+  LongStandingReceivableItem,
   PairRatioItem,
   ServiceRatioItem,
 } from '@src/types/dashboard'
 import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
-import { StatusOrderColumns } from '@src/shared/const/columns/dashboard'
-import styled from '@emotion/styled'
-import { getDateFormat, toCapitalize } from '@src/pages/dashboards/lpm'
+import {
+  InvoiceColumns,
+  ReceivableColumns,
+  StatusOrderColumns,
+} from '@src/shared/const/columns/dashboard'
+import { getDateFormat } from '@src/pages/dashboards/lpm'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
-import Total, {
-  payableColors,
-  ReceivableColors,
-} from '@src/views/dashboard/chart/total'
-import { Add, Archive, MonetizationOn, ReceiptLong } from '@mui/icons-material'
+import Total, { ReceivableColors } from '@src/views/dashboard/chart/total'
+import { ReceiptLong } from '@mui/icons-material'
 import ClientReport from '@src/views/dashboard/list/clientReport'
 import Notice from '@src/views/dashboard/notice'
 import Information from '@src/views/dashboard/dialog/information'
+import { useRouter } from 'next/router'
+import LongStandingDataGrid from '@src/views/dashboard/dataGrid/longStanding'
+import { mergeData } from '@src/pages/dashboards/tad'
+import { useQueryClient } from 'react-query'
 
 dayjs.extend(weekday)
 
+const ReportInit = {
+  canceled: 0,
+  invoicePayables: 0,
+  invoiceReceivables: 0,
+  orders: 0,
+  quotes: 0,
+  requests: 0,
+}
+
 const ClientDashboards = () => {
+  const router = useRouter()
+  const cache = useQueryClient()
+  const data = cache.getQueriesData([DEFAULT_QUERY_NAME])
+
   const { formHook, infoDialog, memberView } = UseDashboardControl()
   const { control, setValue, ...props } = formHook
   const { isShowMemberView, showMemberView, hiddenMemberView } = memberView
@@ -72,17 +79,74 @@ const ClientDashboards = () => {
     to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
   })
 
-  console.log(ReportData)
+  const [CSVData, setCSVData] = useState<CSVDataType>([])
+  const [receivables, setReceivables] = useState<CSVDataType>([])
+  const [languagePairs, setLanguagePairs] = useState<CSVDataType>([])
+  const [categories, setCategories] = useState<CSVDataType>([])
+  const [serviceTypes, setServiceTypes] = useState<CSVDataType>([])
+  const [expertises, setExpertises] = useState<CSVDataType>([])
+
+  useEffect(() => {
+    const ongoingCounts = data.filter(item =>
+      item[0].includes('ongoingCount'),
+    )[0][1] as DashboardCountResult
+    const paidThisMonths = data.filter(item =>
+      item[0].includes('PaidThisMonth'),
+    )[0][1] as PaidThisMonthAmount
+    const totalPrices = data.filter(item =>
+      item[0].includes('totalPrice'),
+    )[0][1] as TotalPriceResult
+
+    const filterInvoiceTotal = totalPrices.report.map(item => {
+      return {
+        'Invoice Status': item.name,
+        'Invoice Count': item.count,
+        'Invoice Price': item.sum,
+        'Invoice Percent': item.ratio,
+        ' ': ' ',
+      }
+    })
+
+    const filterOngoingOrder = Object.entries(ongoingCounts).map(
+      ([key, value]) => {
+        return { orderStatus: key, orderNumber: value, '   ': '  ' }
+      },
+    )
+
+    const mergeData1 = mergeData(filterInvoiceTotal, receivables)
+    mergeData1[0] = {
+      'Invoices - paid this month Price': paidThisMonths?.totalPrice || 0,
+      'Invoices - paid this month Number': paidThisMonths?.count || 0,
+      '': '',
+      ...mergeData1[0],
+    }
+
+    const mergeData2 = mergeData(mergeData1, filterOngoingOrder)
+    const mergeData3 = mergeData(mergeData2, languagePairs)
+    const mergeData4 = mergeData(mergeData3, categories)
+    const mergeData5 = mergeData(mergeData4, serviceTypes)
+    const mergeData6 = mergeData(mergeData5, expertises)
+
+    mergeData6[0] = {
+      Requests: ReportData?.requests || 0,
+      Quotes: ReportData?.quotes || 0,
+      Orders: ReportData?.orders || 0,
+      Receivables: ReportData?.invoiceReceivables || 0,
+      Payables: ReportData?.invoicePayables || 0,
+      Canceled: ReportData?.canceled || 0,
+      '': '',
+      ...mergeData6[0],
+    }
+    setCSVData(mergeData6)
+  }, [receivables, languagePairs, serviceTypes, categories, expertises])
+
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
       <ApexChartWrapper>
-        <Grid
-          container
-          gap='24px'
-          sx={{ minWidth: '1320px', overflowX: 'auto', padding: '10px' }}
-        >
+        <Grid container gap='24px' sx={{ minWidth: '1320px', padding: '10px' }}>
           <Notice />
           <SwitchTypeHeader
+            csvData={CSVData}
             isShowMemberView={isShowMemberView}
             hiddenMemberView={hiddenMemberView}
             showMemberView={showMemberView}
@@ -97,6 +161,9 @@ const ClientDashboards = () => {
                         <Title
                           title='Invoices - Paid this month'
                           openDialog={setOpenInfoDialog}
+                          handleClick={() =>
+                            router.push('/invoice/receivable/')
+                          }
                         />
                       </Box>
                       <TotalValueView
@@ -108,16 +175,7 @@ const ClientDashboards = () => {
                     </Box>
                   </GridItem>
                   <ClientReport
-                    reportData={
-                      ReportData || {
-                        canceled: 0,
-                        invoicePayables: 0,
-                        invoiceReceivables: 0,
-                        orders: 0,
-                        quotes: 0,
-                        requests: 0,
-                      }
-                    }
+                    reportData={ReportData || ReportInit}
                     userViewDate={userViewDate}
                     setOpenInfoDialog={setOpenInfoDialog}
                   />
@@ -150,6 +208,9 @@ const ClientDashboards = () => {
                         <Title
                           title='Invoices - Paid this month'
                           openDialog={setOpenInfoDialog}
+                          handleClick={() =>
+                            router.push('/invoice/receivable/')
+                          }
                         />
                       </Box>
                       <TotalValueView
@@ -165,7 +226,6 @@ const ClientDashboards = () => {
             </Grid>
             <GridItem sm height={532}>
               <Total
-                // TODO : Invoice 상태로 보여져야하는데 작업이 안됨
                 type='receivable'
                 title='Invoices - Total'
                 iconColor='114, 225, 40'
@@ -173,17 +233,41 @@ const ClientDashboards = () => {
                 setOpenInfoDialog={setOpenInfoDialog}
                 statusList={['Invoiced', 'Paid', 'Overdue', 'Canceled']}
                 colors={ReceivableColors}
+                handleTitleClick={() => router.push('/invoice/receivable/')}
+              />
+            </GridItem>
+          </Grid>
+          <Grid container>
+            <GridItem height={547} sm padding='0px'>
+              <LongStandingDataGrid<LongStandingReceivableItem>
+                title='Long-standing invoices - Action required'
+                type='receivable'
+                columns={InvoiceColumns}
+                initSort={[
+                  {
+                    field: 'clientName',
+                    sort: 'asc',
+                  },
+                ]}
+                dataRecord={receivables}
+                setDataRecord={setReceivables}
+                setOpenInfoDialog={setOpenInfoDialog}
+                onRowClick={(params, event, details) => {
+                  if (params.row.status === 30500) return
+                  router.push(`/invoice/receivable/detail/${params.id}/`)
+                }}
               />
             </GridItem>
           </Grid>
           <StatusAndDataGrid
             userViewDate={userViewDate}
             type='order'
+            movePage={() => router.push('/orders/order-list/')}
             statusColumn={StatusOrderColumns}
             initSort={[
               {
                 field: 'category',
-                sort: 'desc',
+                sort: 'asc',
               },
             ]}
             from={getDateFormat(
@@ -207,9 +291,23 @@ const ClientDashboards = () => {
               type='language-pair'
               colors={SecondColors}
               getName={item => {
-                console.log(item)
                 return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
               }}
+              menuOptions={[
+                {
+                  key: 'pair',
+                  text: 'Language pairs',
+                },
+                {
+                  key: 'source',
+                  text: 'Source languages',
+                },
+                {
+                  key: 'target',
+                  text: 'Target languages',
+                },
+              ]}
+              setDataRecord={setLanguagePairs}
               setOpenInfoDialog={setOpenInfoDialog}
             />
             <Doughnut<CategoryRatioItem>
@@ -226,6 +324,7 @@ const ClientDashboards = () => {
               getName={item => {
                 return `${item?.category || '-'}`
               }}
+              setDataRecord={setCategories}
               setOpenInfoDialog={setOpenInfoDialog}
             />
           </Grid>
@@ -244,6 +343,7 @@ const ClientDashboards = () => {
               getName={item => {
                 return `${item?.serviceType || '-'}`
               }}
+              setDataRecord={setServiceTypes}
               setOpenInfoDialog={setOpenInfoDialog}
             />
             <Doughnut<ExpertiseRatioItem>
@@ -261,6 +361,7 @@ const ClientDashboards = () => {
                 return `${item?.expertise || '-'}`
               }}
               setOpenInfoDialog={setOpenInfoDialog}
+              setDataRecord={setExpertises}
             />
           </Grid>
         </Grid>
@@ -279,5 +380,5 @@ export default ClientDashboards
 
 ClientDashboards.acl = {
   action: 'read',
-  subject: 'client',
+  subject: 'dashboard_CLIENT',
 }

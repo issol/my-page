@@ -10,6 +10,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+
 import {
   JobTypeChip,
   OrderStatusChip,
@@ -18,7 +22,7 @@ import {
 import Icon from '@src/@core/components/icon'
 import {
   FullDateHelper,
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
 } from '@src/shared/helpers/date.helper'
 
 import {
@@ -55,6 +59,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import SimpleMultilineAlertWithCumtomTitleModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-with-custom-title-modal'
 import { ReasonType } from '@src/types/quotes/quote'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   project: ProjectInfoType
@@ -69,7 +74,12 @@ type Props = {
   client?: ClientType
   type: 'detail' | 'history'
   updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
-  updateContactPerson?: UseMutationResult<void, unknown, updateOrderType, unknown>
+  updateContactPerson?: UseMutationResult<
+    void,
+    unknown,
+    updateOrderType,
+    unknown
+  >
   statusList?: Array<{ value: number; label: string }>
   canUseFeature: (v: OrderFeatureType) => boolean
   jobInfo: Array<JobInfoType>
@@ -89,6 +99,7 @@ const ProjectInfo = ({
   jobInfo,
 }: Props) => {
   const { openModal, closeModal } = useModal()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const router = useRouter()
   const queryClient = useQueryClient()
   const [contactPersonEdit, setContactPersonEdit] = useState(false)
@@ -101,6 +112,7 @@ const ProjectInfo = ({
       }
     >
   >([])
+  const auth = useRecoilValueLoadable(authState)
 
   const [showDescription, setShowDescription] = useState<boolean>(
     project.showDescription,
@@ -302,9 +314,9 @@ const ProjectInfo = ({
   }
 
   const onClickEditSaveContactPerson = () => {
-    if(role.name === 'CLIENT') {
+    if (role.name === 'CLIENT') {
       updateContactPerson &&
-      updateContactPerson.mutate(
+        updateContactPerson.mutate(
           { contactPersonId: contactPersonId },
           {
             onSuccess: () => {
@@ -314,7 +326,7 @@ const ProjectInfo = ({
         )
     } else {
       updateProject &&
-      updateProject.mutate(
+        updateProject.mutate(
           { contactPersonId: contactPersonId },
           {
             onSuccess: () => {
@@ -498,9 +510,11 @@ const ProjectInfo = ({
                       width: '100%',
                     }}
                   >
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.orderedAt,
-                      project.orderTimezone,
+                      // project.orderTimezone,
+                      auth.getValue().user?.timezone,
+                      timezone.getValue(),
                     )}
                   </Typography>
                 </Box>
@@ -556,64 +570,64 @@ const ProjectInfo = ({
                         </IconButton>
                       )}
                     </Box>
-                  ) : (type === 'detail' ||
-                      type === 'history') &&
-                      statusList
-                        ?.filter(
-                          value =>
-                            !filterStatusList().some(v => v.value === value.value),
-                        )
-                        .some(status => status.label === project.status) 
-                      ? (
-                        <Box
-                          sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                  ) : (type === 'detail' || type === 'history') &&
+                    statusList
+                      ?.filter(
+                        value =>
+                          !filterStatusList().some(
+                            v => v.value === value.value,
+                          ),
+                      )
+                      .some(status => status.label === project.status) ? (
+                    <Box
+                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    >
+                      <OrderStatusChip
+                        status={project.status}
+                        label={project.status}
+                      />
+                      {(project.status === 'Redelivery requested' ||
+                        project.status === 'Canceled') && (
+                        <IconButton
+                          onClick={() => {
+                            project.reason && onClickReason()
+                          }}
+                          sx={{ padding: 0 }}
                         >
-                          <OrderStatusChip
-                            status={project.status}
-                            label={project.status}
+                          <img
+                            src='/images/icons/onboarding-icons/more-reason.svg'
+                            alt='more'
                           />
-                          {(project.status === 'Redelivery requested' ||
-                            project.status === 'Canceled') && (
-                            <IconButton
-                              onClick={() => {
-                                project.reason && onClickReason()
-                              }}
-                              sx={{ padding: 0 }}
-                            >
-                              <img
-                                src='/images/icons/onboarding-icons/more-reason.svg'
-                                alt='more'
-                              />
-                            </IconButton>
-                          )}
-                        </Box>
-                      ) : (
-                        <Autocomplete
-                          fullWidth
-                          disableClearable={true}
-                          options={filterStatusList() ?? []}
-                          onChange={(e, v) => {
-                            if (v?.value) {
-                              onChangeStatus(v.value as number)
-                            }
-                          }}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          value={
-                            statusList &&
-                            statusList.find(item => item.label === project.status)
-                          }
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              placeholder='Status'
-                              size='small'
-                              autoComplete='off'
-                              sx={{ maxWidth: '300px' }}
-                            />
-                          )}
+                        </IconButton>
+                      )}
+                    </Box>
+                  ) : (
+                    <Autocomplete
+                      fullWidth
+                      disableClearable={true}
+                      options={filterStatusList() ?? []}
+                      onChange={(e, v) => {
+                        if (v?.value) {
+                          onChangeStatus(v.value as number)
+                        }
+                      }}
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.value === newValue.value
+                      }}
+                      value={
+                        statusList &&
+                        statusList.find(item => item.label === project.status)
+                      }
+                      renderInput={params => (
+                        <TextField
+                          {...params}
+                          placeholder='Status'
+                          size='small'
+                          autoComplete='off'
+                          sx={{ maxWidth: '300px' }}
                         />
+                      )}
+                    />
                   )}
                 </Box>
               </Box>
@@ -734,9 +748,10 @@ const ProjectInfo = ({
                         ? ` / ${client?.contactPerson?.jobTitle}`
                         : ''}
                       {type === 'history' ||
-                      (role.name === 'CLIENT' && 
-                      ['Paid','Canceled'].includes(project.status as string))
-                      ? null : (
+                      (role.name === 'CLIENT' &&
+                        ['Paid', 'Canceled'].includes(
+                          project.status as string,
+                        )) ? null : (
                         <IconButton onClick={() => setContactPersonEdit(true)}>
                           <Icon icon='mdi:pencil-outline' />
                         </IconButton>
@@ -991,9 +1006,11 @@ const ProjectInfo = ({
                       width: '100%',
                     }}
                   >
-                    {FullDateTimezoneHelper(
+                    {convertTimeToTimezone(
                       project.projectDueAt,
-                      project.projectDueTimezone,
+                      // project.projectDueTimezone,
+                      auth.getValue().user?.timezone,
+                      timezone.getValue(),
                     )}
                   </Typography>
                 </Box>

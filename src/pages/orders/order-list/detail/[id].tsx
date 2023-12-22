@@ -39,7 +39,10 @@ import {
 import { GridColumns } from '@mui/x-data-grid'
 import ProjectTeam from './components/project-team'
 import VersionHistory from './components/version-history'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import {
+  changeTimeZoneOffset,
+  convertTimeToTimezone,
+} from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 
 import { authState } from '@src/states/auth'
@@ -126,6 +129,7 @@ import { order } from '@src/shared/const/permission-class'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { ReasonType } from '@src/types/quotes/quote'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
+import { timezoneSelector } from '@src/states/permission'
 
 interface Detail {
   id: number
@@ -195,6 +199,7 @@ const OrderDetail = () => {
   const menuQuery = router.query.menu as MenuType
   const { id } = router.query
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const currentRole = getCurrentRole()
   const [value, setValue] = useState<MenuType>(
     currentRole && currentRole.name === 'CLIENT' ? 'order' : 'project',
@@ -304,7 +309,6 @@ const OrderDetail = () => {
         timezone: {
           code: '',
           label: '',
-          phone: '',
         },
         phone: '',
         mobile: '',
@@ -465,6 +469,16 @@ const OrderDetail = () => {
   function onProjectInfoSave() {
     const projectInfo = {
       ...getProjectInfo(),
+      orderedAt: changeTimeZoneOffset(
+        getProjectInfo().orderedAt.toISOString(),
+        getProjectInfo().orderTimezone,
+      ),
+      projectDueAt: getProjectInfo().projectDueAt
+        ? changeTimeZoneOffset(
+            getProjectInfo().projectDueAt.toISOString(),
+            getProjectInfo().projectDueTimezone,
+          )
+        : null,
       showDescription: getProjectInfo().showDescription ? '1' : '0',
       isTaxable: getProjectInfo().isTaxable ? '1' : '0',
     }
@@ -750,9 +764,10 @@ const OrderDetail = () => {
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.confirmedAt,
               auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )
@@ -985,10 +1000,28 @@ const OrderDetail = () => {
     if (projectInfo) {
       const res = {
         ...projectInfo,
-        orderedAt: new Date(projectInfo?.orderedAt),
+        orderedAt: new Date(
+          convertTimeToTimezone(
+            projectInfo?.orderedAt,
+            projectInfo?.orderTimezone,
+            timezone.getValue(),
+            true,
+          )!,
+        ),
+        projectDueAt: projectInfo?.projectDueAt
+          ? new Date(
+              convertTimeToTimezone(
+                projectInfo?.projectDueAt,
+                projectInfo?.projectDueTimezone,
+                timezone.getValue(),
+                true,
+              )!,
+            )
+          : undefined,
         status: currentStatus?.value ?? 10000,
       }
       const { items, ...filteredRes } = res
+
       projectInfoReset(filteredRes)
     }
 

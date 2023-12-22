@@ -20,7 +20,7 @@ import { addJobFeedback, saveJobInfo } from '@src/apis/job-detail.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 // import { JobStatus } from '@src/shared/const/status/statuses'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -54,6 +54,8 @@ import { useRouter } from 'next/router'
 import useModal from '@src/hooks/useModal'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import JobFeedback from '../../../components/job-feedback'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   row: JobType
@@ -123,6 +125,7 @@ const ViewJobInfo = ({
   const [feedbackPage, setFeedbackPage] = useState(0)
   const [feedbackRowsPerPage, setFeedbackRowsPerPage] = useState(3)
   const feedbackOffset = feedbackPage * feedbackRowsPerPage
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const queryClient = useQueryClient()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
@@ -670,7 +673,11 @@ const ViewJobInfo = ({
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
                 {row.startedAt && row.startTimezone
-                  ? FullDateTimezoneHelper(row.startedAt, row.startTimezone)
+                  ? convertTimeToTimezone(
+                      row.startedAt,
+                      row.startTimezone,
+                      timezone.getValue(),
+                    )
                   : '-'}
               </Typography>
             </Box>
@@ -684,7 +691,11 @@ const ViewJobInfo = ({
                 Job due date
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
-                {FullDateTimezoneHelper(row.dueAt, row.dueTimezone)}
+                {convertTimeToTimezone(
+                  row.dueAt,
+                  row.dueTimezone,
+                  timezone.getValue(),
+                )}
               </Typography>
             </Box>
           </Box>
@@ -796,9 +807,10 @@ const ViewJobInfo = ({
                     >
                       <Typography variant='body1' fontWeight={600}>
                         {delivery.deliveredDate
-                          ? FullDateTimezoneHelper(
+                          ? convertTimeToTimezone(
                               delivery.deliveredDate,
                               auth?.user?.timezone!,
+                              timezone.getValue(),
                             )
                           : '-'}
                       </Typography>

@@ -95,6 +95,10 @@ import { useGetJobOpeningDetail } from '@src/queries/pro/pro-job-openings'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getJobOpeningDetail } from '@src/apis/pro/pro-job-openings.api'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+
+import MuiPhone from '@src/pages/components/phone/mui-phone'
+import { timezoneSelector } from '@src/states/permission'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -165,6 +169,27 @@ const PersonalInfoPro = () => {
 
   // ** State
   const [files, setFiles] = useState<File[]>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
@@ -434,7 +459,7 @@ const PersonalInfoPro = () => {
 
   useEffect(() => {
     if (!router.isReady) return
-    if (step === 2) {
+    if (step === 2 && router.query.jobId) {
       getJobOpeningDetail(Number(router.query.jobId)).then(res => {
         if (res) {
           openModal({
@@ -850,24 +875,28 @@ const PersonalInfoPro = () => {
                             autoHighlight
                             fullWidth
                             {...field}
-                            options={countries as CountryType[]}
+                            options={timeZoneList as CountryType[]}
                             onChange={(e, v) => field.onChange(v)}
                             disableClearable
                             renderOption={(props, option) => (
                               <Box component='li' {...props} key={uuidv4()}>
-                                {option.label} ({option.code}) +{option.phone}
+                                {timeZoneFormatter(option, timezone.getValue())}
                               </Box>
                             )}
                             renderInput={params => (
                               <TextField
                                 {...params}
-                                label='Time zone*'
+                                label='Timezone*'
                                 error={Boolean(errors.timezone)}
                                 inputProps={{
                                   ...params.inputProps,
                                 }}
                               />
                             )}
+                            getOptionLabel={option =>
+                              timeZoneFormatter(option, timezone.getValue()) ??
+                              ''
+                            }
                           />
                         )}
                       />
@@ -886,31 +915,10 @@ const PersonalInfoPro = () => {
                         control={control}
                         rules={{ required: false }}
                         render={({ field: { value, onChange, onBlur } }) => (
-                          <TextField
-                            autoFocus
-                            id='outlined-basic'
-                            label='Mobile phone'
-                            variant='outlined'
-                            value={value}
-                            onBlur={onBlur}
-                            onChange={e => {
-                              if (isInvalidPhoneNumber(e.target.value)) return
-                              onChange(e)
-                            }}
-                            inputProps={{ maxLength: 50 }}
-                            error={Boolean(errors.mobile)}
-                            placeholder={
-                              !watch('timezone').phone
-                                ? `+ 1) 012 345 6789`
-                                : `012 345 6789`
-                            }
-                            InputProps={{
-                              startAdornment: watch('timezone').phone && (
-                                <InputAdornment position='start'>
-                                  {'+' + watch('timezone').phone}
-                                </InputAdornment>
-                              ),
-                            }}
+                          <MuiPhone
+                            value={value || ''}
+                            onChange={onChange}
+                            label={'Mobile phone'}
                           />
                         )}
                       />
@@ -927,31 +935,10 @@ const PersonalInfoPro = () => {
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange, onBlur } }) => (
-                          <TextField
-                            autoFocus
-                            id='outlined-basic'
-                            label='Telephone'
-                            variant='outlined'
-                            value={value}
-                            onBlur={onBlur}
-                            onChange={e => {
-                              if (isInvalidPhoneNumber(e.target.value)) return
-                              onChange(e)
-                            }}
-                            inputProps={{ maxLength: 50 }}
-                            error={Boolean(errors.phone)}
-                            placeholder={
-                              !watch('timezone').phone
-                                ? `+ 1) 012 345 6789`
-                                : `012 345 6789`
-                            }
-                            InputProps={{
-                              startAdornment: watch('timezone').phone && (
-                                <InputAdornment position='start'>
-                                  {'+' + watch('timezone').phone}
-                                </InputAdornment>
-                              ),
-                            }}
+                          <MuiPhone
+                            value={value || ''}
+                            onChange={onChange}
+                            label={'Telephone'}
                           />
                         )}
                       />

@@ -39,10 +39,9 @@ import { authState } from '@src/states/auth'
 // ** helpers
 import {
   convertDateByTimezone,
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
-import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -57,6 +56,7 @@ import {
 } from 'src/apis/recruiting.api'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { recruiting } from '@src/shared/const/permission-class'
+import { timezoneSelector } from '@src/states/permission'
 
 // ** types
 
@@ -66,6 +66,7 @@ type CellType = {
 
 const RecruitingDetail = () => {
   const router = useRouter()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const id = Number(router.query?.id)
   const queryClient = useQueryClient()
 
@@ -211,9 +212,10 @@ const RecruitingDetail = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.createdAt,
               auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )
@@ -369,9 +371,10 @@ const RecruitingDetail = () => {
                       </Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         currentVersion?.createdAt,
                         auth.getValue().user?.timezone!,
+                        timezone.getValue(),
                       )}
                     </Typography>
                   </Box>
@@ -422,7 +425,7 @@ const RecruitingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTimeEng(auth.getValue().user?.timezone?.code),
+                      auth.getValue().user?.timezone?.label,
                     )}
                   </Grid>
                 </Grid>
@@ -553,9 +556,10 @@ const RecruitingDetail = () => {
                             variant='body2'
                             sx={{ alignSelf: 'flex-end' }}
                           >
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               new Date(),
                               auth.getValue().user?.timezone!,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>
@@ -609,7 +613,7 @@ const RecruitingDetail = () => {
                           )}
                           {renderTable(
                             'Due date timezone',
-                            getGmtTimeEng(auth.getValue().user?.timezone?.code),
+                            auth.getValue().user?.timezone?.label,
                           )}
                         </Grid>
                       </Grid>

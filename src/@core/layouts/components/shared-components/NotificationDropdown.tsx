@@ -41,7 +41,7 @@ import CustomAvatar from 'src/@core/components/mui/avatar'
 
 import { NotificationType } from '@src/types/common/notification.type'
 import { useRouter } from 'next/router'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 import {
   FetchNextPageOptions,
@@ -64,6 +64,7 @@ import useInterval from '@src/hooks/useInterval'
 import { transformMessage } from '@src/shared/transformer/notification-message'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 interface Props {
   settings: Settings
@@ -184,6 +185,7 @@ const NotificationDropdown = (props: Props) => {
   const [refreshing, setRefreshing] = useState(false)
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { ref, inView } = useInView()
 
@@ -405,9 +407,10 @@ const NotificationDropdown = (props: Props) => {
                                   {transformMessage(item) ?? '-'}
                                 </MenuItemTitle>
                                 <MenuItemSubtitle variant='body2' fontSize={12}>
-                                  {FullDateTimezoneHelper(
+                                  {convertTimeToTimezone(
                                     item.createdAt,
                                     auth.getValue().user?.timezone,
+                                    timezone.getValue(),
                                   )}
                                 </MenuItemSubtitle>
                               </Box>

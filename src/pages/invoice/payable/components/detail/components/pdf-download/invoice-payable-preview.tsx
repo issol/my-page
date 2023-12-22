@@ -2,8 +2,11 @@ import { Fragment, useEffect } from 'react'
 
 // ** helpers
 import { formatCurrency } from '@src/shared/helpers/price.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
 
 // ** types
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
@@ -42,6 +45,8 @@ import useModal from '@src/hooks/useModal'
 // ** types & helpers
 import { ItemType } from '@src/types/common/item.type'
 import languageHelper from '@src/shared/helpers/language.helper'
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   data: InvoicePayableDownloadData
@@ -52,11 +57,10 @@ type Props = {
 
 const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const { closeModal } = useModal()
   const dispatch = useAppDispatch()
   const columnName = lang === 'EN' ? invoiceEn : invoiceKo
-
-  console.log(data)
 
   useEffect(() => {
     if (type === 'download') {
@@ -80,7 +84,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
     }[],
   ): number {
     return rows.reduce((total, row) => {
-      return total + Number(row.quantity) * Number(row.prices)
+      return total + Number(row.quantity) * Number(row.unitPrice)
     }, 0)
   }
 
@@ -151,7 +155,11 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                 {columnName.invoiceDate}:
               </Typography>
               <Typography variant='subtitle1' fontSize={14}>
-                {FullDateTimezoneHelper(data?.invoicedAt, user?.timezone)}
+                {convertTimeToTimezone(
+                  data?.invoicedAt,
+                  user?.timezone,
+                  timezone.getValue(),
+                )}
               </Typography>
             </Box>
           </Box>
@@ -204,7 +212,11 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
               {data.pro?.email}
             </Typography>
             <Typography variant='subtitle1' fontSize={14}>
-              {getPhoneNumber(data?.pro?.mobile, data.pro?.timezone?.phone)}
+              {!data?.pro?.mobile
+                ? '-'
+                : contryCodeAndPhoneNumberFormatter(
+                    splitContryCodeAndPhoneNumber(data.pro.mobile),
+                  )}
             </Typography>
           </Box>
         </Grid>
@@ -336,7 +348,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                                 <div className='flex-start-box'>
                                   <h6 className='subtitle2'>
                                     {formatCurrency(
-                                      value.prices,
+                                      value.unitPrice,
                                       data.currency,
                                     )}
                                   </h6>
@@ -347,7 +359,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                                 <div className='table-row-fourth-content'>
                                   <h6 className='subtitle2'>
                                     {formatCurrency(
-                                      value.quantity * Number(value.prices),
+                                      value.quantity * Number(value.unitPrice),
                                       data.currency,
                                     )}
                                   </h6>
@@ -461,7 +473,9 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                             fontSize: '14px',
                           }}
                         >
-                          {Math.sign(data.tax) === 1 ? '+' : '-'}{' '}
+                          {/* {Math.sign(data.tax) === 1 ? '+' : '-'}{' '} */}
+                          {/* //TODO tax가 플러스가 되는 케이스가 있는지 확인 필요 */}
+                          {'-'}{' '}
                           {formatCurrency(data.tax, data.currency)}
                         </Typography>
                       </Box>

@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** style components
 import {
@@ -53,9 +53,12 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { FormErrors } from '@src/shared/const/formErrors'
 import dayjs from 'dayjs'
+
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type Props = {
   control: Control<RequestType, any>
@@ -76,7 +79,27 @@ export default function AddRequestForm({
   const languageList = getGloLanguage()
 
   const { data: units } = useGetUnitOptions()
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
 
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
   function renderErrorMsg(
     errors:
       | FieldError
@@ -383,7 +406,7 @@ export default function AddRequestForm({
                   <Autocomplete
                     fullWidth
                     value={value ?? null}
-                    options={countries as CountryType[]}
+                    options={timeZoneList as CountryType[]}
                     onChange={(e, v) => {
                       if (v) {
                         onChange(v)
@@ -394,16 +417,9 @@ export default function AddRequestForm({
                     isOptionEqualToValue={(option, newValue) => {
                       return option.label === newValue.label
                     }}
-                    getOptionLabel={option => {
-                      if (typeof option !== 'string') {
-                        return getGmtTimeEng(option.code) ?? ''
-                      } else {
-                        return ''
-                      }
-                    }}
                     renderOption={(props, option) => (
                       <Box component='li' {...props} key={uuidv4()}>
-                        {getGmtTimeEng(option.code)}
+                        {timeZoneFormatter(option, timezone.getValue())}
                       </Box>
                     )}
                     renderInput={params => (
@@ -416,6 +432,9 @@ export default function AddRequestForm({
                         }}
                       />
                     )}
+                    getOptionLabel={option =>
+                      timeZoneFormatter(option, timezone.getValue()) ?? ''
+                    }
                   />
                 )}
               />

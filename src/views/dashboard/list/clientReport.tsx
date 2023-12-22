@@ -109,7 +109,8 @@ const ClientReport = ({
             </Box>
             <Typography fontWeight={600} fontSize='14px'>
               {(
-                reportData.invoicePayables + reportData.invoiceReceivables
+                (reportData?.invoicePayables || 0) +
+                (reportData?.invoiceReceivables || 0)
               ).toLocaleString()}
             </Typography>
           </Box>
