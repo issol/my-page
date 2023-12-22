@@ -60,6 +60,7 @@ export type UserDataType = {
   department?: string
   dateOfBirth?: string
   address: ClientAddressType<number>
+  addresses: ClientAddressType<number>[]
   fromSNS?: null | 'GOOGLE'
   roles?: Array<UserRoleType>
 }
