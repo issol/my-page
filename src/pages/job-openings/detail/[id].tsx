@@ -21,6 +21,7 @@ import { useGetJobOpeningDetail } from '@src/queries/pro/pro-job-openings'
 import {
   FullDateTimezoneHelper,
   convertDateByTimezone,
+  convertTimeToTimezone,
 } from '@src/shared/helpers/date.helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { authState } from '@src/states/auth'
@@ -45,10 +46,12 @@ import { addCreateProAppliedRole } from '@src/apis/onboarding.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { c } from 'msw/lib/glossary-de6278a9'
 import { JobPostingDetailType } from '@src/apis/jobPosting.api'
+import { timezoneSelector } from '@src/states/permission'
 
 const JobOpeningDetail = () => {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const id = Number(router.query.id)
   const { data, isLoading } = useGetJobOpeningDetail(id)
   const [content, setContent] = useState(EditorState.createEmpty())
@@ -441,10 +444,15 @@ const JobOpeningDetail = () => {
                     )}
                     {renderTable(
                       'Due date',
-                      convertDateByTimezone(
-                        data?.dueDate!,
-                        data?.dueDateTimezone?.code! ?? 'KR',
-                        auth.getValue().user?.timezone?.code ?? 'KR',
+                      // convertDateByTimezone(
+                      //   data?.dueDate!,
+                      //   data?.dueDateTimezone?.code! ?? 'KR',
+                      //   auth.getValue().user?.timezone?.code ?? 'KR',
+                      // ),
+                      convertTimeToTimezone(
+                        data.dueDate,
+                        data.dueDateTimezone,
+                        timezone.getValue(),
                       ),
                     )}
                   </Grid>
