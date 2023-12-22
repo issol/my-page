@@ -1264,10 +1264,10 @@ const OrderDetail = () => {
       onSuccess: data => {
         console.log(data)
 
-        queryClient.invalidateQueries(['orderDetail'])
-        queryClient.invalidateQueries(['orderList'])
+        router.push(`/orders/order-list/detail/${data.id}`)
 
-        // router.push(`/orders/order-list/detail/${data.id}`)
+        // queryClient.invalidateQueries(['orderDetail'])
+        // queryClient.invalidateQueries(['orderList'])
       },
     },
   )
