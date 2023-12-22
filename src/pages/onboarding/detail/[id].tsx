@@ -12,17 +12,14 @@ import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
 import _ from 'lodash'
 import {
   AddRoleType,
-  SelectedJobInfoType,
   CommentsOnProType,
   AddRolePayloadType,
-  SelectType,
-  RoleSelectType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../../components/pro-detail-modal/dialog/test-details-modal'
-import { useFieldArray, useForm } from 'react-hook-form'
+
 import {
   useGetAppliedRole,
   useGetCertifiedRole,
@@ -31,9 +28,6 @@ import {
 import AppliedRoleModal from '../../components/pro-detail-modal/dialog/applied-role-modal'
 import { RoleType } from 'src/context/types'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
-import Button from '@mui/material/Button'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { assignTestSchema } from 'src/types/schema/onboarding.schema'
 
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
 import FallbackSpinner from 'src/@core/components/spinner'
@@ -45,16 +39,13 @@ import {
   addCommentOnPro,
   addCreateProAppliedRole,
   addCreateProAppliedTest,
-  addCreatedAppliedRole,
   deleteCommentOnPro,
   editCommentOnPro,
   patchAppliedRole,
   patchTestStatus,
-  setCertifiedRole,
 } from 'src/apis/onboarding.api'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import modal from '@src/@core/components/modal'
 
 import About from '@src/pages/components/pro-detail-component/about'
 import AppliedRole from '@src/pages/components/pro-detail-component/applied-role'
@@ -64,12 +55,10 @@ import Experience from '@src/pages/components/pro-detail-component/experience'
 import NoteFromPro from '@src/pages/components/pro-detail-component/note-pro'
 import Resume from '@src/pages/components/pro-detail-component/resume'
 import Specialties from '@src/pages/components/pro-detail-component/specialities'
-import AssignRoleModal from '@src/pages/components/pro-detail-modal/modal/assign-role-modal'
-import AssignTestModal from '@src/pages/components/pro-detail-modal/modal/assign-test.modal'
+
 import BasicTestActionModal from '@src/pages/components/pro-detail-modal/modal/basic-test-action-modal'
 import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal/cancel-comment-modal'
-import CancelRoleModal from '@src/pages/components/pro-detail-modal/modal/cancel-role-modal'
-import CancelTestModal from '@src/pages/components/pro-detail-modal/modal/cancel-test-modal'
+
 import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certify-role-modal'
 import DeleteCommentModal from '@src/pages/components/pro-detail-modal/modal/delete-comment-modal'
 import CancelEditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-cancel-comment-modal'
@@ -83,13 +72,10 @@ import SkillTestActionModal from '@src/pages/components/pro-detail-modal/modal/s
 import TestAssignModal from '@src/pages/components/pro-detail-modal/modal/test-assign-modal'
 import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
-import logger from '@src/@core/utils/logger'
 
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import useModal from '@src/hooks/useModal'
-import { JobList } from '@src/shared/const/job/jobs'
-import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 
 const OnboardingDetails = () => (
   <Suspense fallback={<FallbackSpinner />}>
