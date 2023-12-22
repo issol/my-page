@@ -20,7 +20,7 @@ type Props = {
   rightButtonText: string
   title: string
   subtitle?: string
-  row: JobPostingDetailType
+  row: JobOpeningDetailType
 }
 
 const ApplyModal = ({

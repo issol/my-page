@@ -19,6 +19,7 @@ export type JobOpeningListType = {
   yearsOfExperience: string
   dueDate: Date
   dueDateTimezone: CountryType
+  corporationId: string
 }
 
 export type JobOpeningListFilterType = {
@@ -37,15 +38,16 @@ export type JobOpeningListFilterType = {
 
 export type JobOpeningDetailType = {
   id: number
+  corporationId: string
   jobType: string
   role: string
   sourceLanguage: string
   targetLanguage: string
   yearsOfExperience: string
   dueDate: string
-  vendorTimezone: CountryType
-  postedTimezone: CountryType
-  postedDate: string
+  dueDateTimezone: CountryType
+  createdTimezone: CountryType
+  createdAt: string
   content: {
     blocks: Array<{
       key: string
