@@ -938,9 +938,13 @@ export default function AppliedRoleModal({
                                   }}
                                   value={value}
                                   options={
-                                    roleOptions.find(
-                                      option => option.index === idx,
-                                    )?.data ?? []
+                                    roleOptions
+                                      .find(option => option.index === idx)
+                                      ?.data?.filter(
+                                        value =>
+                                          value.label !== 'DTPer' &&
+                                          value.label !== 'DTP QCer',
+                                      ) ?? []
                                   }
                                   id='role'
                                   getOptionLabel={option => option.label}
@@ -1351,7 +1355,7 @@ export default function AppliedRoleModal({
                                         item.value === 'DTPer' ||
                                         item.value === 'DTP QCer'
                                       ) {
-                                        update(idx, {
+                                        roleUpdate(idx, {
                                           ...roleGetValues(`jobInfo.${idx}`),
                                           source: null,
                                           target: null,
