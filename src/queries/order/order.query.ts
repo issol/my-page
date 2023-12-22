@@ -6,13 +6,13 @@ import {
   getProjectInfo,
   getProjectTeam,
   getVersionHistory,
-} from '@src/apis/order-detail.api'
+} from '@src/apis/order/order-detail.api'
 import {
   getOrderList,
   getOrderListCalendar,
   getOrderListForInvoice,
   getOrderListInJob,
-} from '@src/apis/order-list.api'
+} from '@src/apis/order/order-list.api'
 import {
   InvoiceOrderListFilterType,
   OrderListFilterType,

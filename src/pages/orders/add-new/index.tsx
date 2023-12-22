@@ -78,7 +78,7 @@ import {
   createItemsForOrder,
   createLangPairForOrder,
   createOrderInfo,
-} from '@src/apis/order.api'
+} from '@src/apis/order/order.api'
 import CopyOrdersList from '../order-list/components/copy-order-list'
 import {
   getClient as getQuoteClient,
@@ -109,7 +109,7 @@ import {
   getLangItems,
   getProjectInfo,
   getProjectTeam,
-} from '@src/apis/order-detail.api'
+} from '@src/apis/order/order-detail.api'
 import { getClientDetail } from '@src/apis/client.api'
 import { set } from 'lodash'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'

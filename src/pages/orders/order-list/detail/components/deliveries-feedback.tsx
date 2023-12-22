@@ -59,7 +59,7 @@ import {
   completeDelivery,
   confirmDelivery,
   deliverySendToClient,
-} from '@src/apis/order-detail.api'
+} from '@src/apis/order/order-detail.api'
 import NoList from '@src/pages/components/no-list'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import SelectRequestRedeliveryReasonModal from './modal/select-request-redelivery-reason-modal'
