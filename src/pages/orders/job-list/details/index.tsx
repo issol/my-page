@@ -8,6 +8,8 @@ import {
   Collapse,
   Grid,
   IconButton,
+  Menu,
+  MenuItem,
   Paper,
   Table,
   TableBody,
@@ -26,14 +28,17 @@ import {
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
-import { useGetAssignableProList, useGetJobDetails } from '@src/queries/order/job.query'
+import {
+  useGetAssignableProList,
+  useGetJobDetails,
+} from '@src/queries/order/job.query'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import languageHelper from '@src/shared/helpers/language.helper'
 
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { SyntheticEvent, useEffect, useRef, useState } from 'react'
+import { SyntheticEvent, useEffect, useRef, useState, MouseEvent } from 'react'
 
 import { v4 as uuidv4 } from 'uuid'
 import JobInfoDetailView from '../detail-view'
@@ -77,6 +82,17 @@ const JobDetails = () => {
   const [serviceType, setServiceType] = useState<
     Array<{ label: string; value: string }[]>
   >([])
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation()
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   const createJobMutation = useMutation(
     (params: CreateJobParamsType) => createJob(params),
@@ -152,9 +168,13 @@ const JobDetails = () => {
       const assignableProListFilters: AssignProFilterPostType = {
         take: 5,
         skip: 0,
-        isOffBoard: '1'
+        isOffBoard: '1',
       }
-      const assignableProList = await getAssignableProList(jobId, assignableProListFilters, false)
+      const assignableProList = await getAssignableProList(
+        jobId,
+        assignableProListFilters,
+        false,
+      )
       if (assignableProList.data.some(list => list.assignmentStatus !== null)) {
         openModal({
           type: 'RemoveImpossibleModal',
@@ -712,12 +732,11 @@ const JobDetails = () => {
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
-      {createJobMutation.isLoading || 
+      {createJobMutation.isLoading ||
       deleteJobMutation.isLoading ||
-      isLoadingDeleteState
-        ? (
-          <OverlaySpinner />
-        ) : null}
+      isLoadingDeleteState ? (
+        <OverlaySpinner />
+      ) : null}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <Box
           sx={{
@@ -725,8 +744,9 @@ const JobDetails = () => {
             display: 'flex',
             background: '#ffffff',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            // justifyContent: 'space-between',
             padding: '20px',
+            gap: '12px',
           }}
         >
           <Box
@@ -747,13 +767,56 @@ const JobDetails = () => {
               <Typography variant='h5'>Job details</Typography>
             </Box>
           </Box>
-          <Box sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+          {/* <Box sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <Typography variant='body2'>Linked order :</Typography>
             <Link href={`/orders/order-list/detail/${jobDetails?.id}`}>
               <Typography fontSize={15} fontWeight={500} color={'#6D788D'}>
                 {jobDetails?.cooperationId}
               </Typography>
             </Link>
+          </Box> */}
+          <Box>
+            <IconButton
+              sx={{ width: '24px', height: '24px', padding: 0 }}
+              onClick={handleClick}
+            >
+              <Icon icon='mdi:dots-vertical' />
+            </IconButton>
+            <Menu
+              elevation={8}
+              anchorEl={anchorEl}
+              id='customized-menu'
+              onClose={handleClose}
+              open={Boolean(anchorEl)}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+            >
+              {jobDetails ? (
+                <MenuItem
+                  sx={{
+                    gap: 2,
+                    '&:hover': {
+                      background: 'inherit',
+                      cursor: 'default',
+                    },
+                  }}
+                >
+                  Linked order :
+                  <Link
+                    href={`/orders/order-list/detail/${jobDetails?.id}`}
+                    style={{ color: 'rgba(76, 78, 100, 0.87)' }}
+                  >
+                    {jobDetails?.cooperationId ?? '-'}
+                  </Link>
+                </MenuItem>
+              ) : null}
+            </Menu>
           </Box>
         </Box>
         <Card sx={{ padding: '24px' }}>

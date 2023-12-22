@@ -1,5 +1,12 @@
 import { Icon } from '@iconify/react'
-import { Box, Button, Divider, IconButton, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import FileItem from '@src/@core/components/fileItem'
 import useModal from '@src/hooks/useModal'
 import { FileType } from '@src/types/common/file.type'
@@ -32,6 +39,12 @@ import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
+import { authState } from '@src/states/auth'
 
 type Props = {
   info: AssignProListType
@@ -52,12 +65,25 @@ type Props = {
   >
   statusList: Array<{ value: number; label: string }>
 }
-const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }: Props) => {
+const SourceFileUpload = ({
+  info,
+  row,
+  orderDetail,
+  item,
+  refetch,
+  statusList,
+}: Props) => {
+  const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<File[]>([])
+
+  const [groupedFiles, setGroupedFiles] = useState<
+    { createdAt: string; data: FileType[] }[]
+  >([])
 
   // console.log(row)
 
@@ -87,7 +113,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      ...srtUploadFileExtension.accept
+      ...srtUploadFileExtension.accept,
     },
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files
@@ -99,6 +125,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
           setFileSize(result)
           if (result > MAXIMUM_FILE_SIZE) {
             //  TODO : show exceed file size modal
+            onFileUploadReject()
             return acc
           } else {
             const found = acc.find(f => f.name === file.name)
@@ -111,6 +138,22 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
       setFiles(uniqueFiles)
     },
   })
+
+  function onFileUploadReject() {
+    openModal({
+      type: 'rejectDrop',
+      children: (
+        <CustomModal
+          title='The maximum file size you can upload is 100 GB.'
+          soloButton
+          rightButtonText='Okay'
+          onClick={() => closeModal('rejectDrop')}
+          vary='error'
+          onClose={() => closeModal('rejectDrop')}
+        />
+      ),
+    })
+  }
 
   const handleRemoveFile = (file: FileType) => {
     const uploadedFiles = files
@@ -175,11 +218,11 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
           size: number
           name: string
           type: 'SAMPLE' | 'SOURCE' | 'TARGET'
-          }>
-        } = {
-          jobId: row.id,
-          files: []
-        }
+        }>
+      } = {
+        jobId: row.id,
+        files: [],
+      }
       const paths: string[] = files.map(file => {
         // console.log(file.name)
 
@@ -229,6 +272,23 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
         (file: { name: string; size: number }) => (result += Number(file.size)),
       )
       setFileSize(result)
+
+      const groupedFiles: { createdAt: string; data: FileType[] }[] =
+        sourceFileList.reduce(
+          (acc: { createdAt: string; data: FileType[] }[], curr: FileType) => {
+            const existingGroup = acc.find(
+              group => group.createdAt === curr.createdAt,
+            )
+            if (existingGroup) {
+              existingGroup.data.push(curr)
+            } else {
+              acc.push({ createdAt: curr.createdAt!, data: [curr] })
+            }
+            return acc
+          },
+          [],
+        )
+      setGroupedFiles(groupedFiles)
     }
   }, [sourceFileList, files])
 
@@ -319,17 +379,119 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
           </Box>
           <Box
             sx={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-
-              width: '100%',
-              gap: '20px',
-              padding: '20px 20px 0 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+              mt: '24px',
             }}
           >
             {sourceFileList &&
               sourceFileList?.length > 0 &&
-              uploadedFileList(sourceFileList!, 'SOURCE')}
+              // uploadedFileList(sourceFileList!, 'SOURCE')}
+              groupedFiles.map(value => {
+                return (
+                  <Box key={uuidv4()}>
+                    <Typography
+                      variant='body2'
+                      fontSize={14}
+                      fontWeight={400}
+                      sx={{ mb: '5px' }}
+                    >
+                      {convertTimeToTimezone(
+                        value.createdAt,
+                        auth.getValue().user?.timezone,
+                        timezone.getValue(),
+                      )}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2,1fr)',
+                        gridGap: '16px',
+                      }}
+                    >
+                      {value.data.map(item => {
+                        return (
+                          <Box
+                            key={uuidv4()}
+                            sx={{
+                              display: 'flex',
+                              marginBottom: '8px',
+                              width: '100%',
+                              justifyContent: 'space-between',
+                              borderRadius: '8px',
+                              padding: '10px 12px',
+                              border: '1px solid rgba(76, 78, 100, 0.22)',
+                              background: '#f9f8f9',
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  marginRight: '8px',
+                                  display: 'flex',
+                                }}
+                              >
+                                <Icon
+                                  icon='material-symbols:file-present-outline'
+                                  style={{
+                                    color: 'rgba(76, 78, 100, 0.54)',
+                                  }}
+                                  fontSize={24}
+                                />
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                }}
+                              >
+                                <Tooltip title={item.name}>
+                                  <Typography
+                                    variant='body1'
+                                    fontSize={14}
+                                    fontWeight={600}
+                                    lineHeight={'20px'}
+                                    sx={{
+                                      overflow: 'hidden',
+                                      wordBreak: 'break-all',
+                                      textOverflow: 'ellipsis',
+                                      display: '-webkit-box',
+                                      WebkitLineClamp: 1,
+                                      WebkitBoxOrient: 'vertical',
+                                    }}
+                                  >
+                                    {item.name}
+                                  </Typography>
+                                </Tooltip>
+
+                                <Typography
+                                  variant='caption'
+                                  lineHeight={'14px'}
+                                >
+                                  {formatFileSize(item.size)}
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            {/* <IconButton
+                              onClick={() => downloadOneFile(item)}
+                              disabled={isFileUploading || !isUpdatable}
+                            >
+                              <Icon icon='mdi:download' fontSize={24} />
+                            </IconButton> */}
+                          </Box>
+                        )
+                      })}
+                    </Box>
+                  </Box>
+                )
+              })}
           </Box>
         </Box>
 
@@ -344,9 +506,11 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch, statusList }:
           }}
         >
           <div {...getRootProps({ className: 'dropzone' })}>
-            <Button 
+            <Button
               variant='outlined'
-              disabled={[60500, 60600, 60700, 601000, 60800, 60900].includes(row.status)} // Delivered, Approved, invoiced, canceled, Paid, without invoice
+              disabled={[60500, 60600, 60700, 601000, 60800, 60900].includes(
+                row.status,
+              )} // Delivered, Approved, invoiced, canceled, Paid, without invoice
             >
               <input {...getInputProps()} />
               <Icon
