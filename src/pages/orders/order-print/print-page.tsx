@@ -29,7 +29,7 @@ import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
 import { useMutation } from 'react-query'
 
-import { patchOrderProjectInfo } from '@src/apis/order-detail.api'
+import { patchOrderProjectInfo } from '@src/apis/order/order-detail.api'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
 

@@ -73,7 +73,7 @@ import {
   patchOrderProjectInfo,
   patchOrderStatus,
   splitOrder,
-} from '@src/apis/order-detail.api'
+} from '@src/apis/order/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
@@ -99,7 +99,8 @@ import {
   checkOrderEditable,
   patchItemsForOrder,
   patchLangPairForOrder,
-} from '@src/apis/order.api'
+  restoreOrder,
+} from '@src/apis/order/order.api'
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import { toast } from 'react-hot-toast'
 import { useGetStatusList } from '@src/queries/common.query'
@@ -609,16 +610,17 @@ const OrderDetail = () => {
   }
 
   //TODO: endpoint 교체해야함(status 업데이트 전용)
-  const handleRestoreVersion = () => {
+  const handleRestoreVersion = (historyId: number) => {
     if (canUseFeature('button-Restore'))
       // updateProject && updateProject.mutate({ status: 10500 })
-      updateOrderStatusMutation.mutate({
-        id: Number(id!),
-        status: 10500,
-      })
+      // updateOrderStatusMutation.mutate({
+      //   id: Number(id!),
+      //   status: 10500,
+      // })
+      restoreOrderMutation.mutate(historyId)
   }
 
-  const onClickRestoreVersion = () => {
+  const onClickRestoreVersion = (historyId: number) => {
     openModal({
       type: 'RestoreConfirmModal',
       children: (
@@ -627,7 +629,7 @@ const OrderDetail = () => {
           onClick={() => {
             closeModal('RestoreConfirmModal')
             closeModal('VersionHistoryModal')
-            handleRestoreVersion()
+            handleRestoreVersion(historyId)
           }}
           title='Are you sure you want to restore this version?'
           vary='error'
@@ -645,7 +647,7 @@ const OrderDetail = () => {
           history={history}
           project={projectInfo!}
           onClose={() => closeModal('VersionHistoryModal')}
-          onClick={onClickRestoreVersion}
+          onClick={() => onClickRestoreVersion(history.id)}
           canUseDisableButton={canUseFeature('button-Restore')}
           statusList={statusList!}
         />
@@ -1252,6 +1254,20 @@ const OrderDetail = () => {
         queryClient.invalidateQueries(['orderList'])
 
         router.push(`/orders/order-list/detail/${data.id}`)
+      },
+    },
+  )
+
+  const restoreOrderMutation = useMutation(
+    (historyId: number) => restoreOrder(historyId),
+    {
+      onSuccess: data => {
+        console.log(data)
+
+        queryClient.invalidateQueries(['orderDetail'])
+        queryClient.invalidateQueries(['orderList'])
+
+        // router.push(`/orders/order-list/detail/${data.id}`)
       },
     },
   )
