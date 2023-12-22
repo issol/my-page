@@ -64,7 +64,7 @@ const OnboardingList = () => {
             <ChartBoxIcon icon={item.icon} color={item.color} />
             <Box>
               <Typography fontSize='20px' fontWeight={500}>
-                {(data && data[item.key]) || 0}
+                {((data && data[item.key]) || 0).toLocaleString()}
               </Typography>
               <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
                 {item.label}

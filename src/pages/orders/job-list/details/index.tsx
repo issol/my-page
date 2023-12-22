@@ -186,7 +186,7 @@ const JobDetails = () => {
               title='This job cannot be deleted because it’s already been requested to Pro(s).'
               subtitle={`[${corporationId}] ${jobName ?? ''}`}
               vary={'error'}
-              rightButtonText='Okey'
+              rightButtonText='Okay'
             />
           ),
         })

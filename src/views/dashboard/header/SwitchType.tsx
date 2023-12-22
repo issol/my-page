@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography'
 import { PermissionChip } from '@src/@core/components/chips/chips'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import Switch from '@mui/material/Switch'
-import ChartDateHeader from '@src/views/dashboard/header/chartDateHeader'
+import ChartDate from '@src/views/dashboard/header/chartDate'
 import Button from '@mui/material/Button'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import DownloadIcon from '@mui/icons-material/Download'
@@ -29,6 +29,11 @@ import MemberSearchList from '@src/views/dashboard/dialog/memberSearch'
 import { CSVDataType } from '@src/types/dashboard'
 import { CSVOptionsMenuDownload } from '@src/views/dashboard/csvDownload'
 import { headers } from 'next/headers'
+import UseStickyHeader from '@src/hooks/useStickyHeader'
+import useStickyHeader from '@src/hooks/useStickyHeader'
+import Fab from '@mui/material/Fab'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
+import FloatingCalendar from '@src/views/dashboard/header/floating'
 
 interface SwitchTypeHeaderProps {
   csvData?: CSVDataType
@@ -43,7 +48,6 @@ const SwitchTypeHeader = ({
   showMemberView,
   hiddenMemberView,
 }: SwitchTypeHeaderProps) => {
-  const dateHeaderRef = useRef<HTMLDivElement>(null)
   const queryClient = useQueryClient()
 
   const { contents: auth, state: authFetchState } =
@@ -54,7 +58,6 @@ const SwitchTypeHeader = ({
   const [state, setState] = useRecoilState(dashboardState)
 
   const { control, setValue } = useFormContext<DashboardForm>()
-  const [sticky, setSticky] = useState(false)
   const [viewSwitch, dateRange, selectedRangeDate, userViewDate] = useWatch({
     control,
     name: ['viewSwitch', 'dateRange', 'selectedRangeDate', 'userViewDate'],
@@ -67,9 +70,11 @@ const SwitchTypeHeader = ({
   const [isOpenMemberDialog, setIsOpenMemberDialog] = useState(false)
 
   const open = Boolean(anchorEl)
+
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
   }
+
   const handleClose = () => {
     setAnchorEl(null)
   }
@@ -129,22 +134,6 @@ const SwitchTypeHeader = ({
     }
   }, [])
 
-  const scrollHandler = () => {
-    if (window.scrollY <= 152) {
-      setSticky(false)
-    }
-    if (window.scrollY > 152) {
-      setSticky(true)
-    }
-  }
-
-  useEffect(() => {
-    window.addEventListener('scroll', scrollHandler)
-    return () => {
-      window.removeEventListener('scroll', scrollHandler)
-    }
-  }, [sticky])
-
   useEffect(() => {
     if (dashboardStateValue.userInfo) {
       showMemberView()
@@ -156,12 +145,11 @@ const SwitchTypeHeader = ({
 
   return (
     <>
+      <FloatingCalendar>
+        <ChartDate />
+      </FloatingCalendar>
       {isShowMemberView ? (
-        <GridItem
-          width={420}
-          height={76}
-          sx={{ display: sticky ? 'none' : 'flex' }}
-        >
+        <GridItem width={420} height={76}>
           <Box sx={{ width: '100%' }}>
             <Box display='flex' gap='16px' alignItems='center'>
               <Typography fontSize='24px' fontWeight={500}>
@@ -180,11 +168,7 @@ const SwitchTypeHeader = ({
           </Box>
         </GridItem>
       ) : (
-        <GridItem
-          width={300}
-          height={76}
-          sx={{ display: sticky ? 'none' : 'flex' }}
-        >
+        <GridItem width={300} height={76}>
           <Box display='flex' alignItems='center'>
             <Typography
               sx={{
@@ -242,27 +226,8 @@ const SwitchTypeHeader = ({
           </Box>
         </GridItem>
       )}
-      <Grid
-        component='div'
-        item
-        sm={!sticky}
-        xs={sticky ? 12 : undefined}
-        ref={dateHeaderRef}
-        sx={{
-          position: 'sticky',
-          left: 0,
-          top: '148px',
-          zIndex: 10,
-          backgroundColor: '#fff',
-        }}
-      >
-        <ChartDateHeader />
-      </Grid>
-      <GridItem
-        width={76}
-        height={76}
-        sx={{ display: sticky ? 'none' : 'flex' }}
-      >
+      <ChartDate />
+      <GridItem width={76} height={76} sx={{ display: 'flex' }}>
         <Box>
           <Button onClick={handleClick}>
             <MoreVertIcon

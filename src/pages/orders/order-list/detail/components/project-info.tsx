@@ -39,7 +39,7 @@ import { useEffect, useState } from 'react'
 import useModal from '@src/hooks/useModal'
 
 import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
-import { deleteOrder } from '@src/apis/order-detail.api'
+import { deleteOrder } from '@src/apis/order/order-detail.api'
 
 import { useRouter } from 'next/router'
 

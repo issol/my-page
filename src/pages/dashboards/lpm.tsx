@@ -5,7 +5,7 @@ import {
   Title,
   TotalValueView,
 } from '@src/views/dashboard/dashboardItem'
-import { Box } from '@mui/material'
+import { Backdrop, Box } from '@mui/material'
 import dayjs from 'dayjs'
 import {
   DashboardCountResult,
@@ -31,11 +31,12 @@ import {
   CategoryRatioItem,
   CSVDataType,
   ExpertiseRatioItem,
+  JobItem,
   PairRatioItem,
   ServiceRatioItem,
   ViewMode,
 } from '@src/types/dashboard'
-
+import Fab from '@mui/material/Fab'
 import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import { Archive, MonetizationOn } from '@mui/icons-material'
 import {
@@ -57,6 +58,9 @@ import LongStandingDataGrid from '@src/views/dashboard/dataGrid/longStanding'
 import Notice from '@src/views/dashboard/notice'
 import { mergeData } from '@src/pages/dashboards/tad'
 import { useQueryClient } from 'react-query'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
+import ChartDate from '@src/views/dashboard/header/chartDate'
+import FloatingCalendar from '@src/views/dashboard/header/floating'
 
 dayjs.extend(weekday)
 
@@ -100,6 +104,7 @@ export type SelectedRangeDate = 'month' | 'week' | 'today'
 
 export interface DashboardForm {
   dateRange?: Array<Date | null>
+  date?: Date
   view: ViewMode
   viewSwitch: boolean
   userViewDate: string
@@ -247,6 +252,7 @@ const LPMDashboards = () => {
           gap='24px'
           sx={{
             padding: '10px',
+            position: 'relative',
           }}
         >
           <Notice />
@@ -310,7 +316,7 @@ const LPMDashboards = () => {
                   sectionHeight={280}
                   path='u/dashboard/client-request/list/new'
                   pageNumber={4}
-                  movePage={(id: number) => ''}
+                  movePage={params => router.push('/')}
                   columns={RequestColumns}
                 />
               </Box>
@@ -347,7 +353,7 @@ const LPMDashboards = () => {
               router.push(`/orders/order-list/detail/${params.id}`)
             }
           />
-          <StatusAndDataGrid
+          <StatusAndDataGrid<JobItem>
             userViewDate={userViewDate}
             type='job'
             statusColumn={StatusJobColumns}
@@ -365,6 +371,11 @@ const LPMDashboards = () => {
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
             movePage={() => router.push('/orders/job-list/?menu=list')}
+            moveDetailPage={params =>
+              router.push(
+                `/orders/job-list/details/?orderId=${params.row?.orderId}&jobId=${params.row.id}`,
+              )
+            }
           />
           <Grid container gap='24px'>
             <GridItem height={229} xs={6}>
@@ -624,5 +635,5 @@ export default LPMDashboards
 
 LPMDashboards.acl = {
   action: 'read',
-  subject: 'client',
+  subject: 'dashboard_LPM',
 }

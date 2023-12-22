@@ -18,74 +18,93 @@ const ProJobRequestBarChart = ({ report }: CurrencyByDateListProps) => {
   const theme = useTheme()
 
   const [series, categories, values] = useMemo(() => {
-    const accept: Array<number> = []
-    const request: Array<number> = []
+    const total: Array<number> = []
+    const assigned: Array<number> = []
     const _sameValueIndex: Array<number> = []
     const _categories: Array<string> = []
 
-    report.forEach((item, index) => {
-      if (item.rejectedCount === 0) _sameValueIndex.push(index)
+    for (const item of report) {
+    }
 
-      accept.push(item.acceptedCount || 0)
-      request.push(item.rejectedCount || 0)
+    report.forEach((item, index) => {
+      const _total = (item.acceptedCount || 0) + (item.rejectedCount || 0)
+      const _assigned = item.acceptedCount || 0
+
+      if (_total == _assigned) {
+        _sameValueIndex.push(index)
+        total.push((item.acceptedCount || 0) + (item.rejectedCount || 0))
+      } else {
+        total.push((item.acceptedCount || 0) + (item.rejectedCount || 0))
+        assigned.push(item.acceptedCount || 0)
+      }
       _categories.push(item.month)
     })
 
     const _series = [
       {
-        name: 'Accept',
-        data: accept,
+        name: 'Total',
+        data: total,
       },
       {
-        name: 'Request',
-        data: request,
+        name: 'Assigned',
+        data: assigned,
       },
     ]
 
     return [_series, _categories, _sameValueIndex]
   }, [report])
 
-  const options: ApexOptions = {
-    chart: {
-      type: 'bar',
-      stacked: true,
-      toolbar: {
-        show: false,
-      },
-    },
+  const options: ApexOptions = useMemo(() => {
+    const max = Math.max(
+      ...report.map(item => item.rejectedCount + item.acceptedCount),
+    )
 
-    plotOptions: {
-      bar: {
-        columnWidth: '24%',
-        horizontal: false,
-        borderRadius: 30,
-        dataLabels: {},
-      },
-    },
-    xaxis: {
-      tickAmount: 8,
-      axisTicks: { show: false },
-      axisBorder: { show: false },
-      categories: categories,
-      labels: {
-        style: {
-          colors: 'rgba(76, 78, 100, 0.38)',
+    return {
+      chart: {
+        type: 'bar',
+        stacked: true,
+        toolbar: {
+          show: false,
         },
       },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    colors: ['#666CFF', '#FDB528'],
-    grid: {
-      strokeDashArray: 8,
-      borderColor: theme.palette.divider,
-      yaxis: {
-        lines: { show: true },
+      plotOptions: {
+        bar: {
+          columnWidth: '24%',
+          horizontal: false,
+          borderRadius: 30,
+          dataLabels: {},
+        },
       },
-    },
-    legend: { show: false },
-  }
+      xaxis: {
+        tickAmount: 8,
+        axisTicks: { show: false },
+        axisBorder: { show: false },
+        categories: categories,
+        labels: {
+          style: {
+            colors: 'rgba(76, 78, 100, 0.38)',
+          },
+        },
+      },
+      yaxis: {
+        min: 0,
+        max: max,
+        tickAmount: 3,
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      colors: ['#666CFF', '#FDB528'],
+      grid: {
+        strokeDashArray: 8,
+        borderColor: theme.palette.divider,
+        yaxis: {
+          lines: { show: true },
+        },
+      },
+      legend: { show: false },
+    }
+  }, [report])
 
   return (
     <Box sx={{ marginTop: '50px' }}>
@@ -145,7 +164,7 @@ export const CustomChart = styled(ReactApexcharts)<{
   values?.forEach(index => {
     obj[`.apexcharts-series:nth-of-type(1) > path:nth-of-type(${index + 1})`] =
       {
-        clipPath: 'inset(0% 0% -10px 0% round 10px)',
+        clipPath: 'inset(10px 0% 0px 0% round 10px)',
       }
   })
 

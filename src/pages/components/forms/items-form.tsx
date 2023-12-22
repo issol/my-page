@@ -55,7 +55,7 @@ import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modal
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 import { LanguagePairTypeInItem } from '@src/types/orders/order-detail'
-import { getItemJob } from '@src/apis/order-detail.api'
+import { getItemJob } from '@src/apis/order/order-detail.api'
 import Row from './item-row'
 
 type Props = {
@@ -246,7 +246,7 @@ export default function ItemForm({
             <CustomModal
               title='This item cannot be deleted because jobs have already been created from it.'
               soloButton={true}
-              rightButtonText='Okey'
+              rightButtonText='Okay'
               onClose={() => closeModal('deleteNotAllowedModal')}
               onClick={() => closeModal('deleteNotAllowedModal')}
               vary='error'

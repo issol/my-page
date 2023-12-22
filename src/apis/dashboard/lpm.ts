@@ -12,6 +12,7 @@ import {
   ReportItem,
   RequestQuery,
   TotalAmountQuery,
+  ViewModeQuery,
 } from '@src/types/dashboard'
 
 export const getReport = async (
@@ -30,13 +31,13 @@ export const getRequest = async ({ path, ...params }: RequestQuery) => {
   return data
 }
 
-export const getRatio = async (params: RatioQuery) => {
+export const getRatio = async ({ filter, ...params }: RatioQuery) => {
   const { type, apiType, path, ...props } = params
   const fullPath = path || `ratio/${type}`
   const { data } = await axios.get(
     `/api/enough/${apiType}/dashboard/${fullPath}`,
     {
-      params: { ...props },
+      params: { ...props, type: filter },
     },
   )
   return data
@@ -63,7 +64,7 @@ export const getCount = async ({
   const { data } = await axios.get(
     `/api/enough/${apiType}/dashboard/${countType}/count`,
     {
-      params: params,
+      params: { ...params, type: params?.filter },
     },
   )
   return data
@@ -96,13 +97,18 @@ export const getOnboardingOverview = async () => {
 }
 
 /* LPM */
-export const getPaidThisMonth = async (
-  type: 'payable' | 'receivable',
-  currency: Currency,
-) => {
+interface PaidThisMonthQuery extends ViewModeQuery {
+  type: 'payable' | 'receivable'
+  currency: Currency
+}
+export const getPaidThisMonth = async ({
+  type,
+  currency,
+  ...props
+}: PaidThisMonthQuery) => {
   const { data } = await axios.get(
     `/api/enough/u/dashboard/invoice/${type}/paid/total-price`,
-    { params: { currency } },
+    { params: { ...props, currency } },
   )
   return data
 }

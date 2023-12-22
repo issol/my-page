@@ -20,6 +20,7 @@ const TADJobDataGrid = ({
 }: TADJobDataGridProps) => {
   const router = useRouter()
   const [filter, setFilter] = useState<'jobType' | 'role' | 'pair'>('pair')
+  const [page, setPage] = useState(0)
 
   const { data } = useJobType(filter)
 
@@ -67,42 +68,47 @@ const TADJobDataGrid = ({
         sx={{ padding: '20px 20px 10px' }}
       >
         <Title
-          title={`${getTitle()}`}
-          subTitle={`Total ${data?.totalCount || 0} Job type/Role`}
+          title='Job type/Role pool'
+          subTitle={`Total ${data?.totalCount || 0} ${getTitle()}`}
           openDialog={setOpenInfoDialog}
           handleClick={() => router.push('/pro')}
         />
-        <OptionsMenu
-          iconButtonProps={{ size: 'small', className: 'card-more-options' }}
-          options={[
-            {
-              text: 'Job type/Role',
-              menuItemProps: {
-                onClick: () => {
-                  setFilter('pair')
+        <Box>
+          <OptionsMenu
+            iconButtonProps={{ size: 'small', className: 'card-more-options' }}
+            options={[
+              {
+                text: 'Job type/Role',
+                menuItemProps: {
+                  onClick: () => {
+                    setFilter('pair')
+                    setPage(0)
+                  },
                 },
               },
-            },
-            {
-              text: 'Job types',
-              menuItemProps: {
-                onClick: () => {
-                  setFilter('jobType')
+              {
+                text: 'Job types',
+                menuItemProps: {
+                  onClick: () => {
+                    setFilter('jobType')
+                    setPage(0)
+                  },
                 },
               },
-            },
-            {
-              text: 'Roles',
-              menuItemProps: {
-                onClick: () => {
-                  setFilter('role')
+              {
+                text: 'Roles',
+                menuItemProps: {
+                  onClick: () => {
+                    setFilter('role')
+                    setPage(0)
+                  },
                 },
               },
-            },
-          ]}
-        />
+            ]}
+          />
+        </Box>
       </Box>
-      <div style={{ height: '400px', width: '100%' }}>
+      <div style={{ height: `calc(100% - 105px)`, width: '100%' }}>
         <CustomDataGrid
           columns={JobTableColumn}
           rows={(data?.report || []).map((item, index) => ({
@@ -110,8 +116,10 @@ const TADJobDataGrid = ({
             numbering: index + 1,
             ...item,
           }))}
-          rowCount={data?.totalCount || 0}
+          page={page}
+          onPageChange={() => setPage(page + 1)}
           pageSize={7}
+          rowCount={data?.totalCount || 0}
           rowsPerPageOptions={[]}
         />
       </div>

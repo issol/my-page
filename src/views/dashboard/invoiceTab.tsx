@@ -80,11 +80,9 @@ const TEMP = {
 }
 
 const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
-  const {} = useInvoiceOverview(params)
   const { data } = useInvoiceOverview(params)
   const [tabIndex, setTabIndex] = useState<string>('1')
 
-  const [categories, setCategories] = useState<Array<string>>([])
   const [tabData, setTabData] = useState<Invoice>({
     USD: [],
     JPY: [],
@@ -97,23 +95,33 @@ const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   }
 
   useEffect(() => {
-    data?.forEach(item => {
-      tabData['USD'].push(item.invoiceUSD)
-      tabData['JPY'].push(item.invoiceJPY)
-      tabData['KRW'].push(item.invoiceKRW)
-      tabData['SGD'].push(item.invoiceSGD)
-      categories.push(item.month)
-    })
-  }, [data])
+    if (!Array.isArray(data)) return
 
-  const isEmptyDateList = useMemo(() => {
+    data?.forEach((item, index) => {
+      tabData['USD'].push(item.invoiceUSD || 0)
+      tabData['JPY'].push(item.invoiceJPY || 0)
+      tabData['KRW'].push(item.invoiceKRW || 0)
+      tabData['SGD'].push(item.invoiceSGD || 0)
+    })
+  }, [params, data])
+
+  const dateList = useMemo(() => {
     const _date = dayjs(`${params.year}-${params.month}`).set('date', 1)
     return Array(6)
       .fill(0)
       .map((i, index) => {
-        return _date.add(index, 'month')
+        return _date.add(-(index + 1), 'month').format('MMMM')
       })
-  }, [params])
+  }, [params.month])
+
+  const categories = useMemo(() => {
+    const _date = dayjs(`${params.year}-${params.month}`).set('date', 1)
+    return Array(6)
+      .fill(0)
+      .map((i, index) => {
+        return _date.add(-(index + 1), 'month').format('MMM')
+      })
+  }, [params.month])
 
   return (
     <TabContext value={tabIndex}>
@@ -126,33 +134,33 @@ const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
       <TabPanel value='1' sx={{ height: '100%', padding: '0 !important' }}>
         <TabContent
           currency='$'
-          categories={categories}
+          categories={[...categories]}
           values={tabData.USD || []}
-          isEmptyDateList={isEmptyDateList || []}
+          dateList={[...dateList] || []}
         />
       </TabPanel>
       <TabPanel value='2' sx={{ height: '100%', padding: '0 !important' }}>
         <TabContent
           currency='¥'
-          categories={categories}
+          categories={[...categories]}
           values={tabData.JPY || []}
-          isEmptyDateList={isEmptyDateList || []}
+          dateList={[...dateList] || []}
         />
       </TabPanel>
       <TabPanel value='3' sx={{ height: '100%', padding: '0 !important' }}>
         <TabContent
           currency='₩'
-          categories={categories}
+          categories={[...categories]}
           values={tabData.KRW || []}
-          isEmptyDateList={isEmptyDateList || []}
+          dateList={[...dateList] || []}
         />
       </TabPanel>
       <TabPanel value='4' sx={{ height: '100%', padding: '0 !important' }}>
         <TabContent
           currency='$'
-          categories={categories}
+          categories={[...categories]}
           values={tabData.SGD || []}
-          isEmptyDateList={isEmptyDateList || []}
+          dateList={[...dateList].reverse() || []}
         />
       </TabPanel>
     </TabContext>
@@ -163,13 +171,13 @@ interface TabContentProps {
   currency: string
   categories: Array<string>
   values: Array<number>
-  isEmptyDateList: Array<Dayjs>
+  dateList: Array<string>
 }
 const TabContent = ({
   categories,
   values,
   currency,
-  isEmptyDateList,
+  dateList,
 }: TabContentProps) => {
   const theme = useTheme()
 
@@ -232,6 +240,9 @@ const TabContent = ({
         min: 0,
         max: maxNumber,
         labels: {
+          style: {
+            colors: 'rgba(76, 78, 100, 0.38)',
+          },
           formatter: function (value) {
             return `${Math.round(value / 1000)}k`
           },
@@ -254,7 +265,7 @@ const TabContent = ({
       },
       legend: { show: false },
     }
-  }, [values])
+  }, [categories, values])
 
   return (
     <Box display='flex' sx={{ height: '100%' }}>
@@ -278,7 +289,7 @@ const TabContent = ({
           padding: '20px 20px 0',
         }}
       >
-        {values.map((val, index) => (
+        {dateList.map((val, index) => (
           <Box
             key={`values-${index}`}
             display='flex'
@@ -295,7 +306,7 @@ const TabContent = ({
                     : 'rgba(76, 78, 100, 0.87)'
                 }
               >
-                {categories[index]}
+                {val}
               </Typography>
               <Typography
                 fontSize='14px'
@@ -306,46 +317,12 @@ const TabContent = ({
                     : 'rgba(76, 78, 100, 0.87)'
                 }
               >
-                {val && currency}
-                {val ? val.toLocaleString() : '-'}
+                {values[index] && currency}
+                {values[index] ? values[index].toLocaleString() : '0'}
               </Typography>
             </>
           </Box>
         ))}
-        {values.length === 0 &&
-          isEmptyDateList.map((val, index) => (
-            <Box
-              key={`values-${index}`}
-              display='flex'
-              justifyContent='space-between'
-              sx={{ height: '34px' }}
-            >
-              <>
-                <Typography
-                  fontSize='14px'
-                  fontWeight={600}
-                  color={
-                    index === 0
-                      ? 'rgba(102, 108, 255, 1)'
-                      : 'rgba(76, 78, 100, 0.87)'
-                  }
-                >
-                  {dayjs(val).format('MMMM')}
-                </Typography>
-                <Typography
-                  fontSize='14px'
-                  fontWeight={600}
-                  color={
-                    index === 0
-                      ? 'rgba(102, 108, 255, 1)'
-                      : 'rgba(76, 78, 100, 0.87)'
-                  }
-                >
-                  0
-                </Typography>
-              </>
-            </Box>
-          ))}
       </Box>
     </Box>
   )

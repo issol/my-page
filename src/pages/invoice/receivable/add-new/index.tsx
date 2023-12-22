@@ -69,7 +69,7 @@ import {
   getLangItems,
   getProjectInfo,
   getProjectTeam,
-} from '@src/apis/order-detail.api'
+} from '@src/apis/order/order-detail.api'
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
@@ -472,7 +472,7 @@ export default function AddNewInvoice() {
       invoiceDescription: projectInfo.invoiceDescription,
       setReminder: projectInfo.setReminder ? '1' : '0',
     }
-    console.log("res",res)
+    console.log('res', res)
     openModal({
       type: 'CreateInvoiceModal',
       children: (
@@ -537,7 +537,7 @@ export default function AddNewInvoice() {
     if (id) {
       getMultipleOrder(id)
         .then(res => {
-          console.log("getMultipleOrder",res)
+          console.log('getMultipleOrder', res)
 
           const isClientRegistered =
             res.clientInfo.contactPerson !== null &&

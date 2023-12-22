@@ -6,6 +6,7 @@ import {
   CurrencyUnit,
   SectionTitle,
   SubDateDescription,
+  Title,
 } from '@src/views/dashboard/dashboardItem'
 import { useTotalAmount } from '@src/queries/dashboard/dashnaord-lpm'
 import dayjs, { Dayjs } from 'dayjs'
@@ -14,7 +15,6 @@ import { KeyboardArrowRight } from '@mui/icons-material'
 import { useRouter } from 'next/router'
 
 export interface CurrencyByDateListProps {
-  date?: Date
   report: Array<ExpectedIncome>
 }
 
@@ -24,7 +24,7 @@ export const getProDateFormat = (year: number, month: number) => {
   return lastDate.format('MMMM 1 - DD, YYYY')
 }
 
-const CurrencyByDateList = ({ report, date }: CurrencyByDateListProps) => {
+const CurrencyByDateList = ({ report }: CurrencyByDateListProps) => {
   const isItemValues = (item: ExpectedIncome) => {
     return !!(
       item.incomeUSD ||
@@ -34,40 +34,8 @@ const CurrencyByDateList = ({ report, date }: CurrencyByDateListProps) => {
     )
   }
 
-  const isEmptyList = useCallback(() => {
-    if (report.length !== 0) return
-    const _date = dayjs(date).set('date', 1)
-    const monthList = Array(6)
-      .fill(0)
-      .map((i, index) => {
-        return _date.add(index, 'month')
-      })
-
-    return monthList.map((date, index) => (
-      <Box key={`${date}-index`} sx={{ height: '100%' }}>
-        <Typography
-          fontSize='14px'
-          color='#4C4E64DE'
-          fontWeight={600}
-          sx={{ marginBottom: '5px' }}
-        >
-          {date.format('MMM')}
-        </Typography>
-        <CurrencyItemList
-          style={{ height: 'fit-content', padding: 0, margin: 0 }}
-        >
-          <li>
-            <span className='currency_box'>-</span>
-            <span className='price'>0</span>
-          </li>
-        </CurrencyItemList>
-      </Box>
-    ))
-  }, [date])
-
   return (
     <Box className='scroll_bar' sx={{ maxHeight: '364px', overflowY: 'auto' }}>
-      {isEmptyList()}
       {report.map(item => (
         <Box key={`${item.month}`} sx={{ height: '100%' }}>
           <Typography
@@ -112,8 +80,13 @@ const CurrencyByDateList = ({ report, date }: CurrencyByDateListProps) => {
 
 interface CurrencyAmountProps extends TotalAmountQuery {
   title: string
+  setOpenInfoDialog: (open: boolean, key: string) => void
 }
-export const CurrencyAmount = ({ title, ...params }: CurrencyAmountProps) => {
+export const CurrencyAmount = ({
+  title,
+  setOpenInfoDialog,
+  ...params
+}: CurrencyAmountProps) => {
   const router = useRouter()
   const { data } = useTotalAmount(params)
 
@@ -127,20 +100,12 @@ export const CurrencyAmount = ({ title, ...params }: CurrencyAmountProps) => {
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
       <Box>
-        <SectionTitle>
-          <span
-            role='button'
-            className='title'
-            onClick={() => router.push('/quotes/lpm/requests/')}
-          >
-            {title}
-          </span>
-          <ErrorOutlineIcon className='info_icon' />
-          <KeyboardArrowRight className='arrow_icon' />
-        </SectionTitle>
-        <SubDateDescription textAlign='left'>
-          {getProDateFormat(params.year, params.month)}
-        </SubDateDescription>
+        <Title
+          title={title}
+          subTitle={getProDateFormat(params.year, params.month)}
+          openDialog={setOpenInfoDialog}
+          handleClick={() => router.push('/invoice/pro/')}
+        />
       </Box>
       <Box display='flex' alignItems='center' sx={{ padding: '40px 0 ' }}>
         <Box display='flex' alignItems='center'>

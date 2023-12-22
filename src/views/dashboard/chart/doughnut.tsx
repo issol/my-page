@@ -28,6 +28,7 @@ interface DoughnutChartProps<T> extends Partial<CSVDataRecordProps> {
   title: string
   userViewDate?: string
   subTitle?: string
+  emptyTitle?: string
   from: string
   to: string
   type: string
@@ -45,6 +46,7 @@ const Doughnut = <T extends RatioItem>({
   title,
   userViewDate,
   subTitle,
+  emptyTitle,
   path,
   from,
   to,
@@ -153,7 +155,7 @@ const Doughnut = <T extends RatioItem>({
         width: 5,
       },
       tooltip: {
-        enabled: !isHiddenValue,
+        enabled: true,
         custom: function ({ series, seriesIndex, dataPointIndex, w }) {
           const price = charData[seriesIndex]?.sum || 0
 
@@ -172,9 +174,11 @@ const Doughnut = <T extends RatioItem>({
                   <span className='tooltip__count'>{`(${charData[seriesIndex].count})`}</span>
                 </div>
                 <div className='flex-center' style={{ marginTop: '10px' }}>
-                  <span className='tooltip__sum'>{`${Number(
-                    price,
-                  ).toLocaleString()}`}</span>
+                  {!isHiddenValue && (
+                    <span className='tooltip__sum'>{`${Number(
+                      price,
+                    ).toLocaleString()}`}</span>
+                  )}
                   <span className='tooltip__ratio'>{`${charData[seriesIndex].ratio}%`}</span>
                 </div>
               </div>{' '}
@@ -266,7 +270,7 @@ const Doughnut = <T extends RatioItem>({
         >
           <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
         </Box>
-        {!data && <NoRatio title={title} />}
+        {!data && <NoRatio title={emptyTitle || title} />}
         {data && (
           <Box
             display='flex'
@@ -353,6 +357,7 @@ export const List = styled('ul')(() => {
       height: '35px',
       display: 'flex',
       alignItems: 'center',
+      justifyContent: 'space-between',
       fontSize: '14px',
       color: '#4C4E64DE',
     },

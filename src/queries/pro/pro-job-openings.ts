@@ -28,9 +28,9 @@ export const useGetJobOpeningList = (filters: JobOpeningListFilterType) => {
 }
 
 export const useGetJobOpeningDetail = (id: number) => {
-  return useQuery<JobPostingDetailType>(
+  return useQuery<JobOpeningDetailType>(
     ['pro-job-opening-detail', id],
-    () => getJobPostingDetail(id),
+    () => getJobOpeningDetail(id),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,

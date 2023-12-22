@@ -302,9 +302,15 @@ export const usePaidThisMonthAmount = (
   type: 'payable' | 'receivable',
   currency: Currency,
 ) => {
+  const { userId: initUserId, view: initView } = getUserViewModeInfo()
+  const { view: changeView, userId: changeUserId } =
+    useRecoilValue(dashboardState)
+  const view = changeView ? changeView : initView
+  const userId = changeUserId ? changeUserId : initUserId
+
   return useQuery<PaidThisMonthAmount>(
     [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'PaidThisMonth', type, currency],
-    () => getPaidThisMonth(type, currency),
+    () => getPaidThisMonth({ type, currency, userId, view }),
     {
       suspense: true,
       keepPreviousData: true,
@@ -414,7 +420,7 @@ export const useExpectedIncome = (params: ExpectedIncomeQuery) => {
       DEFAULT_QUERY_NAME,
       NO_DATE_EFFECT,
       'ExpectedIncome',
-      { sort: params.sort, month: params.month },
+      { year: params.year, sort: params.sort, month: params.month },
     ],
     () => getExpectedIncome(params),
     {
@@ -566,7 +572,7 @@ export interface AccountRatioResult {
 }
 export const useAccountRatio = ({ office, userType }: PaymentType) => {
   return useQuery<AccountRatioResult>(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'AccountRatio', userType],
+    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'AccountRatio', userType, office],
     () => getAccountPaymentType({ office, userType }),
     {
       suspense: true,
