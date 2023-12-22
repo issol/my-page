@@ -89,7 +89,7 @@ const ProInvoiceDetail = () => {
 
   function handlePrint() {
     closeModal('DownloadInvoiceModal')
-    router.push('/invoice/payable/print')
+    router.push('/invoice/pro/print')
   }
 
   const onDownloadInvoiceClick = () => {
