@@ -129,13 +129,9 @@ const ProInvoiceDetail = () => {
           }),
           email: user?.email ?? '-',
           mobile: user?.mobilePhone,
-          address: {
-            detailAddress: '31-1',
-            baseAddress: 'Hangang-daero',
-            city: 'Yongsan-gu',
-            state: 'Seoul',
-            zipCode: '02148',
-          },
+          address:
+            user?.addresses.find(value => value.addressType === 'billing') ??
+            data.pro?.address,
         },
         jobList: jobList?.data || [],
         subtotal: data.subtotal,
