@@ -26,20 +26,9 @@ import { useMutation, useQueryClient } from 'react-query'
 
 import { ModalContext } from 'src/context/ModalContext'
 
-import { useFieldArray, useForm } from 'react-hook-form'
-import {
-  useGetAppliedRole,
-  useGetCertifiedRole,
-  useGetOnboardingProDetails,
-} from 'src/queries/onboarding/onboarding-query'
-
 import { RoleType } from 'src/context/types'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
-import Button from '@mui/material/Button'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { assignTestSchema } from 'src/types/schema/onboarding.schema'
 
-import { getLegalName } from 'src/shared/helpers/legalname.helper'
 import FallbackSpinner from 'src/@core/components/spinner'
 import Icon from 'src/@core/components/icon'
 import IconButton from '@mui/material/IconButton'
@@ -47,12 +36,12 @@ import IconButton from '@mui/material/IconButton'
 import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
 import {
   addCommentOnPro,
-  addCreatedAppliedRole,
+  addCreateProAppliedRole,
+  addCreateProAppliedTest,
   deleteCommentOnPro,
   editCommentOnPro,
   patchAppliedRole,
   patchTestStatus,
-  setCertifiedRole,
 } from 'src/apis/onboarding.api'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -61,12 +50,10 @@ import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certi
 import ResumeTestModal from '@src/pages/components/pro-detail-modal/modal/resume-test-modal'
 import AppliedRoleModal from '@src/pages/components/pro-detail-modal/dialog/applied-role-modal'
 import TestDetailsModal from '@src/pages/components/pro-detail-modal/dialog/test-details-modal'
-import AssignRoleModal from '@src/pages/components/pro-detail-modal/modal/assign-role-modal'
-import AssignTestModal from '@src/pages/components/pro-detail-modal/modal/assign-test.modal'
+
 import BasicTestActionModal from '@src/pages/components/pro-detail-modal/modal/basic-test-action-modal'
 import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal/cancel-comment-modal'
-import CancelRoleModal from '@src/pages/components/pro-detail-modal/modal/cancel-role-modal'
-import CancelTestModal from '@src/pages/components/pro-detail-modal/modal/cancel-test-modal'
+
 import DeleteCommentModal from '@src/pages/components/pro-detail-modal/modal/delete-comment-modal'
 import CancelEditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-cancel-comment-modal'
 import EditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-comment-modal'
@@ -77,7 +64,7 @@ import SkillTestActionModal from '@src/pages/components/pro-detail-modal/modal/s
 import TestAssignModal from '@src/pages/components/pro-detail-modal/modal/test-assign-modal'
 import About from '@src/pages/components/pro-detail-component/about'
 import AppliedRole from '@src/pages/components/pro-detail-component/applied-role'
-import CertifiedRole from '@src/pages/components/pro-detail-component/certified-role'
+
 import CommentsAboutPro from '@src/pages/components/pro-detail-component/comments-pro'
 import Experience from '@src/pages/components/pro-detail-component/experience'
 import NoteFromPro from '@src/pages/components/pro-detail-component/note-pro'
@@ -95,10 +82,7 @@ import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import AvailableCalendarWrapper from '@src/@core/styles/libs/available-calendar'
 import WorkDaysCalendar from '@src/pages/mypage/pro/components/overview/work-days-calendar'
 import TimelineDot from '@src/@core/components/mui/timeline-dot'
-
-const defaultValues: AddRoleType = {
-  jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
-}
+import useModal from '@src/hooks/useModal'
 
 export const ProDetailOverviews = () => (
   <Suspense fallback={<FallbackSpinner />}>
@@ -155,62 +139,11 @@ function ProDetailOverview() {
   const [addComment, setAddComment] = useState<string>('')
   const [clickedAddComment, setClickedAddComment] = useState(false)
 
-  const [assignTestJobInfo, setAssignTestJobInfo] =
-    useState<AddRoleType>(defaultValues)
-  const [assignRoleJobInfo, setAssignRoleJobInfo] =
-    useState<AddRoleType>(defaultValues)
-
   const [status, setStatus] = useState(userInfo?.status)
   const ability = useContext(AbilityContext)
   const languageList = getGloLanguage()
 
-  const {
-    control,
-    handleSubmit,
-    reset,
-    watch,
-    trigger,
-    getValues,
-    formState: { errors, dirtyFields },
-  } = useForm<AddRoleType>({
-    defaultValues,
-    mode: 'onChange',
-    resolver: yupResolver(assignTestSchema),
-  })
-
-  const {
-    control: roleControl,
-    handleSubmit: handleRoleSubmit,
-    reset: roleReset,
-
-    trigger: roleTrigger,
-    getValues: roleGetValues,
-    formState: { errors: roleErrors },
-  } = useForm<AddRoleType>({
-    defaultValues,
-    mode: 'onBlur',
-    resolver: yupResolver(assignTestSchema),
-  })
-
-  const {
-    fields: jobInfoFields,
-    append,
-    remove,
-    update,
-  } = useFieldArray({
-    control,
-    name: 'jobInfo',
-  })
-
-  const {
-    fields: roleJobInfoFields,
-    append: roleAppend,
-    remove: roleRemove,
-    update: roleUpdate,
-  } = useFieldArray({
-    control: roleControl,
-    name: 'jobInfo',
-  })
+  const { openModal, closeModal } = useModal()
 
   const { setModal } = useContext(ModalContext)
 
@@ -246,15 +179,6 @@ function ProDetailOverview() {
     },
   )
 
-  const addRoleMutation = useMutation(
-    (jobInfo: AddRolePayloadType[]) => setCertifiedRole(jobInfo),
-    {
-      onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(['pro-overview'])
-      },
-    },
-  )
-
   const patchTestStatusMutation = useMutation(
     (value: { id: number; status: string }) =>
       patchTestStatus(value.id, value.status),
@@ -266,10 +190,23 @@ function ProDetailOverview() {
   )
 
   const addTestMutation = useMutation(
-    (jobInfo: AddRolePayloadType[]) => addCreatedAppliedRole(jobInfo),
+    (jobInfo: AddRolePayloadType[]) => addCreateProAppliedRole(jobInfo),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(['pro-overview'])
+        // queryClient.invalidateQueries(`applied-role-${variables[0].userId}`)
+        closeModal('AssignRoleModal')
+        queryClient.invalidateQueries(['onboarding-pro-details'])
+      },
+    },
+  )
+
+  const addRoleMutation = useMutation(
+    (jobInfo: AddRolePayloadType[]) => addCreateProAppliedTest(jobInfo),
+    {
+      onSuccess: (data, variables) => {
+        // queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+        closeModal('AssignRoleModal')
+        queryClient.invalidateQueries(['onboarding-pro-details'])
       },
     },
   )
@@ -326,7 +263,6 @@ function ProDetailOverview() {
   )
 
   const handleChangeStatus = (event: SelectChangeEvent) => {
-    // TODO Api연결
     setStatus(event.target.value as string)
     changeProStatusMutation.mutate({
       userId: Number(id!),
@@ -556,34 +492,20 @@ function ProDetailOverview() {
     )
   }
   const onClickAddRole = () => {
-    setAppliedRoleModalOpen(true)
-  }
-
-  const onChangeJobInfo = (
-    id: string,
-    value: any,
-    item: 'jobType' | 'role' | 'source' | 'target',
-    type: string,
-  ) => {
-    if (type === 'test') {
-      const filtered = jobInfoFields.filter(f => f.id! === id)[0]
-      const index = jobInfoFields.findIndex(f => f.id! === id)
-      let newVal = { ...filtered, [item]: value }
-      if (item === 'jobType' && (value === 'DTPer' || value === 'DTP QCer')) {
-        newVal = { ...filtered, [item]: value, source: '', target: '' }
-      }
-      update(index, newVal)
-      trigger('jobInfo')
-    } else if (type === 'role') {
-      const filtered = roleJobInfoFields.filter(f => f.id! === id)[0]
-      const index = roleJobInfoFields.findIndex(f => f.id! === id)
-      let newVal = { ...filtered, [item]: value }
-      if (item === 'jobType' && (value === 'DTPer' || value === 'DTP QCer')) {
-        newVal = { ...filtered, [item]: value, source: '', target: '' }
-      }
-      roleUpdate(index, newVal)
-      roleTrigger('jobInfo')
-    }
+    openModal({
+      type: 'AssignRoleModal',
+      children: (
+        <AppliedRoleModal
+          onClose={() => {
+            closeModal('AssignRoleModal')
+          }}
+          languageList={languageList}
+          proId={Number(id)}
+          handleAssignTest={handleAssignTest}
+          handleAssignRole={handleAssignRole}
+        />
+      ),
+    })
   }
 
   const onClickTestDetails = (skillTest: TestType, type: string) => {
@@ -598,41 +520,24 @@ function ProDetailOverview() {
     )
   }
 
-  const onClickAssignTest = (data: AddRoleType) => {
-    // console.log(data)
-    setAssignTestJobInfo(data)
-    setAssignTestModalOpen(true)
-  }
-
-  const onClickCancelTest = () => {
-    setCancelTestModalOpen(true)
-  }
-
   const handleAssignTest = (jobInfo: AddRoleType) => {
-    const res = jobInfo.jobInfo.map(value => ({
+    const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
       userId: userInfo!.userId,
       userCompany: 'GloZ',
-      jobType: value.jobType,
-      role: value.role,
-      source: value.source,
-      target: value.target,
+      jobType: value.jobType.label,
+      role: value.role.label,
+      source: value.source?.value ?? null,
+      target: value.target?.value ?? null,
     }))
+
+    // console.log(res)
 
     //** TODO : Assign 연결 */
 
     addTestMutation.mutate(res)
   }
 
-  const onClickAssignRole = (data: AddRoleType) => {
-    console.log('onClickAssignRole', data)
-    setAssignRoleJobInfo(data)
-    setAssignRoleModalOpen(true)
-  }
-  const onClickCancelRole = () => {
-    setCancelRoleModalOpen(true)
-  }
-
-  const handelAssignRole = (jobInfo: AddRoleType) => {
+  const handleAssignRole = (jobInfo: AddRoleType) => {
     const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
       userId: userInfo!.userId,
       userCompany: 'GloZ',
@@ -640,75 +545,13 @@ function ProDetailOverview() {
       firstName: userInfo!.firstName,
       middleName: userInfo!.middleName,
       lastName: userInfo!.lastName,
-      jobType: value.jobType,
-      role: value.role,
-      source: value.source,
-      target: value.target,
+      jobType: value.jobType.label,
+      role: value.role.label,
+      source: value.source?.value ?? null,
+      target: value.target?.value ?? null,
     }))
 
     addRoleMutation.mutate(res)
-  }
-
-  const onCloseModal = (type: string) => {
-    type === 'test'
-      ? reset({ jobInfo: [{ jobType: '', role: '', source: '', target: '' }] })
-      : roleReset({
-          jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
-        })
-    setAppliedRoleModalOpen(false)
-  }
-
-  const addJobInfo = (type: string) => {
-    if (jobInfoFields.length >= 10 || roleJobInfoFields.length >= 10) {
-      setModal(
-        <Box
-          sx={{
-            padding: '24px',
-            textAlign: 'center',
-            background: '#ffffff',
-            borderRadius: '14px',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px',
-            }}
-          >
-            <img
-              src='/images/icons/project-icons/status-alert-error.png'
-              width={60}
-              height={60}
-              alt='role select error'
-            />
-            <Typography variant='body2'>
-              You can select up to 10 at maximum.
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
-            <Button variant='contained' onClick={() => setModal(null)}>
-              Okay
-            </Button>
-          </Box>
-        </Box>,
-      )
-      return
-    }
-    type === 'test'
-      ? append({ jobType: '', role: '', source: '', target: '' })
-      : roleAppend({ jobType: '', role: '', source: '', target: '' })
-  }
-
-  const removeJobInfo = (item: { id: string }, type: string) => {
-    if (type === 'test') {
-      const idx = jobInfoFields.map(item => item.id).indexOf(item.id)
-      idx !== -1 && remove(idx)
-    } else if (type === 'role') {
-      const idx = roleJobInfoFields.map(item => item.id).indexOf(item.id)
-      idx !== -1 && roleRemove(idx)
-    }
   }
 
   const handleEditComment = () => {
@@ -842,69 +685,6 @@ function ProDetailOverview() {
 
   return (
     <Grid container xs={12} spacing={6}>
-      <AppliedRoleModal
-        open={appliedRoleModalOpen}
-        onClose={() => {
-          reset({
-            jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
-          })
-          setAppliedRoleModalOpen(false)
-        }}
-        jobInfoFields={jobInfoFields}
-        roleJobInfoFields={roleJobInfoFields}
-        control={control}
-        errors={errors}
-        onChangeJobInfo={onChangeJobInfo}
-        languageList={languageList}
-        addJobInfo={addJobInfo}
-        removeJobInfo={removeJobInfo}
-        getValues={getValues}
-        handleSubmit={handleSubmit}
-        onClickAssignTest={onClickAssignTest}
-        onClickCancelTest={onClickCancelTest}
-        onClickAssignRole={onClickAssignRole}
-        onClickCancelRole={onClickCancelRole}
-        roleControl={roleControl}
-        handleRoleSubmit={handleRoleSubmit}
-        roleGetValues={roleGetValues}
-        roleErrors={roleErrors}
-      />
-
-      <AssignTestModal
-        open={assignTestModalOpen}
-        onClose={() => setAssignTestModalOpen(false)}
-        onAssignClose={() => {
-          onCloseModal('test')
-        }}
-        assignTest={handleAssignTest}
-        jobInfo={assignTestJobInfo}
-      />
-      <CancelTestModal
-        open={cancelTestModalOpen}
-        onClose={() => setCancelTestModalOpen(false)}
-        onCloseAssignTestModal={() => {
-          onCloseModal('test')
-        }}
-      />
-
-      <AssignRoleModal
-        open={assignRoleModalOpen}
-        onClose={() => setAssignRoleModalOpen(false)}
-        onAssignClose={() => {
-          onCloseModal('role')
-        }}
-        assignRole={handelAssignRole}
-        jobInfo={assignRoleJobInfo}
-      />
-      <CancelRoleModal
-        open={cancelRoleModalOpen}
-        onClose={() => setCancelRoleModalOpen(false)}
-        onCloseAssignRoleModal={() => {
-          // console.log('close')
-
-          onCloseModal('role')
-        }}
-      />
       {isFetched && !isError ? (
         <>
           <Grid

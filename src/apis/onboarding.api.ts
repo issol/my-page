@@ -4,6 +4,7 @@ import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import {
   AddRolePayloadType,
   AddRoleType,
+  CheckDuplicateType,
   OnboardingFilterType,
 } from 'src/types/onboarding/list'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
@@ -78,8 +79,15 @@ export const addCreatedAppliedRole = async (payload: AddRolePayloadType[]) => {
 export const addCreateProAppliedRole = async (
   payload: AddRolePayloadType[],
 ) => {
-  // await axios.post('/api/enough/cert/request/role-and-test', { data: payload })
-  return Promise.resolve()
+  await axios.post('/api/enough/cert/request/role-and-test', { data: payload })
+  // return Promise.resolve()
+}
+
+export const addCreateProAppliedTest = async (
+  payload: AddRolePayloadType[],
+) => {
+  await axios.post('/api/enough/cert/request/role', { data: payload })
+  // return Promise.resolve()
 }
 
 export const patchAppliedRole = async (
@@ -153,6 +161,16 @@ export const cancelReviewer = async (testId: number) => {
   const data = await axios.patch('/api/enough/cert/request/review/reassign', {
     testId: testId,
   })
+
+  return data
+}
+
+export const checkDuplicate = async (
+  payload: CheckDuplicateType,
+): Promise<{ code: number }> => {
+  const { data } = await axios.get(
+    `/api/enough/cert/request/check-duplicate?${makeQuery(payload)}`,
+  )
 
   return data
 }

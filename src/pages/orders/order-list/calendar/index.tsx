@@ -17,7 +17,7 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 import { Typography } from '@mui/material'
 
-import { OrderListCalendarEventType } from '@src/apis/order-list.api'
+import { OrderListCalendarEventType } from '@src/apis/order/order-list.api'
 import {
   OrderListFilterType,
   OrderListType,

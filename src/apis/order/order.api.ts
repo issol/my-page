@@ -96,3 +96,8 @@ export const checkOrderEditable = async (orderId: number): Promise<boolean> => {
   const { data } = await axios.get(`/api/enough/u/order/${orderId}/editable`)
   return data
 }
+
+export const restoreOrder = async (historyId: number) => {
+  const { data } = await axios.put(`/api/enough/u/order/restore/${historyId}`)
+  return data
+}

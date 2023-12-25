@@ -211,13 +211,13 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
             <Typography variant='subtitle1' fontSize={14}>
               {data.pro?.email}
             </Typography>
-            <Typography variant='subtitle1' fontSize={14}>
-              {!data?.pro?.mobile
-                ? '-'
-                : contryCodeAndPhoneNumberFormatter(
-                    splitContryCodeAndPhoneNumber(data.pro.mobile),
-                  )}
-            </Typography>
+            {!data?.pro?.mobile ? null : (
+              <Typography variant='subtitle1' fontSize={14}>
+                {contryCodeAndPhoneNumberFormatter(
+                  splitContryCodeAndPhoneNumber(data.pro.mobile),
+                )}
+              </Typography>
+            )}
           </Box>
         </Grid>
         <Grid item xs={12}>
@@ -475,8 +475,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                         >
                           {/* {Math.sign(data.tax) === 1 ? '+' : '-'}{' '} */}
                           {/* //TODO tax가 플러스가 되는 케이스가 있는지 확인 필요 */}
-                          {'-'}{' '}
-                          {formatCurrency(data.tax, data.currency)}
+                          {'-'} {formatCurrency(data.tax, data.currency)}
                         </Typography>
                       </Box>
                     </TableCell>

@@ -52,7 +52,7 @@ import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { deleteOrder } from '@src/apis/order-detail.api'
+import { deleteOrder } from '@src/apis/order/order-detail.api'
 import { useRouter } from 'next/router'
 import {
   InvoiceProjectInfoFormType,

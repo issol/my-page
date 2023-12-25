@@ -11,14 +11,17 @@ import {
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import IconifyIcon from '@src/@core/components/icon'
-import { getClient } from '@src/apis/order-detail.api'
+import { getClient } from '@src/apis/order/order-detail.api'
 
 import useModal from '@src/hooks/useModal'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getAddress, getAddressType } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import {
   InvoiceReceivableDetailType,
@@ -252,11 +255,9 @@ const InvoiceClient = ({
                       Time zone:
                     </Typography>
                     <Typography variant='body2'>
-                      {
-                        client.contactPerson !== null
-                          ? client.contactPerson.timezone?.label
-                          : client.client.timezone.label
-                      }
+                      {client.contactPerson !== null
+                        ? client.contactPerson.timezone?.label
+                        : client.client.timezone.label}
                     </Typography>
                   </Box>
                 </Box>
@@ -277,14 +278,15 @@ const InvoiceClient = ({
                     <Typography variant='body2'>
                       {client?.contactPerson?.phone
                         ? contryCodeAndPhoneNumberFormatter(
-                            splitContryCodeAndPhoneNumber(client.contactPerson.phone)
+                            splitContryCodeAndPhoneNumber(
+                              client.contactPerson.phone,
+                            ),
                           )
                         : client?.client?.phone
-                          ? contryCodeAndPhoneNumberFormatter(
-                              splitContryCodeAndPhoneNumber(client.client.phone)
-                            )
-                          : '-'
-                      }
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(client.client.phone),
+                          )
+                        : '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -308,14 +310,15 @@ const InvoiceClient = ({
                     <Typography variant='body2'>
                       {client?.contactPerson?.mobile
                         ? contryCodeAndPhoneNumberFormatter(
-                            splitContryCodeAndPhoneNumber(client.contactPerson.mobile)
+                            splitContryCodeAndPhoneNumber(
+                              client.contactPerson.mobile,
+                            ),
                           )
                         : client?.client?.mobile
-                          ? contryCodeAndPhoneNumberFormatter(
-                              splitContryCodeAndPhoneNumber(client.client.mobile)
-                            )
-                          : '-'
-                      }
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(client.client.mobile),
+                          )
+                        : '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -336,14 +339,15 @@ const InvoiceClient = ({
                     <Typography variant='body2'>
                       {client?.contactPerson?.fax
                         ? contryCodeAndPhoneNumberFormatter(
-                            splitContryCodeAndPhoneNumber(client.contactPerson.fax)
+                            splitContryCodeAndPhoneNumber(
+                              client.contactPerson.fax,
+                            ),
                           )
                         : client?.client?.fax
-                          ? contryCodeAndPhoneNumberFormatter(
-                              splitContryCodeAndPhoneNumber(client.client.fax)
-                            )
-                          : '-'
-                      }
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(client.client.fax),
+                          )
+                        : '-'}
                     </Typography>
                   </Box>
                 </Box>

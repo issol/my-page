@@ -22,7 +22,11 @@ import { MMDDYYYYHelper } from '@src/shared/helpers/date.helper'
 import { ProStatus } from '@src/shared/const/status/statuses'
 import { getAddress } from '@src/shared/helpers/address-helper'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   userInfo: {
@@ -48,6 +52,7 @@ export default function About({
   handleChangeStatus,
   status,
 }: Props) {
+  const currentRole = getCurrentRole()
   if (!userInfo) {
     return null
   }
@@ -110,9 +115,8 @@ export default function About({
             {!userInfo.mobilePhone
               ? '-'
               : contryCodeAndPhoneNumberFormatter(
-                  splitContryCodeAndPhoneNumber(userInfo.mobilePhone)
-                )
-            }
+                  splitContryCodeAndPhoneNumber(userInfo.mobilePhone),
+                )}
           </Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -122,9 +126,8 @@ export default function About({
             {!userInfo.telephone
               ? '-'
               : contryCodeAndPhoneNumberFormatter(
-                  splitContryCodeAndPhoneNumber(userInfo.telephone)
-                )
-            }
+                  splitContryCodeAndPhoneNumber(userInfo.telephone),
+                )}
           </Label>
         </Box>
 
@@ -156,7 +159,9 @@ export default function About({
                   id='controlled-select'
                   onChange={handleChangeStatus}
                   labelId='controlled-select-label'
-                  disabled={type === 'onboarding'}
+                  disabled={
+                    type === 'onboarding' || currentRole?.name === 'LPM'
+                  }
                 >
                   {Object.values(ProStatus).map(value => {
                     return (
