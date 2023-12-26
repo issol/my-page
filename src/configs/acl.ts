@@ -24,7 +24,7 @@ export type PolicyType = {
 const defineRulesFor = (userPermission: PermissionObjectType) => {
   const { can, rules } = new AbilityBuilder(AppAbility)
   can('read', 'home')
-  if (userPermission.length) {
+  if (userPermission?.length) {
     userPermission.forEach(permission => {
       if (permission?.option) {
         can(permission.can, permission.subject, { ...permission.option })
