@@ -291,7 +291,7 @@ const ClientDashboards = () => {
               type='language-pair'
               colors={SecondColors}
               getName={item => {
-                return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
+                return `${item?.sourceLanguage}→${item?.targetLanguage}`.toUpperCase()
               }}
               menuOptions={[
                 {

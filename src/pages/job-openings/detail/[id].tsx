@@ -20,7 +20,6 @@ import UserLayout from '@src/layouts/UserLayout'
 import { useGetJobOpeningDetail } from '@src/queries/pro/pro-job-openings'
 import {
   FullDateTimezoneHelper,
-  convertDateByTimezone,
   convertTimeToTimezone,
 } from '@src/shared/helpers/date.helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
@@ -444,11 +443,6 @@ const JobOpeningDetail = () => {
                     )}
                     {renderTable(
                       'Due date',
-                      // convertDateByTimezone(
-                      //   data?.dueDate!,
-                      //   data?.dueDateTimezone?.code! ?? 'KR',
-                      //   auth.getValue().user?.timezone?.code ?? 'KR',
-                      // ),
                       convertTimeToTimezone(
                         data.dueDate,
                         data.dueDateTimezone,

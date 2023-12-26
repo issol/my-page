@@ -16,8 +16,6 @@ import {
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import {
   convertTimeToTimezone,
-  convertDateByTimezone,
-  convertUTCISOStringToLocalTimezoneISOString,
 } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'

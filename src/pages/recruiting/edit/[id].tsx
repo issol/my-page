@@ -123,6 +123,8 @@ export default function RecruitingEdit() {
   const { data: list, isLoading } = useGetJobPostingList({
     skip: skip * pageSize,
     take: pageSize,
+    sort: 'createdAt',
+    ordering: 'DESC'
   })
 
   // ** contexts

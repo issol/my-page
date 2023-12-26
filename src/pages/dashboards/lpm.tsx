@@ -510,7 +510,7 @@ const LPMDashboards = () => {
               colors={SecondColors}
               getName={item => {
                 if (item?.sourceLanguage && item?.targetLanguage) {
-                  return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
+                  return `${item?.sourceLanguage}→${item?.targetLanguage}`.toUpperCase()
                 }
                 if (item?.sourceLanguage && !item?.targetLanguage) {
                   return `${item?.sourceLanguage}`.toUpperCase()

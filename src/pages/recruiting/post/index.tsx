@@ -113,6 +113,8 @@ export default function RecruitingPost() {
   const { data: list, isLoading } = useGetJobPostingList({
     skip: skip * pageSize,
     take: pageSize,
+    sort: 'createdAt',
+    ordering: 'DESC'
   })
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
@@ -137,7 +139,7 @@ export default function RecruitingPost() {
     targetLanguage: { value: '', label: '' },
     openings: undefined,
     dueDate: '',
-    dueDateTimezone: { code: '', label: '' },
+    dueDateTimezone: { code: '', label: '', phone: '' },
     jobPostLink: '',
   }
 
@@ -280,7 +282,7 @@ export default function RecruitingPost() {
       targetLanguage: data.targetLanguage.value,
       openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
-      dueDateTimezone: data.dueDateTimezone?.label ?? '',
+      dueDateTimezone: data.dueDateTimezone ?? '',
       jobPostLink: data.jobPostLink,
       content:
         content.getCurrentContent().getPlainText('\u0001') === ''
@@ -291,6 +293,7 @@ export default function RecruitingPost() {
     const filteredForm = Object.fromEntries(
       Object.entries(finalForm).filter(([_, value]) => value !== ''),
     )
+    console.log("filteredForm",filteredForm)
     // @ts-ignore
     postMutation.mutate(filteredForm)
   }

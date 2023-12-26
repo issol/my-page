@@ -8,6 +8,9 @@ type Props = {
   onClose: any
   onClick: any
   title: string | JSX.Element
+  titleStyle?: 'normal' | 'bold'
+  titleSize?: 'small' | 'normal' | 'large'
+  titleColor?: string
   subtitle?: string
   subtitleColor?: 'primary' | 'secondary'
   vary:
@@ -27,12 +30,16 @@ type Props = {
   noButton?: boolean
   closeButton?: boolean
   buttonDirection?: 'row' | 'column-reverse'
+  body?: string | JSX.Element
 }
 
 const CustomModal = ({
   onClose,
   onClick,
   title,
+  titleStyle,
+  titleSize,
+  titleColor,
   subtitle,
   subtitleColor,
   vary,
@@ -45,6 +52,7 @@ const CustomModal = ({
   noButton,
   closeButton,
   buttonDirection,
+  body
 }: Props) => {
   const [text, setText] = useState('')
 
@@ -90,10 +98,36 @@ const CustomModal = ({
             variant='body2'
             textAlign='center'
             mt='10px'
-            sx={{ fontSize: '16px' }}
+            color={titleColor ?? 'secondary'}
+            sx={{
+              fontWeight: titleStyle
+                ? titleStyle === 'bold'
+                  ? '700'
+                  : titleStyle === 'normal'
+                    ? '400'
+                    : null
+                : null,
+              fontSize: titleSize
+                ? titleSize === 'large'
+                  ? '20px'
+                  : titleSize === 'normal'
+                    ? '16px'
+                    : null
+                : '16px', 
+              marginBottom: '16px'
+            }}
           >
             {title}
           </Typography>
+          {body ? (
+            <Typography
+              variant='body2'
+              textAlign='center'
+              sx={{ fontWeight: 400, fontSize: '16px', marginBottom: '16px' }}
+            >
+              {body}
+            </Typography>
+          ) : null}
           {subtitle ? (
             <Typography
               variant='body2'

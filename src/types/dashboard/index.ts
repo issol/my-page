@@ -127,7 +127,6 @@ export type JobItem = {
   orderId?: number
   jobName: string
   jobType: string
-
   status: OrderStatusType
   pro: Partial<MemberItem>
 }
@@ -218,6 +217,7 @@ export interface RatioResponse<T> {
 }
 
 export type MemberItem = {
+  id: number
   userId: number
   permissionGroups: Array<string>
   companyId: string

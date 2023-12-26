@@ -11,6 +11,9 @@ import { ApexOptions } from 'apexcharts'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { useRouter } from 'next/router'
 import { CSVDataRecordProps } from '@src/types/dashboard'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
+import find from 'lodash/find'
+import { toCapitalize } from '@src/pages/dashboards/lpm'
 
 interface TADLanguagePoolBarChartProps extends CSVDataRecordProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
@@ -23,6 +26,7 @@ const TADLanguagePoolBarChart = ({
 }: TADLanguagePoolBarChartProps) => {
   const router = useRouter()
   const theme = useTheme()
+  const gloLanguage = getGloLanguage()
 
   const [page, setPage] = React.useState(0)
   const [rowsPerPage, setRowPerPage] = React.useState(6)
@@ -80,17 +84,30 @@ const TADLanguagePoolBarChart = ({
       page * rowsPerPage + 6,
     )
 
+    let title = `${toCapitalize(filter)} Languages`
+    if (filter === 'pair') title = 'Language Pairs'
+
     const seriesData = [
       {
-        name: 'series',
+        name: `${title}`,
         data: sliceData?.map(item => item.count) || [],
       },
     ]
     const labels =
       sliceData?.map(item => {
-        if (filter === 'source') return item.sourceLanguage
-        if (filter === 'target') return item.targetLanguage
-        return [item.sourceLanguage, ` -> ${item.targetLanguage}`]
+        if (filter === 'source')
+          return (
+            find(gloLanguage, {
+              value: item.sourceLanguage,
+            })?.label || '-'
+          )
+        if (filter === 'target')
+          return (
+            find(gloLanguage, {
+              value: item.targetLanguage,
+            })?.label || '-'
+          )
+        return [item.sourceLanguage, ` → ${item.targetLanguage}`]
       }) || []
 
     return [seriesData, labels]
@@ -104,12 +121,16 @@ const TADLanguagePoolBarChart = ({
     const n = max.toString(10).slice(1).length
     const maxNumber = (x + 1) * Math.pow(10, n)
 
+    const chartOffset = filter === 'pair' ? -5 : 0
+    const xaxisOffset = filter === 'pair' ? 0 : -40
+
     return {
       chart: {
         redrawOnParentResize: true,
         width: '100%',
         parentHeightOffset: 30,
         toolbar: { show: false },
+        offsetX: chartOffset,
       },
       plotOptions: {
         bar: {
@@ -185,7 +206,7 @@ const TADLanguagePoolBarChart = ({
       yaxis: {
         labels: {
           align: 'left',
-          offsetX: 5,
+          offsetX: xaxisOffset,
           offsetY: 6,
           style: {
             fontFamily: 'Inter',
@@ -259,7 +280,7 @@ const TADLanguagePoolBarChart = ({
         <div style={{ display: 'flex' }}>
           <CustomBarChart
             type='bar'
-            width={390}
+            width={440}
             height={350}
             series={series}
             options={options}

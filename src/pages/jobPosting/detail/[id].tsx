@@ -38,7 +38,6 @@ import { authState } from '@src/states/auth'
 
 // ** helpers
 import {
-  convertDateByTimezone,
   convertTimeToTimezone,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
@@ -329,11 +328,11 @@ const JobPostingDetail = () => {
                     {renderTable('Number of linguist', data?.openings)}
                     {renderTable(
                       'Due date',
-                      convertDateByTimezone(
+                      convertTimeToTimezone(
                         data?.dueDate,
-                        data?.dueDateTimezone?.code! ?? 'KR',
-                        auth.getValue().user?.timezone.code!,
-                      ),
+                        auth.getValue().user?.timezone!,
+                        timezone.getValue(),
+                      )
                     )}
                     {renderTable('Job post link', data?.jobPostLink)}
                   </Grid>

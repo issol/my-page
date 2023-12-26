@@ -32,6 +32,8 @@ export type FilterType = {
   target: string
   skip?: number
   take?: number
+  sort: string
+  ordering: string
 }
 
 export const initialFilter: FilterType = {
@@ -42,6 +44,8 @@ export const initialFilter: FilterType = {
   target: '',
   skip: 0,
   take: 10,
+  sort: 'createdAt',
+  ordering: 'DESC'
 }
 export default function Recruiting() {
   type FilterState = Array<{ value: string; label: string }>
