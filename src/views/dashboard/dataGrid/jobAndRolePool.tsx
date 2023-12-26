@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { useRouter } from 'next/router'
 import { CSVDataRecordProps } from '@src/types/dashboard'
+import NoList from '@src/pages/components/no-list'
 
 interface TADJobDataGridProps extends CSVDataRecordProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
@@ -116,6 +117,11 @@ const TADJobDataGrid = ({
             numbering: index + 1,
             ...item,
           }))}
+          components={{
+            Header: () => null,
+            NoRowsOverlay: () => NoList(`There are no Pros yet`),
+            NoResultsOverlay: () => NoList(`There are no Pros yet`),
+          }}
           page={page}
           onPageChange={() => setPage(page + 1)}
           pageSize={7}

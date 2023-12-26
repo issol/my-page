@@ -114,22 +114,22 @@ const TADDashboards = () => {
       '        ': '',
       ...mergeData5[0],
       'Application Status': 'Applied',
-      'Application Status Number': OngoingCount.applied,
+      'Application Status Number': OngoingCount?.applied || 0,
     }
     mergeData5[1] = {
       ...mergeData5[1],
       'Application Status': 'Passed',
-      'Application Status Number': OngoingCount.passed,
+      'Application Status Number': OngoingCount?.passed || 0,
     }
     mergeData5[2] = {
       ...mergeData5[2],
       'Application Status': 'Ongoing',
-      'Application Status Number': OngoingCount.ongoing,
+      'Application Status Number': OngoingCount?.ongoing || 0,
     }
     mergeData5[3] = {
       ...mergeData5[3],
       'Application Status': 'Failed',
-      'Application Status Number': OngoingCount.failed,
+      'Application Status Number': OngoingCount?.failed || 0,
     }
     setCSVData(mergeData5)
   }, [
