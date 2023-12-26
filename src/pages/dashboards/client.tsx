@@ -238,26 +238,24 @@ const ClientDashboards = () => {
             </GridItem>
           </Grid>
           <Grid container>
-            <GridItem height={547} sm padding='0px'>
-              <LongStandingDataGrid<LongStandingReceivableItem>
-                title='Long-standing invoices - Action required'
-                type='receivable'
-                columns={InvoiceColumns}
-                initSort={[
-                  {
-                    field: 'clientName',
-                    sort: 'asc',
-                  },
-                ]}
-                dataRecord={receivables}
-                setDataRecord={setReceivables}
-                setOpenInfoDialog={setOpenInfoDialog}
-                onRowClick={(params, event, details) => {
-                  if (params.row.status === 30500) return
-                  router.push(`/invoice/receivable/detail/${params.id}/`)
-                }}
-              />
-            </GridItem>
+            <LongStandingDataGrid<LongStandingReceivableItem>
+              title='Long-standing invoices - Action required'
+              type='receivable'
+              columns={InvoiceColumns}
+              initSort={[
+                {
+                  field: 'clientName',
+                  sort: 'asc',
+                },
+              ]}
+              dataRecord={receivables}
+              setDataRecord={setReceivables}
+              setOpenInfoDialog={setOpenInfoDialog}
+              onRowClick={(params, event, details) => {
+                if (params.row.status === 30500) return
+                router.push(`/invoice/receivable/detail/${params.id}/`)
+              }}
+            />
           </Grid>
           <StatusAndDataGrid
             userViewDate={userViewDate}

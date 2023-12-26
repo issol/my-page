@@ -11,8 +11,10 @@ import { Suspense, useState } from 'react'
 import { useDashboardRequest } from '@src/queries/dashboard/dashnaord-lpm'
 import { useRouter } from 'next/router'
 import { RequestType } from '@src/types/dashboard'
+import NoList from '@src/pages/components/no-list'
 
 interface DashboardDataGridProps {
+  title: string
   path: string
   pageNumber: number
   movePage: (params: GridRowParams) => void
@@ -21,6 +23,7 @@ interface DashboardDataGridProps {
 }
 
 const RequestDashboardDataGrid = ({
+  title,
   path,
   pageNumber = 4,
   movePage,
@@ -54,6 +57,8 @@ const RequestDashboardDataGrid = ({
           headerHeight={0}
           components={{
             Header: () => null,
+            NoRowsOverlay: () => NoList(`There is no ${title}`),
+            NoResultsOverlay: () => NoList(`There is no ${title}`),
           }}
           page={page}
           onPageChange={newPage => {

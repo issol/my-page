@@ -77,7 +77,7 @@ const ChartDate = () => {
   return (
     <GridItem height={76} sm>
       <Box display='flex' justifyContent='space-between' sx={{ width: '100%' }}>
-        <DatePickerWrapper>
+        <DatePickerWrapper display='flex' alignItems='center'>
           <Controller
             control={control}
             name='dateRange'
@@ -92,7 +92,7 @@ const ChartDate = () => {
                 maxDate={dayjs().add(2, 'month').toDate()}
                 customInput={
                   <Box display='flex' alignItems='center'>
-                    <Typography fontSize='24px' fontWeight={500}>
+                    <Typography fontSize='20px' fontWeight={500}>
                       {userViewDate}
                     </Typography>
                     <CalendarTodayIcon sx={{ width: '45px' }} color='primary' />
