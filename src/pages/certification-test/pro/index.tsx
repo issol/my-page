@@ -23,7 +23,7 @@ import Image from 'next/image'
 import ContractSigned from './components/contract-signed'
 
 const defaultFilters: ProAppliedRolesFilterType = {
-  take: 10,
+  take: 5,
   skip: 0,
   isActive: '0',
 }
@@ -63,11 +63,6 @@ const ProCertificationTest = () => {
     type: 'NDA',
     language: ndaLanguage,
   })
-
-  console.log(
-    appliedRoles?.data.filter(value => value.status === 'Contract required')
-      .length,
-  )
 
   const { data: privacyContractData, isLoading: privacyContractLoading } =
     useGetProContract({
