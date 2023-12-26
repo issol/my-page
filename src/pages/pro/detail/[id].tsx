@@ -33,7 +33,7 @@ import { useAppSelector } from '@src/hooks/useRedux'
 import ProInvoices from '../components/invoices'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
-export default function ProDetail() {
+const ProDetail = () => {
   const router = useRouter()
 
   const { id } = router.query
@@ -62,6 +62,7 @@ export default function ProDetail() {
             icon={<Icon icon='iconoir:large-suitcase' />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
+
           {currentRole && currentRole.name === 'LPM' && (
             <CustomTap
               value='invoices'
@@ -79,6 +80,7 @@ export default function ProDetail() {
             icon={<Icon icon='material-symbols:person-outline' />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
+
           <CustomTap
             value='paymentInfo'
             label='Payment info'
@@ -87,6 +89,7 @@ export default function ProDetail() {
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
         </TabList>
+
         <TabPanel value='projects'>
           {id && <ProjectsDetail id={Number(id)} />}
         </TabPanel>
@@ -117,5 +120,7 @@ ProDetail.acl = {
 
 const CustomTap = styled(Tab)`
   text-transform: none;
-  padding: 0px 27px;
+  padding: 0 27px;
 `
+
+export default ProDetail

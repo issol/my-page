@@ -78,8 +78,9 @@ export default function PaymentInfo({ id, userRole }: Props) {
     return value.replaceAll('*', '•')
   }
 
-  function downloadFile(file: FileItemType) {
+  const downloadFile = (file: FileItemType) => {
     if (!file?.id) return
+
     getProPaymentFile(file.id).then(res => {
       const url = window.URL.createObjectURL(res)
       const a = document.createElement('a')
@@ -99,7 +100,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
     files.forEach(file => downloadFile(file))
   }
 
-  function uploadFiles(files: File[]) {
+  const uploadFiles = (files: File[]) => {
     files.forEach(file => {
       const formData = new FormData()
       formData.append('file', file)
@@ -110,7 +111,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
     }, 1500)
   }
 
-  function onDeleteFile(file: FileItemType) {
+  const onDeleteFile = (file: FileItemType) => {
     if (file.id) {
       deleteProPaymentFile(file.id!)
         .then(() => invalidatePaymentInfo())
@@ -118,7 +119,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
     }
   }
 
-  function onError() {
+  const onError = () => {
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
     })

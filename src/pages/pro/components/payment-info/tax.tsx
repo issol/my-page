@@ -21,6 +21,7 @@ import {
   ChangeEvent,
   Dispatch,
   SetStateAction,
+  SyntheticEvent,
   useEffect,
   useState,
 } from 'react'
@@ -52,6 +53,7 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
   const { openModal, closeModal } = useModal()
 
   const handleChangeTaxRate = (event: ChangeEvent<HTMLInputElement>) => {
+    console.log('DDD', event.target.value)
     if (event.target.value !== '') {
       const newTaxRate = Number(event.target.value)
       setTaxRate(newTaxRate)
@@ -87,26 +89,31 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
     })
   }
 
-  useEffect(() => {
-    if (info.taxInfo) {
-      switch (info.taxInfo) {
-        case 'Japan resident':
-        case 'US resident':
-        case 'Singapore resident':
-          setTaxRate(null)
-          setIsTaxRateDisabled(true)
-          break
-        case 'Korea resident':
-          setTaxRate(-3.3)
-          setIsTaxRateDisabled(false)
-          break
-        case 'Korea resident (Sole proprietorship)':
-          setTaxRate(10)
-          setIsTaxRateDisabled(false)
-          break
-      }
+  const onChangeTaxInfo = (
+    event: SyntheticEvent,
+    item: {
+      label: TaxResidentInfoType
+      value: number | null
+    },
+  ) => {
+    setTaxInfo(item?.label)
+    setTaxRate(item?.value)
+
+    if (item?.label === 'Korea resident') {
+      setTaxRate(-3.3)
+      setIsTaxRateDisabled(false)
+      return
     }
-  }, [info])
+
+    if (item?.label === 'Korea resident (Sole proprietorship)') {
+      setTaxRate(10)
+      setIsTaxRateDisabled(false)
+      return
+    }
+
+    setTaxRate(null)
+    setIsTaxRateDisabled(true)
+  }
 
   return (
     <Card style={{ marginTop: '24px', padding: '24px' }}>
@@ -141,13 +148,11 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
               <FormControl fullWidth>
                 <Autocomplete
                   fullWidth
-                  onChange={(_, item) => {
+                  onChange={(event, item) => {
                     if (item) {
-                      setTaxInfo(item?.label)
-                      setTaxRate(item?.value)
+                      onChangeTaxInfo(event, item)
                     }
                   }}
-                  value={TextRatePair.find(i => i.label === taxInfo)}
                   options={TextRatePair}
                   getOptionLabel={option => option.label}
                   renderInput={params => (
@@ -170,7 +175,6 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
                 type='number'
                 InputProps={{
                   endAdornment: isTaxRateDisabled ? '' : '%',
-                  // inputProps: { min: 0 },
                 }}
                 onChange={handleChangeTaxRate}
                 id='controlled-text-field'
