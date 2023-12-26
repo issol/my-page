@@ -90,7 +90,7 @@ const TADLanguagePoolBarChart = ({
       sliceData?.map(item => {
         if (filter === 'source') return item.sourceLanguage
         if (filter === 'target') return item.targetLanguage
-        return [item.sourceLanguage, ` -> ${item.targetLanguage}`]
+        return [item.sourceLanguage, ` → ${item.targetLanguage}`]
       }) || []
 
     return [seriesData, labels]

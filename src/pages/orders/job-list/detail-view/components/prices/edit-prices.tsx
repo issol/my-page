@@ -278,10 +278,10 @@ const EditPrices = ({
                 {
                   value: `${languageHelper(
                     languagePair.sourceLanguage,
-                  )} -> ${languageHelper(languagePair.targetLanguage)}`,
+                  )} → ${languageHelper(languagePair.targetLanguage)}`,
                   label: `${languageHelper(
                     languagePair.sourceLanguage,
-                  )} -> ${languageHelper(languagePair.targetLanguage)}`,
+                  )} → ${languageHelper(languagePair.targetLanguage)}`,
                 }
               }
               options={[]}
