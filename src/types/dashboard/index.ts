@@ -252,8 +252,8 @@ export interface CountQuery
     Partial<ViewModeQuery> {
   type: ViewType
   countType: 'job' | 'order' | 'application'
-  sort: string
-  ordering: OrderType
+  sort?: string
+  ordering?: OrderType
 }
 
 export type LongStandingReceivableItem = {

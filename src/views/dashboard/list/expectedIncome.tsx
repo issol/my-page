@@ -38,7 +38,6 @@ const ExpectedIncome = ({
   }
 
   const CalendarList: Array<ExpectedIncome> = useMemo(() => {
-    if (!isSuccess) return []
     const _date = dayjs(date).set('date', 1)
 
     return Array(6)
