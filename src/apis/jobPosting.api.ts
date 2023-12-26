@@ -19,6 +19,7 @@ export type JobPostingDataType = {
   dueDateTimezone: CountryType
   jobPostLink: string
   view: number
+  editorName: string
 }
 export const getJobPostingList = async (
   filters: FilterType,

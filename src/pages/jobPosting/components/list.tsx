@@ -130,7 +130,7 @@ export default function JobPostingList({
       headerName: 'TAD',
       renderHeader: () => <Box>TAD</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.writer}</Box>
+        <Box sx={{ overflowX: 'scroll' }}>{row.editorName}</Box>
       ),
     },
     {

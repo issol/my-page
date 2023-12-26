@@ -78,7 +78,7 @@ export const convertTimeToTimezone = (
   timezoneList: TimeZoneType[],
   useISOString?: boolean,
 ): string => {
-  if (dateStr === undefined || dateStr === null) return '-'
+  if (dateStr === undefined || dateStr === null || timezoneInfo === undefined || timezoneInfo === null) return '-'
 
   try {
     let toTimeZone = ''

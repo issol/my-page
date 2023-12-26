@@ -113,6 +113,8 @@ export default function RecruitingPost() {
   const { data: list, isLoading } = useGetJobPostingList({
     skip: skip * pageSize,
     take: pageSize,
+    sort: 'createdAt',
+    ordering: 'DESC'
   })
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })

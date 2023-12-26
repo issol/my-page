@@ -120,7 +120,6 @@ const RecruitingDetail = () => {
   const writer = new recruiting(currentVersion?.userId!)
   const isWriter = ability.can('update', writer) //writer can edit, hide the post
   const isMaster = ability.can('delete', writer) //master can edit, delete the post
-  
   const deleteMutation = useMutation((id: number) => deleteRecruiting(id), {
     onSuccess: () => {
       router.replace('/recruiting/')
