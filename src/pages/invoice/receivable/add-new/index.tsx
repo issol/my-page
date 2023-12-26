@@ -356,7 +356,7 @@ export default function AddNewInvoice() {
         children: (
           <DeleteConfirmModal
             message='Are you sure you want to delete this language pair?'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
+            title={`${languageHelper(row.source)} → ${languageHelper(
               row.target,
             )}`}
             onDelete={deleteLanguage}
@@ -370,7 +370,7 @@ export default function AddNewInvoice() {
         children: (
           <SimpleAlertModal
             message='This language pair cannot be deleted because it’s already being used in the item.'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
+            title={`${languageHelper(row.source)} → ${languageHelper(
               row.target,
             )}`}
             onClose={() => closeModal('cannot-delete-language')}

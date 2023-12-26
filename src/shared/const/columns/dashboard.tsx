@@ -341,7 +341,7 @@ export const RecruitingRequestColumn: GridColumns = [
             fontSize='16px'
             sx={{ textTransform: 'uppercase' }}
           >
-            {`${row.sourceLanguage} -> ${row.targetLanguage}`}
+            {`${row.sourceLanguage} → ${row.targetLanguage}`}
           </Typography>
         </Box>
       )
@@ -601,7 +601,11 @@ export const StatusJobColumns: GridColumns = [
         >
           <Box display='flex' gap='10px'>
             {row.jobType ? (
-              <JobTypeChip type={row.jobType} label={row.jobType} />
+              <JobTypeChip
+                size='small'
+                type={row.jobType}
+                label={row.jobType}
+              />
             ) : (
               '-'
             )}
@@ -692,7 +696,7 @@ export const StatusApplicationColumns: GridColumns = [
     renderCell: ({ row }: { row: ApplicationItem }) => {
       return (
         <Box display='flex' gap='10px'>
-          {`${row.sourceLanguage.toUpperCase()} -> ${row.targetLanguage.toUpperCase()}`}
+          {`${row.sourceLanguage.toUpperCase()} → ${row.targetLanguage.toUpperCase()}`}
         </Box>
       )
     },

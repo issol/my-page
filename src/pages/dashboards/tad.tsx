@@ -226,10 +226,9 @@ const TADDashboards = () => {
             userViewDate={userViewDate}
             type='application'
             movePage={() => router.push('/onboarding')}
-            moveDetailPage={params =>
-              //TODO : 이동하면 에러남 ID 값 확인해봐야 함
-              router.push(`/onboarding/detail/${params.id}/`)
-            }
+            moveDetailPage={params => {
+              router.push(`/onboarding/detail/${params.row.pro.id}/`)
+            }}
             statusColumn={StatusApplicationColumns}
             initSort={[
               {

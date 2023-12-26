@@ -127,7 +127,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
               disabled
               fullWidth
               label='Language pair*'
-              value={`${languageHelper(row.sourceLanguage)} -> ${languageHelper(
+              value={`${languageHelper(row.sourceLanguage)} → ${languageHelper(
                 row.targetLanguage,
               )}`}
             />
