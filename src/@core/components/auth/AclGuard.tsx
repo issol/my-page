@@ -57,9 +57,9 @@ const AclGuard = (props: AclGuardProps) => {
   }, [permission])
 
   // If guestGuard is true or it's an error page or home page, render the page without checking access
-  // if (guestGuard || ['/404', '/500', '/'].includes(router.route)) {
-  //   return <>{children}</>
-  // }
+  if (guestGuard || ['/404', '/500', '/'].includes(router.route)) {
+    return <>{children}</>
+  }
 
   // // If user has the required ability, render the page
   // if (ability?.can(aclAbilities.action, aclAbilities.subject)) {
@@ -92,7 +92,7 @@ const AclGuard = (props: AclGuardProps) => {
 
   return (
     <>
-      {guestGuard || (['/404', '/500', '/'].includes(router.route) && children)}
+      {/* {guestGuard || (['/404', '/500', '/'].includes(router.route) && children)} */}
       {!Boolean(permissionCheck) ||
       ability === undefined ||
       checkAbility === undefined ? (
@@ -129,14 +129,14 @@ const AclGuard = (props: AclGuardProps) => {
   // Render Not Authorized component if the current user has limited access
   // return (
   //   <BlankLayout>
-  //     {permission.state === 'loading' ? (
-  //       <FallbackSpinner />
-  //     ) : !permission.getValue().length || !ability ? (
-  //       <NotAuthorized />
-  //     ) : (
-  //       children
-  //     )}
-  //   </BlankLayout>
+  //   {permission.state === 'loading' ? (
+  //     <FallbackSpinner />
+  //   ) : !permission.getValue().length || !ability ? (
+  //     <NotAuthorized />
+  //   ) : (
+  //     children
+  //   )}
+  // </BlankLayout>
   // )
 }
 

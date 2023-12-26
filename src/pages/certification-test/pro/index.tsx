@@ -263,7 +263,7 @@ const ProCertificationTest = () => {
             </Suspense>
             <Suspense>
               <ProCertificationTests
-                appliedRoles={appliedRoles!.data}
+                appliedRoles={appliedRoles?.data ?? []}
                 auth={auth}
               />
             </Suspense>
