@@ -83,7 +83,7 @@ export default function JobPostingList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip placement='bottom' title={`${row.jobType} / ${row.role}`}>
-            <Box sx={{ display: 'flex', gap: '8px', overflow: 'scroll' }}>
+            <Box className='scroll_bar' sx={{ display: 'flex', gap: '8px' }}>
               <JobTypeChip
                 type={row.jobType}
                 label={row.jobType}
@@ -120,7 +120,7 @@ export default function JobPostingList({
       headerName: 'Years of experience',
       renderHeader: () => <Box>Years of experience</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.yearsOfExperience}</Box>
+        <Box className='scroll_bar'>{row.yearsOfExperience}</Box>
       ),
     },
     {
@@ -167,13 +167,12 @@ export default function JobPostingList({
       ),
     },
     {
-      flex: 0.1,
       minWidth: 40,
       field: 'openings',
       headerName: 'Openings',
       renderHeader: () => <Box>Openings</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.openings}</Box>
+        <Box className='scroll_bar'>{row.openings}</Box>
       ),
     },
     {
@@ -183,7 +182,7 @@ export default function JobPostingList({
       headerName: 'View',
       renderHeader: () => <Box>View</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.view}</Box>
+        <Box className='scroll_bar'>{row.view}</Box>
       ),
     },
   ]
