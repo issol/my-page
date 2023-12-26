@@ -15,7 +15,7 @@ import {
   useDashboardReport,
 } from '@src/queries/dashboard/dashnaord-lpm'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
@@ -51,6 +51,7 @@ import Information from '@src/views/dashboard/dialog/information'
 import Total, {
   payableColors,
   ReceivableColors,
+  TotalPrice,
 } from '@src/views/dashboard/chart/total'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
@@ -61,6 +62,8 @@ import { useQueryClient } from 'react-query'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import ChartDate from '@src/views/dashboard/header/chartDate'
 import FloatingCalendar from '@src/views/dashboard/header/floating'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { ErrorBoundary } from 'react-error-boundary'
 
 dayjs.extend(weekday)
 
@@ -417,7 +420,7 @@ const LPMDashboards = () => {
           </Grid>
           <Grid container gap='24px'>
             <GridItem height={525} xs={6}>
-              <Total
+              <TotalPrice
                 type='receivable'
                 title='Receivables - Total'
                 iconColor='114, 225, 40'
@@ -429,7 +432,7 @@ const LPMDashboards = () => {
               />
             </GridItem>
             <GridItem height={525} sm>
-              <Total
+              <TotalPrice
                 type='payable'
                 title='Payables - Total'
                 icon={MonetizationOn}
