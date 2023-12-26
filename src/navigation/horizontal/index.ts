@@ -181,13 +181,6 @@ const navigation = (): HorizontalNavItemsType => {
           subject: 'members',
         },
         {
-          title: 'Standard Prices',
-          path: `/company/price`,
-          action: 'create',
-          icon: 'solar:dollar-minimalistic-bold',
-          subject: 'company_price',
-        },
-        {
           title: 'My Account',
           path: `/company/my-account`,
           action: 'read',
@@ -200,6 +193,13 @@ const navigation = (): HorizontalNavItemsType => {
           action: 'read',
           icon: 'material-symbols:lock-open-outline',
           subject: 'company_info',
+        },
+        {
+          title: 'Standard Prices',
+          path: `/company/price`,
+          action: 'create',
+          icon: 'solar:dollar-minimalistic-bold',
+          subject: 'company_price',
         },
       ],
     },
