@@ -75,7 +75,7 @@ const TotalProgressChart = ({
   handleTitleClick,
 }: TotalChartProps) => {
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
-  const { data, refetch } = useTotalPrice(type, currency)
+  const { data } = useTotalPrice(type, currency)
 
   const items: Array<[string, TotalItem]> = useMemo(() => {
     const map = new Map()
