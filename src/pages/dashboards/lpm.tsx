@@ -172,7 +172,7 @@ const LPMDashboards = () => {
       item[0].includes('payable'),
     )[0][1] as PaidThisMonthAmount | null
 
-    const filterOngoingOrder = Object.entries(ongoingOrder).map(
+    const filterOngoingOrder = Object.entries(ongoingOrder || {}).map(
       ([key, value]) => {
         return { orderStatus: key, orderNumber: value, '   ': '  ' }
       },
@@ -314,6 +314,7 @@ const LPMDashboards = () => {
                   openDialog={setOpenInfoDialog}
                 />
                 <DashboardDataGrid
+                  title='New requests from clients'
                   sectionHeight={280}
                   path='u/dashboard/client-request/list/new'
                   pageNumber={4}
@@ -441,46 +442,42 @@ const LPMDashboards = () => {
             </GridItem>
           </Grid>
           <Grid container>
-            <GridItem height={547} sm padding='0px'>
-              <LongStandingDataGrid
-                title='Long-standing receivables - Action required'
-                type='receivable'
-                columns={ReceivableColumns}
-                initSort={[
-                  {
-                    field: 'clientName',
-                    sort: 'asc',
-                  },
-                ]}
-                dataRecord={receivables}
-                setDataRecord={setReceivables}
-                setOpenInfoDialog={setOpenInfoDialog}
-                onRowClick={params =>
-                  router.push(`/invoice/receivable/detail/${params.id}/`)
-                }
-              />
-            </GridItem>
+            <LongStandingDataGrid
+              title='Long-standing receivables - Action required'
+              type='receivable'
+              columns={ReceivableColumns}
+              initSort={[
+                {
+                  field: 'clientName',
+                  sort: 'asc',
+                },
+              ]}
+              dataRecord={receivables}
+              setDataRecord={setReceivables}
+              setOpenInfoDialog={setOpenInfoDialog}
+              onRowClick={params =>
+                router.push(`/invoice/receivable/detail/${params.id}/`)
+              }
+            />
           </Grid>
           <Grid container>
-            <GridItem height={547} sm padding='0px'>
-              <LongStandingDataGrid
-                title='Long-standing payables - Action required'
-                type='payable'
-                columns={PayablesColumns}
-                initSort={[
-                  {
-                    field: 'proName',
-                    sort: 'asc',
-                  },
-                ]}
-                dataRecord={payables}
-                setDataRecord={setPayables}
-                setOpenInfoDialog={setOpenInfoDialog}
-                onRowClick={params =>
-                  router.push(`/invoice/payable/${params.id}/?menu=info`)
-                }
-              />
-            </GridItem>
+            <LongStandingDataGrid
+              title='Long-standing payables - Action required'
+              type='payable'
+              columns={PayablesColumns}
+              initSort={[
+                {
+                  field: 'proName',
+                  sort: 'asc',
+                },
+              ]}
+              dataRecord={payables}
+              setDataRecord={setPayables}
+              setOpenInfoDialog={setOpenInfoDialog}
+              onRowClick={params =>
+                router.push(`/invoice/payable/${params.id}/?menu=info`)
+              }
+            />
           </Grid>
           <Grid container spacing={5}>
             <Doughnut

@@ -195,6 +195,7 @@ const TADDashboards = () => {
                   />
                 </Box>
                 <DashboardDataGrid
+                  title='ongoing recruiting requests'
                   path='recruiting/dashboard/recruiting/list/ongoing'
                   sectionHeight={220}
                   pageNumber={3}
