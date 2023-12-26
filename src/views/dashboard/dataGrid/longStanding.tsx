@@ -63,7 +63,7 @@ const LongStandingDataGrid = <T extends { id: number; status?: number }>({
 
   return (
     <GridItem
-      height={data?.data.length === 0 ? 253 : containerHeight}
+      height={!data || data?.data.length === 0 ? 253 : containerHeight}
       sm
       padding='0px'
     >
