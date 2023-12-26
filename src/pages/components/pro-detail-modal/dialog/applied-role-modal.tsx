@@ -1019,9 +1019,9 @@ export default function AppliedRoleModal({
                                       {...params}
                                       label={
                                         getValues(`jobInfo.${idx}.role`)
-                                          .label !== 'DTPer' &&
+                                          ?.label !== 'DTPer' &&
                                         getValues(`jobInfo.${idx}.role`)
-                                          .label !== 'DTP QCer'
+                                          ?.label !== 'DTP QCer'
                                           ? 'Source*'
                                           : 'Source'
                                       }
@@ -1029,9 +1029,9 @@ export default function AppliedRoleModal({
                                         getValues(`jobInfo.${idx}.source`) ===
                                           null &&
                                         getValues(`jobInfo.${idx}.role`)
-                                          .label !== 'DTPer' &&
+                                          ?.label !== 'DTPer' &&
                                         getValues(`jobInfo.${idx}.role`)
-                                          .label !== 'DTP QCer'
+                                          ?.label !== 'DTP QCer'
                                       }
                                     />
                                   )}
@@ -1083,9 +1083,9 @@ export default function AppliedRoleModal({
                                       {...params}
                                       label={
                                         getValues(`jobInfo.${idx}.role`)
-                                          .label !== 'DTPer' &&
+                                          ?.label !== 'DTPer' &&
                                         getValues(`jobInfo.${idx}.role`)
-                                          .label !== 'DTP QCer'
+                                          ?.label !== 'DTP QCer'
                                           ? 'Target*'
                                           : 'Target'
                                       }
@@ -1093,9 +1093,9 @@ export default function AppliedRoleModal({
                                         getValues(`jobInfo.${idx}.target`) ===
                                           null &&
                                         getValues(`jobInfo.${idx}.role`)
-                                          .label !== 'DTPer' &&
+                                          ?.label !== 'DTPer' &&
                                         getValues(`jobInfo.${idx}.role`)
-                                          .label !== 'DTP QCer'
+                                          ?.label !== 'DTP QCer'
                                       }
                                     />
                                   )}
@@ -1104,9 +1104,9 @@ export default function AppliedRoleModal({
                             />
 
                             {getValues(`jobInfo.${idx}.target`) === null &&
-                            getValues(`jobInfo.${idx}.role`).label !==
+                            getValues(`jobInfo.${idx}.role`)?.label !==
                               'DTPer' &&
-                            getValues(`jobInfo.${idx}.role`).label !==
+                            getValues(`jobInfo.${idx}.role`)?.label !==
                               'DTP QCer' ? (
                               <FormHelperText sx={{ color: 'error.main' }}>
                                 {FormErrors.required}
