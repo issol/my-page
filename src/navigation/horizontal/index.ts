@@ -10,6 +10,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'client',
       path: `/dashboards`,
       role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT'],
+      externalLink: true,
     },
     {
       title: 'Dashboards',
@@ -18,6 +19,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'dashboard_PRO',
       path: `/dashboards/pro`,
       role: ['PRO'],
+      externalLink: true,
     },
     {
       title: 'My page',
