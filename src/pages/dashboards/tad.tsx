@@ -227,7 +227,6 @@ const TADDashboards = () => {
             type='application'
             movePage={() => router.push('/onboarding')}
             moveDetailPage={params => {
-              console.log('SDFSDFSD', params)
               router.push(`/onboarding/detail/${params.row.pro.id}/`)
             }}
             statusColumn={StatusApplicationColumns}
