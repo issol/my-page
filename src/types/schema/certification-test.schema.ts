@@ -19,6 +19,10 @@ export const certificationTestSchema = yup.object().shape({
     .matches(
       /^((http(s?))\:\/\/(docs.google.com(\?|\/)forms|forms.gle)(\?|\/))/,
       'Not a Google form link',
+    )
+    .matches(
+      /edit$/,
+      'Please enter the edit link of the Google form',
     ),
 
   source: yup
