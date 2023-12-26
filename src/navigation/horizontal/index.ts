@@ -100,7 +100,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:person-search-outline',
       action: 'read',
       subject: 'recruiting',
-      role: ['TAD'],
+      role: ['TAD', 'LPM'],
       children: [
         {
           title: 'Recruiting Info',
