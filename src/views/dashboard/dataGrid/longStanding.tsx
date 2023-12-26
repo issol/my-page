@@ -14,7 +14,7 @@ import {
 } from '@src/types/dashboard'
 import { Box } from '@mui/material'
 import { useLongStanding } from '@src/queries/dashboard/dashnaord-lpm'
-import { Title } from '@src/views/dashboard/dashboardItem'
+import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import NoList from '@src/pages/components/no-list'
 
 interface LongStandingDataGridProps<T extends { id: number; status?: number }>
@@ -29,6 +29,7 @@ interface LongStandingDataGridProps<T extends { id: number; status?: number }>
     event: MuiEvent<React.MouseEvent>,
     details: GridCallbackDetails,
   ) => void
+  containerHeight?: number
 }
 
 const LongStandingDataGrid = <T extends { id: number; status?: number }>({
@@ -39,6 +40,7 @@ const LongStandingDataGrid = <T extends { id: number; status?: number }>({
   setOpenInfoDialog,
   setDataRecord,
   onRowClick,
+  containerHeight = 547,
 }: LongStandingDataGridProps<T>) => {
   const [skip, setSkip] = useState(0)
   const [sortModel, setSortModel] = useState<GridSortModel>(initSort)
@@ -60,27 +62,33 @@ const LongStandingDataGrid = <T extends { id: number; status?: number }>({
   }, [data?.data])
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }}>
-      <Title
-        padding='20px'
-        title={title}
-        prefix='🚨 '
-        postfix={`(${(data?.totalCount || 0).toLocaleString()})`}
-        openDialog={setOpenInfoDialog}
-      />
-      <Box sx={{ height: 'calc(100% - 80px)' }}>
-        <DefaultDataGrid
-          title={getNoListTitle()}
-          data={data}
-          columns={columns}
-          defaultPageSize={7}
-          sortModel={sortModel}
-          setSortModel={setSortModel}
-          setSkip={setSkip}
-          onRowClick={onRowClick}
+    <GridItem
+      height={data?.data.length === 0 ? 253 : containerHeight}
+      sm
+      padding='0px'
+    >
+      <Box sx={{ width: '100%', height: '100%' }}>
+        <Title
+          padding='20px'
+          title={title}
+          prefix='🚨 '
+          postfix={`(${(data?.totalCount || 0).toLocaleString()})`}
+          openDialog={setOpenInfoDialog}
         />
+        <Box sx={{ height: 'calc(100% - 80px)' }}>
+          <DefaultDataGrid
+            title={getNoListTitle()}
+            data={data}
+            columns={columns}
+            defaultPageSize={7}
+            sortModel={sortModel}
+            setSortModel={setSortModel}
+            setSkip={setSkip}
+            onRowClick={onRowClick}
+          />
+        </Box>
       </Box>
-    </Box>
+    </GridItem>
   )
 }
 
