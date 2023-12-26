@@ -123,6 +123,7 @@ const HorizontalLayout = (props: LayoutProps) => {
           ref?.current?.classList.add('client_bg')
           break
         default:
+          ref?.current?.classList.remove('pro_bg', 'client_bg');
           break
       }
     }
