@@ -6,6 +6,7 @@ import { DateTime, IANAZone } from 'luxon'
 
 import { countries } from '@src/@fake-db/autocomplete'
 
+// 미사용, 추후 제거
 export function convertDateByTimezone(date: string, from: string, to: string) {
   /**
    * from이 US, to가 KR일 경우, date를 US시간(미국)에서 KR시간(한국)으로 convert한다.

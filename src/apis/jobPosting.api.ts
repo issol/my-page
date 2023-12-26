@@ -16,7 +16,7 @@ export type JobPostingDataType = {
   writer: string
   email: string
   dueDate: string
-  dueDateTimezone: string
+  dueDateTimezone: CountryType
   jobPostLink: string
   view: number
 }
@@ -80,7 +80,7 @@ export type FormType = {
   yearsOfExperience: string
   openings?: number
   dueDate?: string
-  dueDateTimezone?: string
+  dueDateTimezone?: CountryType
   postLink: Array<{ category: string; link: string }>
   content: any
   text: string
