@@ -12,6 +12,7 @@ export const LPMMenu = [
   'Dashboards',
   'Quotes',
   'Orders',
+  'Recruiting',
   'Invoices',
   'Pros',
   'Clients',
