@@ -19,7 +19,7 @@ import UseDashboardControl from '@src/hooks/useDashboardControl'
 import JobList from '@src/views/dashboard/list/job'
 import Notice from '@src/views/dashboard/notice'
 import { useUpcomingDeadline } from '@src/queries/dashboard/dashnaord-lpm'
-import Expectedincome from '@src/views/dashboard/list/expectedIncome'
+import ExpectedIncome from '@src/views/dashboard/list/expectedIncome'
 import Doughnut from '@src/views/dashboard/chart/doughnut'
 import { ServiceRatioItem } from '@src/types/dashboard'
 import { Colors } from '@src/shared/const/dashboard/chart'
@@ -38,7 +38,7 @@ const ProDashboards = () => {
   const { isShowInfoDialog, infoDialogKey, setOpenInfoDialog, close } =
     infoDialog
 
-  const [date, userViewDate] = useWatch({
+  const [date] = useWatch({
     control,
     name: ['date', 'userViewDate'],
   })
@@ -111,7 +111,7 @@ const ProDashboards = () => {
             </Grid>
             <Grid container gap='24px'>
               <GridItem sm height={490} padding='0px'>
-                <Expectedincome
+                <ExpectedIncome
                   setOpenInfoDialog={setOpenInfoDialog}
                   date={date || new Date()}
                 />

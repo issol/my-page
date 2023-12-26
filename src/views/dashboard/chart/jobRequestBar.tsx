@@ -81,12 +81,23 @@ const ProJobRequestBarChart = ({ report }: CurrencyByDateListProps) => {
         axisBorder: { show: false },
         categories: categories,
         labels: {
+          formatter: (value, timestamp, opts) => {
+            return value
+          },
           style: {
             colors: 'rgba(76, 78, 100, 0.38)',
           },
         },
       },
       yaxis: {
+        labels: {
+          formatter: value => {
+            return `${Math.abs(value)}`
+          },
+          style: {
+            colors: 'rgba(76, 78, 100, 0.38)',
+          },
+        },
         min: 0,
         max: max,
         tickAmount: 3,
@@ -176,6 +187,9 @@ export const CustomChart = styled(ReactApexcharts)<{
       clipPath: 'inset(0% 0% -10px 0% round 10px)',
     },
 
+    '.apexcharts-xaxis-texts-g text:last-of-type': {
+      fill: 'rgba(102, 108, 255)',
+    },
     ...obj,
   }
 })

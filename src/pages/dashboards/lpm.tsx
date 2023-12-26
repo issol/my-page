@@ -252,16 +252,17 @@ const LPMDashboards = () => {
           gap='24px'
           sx={{
             padding: '10px',
-            position: 'relative',
           }}
         >
           <Notice />
+
           <SwitchTypeHeader
             isShowMemberView={isShowMemberView}
             hiddenMemberView={hiddenMemberView}
             showMemberView={showMemberView}
             csvData={CSVData}
           />
+
           <Grid container gap='24px'>
             {!isShowMemberView && (
               <GridItem width={300} height={362}>

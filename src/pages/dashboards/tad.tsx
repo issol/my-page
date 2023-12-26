@@ -62,7 +62,6 @@ const TADDashboards = () => {
   const data = cache.getQueriesData([DEFAULT_QUERY_NAME])
 
   const gloLanguage = getGloLanguage()
-  const { isSticky } = useStickyHeader()
 
   const { formHook, infoDialog } = UseDashboardControl()
   const { control, setValue, ...props } = formHook
@@ -156,29 +155,24 @@ const TADDashboards = () => {
         <Grid container gap='24px' sx={{ padding: '10px' }}>
           <Notice />
           <Grid
-            component='div'
-            item
-            sm={!isSticky}
-            xs={isSticky ? 12 : undefined}
-            sx={{
-              position: 'sticky',
-              left: 0,
-              top: '148px',
-              zIndex: 10,
-              backgroundColor: '#fff',
-            }}
+            container
+            gap='24px'
+            sx={{ position: 'sticky', top: 138, zIndex: 10 }}
           >
-            <ChartDate />
+            <Grid
+              component='div'
+              item
+              sm
+              sx={{ position: 'sticky', top: 138, zIndex: 10 }}
+            >
+              <ChartDate />
+            </Grid>
+            <GridItem width={207} height={76}>
+              <Box>
+                <CSVDownload title={`${getFileTitle()}`} data={CSVData} />
+              </Box>
+            </GridItem>
           </Grid>
-          <GridItem
-            width={207}
-            height={76}
-            sx={{ display: isSticky ? 'none' : 'flex' }}
-          >
-            <Box>
-              <CSVDownload title={`${getFileTitle()}`} data={CSVData} />
-            </Box>
-          </GridItem>
           <Grid container gap='24px'>
             <GridItem width={490} height={267}>
               <Box sx={{ width: '100%' }}>

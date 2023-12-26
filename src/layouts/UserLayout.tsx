@@ -135,7 +135,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
               )
             }),
           )
-          layoutEl?.classList.add('client_bg')
           break
         case 'ACCOUNT_MANAGER':
           setSortedMenu(
