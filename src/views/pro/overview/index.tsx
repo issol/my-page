@@ -14,13 +14,10 @@ import styled from 'styled-components'
 import toast from 'react-hot-toast'
 
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
-
-import _ from 'lodash'
 import {
-  AddRoleType,
-  SelectedJobInfoType,
-  CommentsOnProType,
   AddRolePayloadType,
+  AddRoleType,
+  CommentsOnProType,
 } from '@src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 

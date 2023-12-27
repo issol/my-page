@@ -20,10 +20,10 @@ export const proPaymentMethodPairs: Array<{
 ]
 
 export type BillingMethodUnionType =
+  | PayPalType
   | TransferWiseFormType
   | KoreaDomesticTransferType
   | KoreaDomesticTransferSoloType
-  | PayPalType
 
 // ** Transferwise, US ACH, International wire 용 form
 export type TransferWiseFormType = {

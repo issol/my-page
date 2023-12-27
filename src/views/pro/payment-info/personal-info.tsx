@@ -57,7 +57,7 @@ export default function PersonalInfo({
                 width={115}
                 height={70}
               />
-              <Typography fontWeight={600}>
+              <Typography fontWeight={600} mt='10px'>
                 Personal (Social security) ID
               </Typography>
               <Box display='flex' alignItems='center'>
@@ -102,8 +102,7 @@ export default function PersonalInfo({
           </>
         )
       case 'koreaDomesticTransfer':
-        //@ts-ignore
-        const isSolo = !info?.copyOfBankStatement
+        const isSolo = !('copyOfBankStatement' in info)
         const copyOfRrCard = files?.find(i => i.positionType === 'copyOfRrCard')
         if (isSolo) {
           const koreanSoloData = info as KoreaDomesticTransferSoloType
@@ -198,5 +197,5 @@ const CardBox = styled(BorderBox)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 `

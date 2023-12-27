@@ -2,7 +2,7 @@ import { Card, CardHeader, Grid, IconButton, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import Icon from '@src/@core/components/icon'
 import CustomChip from '@src/@core/components/mui/chip'
-import { ContentGrid } from './index'
+import { ContentGrid, CopyTextRow } from './index'
 import {
   BankInfo,
   BillingMethodUnionType,
@@ -11,7 +11,7 @@ import {
 } from '@src/types/payment-info/pro/billing-method.type'
 import { BorderBox } from '@src/@core/components/detail-info'
 
-type Props = {
+interface BillingMethodProps {
   onCopy: (info: string) => void
   info: BillingMethodUnionType | undefined
   bankInfo: BankInfo | undefined
@@ -27,8 +27,7 @@ const BillingMethod = ({
   corrBankInfo,
   isAccountManager,
   replaceDots,
-}: Props) => {
-  console.log('DATA', bankInfo, corrBankInfo)
+}: BillingMethodProps) => {
   return (
     <Card>
       <CardHeader title='Billing Method (Account)' sx={{ paddingBottom: 0 }} />
@@ -45,12 +44,9 @@ const BillingMethod = ({
 
                 <Box display='flex' alignItems='center'>
                   <Typography variant='body2'>
-                    {/* @ts-ignore */}
-                    {replaceDots(info?.email)}
+                    {'email' in info && replaceDots(info?.email ?? '')}
                   </Typography>
-                  {/* @ts-ignore */}
-                  {isAccountManager && info?.email && (
-                    //@ts-ignore
+                  {isAccountManager && 'email' in info && (
                     <IconButton onClick={() => onCopy(info?.email ?? '')}>
                       <Icon icon='mdi:content-copy' fontSize={20} />
                     </IconButton>
@@ -93,7 +89,7 @@ const BillingMethod = ({
                     isCopyButton={
                       (isAccountManager && !!bankInfo?.accountNumber) || false
                     }
-                    onCopy={onCopy}
+                    onCopy={() => onCopy(bankInfo?.accountNumber ?? '')}
                   />
                   <CopyTextRow
                     title='Routing number'
@@ -101,7 +97,7 @@ const BillingMethod = ({
                     isCopyButton={
                       (isAccountManager && !!bankInfo?.routingNumber) || false
                     }
-                    onCopy={onCopy}
+                    onCopy={() => onCopy(bankInfo?.routingNumber ?? '')}
                   />
                   <CopyTextRow
                     title='SWIFT code'
@@ -109,7 +105,7 @@ const BillingMethod = ({
                     isCopyButton={
                       (isAccountManager && !!bankInfo?.swiftCode) || false
                     }
-                    onCopy={onCopy}
+                    onCopy={() => onCopy(bankInfo?.swiftCode ?? '')}
                   />
 
                   <CopyTextRow
@@ -118,7 +114,7 @@ const BillingMethod = ({
                     isCopyButton={
                       (isAccountManager && !!bankInfo?.iban) || false
                     }
-                    onCopy={onCopy}
+                    onCopy={() => onCopy(bankInfo?.iban ?? '')}
                   />
                 </ContentGrid>
               </Grid>
@@ -135,7 +131,7 @@ const BillingMethod = ({
                       (isAccountManager && !!corrBankInfo?.accountNumber) ||
                       false
                     }
-                    onCopy={onCopy}
+                    onCopy={() => onCopy(corrBankInfo?.accountNumber ?? '')}
                   />
                   <CopyTextRow
                     title='SWIFT code / BIC'
@@ -143,7 +139,7 @@ const BillingMethod = ({
                     isCopyButton={
                       (isAccountManager && !!corrBankInfo?.swiftCode) || false
                     }
-                    onCopy={onCopy}
+                    onCopy={() => onCopy(corrBankInfo?.swiftCode ?? '')}
                   />
 
                   <CopyTextRow
@@ -152,7 +148,7 @@ const BillingMethod = ({
                     isCopyButton={
                       (isAccountManager && !!corrBankInfo?.iban) || false
                     }
-                    onCopy={onCopy}
+                    onCopy={() => onCopy(corrBankInfo?.iban ?? '')}
                   />
                 </ContentGrid>
               </Grid>
@@ -161,33 +157,6 @@ const BillingMethod = ({
         )}
       </BorderBox>
     </Card>
-  )
-}
-
-interface CopyTextRowProps {
-  title: string
-  value?: string
-  isCopyButton: boolean
-  onCopy: (info: string) => void
-}
-const CopyTextRow = ({
-  title,
-  value,
-  isCopyButton,
-  onCopy,
-}: CopyTextRowProps) => {
-  return (
-    <>
-      <Typography fontWeight={600}>{title}</Typography>
-      <Box display='flex' alignItems='center'>
-        <Typography variant='body2'>{value ? value : '-'}</Typography>
-        {isCopyButton && (
-          <IconButton onClick={() => onCopy(value ?? '')}>
-            <Icon icon='mdi:content-copy' fontSize={20} />
-          </IconButton>
-        )}
-      </Box>
-    </>
   )
 }
 

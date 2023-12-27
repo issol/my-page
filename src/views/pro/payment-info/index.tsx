@@ -1,4 +1,4 @@
-import { Card, CardHeader, Grid, Typography } from '@mui/material'
+import { Card, CardHeader, Grid, IconButton, Typography } from '@mui/material'
 
 // ** context
 import { Suspense, useContext, useState } from 'react'
@@ -41,6 +41,8 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { pro_payment } from '@src/shared/const/permission-class'
 import { useQueryClient } from 'react-query'
+import { Box } from '@mui/system'
+import Icon from '@src/@core/components/icon'
 
 type Props = {
   id: number
@@ -183,6 +185,7 @@ const PaymentInfo = ({ id, userRole }: Props) => {
               Billing address
             </Typography>
             <BillingAddressDetail
+              onCopy={onCopy}
               billingAddress={{
                 baseAddress: replaceDots(
                   data?.billingAddress?.baseAddress ?? '',
@@ -226,5 +229,33 @@ export const ContentGrid = styled.div`
     height: 24px;
   }
 `
+
+interface CopyTextRowProps {
+  title: string
+  value?: string
+  isCopyButton: boolean
+  onCopy: (info: string) => void
+}
+
+export const CopyTextRow = ({
+  title,
+  value,
+  isCopyButton,
+  onCopy,
+}: CopyTextRowProps) => {
+  return (
+    <>
+      <Typography fontWeight={600}>{title}</Typography>
+      <Box display='flex' alignItems='center'>
+        <Typography variant='body2'>{value ? value : '-'}</Typography>
+        {isCopyButton && (
+          <IconButton onClick={() => onCopy(value ?? '')}>
+            <Icon icon='mdi:content-copy' fontSize={20} />
+          </IconButton>
+        )}
+      </Box>
+    </>
+  )
+}
 
 export default PaymentInfo

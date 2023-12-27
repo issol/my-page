@@ -232,7 +232,9 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
             <Typography sx={{ fontWeight: 'bold', width: 134 }}>
               Tax rate
             </Typography>
-            <Typography variant='body2'>{info?.taxRate ?? '-'} %</Typography>
+            <Typography variant='body2'>
+              {parseInt(String(info?.taxRate || 0)).toFixed(2) ?? '-'} %
+            </Typography>
           </Box>
         </Box>
       )}
