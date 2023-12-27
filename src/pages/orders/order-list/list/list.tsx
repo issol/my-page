@@ -15,11 +15,13 @@ import {
   OrderListFilterType,
   OrderListType,
 } from '@src/types/orders/order-list'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserDataType, UserRoleType } from '@src/context/types'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { Dispatch, SetStateAction } from 'react'
 import { useGetStatusList } from '@src/queries/common.query'
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type OrderListCellType = {
   row: OrderListType
@@ -55,6 +57,7 @@ export default function OrdersList({
   role,
 }: Props) {
   const { data: statusList } = useGetStatusList('Order')
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const columns: GridColumns<OrderListType> = [
     {
@@ -186,7 +189,13 @@ export default function OrdersList({
       renderHeader: () => <Box>Order date</Box>,
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.orderedAt, row.orderTimezone)}</Box>
+          <Box>
+            {convertTimeToTimezone(
+              row.orderedAt,
+              user.timezone,
+              timezone.getValue(),
+            )}
+          </Box>
         )
       },
     },
@@ -203,7 +212,11 @@ export default function OrdersList({
       renderCell: ({ row }: OrderListCellType) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(row.projectDueAt, row.projectDueTimezone)}
+            {convertTimeToTimezone(
+              row.projectDueAt,
+              user.timezone,
+              timezone.getValue(),
+            )}
           </Box>
         )
       },

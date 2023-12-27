@@ -43,9 +43,8 @@ export const clientContactPersonSchema = yup.object().shape({
       department: yup.string().nullable(),
       jobTitle: yup.string().nullable(),
       timezone: yup.object().shape({
-        code: yup.string().required(FormErrors.required),
+        code: yup.string().nullable(),
         label: yup.string().required(FormErrors.required),
-        phone: yup.string().required(FormErrors.required),
       }),
       phone: yup.string().nullable(),
       mobile: yup.string().nullable(),
@@ -78,9 +77,8 @@ export const createContactPersonSchema = yup.object().shape({
   department: yup.string().nullable(),
   jobTitle: yup.string().nullable(),
   timezone: yup.object().shape({
-    code: yup.string().required(FormErrors.required),
+    code: yup.string().nullable(),
     label: yup.string().required(FormErrors.required),
-    phone: yup.string().required(FormErrors.required),
   }),
   phone: yup.string().nullable(),
   mobile: yup.string().nullable(),

@@ -122,9 +122,10 @@ import { getClientPriceList } from '@src/apis/company/company-price.api'
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import {
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
   convertLocalTimezoneToUTC,
   formatDateToISOString,
+  changeTimeZoneOffset,
 } from '@src/shared/helpers/date.helper'
 import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
@@ -151,6 +152,7 @@ import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/roun
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import dayjs from 'dayjs'
 import { ReasonType } from '@src/types/quotes/quote'
+import { timezoneSelector } from '@src/states/permission'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -174,6 +176,7 @@ export default function QuotesDetail() {
   const { data: statusList } = useGetStatusList('Quote')
   const ability = useContext(AbilityContext)
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const currentRole = getCurrentRole()
   const { id } = router.query
 
@@ -402,8 +405,8 @@ export default function QuotesDetail() {
     if (!isProjectLoading && project && statusList) {
       const defaultTimezone = {
         code: '',
-        phone: '',
         label: '',
+        phone: '',
       }
       projectInfoReset({
         status:
@@ -418,23 +421,66 @@ export default function QuotesDetail() {
         showDescription: project.showDescription,
 
         quoteDate: {
-          date: new Date(project.quoteDate),
+          date: new Date(
+            convertTimeToTimezone(
+              project.quoteDate,
+              project.quoteDateTimezone ?? defaultTimezone,
+              timezone.getValue(),
+              true,
+            )!,
+          ),
           timezone: project.quoteDateTimezone ?? defaultTimezone,
         },
         projectDueDate: {
-          date: project.projectDueAt,
+          date: project.projectDueAt
+            ? new Date(
+                convertTimeToTimezone(
+                  project.projectDueAt,
+                  project.projectDueTimezone ?? defaultTimezone,
+                  timezone.getValue(),
+                  true,
+                )!,
+              )
+            : undefined,
           timezone: project.projectDueTimezone ?? defaultTimezone,
         },
         quoteDeadline: {
-          date: project.quoteDeadline,
+          date: project.quoteDeadline
+            ? new Date(
+                convertTimeToTimezone(
+                  project.quoteDeadline,
+                  project.quoteDeadlineTimezone ?? defaultTimezone,
+                  timezone.getValue(),
+                  true,
+                )!,
+              )
+            : undefined,
           timezone: project.quoteDeadlineTimezone ?? defaultTimezone,
         },
         quoteExpiryDate: {
-          date: new Date(project.quoteExpiryDate),
+          date: project.quoteExpiryDate
+            ? new Date(
+                convertTimeToTimezone(
+                  project.quoteExpiryDate,
+                  project.quoteExpiryDateTimezone ?? defaultTimezone,
+                  timezone.getValue(),
+                  true,
+                )!,
+              )
+            : undefined,
           timezone: project.quoteExpiryDateTimezone ?? defaultTimezone,
         },
         estimatedDeliveryDate: {
-          date: project.estimatedAt,
+          date: project.estimatedAt
+            ? new Date(
+                convertTimeToTimezone(
+                  project.estimatedAt,
+                  project.estimatedTimezone ?? defaultTimezone,
+                  timezone.getValue(),
+                  true,
+                )!,
+              )
+            : undefined,
           timezone: project.estimatedTimezone ?? defaultTimezone,
         },
       })
@@ -791,9 +837,10 @@ export default function QuotesDetail() {
       renderCell: ({ row }: { row: VersionHistoryType }) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.confirmedAt,
               auth.getValue().user?.timezone!,
+              timezone.getValue(),
             )}
           </Box>
         )
@@ -901,7 +948,7 @@ export default function QuotesDetail() {
       if (project && project.status === 'New') {
         updateQuoteStatusMutation.mutate({
           id: Number(id),
-          status: 20400 
+          status: 20400,
         })
       }
     }
@@ -910,7 +957,11 @@ export default function QuotesDetail() {
   useEffect(() => {
     // LPM에서 status가 Revision requested일때 quote의 편집화면에 진입하면 status를 Under revision(20600) 으로 패치한다.
     if (currentRole && currentRole.name === 'LPM') {
-      console.log("status update",project?.status,(editProject || editItems || editClient || editTeam))
+      console.log(
+        'status update',
+        project?.status,
+        editProject || editItems || editClient || editTeam,
+      )
       if (
         project &&
         project.status === 'Revision requested' &&
@@ -918,7 +969,7 @@ export default function QuotesDetail() {
       ) {
         updateQuoteStatusMutation.mutate({
           id: Number(id),
-          status: 20600 
+          status: 20600,
         })
       }
     }
@@ -980,6 +1031,49 @@ export default function QuotesDetail() {
   function onProjectInfoSave() {
     const projectInfo = {
       ...getProjectInfoValues(),
+      quoteDate: {
+        ...getProjectInfoValues().quoteDate,
+        date: changeTimeZoneOffset(
+          getProjectInfoValues().quoteDate.date.toISOString(),
+          getProjectInfoValues().quoteDate.timezone,
+        ),
+      },
+      projectDueDate: {
+        ...getProjectInfoValues().projectDueDate,
+        date: getProjectInfoValues().projectDueDate.date
+          ? changeTimeZoneOffset(
+              getProjectInfoValues().projectDueDate.date.toISOString(),
+              getProjectInfoValues().projectDueDate.timezone,
+            )
+          : null,
+      },
+      quoteDeadline: {
+        ...getProjectInfoValues().quoteDeadline,
+        date: getProjectInfoValues().quoteDeadline.date
+          ? changeTimeZoneOffset(
+              getProjectInfoValues().quoteDeadline.date.toISOString(),
+              getProjectInfoValues().quoteDeadline.timezone,
+            )
+          : null,
+      },
+      quoteExpiryDate: {
+        ...getProjectInfoValues().quoteExpiryDate,
+        date: getProjectInfoValues().quoteExpiryDate.date
+          ? changeTimeZoneOffset(
+              getProjectInfoValues().quoteExpiryDate.date.toISOString(),
+              getProjectInfoValues().quoteExpiryDate.timezone,
+            )
+          : null,
+      },
+      estimatedDeliveryDate: {
+        ...getProjectInfoValues().estimatedDeliveryDate,
+        date: getProjectInfoValues().estimatedDeliveryDate.date
+          ? changeTimeZoneOffset(
+              getProjectInfoValues().estimatedDeliveryDate.date.toISOString(),
+              getProjectInfoValues().estimatedDeliveryDate.timezone,
+            )
+          : null,
+      },
       showDescription: getProjectInfoValues().showDescription ? '1' : '0',
       isTaxable: getProjectInfoValues().isTaxable ? '1' : '0',
     }
@@ -1015,9 +1109,7 @@ export default function QuotesDetail() {
         sourceLanguage: item.source,
         targetLanguage: item.target,
         sortingOrder: idx + 1,
-        dueAt: item.dueAt || item.dueAt !== "" 
-          ? item.dueAt
-          : null,
+        dueAt: item.dueAt || item.dueAt !== '' ? item.dueAt : null,
       }
     })
     const langs: LanguagePairsType[] = getItem('languagePairs').map(item => {
@@ -1736,8 +1828,8 @@ export default function QuotesDetail() {
                       updateStatus={(status: number, callback?: () => void) =>
                         updateQuoteStatusMutation.mutate(
                           {
-                          id: Number(id),
-                          status: status
+                            id: Number(id),
+                            status: status,
                           },
                           {
                             onSuccess: () => {

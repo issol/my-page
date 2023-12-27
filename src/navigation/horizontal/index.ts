@@ -7,9 +7,19 @@ const navigation = (): HorizontalNavItemsType => {
       title: 'Dashboards',
       icon: 'mdi:home-outline',
       action: 'read',
-      subject: 'members',
+      subject: 'client',
       path: `/dashboards`,
-      role: ['LPM','TAD', 'ACCOUNT_MANAGER', 'CLIENT', 'PRO'],
+      role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT'],
+      externalLink: true,
+    },
+    {
+      title: 'Dashboards',
+      icon: 'mdi:home-outline',
+      action: 'read',
+      subject: 'dashboard_PRO',
+      path: `/dashboards/pro`,
+      role: ['PRO'],
+      externalLink: true,
     },
     {
       title: 'My page',
@@ -18,6 +28,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'pro_mypage',
       path: `/mypage/pro`,
       role: ['PRO'],
+      externalLink: true,
     },
     // TODO: 아래 메뉴 용도 확인 필요
     // {
@@ -51,6 +62,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'job_list',
       path: `/jobs`,
       role: ['PRO'],
+      externalLink: true,
     },
     {
       title: 'Invoices',
@@ -59,13 +71,14 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'invoice_pro',
       path: '/invoice/pro',
       role: ['PRO'],
+      externalLink: true,
     },
     {
       title: 'Clients',
       icon: 'mdi:account-star-outline',
       action: 'read',
       subject: 'client',
-      role: ['LPM','ACCOUNT_MANAGER'],
+      role: ['LPM', 'ACCOUNT_MANAGER'],
       children: [
         {
           title: 'Client List',
@@ -89,7 +102,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:person-search-outline',
       action: 'read',
       subject: 'recruiting',
-      role: ['TAD'],
+      role: ['TAD', 'LPM'],
       children: [
         {
           title: 'Recruiting Info',
@@ -113,7 +126,7 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'members',
       path: `/account`,
-      role: ['LPM','TAD','ACCOUNT_MANAGER','CLIENT'],
+      role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT'],
     },
     {
       title: 'Onboarding',
@@ -147,6 +160,15 @@ const navigation = (): HorizontalNavItemsType => {
       role: ['TAD'],
     },
     {
+      title: 'Certification Test',
+      icon: 'mi:clipboard-check',
+      action: 'read',
+      subject: 'pro_certification_test',
+      path: `/certification-test/pro`,
+      role: ['PRO'],
+      externalLink: true,
+    },
+    {
       title: 'Company',
       icon: 'mdi:briefcase-outline',
       action: 'update',
@@ -161,13 +183,6 @@ const navigation = (): HorizontalNavItemsType => {
           subject: 'members',
         },
         {
-          title: 'Standard Prices',
-          path: `/company/price`,
-          action: 'create',
-          icon: 'solar:dollar-minimalistic-bold',
-          subject: 'company_price',
-        },
-        {
           title: 'My Account',
           path: `/company/my-account`,
           action: 'read',
@@ -180,6 +195,13 @@ const navigation = (): HorizontalNavItemsType => {
           action: 'read',
           icon: 'material-symbols:lock-open-outline',
           subject: 'company_info',
+        },
+        {
+          title: 'Standard Prices',
+          path: `/company/price`,
+          action: 'create',
+          icon: 'solar:dollar-minimalistic-bold',
+          subject: 'company_price',
         },
       ],
     },
@@ -242,7 +264,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:receipt-long',
       action: 'read',
       subject: 'invoice_receivable',
-      role: ['LPM','ACCOUNT_MANAGER'],
+      role: ['LPM', 'ACCOUNT_MANAGER'],
       children: [
         {
           title: 'Receivables',
@@ -268,6 +290,15 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'invoice_receivable',
       path: `/invoice/receivable`,
       role: ['CLIENT'],
+    },
+    {
+      title: 'Job openings',
+      icon: 'material-symbols:person-search-outline',
+      // action: 'read',
+      // subject: 'job_openings',
+      path: `/job-openings`,
+      role: ['PRO'],
+      externalLink: true,
     },
   ]
 }

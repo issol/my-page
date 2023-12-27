@@ -11,15 +11,17 @@ import {
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import IconifyIcon from '@src/@core/components/icon'
-import { getClient } from '@src/apis/order-detail.api'
+import { getClient } from '@src/apis/order/order-detail.api'
 
 import useModal from '@src/hooks/useModal'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getAddress, getAddressType } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import {
   InvoiceReceivableDetailType,
@@ -253,11 +255,9 @@ const InvoiceClient = ({
                       Time zone:
                     </Typography>
                     <Typography variant='body2'>
-                      {getGmtTimeEng(
-                        client.contactPerson !== null
-                          ? client.contactPerson.timezone?.code
-                          : client.client.timezone.code,
-                      )}
+                      {client.contactPerson !== null
+                        ? client.contactPerson.timezone?.label
+                        : client.client.timezone.label}
                     </Typography>
                   </Box>
                 </Box>
@@ -276,14 +276,17 @@ const InvoiceClient = ({
                       Telephone:
                     </Typography>
                     <Typography variant='body2'>
-                      {getPhoneNumber(
-                        client.contactPerson !== null
-                          ? client.contactPerson.phone!
-                          : client.client.phone,
-                        client.contactPerson !== null
-                          ? client.contactPerson.timezone?.phone
-                          : client.client.timezone.phone,
-                      )}
+                      {client?.contactPerson?.phone
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(
+                              client.contactPerson.phone,
+                            ),
+                          )
+                        : client?.client?.phone
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(client.client.phone),
+                          )
+                        : '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -305,14 +308,17 @@ const InvoiceClient = ({
                       Mobile phone:
                     </Typography>
                     <Typography variant='body2'>
-                      {getPhoneNumber(
-                        client.contactPerson !== null
-                          ? client.contactPerson.mobile!
-                          : client.client.mobile,
-                        client.contactPerson !== null
-                          ? client.contactPerson.timezone?.phone
-                          : client.client.timezone.phone,
-                      )}
+                      {client?.contactPerson?.mobile
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(
+                              client.contactPerson.mobile,
+                            ),
+                          )
+                        : client?.client?.mobile
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(client.client.mobile),
+                          )
+                        : '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -331,14 +337,17 @@ const InvoiceClient = ({
                       Fax:
                     </Typography>
                     <Typography variant='body2'>
-                      {getPhoneNumber(
-                        client.contactPerson !== null
-                          ? client.contactPerson.fax!
-                          : client.client.fax,
-                        client.contactPerson !== null
-                          ? client.contactPerson.timezone?.phone
-                          : client.client.timezone.phone,
-                      )}
+                      {client?.contactPerson?.fax
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(
+                              client.contactPerson.fax,
+                            ),
+                          )
+                        : client?.client?.fax
+                        ? contryCodeAndPhoneNumberFormatter(
+                            splitContryCodeAndPhoneNumber(client.client.fax),
+                          )
+                        : '-'}
                     </Typography>
                   </Box>
                 </Box>

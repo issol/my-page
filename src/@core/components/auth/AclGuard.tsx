@@ -1,5 +1,5 @@
 // ** React Imports
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode, Suspense, useEffect, useState } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -33,49 +33,111 @@ const AclGuard = (props: AclGuardProps) => {
   // ** Props
   const { aclAbilities, children, guestGuard } = props
 
+  console.log(aclAbilities)
+
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
 
   const permission = useRecoilValueLoadable(permissionState)
-
+  const [permissionCheck, setPermissionCheck] = useState(false)
   // ** Hooks
   const router = useRouter()
 
+  const checkAbility =
+    ability !== undefined &&
+    ability?.can(aclAbilities.action, aclAbilities.subject)
+
   // User is logged in, build ability for the user based on his role
   useEffect(() => {
-    permission.state === 'hasValue' &&
-      setAbility(buildAbilityFor(permission.getValue()))
+    if (permission.state === 'hasValue') {
+      permission.getValue().length > 1 &&
+        setAbility(buildAbilityFor(permission.getValue()))
+
+      setPermissionCheck(true)
+    }
   }, [permission])
 
-  // If guestGuard is true and user is not logged in or its an error page, render the page without checking access
-  if (
-    guestGuard ||
-    router.route === '/404' ||
-    router.route === '/500' ||
-    router.route === '/'
-  ) {
+  // If guestGuard is true or it's an error page or home page, render the page without checking access
+  if (guestGuard || ['/404', '/500', '/'].includes(router.route)) {
     return <>{children}</>
   }
-  // Check the access of current user and render pages
 
-  if (ability && ability.can(aclAbilities.action, aclAbilities.subject)) {
-    return (
-      <AbilityContext.Provider value={ability}>
-        {children}
-      </AbilityContext.Provider>
-    )
-  }
+  // // If user has the required ability, render the page
+  // if (ability?.can(aclAbilities.action, aclAbilities.subject)) {
+  //   return (
+  //     <AbilityContext.Provider value={ability}>
+  //       {children}
+  //     </AbilityContext.Provider>
+  //   )
+  // }
+
+  // // If permission check is complete and user does not have the required ability, render NotAuthorized
+  // if (
+  //   permissionCheck &&
+  //   ability !== undefined &&
+  //   !ability.can(aclAbilities.action, aclAbilities.subject)
+  // ) {
+  //   return (
+  //     <BlankLayout>
+  //       <NotAuthorized />
+  //     </BlankLayout>
+  //   )
+  // }
+
+  // // While permission check is in progress, render a spinner
+  // return (
+  //   <BlankLayout>
+  //     <FallbackSpinner />
+  //   </BlankLayout>
+  // )
+
+  return (
+    <>
+      {/* {guestGuard || (['/404', '/500', '/'].includes(router.route) && children)} */}
+      {!Boolean(permissionCheck) ||
+      ability === undefined ||
+      checkAbility === undefined ? (
+        <FallbackSpinner />
+      ) : checkAbility ? (
+        <AbilityContext.Provider value={ability}>
+          {children}
+        </AbilityContext.Provider>
+      ) : (
+        <BlankLayout>
+          <NotAuthorized />
+        </BlankLayout>
+      )}
+    </>
+  )
+
+  // return (
+  //   // <Suspense fallback={<FallbackSpinner />}>
+  //   <>
+  //     {permissionCheck && (
+  //       <BlankLayout>
+  //         {permission.getValue() === undefined || !ability ? (
+  //           <FallbackSpinner />
+  //         ) : (
+  //           <NotAuthorized />
+  //         )}
+  //       </BlankLayout>
+  //     )}
+  //   </>
+
+  //   // </Suspense>
+  // )
 
   // Render Not Authorized component if the current user has limited access
-  return (
-    <BlankLayout>
-      {!permission.getValue().length || !ability ? (
-        <FallbackSpinner />
-      ) : (
-        <NotAuthorized />
-      )}
-      {/* <FallbackSpinner /> */}
-    </BlankLayout>
-  )
+  // return (
+  //   <BlankLayout>
+  //   {permission.state === 'loading' ? (
+  //     <FallbackSpinner />
+  //   ) : !permission.getValue().length || !ability ? (
+  //     <NotAuthorized />
+  //   ) : (
+  //     children
+  //   )}
+  // </BlankLayout>
+  // )
 }
 
 export default AclGuard

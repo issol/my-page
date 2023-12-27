@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -18,6 +18,7 @@ import {
 } from '@mui/material'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import dayjs from 'dayjs'
 
 // ** values
 import { countries } from 'src/@fake-db/autocomplete'
@@ -27,7 +28,7 @@ import { TaxInfo } from '@src/shared/const/tax/tax-info'
 import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
 
 // ** helpers
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 
 // ** types & schema
 import {
@@ -43,13 +44,25 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** react hook form
-import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
+import {
+  Control,
+  Controller,
+  FieldError,
+  FieldErrors,
+  UseFormGetValues,
+  UseFormSetValue,
+  UseFormTrigger,
+} from 'react-hook-form'
 
 // ** components
 import InformationModal from '@src/@core/components/common-modal/information-modal'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   data: InvoicePayableDetailType | undefined
@@ -60,6 +73,9 @@ type Props = {
     label: string
     value: number
   }>
+  setValue: UseFormSetValue<PayableFormType>
+  getValues: UseFormGetValues<PayableFormType>
+  trigger: UseFormTrigger<PayableFormType>
 }
 export default function InvoiceDetailInfoForm({
   data,
@@ -67,8 +83,33 @@ export default function InvoiceDetailInfoForm({
   errors,
   isAccountManager,
   statusList,
+  setValue,
+  getValues,
+  trigger,
 }: Props) {
   const { openModal, closeModal } = useModal()
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+  const auth = useRecoilValueLoadable(authState)
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
 
   // const { data: statusList, isLoading } = useGetInvoicePayableStatus()
 
@@ -82,6 +123,10 @@ export default function InvoiceDetailInfoForm({
         )}
       </>
     )
+  }
+
+  const dateValue = (date: Date) => {
+    return dayjs(date).format('MM/DD/YYYY, hh:mm A')
   }
 
   return (
@@ -117,7 +162,7 @@ export default function InvoiceDetailInfoForm({
         <TextField
           fullWidth
           disabled
-          value={data?.invoicedAt}
+          value={data?.invoicedAt ? dateValue(new Date(data.invoicedAt)) : '-'}
           label='Invoice date*'
           placeholder='Invoice date*'
         />
@@ -127,7 +172,10 @@ export default function InvoiceDetailInfoForm({
         <TextField
           fullWidth
           disabled
-          value={getGmtTimeEng(data?.invoicedAtTimezone?.code)}
+          value={timeZoneFormatter(
+            auth.getValue().user?.timezone!,
+            timezone.getValue(),
+          )}
           label='Time zone*'
           placeholder='Time zone*'
         />
@@ -184,7 +232,24 @@ export default function InvoiceDetailInfoForm({
               fullWidth
               options={TaxInfo}
               onChange={(e, v) => {
-                onChange(v?.value ?? '')
+                if (v) {
+                  onChange(v.value)
+                  setValue(
+                    'taxRate',
+                    v.value === 'Japan resident' ||
+                      v.value === 'Singapore resident' ||
+                      v.value === 'US resident'
+                      ? null
+                      : v.value === 'Korea resident'
+                      ? '-3.3'
+                      : v.value === 'Korea resident (Sole proprietorship)'
+                      ? '10'
+                      : null,
+                  )
+                  trigger('taxRate')
+                } else {
+                  onChange(null)
+                }
               }}
               value={TaxInfo?.find(item => item.value === value) || null}
               getOptionLabel={option => option.label}
@@ -193,7 +258,6 @@ export default function InvoiceDetailInfoForm({
                   {...params}
                   error={Boolean(errors.taxInfo)}
                   label='Tax info*'
-                  placeholder='Tax info*'
                 />
               )}
             />
@@ -208,17 +272,40 @@ export default function InvoiceDetailInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FormControl fullWidth error={Boolean(errors.tax)}>
-              <InputLabel>Tax rate*</InputLabel>
+              <InputLabel>
+                {getValues('taxInfo') === 'Japan resident' ||
+                getValues('taxInfo') === 'Singapore resident' ||
+                getValues('taxInfo') === 'US resident'
+                  ? 'Tax rate'
+                  : 'Tax rate*'}
+              </InputLabel>
               <OutlinedInput
                 value={value ?? ''}
                 error={Boolean(errors.tax)}
+                disabled={
+                  getValues('taxInfo') === 'Japan resident' ||
+                  getValues('taxInfo') === 'Singapore resident' ||
+                  getValues('taxInfo') === 'US resident'
+                }
                 onChange={e => {
                   if (e.target.value.length > 10) return
                   onChange(e)
                 }}
                 type='number'
-                label='Tax rate*'
-                endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+                label={
+                  getValues('taxInfo') === 'Japan resident' ||
+                  getValues('taxInfo') === 'Singapore resident' ||
+                  getValues('taxInfo') === 'US resident'
+                    ? 'Tax rate'
+                    : 'Tax rate*'
+                }
+                endAdornment={
+                  getValues('taxInfo') === 'Japan resident' ||
+                  getValues('taxInfo') === 'Singapore resident' ||
+                  getValues('taxInfo') === 'US resident' ? null : (
+                    <InputAdornment position='end'>%</InputAdornment>
+                  )
+                }
               />
             </FormControl>
           )}
@@ -240,6 +327,7 @@ export default function InvoiceDetailInfoForm({
               timeFormat='HH:mm'
               timeIntervals={30}
               selected={!value ? null : new Date(value)}
+              placeholderText='MM/DD/YYYY, HH:MM'
               dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Payment due' icon='calendar' />}
@@ -252,21 +340,21 @@ export default function InvoiceDetailInfoForm({
         <Controller
           name='payDueTimezone'
           control={control}
-          render={({ field }) => (
+          render={({ field: { value, onChange } }) => (
             <Autocomplete
               autoHighlight
               fullWidth
               disabled={isAccountManager}
-              {...field}
-              value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+              disableClearable={value ? false : true}
+              value={value ?? null}
+              options={timeZoneList as CountryType[]}
+              onChange={(e, v) => onChange(v)}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
-              options={countries as CountryType[]}
-              onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (
@@ -294,6 +382,7 @@ export default function InvoiceDetailInfoForm({
               timeFormat='HH:mm'
               timeIntervals={30}
               selected={!value ? null : new Date(value)}
+              placeholderText='MM/DD/YYYY, HH:MM'
               dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Payment date' icon='calendar' />}
@@ -306,20 +395,20 @@ export default function InvoiceDetailInfoForm({
         <Controller
           name='paidDateTimezone'
           control={control}
-          render={({ field }) => (
+          render={({ field: { value, onChange } }) => (
             <Autocomplete
               autoHighlight
               fullWidth
-              {...field}
-              value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+              disableClearable={value ? false : true}
+              value={value ?? null}
+              options={timeZoneList as CountryType[]}
+              onChange={(e, v) => onChange(v)}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
-              options={countries as CountryType[]}
-              onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (

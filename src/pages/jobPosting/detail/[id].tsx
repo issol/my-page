@@ -38,11 +38,9 @@ import { authState } from '@src/states/auth'
 
 // ** helpers
 import {
-  convertDateByTimezone,
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
-import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -56,6 +54,7 @@ import { useMutation } from 'react-query'
 import { CurrentHistoryType } from 'src/apis/recruiting.api'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { job_posting } from '@src/shared/const/permission-class'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: CurrentHistoryType
@@ -71,6 +70,7 @@ const JobPostingDetail = () => {
   const ability = useContext(AbilityContext)
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { data, refetch, isSuccess, isError } = useGetJobPostingDetail(
     id,
@@ -179,9 +179,10 @@ const JobPostingDetail = () => {
         if (auth.state === 'hasValue' && auth.getValue().user) {
           return (
             <Box sx={{ overflowX: 'scroll' }}>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row.createdAt,
                 auth.getValue().user?.timezone!,
+                timezone.getValue(),
               )}
             </Box>
           )
@@ -295,9 +296,10 @@ const JobPostingDetail = () => {
                       <Typography variant='body2'>{data?.email}</Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         data?.createdAt,
                         auth.getValue().user?.timezone!,
+                        timezone.getValue(),
                       )}
                     </Typography>
                   </Box>
@@ -326,11 +328,11 @@ const JobPostingDetail = () => {
                     {renderTable('Number of linguist', data?.openings)}
                     {renderTable(
                       'Due date',
-                      convertDateByTimezone(
+                      convertTimeToTimezone(
                         data?.dueDate,
-                        data?.dueDateTimezone!,
-                        auth.getValue().user?.timezone.code!,
-                      ),
+                        auth.getValue().user?.timezone!,
+                        timezone.getValue(),
+                      )
                     )}
                     {renderTable('Job post link', data?.jobPostLink)}
                   </Grid>
@@ -341,7 +343,7 @@ const JobPostingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTimeEng(auth.getValue().user?.timezone?.code),
+                      auth.getValue().user?.timezone?.label,
                     )}
                   </Grid>
                 </Grid>

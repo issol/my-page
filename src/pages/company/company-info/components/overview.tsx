@@ -14,7 +14,7 @@ import {
 import { countries } from '@src/@fake-db/autocomplete'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { getTypeList } from '@src/shared/transformer/type.transformer'
 import { CompanyInfoFormType, CompanyInfoType } from '@src/types/company/info'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
@@ -35,6 +35,14 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB } from '@src/shared/helpers/file-size.helper'
+
+import MuiPhone from '@src/pages/components/phone/mui-phone'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   companyInfo: CompanyInfoType
@@ -81,6 +89,27 @@ const CompanyInfoOverview = ({
   const { openModal, closeModal } = useModal()
 
   const country = getTypeList('CountryCode')
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
 
   const setCompanyImage = (file: File) => {
     const reader = new FileReader()
@@ -378,7 +407,7 @@ const CompanyInfoOverview = ({
                       <Autocomplete
                         fullWidth
                         value={value || { code: '', label: '', phone: '' }}
-                        options={countries as CountryType[]}
+                        options={timeZoneList as CountryType[]}
                         onChange={(e, v) => {
                           // console.log(value)
 
@@ -387,7 +416,7 @@ const CompanyInfoOverview = ({
                         }}
                         renderOption={(props, option) => (
                           <Box component='li' {...props} key={uuidv4()}>
-                            {getGmtTimeEng(option.code)}
+                            {timeZoneFormatter(option, timezone.getValue())}
                           </Box>
                         )}
                         renderInput={params => (
@@ -398,7 +427,7 @@ const CompanyInfoOverview = ({
                           />
                         )}
                         getOptionLabel={option =>
-                          getGmtTimeEng(option.code) ?? ''
+                          timeZoneFormatter(option, timezone.getValue()) ?? ''
                         }
                       />
                     )}
@@ -437,30 +466,10 @@ const CompanyInfoOverview = ({
                     name='phone'
                     control={control}
                     render={({ field: { onChange, value } }) => (
-                      <TextField
-                        fullWidth
+                      <MuiPhone
                         value={value || ''}
-                        placeholder={
-                          !watch('timezone')?.phone
-                            ? `+ 1) 012 345 6789`
-                            : `012 345 6789`
-                        }
-                        onChange={e => {
-                          if (isInvalidPhoneNumber(e.target.value)) return
-                          onChange(e)
-                        }}
-                        InputProps={{
-                          startAdornment: watch('timezone') &&
-                            watch('timezone').phone && (
-                              <InputAdornment position='start'>
-                                {'+' + watch('timezone').phone}
-                              </InputAdornment>
-                            ),
-                          inputProps: {
-                            maxLength: 50,
-                          },
-                        }}
-                        label='Telephone'
+                        onChange={onChange}
+                        label={'Telephone'}
                       />
                     )}
                   />
@@ -470,30 +479,10 @@ const CompanyInfoOverview = ({
                     name='fax'
                     control={control}
                     render={({ field: { onChange, value } }) => (
-                      <TextField
-                        fullWidth
+                      <MuiPhone
                         value={value || ''}
-                        placeholder={
-                          !watch('timezone')?.phone
-                            ? `+ 1) 012 345 6789`
-                            : `012 345 6789`
-                        }
-                        onChange={e => {
-                          if (isInvalidPhoneNumber(e.target.value)) return
-                          onChange(e)
-                        }}
-                        InputProps={{
-                          startAdornment: watch('timezone') &&
-                            watch('timezone')?.phone && (
-                              <InputAdornment position='start'>
-                                {'+' + watch('timezone').phone}
-                              </InputAdornment>
-                            ),
-                          inputProps: {
-                            maxLength: 50,
-                          },
-                        }}
-                        label='Fax'
+                        onChange={onChange}
+                        label={'Fax'}
                       />
                     )}
                   />
@@ -617,7 +606,7 @@ const CompanyInfoOverview = ({
                   Time zone:
                 </Typography>
                 <Typography variant='subtitle2' fontSize={16} fontWeight={400}>
-                  {getGmtTimeEng(companyInfo.timezone?.code)}
+                  {companyInfo.timezone?.label}
                 </Typography>
               </Box>
             </Box>
@@ -681,9 +670,11 @@ const CompanyInfoOverview = ({
                   Business number:
                 </Typography>
                 <Typography variant='subtitle2' fontSize={16}>
-                  {companyInfo.phone
-                    ? `+${companyInfo.timezone.phone}) ${companyInfo.phone}`
-                    : '-'}
+                  {!companyInfo.phone
+                    ? '-'
+                    : contryCodeAndPhoneNumberFormatter(
+                        splitContryCodeAndPhoneNumber(companyInfo.phone),
+                      )}
                 </Typography>
               </Box>
               <Box
@@ -703,9 +694,11 @@ const CompanyInfoOverview = ({
                   Fax:
                 </Typography>
                 <Typography variant='subtitle2' fontSize={16}>
-                  {companyInfo.fax
-                    ? `+${companyInfo.timezone.phone}) ${companyInfo.fax}`
-                    : '-'}
+                  {!companyInfo.fax
+                    ? '-'
+                    : contryCodeAndPhoneNumberFormatter(
+                        splitContryCodeAndPhoneNumber(companyInfo.fax),
+                      )}
                 </Typography>
               </Box>
             </Box>

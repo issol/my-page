@@ -72,10 +72,12 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 // ** values
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import {
+  changeTimeZoneOffset,
   convertDateToLocalTimezoneISOString,
   convertLocalTimezoneToUTC,
 } from '@src/shared/helpers/date.helper'
 import { changeTimezoneFromLocalTimezoneISOString } from '@src/shared/helpers/timezone.helper'
+import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 
 export default function AddNewRequest() {
   const router = useRouter()
@@ -98,15 +100,7 @@ export default function AddNewRequest() {
   // ** file managing
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.cvs'],
-      'application/pdf': ['.pdf'],
-      'text/plain': ['.txt'],
-      'application/vnd.ms-powerpoint': ['.ppt'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        ['.docx'],
-      'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
+      ...srtUploadFileExtension.accept
     },
     maxSize: MAXIMUM_FILE_SIZE,
     onDrop: (acceptedFiles: File[]) => {
@@ -229,20 +223,28 @@ export default function AddNewRequest() {
     const dateFixedItem: RequestItemFormPayloadType[] = data.items.map(
       (item, idx) => {
         // const newDesiredDueDate = convertLocalTimezoneToUTC(new Date(item.desiredDueDate)).toISOString()
-        const newDesiredDueDate = () => {
-          const convertISOString = convertDateToLocalTimezoneISOString(
-            item.desiredDueDate!,
-          )
-          if (convertISOString)
-            return changeTimezoneFromLocalTimezoneISOString(
-              convertISOString,
-              item.desiredDueTimezone?.code!,
-            )
-          return item.desiredDueDate?.toISOString()!
-        }
+        // const newDesiredDueDate = () => {
+        //   const convertISOString = convertDateToLocalTimezoneISOString(
+        //     item.desiredDueDate!,
+        //   )
+        //   if (convertISOString)
+        //     return changeTimezoneFromLocalTimezoneISOString(
+        //       convertISOString,
+        //       item.desiredDueTimezone?.code!,
+        //     )
+        //   return item.desiredDueDate?.toISOString()!
+        // }
         return {
           ...item,
-          desiredDueDate: newDesiredDueDate(),
+          desiredDueDate: changeTimeZoneOffset(
+            item.desiredDueDate!.toISOString(),
+            item.desiredDueTimezone!
+          )!,
+          desiredDueTimezone: {
+            ...item.desiredDueTimezone!,
+            code: '',
+            phone: ''
+          },
           serviceType: item.serviceType.map(value => value.value),
           sortingOrder: idx + 1,
         }

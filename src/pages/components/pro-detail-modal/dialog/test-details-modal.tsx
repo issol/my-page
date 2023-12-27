@@ -50,7 +50,7 @@ import {
 } from 'react-hook-form'
 import { TestStatus } from 'src/shared/const/status/statuses'
 import { CardProps } from '../../../onboarding/components/list/filters'
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 // import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 
@@ -64,6 +64,8 @@ import {
   cancelReviewer,
 } from 'src/apis/onboarding.api'
 import { UserDataType } from '@src/context/types'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 // type AssignReviewerType = {
 //   jobType: { label: string; value: string }
@@ -133,6 +135,7 @@ export default function TestDetailsModal({
 }: Props) {
   const { setModal } = useContext(ModalContext)
   const [info, setInfo] = useState<TestType>(skillTest)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   // const { data: reviewerList1 } = useGetReviewerList()
   // const { data: history1 } = useGetHistory(skillTest.testId)
   const history = useQuery<{
@@ -408,7 +411,11 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {FullDateTimezoneHelper(row.createdAt, user.timezone)}
+          {convertTimeToTimezone(
+            row.createdAt,
+            user.timezone,
+            timezone.getValue(),
+          )}
         </Box>
       ),
     },
@@ -572,7 +579,11 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {FullDateTimezoneHelper(row.updatedAt, user.timezone)}
+          {convertTimeToTimezone(
+            row.updatedAt,
+            user.timezone,
+            timezone.getValue(),
+          )}
         </Box>
       ),
     },

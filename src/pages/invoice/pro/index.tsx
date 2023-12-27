@@ -32,6 +32,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { AxiosError } from 'axios'
+import { timezoneSelector } from '@src/states/permission'
 
 export type FilterType = {
   invoiceDate: Date[]
@@ -75,6 +76,7 @@ const ProInvoice = () => {
   const router = useRouter()
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [invoiceListPage, setInvoiceListPage] = useState(0)
   const [invoiceListRowsPerPage, setInvoiceListRowsPerPage] = useState(10)
 
@@ -119,7 +121,7 @@ const ProInvoice = () => {
       // invoicedTimezone: CountryType
     }) => createInvoicePayable(params),
     {
-      onSuccess: (res) => {
+      onSuccess: res => {
         closeModal('CreateInvoiceModal')
         router.push(`/invoice/pro/detail/${res?.id}`)
         toast.success('Success', {
@@ -127,16 +129,17 @@ const ProInvoice = () => {
         })
       },
       onError: (res: any) => {
-        if (res.response?.data?.message === `Pro's payment information is not saved`) {
+        if (
+          res.response?.data?.message ===
+          `Pro's payment information is not saved`
+        ) {
           openModal({
             type: 'ErrorModal',
             children: (
               <CustomModal
                 title={
                   <>
-                    Payment information is a prerequisite
-                    for invoice creation. 
-                    
+                    Payment information is a prerequisite for invoice creation.
                     Please register your payment information first.
                   </>
                 }
@@ -157,7 +160,7 @@ const ProInvoice = () => {
             position: 'bottom-left',
           })
         }
-      }
+      },
     },
   )
 
@@ -328,6 +331,7 @@ const ProInvoice = () => {
                   // ],
                   statusList!,
                   auth,
+                  timezone.getValue(),
                 )}
                 page={invoiceListPage}
                 pageSize={invoiceListRowsPerPage}
@@ -347,10 +351,7 @@ const ProInvoice = () => {
         </>
       ) : (
         <Grid item xs={12}>
-          <CalendarContainer 
-            type='pro'
-            statusList={statusList!}
-          />
+          <CalendarContainer type='pro' statusList={statusList!} />
         </Grid>
       )}
     </Grid>

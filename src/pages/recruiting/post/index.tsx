@@ -75,12 +75,36 @@ import { RecruitingStatus } from 'src/shared/const/status/statuses'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import logger from '@src/@core/utils/logger'
+
+import { timezoneSelector } from '@src/states/permission'
 
 export default function RecruitingPost() {
   const router = useRouter()
   const languageList = getGloLanguage()
+
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
 
   /* dialog states */
   const [openDialog, setOpenDialog] = useState(false)
@@ -89,6 +113,8 @@ export default function RecruitingPost() {
   const { data: list, isLoading } = useGetJobPostingList({
     skip: skip * pageSize,
     take: pageSize,
+    sort: 'createdAt',
+    ordering: 'DESC'
   })
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
@@ -142,7 +168,7 @@ export default function RecruitingPost() {
         { code: '', label: '', phone: '' },
         setValueOptions,
       )
-    } else if (currDueDate && !watch('dueDateTimezone')?.code) {
+    } else if (currDueDate && !watch('dueDateTimezone')?.label) {
       setValue(
         'dueDateTimezone',
         auth.getValue().user?.timezone,
@@ -256,7 +282,7 @@ export default function RecruitingPost() {
       targetLanguage: data.targetLanguage.value,
       openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
-      dueDateTimezone: data.dueDateTimezone?.code ?? '',
+      dueDateTimezone: data.dueDateTimezone ?? '',
       jobPostLink: data.jobPostLink,
       content:
         content.getCurrentContent().getPlainText('\u0001') === ''
@@ -267,6 +293,7 @@ export default function RecruitingPost() {
     const filteredForm = Object.fromEntries(
       Object.entries(finalForm).filter(([_, value]) => value !== ''),
     )
+    console.log("filteredForm",filteredForm)
     // @ts-ignore
     postMutation.mutate(filteredForm)
   }
@@ -604,7 +631,9 @@ export default function RecruitingPost() {
                           id='dueDate'
                           onChange={onChange}
                           placeholderText='Due date'
-                          customInput={<CustomInput label='Due date' icon='calendar' />}
+                          customInput={
+                            <CustomInput label='Due date' icon='calendar' />
+                          }
                         />
                       )}
                     />
@@ -624,14 +653,14 @@ export default function RecruitingPost() {
                           <Autocomplete
                             autoHighlight
                             fullWidth
-                            value={value}
+                            value={value || { code: '', label: '', phone: '' }}
                             disabled={!currDueDate}
-                            options={countries as CountryType[]}
+                            options={timeZoneList as CountryType[]}
                             onChange={(e, v) => onChange(v)}
                             disableClearable
                             renderOption={(props, option) => (
                               <Box component='li' {...props} key={uuidv4()}>
-                                {getGmtTimeEng(option.code)}
+                                {timeZoneFormatter(option, timezone.getValue())}
                               </Box>
                             )}
                             renderInput={params => (
@@ -644,6 +673,10 @@ export default function RecruitingPost() {
                                 }}
                               />
                             )}
+                            getOptionLabel={option =>
+                              timeZoneFormatter(option, timezone.getValue()) ??
+                              ''
+                            }
                           />
                         )
                       }}

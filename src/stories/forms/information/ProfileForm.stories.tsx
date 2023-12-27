@@ -59,7 +59,7 @@ export const Default = () => {
       havePreferred: false,
       preferredName: '',
       mobile: '',
-      timezone: { code: '', phone: '', label: '' },
+      timezone: { code: '', label: '' },
     },
     mode: 'onChange',
     resolver: yupResolver(getProfileSchema('edit')),

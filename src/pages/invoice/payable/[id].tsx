@@ -62,6 +62,16 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import {
+  account_manage,
+  invoice_payable,
+  invoice_receivable,
+  invoice_receivable_accounting_info,
+} from '@src/shared/const/permission-class'
+import { MarkDayInfo } from '@src/types/invoice/receivable.type'
+import { markInvoiceAsPaid } from '@src/apis/invoice/receivable.api'
+import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
+import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 
 type MenuType = 'info' | 'history'
 
@@ -76,7 +86,11 @@ export default function PayableDetail() {
   const queryClient = useQueryClient()
 
   const { data: isUpdatable } = useCheckInvoicePayableEditable(Number(id))
-  const isAccountManager = ability.can('read', 'account_manage')
+  const User = new invoice_payable(auth.getValue().user?.id!)
+  const AccountingTeam = new account_manage(auth.getValue().user?.id!)
+
+  const isDeletable = ability.can('delete', User)
+  const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
   const { data: statusList } = useGetStatusList('InvoicePayable')
 
   // ** store
@@ -86,7 +100,9 @@ export default function PayableDetail() {
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('info')
 
-  const { data, isLoading: isPayableDetailLoading } = useGetPayableDetail(Number(id))
+  const { data, isLoading: isPayableDetailLoading } = useGetPayableDetail(
+    Number(id),
+  )
   const { data: jobList } = useGetPayableJobList(Number(id))
 
   const [editInfo, setEditInfo] = useState(false)
@@ -107,6 +123,23 @@ export default function PayableDetail() {
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/list' })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
+  const updateStatusMutation = useMutation(
+    (data: { id: number; status: InvoicePayableStatusType }) =>
+      updateInvoicePayable(data.id, { invoiceStatus: data.status }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/list' })
       },
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
@@ -129,7 +162,7 @@ export default function PayableDetail() {
             onClick={() => {
               //TODO: api 연결해야함
               updateMutation.mutate({
-                invoiceStatus: 40200
+                invoiceStatus: 40200,
               })
               closeModal('CompleteRevisionModal')
             }}
@@ -277,12 +310,29 @@ export default function PayableDetail() {
     }
   }
 
+  function onChangeStatusToPaid() {
+    openModal({
+      type: 'changeStatus',
+      children: (
+        <ModalWithButtonName
+          message={`Are you sure you want to mark this invoice as paid?`}
+          onClick={() => {
+            updateStatusMutation.mutate({ id: Number(id), status: 40300 })
+          }}
+          onClose={() => closeModal('changeStatus')}
+          rightButtonName='Mark as paid'
+        />
+      ),
+    })
+  }
+
   return (
     <Grid container spacing={6}>
-      {(updateMutation.isLoading ||
-        deleteMutation.isLoading || 
-        isPayableDetailLoading) ?
-        <OverlaySpinner /> : null }
+      {updateMutation.isLoading ||
+      deleteMutation.isLoading ||
+      isPayableDetailLoading ? (
+        <OverlaySpinner />
+      ) : null}
       <Grid item xs={12}>
         <Box
           display='flex'
@@ -318,7 +368,6 @@ export default function PayableDetail() {
               </Button>
             </Box>
           )}
-          
         </Box>
       </Grid>
       <Grid item xs={12}>
@@ -356,6 +405,10 @@ export default function PayableDetail() {
                 auth={auth.getValue()}
                 editInfo={editInfo}
                 setEditInfo={setEditInfo}
+                isDeletable={isDeletable}
+                onClickDelete={onClickDelete}
+                isAccountInfoUpdatable={isAccountInfoUpdatable}
+                onMarkAsPaidClick={onChangeStatusToPaid}
               />
             </Suspense>
           </TabPanel>
@@ -374,23 +427,6 @@ export default function PayableDetail() {
           </TabPanel>
         </TabContext>
       </Grid>
-      {!isUpdatable || editInfo ? null : (
-        <Grid item xs={4}>
-          <Card sx={{ marginLeft: '12px' }}>
-            <CardContent>
-              <Button
-                variant='outlined'
-                fullWidth
-                color='error'
-                size='large'
-                onClick={onClickDelete}
-              >
-                Delete this invoice
-              </Button>
-            </CardContent>
-          </Card>
-        </Grid>
-      )}
     </Grid>
   )
 }

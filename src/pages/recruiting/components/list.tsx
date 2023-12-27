@@ -13,7 +13,7 @@ import styled from 'styled-components'
 // ** helpers
 import {
   FullDateHelper,
-  FullDateTimezoneHelper,
+  convertTimeToTimezone,
 } from 'src/shared/helpers/date.helper'
 import {
   JobTypeChip,
@@ -26,6 +26,8 @@ import { useRouter } from 'next/router'
 
 // ** types
 import { RecruitingDataType } from 'src/apis/recruiting.api'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: RecruitingDataType
@@ -52,6 +54,7 @@ export default function RecruitingList({
   isLoading,
 }: Props) {
   const router = useRouter()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   function moveToDetail(row: GridRowParams) {
     router.push(`/recruiting/detail/${row.id}`)
@@ -99,7 +102,7 @@ export default function RecruitingList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip placement='bottom' title={`${row.jobType} / ${row.role}`}>
-            <Box sx={{ display: 'flex', gap: '8px', overflow: 'scroll' }}>
+            <Box className='scroll_bar' sx={{ display: 'flex', gap: '8px' }}>
               <JobTypeChip
                 type={row.jobType}
                 label={row.jobType}
@@ -136,7 +139,7 @@ export default function RecruitingList({
       headerName: 'Written by',
       renderHeader: () => <Box>Written by</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.writer}</Box>
+        <Box className='scroll_bar'>{row.writer}</Box>
       ),
     },
     {
@@ -152,13 +155,20 @@ export default function RecruitingList({
           ) : (
             <Tooltip
               placement='bottom'
-              title={`${FullDateTimezoneHelper(
+              title={`${convertTimeToTimezone(
                 row.dueDate,
                 row.dueDateTimezone,
+                timezone.getValue(),
               )}`}
             >
-              <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-                <>{FullDateTimezoneHelper(row.dueDate, row.dueDateTimezone)}</>
+              <Typography className='scroll_bar' variant='body2'>
+                <>
+                  {convertTimeToTimezone(
+                    row.dueDate,
+                    row.dueDateTimezone,
+                    timezone.getValue(),
+                  )}
+                </>
               </Typography>
             </Tooltip>
           )}
@@ -172,7 +182,7 @@ export default function RecruitingList({
       headerName: 'Openings',
       renderHeader: () => <Box>Openings</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.openings ?? '-'}</Box>
+        <Box className='scroll_bar'>{row.openings ?? '-'}</Box>
       ),
     },
     {

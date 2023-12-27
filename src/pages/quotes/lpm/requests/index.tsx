@@ -36,6 +36,7 @@ import { useGetClientList } from '@src/queries/client.query'
 import { useForm } from 'react-hook-form'
 import { getRequestListColumns } from '@src/shared/const/columns/requests'
 import { useQueryClient } from 'react-query'
+import { timezoneSelector } from '@src/states/permission'
 
 // ** components
 export type FilterType = {
@@ -83,6 +84,7 @@ export default function LpmRequests() {
   const currentRole = getCurrentRole()
   const [menu, setMenu] = useState<MenuType>('list')
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const [requestListPage, setRequestListPage] = useState<number>(0)
   const [requestListPageSize, setRequestPageSize] = useState<number>(10)
@@ -330,6 +332,7 @@ export default function LpmRequests() {
                     statusList!,
                     currentRole!,
                     auth,
+                    timezone.getValue(),
                   )}
                   type='list'
                 />

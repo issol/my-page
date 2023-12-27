@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { authState } from './auth'
 
 import authConfig from 'src/configs/auth'
+import moment from 'moment'
 
 const sessionStorage =
   typeof window !== 'undefined' ? window.sessionStorage : undefined
@@ -44,6 +45,18 @@ export const currentRoleState = atom<UserRoleType | null>({
   effects: [sessionStorageEffect(authConfig.currentRole)],
 })
 
+const timezoneState = atom<
+  Array<{
+    offset: number
+    offsetFormatted: string
+    timezone: string
+    timezoneCode: string
+  }>
+>({
+  key: `timezoneState/${uuidv4()}`,
+  default: [],
+})
+
 export const roleSelector = selector<Array<UserRoleType>>({
   key: `permission/role-${uuidv4()}`,
   get: async ({ get }) => {
@@ -70,6 +83,41 @@ export const currentRoleSelector = selector<UserRoleType | null>({
   },
   set: ({ get, set }, newValue: UserRoleType | null | DefaultValue) => {
     set(currentRoleState, newValue as UserRoleType | null)
+  },
+})
+
+export const timezoneSelector = selector<
+  Array<{
+    offset: number
+    offsetFormatted: string
+    timezone: string
+    timezoneCode: string
+  }>
+>({
+  key: `timezone-${uuidv4()}`,
+  get: ({ get }) => {
+    return get(timezoneState)
+  },
+  set: (
+    { get, set },
+    newValue:
+      | Array<{
+          offset: number
+          offsetFormatted: string
+          timezone: string
+          timezoneCode: string
+        }>
+      | DefaultValue,
+  ) => {
+    set(
+      timezoneState,
+      newValue as Array<{
+        offset: number
+        offsetFormatted: string
+        timezone: string
+        timezoneCode: string
+      }>,
+    )
   },
 })
 
@@ -486,6 +534,7 @@ export const permissionSelector = selector<PermissionObjectType>({
             subject: 'pro_mypage',
             can: 'delete',
           },
+
           {
             subject: 'pro_payment',
             can: 'read',
@@ -518,6 +567,28 @@ export const permissionSelector = selector<PermissionObjectType>({
             subject: 'client_payment',
             can: 'delete',
           },
+          {
+            subject: 'pro_certification_test',
+            can: 'read',
+          },
+          // 대시보드
+          {
+            can: 'read',
+            subject: 'dashboard_ACCOUNT',
+          },
+          {
+            can: 'read',
+            subject: 'dashboard_CLIENT',
+          },
+          {
+            can: 'read',
+            subject: 'dashboard_LPM',
+          },
+          {
+            can: 'read',
+            subject: 'dashboard_TAD',
+          },
+          { can: 'read', subject: 'dashboard_PRO' },
         ]
       }
     }

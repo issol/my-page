@@ -82,9 +82,11 @@ import { useMutation } from 'react-query'
 import JobPostingListModal from '../components/jobPosting-modal'
 import { useGetJobPostingList } from '@src/queries/jobs/jobPosting.query'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { recruiting } from '@src/shared/const/permission-class'
 import logger from '@src/@core/utils/logger'
+
+import { timezoneSelector } from '@src/states/permission'
 
 export default function RecruitingEdit() {
   const router = useRouter()
@@ -96,9 +98,33 @@ export default function RecruitingEdit() {
   const [openDialog, setOpenDialog] = useState(false)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(5)
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
+
   const { data: list, isLoading } = useGetJobPostingList({
     skip: skip * pageSize,
     take: pageSize,
+    sort: 'createdAt',
+    ordering: 'DESC'
   })
 
   // ** contexts
@@ -208,7 +234,7 @@ export default function RecruitingEdit() {
     targetLanguage: { value: '', label: '' },
     openings: undefined,
     dueDate: '',
-    dueDateTimezone: { code: '', label: '', phone: '' },
+    dueDateTimezone: { code: '', label: '' },
     jobPostLink: '',
   }
 
@@ -712,12 +738,15 @@ export default function RecruitingEdit() {
                               fullWidth
                               disabled={!isWriter || !currDueDate}
                               value={value}
-                              options={countries as CountryType[]}
+                              options={timeZoneList as CountryType[]}
                               onChange={(e, v) => onChange(v)}
                               disableClearable
                               renderOption={(props, option) => (
                                 <Box component='li' {...props} key={uuidv4()}>
-                                  {getGmtTimeEng(option.code)}
+                                  {timeZoneFormatter(
+                                    option,
+                                    timezone.getValue(),
+                                  )}
                                 </Box>
                               )}
                               renderInput={params => (
@@ -727,6 +756,12 @@ export default function RecruitingEdit() {
                                   error={Boolean(errors.dueDateTimezone)}
                                 />
                               )}
+                              getOptionLabel={option =>
+                                timeZoneFormatter(
+                                  option,
+                                  timezone.getValue(),
+                                ) ?? ''
+                              }
                             />
                           )}
                         />

@@ -8,6 +8,13 @@ export interface CountryType {
   phone: string
 }
 
+export interface TimeZoneType {
+  offset: number;
+  offsetFormatted: string;
+  timezone: string;
+  timezoneCode: string;
+}
+
 export interface JobInfoType {
   jobType: string
   role: string

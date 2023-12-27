@@ -32,7 +32,7 @@ import {
   assignmentStatusChip,
 } from '@src/@core/components/chips/chips'
 import { Icon } from '@iconify/react'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
 import Message from './message'
@@ -57,6 +57,8 @@ import {
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import toast from 'react-hot-toast'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -116,6 +118,7 @@ const AssignPro = ({
   setJobId,
 }: Props) => {
   const queryClient = useQueryClient()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
   const [hideOffBoard, setHideOffBoard] = useState<boolean>(true)
@@ -374,7 +377,7 @@ const AssignPro = ({
             title='Please enter all required fields to make a request.'
             vary='error'
             soloButton={true}
-            rightButtonText='Okey'
+            rightButtonText='Okay'
             onClick={() => {
               //TODO Job info 탭으로 이동하는거 추가해야 함
               closeModal('AssignDenyModal')
@@ -392,12 +395,17 @@ const AssignPro = ({
     setValue('target', [
       { value: row.targetLanguage, label: languageHelper(row.targetLanguage)! },
     ])
-    setValue('category', orderDetail.category ? [
-      {
-        value: orderDetail.category,
-        label: orderDetail.category,
-      },
-    ] : [])
+    setValue(
+      'category',
+      orderDetail.category
+        ? [
+            {
+              value: orderDetail.category,
+              label: orderDetail.category,
+            },
+          ]
+        : [],
+    )
     setValue('serviceType', [
       {
         value: row.serviceType ?? '',
@@ -582,7 +590,11 @@ const AssignPro = ({
       sortable: false,
       renderHeader: () => <Box>Response rate</Box>,
       renderCell: ({ row }: { row: AssignProListType }) => {
-        return <Box>{row.responseRate?.toFixed(2) ?? '-'} %</Box>
+        return (
+          <Box>
+            {row.responseRate ? (row.responseRate * 100).toFixed(2) : '-'} %
+          </Box>
+        )
       },
     },
     {
@@ -672,7 +684,11 @@ const AssignPro = ({
         return (
           <Box>
             {row.assignmentStatus
-              ? FullDateTimezoneHelper(row.assignmentDate, user.timezone)
+              ? convertTimeToTimezone(
+                  row.assignmentDate,
+                  user.timezone,
+                  timezone.getValue(),
+                )
               : '-'}
           </Box>
         )
@@ -767,7 +783,11 @@ const AssignPro = ({
         return (
           <Box>
             {row.assignmentStatus
-              ? FullDateTimezoneHelper(row.assignmentDate, user.timezone)
+              ? convertTimeToTimezone(
+                  row.assignmentDate,
+                  user.timezone,
+                  timezone.getValue(),
+                )
               : '-'}
           </Box>
         )

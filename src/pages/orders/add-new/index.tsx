@@ -78,7 +78,7 @@ import {
   createItemsForOrder,
   createLangPairForOrder,
   createOrderInfo,
-} from '@src/apis/order.api'
+} from '@src/apis/order/order.api'
 import CopyOrdersList from '../order-list/components/copy-order-list'
 import {
   getClient as getQuoteClient,
@@ -91,7 +91,12 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
-import { findEarliestDate, formattedNow } from '@src/shared/helpers/date.helper'
+import {
+  changeTimeZoneOffset,
+  convertTimeToTimezone,
+  findEarliestDate,
+  formattedNow,
+} from '@src/shared/helpers/date.helper'
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -104,10 +109,11 @@ import {
   getLangItems,
   getProjectInfo,
   getProjectTeam,
-} from '@src/apis/order-detail.api'
+} from '@src/apis/order/order-detail.api'
 import { getClientDetail } from '@src/apis/client.api'
 import { set } from 'lodash'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { timezoneSelector } from '@src/states/permission'
 
 export type languageType = {
   id: number | string
@@ -161,6 +167,7 @@ export default function AddNewOrder() {
   const quoteId = router.query?.quoteId
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
   const [isWarn, setIsWarn] = useState(true)
@@ -384,7 +391,7 @@ export default function AddNewOrder() {
         children: (
           <SimpleAlertModal
             message='This language pair cannot be deleted because it’s already being used in the item.'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
+            title={`${languageHelper(row.source)} → ${languageHelper(
               row.target,
             )}`}
             onClose={() => closeModal('cannot-delete-language')}
@@ -438,7 +445,13 @@ export default function AddNewOrder() {
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
-      dueAt: project.projectDueAt,
+      dueAt:
+        project.projectDueAt && project.projectDueTimezone
+          ? changeTimeZoneOffset(
+              project.projectDueAt.toISOString(),
+              auth.getValue().user?.timezone!,
+            )!
+          : null,
       priceId: null,
       detail: [],
       totalPrice: 0,
@@ -487,9 +500,6 @@ export default function AddNewOrder() {
         target: item.target,
       }
     })
-
-    console.log(items)
-    console.log(langs)
 
     const itemPriceIds = new Set(items.map(item => item.priceId))
 
@@ -563,9 +573,26 @@ export default function AddNewOrder() {
     const projectInfo = {
       ...rawProjectInfo,
       // isTaxable : taxable,
+      orderedAt: changeTimeZoneOffset(
+        rawProjectInfo.orderedAt.toISOString(),
+        rawProjectInfo.orderTimezone,
+      ),
+      orderTimezone: {
+        ...rawProjectInfo.orderTimezone,
+        code: '',
+        phone: '',
+      },
+      projectDueAt: changeTimeZoneOffset(
+        rawProjectInfo.projectDueAt.toISOString(),
+        rawProjectInfo.projectDueTimezone,
+      ),
+      projectDueTimezone: {
+        ...rawProjectInfo.projectDueTimezone,
+        code: '',
+        phone: '',
+      },
       isTaxable: rawProjectInfo.isTaxable ? '1' : '0',
       tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
-      orderedAt: rawProjectInfo.orderedAt.toISOString(),
       subtotal: subPrice,
     }
 
@@ -751,7 +778,15 @@ export default function AddNewOrder() {
       )
       projectInfoReset({
         orderedAt: formattedNow(new Date()),
-        projectDueAt: findEarliestDate(desiredDueDates),
+        projectDueAt: new Date(
+          convertTimeToTimezone(
+            findEarliestDate(desiredDueDates),
+            items[0].desiredDueTimezone,
+            timezone.getValue(),
+            true,
+          )!,
+        ),
+        // projectDueAt: findEarliestDate(desiredDueDates),
         // projectDueDate: {
         //   date: findEarliestDate(desiredDueDates),
         // },
@@ -853,6 +888,7 @@ export default function AddNewOrder() {
         .then(res => {
           projectInfoReset({
             // status: 'In preparation' as OrderStatusType,
+            // orderedAt: formattedNow(new Date()),
             orderedAt: formattedNow(new Date()),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
@@ -863,10 +899,18 @@ export default function AddNewOrder() {
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
             revenueFrom: undefined,
-            projectDueAt: res?.projectDueAt ?? null,
+            projectDueAt: res?.projectDueAt
+              ? new Date(
+                  convertTimeToTimezone(
+                    res?.projectDueAt,
+                    res?.projectDueTimezone,
+                    timezone.getValue(),
+                    true,
+                  )!,
+                )
+              : undefined,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
-              phone: '',
               code: '',
             },
 
@@ -1025,10 +1069,18 @@ export default function AddNewOrder() {
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
             revenueFrom: res.revenueFrom,
-            projectDueAt: res?.projectDueAt ?? null,
+            projectDueAt: res?.projectDueAt
+              ? new Date(
+                  convertTimeToTimezone(
+                    res?.projectDueAt,
+                    res?.projectDueTimezone,
+                    timezone.getValue(),
+                    true,
+                  )!,
+                )
+              : undefined,
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
-              phone: '',
               code: '',
             },
 
@@ -1115,8 +1167,7 @@ export default function AddNewOrder() {
 
   return (
     <Grid container spacing={6}>
-      { isFatching ?
-        <OverlaySpinner /> : null }
+      {isFatching ? <OverlaySpinner /> : null}
       <ConfirmLeaveModal />
       <PageHeader
         title={

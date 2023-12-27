@@ -42,7 +42,7 @@ import { updateOrderType } from '../[id]'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { v4 as uuidv4 } from 'uuid'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { CancelReasonType } from '@src/types/requests/detail.type'
@@ -59,11 +59,13 @@ import {
   completeDelivery,
   confirmDelivery,
   deliverySendToClient,
-} from '@src/apis/order-detail.api'
+} from '@src/apis/order/order-detail.api'
 import NoList from '@src/pages/components/no-list'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import SelectRequestRedeliveryReasonModal from './modal/select-request-redelivery-reason-modal'
 import { ReasonType } from '@src/types/quotes/quote'
+import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   project: ProjectInfoType
@@ -101,6 +103,7 @@ const DeliveriesFeedback = ({
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const { data: jobDetails, refetch } = useGetJobDetails(project.id)
 
@@ -158,16 +161,7 @@ const DeliveriesFeedback = ({
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      'image/*': ['.png', '.jpg', '.jpeg'],
-      'text/csv': ['.csv'],
-      'application/pdf': ['.pdf'],
-      'text/plain': ['.txt'],
-      'application/vnd.ms-powerpoint': ['.ppt'],
-      'application/msword': ['.doc'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-        ['.docx'],
-      'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
-      'image/vnd.adobe.photoshop': ['.psd', '.psb'],
+      ...srtUploadFileExtension.accept,
     },
     disabled: !canUseFeature('button-Deliveries&Feedback-Upload'),
     noKeyboard: true,
@@ -449,7 +443,11 @@ const DeliveriesFeedback = ({
         fontWeight={400}
         sx={{ mb: '5px' }}
       >
-        {FullDateTimezoneHelper(file.createdAt, auth.getValue().user?.timezone)}
+        {convertTimeToTimezone(
+          file.createdAt,
+          auth.getValue().user?.timezone,
+          timezone.getValue(),
+        )}
       </Typography>
       <Box
         sx={{
@@ -744,10 +742,7 @@ const DeliveriesFeedback = ({
       updateProject.isLoading ? (
         <OverlaySpinner />
       ) : null}
-      <Grid
-        item
-        xs={isEditable ? 9 : 12}
-      >
+      <Grid item xs={isEditable ? 9 : 12}>
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <Box sx={{ display: 'flex', gap: '20px' }}>
@@ -833,9 +828,10 @@ const DeliveriesFeedback = ({
                         fontWeight={400}
                         sx={{ mb: '5px' }}
                       >
-                        {FullDateTimezoneHelper(
+                        {convertTimeToTimezone(
                           value.createdAt,
                           auth.getValue().user?.timezone,
+                          timezone.getValue(),
                         )}
                       </Typography>
                       <Box

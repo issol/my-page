@@ -18,9 +18,7 @@ import {
 } from '@src/@core/components/chips/chips'
 import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
 import {
-  FullDateTimezoneHelper,
-  convertDateByTimezone,
-  convertUTCISOStringToLocalTimezoneISOString,
+  convertTimeToTimezone,
 } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
@@ -31,6 +29,8 @@ import { StyledNextLink } from '@src/@core/components/customLink'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import { UserDataType, UserRoleType } from '@src/context/types'
 import { convertLanguageCodeToPair } from 'src/shared/helpers/language.helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   data: RequestDetailType | undefined
@@ -47,6 +47,7 @@ export default function RequestDetailCard({
   onStatusChange,
 }: Props) {
   const { data: statusList, isLoading } = useGetClientRequestStatus()
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   return (
     <Grid container spacing={6}>
@@ -54,9 +55,10 @@ export default function RequestDetailCard({
         <LabelContainer>
           <CustomTypo fontWeight={600}>Request date</CustomTypo>
           <CustomTypo variant='body2'>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               data?.requestedAt,
-              data?.contactPerson?.timezone?.code,
+              user?.timezone,
+              timezone.getValue(),
             )}
           </CustomTypo>
         </LabelContainer>
@@ -198,23 +200,11 @@ export default function RequestDetailCard({
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Desired due date</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {FullDateTimezoneHelper(
+                      {convertTimeToTimezone(
                         item.desiredDueDate,
-                        item?.desiredDueTimezone?.code!
+                        user?.timezone,
+                        timezone.getValue(),
                       )}
-                      {/* {
-                        convertDateByTimezone(
-                          item.desiredDueDate,
-                          item.desiredDueTimezone.code,
-                          auth.getValue().timezone.code!
-                        )
-                      } */}
-                      {/* {
-                        convertUTCISOStringToLocalTimezoneISOString(
-                          item.desiredDueDate,
-                          user?.timezone.code!,
-                        )!
-                      } */}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>

@@ -29,18 +29,29 @@ const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
 const FinishSignUpConsumer = () => {
   const auth = useAuth()
   const router = useRouter()
-  const { userId, email, accessToken } = router.query
+
+  const { userId, email, accessToken, jobId } = router.query
+  console.log(jobId)
 
   function onButtonClick() {
-    if (userId && email && accessToken) {
+    if (userId && email && accessToken && jobId) {
+      console.log(jobId)
       const emailAsString: string = email as string
       const accessTokenAsString: string = accessToken as string
-      auth.updateUserInfo({
-        userId: Number(userId),
-        email: emailAsString,
-        accessToken: accessTokenAsString,
-      })
-      router.push('/welcome/pro')
+      auth
+        .updateUserInfo({
+          userId: Number(userId),
+          email: emailAsString,
+          accessToken: accessTokenAsString,
+        })
+        .then(() => {
+          router.push({
+            pathname: '/welcome/pro',
+            query: {
+              jobId: jobId,
+            },
+          })
+        })
     } else {
       router.push('/login')
     }

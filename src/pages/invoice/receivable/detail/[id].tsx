@@ -58,7 +58,7 @@ import {
   InvoiceReceivablePatchParamsType,
   InvoiceVersionHistoryType,
 } from '@src/types/invoice/receivable.type'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import InvoiceVersionHistory from './components/version-history'
 import VersionHistoryModal from '@src/pages/quotes/detail/components/version-history-detail'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
@@ -110,6 +110,7 @@ import SelectOrder from '../components/list/select-order'
 import { v4 as uuidv4 } from 'uuid'
 import { ProjectTeamListType } from '@src/types/orders/order-detail'
 import { ReasonType } from '@src/types/quotes/quote'
+import { timezoneSelector } from '@src/states/permission'
 
 type MenuType =
   | 'invoice'
@@ -122,6 +123,7 @@ const ReceivableInvoiceDetail = () => {
   const router = useRouter()
   const { id } = router.query
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const ability = useContext(AbilityContext)
   const dispatch = useAppDispatch()
   const currentRole = getCurrentRole()
@@ -278,7 +280,6 @@ const ReceivableInvoiceDetail = () => {
       },
     },
   )
-
   const updateInvoiceStatusMutation = useMutation(
     (data: { id: number; invoiceStatus: number; reason?: ReasonType }) =>
       patchInvoiceStatus(Number(data.id), data.invoiceStatus, data.reason),
@@ -554,9 +555,10 @@ const ReceivableInvoiceDetail = () => {
       renderCell: ({ row }: { row: InvoiceVersionHistoryType }) => {
         return (
           <Box>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row?.managerConfirmedAt,
               row?.managerConfirmTimezone,
+              timezone.getValue(),
             )}
           </Box>
         )
@@ -746,38 +748,98 @@ const ReceivableInvoiceDetail = () => {
         ...invoiceInfo,
         invoiceDescription: invoiceInfo.description,
         invoiceDateTimezone: invoiceInfo.invoicedTimezone,
-        invoiceDate: new Date(invoiceInfo.invoicedAt),
+        // invoiceDate: new Date(invoiceInfo.invoicedAt),
+        invoiceDate: new Date(
+          convertTimeToTimezone(
+            invoiceInfo.invoicedAt,
+            invoiceInfo?.invoicedTimezone,
+            timezone.getValue(),
+            true,
+          )!,
+        ),
         taxInvoiceIssued: invoiceInfo.taxInvoiceIssued,
         showDescription: invoiceInfo.showDescription,
         paymentDueDate: {
-          date: invoiceInfo.payDueAt,
+          date: convertTimeToTimezone(
+            invoiceInfo.payDueAt,
+            invoiceInfo.payDueTimezone ?? clientTimezone!,
+            timezone.getValue(),
+            true,
+          )!,
           timezone: invoiceInfo.payDueTimezone ?? clientTimezone!,
         },
         invoiceConfirmDate: {
-          date: invoiceInfo.clientConfirmedAt ?? null,
-
-          timezone: invoiceInfo.clientConfirmTimezone ?? null,
+          date:
+            invoiceInfo.clientConfirmedAt && invoiceInfo.clientConfirmTimezone
+              ? convertTimeToTimezone(
+                  invoiceInfo.clientConfirmedAt,
+                  invoiceInfo.clientConfirmTimezone,
+                  timezone.getValue(),
+                  true,
+                )!
+              : null,
+          timezone: invoiceInfo.clientConfirmTimezone
+            ? {
+                ...invoiceInfo.clientConfirmTimezone,
+                code: '',
+                phone: '',
+              }
+            : null,
         },
         taxInvoiceDueDate: {
-          date: invoiceInfo.taxInvoiceDueAt ?? null,
-
-          // date:
-          //   client?.contactPerson !== null &&
-          //   client?.contactPerson.userId !== null
-          //     ? invoiceInfo.taxInvoiceDueAt
-          //     : null,
-          timezone: invoiceInfo.taxInvoiceDueTimezone! ?? null,
+          date:
+            invoiceInfo.taxInvoiceDueAt && invoiceInfo.taxInvoiceDueTimezone
+              ? convertTimeToTimezone(
+                  invoiceInfo.taxInvoiceDueAt,
+                  invoiceInfo.taxInvoiceDueTimezone,
+                  timezone.getValue(),
+                  true,
+                )!
+              : null,
+          timezone: invoiceInfo.taxInvoiceDueTimezone
+            ? {
+                ...invoiceInfo.taxInvoiceDueTimezone,
+                code: '',
+                phone: '',
+              }
+            : null,
         },
         paymentDate: {
-          date: invoiceInfo.paidAt,
+          date:
+            invoiceInfo.paidAt && invoiceInfo.paidDateTimezone
+              ? convertTimeToTimezone(
+                  invoiceInfo.paidAt,
+                  invoiceInfo.paidDateTimezone,
+                  timezone.getValue(),
+                  true,
+                )!
+              : null,
           timezone: invoiceInfo.paidDateTimezone ?? null,
         },
         taxInvoiceIssuanceDate: {
-          date: invoiceInfo.taxInvoiceIssuedAt ?? '',
+          date:
+            invoiceInfo.taxInvoiceIssuedAt &&
+            invoiceInfo.taxInvoiceIssuedDateTimezone
+              ? convertTimeToTimezone(
+                  invoiceInfo.taxInvoiceIssuedAt,
+                  invoiceInfo.taxInvoiceIssuedDateTimezone,
+                  timezone.getValue(),
+                  true,
+                )!
+              : null,
           timezone: invoiceInfo.taxInvoiceIssuedDateTimezone ?? null!,
         },
         salesRecognitionDate: {
-          date: invoiceInfo.salesCheckedAt ?? '',
+          date:
+            invoiceInfo.salesCheckedAt &&
+            invoiceInfo.taxInvoiceIssuedDateTimezone
+              ? convertTimeToTimezone(
+                  invoiceInfo.taxInvoiceIssuedAt,
+                  invoiceInfo.taxInvoiceIssuedDateTimezone,
+                  timezone.getValue(),
+                  true,
+                )!
+              : null,
           timezone: invoiceInfo.salesCheckedDateTimezone! ?? null,
         },
 
@@ -1073,6 +1135,7 @@ const ReceivableInvoiceDetail = () => {
                 type='preview'
                 user={auth.getValue().user!}
                 lang={invoice.lang}
+                timezoneList={timezone.getValue()}
               />
             </div>
 
@@ -1355,6 +1418,7 @@ const ReceivableInvoiceDetail = () => {
                     onClickDownloadInvoice={onClickDownloadInvoice}
                     orders={langItem?.orders!}
                     invoiceInfo={invoiceInfo!}
+                    timezoneList={timezone.getValue()}
                   />
                 ) : null}
               </Suspense>

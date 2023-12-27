@@ -52,3 +52,35 @@ input::-webkit-inner-spin-button {
 .fc-popover {
   max-width: 217px;
 }
+
+.scroll_bar { overflow-x: auto;}
+
+
+.scroll_bar::-webkit-scrollbar {
+  background-color: transparent;
+  width: 0;
+  height: 5px;
+}
+
+.scroll_bar:hover::-webkit-scrollbar {
+  width: 3px;
+  height: 5px;
+  border-radius: 20px;
+}
+
+.scroll_bar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2)
+}
+
+.sticky_header {
+  width: 100%;
+}
+
+/*TODO : 임시 배경색 넣어둔 부분 - 차후 삭제할 것*/
+.client_bg  {
+  background-color: rgba(238, 240, 229, 0.6) !important;
+}
+
+.pro_bg {
+  background-color: rgba(221, 230, 237, 0.5) !important;
+}

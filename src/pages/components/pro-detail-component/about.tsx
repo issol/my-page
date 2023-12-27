@@ -17,12 +17,16 @@ import Icon from 'src/@core/components/icon'
 import { v4 as uuidv4 } from 'uuid'
 
 //** data */
-import { getGmtTimeEng } from 'src/shared/helpers/timezone.helper'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { MMDDYYYYHelper } from '@src/shared/helpers/date.helper'
 import { ProStatus } from '@src/shared/const/status/statuses'
 import { getAddress } from '@src/shared/helpers/address-helper'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   userInfo: {
@@ -48,6 +52,7 @@ export default function About({
   handleChangeStatus,
   status,
 }: Props) {
+  const currentRole = getCurrentRole()
   if (!userInfo) {
     return null
   }
@@ -92,7 +97,7 @@ export default function About({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:earth' style={{ opacity: '0.7' }} />
           <LabelTitle>Timezone:</LabelTitle>
-          <Label>{getGmtTimeEng(userInfo.timezone?.code) || '-'}</Label>
+          <Label>{userInfo.timezone?.label || '-'}</Label>
         </Box>
         {type === 'pro' ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -109,7 +114,9 @@ export default function About({
           <Label>
             {!userInfo.mobilePhone
               ? '-'
-              : '+' + userInfo.timezone.phone + ') ' + userInfo.mobilePhone}
+              : contryCodeAndPhoneNumberFormatter(
+                  splitContryCodeAndPhoneNumber(userInfo.mobilePhone),
+                )}
           </Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -118,7 +125,9 @@ export default function About({
           <Label>
             {!userInfo.telephone
               ? '-'
-              : '+' + userInfo.timezone.phone + ') ' + userInfo.telephone}
+              : contryCodeAndPhoneNumberFormatter(
+                  splitContryCodeAndPhoneNumber(userInfo.telephone),
+                )}
           </Label>
         </Box>
 
@@ -150,7 +159,9 @@ export default function About({
                   id='controlled-select'
                   onChange={handleChangeStatus}
                   labelId='controlled-select-label'
-                  disabled={type === 'onboarding'}
+                  disabled={
+                    type === 'onboarding' || currentRole?.name === 'LPM'
+                  }
                 >
                   {Object.values(ProStatus).map(value => {
                     return (

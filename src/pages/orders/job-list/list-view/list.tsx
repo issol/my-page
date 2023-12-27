@@ -17,7 +17,7 @@ import {
 import { JobTypeChip } from '@src/@core/components/chips/chips'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** context
@@ -26,6 +26,7 @@ import { authState } from '@src/states/auth'
 import { useContext } from 'react'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { statusType } from '@src/types/common/status.type'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: JobsListType
@@ -54,6 +55,7 @@ export default function JobsList({
   statusList,
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const router = useRouter()
 
   console.log('list', list)
@@ -161,15 +163,17 @@ export default function JobsList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip
-            title={FullDateTimezoneHelper(
+            title={convertTimeToTimezone(
               row?.startedAt,
               auth.getValue().user?.timezone?.code!,
+              timezone.getValue(),
             )}
           >
             <div>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row?.startedAt,
                 auth.getValue().user?.timezone?.code!,
+                timezone.getValue(),
               )}
             </div>
           </Tooltip>
@@ -185,15 +189,17 @@ export default function JobsList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip
-            title={FullDateTimezoneHelper(
+            title={convertTimeToTimezone(
               row?.dueAt,
               auth.getValue().user?.timezone?.code!,
+              timezone.getValue(),
             )}
           >
             <div>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row?.dueAt,
                 auth.getValue().user?.timezone?.code!,
+                timezone.getValue(),
               )}
             </div>
           </Tooltip>

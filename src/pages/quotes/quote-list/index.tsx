@@ -274,7 +274,7 @@ export default function Quotes({ id, user }: Props) {
           value: client.clientId,
         }))
         .slice()
-        // .sort((a, b) => b.label.localeCompare(a.label))
+      // .sort((a, b) => b.label.localeCompare(a.label))
       setClientList(res)
     }
   }, [clients, clientListLoading])

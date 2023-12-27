@@ -28,7 +28,7 @@ import { useGetPayableHistory } from '@src/queries/invoice/payable.query'
 import { restoreInvoicePayable } from '@src/apis/invoice/payable.api'
 
 // ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 // ** types
 import { PayableHistoryType } from '@src/types/invoice/payable.type'
@@ -40,6 +40,7 @@ import InvoiceJobList from './job-list'
 import { toast } from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import NoList from '@src/pages/components/no-list'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   invoiceId: number
@@ -62,6 +63,7 @@ export default function PayableHistory({
   statusList,
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const queryClient = useQueryClient()
 
@@ -136,7 +138,7 @@ export default function PayableHistory({
                       isUpdatable={false}
                       data={{
                         ...data,
-                        invoicedAtTimezone: data.invoicedAtTimezone,
+                        invoicedTimezone: data.invoicedTimezone,
                       }}
                       editInfo={false}
                       setEditInfo={() => {
@@ -151,7 +153,7 @@ export default function PayableHistory({
                 <InvoiceAmount
                   data={{
                     ...data,
-                    invoicedAtTimezone: data.invoicedAtTimezone,
+                    invoicedTimezone: data.invoicedTimezone,
                   }}
                 />
               </Grid>
@@ -257,9 +259,10 @@ export default function PayableHistory({
         if (auth.state === 'hasValue' && auth.getValue().user)
           return (
             <Typography variant='body1'>
-              {FullDateTimezoneHelper(
+              {convertTimeToTimezone(
                 row?.invoicedAt,
                 auth.getValue().user?.timezone?.code!,
+                timezone.getValue(),
               )}
             </Typography>
           )

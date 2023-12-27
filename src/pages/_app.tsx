@@ -132,7 +132,11 @@ const SentryIntegrations =
     ? [new SentryBrowser.BrowserTracing()]
     : [
         new SentryBrowser.BrowserTracing(),
-        new SentryBrowser.Replay({ maskAllText: false, maskAllInputs: false }),
+        new SentryBrowser.Replay({
+          maskAllText: false,
+          maskAllInputs: false,
+          blockAllMedia: false,
+        }),
       ]
 // console.log(JSON.parse(getUserDataFromBrowser()!).email)
 const userData = getUserDataFromBrowser()
@@ -184,6 +188,13 @@ const BeusableScriptsDynamic = dynamic(
 const GAScriptsDynamic = dynamic(() => import('@src/shared/scripts/ga'), {
   suspense: true,
 })
+
+const AuthProviderDynamic = dynamic(
+  () => import('@src/shared/auth/auth-provider'),
+  {
+    ssr: false,
+  },
+)
 
 // ** Pace Loader
 if (themeConfig.routingLoader) {
@@ -298,7 +309,7 @@ const App = (props: ExtendedAppProps) => {
                   }
                 }}
               >
-                <AuthProvider>
+                <AuthProviderDynamic>
                   <SettingsProvider
                     {...(setConfig ? { pageSettings: setConfig() } : {})}
                   >
@@ -336,7 +347,7 @@ const App = (props: ExtendedAppProps) => {
                       }}
                     </SettingsConsumer>
                   </SettingsProvider>
-                </AuthProvider>
+                </AuthProviderDynamic>
               </ErrorBoundary>
             </Suspense>
           </CacheProvider>

@@ -188,7 +188,7 @@ const FullCalenderContainer = styled.div`
   }
 `
 
-export const Calender = styled(FullCalenderContainer)<{ width: number }>(
+export const Calender = styled(FullCalenderContainer)<{ width?: number }>(
   ({ width }) => ({
     '.fc-view': {
       overflowX: 'auto',

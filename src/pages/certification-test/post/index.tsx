@@ -92,9 +92,13 @@ import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import FallbackSpinner from '@src/@core/components/spinner'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { log } from 'npmlog'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -122,12 +126,14 @@ const TestMaterialPost = () => {
   const queryClient = useQueryClient()
 
   const { setModal } = useContext(ModalContext)
+  const { openModal, closeModal } = useModal()
 
   // ** states
-  const { data: testDetail, isFetched } = useGetTestDetail(
-    Number(id!),
-    Boolean(edit!),
-  )
+  const {
+    data: testDetail,
+    isFetched,
+    refetch,
+  } = useGetTestDetail(Number(id), Boolean(edit))
   const [content, setContent] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
@@ -541,21 +547,72 @@ const TestMaterialPost = () => {
 
   const postTestMutation = useMutation((form: TestFormType) => postTest(form), {
     onSuccess: data => {
+      console.log(data)
+
       router.replace(`/certification-test/detail/${data.id}`)
-      queryClient.invalidateQueries('test-material-list')
-      queryClient.invalidateQueries(`test-detail-${id}-${edit}`)
+      // refetch()
+      // queryClient.invalidateQueries('test-material-list')
+      // queryClient.invalidateQueries(['test-detail'])
+      resetFormSelection()
       toast.success(`Success`, {
         position: 'bottom-left',
       })
     },
     onError: error => {
       if (error === 'MalformedURL') {
-        toast.error(AxiosErrors.MalformedURL, {
-          position: 'bottom-left',
+        // toast.error(AxiosErrors.MalformedURL, {
+        //   position: 'bottom-left',
+        // })
+        openModal({
+          type: 'MalformedURLModal',
+          children: (
+            <CustomModal
+              onClose={() => closeModal('MalformedURLModal')}
+              title={
+                <>
+                  Please enter the edit link of the Google form
+                </>
+              }
+              vary='error'
+              rightButtonText='Okay'
+              onClick={() => closeModal('MalformedURLModal')}
+              soloButton={true}
+            />
+          ),
         })
       } else if (error === 'UrlPermission') {
-        toast.error(AxiosErrors.UrlPermission, {
-          position: 'bottom-left',
+        // toast.error(AxiosErrors.UrlPermission, {
+        //   position: 'bottom-left',
+        // })
+        openModal({
+          type: 'UrlPermissionModal',
+          children: (
+            <CustomModal
+              onClose={() => closeModal('UrlPermissionModal')}
+              title={
+                <>
+                  Unauthorized Google form
+                </>
+              }
+              titleSize='large'
+              titleStyle='bold'
+              body={
+                <>
+                  Please add the account below to the
+                  Google form as an editor. This account is
+                  used for the sole purpose of delivering
+                  test to Pros and is not used for any other
+                  purpose.
+                  
+                </>
+              }
+              subtitle={`test-801@enough-service-dev.iam.gserviceaccount.com`}
+              vary='error'
+              rightButtonText='Okay'
+              onClick={() => closeModal('UrlPermissionModal')}
+              soloButton={true}
+            />
+          ),
         })
       } else {
         toast.error('Something went wrong. Please try again.', {
@@ -564,6 +621,36 @@ const TestMaterialPost = () => {
       }
     },
   })
+
+  const onClickGoogleFormInformation = () => {
+    openModal({
+      type: 'GoogleFormLinkInfoModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('GoogleFormLinkInfoModal')}
+          noButton
+          closeButton
+          title={
+            <>
+              Google form link guideline
+            </>
+          }
+          titleSize='large'
+          titleStyle='bold'
+          body={
+            <>
+              The link must be an edit link of the Google form.
+              <br /><br />
+              <b>test-801@enough-service-dev.iam.gserviceaccount.com</b> account must be added to the Google form as an editor. This account is used for the sole purpose of delivering test to Pros and is not used for any other purpose.
+            </>
+          }
+          vary='info'
+          onClick={() => closeModal('GoogleFormLinkInfoModal')}
+          rightButtonText='Okay'
+        />
+      ),
+    })
+  }
 
   const patchTestMutation = useMutation(
     (form: PatchFormType) => patchTest(Number(id!), form),
@@ -576,10 +663,67 @@ const TestMaterialPost = () => {
           position: 'bottom-left',
         })
       },
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
+      onError: error => {
+        if (error === 'MalformedURL') {
+          // toast.error(AxiosErrors.MalformedURL, {
+          //   position: 'bottom-left',
+          // })
+          openModal({
+            type: 'MalformedURLModal',
+            children: (
+              <CustomModal
+                onClose={() => closeModal('MalformedURLModal')}
+                title={
+                  <>
+                    Please enter the edit link of the Google form
+                  </>
+                }
+                vary='error'
+                rightButtonText='Okay'
+                onClick={() => closeModal('MalformedURLModal')}
+                soloButton={true}
+              />
+            ),
+          })
+        } else if (error === 'UrlPermission') {
+          // toast.error(AxiosErrors.UrlPermission, {
+          //   position: 'bottom-left',
+          // })
+          openModal({
+            type: 'UrlPermissionModal',
+            children: (
+              <CustomModal
+                onClose={() => closeModal('UrlPermissionModal')}
+                title={
+                  <>
+                    Unauthorized Google form
+                  </>
+                }
+                titleSize='large'
+                titleStyle='bold'
+                body={
+                  <>
+                    Please add the account below to the
+                    Google form as an editor. This account is
+                    used for the sole purpose of delivering
+                    test to Pros and is not used for any other
+                    purpose.
+                    
+                  </>
+                }
+                subtitle={`test-801@enough-service-dev.iam.gserviceaccount.com`}
+                vary='error'
+                rightButtonText='Okay'
+                onClick={() => closeModal('UrlPermissionModal')}
+                soloButton={true}
+              />
+            ),
+          })
+        } else {
+          toast.error('Something went wrong. Please try again.', {
+            position: 'bottom-left',
+          })
+        }
       },
     },
   )
@@ -1026,7 +1170,19 @@ const TestMaterialPost = () => {
                           </Grid>
                         </>
                       ) : null}
-
+                      <Grid item xs={12}>
+                        <IconButton
+                          onClick={() => {
+                            onClickGoogleFormInformation()
+                          }}
+                          sx={{ padding: '0px' }}
+                        >
+                          <img
+                            src='/images/icons/info.svg'
+                            alt='more'
+                          />
+                        </IconButton>
+                      </Grid>
                       <Grid item xs={12} mb='20px'>
                         <Controller
                           name='googleFormLink'

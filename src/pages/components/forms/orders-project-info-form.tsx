@@ -61,7 +61,6 @@ import {
   AreaOfExpertiseList,
 } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
-import { countries } from 'src/@fake-db/autocomplete'
 import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types
@@ -69,10 +68,12 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import dayjs from 'dayjs'
 import { useMutation } from 'react-query'
 import { addWorkName } from '@src/apis/common.api'
+
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   control: Control<OrderProjectInfoFormType, any>
@@ -98,6 +99,14 @@ export default function ProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
   const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -131,11 +140,25 @@ export default function ProjectInfoForm({
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
   useEffect(() => {
-    if (clientTimezone) {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
+
+  useEffect(() => {
+    if (clientTimezone && !getValues().projectDueTimezone) {
       setValue('projectDueTimezone', clientTimezone, setValueOptions)
     }
-  }, [clientTimezone])
+  }, [clientTimezone, getValues])
 
   useEffect(() => {
     if (getClientValue() && !getValues('orderTimezone')) {
@@ -241,8 +264,6 @@ export default function ProjectInfoForm({
               placeholderText='MM/DD/YYYY, HH:MM'
               selected={!value ? null : formattedNow(new Date(value))}
               onChange={e => {
-                console.log(e)
-
                 onChange(e)
               }}
               customInput={
@@ -272,14 +293,16 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (
@@ -637,7 +660,16 @@ export default function ProjectInfoForm({
               onChange={onChange}
               placeholderText='MM/DD/YYYY, HH:MM'
               customInput={
-                <CustomInput label='Project due date' icon='calendar' />
+                <Box>
+                  <CustomInput
+                    label='Project due date'
+                    icon='calendar'
+                    readOnly
+                    value={
+                      value ? dateValue(formattedNow(new Date(value))) : ''
+                    }
+                  />
+                </Box>
               }
             />
           )}
@@ -653,14 +685,16 @@ export default function ProjectInfoForm({
               fullWidth
               {...field}
               value={
-                !field.value ? { code: '', phone: '', label: '' } : field.value
+                !field.value ? { code: '', label: '', phone: '' } : field.value
               }
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              getOptionLabel={option => getGmtTimeEng(option.code) ?? ''}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {getGmtTimeEng(option.code)}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (

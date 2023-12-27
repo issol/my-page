@@ -24,7 +24,7 @@ import {
 } from '@src/pages/invoice/receivable/detail/components/invoice-info'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import {
   byteToGB,
   byteToMB,
@@ -63,6 +63,7 @@ import {
   patchProJobSourceFileDownload,
 } from '@src/apis/job-detail.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -83,6 +84,7 @@ const ProJobInfo = ({
   jobDetailDots,
 }: Props) => {
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const queryClient = useQueryClient()
   const statusLabel =
     statusList?.find(i => i.value === jobInfo.status)?.label || ''
@@ -205,7 +207,7 @@ const ProJobInfo = ({
         <Box
           sx={{ display: 'flex', gap: '10px', alignItems: 'center', mb: '5px' }}
         >
-          {file.isDownloaded ? null : (
+          {jobDetailDots.includes('download') && file.isDownloaded ? null : (
             <Badge
               variant='dot'
               color='primary'
@@ -219,9 +221,10 @@ const ProJobInfo = ({
             fontWeight={400}
             color={file.isDownloaded ? 'rgba(76, 78, 100, 0.60)' : '#666CFF'}
           >
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               file.createdAt,
               auth.getValue().user?.timezone,
+              timezone.getValue(),
             )}
           </Typography>
         </Box>
@@ -257,6 +260,7 @@ const ProJobInfo = ({
         </FileBox>
       </Box>
     ))
+
   const handleJobStatus = (response: 'Decline' | 'Notify') => {
     // TODO API 연결
     selectAssignMutation.mutate(
@@ -442,9 +446,10 @@ const ProJobInfo = ({
                 }}
                 secondItem={{
                   title: 'Due date',
-                  value: FullDateTimezoneHelper(
+                  value: convertTimeToTimezone(
                     jobInfo.dueAt,
                     auth.getValue()?.user?.timezone,
+                    timezone.getValue(),
                   ),
                   titleWidth: 122,
                   valueWidth: 156,
@@ -510,7 +515,11 @@ const ProJobInfo = ({
             fontSize={14}
             color='#e04440'
           >
-            {FullDateTimezoneHelper(jobDueDate, auth.getValue().user?.timezone)}
+            {convertTimeToTimezone(
+              jobDueDate,
+              auth.getValue().user?.timezone,
+              timezone.getValue(),
+            )}
           </Typography>
           <Typography
             variant='body1'
@@ -529,9 +538,10 @@ const ProJobInfo = ({
 
   return (
     <Grid container xs={12} spacing={4}>
-      {(patchProJobSourceFileDownloadMutation.isLoading ||
-        selectAssignMutation.isLoading) ?
-        <OverlaySpinner /> : null }
+      {patchProJobSourceFileDownloadMutation.isLoading ||
+      selectAssignMutation.isLoading ? (
+        <OverlaySpinner />
+      ) : null}
       <Grid item xs={9.25}>
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
@@ -846,9 +856,10 @@ const ProJobInfo = ({
                       }}
                     >
                       <Typography variant='body2'>
-                        {FullDateTimezoneHelper(
+                        {convertTimeToTimezone(
                           jobInfo.requestedAt,
                           auth.getValue()?.user?.timezone,
+                          timezone.getValue(),
                         )}
                       </Typography>
                     </Box>
@@ -897,7 +908,7 @@ const ProJobInfo = ({
                       }}
                     >
                       <Typography variant='body2'>
-                        {FullDateTimezoneHelper(
+                        {convertTimeToTimezone(
                           jobInfo.status !== 60100 &&
                             jobInfo.status !== 70000 &&
                             jobInfo.status !== 70100 &&
@@ -907,6 +918,7 @@ const ProJobInfo = ({
                             ? jobInfo.startedAt
                             : jobInfo.dueAt,
                           auth.getValue()?.user?.timezone,
+                          timezone.getValue(),
                         )}
                       </Typography>
                     </Box>
@@ -914,11 +926,11 @@ const ProJobInfo = ({
                 </Box>
               </Box>
               {jobInfo.status !== 60100 &&
-                jobInfo.status !== 70000 &&
-                jobInfo.status !== 70100 &&
-                jobInfo.status !== 70200 &&
-                jobInfo.status !== 70400 &&
-                jobInfo.status !== 70500 ? (
+              jobInfo.status !== 70000 &&
+              jobInfo.status !== 70100 &&
+              jobInfo.status !== 70200 &&
+              jobInfo.status !== 70400 &&
+              jobInfo.status !== 70500 ? (
                 <Box sx={{ display: 'flex', width: '50%', gap: '8px' }}>
                   <Box
                     sx={{
@@ -970,9 +982,10 @@ const ProJobInfo = ({
                         </Box>
                       ) : (
                         <Typography variant='body2'>
-                          {FullDateTimezoneHelper(
+                          {convertTimeToTimezone(
                             jobInfo.dueAt,
                             auth.getValue()?.user?.timezone,
+                            timezone.getValue(),
                           )}
                         </Typography>
                       )}
@@ -1076,8 +1089,12 @@ const ProJobInfo = ({
                                     component={'span'}
                                   >
                                     {value.quantity} {value.unit} /{' '}
-                                    {jobPrices.currency} {value.unitPrice} per{' '}
-                                    {value.title}
+                                    {formatCurrency(
+                                      value?.unitPrice ?? 0,
+                                      jobPrices.initialPrice?.currency ?? 'KRW',
+                                      2,
+                                    )}{' '}
+                                    per {value.title}
                                   </Typography>
                                 </li>
                               )
@@ -1194,13 +1211,10 @@ const ProJobInfo = ({
       </Grid>
       <Grid item xs={2.75}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          {fileList && fileList.length === 0 ||
-          (jobInfo.status !== 70000 &&
-            jobInfo.status !== 70100 &&
-            jobInfo.status !== 70200 &&
-            jobInfo.status !== 70300 &&
-            jobInfo.status !== 70400 &&
-            jobInfo.status !== 70500) ? null : (
+          {(fileList && fileList.length === 0) ||
+          [70200, 70300, 70400, 70500, 601000].includes(
+            jobInfo.status,
+          ) ? null : (
             <Card>
               <Box
                 sx={{
@@ -1212,9 +1226,7 @@ const ProJobInfo = ({
               >
                 <Box display='flex' justifyContent='space-between'>
                   <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                    {jobInfo.status !== 70000 &&
-                    jobInfo.status !== 70100 &&
-                    jobInfo.status !== 70200 &&
+                    {jobInfo.status !== 70200 &&
                     jobInfo.status !== 70400 &&
                     jobInfo.status !== 70500
                       ? 'Source files'
@@ -1225,8 +1237,6 @@ const ProJobInfo = ({
                   </Typography>
                 </Box>
                 {fileList.length === 0 &&
-                jobInfo.status !== 70000 &&
-                jobInfo.status !== 70100 &&
                 jobInfo.status !== 70200 &&
                 jobInfo.status !== 70400 &&
                 jobInfo.status !== 70500 ? null : fileList.length > 0 ? (
@@ -1239,7 +1249,8 @@ const ProJobInfo = ({
                       fileList.length === 0 ||
                       jobInfo.status === 70200 ||
                       jobInfo.status === 70400 ||
-                      jobInfo.status === 70500
+                      jobInfo.status === 70500 ||
+                      jobInfo.status === 601000
                     }
                   >
                     Download all

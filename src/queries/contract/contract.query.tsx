@@ -14,7 +14,7 @@ export const useInvalidateContractQuery = () => {
 
 export const useGetContract = ({ type, language }: ContractParam) => {
   return useQuery(
-    'get-contract/detail',
+    ['get-contract/detail', { type, language }],
     () => {
       return getContractDetail({ type, language })
     },

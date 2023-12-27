@@ -11,7 +11,7 @@ import {
   OutlinedInput,
   TextField,
 } from '@mui/material'
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 // ** data
@@ -33,6 +33,11 @@ import { ClientCompanyInfoType } from '@src/context/types'
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
+import MuiPhone from '@src/pages/components/phone/mui-phone'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   control: Control<ClientCompanyInfoType, any>
@@ -44,6 +49,28 @@ export default function ClientCompanyInfoForm({
   errors,
   watch,
 }: Props) {
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
+
   function renderPhoneField(key: keyof ClientCompanyInfoType, label: string) {
     return (
       <>
@@ -52,28 +79,10 @@ export default function ClientCompanyInfoForm({
           control={control}
           rules={{ required: false }}
           render={({ field: { value, onChange } }) => (
-            <TextField
-              fullWidth
-              autoFocus
+            <MuiPhone
+              value={(value as string) || ''}
+              onChange={onChange}
               label={label}
-              variant='outlined'
-              value={value ?? ''}
-              onChange={e => {
-                if (isInvalidPhoneNumber(e.target.value)) return
-                onChange(e)
-              }}
-              inputProps={{ maxLength: 50 }}
-              error={Boolean(errors[key])}
-              placeholder={
-                !watch('timezone')?.phone ? `+ 1) 012 345 6789` : `012 345 6789`
-              }
-              InputProps={{
-                startAdornment: watch('timezone')?.phone && (
-                  <InputAdornment position='start'>
-                    {'+' + watch('timezone')?.phone}
-                  </InputAdornment>
-                ),
-              }}
             />
           )}
         />
@@ -127,12 +136,12 @@ export default function ClientCompanyInfoForm({
               autoHighlight
               fullWidth
               {...field}
-              options={countries as CountryType[]}
+              options={timeZoneList as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
               renderOption={(props, option) => (
                 <Box component='li' {...props} key={uuidv4()}>
-                  {option.label} ({option.code}) +{option.phone}
+                  {timeZoneFormatter(option, timezone.getValue())}
                 </Box>
               )}
               renderInput={params => (
@@ -145,6 +154,9 @@ export default function ClientCompanyInfoForm({
                   }}
                 />
               )}
+              getOptionLabel={option =>
+                timeZoneFormatter(option, timezone.getValue()) ?? ''
+              }
             />
           )}
         />

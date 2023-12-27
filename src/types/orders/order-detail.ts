@@ -113,6 +113,7 @@ export type HistoryType = {
 
 export type VersionHistoryType = {
   id: number
+  orderId: number
   version: number
   account: string
   confirmedAt: string

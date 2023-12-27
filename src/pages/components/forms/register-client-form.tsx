@@ -33,7 +33,7 @@ import { getClientDetail } from '@src/apis/client.api'
 
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 
 // ** types
 import { ClientFormType } from '@src/types/schema/client.schema'
@@ -42,6 +42,12 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { id } from 'date-fns/locale'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   control: Control<ClientFormType, any>
@@ -76,6 +82,7 @@ export default function RegisterClientForm({
   trigger,
   reset,
 }: Props) {
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const defaultFilter: Array<any> = [
     { value: NOT_APPLICABLE, label: 'Not applicable' },
   ]
@@ -97,7 +104,7 @@ export default function RegisterClientForm({
           clientId: null,
           contactPersonId: null,
           contacts: {
-            timezone: { code: '', label: '', phone: '' },
+            timezone: { code: '', label: '' },
             phone: '',
             mobile: '',
             fax: '',
@@ -245,7 +252,7 @@ export default function RegisterClientForm({
 
                         contactPersonId: null,
                         contacts: {
-                          timezone: { code: '', label: '', phone: '' },
+                          timezone: { code: '', label: '' },
                           phone: '',
                           mobile: '',
                           fax: '',
@@ -409,8 +416,10 @@ export default function RegisterClientForm({
                   handleShowLabelAndPlaceHolder(
                     Boolean(
                       getValue('contacts.timezone') &&
-                        getGmtTimeEng(getValue('contacts.timezone.code')) !==
-                          '-',
+                        timeZoneFormatter(
+                          getValue('contacts.timezone')!,
+                          timezone.getValue(),
+                        ) !== '-',
                     ),
                   )
                     ? 'Time zone'
@@ -419,8 +428,8 @@ export default function RegisterClientForm({
                 value={
                   value &&
                   getValue().contactPersonId &&
-                  getGmtTimeEng(value.code) !== '-'
-                    ? getGmtTimeEng(value.code)
+                  timeZoneFormatter(value, timezone.getValue()) !== '-'
+                    ? timeZoneFormatter(value, timezone.getValue())
                     : ''
                 }
                 disabled={true}
@@ -430,8 +439,9 @@ export default function RegisterClientForm({
                       {handleShowLabelAndPlaceHolder(
                         Boolean(
                           getValue('contacts.timezone') &&
-                            getGmtTimeEng(
-                              getValue('contacts.timezone.code'),
+                            timeZoneFormatter(
+                              getValue('contacts.timezone')!,
+                              timezone.getValue(),
                             ) !== '-',
                         ),
                       ) ? null : (
@@ -461,8 +471,10 @@ export default function RegisterClientForm({
               }
               value={
                 !value || value === '' || !getValue().contactPersonId
-                  ? ''
-                  : `+ ${getValue('contacts.timezone.phone')} ) ${value}`
+                  ? '-'
+                  : contryCodeAndPhoneNumberFormatter(
+                      splitContryCodeAndPhoneNumber(value),
+                    )
               }
               disabled={true}
               InputProps={{
@@ -497,8 +509,10 @@ export default function RegisterClientForm({
               // placeholder='Mobile phone'
               value={
                 !value || value === '' || !getValue().contactPersonId
-                  ? ''
-                  : `+ ${getValue('contacts.timezone.phone')} ) ${value}`
+                  ? '-'
+                  : contryCodeAndPhoneNumberFormatter(
+                      splitContryCodeAndPhoneNumber(value),
+                    )
               }
               disabled={true}
               InputProps={{
@@ -531,8 +545,10 @@ export default function RegisterClientForm({
               // placeholder='Fax'
               value={
                 !value || value === '' || !getValue().contactPersonId
-                  ? ''
-                  : `+ ${getValue('contacts.timezone.phone')} ) ${value}`
+                  ? '-'
+                  : contryCodeAndPhoneNumberFormatter(
+                      splitContryCodeAndPhoneNumber(value),
+                    )
               }
               disabled={true}
               InputProps={{

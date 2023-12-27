@@ -62,6 +62,7 @@ import {
 } from '@src/types/schema/invoice-project-info.schema'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
   invoiceInfo: InvoiceReceivableDetailType
@@ -99,6 +100,7 @@ const InvoiceVersionHistoryModal = ({
     useState<InvoiceLanguageItemType | null>(null)
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -679,6 +681,7 @@ const InvoiceVersionHistoryModal = ({
                 type='history'
                 user={user!}
                 orders={history.items.orders}
+                timezoneList={timezone.getValue()}
               />
             ) : null}
           </TabPanel>

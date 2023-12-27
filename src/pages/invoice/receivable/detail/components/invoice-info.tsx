@@ -23,7 +23,8 @@ import styled from 'styled-components'
 import Icon from '@src/@core/components/icon'
 import {
   FullDateHelper,
-  FullDateTimezoneHelper,
+  changeTimeZoneOffset,
+  convertTimeToTimezone,
 } from '@src/shared/helpers/date.helper'
 
 import { ClientType, DeliveryFileType } from '@src/types/orders/order-detail'
@@ -51,7 +52,7 @@ import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { deleteOrder } from '@src/apis/order-detail.api'
+import { deleteOrder } from '@src/apis/order/order-detail.api'
 import { useRouter } from 'next/router'
 import {
   InvoiceProjectInfoFormType,
@@ -98,6 +99,7 @@ import CancelRequestModal from './modal/cancel-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import { UseMutationResult } from 'react-query'
+import { timezoneSelector } from '@src/states/permission'
 
 interface GroupedDeliveryFileType {
   createdAt: string
@@ -132,7 +134,7 @@ type Props = {
   updateInvoiceStatus?: UseMutationResult<
     void,
     unknown,
-    {id: number; invoiceStatus: number; reason?: ReasonType},
+    { id: number; invoiceStatus: number; reason?: ReasonType },
     unknown
   >
   clientTimezone?: CountryType
@@ -208,6 +210,7 @@ const InvoiceInfo = ({
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
 
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   const isInvoiceInfoUpdatable =
     ![30900, 301200].includes(invoiceInfo.invoiceStatus) && isUpdatable
@@ -313,13 +316,16 @@ const InvoiceInfo = ({
             rightButtonText='Change'
             onClick={() => {
               updateInvoiceStatus.mutate(
-                { id: invoiceInfo.id, invoiceStatus: value as InvoiceReceivableStatusType },
+                {
+                  id: invoiceInfo.id,
+                  invoiceStatus: value as InvoiceReceivableStatusType,
+                },
                 {
                   onSuccess: () => {
                     closeModal('ChangeStatusModal')
                     setStatus(value)
-                  }
-                }
+                  },
+                },
               )
             }}
             onClose={() => closeModal('ChangeStatusModal')}
@@ -436,9 +442,15 @@ const InvoiceInfo = ({
               projectName: data.projectName,
               tax: data.tax,
               isTaxable: data.isTaxable ? '1' : '0',
-              invoicedAt: data.invoiceDate.toISOString(),
+              invoicedAt: changeTimeZoneOffset(
+                data.invoiceDate.toISOString(),
+                data.invoiceDateTimezone,
+              )!,
               invoicedTimezone: data.invoiceDateTimezone,
-              payDueAt: data.paymentDueDate.date,
+              payDueAt: changeTimeZoneOffset(
+                new Date(data.paymentDueDate.date).toISOString(),
+                data.paymentDueDate.timezone,
+              )!,
               payDueTimezone: data.paymentDueDate.timezone,
               invoiceDescription: data.invoiceDescription,
               description: data.invoiceDescription,
@@ -446,24 +458,53 @@ const InvoiceInfo = ({
 
               // invoiceConfirmedAt: data.invoiceConfirmDate?.date,
               // invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
-              clientConfirmedAt: data.invoiceConfirmDate?.date,
+              clientConfirmedAt:
+                data.invoiceConfirmDate?.date &&
+                data.invoiceConfirmDate?.timezone
+                  ? changeTimeZoneOffset(
+                      new Date(data.invoiceConfirmDate?.date).toISOString(),
+                      data.invoiceConfirmDate?.timezone,
+                    )
+                  : null,
               clientConfirmTimezone: data.invoiceConfirmDate?.timezone,
-              taxInvoiceDueAt: data.taxInvoiceDueDate?.date,
+              taxInvoiceDueAt:
+                data.taxInvoiceDueDate?.date && data.taxInvoiceDueDate?.timezone
+                  ? changeTimeZoneOffset(
+                      new Date(data.taxInvoiceDueDate?.date).toISOString(),
+                      data.taxInvoiceDueDate?.timezone,
+                    )
+                  : null,
               taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone,
             }
           : {
-              paidAt: data.paymentDate?.date,
+              paidAt:
+                data.paymentDate?.date && data.paymentDate?.timezone
+                  ? changeTimeZoneOffset(
+                      new Date(data.paymentDate?.date).toISOString(),
+                      data.paymentDate?.timezone,
+                    )
+                  : null,
               paidDateTimezone: data.paymentDate?.timezone,
               taxInvoiceIssuedAt:
-                data.taxInvoiceIssuanceDate?.date === ''
-                  ? undefined
-                  : data.taxInvoiceIssuanceDate?.date,
+                data.taxInvoiceIssuanceDate?.date &&
+                data.taxInvoiceIssuanceDate?.date !== '' &&
+                data.taxInvoiceIssuanceDate?.timezone
+                  ? changeTimeZoneOffset(
+                      new Date(data.taxInvoiceIssuanceDate?.date).toISOString(),
+                      data.taxInvoiceIssuanceDate?.timezone,
+                    )!
+                  : undefined,
               taxInvoiceIssuedDateTimezone:
                 data.taxInvoiceIssuanceDate?.timezone,
               salesCheckedAt:
-                data.salesRecognitionDate?.date === ''
-                  ? undefined
-                  : data.salesRecognitionDate?.date,
+                data.salesRecognitionDate?.date &&
+                data.salesRecognitionDate?.date !== '' &&
+                data.salesRecognitionDate?.timezone
+                  ? changeTimeZoneOffset(
+                      new Date(data.salesRecognitionDate?.date).toISOString(),
+                      data.salesRecognitionDate?.timezone,
+                    )!
+                  : undefined,
               salesCheckedDateTimezone: data.salesRecognitionDate?.timezone,
               notes: data.notes,
               salesCategory: data?.salesCategory,
@@ -722,7 +763,11 @@ const InvoiceInfo = ({
         fontWeight={400}
         sx={{ mb: '5px' }}
       >
-        {FullDateTimezoneHelper(file.createdAt, auth.getValue().user?.timezone)}
+        {convertTimeToTimezone(
+          file.createdAt,
+          auth.getValue().user?.timezone,
+          timezone.getValue(),
+        )}
       </Typography>
     </Box>
   ))
@@ -870,7 +915,6 @@ const InvoiceInfo = ({
       })
     }
   }
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {isFileUploading ? null : (
@@ -1066,9 +1110,10 @@ const InvoiceInfo = ({
                               width: '100%',
                             }}
                           >
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               invoiceInfo.invoicedAt,
-                              invoiceInfo.invoicedTimezone,
+                              auth.getValue().user?.timezone,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>
@@ -1505,9 +1550,10 @@ const InvoiceInfo = ({
                               width: '100%',
                             }}
                           >
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               invoiceInfo.payDueAt,
-                              invoiceInfo.payDueTimezone!,
+                              auth.getValue().user?.timezone,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>
@@ -1546,9 +1592,10 @@ const InvoiceInfo = ({
                               width: '100%',
                             }}
                           >
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               invoiceInfo.clientConfirmedAt,
-                              invoiceInfo.clientConfirmTimezone!,
+                              auth.getValue().user?.timezone,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>
@@ -1589,9 +1636,10 @@ const InvoiceInfo = ({
                               width: '100%',
                             }}
                           >
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               invoiceInfo.taxInvoiceDueAt,
-                              invoiceInfo.taxInvoiceDueTimezone!,
+                              auth.getValue().user?.timezone,
+                              timezone.getValue(),
                             )}
                           </Typography>
                         </Box>
@@ -1894,9 +1942,10 @@ const InvoiceInfo = ({
                                 width: '100%',
                               }}
                             >
-                              {FullDateTimezoneHelper(
+                              {convertTimeToTimezone(
                                 invoiceInfo.paidAt,
-                                invoiceInfo.paidDateTimezone!,
+                                auth.getValue().user?.timezone,
+                                timezone.getValue(),
                               )}
                             </Typography>
                           </Box>
@@ -1935,9 +1984,10 @@ const InvoiceInfo = ({
                                 width: '100%',
                               }}
                             >
-                              {FullDateTimezoneHelper(
+                              {convertTimeToTimezone(
                                 invoiceInfo.taxInvoiceIssuedAt,
-                                invoiceInfo.taxInvoiceIssuedDateTimezone!,
+                                auth.getValue().user?.timezone,
+                                timezone.getValue(),
                               )}
                             </Typography>
                           </Box>
@@ -1986,9 +2036,10 @@ const InvoiceInfo = ({
                                   width: '100%',
                                 }}
                               >
-                                {FullDateTimezoneHelper(
+                                {convertTimeToTimezone(
                                   invoiceInfo.salesCheckedAt,
-                                  invoiceInfo.salesCheckedDateTimezone!,
+                                  auth.getValue().user?.timezone,
+                                  timezone.getValue(),
                                 )}
                               </Typography>
                             </Box>
@@ -2131,9 +2182,10 @@ const InvoiceInfo = ({
                             fontWeight={400}
                             sx={{ mb: '5px' }}
                           >
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               value.createdAt,
                               auth.getValue().user?.timezone,
+                              timezone.getValue(),
                             )}
                           </Typography>
                           <Box
@@ -2308,9 +2360,10 @@ const InvoiceInfo = ({
                             fontWeight={400}
                             sx={{ mb: '5px' }}
                           >
-                            {FullDateTimezoneHelper(
+                            {convertTimeToTimezone(
                               value.createdAt,
                               auth.getValue().user?.timezone,
+                              timezone.getValue(),
                             )}
                           </Typography>
                           <Box

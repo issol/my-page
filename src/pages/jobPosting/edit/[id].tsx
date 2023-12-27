@@ -60,7 +60,7 @@ import {
   updateJobPosting,
   StatusType,
 } from '@src/apis/jobPosting.api'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 
 // ** types
 import {
@@ -81,11 +81,14 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+
+import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
+import { timezoneSelector } from '@src/states/permission'
 
 export default function JobPostingEdit() {
   const router = useRouter()
   const id = Number(router.query.id)
+  const queryClient = useQueryClient()
 
   const languageList = getGloLanguage()
 
@@ -107,6 +110,26 @@ export default function JobPostingEdit() {
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
   const [link, setLink] = useState<Array<LinkType>>([])
+  const [timeZoneList, setTimeZoneList] = useState<
+    {
+      code: string
+      label: string
+      phone: string
+    }[]
+  >([])
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
+  useEffect(() => {
+    const timezoneList = timezone.getValue()
+    const filteredTimezone = timezoneList.map(list => {
+      return {
+        code: list.timezoneCode,
+        label: list.timezone,
+        phone: '',
+      }
+    })
+    setTimeZoneList(filteredTimezone)
+  }, [timezone])
 
   const defaultValues = {
     status: { value: '' as StatusType, label: '' as StatusType },
@@ -145,7 +168,7 @@ export default function JobPostingEdit() {
       )
     } else if (
       currDueDate &&
-      !watch('dueDateTimezone')?.code &&
+      !watch('dueDateTimezone')?.label &&
       auth.state === 'hasValue' &&
       auth.getValue().user
     ) {
@@ -311,7 +334,9 @@ export default function JobPostingEdit() {
     (form: FormType) => updateJobPosting(id, form),
     {
       onSuccess: res => {
-        router.push(`/jobPosting/detail/${res?.id}`)
+        router.push(`/jobPosting/detail/${id}`)
+        queryClient.invalidateQueries(['get-jobPosting/list'])
+        queryClient.invalidateQueries(['get-jobPosting/detail'])
         toast.success('Success', {
           position: 'bottom-left',
         })
@@ -340,7 +365,7 @@ export default function JobPostingEdit() {
       yearsOfExperience: data.yearsOfExperience?.value ?? '',
       openings: data?.openings ?? 0,
       dueDate: data?.dueDate ?? '',
-      dueDateTimezone: data.dueDateTimezone?.code ?? '',
+      dueDateTimezone: data.dueDateTimezone ?? null,
       postLink: data?.postLink ?? '',
       content: convertToRaw(content.getCurrentContent()),
       text: content.getCurrentContent().getPlainText('\u0001'),
@@ -419,6 +444,7 @@ export default function JobPostingEdit() {
                               autoHighlight
                               fullWidth
                               options={JobPostingStatus}
+                              disableClearable={!value || value.value === ''}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -431,7 +457,6 @@ export default function JobPostingEdit() {
                                   {...params}
                                   error={Boolean(errors.status)}
                                   label='Status*'
-                                  placeholder='Status*'
                                 />
                               )}
                             />
@@ -457,6 +482,7 @@ export default function JobPostingEdit() {
                               fullWidth
                               options={JobList}
                               value={value}
+                              disableClearable={!value || value.value === ''}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -468,7 +494,6 @@ export default function JobPostingEdit() {
                                   {...params}
                                   error={Boolean(errors.jobType)}
                                   label='Job type*'
-                                  placeholder='Job type*'
                                 />
                               )}
                             />
@@ -492,6 +517,7 @@ export default function JobPostingEdit() {
                               autoHighlight
                               fullWidth
                               options={RoleList}
+                              disableClearable={!value || value.value === ''}
                               value={value}
                               // filterSelectedOptions
                               onChange={(e, v) => {
@@ -504,7 +530,6 @@ export default function JobPostingEdit() {
                                   {...params}
                                   error={Boolean(errors.role)}
                                   label='Role*'
-                                  placeholder='Role*'
                                 />
                               )}
                             />
@@ -529,6 +554,7 @@ export default function JobPostingEdit() {
                               fullWidth
                               options={languageList}
                               value={value}
+                              disableClearable={!value || value.value === ''}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -540,7 +566,6 @@ export default function JobPostingEdit() {
                                   {...params}
                                   error={Boolean(errors.sourceLanguage)}
                                   label='Source*'
-                                  placeholder='Source*'
                                 />
                               )}
                             />
@@ -566,6 +591,7 @@ export default function JobPostingEdit() {
                               fullWidth
                               options={languageList}
                               value={value}
+                              disableClearable={!value || value.value === ''}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -577,7 +603,6 @@ export default function JobPostingEdit() {
                                   {...params}
                                   error={Boolean(errors.targetLanguage)}
                                   label='Target*'
-                                  placeholder='Target*'
                                 />
                               )}
                             />
@@ -610,25 +635,28 @@ export default function JobPostingEdit() {
                             <TextField
                               fullWidth
                               onChange={e => {
-                                const value = Number(e.target.value)
-                                if (value <= 15) onChange(value)
-                                else return
+                                if (e.target.value) {
+                                  const value = Number(e.target.value)
+                                  if (value <= 15) onChange(value)
+                                  else return
+                                } else {
+                                  onChange('')
+                                }
                               }}
                               value={value ?? ''}
-                              error={Boolean(errors.openings)}
+                              // error={Boolean(errors.openings)}
                               label='Number of linguist'
-                              placeholder='Number of linguist'
                               InputProps={{
                                 type: 'number',
                               }}
                             />
                           )}
                         />
-                        {errors.openings && (
+                        {/* {errors.openings && (
                           <FormHelperText sx={{ color: 'error.main' }}>
                             {errors.openings?.message}
                           </FormHelperText>
-                        )}
+                        )} */}
                       </Grid>
                       {/* years of ex */}
                       <Grid item xs={6}>
@@ -642,6 +670,7 @@ export default function JobPostingEdit() {
                               fullWidth
                               options={ExperiencedYears}
                               value={value}
+                              disableClearable={!value || value.value === ''}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -653,7 +682,6 @@ export default function JobPostingEdit() {
                                   {...params}
                                   error={Boolean(errors.yearsOfExperience)}
                                   label='Years of experience'
-                                  placeholder='Years of experience'
                                 />
                               )}
                             />
@@ -676,7 +704,7 @@ export default function JobPostingEdit() {
                               }
                               id='dueDate'
                               onChange={onChange}
-                              placeholderText='Due date'
+                              placeholderText='MM/DD/YYYY'
                               customInput={<CustomInput icon='calendar' />}
                             />
                           )}
@@ -698,12 +726,15 @@ export default function JobPostingEdit() {
                               fullWidth
                               value={value}
                               disabled={!currDueDate}
-                              options={countries as CountryType[]}
+                              options={timeZoneList as CountryType[]}
                               onChange={(e, v) => onChange(v)}
-                              disableClearable
+                              // disableClearable
                               renderOption={(props, option) => (
                                 <Box component='li' {...props} key={uuidv4()}>
-                                  {getGmtTimeEng(option.code)}
+                                  {timeZoneFormatter(
+                                    option,
+                                    timezone.getValue(),
+                                  )}
                                 </Box>
                               )}
                               renderInput={params => (
@@ -716,6 +747,12 @@ export default function JobPostingEdit() {
                                   }}
                                 />
                               )}
+                              getOptionLabel={option =>
+                                timeZoneFormatter(
+                                  option,
+                                  timezone.getValue(),
+                                ) ?? ''
+                              }
                             />
                           )}
                         />

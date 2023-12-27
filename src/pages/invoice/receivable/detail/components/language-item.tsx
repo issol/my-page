@@ -11,7 +11,10 @@ import {
 } from '@mui/material'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import Icon from '@src/@core/components/icon'
-import { patchItemsForOrder, patchLangPairForOrder } from '@src/apis/order.api'
+import {
+  patchItemsForOrder,
+  patchLangPairForOrder,
+} from '@src/apis/order/order.api'
 import useModal from '@src/hooks/useModal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
@@ -187,7 +190,7 @@ const InvoiceLanguageAndItem = ({
         children: (
           <DeleteConfirmModal
             message='Are you sure you want to delete this language pair?'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
+            title={`${languageHelper(row.source)} → ${languageHelper(
               row.target,
             )}`}
             onDelete={deleteLanguage}
@@ -201,7 +204,7 @@ const InvoiceLanguageAndItem = ({
         children: (
           <SimpleAlertModal
             message='This language pair cannot be deleted because it’s already being used in the item.'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
+            title={`${languageHelper(row.source)} → ${languageHelper(
               row.target,
             )}`}
             onClose={() => closeModal('cannot-delete-language')}

@@ -178,7 +178,7 @@ export const getClient = async (id: number): Promise<ClientType> => {
         fax: null,
         mobile: null,
         phone: null,
-        timezone: { phone: '', code: '', label: '' },
+        timezone: { code: '', label: '', phone: '' },
         name: '',
         isTaxable: false,
         taxable: false,

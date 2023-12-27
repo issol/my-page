@@ -1,27 +1,45 @@
-import { Box, Button, TextField, Typography } from '@mui/material'
+import { Box, Button, IconButton, TextField, Typography } from '@mui/material'
 
 import AlertIcon from '../alert-icon'
 import { useState } from 'react'
+import { Icon } from '@iconify/react'
 
 type Props = {
   onClose: any
   onClick: any
   title: string | JSX.Element
+  titleStyle?: 'normal' | 'bold'
+  titleSize?: 'small' | 'normal' | 'large'
+  titleColor?: string
   subtitle?: string
   subtitleColor?: 'primary' | 'secondary'
-  vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
+  vary:
+    | 'error'
+    | 'info'
+    | 'error-report'
+    | 'progress'
+    | 'successful'
+    | 'guideline-info'
+    | 'question-info'
   textarea?: boolean
   textareaRequired?: boolean
   textareaPlaceholder?: string
   leftButtonText?: string
   rightButtonText: string
   soloButton?: boolean
+  noButton?: boolean
+  closeButton?: boolean
+  buttonDirection?: 'row' | 'column-reverse'
+  body?: string | JSX.Element
 }
 
 const CustomModal = ({
   onClose,
   onClick,
   title,
+  titleStyle,
+  titleSize,
+  titleColor,
   subtitle,
   subtitleColor,
   vary,
@@ -31,6 +49,10 @@ const CustomModal = ({
   textareaRequired,
   textareaPlaceholder,
   soloButton,
+  noButton,
+  closeButton,
+  buttonDirection,
+  body
 }: Props) => {
   const [text, setText] = useState('')
 
@@ -42,8 +64,17 @@ const CustomModal = ({
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
+        position: closeButton ? 'relative' : 'inherit',
       }}
     >
+      {closeButton ? (
+        <IconButton
+          sx={{ position: 'absolute', top: '10px', right: '10px' }}
+          onClick={onClose}
+        >
+          <Icon icon='mdi:close'></Icon>
+        </IconButton>
+      ) : null}
       <Box
         sx={{
           padding: '20px',
@@ -67,10 +98,36 @@ const CustomModal = ({
             variant='body2'
             textAlign='center'
             mt='10px'
-            sx={{ fontSize: '16px' }}
+            color={titleColor ?? 'secondary'}
+            sx={{
+              fontWeight: titleStyle
+                ? titleStyle === 'bold'
+                  ? '700'
+                  : titleStyle === 'normal'
+                    ? '400'
+                    : null
+                : null,
+              fontSize: titleSize
+                ? titleSize === 'large'
+                  ? '20px'
+                  : titleSize === 'normal'
+                    ? '16px'
+                    : null
+                : '16px', 
+              marginBottom: '16px'
+            }}
           >
             {title}
           </Typography>
+          {body ? (
+            <Typography
+              variant='body2'
+              textAlign='center'
+              sx={{ fontWeight: 400, fontSize: '16px', marginBottom: '16px' }}
+            >
+              {body}
+            </Typography>
+          ) : null}
           {subtitle ? (
             <Typography
               variant='body2'
@@ -106,28 +163,43 @@ const CustomModal = ({
             </Box>
           </Box>
         ) : null}
-        <Box
-          sx={{
-            display: 'flex',
-            gap: '16px',
-            justifyContent: 'center',
-            mt: '16px',
-          }}
-        >
-          {soloButton ? null : (
-            <Button variant='outlined' onClick={onClose}>
-              {leftButtonText ?? 'Cancel'}
-            </Button>
-          )}
-
-          <Button
-            variant='contained'
-            onClick={() => (textarea ? onClick(text) : onClick())}
-            disabled={textareaRequired ? textarea && text === '' : false}
+        {noButton ? null : (
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '16px',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: buttonDirection ?? 'row',
+              width: '100%',
+              mt: '30px',
+            }}
           >
-            {rightButtonText}
-          </Button>
-        </Box>
+            {soloButton ? null : (
+              <Button
+                variant='outlined'
+                onClick={onClose}
+                sx={{
+                  width:
+                    buttonDirection === 'column-reverse' ? '210px' : 'auto',
+                }}
+              >
+                {leftButtonText ?? 'Cancel'}
+              </Button>
+            )}
+
+            <Button
+              variant='contained'
+              onClick={() => (textarea ? onClick(text) : onClick())}
+              sx={{
+                width: buttonDirection === 'column-reverse' ? '210px' : 'auto',
+              }}
+              disabled={textareaRequired ? textarea && text === '' : false}
+            >
+              {rightButtonText}
+            </Button>
+          </Box>
+        )}
       </Box>
     </Box>
   )

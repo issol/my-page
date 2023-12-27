@@ -8,7 +8,7 @@ import CardHeader from '@mui/material/CardHeader'
 import { StyledNextLink } from 'src/@core/components/customLink'
 
 // ** helpers
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import {
   JobTypeChip,
   renderStatusChip,
@@ -20,6 +20,8 @@ import { useRouter } from 'next/router'
 
 // ** types
 import { JobPostingDataType } from 'src/apis/jobPosting.api'
+import { timezoneSelector } from '@src/states/permission'
+import { useRecoilValueLoadable } from 'recoil'
 
 type CellType = {
   row: JobPostingDataType
@@ -46,6 +48,8 @@ export default function JobPostingList({
   isLoading,
 }: Props) {
   const router = useRouter()
+
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   function moveToDetail(row: GridRowParams) {
     router.push(`/jobPosting/detail/${row.id}`)
@@ -79,7 +83,7 @@ export default function JobPostingList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip placement='bottom' title={`${row.jobType} / ${row.role}`}>
-            <Box sx={{ display: 'flex', gap: '8px', overflow: 'scroll' }}>
+            <Box className='scroll_bar' sx={{ display: 'flex', gap: '8px' }}>
               <JobTypeChip
                 type={row.jobType}
                 label={row.jobType}
@@ -100,11 +104,11 @@ export default function JobPostingList({
       renderCell: ({ row }: CellType) => (
         <Tooltip
           placement='bottom'
-          title={`${row.targetLanguage?.toUpperCase()} → ${row.sourceLanguage?.toUpperCase()}`}
+          title={`${row.sourceLanguage?.toUpperCase()} → ${row.targetLanguage?.toUpperCase()}`}
         >
           <Typography sx={{ fontWeight: 'bold' }} variant='body2'>
-            {row.targetLanguage?.toUpperCase()} →{' '}
-            {row.sourceLanguage?.toUpperCase()}
+            {row.sourceLanguage?.toUpperCase()} →{' '}
+            {row.targetLanguage?.toUpperCase()}
           </Typography>
         </Tooltip>
       ),
@@ -116,7 +120,7 @@ export default function JobPostingList({
       headerName: 'Years of experience',
       renderHeader: () => <Box>Years of experience</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.yearsOfExperience}</Box>
+        <Box className='scroll_bar'>{row.yearsOfExperience}</Box>
       ),
     },
     {
@@ -126,7 +130,7 @@ export default function JobPostingList({
       headerName: 'TAD',
       renderHeader: () => <Box>TAD</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.writer}</Box>
+        <Box sx={{ overflowX: 'scroll' }}>{row.editorName}</Box>
       ),
     },
     {
@@ -142,13 +146,20 @@ export default function JobPostingList({
           ) : (
             <Tooltip
               placement='bottom'
-              title={`${FullDateTimezoneHelper(
+              title={`${convertTimeToTimezone(
                 row.dueDate,
                 row.dueDateTimezone,
+                timezone.getValue(),
               )}`}
             >
               <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-                <>{FullDateTimezoneHelper(row.dueDate, row.dueDateTimezone)}</>
+                <>
+                  {convertTimeToTimezone(
+                    row.dueDate,
+                    row.dueDateTimezone,
+                    timezone.getValue(),
+                  )}
+                </>
               </Typography>
             </Tooltip>
           )}
@@ -156,13 +167,12 @@ export default function JobPostingList({
       ),
     },
     {
-      flex: 0.1,
       minWidth: 40,
       field: 'openings',
       headerName: 'Openings',
       renderHeader: () => <Box>Openings</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.openings}</Box>
+        <Box className='scroll_bar'>{row.openings}</Box>
       ),
     },
     {
@@ -172,7 +182,7 @@ export default function JobPostingList({
       headerName: 'View',
       renderHeader: () => <Box>View</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.view}</Box>
+        <Box className='scroll_bar'>{row.view}</Box>
       ),
     },
   ]
@@ -219,9 +229,16 @@ export default function JobPostingList({
               NoRowsOverlay: () => noData(),
               NoResultsOverlay: () => noData(),
             }}
+            sx={{
+              '& .MuiDataGrid-row:hover': {
+                // backgroundColor: 'inherit',
+                cursor: 'pointer',
+              },
+            }}
             onRowClick={e => moveToDetail(e)}
             rows={list.data}
             rowCount={list.totalCount || 0}
+            hideFooterSelectedRowCount
             loading={isLoading}
             rowsPerPageOptions={[10, 25, 50]}
             pagination

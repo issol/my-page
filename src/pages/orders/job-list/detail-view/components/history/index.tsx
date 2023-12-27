@@ -12,7 +12,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useModal from '@src/hooks/useModal'
 import { useGetJobHistory } from '@src/queries/jobs/jobs.query'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { JobHistoryType } from '@src/types/jobs/jobs.type'
 import { useContext, useState } from 'react'
 import HistoryDetail from './history-detail'
@@ -21,6 +21,7 @@ import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { JobItemType } from '@src/types/common/item.type'
 import { useGetJobInfo } from '@src/queries/order/job.query'
+import { timezoneSelector } from '@src/states/permission'
 
 type CellType = {
   row: JobHistoryType
@@ -42,7 +43,6 @@ type Props = {
     jobTitle: string
   }[]
   statusList: Array<{ value: number; label: string }>
-
 }
 
 export default function JobHistory({
@@ -56,14 +56,13 @@ export default function JobHistory({
 }: Props) {
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [listSort, setListSort] = useState<'desc' | 'asc'>('desc')
 
-  const {
-    data: originJobInfo,
-    isLoading: originJobInfoLoading,
-  } = useGetJobInfo(jobId, false)
+  const { data: originJobInfo, isLoading: originJobInfoLoading } =
+    useGetJobInfo(jobId, false)
 
   const { data: list, isLoading } = useGetJobHistory(jobId, {
     skip,
@@ -103,9 +102,10 @@ export default function JobHistory({
       renderCell: ({ row }: CellType) => {
         return (
           <Typography>
-            {FullDateTimezoneHelper(
+            {convertTimeToTimezone(
               row.requestedAt,
               auth.getValue().user?.timezone?.code!,
+              timezone.getValue(),
             )}
           </Typography>
         )
