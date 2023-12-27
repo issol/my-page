@@ -74,6 +74,7 @@ export default function PersonalInfo({
               </Box>
               {copyOfId && isAccountManager && (
                 <Button
+                  sx={{ marginTop: '10px' }}
                   variant='outlined'
                   onClick={() => downloadFile(copyOfId)}
                 >
@@ -92,6 +93,7 @@ export default function PersonalInfo({
               <Typography fontWeight={600}>W8/ W9/ Business license</Typography>
               {businessLicense && isAccountManager && (
                 <Button
+                  sx={{ marginTop: '10px' }}
                   variant='outlined'
                   onClick={() => downloadFile(businessLicense)}
                 >
