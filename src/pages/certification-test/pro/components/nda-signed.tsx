@@ -386,7 +386,20 @@ const NDASigned = ({ nda, language, setLanguage, auth, setSignNDA }: Props) => {
               </Box>
             </Box>
             <Divider />
-            <Box>
+            <Box
+              sx={{
+                maxHeight: '570px',
+                overflowY: 'scroll',
+                '&::-webkit-scrollbar': {
+                  width: 4,
+                },
+
+                '&::-webkit-scrollbar-thumb': {
+                  borderRadius: 10,
+                  background: '#aaa',
+                },
+              }}
+            >
               <ReactDraftWysiwyg editorState={mainContent} readOnly={true} />
             </Box>
           </Box>
