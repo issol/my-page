@@ -12,7 +12,7 @@ const NoRatio = ({ title }: { title: string }) => {
         </li>
       </DataList>
       <Typography textAlign='center' fontSize='14px' sx={{ width: '100%' }}>
-        There are no {title.toLowerCase()} information
+        There are no {title.split('@')[0].toLowerCase()} information
       </Typography>
     </Box>
   )
