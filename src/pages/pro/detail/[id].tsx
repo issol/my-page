@@ -19,10 +19,10 @@ import { useRouter } from 'next/router'
 // ** types
 import { useGetOnboardingProDetails } from '@src/queries/onboarding/onboarding-query'
 import Overview from '@src/@core/components/card-statistics/card-overview'
-import ProDetailOverviews from '../components/overview'
+import ProDetailOverviews from '../../../views/pro/overview'
 
-import ProjectsDetail from '../components/projects'
-import PaymentInfo from '../components/payment-info'
+import ProjectsDetail from '../../../views/pro/projects'
+import PaymentInfo from '../../../views/pro/payment-info'
 import UserInfoCard from '@src/@core/components/userInfo'
 import logger from '@src/@core/utils/logger'
 import { useGetProOverview } from '@src/queries/pro/pro-details.query'
@@ -30,7 +30,7 @@ import FallbackSpinner from '@src/@core/components/spinner'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useAppSelector } from '@src/hooks/useRedux'
-import ProInvoices from '../components/invoices'
+import ProInvoices from '../../../views/pro/invoices'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
 const ProDetail = () => {

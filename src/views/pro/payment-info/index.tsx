@@ -5,7 +5,7 @@ import { Suspense, useContext, useState } from 'react'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** Hooks
-import useClipboard from 'src/@core/hooks/useClipboard'
+import useClipboard from '@src/@core/hooks/useClipboard'
 
 import styled from 'styled-components'
 import { toast } from 'react-hot-toast'
@@ -47,7 +47,7 @@ type Props = {
   userRole: string
 }
 
-export default function PaymentInfo({ id, userRole }: Props) {
+const PaymentInfo = ({ id, userRole }: Props) => {
   const ability = useContext(AbilityContext)
   const auth = useRecoilValueLoadable(authState)
 
@@ -83,15 +83,19 @@ export default function PaymentInfo({ id, userRole }: Props) {
 
     getProPaymentFile(file.id).then(res => {
       const url = window.URL.createObjectURL(res)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = file.fileName
-      document.body.appendChild(a)
-      a.click()
+      const anchorElement = document.createElement('a')
+
+      anchorElement.href = url
+      anchorElement.download = file.fileName
+
+      document.body.appendChild(anchorElement)
+      anchorElement.click()
+
       setTimeout((_: any) => {
         window.URL.revokeObjectURL(url)
       }, 60000)
-      a.remove()
+
+      anchorElement.remove()
     })
   }
 
@@ -212,9 +216,15 @@ export default function PaymentInfo({ id, userRole }: Props) {
 }
 
 export const ContentGrid = styled.div`
-  margin-top: 12px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 134px 1fr;
   align-items: center;
-  gap: 2rem;
+  gap: 12px 16px;
+
+  & > div {
+    line-height: 24px;
+    height: 24px;
+  }
 `
+
+export default PaymentInfo

@@ -17,7 +17,7 @@ import {
   TextField,
 } from '@mui/material'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import DatePicker from 'react-datepicker'
 
 // ** apis
@@ -40,7 +40,13 @@ type Props = {
 
 type FilterType = Pick<InvoicePayableFilterType, 'invoiceStatus'>
 
-export default function Filter({ filter, setFilter, onReset, search, statusList }: Props) {
+export default function Filter({
+  filter,
+  setFilter,
+  onReset,
+  search,
+  statusList,
+}: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
 
   const commonOptions = {

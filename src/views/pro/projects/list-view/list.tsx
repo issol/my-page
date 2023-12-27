@@ -18,14 +18,14 @@ import IconButton from '@mui/material/IconButton'
 import TableContainer from '@mui/material/TableContainer'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** helpers
-import { FullDateHelper } from 'src/shared/helpers/date.helper'
+import { FullDateHelper } from '@src/shared/helpers/date.helper'
 import {
   ServiceTypeChip,
   WorkStatusChip,
-} from 'src/@core/components/chips/chips'
+} from '@src/@core/components/chips/chips'
 
 // ** types
 import { ProProjectType, SortingType } from '@src/apis/pro/pro-projects.api'

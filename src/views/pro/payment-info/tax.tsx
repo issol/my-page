@@ -23,6 +23,7 @@ import {
   SetStateAction,
   SyntheticEvent,
   useEffect,
+  useMemo,
   useState,
 } from 'react'
 import { toast } from 'react-hot-toast'
@@ -53,12 +54,11 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
   const { openModal, closeModal } = useModal()
 
   const handleChangeTaxRate = (event: ChangeEvent<HTMLInputElement>) => {
-    console.log('DDD', event.target.value)
     if (event.target.value !== '') {
       const newTaxRate = Number(event.target.value)
       setTaxRate(newTaxRate)
     } else {
-      setTaxRate(null)
+      setTaxRate(0)
     }
   }
 
@@ -111,9 +111,20 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
       return
     }
 
-    setTaxRate(null)
+    setTaxRate(0)
     setIsTaxRateDisabled(true)
   }
+
+  const activeSaveButton = useMemo(() => {
+    if (
+      taxInfo === 'Korea resident' ||
+      taxInfo === 'Korea resident (Sole proprietorship)'
+    ) {
+      return !(taxInfo && taxRate)
+    }
+
+    return !taxInfo
+  }, [taxInfo, taxRate])
 
   return (
     <Card style={{ marginTop: '24px', padding: '24px' }}>
@@ -203,7 +214,7 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
             <Button
               variant='contained'
               onClick={onClickSave}
-              disabled={!(taxInfo && taxRate)}
+              disabled={activeSaveButton}
             >
               Save
             </Button>
