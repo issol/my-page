@@ -162,8 +162,8 @@ const TADLanguagePoolBarChart = ({
             }%)`,
           ]
         },
-        offsetY: -8,
-        offsetX: 25,
+        offsetY: -10,
+        offsetX: 40,
       },
       grid: {
         strokeDashArray: 8,
@@ -305,6 +305,16 @@ const CustomBarChart = styled(ReactApexcharts)(() => {
       fontSize: '12px',
       fontWeight: 600,
       textTransform: 'uppercase',
+    },
+
+    '& .apexcharts-data-labels text': {
+      textAnchor: 'middle',
+      dominantBaseline: 'middle',
+    },
+
+    '& .apexcharts-data-labels text > tspan:last-of-type': {
+      fill: 'rgba(76, 78, 100, 0.60)',
+      fontWeight: '400',
     },
   }
 })
