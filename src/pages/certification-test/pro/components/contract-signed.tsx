@@ -209,6 +209,13 @@ const ContractSigned = ({
           auth.getValue().user?.birthday!,
         )
 
+        let signatureDateIndex = getAllIndexes(
+          copyContent?.blocks[i]?.text!,
+          privacyContractLanguage === 'ENG'
+            ? 'Signature date: '
+            : '서명 일자: ',
+        )
+
         let nameStyle = nameIndex.map(value => ({
           style: 'color-#666CFF',
           length: auth.getValue().user?.username?.length,
@@ -227,6 +234,12 @@ const ContractSigned = ({
           offset: value,
         }))
 
+        let signatureDateStyle = signatureDateIndex.map(value => ({
+          style: 'BOLD',
+          length: now.length + 16,
+          offset: value,
+        }))
+
         console.log('hi')
 
         copyContent.blocks[i].type = 'unstyled'
@@ -235,14 +248,7 @@ const ContractSigned = ({
           ...nameStyle,
           ...addressStyle,
           ...dateOfBirthStyle,
-          {
-            style: 'BOLD',
-            length: now.length + 16,
-            offset:
-              privacyContractLanguage === 'ENG'
-                ? copyContent?.blocks[i]?.text!.indexOf('Signature date: ')
-                : copyContent?.blocks[i]?.text!.indexOf('서명 일자: '),
-          },
+          ...signatureDateStyle,
         ]
 
         copyContent.blocks[i].entityRanges = []
@@ -288,6 +294,13 @@ const ContractSigned = ({
           auth.getValue().user?.birthday!,
         )
 
+        let signatureDateIndex = getAllIndexes(
+          copyContent?.blocks[i]?.text!,
+          freelancerContractLanguage === 'ENG'
+            ? 'Signature date: '
+            : '서명 일자: ',
+        )
+
         let nameStyle = nameIndex.map(value => ({
           style: 'color-#666CFF',
           length: auth.getValue().user?.username?.length,
@@ -306,7 +319,11 @@ const ContractSigned = ({
           offset: value,
         }))
 
-        console.log('hi')
+        let signatureDateStyle = signatureDateIndex.map(value => ({
+          style: 'BOLD',
+          length: now.length + 16,
+          offset: value,
+        }))
 
         copyContent.blocks[i].type = 'unstyled'
         copyContent.blocks[i].inlineStyleRanges = [
@@ -314,17 +331,7 @@ const ContractSigned = ({
           ...nameStyle,
           ...addressStyle,
           ...dateOfBirthStyle,
-          {
-            style: 'BOLD',
-            length:
-              freelancerContractLanguage === 'ENG'
-                ? now.length + 16
-                : now.length + 8,
-            offset:
-              freelancerContractLanguage === 'ENG'
-                ? copyContent?.blocks[i]?.text!.indexOf('Signature date: ')
-                : copyContent?.blocks[i]?.text!.indexOf('서명 일자: '),
-          },
+          ...signatureDateStyle,
         ]
 
         copyContent.blocks[i].entityRanges = []
