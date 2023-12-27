@@ -445,12 +445,13 @@ export default function AddNewOrder() {
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
-      dueAt: project.projectDueAt && project.projectDueTimezone
-        ? changeTimeZoneOffset(
-          project.projectDueAt.toISOString(),
-          auth.getValue().user?.timezone!
-        )!
-        : null,
+      dueAt:
+        project.projectDueAt && project.projectDueTimezone
+          ? changeTimeZoneOffset(
+              project.projectDueAt.toISOString(),
+              auth.getValue().user?.timezone!,
+            )!
+          : null,
       priceId: null,
       detail: [],
       totalPrice: 0,
