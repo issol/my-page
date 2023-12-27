@@ -11,6 +11,7 @@ import { ModalType } from '@src/store/modal'
 import { ItemType } from '@src/types/common/item.type'
 import {
   CurrencyType,
+  LanguagePairListType,
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
@@ -70,6 +71,10 @@ type Props = {
     | null
   orderItems?: ItemType[]
   currentOrderItemId?: number
+  useUnitPriceOverrideInPrice?: boolean
+  findMatchedLanguagePairInItems?: (v: (StandardPriceListType & {
+    groupName?: string | undefined;
+  })) => LanguagePairListType | undefined
 }
 
 const Row = ({
@@ -88,6 +93,8 @@ const Row = ({
   selectedPrice,
   orderItems,
   currentOrderItemId,
+  useUnitPriceOverrideInPrice,
+  findMatchedLanguagePairInItems,
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
@@ -169,6 +176,53 @@ const Row = ({
         })
       }
   }, [orderItems])
+  console.log("details",details)
+  console.log("getItem",getItem())
+  // useUnitPriceOverrideInPrice가 true일 경우, 
+  // 선택된(또는 변경된) selectedPrice 값에 포함된 priceUnit과 현재 form의 priceUnit을 비교하여 
+  // unitPrice 값을 override 한다.
+  useEffect(() => {
+    if (useUnitPriceOverrideInPrice && useUnitPriceOverrideInPrice === true) {
+      if (selectedPrice && selectedPrice?.priceUnit?.length > 0) {
+        
+        // selectedPrice에서 현재의 언어페어를 찾는다.
+        // 언어페어에서 priceFactor값을 추출하기 위해 사용한다.
+        const matchedLanguagePair: LanguagePairListType|undefined= 
+          findMatchedLanguagePairInItems && 
+          findMatchedLanguagePairInItems(selectedPrice)
+
+        selectedPrice.priceUnit.map(selectedUnit => {
+          const matchedCurrentUnit = details.findIndex(currentUnit => selectedUnit.priceUnitId === currentUnit.priceUnitId)
+
+          if (matchedCurrentUnit !== -1) {
+            // case 1) 현재 unitPrice와 selectedPrice의 unitPrice가 같다면 
+            // 현재 unitPrice 정보에 selectedPrice의 unitPrice만 업데이트 한다.
+            console.log("update",details[matchedCurrentUnit])
+            update(matchedCurrentUnit, {
+              ...details[matchedCurrentUnit],
+              quantity: getItem()?.items[0]?.detail?.[matchedCurrentUnit]?.quantity ?? details[matchedCurrentUnit].quantity,
+              unitPrice: selectedUnit?.weighting && matchedLanguagePair?.priceFactor
+                ? (selectedUnit?.weighting/100) * matchedLanguagePair?.priceFactor
+                : 0,
+            })
+          } else {
+            // case 2)  현재 unitPrice와 selectedPrice의 unitPrice가 다르다면 
+            // selectedPrice의 unitPrice를 추가 한다.
+            console.log("update",selectedUnit)
+            append({
+              ...selectedUnit,
+              prices: 0,
+              currency: selectedPrice.currency,
+              weighting: selectedUnit.weighting ?? 100,
+              unitPrice: selectedUnit?.weighting && matchedLanguagePair?.priceFactor
+                ? (selectedUnit?.weighting/100) * matchedLanguagePair?.priceFactor
+                : 0
+            })
+          }
+        })
+      }
+    }
+  }, [selectedPrice, useUnitPriceOverrideInPrice])
 
   function onDeletePriceUnit(index: number) {
     const findIndex = details.findIndex(item => item.priceUnitId === index)
