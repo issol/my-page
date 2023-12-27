@@ -39,7 +39,7 @@ export type InvoicePayableListType = {
 
 export type PayableFormType = {
   taxInfo?: string
-  taxRate?: string
+  taxRate?: string | null
   invoiceStatus?: InvoicePayableStatusType | InvoiceProStatusType
   payDueAt?: string
   payDueTimezone?: CountryType

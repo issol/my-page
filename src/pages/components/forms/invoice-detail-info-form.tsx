@@ -44,7 +44,15 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** react hook form
-import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
+import {
+  Control,
+  Controller,
+  FieldError,
+  FieldErrors,
+  UseFormGetValues,
+  UseFormSetValue,
+  UseFormTrigger,
+} from 'react-hook-form'
 
 // ** components
 import InformationModal from '@src/@core/components/common-modal/information-modal'
@@ -65,6 +73,9 @@ type Props = {
     label: string
     value: number
   }>
+  setValue: UseFormSetValue<PayableFormType>
+  getValues: UseFormGetValues<PayableFormType>
+  trigger: UseFormTrigger<PayableFormType>
 }
 export default function InvoiceDetailInfoForm({
   data,
@@ -72,6 +83,9 @@ export default function InvoiceDetailInfoForm({
   errors,
   isAccountManager,
   statusList,
+  setValue,
+  getValues,
+  trigger,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [timeZoneList, setTimeZoneList] = useState<
@@ -218,7 +232,24 @@ export default function InvoiceDetailInfoForm({
               fullWidth
               options={TaxInfo}
               onChange={(e, v) => {
-                onChange(v?.value ?? '')
+                if (v) {
+                  onChange(v.value)
+                  setValue(
+                    'taxRate',
+                    v.value === 'Japan resident' ||
+                      v.value === 'Singapore resident' ||
+                      v.value === 'US resident'
+                      ? null
+                      : v.value === 'Korea resident'
+                      ? '-3.3'
+                      : v.value === 'Korea resident (Sole proprietorship)'
+                      ? '10'
+                      : null,
+                  )
+                  trigger('taxRate')
+                } else {
+                  onChange(null)
+                }
               }}
               value={TaxInfo?.find(item => item.value === value) || null}
               getOptionLabel={option => option.label}
@@ -241,17 +272,40 @@ export default function InvoiceDetailInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FormControl fullWidth error={Boolean(errors.tax)}>
-              <InputLabel>Tax rate*</InputLabel>
+              <InputLabel>
+                {getValues('taxInfo') === 'Japan resident' ||
+                getValues('taxInfo') === 'Singapore resident' ||
+                getValues('taxInfo') === 'US resident'
+                  ? 'Tax rate'
+                  : 'Tax rate*'}
+              </InputLabel>
               <OutlinedInput
                 value={value ?? ''}
                 error={Boolean(errors.tax)}
+                disabled={
+                  getValues('taxInfo') === 'Japan resident' ||
+                  getValues('taxInfo') === 'Singapore resident' ||
+                  getValues('taxInfo') === 'US resident'
+                }
                 onChange={e => {
                   if (e.target.value.length > 10) return
                   onChange(e)
                 }}
                 type='number'
-                label='Tax rate*'
-                endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+                label={
+                  getValues('taxInfo') === 'Japan resident' ||
+                  getValues('taxInfo') === 'Singapore resident' ||
+                  getValues('taxInfo') === 'US resident'
+                    ? 'Tax rate'
+                    : 'Tax rate*'
+                }
+                endAdornment={
+                  getValues('taxInfo') === 'Japan resident' ||
+                  getValues('taxInfo') === 'Singapore resident' ||
+                  getValues('taxInfo') === 'US resident' ? null : (
+                    <InputAdornment position='end'>%</InputAdornment>
+                  )
+                }
               />
             </FormControl>
           )}

@@ -9,11 +9,21 @@ export function getInvoiceDetailInfoSchema(isAccountManager: boolean) {
     invoiceStatus: isAccountManager
       ? yup.string().nullable()
       : yup.string().required(FormErrors.required),
-    taxInfo: yup.string().required(FormErrors.required),
-    taxRate: yup
+    taxInfo: yup
       .string()
       .typeError(FormErrors.required)
       .required(FormErrors.required),
+    taxRate: yup.string().when('taxInfo', {
+      is: (taxInfo: string) =>
+        ['Japan resident', 'US resident', 'Singapore resident'].includes(
+          taxInfo,
+        ),
+      then: yup.string().nullable(),
+      otherwise: yup
+        .string()
+        .typeError(FormErrors.required)
+        .required(FormErrors.required),
+    }),
     payDueAt: yup.date().nullable(),
     payDueTimezone: yup
       .object()

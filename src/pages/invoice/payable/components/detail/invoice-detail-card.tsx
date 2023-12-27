@@ -95,6 +95,8 @@ export default function InvoiceDetailCard({
     control,
     getValues,
     reset,
+    setValue,
+    trigger,
     formState: { errors, isValid },
   } = useForm<PayableFormType>({
     mode: 'onChange',
@@ -175,6 +177,9 @@ export default function InvoiceDetailCard({
               errors={errors}
               isAccountManager={isAccountManager}
               statusList={statusList!}
+              setValue={setValue}
+              getValues={getValues}
+              trigger={trigger}
             />
             <Grid
               item
@@ -193,6 +198,20 @@ export default function InvoiceDetailCard({
                         onClose={() => closeModal('discard')}
                         onClick={() => {
                           setEditInfo(false)
+                          if (data) {
+                            reset({
+                              taxInfo: data.taxInfo,
+                              taxRate: data.taxRate,
+                              invoiceStatus:
+                                data.invoiceStatus as InvoicePayableStatusType,
+                              payDueAt: data.payDueAt,
+                              payDueTimezone: data.payDueTimezone,
+                              paidAt: data.paidAt,
+                              paidDateTimezone: data.paidDateTimezone,
+                              description: data.description,
+                            })
+                          }
+
                           closeModal('discard')
                         }}
                       />
