@@ -118,7 +118,7 @@ export type PayableHistoryType = {
   invoiceConfirmedAt: string | null
   pro?: { name: string; email: string }
   taxInfo: string
-  taxRate: number
+  taxRate: string
   payDueAt?: string
   payDueTimezone?: CountryType
   paidAt: string | null
@@ -127,7 +127,7 @@ export type PayableHistoryType = {
   currency: CurrencyType
   subtotal: number
   totalPrice: number
-  tax: number
+  tax: string
 
   jobs: {
     count: number
@@ -162,8 +162,8 @@ export type InvoicePayableDownloadData = {
   }
   jobList: InvoicePayableJobType[]
   subtotal: number
-  tax: number | null
-  taxRate: number
+  tax: string | null
+  taxRate: string
   totalPrice: number
   currency: CurrencyType
 }

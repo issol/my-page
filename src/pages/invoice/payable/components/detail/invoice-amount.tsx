@@ -24,7 +24,7 @@ export default function InvoiceAmount({ data }: Props) {
   // const currency = getCurrencyMark(data?.currency)
   function renderRow(
     label: string,
-    price: number,
+    price: number | string,
     icon = true,
     color?: string,
   ) {
@@ -37,7 +37,7 @@ export default function InvoiceAmount({ data }: Props) {
         <Typography variant='body2' fontSize='1rem' fontWeight={600}>
           {label === 'Tax' ? '-' : ''}&nbsp;
           {/* {`${data?.currency!} ${price.toLocaleString()}`} */}
-          {formatCurrency(Math.abs(price), data?.currency!)}
+          {formatCurrency(Math.abs(Number(price)), data?.currency!)}
         </Typography>
       </FlexBox>
     )
@@ -77,7 +77,7 @@ export default function InvoiceAmount({ data }: Props) {
             <FlexBox flexDirection='column' width='360px'>
               {renderRow('Subtotal', data?.subtotal ?? 0, true, '#B3B6FF')}
 
-              {renderRow('Tax', data?.tax ?? 0, true, '#666CFF')}
+              {renderRow('Tax', data?.tax ?? '0', true, '#666CFF')}
               <Divider
                 sx={{
                   width: '100%',
