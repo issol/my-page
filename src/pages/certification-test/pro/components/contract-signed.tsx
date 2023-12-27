@@ -618,7 +618,20 @@ const ContractSigned = ({
                     </Box>
                   </Box>
                   <Divider />
-                  <Box>
+                  <Box
+                    sx={{
+                      maxHeight: '570px',
+                      overflowY: 'scroll',
+                      '&::-webkit-scrollbar': {
+                        width: 4,
+                      },
+
+                      '&::-webkit-scrollbar-thumb': {
+                        borderRadius: 10,
+                        background: '#aaa',
+                      },
+                    }}
+                  >
                     <ReactDraftWysiwyg
                       editorState={freelancerContent}
                       readOnly={true}
@@ -755,7 +768,20 @@ const ContractSigned = ({
                     </Box>
                   </Box>
                   <Divider />
-                  <Box>
+                  <Box
+                    sx={{
+                      maxHeight: '570px',
+                      overflowY: 'scroll',
+                      '&::-webkit-scrollbar': {
+                        width: 4,
+                      },
+
+                      '&::-webkit-scrollbar-thumb': {
+                        borderRadius: 10,
+                        background: '#aaa',
+                      },
+                    }}
+                  >
                     <ReactDraftWysiwyg
                       editorState={privacyContent}
                       readOnly={true}
