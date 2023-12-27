@@ -54,6 +54,7 @@ import useModal from '@src/hooks/useModal'
 
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   data: InvoicePayableDetailType | undefined
@@ -82,6 +83,7 @@ export default function InvoiceDetailInfoForm({
   >([])
 
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const auth = useRecoilValueLoadable(authState)
 
   useEffect(() => {
     const timezoneList = timezone.getValue()
@@ -157,7 +159,7 @@ export default function InvoiceDetailInfoForm({
           fullWidth
           disabled
           value={timeZoneFormatter(
-            data?.invoicedTimezone!,
+            auth.getValue().user?.timezone!,
             timezone.getValue(),
           )}
           label='Time zone*'
@@ -225,7 +227,6 @@ export default function InvoiceDetailInfoForm({
                   {...params}
                   error={Boolean(errors.taxInfo)}
                   label='Tax info*'
-                  placeholder='Tax info*'
                 />
               )}
             />
@@ -272,6 +273,7 @@ export default function InvoiceDetailInfoForm({
               timeFormat='HH:mm'
               timeIntervals={30}
               selected={!value ? null : new Date(value)}
+              placeholderText='MM/DD/YYYY, HH:MM'
               dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Payment due' icon='calendar' />}
@@ -284,17 +286,15 @@ export default function InvoiceDetailInfoForm({
         <Controller
           name='payDueTimezone'
           control={control}
-          render={({ field }) => (
+          render={({ field: { value, onChange } }) => (
             <Autocomplete
               autoHighlight
               fullWidth
               disabled={isAccountManager}
-              {...field}
-              value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
-              }
+              disableClearable={value ? false : true}
+              value={value ?? null}
               options={timeZoneList as CountryType[]}
-              onChange={(e, v) => field.onChange(v)}
+              onChange={(e, v) => onChange(v)}
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }
@@ -328,6 +328,7 @@ export default function InvoiceDetailInfoForm({
               timeFormat='HH:mm'
               timeIntervals={30}
               selected={!value ? null : new Date(value)}
+              placeholderText='MM/DD/YYYY, HH:MM'
               dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Payment date' icon='calendar' />}
@@ -340,16 +341,14 @@ export default function InvoiceDetailInfoForm({
         <Controller
           name='paidDateTimezone'
           control={control}
-          render={({ field }) => (
+          render={({ field: { value, onChange } }) => (
             <Autocomplete
               autoHighlight
               fullWidth
-              {...field}
-              value={
-                !field.value ? { code: '', label: '', phone: '' } : field.value
-              }
+              disableClearable={value ? false : true}
+              value={value ?? null}
               options={timeZoneList as CountryType[]}
-              onChange={(e, v) => field.onChange(v)}
+              onChange={(e, v) => onChange(v)}
               getOptionLabel={option =>
                 timeZoneFormatter(option, timezone.getValue()) ?? ''
               }

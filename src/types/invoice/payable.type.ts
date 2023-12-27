@@ -39,7 +39,7 @@ export type InvoicePayableListType = {
 
 export type PayableFormType = {
   taxInfo?: string
-  taxRate?: number
+  taxRate?: string
   invoiceStatus?: InvoicePayableStatusType | InvoiceProStatusType
   payDueAt?: string
   payDueTimezone?: CountryType
@@ -48,7 +48,7 @@ export type PayableFormType = {
   description?: string
   subtotal?: number
   totalPrice?: number
-  tax?: number | null
+  tax?: string | null
   invoiceConfirmedAt?: string
   invoiceConfirmTimezone?: CountryType
 }
@@ -75,7 +75,7 @@ export type InvoicePayableDetailType = {
     timezone?: CountryType
   }
   taxInfo: string
-  taxRate: number
+  taxRate: string
   payDueAt?: string
   payDueTimezone?: CountryType
   paidAt: string | null
@@ -84,7 +84,7 @@ export type InvoicePayableDetailType = {
   currency: CurrencyType
   subtotal: number
   totalPrice: number
-  tax: number | null
+  tax: string | null
   invoiceConfirmedAt: string | null
 }
 

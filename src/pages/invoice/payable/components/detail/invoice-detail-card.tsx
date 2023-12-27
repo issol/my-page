@@ -102,15 +102,17 @@ export default function InvoiceDetailCard({
     resolver: yupResolver(getInvoiceDetailInfoSchema(isAccountManager)),
   })
 
+  console.log(getValues())
+
   useEffect(() => {
     if (data) {
       reset({
-        taxInfo: data.taxInfo ?? '',
+        taxInfo: data.taxInfo,
         taxRate: data.taxRate,
         invoiceStatus: data.invoiceStatus as InvoicePayableStatusType,
-        payDueAt: data.payDueAt ?? '',
+        payDueAt: data.payDueAt,
         payDueTimezone: data.payDueTimezone,
-        paidAt: data.paidAt ?? '',
+        paidAt: data.paidAt,
         paidDateTimezone: data.paidDateTimezone,
         description: data.description,
       })
