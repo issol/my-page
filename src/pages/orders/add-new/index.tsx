@@ -391,7 +391,7 @@ export default function AddNewOrder() {
         children: (
           <SimpleAlertModal
             message='This language pair cannot be deleted because it’s already being used in the item.'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
+            title={`${languageHelper(row.source)} → ${languageHelper(
               row.target,
             )}`}
             onClose={() => closeModal('cannot-delete-language')}
@@ -445,7 +445,12 @@ export default function AddNewOrder() {
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
-      dueAt: String(project.projectDueAt),
+      dueAt: project.projectDueAt && project.projectDueTimezone
+        ? changeTimeZoneOffset(
+          project.projectDueAt.toISOString(),
+          auth.getValue().user?.timezone!
+        )!
+        : null,
       priceId: null,
       detail: [],
       totalPrice: 0,

@@ -100,52 +100,74 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
     if (permission.state === 'hasValue' && current) {
       switch (current.name) {
         case 'TAD':
-          setSortedMenu(
-            HorizontalNavItems().filter(value => {
+          const tadMenu = HorizontalNavItems()
+            .filter(value => {
               return (
                 TADMenu.includes(value.title) && value.role?.includes('TAD')
               )
-            }),
-          )
+            })
+            .sort((a, b) => {
+              return (
+                TADMenu.findIndex(item => item === a.title) -
+                TADMenu.findIndex(item => item === b.title)
+              )
+            })
+          setSortedMenu(tadMenu)
           break
         case 'LPM':
-          setSortedMenu(
-            HorizontalNavItems().filter(value => {
+          const lpmMenu = HorizontalNavItems()
+            .filter(value => {
               return (
                 LPMMenu.includes(value.title) && value.role?.includes('LPM')
               )
-            }),
-          )
+            })
+            .sort((a, b) => {
+              return (
+                LPMMenu.findIndex(item => item === a.title) -
+                LPMMenu.findIndex(item => item === b.title)
+              )
+            })
+          setSortedMenu(lpmMenu)
           break
         case 'PRO':
-          setSortedMenu(
-            HorizontalNavItems().filter(value => {
+          const proMenus = HorizontalNavItems()
+            .filter(value => {
               return (
                 PROMenu.includes(value.title) && value.role?.includes('PRO')
               )
-            }),
-          )
+            })
+            .sort((a, b) => {
+              return (
+                PROMenu.findIndex(item => item === a.title) -
+                PROMenu.findIndex(item => item === b.title)
+              )
+            })
+          setSortedMenu(proMenus)
           break
         case 'CLIENT':
-          setSortedMenu(
-            HorizontalNavItems().filter(value => {
+          const clientMenu = HorizontalNavItems()
+            .filter(value => {
               return (
                 CLIENTMenu.includes(value.title) &&
                 value.role?.includes('CLIENT')
               )
-            }),
-          )
-          layoutEl?.classList.add('client_bg')
+            })
+            .sort((a, b) => {
+              return (
+                CLIENTMenu.findIndex(item => item === a.title) -
+                CLIENTMenu.findIndex(item => item === b.title)
+              )
+            })
+          setSortedMenu(clientMenu)
           break
         case 'ACCOUNT_MANAGER':
-          setSortedMenu(
-            HorizontalNavItems().filter(value => {
-              return (
-                LPMMenu.includes(value.title) &&
-                value.role?.includes('ACCOUNT_MANAGER')
-              )
-            }),
-          )
+          const accountMenu = HorizontalNavItems().filter(value => {
+            return (
+              LPMMenu.includes(value.title) &&
+              value.role?.includes('ACCOUNT_MANAGER')
+            )
+          })
+          setSortedMenu(accountMenu)
           break
 
         default:

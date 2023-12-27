@@ -10,6 +10,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'client',
       path: `/dashboards`,
       role: ['LPM', 'TAD', 'ACCOUNT_MANAGER', 'CLIENT'],
+      externalLink: true,
     },
     {
       title: 'Dashboards',
@@ -18,6 +19,7 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'dashboard_PRO',
       path: `/dashboards/pro`,
       role: ['PRO'],
+      externalLink: true,
     },
     {
       title: 'My page',
@@ -100,7 +102,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:person-search-outline',
       action: 'read',
       subject: 'recruiting',
-      role: ['TAD'],
+      role: ['TAD', 'LPM'],
       children: [
         {
           title: 'Recruiting Info',
@@ -181,13 +183,6 @@ const navigation = (): HorizontalNavItemsType => {
           subject: 'members',
         },
         {
-          title: 'Standard Prices',
-          path: `/company/price`,
-          action: 'create',
-          icon: 'solar:dollar-minimalistic-bold',
-          subject: 'company_price',
-        },
-        {
           title: 'My Account',
           path: `/company/my-account`,
           action: 'read',
@@ -200,6 +195,13 @@ const navigation = (): HorizontalNavItemsType => {
           action: 'read',
           icon: 'material-symbols:lock-open-outline',
           subject: 'company_info',
+        },
+        {
+          title: 'Standard Prices',
+          path: `/company/price`,
+          action: 'create',
+          icon: 'solar:dollar-minimalistic-bold',
+          subject: 'company_price',
         },
       ],
     },

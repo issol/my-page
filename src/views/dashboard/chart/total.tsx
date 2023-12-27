@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material'
+import { Box, IconButton, Typography } from '@mui/material'
 import {
   ChartBoxIcon,
   ConvertButtonGroup,
@@ -7,9 +7,16 @@ import {
   Title,
   TotalValueView,
 } from '@src/views/dashboard/dashboardItem'
-import React, { useMemo, useState } from 'react'
+import React, {
+  Dispatch,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 import { Currency, TotalItem } from '@src/types/dashboard'
-import { SvgIconComponent } from '@mui/icons-material'
+import { RefreshOutlined, SvgIconComponent } from '@mui/icons-material'
 
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -20,7 +27,15 @@ import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import styled from '@emotion/styled'
 import CustomChip from '@src/@core/components/mui/chip'
-import { useTotalPrice } from '@src/queries/dashboard/dashnaord-lpm'
+import {
+  DEFAULT_QUERY_NAME,
+  NO_DATE_EFFECT,
+  useTotalPrice,
+} from '@src/queries/dashboard/dashnaord-lpm'
+import { ErrorBoundary } from 'react-error-boundary'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { QueryClient, useQueryClient } from 'react-query'
+import { retry } from '@reduxjs/toolkit/query'
 
 export const ReceivableColors = [
   'rgba(60, 61, 91, 1)',
@@ -190,6 +205,60 @@ const TotalProgressChart = ({
         </Table>
       </TableContainer>
     </Box>
+  )
+}
+
+const ErrorFallback = ({
+  title,
+  setOpenInfoDialog,
+  handleTitleClick,
+}: TotalChartProps) => {
+  const queryClient = useQueryClient()
+
+  const onChange = () => {
+    queryClient.refetchQueries({
+      queryKey: [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'totalPrice'],
+    })
+  }
+  return (
+    <Box sx={{ width: '100%', height: '100%' }}>
+      <Box>
+        <Title
+          title={title}
+          openDialog={setOpenInfoDialog}
+          handleClick={handleTitleClick}
+        />
+      </Box>
+      <Box
+        display='flex'
+        flexDirection='column'
+        alignItems='center'
+        justifyContent='center'
+        gap='20px'
+        sx={{ width: '100%', height: '90%' }}
+      >
+        <IconButton
+          color='primary'
+          aria-label='refresh'
+          size='large'
+          onClick={() => onChange()}
+        >
+          <RefreshOutlined sx={{ fontSize: '32px' }} />
+        </IconButton>
+        <Typography>Failed to load data. Please try again.</Typography>
+      </Box>
+    </Box>
+  )
+}
+
+export const TotalPrice = (props: TotalChartProps) => {
+  const [retry, setRetry] = useState(false)
+  return (
+    <Suspense fallback={<FallbackSpinner />}>
+      <ErrorBoundary fallback={<ErrorFallback {...props} />}>
+        <TotalProgressChart {...props} />
+      </ErrorBoundary>
+    </Suspense>
   )
 }
 

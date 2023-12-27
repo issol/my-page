@@ -62,7 +62,6 @@ const TADDashboards = () => {
   const data = cache.getQueriesData([DEFAULT_QUERY_NAME])
 
   const gloLanguage = getGloLanguage()
-  const { isSticky } = useStickyHeader()
 
   const { formHook, infoDialog } = UseDashboardControl()
   const { control, setValue, ...props } = formHook
@@ -115,22 +114,22 @@ const TADDashboards = () => {
       '        ': '',
       ...mergeData5[0],
       'Application Status': 'Applied',
-      'Application Status Number': OngoingCount.applied,
+      'Application Status Number': OngoingCount?.applied || 0,
     }
     mergeData5[1] = {
       ...mergeData5[1],
       'Application Status': 'Passed',
-      'Application Status Number': OngoingCount.passed,
+      'Application Status Number': OngoingCount?.passed || 0,
     }
     mergeData5[2] = {
       ...mergeData5[2],
       'Application Status': 'Ongoing',
-      'Application Status Number': OngoingCount.ongoing,
+      'Application Status Number': OngoingCount?.ongoing || 0,
     }
     mergeData5[3] = {
       ...mergeData5[3],
       'Application Status': 'Failed',
-      'Application Status Number': OngoingCount.failed,
+      'Application Status Number': OngoingCount?.failed || 0,
     }
     setCSVData(mergeData5)
   }, [
@@ -156,29 +155,24 @@ const TADDashboards = () => {
         <Grid container gap='24px' sx={{ padding: '10px' }}>
           <Notice />
           <Grid
-            component='div'
-            item
-            sm={!isSticky}
-            xs={isSticky ? 12 : undefined}
-            sx={{
-              position: 'sticky',
-              left: 0,
-              top: '148px',
-              zIndex: 10,
-              backgroundColor: '#fff',
-            }}
+            container
+            gap='24px'
+            sx={{ position: 'sticky', top: 138, zIndex: 10 }}
           >
-            <ChartDate />
+            <Grid
+              component='div'
+              item
+              sm
+              sx={{ position: 'sticky', top: 138, zIndex: 10 }}
+            >
+              <ChartDate />
+            </Grid>
+            <GridItem width={207} height={76}>
+              <Box>
+                <CSVDownload title={`${getFileTitle()}`} data={CSVData} />
+              </Box>
+            </GridItem>
           </Grid>
-          <GridItem
-            width={207}
-            height={76}
-            sx={{ display: isSticky ? 'none' : 'flex' }}
-          >
-            <Box>
-              <CSVDownload title={`${getFileTitle()}`} data={CSVData} />
-            </Box>
-          </GridItem>
           <Grid container gap='24px'>
             <GridItem width={490} height={267}>
               <Box sx={{ width: '100%' }}>
@@ -201,6 +195,7 @@ const TADDashboards = () => {
                   />
                 </Box>
                 <DashboardDataGrid
+                  title='ongoing recruiting requests'
                   path='recruiting/dashboard/recruiting/list/ongoing'
                   sectionHeight={220}
                   pageNumber={3}
@@ -232,10 +227,9 @@ const TADDashboards = () => {
             userViewDate={userViewDate}
             type='application'
             movePage={() => router.push('/onboarding')}
-            moveDetailPage={params =>
-              //TODO : 이동하면 에러남 ID 값 확인해봐야 함
-              router.push(`/onboarding/detail/${params.id}/`)
-            }
+            moveDetailPage={params => {
+              router.push(`/onboarding/detail/${params.row.pro.id}/`)
+            }}
             statusColumn={StatusApplicationColumns}
             initSort={[
               {

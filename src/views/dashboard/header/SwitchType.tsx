@@ -11,13 +11,12 @@ import Typography from '@mui/material/Typography'
 import { PermissionChip } from '@src/@core/components/chips/chips'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import Switch from '@mui/material/Switch'
-import ChartDate from '@src/views/dashboard/header/chartDate'
+import ChartDateHeader from '@src/views/dashboard/header/chartDate'
 import Button from '@mui/material/Button'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
-import DownloadIcon from '@mui/icons-material/Download'
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { LogoutOutlined } from '@mui/icons-material'
-import React, { MouseEvent, useEffect, useRef, useState } from 'react'
+import React, { MouseEvent, useEffect, useState } from 'react'
 import { DashboardForm } from '@src/pages/dashboards/lpm'
 import { DEFAULT_QUERY_NAME } from '@src/queries/dashboard/dashnaord-lpm'
 import { useQueryClient } from 'react-query'
@@ -28,12 +27,7 @@ import { currentRoleSelector } from '@src/states/permission'
 import MemberSearchList from '@src/views/dashboard/dialog/memberSearch'
 import { CSVDataType } from '@src/types/dashboard'
 import { CSVOptionsMenuDownload } from '@src/views/dashboard/csvDownload'
-import { headers } from 'next/headers'
-import UseStickyHeader from '@src/hooks/useStickyHeader'
 import useStickyHeader from '@src/hooks/useStickyHeader'
-import Fab from '@mui/material/Fab'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import FloatingCalendar from '@src/views/dashboard/header/floating'
 
 interface SwitchTypeHeaderProps {
   csvData?: CSVDataType
@@ -70,11 +64,9 @@ const SwitchTypeHeader = ({
   const [isOpenMemberDialog, setIsOpenMemberDialog] = useState(false)
 
   const open = Boolean(anchorEl)
-
   const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
   }
-
   const handleClose = () => {
     setAnchorEl(null)
   }
@@ -145,144 +137,151 @@ const SwitchTypeHeader = ({
 
   return (
     <>
-      <FloatingCalendar>
-        <ChartDate />
-      </FloatingCalendar>
-      {isShowMemberView ? (
-        <GridItem width={420} height={76}>
-          <Box sx={{ width: '100%' }}>
-            <Box display='flex' gap='16px' alignItems='center'>
-              <Typography fontSize='24px' fontWeight={500}>
-                {`${dashboardStateValue.userInfo?.firstName}`}
-                {dashboardStateValue.userInfo?.middleName &&
-                  `(${dashboardStateValue.userInfo?.middleName})`}{' '}
-                {dashboardStateValue.userInfo?.lastName}
-              </Typography>
-              {PermissionChip(dashboardStateValue.userInfo?.type || 'General')}
-            </Box>
-            <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
-              {`${dashboardStateValue.userInfo?.department || '-'} | ${
-                dashboardStateValue.userInfo?.jobTitle || '-'
-              }`}
-            </Typography>
-          </Box>
-        </GridItem>
-      ) : (
-        <GridItem width={300} height={76}>
-          <Box display='flex' alignItems='center'>
-            <Typography
-              sx={{
-                fontSize: '14px',
-                fontWeight: 600,
-                color:
-                  dashboardStateValue.view === 'company'
-                    ? 'rgba(102, 108, 255, 1)'
-                    : 'rgba(189, 189, 189, 1)',
-              }}
-            >
-              Company view
-            </Typography>
-            <div style={{ width: '40px' }}>
-              <Controller
-                control={control}
-                name='viewSwitch'
-                defaultValue={viewSwitch}
-                render={({ field: { onChange, value } }) => (
-                  <Switch
-                    size='small'
-                    inputProps={{ 'aria-label': 'controlled' }}
-                    checked={value}
-                    sx={{
-                      '.MuiSwitch-switchBase:not(.Mui-checked)': {
-                        color: '#666CFF',
-                        '.MuiSwitch-thumb': {
-                          color: '#666CFF',
-                        },
-                      },
-                      '.MuiSwitch-track': {
-                        backgroundColor: '#666CFF',
-                      },
-                    }}
-                    onChange={(event, val) => {
-                      onChange(val)
-                      onChangeViewMode(val)
-                    }}
-                  />
+      <Grid
+        container
+        gap='24px'
+        sx={{ position: 'sticky', top: 138, zIndex: 10 }}
+      >
+        {isShowMemberView ? (
+          <GridItem width={420} height={76}>
+            <Box sx={{ width: '100%' }}>
+              <Box display='flex' gap='16px' alignItems='center'>
+                <Typography fontSize='24px' fontWeight={500}>
+                  {`${dashboardStateValue.userInfo?.firstName}`}
+                  {dashboardStateValue.userInfo?.middleName &&
+                    `(${dashboardStateValue.userInfo?.middleName})`}{' '}
+                  {dashboardStateValue.userInfo?.lastName}
+                </Typography>
+                {PermissionChip(
+                  dashboardStateValue.userInfo?.type || 'General',
                 )}
-              />
-            </div>
-            <Typography
-              sx={{
-                fontSize: '14px',
-                fontWeight: 600,
-                color:
-                  dashboardStateValue.view === 'personal'
-                    ? 'rgba(102, 108, 255, 1)'
-                    : 'rgba(189, 189, 189, 1)',
-              }}
-            >
-              Personal view
-            </Typography>
-          </Box>
-        </GridItem>
-      )}
-      <ChartDate />
-      <GridItem width={76} height={76} sx={{ display: 'flex' }}>
-        <Box>
-          <Button onClick={handleClick}>
-            <MoreVertIcon
-              sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
-            />
-          </Button>
-          <Menu
-            id='dashboard-menu'
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            MenuListProps={{
-              'aria-labelledby': 'basic-button',
-            }}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          >
-            <CSVOptionsMenuDownload
-              data={csvData || []}
-              onClose={handleClose}
-            />
-            <MenuItem
-              onClick={() => onChangeMemberView()}
-              sx={{
-                display: isPermissionMemberView() ? 'flex' : 'none',
-                color: 'rgba(76, 78, 100, 0.87)',
-              }}
-            >
-              <ListItemIcon
-                sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
-              >
-                <RemoveRedEyeIcon fontSize='small' />
-              </ListItemIcon>
-              <ListItemText>
-                {isShowMemberView ? 'Change Member' : 'View member dashboard'}
-              </ListItemText>
-            </MenuItem>
-            {isShowMemberView && (
-              <MenuItem
-                onClick={() => onChangeMyDashboard()}
+              </Box>
+              <Typography fontSize='14px' color='rgba(76, 78, 100, 0.6)'>
+                {`${dashboardStateValue.userInfo?.department || '-'} | ${
+                  dashboardStateValue.userInfo?.jobTitle || '-'
+                }`}
+              </Typography>
+            </Box>
+          </GridItem>
+        ) : (
+          <GridItem width={300} height={76}>
+            <Box display='flex' alignItems='center'>
+              <Typography
                 sx={{
-                  display: 'flex',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color:
+                    dashboardStateValue.view === 'company'
+                      ? 'rgba(102, 108, 255, 1)'
+                      : 'rgba(189, 189, 189, 1)',
+                }}
+              >
+                Company view
+              </Typography>
+              <div style={{ width: '40px' }}>
+                <Controller
+                  control={control}
+                  name='viewSwitch'
+                  defaultValue={viewSwitch}
+                  render={({ field: { onChange, value } }) => (
+                    <Switch
+                      size='small'
+                      inputProps={{ 'aria-label': 'controlled' }}
+                      checked={value}
+                      sx={{
+                        '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                          color: '#666CFF',
+                          '.MuiSwitch-thumb': {
+                            color: '#666CFF',
+                          },
+                        },
+                        '.MuiSwitch-track': {
+                          backgroundColor: '#666CFF',
+                        },
+                      }}
+                      onChange={(event, val) => {
+                        onChange(val)
+                        onChangeViewMode(val)
+                      }}
+                    />
+                  )}
+                />
+              </div>
+              <Typography
+                sx={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color:
+                    dashboardStateValue.view === 'personal'
+                      ? 'rgba(102, 108, 255, 1)'
+                      : 'rgba(189, 189, 189, 1)',
+                }}
+              >
+                Personal view
+              </Typography>
+            </Box>
+          </GridItem>
+        )}
+        <Grid component='div' item sm>
+          <ChartDateHeader />
+        </Grid>
+        <GridItem width={76} height={76}>
+          <Box>
+            <Button onClick={handleClick}>
+              <MoreVertIcon
+                sx={{ width: '36px', color: 'rgba(76, 78, 100, 0.54)' }}
+              />
+            </Button>
+            <Menu
+              id='dashboard-menu'
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+              <CSVOptionsMenuDownload
+                data={csvData || []}
+                onClose={handleClose}
+              />
+              <MenuItem
+                onClick={() => onChangeMemberView()}
+                sx={{
+                  display: isPermissionMemberView() ? 'flex' : 'none',
                   color: 'rgba(76, 78, 100, 0.87)',
                 }}
               >
                 <ListItemIcon
                   sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
                 >
-                  <LogoutOutlined fontSize='small' />
+                  <RemoveRedEyeIcon fontSize='small' />
                 </ListItemIcon>
-                <ListItemText>Back to my dashboard</ListItemText>
+                <ListItemText>
+                  {isShowMemberView ? 'Change Member' : 'View member dashboard'}
+                </ListItemText>
               </MenuItem>
-            )}
-          </Menu>
-        </Box>
-      </GridItem>
+              {isShowMemberView && (
+                <MenuItem
+                  onClick={() => onChangeMyDashboard()}
+                  sx={{
+                    display: 'flex',
+                    color: 'rgba(76, 78, 100, 0.87)',
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{ color: 'rgba(76, 78, 100, 0.87)', margin: 0 }}
+                  >
+                    <LogoutOutlined fontSize='small' />
+                  </ListItemIcon>
+                  <ListItemText>Back to my dashboard</ListItemText>
+                </MenuItem>
+              )}
+            </Menu>
+          </Box>
+        </GridItem>
+      </Grid>
       <MemberSearchList
         open={isOpenMemberDialog}
         onClose={() => {

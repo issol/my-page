@@ -334,6 +334,7 @@ export const useTotalPrice = (
     [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'totalPrice', type, currency],
     () => getTotalPrice(type, currency),
     {
+      retry: 1,
       suspense: true,
       keepPreviousData: true,
       useErrorBoundary: (error: any) => error.response?.status >= 500,

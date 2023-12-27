@@ -15,7 +15,7 @@ import {
   useDashboardReport,
 } from '@src/queries/dashboard/dashnaord-lpm'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
@@ -51,6 +51,7 @@ import Information from '@src/views/dashboard/dialog/information'
 import Total, {
   payableColors,
   ReceivableColors,
+  TotalPrice,
 } from '@src/views/dashboard/chart/total'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
@@ -61,6 +62,8 @@ import { useQueryClient } from 'react-query'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import ChartDate from '@src/views/dashboard/header/chartDate'
 import FloatingCalendar from '@src/views/dashboard/header/floating'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { ErrorBoundary } from 'react-error-boundary'
 
 dayjs.extend(weekday)
 
@@ -172,7 +175,7 @@ const LPMDashboards = () => {
       item[0].includes('payable'),
     )[0][1] as PaidThisMonthAmount | null
 
-    const filterOngoingOrder = Object.entries(ongoingOrder).map(
+    const filterOngoingOrder = Object.entries(ongoingOrder || {}).map(
       ([key, value]) => {
         return { orderStatus: key, orderNumber: value, '   ': '  ' }
       },
@@ -252,16 +255,17 @@ const LPMDashboards = () => {
           gap='24px'
           sx={{
             padding: '10px',
-            position: 'relative',
           }}
         >
           <Notice />
+
           <SwitchTypeHeader
             isShowMemberView={isShowMemberView}
             hiddenMemberView={hiddenMemberView}
             showMemberView={showMemberView}
             csvData={CSVData}
           />
+
           <Grid container gap='24px'>
             {!isShowMemberView && (
               <GridItem width={300} height={362}>
@@ -313,6 +317,7 @@ const LPMDashboards = () => {
                   openDialog={setOpenInfoDialog}
                 />
                 <DashboardDataGrid
+                  title='New requests from clients'
                   sectionHeight={280}
                   path='u/dashboard/client-request/list/new'
                   pageNumber={4}
@@ -415,7 +420,7 @@ const LPMDashboards = () => {
           </Grid>
           <Grid container gap='24px'>
             <GridItem height={525} xs={6}>
-              <Total
+              <TotalPrice
                 type='receivable'
                 title='Receivables - Total'
                 iconColor='114, 225, 40'
@@ -427,7 +432,7 @@ const LPMDashboards = () => {
               />
             </GridItem>
             <GridItem height={525} sm>
-              <Total
+              <TotalPrice
                 type='payable'
                 title='Payables - Total'
                 icon={MonetizationOn}
@@ -440,46 +445,42 @@ const LPMDashboards = () => {
             </GridItem>
           </Grid>
           <Grid container>
-            <GridItem height={547} sm padding='0px'>
-              <LongStandingDataGrid
-                title='Long-standing receivables - Action required'
-                type='receivable'
-                columns={ReceivableColumns}
-                initSort={[
-                  {
-                    field: 'clientName',
-                    sort: 'asc',
-                  },
-                ]}
-                dataRecord={receivables}
-                setDataRecord={setReceivables}
-                setOpenInfoDialog={setOpenInfoDialog}
-                onRowClick={params =>
-                  router.push(`/invoice/receivable/detail/${params.id}/`)
-                }
-              />
-            </GridItem>
+            <LongStandingDataGrid
+              title='Long-standing receivables - Action required'
+              type='receivable'
+              columns={ReceivableColumns}
+              initSort={[
+                {
+                  field: 'clientName',
+                  sort: 'asc',
+                },
+              ]}
+              dataRecord={receivables}
+              setDataRecord={setReceivables}
+              setOpenInfoDialog={setOpenInfoDialog}
+              onRowClick={params =>
+                router.push(`/invoice/receivable/detail/${params.id}/`)
+              }
+            />
           </Grid>
           <Grid container>
-            <GridItem height={547} sm padding='0px'>
-              <LongStandingDataGrid
-                title='Long-standing payables - Action required'
-                type='payable'
-                columns={PayablesColumns}
-                initSort={[
-                  {
-                    field: 'proName',
-                    sort: 'asc',
-                  },
-                ]}
-                dataRecord={payables}
-                setDataRecord={setPayables}
-                setOpenInfoDialog={setOpenInfoDialog}
-                onRowClick={params =>
-                  router.push(`/invoice/payable/${params.id}/?menu=info`)
-                }
-              />
-            </GridItem>
+            <LongStandingDataGrid
+              title='Long-standing payables - Action required'
+              type='payable'
+              columns={PayablesColumns}
+              initSort={[
+                {
+                  field: 'proName',
+                  sort: 'asc',
+                },
+              ]}
+              dataRecord={payables}
+              setDataRecord={setPayables}
+              setOpenInfoDialog={setOpenInfoDialog}
+              onRowClick={params =>
+                router.push(`/invoice/payable/${params.id}/?menu=info`)
+              }
+            />
           </Grid>
           <Grid container spacing={5}>
             <Doughnut
@@ -509,7 +510,7 @@ const LPMDashboards = () => {
               colors={SecondColors}
               getName={item => {
                 if (item?.sourceLanguage && item?.targetLanguage) {
-                  return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
+                  return `${item?.sourceLanguage}→${item?.targetLanguage}`.toUpperCase()
                 }
                 if (item?.sourceLanguage && !item?.targetLanguage) {
                   return `${item?.sourceLanguage}`.toUpperCase()

@@ -749,7 +749,7 @@ const EditJobInfo = ({
                             } else {
                               return `${languageHelper(
                                 option.source,
-                              )} -> ${languageHelper(option.target)}`
+                              )} → ${languageHelper(option.target)}`
                             }
                           }}
                           id='languagePair'

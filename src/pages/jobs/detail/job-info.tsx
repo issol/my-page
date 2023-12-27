@@ -1212,7 +1212,7 @@ const ProJobInfo = ({
       <Grid item xs={2.75}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {(fileList && fileList.length === 0) ||
-          [70000, 70100, 70200, 70300, 70400, 70500, 601000].includes(
+          [70200, 70300, 70400, 70500, 601000].includes(
             jobInfo.status,
           ) ? null : (
             <Card>
@@ -1226,9 +1226,7 @@ const ProJobInfo = ({
               >
                 <Box display='flex' justifyContent='space-between'>
                   <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                    {jobInfo.status !== 70000 &&
-                    jobInfo.status !== 70100 &&
-                    jobInfo.status !== 70200 &&
+                    {jobInfo.status !== 70200 &&
                     jobInfo.status !== 70400 &&
                     jobInfo.status !== 70500
                       ? 'Source files'
@@ -1239,8 +1237,6 @@ const ProJobInfo = ({
                   </Typography>
                 </Box>
                 {fileList.length === 0 &&
-                jobInfo.status !== 70000 &&
-                jobInfo.status !== 70100 &&
                 jobInfo.status !== 70200 &&
                 jobInfo.status !== 70400 &&
                 jobInfo.status !== 70500 ? null : fileList.length > 0 ? (

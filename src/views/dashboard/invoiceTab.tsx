@@ -134,7 +134,7 @@ const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
       <TabPanel value='1' sx={{ height: '100%', padding: '0 !important' }}>
         <TabContent
           currency='$'
-          categories={[...categories]}
+          categories={[...categories].reverse()}
           values={tabData.USD || []}
           dateList={[...dateList] || []}
         />
@@ -142,7 +142,7 @@ const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
       <TabPanel value='2' sx={{ height: '100%', padding: '0 !important' }}>
         <TabContent
           currency='¥'
-          categories={[...categories]}
+          categories={[...categories].reverse()}
           values={tabData.JPY || []}
           dateList={[...dateList] || []}
         />
@@ -150,7 +150,7 @@ const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
       <TabPanel value='3' sx={{ height: '100%', padding: '0 !important' }}>
         <TabContent
           currency='₩'
-          categories={[...categories]}
+          categories={[...categories].reverse()}
           values={tabData.KRW || []}
           dateList={[...dateList] || []}
         />
@@ -158,9 +158,9 @@ const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
       <TabPanel value='4' sx={{ height: '100%', padding: '0 !important' }}>
         <TabContent
           currency='$'
-          categories={[...categories]}
+          categories={[...categories].reverse()}
           values={tabData.SGD || []}
-          dateList={[...dateList].reverse() || []}
+          dateList={[...dateList] || []}
         />
       </TabPanel>
     </TabContext>

@@ -105,8 +105,8 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
     from,
     skip: skip,
     take: 6,
-    sort: sortModel[0]?.field || initSort[0].field,
-    ordering: sortModel[0]?.sort || (initSort[0].sort as OrderType),
+    sort: sortModel[0]?.field,
+    ordering: sortModel[0]?.sort || undefined,
   })
 
   return (

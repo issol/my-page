@@ -38,7 +38,6 @@ import { authState } from '@src/states/auth'
 
 // ** helpers
 import {
-  convertDateByTimezone,
   convertTimeToTimezone,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
@@ -103,7 +102,6 @@ const RecruitingDetail = () => {
   const ability = useContext(AbilityContext)
 
   const auth = useRecoilValueLoadable(authState)
-
   const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
     id,
     false,
@@ -122,7 +120,6 @@ const RecruitingDetail = () => {
   const writer = new recruiting(currentVersion?.userId!)
   const isWriter = ability.can('update', writer) //writer can edit, hide the post
   const isMaster = ability.can('delete', writer) //master can edit, delete the post
-
   const deleteMutation = useMutation((id: number) => deleteRecruiting(id), {
     onSuccess: () => {
       router.replace('/recruiting/')
@@ -410,10 +407,10 @@ const RecruitingDetail = () => {
                     {renderTable(
                       'Due date',
                       currentVersion?.dueDate
-                        ? convertDateByTimezone(
+                        ? convertTimeToTimezone(
                             currentVersion?.dueDate,
                             currentVersion?.dueDateTimezone!,
-                            auth.getValue().user?.timezone?.code!,
+                            timezone.getValue(),
                           )
                         : '',
                     )}
@@ -598,10 +595,10 @@ const RecruitingDetail = () => {
                           {renderTable(
                             'Due date',
                             currentRow?.dueDate
-                              ? convertDateByTimezone(
+                              ? convertTimeToTimezone(
                                   currentRow?.dueDate,
                                   currentRow?.dueDateTimezone!,
-                                  auth.getValue().user?.timezone?.code!,
+                                  timezone.getValue(),
                                 )
                               : '',
                           )}

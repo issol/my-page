@@ -102,7 +102,7 @@ export default function RecruitingList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip placement='bottom' title={`${row.jobType} / ${row.role}`}>
-            <Box sx={{ display: 'flex', gap: '8px', overflow: 'scroll' }}>
+            <Box className='scroll_bar' sx={{ display: 'flex', gap: '8px' }}>
               <JobTypeChip
                 type={row.jobType}
                 label={row.jobType}
@@ -139,7 +139,7 @@ export default function RecruitingList({
       headerName: 'Written by',
       renderHeader: () => <Box>Written by</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.writer}</Box>
+        <Box className='scroll_bar'>{row.writer}</Box>
       ),
     },
     {
@@ -161,7 +161,7 @@ export default function RecruitingList({
                 timezone.getValue(),
               )}`}
             >
-              <Typography sx={{ overflow: 'scroll' }} variant='body2'>
+              <Typography className='scroll_bar' variant='body2'>
                 <>
                   {convertTimeToTimezone(
                     row.dueDate,
@@ -182,7 +182,7 @@ export default function RecruitingList({
       headerName: 'Openings',
       renderHeader: () => <Box>Openings</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.openings ?? '-'}</Box>
+        <Box className='scroll_bar'>{row.openings ?? '-'}</Box>
       ),
     },
     {

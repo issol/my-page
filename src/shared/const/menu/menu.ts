@@ -1,9 +1,9 @@
 export const TADMenu = [
   'Dashboards',
+  'Pros',
   'Recruiting',
   'Onboarding',
   'Certification Test',
-  'Pros',
   'Company',
   'My page',
 ]
@@ -15,17 +15,18 @@ export const LPMMenu = [
   'Invoices',
   'Pros',
   'Clients',
+  'Recruiting',
   'Company',
   'Requests',
 ]
 
 export const PROMenu = [
   'Dashboards',
-  'My page',
   'Jobs',
   'Invoices',
-  'Certification Test',
   'Job openings',
+  'Certification Test',
+  'My page',
 ]
 
 export const CLIENTMenu = [

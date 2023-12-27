@@ -34,15 +34,24 @@ const CurrencyByDateList = ({ report }: CurrencyByDateListProps) => {
     )
   }
 
+  console.log(report)
   return (
     <Box className='scroll_bar' sx={{ maxHeight: '364px', overflowY: 'auto' }}>
-      {report.map(item => (
-        <Box key={`${item.month}`} sx={{ height: '100%' }}>
+      {report.map((item, index) => (
+        <Box
+          key={`${item.month}`}
+          sx={{
+            height: '100%',
+          }}
+        >
           <Typography
             fontSize='14px'
             color='#4C4E64DE'
             fontWeight={600}
-            sx={{ marginBottom: '5px' }}
+            sx={{
+              marginBottom: '5px',
+              color: index === 0 ? 'rgba(102, 108, 255)' : 'inherit',
+            }}
           >
             {item.month}
           </Typography>
@@ -51,19 +60,27 @@ const CurrencyByDateList = ({ report }: CurrencyByDateListProps) => {
           >
             <li style={{ display: item.incomeUSD ? 'flex' : 'none' }}>
               <span className='currency_box'>{CurrencyUnit['USD']}</span>
-              <span className='price'>{item.incomeUSD.toLocaleString()}</span>
+              <span className='price'>
+                {item.incomeUSD.toLocaleString() || 0}
+              </span>
             </li>
             <li style={{ display: item.incomeKRW ? 'flex' : 'none' }}>
               <span className='currency_box'>{CurrencyUnit['KRW']}</span>
-              <span className='price'>{item.incomeKRW.toLocaleString()}</span>
+              <span className='price'>
+                {item.incomeKRW.toLocaleString() || 0}
+              </span>
             </li>
             <li style={{ display: item.incomeJPY ? 'flex' : 'none' }}>
               <span className='currency_box'>{CurrencyUnit['JPY']}</span>
-              <span className='price'>{item.incomeJPY.toLocaleString()}</span>
+              <span className='price'>
+                {item.incomeJPY.toLocaleString() || 0}
+              </span>
             </li>
             <li style={{ display: item.incomeSGD ? 'flex' : 'none' }}>
               <span className='currency_box'>{CurrencyUnit['SGD']}</span>
-              <span className='price'>{item.incomeSGD.toLocaleString()}</span>
+              <span className='price'>
+                {item.incomeSGD.toLocaleString() || 0}
+              </span>
             </li>
             {!isItemValues(item) && (
               <li>
@@ -124,7 +141,7 @@ export const CurrencyAmount = ({
             fontWeight={500}
             sx={{ width: '96px' }}
           >
-            {data?.totalAmountUSD.toLocaleString()}
+            {data?.totalAmountUSD.toLocaleString() || 0}
           </Typography>
         </Box>
         <Box display='flex' alignItems='center'>
@@ -143,7 +160,7 @@ export const CurrencyAmount = ({
             fontWeight={500}
             sx={{ width: '96px' }}
           >
-            {data?.totalAmountKRW.toLocaleString()}
+            {data?.totalAmountKRW.toLocaleString() || 0}
           </Typography>
         </Box>
         <Box display='flex' alignItems='center'>
@@ -162,7 +179,7 @@ export const CurrencyAmount = ({
             fontWeight={500}
             sx={{ width: '96px' }}
           >
-            {data?.totalAmountJPY.toLocaleString()}
+            {data?.totalAmountJPY.toLocaleString() || 0}
           </Typography>
         </Box>
         <Box display='flex' alignItems='center'>
@@ -181,7 +198,7 @@ export const CurrencyAmount = ({
             fontWeight={500}
             sx={{ width: '96px' }}
           >
-            {data?.totalAmountSGD.toLocaleString()}
+            {data?.totalAmountSGD.toLocaleString() || 0}
           </Typography>
         </Box>
       </Box>

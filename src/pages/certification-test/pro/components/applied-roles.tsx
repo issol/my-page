@@ -449,11 +449,13 @@ const ProAppliedRoles = ({
         >
           <DataGrid
             sx={{
-              overflowX: 'scroll',
+              overflow: 'scroll',
+              overflowY: 'scroll',
               '& .MuiDataGrid-row:hover': {
                 backgroundColor: 'inherit',
               },
               '& .MuiDataGrid-virtualScroller': {
+                overflow: 'scroll !important',
                 height: '270px !important',
               },
               maxHeight: '451px',
@@ -481,6 +483,7 @@ const ProAppliedRoles = ({
               onClickAccept,
             )}
             pagination
+            paginationMode='server'
             page={page}
             pageSize={rowsPerPage}
             // paginationMode='server'

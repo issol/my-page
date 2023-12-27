@@ -22,6 +22,8 @@ export type FilterType = {
   dueDate?: string | undefined
   skip?: number
   take?: number
+  sort: string
+  ordering: string
 }
 
 export const initialFilter: FilterType = {
@@ -33,6 +35,8 @@ export const initialFilter: FilterType = {
   dueDate: '',
   skip: 0,
   take: 10,
+  sort: 'createdAt',
+  ordering: 'DESC'
 }
 export default function jobPosting() {
   type FilterState = Array<{ value: string; label: string }>

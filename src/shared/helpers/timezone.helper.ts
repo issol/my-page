@@ -107,8 +107,6 @@ export const setAllTimeZoneList = (
   // 모든 타임존의 리스트를 가져옵니다.
   const timeZones = moment.tz.names()
 
-  console.log(timeZones, 'timezone')
-
   // 타임존을 GMT 오프셋으로 변환하고 포맷팅합니다.
   const formattedTimeZones = timeZones.map(tz => {
     // 현재 타임존의 GMT 오프셋을 구합니다.
@@ -140,7 +138,6 @@ export const setAllTimeZoneList = (
     return offsetA - offsetB
   })
 
-  console.log(finalTimeZoneList)
   setTimezone(finalTimeZoneList)
 
   // setTimeZoneToLocalStorage(finalTimeZoneList)
@@ -169,7 +166,6 @@ export const timeZoneFormatter = (
     if (!filteredTimeZone) new Error(`input timezone is null`)
     return `(GMT${filteredTimeZone?.offsetFormatted}) ${timeZoneName} - ${filteredTimeZone?.timezone}`
   } catch (e) {
-    console.log('timeZoneFormatter-e', e)
     return ''
   }
 }

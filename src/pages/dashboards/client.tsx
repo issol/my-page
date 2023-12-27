@@ -37,7 +37,10 @@ import {
 import { getDateFormat } from '@src/pages/dashboards/lpm'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
-import Total, { ReceivableColors } from '@src/views/dashboard/chart/total'
+import Total, {
+  ReceivableColors,
+  TotalPrice,
+} from '@src/views/dashboard/chart/total'
 import { ReceiptLong } from '@mui/icons-material'
 import ClientReport from '@src/views/dashboard/list/clientReport'
 import Notice from '@src/views/dashboard/notice'
@@ -97,12 +100,12 @@ const ClientDashboards = () => {
       item[0].includes('totalPrice'),
     )[0][1] as TotalPriceResult
 
-    const filterInvoiceTotal = totalPrices.report.map(item => {
+    const filterInvoiceTotal = (totalPrices?.report || []).map(item => {
       return {
-        'Invoice Status': item.name,
-        'Invoice Count': item.count,
-        'Invoice Price': item.sum,
-        'Invoice Percent': item.ratio,
+        'Invoice Status': item.name || 0,
+        'Invoice Count': item.count || 0,
+        'Invoice Price': item.sum || 0,
+        'Invoice Percent': item.ratio || 0,
         ' ': ' ',
       }
     })
@@ -225,7 +228,7 @@ const ClientDashboards = () => {
               )}
             </Grid>
             <GridItem sm height={532}>
-              <Total
+              <TotalPrice
                 type='receivable'
                 title='Invoices - Total'
                 iconColor='114, 225, 40'
@@ -238,26 +241,24 @@ const ClientDashboards = () => {
             </GridItem>
           </Grid>
           <Grid container>
-            <GridItem height={547} sm padding='0px'>
-              <LongStandingDataGrid<LongStandingReceivableItem>
-                title='Long-standing invoices - Action required'
-                type='receivable'
-                columns={InvoiceColumns}
-                initSort={[
-                  {
-                    field: 'clientName',
-                    sort: 'asc',
-                  },
-                ]}
-                dataRecord={receivables}
-                setDataRecord={setReceivables}
-                setOpenInfoDialog={setOpenInfoDialog}
-                onRowClick={(params, event, details) => {
-                  if (params.row.status === 30500) return
-                  router.push(`/invoice/receivable/detail/${params.id}/`)
-                }}
-              />
-            </GridItem>
+            <LongStandingDataGrid<LongStandingReceivableItem>
+              title='Long-standing invoices - Action required'
+              type='receivable'
+              columns={InvoiceColumns}
+              initSort={[
+                {
+                  field: 'clientName',
+                  sort: 'asc',
+                },
+              ]}
+              dataRecord={receivables}
+              setDataRecord={setReceivables}
+              setOpenInfoDialog={setOpenInfoDialog}
+              onRowClick={(params, event, details) => {
+                if (params.row.status === 30500) return
+                router.push(`/invoice/receivable/detail/${params.id}/`)
+              }}
+            />
           </Grid>
           <StatusAndDataGrid
             userViewDate={userViewDate}
@@ -291,7 +292,7 @@ const ClientDashboards = () => {
               type='language-pair'
               colors={SecondColors}
               getName={item => {
-                return `${item?.sourceLanguage}->${item?.targetLanguage}`.toUpperCase()
+                return `${item?.sourceLanguage}→${item?.targetLanguage}`.toUpperCase()
               }}
               menuOptions={[
                 {

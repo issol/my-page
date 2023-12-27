@@ -121,6 +121,15 @@ export const RequestColumns: GridColumns = [
               />
             ) : null}
           </Box>
+          <span
+            style={{
+              display: 'block',
+              width: '1px',
+              height: '20px',
+              margin: '0 10px',
+              backgroundColor: 'rgba(76, 78, 100, 0.12)',
+            }}
+          />
         </Box>
       )
     },
@@ -129,7 +138,7 @@ export const RequestColumns: GridColumns = [
     field: 'itemCount',
     headerName: 'itemCount',
     minWidth: 140,
-    flex: 0.2,
+    flex: 0.1,
     renderCell: ({ row }: { row: RequestItem }) => {
       return (
         <Box display='flex' alignItems='center' gap='8px'>
@@ -142,7 +151,7 @@ export const RequestColumns: GridColumns = [
   {
     field: 'desiredDueDate_date',
     headerName: 'desiredDueDate',
-    flex: 0.3,
+    flex: 0.4,
     cellClassName: 'desiredDueDate-date__cell',
     renderCell: ({ row }: { row: RequestItem }) => {
       let color = '#7F889B'
@@ -341,7 +350,7 @@ export const RecruitingRequestColumn: GridColumns = [
             fontSize='16px'
             sx={{ textTransform: 'uppercase' }}
           >
-            {`${row.sourceLanguage} -> ${row.targetLanguage}`}
+            {`${row.sourceLanguage} → ${row.targetLanguage}`}
           </Typography>
         </Box>
       )
@@ -385,7 +394,7 @@ export const RecruitingRequestColumn: GridColumns = [
               margin: '0 10px',
               backgroundColor: 'rgba(76, 78, 100, 0.12)',
             }}
-          ></span>
+          />
         </Box>
       )
     },
@@ -601,7 +610,11 @@ export const StatusJobColumns: GridColumns = [
         >
           <Box display='flex' gap='10px'>
             {row.jobType ? (
-              <JobTypeChip type={row.jobType} label={row.jobType} />
+              <JobTypeChip
+                size='small'
+                type={row.jobType}
+                label={row.jobType}
+              />
             ) : (
               '-'
             )}
@@ -692,7 +705,7 @@ export const StatusApplicationColumns: GridColumns = [
     renderCell: ({ row }: { row: ApplicationItem }) => {
       return (
         <Box display='flex' gap='10px'>
-          {`${row.sourceLanguage.toUpperCase()} -> ${row.targetLanguage.toUpperCase()}`}
+          {`${row.sourceLanguage.toUpperCase()} → ${row.targetLanguage.toUpperCase()}`}
         </Box>
       )
     },

@@ -38,7 +38,6 @@ import { currentRoleSelector, permissionState } from '@src/states/permission'
 const HorizontalLayoutWrapper = styled('div')({
   height: '100%',
   display: 'flex',
-  paddingBottom: '100px',
   ...(themeConfig.horizontalMenuAnimation && { overflow: 'clip' }),
 })
 
@@ -123,6 +122,7 @@ const HorizontalLayout = (props: LayoutProps) => {
           ref?.current?.classList.add('client_bg')
           break
         default:
+          ref?.current?.classList.remove('pro_bg', 'client_bg')
           break
       }
     }
