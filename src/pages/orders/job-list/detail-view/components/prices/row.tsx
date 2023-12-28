@@ -197,7 +197,6 @@ const Row = ({
           if (matchedCurrentUnit !== -1) {
             // case 1) 현재 unitPrice와 selectedPrice의 unitPrice가 같다면 
             // 현재 unitPrice 정보에 selectedPrice의 unitPrice만 업데이트 한다.
-            console.log("update",details[matchedCurrentUnit])
             update(matchedCurrentUnit, {
               ...details[matchedCurrentUnit],
               quantity: getItem()?.items[0]?.detail?.[matchedCurrentUnit]?.quantity ?? details[matchedCurrentUnit].quantity,
@@ -208,7 +207,6 @@ const Row = ({
           } else {
             // case 2)  현재 unitPrice와 selectedPrice의 unitPrice가 다르다면 
             // selectedPrice의 unitPrice를 추가 한다.
-            console.log("update",selectedUnit)
             append({
               ...selectedUnit,
               prices: 0,
