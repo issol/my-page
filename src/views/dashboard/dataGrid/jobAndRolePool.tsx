@@ -1,4 +1,4 @@
-import { DataGrid } from '@mui/x-data-grid/DataGrid'
+import { DataGrid } from '@mui/x-data-grid'
 import { JobTableColumn } from '@src/shared/const/columns/dashboard'
 import styled from 'styled-components'
 import { useJobType } from '@src/queries/dashboard/dashnaord-lpm'
@@ -123,7 +123,9 @@ const TADJobDataGrid = ({
             NoResultsOverlay: () => NoList(`There are no Pros yet`),
           }}
           page={page}
-          onPageChange={() => setPage(page + 1)}
+          onPageChange={pageNumber => {
+            setPage(pageNumber)
+          }}
           pageSize={7}
           rowCount={data?.totalCount || 0}
           rowsPerPageOptions={[]}
