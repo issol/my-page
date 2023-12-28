@@ -85,7 +85,7 @@ const CalendarContainer = () => {
   >([])
 
   function onRowClick(id: number) {
-    router.push(`/quotes/requests/${id}`)
+    router.push(`/quotes/lpm/requests/${id}`)
   }
 
   useEffect(() => {
