@@ -100,6 +100,7 @@ import { useGetStatusList } from '@src/queries/common.query'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { getMultipleOrder } from '@src/apis/invoice/common.api'
 import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
+import { formatISO } from 'date-fns'
 
 export type languageType = {
   id: number | string
@@ -441,7 +442,7 @@ export default function AddNewInvoice() {
       contactPersonId: clients.contactPersonId,
       orderId: typeof orderId === 'number' ? [orderId] : orderId,
       invoicedAt: changeTimeZoneOffset(
-        projectInfo.invoiceDate.toISOString(),
+        formatISO(projectInfo.invoiceDate),
         projectInfo.invoiceDateTimezone,
       )!,
       invoicedTimezone: {
@@ -449,10 +450,12 @@ export default function AddNewInvoice() {
         code: '',
         phone: '',
       },
-      payDueAt: changeTimeZoneOffset(
-        new Date(projectInfo.paymentDueDate.date).toISOString(),
-        projectInfo.paymentDueDate.timezone,
-      )!,
+      payDueAt: projectInfo.paymentDueDate.date
+        ? changeTimeZoneOffset(
+            formatISO(new Date(projectInfo.paymentDueDate.date)),
+            projectInfo.paymentDueDate.timezone,
+          )!
+        : undefined,
       description: projectInfo.invoiceDescription,
       projectName: projectInfo.projectName,
       revenueFrom: projectInfo.revenueFrom,

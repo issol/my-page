@@ -114,6 +114,7 @@ import { getClientDetail } from '@src/apis/client.api'
 import { set } from 'lodash'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
+import { formatISO } from 'date-fns'
 
 export type languageType = {
   id: number | string
@@ -570,11 +571,12 @@ export default function AddNewOrder() {
     //   (acc, item) => acc + item.totalPrice,
     //   0,
     // )
+
     const projectInfo = {
       ...rawProjectInfo,
       // isTaxable : taxable,
       orderedAt: changeTimeZoneOffset(
-        rawProjectInfo.orderedAt.toISOString(),
+        formatISO(rawProjectInfo.orderedAt),
         rawProjectInfo.orderTimezone,
       ),
       orderTimezone: {
@@ -582,10 +584,12 @@ export default function AddNewOrder() {
         code: '',
         phone: '',
       },
-      projectDueAt: changeTimeZoneOffset(
-        rawProjectInfo.projectDueAt.toISOString(),
-        rawProjectInfo.projectDueTimezone,
-      ),
+      projectDueAt: rawProjectInfo.projectDueAt
+        ? changeTimeZoneOffset(
+            formatISO(rawProjectInfo.projectDueAt),
+            rawProjectInfo.projectDueTimezone,
+          )
+        : undefined,
       projectDueTimezone: {
         ...rawProjectInfo.projectDueTimezone,
         code: '',
@@ -668,7 +672,6 @@ export default function AddNewOrder() {
             createItemsForOrder(res.id, items),
           ])
             .then(data => {
-              console.log(data[1].length)
               closeModal('onClickSaveOrder')
               if (data[1].length > 0) {
                 openModal({
@@ -855,8 +858,6 @@ export default function AddNewOrder() {
 
       getQuoteClient(id)
         .then(res => {
-          console.log(res)
-
           getClientDetail(res.client.clientId).then(data => {
             const addressType = res.clientAddress.find(
               address => address.isSelected,
@@ -949,7 +950,6 @@ export default function AddNewOrder() {
           })
 
           const result = res?.items?.map(item => {
-            console.log('copy item', item)
             return {
               id: item.id,
               itemName: item.itemName,
@@ -1026,8 +1026,6 @@ export default function AddNewOrder() {
 
       getClient(id)
         .then(res => {
-          console.log(res)
-
           getClientDetail(res.client.clientId).then(data => {
             const addressType = res.clientAddress.find(
               address => address.isSelected,
@@ -1118,7 +1116,6 @@ export default function AddNewOrder() {
             }
           })
           const result = res?.items?.map(item => {
-            console.log('copy item', item)
             return {
               id: item.id,
               itemName: item.itemName,
@@ -1156,8 +1153,6 @@ export default function AddNewOrder() {
       setPriceInfo(priceInfo)
     }
   }, [prices, getItem('languagePairs')])
-
-  // console.log(priceInfo)
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
