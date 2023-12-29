@@ -44,7 +44,7 @@ type Props = {
   }
 }
 
-export default function ProjectsList({
+const ProjectsList = ({
   isCardHeader,
   skip,
   pageSize,
@@ -53,10 +53,11 @@ export default function ProjectsList({
   list,
   sort,
   setSort,
-}: Props) {
+}: Props) => {
   const Row = (props: { row: ProProjectType }) => {
     // ** Props
     const { row } = props
+    console.log('RRRRRR', row)
 
     // ** State
     const [open, setOpen] = useState<boolean>(false)
@@ -64,7 +65,7 @@ export default function ProjectsList({
     return (
       <Fragment>
         <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-          <TableCell>
+          <TableCell sx={{ width: '30px' }}>
             <IconButton
               aria-label='expand row'
               size='small'
@@ -73,8 +74,13 @@ export default function ProjectsList({
               <Icon icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
             </IconButton>
           </TableCell>
-          <TableCell component='th' scope='row'>
-            {row.title}
+          <TableCell
+            align='left'
+            component='th'
+            scope='row'
+            sx={{ fontWeight: 500 }}
+          >
+            {row?.title || '-'}
           </TableCell>
           <TableCell align='left'>
             <ServiceTypeChip label={row.role} size='small' />
@@ -87,8 +93,9 @@ export default function ProjectsList({
             </Typography>
           </TableCell>
           <TableCell align='left'>
-            <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-              {FullDateHelper(row.dueDate)} ({row.dueDate ? row.timezone : ''})
+            <Typography className='scroll_bar' variant='body2'>
+              {FullDateHelper(row.dueDate)} (
+              {row.dueDate ? row.timezone.label : ''})
             </Typography>
           </TableCell>
           <TableCell
@@ -101,11 +108,11 @@ export default function ProjectsList({
         <TableRow>
           <TableCell colSpan={6} sx={{ py: '0 !important' }}>
             <Collapse in={open} timeout='auto' unmountOnExit>
-              <Grid container spacing={6} padding='20px 70px'>
+              <Grid container spacing={6} padding='20px 20px 22px 54px '>
                 <Grid item xs={6} md={4} lg={4}>
                   <Grid item xs={12}>
                     <Title>Project name</Title>
-                    <Desc>{row.projectName}</Desc>
+                    <Desc>{row.projectName || '-'}</Desc>
                   </Grid>
                   <Grid item xs={12}>
                     <Title>Project Category</Title>
@@ -117,7 +124,7 @@ export default function ProjectsList({
                     <Title>Order date</Title>
                     <Desc>
                       {FullDateHelper(row.orderDate)} (
-                      {row.orderDate ? row.timezone : ''})
+                      {row.orderDate ? row?.timezone?.label : ''})
                     </Desc>
                   </Grid>
                   <Grid item xs={12}>
@@ -182,17 +189,25 @@ export default function ProjectsList({
                 style={{ background: '#F5F5F7', textTransform: 'none' }}
               >
                 <TableRow>
-                  <TableCell>
+                  <TableCell sx={{ width: '50px' }}>
                     <IconButton aria-label='expand row' size='small'>
                       <Icon icon='mdi:chevron-down' />
                     </IconButton>
                   </TableCell>
-                  <TableCell>Work name</TableCell>
-                  <TableCell align='left'>Item name</TableCell>
-                  <TableCell align='left'>Clients</TableCell>
-                  <TableCell align='left'>Language</TableCell>
                   <TableCell align='left'>
-                    <Box>
+                    <ColumnText>Work name</ColumnText>
+                  </TableCell>
+                  <TableCell align='left' sx={{ width: '129px' }}>
+                    <ColumnText>Item name</ColumnText>
+                  </TableCell>
+                  <TableCell align='left' sx={{ width: '149px' }}>
+                    <ColumnText>Clients</ColumnText>
+                  </TableCell>
+                  <TableCell align='left' sx={{ width: '180px' }}>
+                    <ColumnText>Language</ColumnText>
+                  </TableCell>
+                  <TableCell align='left' sx={{ width: '280px' }}>
+                    <ColumnText>
                       Due date
                       <IconButton
                         onClick={() => {
@@ -207,7 +222,7 @@ export default function ProjectsList({
                           fontSize={20}
                         />
                       </IconButton>
-                    </Box>
+                    </ColumnText>
                   </TableCell>
                   <TableCell align='left'>Status</TableCell>
                 </TableRow>
@@ -249,3 +264,13 @@ const Desc = styled.p`
   font-size: 1rem;
   color: rgba(76, 78, 100, 0.87);
 `
+const ColumnText = styled.span(() => {
+  return {
+    display: 'flex',
+    alignItems: 'center',
+    height: '16px',
+    borderRight: '2px solid #d9d9d9',
+  }
+})
+
+export default ProjectsList

@@ -143,7 +143,7 @@ const BillingMethod = ({
                   />
 
                   <CopyTextRow
-                    title='Others'
+                    title='IBAN'
                     value={corrBankInfo?.iban}
                     isCopyButton={
                       (isAccountManager && !!corrBankInfo?.iban) || false
