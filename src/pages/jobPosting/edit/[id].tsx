@@ -250,11 +250,11 @@ export default function JobPostingEdit() {
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               router.push('/jobPosting/')
@@ -403,7 +403,7 @@ export default function JobPostingEdit() {
                     >
                       <Box display='flex' gap='10px'>
                         <CustomChip
-                          label={data?.id}
+                          label={data?.corporationId}
                           skin='light'
                           color='primary'
                           size='small'

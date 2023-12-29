@@ -98,7 +98,7 @@ export const getJobOpeningsColumn = () => {
         </Typography>
       ),
       renderCell: ({ row }: { row: JobOpeningListType }) => {
-        return <Typography>{row.id}</Typography>
+        return <Typography>{row.corporationId}</Typography>
       },
     },
     {

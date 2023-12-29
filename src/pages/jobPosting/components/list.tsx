@@ -57,29 +57,41 @@ export default function JobPostingList({
 
   const columns = [
     {
-      flex: 0.15,
+      flex: 0.0567,
       field: 'id',
-      minWidth: 40,
+      minWidth: 100,
       headerName: 'No.',
-      renderHeader: () => <Box>No.</Box>,
-      renderCell: ({ row }: CellType) => row.id,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          No.
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => row.corporationId,
     },
     {
-      flex: 0.15,
-      minWidth: 120,
+      flex: 0.102,
+      minWidth: 180,
       field: 'status',
       headerName: 'Status',
-      renderHeader: () => <Box>Status</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Status
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         return renderStatusChip(row.status)
       },
     },
     {
-      flex: 0.5,
-      minWidth: 130,
+      flex: 0.187,
+      minWidth: 330,
       field: 'jobType',
       headerName: 'Job Type / Role',
-      renderHeader: () => <Box>Job Type / Role</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Job Type / Role
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip placement='bottom' title={`${row.jobType} / ${row.role}`}>
@@ -96,17 +108,21 @@ export default function JobPostingList({
       },
     },
     {
-      flex: 0.23,
-      minWidth: 120,
+      flex: 0.136,
+      minWidth: 240,
       field: 'Language pair',
       headerName: 'Language pair',
-      renderHeader: () => <Box>Language pair</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Language pair
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => (
         <Tooltip
           placement='bottom'
           title={`${row.sourceLanguage?.toUpperCase()} → ${row.targetLanguage?.toUpperCase()}`}
         >
-          <Typography sx={{ fontWeight: 'bold' }} variant='body2'>
+          <Typography sx={{ fontWeight: 'bold' }} variant='body1'>
             {row.sourceLanguage?.toUpperCase()} →{' '}
             {row.targetLanguage?.toUpperCase()}
           </Typography>
@@ -114,49 +130,73 @@ export default function JobPostingList({
       ),
     },
     {
-      flex: 0.23,
-      minWidth: 120,
+      flex: 0.1076,
+      minWidth: 190,
       field: 'yearsOfExperience',
       headerName: 'Years of experience',
-      renderHeader: () => <Box>Years of experience</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Years of experience
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => (
         <Box className='scroll_bar'>{row.yearsOfExperience}</Box>
       ),
     },
     {
-      flex: 0.23,
-      minWidth: 120,
+      flex: 0.102,
+      minWidth: 180,
       field: 'writer',
       headerName: 'TAD',
-      renderHeader: () => <Box>TAD</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          TAD
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => <Box>{row.editorName}</Box>,
+    },
+    {
+      flex: 0.0708,
+      minWidth: 125,
+      field: 'openings',
+      headerName: 'Openings',
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Openings
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.editorName}</Box>
+        <Box className='scroll_bar'>{row.openings}</Box>
       ),
     },
     {
-      flex: 0.23,
-      minWidth: 120,
+      flex: 0.1586,
+      minWidth: 280,
       field: 'dueDate',
       headerName: 'Due date',
-      renderHeader: () => <Box>Due date</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Due date
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => (
         <>
-          {!row.dueDate ? (
+          {!row.dueAt ? (
             '-'
           ) : (
             <Tooltip
               placement='bottom'
               title={`${convertTimeToTimezone(
-                row.dueDate,
-                row.dueDateTimezone,
+                row.dueAt,
+                row.deadlineTimezone,
                 timezone.getValue(),
               )}`}
             >
-              <Typography sx={{ overflow: 'scroll' }} variant='body2'>
+              <Typography variant='body1'>
                 <>
                   {convertTimeToTimezone(
-                    row.dueDate,
-                    row.dueDateTimezone,
+                    row.dueAt,
+                    row.deadlineTimezone,
                     timezone.getValue(),
                   )}
                 </>
@@ -166,21 +206,17 @@ export default function JobPostingList({
         </>
       ),
     },
+
     {
-      minWidth: 40,
-      field: 'openings',
-      headerName: 'Openings',
-      renderHeader: () => <Box>Openings</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Box className='scroll_bar'>{row.openings}</Box>
-      ),
-    },
-    {
-      flex: 0.1,
-      minWidth: 120,
+      flex: 0.0793,
+      minWidth: 140,
       field: 'view',
       headerName: 'View',
-      renderHeader: () => <Box>View</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          View
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => (
         <Box className='scroll_bar'>{row.view}</Box>
       ),
@@ -234,6 +270,7 @@ export default function JobPostingList({
                 // backgroundColor: 'inherit',
                 cursor: 'pointer',
               },
+              overflowX: 'scroll',
             }}
             onRowClick={e => moveToDetail(e)}
             rows={list.data}
