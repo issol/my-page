@@ -177,6 +177,8 @@ export default function AddNewOrder() {
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
   const [taxFocus, setTaxFocus] = useState(false)
 
+  const [isCopiedOrder, setIsCopiedOrder] = useState(false)
+
   useEffect(() => {
     if (!router.isReady) return
     if (quoteId) {
@@ -669,7 +671,7 @@ export default function AddNewOrder() {
         if (res.id) {
           Promise.all([
             createLangPairForOrder(res.id, filteredLangs),
-            createItemsForOrder(res.id, items),
+            createItemsForOrder(res.id, items, isCopiedOrder ? '1' : '0'),
           ])
             .then(data => {
               closeModal('onClickSaveOrder')
@@ -982,6 +984,7 @@ export default function AddNewOrder() {
     // const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
+      setIsCopiedOrder(true)
       getProjectTeam(id)
         .then(res => {
           const teams: Array<{
