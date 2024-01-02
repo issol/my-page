@@ -20,10 +20,10 @@ interface AppliedRoleProps {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => void
   hideFailedTest: boolean
-  handleOnlyCertRolesChange: (
+  handleOnlyCertRolesChange?: (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => void
-  seeOnlyCertRoles: boolean
+  seeOnlyCertRoles?: boolean
   selectedJobInfo: AppliedRoleType | null
   handleClickRoleCard: (jobInfo: AppliedRoleType) => void
   page: number
@@ -64,6 +64,7 @@ const AppliedRole = ({
   status,
 }: AppliedRoleProps) => {
   const isDisabled = () => {
+    if (type === 'onboarding') return false
     if (!status) return true
     const activeList = ['Onboard', 'Netflix Onboard']
     return !activeList.includes(status)
@@ -503,9 +504,9 @@ const AppliedRole = ({
           </IconButton>
         </Box>
         <Box>
-          {totalCount ? (
+          {type !== 'onboarding' ? (
             <FormControlLabel
-              value='start'
+              value='seeOnlyCertRoles'
               control={
                 <Switch
                   checked={seeOnlyCertRoles}
@@ -532,7 +533,7 @@ const AppliedRole = ({
           ) : null}
           {totalCount ? (
             <FormControlLabel
-              value='start'
+              value='hideFailedTest'
               control={
                 <Switch
                   checked={hideFailedTest}
