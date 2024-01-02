@@ -8,12 +8,10 @@ import styled from 'styled-components'
 import toast from 'react-hot-toast'
 
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
-
-import _ from 'lodash'
 import {
+  AddRolePayloadType,
   AddRoleType,
   CommentsOnProType,
-  AddRolePayloadType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 
