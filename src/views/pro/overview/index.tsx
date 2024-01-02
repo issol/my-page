@@ -104,6 +104,7 @@ const ProDetailOverview = () => {
   const auth = useRecoilValueLoadable(authState)
 
   const [hideFailedTest, setHideFailedTest] = useState(false)
+  const [seeOnlyCertRoles, setSeeOnlyCertRoles] = useState(false)
 
   const [appliedRoleList, setAppliedRoleList] = useState<
     AppliedRoleType[] | null
@@ -302,44 +303,91 @@ const ProDetailOverview = () => {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setHideFailedTest(event.target.checked)
+    let prevState = userInfo!.appliedRoles!
 
-    if (appliedRoleList) {
-      if (event.target.checked) {
-        let prevState = appliedRoleList
-
-        prevState = prevState.filter((value: AppliedRoleType) => {
-          const basicTest = value.test.find(value => value.testType === 'basic')
-          const skillTest = value.test.find(value => value.testType === 'skill')
-
-          const includesJobTypeAndRoles =
-            value.role === 'DTPer' ||
-            value.role === 'DTP QCer' ||
-            value.jobType === 'Interpretation'
-
-          const isNoTestStatus =
-            basicTest &&
-            skillTest &&
-            ((basicTest!.status === 'NO_TEST' &&
-              skillTest!.status === 'NO_TEST') ||
-              (basicTest!.status !== 'NO_TEST' &&
-                skillTest!.status === 'NO_TEST'))
-
-          return !(
-            value.testStatus === 'Skill failed' ||
-            value.testStatus === 'Basic failed' ||
-            value.requestStatus === 'Rejected' ||
-            value.requestStatus === 'Paused' ||
-            includesJobTypeAndRoles ||
-            isNoTestStatus
-          )
-        })
-
-        setAppliedRoleList(prevState)
-      } else {
-        const prevState = userInfo!.appliedRoles!
-        setAppliedRoleList(prevState)
-      }
+    if (seeOnlyCertRoles) {
+      prevState = prevState?.filter(item => item.requestStatus === 'Certified')
     }
+
+    if (event.target.checked) {
+      prevState = prevState.filter((value: AppliedRoleType) => {
+        const basicTest = value.test.find(value => value.testType === 'basic')
+        const skillTest = value.test.find(value => value.testType === 'skill')
+
+        const includesJobTypeAndRoles =
+          value.role === 'DTPer' ||
+          value.role === 'DTP QCer' ||
+          value.jobType === 'Interpretation'
+
+        const isNoTestStatus =
+          basicTest &&
+          skillTest &&
+          ((basicTest!.status === 'NO_TEST' &&
+            skillTest!.status === 'NO_TEST') ||
+            (basicTest!.status !== 'NO_TEST' &&
+              skillTest!.status === 'NO_TEST'))
+
+        return !(
+          value.testStatus === 'Skill failed' ||
+          value.testStatus === 'Basic failed' ||
+          value.requestStatus === 'Rejected' ||
+          value.requestStatus === 'Paused' ||
+          includesJobTypeAndRoles ||
+          isNoTestStatus
+        )
+      })
+
+      setAppliedRoleList(prevState)
+    } else {
+      setAppliedRoleList([...prevState])
+    }
+  }
+
+  const handleOnlyCertRolesChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setSeeOnlyCertRoles(event.target.checked)
+
+    let prevState = userInfo!.appliedRoles!
+
+    if (hideFailedTest) {
+      prevState = prevState.filter((value: AppliedRoleType) => {
+        const basicTest = value.test.find(value => value.testType === 'basic')
+        const skillTest = value.test.find(value => value.testType === 'skill')
+
+        const includesJobTypeAndRoles =
+          value.role === 'DTPer' ||
+          value.role === 'DTP QCer' ||
+          value.jobType === 'Interpretation'
+
+        const isNoTestStatus =
+          basicTest &&
+          skillTest &&
+          ((basicTest!.status === 'NO_TEST' &&
+            skillTest!.status === 'NO_TEST') ||
+            (basicTest!.status !== 'NO_TEST' &&
+              skillTest!.status === 'NO_TEST'))
+
+        return !(
+          value.testStatus === 'Skill failed' ||
+          value.testStatus === 'Basic failed' ||
+          value.requestStatus === 'Rejected' ||
+          value.requestStatus === 'Paused' ||
+          includesJobTypeAndRoles ||
+          isNoTestStatus
+        )
+      })
+    }
+
+    if (!event.target.checked) {
+      setAppliedRoleList(prevState)
+      return
+    }
+
+    const filterList = prevState?.filter(
+      item => item.requestStatus === 'Certified',
+    )
+    setAppliedRoleList(filterList || [])
   }
 
   const handleClickRoleCard = (jobInfo: AppliedRoleType) => {
@@ -810,6 +858,8 @@ const ProDetailOverview = () => {
                     userInfo={appliedRoleList! ?? []}
                     hideFailedTest={hideFailedTest}
                     handleHideFailedTestChange={handleHideFailedTestChange}
+                    handleOnlyCertRolesChange={handleOnlyCertRolesChange}
+                    seeOnlyCertRoles={seeOnlyCertRoles}
                     selectedJobInfo={selectedJobInfo}
                     handleClickRoleCard={handleClickRoleCard}
                     page={rolePage}

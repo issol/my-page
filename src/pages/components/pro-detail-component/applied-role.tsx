@@ -20,6 +20,10 @@ interface AppliedRoleProps {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => void
   hideFailedTest: boolean
+  handleOnlyCertRolesChange: (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => void
+  seeOnlyCertRoles: boolean
   selectedJobInfo: AppliedRoleType | null
   handleClickRoleCard: (jobInfo: AppliedRoleType) => void
   page: number
@@ -41,6 +45,8 @@ const AppliedRole = ({
   userInfo,
   handleHideFailedTestChange,
   hideFailedTest,
+  handleOnlyCertRolesChange,
+  seeOnlyCertRoles,
   selectedJobInfo,
   handleClickRoleCard,
   page,
@@ -496,33 +502,62 @@ const AppliedRole = ({
             <img src='/images/icons/onboarding-icons/add-role.svg' alt='add' />
           </IconButton>
         </Box>
-        {totalCount ? (
-          <FormControlLabel
-            value='start'
-            control={
-              <Switch
-                checked={hideFailedTest}
-                onChange={handleHideFailedTestChange}
-                inputProps={{ 'aria-label': 'controlled' }}
-              />
-            }
-            label={
-              <Typography
-                sx={{
-                  fontStyle: 'normal',
-                  fontWeight: 400,
-                  fontSize: '14px',
-                  lineHeight: '21px',
-                  letterSpacing: '0.15px',
-                  color: 'rgba(76, 78, 100, 0.6)',
-                }}
-              >
-                Hide inactive tests
-              </Typography>
-            }
-            labelPlacement='start'
-          />
-        ) : null}
+        <Box>
+          {totalCount ? (
+            <FormControlLabel
+              value='start'
+              control={
+                <Switch
+                  checked={seeOnlyCertRoles}
+                  onChange={handleOnlyCertRolesChange}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />
+              }
+              label={
+                <Typography
+                  sx={{
+                    fontStyle: 'normal',
+                    fontWeight: 400,
+                    fontSize: '14px',
+                    lineHeight: '21px',
+                    letterSpacing: '0.15px',
+                    color: 'rgba(76, 78, 100, 0.6)',
+                  }}
+                >
+                  See only certified roles
+                </Typography>
+              }
+              labelPlacement='start'
+            />
+          ) : null}
+          {totalCount ? (
+            <FormControlLabel
+              value='start'
+              control={
+                <Switch
+                  checked={hideFailedTest}
+                  onChange={handleHideFailedTestChange}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />
+              }
+              label={
+                <Typography
+                  sx={{
+                    fontStyle: 'normal',
+                    fontWeight: 400,
+                    fontSize: '14px',
+                    lineHeight: '21px',
+                    letterSpacing: '0.15px',
+                    color: 'rgba(76, 78, 100, 0.6)',
+                  }}
+                >
+                  Hide inactive tests
+                </Typography>
+              }
+              labelPlacement='start'
+            />
+          ) : null}
+        </Box>
       </Typography>
       {userInfo && userInfo.length ? (
         <Box sx={{ minHeight: 22, paddingLeft: '20px' }}>
