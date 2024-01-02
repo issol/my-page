@@ -9,14 +9,12 @@ import Switch from '@mui/material/Switch'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-
-import { v4 as uuidv4 } from 'uuid'
 import CustomPagination from 'src/pages/components/custom-pagination'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { AppliedRoleType } from 'src/types/onboarding/details'
 
-type Props = {
+interface AppliedRoleProps {
   userInfo: Array<AppliedRoleType>
   handleHideFailedTestChange: (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -36,6 +34,7 @@ type Props = {
   onClickRejectOrPause: (jobInfo: AppliedRoleType, type: string) => void
   onClickReason: (type: string, message: string, reason: string) => void
   type: string
+  status?: string
 }
 
 const AppliedRole = ({
@@ -56,7 +55,14 @@ const AppliedRole = ({
   onClickReason,
   type,
   totalCount,
-}: Props) => {
+  status,
+}: AppliedRoleProps) => {
+  const isDisabled = () => {
+    if (!status) return true
+    const activeList = ['Onboard', 'Netflix Onboard']
+    return !activeList.includes(status)
+  }
+
   const getStatusButton = (jobInfo: AppliedRoleType) => {
     const basicTest = jobInfo.test.find(value => value.testType === 'basic')
     const skillTest = jobInfo.test.find(value => value.testType === 'skill')
@@ -80,6 +86,7 @@ const AppliedRole = ({
                 onClick={() => {
                   onClickRejectOrPause(jobInfo, 'reject')
                 }}
+                disabled={isDisabled()}
               >
                 Reject
               </Button>
@@ -91,6 +98,7 @@ const AppliedRole = ({
                 onClick={() => {
                   onClickCertify(jobInfo)
                 }}
+                disabled={isDisabled()}
               >
                 Certify
               </Button>
@@ -122,6 +130,7 @@ const AppliedRole = ({
                   onClick={() => {
                     onClickRejectOrPause(jobInfo, 'reject')
                   }}
+                  disabled={isDisabled()}
                 >
                   Reject
                 </Button>
@@ -133,6 +142,7 @@ const AppliedRole = ({
                   onClick={() => {
                     onClickCertify(jobInfo)
                   }}
+                  disabled={isDisabled()}
                 >
                   Certify
                 </Button>
@@ -171,6 +181,7 @@ const AppliedRole = ({
                 onClick={() => {
                   onClickRejectOrPause(jobInfo, 'reject')
                 }}
+                disabled={isDisabled()}
               >
                 Reject
               </Button>
@@ -185,6 +196,14 @@ const AppliedRole = ({
                   //   ? onClickTestAssign(jobInfo, 'Skill in progress')
                   //   : onClickTestAssign(jobInfo)
                 }}
+                sx={{
+                  '&.Mui-disabled': {
+                    background: '#fff',
+                    color: ' rgba(76, 78, 100, 0.38)',
+                    border: '1px solid #4C4E641F',
+                  },
+                }}
+                disabled={isDisabled()}
               >
                 Assign test
               </Button>
@@ -341,6 +360,7 @@ const AppliedRole = ({
                 onClick={() => {
                   onClickRejectOrPause(jobInfo, 'reject')
                 }}
+                disabled={isDisabled()}
               >
                 Reject
               </Button>
@@ -352,6 +372,7 @@ const AppliedRole = ({
                 onClick={() => {
                   onClickCertify(jobInfo)
                 }}
+                disabled={isDisabled()}
               >
                 Certify
               </Button>
@@ -472,10 +493,7 @@ const AppliedRole = ({
             }}
             onClick={onClickAddRole}
           >
-            <img
-              src='/images/icons/onboarding-icons/add-role.svg'
-              alt='add'
-            ></img>
+            <img src='/images/icons/onboarding-icons/add-role.svg' alt='add' />
           </IconButton>
         </Box>
         {totalCount ? (
@@ -507,18 +525,24 @@ const AppliedRole = ({
         ) : null}
       </Typography>
       {userInfo && userInfo.length ? (
-        <Box sx={{ minHeight: 22 }}>
-          <Grid container spacing={6} xs={12}>
+        <Box sx={{ minHeight: 22, paddingLeft: '20px' }}>
+          <Grid container xs={12} spacing={5}>
             {userInfo && userInfo.length
               ? userInfo
                   .slice(offset, offset + rowsPerPage)
                   .map((value, index) => {
                     return (
-                      <Grid item lg={6} md={12} sm={12} xs={12} key={uuidv4()}>
+                      <Grid
+                        item
+                        lg={6}
+                        md={12}
+                        sm={12}
+                        xs={12}
+                        key={`${value.id}-${index}`}
+                      >
                         <Card
                           className='applied_card'
                           sx={{
-                            marginLeft: index % 2 === 0 ? '20px' : 0,
                             padding: '20px',
                             height: '100%',
                             cursor: 'pointer',
@@ -560,7 +584,6 @@ const AppliedRole = ({
                               sx={{
                                 display: 'flex',
                                 justifyContent: 'flex-start',
-
                                 padding: 0,
                                 gap: 2,
                               }}
@@ -676,7 +699,7 @@ const AppliedRole = ({
                               )}
                             </Typography>
 
-                            <Grid item display='flex' gap='16px' mt={'17px'}>
+                            <Grid item display='flex' gap={4} mt={4}>
                               {getStatusButton(value)}
                             </Grid>
                           </CardContent>

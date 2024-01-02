@@ -87,7 +87,7 @@ export const ProDetailOverviews = () => (
   </Suspense>
 )
 
-function ProDetailOverview() {
+const ProDetailOverview = () => {
   const router = useRouter()
   const { id } = router.query
   const [validUser, setValidUser] = useState(false)
@@ -261,6 +261,7 @@ function ProDetailOverview() {
 
   const handleChangeStatus = (event: SelectChangeEvent) => {
     setStatus(event.target.value as string)
+    console.log('ONBOARD', event.target.value)
     changeProStatusMutation.mutate({
       userId: Number(id!),
       status: event.target.value,
@@ -306,21 +307,36 @@ function ProDetailOverview() {
       if (event.target.checked) {
         let prevState = appliedRoleList
 
-        const res = prevState.filter(
-          (value: AppliedRoleType) =>
-            !(
-              value.testStatus === 'Skill failed' ||
-              value.testStatus === 'Basic failed' ||
-              value.requestStatus === 'Rejected' ||
-              value.requestStatus === 'Paused'
-            ),
-        )
+        prevState = prevState.filter((value: AppliedRoleType) => {
+          const basicTest = value.test.find(value => value.testType === 'basic')
+          const skillTest = value.test.find(value => value.testType === 'skill')
 
-        prevState = res
+          const includesJobTypeAndRoles =
+            value.role === 'DTPer' ||
+            value.role === 'DTP QCer' ||
+            value.jobType === 'Interpretation'
+
+          const isNoTestStatus =
+            basicTest &&
+            skillTest &&
+            ((basicTest!.status === 'NO_TEST' &&
+              skillTest!.status === 'NO_TEST') ||
+              (basicTest!.status !== 'NO_TEST' &&
+                skillTest!.status === 'NO_TEST'))
+
+          return !(
+            value.testStatus === 'Skill failed' ||
+            value.testStatus === 'Basic failed' ||
+            value.requestStatus === 'Rejected' ||
+            value.requestStatus === 'Paused' ||
+            includesJobTypeAndRoles ||
+            isNoTestStatus
+          )
+        })
+
         setAppliedRoleList(prevState)
       } else {
-        let prevState = userInfo!.appliedRoles!
-
+        const prevState = userInfo!.appliedRoles!
         setAppliedRoleList(prevState)
       }
     }
@@ -560,13 +576,11 @@ function ProDetailOverview() {
     })
 
     setClickedEditComment(false)
-
     setSelectedComment(null)
   }
 
   const handleEditCancelComment = () => {
     setClickedEditComment(false)
-
     setSelectedComment(null)
   }
 
@@ -809,6 +823,7 @@ function ProDetailOverview() {
                     onClickReason={onClickReason}
                     onClickResumeTest={onClickResumeTest}
                     type='pro'
+                    status={status}
                   />
                 </Suspense>
               </Grid>
@@ -890,4 +905,4 @@ const DesignedCard = styled(Card)`
   }
 `
 
-export default ProDetailOverviews
+export default ProDetailOverview

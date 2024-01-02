@@ -52,7 +52,7 @@ export const initialFilter: FilterType = {
 type Props = { id: number }
 type MenuType = 'list' | 'calendar'
 
-export default function ProjectsDetail({ id }: Props) {
+const ProjectsDetail = ({ id }: Props) => {
   const queryClient = useQueryClient()
   const [menu, setMenu] = useState<MenuType>('list')
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
@@ -67,14 +67,16 @@ export default function ProjectsDetail({ id }: Props) {
 
   const { data: list } = useGetProjectList(id, activeFilter)
 
-  function getFilter(name: keyof Omit<FilterType, 'skip' | 'take' | 'sort'>) {
+  const getFilter = (
+    name: keyof Omit<FilterType, 'skip' | 'take' | 'sort'>,
+  ) => {
     if (filter[name] && filter[name]?.length) {
       return filter[name]?.map(item => item.value)
     }
     return []
   }
 
-  function onSearch() {
+  const onSearch = () => {
     setActiveFilter({
       ...activeFilter,
       sort,
@@ -104,14 +106,19 @@ export default function ProjectsDetail({ id }: Props) {
     ])
   }
 
-  function onReset() {
+  const onReset = () => {
     setFilter({ ...initialFilter })
     setActiveFilter({ skip: 0, take: 10 })
     queryClient.invalidateQueries(['get-project/list', { ...initialFilter }])
   }
 
   useEffect(() => {
-    queryClient.invalidateQueries(['get-project/list'])
+    // NOTE : 첫 진입시 프로젝트 가져오기
+    onSearch()
+
+    return () => {
+      onReset()
+    }
   }, [])
 
   return (
@@ -180,3 +187,5 @@ const CustomBtn = styled(Button)<{ $focus: boolean }>`
   width: 145px;
   background: ${({ $focus }) => ($focus ? 'rgba(102, 108, 255, 0.08)' : '')};
 `
+
+export default ProjectsDetail
