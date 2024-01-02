@@ -9,8 +9,6 @@ import Switch from '@mui/material/Switch'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
-
-import { v4 as uuidv4 } from 'uuid'
 import CustomPagination from 'src/pages/components/custom-pagination'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -36,6 +34,7 @@ interface AppliedRoleProps {
   onClickRejectOrPause: (jobInfo: AppliedRoleType, type: string) => void
   onClickReason: (type: string, message: string, reason: string) => void
   type: string
+  status?: string
 }
 
 const AppliedRole = ({
@@ -56,7 +55,14 @@ const AppliedRole = ({
   onClickReason,
   type,
   totalCount,
+  status,
 }: AppliedRoleProps) => {
+  const isDisabled = () => {
+    if (!status) return true
+    const activeList = ['Onboard', 'Netflix Onboard']
+    return !activeList.includes(status)
+  }
+
   const getStatusButton = (jobInfo: AppliedRoleType) => {
     const basicTest = jobInfo.test.find(value => value.testType === 'basic')
     const skillTest = jobInfo.test.find(value => value.testType === 'skill')
@@ -80,6 +86,7 @@ const AppliedRole = ({
                 onClick={() => {
                   onClickRejectOrPause(jobInfo, 'reject')
                 }}
+                disabled={isDisabled()}
               >
                 Reject
               </Button>
@@ -91,6 +98,7 @@ const AppliedRole = ({
                 onClick={() => {
                   onClickCertify(jobInfo)
                 }}
+                disabled={isDisabled()}
               >
                 Certify
               </Button>
@@ -122,6 +130,7 @@ const AppliedRole = ({
                   onClick={() => {
                     onClickRejectOrPause(jobInfo, 'reject')
                   }}
+                  disabled={isDisabled()}
                 >
                   Reject
                 </Button>
@@ -133,6 +142,7 @@ const AppliedRole = ({
                   onClick={() => {
                     onClickCertify(jobInfo)
                   }}
+                  disabled={isDisabled()}
                 >
                   Certify
                 </Button>
@@ -171,6 +181,7 @@ const AppliedRole = ({
                 onClick={() => {
                   onClickRejectOrPause(jobInfo, 'reject')
                 }}
+                disabled={isDisabled()}
               >
                 Reject
               </Button>
@@ -185,6 +196,14 @@ const AppliedRole = ({
                   //   ? onClickTestAssign(jobInfo, 'Skill in progress')
                   //   : onClickTestAssign(jobInfo)
                 }}
+                sx={{
+                  '&.Mui-disabled': {
+                    background: '#fff',
+                    color: ' rgba(76, 78, 100, 0.38)',
+                    border: '1px solid #4C4E641F',
+                  },
+                }}
+                disabled={isDisabled()}
               >
                 Assign test
               </Button>
@@ -341,6 +360,7 @@ const AppliedRole = ({
                 onClick={() => {
                   onClickRejectOrPause(jobInfo, 'reject')
                 }}
+                disabled={isDisabled()}
               >
                 Reject
               </Button>
@@ -352,6 +372,7 @@ const AppliedRole = ({
                 onClick={() => {
                   onClickCertify(jobInfo)
                 }}
+                disabled={isDisabled()}
               >
                 Certify
               </Button>

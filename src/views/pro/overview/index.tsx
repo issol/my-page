@@ -261,6 +261,7 @@ const ProDetailOverview = () => {
 
   const handleChangeStatus = (event: SelectChangeEvent) => {
     setStatus(event.target.value as string)
+    console.log('ONBOARD', event.target.value)
     changeProStatusMutation.mutate({
       userId: Number(id!),
       status: event.target.value,
@@ -306,21 +307,36 @@ const ProDetailOverview = () => {
       if (event.target.checked) {
         let prevState = appliedRoleList
 
-        const res = prevState.filter(
-          (value: AppliedRoleType) =>
-            !(
-              value.testStatus === 'Skill failed' ||
-              value.testStatus === 'Basic failed' ||
-              value.requestStatus === 'Rejected' ||
-              value.requestStatus === 'Paused'
-            ),
-        )
+        prevState = prevState.filter((value: AppliedRoleType) => {
+          const basicTest = value.test.find(value => value.testType === 'basic')
+          const skillTest = value.test.find(value => value.testType === 'skill')
 
-        prevState = res
+          const includesJobTypeAndRoles =
+            value.role === 'DTPer' ||
+            value.role === 'DTP QCer' ||
+            value.jobType === 'Interpretation'
+
+          const isNoTestStatus =
+            basicTest &&
+            skillTest &&
+            ((basicTest!.status === 'NO_TEST' &&
+              skillTest!.status === 'NO_TEST') ||
+              (basicTest!.status !== 'NO_TEST' &&
+                skillTest!.status === 'NO_TEST'))
+
+          return !(
+            value.testStatus === 'Skill failed' ||
+            value.testStatus === 'Basic failed' ||
+            value.requestStatus === 'Rejected' ||
+            value.requestStatus === 'Paused' ||
+            includesJobTypeAndRoles ||
+            isNoTestStatus
+          )
+        })
+
         setAppliedRoleList(prevState)
       } else {
-        let prevState = userInfo!.appliedRoles!
-
+        const prevState = userInfo!.appliedRoles!
         setAppliedRoleList(prevState)
       }
     }
@@ -807,6 +823,7 @@ const ProDetailOverview = () => {
                     onClickReason={onClickReason}
                     onClickResumeTest={onClickResumeTest}
                     type='pro'
+                    status={status}
                   />
                 </Suspense>
               </Grid>
