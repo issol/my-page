@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { ContentGrid, CopyTextRow } from '@src/views/pro/payment-info'
 
 interface BillingAddressProps {
-  onCopy: (info: string) => void
+  onCopy?: (info: string) => void
   billingAddress: ClientAddressType | undefined
 }
 const BillingAddress = ({ billingAddress, onCopy }: BillingAddressProps) => {
@@ -25,19 +25,19 @@ const BillingAddress = ({ billingAddress, onCopy }: BillingAddressProps) => {
             title='Street 1'
             value={billingAddress?.baseAddress ?? ''}
             isCopyButton={!billingAddress?.baseAddress || false}
-            onCopy={() => onCopy(billingAddress?.baseAddress ?? '')}
+            onCopy={() => onCopy && onCopy(billingAddress?.baseAddress ?? '')}
           />
           <CopyTextRow
             title='City'
             value={billingAddress?.city ?? ''}
             isCopyButton={!billingAddress?.city || false}
-            onCopy={() => onCopy(billingAddress?.city ?? '')}
+            onCopy={() => onCopy && onCopy(billingAddress?.city ?? '')}
           />
           <CopyTextRow
             title='Country'
             value={billingAddress?.country ?? ''}
             isCopyButton={!billingAddress?.country || false}
-            onCopy={() => onCopy(billingAddress?.country ?? '')}
+            onCopy={() => onCopy && onCopy(billingAddress?.country ?? '')}
           />
         </ContentGrid>
       </Grid>
@@ -47,19 +47,19 @@ const BillingAddress = ({ billingAddress, onCopy }: BillingAddressProps) => {
             title='Street 2'
             value={billingAddress?.detailAddress ?? ''}
             isCopyButton={!billingAddress?.detailAddress || false}
-            onCopy={() => onCopy(billingAddress?.detailAddress ?? '')}
+            onCopy={() => onCopy && onCopy(billingAddress?.detailAddress ?? '')}
           />
           <CopyTextRow
             title='State'
             value={billingAddress?.state ?? ''}
             isCopyButton={!billingAddress?.state || false}
-            onCopy={() => onCopy(billingAddress?.state ?? '')}
+            onCopy={() => onCopy && onCopy(billingAddress?.state ?? '')}
           />
           <CopyTextRow
             title='Zip code'
             value={billingAddress?.zipCode ?? ''}
             isCopyButton={!billingAddress?.zipCode || false}
-            onCopy={() => onCopy(billingAddress?.zipCode ?? '')}
+            onCopy={() => onCopy && onCopy(billingAddress?.zipCode ?? '')}
           />
         </ContentGrid>
       </Grid>
