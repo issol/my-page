@@ -178,7 +178,7 @@ const ProCertificationTest = () => {
               </Box>
             </Box>
           )}
-          {auth.getValue().user?.isSignToContract &&
+          {!auth.getValue().user?.isSignToContract &&
           appliedRoles?.data &&
           appliedRoles?.data.filter(
             value => value.status === 'Contract required',

@@ -90,6 +90,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import { string } from 'yup'
 import { timezoneSelector } from '@src/states/permission'
+import { formatISO } from 'date-fns'
 
 export type languageType = {
   id: number | string
@@ -480,7 +481,7 @@ export default function AddNewQuote() {
     //   (acc, item) => acc + item.totalPrice,
     //   0,
     // )
-    console.log('rawProjectInfo', rawProjectInfo)
+
     const projectInfo = {
       ...rawProjectInfo,
       tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
@@ -491,7 +492,7 @@ export default function AddNewQuote() {
       quoteDate: {
         ...rawProjectInfo.quoteDate,
         date: changeTimeZoneOffset(
-          rawProjectInfo.quoteDate.date.toISOString(),
+          formatISO(rawProjectInfo.quoteDate.date),
           rawProjectInfo.quoteDate.timezone,
         ),
       },
@@ -499,7 +500,7 @@ export default function AddNewQuote() {
         ...rawProjectInfo.projectDueDate,
         date: rawProjectInfo.projectDueDate.date
           ? changeTimeZoneOffset(
-              rawProjectInfo.projectDueDate.date.toISOString(),
+              formatISO(rawProjectInfo.projectDueDate.date),
               rawProjectInfo.projectDueDate.timezone,
             )
           : null,
@@ -508,7 +509,7 @@ export default function AddNewQuote() {
         ...rawProjectInfo.quoteDeadline,
         date: rawProjectInfo.quoteDeadline.date
           ? changeTimeZoneOffset(
-              rawProjectInfo.quoteDeadline.date.toISOString(),
+              formatISO(rawProjectInfo.quoteDeadline.date),
               rawProjectInfo.quoteDeadline.timezone,
             )
           : null,
@@ -517,7 +518,7 @@ export default function AddNewQuote() {
         ...rawProjectInfo.quoteExpiryDate,
         date: rawProjectInfo.quoteExpiryDate.date
           ? changeTimeZoneOffset(
-              rawProjectInfo.quoteExpiryDate.date.toISOString(),
+              formatISO(rawProjectInfo.quoteExpiryDate.date),
               rawProjectInfo.quoteExpiryDate.timezone,
             )
           : null,
@@ -526,7 +527,7 @@ export default function AddNewQuote() {
         ...rawProjectInfo.estimatedDeliveryDate,
         date: rawProjectInfo.estimatedDeliveryDate.date
           ? changeTimeZoneOffset(
-              rawProjectInfo.estimatedDeliveryDate.date.toISOString(),
+              formatISO(rawProjectInfo.estimatedDeliveryDate.date),
               rawProjectInfo.estimatedDeliveryDate.timezone,
             )
           : null,

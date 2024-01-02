@@ -78,7 +78,7 @@ const TADLanguagePoolBarChart = ({
     setRowPerPage(parseInt(event.target.value, 10))
   }
 
-  const [series, labels] = useMemo(() => {
+  const [series, labels, max] = useMemo(() => {
     const sliceData = data?.report.slice(
       page * rowsPerPage,
       page * rowsPerPage + 6,
@@ -95,12 +95,14 @@ const TADLanguagePoolBarChart = ({
     ]
     const labels =
       sliceData?.map(item => {
-        if (filter === 'source')
+        if (filter === 'source') {
           return (
             find(gloLanguage, {
               value: item.sourceLanguage,
             })?.label || '-'
           )
+        }
+
         if (filter === 'target')
           return (
             find(gloLanguage, {
@@ -110,25 +112,25 @@ const TADLanguagePoolBarChart = ({
         return [item.sourceLanguage, ` → ${item.targetLanguage}`]
       }) || []
 
-    return [seriesData, labels]
+    const max = Math.max(...seriesData[0].data)
+
+    return [seriesData, labels, max]
   }, [data, page])
 
   //@ts-ignore
   // NOTE: dataLabel formmater 에 두줄 민드는 기능이 지원하나 타입스크립트에서 지원안함. 차후 CSS로 조정 필요
   const options: ApexOptions = useMemo(() => {
-    const max = Math.max(...series[0].data)
     const x = Number(max.toString(10)[0])
     const n = max.toString(10).slice(1).length
     const maxNumber = (x + 1) * Math.pow(10, n)
 
     const chartOffset = filter === 'pair' ? -5 : 0
-    const xaxisOffset = filter === 'pair' ? 0 : -40
+    const xaxisOffset = filter === 'pair' ? 3 : 0
+    const align = filter === 'pair' ? 'left' : 'right'
 
     return {
       chart: {
-        redrawOnParentResize: true,
         width: '100%',
-        parentHeightOffset: 30,
         toolbar: { show: false },
         offsetX: chartOffset,
       },
@@ -205,7 +207,7 @@ const TADLanguagePoolBarChart = ({
       },
       yaxis: {
         labels: {
-          align: 'left',
+          align: align,
           offsetX: xaxisOffset,
           offsetY: 6,
           style: {
@@ -280,7 +282,7 @@ const TADLanguagePoolBarChart = ({
         <div style={{ display: 'flex' }}>
           <CustomBarChart
             type='bar'
-            width={440}
+            width={400}
             height={350}
             series={series}
             options={options}
@@ -301,6 +303,9 @@ const TADLanguagePoolBarChart = ({
 
 const CustomBarChart = styled(ReactApexcharts)(() => {
   return {
+    '& .apexcharts-canvas > svg': {
+      width: 500,
+    },
     '& .data-label': {
       fontSize: '12px',
       fontWeight: 600,

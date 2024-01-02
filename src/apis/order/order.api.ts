@@ -41,10 +41,11 @@ export const createLangPairForOrder = async (
 export const createItemsForOrder = async (
   orderId: number,
   form: Array<PostItemType>,
+  isCopiedOrder: '1' | '0',
 ): Promise<any> => {
   const { data } = await axios.post(
     `/api/enough/u/order/item?orderId=${orderId}`,
-    { items: form },
+    { items: form, isCopyOrder: isCopiedOrder },
   )
   return data
 }

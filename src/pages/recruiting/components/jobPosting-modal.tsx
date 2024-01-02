@@ -157,16 +157,16 @@ export default function JobPostingListModal({
         <Tooltip
           placement='bottom'
           title={`${convertTimeToTimezone(
-            row.dueDate,
-            row.dueDateTimezone,
+            row.dueAt,
+            row.deadlineTimezone,
             timezone.getValue(),
           )}`}
         >
           <Typography sx={{ overflow: 'scroll' }} variant='body2'>
             <>
               {convertTimeToTimezone(
-                row.dueDate,
-                row.dueDateTimezone,
+                row.dueAt,
+                row.deadlineTimezone,
                 timezone.getValue(),
               )}
             </>

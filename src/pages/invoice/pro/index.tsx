@@ -244,17 +244,25 @@ const ProInvoice = () => {
             alignItems: 'center',
           }}
         >
-          <ul>
-            <li>
+          <ul style={{ paddingLeft: '24px' }}>
+            <li
+              style={{
+                color: '#666CFF',
+              }}
+            >
               <Typography variant='body1'>
-                All approved jobs in each&nbsp;
+                All approved jobs in each month&nbsp;
                 <Typography variant='body1' fontWeight={700} component={'span'}>
-                  month must be
+                  must be invoiced
                 </Typography>
-                &nbsp;invoiced by the 15th of the following month.
+                &nbsp;by the 15th of the following month.
               </Typography>
             </li>
-            <li>
+            <li
+              style={{
+                color: '#666CFF',
+              }}
+            >
               <Typography variant='body1'>
                 <Typography variant='body1' fontWeight={700} component={'span'}>
                   Payment process begins

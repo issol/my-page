@@ -21,6 +21,7 @@ type Props = {
   skillTest: TestType
   basicTest: TestType
   type: string
+  id: number
   handleActionSkillTest: (id: number, type: string) => void
 }
 export default function SkillTestActionModal({
@@ -29,6 +30,7 @@ export default function SkillTestActionModal({
   skillTest,
   basicTest,
   type,
+  id,
   handleActionSkillTest,
 }: Props) {
   return (
@@ -168,7 +170,8 @@ export default function SkillTestActionModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              handleActionSkillTest(skillTest.testId, type)
+              // handleActionSkillTest(skillTest.testId, type)
+              handleActionSkillTest(id, type)
             }}
           >
             {type === 'Awaiting assignment'

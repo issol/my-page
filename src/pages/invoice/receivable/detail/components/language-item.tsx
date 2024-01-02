@@ -334,9 +334,15 @@ const InvoiceLanguageAndItem = ({
                 justifyContent: 'flex-end',
               }}
             >
-              {getCurrencyMark(invoiceInfo.currency)}
+              {/* {getCurrencyMark(invoiceInfo.currency)}
               &nbsp;
-              {Number(getInvoiceInfo('subtotal'))}
+              {Number(getInvoiceInfo('subtotal'))} */}
+              {
+                formatCurrency(
+                  Number(getInvoiceInfo('subtotal')),
+                  invoiceInfo.currency
+                )
+              }
             </Typography>
           </Box>
         </Box>
@@ -410,10 +416,14 @@ const InvoiceLanguageAndItem = ({
                   )
                 : '-'} */}
               {invoiceInfo.isTaxable
-                ? `${getCurrencyMark(invoiceInfo?.currency)} ${
-                    Number(getInvoiceInfo('subtotal')) *
-                    (Number(invoiceInfo.tax!) / 100)
-                  }`
+                // ? `${getCurrencyMark(invoiceInfo?.currency)} ${
+                //     Number(getInvoiceInfo('subtotal')) *
+                //     (Number(invoiceInfo.tax!) / 100)
+                //   }`
+                ? `${formatCurrency(
+                    Number(getInvoiceInfo('subtotal')) * (Number(invoiceInfo.tax!) / 100),
+                    invoiceInfo?.currency
+                  )}`
                 : '-'}
             </Typography>
           </Box>
@@ -456,14 +466,24 @@ const InvoiceLanguageAndItem = ({
               }}
             >
               {invoiceInfo.isTaxable
-                ? `${getCurrencyMark(invoiceInfo?.currency)} ${decimalPlus(
-                    Number(getInvoiceInfo('subtotal')),
-                    Number(getInvoiceInfo('subtotal')) *
-                      (Number(getInvoiceInfo('tax')) / 100),
+                // ? `${getCurrencyMark(invoiceInfo?.currency)} ${decimalPlus(
+                //     Number(getInvoiceInfo('subtotal')),
+                //     Number(getInvoiceInfo('subtotal')) *
+                //       (Number(getInvoiceInfo('tax')) / 100),
+                //   )}`
+                // : `${getCurrencyMark(invoiceInfo?.currency)} ${Number(
+                //     getInvoiceInfo('subtotal'),
+                //   )}`}
+                ? `${formatCurrency(
+                      Number(getInvoiceInfo('subtotal')) +
+                        Number(getInvoiceInfo('subtotal')) * (Number(invoiceInfo.tax!) / 100),
+                      invoiceInfo?.currency
                   )}`
-                : `${getCurrencyMark(invoiceInfo?.currency)} ${Number(
-                    getInvoiceInfo('subtotal'),
-                  )}`}
+                : `${formatCurrency(
+                      Number(getInvoiceInfo('subtotal')),
+                      invoiceInfo?.currency
+                  )}`
+              }
             </Typography>
           </Box>
         </Box>

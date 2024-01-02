@@ -355,6 +355,8 @@ function OnboardingDetail() {
     skillTestId?: number,
     skillTestStatus?: string,
   ) => {
+    console.log(id)
+
     patchTestStatusMutation.mutate(
       {
         id: id,
@@ -459,6 +461,7 @@ function OnboardingDetail() {
         basicTest={basicTest}
         type={type}
         handleActionBasicTest={handleActionBasicTest}
+        id={id}
       />,
     )
   }
@@ -512,6 +515,7 @@ function OnboardingDetail() {
         basicTest={basicTest}
         type={type}
         handleActionSkillTest={handleActionSkillTest}
+        id={id}
       />,
     )
   }

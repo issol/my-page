@@ -21,6 +21,7 @@ type Props = {
   basicTest: TestType
   skillTest: TestType
   type: string
+  id: number
 
   handleActionBasicTest: (
     id: number,
@@ -34,7 +35,7 @@ export default function BasicTestActionModal({
   onClose,
   basicTest,
   skillTest,
-
+  id,
   type,
   handleActionBasicTest,
 }: Props) {
@@ -144,7 +145,8 @@ export default function BasicTestActionModal({
                   'Skill in progress',
                 )
               } else {
-                handleActionBasicTest(basicTest.testId, type)
+                // handleActionBasicTest(basicTest.testId, type)
+                handleActionBasicTest(id, type)
               }
             }}
           >

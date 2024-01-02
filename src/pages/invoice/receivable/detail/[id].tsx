@@ -1048,36 +1048,39 @@ const ReceivableInvoiceDetail = () => {
         tax:
           invoiceInfo!.isTaxable && priceInfo
             ? formatCurrency(
-                formatByRoundingProcedure(
-                  tax,
-                  priceInfo?.decimalPlace!,
-                  priceInfo?.roundingProcedure ??
-                    PriceRoundingResponseEnum.Type_0,
-                  priceInfo?.currency!,
-                ),
+                tax,
+                // formatByRoundingProcedure(
+                //   tax,
+                //   priceInfo?.decimalPlace!,
+                //   priceInfo?.roundingProcedure ??
+                //     PriceRoundingResponseEnum.Type_0,
+                //   priceInfo?.currency!,
+                // ),
                 priceInfo?.currency!,
               )
             : null,
         total:
           invoiceInfo!.isTaxable && priceInfo
             ? formatCurrency(
-                formatByRoundingProcedure(
-                  subtotal + tax,
-                  priceInfo?.decimalPlace ?? 0,
-                  priceInfo?.roundingProcedure ??
-                    PriceRoundingResponseEnum.Type_0,
-                  priceInfo?.currency ?? 'USD',
-                ),
+                subtotal + tax,
+                // formatByRoundingProcedure(
+                //   subtotal + tax,
+                //   priceInfo?.decimalPlace ?? 0,
+                //   priceInfo?.roundingProcedure ??
+                //     PriceRoundingResponseEnum.Type_0,
+                //   priceInfo?.currency ?? 'USD',
+                // ),
                 priceInfo?.currency ?? 'USD',
               )
             : formatCurrency(
-                formatByRoundingProcedure(
-                  subtotal,
-                  priceInfo?.decimalPlace ?? 0,
-                  priceInfo?.roundingProcedure ??
-                    PriceRoundingResponseEnum.Type_0,
-                  priceInfo?.currency ?? 'USD',
-                ),
+               subtotal,
+                // formatByRoundingProcedure(
+                //   subtotal,
+                //   priceInfo?.decimalPlace ?? 0,
+                //   priceInfo?.roundingProcedure ??
+                //     PriceRoundingResponseEnum.Type_0,
+                //   priceInfo?.currency ?? 'USD',
+                // ),
                 priceInfo?.currency ?? 'USD',
               ),
       }

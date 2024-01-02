@@ -114,6 +114,7 @@ import { getClientDetail } from '@src/apis/client.api'
 import { set } from 'lodash'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
+import { formatISO } from 'date-fns'
 
 export type languageType = {
   id: number | string
@@ -175,6 +176,8 @@ export default function AddNewOrder() {
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
   const [taxFocus, setTaxFocus] = useState(false)
+
+  const [isCopiedOrder, setIsCopiedOrder] = useState(false)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -445,12 +448,13 @@ export default function AddNewOrder() {
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
-      dueAt: project.projectDueAt && project.projectDueTimezone
-        ? changeTimeZoneOffset(
-          project.projectDueAt.toISOString(),
-          auth.getValue().user?.timezone!
-        )!
-        : null,
+      dueAt:
+        project.projectDueAt && project.projectDueTimezone
+          ? changeTimeZoneOffset(
+              project.projectDueAt.toISOString(),
+              auth.getValue().user?.timezone!,
+            )!
+          : null,
       priceId: null,
       detail: [],
       totalPrice: 0,
@@ -569,11 +573,12 @@ export default function AddNewOrder() {
     //   (acc, item) => acc + item.totalPrice,
     //   0,
     // )
+
     const projectInfo = {
       ...rawProjectInfo,
       // isTaxable : taxable,
       orderedAt: changeTimeZoneOffset(
-        rawProjectInfo.orderedAt.toISOString(),
+        formatISO(rawProjectInfo.orderedAt),
         rawProjectInfo.orderTimezone,
       ),
       orderTimezone: {
@@ -581,10 +586,12 @@ export default function AddNewOrder() {
         code: '',
         phone: '',
       },
-      projectDueAt: changeTimeZoneOffset(
-        rawProjectInfo.projectDueAt.toISOString(),
-        rawProjectInfo.projectDueTimezone,
-      ),
+      projectDueAt: rawProjectInfo.projectDueAt
+        ? changeTimeZoneOffset(
+            formatISO(rawProjectInfo.projectDueAt),
+            rawProjectInfo.projectDueTimezone,
+          )
+        : undefined,
       projectDueTimezone: {
         ...rawProjectInfo.projectDueTimezone,
         code: '',
@@ -664,10 +671,9 @@ export default function AddNewOrder() {
         if (res.id) {
           Promise.all([
             createLangPairForOrder(res.id, filteredLangs),
-            createItemsForOrder(res.id, items),
+            createItemsForOrder(res.id, items, isCopiedOrder ? '1' : '0'),
           ])
             .then(data => {
-              console.log(data[1].length)
               closeModal('onClickSaveOrder')
               if (data[1].length > 0) {
                 openModal({
@@ -854,8 +860,6 @@ export default function AddNewOrder() {
 
       getQuoteClient(id)
         .then(res => {
-          console.log(res)
-
           getClientDetail(res.client.clientId).then(data => {
             const addressType = res.clientAddress.find(
               address => address.isSelected,
@@ -948,7 +952,6 @@ export default function AddNewOrder() {
           })
 
           const result = res?.items?.map(item => {
-            console.log('copy item', item)
             return {
               id: item.id,
               itemName: item.itemName,
@@ -981,6 +984,7 @@ export default function AddNewOrder() {
     // const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
+      setIsCopiedOrder(true)
       getProjectTeam(id)
         .then(res => {
           const teams: Array<{
@@ -1025,8 +1029,6 @@ export default function AddNewOrder() {
 
       getClient(id)
         .then(res => {
-          console.log(res)
-
           getClientDetail(res.client.clientId).then(data => {
             const addressType = res.clientAddress.find(
               address => address.isSelected,
@@ -1117,7 +1119,6 @@ export default function AddNewOrder() {
             }
           })
           const result = res?.items?.map(item => {
-            console.log('copy item', item)
             return {
               id: item.id,
               itemName: item.itemName,
@@ -1155,8 +1156,6 @@ export default function AddNewOrder() {
       setPriceInfo(priceInfo)
     }
   }, [prices, getItem('languagePairs')])
-
-  // console.log(priceInfo)
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음

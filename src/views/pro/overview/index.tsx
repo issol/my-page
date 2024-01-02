@@ -466,6 +466,7 @@ function ProDetailOverview() {
         basicTest={basicTest}
         type={type}
         handleActionBasicTest={handleActionBasicTest}
+        id={id}
       />,
     )
   }
@@ -485,6 +486,7 @@ function ProDetailOverview() {
         basicTest={basicTest}
         type={type}
         handleActionSkillTest={handleActionSkillTest}
+        id={id}
       />,
     )
   }

@@ -143,6 +143,18 @@ const EditPrices = ({
     targetLanguage: '',
   })
 
+  const [overridePriceUnit, setOverridePriceUnit] = useState(false)
+
+  const findMatchedLanguagePairInItems = (v: (StandardPriceListType & {
+    groupName?: string | undefined;
+  })) => {
+    return v.languagePairs.find((pair, idx) => {
+      if (pair?.source === languagePair?.sourceLanguage && pair?.target === languagePair?.targetLanguage) {
+        return pair
+      }
+    })
+  }
+
   const getPriceOptions = (source: string, target: string) => {
     // if (!isSuccess) return [proDefaultOption]
     if (!prices) return [proDefaultOption]
@@ -155,7 +167,7 @@ const EditPrices = ({
         return matchingPairs.length > 0
       })
       .map(item => ({
-        groupName: item.isStandard ? 'Standard client price' : 'Matching price',
+        groupName: item.isStandard ? 'Standard pro price' : 'Matching price',
         ...item,
       }))
 
@@ -303,8 +315,11 @@ const EditPrices = ({
                 if (v) {
                   setPrice(v)
                   setItem(`items.${0}.priceId`, v.id)
-                  if (v?.languagePairs[0]?.minimumPrice)
+                  // if (v?.languagePairs[0]?.minimumPrice)
+                  const matchedLanguagePair = findMatchedLanguagePairInItems(v)
+                  if (matchedLanguagePair && matchedLanguagePair.minimumPrice)
                     openMinimumPriceModal(v)
+                    setOverridePriceUnit(true)
                 } else {
                   setPrice(null)
                 }
@@ -339,6 +354,8 @@ const EditPrices = ({
               priceUnitsList={priceUnitsList}
               itemTrigger={itemTrigger}
               selectedPrice={price}
+              useUnitPriceOverrideInPrice={overridePriceUnit}
+              findMatchedLanguagePairInItems={findMatchedLanguagePairInItems}
               type='edit'
               orderItems={orderItems}
               currentOrderItemId={item?.id}
