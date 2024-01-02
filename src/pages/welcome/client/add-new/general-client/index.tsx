@@ -115,13 +115,15 @@ export default function NewGeneralClientForm() {
       onSuccess: () => {
         const { userId, email, accessToken } = router.query
         const accessTokenAsString: string = accessToken as string
-        setAuth.updateUserInfo({
-          userId: Number(auth.getValue().user?.userId!),
-          email: auth.getValue().user?.email!,
-          accessToken: accessTokenAsString,
-        }).then(() => {
-          router.push('/home')
-        })
+        setAuth
+          .updateUserInfo({
+            userId: Number(auth.getValue().user?.userId!),
+            email: auth.getValue().user?.email!,
+            accessToken: accessTokenAsString,
+          })
+          .then(() => {
+            router.push('/dashboards')
+          })
       },
       onError: () => onError(),
     },

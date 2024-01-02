@@ -140,7 +140,7 @@ const AuthProvider = ({ children }: Props) => {
         removeRedirectPath()
         return
       } else if (router.pathname === '/') {
-        router.push(`/home`)
+        router.push(`/dashboards`)
       }
     }
   }, [auth, roles, permission])
