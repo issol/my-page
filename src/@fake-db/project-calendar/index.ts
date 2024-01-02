@@ -43,7 +43,9 @@ export function generateRandomCalendarData(
         sourceLanguage: 'en',
         targetLanguage: 'ko',
         status: status[j % status.length],
-        timezone: 'KST',
+        timezone: {
+          label: 'KST',
+        },
         projectName: title,
         orderDate: start.toISOString(),
         description: `${j}번째 이야기`,
