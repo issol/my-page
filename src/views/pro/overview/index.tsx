@@ -87,7 +87,7 @@ export const ProDetailOverviews = () => (
   </Suspense>
 )
 
-function ProDetailOverview() {
+const ProDetailOverview = () => {
   const router = useRouter()
   const { id } = router.query
   const [validUser, setValidUser] = useState(false)
@@ -560,13 +560,11 @@ function ProDetailOverview() {
     })
 
     setClickedEditComment(false)
-
     setSelectedComment(null)
   }
 
   const handleEditCancelComment = () => {
     setClickedEditComment(false)
-
     setSelectedComment(null)
   }
 
@@ -890,4 +888,4 @@ const DesignedCard = styled(Card)`
   }
 `
 
-export default ProDetailOverviews
+export default ProDetailOverview

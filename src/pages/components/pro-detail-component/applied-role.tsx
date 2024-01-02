@@ -16,7 +16,7 @@ import CustomPagination from 'src/pages/components/custom-pagination'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { AppliedRoleType } from 'src/types/onboarding/details'
 
-type Props = {
+interface AppliedRoleProps {
   userInfo: Array<AppliedRoleType>
   handleHideFailedTestChange: (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -56,7 +56,7 @@ const AppliedRole = ({
   onClickReason,
   type,
   totalCount,
-}: Props) => {
+}: AppliedRoleProps) => {
   const getStatusButton = (jobInfo: AppliedRoleType) => {
     const basicTest = jobInfo.test.find(value => value.testType === 'basic')
     const skillTest = jobInfo.test.find(value => value.testType === 'skill')
@@ -472,10 +472,7 @@ const AppliedRole = ({
             }}
             onClick={onClickAddRole}
           >
-            <img
-              src='/images/icons/onboarding-icons/add-role.svg'
-              alt='add'
-            ></img>
+            <img src='/images/icons/onboarding-icons/add-role.svg' alt='add' />
           </IconButton>
         </Box>
         {totalCount ? (
@@ -507,18 +504,24 @@ const AppliedRole = ({
         ) : null}
       </Typography>
       {userInfo && userInfo.length ? (
-        <Box sx={{ minHeight: 22 }}>
-          <Grid container spacing={6} xs={12}>
+        <Box sx={{ minHeight: 22, paddingLeft: '20px' }}>
+          <Grid container xs={12} spacing={5}>
             {userInfo && userInfo.length
               ? userInfo
                   .slice(offset, offset + rowsPerPage)
                   .map((value, index) => {
                     return (
-                      <Grid item lg={6} md={12} sm={12} xs={12} key={uuidv4()}>
+                      <Grid
+                        item
+                        lg={6}
+                        md={12}
+                        sm={12}
+                        xs={12}
+                        key={`${value.id}-${index}`}
+                      >
                         <Card
                           className='applied_card'
                           sx={{
-                            marginLeft: index % 2 === 0 ? '20px' : 0,
                             padding: '20px',
                             height: '100%',
                             cursor: 'pointer',
@@ -560,7 +563,6 @@ const AppliedRole = ({
                               sx={{
                                 display: 'flex',
                                 justifyContent: 'flex-start',
-
                                 padding: 0,
                                 gap: 2,
                               }}
@@ -676,7 +678,7 @@ const AppliedRole = ({
                               )}
                             </Typography>
 
-                            <Grid item display='flex' gap='16px' mt={'17px'}>
+                            <Grid item display='flex' gap={4} mt={4}>
                               {getStatusButton(value)}
                             </Grid>
                           </CardContent>
