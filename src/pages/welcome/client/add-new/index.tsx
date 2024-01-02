@@ -112,12 +112,12 @@ export default function NewClientProfileForm() {
           const emailAsString: string = email as string
           const accessTokenAsString: string = accessToken as string
           updateAuth
-          .updateUserInfo({
-            userId: userIdAsNumber,
-            email: emailAsString,
-            accessToken: accessTokenAsString,
-          })
-          .then(() => router.push('/home'))
+            .updateUserInfo({
+              userId: userIdAsNumber,
+              email: emailAsString,
+              accessToken: accessTokenAsString,
+            })
+            .then(() => router.push('/dashboards'))
         } else {
           //토큰 확인 안됨, 로그아웃 시켜서 재 로그인 유도
           openModal({
@@ -133,7 +133,6 @@ export default function NewClientProfileForm() {
               />
             ),
           })
-          
         }
       },
       onError: () => onError(),

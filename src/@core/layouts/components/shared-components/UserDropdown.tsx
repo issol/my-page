@@ -117,7 +117,7 @@ const UserDropdown = (props: Props) => {
 
       setCurrentRole(switchedRole!)
     }
-    router.push('/home')
+    router.push('/dashboards')
   }
 
   function hasTadAndLpm(role: UserRoleType[]): boolean {
