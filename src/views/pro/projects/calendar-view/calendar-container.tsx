@@ -12,10 +12,10 @@ import ProjectCalendar from './project-calendar'
 import CalendarSideBar from './sidebar'
 
 // ** Hooks
-import { useSettings } from 'src/@core/hooks/useSettings'
+import { useSettings } from '@src/@core/hooks/useSettings'
 
 // ** FullCalendar & App Components Imports
-import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
+import CalendarWrapper from '@src/@core/styles/libs/fullcalendar'
 
 import { Typography } from '@mui/material'
 import { useGetProjectCalendarData } from '@src/queries/pro/pro-project.query'

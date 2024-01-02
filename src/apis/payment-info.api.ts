@@ -187,7 +187,7 @@ export const deleteProPaymentFile = async (fileId: number): Promise<void> => {
 }
 
 export const updateProBillingAddressAndTax = async (
-  info: ClientAddressType & { 
+  info: ClientAddressType & {
     taxInfo: string,
     taxRate: number,
   },

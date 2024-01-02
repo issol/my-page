@@ -1,6 +1,6 @@
 import { Button, Card, CardHeader, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import { IconButton } from '@mui/material'
 import styled from 'styled-components'
 import {
@@ -57,7 +57,7 @@ export default function PersonalInfo({
                 width={115}
                 height={70}
               />
-              <Typography fontWeight={600}>
+              <Typography fontWeight={600} mt='10px'>
                 Personal (Social security) ID
               </Typography>
               <Box display='flex' alignItems='center'>
@@ -74,6 +74,7 @@ export default function PersonalInfo({
               </Box>
               {copyOfId && isAccountManager && (
                 <Button
+                  sx={{ marginTop: '10px' }}
                   variant='outlined'
                   onClick={() => downloadFile(copyOfId)}
                 >
@@ -92,6 +93,7 @@ export default function PersonalInfo({
               <Typography fontWeight={600}>W8/ W9/ Business license</Typography>
               {businessLicense && isAccountManager && (
                 <Button
+                  sx={{ marginTop: '10px' }}
                   variant='outlined'
                   onClick={() => downloadFile(businessLicense)}
                 >
@@ -102,8 +104,7 @@ export default function PersonalInfo({
           </>
         )
       case 'koreaDomesticTransfer':
-        //@ts-ignore
-        const isSolo = !info?.copyOfBankStatement
+        const isSolo = !('copyOfBankStatement' in info)
         const copyOfRrCard = files?.find(i => i.positionType === 'copyOfRrCard')
         if (isSolo) {
           const koreanSoloData = info as KoreaDomesticTransferSoloType
@@ -198,5 +199,5 @@ const CardBox = styled(BorderBox)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
 `

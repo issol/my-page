@@ -1,11 +1,11 @@
-import { Card, CardHeader, Grid, Typography } from '@mui/material'
+import { Card, CardHeader, Grid, IconButton, Typography } from '@mui/material'
 
 // ** context
 import { Suspense, useContext, useState } from 'react'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** Hooks
-import useClipboard from 'src/@core/hooks/useClipboard'
+import useClipboard from '@src/@core/hooks/useClipboard'
 
 import styled from 'styled-components'
 import { toast } from 'react-hot-toast'
@@ -41,13 +41,15 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { pro_payment } from '@src/shared/const/permission-class'
 import { useQueryClient } from 'react-query'
+import { Box } from '@mui/system'
+import Icon from '@src/@core/components/icon'
 
 type Props = {
   id: number
   userRole: string
 }
 
-export default function PaymentInfo({ id, userRole }: Props) {
+const PaymentInfo = ({ id, userRole }: Props) => {
   const ability = useContext(AbilityContext)
   const auth = useRecoilValueLoadable(authState)
 
@@ -78,19 +80,24 @@ export default function PaymentInfo({ id, userRole }: Props) {
     return value.replaceAll('*', '•')
   }
 
-  function downloadFile(file: FileItemType) {
+  const downloadFile = (file: FileItemType) => {
     if (!file?.id) return
+
     getProPaymentFile(file.id).then(res => {
       const url = window.URL.createObjectURL(res)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = file.fileName
-      document.body.appendChild(a)
-      a.click()
+      const anchorElement = document.createElement('a')
+
+      anchorElement.href = url
+      anchorElement.download = file.fileName
+
+      document.body.appendChild(anchorElement)
+      anchorElement.click()
+
       setTimeout((_: any) => {
         window.URL.revokeObjectURL(url)
       }, 60000)
-      a.remove()
+
+      anchorElement.remove()
     })
   }
 
@@ -99,7 +106,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
     files.forEach(file => downloadFile(file))
   }
 
-  function uploadFiles(files: File[]) {
+  const uploadFiles = (files: File[]) => {
     files.forEach(file => {
       const formData = new FormData()
       formData.append('file', file)
@@ -110,7 +117,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
     }, 1500)
   }
 
-  function onDeleteFile(file: FileItemType) {
+  const onDeleteFile = (file: FileItemType) => {
     if (file.id) {
       deleteProPaymentFile(file.id!)
         .then(() => invalidatePaymentInfo())
@@ -118,7 +125,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
     }
   }
 
-  function onError() {
+  const onError = () => {
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
     })
@@ -178,6 +185,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
               Billing address
             </Typography>
             <BillingAddressDetail
+              onCopy={onCopy}
               billingAddress={{
                 baseAddress: replaceDots(
                   data?.billingAddress?.baseAddress ?? '',
@@ -211,8 +219,43 @@ export default function PaymentInfo({ id, userRole }: Props) {
 }
 
 export const ContentGrid = styled.div`
-  margin-top: 12px;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
+  grid-template-columns: 134px 1fr;
+  align-items: center;
+  gap: 12px 16px;
+
+  & > div {
+    line-height: 24px;
+    height: 24px;
+  }
 `
+
+interface CopyTextRowProps {
+  title: string
+  value?: string
+  isCopyButton: boolean
+  onCopy: (info: string) => void
+}
+
+export const CopyTextRow = ({
+  title,
+  value,
+  isCopyButton,
+  onCopy,
+}: CopyTextRowProps) => {
+  return (
+    <>
+      <Typography fontWeight={600}>{title}</Typography>
+      <Box display='flex' alignItems='center'>
+        <Typography variant='body2'>{value ? value : '-'}</Typography>
+        {isCopyButton && (
+          <IconButton onClick={() => onCopy(value ?? '')}>
+            <Icon icon='mdi:content-copy' fontSize={20} />
+          </IconButton>
+        )}
+      </Box>
+    </>
+  )
+}
+
+export default PaymentInfo

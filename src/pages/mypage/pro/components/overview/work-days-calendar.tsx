@@ -1,17 +1,14 @@
-import { Dispatch, SetStateAction, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useRef } from 'react'
 import { DatesSetArg } from '@fullcalendar/common'
-import FullCalendar from '@fullcalendar/react'
+import FullCalendar, { CalendarOptions } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import { createPortal } from 'react-dom'
 
 import {
   CalendarEventType,
   OffDayEventType,
 } from '@src/types/common/calendar.type'
 import { addOneDay } from '@src/shared/helpers/date.helper'
-import { Card, Dialog, Tooltip } from '@mui/material'
-import styled from 'styled-components'
 import { calendarDefaultOptions } from '@src/shared/const/calender'
 
 /**
@@ -57,20 +54,21 @@ const WorkDaysCalendar = (props: Props) => {
   })
 
   // ** Refs
-  const calendarRef = useRef()
+  const calendarRef = useRef<FullCalendar>(null)
 
   const editBtn = document.getElementsByClassName('off-edit')
   const deleteBtn = document.getElementsByClassName('off-delete')
 
-  const calendarOptions = {
+  const calendarOptions: CalendarOptions = {
     ...calendarDefaultOptions,
-    events: finalEvent || [],
+    events: (finalEvent || []) as CalendarOptions['events'],
     plugins: [dayGridPlugin, interactionPlugin],
     headerToolbar: {
       start: 'sidebarToggle, prev, title, next',
+      center: '',
       end: '',
     },
-    ref: calendarRef,
+
     contentHeight: 315,
     eventClick(info: any) {
       let eventEl = info.el
@@ -177,7 +175,13 @@ const WorkDaysCalendar = (props: Props) => {
   }
 
   //@ts-ignore
-  return <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+  return (
+    <FullCalendar
+      ref={calendarRef}
+      {...calendarOptions}
+      datesSet={handleMonthChange}
+    />
+  )
 }
 
 export default WorkDaysCalendar

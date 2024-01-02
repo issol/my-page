@@ -18,11 +18,11 @@ import {
 } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // **values
-import { RoleList } from 'src/shared/const/role/roles'
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+import { RoleList } from '@src/shared/const/role/roles'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { ProStatus, WorkStatus } from '@src/shared/const/status/statuses'
 
 // ** types

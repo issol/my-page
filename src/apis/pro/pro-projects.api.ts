@@ -17,14 +17,16 @@ export type FilterType = {
 
 export type ProProjectType = {
   id: number
-  title: string
+  title?: string
   role: string
   client: string
   sourceLanguage: string
   targetLanguage: string
   dueDate: string
   status: string
-  timezone: string
+  timezone: {
+    label: string
+  }
   projectName: string
   orderDate: string
   deliveredDate?: string | null

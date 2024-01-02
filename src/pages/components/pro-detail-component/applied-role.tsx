@@ -38,7 +38,7 @@ type Props = {
   type: string
 }
 
-export default function AppliedRole({
+const AppliedRole = ({
   userInfo,
   handleHideFailedTestChange,
   hideFailedTest,
@@ -56,7 +56,7 @@ export default function AppliedRole({
   onClickReason,
   type,
   totalCount,
-}: Props) {
+}: Props) => {
   const getStatusButton = (jobInfo: AppliedRoleType) => {
     const basicTest = jobInfo.test.find(value => value.testType === 'basic')
     const skillTest = jobInfo.test.find(value => value.testType === 'skill')
@@ -442,7 +442,6 @@ export default function AppliedRole({
   return (
     <Card
       sx={{
-        padding: '20px',
         display: 'flex',
         flexDirection: 'column',
         gap: '24px',
@@ -455,6 +454,7 @@ export default function AppliedRole({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          padding: '20px 20px 0',
         }}
       >
         <Box
@@ -495,9 +495,7 @@ export default function AppliedRole({
                   fontWeight: 400,
                   fontSize: '14px',
                   lineHeight: '21px',
-
                   letterSpacing: '0.15px',
-
                   color: 'rgba(76, 78, 100, 0.6)',
                 }}
               >
@@ -512,175 +510,190 @@ export default function AppliedRole({
         <Box sx={{ minHeight: 22 }}>
           <Grid container spacing={6} xs={12}>
             {userInfo && userInfo.length
-              ? userInfo.slice(offset, offset + rowsPerPage).map(value => {
-                  return (
-                    <Grid item lg={6} md={12} sm={12} xs={12} key={uuidv4()}>
-                      <Card
-                        sx={{
-                          padding: '20px',
-                          height: '100%',
-                          flex: 1,
-                          cursor: 'pointer',
-
-                          border:
-                            selectedJobInfo && value.id === selectedJobInfo!.id
-                              ? '2px solid #666CFF'
-                              : '2px solid rgba(76, 78, 100, 0.12)',
-                        }}
-                        onClick={() => handleClickRoleCard(value)}
-                      >
-                        <Box
+              ? userInfo
+                  .slice(offset, offset + rowsPerPage)
+                  .map((value, index) => {
+                    return (
+                      <Grid item lg={6} md={12} sm={12} xs={12} key={uuidv4()}>
+                        <Card
+                          className='applied_card'
                           sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
+                            marginLeft: index % 2 === 0 ? '20px' : 0,
+                            padding: '20px',
+                            height: '100%',
+                            cursor: 'pointer',
+                            boxShadow:
+                              selectedJobInfo &&
+                              value.id === selectedJobInfo!.id
+                                ? 3
+                                : 0,
+                            border:
+                              selectedJobInfo &&
+                              value.id === selectedJobInfo!.id
+                                ? '2px solid #666CFF'
+                                : '2px solid rgba(76, 78, 100, 0.12)',
                           }}
+                          onClick={() => handleClickRoleCard(value)}
                         >
-                          <Box>
-                            <Typography
-                              variant='subtitle1'
-                              sx={{ fontWeight: 600, lineHeight: '24px' }}
-                            >
-                              {value.jobType}
-                            </Typography>
-                            <Typography
-                              variant='subtitle1'
-                              sx={{ fontWeight: 600 }}
-                            >
-                              {value.role}
-                            </Typography>
-                          </Box>
-
                           <Box
                             sx={{
                               display: 'flex',
-                              justifyContent: 'flex-start',
-
-                              padding: 0,
-                              gap: 2,
+                              justifyContent: 'space-between',
                             }}
                           >
-                            {!(
-                              (value.test.find(
-                                data => data.testType === 'basic',
-                              )?.status === 'NO_TEST' &&
+                            <Box>
+                              <Typography
+                                variant='subtitle1'
+                                sx={{ fontWeight: 600, lineHeight: '24px' }}
+                              >
+                                {value.jobType}
+                              </Typography>
+                              <Typography
+                                variant='subtitle1'
+                                sx={{ fontWeight: 600 }}
+                              >
+                                {value.role}
+                              </Typography>
+                            </Box>
+
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+
+                                padding: 0,
+                                gap: 2,
+                              }}
+                            >
+                              {!(
+                                (value.test.find(
+                                  data => data.testType === 'basic',
+                                )?.status === 'NO_TEST' &&
+                                  value.test.find(
+                                    data => data.testType === 'skill',
+                                  )?.status === 'NO_TEST') ||
+                                (value.test.find(
+                                  data => data.testType === 'basic',
+                                )?.status !== 'NO_TEST' &&
+                                  value.test.find(
+                                    data => data.testType === 'skill',
+                                  )?.status === 'NO_TEST')
+                              ) &&
+                              value.requestStatus !== 'Certified' &&
+                              value.requestStatus !== 'Awaiting assignment' &&
+                              value.requestStatus !== 'Paused' &&
+                              value.requestStatus !== 'Rejected' &&
+                              !(
+                                value.test.find(
+                                  data => data.testType === 'basic',
+                                )?.status === 'Basic failed' &&
                                 value.test.find(
                                   data => data.testType === 'skill',
-                                )?.status === 'NO_TEST') ||
-                              (value.test.find(
-                                data => data.testType === 'basic',
-                              )?.status !== 'NO_TEST' &&
-                                value.test.find(
-                                  data => data.testType === 'skill',
-                                )?.status === 'NO_TEST')
-                            ) &&
-                            value.requestStatus !== 'Certified' &&
-                            value.requestStatus !== 'Awaiting assignment' &&
-                            value.requestStatus !== 'Paused' &&
-                            value.requestStatus !== 'Rejected' &&
-                            !(
-                              value.test.find(data => data.testType === 'basic')
-                                ?.status === 'Basic failed' &&
+                                )?.status === 'Awaiting assignment'
+                              ) &&
                               value.test.find(data => data.testType === 'skill')
-                                ?.status === 'Awaiting assignment'
-                            ) &&
-                            value.test.find(data => data.testType === 'skill')
-                              ?.status !== 'Skill failed' &&
-                            value.test.find(data => data.testType === 'skill')
-                              ?.status !== 'Cancelled' ? (
-                              <Button
-                                variant='outlined'
-                                size='small'
-                                color='secondary'
-                                sx={{ height: '30px' }}
-                                onClick={() => {
-                                  onClickRejectOrPause(value, 'pause')
-                                }}
-                              >
-                                Pause
-                              </Button>
-                            ) : value.requestStatus === 'Paused' ? (
-                              <Button
-                                variant='outlined'
-                                size='small'
-                                color='primary'
-                                sx={{ height: '30px' }}
-                                onClick={() => {
-                                  onClickResumeTest(value)
-                                }}
-                              >
-                                Resume
-                              </Button>
-                            ) : null}
-                            {value.requestStatus === 'Rejected' ||
-                            value.requestStatus === 'Paused' ? (
-                              <Box
-                                sx={{
-                                  width: '20px',
-                                  height: '20px',
-                                }}
-                              >
-                                <IconButton
-                                  sx={{ padding: 0 }}
-                                  onClick={event => {
-                                    event.stopPropagation()
-                                    onClickReason(
-                                      value.requestStatus,
-                                      value.messageToUser!,
-                                      value.reason!,
-                                    )
+                                ?.status !== 'Skill failed' &&
+                              value.test.find(data => data.testType === 'skill')
+                                ?.status !== 'Cancelled' ? (
+                                <Button
+                                  variant='outlined'
+                                  size='small'
+                                  color='secondary'
+                                  sx={{ height: '30px' }}
+                                  onClick={() => {
+                                    onClickRejectOrPause(value, 'pause')
                                   }}
                                 >
-                                  <img
-                                    src='/images/icons/onboarding-icons/more-reason.svg'
-                                    alt='more'
-                                  ></img>
-                                </IconButton>
-                              </Box>
-                            ) : null}
+                                  Pause
+                                </Button>
+                              ) : value.requestStatus === 'Paused' ? (
+                                <Button
+                                  variant='outlined'
+                                  size='small'
+                                  color='primary'
+                                  sx={{ height: '30px' }}
+                                  onClick={() => {
+                                    onClickResumeTest(value)
+                                  }}
+                                >
+                                  Resume
+                                </Button>
+                              ) : null}
+                              {value.requestStatus === 'Rejected' ||
+                              value.requestStatus === 'Paused' ? (
+                                <Box
+                                  sx={{
+                                    width: '20px',
+                                    height: '20px',
+                                  }}
+                                >
+                                  <IconButton
+                                    sx={{ padding: 0 }}
+                                    onClick={event => {
+                                      event.stopPropagation()
+                                      onClickReason(
+                                        value.requestStatus,
+                                        value.messageToUser!,
+                                        value.reason!,
+                                      )
+                                    }}
+                                  >
+                                    <img
+                                      src='/images/icons/onboarding-icons/more-reason.svg'
+                                      alt='more'
+                                    ></img>
+                                  </IconButton>
+                                </Box>
+                              ) : null}
+                            </Box>
                           </Box>
-                        </Box>
-                        <CardContent
-                          sx={{
-                            padding: 0,
-                            paddingTop: '10px',
-                            paddingBottom: '0 !important',
-                          }}
-                        >
-                          <Typography
-                            variant='subtitle2'
+                          <CardContent
                             sx={{
-                              fontWeight: 600,
-                              minHeight: '20px',
-
-                              lineHeight: '20px',
-
-                              letterSpacing: ' 0.15px',
+                              padding: 0,
+                              paddingTop: '10px',
+                              paddingBottom: '0 !important',
                             }}
                           >
-                            {value.source &&
-                            value.target &&
-                            value.source !== '' &&
-                            value.target !== '' ? (
-                              <>
-                                {value.source.toUpperCase()} &rarr;{' '}
-                                {value.target.toUpperCase()}
-                              </>
-                            ) : (
-                              ''
-                            )}
-                          </Typography>
+                            <Typography
+                              variant='subtitle2'
+                              sx={{
+                                fontWeight: 600,
+                                minHeight: '20px',
+                                lineHeight: '20px',
+                                letterSpacing: ' 0.15px',
+                              }}
+                            >
+                              {value.source &&
+                              value.target &&
+                              value.source !== '' &&
+                              value.target !== '' ? (
+                                <>
+                                  {value.source.toUpperCase()} &rarr;{' '}
+                                  {value.target.toUpperCase()}
+                                </>
+                              ) : (
+                                ''
+                              )}
+                            </Typography>
 
-                          <Grid item display='flex' gap='16px' mt={'17px'}>
-                            {getStatusButton(value)}
-                          </Grid>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  )
-                })
+                            <Grid item display='flex' gap='16px' mt={'17px'}>
+                              {getStatusButton(value)}
+                            </Grid>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    )
+                  })
               : null}
             {userInfo && userInfo.length ? (
-              <Grid item xs={12}>
+              <Grid
+                item
+                xs={12}
+                sx={{
+                  padding: '0 !important',
+                  marginBottom: '10px',
+                }}
+              >
                 <CustomPagination
                   listCount={userInfo.length}
                   page={page}
@@ -695,3 +708,5 @@ export default function AppliedRole({
     </Card>
   )
 }
+
+export default AppliedRole

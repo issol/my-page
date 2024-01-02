@@ -14,26 +14,23 @@ import styled from 'styled-components'
 import toast from 'react-hot-toast'
 
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
-
-import _ from 'lodash'
 import {
-  AddRoleType,
-  SelectedJobInfoType,
-  CommentsOnProType,
   AddRolePayloadType,
-} from 'src/types/onboarding/list'
+  AddRoleType,
+  CommentsOnProType,
+} from '@src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 
-import { ModalContext } from 'src/context/ModalContext'
+import { ModalContext } from '@src/context/ModalContext'
 
-import { RoleType } from 'src/context/types'
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+import { RoleType } from '@src/context/types'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 
-import FallbackSpinner from 'src/@core/components/spinner'
-import Icon from 'src/@core/components/icon'
+import FallbackSpinner from '@src/@core/components/spinner'
+import Icon from '@src/@core/components/icon'
 import IconButton from '@mui/material/IconButton'
 
-import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
+import { AppliedRoleType, TestType } from '@src/types/onboarding/details'
 import {
   addCommentOnPro,
   addCreateProAppliedRole,
@@ -42,7 +39,7 @@ import {
   editCommentOnPro,
   patchAppliedRole,
   patchTestStatus,
-} from 'src/apis/onboarding.api'
+} from '@src/apis/onboarding.api'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
@@ -78,7 +75,7 @@ import {
   useGetProWorkDays,
 } from '@src/queries/pro/pro-details.query'
 import { changeProStatus } from '@src/apis/pro/pro-details.api'
-import { getDownloadUrlforCommon } from 'src/apis/common.api'
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import AvailableCalendarWrapper from '@src/@core/styles/libs/available-calendar'
 import WorkDaysCalendar from '@src/pages/mypage/pro/components/overview/work-days-calendar'
 import TimelineDot from '@src/@core/components/mui/timeline-dot'
