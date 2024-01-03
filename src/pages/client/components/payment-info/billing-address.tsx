@@ -1,12 +1,14 @@
 import { Box, Grid, Typography } from '@mui/material'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import styled from 'styled-components'
+import { ContentGrid, CopyTextRow } from '@src/views/pro/payment-info'
 
-type Props = {
+interface BillingAddressProps {
+  onCopy?: (info: string) => void
   billingAddress: ClientAddressType | undefined
 }
-export default function BillingAddress({ billingAddress }: Props) {
-  function renderInfo(label: string, value: string | null | undefined) {
+const BillingAddress = ({ billingAddress, onCopy }: BillingAddressProps) => {
+  const renderInfo = (label: string, value: string | null | undefined) => {
     return (
       <LabelContainer>
         <Typography fontWeight={600}>{label}</Typography>
@@ -17,23 +19,49 @@ export default function BillingAddress({ billingAddress }: Props) {
 
   return (
     <Grid container spacing={6}>
-      <Grid item xs={6}>
-        {renderInfo('Street 1', billingAddress?.baseAddress)}
+      <Grid item xs={6} pl={6}>
+        <ContentGrid>
+          <CopyTextRow
+            title='Street 1'
+            value={billingAddress?.baseAddress ?? ''}
+            isCopyButton={!billingAddress?.baseAddress || false}
+            onCopy={() => onCopy && onCopy(billingAddress?.baseAddress ?? '')}
+          />
+          <CopyTextRow
+            title='City'
+            value={billingAddress?.city ?? ''}
+            isCopyButton={!billingAddress?.city || false}
+            onCopy={() => onCopy && onCopy(billingAddress?.city ?? '')}
+          />
+          <CopyTextRow
+            title='Country'
+            value={billingAddress?.country ?? ''}
+            isCopyButton={!billingAddress?.country || false}
+            onCopy={() => onCopy && onCopy(billingAddress?.country ?? '')}
+          />
+        </ContentGrid>
       </Grid>
-      <Grid item xs={6}>
-        {renderInfo('Street 2', billingAddress?.detailAddress)}
-      </Grid>
-      <Grid item xs={6}>
-        {renderInfo('City', billingAddress?.city)}
-      </Grid>
-      <Grid item xs={6}>
-        {renderInfo('State', billingAddress?.state)}
-      </Grid>
-      <Grid item xs={6}>
-        {renderInfo('Country', billingAddress?.country)}
-      </Grid>
-      <Grid item xs={6}>
-        {renderInfo('Zip code', billingAddress?.zipCode)}
+      <Grid item xs={6} pl={6}>
+        <ContentGrid>
+          <CopyTextRow
+            title='Street 2'
+            value={billingAddress?.detailAddress ?? ''}
+            isCopyButton={!billingAddress?.detailAddress || false}
+            onCopy={() => onCopy && onCopy(billingAddress?.detailAddress ?? '')}
+          />
+          <CopyTextRow
+            title='State'
+            value={billingAddress?.state ?? ''}
+            isCopyButton={!billingAddress?.state || false}
+            onCopy={() => onCopy && onCopy(billingAddress?.state ?? '')}
+          />
+          <CopyTextRow
+            title='Zip code'
+            value={billingAddress?.zipCode ?? ''}
+            isCopyButton={!billingAddress?.zipCode || false}
+            onCopy={() => onCopy && onCopy(billingAddress?.zipCode ?? '')}
+          />
+        </ContentGrid>
       </Grid>
     </Grid>
   )
@@ -44,3 +72,5 @@ const LabelContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
 `
+
+export default BillingAddress

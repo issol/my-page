@@ -13,32 +13,20 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
 import { AddRoleType } from 'src/types/onboarding/list'
-import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
-import languageHelper from 'src/shared/helpers/language.helper'
-type Props = {
+
+export interface ProStatusChangeModalProps {
   open: boolean
   onClose: any
-  basicTest: TestType
-  skillTest: TestType
-  type: string
-  id: number
-
-  handleActionBasicTest: (
-    id: number,
-    type: string,
-    skillTestId?: number,
-    skillTestStatus?: string,
-  ) => void
+  status: string
+  handleChangeProStatus: (status: string) => void
 }
-export default function BasicTestActionModal({
+
+const ProStatusChangeModal = ({
   open,
   onClose,
-  basicTest,
-  skillTest,
-  id,
-  type,
-  handleActionBasicTest,
-}: Props) {
+  status,
+  handleChangeProStatus,
+}: ProStatusChangeModalProps) => {
   return (
     <Dialog
       open={open}
@@ -63,9 +51,7 @@ export default function BasicTestActionModal({
           }}
         >
           <Image
-            src={`/images/icons/alert/${
-              type === 'Basic failed' ? 'alert-error-color' : 'alert-success'
-            }.svg`}
+            src='/images/icons/alert/alert-error-color.svg'
             width={68}
             height={68}
             alt=''
@@ -80,37 +66,12 @@ export default function BasicTestActionModal({
               fontWeight: 400,
               fontSize: '16px',
               lineHeight: '24px',
-
               textAlign: 'center',
               letterSpacing: '0.15px',
-
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure{' '}
-            {type === 'Skipped'
-              ? 'you want to skip'
-              : type === 'Basic test Ready'
-              ? 'you want to proceed'
-              : type === 'Basic failed'
-              ? 'you want to fail'
-              : type === 'Basic passed'
-              ? 'to proceed'
-              : null}
-            &nbsp;this basic test?
-          </Typography>
-          <Typography
-            variant='body2'
-            sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'center' }}
-          >
-            {basicTest.targetLanguage && basicTest.targetLanguage !== '' ? (
-              <>
-                {basicTest.targetLanguage.toUpperCase()}&nbsp;
-                {`(${languageHelper(basicTest.targetLanguage)})`}
-              </>
-            ) : (
-              ''
-            )}
+            Are you sure to change this Pro’s status as <b>[{status}]</b>?
           </Typography>
         </DialogContentText>
         <Box
@@ -136,32 +97,16 @@ export default function BasicTestActionModal({
             variant='contained'
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
+              handleChangeProStatus(status)
               onClose()
-              if (type === 'Skipped' || type === 'Basic passed') {
-                handleActionBasicTest(
-                  basicTest.testId,
-                  type,
-                  skillTest.testId,
-                  'Skill in progress',
-                )
-              } else {
-                // handleActionBasicTest(basicTest.testId, type)
-                handleActionBasicTest(id, type)
-              }
             }}
           >
-            {type === 'Skipped'
-              ? 'Skip'
-              : type === 'Basic test Ready'
-              ? 'Proceed'
-              : type === 'Basic failed'
-              ? 'Fail'
-              : type === 'Basic passed'
-              ? 'Pass'
-              : null}
+            Save
           </Button>
         </Box>
       </DialogContent>
     </Dialog>
   )
 }
+
+export default ProStatusChangeModal

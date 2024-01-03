@@ -19,10 +19,10 @@ import { useRouter } from 'next/router'
 // ** types
 import { useGetOnboardingProDetails } from '@src/queries/onboarding/onboarding-query'
 import Overview from '@src/@core/components/card-statistics/card-overview'
-import ProDetailOverviews from '../components/overview'
+import ProDetailOverviews from '../../../views/pro/overview'
 
-import ProjectsDetail from '../components/projects'
-import PaymentInfo from '../components/payment-info'
+import ProjectsDetail from '../../../views/pro/projects'
+import PaymentInfo from '../../../views/pro/payment-info'
 import UserInfoCard from '@src/@core/components/userInfo'
 import logger from '@src/@core/utils/logger'
 import { useGetProOverview } from '@src/queries/pro/pro-details.query'
@@ -30,10 +30,10 @@ import FallbackSpinner from '@src/@core/components/spinner'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useAppSelector } from '@src/hooks/useRedux'
-import ProInvoices from '../components/invoices'
+import ProInvoices from '../../../views/pro/invoices'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
-export default function ProDetail() {
+const ProDetail = () => {
   const router = useRouter()
 
   const { id } = router.query
@@ -62,6 +62,7 @@ export default function ProDetail() {
             icon={<Icon icon='iconoir:large-suitcase' />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
+
           {currentRole && currentRole.name === 'LPM' && (
             <CustomTap
               value='invoices'
@@ -79,6 +80,7 @@ export default function ProDetail() {
             icon={<Icon icon='material-symbols:person-outline' />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
+
           <CustomTap
             value='paymentInfo'
             label='Payment info'
@@ -87,6 +89,7 @@ export default function ProDetail() {
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
         </TabList>
+
         <TabPanel value='projects'>
           {id && <ProjectsDetail id={Number(id)} />}
         </TabPanel>
@@ -117,5 +120,7 @@ ProDetail.acl = {
 
 const CustomTap = styled(Tab)`
   text-transform: none;
-  padding: 0px 27px;
+  padding: 0 27px;
 `
+
+export default ProDetail

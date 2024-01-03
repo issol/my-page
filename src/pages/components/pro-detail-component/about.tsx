@@ -46,13 +46,9 @@ type Props = {
   status?: string
 }
 
-export default function About({
-  userInfo,
-  type,
-  handleChangeStatus,
-  status,
-}: Props) {
+const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
   const currentRole = getCurrentRole()
+
   if (!userInfo) {
     return null
   }
@@ -196,3 +192,5 @@ const Label = styled.label`
 
   color: rgba(76, 78, 100, 0.6);
 `
+
+export default About

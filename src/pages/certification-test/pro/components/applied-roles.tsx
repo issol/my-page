@@ -254,8 +254,6 @@ const ProAppliedRoles = ({
             </>
           }
           onClick={() => {
-            //TODO : API call (applied roles query invalidate)
-
             patchTestStatusMutation.mutate(
               {
                 id: row.id,

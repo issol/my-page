@@ -396,7 +396,7 @@ const Row = ({
       const rounding = priceData?.roundingProcedure
       const numberPlace = priceData?.decimalPlace
 
-      setValue(`items.${idx}.totalPrice`, 0, setValueOptions)
+      setValue(`items.${idx}.totalPrice`, minimumPrice ?? 0, setValueOptions)
       setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0, setValueOptions)
       setValue(`items.${idx}.priceFactor`, priceFactor ?? 0, setValueOptions)
       setValue(`items.${idx}.initialPrice.currency`, currency!, setValueOptions)

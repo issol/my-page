@@ -330,10 +330,10 @@ export const permissionSelector = selector<PermissionObjectType>({
             subject: 'pro',
             can: 'delete',
           },
-          // {
-          //   subject: 'account_manage',
-          //   can: 'read',
-          // },
+          {
+            subject: 'account_manage',
+            can: 'read',
+          },
           {
             subject: 'account_manage',
             can: 'update',

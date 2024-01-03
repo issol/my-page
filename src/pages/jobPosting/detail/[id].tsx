@@ -261,7 +261,7 @@ const JobPostingDetail = () => {
                 <Box display='flex' justifyContent='space-between' mb='26px'>
                   <Box display='flex' gap='10px'>
                     <CustomChip
-                      label={data?.id}
+                      label={data?.corporationId}
                       skin='light'
                       color='primary'
                       size='small'
@@ -332,7 +332,7 @@ const JobPostingDetail = () => {
                         data?.dueDate,
                         auth.getValue().user?.timezone!,
                         timezone.getValue(),
-                      )
+                      ),
                     )}
                     {renderTable('Job post link', data?.jobPostLink)}
                   </Grid>

@@ -14,26 +14,23 @@ import styled from 'styled-components'
 import toast from 'react-hot-toast'
 
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
-
-import _ from 'lodash'
 import {
-  AddRoleType,
-  SelectedJobInfoType,
-  CommentsOnProType,
   AddRolePayloadType,
-} from 'src/types/onboarding/list'
+  AddRoleType,
+  CommentsOnProType,
+} from '@src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 
-import { ModalContext } from 'src/context/ModalContext'
+import { ModalContext } from '@src/context/ModalContext'
 
-import { RoleType } from 'src/context/types'
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+import { RoleType } from '@src/context/types'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 
-import FallbackSpinner from 'src/@core/components/spinner'
-import Icon from 'src/@core/components/icon'
+import FallbackSpinner from '@src/@core/components/spinner'
+import Icon from '@src/@core/components/icon'
 import IconButton from '@mui/material/IconButton'
 
-import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
+import { AppliedRoleType, TestType } from '@src/types/onboarding/details'
 import {
   addCommentOnPro,
   addCreateProAppliedRole,
@@ -42,8 +39,8 @@ import {
   editCommentOnPro,
   patchAppliedRole,
   patchTestStatus,
-} from 'src/apis/onboarding.api'
-import { useRecoilValueLoadable } from 'recoil'
+} from '@src/apis/onboarding.api'
+import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
 import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certify-role-modal'
@@ -78,11 +75,14 @@ import {
   useGetProWorkDays,
 } from '@src/queries/pro/pro-details.query'
 import { changeProStatus } from '@src/apis/pro/pro-details.api'
-import { getDownloadUrlforCommon } from 'src/apis/common.api'
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import AvailableCalendarWrapper from '@src/@core/styles/libs/available-calendar'
 import WorkDaysCalendar from '@src/pages/mypage/pro/components/overview/work-days-calendar'
 import TimelineDot from '@src/@core/components/mui/timeline-dot'
 import useModal from '@src/hooks/useModal'
+import { currentRoleSelector } from '@src/states/permission'
+import ProStatusChangeModal from '@src/pages/components/pro-detail-modal/modal/proStatusChangeModal'
+import ProActiveStatusChangeModal from '@src/pages/components/pro-detail-modal/modal/proActiveStatusChangeModal'
 
 export const ProDetailOverviews = () => (
   <Suspense fallback={<FallbackSpinner />}>
@@ -90,23 +90,24 @@ export const ProDetailOverviews = () => (
   </Suspense>
 )
 
-function ProDetailOverview() {
+const ProDetailOverview = () => {
   const router = useRouter()
+  const auth = useRecoilValueLoadable(authState)
+  const [currentRole, setCurrentRole] =
+    useRecoilStateLoadable(currentRoleSelector)
+
   const { id } = router.query
   const [validUser, setValidUser] = useState(false)
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
 
-  const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
+  const [hideFailedTest, setHideFailedTest] = useState(false)
+  const [seeOnlyCertRoles, setSeeOnlyCertRoles] = useState(false)
 
+  const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
   const { data: offDays } = useGetProWorkDays(Number(id!), year, month)
 
   const userId = isFetched && !isError ? userInfo!.userId : undefined
-  // const { data: appliedRole } = useGetAppliedRole(userId!)
-
-  const auth = useRecoilValueLoadable(authState)
-
-  const [hideFailedTest, setHideFailedTest] = useState(false)
 
   const [appliedRoleList, setAppliedRoleList] = useState<
     AppliedRoleType[] | null
@@ -125,21 +126,14 @@ function ProDetailOverview() {
   const [commentsProRowsPerPage, setCommentProRowsPerPage] = useState(3)
   const commentsProOffset = commentsProPage * commentsProRowsPerPage
 
-  const [appliedRoleModalOpen, setAppliedRoleModalOpen] = useState(false)
-
-  const [assignTestModalOpen, setAssignTestModalOpen] = useState(false)
-  const [cancelTestModalOpen, setCancelTestModalOpen] = useState(false)
-  const [assignRoleModalOpen, setAssignRoleModalOpen] = useState(false)
-  const [cancelRoleModalOpen, setCancelRoleModalOpen] = useState(false)
-
   const [clickedEditComment, setClickedEditComment] = useState(false)
   const [selectedComment, setSelectedComment] =
     useState<CommentsOnProType | null>(null)
   const [comment, setComment] = useState<string>('')
   const [addComment, setAddComment] = useState<string>('')
   const [clickedAddComment, setClickedAddComment] = useState(false)
-
   const [status, setStatus] = useState(userInfo?.status)
+
   const ability = useContext(AbilityContext)
   const languageList = getGloLanguage()
 
@@ -262,7 +256,52 @@ function ProDetailOverview() {
     },
   )
 
+  const handleChangeProStatus = (status: string) => {
+    setStatus(status)
+    changeProStatusMutation.mutate({
+      userId: Number(id!),
+      status: status,
+    })
+  }
+
+  const handleChangeActiveStatus = (status: string) => {
+    setStatus(status)
+    changeProStatusMutation.mutate({
+      userId: Number(id!),
+      status: status,
+    })
+  }
+
   const handleChangeStatus = (event: SelectChangeEvent) => {
+    const tad = ['Off-board', 'On-hold Do not assign', 'Do not Contact']
+    const proActive = ['Onboard', 'Netflix Onboard']
+
+    const curStatus = event.target.value
+
+    if (currentRole.contents.name === 'TAD' && tad.includes(curStatus)) {
+      setModal(
+        <ProStatusChangeModal
+          open={true}
+          onClose={() => setModal(null)}
+          status={curStatus || ''}
+          handleChangeProStatus={handleChangeProStatus}
+        />,
+      )
+      return
+    }
+
+    if (proActive.includes(curStatus)) {
+      setModal(
+        <ProActiveStatusChangeModal
+          open={true}
+          onClose={() => setModal(null)}
+          status={curStatus || ''}
+          handleChangeProStatus={handleChangeActiveStatus}
+        />,
+      )
+      return
+    }
+
     setStatus(event.target.value as string)
     changeProStatusMutation.mutate({
       userId: Number(id!),
@@ -284,8 +323,6 @@ function ProDetailOverview() {
   }
 
   const handleChangeCommentsProPage = (direction: string) => {
-    // window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-
     const changedPage =
       direction === 'prev'
         ? Math.max(commentsProPage - 1, 0)
@@ -296,37 +333,95 @@ function ProDetailOverview() {
     setCommentsProPage(changedPage)
   }
 
-  function getProfileImg(role: RoleType) {
-    return `/images/signup/role-${role.toLowerCase()}.png`
-  }
-
   const handleHideFailedTestChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setHideFailedTest(event.target.checked)
+    let prevState = userInfo!.appliedRoles!
 
-    if (appliedRoleList) {
-      if (event.target.checked) {
-        let prevState = appliedRoleList
-
-        const res = prevState.filter(
-          (value: AppliedRoleType) =>
-            !(
-              value.testStatus === 'Skill failed' ||
-              value.testStatus === 'Basic failed' ||
-              value.requestStatus === 'Rejected' ||
-              value.requestStatus === 'Paused'
-            ),
-        )
-
-        prevState = res
-        setAppliedRoleList(prevState)
-      } else {
-        let prevState = userInfo!.appliedRoles!
-
-        setAppliedRoleList(prevState)
-      }
+    if (seeOnlyCertRoles) {
+      prevState = prevState?.filter(item => item.requestStatus === 'Certified')
     }
+
+    if (event.target.checked) {
+      prevState = prevState.filter((value: AppliedRoleType) => {
+        const basicTest = value.test.find(value => value.testType === 'basic')
+        const skillTest = value.test.find(value => value.testType === 'skill')
+
+        const includesJobTypeAndRoles =
+          value.role === 'DTPer' ||
+          value.role === 'DTP QCer' ||
+          value.jobType === 'Interpretation'
+
+        const isNoTestStatus =
+          basicTest &&
+          skillTest &&
+          ((basicTest!.status === 'NO_TEST' &&
+            skillTest!.status === 'NO_TEST') ||
+            (basicTest!.status !== 'NO_TEST' &&
+              skillTest!.status === 'NO_TEST'))
+
+        return !(
+          value.testStatus === 'Skill failed' ||
+          value.testStatus === 'Basic failed' ||
+          value.requestStatus === 'Rejected' ||
+          value.requestStatus === 'Paused' ||
+          includesJobTypeAndRoles ||
+          isNoTestStatus
+        )
+      })
+
+      setAppliedRoleList(prevState)
+    } else {
+      setAppliedRoleList([...prevState])
+    }
+  }
+
+  const handleOnlyCertRolesChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setSeeOnlyCertRoles(event.target.checked)
+
+    let prevState = userInfo!.appliedRoles!
+
+    if (hideFailedTest) {
+      prevState = prevState.filter((value: AppliedRoleType) => {
+        const basicTest = value.test.find(value => value.testType === 'basic')
+        const skillTest = value.test.find(value => value.testType === 'skill')
+
+        const includesJobTypeAndRoles =
+          value.role === 'DTPer' ||
+          value.role === 'DTP QCer' ||
+          value.jobType === 'Interpretation'
+
+        const isNoTestStatus =
+          basicTest &&
+          skillTest &&
+          ((basicTest!.status === 'NO_TEST' &&
+            skillTest!.status === 'NO_TEST') ||
+            (basicTest!.status !== 'NO_TEST' &&
+              skillTest!.status === 'NO_TEST'))
+
+        return !(
+          value.testStatus === 'Skill failed' ||
+          value.testStatus === 'Basic failed' ||
+          value.requestStatus === 'Rejected' ||
+          value.requestStatus === 'Paused' ||
+          includesJobTypeAndRoles ||
+          isNoTestStatus
+        )
+      })
+    }
+
+    if (!event.target.checked) {
+      setAppliedRoleList(prevState)
+      return
+    }
+
+    const filterList = prevState?.filter(
+      item => item.requestStatus === 'Certified',
+    )
+    setAppliedRoleList(filterList || [])
   }
 
   const handleClickRoleCard = (jobInfo: AppliedRoleType) => {
@@ -469,6 +564,7 @@ function ProDetailOverview() {
         basicTest={basicTest}
         type={type}
         handleActionBasicTest={handleActionBasicTest}
+        id={id}
       />,
     )
   }
@@ -488,6 +584,7 @@ function ProDetailOverview() {
         basicTest={basicTest}
         type={type}
         handleActionSkillTest={handleActionSkillTest}
+        id={id}
       />,
     )
   }
@@ -561,13 +658,11 @@ function ProDetailOverview() {
     })
 
     setClickedEditComment(false)
-
     setSelectedComment(null)
   }
 
   const handleEditCancelComment = () => {
     setClickedEditComment(false)
-
     setSelectedComment(null)
   }
 
@@ -688,6 +783,7 @@ function ProDetailOverview() {
       {isFetched && !isError ? (
         <>
           <Grid
+            container
             item
             xs={3.6}
             gap='24px'
@@ -766,7 +862,6 @@ function ProDetailOverview() {
                   </Box>
                 </Card>
               </AvailableCalendarWrapper>
-              {/* <CertifiedRole userInfo={certifiedRole!} /> */}
             </Grid>
             <Grid item xs={12}>
               <NoteFromPro userInfo={userInfo!} />
@@ -797,6 +892,8 @@ function ProDetailOverview() {
                     userInfo={appliedRoleList! ?? []}
                     hideFailedTest={hideFailedTest}
                     handleHideFailedTestChange={handleHideFailedTestChange}
+                    handleOnlyCertRolesChange={handleOnlyCertRolesChange}
+                    seeOnlyCertRoles={seeOnlyCertRoles}
                     selectedJobInfo={selectedJobInfo}
                     handleClickRoleCard={handleClickRoleCard}
                     page={rolePage}
@@ -810,6 +907,7 @@ function ProDetailOverview() {
                     onClickReason={onClickReason}
                     onClickResumeTest={onClickResumeTest}
                     type='pro'
+                    status={status}
                   />
                 </Suspense>
               </Grid>
@@ -891,4 +989,4 @@ const DesignedCard = styled(Card)`
   }
 `
 
-export default ProDetailOverviews
+export default ProDetailOverview

@@ -6,6 +6,7 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 export type StatusType = 'Ongoing' | 'Paused' | 'Fulfilled' | 'Not started' | ''
 export type JobPostingDataType = {
   id: number
+  corporationId: string
   status: StatusType
   jobType: string
   role: string
@@ -15,8 +16,8 @@ export type JobPostingDataType = {
   yearsOfExperience: string
   writer: string
   email: string
-  dueDate: string
-  dueDateTimezone: CountryType
+  dueAt: string
+  deadlineTimezone: CountryType
   jobPostLink: string
   view: number
   editorName: string
@@ -46,6 +47,7 @@ export const getJobPostingList = async (
 
 export type JobPostingDetailType = {
   id: number
+  corporationId: string
   userId: number
   status: StatusType
   writer: string

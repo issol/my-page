@@ -176,8 +176,6 @@ const Row = ({
         })
       }
   }, [orderItems])
-  console.log("details",details)
-  console.log("getItem",getItem())
   // useUnitPriceOverrideInPrice가 true일 경우, 
   // 선택된(또는 변경된) selectedPrice 값에 포함된 priceUnit과 현재 form의 priceUnit을 비교하여 
   // unitPrice 값을 override 한다.

@@ -167,7 +167,7 @@ const EditPrices = ({
         return matchingPairs.length > 0
       })
       .map(item => ({
-        groupName: item.isStandard ? 'Standard client price' : 'Matching price',
+        groupName: item.isStandard ? 'Standard pro price' : 'Matching price',
         ...item,
       }))
 

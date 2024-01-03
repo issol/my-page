@@ -37,7 +37,7 @@ type Props = {
   isReadable?: boolean
 }
 
-export default function FileInfo({
+const FileInfo = ({
   title,
   fileList,
   accept,
@@ -50,7 +50,7 @@ export default function FileInfo({
   isUpdatable,
   isDeletable,
   isReadable = true,
-}: Props) {
+}: Props) => {
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = maximumFileSize
   const fileSize = useMemo(
@@ -58,7 +58,7 @@ export default function FileInfo({
     [fileList],
   )
 
-  function onReject() {
+  const onReject = () => {
     openModal({
       type: 'dropReject',
       children: (
@@ -89,7 +89,7 @@ export default function FileInfo({
   })
 
   const onFileClickForPreview = (file: FileItemType) => {
-    console.log("file",file)
+    console.log('file', file)
     if (fileType) {
       getDownloadUrlforCommon(fileType, file.filePath).then(res => {
         file.url = res.url
@@ -177,3 +177,5 @@ export default function FileInfo({
     </Grid>
   )
 }
+
+export default FileInfo

@@ -8,12 +8,10 @@ import styled from 'styled-components'
 import toast from 'react-hot-toast'
 
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
-
-import _ from 'lodash'
 import {
+  AddRolePayloadType,
   AddRoleType,
   CommentsOnProType,
-  AddRolePayloadType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 
@@ -355,6 +353,8 @@ function OnboardingDetail() {
     skillTestId?: number,
     skillTestStatus?: string,
   ) => {
+    console.log(id)
+
     patchTestStatusMutation.mutate(
       {
         id: id,
@@ -459,6 +459,7 @@ function OnboardingDetail() {
         basicTest={basicTest}
         type={type}
         handleActionBasicTest={handleActionBasicTest}
+        id={id}
       />,
     )
   }
@@ -512,6 +513,7 @@ function OnboardingDetail() {
         basicTest={basicTest}
         type={type}
         handleActionSkillTest={handleActionSkillTest}
+        id={id}
       />,
     )
   }

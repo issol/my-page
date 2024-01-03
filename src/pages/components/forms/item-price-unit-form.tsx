@@ -235,9 +235,7 @@ export default function ItemPriceUnitForm({
     }
     return prices
   }
-  const [totalPrice, setTotalPrice] = useState(
-    getValues(`items.${index}.totalPrice`),
-  )
+
   const [isNotApplicable, setIsNotApplicable] = useState(
     getValues(`items.${index}.priceId`) === NOT_APPLICABLE ? true : false,
   )
@@ -252,8 +250,9 @@ export default function ItemPriceUnitForm({
   const updateTotalPrice = () => {
     checkPriceId()
     getTotalPrice()
-    const newTotalPrice = getValues(`items.${index}.totalPrice`)
-    setTotalPrice(newTotalPrice)
+    // const newTotalPrice = getValues(`items.${index}.totalPrice`)
+    // setTotalPrice(newTotalPrice)
+
     // sumTotalPrice()
   }
 
@@ -315,7 +314,8 @@ export default function ItemPriceUnitForm({
     const onClickDeletePriceUnit = (idx: number) => {
       if (
         options.find(item => item.id === idx) ||
-        (idx !== -1 && getValues().items[0].detail?.find(item => item.priceUnitId === idx))
+        (idx !== -1 &&
+          getValues().items[0].detail?.find(item => item.priceUnitId === idx))
       ) {
         openModal({
           type: 'DeletePriceUnitModal',
@@ -450,22 +450,27 @@ export default function ItemPriceUnitForm({
                   ...getValues(`${detailName}.${idx}`),
                   isBase: false,
                   price: 0,
-                  title: getValues(`${detailName}.${idx}`).title 
+                  title: getValues(`${detailName}.${idx}`).title
                     ? getValues(`${detailName}.${idx}`).title!
                     : getValues(`${detailName}.${idx}.initialPriceUnit.title`)
-                      ? getValues(`${detailName}.${idx}.initialPriceUnit.title`)!
-                      : '',
+                    ? getValues(`${detailName}.${idx}.initialPriceUnit.title`)!
+                    : '',
                   id: getValues(`${detailName}.${idx}`).id!,
-                  weighting: Number(getValues(`${detailName}.${idx}`).weighting!),
+                  weighting: Number(
+                    getValues(`${detailName}.${idx}`).weighting!,
+                  ),
                   subPriceUnits: [],
                   groupName: '',
                 }
-                const findValue =
-                  allPriceUnits?.current?.find(item => item.priceUnitId === value)
-                    ? allPriceUnits?.current?.find(item => item.priceUnitId === value)
-                    : showValue
-                      ? showValue
-                      : null
+                const findValue = allPriceUnits?.current?.find(
+                  item => item.priceUnitId === value,
+                )
+                  ? allPriceUnits?.current?.find(
+                      item => item.priceUnitId === value,
+                    )
+                  : showValue
+                  ? showValue
+                  : null
                 return (
                   <Autocomplete
                     fullWidth
@@ -563,11 +568,7 @@ export default function ItemPriceUnitForm({
                     open={open}
                     onOpen={() => setOpen(true)}
                     onClose={() => setOpen(false)}
-                    value={
-                      !value
-                        ? showValue
-                        : findValue ?? null
-                    }
+                    value={!value ? showValue : findValue ?? null}
                     renderInput={params => (
                       <TextField
                         {...params}
@@ -677,9 +678,13 @@ export default function ItemPriceUnitForm({
                       }
                     }}
                     value={
-                      value 
-                        ? CurrencyList.find(item => item.value === value) || null
-                        : {label: getValues(`${initialPriceName}.currency`), value: getValues(`${initialPriceName}.currency`)}
+                      value
+                        ? CurrencyList.find(item => item.value === value) ||
+                          null
+                        : {
+                            label: getValues(`${initialPriceName}.currency`),
+                            value: getValues(`${initialPriceName}.currency`),
+                          }
                     }
                     renderInput={params => (
                       <TextField
@@ -713,26 +718,25 @@ export default function ItemPriceUnitForm({
             </Typography>
           ) : (
             <Typography fontSize={14}>
-              {
-                isNotApplicable
-                  ? savedValue.currency
-                    ? formatCurrency(
-                        formatByRoundingProcedure(
-                          Number(price),
-                          savedValue.currency === 'USD' ||
-                            savedValue.currency === 'SGD'
-                            ? 2
-                            : 1,
-                          0,
-                          savedValue.currency ?? 'KRW',
-                        ),
+              {isNotApplicable
+                ? savedValue.currency
+                  ? formatCurrency(
+                      formatByRoundingProcedure(
+                        Number(price),
+                        savedValue.currency === 'USD' ||
+                          savedValue.currency === 'SGD'
+                          ? 2
+                          : 1,
+                        0,
                         savedValue.currency ?? 'KRW',
-                      )
-                    : formatCurrency(
+                      ),
+                      savedValue.currency ?? 'KRW',
+                    )
+                  : formatCurrency(
                       formatByRoundingProcedure(
                         Number(price),
                         getValues(`${initialPriceName}.currency`) === 'USD' ||
-                        getValues(`${initialPriceName}.currency`) === 'SGD'
+                          getValues(`${initialPriceName}.currency`) === 'SGD'
                           ? 2
                           : 1,
                         0,
@@ -740,26 +744,25 @@ export default function ItemPriceUnitForm({
                       ),
                       getValues(`${initialPriceName}.currency`) ?? 'KRW',
                     )
-                  : priceData
-                  ? formatCurrency(
-                      formatByRoundingProcedure(
-                        Number(price) ?? 0,
-                        priceData?.decimalPlace!,
-                        priceData?.roundingProcedure!,
-                        priceData?.currency! ?? 'KRW',
-                      ),
+                : priceData
+                ? formatCurrency(
+                    formatByRoundingProcedure(
+                      Number(price) ?? 0,
+                      priceData?.decimalPlace!,
+                      priceData?.roundingProcedure!,
                       priceData?.currency! ?? 'KRW',
-                    )
-                  : formatCurrency(
-                      formatByRoundingProcedure(
-                        Number(price) ?? 0,
-                        getValues(`${initialPriceName}.numberPlace`),
-                        getValues(`${initialPriceName}.rounding`),
-                        getValues(`${initialPriceName}.currency`) || 'KRW',
-                      ),
+                    ),
+                    priceData?.currency! ?? 'KRW',
+                  )
+                : formatCurrency(
+                    formatByRoundingProcedure(
+                      Number(price) ?? 0,
+                      getValues(`${initialPriceName}.numberPlace`),
+                      getValues(`${initialPriceName}.rounding`),
                       getValues(`${initialPriceName}.currency`) || 'KRW',
-                    )
-              }
+                    ),
+                    getValues(`${initialPriceName}.currency`) || 'KRW',
+                  )}
             </Typography>
           )}
         </TableCell>
@@ -786,6 +789,8 @@ export default function ItemPriceUnitForm({
       </TableRow>
     )
   }
+
+  console.log(getValues(`items.${index}.totalPrice`))
 
   return (
     <Grid
@@ -989,7 +994,7 @@ export default function ItemPriceUnitForm({
                   formatByRoundingProcedure(
                     // getValues로 가져오면 폼에서 계산된 값이 반영됨
                     // fields에서 가져오면 서버에서 넘어온 값이 반영됨
-                    Number(getValues().items[index].totalPrice),
+                    Number(getValues(`items.${index}.totalPrice`)),
                     // fields?.[index].totalPrice! ?? 0,
                     getValues(`${initialPriceName}.numberPlace`),
                     getValues(`${initialPriceName}.rounding`),
@@ -1004,50 +1009,55 @@ export default function ItemPriceUnitForm({
                   ? getValues().items?.[0]?.detail?.[0]?.currency
                     ? formatCurrency(
                         formatByRoundingProcedure(
-                          Number(totalPrice),
-                          getValues().items?.[0]?.detail?.[0]?.currency === 'USD' ||
-                          getValues().items?.[0]?.detail?.[0]?.currency === 'SGD'
+                          Number(getValues(`items.${index}.totalPrice`)),
+                          getValues().items?.[0]?.detail?.[0]?.currency ===
+                            'USD' ||
+                            getValues().items?.[0]?.detail?.[0]?.currency ===
+                              'SGD'
                             ? 2
                             : 1,
                           0,
-                          getValues().items?.[0]?.detail?.[0]?.currency ?? 'KRW',
+                          getValues().items?.[0]?.detail?.[0]?.currency ??
+                            'KRW',
                         ),
                         getValues().items?.[0]?.detail?.[0]?.currency ?? 'KRW',
                       )
                     : formatCurrency(
                         formatByRoundingProcedure(
-                          Number(totalPrice),
-                          getValues().items?.[0]?.initialPrice?.currency === 'USD' ||
-                          getValues().items?.[0]?.initialPrice?.currency === 'SGD'
+                          Number(getValues(`items.${index}.totalPrice`)),
+                          getValues().items?.[0]?.initialPrice?.currency ===
+                            'USD' ||
+                            getValues().items?.[0]?.initialPrice?.currency ===
+                              'SGD'
                             ? 2
                             : 1,
                           0,
-                          getValues().items?.[0]?.initialPrice?.currency ?? 'KRW',
+                          getValues().items?.[0]?.initialPrice?.currency ??
+                            'KRW',
                         ),
                         getValues().items?.[0]?.initialPrice?.currency ?? 'KRW',
                       )
                   : priceData
-                    ? formatCurrency(
-                        formatByRoundingProcedure(
-                          totalPrice ?? 0,
-                          priceData?.decimalPlace!,
-                          priceData?.roundingProcedure!,
-                          priceData?.currency! ?? 'KRW',
-                        ),
+                  ? formatCurrency(
+                      formatByRoundingProcedure(
+                        Number(getValues(`items.${index}.totalPrice`)) ?? 0,
+                        priceData?.decimalPlace!,
+                        priceData?.roundingProcedure!,
                         priceData?.currency! ?? 'KRW',
-                      )
-                    : currentInitialItem
-                      ? formatCurrency(
-                          formatByRoundingProcedure(
-                            totalPrice ?? 0,
-                            getValues(`${initialPriceName}.numberPlace`),
-                            getValues(`${initialPriceName}.rounding`),
-                            getValues(`${initialPriceName}.currency`) || 'KRW',
-                          ),
-                          getValues(`${initialPriceName}.currency`) || 'KRW',
-                        )
-                      : 0
-                }
+                      ),
+                      priceData?.currency! ?? 'KRW',
+                    )
+                  : currentInitialItem
+                  ? formatCurrency(
+                      formatByRoundingProcedure(
+                        Number(getValues(`items.${index}.totalPrice`)) ?? 0,
+                        getValues(`${initialPriceName}.numberPlace`),
+                        getValues(`${initialPriceName}.rounding`),
+                        getValues(`${initialPriceName}.currency`) || 'KRW',
+                      ),
+                      getValues(`${initialPriceName}.currency`) || 'KRW',
+                    )
+                  : 0}
               </Typography>
             )}
             {type === 'detail' ||

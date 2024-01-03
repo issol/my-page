@@ -21,7 +21,9 @@ import {
   ChangeEvent,
   Dispatch,
   SetStateAction,
+  SyntheticEvent,
   useEffect,
+  useMemo,
   useState,
 } from 'react'
 import { toast } from 'react-hot-toast'
@@ -56,7 +58,7 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
       const newTaxRate = Number(event.target.value)
       setTaxRate(newTaxRate)
     } else {
-      setTaxRate(null)
+      setTaxRate(0)
     }
   }
 
@@ -87,26 +89,42 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
     })
   }
 
-  useEffect(() => {
-    if (info.taxInfo) {
-      switch (info.taxInfo) {
-        case 'Japan resident':
-        case 'US resident':
-        case 'Singapore resident':
-          setTaxRate(null)
-          setIsTaxRateDisabled(true)
-          break
-        case 'Korea resident':
-          setTaxRate(-3.3)
-          setIsTaxRateDisabled(false)
-          break
-        case 'Korea resident (Sole proprietorship)':
-          setTaxRate(10)
-          setIsTaxRateDisabled(false)
-          break
-      }
+  const onChangeTaxInfo = (
+    event: SyntheticEvent,
+    item: {
+      label: TaxResidentInfoType
+      value: number | null
+    },
+  ) => {
+    setTaxInfo(item?.label)
+    setTaxRate(item?.value)
+
+    if (item?.label === 'Korea resident') {
+      setTaxRate(-3.3)
+      setIsTaxRateDisabled(false)
+      return
     }
-  }, [info])
+
+    if (item?.label === 'Korea resident (Sole proprietorship)') {
+      setTaxRate(10)
+      setIsTaxRateDisabled(false)
+      return
+    }
+
+    setTaxRate(0)
+    setIsTaxRateDisabled(true)
+  }
+
+  const activeSaveButton = useMemo(() => {
+    if (
+      taxInfo === 'Korea resident' ||
+      taxInfo === 'Korea resident (Sole proprietorship)'
+    ) {
+      return !(taxInfo && taxRate)
+    }
+
+    return !taxInfo
+  }, [taxInfo, taxRate])
 
   return (
     <Card style={{ marginTop: '24px', padding: '24px' }}>
@@ -121,8 +139,7 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
         {edit ? null : (
           <IconButton
             onClick={() => setEdit!(true)}
-            // disabled={invoiceInfo.invoiceStatus === 'Paid'}
-            disabled={!isUpdatable}
+            sx={{ display: isUpdatable ? 'flex' : 'none' }}
           >
             <Icon icon='mdi:pencil-outline' />
           </IconButton>
@@ -141,13 +158,12 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
               <FormControl fullWidth>
                 <Autocomplete
                   fullWidth
-                  onChange={(_, item) => {
+                  inputValue={taxInfo}
+                  onChange={(event, item) => {
                     if (item) {
-                      setTaxInfo(item?.label)
-                      setTaxRate(item?.value)
+                      onChangeTaxInfo(event, item)
                     }
                   }}
-                  value={TextRatePair.find(i => i.label === taxInfo)}
                   options={TextRatePair}
                   getOptionLabel={option => option.label}
                   renderInput={params => (
@@ -170,7 +186,6 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
                 type='number'
                 InputProps={{
                   endAdornment: isTaxRateDisabled ? '' : '%',
-                  // inputProps: { min: 0 },
                 }}
                 onChange={handleChangeTaxRate}
                 id='controlled-text-field'
@@ -199,7 +214,7 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
             <Button
               variant='contained'
               onClick={onClickSave}
-              disabled={!(taxInfo && taxRate)}
+              disabled={activeSaveButton}
             >
               Save
             </Button>
@@ -217,7 +232,9 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
             <Typography sx={{ fontWeight: 'bold', width: 134 }}>
               Tax rate
             </Typography>
-            <Typography variant='body2'>{info?.taxRate ?? '-'} %</Typography>
+            <Typography variant='body2'>
+              {parseInt(String(info?.taxRate || 0)).toFixed(2) ?? '-'} %
+            </Typography>
           </Box>
         </Box>
       )}

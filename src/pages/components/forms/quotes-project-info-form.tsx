@@ -169,6 +169,8 @@ export default function ProjectInfoForm({
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
+  console.log(getValues())
+
   useEffect(() => {
     if (clientTimezone) {
       console.log(clientTimezone)
@@ -214,7 +216,7 @@ export default function ProjectInfoForm({
     if (!getValues('quoteExpiryDate.date')) {
       setValue(
         'quoteExpiryDate.date',
-        add30DaysAndSetTimeTo9AM(getValues('quoteDate.date'))!,
+        add30DaysAndSetTimeTo9AM(formattedNow(new Date()))!,
         setValueOptions,
       )
     }
@@ -304,6 +306,8 @@ export default function ProjectInfoForm({
               placeholderText='MM/DD/YYYY, HH:MM'
               selected={!value ? null : formattedNow(new Date(value))}
               onChange={e => {
+                console.log(e)
+
                 onChange(e)
               }}
               customInput={

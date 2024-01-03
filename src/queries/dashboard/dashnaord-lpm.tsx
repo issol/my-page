@@ -48,21 +48,29 @@ import {
   TotalAmountQuery,
   ViewType,
 } from '@src/types/dashboard'
-import { useRecoilValue } from 'recoil'
+import { useRecoilValue, useRecoilValueLoadable } from 'recoil'
 import { dashboardState } from '@src/states/dashboard'
+import { authState } from '@src/states/auth'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 export const DEFAULT_QUERY_NAME = 'dashboard'
 export const NO_DATE_EFFECT = 'noDateEffect'
 export const PAGINATION = 'pagination'
 
 const getUserViewModeInfo = (): { userId: number | null; view: ViewMode } => {
-  const auth = JSON.parse(window.sessionStorage.getItem('userData') || '')
-  const role = JSON.parse(window.sessionStorage.getItem('currentRole') || '')
+  const auth = useRecoilValueLoadable(authState).getValue().user
+  const role = getCurrentRole()
+  // const auth = JSON.parse(window.sessionStorage.getItem('userData') || '')
+  // const role = JSON.parse(window.sessionStorage.getItem('currentRole') || '')
 
-  if (role?.type === 'Master' || role?.type === 'Manager') {
-    return { userId: auth.userId, view: 'company' }
+  if (auth && role) {
+    if (role?.type === 'Master' || role?.type === 'Manager') {
+      return { userId: auth.userId, view: 'company' }
+    }
+    return { userId: auth.userId, view: 'personal' }
+  } else {
+    return { userId: auth?.userId ?? null, view: 'personal' }
   }
-  return { userId: auth.userId, view: 'personal' }
 }
 
 export const useDashboardReport = (query: DashboardQuery) => {
