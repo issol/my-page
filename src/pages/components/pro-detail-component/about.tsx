@@ -46,12 +46,7 @@ type Props = {
   status?: string
 }
 
-export default function About({
-  userInfo,
-  type,
-  handleChangeStatus,
-  status,
-}: Props) {
+const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
   const currentRole = getCurrentRole()
   if (!userInfo) {
     return null
@@ -159,9 +154,7 @@ export default function About({
                   id='controlled-select'
                   onChange={handleChangeStatus}
                   labelId='controlled-select-label'
-                  disabled={
-                    type === 'onboarding' || currentRole?.name === 'LPM'
-                  }
+                  disabled={type === 'onboarding'}
                 >
                   {Object.values(ProStatus).map(value => {
                     return (
@@ -196,3 +189,5 @@ const Label = styled.label`
 
   color: rgba(76, 78, 100, 0.6);
 `
+
+export default About
