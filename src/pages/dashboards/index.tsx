@@ -35,9 +35,10 @@ const Dashboards = () => {
   return <Spinner sx={{ height: '100%' }} />
 }
 
-Dashboards.acl = {
-  action: 'read',
-  subject: 'client',
-}
+// Dashboards.acl = {
+//   action: 'read',
+//   subject: 'client',
+// }
 
 export default Dashboards
+Dashboards.guestGuard = true
