@@ -139,8 +139,7 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
         {edit ? null : (
           <IconButton
             onClick={() => setEdit!(true)}
-            // disabled={invoiceInfo.invoiceStatus === 'Paid'}
-            disabled={!isUpdatable}
+            sx={{ display: isUpdatable ? 'flex' : 'none' }}
           >
             <Icon icon='mdi:pencil-outline' />
           </IconButton>

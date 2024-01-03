@@ -1,14 +1,7 @@
 import Card from '@mui/material/Card'
-
-import styled from 'styled-components'
 import Divider from '@mui/material/Divider'
-
-import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-import {
-  CommentsOnProType,
-  OnboardingUserType,
-} from 'src/types/onboarding/list'
+import { CommentsOnProType } from 'src/types/onboarding/list'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
@@ -18,15 +11,15 @@ import CustomPagination from 'src/pages/components/custom-pagination'
 import Grid from '@mui/material/Grid'
 import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 import Chip from 'src/@core/components/mui/chip'
-import { Dispatch, SetStateAction, ChangeEvent } from 'react'
+import { ChangeEvent, Dispatch, Fragment, SetStateAction } from 'react'
 import TextField from '@mui/material/TextField'
-import { log } from 'console'
 import { UserDataType } from '@src/context/types'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 import pro_comment from '@src/shared/const/permission-class/pro-comment'
 import { AnyAbility } from '@casl/ability'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
+
 type Props = {
   userInfo: DetailUserType
   user: UserDataType
@@ -245,9 +238,9 @@ export default function CommentsAboutPro({
         {userInfo.commentsOnPro && userInfo.commentsOnPro.length ? (
           userInfo.commentsOnPro
             .slice(offset, offset + rowsPerPage)
-            .map(value => {
+            .map((value, index) => {
               return (
-                <>
+                <Fragment key={`${value.id}-${index}`}>
                   <Box
                     sx={{
                       display: 'flex',
@@ -397,7 +390,7 @@ export default function CommentsAboutPro({
                   <Divider
                     sx={{ my: theme => `${theme.spacing(4)} !important` }}
                   />
-                </>
+                </Fragment>
               )
             })
         ) : clickedAddComment ? null : (
