@@ -11,7 +11,7 @@ export const calendarDefaultOptions: CalendarOptions = {
   plugins: [dayGridPlugin],
   initialView: 'dayGridMonth',
   headerToolbar: {
-    start: 'title',
+    start: '',
     end: '',
   },
   titleFormat: date => {
