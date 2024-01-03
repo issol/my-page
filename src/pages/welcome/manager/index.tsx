@@ -166,7 +166,7 @@ const PersonalInfoManager = () => {
           email: auth.getValue().user!.email,
           accessToken: accessTokenAsString,
         })
-        router.push('/home')
+        router.push('/dashboards')
       },
       onError: () => {
         setModal(
