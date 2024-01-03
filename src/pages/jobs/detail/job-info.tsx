@@ -1236,17 +1236,17 @@ const ProJobInfo = ({
                     {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                   </Typography>
                 </Box>
-                {fileList.length === 0 &&
+                {fileList?.length === 0 &&
                 jobInfo.status !== 70200 &&
                 jobInfo.status !== 70400 &&
-                jobInfo.status !== 70500 ? null : fileList.length > 0 ? (
+                jobInfo.status !== 70500 ? null : fileList?.length > 0 ? (
                   <Button
                     variant='outlined'
                     fullWidth
                     startIcon={<Icon icon='mdi:download' />}
                     onClick={() => downloadAllFiles(jobInfo?.files)}
                     disabled={
-                      fileList.length === 0 ||
+                      fileList?.length === 0 ||
                       jobInfo.status === 70200 ||
                       jobInfo.status === 70400 ||
                       jobInfo.status === 70500 ||
@@ -1268,7 +1268,7 @@ const ProJobInfo = ({
                   '&::-webkit-scrollbar': { display: 'none' },
                 }}
               >
-                {fileList.length > 0 ? fileList : null}
+                {fileList?.length > 0 ? fileList : null}
               </Box>
             </Card>
           )}
