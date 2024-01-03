@@ -381,6 +381,7 @@ export default function AddRequestForm({
                         {...DateTimePickerDefaultOptions}
                         selected={value ?? null}
                         onChange={onChange}
+                        minDate={new Date()} 
                         customInput={
                           <Box>
                             <CustomInput
