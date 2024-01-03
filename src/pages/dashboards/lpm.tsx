@@ -5,7 +5,7 @@ import {
   Title,
   TotalValueView,
 } from '@src/views/dashboard/dashboardItem'
-import { Backdrop, Box } from '@mui/material'
+import { Box } from '@mui/material'
 import dayjs from 'dayjs'
 import {
   DashboardCountResult,
@@ -15,7 +15,7 @@ import {
   useDashboardReport,
 } from '@src/queries/dashboard/dashnaord-lpm'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
@@ -36,7 +36,6 @@ import {
   ServiceRatioItem,
   ViewMode,
 } from '@src/types/dashboard'
-import Fab from '@mui/material/Fab'
 import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import { Archive, MonetizationOn } from '@mui/icons-material'
 import {
@@ -48,7 +47,7 @@ import {
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import Information from '@src/views/dashboard/dialog/information'
-import Total, {
+import {
   payableColors,
   ReceivableColors,
   TotalPrice,
@@ -59,11 +58,6 @@ import LongStandingDataGrid from '@src/views/dashboard/dataGrid/longStanding'
 import Notice from '@src/views/dashboard/notice'
 import { mergeData } from '@src/pages/dashboards/tad'
 import { useQueryClient } from 'react-query'
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import ChartDate from '@src/views/dashboard/header/chartDate'
-import FloatingCalendar from '@src/views/dashboard/header/floating'
-import FallbackSpinner from '@src/@core/components/spinner'
-import { ErrorBoundary } from 'react-error-boundary'
 
 dayjs.extend(weekday)
 
@@ -376,11 +370,11 @@ const LPMDashboards = () => {
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
             movePage={() => router.push('/orders/job-list/?menu=list')}
-            moveDetailPage={params =>
-              router.push(
-                `/orders/job-list/details/?orderId=${params.row?.orderId}&jobId=${params.row.id}`,
-              )
-            }
+            // moveDetailPage={params =>
+            //   router.push(
+            //     `/orders/job-list/details/?orderId=${params.row?.orderId}&jobId=${params.row.id}`,
+            //   )
+            // }
           />
           <Grid container gap='24px'>
             <GridItem height={229} xs={6}>
