@@ -273,12 +273,12 @@ const ProDetailOverview = () => {
   }
 
   const handleChangeStatus = (event: SelectChangeEvent) => {
-    const lpm = ['Off-board', 'On-hold Do not assign', 'Do not Contact']
+    const tad = ['Off-board', 'On-hold Do not assign', 'Do not Contact']
     const proActive = ['Onboard', 'Netflix Onboard']
 
     const curStatus = event.target.value
 
-    if (currentRole.contents.name === 'LPM' && lpm.includes(curStatus)) {
+    if (currentRole.contents.name === 'TAD' && tad.includes(curStatus)) {
       setModal(
         <ProStatusChangeModal
           open={true}
