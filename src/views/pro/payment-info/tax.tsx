@@ -158,6 +158,7 @@ const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
               <FormControl fullWidth>
                 <Autocomplete
                   fullWidth
+                  inputValue={taxInfo}
                   onChange={(event, item) => {
                     if (item) {
                       onChangeTaxInfo(event, item)

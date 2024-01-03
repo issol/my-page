@@ -57,7 +57,6 @@ const ProjectsList = ({
   const Row = (props: { row: ProProjectType }) => {
     // ** Props
     const { row } = props
-    console.log('RRRRRR', row)
 
     // ** State
     const [open, setOpen] = useState<boolean>(false)
