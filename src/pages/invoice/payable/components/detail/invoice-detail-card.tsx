@@ -368,23 +368,6 @@ export default function InvoiceDetailCard({
                 </CustomTypo>
               </LabelContainer>
             </Grid>
-            {currentRole && currentRole.name === 'PRO' ? null : (
-              <>
-                <Grid item xs={12}>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12}>
-                  <Box>
-                    <CustomTypo fontWeight={600}>
-                      Invoice description
-                    </CustomTypo>
-                    <CustomTypo variant='body2'>
-                      {data?.description ?? '-'}
-                    </CustomTypo>
-                  </Box>
-                </Grid>
-              </>
-            )}
           </Fragment>
         )}
       </Grid>
