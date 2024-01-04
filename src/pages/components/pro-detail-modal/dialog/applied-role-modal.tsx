@@ -1,31 +1,12 @@
-import Image from 'next/image'
-import {
-  SyntheticEvent,
-  useContext,
-  useState,
-  useEffect,
-  useRef,
-  Dispatch,
-  SetStateAction,
-} from 'react'
+import { SyntheticEvent, useEffect, useRef, useState } from 'react'
 import Box from '@mui/material/Box'
-
-import Dialog from '@mui/material/Dialog'
-
-import DialogContent from '@mui/material/DialogContent'
-
-import DialogContentText from '@mui/material/DialogContentText'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
-import CardActions from '@mui/material/CardActions'
 import Typography from '@mui/material/Typography'
-import { ModalContext } from 'src/context/ModalContext'
-import InputLabel from '@mui/material/InputLabel'
 import Icon from 'src/@core/components/icon'
 import {
   AddRoleType,
-  AssignReviewerType,
   RoleSelectType,
   SelectType,
 } from 'src/types/onboarding/list'
@@ -34,36 +15,16 @@ import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'
 import FormControl from '@mui/material/FormControl'
 import MuiTabList, { TabListProps } from '@mui/lab/TabList'
-import {
-  Control,
-  FieldArrayWithId,
-  FieldErrorsImpl,
-  Controller,
-  UseFormGetValues,
-  UseFormHandleSubmit,
-  useForm,
-  useFieldArray,
-} from 'react-hook-form'
-
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { JobList } from 'src/shared/const/job/jobs'
-import {
-  AssignJobType,
-  OnboardingListRolePair,
-  ProRolePair,
-} from 'src/shared/const/role/roles'
+import { OnboardingListRolePair } from 'src/shared/const/role/roles'
 import FormHelperText from '@mui/material/FormHelperText'
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
-import { Checkbox, FormControlLabel } from '@mui/material'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import _ from 'lodash'
-import { Job } from '@src/shared/const/job/job.enum'
 import useModal from '@src/hooks/useModal'
 import { checkDuplicate } from '@src/apis/onboarding.api'
-import { useRecoilValueLoadable } from 'recoil'
-import { authState } from '@src/states/auth'
 import { checkDuplicateResponseEnum } from '@src/types/onboarding/details'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { assignTestSchema } from '@src/types/schema/onboarding.schema'
@@ -98,9 +59,8 @@ const defaultValues: AddRoleType = {
   ],
 }
 
-type Props = {
+interface AppliedRoleModalProps {
   onClose: any
-
   languageList: {
     value: string
     label: GloLanguageEnum
@@ -109,15 +69,13 @@ type Props = {
   handleAssignRole: (jobInfo: AddRoleType) => void
   proId: number
 }
-export default function AppliedRoleModal({
+const AppliedRoleModal = ({
   onClose,
-
   languageList,
-
   proId,
   handleAssignTest,
   handleAssignRole,
-}: Props) {
+}: AppliedRoleModalProps) => {
   const [lastCalledJobInfo, setLastCalledJobInfo] = useState<{
     jobType: { value: string; label: string }
     role: { value: string; label: string; jobType: string[] }
@@ -172,9 +130,6 @@ export default function AppliedRoleModal({
     mode: 'onSubmit',
     resolver: yupResolver(assignTestSchema),
   })
-
-  console.log(isRoleValid)
-  console.log(roleGetValues())
 
   const {
     fields: jobInfoFields,
@@ -1593,3 +1548,5 @@ export default function AppliedRoleModal({
     </Box>
   )
 }
+
+export default AppliedRoleModal

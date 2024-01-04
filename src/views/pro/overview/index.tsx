@@ -616,7 +616,7 @@ const ProDetailOverview = () => {
     )
   }
 
-  const handleAssignTest = (jobInfo: AddRoleType) => {
+  const handleAssignTest = async (jobInfo: AddRoleType) => {
     const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
       userId: userInfo!.userId,
       userCompany: 'GloZ',
@@ -626,11 +626,8 @@ const ProDetailOverview = () => {
       target: value.target?.value ?? null,
     }))
 
-    // console.log(res)
-
-    //** TODO : Assign 연결 */
-
     addTestMutation.mutate(res)
+    await queryClient.invalidateQueries(['pro-overview'])
   }
 
   const handleAssignRole = (jobInfo: AddRoleType) => {
@@ -969,23 +966,5 @@ ProDetailOverview.acl = {
   subject: 'pro',
   action: 'read',
 }
-
-const DesignedCard = styled(Card)`
-  position: relative;
-  :before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 30%;
-    background: linear-gradient(
-        0deg,
-        rgba(255, 255, 255, 0.88),
-        rgba(255, 255, 255, 0.88)
-      ),
-      #666cff;
-  }
-`
 
 export default ProDetailOverview
