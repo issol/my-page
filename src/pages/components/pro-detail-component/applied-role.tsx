@@ -66,6 +66,7 @@ const AppliedRole = ({
   status,
 }: AppliedRoleProps) => {
   const [currentRole] = useRecoilStateLoadable(currentRoleSelector)
+
   const isDisabled = () => {
     if (type === 'onboarding') return false
     if (!status) return true

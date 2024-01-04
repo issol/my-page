@@ -630,7 +630,7 @@ const ProDetailOverview = () => {
     await queryClient.invalidateQueries(['pro-overview'])
   }
 
-  const handleAssignRole = (jobInfo: AddRoleType) => {
+  const handleAssignRole = async (jobInfo: AddRoleType) => {
     const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
       userId: userInfo!.userId,
       userCompany: 'GloZ',
@@ -645,6 +645,7 @@ const ProDetailOverview = () => {
     }))
 
     addRoleMutation.mutate(res)
+    await queryClient.invalidateQueries(['pro-overview'])
   }
 
   const handleEditComment = () => {
