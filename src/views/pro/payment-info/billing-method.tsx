@@ -32,7 +32,7 @@ const BillingMethod = ({
     <Card>
       <CardHeader title='Billing Method (Account)' sx={{ paddingBottom: 0 }} />
       <BorderBox sx={{ margin: '24px' }}>
-        {!info?.type ? null : info?.type === 'paypal' ? (
+        {info?.type === 'paypal' ? (
           <>
             <Box display='flex' alignItems='center' gap='8px'>
               <Typography fontWeight={600}>PayPal</Typography>
@@ -57,21 +57,25 @@ const BillingMethod = ({
           </>
         ) : (
           <>
-            <Box display='flex' alignItems='center' gap='8px'>
-              <Typography sx={{ fontWeight: 600 }}>
-                {bankInfo?.bankName}
-              </Typography>
-              <CustomChip
-                rounded
-                label={
-                  proPaymentMethodPairs.find(i => i.value === info?.type)
-                    ?.label || ''
-                }
-                skin='light'
-                color='info'
-                size='small'
-              />
-            </Box>
+            {info?.type ? (
+              <Box display='flex' alignItems='center' gap='8px'>
+                <Typography sx={{ fontWeight: 600 }}>
+                  {bankInfo?.bankName}
+                </Typography>
+                <CustomChip
+                  rounded
+                  label={
+                    proPaymentMethodPairs.find(i => i.value === info?.type)
+                      ?.label || ''
+                  }
+                  skin='light'
+                  color='info'
+                  size='small'
+                />
+              </Box>
+            ) : (
+              '-'
+            )}
             <Grid container mt={6}>
               <Grid
                 item

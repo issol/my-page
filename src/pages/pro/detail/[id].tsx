@@ -42,8 +42,7 @@ const ProDetail = () => {
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
-  const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
-  // const currentRole = useAppSelector(state => state.userAccess.currentRole)
+  const { data: userInfo } = useGetProOverview(Number(id!))
   const currentRole = getCurrentRole()
 
   return (
