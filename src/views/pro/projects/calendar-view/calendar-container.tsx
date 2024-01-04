@@ -138,7 +138,7 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
           />
         </Box>
       </CalendarWrapper>
-      {!currentListId && (
+      {currentListId && (
         <ProjectsList
           sort={sort}
           setSort={setSort}
