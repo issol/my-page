@@ -138,7 +138,7 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
           />
         </Box>
       </CalendarWrapper>
-      {currentListId && (
+      {!currentListId && (
         <ProjectsList
           sort={sort}
           setSort={setSort}
@@ -146,6 +146,7 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
           setSkip={setSkip}
           pageSize={pageSize}
           setPageSize={setPageSize}
+          isCalendar={true}
           list={
             currentList?.length
               ? { data: currentList, totalCount: currentList?.length }
