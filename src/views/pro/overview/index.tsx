@@ -93,8 +93,7 @@ export const ProDetailOverviews = () => (
 const ProDetailOverview = () => {
   const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
-  const [currentRole, setCurrentRole] =
-    useRecoilStateLoadable(currentRoleSelector)
+  const [currentRole] = useRecoilStateLoadable(currentRoleSelector)
 
   const { id } = router.query
   const [validUser, setValidUser] = useState(false)
