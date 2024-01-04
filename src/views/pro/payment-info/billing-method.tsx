@@ -34,14 +34,13 @@ const BillingMethod = ({
       <BorderBox sx={{ margin: '24px' }}>
         {info?.type === 'paypal' ? (
           <>
-            <Box display='flex' alignItems='center' gap='8px'>
+            <Box display='flex' alignItems='center' gap='8px' mb={6}>
               <Typography fontWeight={600}>PayPal</Typography>
               <img src='/images/misc/icon_paypal.png' alt='PayPal' />
             </Box>
             <Grid item xs={6}>
               <ContentGrid>
                 <Typography sx={{ fontWeight: 600 }}>Email address</Typography>
-
                 <Box display='flex' alignItems='center'>
                   <Typography variant='body2'>
                     {'email' in info && replaceDots(info?.email ?? '')}
@@ -89,7 +88,7 @@ const BillingMethod = ({
                 <ContentGrid>
                   <CopyTextRow
                     title='Account number'
-                    value={bankInfo?.accountNumber}
+                    value={replaceDots(bankInfo?.accountNumber ?? '')}
                     isCopyButton={
                       (isAccountManager && !!bankInfo?.accountNumber) || false
                     }
@@ -97,7 +96,7 @@ const BillingMethod = ({
                   />
                   <CopyTextRow
                     title='Routing number'
-                    value={bankInfo?.routingNumber}
+                    value={replaceDots(bankInfo?.routingNumber ?? '')}
                     isCopyButton={
                       (isAccountManager && !!bankInfo?.routingNumber) || false
                     }
@@ -105,7 +104,7 @@ const BillingMethod = ({
                   />
                   <CopyTextRow
                     title='SWIFT code'
-                    value={bankInfo?.swiftCode}
+                    value={replaceDots(bankInfo?.swiftCode ?? '')}
                     isCopyButton={
                       (isAccountManager && !!bankInfo?.swiftCode) || false
                     }
@@ -114,7 +113,7 @@ const BillingMethod = ({
 
                   <CopyTextRow
                     title='IBAN number'
-                    value={bankInfo?.iban}
+                    value={replaceDots(bankInfo?.iban ?? '')}
                     isCopyButton={
                       (isAccountManager && !!bankInfo?.iban) || false
                     }
@@ -130,7 +129,7 @@ const BillingMethod = ({
                 <ContentGrid>
                   <CopyTextRow
                     title='Account number'
-                    value={corrBankInfo?.accountNumber}
+                    value={replaceDots(corrBankInfo?.accountNumber ?? '')}
                     isCopyButton={
                       (isAccountManager && !!corrBankInfo?.accountNumber) ||
                       false
@@ -139,7 +138,7 @@ const BillingMethod = ({
                   />
                   <CopyTextRow
                     title='SWIFT code / BIC'
-                    value={corrBankInfo?.swiftCode}
+                    value={replaceDots(corrBankInfo?.swiftCode ?? '')}
                     isCopyButton={
                       (isAccountManager && !!corrBankInfo?.swiftCode) || false
                     }
@@ -148,7 +147,7 @@ const BillingMethod = ({
 
                   <CopyTextRow
                     title='IBAN'
-                    value={corrBankInfo?.iban}
+                    value={replaceDots(corrBankInfo?.iban ?? '')}
                     isCopyButton={
                       (isAccountManager && !!corrBankInfo?.iban) || false
                     }
