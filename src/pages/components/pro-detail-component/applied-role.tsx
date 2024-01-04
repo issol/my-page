@@ -13,6 +13,8 @@ import CustomPagination from 'src/pages/components/custom-pagination'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { AppliedRoleType } from 'src/types/onboarding/details'
+import { useRecoilStateLoadable } from 'recoil'
+import { currentRoleSelector } from '@src/states/permission'
 
 interface AppliedRoleProps {
   userInfo: Array<AppliedRoleType>
@@ -63,6 +65,7 @@ const AppliedRole = ({
   totalCount,
   status,
 }: AppliedRoleProps) => {
+  const [currentRole] = useRecoilStateLoadable(currentRoleSelector)
   const isDisabled = () => {
     if (type === 'onboarding') return false
     if (!status) return true
@@ -493,7 +496,6 @@ const AppliedRole = ({
           }}
         >
           {type === 'onboarding' ? 'Applied Role' : `Pro's role and Applied`}
-
           <IconButton
             sx={{
               padding: 0,
@@ -504,7 +506,7 @@ const AppliedRole = ({
           </IconButton>
         </Box>
         <Box>
-          {type !== 'onboarding' ? (
+          {type !== 'onboarding' && currentRole.contents.name === 'TAD' ? (
             <FormControlLabel
               value='seeOnlyCertRoles'
               control={
