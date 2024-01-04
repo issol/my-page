@@ -28,6 +28,13 @@ import {
 } from '@src/shared/helpers/phone-number-helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
+const Pronounce: Record<string, string> = {
+  SHE: 'She/her/hers',
+  HE: 'He/him/his',
+  THEY: 'They/them/theirs',
+  NONE: 'Perfer not to answer',
+}
+
 type Props = {
   userInfo: {
     preferredName?: string
@@ -70,7 +77,9 @@ const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:label-variant' style={{ opacity: '0.7' }} />
           <LabelTitle>Pronouns:</LabelTitle>
-          <Label>{userInfo.pronounce || '-'}</Label>
+          <Label>
+            {Pronounce[userInfo.pronounce?.toUpperCase() || ''] || '-'}
+          </Label>
         </Box>
         {type === 'pro' ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
