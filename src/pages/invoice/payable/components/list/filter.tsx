@@ -30,24 +30,44 @@ import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
 import { useGetProList } from '@src/queries/pro/pro-list.query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { useGetStatusList } from '@src/queries/common.query'
+import dayjs from 'dayjs'
 
 type Props = {
   filter: InvoicePayableFilterType
   setFilter: (n: InvoicePayableFilterType) => void
   onReset: () => void
   search: () => void
+  statusList: {
+    value: number
+    label: string
+  }[]
 }
 
-export default function Filter({ filter, setFilter, onReset, search }: Props) {
+export default function Filter({
+  filter,
+  setFilter,
+  onReset,
+  search,
+  statusList,
+}: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
 
   //TODO: 프로 전체 list를 필터에 표시하는건 pro가 많아질 수록 좋지 않음. 이런식의 필터는 일괄 변경하는 방향으로 기획에 문의하기 (추후에) [bon]
   const { data: proList } = useGetProList({ take: 100, skip: 0 })
-  const { data: statusList, isLoading } = useGetInvoicePayableStatus()
+
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,
     disableCloseOnSelect: true,
+  }
+
+  const dateValue = (startDate?: string, endDate?: string) => {
+    return startDate === endDate
+      ? dayjs(startDate).format('MM/DD/YYYY')
+      : `${dayjs(startDate).format('MM/DD/YYYY')}${
+          endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
+        }`
   }
 
   return (
@@ -79,35 +99,31 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       {...commonOptions}
                       multiple
                       disableCloseOnSelect
-                      loading={isLoading}
+                      // loading={isLoading}
                       options={statusList || []}
-                      getOptionLabel={option => option.statusName}
+                      getOptionLabel={option => option.label}
                       value={
                         !statusList
                           ? []
                           : statusList?.filter(item =>
-                              filter.invoiceStatus?.includes(item.id),
+                              filter.invoiceStatus?.includes(item.value),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          invoiceStatus: v.map(item => item.id),
+                          invoiceStatus: v.map(item => item.value),
                         })
                       }
                       id='status'
                       renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Status'
-                          placeholder='Status'
-                        />
+                        <TextField {...params} label='Status' />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
                           <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.statusName}
+                          {option.label}
                         </li>
                       )}
                     />
@@ -136,7 +152,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         })
                       }
                       renderInput={params => (
-                        <TextField {...params} label='Pro' placeholder='Pro' />
+                        <TextField {...params} label='Pro' />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -155,7 +171,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
-                      monthsShown={1}
+                      monthsShown={2}
                       endDate={
                         filter?.invoicedDateTo
                           ? new Date(filter.invoicedDateTo)
@@ -175,8 +191,23 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                           invoicedDateTo: e[1]?.toString(),
                         })
                       }}
+                      placeholderText=''
                       customInput={
-                        <CustomInput label='Invoice date' icon='calendar' />
+                        <Box>
+                          <CustomInput
+                            label='Invoice date'
+                            icon='calendar'
+                            placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                            value={
+                              filter?.invoicedDateTo || filter?.invoicedDateFrom
+                                ? dateValue(
+                                    filter?.invoicedDateFrom,
+                                    filter?.invoicedDateTo,
+                                  )
+                                : ''
+                            }
+                          />
+                        </Box>
                       }
                     />
                   </FormControl>
@@ -185,7 +216,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
-                      monthsShown={1}
+                      monthsShown={2}
                       endDate={
                         filter?.payDueDateTo
                           ? new Date(filter.payDueDateTo)
@@ -206,7 +237,21 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         })
                       }}
                       customInput={
-                        <CustomInput label='Payment due' icon='calendar' />
+                        <Box>
+                          <CustomInput
+                            label='Payment due'
+                            icon='calendar'
+                            placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                            value={
+                              filter?.payDueDateTo || filter?.payDueDateFrom
+                                ? dateValue(
+                                    filter?.payDueDateFrom,
+                                    filter?.payDueDateTo,
+                                  )
+                                : ''
+                            }
+                          />
+                        </Box>
                       }
                     />
                   </FormControl>
@@ -215,7 +260,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
-                      monthsShown={1}
+                      monthsShown={2}
                       endDate={
                         filter?.paidDateTo ? new Date(filter.paidDateTo) : null
                       }
@@ -234,7 +279,21 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         })
                       }}
                       customInput={
-                        <CustomInput label='Payment date' icon='calendar' />
+                        <Box>
+                          <CustomInput
+                            label='Payment date'
+                            icon='calendar'
+                            placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                            value={
+                              filter?.paidDateTo || filter?.paidDateFrom
+                                ? dateValue(
+                                    filter?.paidDateFrom,
+                                    filter?.paidDateTo,
+                                  )
+                                : ''
+                            }
+                          />
+                        </Box>
                       }
                     />
                   </FormControl>

@@ -156,6 +156,7 @@ export default function Payable() {
               setFilter={setFilter}
               onReset={onReset}
               search={onSearch}
+              statusList={statusList!}
             />
           </Grid>
           <Grid
