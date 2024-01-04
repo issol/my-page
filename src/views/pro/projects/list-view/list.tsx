@@ -42,6 +42,7 @@ type Props = {
     data: Array<ProProjectType> | []
     totalCount: number
   }
+  isCalendar?: boolean
 }
 
 const ProjectsList = ({
@@ -53,6 +54,7 @@ const ProjectsList = ({
   list,
   sort,
   setSort,
+  isCalendar,
 }: Props) => {
   const Row = (props: { row: ProProjectType }) => {
     const { row } = props
@@ -236,15 +238,17 @@ const ProjectsList = ({
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            page={skip}
-            component='div'
-            count={list.totalCount}
-            rowsPerPage={pageSize}
-            onPageChange={(e, page) => setSkip(page)}
-            rowsPerPageOptions={[10, 25, 50]}
-            onRowsPerPageChange={e => setPageSize(Number(e.target.value))}
-          />
+          {isCalendar ? null : (
+            <TablePagination
+              page={skip}
+              component='div'
+              count={list.totalCount}
+              rowsPerPage={pageSize}
+              onPageChange={(e, page) => setSkip(page)}
+              rowsPerPageOptions={[10, 25, 50]}
+              onRowsPerPageChange={e => setPageSize(Number(e.target.value))}
+            />
+          )}
         </Box>
       </Card>
     </Grid>
