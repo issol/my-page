@@ -43,12 +43,9 @@ export const getProProjectList = async (
   totalCount: number
 }> => {
   try {
-    const { data } = await axios.get(
-      `/api/enough/u/pro/${id}/project?${makeQuery({
-        ...filters,
-        company: 'GloZ',
-      })}`,
-    )
+    const { data } = await axios.get(`/api/enough/u/pro/${id}/project`, {
+      params: { ...filters, company: 'GloZ' },
+    })
     return data
   } catch (e: any) {
     return {

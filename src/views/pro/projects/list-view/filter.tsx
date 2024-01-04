@@ -29,7 +29,7 @@ import { ProStatus, WorkStatus } from '@src/shared/const/status/statuses'
 import { FilterType } from '../index'
 import { useGetClientList } from '@src/queries/client.query'
 
-type Props = {
+interface FiltersProps {
   workName: Array<{ value: string; label: string }> | []
   filter: FilterType
   setFilter: <T extends FilterType>(v: T) => void
@@ -37,17 +37,18 @@ type Props = {
   onReset: () => void
 }
 
-export default function Filters({
+const Filters = ({
   workName,
   filter,
   setFilter,
   search,
   onReset,
-}: Props) {
+}: FiltersProps) => {
   const languageList = getGloLanguage()
   const [collapsed, setCollapsed] = useState<boolean>(true)
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+
   const clientList = useMemo(
     () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
     [clientData],
@@ -56,7 +57,6 @@ export default function Filters({
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,
-    // filterSelectedOptions: true,
     getOptionLabel: (val: { label: string; value: string }) => val.label,
   }
 
@@ -303,3 +303,5 @@ export default function Filters({
     </Grid>
   )
 }
+
+export default Filters

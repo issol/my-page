@@ -55,10 +55,7 @@ const ProjectsList = ({
   setSort,
 }: Props) => {
   const Row = (props: { row: ProProjectType }) => {
-    // ** Props
     const { row } = props
-
-    // ** State
     const [open, setOpen] = useState<boolean>(false)
 
     return (
@@ -77,7 +74,7 @@ const ProjectsList = ({
             align='left'
             component='th'
             scope='row'
-            sx={{ fontWeight: 500 }}
+            sx={{ fontWeight: 500, minWidth: 120 }}
           >
             {row?.title || '-'}
           </TableCell>
