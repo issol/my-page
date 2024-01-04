@@ -48,6 +48,11 @@ const AvailableCalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
         border: 'none',
       },
 
+      '& .fc-bg-event': {
+        opacity: '1 !important',
+        backgroundColor: 'rgba(76, 78, 100, 0.1) !important',
+      },
+
       /* day table header */
       '& .fc-col-header': {
         margin: '20px 0',
@@ -75,13 +80,17 @@ const AvailableCalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
       '.tooltip': {
         zIndex: 100,
         position: 'absolute',
-        padding: '4px 8px',
+        padding: '4px 16px',
         top: '-0px',
         left: '-15px',
         background: 'black',
         borderRadius: '8px',
-        fontSize: '12px',
-        color: 'white',
+        fontSize: '16px',
+        color: '#4C4E64DE',
+        backgroundColor: '#fff',
+        opacity: 1,
+        boxShadow:
+          '0px 1px 3px 0px rgba(76, 78, 100, 0.12), 0px 1px 1px 0px rgba(76, 78, 100, 0.14), 0px 2px 1px -1px rgba(76, 78, 100, 0.20)',
       },
 
       /* 이 코드는 날짜를 입력해도 event가 발생하도록 하는 것 */
