@@ -89,7 +89,8 @@ type PriceListCopyRowType = Omit<
   languagePairs?: Array<LanguagePairListType>
   priceUnit?: Array<PriceUnitListType>
 }
-export default function AddNewClient() {
+
+const AddNewClient = () => {
   const router = useRouter()
 
   const role = useRecoilValueLoadable(roleSelector)
@@ -97,6 +98,7 @@ export default function AddNewClient() {
 
   const { openModal, closeModal } = useModal()
   const [isWarn, setIsWarn] = useState(true)
+  const [checked, setChecked] = useState(false)
 
   // ** confirm page leaving
 
@@ -283,7 +285,7 @@ export default function AddNewClient() {
     })
   }
 
-  function deletePrice(data: StandardPriceListType) {
+  const deletePrice = (data: StandardPriceListType) => {
     setPriceList(priceList.filter(item => item.id !== data.id))
   }
 
@@ -355,7 +357,7 @@ export default function AddNewClient() {
     })
   }
 
-  function onPriceUnitSubmit(data: SetPriceUnitPair[]) {
+  const onPriceUnitSubmit = (data: SetPriceUnitPair[]) => {
     //@ts-ignore
     setSelectedPrice({
       ...selectedPrice,
@@ -399,7 +401,7 @@ export default function AddNewClient() {
     })
   }
 
-  function onEditLanguagePair(data: LanguagePairListType) {
+  const onEditLanguagePair = (data: LanguagePairListType) => {
     if (selectedPrice) {
       const idx = selectedPrice.languagePairs
         .map(item => item.id)
@@ -412,7 +414,7 @@ export default function AddNewClient() {
     }
   }
 
-  function onDeleteLanguagePair(id: any) {
+  const onDeleteLanguagePair = (id: any) => {
     if (selectedPrice) {
       const newLanguagePair = selectedPrice.languagePairs.filter(
         item => item.id !== id,
@@ -421,7 +423,7 @@ export default function AddNewClient() {
     }
   }
 
-  function onLanguagePairsSubmit(data: AddNewLanguagePair) {
+  const onLanguagePairsSubmit = (data: AddNewLanguagePair) => {
     const langData = data.pair.map(item => ({
       ...item,
       currency: selectedPrice?.currency,
@@ -452,7 +454,7 @@ export default function AddNewClient() {
 
   const clientId = useRef<number | null>(null)
 
-  function onCreateClientSuccess(data: CreateClientResType) {
+  const onCreateClientSuccess = (data: CreateClientResType) => {
     clientId.current = data.clientId
 
     if (isGeneral || !priceList.length) {
@@ -483,7 +485,7 @@ export default function AddNewClient() {
     }
   }
 
-  function onClientDataSubmit() {
+  const onClientDataSubmit = () => {
     const address = getAddressValues()?.clientAddresses?.map(item => {
       delete item.id
       return item
@@ -514,7 +516,10 @@ export default function AddNewClient() {
     })
   }
 
-  function onCreatePriceSuccess(priceId: number, data: StandardPriceListType) {
+  const onCreatePriceSuccess = (
+    priceId: number,
+    data: StandardPriceListType,
+  ) => {
     if (!data.languagePairs.length && !data.priceUnit.length) {
       return
     } else {
@@ -547,7 +552,7 @@ export default function AddNewClient() {
     }
   }
 
-  function onMutationError() {
+  const onMutationError = () => {
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
     })
@@ -559,7 +564,6 @@ export default function AddNewClient() {
     toUrl: '/client',
   })
 
-  const [checked, setChecked] = useState(false)
   return (
     <Grid container spacing={6}>
       <ConfirmLeaveModal />
@@ -663,3 +667,5 @@ AddNewClient.acl = {
   subject: 'client',
   action: 'create',
 }
+
+export default AddNewClient

@@ -7,13 +7,16 @@ import { ClientRowType } from '@src/apis/client.api'
 import { ClientStatusChip } from '@src/@core/components/chips/chips'
 import { StyledNextLink } from '@src/@core/components/customLink'
 import { useRouter } from 'next/router'
-import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
 
 type ClientListCellType = {
   row: ClientRowType
 }
 
-type Props = {
+interface ClientListProps {
   skip: number
   pageSize: number
   setSkip: (num: number) => void
@@ -26,14 +29,14 @@ type Props = {
   isLoading: boolean
 }
 
-export default function ClientList({
+const ClientList = ({
   skip,
   pageSize,
   setSkip,
   setPageSize,
   list,
   isLoading,
-}: Props) {
+}: ClientListProps) => {
   const router = useRouter()
   const columns: GridColumns<ClientRowType> = [
     {
@@ -116,19 +119,19 @@ export default function ClientList({
       renderHeader: () => <Box>Telephone</Box>,
       renderCell: ({ row }: ClientListCellType) => {
         return (
-          <div>{
-            !row?.phone 
+          <div>
+            {!row?.phone
               ? '-'
               : contryCodeAndPhoneNumberFormatter(
-                splitContryCodeAndPhoneNumber(row.phone)
-              )
-          }</div>
+                  splitContryCodeAndPhoneNumber(row.phone),
+                )}
+          </div>
         )
       },
     },
   ]
 
-  function NoList() {
+  const NoList = () => {
     return (
       <Box
         sx={{
@@ -196,3 +199,5 @@ export default function ClientList({
     </Grid>
   )
 }
+
+export default ClientList

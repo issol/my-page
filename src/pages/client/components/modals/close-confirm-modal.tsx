@@ -3,16 +3,17 @@ import AlertIcon from '@src/@core/components/alert-icon'
 import { SmallModalContainer } from '@src/@core/components/modal'
 import Dialog from '@mui/material/Dialog'
 
-type Props = {
+interface CloseConfirmModalProps {
   message: string
   onClose: () => void
   onClick: () => void
 }
-export default function CloseConfirmModal({
+
+const CloseConfirmModal = ({
   message,
   onClose,
   onClick,
-}: Props) {
+}: CloseConfirmModalProps) => {
   return (
     <Dialog
       onClose={onClose}
@@ -36,10 +37,12 @@ export default function CloseConfirmModal({
               onClose()
             }}
           >
-            Close
+            Discard
           </Button>
         </Box>
       </SmallModalContainer>
     </Dialog>
   )
 }
+
+export default CloseConfirmModal
