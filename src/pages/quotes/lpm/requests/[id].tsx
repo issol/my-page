@@ -518,21 +518,6 @@ export default function RequestDetail() {
   )
 }
 
-const LabelContainer = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-`
-const CustomTypo = styled(Typography)`
-  font-size: 14px;
-`
-
-const ItemBox = styled(Box)`
-  padding: 20px;
-  border-radius: 10px;
-  background: #f5f5f5;
-`
-
 RequestDetail.acl = {
   subject: 'lpm_request',
   action: 'read',
