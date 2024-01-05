@@ -148,7 +148,7 @@ export default function AddNewInvoice() {
   const [isReady, setIsReady] = useState(false)
   const [isWarn, setIsWarn] = useState(true)
   const queryClient = useQueryClient()
-
+  const [id, setId] = useState<number[]>([])
   const [orders, setOrders] = useState<InvoiceMultipleOrderType | null>(null)
   const [teams, setTeams] = useState<ProjectTeamListType[]>([])
 
@@ -172,6 +172,7 @@ export default function AddNewInvoice() {
 
     if (verifiedOrderIds) {
       onCopyOrder(typeof orderId === 'number' ? [orderId] : orderId)
+      setId(typeof orderId === 'number' ? [orderId] : orderId)
     }
   }, [router.query])
 
@@ -459,6 +460,7 @@ export default function AddNewInvoice() {
         code: '',
         phone: '',
       },
+      salesCategory: projectInfo.salesCategory,
       // invoiceConfirmedAt: projectInfo.invoiceConfirmDate?.date,
       // invoiceConfirmTimezone: projectInfo.invoiceConfirmDate?.timezone,
       // taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date,
@@ -670,9 +672,10 @@ export default function AddNewInvoice() {
             invoiceDescription: '',
             revenueFrom: res.revenueFrom,
             isTaxable: res.isTaxable,
-
-            tax: res.tax.toString(),
+            salesCategory: res.category,
+            tax: res.tax ? res.tax.toString() : null,
             subtotal: res.subtotal,
+            workName: res.workName,
           })
         })
       } else {
@@ -881,6 +884,7 @@ export default function AddNewInvoice() {
                   trigger={projectInfoTrigger}
                   clientTimezone={getClientValue('contacts.timezone')}
                   type='create'
+                  multipleOrder={id.length > 1 ? true : false}
                 />
                 <Grid
                   item
@@ -974,7 +978,7 @@ export default function AddNewInvoice() {
                       }}
                     >
                       {getCurrencyMark(
-                        getItem().items[0].initialPrice?.currency,
+                        getItem().items[0]?.initialPrice?.currency,
                       )}
                       &nbsp;
                       {Number(getProjectInfoValues().subtotal).toLocaleString(
@@ -1052,7 +1056,7 @@ export default function AddNewInvoice() {
                     >
                       {getProjectInfoValues().isTaxable
                         ? `${getCurrencyMark(
-                            getItem().items[0].initialPrice?.currency,
+                            getItem().items[0]?.initialPrice?.currency,
                           )} ${(
                             Number(getProjectInfoValues().subtotal) *
                             (Number(getProjectInfoValues().tax!) / 100)
@@ -1099,14 +1103,14 @@ export default function AddNewInvoice() {
                     >
                       {getProjectInfoValues().isTaxable
                         ? `${getCurrencyMark(
-                            getItem().items[0].initialPrice?.currency,
+                            getItem().items[0]?.initialPrice?.currency,
                           )} ${(
                             Number(getProjectInfoValues().subtotal) +
                             Number(getProjectInfoValues().subtotal) *
                               (Number(getProjectInfoValues().tax!) / 100)
                           ).toLocaleString('ko-KR')}`
                         : `${getCurrencyMark(
-                            getItem().items[0].initialPrice?.currency,
+                            getItem().items[0]?.initialPrice?.currency,
                           )} ${Number(
                             getProjectInfoValues().subtotal,
                           ).toLocaleString('ko-KR')}`}

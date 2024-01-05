@@ -471,7 +471,7 @@ export default function RegisterClientForm({
               }
               value={
                 !value || value === '' || !getValue().contactPersonId
-                  ? '-'
+                  ? ''
                   : contryCodeAndPhoneNumberFormatter(
                       splitContryCodeAndPhoneNumber(value),
                     )
@@ -509,7 +509,7 @@ export default function RegisterClientForm({
               // placeholder='Mobile phone'
               value={
                 !value || value === '' || !getValue().contactPersonId
-                  ? '-'
+                  ? ''
                   : contryCodeAndPhoneNumberFormatter(
                       splitContryCodeAndPhoneNumber(value),
                     )
@@ -545,7 +545,7 @@ export default function RegisterClientForm({
               // placeholder='Fax'
               value={
                 !value || value === '' || !getValue().contactPersonId
-                  ? '-'
+                  ? ''
                   : contryCodeAndPhoneNumberFormatter(
                       splitContryCodeAndPhoneNumber(value),
                     )
