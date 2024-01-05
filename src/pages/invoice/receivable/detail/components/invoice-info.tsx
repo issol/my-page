@@ -934,6 +934,9 @@ const InvoiceInfo = ({
                     client={client}
                     invoiceInfo={invoiceInfo}
                     type='edit'
+                    multipleOrder={
+                      invoiceInfo.linkedOrders.length > 1 ? true : false
+                    }
                   />
                   <Grid item xs={12}>
                     <Box
