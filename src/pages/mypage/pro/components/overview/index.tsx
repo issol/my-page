@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useState } from 'react'
 
 // ** style components
 import {
@@ -27,12 +27,10 @@ import Chip from 'src/@core/components/mui/chip'
 
 // ** components
 import About from './about'
-import ProProfileForm from '@src/pages/components/forms/pro/profile.form'
 import WorkDaysCalendar from './work-days-calendar'
 import AvailableCalendarWrapper from '@src/@core/styles/libs/available-calendar'
 import TimelineDot from '@src/@core/components/mui/timeline-dot'
 import OffDayForm from './off-day-form'
-import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
 import FileInfo from '@src/@core/components/file-info'
 import MyRoles from './my-roles'
 import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
@@ -50,9 +48,9 @@ import { UserDataType } from '@src/context/types'
 import {
   PersonalInfo,
   ProUserInfoType,
+  ProUserNoteInfoType,
   ProUserResumeInfoType,
 } from '@src/types/sign/personalInfoTypes'
-import { getProfileSchema } from '@src/types/schema/profile.schema'
 import { OffDayEventType } from '@src/types/common/calendar.type'
 import { offDaySchema } from '@src/types/schema/off-day.schema'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
@@ -71,10 +69,10 @@ import {
   uploadFileToS3,
 } from '@src/apis/common.api'
 import {
-  deleteOffDays,
   createMyOffDays,
-  updateWeekends,
+  deleteOffDays,
   updateMyOffDays,
+  updateWeekends,
 } from '@src/apis/pro/pro-details.api'
 import { useGetProWorkDays } from '@src/queries/pro/pro-details.query'
 
@@ -83,12 +81,7 @@ import { ExperiencedYears } from '@src/shared/const/experienced-years'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { getResumeFilePath } from '@src/shared/transformer/filePath.transformer'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import {
-  clientBillingAddressDefaultValue,
-  clientBillingAddressSchema,
-} from '@src/types/schema/client-billing-address.schema'
 import { updateConsumerUserInfo } from '@src/apis/user.api'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -98,6 +91,7 @@ import EditProfileModal from './edit-profile-modal'
 import dayjs from 'dayjs'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { CertifiedRoleType } from '@src/types/onboarding/details'
+import AddIcon from '@mui/icons-material/Add'
 
 type Props = {
   userInfo: DetailUserType
@@ -105,13 +99,7 @@ type Props = {
   certifiedRoleInfo: Array<CertifiedRoleType>
 }
 
-/* TODO
-1. My profile 업데이트 api연동하기
-2. Notes to LPM / TAD 업데이트 api연동하기
-3. Specialties 업데이트 api연동하기
-4. Resume 업로드, 삭제 api연동하기
-*/
-export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Props) {
+const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
   const auth = useRecoilValueLoadable(authState)
@@ -127,7 +115,6 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
       queryKey: `myOffDays:${user.userId!}`,
     })
 
-  const [editProfile, setEditProfile] = useState(false)
   const [editNote, setEditNote] = useState(false)
   const [editOffDay, setEditOffDay] = useState(false)
   const [editExperience, setEditExperience] = useState(false)
@@ -135,7 +122,7 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
   const [offDayId, setOffDayId] = useState<number | null>(null)
 
   //forms
-  const [note, setNote] = useState(userInfo.notesFromUser)
+  const [note, setNote] = useState(userInfo.noteFromUser)
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
   const [experience, setExperience] = useState(userInfo.experience)
@@ -163,28 +150,12 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
 
   const { data: offDays } = useGetProWorkDays(user.userId!, year, month)
 
-  // function onCloseProfile() {
-  //   if (isFieldDirty) {
-  //     openModal({
-  //       type: 'closeProfileForm',
-  //       children: (
-  //         <DiscardChangesModal
-  //           onClose={() => closeModal('closeProfileForm')}
-  //           onDiscard={() => {
-  //             reset()
-  //             setEditProfile(false)
-  //           }}
-  //         />
-  //       ),
-  //     })
-  //   } else {
-  //     setEditProfile(false)
-  //   }
-  // }
-
   const updateUserInfoMutation = useMutation(
-    (data: (ProUserInfoType | ProUserResumeInfoType) & { userId: number }) =>
-      updateConsumerUserInfo(data),
+    (
+      data: (ProUserInfoType | ProUserResumeInfoType | ProUserNoteInfoType) & {
+        userId: number
+      },
+    ) => updateConsumerUserInfo(data),
     {
       onSuccess: () => {
         const { userId, email, accessToken } = router.query
@@ -201,10 +172,10 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
     },
   )
 
-  function onProfileSave(
+  const onProfileSave = (
     data: Omit<PersonalInfo, 'address'>,
     address: ClientAddressType,
-  ) {
+  ) => {
     updateUserInfoMutation.mutate(
       {
         userId: auth.getValue().user?.id || 0,
@@ -236,8 +207,6 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
         },
       },
     )
-    // console.log('data', data)
-    //TODO: mutation붙이기 + confirm modal
   }
 
   const onResumeSave = (files: Array<string>) => {
@@ -274,9 +243,64 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
     })
   }
 
-  function onNoteSave() {
-    //TODO: mutation붙이기 + confirm modal
+  const onClickSaveNote = () => {
+    updateUserInfoMutation.mutate(
+      {
+        userId: auth.getValue().user?.id || 0,
+        extraData: {
+          noteFromUser: note || '',
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditNote(true)
+        },
+      },
+    )
+  }
+
+  const onClickCancelNote = () => {
+    openModal({
+      type: 'CancelNoteForm',
+      children: (
+        <CustomModal
+          vary='error'
+          onClose={() => {
+            closeModal('CancelNoteForm')
+            setEditNote(true)
+          }}
+          onClick={() => {
+            setNote(userInfo?.noteFromUser)
+            closeModal('CancelNoteForm')
+          }}
+          rightButtonText='Discard'
+          title='Are you sure you want to discard all changes?'
+        />
+      ),
+    })
+  }
+
+  const onNoteSave = () => {
     setEditNote(false)
+
+    openModal({
+      type: 'saveNoteForm',
+      children: (
+        <CustomModal
+          onClose={() => {
+            closeModal('saveNoteForm')
+            setEditNote(true)
+          }}
+          onClick={() => {
+            onClickSaveNote()
+            closeModal('saveNoteForm')
+          }}
+          title='Are you sure you want to save all changes?'
+          rightButtonText='Save'
+          vary='successful'
+        />
+      ),
+    })
   }
 
   /* available work days */
@@ -375,7 +399,7 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
     },
   )
 
-  function onOffOnWeekendsClick(offOnWeekends: 0 | 1) {
+  const onOffOnWeekendsClick = (offOnWeekends: 0 | 1) => {
     openModal({
       type: 'updateWeekends',
       children: (
@@ -577,18 +601,11 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
     })
   }
 
-  function onSaveSpecialties() {
+  const onSaveSpecialties = () => {
     setEditSpecialties(false)
-    //TODO: mutation붙이기
   }
 
-  function onSuccess() {
-    toast.success('Saved successfully.', {
-      position: 'bottom-left',
-    })
-  }
-
-  function onError() {
+  const onError = () => {
     toast.error(
       'Something went wrong while uploading files. Please try again.',
       {
@@ -612,11 +629,12 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
 
   return (
     <Fragment>
-      { (updateUserInfoMutation.isLoading ||
-        updateOffDays.isLoading ||
-        updateWeekendsMutation.isLoading ||
-        deleteOffMutation.isLoading) ?
-        <OverlaySpinner /> : null }
+      {updateUserInfoMutation.isLoading ||
+      updateOffDays.isLoading ||
+      updateWeekendsMutation.isLoading ||
+      deleteOffMutation.isLoading ? (
+        <OverlaySpinner />
+      ) : null}
       <Grid container spacing={6}>
         <Grid
           item
@@ -636,7 +654,6 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
               mb='24px'
             >
               <Typography variant='h6'>My profile</Typography>
-              {/* <IconButton onClick={() => setEditProfile(!editProfile)}> */}
               <IconButton onClick={onClickEditProfile}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
@@ -671,12 +688,22 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
                     justifyContent='space-between'
                   >
                     <Typography variant='h6'>Available work days</Typography>
-                    <IconButton onClick={() => setEditOffDay(true)}>
-                      <Icon
-                        style={{ color: 'rgb(102, 108, 255)' }}
-                        icon='gridicons:add'
-                      />
-                    </IconButton>
+                    <button
+                      onClick={() => setEditOffDay(true)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '26px',
+                        height: '26px',
+                        background: 'rgb(102, 108, 255)',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <AddIcon style={{ color: '#fff', width: '18px' }} />
+                    </button>
                   </Box>
                 }
                 sx={{ mb: '24px', padding: 0 }}
@@ -728,13 +755,17 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
                   }
                 />
 
-                <Box display='flex' alignItems='center' gap='8px'>
-                  <TimelineDot color='grey' />
+                <Box
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='center'
+                  gap='8px'
+                >
+                  <TimelineDot color='grey' sx={{ marginTop: '15px' }} />
                   <Typography
                     variant='caption'
                     sx={{
-                      lineHeight: '14px',
-                      color: 'rgba(76, 78, 100, 0.87)',
+                      color: '#4C4E64DE',
                     }}
                   >
                     Unavailable
@@ -763,9 +794,11 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
             />
             <Divider sx={{ my: theme => `${theme.spacing(7)} !important` }} />
             <CardContent sx={{ padding: 0 }}>
-              {userInfo.notesFromUser
-                ? userInfo.notesFromUser
-                : 'No notes have been written.'}
+              <Typography sx={{ wordWrap: 'break-word' }}>
+                {userInfo.noteFromUser
+                  ? userInfo.noteFromUser
+                  : 'No notes have been written.'}
+              </Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -778,7 +811,7 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
                 sx={{
                   padding: '24px',
                   paddingBottom: '2px',
-                  minHeight: '186px',
+                  height: '186px',
                 }}
               >
                 <FileInfo
@@ -805,7 +838,7 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
             </Grid>
             {/* Years of experience */}
             <Grid item md={6} lg={6} xs={6}>
-              <Card sx={{ padding: '24px' }}>
+              <Card sx={{ padding: '20px', height: '186px' }}>
                 <CardHeader
                   title={
                     <Box
@@ -819,7 +852,7 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
                       </IconButton>
                     </Box>
                   }
-                  sx={{ mb: '24px', padding: 0 }}
+                  sx={{ height: '32px', mb: '24px', padding: 0 }}
                 />
 
                 <Typography
@@ -851,7 +884,7 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
             </Grid>
             {/* Specialties */}
             <Grid item xs={6}>
-              <Card sx={{ padding: '20px', height: '100%' }}>
+              <Card sx={{ padding: '20px', minHeight: '154px' }}>
                 <Box
                   display='flex'
                   alignItems='center'
@@ -872,7 +905,9 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
                       flexWrap: 'wrap',
                     }}
                   >
-                    {userInfo.specialties && userInfo.specialties.length && userInfo.specialties[0] !== "" ? (
+                    {userInfo.specialties &&
+                    userInfo.specialties.length &&
+                    userInfo.specialties[0] !== '' ? (
                       userInfo.specialties.map((value, idx) => {
                         return (
                           <Chip
@@ -899,58 +934,6 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
         </Grid>
       </Grid>
 
-      {/* My profile form modal */}
-      {/* <Dialog
-        open={editProfile}
-        onClose={() => setEditProfile(false)}
-        maxWidth='md'
-      >
-        <DialogContent style={{ padding: '50px 60px' }}>
-          <Grid container spacing={6}>
-            <Grid item xs={12}>
-              <Typography variant='h6'>My Profile</Typography>
-            </Grid>
-            <ProProfileForm control={control} errors={errors} watch={watch} />
-            <Grid item xs={12}>
-              <Divider />
-            </Grid>
-            <Grid item xs={12}>
-              <Grid container spacing={6} mb={4}>
-                <Grid item xs={12}>
-                  <Typography fontWeight={600}>Permanent address</Typography>
-                </Grid>
-                <ClientBillingAddressesForm
-                  control={addressControl}
-                  errors={addressError}
-                />
-              </Grid>
-            </Grid>
-            <Grid
-              item
-              xs={12}
-              display='flex'
-              gap='16px'
-              justifyContent='center'
-            >
-              <Button variant='outlined' onClick={onCloseProfile}>
-                Cancel
-              </Button>
-              <Button
-                variant='contained'
-                disabled={
-                  !isValid ||
-                  // (!isFieldDirty && !isAddressFieldDirty) ||
-                  !isAddressValid
-                }
-                onClick={onClickProfileSave}
-              >
-                Save
-              </Button>
-            </Grid>
-          </Grid>
-        </DialogContent>
-      </Dialog> */}
-
       {/* Note form */}
       <Dialog open={editNote} onClose={() => setEditNote(false)}>
         <DialogContent sx={{ padding: '24px' }}>
@@ -975,7 +958,7 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
               variant='outlined'
               onClick={() => {
                 setEditNote(false)
-                setNote(userInfo?.notesFromUser)
+                onClickCancelNote()
               }}
             >
               Cancel
@@ -1153,3 +1136,5 @@ export default function MyPageOverview({ user, userInfo, certifiedRoleInfo }: Pr
     </Fragment>
   )
 }
+
+export default MyPageOverview
