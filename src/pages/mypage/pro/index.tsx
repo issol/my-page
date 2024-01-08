@@ -16,11 +16,11 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** components
-import Header from '../components/header'
+import Header from '@src/views/mypage/components/header'
 import FallbackSpinner from '@src/@core/components/spinner'
-import MyAccount from './components/my-account'
-import MyPageOverview from './components/overview'
-import ProPaymentInfo from './components/payment-info'
+import MyAccount from '../../../views/mypage/my-account'
+import MyPageOverview from '../../../views/mypage/overview'
+import ProPaymentInfo from '../../../views/mypage/payment-info'
 
 // ** apis
 import { useGetMyOverview } from '@src/queries/pro/pro-details.query'
@@ -28,7 +28,8 @@ import { useGetCertifiedRole } from '@src/queries/onboarding/onboarding-query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type MenuType = 'overview' | 'paymentInfo' | 'myAccount'
-export default function ProMyPage() {
+
+const ProMyPage = () => {
   const auth = useRecoilValueLoadable(authState)
   const {
     data: userInfo,
@@ -37,7 +38,8 @@ export default function ProMyPage() {
     isLoading: isUserInfoLoading,
   } = useGetMyOverview(Number(auth.getValue().user?.userId!))
 
-  const { data: certifiedRoleInfo, isLoading: isCertifiedRoleInfoLoading } = useGetCertifiedRole(Number(auth.getValue().user?.userId!))
+  const { data: certifiedRoleInfo, isLoading: isCertifiedRoleInfoLoading } =
+    useGetCertifiedRole(Number(auth.getValue().user?.userId!))
   const [value, setValue] = useState<MenuType>('overview')
 
   const handleChange = (_: any, value: MenuType) => {
@@ -47,8 +49,8 @@ export default function ProMyPage() {
   return (
     <>
       {auth.state === 'loading' ||
-        isUserInfoLoading ||
-        isCertifiedRoleInfoLoading ? (
+      isUserInfoLoading ||
+      isCertifiedRoleInfoLoading ? (
         <OverlaySpinner />
       ) : auth.state === 'hasValue' ? (
         <Grid container spacing={6}>
@@ -118,5 +120,7 @@ ProMyPage.acl = {
 
 const CustomTap = styled(Tab)`
   text-transform: none;
-  padding: 0px 27px;
+  padding: 0 27px;
 `
+
+export default ProMyPage

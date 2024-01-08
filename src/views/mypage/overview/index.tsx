@@ -23,7 +23,7 @@ import {
   Typography,
 } from '@mui/material'
 import { Icon } from '@iconify/react'
-import Chip from 'src/@core/components/mui/chip'
+import Chip from '@src/@core/components/mui/chip'
 
 // ** components
 import About from './about'
