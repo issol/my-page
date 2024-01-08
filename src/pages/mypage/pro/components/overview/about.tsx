@@ -78,7 +78,7 @@ export default function About({ userInfo }: Props) {
   return (
     <Fragment>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <Typography variant='body2'>About</Typography>
+        <Typography sx={{ fontSize: '12px' }}>About</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:account-outline' style={{ opacity: '0.7' }} />
           <LabelTitle>Preferred name:</LabelTitle>
@@ -104,11 +104,10 @@ export default function About({ userInfo }: Props) {
         sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
         mt='20px'
       >
-        <Typography variant='body2'>Contacts</Typography>
+        <Typography sx={{ fontSize: '12px' }}>Contacts</Typography>
         <Box
           sx={{
             display: 'flex',
-            // alignItems: 'center',
             gap: '8px',
           }}
         >
@@ -129,18 +128,20 @@ export default function About({ userInfo }: Props) {
             </Typography>
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
           <Icon icon='mdi:cellphone' style={{ opacity: '0.7' }} />
-          <LabelTitle>Mobile phone:</LabelTitle>
-          <Label>
-            {!userInfo.mobilePhone
-              ? '-'
-              : contryCodeAndPhoneNumberFormatter(
-                  splitContryCodeAndPhoneNumber(userInfo.mobilePhone),
-                )}
-          </Label>
+          <Typography variant='body2' fontWeight={600} fontSize={16}>
+            Mobile phone: :&nbsp;
+            <Typography variant='body2' fontSize={16} component={'span'}>
+              {!userInfo.mobilePhone
+                ? '-'
+                : contryCodeAndPhoneNumberFormatter(
+                    splitContryCodeAndPhoneNumber(userInfo.mobilePhone),
+                  )}
+            </Typography>
+          </Typography>
         </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
           <Icon icon='mdi:phone' style={{ opacity: '0.7' }} />
           <LabelTitle>Telephone:</LabelTitle>
           <Label>
@@ -164,17 +165,18 @@ export default function About({ userInfo }: Props) {
             <FormControl fullWidth>
               <InputLabel id='controlled-select-label'>Status</InputLabel>
               <Select
-                value={userInfo?.status ?? '-'}
+                value={userInfo?.status ? userInfo?.status : '-'}
                 label='Status'
                 disabled={true}
               >
                 {Object.values(ProStatus).map(value => {
                   return (
                     <MenuItem key={uuidv4()} value={value.value}>
-                      {value.label}
+                      {value.label || '-'}
                     </MenuItem>
                   )
                 })}
+                {userInfo?.status ? null : <MenuItem value='-'>{'-'}</MenuItem>}
               </Select>
             </FormControl>
           </Box>
@@ -185,11 +187,10 @@ export default function About({ userInfo }: Props) {
 }
 
 const LabelTitle = styled.label`
+  white-space: nowrap;
   font-weight: 600;
-  font-size: 1rem;
   line-height: 24px;
   letter-spacing: 0.15px;
-
   color: rgba(76, 78, 100, 0.6);
 `
 const Label = styled.label`
@@ -197,6 +198,5 @@ const Label = styled.label`
   font-size: 1rem;
   line-height: 24px;
   letter-spacing: 0.15px;
-
   color: rgba(76, 78, 100, 0.6);
 `
