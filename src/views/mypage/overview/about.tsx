@@ -4,7 +4,7 @@ import Select from '@mui/material/Select'
 import Divider from '@mui/material/Divider'
 import Box from '@mui/material/Box'
 import styled from 'styled-components'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 import { v4 as uuidv4 } from 'uuid'
 
