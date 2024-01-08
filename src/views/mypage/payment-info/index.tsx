@@ -69,7 +69,7 @@ const ProPaymentInfo = ({ user }: Props) => {
 
   const [changeBillingMethod, setChangeBillingMethod] = useState(false)
 
-  const [editMethod, setEditMethod] = useState(false)
+  const [editMode, setEditMode] = useState(false)
   const [editBillingAddress, setEditBillingAddress] = useState(false)
   const [editTaxInfo, setEditTaxInfo] = useState(false)
 
@@ -618,7 +618,7 @@ Some information will reset..'
       isPaymentInfoFetching() ? (
         <OverlaySpinner />
       ) : null}
-      {editMethod || editBillingAddress || editTaxInfo || !isRegister ? null : (
+      {editMode || editBillingAddress || editTaxInfo || !isRegister ? null : (
         <Grid item xs={12} display='flex' justifyContent='end'>
           <Button
             variant='contained'
@@ -633,7 +633,7 @@ Some information will reset..'
 
       <Grid item xs={12}>
         <Card sx={{ padding: '24px' }}>
-          <Grid container spacing={6}>
+          <Grid container spacing={billingMethod ? 6 : editMode ? 6 : 0}>
             <Grid
               item
               xs={12}
@@ -643,7 +643,7 @@ Some information will reset..'
             >
               <Box display='flex' alignItems='center' gap='20px'>
                 <Typography variant='h6'>Billing Method </Typography>
-                {editMethod && !isRegister ? (
+                {editMode && !isRegister ? (
                   <Button
                     variant='outlined'
                     size='small'
@@ -653,16 +653,16 @@ Some information will reset..'
                   </Button>
                 ) : null}
               </Box>
-              {editMethod ? null : (
+              {editMode ? null : (
                 <Button
                   variant='contained'
-                  onClick={() => setEditMethod(!editMethod)}
+                  onClick={() => setEditMode(prev => !prev)}
                 >
                   Update
                 </Button>
               )}
             </Grid>
-            {editMethod ? (
+            {editMode ? (
               <Fragment>
                 <Grid item xs={12}>
                   <BillingMethod
@@ -674,7 +674,7 @@ Some information will reset..'
                     billingMethodData={billingMethodData}
                     billingMethod={billingMethod}
                     setBillingMethod={setBillingMethod}
-                    setEdit={setEditMethod}
+                    setEdit={setEditMode}
                     onBillingMethodSave={onBillingMethodSave}
                   />
                 </Grid>
