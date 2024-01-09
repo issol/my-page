@@ -34,9 +34,8 @@ import { v4 as uuidv4 } from 'uuid'
 import { GridColumns } from '@mui/x-data-grid'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 import { useMutation } from 'react-query'
-import { ModalContext } from 'src/context/ModalContext'
+
 import { FileType } from '@src/types/common/file.type'
 
 import { useAppSelector } from '@src/hooks/useRedux'
@@ -50,6 +49,8 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type CellType = {
   row: CurrentTestType
@@ -57,13 +58,13 @@ type CellType = {
 /* eslint-disable */
 const CertificationTestDetail = () => {
   const router = useRouter()
+  const { openModal, closeModal } = useModal()
 
   const id = Number(router.query.id)
 
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const ability = useContext(AbilityContext)
-  const { setModal } = useContext(ModalContext)
 
   const { data } = useGetTestDetail(id, true)
 
@@ -310,42 +311,21 @@ const CertificationTestDetail = () => {
   }
 
   function onDelete() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DeleteModal',
+      children: (
+        <CustomModal
+          title='Are you sure you want to delete this test?'
+          vary='error'
+          rightButtonText='Delete'
+          onClose={() => closeModal('DeleteModal')}
+          onClick={() => {
+            deleteMutation.mutate(Number(id!))
+            closeModal('DeleteModal')
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure you want to delete this test?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              deleteMutation.mutate(Number(id!))
-            }}
-          >
-            Delete
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+        />
+      ),
+    })
   }
 
   useEffect(() => {

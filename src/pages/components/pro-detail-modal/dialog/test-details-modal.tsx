@@ -66,6 +66,8 @@ import {
 import { UserDataType } from '@src/context/types'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 // type AssignReviewerType = {
 //   jobType: { label: string; value: string }
@@ -101,6 +103,7 @@ type Props = {
   type: string
   // history: any
   user: UserDataType
+  onClose: any
 }
 
 const defaultValues = {
@@ -131,9 +134,9 @@ export default function TestDetailsModal({
   // reviewerList,
   type,
   // history,
+  onClose,
   user,
 }: Props) {
-  const { setModal } = useContext(ModalContext)
   const [info, setInfo] = useState<TestType>(skillTest)
   const timezone = useRecoilValueLoadable(timezoneSelector)
   // const { data: reviewerList1 } = useGetReviewerList()
@@ -168,8 +171,6 @@ export default function TestDetailsModal({
     },
   })
 
-  const [selectedReviewer, setSelectedReviewer] =
-    useState<AssignReviewerType | null>(null)
   // const [reviewers, setReviewers] = useState<AssignReviewerType[]>(reviewerList)
   const [value, setValue] = useState<string>(type === 'detail' ? '1' : '2')
 
@@ -177,19 +178,13 @@ export default function TestDetailsModal({
   const [testHistoryPageSize, setTestHistoryPageSize] = useState<number>(10)
   const queryClient = useQueryClient()
 
-  const [requestReviewerModalOpen, setRequestReviewerModalOpen] =
-    useState(false)
+  const { openModal, closeModal } = useModal()
 
   const [isAccepted, setIsAccepted] = useState(false)
-  const [acceptedId, setAcceptedId] = useState(0)
+
   const [assignReviewerPage, setAssignReviewerPage] = useState<number>(0)
   const [assignReviewerPageSize, setAssignReviewerPageSize] =
     useState<number>(10)
-
-  const [testStatus, setTestStatus] = useState<{
-    value: string
-    label: string
-  } | null>(null)
 
   const assignReviewerMutation = useMutation(
     (value: { reviewerId: number; testId: number; status: string }) =>
@@ -220,13 +215,6 @@ export default function TestDetailsModal({
     },
   )
 
-  const onChangeTestStatus = (
-    event: SyntheticEvent,
-    newValue: { value: string; label: string } | null,
-  ) => {
-    setTestStatus(newValue)
-  }
-
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
@@ -256,8 +244,29 @@ export default function TestDetailsModal({
   }
 
   const onClickRequestReview = (reviewer: AssignReviewerType | null) => {
-    setSelectedReviewer(reviewer)
-    setRequestReviewerModalOpen(true)
+    // setRequestReviewerModalOpen(true)
+    openModal({
+      type: 'RequestReviewModal',
+      children: (
+        <CustomModal
+          title={
+            <>
+              Are you sure to request a review to this reviewer?
+              <Typography variant='body2' fontWeight={600}>
+                {reviewer?.userEmail}
+              </Typography>
+            </>
+          }
+          onClose={() => closeModal('RequestReviewModal')}
+          onClick={() => {
+            closeModal('RequestReviewModal')
+            requestReview(reviewer, 'Request accepted')
+          }}
+          rightButtonText='Request'
+          vary='successful'
+        />
+      ),
+    })
   }
 
   useEffect(() => {
@@ -590,35 +599,31 @@ export default function TestDetailsModal({
   ]
 
   return (
-    <Dialog
-      open={true}
-      keepMounted
-      fullWidth
-      onClose={() => setModal(null)}
-      // TransitionComponent={Transition}
-      aria-labelledby='alert-dialog-slide-title'
-      aria-describedby='alert-dialog-slide-description'
-      maxWidth='md'
+    <Box
+      sx={{
+        maxWidth: '940px',
+        width: '100%',
+        background: '#ffffff',
+        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+        borderRadius: '10px',
+        position: 'relative',
+      }}
     >
-      <RequestReviewerModal
-        reviewer={selectedReviewer}
-        requestReview={requestReview}
-        open={requestReviewerModalOpen}
-        onClose={() => setRequestReviewerModalOpen(false)}
-      />
+      <IconButton
+        sx={{ position: 'absolute', top: '20px', right: '20px' }}
+        onClick={onClose}
+      >
+        <Icon icon='mdi:close'></Icon>
+      </IconButton>
 
-      <DialogContent
+      <Box
         sx={{
-          padding: '50px',
-          position: 'relative',
+          padding: '50px 60px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
         }}
       >
-        <IconButton
-          sx={{ position: 'absolute', top: '20px', right: '20px' }}
-          onClick={() => setModal(null)}
-        >
-          <Icon icon='mdi:close'></Icon>
-        </IconButton>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
           <TabContext value={value}>
             <TabList
@@ -874,8 +879,8 @@ export default function TestDetailsModal({
             </TabPanel>
           </TabContext>
         </Box>
-      </DialogContent>
-    </Dialog>
+      </Box>
+    </Box>
   )
 }
 
