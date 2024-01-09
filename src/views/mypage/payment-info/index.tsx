@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Box, Button, Card, Grid, Typography } from '@mui/material'
 import { UserDataType } from '@src/context/types'
 import { DetailUserType } from '@src/types/common/detail-user.type'
@@ -608,17 +608,32 @@ Some information will reset..'
     }
   }
 
-  return (
-    <Grid container spacing={6}>
-      {updateBillingMethodMutation.isLoading ||
+  const isAllDataLoading = useMemo(() => {
+    return (
+      updateBillingMethodMutation.isLoading ||
       updateBillingAddressMutation.isLoading ||
       updateTaxInformationMutation.isLoading ||
       updateProPaymentFileMutation.isLoading ||
       addBillingAddressAndTaxMutation.isLoading ||
-      isPaymentInfoFetching() ? (
-        <OverlaySpinner />
-      ) : null}
-      {editMode || editBillingAddress || editTaxInfo || !isRegister ? null : (
+      isPaymentInfoFetching()
+    )
+  }, [
+    updateBillingMethodMutation.isLoading,
+    updateBillingAddressMutation.isLoading,
+    updateTaxInformationMutation.isLoading,
+    updateProPaymentFileMutation.isLoading,
+    addBillingAddressAndTaxMutation.isLoading,
+    isPaymentInfoFetching,
+  ])
+
+  const isActiveEditMode = useMemo(() => {
+    return editMode || editBillingAddress || editTaxInfo || !isRegister
+  }, [editMode, editBillingAddress, editTaxInfo, isRegister])
+
+  return (
+    <Grid container spacing={6}>
+      {isAllDataLoading ? <OverlaySpinner /> : null}
+      {isActiveEditMode ? null : (
         <Grid item xs={12} display='flex' justifyContent='end'>
           <Button
             variant='contained'

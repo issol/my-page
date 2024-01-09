@@ -248,7 +248,7 @@ export const CopyTextRow = ({
       <Typography fontWeight={600}>{title}</Typography>
       <Box display='flex' alignItems='center'>
         <Typography variant='body2'>{value ? value : '-'}</Typography>
-        {isCopyButton && (
+        {value && isCopyButton && (
           <IconButton onClick={() => onCopy(value ?? '')}>
             <Icon icon='mdi:content-copy' fontSize={20} />
           </IconButton>
