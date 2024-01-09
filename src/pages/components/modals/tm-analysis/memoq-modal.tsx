@@ -203,7 +203,7 @@ export default function MemoQModal({
   const Row = ({ idx, item }: { idx: number; item: MemoQData }) => {
     const [cardOpen, setCardOpen] = useState(idx === 0 ? true : false)
     const filteredData: Array<MemoQInterface> = Object.keys(item).filter(
-      key => key !== 'File' && key !== 'Total' && key !== 'Chars/Word',
+      key => key !== 'File' && key !== 'Total' && key !== 'Char/Word',
     ) as Array<MemoQInterface>
 
     const totalWords = Object.entries(item)
