@@ -12,7 +12,7 @@ import {
 } from '@src/types/payment-info/pro/billing-method.type'
 import BillingMethod from './billing-method-forms'
 import BillingAddress from '@src/pages/client/components/payment-info/billing-address'
-import { useForm } from 'react-hook-form'
+import { useForm, useFormContext } from 'react-hook-form'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
@@ -59,6 +59,7 @@ type Props = {
 
 const ProPaymentInfo = ({ user }: Props) => {
   const { openModal, closeModal } = useModal()
+  const { setValue } = useFormContext()
 
   const queryClient = useQueryClient()
   const invalidatePaymentInfo = () =>
@@ -85,7 +86,15 @@ const ProPaymentInfo = ({ user }: Props) => {
     useGetUserPaymentInfo(user.userId!, true)
   const { data: taxCodes } = useGetTaxCodeList()
 
-  function onError() {
+  useEffect(() => {
+    if (editMode || editBillingAddress || editTaxInfo) {
+      setValue('currentEditMode', true)
+    } else {
+      setValue('currentEditMode', false)
+    }
+  }, [isRegister, editMode, editBillingAddress, editTaxInfo])
+
+  const onError = () => {
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
     })

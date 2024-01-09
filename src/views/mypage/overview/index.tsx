@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** style components
 import {
@@ -40,7 +40,7 @@ import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confi
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { useForm } from 'react-hook-form'
+import { useForm, useFormContext } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** types & schemas
@@ -100,8 +100,10 @@ type Props = {
 }
 
 const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
-  const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
+
+  const { openModal, closeModal } = useModal()
+
   const auth = useRecoilValueLoadable(authState)
   const setAuth = useAuth()
   const router = useRouter()
@@ -494,7 +496,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     }
   }
 
-  function uploadFiles(files: File[]) {
+  const uploadFiles = (files: File[]) => {
     let fileData: Array<string> = resume
     if (files?.length) {
       const promiseArr = files.map((file, idx) => {
@@ -544,7 +546,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   //   },
   // )
 
-  function onDeleteFile(file: FileItemType) {
+  const onDeleteFile = (file: FileItemType) => {
     if (userInfo?.resume?.length && userInfo.resume.length <= 1) {
       openModal({
         type: 'cannotDeleteResume',
@@ -572,9 +574,8 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
     }
   }
 
-  function onSaveExperience() {
+  const onSaveExperience = () => {
     setEditExperience(false)
-    //TODO: mutation붙이기
   }
 
   /* Contracts */
@@ -812,7 +813,6 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
                 sx={{
                   padding: '24px',
                   paddingBottom: '2px',
-                  height: '186px',
                 }}
               >
                 <FileInfo

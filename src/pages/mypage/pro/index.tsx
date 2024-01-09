@@ -10,8 +10,7 @@ import { Grid } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
 // ** nextJS
-
-import { Suspense, useState } from 'react'
+import { MouseEvent, Suspense, useCallback, useEffect, useState } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
@@ -26,24 +25,64 @@ import ProPaymentInfo from '../../../views/mypage/payment-info'
 import { useGetMyOverview } from '@src/queries/pro/pro-details.query'
 import { useGetCertifiedRole } from '@src/queries/onboarding/onboarding-query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import useModal from '@src/hooks/useModal'
+import { useRouter } from 'next/router'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import useChangeRouterBlocking from '@src/hooks/useChangeRouterBlocking'
 
 type MenuType = 'overview' | 'paymentInfo' | 'myAccount'
 
-const ProMyPage = () => {
-  const auth = useRecoilValueLoadable(authState)
-  const {
-    data: userInfo,
-    isError,
-    isFetched,
-    isLoading: isUserInfoLoading,
-  } = useGetMyOverview(Number(auth.getValue().user?.userId!))
+const createQueryString = (name: string, value: string) => {
+  const params = new URLSearchParams()
+  params.set(name, value)
+  return params.toString()
+}
 
+const ProMyPage = () => {
+  const router = useRouter()
+  const tab = router.query.tabs as MenuType
+  const pageFormMethod = useForm<{ currentEditMode: boolean }>({
+    defaultValues: { currentEditMode: false },
+  })
+
+  const auth = useRecoilValueLoadable(authState)
+  const [currentTab, setCurrentTab] = useState<MenuType>(tab || 'overview')
+
+  const { data: userInfo, isLoading: isUserInfoLoading } = useGetMyOverview(
+    Number(auth.getValue().user?.userId!),
+  )
   const { data: certifiedRoleInfo, isLoading: isCertifiedRoleInfoLoading } =
     useGetCertifiedRole(Number(auth.getValue().user?.userId!))
-  const [value, setValue] = useState<MenuType>('overview')
+
+  const currentEditMode = useWatch({
+    control: pageFormMethod.control,
+    name: 'currentEditMode',
+  })
+
+  const { changePageAlert } = useChangeRouterBlocking({
+    isPageChangeShowAlert: currentEditMode,
+  })
+
+  useEffect(() => {
+    if (router.query.tabs) return
+    router.push(`${router.pathname}?${createQueryString('tabs', 'overview')}`)
+  }, [])
 
   const handleChange = (_: any, value: MenuType) => {
-    setValue(value)
+    if (currentEditMode) {
+      changePageAlert(() => {
+        setCurrentTab(value)
+      })
+      return
+    }
+
+    router.push(`${router.pathname}?${createQueryString('tabs', value)}`)
+    setCurrentTab(value)
+  }
+
+  const changeTab = (e: MouseEvent, curTab: string) => {
+    e.preventDefault()
   }
 
   return (
@@ -53,61 +92,69 @@ const ProMyPage = () => {
       isCertifiedRoleInfoLoading ? (
         <OverlaySpinner />
       ) : auth.state === 'hasValue' ? (
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Header userInfo={userInfo!} />
-          </Grid>
-          <Grid item xs={12}>
-            <TabContext value={value}>
-              <TabList
-                onChange={handleChange}
-                aria-label='Pro detail Tab menu'
-                style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
-              >
-                <CustomTap
-                  value='overview'
-                  label='Overview'
-                  iconPosition='start'
-                  icon={<Icon icon='material-symbols:person-outline' />}
-                  onClick={e => e.preventDefault()}
-                />
-                <CustomTap
-                  value='paymentInfo'
-                  label='Payment info'
-                  iconPosition='start'
-                  icon={<Icon icon='carbon:currency-dollar' />}
-                  onClick={e => e.preventDefault()}
-                />
-                <CustomTap
-                  value='myAccount'
-                  label='My account'
-                  iconPosition='start'
-                  icon={<Icon icon='material-symbols:security' />}
-                  onClick={e => e.preventDefault()}
-                />
-              </TabList>
-              <TabPanel value='overview'>
-                <Suspense fallback={<FallbackSpinner />}>
-                  <MyPageOverview
-                    userInfo={userInfo!}
-                    certifiedRoleInfo={certifiedRoleInfo!}
-                    user={auth.getValue().user!}
+        <FormProvider {...pageFormMethod}>
+          <Grid container spacing={6}>
+            <Grid item xs={12}>
+              <Header userInfo={userInfo!} />
+            </Grid>
+            <Grid item xs={12}>
+              <TabContext value={currentTab}>
+                <TabList
+                  onChange={handleChange}
+                  aria-label='Pro detail Tab menu'
+                  style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
+                >
+                  <CustomTap
+                    value='overview'
+                    label='Overview'
+                    iconPosition='start'
+                    icon={<Icon icon='material-symbols:person-outline' />}
+                    onClick={e => {
+                      changeTab(e, 'overview')
+                    }}
                   />
-                </Suspense>
-              </TabPanel>
-              <TabPanel value='paymentInfo'>
-                <Suspense fallback={<FallbackSpinner />}>
-                  <ProPaymentInfo user={auth.getValue().user!} />
-                </Suspense>
-              </TabPanel>
-              <TabPanel value='myAccount'>
-                <Suspense fallback={<FallbackSpinner />}>
-                  <MyAccount user={auth.getValue().user!} />
-                </Suspense>
-              </TabPanel>
-            </TabContext>
+                  <CustomTap
+                    value='paymentInfo'
+                    label='Payment info'
+                    iconPosition='start'
+                    icon={<Icon icon='carbon:currency-dollar' />}
+                    onClick={e => {
+                      changeTab(e, 'paymentInfo')
+                    }}
+                  />
+                  <CustomTap
+                    value='myAccount'
+                    label='My account'
+                    iconPosition='start'
+                    icon={<Icon icon='material-symbols:security' />}
+                    onClick={e => {
+                      changeTab(e, 'myAccount')
+                    }}
+                  />
+                </TabList>
+                <TabPanel value='overview'>
+                  <Suspense fallback={<FallbackSpinner />}>
+                    <MyPageOverview
+                      userInfo={userInfo!}
+                      certifiedRoleInfo={certifiedRoleInfo!}
+                      user={auth.getValue().user!}
+                    />
+                  </Suspense>
+                </TabPanel>
+                <TabPanel value='paymentInfo'>
+                  <Suspense fallback={<FallbackSpinner />}>
+                    <ProPaymentInfo user={auth.getValue().user!} />
+                  </Suspense>
+                </TabPanel>
+                <TabPanel value='myAccount'>
+                  <Suspense fallback={<FallbackSpinner />}>
+                    <MyAccount user={auth.getValue().user!} />
+                  </Suspense>
+                </TabPanel>
+              </TabContext>
+            </Grid>
           </Grid>
-        </Grid>
+        </FormProvider>
       ) : null}
     </>
   )
