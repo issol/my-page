@@ -253,7 +253,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
       },
       {
         onSuccess: () => {
-          setEditNote(true)
+          setEditNote(false)
         },
       },
     )
@@ -272,6 +272,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
           onClick={() => {
             setNote(userInfo?.noteFromUser)
             closeModal('CancelNoteForm')
+            setEditNote(false)
           }}
           rightButtonText='Discard'
           title='Are you sure you want to discard all changes?'
