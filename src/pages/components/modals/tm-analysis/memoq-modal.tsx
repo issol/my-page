@@ -208,12 +208,13 @@ export default function MemoQModal({
 
     const totalWords = Object.entries(item)
       .filter(([key, value]) => {
-        return key !== 'File' && key !== 'Chars/Word'
+        return key !== 'File' && key !== 'Char/Word'
       })
       .map(([, value]) => {
-        if (typeof value === 'string') {
+        if (typeof value === 'string' || !value.Words) {
           return 0 // or handle the case when value is a string
         }
+
         return Number(value.Words)
       })
       .reduce((a, b) => a + b, 0)
@@ -223,7 +224,7 @@ export default function MemoQModal({
         return key !== 'File' && key !== 'Chars/Word'
       })
       .map(([, value]) => {
-        if (typeof value === 'string') {
+        if (typeof value === 'string' || !value.Characters) {
           return 0 // or handle the case when value is a string
         }
         return Number(value.Characters)
