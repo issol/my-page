@@ -81,7 +81,7 @@ const CalendarContainer = ({ statusList, userId }: Props) => {
   const { data, isLoading } = useGetPayableCalendar(
     year,
     month,
-    { ...filter, pro: [userId] },
+    { ...filter, proId: [userId] },
     'lpm',
   )
   const [event, setEvent] = useState<

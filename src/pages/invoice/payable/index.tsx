@@ -42,7 +42,7 @@ import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 
 const initialFilter: InvoicePayableFilterType = {
   invoiceStatus: [],
-  pro: [],
+  proId: [],
   invoicedDateFrom: '',
   invoicedDateTo: '',
   payDueDateFrom: '',
