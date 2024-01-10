@@ -86,7 +86,7 @@ type Props = {
   expanded: string | false
 }
 
-export default function ProListFilters({
+const ProListFilters = ({
   control,
   handleSubmit,
   onSubmit,
@@ -99,7 +99,7 @@ export default function ProListFilters({
   languageList,
   expanded,
   handleFilterStateChange,
-}: Props) {
+}: Props) => {
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [onFocused, setOnFocused] = useState<boolean>(false)
 
@@ -563,3 +563,5 @@ export const AutoCompleteComponent = styled(Card)<CardProps>(
     },
   }),
 )
+
+export default ProListFilters
