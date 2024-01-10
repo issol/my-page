@@ -84,7 +84,8 @@ export default function PayableList({
   const columns: GridColumns<InvoicePayableListType> = [
     {
       field: 'corporationId',
-      minWidth: 182,
+      minWidth: 130,
+      flex: 0.0807,
       headerName: 'No.',
       disableColumnMenu: true,
       renderHeader: () => <Box>No.</Box>,
@@ -94,7 +95,8 @@ export default function PayableList({
     },
     {
       field: 'Status',
-      minWidth: 182,
+      minWidth: 240,
+      flex: 0.1491,
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
@@ -112,7 +114,8 @@ export default function PayableList({
     },
     {
       field: 'Pro / Email',
-      minWidth: 182,
+      minWidth: 260,
+      flex: 0.1615,
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
@@ -126,7 +129,8 @@ export default function PayableList({
     },
     {
       field: 'invoicedAt',
-      minWidth: 182,
+      minWidth: 280,
+      flex: 0.1739,
       disableColumnMenu: true,
       renderHeader: () => <Box>Invoice date</Box>,
       renderCell: ({ row }: CellType) => {
@@ -146,7 +150,8 @@ export default function PayableList({
     },
     {
       field: 'payDueAt',
-      minWidth: 182,
+      minWidth: 280,
+      flex: 0.1739,
       disableColumnMenu: true,
       renderHeader: () => <Box>Payment due</Box>,
       renderCell: ({ row }: CellType) => {
@@ -164,7 +169,8 @@ export default function PayableList({
     },
     {
       field: 'paidAt',
-      minWidth: 182,
+      minWidth: 280,
+      flex: 0.1739,
       disableColumnMenu: true,
       renderHeader: () => <Box>Payment date</Box>,
       renderCell: ({ row }: CellType) => {
@@ -182,7 +188,8 @@ export default function PayableList({
     },
     {
       field: 'totalPrice',
-      minWidth: 182,
+      minWidth: 140,
+      flex: 0.087,
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
