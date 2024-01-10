@@ -127,7 +127,7 @@ const WorkDaysCalendar = (props: Props) => {
     },
   }
 
-  async function handleMonthChange(payload: DatesSetArg) {
+  const handleMonthChange = async (payload: DatesSetArg) => {
     const currDate = payload.view.currentStart
     const currYear = currDate.getFullYear()
     const currMonth = currDate.getMonth() + 1
@@ -135,7 +135,7 @@ const WorkDaysCalendar = (props: Props) => {
     setMonth(currMonth)
   }
 
-  function makeMenuElement(eventEl: any) {
+  const makeMenuElement = (eventEl: any) => {
     // 메뉴 엘리먼트 생성 및 위치 설정
     let menu = document.createElement('div')
     menu.className = 'offdays-menu'
@@ -167,7 +167,7 @@ const WorkDaysCalendar = (props: Props) => {
     parentEl.appendChild(menu)
   }
 
-  function removeMenu() {
+  const removeMenu = () => {
     const menus = document.getElementsByClassName('offdays-menu')
     Array.from(menus).forEach(menu => {
       menu.remove()

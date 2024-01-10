@@ -381,7 +381,7 @@ export default function MemoQModal({
           <Grid item xs={12}>
             <Divider />
           </Grid>
-          <Grid item xs={12} sx={{ minHeight: '650px' }}>
+          <Grid item xs={12} sx={{ minHeight: '650px', overflow: 'scroll' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {data.data
                 ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
