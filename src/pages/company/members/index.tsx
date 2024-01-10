@@ -12,8 +12,6 @@ import {
   undoRequest,
 } from 'src/apis/company/company-members.api'
 
-import { ModalContext } from 'src/context/ModalContext'
-
 import toast from 'react-hot-toast'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'

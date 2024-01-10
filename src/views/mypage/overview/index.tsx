@@ -592,7 +592,6 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
         type: 'preview',
         children: (
           <FilePreviewDownloadModal
-            open={true}
             onClose={() => closeModal('preview')}
             docs={[file]}
           />

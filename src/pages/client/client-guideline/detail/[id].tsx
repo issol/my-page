@@ -27,11 +27,11 @@ import EmptyPost from 'src/@core/components/page/empty-post'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
+
 import Icon from 'src/@core/components/icon'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -67,6 +67,7 @@ import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { timezoneSelector } from '@src/states/permission'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
+import { ModalButtonGroup } from '@src/pages/jobPosting/components/edit-link-modal'
 
 type CellType = {
   row: {

@@ -1,24 +1,12 @@
-import {
-  Dispatch,
-  SetStateAction,
-  SyntheticEvent,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { SyntheticEvent, useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 
-import Dialog from '@mui/material/Dialog'
 import Divider from '@mui/material/Divider'
-import DialogContent from '@mui/material/DialogContent'
+
 import { DataGrid } from '@mui/x-data-grid'
 import IconButton from '@mui/material/IconButton'
-import { ModalContext } from 'src/context/ModalContext'
-import {
-  AssignReviewerType,
-  SelectedJobInfoType,
-  TestHistoryType,
-} from 'src/types/onboarding/list'
+
+import { AssignReviewerType, TestHistoryType } from 'src/types/onboarding/list'
 import Button from '@mui/material/Button'
 
 import Tab from '@mui/material/Tab'
@@ -30,31 +18,20 @@ import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
-import Checkbox from '@mui/material/Checkbox'
-import Autocomplete from '@mui/material/Autocomplete'
+
 import Icon from 'src/@core/components/icon'
 import { v4 as uuidv4 } from 'uuid'
-import TextField from '@mui/material/TextField'
+
 import Grid from '@mui/material/Grid'
 import Chip from 'src/@core/components/mui/chip'
 import { TestStatusColor } from 'src/shared/const/chipColors'
-import RequestReviewerModal from '../modal/request-reviewer-modal'
 
-import {
-  useForm,
-  Controller,
-  useFieldArray,
-  Control,
-  UseFormHandleSubmit,
-  UseFormTrigger,
-} from 'react-hook-form'
-import { TestStatus } from 'src/shared/const/status/statuses'
 import { CardProps } from '../../../onboarding/components/list/filters'
 import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
-// import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
+
 import { useMutation, useQuery, useQueryClient } from 'react-query'
 
-import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
+import { TestType } from 'src/types/onboarding/details'
 
 import {
   assignReviewer,
@@ -104,13 +81,6 @@ type Props = {
   // history: any
   user: UserDataType
   onClose: any
-}
-
-const defaultValues = {
-  jobType: '',
-  role: '',
-  source: '',
-  target: '',
 }
 
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({

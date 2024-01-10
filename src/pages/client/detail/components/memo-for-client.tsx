@@ -40,19 +40,19 @@ import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 // ** components
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
 import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-modals/confirm-save-all-chages'
-import DeleteCommentModal from '@src/pages/components/pro-detail-modal/modal/delete-comment-modal'
+
 import CustomPagination from 'src/pages/components/custom-pagination'
 
 // ** toast
 import { toast } from 'react-hot-toast'
-import SaveCommentModal from '@src/pages/components/pro-detail-modal/modal/save-comment-modal'
+
 import { ClientMemoPostType } from '@src/types/client/client'
-import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal/cancel-comment-modal'
 
 // ** permission class
 import { client_comment } from '@src/shared/const/permission-class'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { timezoneSelector } from '@src/states/permission'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   clientId: number
@@ -161,11 +161,13 @@ export default function ClientMemo({ clientId, memo }: Props) {
   function onConfirm() {
     if (isCreate && auth.state === 'hasValue') {
       openModal({
-        type: modalType.confirmCreate,
+        type: 'SaveCommentModal',
         children: (
-          <SaveCommentModal
-            open={true}
-            saveComment={() => {
+          <CustomModal
+            title='Are you sure to save this comment?'
+            onClose={() => closeModal('SaveCommentModal')}
+            onClick={() => {
+              closeModal('SaveCommentModal')
               createClientMemoMutation.mutate({
                 clientId,
                 writerId: auth.getValue().user?.id!,
@@ -176,7 +178,8 @@ export default function ClientMemo({ clientId, memo }: Props) {
                 memo: newMemo,
               })
             }}
-            onClose={() => closeModal(modalType.confirmCreate)}
+            vary='successful'
+            rightButtonText='Confirm'
           />
         ),
       })
@@ -201,15 +204,18 @@ export default function ClientMemo({ clientId, memo }: Props) {
   function onSaveCancel() {
     if (isCreate) {
       openModal({
-        type: modalType.discardCommentChange,
+        type: 'CancelSaveCommentModal',
         children: (
-          <CancelSaveCommentModal
-            open={true}
-            cancelSave={() => {
+          <CustomModal
+            title='Are you sure you want to discard this comment?'
+            onClose={() => closeModal('CancelSaveCommentModal')}
+            onClick={() => {
+              closeModal('CancelSaveCommentModal')
               setNewMemo('')
               setIsCreate(false)
             }}
-            onClose={() => closeModal(modalType.discardCommentChange)}
+            vary='error'
+            rightButtonText='Discard'
           />
         ),
       })
@@ -228,12 +234,17 @@ export default function ClientMemo({ clientId, memo }: Props) {
 
   function onDelete(item: ClientMemoType) {
     openModal({
-      type: modalType.confirmDelete,
+      type: 'DeleteCommentModal',
       children: (
-        <DeleteCommentModal
-          open={true}
-          deleteComment={() => deleteClientMemoMutation.mutate(item.id)}
-          onClose={() => closeModal(modalType.confirmDelete)}
+        <CustomModal
+          title='Are you sure to delete this comment?'
+          onClose={() => closeModal('DeleteCommentModal')}
+          onClick={() => {
+            closeModal('DeleteCommentModal')
+            deleteClientMemoMutation.mutate(item.id)
+          }}
+          vary='error'
+          rightButtonText='Delete'
         />
       ),
     })

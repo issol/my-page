@@ -11,12 +11,10 @@ import DialogContentText from '@mui/material/DialogContentText'
 import Button from '@mui/material/Button'
 
 import Typography from '@mui/material/Typography'
-import Paper from '@mui/material/Paper'
 
-import { AddRoleType } from 'src/types/onboarding/list'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
-import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
-import { ModalContext } from '@src/context/ModalContext'
+import { useEffect } from 'react'
+
 import useModal from '@src/hooks/useModal'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 

@@ -10,7 +10,6 @@ import { useRouter } from 'next/router'
 
 import { Box } from '@mui/system'
 
-import styled from 'styled-components'
 import toast from 'react-hot-toast'
 
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
@@ -21,9 +20,6 @@ import {
 } from '@src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 
-import { ModalContext } from '@src/context/ModalContext'
-
-import { RoleType } from '@src/context/types'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 
 import FallbackSpinner from '@src/@core/components/spinner'
@@ -43,22 +39,13 @@ import {
 import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
-import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certify-role-modal'
-import ResumeTestModal from '@src/pages/components/pro-detail-modal/modal/resume-test-modal'
+
 import AppliedRoleModal from '@src/pages/components/pro-detail-modal/dialog/applied-role-modal'
 import TestDetailsModal from '@src/pages/components/pro-detail-modal/dialog/test-details-modal'
 
-import BasicTestActionModal from '@src/pages/components/pro-detail-modal/modal/basic-test-action-modal'
-import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal/cancel-comment-modal'
-
-import DeleteCommentModal from '@src/pages/components/pro-detail-modal/modal/delete-comment-modal'
-import CancelEditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-cancel-comment-modal'
-import EditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-comment-modal'
 import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
 import ReasonModal from '@src/pages/components/pro-detail-modal/modal/reason-modal'
-import SaveCommentModal from '@src/pages/components/pro-detail-modal/modal/save-comment-modal'
-import SkillTestActionModal from '@src/pages/components/pro-detail-modal/modal/skill-test-action-modal'
-import TestAssignModal from '@src/pages/components/pro-detail-modal/modal/test-assign-modal'
+
 import About from '@src/pages/components/pro-detail-component/about'
 import AppliedRole from '@src/pages/components/pro-detail-component/applied-role'
 
@@ -81,8 +68,7 @@ import WorkDaysCalendar from '@src/views/mypage/overview/work-days-calendar'
 import TimelineDot from '@src/@core/components/mui/timeline-dot'
 import useModal from '@src/hooks/useModal'
 import { currentRoleSelector } from '@src/states/permission'
-import ProStatusChangeModal from '@src/pages/components/pro-detail-modal/modal/proStatusChangeModal'
-import ProActiveStatusChangeModal from '@src/pages/components/pro-detail-modal/modal/proActiveStatusChangeModal'
+
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import languageHelper from '@src/shared/helpers/language.helper'
 
@@ -1018,18 +1004,11 @@ const ProDetailOverview = () => {
   ) => {
     getDownloadUrlforCommon(fileType, file.filePath).then(res => {
       file.url = res.url
-      // setModal(
-      //   <FilePreviewDownloadModal
-      //     open={true}
-      //     onClose={() => setModal(null)}
-      //     docs={[file]}
-      //   />,
-      // )
+
       openModal({
         type: 'FilePreviewDownloadModal',
         children: (
           <FilePreviewDownloadModal
-            open={true}
             onClose={() => closeModal('FilePreviewDownloadModal')}
             docs={[file]}
           />
