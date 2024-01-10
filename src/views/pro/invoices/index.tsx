@@ -69,7 +69,7 @@ const ProInvoices = ({ id }: Props) => {
   // const { data: invoices, isLoading } = useGetProInvoiceList(id, activeFilter)
   const { data: invoices, isLoading } = useGetPayableList({
     ...activeFilter,
-    pro: [id],
+    proId: [id],
   })
   const { data: statusList } = useGetStatusList('InvoicePayable')
   function onSearch() {
