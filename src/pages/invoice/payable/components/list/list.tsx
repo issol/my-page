@@ -88,7 +88,11 @@ export default function PayableList({
       flex: 0.0807,
       headerName: 'No.',
       disableColumnMenu: true,
-      renderHeader: () => <Box>No.</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          No.
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         return <>{row.corporationId}</>
       },
@@ -99,6 +103,11 @@ export default function PayableList({
       flex: 0.1491,
       disableColumnMenu: true,
       sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Status
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         return (
           <>
@@ -118,6 +127,11 @@ export default function PayableList({
       flex: 0.1615,
       disableColumnMenu: true,
       sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Pro / Email
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         return (
           <Box>
@@ -132,7 +146,11 @@ export default function PayableList({
       minWidth: 280,
       flex: 0.1739,
       disableColumnMenu: true,
-      renderHeader: () => <Box>Invoice date</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Invoice date
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         if (auth.state === 'hasValue' && auth.getValue().user) {
           const date = convertTimeToTimezone(
@@ -153,7 +171,11 @@ export default function PayableList({
       minWidth: 280,
       flex: 0.1739,
       disableColumnMenu: true,
-      renderHeader: () => <Box>Payment due</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Payment due
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         const date = convertTimeToTimezone(
           row.payDueAt,
@@ -172,7 +194,11 @@ export default function PayableList({
       minWidth: 280,
       flex: 0.1739,
       disableColumnMenu: true,
-      renderHeader: () => <Box>Payment date</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Payment date
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         const date = convertTimeToTimezone(
           row.paidAt,
@@ -191,7 +217,11 @@ export default function PayableList({
       minWidth: 140,
       flex: 0.087,
       disableColumnMenu: true,
-      renderHeader: () => <Box>Total price</Box>,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Total price
+        </Typography>
+      ),
       renderCell: ({ row }: CellType) => {
         const price = `${formatCurrency(row.totalPrice, row.currency)}`
         return (
