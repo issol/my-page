@@ -77,7 +77,7 @@ const ProjectsDetail = ({ id }: Props) => {
   }
 
   const onSearch = () => {
-    setActiveFilter({
+    const filters = {
       ...activeFilter,
       sort,
       title: getFilter('title'),
@@ -88,22 +88,10 @@ const ProjectsDetail = ({ id }: Props) => {
       client: getFilter('client'),
       skip: skip * activeFilter.take,
       take: activeFilter.take,
-    })
-    queryClient.invalidateQueries([
-      'get-project/list',
-      {
-        ...activeFilter,
-        sort,
-        title: getFilter('title'),
-        role: getFilter('role'),
-        status: getFilter('status'),
-        source: getFilter('source'),
-        target: getFilter('target'),
-        client: getFilter('client'),
-        skip: skip * activeFilter.take,
-        take: activeFilter.take,
-      },
-    ])
+    }
+
+    queryClient.invalidateQueries(['get-project/list', filters])
+    setActiveFilter(filters)
   }
 
   const onReset = () => {

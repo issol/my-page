@@ -61,6 +61,7 @@ import {
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
+import { useRouter } from 'next/router'
 
 type Props = {
   isUpdatable: boolean
@@ -83,6 +84,7 @@ export default function InvoiceDetailCard({
   statusList,
 }: Props) {
   const { openModal, closeModal } = useModal()
+  const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const ability = useContext(AbilityContext)
@@ -301,7 +303,14 @@ export default function InvoiceDetailCard({
                 <Grid item xs={6}>
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Pro</CustomTypo>
-                    <CustomTypo variant='body2'>
+                    <CustomTypo
+                      variant='body2'
+                      sx={{ textDecoration: 'underline', cursor: 'pointer' }}
+                      onClick={() => {
+                        if (!data?.pro?.id) return
+                        router.push(`/pro/detail/${data?.pro?.id}`)
+                      }}
+                    >
                       {data?.pro?.name ?? '-'}
                     </CustomTypo>
                   </LabelContainer>

@@ -61,6 +61,7 @@ export type InvoicePayableDetailType = {
   invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
 
   pro?: {
+    id: number
     name: string
     email: string
     address?: {
