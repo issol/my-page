@@ -9,7 +9,7 @@ import TableContainer from '@mui/material/TableContainer'
 import { Box, Button, IconButton, Typography } from '@mui/material'
 import { HeaderCell } from '@src/pages/orders/add-new'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { Fragment, ReactNode, useContext, useEffect } from 'react'
+import { Fragment, ReactNode, useEffect } from 'react'
 import { Icon } from '@iconify/react'
 import {
   Control,

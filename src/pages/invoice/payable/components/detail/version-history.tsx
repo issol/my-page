@@ -20,7 +20,7 @@ import { authState } from '@src/states/auth'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** apis

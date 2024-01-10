@@ -26,7 +26,7 @@ import ReactDOMServer, {
   renderToStaticMarkup,
   renderToString,
 } from 'react-dom/server'
-import { useContext, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import MakeTable, { Row } from './rows'
 import { useRouter } from 'next/router'
 import PrintOrderPage from '../../../order-print/print-page'

@@ -1,10 +1,4 @@
-import {
-  ChangeEvent,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks

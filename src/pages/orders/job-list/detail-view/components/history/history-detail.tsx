@@ -5,7 +5,7 @@ import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'
 import Typography from '@mui/material/Typography'
-import { MouseEvent, Suspense, useContext, useEffect, useState } from 'react'
+import { MouseEvent, Suspense, useEffect, useState } from 'react'
 import { SyntheticEvent } from 'react-draft-wysiwyg'
 import styled from 'styled-components'
 import HistoryAssignPro from './history-assign-pro'
@@ -46,7 +46,6 @@ type Props = {
     jobTitle: string
   }[]
   statusList: Array<{ value: number; label: string }>
-
 }
 
 /* TODO
@@ -82,7 +81,7 @@ export default function HistoryDetail({
   const { data: jobPrices, isLoading: jobPricesLoading } = useGetJobPrices(
     id,
     true,
-  )  as { data: jobPriceHistoryType, isLoading: boolean };
+  ) as { data: jobPriceHistoryType; isLoading: boolean }
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -144,7 +143,7 @@ export default function HistoryDetail({
 
   const onClickClose = () => {
     //history-detail 모달을 닫고 JobDetailViewModal 모달을 연다
-    
+
     closeModal('history-detail')
     openModal({
       type: 'JobDetailViewModal',
@@ -245,15 +244,12 @@ export default function HistoryDetail({
                 item={item}
                 projectTeam={projectTeam}
                 statusList={statusList}
-                jobDeliveriesFeedbacks={{deliveries:[], feedbacks:[]}}
+                jobDeliveriesFeedbacks={{ deliveries: [], feedbacks: [] }}
               />
             )}
           </TabPanel>
           <TabPanel value='prices' sx={{ pt: '30px' }}>
-            <ViewHistoryPrices
-              jobInfo={jobInfo!}
-              jobPrices={jobPrices!}
-            />
+            <ViewHistoryPrices jobInfo={jobInfo!} jobPrices={jobPrices!} />
           </TabPanel>
           <TabPanel value='assignPro'>
             <AssignPro
@@ -263,7 +259,7 @@ export default function HistoryDetail({
               type='history'
               // assignProList={row.assignPro}
               item={item}
-              //TODO: assignment status에 70000대 코드 처리 추가해야 함 
+              //TODO: assignment status에 70000대 코드 처리 추가해야 함
               statusList={statusList!}
             />
           </TabPanel>
