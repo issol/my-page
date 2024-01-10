@@ -42,6 +42,7 @@ type Props = {
     data: Array<ProProjectType> | []
     totalCount: number
   }
+  isCalendar?: boolean
 }
 
 const ProjectsList = ({
@@ -53,12 +54,10 @@ const ProjectsList = ({
   list,
   sort,
   setSort,
+  isCalendar,
 }: Props) => {
   const Row = (props: { row: ProProjectType }) => {
-    // ** Props
     const { row } = props
-
-    // ** State
     const [open, setOpen] = useState<boolean>(false)
 
     return (
@@ -77,7 +76,7 @@ const ProjectsList = ({
             align='left'
             component='th'
             scope='row'
-            sx={{ fontWeight: 500 }}
+            sx={{ fontWeight: 500, minWidth: 120 }}
           >
             {row?.title || '-'}
           </TableCell>
@@ -239,15 +238,17 @@ const ProjectsList = ({
               </TableBody>
             </Table>
           </TableContainer>
-          <TablePagination
-            page={skip}
-            component='div'
-            count={list.totalCount}
-            rowsPerPage={pageSize}
-            onPageChange={(e, page) => setSkip(page)}
-            rowsPerPageOptions={[10, 25, 50]}
-            onRowsPerPageChange={e => setPageSize(Number(e.target.value))}
-          />
+          {isCalendar ? null : (
+            <TablePagination
+              page={skip}
+              component='div'
+              count={list.totalCount}
+              rowsPerPage={pageSize}
+              onPageChange={(e, page) => setSkip(page)}
+              rowsPerPageOptions={[10, 25, 50]}
+              onRowsPerPageChange={e => setPageSize(Number(e.target.value))}
+            />
+          )}
         </Box>
       </Card>
     </Grid>

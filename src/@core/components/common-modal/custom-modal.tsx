@@ -52,7 +52,7 @@ const CustomModal = ({
   noButton,
   closeButton,
   buttonDirection,
-  body
+  body,
 }: Props) => {
   const [text, setText] = useState('')
 
@@ -104,17 +104,17 @@ const CustomModal = ({
                 ? titleStyle === 'bold'
                   ? '700'
                   : titleStyle === 'normal'
-                    ? '400'
-                    : null
+                  ? '400'
+                  : null
                 : null,
               fontSize: titleSize
                 ? titleSize === 'large'
                   ? '20px'
                   : titleSize === 'normal'
-                    ? '16px'
-                    : null
-                : '16px', 
-              marginBottom: '16px'
+                  ? '16px'
+                  : null
+                : '16px',
+              marginBottom: '16px',
             }}
           >
             {title}

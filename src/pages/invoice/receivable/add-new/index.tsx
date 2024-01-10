@@ -22,6 +22,7 @@ import styled from 'styled-components'
 // ** react hook form
 import { useForm, useFieldArray } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -94,13 +95,21 @@ import {
   InvoiceReceivablePatchParamsType,
 } from '@src/types/invoice/receivable.type'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { createInvoice } from '@src/apis/invoice/receivable.api'
+import {
+  createInvoice,
+  getInvoiceLanguageItems,
+} from '@src/apis/invoice/receivable.api'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetStatusList } from '@src/queries/common.query'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { getMultipleOrder } from '@src/apis/invoice/common.api'
 import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
 import { formatISO } from 'date-fns'
+import { resolve } from 'path'
+import {
+  ProjectInfoType,
+  ProjectTeamListType,
+} from '@src/types/orders/order-detail'
 
 export type languageType = {
   id: number | string
@@ -139,8 +148,12 @@ export default function AddNewInvoice() {
   const [isReady, setIsReady] = useState(false)
   const [isWarn, setIsWarn] = useState(true)
   const queryClient = useQueryClient()
-
+  const [id, setId] = useState<number[]>([])
   const [orders, setOrders] = useState<InvoiceMultipleOrderType | null>(null)
+  const [teams, setTeams] = useState<ProjectTeamListType[]>([])
+
+  const fieldOrder = ['supervisorId', 'projectManagerId', 'member']
+  const teamOrder = ['supervisor', 'projectManager', 'member']
 
   useEffect(() => {
     if (!router.isReady) return
@@ -159,10 +172,8 @@ export default function AddNewInvoice() {
 
     if (verifiedOrderIds) {
       onCopyOrder(typeof orderId === 'number' ? [orderId] : orderId)
+      setId(typeof orderId === 'number' ? [orderId] : orderId)
     }
-    // if (!isNaN(orderId)) {
-    //   onCopyOrder(orderId)
-    // }
   }, [router.query])
 
   const { openModal, closeModal } = useModal()
@@ -218,20 +229,6 @@ export default function AddNewInvoice() {
       title: ' Languages & Items',
     },
   ]
-
-  // ** confirm page leaving
-  // router.beforePopState(() => {
-  //   openModal({
-  //     type: 'alert-modal',
-  //     children: (
-  //       <PageLeaveModal
-  //         onClose={() => closeModal('alert-modal')}
-  //         onClick={() => router.push('/invoice/receivable')}
-  //       />
-  //     ),
-  //   })
-  //   return false
-  // })
 
   // ** step1
 
@@ -391,10 +388,6 @@ export default function AddNewInvoice() {
     }
   }
 
-  const priceInfo = prices?.find(
-    value => value.id === getItem().items[0]?.priceId,
-  )
-
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
@@ -467,6 +460,7 @@ export default function AddNewInvoice() {
         code: '',
         phone: '',
       },
+      salesCategory: projectInfo.salesCategory,
       // invoiceConfirmedAt: projectInfo.invoiceConfirmDate?.date,
       // invoiceConfirmTimezone: projectInfo.invoiceConfirmDate?.timezone,
       // taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date,
@@ -535,96 +529,242 @@ export default function AddNewInvoice() {
   }
 
   async function onCopyOrder(id: number[] | null) {
-    const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
-      getMultipleOrder(id)
-        .then(res => {
-          console.log('getMultipleOrder', res)
-
-          const isClientRegistered =
-            res.clientInfo.contactPerson !== null &&
-            res.clientInfo.contactPerson.userId !== null
-          setOrders(res)
-          // setProjectInfo('isTaxable', res.clientInfo.client.taxable)
-          // setProjectInfo('tax', res.clientInfo.client.tax)
-          clientReset({
-            clientId: res.clientInfo.client.clientId,
-            contactPersonId: null,
-            addressType: 'billing',
+      if (id.length === 1) {
+        getLangItems(id[0]).then(res => {
+          const items = res?.items?.map(item => {
+            return {
+              id: item.id,
+              name: item.itemName,
+              itemName: item.itemName,
+              source: item.source,
+              target: item.target,
+              priceId: item.priceId,
+              detail: !item?.detail?.length ? [] : item.detail,
+              contactPerson: item.contactPerson,
+              contactPersonId: Number(item.contactPerson?.userId!),
+              description: item.description,
+              analysis: item.analysis ?? [],
+              totalPrice: item?.totalPrice ?? 0,
+              dueAt: item?.dueAt,
+              showItemDescription: item.showItemDescription,
+              initialPrice: item.initialPrice,
+              minimumPrice: item.minimumPrice,
+              minimumPriceApplied: item.minimumPriceApplied,
+            }
           })
+
+          const itemLangPairs = res?.items?.map(item => ({
+            id: String(item.id),
+            source: item.source!,
+            target: item.target!,
+            price: {
+              id: item.initialPrice?.priceId!,
+              isStandard: item.initialPrice?.isStandard!,
+              priceName: item.initialPrice?.name!,
+              groupName: 'Current price',
+              category: item.initialPrice?.category!,
+              serviceType: item.initialPrice?.serviceType!,
+              currency: item.initialPrice?.currency!,
+              catBasis: item.initialPrice?.calculationBasis!,
+              decimalPlace: item.initialPrice?.numberPlace!,
+              roundingProcedure:
+                RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+              languagePairs: [],
+              priceUnit: [],
+              catInterface: { memSource: [], memoQ: [] },
+            },
+          }))
+          itemReset({ items: items, languagePairs: itemLangPairs })
+        })
+        getClient(id[0]).then(res => {
+          clientReset({
+            clientId: res.client.clientId,
+            contactPersonId: res.contactPerson?.id,
+            addressType: res.clientAddress.find(value => value.isSelected)
+              ?.addressType!,
+            contacts: {
+              ...res.contactPerson!,
+              addresses: res.clientAddress,
+            },
+          })
+        })
+
+        getProjectTeam(id[0]).then(res => {
+          let viewTeams: ProjectTeamListType[] = [...res].map(value => ({
+            ...value,
+            id: uuidv4(),
+          }))
+
+          if (!viewTeams.some(item => item.position === 'supervisor')) {
+            viewTeams.unshift({
+              id: uuidv4(),
+              position: 'supervisor',
+              userId: -1,
+              firstName: '',
+              middleName: '',
+              lastName: '',
+              jobTitle: '',
+              email: '',
+            })
+          }
+          if (!viewTeams.some(item => item.position === 'member')) {
+            viewTeams.push({
+              id: uuidv4(),
+              position: 'member',
+              userId: 0,
+              firstName: '',
+              middleName: '',
+              lastName: '',
+              jobTitle: '',
+              email: '',
+            })
+          }
+
+          const result = viewTeams.sort((a, b) => {
+            const aIndex = teamOrder.indexOf(a.position)
+            const bIndex = teamOrder.indexOf(b.position)
+            return aIndex - bIndex
+          })
+
+          if (viewTeams.length) setTeams(result)
+
+          const teams: Array<{
+            type: MemberType
+            id: number | null
+            name: string
+          }> = res.map(item => ({
+            type:
+              item.position === 'projectManager'
+                ? 'projectManagerId'
+                : item.position === 'supervisor'
+                ? 'supervisorId'
+                : 'member',
+            id: item.userId,
+            name: getLegalName({
+              firstName: item?.firstName!,
+              middleName: item?.middleName,
+              lastName: item?.lastName!,
+            }),
+          }))
+          if (!teams.some(item => item.type === 'supervisorId')) {
+            teams.unshift({ type: 'supervisorId', id: null, name: '' })
+          }
+
+          if (!teams.some(item => item.type === 'member')) {
+            teams.push({ type: 'member', id: null, name: '' })
+          }
+          if (teams.length) {
+            const res = teams.sort((a, b) => {
+              const aIndex = fieldOrder.indexOf(a.type)
+              const bIndex = fieldOrder.indexOf(b.type)
+              return aIndex - bIndex
+            })
+
+            resetTeam({ teams: res })
+          }
+        })
+        getProjectInfo(id[0]).then(res => {
           projectInfoReset({
             invoiceDate: new Date(),
             showDescription: false,
             invoiceDescription: '',
             revenueFrom: res.revenueFrom,
-            isTaxable: res.clientInfo.client.isTaxable,
-
-            tax: res.clientInfo.client.tax,
-            subtotal: res.orders.reduce(
-              (total, obj) => total + obj.subtotal,
-              0,
-            ),
+            isTaxable: res.isTaxable,
+            salesCategory: res.category,
+            tax: res.tax ? res.tax.toString() : null,
+            subtotal: res.subtotal,
+            workName: res.workName,
           })
-          const items = res.orders
-            .map(item =>
-              item.items.map((value, idx) => ({
-                ...value,
-                orderId: item.id,
-                projectName: item.projectName,
-                id: item.id,
-                itemName: value.itemName,
-                source: value.sourceLanguage,
-                target: value.targetLanguage,
-                priceId: value.priceId,
-                detail: !value?.detail?.length ? [] : value.detail,
-                analysis: value.analysis ?? [],
-                totalPrice: value?.totalPrice ?? 0,
-                dueAt: value?.dueAt ?? '',
-                contactPerson: value?.contactPerson ?? null,
-                contactPersonId: value.contactPerson?.userId ?? undefined,
-                // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
-                // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
-                initialPrice: value.initialPrice ?? null,
-                description: value.description,
-                showItemDescription: value.showItemDescription,
-                minimumPrice: value.minimumPrice,
-                minimumPriceApplied: value.minimumPriceApplied,
-                indexing: idx,
-              })),
-            )
-            .flat()
-            .map((value, idx) => ({ ...value, idx: idx }))
-          const itemLangPairs = items?.map(item => {
-            return {
-              id: String(item.id),
-              source: item.source!,
-              target: item.target!,
-              price: {
-                id: item.initialPrice?.priceId!,
-                isStandard: item.initialPrice?.isStandard!,
-                priceName: item.initialPrice?.name!,
-                groupName: 'Current price',
-                category: item.initialPrice?.category!,
-                serviceType: item.initialPrice?.serviceType!,
-                currency: item.initialPrice?.currency!,
-                catBasis: item.initialPrice?.calculationBasis!,
-                decimalPlace: item.initialPrice?.numberPlace!,
-                roundingProcedure:
-                  RoundingProcedureList[item.initialPrice?.rounding!]?.label,
-                languagePairs: [],
-                priceUnit: [],
-                catInterface: { memSource: [], memoQ: [] },
-              },
-            }
-          })
+        })
+      } else {
+        getMultipleOrder(id)
+          .then(res => {
+            const isClientRegistered =
+              res.clientInfo.contactPerson !== null &&
+              res.clientInfo.contactPerson.userId !== null
+            setOrders(res)
+            // setProjectInfo('isTaxable', res.clientInfo.client.taxable)
+            // setProjectInfo('tax', res.clientInfo.client.tax)
+            clientReset({
+              clientId: res.clientInfo.client.clientId,
+              contactPersonId: null,
+              addressType: 'billing',
+            })
+            projectInfoReset({
+              invoiceDate: new Date(),
+              showDescription: false,
+              invoiceDescription: '',
+              revenueFrom: res.revenueFrom,
+              isTaxable: res.clientInfo.client.isTaxable,
 
-          itemReset({ items: items, languagePairs: itemLangPairs })
-          itemTrigger()
-        })
-        .catch(e => {
-          return
-        })
+              tax: res.clientInfo.client.tax,
+              subtotal: res.orders.reduce(
+                (total, obj) => total + obj.subtotal,
+                0,
+              ),
+            })
+            const items = res.orders
+              .map(item =>
+                item.items.map((value, idx) => ({
+                  ...value,
+                  orderId: item.id,
+                  projectName: item.projectName,
+                  id: item.id,
+                  itemName: value.itemName,
+                  source: value.sourceLanguage,
+                  target: value.targetLanguage,
+                  priceId: value.priceId,
+                  detail: !value?.detail?.length ? [] : value.detail,
+                  analysis: value.analysis ?? [],
+                  totalPrice: value?.totalPrice ?? 0,
+                  dueAt: value?.dueAt ?? '',
+                  contactPerson: value?.contactPerson ?? null,
+                  contactPersonId: value.contactPerson?.userId ?? undefined,
+                  // initialPrice는 order 생성시점에 선택한 price의 값을 담고 있음
+                  // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
+                  initialPrice: value.initialPrice ?? null,
+                  description: value.description,
+                  showItemDescription: value.showItemDescription,
+                  minimumPrice: value.minimumPrice,
+                  minimumPriceApplied: value.minimumPriceApplied,
+                  indexing: idx,
+                })),
+              )
+              .flat()
+              .map((value, idx) => ({ ...value, idx: idx }))
+            const itemLangPairs = items?.map(item => {
+              return {
+                id: String(item.id),
+                source: item.source!,
+                target: item.target!,
+                price: {
+                  id: item.initialPrice?.priceId!,
+                  isStandard: item.initialPrice?.isStandard!,
+                  priceName: item.initialPrice?.name!,
+                  groupName: 'Current price',
+                  category: item.initialPrice?.category!,
+                  serviceType: item.initialPrice?.serviceType!,
+                  currency: item.initialPrice?.currency!,
+                  catBasis: item.initialPrice?.calculationBasis!,
+                  decimalPlace: item.initialPrice?.numberPlace!,
+                  roundingProcedure:
+                    RoundingProcedureList[item.initialPrice?.rounding!]?.label,
+                  languagePairs: [],
+                  priceUnit: [],
+                  catInterface: { memSource: [], memoQ: [] },
+                },
+              }
+            })
+
+            itemReset({ items: items, languagePairs: itemLangPairs })
+            itemTrigger()
+          })
+          .catch(e => {
+            return
+          })
+      }
 
       setIsReady(true)
     }
@@ -744,6 +884,7 @@ export default function AddNewInvoice() {
                   trigger={projectInfoTrigger}
                   clientTimezone={getClientValue('contacts.timezone')}
                   type='create'
+                  multipleOrder={id.length > 1 ? true : false}
                 />
                 <Grid
                   item
@@ -836,17 +977,8 @@ export default function AddNewInvoice() {
                         justifyContent: 'flex-end',
                       }}
                     >
-                      {/* {formatCurrency(
-                        formatByRoundingProcedure(
-                          Number(getProjectInfoValues().subtotal),
-                          priceInfo?.decimalPlace!,
-                          priceInfo?.roundingProcedure!,
-                          priceInfo?.currency!,
-                        ),
-                        priceInfo?.currency!,
-                      )} */}
                       {getCurrencyMark(
-                        getItem().items[0].initialPrice?.currency,
+                        getItem().items[0]?.initialPrice?.currency,
                       )}
                       &nbsp;
                       {Number(getProjectInfoValues().subtotal).toLocaleString(
@@ -922,21 +1054,9 @@ export default function AddNewInvoice() {
                         justifyContent: 'flex-end',
                       }}
                     >
-                      {/* {getProjectInfoValues().isTaxable
-                        ? formatCurrency(
-                            formatByRoundingProcedure(
-                              Number(getProjectInfoValues().subtotal) *
-                                (Number(getProjectInfoValues().tax!) / 100),
-                              priceInfo?.decimalPlace!,
-                              priceInfo?.roundingProcedure!,
-                              priceInfo?.currency!,
-                            ),
-                            priceInfo?.currency!,
-                          )
-                        : '-'} */}
                       {getProjectInfoValues().isTaxable
                         ? `${getCurrencyMark(
-                            getItem().items[0].initialPrice?.currency,
+                            getItem().items[0]?.initialPrice?.currency,
                           )} ${(
                             Number(getProjectInfoValues().subtotal) *
                             (Number(getProjectInfoValues().tax!) / 100)
@@ -983,14 +1103,14 @@ export default function AddNewInvoice() {
                     >
                       {getProjectInfoValues().isTaxable
                         ? `${getCurrencyMark(
-                            getItem().items[0].initialPrice?.currency,
+                            getItem().items[0]?.initialPrice?.currency,
                           )} ${(
                             Number(getProjectInfoValues().subtotal) +
                             Number(getProjectInfoValues().subtotal) *
                               (Number(getProjectInfoValues().tax!) / 100)
                           ).toLocaleString('ko-KR')}`
                         : `${getCurrencyMark(
-                            getItem().items[0].initialPrice?.currency,
+                            getItem().items[0]?.initialPrice?.currency,
                           )} ${Number(
                             getProjectInfoValues().subtotal,
                           ).toLocaleString('ko-KR')}`}

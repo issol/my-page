@@ -19,12 +19,15 @@ import { S3FileType } from 'src/shared/const/signedURLFileType'
 
 type Props = {
   userInfo: OnboardingProDetailsType
-  onClickContracts: (file: {
-    url: string
-    filePath: string
-    fileName: string
-    fileExtension: string
-  }, fileType: string) => void
+  onClickContracts: (
+    file: {
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    },
+    fileType: string,
+  ) => void
 }
 
 export default function Contracts({ userInfo, onClickContracts }: Props) {
@@ -143,12 +146,12 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
     prevArrow: <PrevButton />,
   }
   return (
-    <Card sx={{ padding: '20px', height: '100%' }}>
+    <Card sx={{ padding: '20px', height: '167px' }}>
       <TypoGraphy
         variant='h6'
         sx={{
           padding: 0,
-          paddingBottom: '24px',
+          paddingBottom: '20px',
           display: 'flex',
           justifyContent: 'space-between',
         }}
@@ -189,12 +192,13 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
                       gap: '5px',
                       cursor: 'pointer',
                     }}
-                    onClick={() => onClickContracts(value, S3FileType.CONTRACTS)}
+                    onClick={() =>
+                      onClickContracts(value, S3FileType.CONTRACTS)
+                    }
                   >
                     <Box
                       sx={{
                         display: 'flex',
-
                         justifyContent: 'center',
                       }}
                     >
@@ -223,18 +227,15 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
 
 const ContractsFileName = styled.div`
   width: 100%;
-  // height: 51px;
   font-family: Inter;
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
-  // line-height: 14px;
-
+  line-height: 14px;
   text-align: center;
   letter-spacing: 0.4px;
-
   color: rgba(76, 78, 100, 0.6);
-
+  margin-top: 5px;
   overflow: hidden;
   word-break: break-all;
   text-overflow: ellipsis;

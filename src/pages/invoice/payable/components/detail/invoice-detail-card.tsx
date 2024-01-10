@@ -25,6 +25,7 @@ import InvoiceDetailInfoForm from '@src/pages/components/forms/invoice-detail-in
 import {
   InvoicePayableDetailType,
   PayableFormType,
+  PayableHistoryType,
 } from '@src/types/invoice/payable.type'
 import {
   getInvoiceDetailInfoSchema,
@@ -61,11 +62,12 @@ import {
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
+import { useRouter } from 'next/router'
 
 type Props = {
   isUpdatable: boolean
   updatePayable?: UseMutationResult<any, unknown, PayableFormType, unknown>
-  data: InvoicePayableDetailType | undefined
+  data: InvoicePayableDetailType | PayableHistoryType | undefined
   editInfo: boolean
   setEditInfo: (n: boolean) => void
   statusList: Array<{
@@ -83,6 +85,7 @@ export default function InvoiceDetailCard({
   statusList,
 }: Props) {
   const { openModal, closeModal } = useModal()
+  const router = useRouter()
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const ability = useContext(AbilityContext)
@@ -301,7 +304,14 @@ export default function InvoiceDetailCard({
                 <Grid item xs={6}>
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Pro</CustomTypo>
-                    <CustomTypo variant='body2'>
+                    <CustomTypo
+                      variant='body2'
+                      sx={{ textDecoration: 'underline', cursor: 'pointer' }}
+                      onClick={() => {
+                        if (!data?.pro?.id) return
+                        router.push(`/pro/detail/${data?.pro?.id}`)
+                      }}
+                    >
                       {data?.pro?.name ?? '-'}
                     </CustomTypo>
                   </LabelContainer>
@@ -359,23 +369,6 @@ export default function InvoiceDetailCard({
                 </CustomTypo>
               </LabelContainer>
             </Grid>
-            {currentRole && currentRole.name === 'PRO' ? null : (
-              <>
-                <Grid item xs={12}>
-                  <Divider />
-                </Grid>
-                <Grid item xs={12}>
-                  <Box>
-                    <CustomTypo fontWeight={600}>
-                      Invoice description
-                    </CustomTypo>
-                    <CustomTypo variant='body2'>
-                      {data?.description ?? '-'}
-                    </CustomTypo>
-                  </Box>
-                </Grid>
-              </>
-            )}
           </Fragment>
         )}
       </Grid>

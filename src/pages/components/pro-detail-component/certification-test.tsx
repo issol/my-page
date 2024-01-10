@@ -24,8 +24,10 @@ import {
   OnboardingProDetailsType,
   TestType,
 } from 'src/types/onboarding/details'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
+import { useRecoilStateLoadable } from 'recoil'
+import { currentRoleSelector } from '@src/states/permission'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -45,6 +47,7 @@ type Props = {
     type: string,
   ) => void
 }
+
 const Timeline = styled(MuiTimeline)<TimelineProps>({
   paddingLeft: 0,
   paddingRight: 0,
@@ -56,14 +59,16 @@ const Timeline = styled(MuiTimeline)<TimelineProps>({
   },
 })
 
-export default function CertificationTest({
+const CertificationTest = ({
   userInfo,
   selectedJobInfo,
   onClickBasicTestAction,
   onClickCertify,
   onClickTestDetails,
   onClickSkillTestAction,
-}: Props) {
+}: Props) => {
+  const [currentRole] = useRecoilStateLoadable(currentRoleSelector)
+
   const [basicTest, setBasicTest] = useState<TestType | null>(null)
   const [skillTest, setSkillTest] = useState<TestType | null>(null)
   const [paused, setPaused] = useState<boolean>(false)
@@ -84,6 +89,10 @@ export default function CertificationTest({
     }
   }
 
+  const isLPMDiasble = useMemo(() => {
+    return currentRole.contents.name === 'LPM'
+  }, [currentRole.contents.name])
+
   useEffect(() => {
     if (selectedJobInfo) {
       const basic = selectedJobInfo.test.find(
@@ -98,6 +107,7 @@ export default function CertificationTest({
       setPaused(paused)
     }
   }, [selectedJobInfo])
+
   return (
     <Card
       sx={{
@@ -160,6 +170,8 @@ export default function CertificationTest({
                               cursor: paused ? 'unset' : 'pointer',
                             }}
                             onClick={() => {
+                              if (isLPMDiasble) return
+
                               if (!paused) {
                                 if (basicTest.testPaper!.responderUri) {
                                   window.open(
@@ -238,7 +250,7 @@ export default function CertificationTest({
                                     'Skipped',
                                   )
                                 }
-                                disabled={paused}
+                                disabled={isLPMDiasble || paused}
                               >
                                 Skip
                               </Button>
@@ -252,7 +264,7 @@ export default function CertificationTest({
                                     'Basic test Ready',
                                   )
                                 }
-                                disabled={paused}
+                                disabled={isLPMDiasble || paused}
                               >
                                 Proceed
                               </Button>
@@ -299,7 +311,7 @@ export default function CertificationTest({
                               <Button
                                 variant='outlined'
                                 color='error'
-                                disabled={paused}
+                                disabled={isLPMDiasble || paused}
                                 onClick={() =>
                                   onClickBasicTestAction(
                                     selectedJobInfo.id,
@@ -313,7 +325,7 @@ export default function CertificationTest({
                               </Button>
                               <Button
                                 variant='contained'
-                                disabled={paused}
+                                disabled={isLPMDiasble || paused}
                                 onClick={() =>
                                   onClickBasicTestAction(
                                     selectedJobInfo.id,
@@ -398,6 +410,8 @@ export default function CertificationTest({
                                 cursor: paused ? 'unset' : 'pointer',
                               }}
                               onClick={() => {
+                                if (isLPMDiasble) return
+
                                 if (!paused) {
                                   if (skillTest.testPaper!.responderUri) {
                                     window.open(
@@ -439,6 +453,8 @@ export default function CertificationTest({
                               cursor: paused ? 'unset' : 'pointer',
                             }}
                             onClick={() => {
+                              if (isLPMDiasble) return
+
                               if (!paused) {
                                 onClickTestDetails(skillTest, 'detail')
                               }
@@ -575,7 +591,7 @@ export default function CertificationTest({
                                 <Button
                                   variant='outlined'
                                   color='error'
-                                  disabled={paused}
+                                  disabled={isLPMDiasble || paused}
                                   onClick={() =>
                                     onClickSkillTestAction(
                                       selectedJobInfo.id,
@@ -589,7 +605,7 @@ export default function CertificationTest({
                                 </Button>
                                 <Button
                                   variant='contained'
-                                  disabled={paused}
+                                  disabled={isLPMDiasble || paused}
                                   onClick={() =>
                                     onClickCertify(selectedJobInfo)
                                   }
@@ -770,3 +786,5 @@ export default function CertificationTest({
     </Card>
   )
 }
+
+export default CertificationTest

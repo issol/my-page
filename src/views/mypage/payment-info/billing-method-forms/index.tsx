@@ -69,7 +69,7 @@ import {
   ProPaymentInfoType,
 } from '@src/apis/payment-info.api'
 
-type Props = {
+interface BillingMethodProps {
   isRegister: boolean
   paymentInfo: ProPaymentInfoType | null
   changeBillingMethod: boolean
@@ -81,9 +81,9 @@ type Props = {
   setChangeBillingMethod: (v: boolean) => void
   onBillingMethodSave: (n: ProPaymentFormType) => void
 }
-export default function BillingMethod({
+
+const BillingMethod = ({
   isRegister,
-  paymentInfo,
   changeBillingMethod,
   checkBillingMethodChange,
   billingMethodData,
@@ -92,51 +92,64 @@ export default function BillingMethod({
   setEdit,
   setChangeBillingMethod,
   onBillingMethodSave,
-}: Props) {
+}: BillingMethodProps) => {
   const { openModal, closeModal } = useModal()
 
   const [isSolo, setIsSolo] = useState(false)
   const [haveCorrespondentBank, setHaveCorrespondentBank] = useState(
-    billingMethodData?.correspondentBankInfo !== null ? true : false,
+    billingMethodData?.correspondentBankInfo !== null,
   )
 
-  function renderLabel(label: string) {
+  const renderLabel = (label: string) => {
     const regex = /^(.+?)(\(.+?\))$/
     const match = label.match(regex)
 
-    if (match) {
-      const title = match[1].trim()
-      const subtitle = match[2].trim().slice(1, -1)
-
-      return (
-        <Box display='flex' flexDirection='column'>
-          <Typography>{title}</Typography>
-          <Typography variant='body2'>({subtitle})</Typography>
-          {label.includes('국내계좌이체') ? (
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={isSolo}
-                  onChange={e => setIsSolo(e.target.checked)}
-                />
-              }
-              label='I’m a Solo proprietor'
-            />
-          ) : null}
-        </Box>
-      )
-    } else {
+    if (!match) {
       return <Typography>{label}</Typography>
     }
+
+    const title = match[1].trim()
+    const subtitle = match[2].trim().slice(1, -1)
+
+    return (
+      <Box display='flex' flexDirection='column' gap='8px'>
+        <Typography variant='body1' sx={{ whiteSpace: 'nowrap' }}>
+          {title}
+        </Typography>
+        <Typography
+          variant='body1'
+          color='#4C4E6499'
+          sx={{ whiteSpace: 'nowrap' }}
+        >
+          ({subtitle})
+        </Typography>
+        {label.includes('국내계좌이체') &&
+        billingMethod === 'koreaDomesticTransfer' ? (
+          <FormControlLabel
+            control={
+              <Switch
+                size='small'
+                checked={isSolo}
+                onChange={e => setIsSolo(e.target.checked)}
+              />
+            }
+            label={
+              <Typography sx={{ fontSize: '14px', whiteSpace: 'nowrap' }}>
+                I’m a Solo proprietor
+              </Typography>
+            }
+          />
+        ) : null}
+      </Box>
+    )
   }
 
   const {
     control,
     getValues,
     setValue,
-    watch,
     reset,
-    formState: { errors, isValid, isDirty },
+    formState: { errors, isValid },
   } = useForm<BillingMethodUnionType>({
     mode: 'onChange',
     defaultValues: {
@@ -198,8 +211,7 @@ export default function BillingMethod({
     }
   }, [billingMethod, isSolo, billingMethodData])
 
-  function onBillingMethodSaveClick() {
-
+  const onBillingMethodSaveClick = () => {
     openModal({
       type: 'save',
       children: (
@@ -220,7 +232,7 @@ export default function BillingMethod({
     })
   }
 
-  function onCancel() {
+  const onCancel = () => {
     openModal({
       type: 'discard',
       children: (
@@ -237,7 +249,7 @@ export default function BillingMethod({
     })
   }
 
-  function renderForm() {
+  const renderForm = () => {
     switch (billingMethod) {
       case 'internationalWire':
       case 'wise':
@@ -455,8 +467,16 @@ export default function BillingMethod({
     <Fragment>
       <Box display='flex' gap='20px' mb={6}>
         {proPaymentMethodPairs.map(method => (
-          <CustomRadio key={method.value}>
+          <CustomRadio
+            key={method.value}
+            sx={{
+              height:
+                billingMethod === 'koreaDomesticTransfer' ? '125px' : '93px',
+            }}
+          >
             <Radio
+              size='small'
+              sx={{ height: '24px' }}
               disabled={!isRegister && !changeBillingMethod}
               value={method.value}
               onChange={e => {
@@ -479,11 +499,12 @@ export default function BillingMethod({
 }
 
 const CustomRadio = styled(Box)`
-  width: 100%;
   display: flex;
   align-items: flex-start;
-  padding: 20px;
-  padding-left: 5px;
+  width: 100%;
+  padding: 11px 20px 20px 11px;
   border-radius: 10px;
   border: 1px solid rgba(76, 78, 100, 0.22);
 `
+
+export default BillingMethod

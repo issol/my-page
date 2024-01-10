@@ -225,6 +225,12 @@ export default function ProjectTeamForm({
           <TextField
             fullWidth
             disabled={true}
+            className={
+              memberList.filter(item => item.value === field?.value)[0]
+                ?.jobTitle
+                ? ''
+                : 'disabled-hyphen'
+            }
             value={
               memberList.filter(item => item.value === field?.value)[0]
                 ?.jobTitle || '-'

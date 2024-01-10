@@ -1,7 +1,7 @@
 // ** style components
 import { Grid, TextField, Typography } from '@mui/material'
 import DatePicker from 'react-datepicker'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { Fragment } from 'react'
 import Radio from '@mui/material/Radio'

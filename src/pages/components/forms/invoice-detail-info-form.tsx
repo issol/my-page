@@ -34,6 +34,7 @@ import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import {
   InvoicePayableDetailType,
   PayableFormType,
+  PayableHistoryType,
 } from '@src/types/invoice/payable.type'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 
@@ -65,7 +66,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 type Props = {
-  data: InvoicePayableDetailType | undefined
+  data: InvoicePayableDetailType | PayableHistoryType | undefined
   control: Control<PayableFormType, any>
   errors: FieldErrors<PayableFormType>
   isAccountManager: boolean

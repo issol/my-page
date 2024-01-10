@@ -13,17 +13,24 @@ import CustomPagination from 'src/pages/components/custom-pagination'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { AppliedRoleType } from 'src/types/onboarding/details'
+import { useRecoilStateLoadable } from 'recoil'
+import { currentRoleSelector } from '@src/states/permission'
+import { useMemo } from 'react'
 
 interface AppliedRoleProps {
   userInfo: Array<AppliedRoleType>
+  hideFailedTest: boolean
   handleHideFailedTestChange: (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => void
-  hideFailedTest: boolean
+  seeOnlyCertRoles?: boolean
   handleOnlyCertRolesChange?: (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => void
-  seeOnlyCertRoles?: boolean
+  showTestInfo?: boolean
+  handleShowTestInfoChange?: (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => void
   selectedJobInfo: AppliedRoleType | null
   handleClickRoleCard: (jobInfo: AppliedRoleType) => void
   page: number
@@ -46,6 +53,8 @@ const AppliedRole = ({
   handleHideFailedTestChange,
   hideFailedTest,
   handleOnlyCertRolesChange,
+  showTestInfo,
+  handleShowTestInfoChange,
   seeOnlyCertRoles,
   selectedJobInfo,
   handleClickRoleCard,
@@ -63,8 +72,11 @@ const AppliedRole = ({
   totalCount,
   status,
 }: AppliedRoleProps) => {
+  const [currentRole] = useRecoilStateLoadable(currentRoleSelector)
+
   const isDisabled = () => {
     if (type === 'onboarding') return false
+    if (currentRole.contents.name === 'LPM') return true
     if (!status) return true
     const activeList = ['Onboard', 'Netflix Onboard']
     return !activeList.includes(status)
@@ -427,7 +439,6 @@ const AppliedRole = ({
         <Button
           fullWidth
           variant='contained'
-          disabled
           sx={{
             '&.Mui-disabled': {
               background:
@@ -436,6 +447,7 @@ const AppliedRole = ({
               color: '#E04440',
             },
           }}
+          disabled={isDisabled()}
         >
           Paused
         </Button>
@@ -467,6 +479,13 @@ const AppliedRole = ({
     }
   }
 
+  const SectionTitle = useMemo(() => {
+    if (type === 'onboarding') return 'Applied Role'
+    if (currentRole.contents.name === 'LPM')
+      return 'Certified role and test information'
+    return "Pro's role and Applied"
+  }, [type])
+
   return (
     <Card
       sx={{
@@ -492,8 +511,7 @@ const AppliedRole = ({
             alignItems: 'center',
           }}
         >
-          {type === 'onboarding' ? 'Applied Role' : `Pro's role and Applied`}
-
+          {SectionTitle}
           <IconButton
             sx={{
               padding: 0,
@@ -504,7 +522,7 @@ const AppliedRole = ({
           </IconButton>
         </Box>
         <Box>
-          {type !== 'onboarding' ? (
+          {type !== 'onboarding' && currentRole.contents.name === 'TAD' ? (
             <FormControlLabel
               value='seeOnlyCertRoles'
               control={
@@ -531,7 +549,7 @@ const AppliedRole = ({
               labelPlacement='start'
             />
           ) : null}
-          {totalCount ? (
+          {currentRole.contents.name === 'TAD' && totalCount ? (
             <FormControlLabel
               value='hideFailedTest'
               control={
@@ -553,6 +571,33 @@ const AppliedRole = ({
                   }}
                 >
                   Hide inactive tests
+                </Typography>
+              }
+              labelPlacement='start'
+            />
+          ) : null}
+          {type !== 'onboarding' && currentRole.contents.name === 'LPM' ? (
+            <FormControlLabel
+              value='hideFailedTest'
+              control={
+                <Switch
+                  checked={showTestInfo}
+                  onChange={handleShowTestInfoChange}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />
+              }
+              label={
+                <Typography
+                  sx={{
+                    fontStyle: 'normal',
+                    fontWeight: 400,
+                    fontSize: '14px',
+                    lineHeight: '21px',
+                    letterSpacing: '0.15px',
+                    color: 'rgba(76, 78, 100, 0.6)',
+                  }}
+                >
+                  Show test info
                 </Typography>
               }
               labelPlacement='start'
@@ -659,6 +704,7 @@ const AppliedRole = ({
                                   size='small'
                                   color='secondary'
                                   sx={{ height: '30px' }}
+                                  disabled={isDisabled()}
                                   onClick={() => {
                                     onClickRejectOrPause(value, 'pause')
                                   }}
@@ -674,6 +720,7 @@ const AppliedRole = ({
                                   onClick={() => {
                                     onClickResumeTest(value)
                                   }}
+                                  disabled={isDisabled()}
                                 >
                                   Resume
                                 </Button>

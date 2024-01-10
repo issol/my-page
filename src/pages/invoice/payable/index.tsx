@@ -42,7 +42,7 @@ import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 
 const initialFilter: InvoicePayableFilterType = {
   invoiceStatus: [],
-  pro: [],
+  proId: [],
   invoicedDateFrom: '',
   invoicedDateTo: '',
   payDueDateFrom: '',
@@ -156,6 +156,7 @@ export default function Payable() {
               setFilter={setFilter}
               onReset={onReset}
               search={onSearch}
+              statusList={statusList!}
             />
           </Grid>
           <Grid

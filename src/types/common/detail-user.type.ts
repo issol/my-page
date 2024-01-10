@@ -10,4 +10,5 @@ export interface DetailUserType extends OnboardingProDetailsType {
   addresses: Array<ClientAddressType<number>>
   isOffOnWeekends: boolean
   appliedRoles: Array<AppliedRoleType>
+  noteFromUser: string
 }

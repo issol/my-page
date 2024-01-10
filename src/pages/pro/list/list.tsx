@@ -25,7 +25,7 @@ type Props = {
   isLoading: boolean
 }
 
-export default function ProList({
+const ProList = ({
   proListPage,
   setProListPage,
   proListPageSize,
@@ -35,12 +35,12 @@ export default function ProList({
   setFilters,
   columns,
   isLoading,
-}: Props) {
+}: Props) => {
   return (
     <Grid item xs={12}>
       <Card>
         <CardHeader
-          title={`Pros (${proListCount})`}
+          title={`Pros (${(proListCount || 0).toLocaleString()})`}
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
         <Box
@@ -118,3 +118,4 @@ export default function ProList({
     </Grid>
   )
 }
+export default ProList

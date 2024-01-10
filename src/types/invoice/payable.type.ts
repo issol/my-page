@@ -5,7 +5,7 @@ import { LanguageAndItemType } from '../orders/order-detail'
 
 export type InvoicePayableFilterType = {
   invoiceStatus?: number[]
-  pro?: number[]
+  proId?: number[]
   invoicedDateFrom?: string
   invoicedDateTo?: string
   payDueDateFrom?: string
@@ -61,6 +61,7 @@ export type InvoicePayableDetailType = {
   invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
 
   pro?: {
+    id: number
     name: string
     email: string
     address?: {
@@ -116,7 +117,7 @@ export type PayableHistoryType = {
   invoicedTimezone: CountryType
   invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
   invoiceConfirmedAt: string | null
-  pro?: { name: string; email: string }
+  pro?: { name: string; email: string; id: number }
   taxInfo: string
   taxRate: string
   payDueAt?: string

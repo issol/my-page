@@ -83,6 +83,7 @@ type Props = {
   client?: ClientType
   invoiceInfo?: InvoiceReceivableDetailType
   type: 'create' | 'edit'
+  multipleOrder: boolean
 }
 export default function InvoiceProjectInfoForm({
   control,
@@ -95,6 +96,7 @@ export default function InvoiceProjectInfoForm({
   client,
   invoiceInfo,
   type,
+  multipleOrder,
 }: Props) {
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
@@ -282,40 +284,51 @@ export default function InvoiceProjectInfoForm({
 
         {renderErrorMsg('invoiceDateTimezone')}
       </Grid>
-      {/* <Grid item xs={6}>
-        <Controller
-          name='workName'
-          control={control}
-          render={({ field: { value, onChange } }) => {
-            const finedValue = workName.find(item => item.value === value)
-            return (
-              <Autocomplete
-                disableClearable
-                autoHighlight
-                fullWidth
-                disabled={true}
-                options={workName || []}
-                onChange={(e, v) => {
-                  onChange(v?.value ?? '')
-                }}
-                value={
-                  !value || !workName
-                    ? defaultValue
-                    : finedValue ?? defaultValue
-                }
-                renderInput={params => (
-                  <TextField
-                    {...params}
-                    error={Boolean(errors.workName)}
-                    label='Work name'
-                    placeholder='Work name'
-                  />
-                )}
-              />
-            )
-          }}
-        />
-      </Grid> */}
+      {multipleOrder ? null : (
+        <Grid item xs={6}>
+          <Controller
+            name='workName'
+            control={control}
+            render={({ field: { value, onChange } }) => {
+              return (
+                <Autocomplete
+                  disableClearable
+                  autoHighlight
+                  fullWidth
+                  disabled={true}
+                  options={[]}
+                  // onChange={(e, v) => {
+                  //   onChange(v?.value ?? '')
+                  // }}
+                  value={value}
+                  // sx={{
+                  //   borderRadius: '8px',
+                  //   background: 'rgba(76, 78, 100, 0.12) !important',
+                  //   '& .MuiChip-root': {
+                  //     '&. MuiChip-label': {
+                  //       color: 'rgba(76, 78, 100, 0.38)',
+                  //       opacity: '1 !important',
+                  //     },
+                  //     '& .MuiSvgIcon-root': {
+                  //       display: 'none',
+                  //     },
+                  //   },
+                  // }}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      error={Boolean(errors.workName)}
+                      label='Work name'
+                      placeholder='Work name'
+                    />
+                  )}
+                />
+              )
+            }}
+          />
+        </Grid>
+      )}
+
       <Grid item xs={6}>
         <Controller
           name='projectName'
@@ -335,130 +348,140 @@ export default function InvoiceProjectInfoForm({
         />
         {renderErrorMsg('projectName')}
       </Grid>
-      {/* <Grid item xs={6}>
-        <Controller
-          name='category'
-          control={control}
-          render={({ field: { value, onChange } }) => (
-            <Autocomplete
-              autoHighlight
-              disabled
-              fullWidth
-              options={CategoryList}
-              onChange={(e, v) => {
-                if (!v) {
-                  setValue('serviceType', [], setValueOptions)
-                  setValue('expertise', [], setValueOptions)
+      {multipleOrder ? null : (
+        <Grid item xs={6}>
+          <Controller
+            name='category'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <Autocomplete
+                autoHighlight
+                disabled
+                fullWidth
+                options={CategoryList}
+                onChange={(e, v) => {
+                  if (!v) {
+                    setValue('serviceType', [], setValueOptions)
+                    setValue('expertise', [], setValueOptions)
+                  }
+                  onChange(v?.value ?? '')
+                }}
+                // sx={{
+                //   borderRadius: '8px',
+                //   background: 'rgba(76, 78, 100, 0.12) !important',
+                //   '& .MuiChip-root': {
+                //     '&. MuiChip-label': {
+                //       color: 'rgba(76, 78, 100, 0.38)',
+                //       opacity: '1 !important',
+                //     },
+                //     '& .MuiSvgIcon-root': {
+                //       display: 'none',
+                //     },
+                //   },
+                // }}
+                value={
+                  !value
+                    ? defaultValue
+                    : CategoryList.find(item => item.value === value)
                 }
-                onChange(v?.value ?? '')
-              }}
-              value={
-                !value
-                  ? defaultValue
-                  : CategoryList.find(item => item.value === value)
-              }
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  error={Boolean(errors.category)}
-                  label='Category'
-                  placeholder='Category'
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    error={Boolean(errors.category)}
+                    label='Category'
+                    placeholder='Category'
+                  />
+                )}
+              />
+            )}
+          />
+        </Grid>
+      )}
+      {multipleOrder ? null : (
+        <Grid item xs={6}>
+          <Controller
+            name='serviceType'
+            control={control}
+            render={({ field: { value, onChange } }) => {
+              const category = watch('category') as keyof typeof ServiceTypePair
+              return (
+                <Autocomplete
+                  autoHighlight
+                  fullWidth
+                  disabled
+                  multiple
+                  // sx={{
+                  //   borderRadius: '8px',
+                  //   background: 'rgba(76, 78, 100, 0.12) !important',
+                  //   '& .MuiChip-root': {
+                  //     '&. MuiChip-label': {
+                  //       color: 'rgba(76, 78, 100, 0.38)',
+                  //       opacity: '1 !important',
+                  //     },
+                  //     '& .MuiSvgIcon-root': {
+                  //       display: 'none',
+                  //     },
+                  //   },
+                  // }}
+                  options={
+                    !category || !ServiceTypePair[category]
+                      ? ServiceTypeList
+                      : ServiceTypePair[category]
+                  }
+                  onChange={(e, v) => {
+                    onChange(v.map(item => item.value))
+                  }}
+                  value={ServiceTypeList.filter(item =>
+                    value?.includes(item.value),
+                  )}
+                  renderInput={params => (
+                    <TextField {...params} label='Service type' />
+                  )}
                 />
-              )}
-            />
-          )}
-        />
-      </Grid> */}
-      {/* <Grid item xs={6}>
-        <Controller
-          name='serviceType'
-          control={control}
-          render={({ field: { value, onChange } }) => {
-            const category = watch('category') as keyof typeof ServiceTypePair
-            return (
-              <Autocomplete
-                autoHighlight
-                fullWidth
-                disabled
-                multiple
-                sx={{
-                  borderRadius: '8px',
-                  background: 'rgba(76, 78, 100, 0.12) !important',
-                  '& .MuiChip-root': {
-                    '&. MuiChip-label': {
-                      color: 'rgba(76, 78, 100, 0.38)',
-                      opacity: '1 !important',
-                    },
-                    '& .MuiSvgIcon-root': {
-                      display: 'none',
-                    },
-                  },
-                }}
-                options={
-                  !category || !ServiceTypePair[category]
-                    ? ServiceTypeList
-                    : ServiceTypePair[category]
-                }
-                onChange={(e, v) => {
-                  onChange(v.map(item => item.value))
-                }}
-                value={ServiceTypeList.filter(item =>
-                  value?.includes(item.value),
-                )}
-                renderInput={params => (
-                  <TextField {...params} label='Service type' />
-                )}
-              />
-            )
-          }}
-        />
-      </Grid> */}
-      {/* <Grid item xs={12}>
-        <Controller
-          name='expertise'
-          control={control}
-          render={({ field: { value, onChange } }) => {
-            const category = watch(
-              'category',
-            ) as keyof typeof AreaOfExpertisePair
-            return (
-              <Autocomplete
-                autoHighlight
-                fullWidth
-                disabled
-                sx={{
-                  borderRadius: '8px',
-                  background: 'rgba(76, 78, 100, 0.12) !important',
-                  '& .MuiChip-root': {
-                    '&. MuiChip-label': {
-                      color: 'rgba(76, 78, 100, 0.38)',
-                      opacity: '1 !important',
-                    },
-                    '& .MuiSvgIcon-root': {
-                      display: 'none',
-                    },
-                  },
-                }}
-                multiple
-                options={
-                  !category || !AreaOfExpertisePair[category]
-                    ? AreaOfExpertiseList
-                    : AreaOfExpertisePair[category]
-                }
-                onChange={(e, v) => {
-                  onChange(v.map(item => item.value))
-                }}
-                value={AreaOfExpertiseList.filter(item =>
-                  value?.includes(item.value),
-                )}
-                renderInput={params => (
-                  <TextField {...params} label='Area of expertise' />
-                )}
-              />
-            )
-          }}
-        />
-      </Grid> */}
+              )
+            }}
+          />
+        </Grid>
+      )}
+      {multipleOrder ? null : (
+        <Grid item xs={12}>
+          <Controller
+            name='expertise'
+            control={control}
+            render={({ field: { value, onChange } }) => {
+              const category = watch(
+                'category',
+              ) as keyof typeof AreaOfExpertisePair
+              return (
+                <Autocomplete
+                  autoHighlight
+                  fullWidth
+                  disabled
+                  multiple
+                  options={
+                    !category || !AreaOfExpertisePair[category]
+                      ? AreaOfExpertiseList
+                      : AreaOfExpertisePair[category]
+                  }
+                  onChange={(e, v) => {
+                    onChange(v.map(item => item.value))
+                  }}
+                  value={AreaOfExpertiseList.filter(item =>
+                    value?.includes(item.value),
+                  )}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      label='Area of expertise'
+                      sx={{ color: 'red' }}
+                    />
+                  )}
+                />
+              )
+            }}
+          />
+        </Grid>
+      )}
       <Grid item xs={6}>
         <Controller
           name='revenueFrom'
@@ -477,6 +500,21 @@ export default function InvoiceProjectInfoForm({
                   RevenueFrom.find(item => value?.includes(item.value)) || {
                     value: '',
                     label: '',
+                  }
+                }
+                sx={
+                  {
+                    // borderRadius: '8px',
+                    // background: 'rgba(76, 78, 100, 0.12) !important',
+                    // '& .MuiChip-root': {
+                    //   '&. MuiChip-label': {
+                    //     color: 'rgba(76, 78, 100, 0.38)',
+                    //     opacity: '1 !important',
+                    //   },
+                    //   '& .MuiSvgIcon-root': {
+                    //     display: 'none',
+                    //   },
+                    // },
                   }
                 }
                 renderInput={params => (
@@ -531,50 +569,52 @@ export default function InvoiceProjectInfoForm({
         />
         {renderErrorMsg('revenueFrom')}
       </Grid>
-
-      <Grid item xs={6}>
-        <Controller
-          name='tax'
-          control={control}
-          render={({ field: { value, onChange } }) => (
-            <FormControl
-              fullWidth
-              error={Boolean(errors.tax) && getValue('isTaxable')}
-            >
-              <InputLabel>Tax rate*</InputLabel>
-              <OutlinedInput
-                // value={value ? Number(value) : null}
-                value={value ?? ''}
+      {multipleOrder ? (
+        <Grid item xs={6}>
+          <Controller
+            name='tax'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <FormControl
+                fullWidth
                 error={Boolean(errors.tax) && getValue('isTaxable')}
-                onFocus={e =>
-                  e.target.addEventListener(
-                    'wheel',
-                    function (e) {
-                      e.preventDefault()
-                    },
-                    { passive: false },
-                  )
-                }
-                onChange={e => {
-                  if (e.target.value.length > 10) return
-                  onChange(Number(e.target.value))
-                }}
-                disabled={!watch('isTaxable')}
-                endAdornment={
-                  !watch('isTaxable') ? null : (
-                    <InputAdornment position='end'>%</InputAdornment>
-                  )
-                }
-                type='number'
-                // inputProps={{ inputMode: 'decimal' }}
-                label='Tax rate*'
-                // endAdornment={<InputAdornment position='end'>%</InputAdornment>}
-              />
-            </FormControl>
-          )}
-        />
-        {renderErrorMsg('tax')}
-      </Grid>
+              >
+                <InputLabel>Tax rate*</InputLabel>
+                <OutlinedInput
+                  // value={value ? Number(value) : null}
+                  value={value ?? ''}
+                  error={Boolean(errors.tax) && getValue('isTaxable')}
+                  onFocus={e =>
+                    e.target.addEventListener(
+                      'wheel',
+                      function (e) {
+                        e.preventDefault()
+                      },
+                      { passive: false },
+                    )
+                  }
+                  onChange={e => {
+                    if (e.target.value.length > 10) return
+                    onChange(Number(e.target.value))
+                  }}
+                  disabled={!watch('isTaxable')}
+                  endAdornment={
+                    !watch('isTaxable') ? null : (
+                      <InputAdornment position='end'>%</InputAdornment>
+                    )
+                  }
+                  type='number'
+                  // inputProps={{ inputMode: 'decimal' }}
+                  label='Tax rate*'
+                  // endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+                />
+              </FormControl>
+            )}
+          />
+          {renderErrorMsg('tax')}
+        </Grid>
+      ) : null}
+
       <Grid item xs={6}>
         <Controller
           name='paymentDueDate.date'

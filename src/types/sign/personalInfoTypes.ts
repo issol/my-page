@@ -9,10 +9,10 @@ export interface CountryType {
 }
 
 export interface TimeZoneType {
-  offset: number;
-  offsetFormatted: string;
-  timezone: string;
-  timezoneCode: string;
+  offset: number
+  offsetFormatted: string
+  timezone: string
+  timezoneCode: string
 }
 
 export interface JobInfoType {
@@ -68,6 +68,12 @@ export type ProUserInfoType = {
 export type ProUserResumeInfoType = {
   extraData: {
     resume: Array<string>
+  }
+}
+
+export type ProUserNoteInfoType = {
+  extraData: {
+    noteFromUser: string
   }
 }
 
