@@ -117,7 +117,7 @@ export type PayableHistoryType = {
   invoicedTimezone: CountryType
   invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
   invoiceConfirmedAt: string | null
-  pro?: { name: string; email: string }
+  pro?: { name: string; email: string; id: number }
   taxInfo: string
   taxRate: string
   payDueAt?: string

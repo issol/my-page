@@ -25,6 +25,7 @@ import InvoiceDetailInfoForm from '@src/pages/components/forms/invoice-detail-in
 import {
   InvoicePayableDetailType,
   PayableFormType,
+  PayableHistoryType,
 } from '@src/types/invoice/payable.type'
 import {
   getInvoiceDetailInfoSchema,
@@ -66,7 +67,7 @@ import { useRouter } from 'next/router'
 type Props = {
   isUpdatable: boolean
   updatePayable?: UseMutationResult<any, unknown, PayableFormType, unknown>
-  data: InvoicePayableDetailType | undefined
+  data: InvoicePayableDetailType | PayableHistoryType | undefined
   editInfo: boolean
   setEditInfo: (n: boolean) => void
   statusList: Array<{
