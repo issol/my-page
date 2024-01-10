@@ -5,7 +5,7 @@ import { LanguageAndItemType } from '../orders/order-detail'
 
 export type InvoicePayableFilterType = {
   invoiceStatus?: number[]
-  pro?: number[]
+  proId?: number[]
   invoicedDateFrom?: string
   invoicedDateTo?: string
   payDueDateFrom?: string

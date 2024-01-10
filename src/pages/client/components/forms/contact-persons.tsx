@@ -68,7 +68,7 @@ type Props<T extends number | string = string> = {
   handleBack: () => void
 }
 
-export default function ContactPersonForm<T extends number | string = string>({
+const ContactPersonForm = <T extends number | string = string>({
   isGeneral,
   getCompanyInfo,
   control,
@@ -84,15 +84,12 @@ export default function ContactPersonForm<T extends number | string = string>({
   onClientDataSubmit,
   onNextStep,
   handleBack,
-}: Props<T>) {
+}: Props<T>) => {
   const [idx, setIdx] = useState<number>(0)
   const [mode, setMode] = useState<'create' | 'update'>('create')
   const [pageSize, setPageSize] = useState(10)
 
-  // ** modals
   const [openForm, setOpenForm] = useState(false)
-  const [openAdd, setOpenAdd] = useState(false)
-  const [openDiscard, setOpenDiscard] = useState(false)
   const { openModal, closeModal } = useModal()
 
   const columns: GridColumns<ContactPersonType<T>> = [
@@ -174,20 +171,20 @@ export default function ContactPersonForm<T extends number | string = string>({
     },
   ]
 
-  function onSubmit(data: ClientContactPersonType<T>) {
+  const onSubmit = (data: ClientContactPersonType<T>) => {
     setOpenForm(false)
     if (!data.contactPersons?.length) return
     update(idx, data.contactPersons[idx])
   }
 
-  function openContactPersonForm() {
+  const openContactPersonForm = () => {
     appendContactPerson()
     setIdx(fields.length)
     setMode('create')
     setOpenForm(true)
   }
 
-  function appendContactPerson() {
+  const appendContactPerson = () => {
     const companyInfo = getCompanyInfo ? getCompanyInfo() : undefined
     append({
       personType: 'Mr.',
@@ -199,19 +196,19 @@ export default function ContactPersonForm<T extends number | string = string>({
     })
   }
 
-  function removeContactPerson(id: string) {
+  const removeContactPerson = (id: string) => {
     const idx = fields.map(item => item.id as string).indexOf(id)
     idx !== -1 && remove(idx)
   }
 
-  function updateContactPerson(id: string) {
+  const updateContactPerson = (id: string) => {
     const idx = fields.map(item => item.id as string).indexOf(id)
     setIdx(idx)
     setMode('update')
     setOpenForm(true)
   }
 
-  function cancelUpdateForm() {
+  const cancelUpdateForm = () => {
     const data = fields?.[idx]
     update(idx, data)
     setOpenForm(false)
@@ -267,7 +264,7 @@ export default function ContactPersonForm<T extends number | string = string>({
           rightButtonText='Save'
           vary='successful'
           onClick={() => {
-            onSubmit(getValues()) 
+            onSubmit(getValues())
             closeModal('SaveModal')
           }}
         />
@@ -348,11 +345,7 @@ export default function ContactPersonForm<T extends number | string = string>({
           </Button>
         )}
       </Grid>
-      <Dialog
-        open={openForm}
-        maxWidth='lg'
-        sx={{ zIndex: 1299 }}
-      >
+      <Dialog open={openForm} maxWidth='lg' sx={{ zIndex: 1299 }}>
         <DialogContent>
           <Grid container spacing={6}>
             {mode === 'create' ? (
@@ -418,3 +411,5 @@ export default function ContactPersonForm<T extends number | string = string>({
     </Grid>
   )
 }
+
+export default ContactPersonForm

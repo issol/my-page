@@ -10,6 +10,7 @@ import {
   ProUserInfoType,
   ManagerUserInfoType,
   ProUserResumeInfoType,
+  ProUserNoteInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { UserDataType } from 'src/context/types'
 import { CurrencyType } from '@src/types/common/standard-price'
@@ -55,7 +56,12 @@ export const updateClientUserInfo = async (
 
 /* pro 프로필 업데이트용 */
 export const updateConsumerUserInfo = async (
-  userInfo: (ProUserInfoType | ManagerUserInfoType | ProUserResumeInfoType) & {
+  userInfo: (
+    | ProUserInfoType
+    | ManagerUserInfoType
+    | ProUserResumeInfoType
+    | ProUserNoteInfoType
+  ) & {
     userId: number
   },
 ) => {

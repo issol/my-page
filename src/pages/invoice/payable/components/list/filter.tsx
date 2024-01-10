@@ -141,14 +141,14 @@ export default function Filter({
                         !proList
                           ? []
                           : proList.data?.filter(pro =>
-                              filter.pro?.includes(pro.userId),
+                              filter.proId?.includes(pro.userId),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          pro: v.map(i => i.userId),
+                          proId: v.map(i => i.userId),
                         })
                       }
                       renderInput={params => (

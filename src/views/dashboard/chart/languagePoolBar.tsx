@@ -217,6 +217,8 @@ const TADLanguagePoolBarChart = ({
             cssClass: 'data-label',
             colors: theme.palette.text.primary,
           },
+          maxWidth: 120,
+          minWidth: 120,
         },
       },
     }

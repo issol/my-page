@@ -14,7 +14,7 @@ import {
 import { TableTitleTypography } from '@src/@core/styles/typography'
 
 // ** react hook form
-import { useFieldArray, useForm } from 'react-hook-form'
+import { useFieldArray, useForm, useWatch } from 'react-hook-form'
 
 // ** types & schema
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -56,8 +56,9 @@ import {
 
 // ** toast
 import { toast } from 'react-hot-toast'
+import isEqual from 'lodash/isEqual'
 
-type Props = {
+interface ContactPersonsProps {
   clientId: number
   clientInfo: ClientDetailType
   isUpdatable: boolean
@@ -66,14 +67,14 @@ type Props = {
   isSigned: boolean
 }
 
-export default function ContactPersons({
+const ContactPersons = ({
   clientId,
   clientInfo,
   isUpdatable,
   isDeletable,
   isCreatable,
   isSigned,
-}: Props) {
+}: ContactPersonsProps) => {
   const { contactPersons } = clientInfo
 
   const queryClient = useQueryClient()
@@ -154,24 +155,24 @@ export default function ContactPersons({
 
   const {
     control,
-    getValues,
-    setValue,
-    handleSubmit,
-    watch,
     reset,
-    formState: { errors, isValid },
+    watch,
+    getValues,
+    formState: { errors, isValid, isDirty, dirtyFields },
   } = useForm<ClientContactPersonType>({
     defaultValues: contactPersonDefaultValue,
     mode: 'onChange',
     resolver: yupResolver(clientContactPersonSchema),
   })
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: 'contactPersons',
   })
 
-  function appendContactPerson() {
+  const [contactPersonsItems] = useWatch({ control, name: ['contactPersons'] })
+
+  const appendContactPerson = () => {
     append({
       personType: 'Mr.',
       firstName: '',
@@ -182,26 +183,48 @@ export default function ContactPersons({
     })
   }
 
-  function openCreateContactPersonForm() {
+  const openCreateContactPersonForm = () => {
     reset({ contactPersons: [] })
     appendContactPerson()
     setFormMode('create')
     setOpen(true)
   }
 
-  function openEditContactPersonForm(data: ContactPersonType) {
+  const openEditContactPersonForm = (data: ContactPersonType) => {
     closeModal(modalType.contactPerson)
-    reset({ contactPersons: [data] })
+    reset(
+      { contactPersons: [data] },
+      { keepDirty: false, keepDirtyValues: false },
+    )
+
     setFormMode('update')
     setOpen(true)
   }
 
-  function cancelUpdateForm() {
+  const cancelUpdateForm = () => {
+    if (!contactPersonsItems) return
+
+    const email = contactPersonsItems[0].email
+    const item1 = {
+      ...contactPersons?.find(item => item.email === email),
+      id: contactPersonsItems[0].id,
+      fax: contactPersonsItems[0].fax,
+      phone: contactPersonsItems[0].phone,
+      mobile: contactPersonsItems[0].mobile,
+    }
+    const item2 = contactPersonsItems[0]
+
+    if (isEqual(item1, item2)) {
+      closeModal('close-confirm')
+      setOpen(false)
+      return
+    }
+
     openModal({
       type: 'close-confirm',
       children: (
         <CloseConfirmModal
-          message='Are you sure? Changes you made may not be saved.'
+          message='Are you sure you want to discard all changes?'
           onClick={() => {
             setOpen(false)
           }}
@@ -239,18 +262,19 @@ export default function ContactPersons({
     },
   )
 
-  function onMutationSuccess() {
+  const onMutationSuccess = () => {
     reset({ contactPersons: [] })
     return queryClient.invalidateQueries(`client-detail-${clientId}`)
   }
-  function onMutationError() {
+
+  const onMutationError = () => {
     reset({ contactPersons: [] })
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
     })
   }
 
-  function onSubmit(data: ClientContactPersonType) {
+  const onSubmit = (data: ClientContactPersonType) => {
     const body = data.contactPersons
     if (body?.length) {
       if (formMode === 'create') {
@@ -275,7 +299,7 @@ export default function ContactPersons({
     setOpen(false)
   }
 
-  function onContactPersonDelete(data: ContactPersonType) {
+  const onContactPersonDelete = (data: ContactPersonType) => {
     if (data?.isReferred !== undefined) {
       if (data.isReferred) {
         openModal({
@@ -306,7 +330,7 @@ export default function ContactPersons({
       }
     }
   }
-  function onRowClick(data: GridRowParams<ContactPersonType>) {
+  const onRowClick = (data: GridRowParams<ContactPersonType>) => {
     openModal({
       type: modalType.contactPerson,
       children: (
@@ -418,6 +442,7 @@ export default function ContactPersons({
         }}
       />
       <AddContactPersonConfirmModal
+        formMode={formMode}
         open={openAdd}
         onAdd={() => onSubmit(getValues())}
         onClose={() => setOpenAdd(false)}
@@ -425,3 +450,5 @@ export default function ContactPersons({
     </Card>
   )
 }
+
+export default ContactPersons

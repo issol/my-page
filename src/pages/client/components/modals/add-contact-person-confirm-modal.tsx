@@ -3,16 +3,19 @@ import AlertIcon from '@src/@core/components/alert-icon'
 import { SmallModalContainer } from '@src/@core/components/modal'
 import Dialog from '@mui/material/Dialog'
 
-type Props = {
+interface AddContactPersonConfirmModalProps {
+  formMode: 'create' | 'update'
   open: boolean
   onAdd: () => void
   onClose: () => void
 }
-export default function AddContactPersonConfirmModal({
+
+const AddContactPersonConfirmModal = ({
+  formMode,
   open,
   onAdd,
   onClose,
-}: Props) {
+}: AddContactPersonConfirmModalProps) => {
   return (
     <Dialog
       onClose={onClose}
@@ -22,7 +25,10 @@ export default function AddContactPersonConfirmModal({
       <SmallModalContainer>
         <AlertIcon type='successful' />
         <Typography variant='body1' textAlign='center' mt='10px'>
-          Are you sure you want to add this contact person?
+          {formMode === 'create' &&
+            'Are you sure you want to add this contact person?'}
+          {formMode === 'update' &&
+            'Are you sure you want to save all changes?'}
         </Typography>
         <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
           <Button variant='outlined' onClick={onClose}>
@@ -35,10 +41,13 @@ export default function AddContactPersonConfirmModal({
               onClose()
             }}
           >
-            Add
+            {formMode === 'create' && 'Add'}
+            {formMode === 'update' && 'Save'}
           </Button>
         </Box>
       </SmallModalContainer>
     </Dialog>
   )
 }
+
+export default AddContactPersonConfirmModal

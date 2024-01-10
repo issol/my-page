@@ -77,7 +77,7 @@ import {
 import { changeProStatus } from '@src/apis/pro/pro-details.api'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import AvailableCalendarWrapper from '@src/@core/styles/libs/available-calendar'
-import WorkDaysCalendar from '@src/pages/mypage/pro/components/overview/work-days-calendar'
+import WorkDaysCalendar from '@src/views/mypage/overview/work-days-calendar'
 import TimelineDot from '@src/@core/components/mui/timeline-dot'
 import useModal from '@src/hooks/useModal'
 import { currentRoleSelector } from '@src/states/permission'

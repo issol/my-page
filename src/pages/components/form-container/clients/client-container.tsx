@@ -2,59 +2,36 @@
 import { Fragment, useEffect, useState } from 'react'
 
 // ** mui
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogContent,
-  Grid,
-  Typography,
-} from '@mui/material'
+import { Button, Grid, Typography } from '@mui/material'
 
 // ** types
-import { CreateClientBodyType } from '@src/apis/client.api'
+import {
+  createClient,
+  CreateClientBodyType,
+  createContactPerson,
+} from '@src/apis/client.api'
 
 // ** react hook form
 import {
-  useForm,
-  useFieldArray,
   Control,
-  UseFormSetValue,
-  UseFormWatch,
   UseFormGetValues,
-  UseFormTrigger,
   UseFormReset,
+  UseFormSetValue,
+  UseFormTrigger,
+  UseFormWatch,
 } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** schema & types
-import {
-  CompanyInfoFormType,
-  companyInfoDefaultValue,
-  companyInfoSchema,
-} from '@src/types/schema/company-info.schema'
-import {
-  ClientAddressFormType,
-  clientAddressDefaultValue,
-  clientAddressSchema,
-} from '@src/types/schema/client-address.schema'
-import {
-  ClientContactPersonType,
-  ContactPersonType,
-  clientContactPersonSchema,
-  contactPersonDefaultValue,
-} from '@src/types/schema/client-contact-person.schema'
+import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 import { ClientFormType } from '@src/types/schema/client.schema'
 
 // ** fetches & mutations
 import { useGetClientList } from '@src/queries/client.query'
-import { createClient, createContactPerson } from '@src/apis/client.api'
 
 // ** components
 import RegisterClientForm from '@src/pages/components/forms/register-client-form'
 import AddNewClientModal from '@src/pages/components/form-container/clients/add-new-client-modal'
 import AddConfirmModal from '@src/pages/client/components/modals/add-confirm-with-title-modal'
-import CloseConfirmModal from '@src/pages/client/components/modals/close-confirm-modal'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -76,7 +53,7 @@ type Props = {
   fromQuote: boolean
   reset?: UseFormReset<ClientFormType>
 }
-export default function ClientQuotesFormContainer({
+const ClientQuotesFormContainer = ({
   control,
   setValue,
   watch,
@@ -88,7 +65,7 @@ export default function ClientQuotesFormContainer({
   getValue,
   fromQuote = false,
   reset,
-}: Props) {
+}: Props) => {
   const { openModal, closeModal } = useModal()
 
   // ** stepper
@@ -121,7 +98,7 @@ export default function ClientQuotesFormContainer({
     }
   }, [clientList, isSuccess])
 
-  function onCloseFormModal() {
+  const onCloseFormModal = () => {
     openModal({
       type: 'close-confirm',
       children: (
@@ -134,22 +111,17 @@ export default function ClientQuotesFormContainer({
             closeModal('close-confirm')
           }}
           onClose={() => {
-            // resetAddNewClientForm()
             closeModal('close-confirm')
           }}
         />
-        // <CloseConfirmModal
-        //   message='Are you sure? Changes you made may not be saved.'
-
-        // />
       ),
     })
   }
 
-  function mutateClientData(
+  const mutateClientData = (
     clientData: CreateClientBodyType,
     contactPersonData: ContactPersonType[] | undefined,
-  ) {
+  ) => {
     createClient(clientData)
       .then(res => {
         setValue('clientId', res.clientId, setValueOptions)
@@ -260,3 +232,5 @@ export default function ClientQuotesFormContainer({
     </Fragment>
   )
 }
+
+export default ClientQuotesFormContainer
