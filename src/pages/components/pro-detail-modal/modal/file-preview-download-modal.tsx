@@ -1,41 +1,21 @@
-import Image from 'next/image'
-
 import Box from '@mui/material/Box'
 
-import Dialog from '@mui/material/Dialog'
-
-import DialogContent from '@mui/material/DialogContent'
-
-import DialogContentText from '@mui/material/DialogContentText'
-
-import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 
 import Typography from '@mui/material/Typography'
-import DocViewer, {
-  DocViewerRenderers,
-  IHeaderOverride,
-} from '@cyntler/react-doc-viewer'
+import DocViewer, { IHeaderOverride } from '@cyntler/react-doc-viewer'
 import PDFRenderer from 'src/shared/viewer/pdf'
 import MSDocRenderer from 'src/shared/viewer/msdoc'
 import JPGRenderer from 'src/shared/viewer/jpg'
 import PNGRenderer from 'src/shared/viewer/png'
 import CSVRenderer from 'src/shared/viewer/csv'
-import styled from 'styled-components'
-import Link from 'next/link'
-import { log } from 'console'
 
 type Props = {
-  open: boolean
   onClose: any
   docs: { url: string; fileName: string; fileExtension: string }[]
 }
-export default function FilePreviewDownloadModal({
-  open,
-  onClose,
-  docs,
-}: Props) {
+export default function FilePreviewDownloadModal({ onClose, docs }: Props) {
   const MyHeader: IHeaderOverride = (state, previousDocument, nextDocument) => {
     if (!state.currentDocument || state.config?.header?.disableFileName) {
       return null
@@ -65,6 +45,8 @@ export default function FilePreviewDownloadModal({
     )
   }
 
+  console.log(docs)
+
   const downloadFile = (file: {
     url: string
     fileName: string
@@ -92,76 +74,88 @@ export default function FilePreviewDownloadModal({
       })
   }
   return (
-    <Dialog
-      open={open}
-      keepMounted
-      onClose={onClose}
-      aria-labelledby='alert-dialog-slide-title'
-      aria-describedby='alert-dialog-slide-description'
-      maxWidth='lg'
+    <Box
+      sx={{
+        maxWidth: '1080px',
+        width: '100%',
+        background: '#ffffff',
+        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+        borderRadius: '10px',
+        position: 'relative',
+      }}
     >
-      <DialogContent
+      <Box
         sx={{
-          padding: 10,
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          zIndex: 3,
+          display: 'flex',
+        }}
+      >
+        <IconButton onClick={() => downloadFile(docs![0])}>
+          <Icon icon='mdi:cloud-download-outline'></Icon>
+        </IconButton>
+
+        <IconButton onClick={onClose}>
+          <Icon icon='mdi:close'></Icon>
+        </IconButton>
+      </Box>
+
+      <Box
+        sx={{
+          padding: '20px',
           display: 'flex',
           flexDirection: 'column',
-          position: 'relative',
-          gap: 1,
+          justifyContent: 'center',
         }}
       >
         <Box
           sx={{
-            position: 'absolute',
-            top: '20px',
-            right: '20px',
-            zIndex: 3,
-            display: 'flex',
-          }}
-        >
-          <IconButton onClick={() => downloadFile(docs![0])}>
-            <Icon icon='mdi:cloud-download-outline'></Icon>
-          </IconButton>
-
-          <IconButton onClick={onClose}>
-            <Icon icon='mdi:close'></Icon>
-          </IconButton>
-        </Box>
-        <Box
-          sx={{
-            width: 1000,
-            height: 1000,
             display: 'flex',
             justifyContent: 'center',
-            overflow: 'hidden',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px',
           }}
         >
-          {docs !== null ? (
-            <DocViewer
-              documents={docs.map(value => ({
-                uri: value.url,
-                fileType: value.fileExtension,
-                fileName: value.fileName,
-              }))}
-              pluginRenderers={[
-                PDFRenderer,
-                MSDocRenderer,
-                JPGRenderer,
-                PNGRenderer,
-                CSVRenderer,
-              ]}
-              // pluginRenderers={DocViewerRenderers}
-              prefetchMethod=''
-              config={{
-                pdfZoom: {
-                  defaultZoom: 1.1,
-                  zoomJump: 0.8,
-                },
-                csvDelimiter: ',',
-              }}
-            />
-          ) : null}
+          <Box
+            sx={{
+              width: 1000,
+              height: 1000,
+              display: 'flex',
+              justifyContent: 'center',
+              overflow: 'hidden',
+            }}
+          >
+            {docs !== null ? (
+              <DocViewer
+                documents={docs.map(value => ({
+                  uri: value.url,
+                  fileType: value.fileExtension,
+                  fileName: value.fileName,
+                }))}
+                pluginRenderers={[
+                  PDFRenderer,
+                  MSDocRenderer,
+                  JPGRenderer,
+                  PNGRenderer,
+                  CSVRenderer,
+                ]}
+                // pluginRenderers={DocViewerRenderers}
+                prefetchMethod=''
+                config={{
+                  pdfZoom: {
+                    defaultZoom: 1.1,
+                    zoomJump: 0.8,
+                  },
+                  csvDelimiter: ',',
+                }}
+              />
+            ) : null}
+          </Box>
         </Box>
-      </DialogContent>
-    </Dialog>
+      </Box>
+    </Box>
   )
 }

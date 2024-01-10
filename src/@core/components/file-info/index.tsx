@@ -97,7 +97,6 @@ const FileInfo = ({
           type: 'filePreview',
           children: (
             <FilePreviewDownloadModal
-              open={true}
               onClose={() => closeModal('filePreview')}
               docs={[file]}
             />

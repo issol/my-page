@@ -31,7 +31,6 @@ import {
 } from '@src/@core/components/chips/chips'
 import ListResume from './list/list-resume'
 
-import { ModalContext } from '@src/context/ModalContext'
 import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-preview-download-modal'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -40,6 +39,7 @@ import { setDate } from 'date-fns'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import { useQueryClient } from 'react-query'
 import { timezoneSelector } from '@src/states/permission'
+import useModal from '@src/hooks/useModal'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -72,9 +72,9 @@ const Pro = () => {
   })
 
   const { data: proList, isLoading } = useGetProList(filters)
+  const { openModal, closeModal } = useModal()
 
   const auth = useRecoilValueLoadable(authState)
-  const { setModal } = useContext(ModalContext)
 
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
@@ -108,13 +108,15 @@ const Pro = () => {
   ) => {
     getDownloadUrlforCommon(fileType, file.filePath).then(res => {
       file.url = res.url
-      setModal(
-        <FilePreviewDownloadModal
-          open={true}
-          onClose={() => setModal(null)}
-          docs={[file]}
-        />,
-      )
+      openModal({
+        type: 'FilePreviewDownloadModal',
+        children: (
+          <FilePreviewDownloadModal
+            onClose={() => closeModal('FilePreviewDownloadModal')}
+            docs={[file]}
+          />
+        ),
+      })
     })
   }
 

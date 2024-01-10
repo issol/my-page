@@ -27,7 +27,6 @@ import Icon from 'src/@core/components/icon'
 import logger from '@src/@core/utils/logger'
 
 // ** Components
-import CancelModal from './modal/cancel-baseprice-modal'
 
 // ** type
 import {
@@ -35,6 +34,8 @@ import {
   PriceUnitType,
 } from '@src/types/common/standard-price'
 import { CustomTableRow } from './table'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import useModal from '@src/hooks/useModal'
 
 type Props = {
   data?: PriceUnitType
@@ -46,8 +47,7 @@ type Props = {
 
 export default function PriceUnitForm(props: Props) {
   const { mutation, showModal } = props
-  const [open, setOpen] = useState(false)
-  const closeModal = () => setOpen(false)
+  const { openModal, closeModal } = useModal()
 
   const defaultValues = {
     isBase: false,
@@ -191,7 +191,23 @@ export default function PriceUnitForm(props: Props) {
                 name='base_price'
                 onChange={(e, v) => {
                   if (!v) {
-                    setOpen(true)
+                    openModal({
+                      type: 'CancelBasePriceModal',
+                      children: (
+                        <CustomModal
+                          title='Are you sure you want to cancel the base price setting? The associated
+                        price units will be deleted.'
+                          leftButtonText='No'
+                          rightButtonText='Cancel'
+                          onClose={() => closeModal('CancelBasePriceModal')}
+                          onClick={() => {
+                            onCancelBasePrice()
+                            closeModal('CancelBasePriceModal')
+                          }}
+                          vary='error'
+                        />
+                      ),
+                    })
                   } else {
                     //@ts-ignore
                     setValue('weighting', 100, setValueOptions)
@@ -456,12 +472,6 @@ export default function PriceUnitForm(props: Props) {
       ) : (
         ''
       )}
-
-      <CancelModal
-        open={open}
-        onCancelBasePrice={onCancelBasePrice}
-        onClose={closeModal}
-      />
     </Fragment>
   )
 }

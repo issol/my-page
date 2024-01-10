@@ -2,37 +2,32 @@ import {
   Button,
   CardHeader,
   FormControl,
-  IconButton,
   InputAdornment,
   InputLabel,
   MenuItem,
   OutlinedInput,
   Select,
-  Typography,
 } from '@mui/material'
 import { Box } from '@mui/system'
-import { useContext, useState } from 'react'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import { ModalContext } from 'src/context/ModalContext'
+import { useState } from 'react'
+
 import { Icon } from '@iconify/react'
 import { LinkType } from 'src/types/schema/jobPosting.schema'
+import { ModalContainer, ModalButtonGroup } from './edit-link-modal'
 
 type Props = {
   onAdd: (item: LinkType) => void
+  onClose: any
 }
-export default function AddLinkModal({ onAdd }: Props) {
-  const { setModal } = useContext(ModalContext)
+export default function AddLinkModal({ onAdd, onClose }: Props) {
   const values = ['JobKorea', 'Albamon', '알바천국', 'Linkedin', 'Etc']
   const [state, setState] = useState({ category: '', link: '' })
 
-  function close() {
-    setModal(null)
-  }
   return (
     <form
       onSubmit={e => {
         e.preventDefault()
-        close()
+        onClose()
         onAdd(state)
       }}
     >
@@ -93,7 +88,7 @@ export default function AddLinkModal({ onAdd }: Props) {
           />
         </Box>
         <ModalButtonGroup style={{ margin: '24px 0 20px' }}>
-          <Button variant='outlined' onClick={close}>
+          <Button variant='outlined' onClick={onClose}>
             Cancel
           </Button>
           <Button variant='contained' type='submit'>

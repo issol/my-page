@@ -15,7 +15,7 @@ import Divider from '@mui/material/Divider'
 import Icon from 'src/@core/components/icon'
 
 // ** React Imports
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -39,11 +39,11 @@ import { LinkItem } from 'src/@core/components/linkItem'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
+
 import styled from 'styled-components'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
@@ -78,6 +78,8 @@ import FallbackSpinner from '@src/@core/components/spinner'
 import { FormErrors } from '@src/shared/const/formErrors'
 
 import { timezoneSelector } from '@src/states/permission'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 export default function JobPostingPost() {
   const router = useRouter()
@@ -86,7 +88,7 @@ export default function JobPostingPost() {
 
   // ** contexts
   const auth = useRecoilValueLoadable(authState)
-  const { setModal } = useContext(ModalContext)
+  const { openModal, closeModal } = useModal()
 
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
@@ -164,91 +166,65 @@ export default function JobPostingPost() {
   }, [currDueDate])
 
   function onDiscard() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <CustomModal
+          title='Are you sure to discard all changes?'
+          onClose={() => closeModal('DiscardModal')}
+          onClick={() => {
+            closeModal('DiscardModal')
+            router.push('/recruiting/')
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt=''
-          />
-          <Typography variant='body2'>
-            Are you sure to discard all changes?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              router.push('/recruiting/')
-            }}
-          >
-            Discard
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='error'
+          rightButtonText='Discard'
+        />
+      ),
+    })
   }
 
   function onUpload() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'UploadModal',
+      children: (
+        <CustomModal
+          title='Are you sure to post this job posting?'
+          onClose={() => closeModal('UploadModal')}
+          onClick={() => {
+            closeModal('UploadModal')
+            onSubmit()
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-successful.png'
-            width={60}
-            height={60}
-            alt=''
-          />
-          <Typography variant='body2'>
-            Are you sure to post this job posting?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              onSubmit()
-            }}
-          >
-            Post
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='successful'
+          rightButtonText='Post'
+        />
+      ),
+    })
   }
 
   function openAddLinkModal() {
-    setModal(<AddLinkModal onAdd={addLink} />)
+    openModal({
+      type: 'AddLinkModal',
+      children: (
+        <AddLinkModal
+          onAdd={addLink}
+          onClose={() => closeModal('AddLinkModal')}
+        />
+      ),
+    })
   }
 
   function openEditLinkModal(savedLink: LinkType) {
-    setModal(<EditLinkModal onAdd={editLink} savedLink={savedLink} />)
+    openModal({
+      type: 'EditLinkModal',
+      children: (
+        <EditLinkModal
+          onAdd={editLink}
+          onClose={() => closeModal('EditLinkModal')}
+          savedLink={savedLink}
+        />
+      ),
+    })
   }
-
   function editLink(item: LinkType) {
     const itemToDelete = link.filter(v => v.id !== item.id)
     const itemToAdd = { ...item, id: uuidv4() }

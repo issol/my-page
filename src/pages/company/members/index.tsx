@@ -12,9 +12,6 @@ import {
   undoRequest,
 } from 'src/apis/company/company-members.api'
 
-import { ModalContext } from 'src/context/ModalContext'
-import DeclineSignUpRequestModal from '../components/modal/decline-signup-request-modal'
-import ApproveSignUpRequestModal from '../components/modal/approve-signup-request.modal'
 import toast from 'react-hot-toast'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
@@ -32,9 +29,14 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { roleState } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
 
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { Typography } from '@mui/material'
+import useModal from '@src/hooks/useModal'
+
 const RoleArray = ['TAD', 'LPM']
 const Members = () => {
   const isClient = getCurrentRole()?.name === 'CLIENT'
+  const { openModal, closeModal } = useModal()
 
   const ability = useContext(AbilityContext)
   const { data: signUpRequests, isError } = useGetSignUpRequests(
@@ -67,8 +69,6 @@ const Members = () => {
   const [membersPageSize, setMembersPageSize] = useState<number>(10)
   const [user, setUser] = useState<SignUpRequestsType[]>([])
   const [memberList, setMemberList] = useState<MembersType[]>([])
-
-  const { setModal } = useContext(ModalContext)
 
   const queryClient = useQueryClient()
 
@@ -259,32 +259,57 @@ const Members = () => {
   }
 
   const handleApproveSignUpRequest = (user: SignUpRequestsType) => {
-    setModal(
-      <ApproveSignUpRequestModal
-        approveSignUpRequest={approveSignUpRequest}
-        user={user}
-        message={
-          isClient
-            ? 'Are you sure to approve the registration request for this account'
-            : 'Are you sure to approve the sign up request for this account?'
-        }
-      />,
-    )
+    openModal({
+      type: 'approveSignUpRequestModal',
+      children: (
+        <CustomModal
+          vary='successful'
+          onClick={() => {
+            closeModal('approveSignUpRequestModal')
+            approveSignUpRequest(user)
+          }}
+          title={
+            <>
+              {isClient
+                ? 'Are you sure to approve the sign-up request for this account?'
+                : 'Are you sure to approve the sign up request for this account?'}
+              <Typography variant='body2' fontWeight={600}>
+                {user.email}
+              </Typography>
+            </>
+          }
+          onClose={() => closeModal('approveSignUpRequestModal')}
+          rightButtonText='Approve'
+        />
+      ),
+    })
   }
 
   const handleDeclineSignUpRequest = (user: SignUpRequestsType) => {
-    setModal(
-      <DeclineSignUpRequestModal
-        declineSignUpRequest={declineSignUpRequest}
-        user={user}
-        message={
-          isClient
-            ? 'Are you sure to decline the registration request for this account?'
-            : 'Are you sure to decline the sign up request for this account?'
-        }
-        onClose={() => setModal(null)}
-      />,
-    )
+    openModal({
+      type: 'declineSignUpRequestModal',
+      children: (
+        <CustomModal
+          vary='error'
+          onClick={() => {
+            closeModal('declineSignUpRequestModal')
+            declineSignUpRequest(user)
+          }}
+          title={
+            <>
+              {isClient
+                ? 'Are you sure to decline the sign-up request for this account?'
+                : 'Are you sure to decline the sign up request for this account?'}
+              <Typography variant='body2' fontWeight={600}>
+                {user.email}
+              </Typography>
+            </>
+          }
+          onClose={() => closeModal('declineSignUpRequestModal')}
+          rightButtonText='Decline'
+        />
+      ),
+    })
   }
 
   const checkPermission = () => {

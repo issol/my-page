@@ -22,6 +22,7 @@ export type AppliedRoleType = {
   target?: string
   testStatus: string
   requestStatus: string
+  requestStatusOfPro: string
   operatorId: string | null
   response: string | null
   messageToUser: string | null
