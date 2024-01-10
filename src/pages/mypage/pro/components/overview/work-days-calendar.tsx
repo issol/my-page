@@ -9,7 +9,8 @@ import {
   OffDayEventType,
 } from '@src/types/common/calendar.type'
 import { addOneDay } from '@src/shared/helpers/date.helper'
-import { calendarDefaultOptions } from '@src/shared/const/calender'
+import { calendarDefaultOptions, ValidRange } from '@src/shared/const/calender'
+import dayjs from 'dayjs'
 
 /**
  * event : 달력에 보여줄 off day 데이터
@@ -61,6 +62,10 @@ const WorkDaysCalendar = (props: Props) => {
 
   const calendarOptions: CalendarOptions = {
     ...calendarDefaultOptions,
+    validRange: {
+      start: dayjs().add(-12, 'month').format('YYYY-MM-DD'),
+      end: dayjs().add(12, 'month').format('YYYY-MM-DD'),
+    },
     events: (finalEvent || []) as CalendarOptions['events'],
     plugins: [dayGridPlugin, interactionPlugin],
     headerToolbar: {

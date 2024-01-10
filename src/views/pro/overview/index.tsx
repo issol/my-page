@@ -92,6 +92,8 @@ export const ProDetailOverviews = () => (
 
 const ProDetailOverview = () => {
   const router = useRouter()
+  const queryClient = useQueryClient()
+
   const auth = useRecoilValueLoadable(authState)
   const [currentRole] = useRecoilStateLoadable(currentRoleSelector)
 
@@ -102,6 +104,7 @@ const ProDetailOverview = () => {
 
   const [hideFailedTest, setHideFailedTest] = useState(false)
   const [seeOnlyCertRoles, setSeeOnlyCertRoles] = useState(false)
+  const [showTestInfo, setShowTestInfo] = useState(false)
 
   const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
   const { data: offDays } = useGetProWorkDays(Number(id!), year, month)
@@ -139,8 +142,6 @@ const ProDetailOverview = () => {
   const { openModal, closeModal } = useModal()
 
   const { setModal } = useContext(ModalContext)
-
-  const queryClient = useQueryClient()
 
   const changeProStatusMutation = useMutation(
     (value: { userId: number; status: string }) =>
@@ -423,6 +424,18 @@ const ProDetailOverview = () => {
     setAppliedRoleList(filterList || [])
   }
 
+  const handleShowTestInfoChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setShowTestInfo(event.target.checked)
+    if (!event.target.checked) {
+      getCertifiedAppliedRolesData()
+      return
+    }
+    setShowTestInfo(event.target.checked)
+    setAppliedRoleList(userInfo!.appliedRoles || [])
+  }
+
   const handleClickRoleCard = (jobInfo: AppliedRoleType) => {
     setSelectedJobInfo(jobInfo)
   }
@@ -630,7 +643,7 @@ const ProDetailOverview = () => {
     await queryClient.invalidateQueries(['pro-overview'])
   }
 
-  const handleAssignRole = (jobInfo: AddRoleType) => {
+  const handleAssignRole = async (jobInfo: AddRoleType) => {
     const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
       userId: userInfo!.userId,
       userCompany: 'GloZ',
@@ -645,6 +658,7 @@ const ProDetailOverview = () => {
     }))
 
     addRoleMutation.mutate(res)
+    await queryClient.invalidateQueries(['pro-overview'])
   }
 
   const handleEditComment = () => {
@@ -745,7 +759,19 @@ const ProDetailOverview = () => {
     setClickedAddComment(true)
   }
 
+  const getCertifiedAppliedRolesData = () => {
+    const appliedRoles = userInfo?.appliedRoles.filter(
+      item => item.requestStatus === 'Certified',
+    )
+    setAppliedRoleList(appliedRoles || [])
+    return
+  }
+
   useEffect(() => {
+    if (currentRole.contents.name === 'LPM') {
+      getCertifiedAppliedRolesData()
+    }
+
     setAppliedRoleList(userInfo?.appliedRoles!)
   }, [userInfo])
 
@@ -890,6 +916,8 @@ const ProDetailOverview = () => {
                     handleHideFailedTestChange={handleHideFailedTestChange}
                     handleOnlyCertRolesChange={handleOnlyCertRolesChange}
                     seeOnlyCertRoles={seeOnlyCertRoles}
+                    handleShowTestInfoChange={handleShowTestInfoChange}
+                    showTestInfo={showTestInfo}
                     selectedJobInfo={selectedJobInfo}
                     handleClickRoleCard={handleClickRoleCard}
                     page={rolePage}

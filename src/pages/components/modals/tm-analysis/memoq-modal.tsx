@@ -203,8 +203,33 @@ export default function MemoQModal({
   const Row = ({ idx, item }: { idx: number; item: MemoQData }) => {
     const [cardOpen, setCardOpen] = useState(idx === 0 ? true : false)
     const filteredData: Array<MemoQInterface> = Object.keys(item).filter(
-      key => key !== 'File' && key !== 'Total' && key !== 'Chars/Word',
+      key => key !== 'File' && key !== 'Total' && key !== 'Char/Word',
     ) as Array<MemoQInterface>
+
+    const totalWords = Object.entries(item)
+      .filter(([key, value]) => {
+        return key !== 'File' && key !== 'Char/Word'
+      })
+      .map(([, value]) => {
+        if (typeof value === 'string' || !value.Words) {
+          return 0 // or handle the case when value is a string
+        }
+
+        return Number(value.Words)
+      })
+      .reduce((a, b) => a + b, 0)
+
+    const totalChars = Object.entries(item)
+      .filter(([key, value]) => {
+        return key !== 'File' && key !== 'Chars/Word'
+      })
+      .map(([, value]) => {
+        if (typeof value === 'string' || !value.Characters) {
+          return 0 // or handle the case when value is a string
+        }
+        return Number(value.Characters)
+      })
+      .reduce((a, b) => a + b, 0)
 
     return (
       <Grid item xs={12}>
@@ -221,7 +246,13 @@ export default function MemoQModal({
                 checked={checked?.id === idx}
               />
               <Typography fontWeight={500}>
-                {idx === 0 ? 'Total' : `File ${idx + 1}`}
+                {/* {idx === 0 ? 'Total' : `File ${idx + 1}`} */}
+                {item.File}&nbsp;
+              </Typography>
+              <Typography variant='body2'>
+                {item.File === 'Total'
+                  ? `(${data.data.length - 1}files)`
+                  : null}
               </Typography>
             </Box>
 
@@ -261,7 +292,17 @@ export default function MemoQModal({
                           {catBasis === 'Words'
                             ? item[header]?.Words
                             : item[header]?.Characters}{' '}
-                          ({Number(item[header]?.Percent)?.toFixed(1)}%)
+                          {/* ({Number(item[header]?.Percent)?.toFixed(1)}%) */}
+                          {catBasis === 'Words'
+                            ? `(${(
+                                (Number(item[header]?.Words) / totalWords) *
+                                100
+                              ).toFixed(2)}%)`
+                            : `(${(
+                                (Number(item[header]?.Characters) /
+                                  totalChars) *
+                                100
+                              ).toFixed(2)}%)`}
                         </TableCell>
                         {/* Prices */}
                         <TableCell>
@@ -320,7 +361,7 @@ export default function MemoQModal({
       sx={{
         maxWidth: '900px',
         width: '100%',
-        minHeight: '1000px',
+        // minHeight: '1000px',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
@@ -381,10 +422,14 @@ export default function MemoQModal({
           <Grid item xs={12}>
             <Divider />
           </Grid>
-          <Grid item xs={12} sx={{ minHeight: '650px', overflow: 'scroll' }}>
+          <Grid
+            item
+            xs={12}
+            sx={{ minHeight: '650px', maxHeight: '650px', overflowY: 'scroll' }}
+          >
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {data.data
-                ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                // ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 ?.map((item, idx) => (
                   <Row key={idx} idx={idx} item={item} />
                 ))}
