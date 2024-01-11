@@ -8,7 +8,7 @@ import {
 import { RequestColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
 import { Suspense, useState } from 'react'
-import { useDashboardRequest } from '@src/queries/dashboard/dashnaord-lpm'
+import { useDashboardRequest } from '@src/queries/dashnaord.query'
 import { useRouter } from 'next/router'
 import { RequestType } from '@src/types/dashboard'
 import NoList from '@src/pages/components/no-list'

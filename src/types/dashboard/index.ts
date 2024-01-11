@@ -4,7 +4,7 @@ import { QuoteStatusType } from '@src/types/common/quotes.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { Dispatch } from 'react'
-import { getExpectedIncome } from '@src/apis/dashboard/lpm'
+import { getExpectedIncome } from '@src/apis/dashboard.api'
 
 export type ViewMode = 'company' | 'personal'
 

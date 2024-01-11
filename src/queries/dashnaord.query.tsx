@@ -22,7 +22,7 @@ import {
   getTotalAmount,
   getTotalPrice,
   getUpcomingDeadline,
-} from '@src/apis/dashboard/lpm'
+} from '@src/apis/dashboard.api'
 import type {
   Currency,
   DashboardQuery,
@@ -54,8 +54,6 @@ import { authState } from '@src/states/auth'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
 export const DEFAULT_QUERY_NAME = 'dashboard'
-export const NO_DATE_EFFECT = 'noDateEffect'
-export const PAGINATION = 'pagination'
 
 const getUserViewModeInfo = (): { userId: number | null; view: ViewMode } => {
   const auth = useRecoilValueLoadable(authState).getValue().user
@@ -267,8 +265,6 @@ export const useLongStanding = (params: LongStandingQuery) => {
   return useQuery<{ data: Array<any>; count: number; totalCount: number }>(
     [
       DEFAULT_QUERY_NAME,
-      NO_DATE_EFFECT,
-      PAGINATION,
       view,
       userId,
       params.dataType,
@@ -288,7 +284,7 @@ export type OverviewType = 'onboarded' | 'onboarding' | 'failed'
 export type TADOnboardingResult = Record<OverviewType, number>
 export const useTADOnboarding = () => {
   return useQuery<Record<OverviewType, number>>(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'Onboarding'],
+    [DEFAULT_QUERY_NAME, 'Onboarding'],
     () => getOnboardingOverview(),
   )
 }
@@ -317,7 +313,7 @@ export const usePaidThisMonthAmount = (
   const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery<PaidThisMonthAmount>(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'PaidThisMonth', type, currency],
+    [DEFAULT_QUERY_NAME, 'PaidThisMonth', type, currency],
     () => getPaidThisMonth({ type, currency, userId, view }),
     {
       suspense: true,
@@ -339,7 +335,7 @@ export const useTotalPrice = (
   currency: Currency,
 ) => {
   return useQuery<TotalPriceResult>(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'totalPrice', type, currency],
+    [DEFAULT_QUERY_NAME, 'totalPrice', type, currency],
     () => getTotalPrice(type, currency),
     {
       retry: 1,
@@ -363,7 +359,7 @@ export interface LanguagePoolResult {
 }
 export const useLanguagePool = (base: 'source' | 'target' | 'pair') => {
   return useQuery<LanguagePoolResult>(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'LanguagePool', base],
+    [DEFAULT_QUERY_NAME, 'LanguagePool', base],
     () => getLanguagePool(base),
     {
       suspense: true,
@@ -383,15 +379,11 @@ export const useJobType = (base: 'jobType' | 'role' | 'pair') => {
     count: number
     totalCount: number
     report: Array<JobTypeAndRole>
-  }>(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'JobTypeAndRole', base],
-    () => getJobType(base),
-    {
-      suspense: true,
-      keepPreviousData: true,
-      useErrorBoundary: (error: any) => error.response?.status >= 500,
-    },
-  )
+  }>([DEFAULT_QUERY_NAME, 'JobTypeAndRole', base], () => getJobType(base), {
+    suspense: true,
+    keepPreviousData: true,
+    useErrorBoundary: (error: any) => error.response?.status >= 500,
+  })
 }
 
 /* Pros */
@@ -401,7 +393,7 @@ export interface JobOverViewResult {
 }
 export const useJobOverview = () => {
   return useQuery<JobOverViewResult>(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'JobOverview'],
+    [DEFAULT_QUERY_NAME, 'JobOverview'],
     () => getJobOverView(),
     {
       suspense: true,
@@ -413,7 +405,7 @@ export const useJobOverview = () => {
 
 export const useUpcomingDeadline = () => {
   return useQuery(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'UpcomingDeadline'],
+    [DEFAULT_QUERY_NAME, 'UpcomingDeadline'],
     () => getUpcomingDeadline(),
     {
       suspense: true,
@@ -427,7 +419,6 @@ export const useExpectedIncome = (params: ExpectedIncomeQuery) => {
   return useQuery<{ report: Array<ExpectedIncome> }>(
     [
       DEFAULT_QUERY_NAME,
-      NO_DATE_EFFECT,
       'ExpectedIncome',
       { year: params.year, sort: params.sort, month: params.month },
     ],
@@ -442,13 +433,7 @@ export const useExpectedIncome = (params: ExpectedIncomeQuery) => {
 
 export const useTotalAmount = (params: TotalAmountQuery) => {
   return useQuery<TotalAmountItem>(
-    [
-      DEFAULT_QUERY_NAME,
-      NO_DATE_EFFECT,
-      'TotalAmount',
-      params.month,
-      params.year,
-    ],
+    [DEFAULT_QUERY_NAME, 'TotalAmount', params.month, params.year],
     () => getTotalAmount(params),
     {
       suspense: true,
@@ -462,13 +447,7 @@ export const useInvoiceOverview = (
   params: Omit<TotalAmountQuery, 'amountType'>,
 ) => {
   return useQuery<Array<InvoiceOverviewItem>>(
-    [
-      DEFAULT_QUERY_NAME,
-      NO_DATE_EFFECT,
-      'InvoiceOverview',
-      params.month,
-      params.year,
-    ],
+    [DEFAULT_QUERY_NAME, 'InvoiceOverview', params.month, params.year],
     () => getInvoiceOverview(params),
     {
       suspense: true,
@@ -497,13 +476,7 @@ export const useDeadlineCompliance = (
   params: Omit<TotalAmountQuery, 'amountType'>,
 ) => {
   return useQuery<DeadlineComplianceResult>(
-    [
-      DEFAULT_QUERY_NAME,
-      NO_DATE_EFFECT,
-      'DeadlineCompliance',
-      params.month,
-      params.year,
-    ],
+    [DEFAULT_QUERY_NAME, 'DeadlineCompliance', params.month, params.year],
     () => getDeadlineCompliance(params),
     {
       suspense: true,
@@ -526,13 +499,7 @@ export const useProJonCalendar = (
   params: Omit<TotalAmountQuery, 'amountType'>,
 ) => {
   return useQuery<Array<ProJobCalendarResult>>(
-    [
-      DEFAULT_QUERY_NAME,
-      NO_DATE_EFFECT,
-      'ProJonCalendar',
-      params.month,
-      params.year,
-    ],
+    [DEFAULT_QUERY_NAME, 'ProJonCalendar', params.month, params.year],
     () => getProJobCalendar(params),
     {
       suspense: true,
@@ -553,14 +520,7 @@ interface AccountCountResult {
 
 export const useAccountCount = (path: string, params: DashboardQuery) => {
   return useQuery<AccountCountResult | null>(
-    [
-      DEFAULT_QUERY_NAME,
-      NO_DATE_EFFECT,
-      'AccountCount',
-      path,
-      params.from,
-      params.to,
-    ],
+    [DEFAULT_QUERY_NAME, 'AccountCount', path, params.from, params.to],
     () => getAccountData(path, params),
     {
       suspense: true,
@@ -581,7 +541,7 @@ export interface AccountRatioResult {
 }
 export const useAccountRatio = ({ office, userType }: PaymentType) => {
   return useQuery<AccountRatioResult>(
-    [DEFAULT_QUERY_NAME, NO_DATE_EFFECT, 'AccountRatio', userType, office],
+    [DEFAULT_QUERY_NAME, 'AccountRatio', userType, office],
     () => getAccountPaymentType({ office, userType }),
     {
       suspense: true,

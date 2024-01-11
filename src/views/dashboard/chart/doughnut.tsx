@@ -10,7 +10,7 @@ import Box from '@mui/material/Box'
 
 import { ApexOptions } from 'apexcharts'
 import styled from '@emotion/styled'
-import { useDashboardRatio } from '@src/queries/dashboard/dashnaord-lpm'
+import { useDashboardRatio } from '@src/queries/dashnaord.query'
 import { renderToString } from 'react-dom/server'
 import {
   APIType,
@@ -23,6 +23,7 @@ import NoRatio from '@src/views/dashboard/noRatio'
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { OptionType } from '@src/@core/components/option-menu/types'
+import DashboardForSuspense from '@src/views/dashboard/suspense'
 
 interface DoughnutChartProps<T> extends Partial<CSVDataRecordProps> {
   title: string
@@ -42,25 +43,26 @@ interface DoughnutChartProps<T> extends Partial<CSVDataRecordProps> {
   height?: number
 }
 
-const Doughnut = <T extends RatioItem>({
-  title,
-  userViewDate,
-  subTitle,
-  emptyTitle,
-  path,
-  from,
-  to,
-  type,
-  apiType = 'u',
-  colors,
-  getName,
-  setOpenInfoDialog,
-  menuOptions,
-  isHiddenValue = false,
-  dataRecord,
-  setDataRecord,
-  height = 416,
-}: DoughnutChartProps<T>) => {
+const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
+  const {
+    title,
+    userViewDate,
+    subTitle,
+    emptyTitle,
+    path,
+    from,
+    to,
+    type,
+    apiType = 'u',
+    colors,
+    getName,
+    setOpenInfoDialog,
+    menuOptions,
+    isHiddenValue = false,
+    dataRecord,
+    setDataRecord,
+    height = 416,
+  } = props
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
   const [filter, setFilter] = useState('')
   const { data, isSuccess } = useDashboardRatio<T>({
@@ -229,120 +231,128 @@ const Doughnut = <T extends RatioItem>({
   }, [charData])
 
   return (
-    <GridItem xs={6} height={height}>
+    <Box
+      display='flex'
+      flexDirection='column'
+      sx={{
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+      }}
+    >
       <Box
         display='flex'
-        flexDirection='column'
-        sx={{
-          width: '100%',
-          height: '100%',
-          overflow: 'hidden',
-        }}
+        alignItems='center'
+        justifyContent='space-between'
+        sx={{ position: 'relative' }}
       >
-        <Box
-          display='flex'
-          alignItems='center'
-          justifyContent='space-between'
-          sx={{ position: 'relative' }}
-        >
-          <Title
-            marginBottom='30px'
-            title={getTitle()}
-            subTitle={userViewDate || subTitle}
-            openDialog={setOpenInfoDialog}
-          />
+        <Title
+          marginBottom='30px'
+          title={getTitle()}
+          subTitle={userViewDate || subTitle}
+          openDialog={setOpenInfoDialog}
+        />
 
-          {menuOptions && (
-            <Box sx={{ position: 'absolute', right: 0, top: 0 }}>
-              <OptionsMenu
-                iconButtonProps={{
-                  size: 'small',
-                }}
-                options={filterMenuOptions}
-              />
-            </Box>
-          )}
-        </Box>
-        <Box
-          display='flex'
-          justifyContent='flex-end'
-          sx={{ visibility: isHiddenValue ? 'hidden' : 'visible' }}
-        >
-          <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
-        </Box>
-        {!data && <NoRatio title={emptyTitle || title} />}
-        {data && (
-          <Box
-            display='flex'
-            sx={{
-              width: '100%',
-              height: '100%',
-              paddingBottom: '20px',
-              position: 'relative',
-            }}
-          >
-            <Suspense fallback={<div>로딩 중</div>}>
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '-45px',
-                  transform: 'translateY(-50%)',
-                }}
-              >
-                <CustomChart
-                  type='donut'
-                  options={options}
-                  width={276}
-                  heigt={176}
-                  series={charData.map(item => item.ratio) || []}
-                />
-                <Typography
-                  fontSize='20px'
-                  fontWeight={500}
-                  sx={{
-                    textAlign: 'center',
-                    visibility: isHiddenValue ? 'hidden' : 'visible',
-                  }}
-                >
-                  {getTotalPrice() && CurrencyUnit[currency]}
-                  {(getTotalPrice() || 0).toLocaleString()}
-                </Typography>
-              </Box>
-            </Suspense>
-            <Box sx={{ position: 'absolute', right: 0 }}>
-              <List>
-                {charData.map((item, index) => (
-                  <li key={`{item.name}-${index}`}>
-                    <Box display='flex' alignItems='center'>
-                      <StatusSquare color={colors[index]} />
-                      <span className='name'>
-                        {(getName && getName(charData[index] as T)) ||
-                          charData[index].name}
-                        <span className='item-count'>({item.count})</span>
-                      </span>
-                    </Box>
-                    <Box display='flex' justifyContent='space-between'>
-                      <span
-                        className='money'
-                        style={{
-                          visibility: isHiddenValue ? 'hidden' : 'visible',
-                        }}
-                      >
-                        {CurrencyUnit[currency]}
-                        {Number(item.sum).toLocaleString()}
-                      </span>
-                      <span className='ratio'>
-                        {(item.ratio || 0).toFixed(2)}%
-                      </span>
-                    </Box>
-                  </li>
-                ))}
-              </List>
-            </Box>
+        {menuOptions && (
+          <Box sx={{ position: 'absolute', right: 0, top: 0 }}>
+            <OptionsMenu
+              iconButtonProps={{
+                size: 'small',
+              }}
+              options={filterMenuOptions}
+            />
           </Box>
         )}
       </Box>
+      <Box
+        display='flex'
+        justifyContent='flex-end'
+        sx={{ visibility: isHiddenValue ? 'hidden' : 'visible' }}
+      >
+        <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
+      </Box>
+      {!data && <NoRatio title={emptyTitle || title} />}
+      {data && (
+        <Box
+          display='flex'
+          sx={{
+            width: '100%',
+            height: '100%',
+            paddingBottom: '20px',
+            position: 'relative',
+          }}
+        >
+          <Suspense fallback={<div>로딩 중</div>}>
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '-45px',
+                transform: 'translateY(-50%)',
+              }}
+            >
+              <CustomChart
+                type='donut'
+                options={options}
+                width={276}
+                heigt={176}
+                series={charData.map(item => item.ratio) || []}
+              />
+              <Typography
+                fontSize='20px'
+                fontWeight={500}
+                sx={{
+                  textAlign: 'center',
+                  visibility: isHiddenValue ? 'hidden' : 'visible',
+                }}
+              >
+                {getTotalPrice() && CurrencyUnit[currency]}
+                {(getTotalPrice() || 0).toLocaleString()}
+              </Typography>
+            </Box>
+          </Suspense>
+          <Box sx={{ position: 'absolute', right: 0 }}>
+            <List>
+              {charData.map((item, index) => (
+                <li key={`{item.name}-${index}`}>
+                  <Box display='flex' alignItems='center'>
+                    <StatusSquare color={colors[index]} />
+                    <span className='name'>
+                      {(getName && getName(charData[index] as T)) ||
+                        charData[index].name}
+                      <span className='item-count'>({item.count})</span>
+                    </span>
+                  </Box>
+                  <Box display='flex' justifyContent='space-between'>
+                    <span
+                      className='money'
+                      style={{
+                        visibility: isHiddenValue ? 'hidden' : 'visible',
+                      }}
+                    >
+                      {CurrencyUnit[currency]}
+                      {Number(item.sum).toLocaleString()}
+                    </span>
+                    <span className='ratio'>
+                      {(item.ratio || 0).toFixed(2)}%
+                    </span>
+                  </Box>
+                </li>
+              ))}
+            </List>
+          </Box>
+        </Box>
+      )}
+    </Box>
+  )
+}
+
+const Doughnut = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
+  return (
+    <GridItem xs={6} height={props?.height || 416}>
+      <DashboardForSuspense {...props} refreshDataQueryKey='ratio'>
+        <DoughnutChart {...props} />
+      </DashboardForSuspense>
     </GridItem>
   )
 }

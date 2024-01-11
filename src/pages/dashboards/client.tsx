@@ -12,7 +12,7 @@ import {
   PaidThisMonthAmount,
   TotalPriceResult,
   useDashboardReport,
-} from '@src/queries/dashboard/dashnaord-lpm'
+} from '@src/queries/dashnaord.query'
 import { FormProvider, useWatch } from 'react-hook-form'
 import React, { useEffect, useState } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'

@@ -8,7 +8,7 @@ import {
   SubDateDescription,
   Title,
 } from '@src/views/dashboard/dashboardItem'
-import { useTotalAmount } from '@src/queries/dashboard/dashnaord-lpm'
+import { useTotalAmount } from '@src/queries/dashnaord.query'
 import dayjs, { Dayjs } from 'dayjs'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import { KeyboardArrowRight } from '@mui/icons-material'

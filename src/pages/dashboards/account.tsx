@@ -14,10 +14,7 @@ import ChartDate from '@src/views/dashboard/header/chartDate'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import Information from '@src/views/dashboard/dialog/information'
 import { CSVDownload } from '@src/views/dashboard/csvDownload'
-import {
-  useAccountCount,
-  useAccountRatio,
-} from '@src/queries/dashboard/dashnaord-lpm'
+import { useAccountCount, useAccountRatio } from '@src/queries/dashnaord.query'
 import Notice from '@src/views/dashboard/notice'
 import AccountTable from '@src/views/dashboard/accountTable'
 import AccountDoughnut from '@src/views/dashboard/chart/accountDoughnut'

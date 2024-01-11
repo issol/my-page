@@ -13,7 +13,7 @@ import {
   PaidThisMonthAmount,
   TotalPriceResult,
   useDashboardReport,
-} from '@src/queries/dashboard/dashnaord-lpm'
+} from '@src/queries/dashnaord.query'
 import { FormProvider, useWatch } from 'react-hook-form'
 import React, { useEffect, useState } from 'react'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
@@ -47,10 +47,9 @@ import {
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import Information from '@src/views/dashboard/dialog/information'
-import {
+import TotalPrice, {
   payableColors,
   ReceivableColors,
-  TotalPrice,
 } from '@src/views/dashboard/chart/total'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'

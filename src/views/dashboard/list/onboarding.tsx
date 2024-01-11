@@ -7,10 +7,7 @@ import {
 import { Box, Typography } from '@mui/material'
 import React from 'react'
 import { ChartBoxIcon } from '@src/views/dashboard/dashboardItem'
-import {
-  OverviewType,
-  useTADOnboarding,
-} from '@src/queries/dashboard/dashnaord-lpm'
+import { OverviewType, useTADOnboarding } from '@src/queries/dashnaord.query'
 
 const overview: Array<{
   key: OverviewType

@@ -8,7 +8,7 @@ import {
 import { CheckCircleSharp, WatchLaterRounded } from '@mui/icons-material'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
-import { useDeadlineCompliance } from '@src/queries/dashboard/dashnaord-lpm'
+import { useDeadlineCompliance } from '@src/queries/dashnaord.query'
 import { TotalAmountQuery } from '@src/types/dashboard'
 import { getProDateFormat } from '@src/views/dashboard/list/currencyByDate'
 

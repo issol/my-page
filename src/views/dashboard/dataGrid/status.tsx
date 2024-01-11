@@ -29,11 +29,12 @@ import {
 import {
   useDashboardCount,
   useDashboardCountList,
-} from '@src/queries/dashboard/dashnaord-lpm'
+} from '@src/queries/dashnaord.query'
 import { DashboardQuery, OrderType, ViewType } from '@src/types/dashboard'
 import { toCapitalize } from '@src/pages/dashboards/lpm'
 import { useRouter } from 'next/router'
 import DefaultDataGrid from '@src/views/dashboard/dataGrid/default'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 const StatusDefined: Record<ViewType, { icon: ReactElement; color: string }> = {
   ongoing: {
@@ -110,7 +111,7 @@ const StatusAndDataGrid = <T extends { id: number; orderId?: number }>({
   })
 
   return (
-    <Suspense fallback={<div>로딩 중</div>}>
+    <Suspense fallback={<OverlaySpinner />}>
       <Grid container flexDirection='row' gap='24px'>
         <Grid item display='flex' flexDirection='column' gap='24px'>
           <GridItem width={300} height={175}>

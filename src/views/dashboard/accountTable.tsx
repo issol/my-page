@@ -6,7 +6,7 @@ import TableCell, { TableCellProps } from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableContainer from '@mui/material/TableContainer'
 import { Currency } from '@src/types/dashboard'
-import { AccountItem } from '@src/queries/dashboard/dashnaord-lpm'
+import { AccountItem } from '@src/queries/dashnaord.query'
 import Typography from '@mui/material/Typography'
 import { CurrencyUnit } from '@src/views/dashboard/dashboardItem'
 

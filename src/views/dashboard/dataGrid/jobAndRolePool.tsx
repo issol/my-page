@@ -1,7 +1,7 @@
 import { DataGrid } from '@mui/x-data-grid'
 import { JobTableColumn } from '@src/shared/const/columns/dashboard'
 import styled from 'styled-components'
-import { useJobType } from '@src/queries/dashboard/dashnaord-lpm'
+import { useJobType } from '@src/queries/dashnaord.query'
 import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
 import React, { useEffect, useState } from 'react'

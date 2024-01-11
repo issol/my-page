@@ -8,7 +8,7 @@ import CurrencyByDateList, {
 } from '@src/views/dashboard/list/currencyByDate'
 import ProJobRequestBarChart from '@src/views/dashboard/chart/jobRequestBar'
 import dayjs from 'dayjs'
-import { useExpectedIncome } from '@src/queries/dashboard/dashnaord-lpm'
+import { useExpectedIncome } from '@src/queries/dashnaord.query'
 import { ExpectedIncome, ExpectedIncomeSort } from '@src/types/dashboard'
 import find from 'lodash/find'
 

@@ -22,7 +22,7 @@ import {
 } from '@mui/icons-material'
 import { Currency, TotalItem } from '@src/types/dashboard'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import { usePaidThisMonthAmount } from '@src/queries/dashboard/dashnaord-lpm'
+import { usePaidThisMonthAmount } from '@src/queries/dashnaord.query'
 import { SxProps } from '@mui/system'
 
 interface GridItemProps {

@@ -6,7 +6,7 @@ import CalendarWrapper from '@src/@core/styles/libs/fullcalendar'
 import {
   ProJobCalendarResult,
   useProJonCalendar,
-} from '@src/queries/dashboard/dashnaord-lpm'
+} from '@src/queries/dashnaord.query'
 import { TotalAmountQuery } from '@src/types/dashboard'
 import { useGetStatusList } from '@src/queries/common.query'
 import { getProJobStatusColor } from '@src/shared/helpers/colors.helper'

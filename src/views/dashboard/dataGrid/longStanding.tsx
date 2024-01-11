@@ -13,7 +13,7 @@ import {
   OrderType,
 } from '@src/types/dashboard'
 import { Box } from '@mui/material'
-import { useLongStanding } from '@src/queries/dashboard/dashnaord-lpm'
+import { useLongStanding } from '@src/queries/dashnaord.query'
 import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import NoList from '@src/pages/components/no-list'
 

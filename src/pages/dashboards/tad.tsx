@@ -35,7 +35,7 @@ import {
   DashboardCountResult,
   DEFAULT_QUERY_NAME,
   TADOnboardingResult,
-} from '@src/queries/dashboard/dashnaord-lpm'
+} from '@src/queries/dashnaord.query'
 import Notice from '@src/views/dashboard/notice'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import find from 'lodash/find'
@@ -173,6 +173,7 @@ const TADDashboards = () => {
               </Box>
             </GridItem>
           </Grid>
+
           <Grid container gap='24px'>
             <GridItem width={490} height={267}>
               <Box sx={{ width: '100%' }}>

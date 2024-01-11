@@ -9,7 +9,7 @@ import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/cal
 import dayGridPlugin from '@fullcalendar/daygrid'
 import Box from '@mui/material/Box'
 import { CalendarEventType } from '@src/types/common/calendar.type'
-import { ProJobCalendarResult } from '@src/queries/dashboard/dashnaord-lpm'
+import { ProJobCalendarResult } from '@src/queries/dashnaord.query'
 import dayjs from 'dayjs'
 
 interface CalendarProps {
