@@ -509,6 +509,7 @@ const Pro = () => {
     queryClient.invalidateQueries(['pro-list'])
     queryClient.invalidateQueries(['pro-overview'])
   }, [])
+
   return (
     <Grid container spacing={6}>
       <PageHeader title={<Typography variant='h5'>Pro list</Typography>} />
