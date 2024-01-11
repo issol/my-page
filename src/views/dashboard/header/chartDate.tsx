@@ -86,7 +86,7 @@ const ChartDate = () => {
                 aria-label='date picker button'
                 onChange={date => onChangeDatePicker(date, onChange)}
                 startDate={(dateRange && dateRange[0]) || new Date()}
-                endDate={dateRange && dateRange[1]}
+                endDate={dateRange ? dateRange[1] : null}
                 selectsRange
                 minDate={dayjs().add(-5, 'year').toDate()}
                 maxDate={dayjs().add(2, 'month').toDate()}

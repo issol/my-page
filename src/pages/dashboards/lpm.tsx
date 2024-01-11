@@ -88,7 +88,7 @@ export const getDateFormatter = (date1: Date, date2: Date | null) => {
 }
 
 export const getDateFormat = (date: Date | null) => {
-  if (!date) return dayjs().format('YYYY-MM-DD')
+  if (!date) return ''
   return dayjs(date).format('YYYY-MM-DD')
 }
 
