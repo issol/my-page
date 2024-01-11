@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 import styled from 'styled-components'
-import useModal, { modalState } from '@src/hooks/useModal'
-import { ModalType } from '@src/store/modal'
+import useModal, { ModalType, modalState } from '@src/hooks/useModal'
+
 import { useRecoilValueLoadable } from 'recoil'
 
 function ModalContainer() {
