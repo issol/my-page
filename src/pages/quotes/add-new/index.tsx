@@ -143,10 +143,6 @@ export default function AddNewQuote() {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
   }
 
-  const onNextStep = () => {
-    setActiveStep(activeStep + 1)
-  }
-
   const steps = [
     {
       title: 'Project team',
@@ -286,7 +282,42 @@ export default function AddNewQuote() {
     name: 'languagePairs',
   })
 
-  console.log(getItem('languagePairs'))
+  const onNextStep = () => {
+    setActiveStep(activeStep + 1)
+    if (activeStep === 0 && requestData && requestId) {
+      const teamMembers = getTeamValues()?.teams
+      const projectManager = teamMembers.find(
+        item => item.type === 'projectManagerId',
+      )
+
+      const { items } = requestData || []
+      const transformedItems =
+        items.flatMap(item =>
+          item.targetLanguage.map(target => ({
+            id: item.id,
+            source: item.sourceLanguage,
+            target,
+            price: defaultOption,
+          })),
+        ) || []
+
+      const defaultItems = transformedItems.map(item => ({
+        itemName: null,
+        source: item.source,
+        target: item.target,
+        contactPersonId: projectManager?.id!,
+        priceId: -1,
+        detail: [],
+        totalPrice: 0,
+        showItemDescription: false,
+        minimumPrice: null,
+        minimumPriceApplied: false,
+        priceFactor: 0,
+      }))
+
+      setItem('items', defaultItems, { shouldDirty: true })
+    }
+  }
 
   useEffect(() => {
     if (!router.isReady) return
@@ -346,15 +377,38 @@ export default function AddNewQuote() {
         showDescription: requestData?.showDescription ?? false,
         status: 20000,
       })
-      const itemLangPairs =
-        items?.map(i => ({
-          id: i.id,
-          source: i.sourceLanguage,
-          target: i.targetLanguage,
-          price: null,
-        })) || []
-      // setLanguagePairs(itemLangPairs)
-      setItem('languagePairs', itemLangPairs)
+      const transformedItems =
+        items.flatMap(item =>
+          item.targetLanguage.map(target => ({
+            id: item.id,
+            source: item.sourceLanguage,
+            target,
+            price: defaultOption,
+          })),
+        ) || []
+      const uniqueTransformedItems = Array.from(
+        new Set(
+          transformedItems.map(item =>
+            JSON.stringify({ source: item.source, target: item.target }),
+          ),
+        ),
+      ).map(item => JSON.parse(item))
+
+      const result = uniqueTransformedItems.map(uniqueItem => {
+        const originalItem = transformedItems.find(
+          item =>
+            item.source === uniqueItem.source &&
+            item.target === uniqueItem.target,
+        )
+
+        return {
+          ...uniqueItem,
+          id: originalItem?.id,
+          price: originalItem?.price,
+        }
+      })
+
+      setItem('languagePairs', result, { shouldDirty: true })
     }
   }
 

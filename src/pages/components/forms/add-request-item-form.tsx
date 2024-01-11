@@ -29,7 +29,7 @@ import {
 } from 'react-hook-form'
 
 // ** types
-import { RequestFormType, RequestType } from '@src/types/requests/common.type'
+import { RequestType } from '@src/types/requests/common.type'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 // ** data
@@ -59,6 +59,7 @@ import dayjs from 'dayjs'
 
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
+import _ from 'lodash'
 
 type Props = {
   control: Control<RequestType, any>
@@ -199,7 +200,7 @@ export default function AddRequestForm({
               {renderErrorMsg(errors?.items?.[idx]?.sourceLanguage)}
             </Grid>
             <Grid item xs={6}>
-              <Controller
+              {/* <Controller
                 name={`items.${idx}.targetLanguage`}
                 control={control}
                 render={({ field: { onChange, value } }) => (
@@ -226,8 +227,43 @@ export default function AddRequestForm({
                     )}
                   />
                 )}
+              /> */}
+              <Controller
+                control={control}
+                name={`items.${idx}.targetLanguage`}
+                render={({ field: { onChange, value } }) => (
+                  <Autocomplete
+                    multiple
+                    fullWidth
+                    onChange={(event, item) => {
+                      if (item.length > 0) {
+                        onChange(item)
+                      } else {
+                        onChange(null)
+                      }
+                    }}
+                    value={value ?? []}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.value === newValue.value
+                    }}
+                    disableCloseOnSelect
+                    limitTags={2}
+                    options={_.uniqBy(languageList, 'value')}
+                    id='target'
+                    getOptionLabel={option => option.label}
+                    renderInput={params => (
+                      <TextField {...params} label='Target*' />
+                    )}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props}>
+                        <Checkbox checked={selected} sx={{ mr: 2 }} />
+                        {option.label}
+                      </li>
+                    )}
+                  />
+                )}
               />
-              {renderErrorMsg(errors?.items?.[idx]?.targetLanguage)}
+              {/* {renderErrorMsg(errors?.items?.[idx]?.targetLanguage)} */}
             </Grid>
 
             {/* category */}
@@ -247,7 +283,7 @@ export default function AddRequestForm({
                     value={CategoryList.find(i => i.value === value) || null}
                     onChange={(e, v) => {
                       onChange(v?.value ?? '')
-                      setValue(`items.${idx}.serviceType`, [], {
+                      setValue(`items.${idx}.serviceType`, null, {
                         shouldValidate: true,
                       })
                     }}
@@ -287,10 +323,13 @@ export default function AddRequestForm({
                         return option.value === newValue.value
                       }}
                       options={ServiceTypePair[watchCategory] || []}
-                      value={value}
-                      onChange={(e, v) => {
-                        // const data = v.map(i => i.value)
-                        onChange(v)
+                      value={value ?? undefined}
+                      onChange={(e, item) => {
+                        if (item.length > 0) {
+                          onChange(item)
+                        } else {
+                          onChange(null)
+                        }
                       }}
                       renderInput={params => (
                         <TextField
@@ -381,7 +420,7 @@ export default function AddRequestForm({
                         {...DateTimePickerDefaultOptions}
                         selected={value ?? null}
                         onChange={onChange}
-                        minDate={new Date()} 
+                        minDate={new Date()}
                         customInput={
                           <Box>
                             <CustomInput
