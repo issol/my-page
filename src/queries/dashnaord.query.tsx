@@ -145,8 +145,7 @@ export const useDashboardRatio = <T extends RatioItem>({
       userId,
       currency,
       filter,
-      from,
-      to,
+      { from, to },
     ],
     () => {
       return getRatio({
@@ -191,8 +190,7 @@ export const useDashboardCountList = ({
       view,
       userId,
       countType,
-      from,
-      to,
+      { from, to },
       skip,
       sort,
     ],
@@ -229,7 +227,7 @@ export const useDashboardCount = ({
   const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery<DashboardCountResult>(
-    [DEFAULT_QUERY_NAME, `ongoingCount`, countType, userId, to, from, view],
+    [DEFAULT_QUERY_NAME, `ongoingCount`, countType, userId, { to, from }, view],
     () => getCount({ to, from, userId, view, countType }),
     {
       suspense: true,
@@ -519,7 +517,12 @@ interface AccountCountResult {
 
 export const useAccountCount = (path: string, params: DashboardQuery) => {
   return useQuery<AccountCountResult | null>(
-    [DEFAULT_QUERY_NAME, 'AccountCount', path, params.from, params.to],
+    [
+      DEFAULT_QUERY_NAME,
+      'AccountCount',
+      path,
+      { from: params.from, to: params.to },
+    ],
     () => getAccountData(path, params),
     {
       suspense: true,

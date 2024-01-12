@@ -73,7 +73,7 @@ export const getRangeDateTitle = (date1: Date, date2: Date | null) => {
 export const getDateFormatter = (date1: Date, date2: Date | null) => {
   if (!date1) return
 
-  if (date1 && !date2) {
+  if (dayjs(date1).isSame(dayjs(date2), 'day')) {
     return `${dayjs(date1).format('MMMM D, YYYY')}`
   }
 
