@@ -282,35 +282,33 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
             position: 'relative',
           }}
         >
-          <Suspense fallback={<div>로딩 중</div>}>
-            <Box
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '-45px',
+              transform: 'translateY(-50%)',
+            }}
+          >
+            <CustomChart
+              type='donut'
+              options={options}
+              width={276}
+              heigt={176}
+              series={charData.map(item => item.ratio) || []}
+            />
+            <Typography
+              fontSize='20px'
+              fontWeight={500}
               sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '-45px',
-                transform: 'translateY(-50%)',
+                textAlign: 'center',
+                visibility: isHiddenValue ? 'hidden' : 'visible',
               }}
             >
-              <CustomChart
-                type='donut'
-                options={options}
-                width={276}
-                heigt={176}
-                series={charData.map(item => item.ratio) || []}
-              />
-              <Typography
-                fontSize='20px'
-                fontWeight={500}
-                sx={{
-                  textAlign: 'center',
-                  visibility: isHiddenValue ? 'hidden' : 'visible',
-                }}
-              >
-                {getTotalPrice() && CurrencyUnit[currency]}
-                {(getTotalPrice() || 0).toLocaleString()}
-              </Typography>
-            </Box>
-          </Suspense>
+              {getTotalPrice() && CurrencyUnit[currency]}
+              {(getTotalPrice() || 0).toLocaleString()}
+            </Typography>
+          </Box>
           <Box sx={{ position: 'absolute', right: 0 }}>
             <List>
               {charData.map((item, index) => (
@@ -350,7 +348,14 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
 const Doughnut = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
   return (
     <GridItem xs={6} height={props?.height || 416}>
-      <DashboardForSuspense {...props} refreshDataQueryKey='ratio'>
+      <DashboardForSuspense
+        {...props}
+        sectionTitle={props.title}
+        refreshDataQueryKey={['ratio', props.title]}
+        titleProps={{
+          subTitle: props.userViewDate || props.subTitle,
+        }}
+      >
         <DoughnutChart {...props} />
       </DashboardForSuspense>
     </GridItem>

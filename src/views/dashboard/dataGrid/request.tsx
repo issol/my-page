@@ -7,14 +7,19 @@ import {
 } from '@mui/x-data-grid'
 import { RequestColumns } from '@src/shared/const/columns/dashboard'
 import styled from '@emotion/styled'
-import { Suspense, useState } from 'react'
+import React, { Suspense, useState } from 'react'
 import { useDashboardRequest } from '@src/queries/dashnaord.query'
 import { useRouter } from 'next/router'
 import { RequestType } from '@src/types/dashboard'
 import NoList from '@src/pages/components/no-list'
+import DashboardForSuspense, {
+  DashboardSuspenseProps,
+} from '@src/views/dashboard/suspense'
+import { Title } from '@src/views/dashboard/dashboardItem'
 
-interface DashboardDataGridProps {
-  title: string
+interface DashboardDataGridProps
+  extends Omit<DashboardSuspenseProps, 'refreshDataQueryKey'> {
+  overlayTitle: string
   path: string
   pageNumber: number
   movePage: (params: GridRowParams) => void
@@ -22,15 +27,17 @@ interface DashboardDataGridProps {
   columns: GridColumns
 }
 
-const RequestDashboardDataGrid = ({
-  title,
+const RequestDashboard = ({
+  overlayTitle,
   path,
   pageNumber = 4,
   movePage,
   columns,
   sectionHeight = 260,
+  sectionTitle,
+  handleClick,
+  setOpenInfoDialog,
 }: DashboardDataGridProps) => {
-  const router = useRouter()
   const [skip, setSkip] = useState(0)
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(pageNumber)
@@ -41,15 +48,26 @@ const RequestDashboardDataGrid = ({
   )
 
   return (
-    <Box
-      sx={{
-        width: '100%',
-        height: `${sectionHeight}px`,
-        padding: 0,
-        margin: 0,
-      }}
-    >
-      <Suspense fallback={<div>로딩 중</div>}>
+    <Box sx={{ width: '100%', marginTop: '20px' }}>
+      <Box
+        sx={{
+          padding: sectionTitle === 'New requests' ? '0 20px 20px' : '0 20px',
+        }}
+      >
+        <Title
+          title={sectionTitle}
+          openDialog={setOpenInfoDialog}
+          handleClick={handleClick}
+        />
+      </Box>
+      <Box
+        sx={{
+          width: '100%',
+          height: `${sectionHeight}px`,
+          padding: 0,
+          margin: 0,
+        }}
+      >
         <CustomDataGrid
           getRowHeight={() => 54}
           rows={data?.data || []}
@@ -57,8 +75,8 @@ const RequestDashboardDataGrid = ({
           headerHeight={0}
           components={{
             Header: () => null,
-            NoRowsOverlay: () => NoList(`There is no ${title}`),
-            NoResultsOverlay: () => NoList(`There is no ${title}`),
+            NoRowsOverlay: () => NoList(`There is no ${overlayTitle}`),
+            NoResultsOverlay: () => NoList(`There is no ${overlayTitle}`),
           }}
           page={page}
           onPageChange={newPage => {
@@ -73,8 +91,16 @@ const RequestDashboardDataGrid = ({
           rowsPerPageOptions={[]}
           loading={isLoading || isFetching}
         />
-      </Suspense>
+      </Box>
     </Box>
+  )
+}
+
+const RequestDashboardDataGrid = (props: DashboardDataGridProps) => {
+  return (
+    <DashboardForSuspense {...props} refreshDataQueryKey='request'>
+      <RequestDashboard {...props} />
+    </DashboardForSuspense>
   )
 }
 

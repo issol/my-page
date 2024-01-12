@@ -484,7 +484,7 @@ export const LinearMultiProgress = ({
   )
 }
 
-interface SectionTitleProps {
+export interface SectionTitleProps {
   title: string
   openDialog?: (open: boolean, key: string) => void
   handleClick?: () => void
@@ -515,7 +515,7 @@ export const Title = ({
           }}
         >
           {prefix}
-          {title.split('@')[0]}
+          {title?.split('@')[0]}
           {postfix}
         </span>
         {openDialog && (

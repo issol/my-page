@@ -9,15 +9,20 @@ import OptionsMenu from '@src/@core/components/option-menu'
 import { useRouter } from 'next/router'
 import { CSVDataRecordProps } from '@src/types/dashboard'
 import NoList from '@src/pages/components/no-list'
+import DashboardForSuspense from '@src/views/dashboard/suspense'
 
 interface TADJobDataGridProps extends CSVDataRecordProps {
+  sectionTitle: string
   setOpenInfoDialog: (open: boolean, key: string) => void
+  handleTitleClick?: () => void
 }
 
-const TADJobDataGrid = ({
+const JobDataGrid = ({
+  sectionTitle,
   dataRecord,
   setDataRecord,
   setOpenInfoDialog,
+  handleTitleClick,
 }: TADJobDataGridProps) => {
   const router = useRouter()
   const [filter, setFilter] = useState<'jobType' | 'role' | 'pair'>('pair')
@@ -69,10 +74,10 @@ const TADJobDataGrid = ({
         sx={{ padding: '20px 20px 10px' }}
       >
         <Title
-          title='Job type/Role pool'
+          title={sectionTitle}
           subTitle={`Total ${data?.totalCount || 0} ${getTitle()}`}
           openDialog={setOpenInfoDialog}
-          handleClick={() => router.push('/pro')}
+          handleClick={handleTitleClick}
         />
         <Box>
           <OptionsMenu
@@ -132,6 +137,24 @@ const TADJobDataGrid = ({
         />
       </div>
     </Box>
+  )
+}
+
+const TADJobDataGrid = (props: TADJobDataGridProps) => {
+  const router = useRouter()
+  const handleTitleClick = () => {
+    router.push('/pro')
+  }
+
+  return (
+    <DashboardForSuspense
+      {...props}
+      title={props.sectionTitle}
+      handleTitleClick={handleTitleClick}
+      refreshDataQueryKey='JobTypeAndRole'
+    >
+      <JobDataGrid {...props} handleTitleClick={handleTitleClick} />
+    </DashboardForSuspense>
   )
 }
 

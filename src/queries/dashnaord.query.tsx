@@ -187,9 +187,9 @@ export const useDashboardCountList = ({
     [
       DEFAULT_QUERY_NAME,
       'countList',
+      type,
       view,
       userId,
-      type,
       countType,
       from,
       to,
@@ -229,7 +229,7 @@ export const useDashboardCount = ({
   const userId = changeUserId ? changeUserId : initUserId
 
   return useQuery<DashboardCountResult>(
-    [DEFAULT_QUERY_NAME, `ongoingCount`, userId, to, from, view, countType],
+    [DEFAULT_QUERY_NAME, `ongoingCount`, countType, userId, to, from, view],
     () => getCount({ to, from, userId, view, countType }),
     {
       suspense: true,

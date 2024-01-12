@@ -2,29 +2,37 @@ import React, { ReactElement, Suspense } from 'react'
 import { useQueryClient } from 'react-query'
 import { DEFAULT_QUERY_NAME } from '@src/queries/dashnaord.query'
 import { Box, IconButton, Typography } from '@mui/material'
-import { Title } from '@src/views/dashboard/dashboardItem'
+import { SectionTitleProps, Title } from '@src/views/dashboard/dashboardItem'
 import { RefreshOutlined } from '@mui/icons-material'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { ErrorBoundary } from 'react-error-boundary'
 
-interface DashboardSuspenseProps {
-  title: string
-  handleTitleClick?: () => void
-  setOpenInfoDialog: (open: boolean, key: string) => void
-  refreshDataQueryKey: string
+export interface DashboardSuspenseProps {
+  refreshDataQueryKey: string | Array<string>
+  sectionTitle: string
+  handleClick?: () => void
+  setOpenInfoDialog?: (open: boolean, key: string) => void
+  titleProps?: Partial<SectionTitleProps>
 }
 
-const DashboardErrorFallback = ({
-  title,
+export const DashboardErrorFallback = ({
+  sectionTitle,
   setOpenInfoDialog,
-  handleTitleClick,
+  handleClick,
   refreshDataQueryKey,
+  titleProps,
 }: DashboardSuspenseProps) => {
   const queryClient = useQueryClient()
 
   const onChange = () => {
+    if (typeof refreshDataQueryKey === 'string') {
+      queryClient.refetchQueries({
+        queryKey: [DEFAULT_QUERY_NAME, refreshDataQueryKey],
+      })
+    }
+    const keys = [DEFAULT_QUERY_NAME, ...refreshDataQueryKey]
     queryClient.refetchQueries({
-      queryKey: [DEFAULT_QUERY_NAME, refreshDataQueryKey],
+      queryKey: keys,
     })
   }
 
@@ -32,9 +40,10 @@ const DashboardErrorFallback = ({
     <Box sx={{ width: '100%', height: '100%' }}>
       <Box>
         <Title
-          title={title}
+          {...titleProps}
+          title={sectionTitle}
           openDialog={setOpenInfoDialog}
-          handleClick={handleTitleClick}
+          handleClick={handleClick}
         />
       </Box>
       <Box
@@ -43,7 +52,7 @@ const DashboardErrorFallback = ({
         alignItems='center'
         justifyContent='center'
         gap='20px'
-        sx={{ width: '100%', height: '90%' }}
+        sx={{ width: '100%', height: '70%' }}
       >
         <IconButton
           color='primary'
@@ -60,7 +69,6 @@ const DashboardErrorFallback = ({
 }
 
 interface SuspenseProps extends DashboardSuspenseProps {
-  refreshDataQueryKey: string
   children: ReactElement
 }
 const DashboardForSuspense = <T extends SuspenseProps>(props: T) => {

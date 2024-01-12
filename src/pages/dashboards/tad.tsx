@@ -176,36 +176,22 @@ const TADDashboards = () => {
 
           <Grid container gap='24px'>
             <GridItem width={490} height={267}>
-              <Box sx={{ width: '100%' }}>
-                <Box sx={{ margin: '20px 0' }}>
-                  <Title
-                    title='Onboarding overview'
-                    openDialog={setOpenInfoDialog}
-                  />
-                </Box>
-                <OnboardingList />
-              </Box>
+              <OnboardingList setOpenInfoDialog={setOpenInfoDialog} />
             </GridItem>
             <GridItem sm height={267} padding='0px'>
-              <Box sx={{ width: '100%', marginTop: '20px' }}>
-                <Box sx={{ padding: '0 20px' }}>
-                  <Title
-                    title='Recruiting requests'
-                    openDialog={setOpenInfoDialog}
-                    handleClick={() => router.push('/recruiting/')}
-                  />
-                </Box>
-                <DashboardDataGrid
-                  title='ongoing recruiting requests'
-                  path='recruiting/dashboard/recruiting/list/ongoing'
-                  sectionHeight={220}
-                  pageNumber={3}
-                  movePage={params =>
-                    router.push(`/recruiting/detail/${params.id}/`)
-                  }
-                  columns={RecruitingRequestColumn}
-                />
-              </Box>
+              <DashboardDataGrid
+                sectionTitle='Recruiting requests'
+                overlayTitle='ongoing recruiting requests'
+                path='recruiting/dashboard/recruiting/list/ongoing'
+                sectionHeight={220}
+                pageNumber={3}
+                handleClick={() => router.push('/recruiting/')}
+                movePage={params =>
+                  router.push(`/recruiting/detail/${params.id}/`)
+                }
+                setOpenInfoDialog={setOpenInfoDialog}
+                columns={RecruitingRequestColumn}
+              />
             </GridItem>
           </Grid>
           <Grid container gap='24px'>
@@ -218,6 +204,7 @@ const TADDashboards = () => {
             </GridItem>
             <GridItem sm height={496} padding='0'>
               <TADJobDataGrid
+                sectionTitle='Job type/Role pool'
                 setOpenInfoDialog={setOpenInfoDialog}
                 dataRecord={jobTypeAndRole}
                 setDataRecord={setJobTypeAndRole}

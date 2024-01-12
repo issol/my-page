@@ -1,4 +1,3 @@
-import { useTheme } from '@mui/material/styles'
 import TablePagination from '@mui/material/TablePagination'
 import styled from '@emotion/styled'
 import React, { useEffect, useMemo, useState } from 'react'
@@ -22,6 +21,7 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
+import DashboardForSuspense from '@src/views/dashboard/suspense'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
@@ -32,17 +32,16 @@ interface TADLanguagePoolBarChartProps extends CSVDataRecordProps {
 const DISPLAY = true
 const CHART_AREA = true
 
-const TADLanguagePoolBarChart = ({
+const LanguagePoolBarChart = ({
   dataRecord,
   setDataRecord,
   setOpenInfoDialog,
 }: TADLanguagePoolBarChartProps) => {
   const router = useRouter()
-  const theme = useTheme()
   const gloLanguage = getGloLanguage()
 
-  const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowPerPage] = React.useState(6)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowPerPage] = useState(6)
   const [filter, setFilter] = useState<'source' | 'target' | 'pair'>('pair')
 
   const { data, isLoading } = useLanguagePool(filter)
@@ -220,6 +219,8 @@ const TADLanguagePoolBarChart = ({
       x: {
         min: 0,
         max: 200,
+        beginAtZero: true,
+
         grid: {
           display: DISPLAY,
           drawOnChartArea: CHART_AREA,
@@ -228,6 +229,9 @@ const TADLanguagePoolBarChart = ({
           borderDash: [10],
           drawBorder: false,
         },
+        ticks: {
+          stepSize: 40,
+        },
       },
       y: {
         grid: {
@@ -235,7 +239,6 @@ const TADLanguagePoolBarChart = ({
           drawBorder: false,
         },
         ticks: {
-          maxTicksLimit: 7,
           font: {
             size: 14,
             weight: '600',
@@ -317,6 +320,18 @@ const TADLanguagePoolBarChart = ({
         />
       </div>
     </Box>
+  )
+}
+
+const TADLanguagePoolBarChart = (props: TADLanguagePoolBarChartProps) => {
+  return (
+    <DashboardForSuspense
+      {...props}
+      title='Language pool'
+      refreshDataQueryKey='LanguagePool'
+    >
+      <LanguagePoolBarChart {...props} />
+    </DashboardForSuspense>
   )
 }
 

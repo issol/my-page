@@ -142,6 +142,7 @@ const LPMDashboards = () => {
     const paidThisMonths = data.filter(item =>
       item[0].includes('PaidThisMonth'),
     )
+
     const totalPrices = data.filter(item => item[0].includes('totalPrice'))
 
     const ongoingOrder = ongoingCounts.filter(item =>
@@ -182,18 +183,18 @@ const LPMDashboards = () => {
 
     const filterPayableTotal = (payableTotal?.report || []).map(item => {
       return {
-        'Payables total Count': item.count,
-        'Payables total Price': item.sum,
-        'Payables total Number': item.count,
+        'Payables total Count': item.count || 0,
+        'Payables total Price': item.sum || 0,
+        'Payables total Number': item.count || 0,
         ' ': ' ',
       }
     })
 
     const filterReceivableTotal = (receivableTotal?.report || []).map(item => {
       return {
-        'Receivables total Count': item.count,
-        'Receivables total Price': item.sum,
-        'Receivables total Number': item.count,
+        'Receivables total Count': item.count || 0,
+        'Receivables total Price': item.sum || 0,
+        'Receivables total Number': item.count || 0,
         ' ': ' ',
       }
     })
@@ -302,20 +303,16 @@ const LPMDashboards = () => {
             )}
             <GridItem height={362} sm padding='0'>
               <Box sx={{ width: '100%' }}>
-                <Title
-                  title='New requests'
-                  padding='10px 20px 0'
-                  marginBottom='20px'
-                  handleClick={() => router.push('/quotes/lpm/requests/')}
-                  openDialog={setOpenInfoDialog}
-                />
                 <DashboardDataGrid
-                  title='New requests from clients'
+                  sectionTitle='New requests'
+                  overlayTitle='New requests from clients'
                   sectionHeight={280}
                   path='u/dashboard/client-request/list/new'
                   pageNumber={4}
                   movePage={params => router.push('/')}
                   columns={RequestColumns}
+                  setOpenInfoDialog={setOpenInfoDialog}
+                  handleClick={() => router.push('/quotes/lpm/requests/')}
                 />
               </Box>
             </GridItem>
