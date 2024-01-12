@@ -44,10 +44,13 @@ export const TryAgain = ({
 
   const onChange = () => {
     if (typeof refreshDataQueryKey === 'string') {
+      console.log('#@$@#$@#', refreshDataQueryKey)
       queryClient.refetchQueries({
         queryKey: [DEFAULT_QUERY_NAME, refreshDataQueryKey],
       })
+      return
     }
+
     const keys = [DEFAULT_QUERY_NAME, ...refreshDataQueryKey]
     queryClient.refetchQueries({
       queryKey: keys,

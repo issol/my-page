@@ -21,7 +21,9 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
-import DashboardForSuspense from '@src/views/dashboard/suspense'
+import DashboardForSuspense, {
+  DashboardErrorFallback,
+} from '@src/views/dashboard/suspense'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
@@ -324,11 +326,18 @@ const LanguagePoolBarChart = ({
 }
 
 const TADLanguagePoolBarChart = (props: TADLanguagePoolBarChartProps) => {
+  const router = useRouter()
+
   return (
     <DashboardForSuspense
       {...props}
-      title='Language pool'
+      handleClick={() => router.push('/pro')}
+      setOpenInfoDialog={props.setOpenInfoDialog}
+      sectionTitle='Language pool'
       refreshDataQueryKey='LanguagePool'
+      titleProps={{
+        subTitle: `Total 0 Language pairs`,
+      }}
     >
       <LanguagePoolBarChart {...props} />
     </DashboardForSuspense>

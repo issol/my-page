@@ -99,7 +99,11 @@ const OverviewOnboardingList = ({
 
 const OnboardingList = (props: OverviewOnboardingListProps) => {
   return (
-    <DashboardForSuspense {...props} refreshDataQueryKey='Onboarding'>
+    <DashboardForSuspense
+      {...props}
+      sectionTitle='Onboarding overview'
+      refreshDataQueryKey='Onboarding'
+    >
       <OverviewOnboardingList {...props} />
     </DashboardForSuspense>
   )
