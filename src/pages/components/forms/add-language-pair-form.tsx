@@ -64,6 +64,7 @@ import {
 } from 'react-hook-form'
 import { languageType } from '@src/pages/quotes/add-new'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   // languagePairs: languageType[]
@@ -74,6 +75,7 @@ type Props = {
     index?: number,
   ) => Array<StandardPriceListType & { groupName?: string }>
   type: string
+  from: string
   onDeleteLanguagePair: (row: languageType) => void
   items?: ItemType[]
   getItem: UseFormGetValues<{
@@ -120,8 +122,11 @@ export default function AddLanguagePairForm({
   itemTrigger,
   append,
   update,
+  from,
 }: Props) {
   const { openModal, closeModal } = useModal()
+
+  console.log(languagePairs)
 
   console.log(getItem(`languagePairs.0.price`))
 
@@ -132,8 +137,6 @@ export default function AddLanguagePairForm({
     source: string
     target: string[]
   }>({ source: '', target: [] })
-
-  console.log(languagePairs)
 
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
@@ -185,34 +188,46 @@ export default function AddLanguagePairForm({
     // itemTrigger('languagePairs')
   }
 
-  const updateLanguagePairs = (languagePairs: languageType[]) => {
+  const updateLanguagePairs = (
+    languagePairs: languageType[],
+    v: StandardPriceListType & {
+      groupName?: string | undefined
+    },
+    idx: number,
+  ) => {
     let updatedLanguagePairs = { ...languagePairs }
     let isValidCondition = true
     let type = 0
-    const targetCurrency = languagePairs[0]?.price?.currency! ?? null
+    const firstPricedPair = languagePairs.find(
+      pair =>
+        pair.price !== null && JSON.stringify(pair.price) !== JSON.stringify(v),
+    )
+    console.log(firstPricedPair, 'hi')
+
+    const targetCurrency = firstPricedPair?.price?.currency ?? null
+
+    console.log(targetCurrency, 'hi')
+
     if (targetCurrency) {
-      if (languagePairs[0].price) {
-        languagePairs.map((pair, index) => {
-          if (pair.price && targetCurrency !== pair.price?.currency) {
-            isValidCondition = false
-            type = 1
-            // 첫번째 Language-pair를 기준으로 currency가 맞지 않는 price를 null로 변경
-            updatedLanguagePairs = languagePairs.map(item => ({
-              ...item,
-              price:
-                item.price?.currency === targetCurrency ? item.price : null,
-            }))
-          }
-        })
-      }
+      languagePairs.forEach(pair => {
+        if (pair.price && targetCurrency !== pair.price?.currency) {
+          isValidCondition = v.id === -1 ? true : false
+          type = 1
+          // 첫번째 Language-pair를 기준으로 currency가 맞지 않는 price를 null로 변경
+          updatedLanguagePairs = languagePairs.map((item, index) => ({
+            ...item,
+            price: v.id === -1 || index !== idx ? item.price : null,
+          }))
+        }
+      })
     } else {
       // 첫번째 언어페어의가 null인 경우, 모든 Price를 null로 바꿈
-      isValidCondition = false
-      type = 2
-      updatedLanguagePairs = languagePairs.map(item => ({
-        ...item,
-        price: null,
-      }))
+      // isValidCondition = false
+      // type = 2
+      // updatedLanguagePairs = languagePairs.map(item => ({
+      //   ...item,
+      //   price: null,
+      // }))
     }
     if (isValidCondition) {
       setLanguagePairs(languagePairs)
@@ -238,16 +253,20 @@ export default function AddLanguagePairForm({
   }
 
   const selectCurrencyViolation = (type: number) => {
-    const message1 = `Please check the currency of the selected price. You can't use different currencies in a quote.`
-    const message2 =
-      'Please select the price for the first language pair first.'
     openModal({
       type: 'error-currency-violation',
       children: (
-        <SimpleMultilineAlertModal
+        <CustomModal
+          title={
+            type === 1
+              ? `Please check the currency of the selected price. You can't use different currencies in a ${from}.`
+              : 'Please select the price for the first language pair first.'
+          }
+          soloButton
+          onClick={() => closeModal('error-currency-violation')}
           onClose={() => closeModal('error-currency-violation')}
-          message={type === 1 ? message1 : message2}
-          vary={type === 1 ? 'error' : 'info'}
+          rightButtonText='Okay'
+          vary='error'
         />
       ),
     })
@@ -457,18 +476,19 @@ export default function AddLanguagePairForm({
                                       if (!v) {
                                         onChange(null)
                                       } else {
-                                        if (v.id === -1) {
-                                          selectNotApplicableModal()
-                                        } else {
-                                          onChange(v)
+                                        // if (v.id === -1) {
+                                        //   selectNotApplicableModal()
+                                        // } else {
+                                        onChange(v)
+                                        console.log(v, 'bye')
 
-                                          const copyPairs = [
-                                            ...getItem('languagePairs'),
-                                          ]
-                                          copyPairs[idx].price = v
-                                          updateLanguagePairs(copyPairs)
-                                        }
+                                        const copyPairs = [
+                                          ...getItem('languagePairs'),
+                                        ]
+                                        copyPairs[idx].price = v
+                                        updateLanguagePairs(copyPairs, v, idx)
                                       }
+                                      // }
                                     }}
                                     id='autocomplete-controlled'
                                     getOptionLabel={option => option.priceName}

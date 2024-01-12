@@ -27,10 +27,11 @@ export function getCurrencyMark(currency: CurrencyType | null | undefined) {
 
 export function formatCurrency(
   num: number | string,
-  currency: CurrencyType,
+  currency: CurrencyType | null,
   decimalPlace?: number,
 ) {
-  if (!currency) currency = 'KRW'
+  // if (!currency) currency = 'KRW'
+  if (!currency) return num
   const currentLocale = locale[currency]
 
   const formatter = new Intl.NumberFormat(currentLocale, {
@@ -40,7 +41,10 @@ export function formatCurrency(
   })
 
   const formattedNumber = formatter.format(Number(num))
-  const [currencySymbol, value] = [formattedNumber.substring(0, 1), formattedNumber.substring(1)]
+  const [currencySymbol, value] = [
+    formattedNumber.substring(0, 1),
+    formattedNumber.substring(1),
+  ]
   const result = `${currencySymbol} ${value}`
 
   return result
