@@ -208,7 +208,7 @@ const LPMDashboards = () => {
     mergeObjectData2[0] = {
       'Payables - paid this month Price': payableMonth?.totalPrice || 0,
       'Payables - paid this month Number': payableMonth?.count || 0,
-      ' ': ' ',
+      '   ': ' ',
       ...mergeObjectData2[0],
     }
 
@@ -217,31 +217,31 @@ const LPMDashboards = () => {
     mergeObjectData3[0] = {
       'Receivables - paid this month Price': receivableMonth?.totalPrice || 0,
       'Receivables - paid this month Number': receivableMonth?.count || 0,
-      '': '',
+      '  ': '',
+      ...receivables[0],
+      ...payables[0],
       ...mergeObjectData3[0],
+      '      ': '  ',
     }
 
-    const mergeData1 = mergeData(receivables, payables)
-    mergeData1[0] = { ...mergeData1[0], '   ': '' }
-    const mergeData2 = mergeData(mergeData1, clients)
-    const mergeData3 = mergeData(mergeData2, languagePairs)
-    const mergeData4 = mergeData(mergeData3, categories)
-    const mergeData5 = mergeData(mergeData4, serviceTypes)
-    const mergeData6 = mergeData(mergeData5, expertises)
-    const mergeData7 = mergeData(mergeData6, mergeObjectData3)
+    const mergeData1 = mergeData(clients, languagePairs)
+    const mergeData2 = mergeData(mergeData1, categories)
+    const mergeData3 = mergeData(mergeData2, serviceTypes)
+    const mergeData4 = mergeData(mergeData3, expertises)
+    const mergeData5 = mergeData(mergeObjectData3, mergeData4)
 
-    mergeData7[0] = {
+    mergeData5[0] = {
       Requests: ReportData?.requests || 0,
       Quotes: ReportData?.quotes || 0,
       Orders: ReportData?.orders || 0,
       Receivables: ReportData?.invoiceReceivables || 0,
       Payables: ReportData?.invoicePayables || 0,
       Canceled: ReportData?.canceled || 0,
-      '': '',
-      ...mergeData7[0],
+      '     ': '',
+      ...mergeData5[0],
     }
 
-    setCSVData(mergeData7)
+    setCSVData(mergeData5)
   }, [receivables, payables, clients, languagePairs, serviceTypes, expertises])
 
   return (

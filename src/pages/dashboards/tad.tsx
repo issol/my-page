@@ -1,5 +1,5 @@
 import Grid from '@mui/material/Grid'
-import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
+import { GridItem } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
 import { FormProvider, useWatch } from 'react-hook-form'
@@ -21,7 +21,7 @@ import {
   StatusApplicationColumns,
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
-import { getDateFormat, toCapitalize } from '@src/pages/dashboards/lpm'
+import { getDateFormat } from '@src/pages/dashboards/lpm'
 import TADLanguagePoolBarChart from '@src/views/dashboard/chart/languagePoolBar'
 
 import ChartDate from '@src/views/dashboard/header/chartDate'
@@ -39,7 +39,6 @@ import {
 import Notice from '@src/views/dashboard/notice'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import find from 'lodash/find'
-import useStickyHeader from '@src/hooks/useStickyHeader'
 
 dayjs.extend(weekday)
 
