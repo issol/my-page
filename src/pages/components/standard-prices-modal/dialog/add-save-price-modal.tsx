@@ -182,7 +182,7 @@ const AddSavePriceModal = ({
                 : selected.currency === 'SGD'
                 ? '$ SGD'
                 : '',
-            value: selected.currency,
+            value: selected.currency!,
           },
           setValueOptions,
         )
@@ -235,7 +235,7 @@ const AddSavePriceModal = ({
               : selected.currency === 'SGD'
               ? '$ SGD'
               : '',
-          value: selected.currency,
+          value: selected.currency!,
         })
         page === 'client' &&
           setValue('catBasis', {

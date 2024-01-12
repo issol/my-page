@@ -115,6 +115,7 @@ import { set } from 'lodash'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
 import { formatISO } from 'date-fns'
+import { getClientRequestDetail } from '@src/apis/requests/client-request.api'
 
 export type languageType = {
   id: number | string
@@ -128,23 +129,22 @@ export type languageType = {
 }
 
 export const defaultOption: StandardPriceListType & {
-  groupName?: string
+  groupName: string
 } = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
-  // groupName: 'Not applicable',
+  groupName: '',
   category: '',
   serviceType: [],
-  currency: 'KRW',
+  currency: null,
   catBasis: '',
   decimalPlace: 0,
-  roundingProcedure: 'Round (Round down to 0.5 - round up from 0.5)',
+  roundingProcedure: '',
   languagePairs: [],
   priceUnit: [],
   catInterface: { memSource: [], memoQ: [] },
 }
-
 export const proDefaultOption: StandardPriceListType & {
   groupName?: string
 } = {
@@ -173,7 +173,8 @@ export default function AddNewOrder() {
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
   const [isWarn, setIsWarn] = useState(true)
   const [isFatching, setIsFatching] = useState(false)
-
+  const [requestProjectDueDate, setRequestProjectDueDate] =
+    useState<Date | null>(null)
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
   const [taxFocus, setTaxFocus] = useState(false)
 
@@ -185,7 +186,7 @@ export default function AddNewOrder() {
       onCopyQuote(Number(quoteId))
     }
     if (requestId) {
-      initializeFormWithRequest()
+      initializeFormWithRequest(Number(requestId))
     }
   }, [router.query])
 
@@ -198,10 +199,6 @@ export default function AddNewOrder() {
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
-  }
-
-  const onNextStep = () => {
-    setActiveStep(activeStep + 1)
   }
 
   const steps = [
@@ -331,6 +328,50 @@ export default function AddNewOrder() {
     control: itemControl,
     name: 'languagePairs',
   })
+
+  const onNextStep = () => {
+    setActiveStep(activeStep + 1)
+    if (activeStep === 2 && requestData && requestId) {
+      const teamMembers = getTeamValues()?.teams
+      const projectManager = teamMembers.find(
+        item => item.type === 'projectManagerId',
+      )
+      const project = getProjectInfoValues()
+
+      const { items } = requestData || []
+      const transformedItems =
+        items.flatMap(item =>
+          item.targetLanguage.map(target => ({
+            id: item.id,
+            source: item.sourceLanguage,
+            target,
+            price: defaultOption,
+          })),
+        ) || []
+
+      const defaultItems = transformedItems.map(item => ({
+        itemName: null,
+        source: item.source,
+        target: item.target,
+        contactPersonId: projectManager?.id!,
+        dueAt: requestProjectDueDate
+          ? changeTimeZoneOffset(
+              requestProjectDueDate.toISOString(),
+              auth.getValue().user?.timezone!,
+            )
+          : null,
+        priceId: -1,
+        detail: [],
+        totalPrice: 0,
+        showItemDescription: false,
+        minimumPrice: null,
+        minimumPriceApplied: false,
+        priceFactor: 0,
+      }))
+
+      setItem('items', defaultItems, { shouldDirty: true })
+    }
+  }
 
   function sumTotalPrice() {
     const subPrice = getItem('items')
@@ -756,61 +797,110 @@ export default function AddNewOrder() {
     return result
   }
 
-  function initializeFormWithRequest() {
-    if (requestId && requestData) {
-      const { client } = requestData || undefined
-      clientReset({
-        clientId: client.clientId,
-        contactPersonId: requestData.contactPerson.id,
-        addressType: 'shipping',
-        contacts: {
-          timezone: client?.timezone,
-          phone: client?.phone ?? '',
-          mobile: client?.mobile ?? '',
-          fax: client?.fax ?? '',
-          email: client?.email ?? '',
-          addresses:
-            client?.addresses?.filter(
-              item => item.addressType !== 'additional',
-            ) || [],
-        },
-      })
+  function initializeFormWithRequest(requestId: number) {
+    if (requestId) {
+      getClientRequestDetail(requestId).then(res => {
+        const { client } = res || undefined
+        clientReset({
+          clientId: client.clientId,
+          contactPersonId: res.contactPerson.id,
+          addressType: 'shipping',
+          contacts: {
+            timezone: client?.timezone,
+            phone: client?.phone ?? '',
+            mobile: client?.mobile ?? '',
+            fax: client?.fax ?? '',
+            email: client?.email ?? '',
+            addresses:
+              client?.addresses?.filter(
+                item => item.addressType !== 'additional',
+              ) || [],
+          },
+        })
 
-      const { items } = requestData || []
-      const desiredDueDates = items?.map(i => i.desiredDueDate)
-      const isCategoryNotSame = items.some(
-        i => i.category !== items[0]?.category,
-      )
-      projectInfoReset({
-        orderedAt: formattedNow(new Date()),
-        projectDueAt: new Date(
-          convertTimeToTimezone(
-            findEarliestDate(desiredDueDates),
-            items[0].desiredDueTimezone,
-            timezone.getValue(),
-            true,
-          )!,
-        ),
-        // projectDueAt: findEarliestDate(desiredDueDates),
-        // projectDueDate: {
-        //   date: findEarliestDate(desiredDueDates),
-        // },
-        category: isCategoryNotSame ? '' : items[0].category,
-        serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
-        projectDescription: requestData?.notes ?? '',
-        showDescription: requestData?.showDescription ?? false,
-        status: 10000,
+        const { items } = res || []
+
+        const desiredDueDates = items?.map(i => i.desiredDueDate)
+        const isCategoryNotSame = items.some(
+          i => i.category !== items[0]?.category,
+        )
+        setRequestProjectDueDate(
+          new Date(
+            convertTimeToTimezone(
+              findEarliestDate(desiredDueDates),
+              items[0].desiredDueTimezone,
+              timezone.getValue(),
+              true,
+            )!,
+          ),
+        )
+        projectInfoReset({
+          orderedAt: formattedNow(new Date()),
+          projectDueAt: new Date(
+            convertTimeToTimezone(
+              findEarliestDate(desiredDueDates),
+              items[0].desiredDueTimezone,
+              timezone.getValue(),
+              true,
+            )!,
+          ),
+          // projectDueAt: findEarliestDate(desiredDueDates),
+          // projectDueDate: {
+          //   date: findEarliestDate(desiredDueDates),
+          // },
+          category: isCategoryNotSame ? '' : items[0].category,
+          serviceType: isCategoryNotSame
+            ? []
+            : items.flatMap(i => i.serviceType),
+          projectDescription: requestData?.notes ?? '',
+          showDescription: requestData?.showDescription ?? false,
+          status: 10000,
+        })
+        const transformedItems =
+          items.flatMap(item =>
+            item.targetLanguage.map(target => ({
+              id: item.id,
+              source: item.sourceLanguage,
+              target,
+              price: defaultOption,
+            })),
+          ) || []
+
+        console.log(transformedItems)
+
+        const uniqueTransformedItems = Array.from(
+          new Set(
+            transformedItems.map(item =>
+              JSON.stringify({ source: item.source, target: item.target }),
+            ),
+          ),
+        ).map(item => JSON.parse(item))
+
+        console.log(uniqueTransformedItems)
+
+        const result = uniqueTransformedItems.map(uniqueItem => {
+          const originalItem = transformedItems.find(
+            item =>
+              item.source === uniqueItem.source &&
+              item.target === uniqueItem.target,
+          )
+
+          return {
+            ...uniqueItem,
+            id: originalItem?.id,
+            price: originalItem?.price,
+          }
+        })
+
+        console.log(result)
+
+        setItem('languagePairs', result, { shouldDirty: true })
       })
-      const itemLangPairs =
-        items?.map(i => ({
-          id: i.id,
-          source: i.sourceLanguage,
-          target: i.targetLanguage,
-          price: null,
-        })) || []
-      setItem('languagePairs', itemLangPairs)
     }
   }
+  useEffect(() => {
+    console.log(languagePairs)
+  }, [languagePairs])
 
   async function onCopyQuote(id: number | null) {
     // const priceList = await getClientPriceList({})
@@ -1148,20 +1238,20 @@ export default function AddNewOrder() {
   }
 
   useEffect(() => {
-    if (getItem('languagePairs') && prices) {
+    if (languagePairs.length > 0 && prices) {
       const priceInfo =
-        prices?.find(
-          value => value.id === getItem('languagePairs')[0]?.price?.id,
-        ) ?? null
+        prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
       setPriceInfo(priceInfo)
     }
-  }, [prices, getItem('languagePairs')])
+  }, [prices, languagePairs])
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
     shouldWarn: isWarn,
     toUrl: '/orders/order-list',
   })
+
+  console.log(languagePairs)
 
   return (
     <Grid container spacing={6}>
@@ -1314,6 +1404,7 @@ export default function AddNewOrder() {
             <Grid container>
               <Grid item xs={12}>
                 <AddLanguagePairForm
+                  from='order'
                   type='create'
                   getItem={getItem}
                   setLanguagePairs={(languagePair: languageType[]) =>

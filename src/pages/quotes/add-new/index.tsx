@@ -96,6 +96,7 @@ export type languageType = {
   id: number | string
   source: string
   target: string
+
   price:
     | (StandardPriceListType & {
         groupName?: string
@@ -112,7 +113,7 @@ export const defaultOption: StandardPriceListType & {
   groupName: '',
   category: '',
   serviceType: [],
-  currency: 'KRW',
+  currency: null,
   catBasis: '',
   decimalPlace: 0,
   roundingProcedure: '',
@@ -128,6 +129,8 @@ export default function AddNewQuote() {
 
   const requestId = router.query?.requestId
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
+  const [requestProjectDueDate, setRequestProjectDueDate] =
+    useState<Date | null>(null)
   const [isWarn, setIsWarn] = useState(true)
 
   const { openModal, closeModal } = useModal()
@@ -141,10 +144,6 @@ export default function AddNewQuote() {
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
-  }
-
-  const onNextStep = () => {
-    setActiveStep(activeStep + 1)
   }
 
   const steps = [
@@ -286,7 +285,49 @@ export default function AddNewQuote() {
     name: 'languagePairs',
   })
 
-  console.log(getItem('languagePairs'))
+  const onNextStep = () => {
+    setActiveStep(activeStep + 1)
+    if (activeStep === 2 && requestData && requestId) {
+      const teamMembers = getTeamValues()?.teams
+      const projectManager = teamMembers.find(
+        item => item.type === 'projectManagerId',
+      )
+      const project = getProjectInfoValues()
+
+      const { items } = requestData || []
+      const transformedItems =
+        items.flatMap(item =>
+          item.targetLanguage.map(target => ({
+            id: item.id,
+            source: item.sourceLanguage,
+            target,
+            price: defaultOption,
+          })),
+        ) || []
+
+      const defaultItems = transformedItems.map(item => ({
+        itemName: null,
+        source: item.source,
+        target: item.target,
+        contactPersonId: projectManager?.id!,
+        dueAt: requestProjectDueDate
+          ? changeTimeZoneOffset(
+              requestProjectDueDate.toISOString(),
+              auth.getValue().user?.timezone!,
+            )
+          : null,
+        priceId: -1,
+        detail: [],
+        totalPrice: 0,
+        showItemDescription: false,
+        minimumPrice: null,
+        minimumPriceApplied: false,
+        priceFactor: 0,
+      }))
+
+      setItem('items', defaultItems, { shouldDirty: true })
+    }
+  }
 
   useEffect(() => {
     if (!router.isReady) return
@@ -328,7 +369,16 @@ export default function AddNewQuote() {
       const isCategoryNotSame = items.some(
         i => i.category !== items[0]?.category,
       )
-
+      setRequestProjectDueDate(
+        new Date(
+          convertTimeToTimezone(
+            findEarliestDate(desiredDueDates),
+            items[0].desiredDueTimezone,
+            timezone.getValue(),
+            true,
+          )!,
+        ),
+      )
       projectInfoReset({
         projectDueDate: {
           date: new Date(
@@ -346,19 +396,42 @@ export default function AddNewQuote() {
         showDescription: requestData?.showDescription ?? false,
         status: 20000,
       })
-      const itemLangPairs =
-        items?.map(i => ({
-          id: i.id,
-          source: i.sourceLanguage,
-          target: i.targetLanguage,
-          price: null,
-        })) || []
-      // setLanguagePairs(itemLangPairs)
-      setItem('languagePairs', itemLangPairs)
+      const transformedItems =
+        items.flatMap(item =>
+          item.targetLanguage.map(target => ({
+            id: item.id,
+            source: item.sourceLanguage,
+            target,
+            price: defaultOption,
+          })),
+        ) || []
+      const uniqueTransformedItems = Array.from(
+        new Set(
+          transformedItems.map(item =>
+            JSON.stringify({ source: item.source, target: item.target }),
+          ),
+        ),
+      ).map(item => JSON.parse(item))
+
+      const result = uniqueTransformedItems.map(uniqueItem => {
+        const originalItem = transformedItems.find(
+          item =>
+            item.source === uniqueItem.source &&
+            item.target === uniqueItem.target,
+        )
+
+        return {
+          ...uniqueItem,
+          id: originalItem?.id,
+          price: originalItem?.price,
+        }
+      })
+
+      setItem('languagePairs', result, { shouldDirty: true })
     }
   }
 
-  console.log(getItem('languagePairs'))
+  console.log(languagePairs)
   function onDeleteLanguagePair(row: languageType) {
     const isDeletable = !getItem()?.items?.length
       ? true
@@ -420,24 +493,34 @@ export default function AddNewQuote() {
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
         ...item,
       }))
+
     return [defaultOption].concat(filteredList)
   }
 
   function isAddItemDisabled(): boolean {
     if (getItem('languagePairs').length === 0) return true
-    return getItem('languagePairs').some(item => !item?.price)
+    return getItem('languagePairs')?.some(item => !item?.price)
   }
+
+  console.log(requestProjectDueDate)
 
   function addNewItem() {
     const teamMembers = getTeamValues()?.teams
     const projectManager = teamMembers.find(
       item => item.type === 'projectManagerId',
     )
+    const project = getProjectInfoValues()
     appendItems({
       itemName: null,
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
+      dueAt: requestProjectDueDate
+        ? changeTimeZoneOffset(
+            project.projectDueDate.date.toISOString(),
+            auth.getValue().user?.timezone!,
+          )
+        : null,
       priceId: null,
       detail: [],
       totalPrice: 0,
@@ -656,6 +739,8 @@ export default function AddNewQuote() {
     sumTotalPrice()
   }, [])
 
+  console.log(languagePairs)
+
   return (
     <Grid container spacing={6}>
       <ConfirmLeaveModal />
@@ -795,6 +880,7 @@ export default function AddNewQuote() {
                   onDeleteLanguagePair={onDeleteLanguagePair}
                   control={itemControl}
                   itemTrigger={itemTrigger}
+                  from='quote'
                 />
               </Grid>
               <Grid item xs={12} mt={6} mb={6}>

@@ -2,8 +2,6 @@ import { Icon } from '@iconify/react'
 import {
   Autocomplete,
   Box,
-  Button,
-  Card,
   Divider,
   FormControl,
   Grid,
@@ -16,12 +14,11 @@ import {
   JobTypeChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
+import { v4 as uuidv4 } from 'uuid'
 import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
-import {
-  convertTimeToTimezone,
-} from '@src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { useRouter } from 'next/router'
+
 import styled from 'styled-components'
 
 import { RequestDetailType } from '@src/types/requests/detail.type'
@@ -188,11 +185,24 @@ export default function RequestDetailCard({
                 <Grid item xs={6}>
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Language pair</CustomTypo>
-                    <CustomTypo variant='body2'>
-                      {convertLanguageCodeToPair(
-                        item?.sourceLanguage,
-                        item?.targetLanguage,
-                      )}
+                    <CustomTypo
+                      variant='body2'
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
+                      {item?.targetLanguage.map(value => {
+                        return (
+                          <Box key={uuidv4()}>
+                            {convertLanguageCodeToPair(
+                              item?.sourceLanguage,
+                              value,
+                            )}
+                          </Box>
+                        )
+                      })}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>

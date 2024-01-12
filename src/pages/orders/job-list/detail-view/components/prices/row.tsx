@@ -72,9 +72,11 @@ type Props = {
   orderItems?: ItemType[]
   currentOrderItemId?: number
   useUnitPriceOverrideInPrice?: boolean
-  findMatchedLanguagePairInItems?: (v: (StandardPriceListType & {
-    groupName?: string | undefined;
-  })) => LanguagePairListType | undefined
+  findMatchedLanguagePairInItems?: (
+    v: StandardPriceListType & {
+      groupName?: string | undefined
+    },
+  ) => LanguagePairListType | undefined
 }
 
 const Row = ({
@@ -165,54 +167,65 @@ const Row = ({
 
   useEffect(() => {
     // Price가 세팅되어 있지 않을때는 Order의 Item에 설정된 Price unit을 설정해준다.
-    if (orderItems?.length && 
-      (!getItem().items[0].detail || !getItem().items?.[0].detail?.length)) {
-        const currentItem = orderItems.find(orderItem => orderItem.id === currentOrderItemId && currentOrderItemId)
-        currentItem?.detail?.map(item => {
-          append({
-            ...item,
-            unitPrice: 0,
-          })
+    if (
+      orderItems?.length &&
+      (!getItem().items[0].detail || !getItem().items?.[0].detail?.length)
+    ) {
+      const currentItem = orderItems.find(
+        orderItem => orderItem.id === currentOrderItemId && currentOrderItemId,
+      )
+      currentItem?.detail?.map(item => {
+        append({
+          ...item,
+          unitPrice: 0,
         })
-      }
+      })
+    }
   }, [orderItems])
-  // useUnitPriceOverrideInPrice가 true일 경우, 
-  // 선택된(또는 변경된) selectedPrice 값에 포함된 priceUnit과 현재 form의 priceUnit을 비교하여 
+  // useUnitPriceOverrideInPrice가 true일 경우,
+  // 선택된(또는 변경된) selectedPrice 값에 포함된 priceUnit과 현재 form의 priceUnit을 비교하여
   // unitPrice 값을 override 한다.
   useEffect(() => {
     if (useUnitPriceOverrideInPrice && useUnitPriceOverrideInPrice === true) {
       if (selectedPrice && selectedPrice?.priceUnit?.length > 0) {
-        
         // selectedPrice에서 현재의 언어페어를 찾는다.
         // 언어페어에서 priceFactor값을 추출하기 위해 사용한다.
-        const matchedLanguagePair: LanguagePairListType|undefined= 
-          findMatchedLanguagePairInItems && 
+        const matchedLanguagePair: LanguagePairListType | undefined =
+          findMatchedLanguagePairInItems &&
           findMatchedLanguagePairInItems(selectedPrice)
 
         selectedPrice.priceUnit.map(selectedUnit => {
-          const matchedCurrentUnit = details.findIndex(currentUnit => selectedUnit.priceUnitId === currentUnit.priceUnitId)
+          const matchedCurrentUnit = details.findIndex(
+            currentUnit => selectedUnit.priceUnitId === currentUnit.priceUnitId,
+          )
 
           if (matchedCurrentUnit !== -1) {
-            // case 1) 현재 unitPrice와 selectedPrice의 unitPrice가 같다면 
+            // case 1) 현재 unitPrice와 selectedPrice의 unitPrice가 같다면
             // 현재 unitPrice 정보에 selectedPrice의 unitPrice만 업데이트 한다.
             update(matchedCurrentUnit, {
               ...details[matchedCurrentUnit],
-              quantity: getItem()?.items[0]?.detail?.[matchedCurrentUnit]?.quantity ?? details[matchedCurrentUnit].quantity,
-              unitPrice: selectedUnit?.weighting && matchedLanguagePair?.priceFactor
-                ? (selectedUnit?.weighting/100) * matchedLanguagePair?.priceFactor
-                : 0,
+              quantity:
+                getItem()?.items[0]?.detail?.[matchedCurrentUnit]?.quantity ??
+                details[matchedCurrentUnit].quantity,
+              unitPrice:
+                selectedUnit?.weighting && matchedLanguagePair?.priceFactor
+                  ? (selectedUnit?.weighting / 100) *
+                    matchedLanguagePair?.priceFactor
+                  : 0,
             })
           } else {
-            // case 2)  현재 unitPrice와 selectedPrice의 unitPrice가 다르다면 
+            // case 2)  현재 unitPrice와 selectedPrice의 unitPrice가 다르다면
             // selectedPrice의 unitPrice를 추가 한다.
             append({
               ...selectedUnit,
               prices: 0,
-              currency: selectedPrice.currency,
+              currency: selectedPrice.currency!,
               weighting: selectedUnit.weighting ?? 100,
-              unitPrice: selectedUnit?.weighting && matchedLanguagePair?.priceFactor
-                ? (selectedUnit?.weighting/100) * matchedLanguagePair?.priceFactor
-                : 0
+              unitPrice:
+                selectedUnit?.weighting && matchedLanguagePair?.priceFactor
+                  ? (selectedUnit?.weighting / 100) *
+                    matchedLanguagePair?.priceFactor
+                  : 0,
             })
           }
         })
@@ -313,12 +326,11 @@ const Row = ({
     // if (prices === data[index].prices) return
 
     //isNotApplicable이 true이면 폼에서 선택된 currency가 설정되도록 한다.
-    const currency =
-      isNotApplicable 
-        ? getItem()?.items?.[0]?.detail?.[0]?.currency!
-        : selectedPrice && selectedPrice.currency
-          ? selectedPrice.currency
-          : getItem(`items.${0}.initialPrice.currency`)
+    const currency = isNotApplicable
+      ? getItem()?.items?.[0]?.detail?.[0]?.currency!
+      : selectedPrice && selectedPrice.currency
+      ? selectedPrice.currency
+      : getItem(`items.${0}.initialPrice.currency`)
     const roundingPrice = formatByRoundingProcedure(
       prices,
       priceData()?.decimalPlace!
@@ -345,7 +357,7 @@ const Row = ({
   const onChangeCurrency = (currency: CurrencyType) => {
     //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
     getItem().items[0].detail?.map((priceUnit, idx) => {
-      setItem(`items.${0}.detail.${idx}.currency`,currency)
+      setItem(`items.${0}.detail.${idx}.currency`, currency)
     })
   }
 
