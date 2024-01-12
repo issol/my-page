@@ -31,7 +31,7 @@ export function formatCurrency(
   decimalPlace?: number,
 ) {
   // if (!currency) currency = 'KRW'
-  if (!currency) return num
+  if (!currency) return num.toString()
   const currentLocale = locale[currency]
 
   const formatter = new Intl.NumberFormat(currentLocale, {
@@ -54,7 +54,7 @@ export function formatByRoundingProcedure(
   price: number,
   decimalPlace: number,
   roundingType: string | number,
-  currency: CurrencyType,
+  currency: CurrencyType | null,
 ): number | string {
   try {
     let type = 0

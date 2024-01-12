@@ -115,7 +115,7 @@ const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
       target: value.target,
       priceFactor: value.priceFactor,
       minimumPrice: value.minimumPrice,
-      currency: priceData.currency,
+      currency: priceData.currency!,
     }))
     openModal({
       type: 'addLanguagePairModal',

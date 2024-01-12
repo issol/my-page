@@ -75,7 +75,7 @@ export type AddNewPriceType = {
   priceName: string
   category: string
   serviceType: Array<string>
-  currency: CurrencyType
+  currency: CurrencyType | null
   catBasis?: string
   decimalPlace: number
   roundingProcedure: number

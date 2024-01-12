@@ -161,7 +161,7 @@ const AddSavePriceModal = ({
               : selected.currency === 'SGD'
               ? '$ SGD'
               : '',
-          value: selected.currency,
+          value: selected.currency! ?? 'KRW',
         },
         setValueOptions,
       )
