@@ -29,7 +29,6 @@ interface DoughnutChartProps<T> extends Partial<CSVDataRecordProps> {
   title: string
   userViewDate?: string
   subTitle?: string
-  emptyTitle?: string
   from: string
   to: string
   type: string
@@ -41,6 +40,7 @@ interface DoughnutChartProps<T> extends Partial<CSVDataRecordProps> {
   isHiddenValue?: boolean
   menuOptions?: Array<{ key: string; text: string }>
   height?: number
+  overlayTitle?: string
 }
 
 const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
@@ -48,7 +48,6 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
     title,
     userViewDate,
     subTitle,
-    emptyTitle,
     path,
     from,
     to,
@@ -59,9 +58,8 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
     setOpenInfoDialog,
     menuOptions,
     isHiddenValue = false,
-    dataRecord,
+    overlayTitle,
     setDataRecord,
-    height = 416,
   } = props
   const [currency, setCurrency] = useState<Currency>('convertedToUSD')
   const [filter, setFilter] = useState('')
@@ -271,7 +269,7 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
       >
         <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
       </Box>
-      {!data && <NoRatio title={emptyTitle || title} />}
+      {!data && <NoRatio title={overlayTitle || title} />}
       {data && (
         <Box
           display='flex'
@@ -312,7 +310,7 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
           <Box sx={{ position: 'absolute', right: 0 }}>
             <List>
               {charData.map((item, index) => (
-                <li key={`{item.name}-${index}`}>
+                <li key={`${item.name}-${index}`}>
                   <Box display='flex' alignItems='center'>
                     <StatusSquare color={colors[index]} />
                     <span className='name'>
@@ -431,8 +429,8 @@ export const CustomChart = styled(ReactApexcharts)(() => {
 
       '& > .apexcharts-tooltip-series-group ': {},
 
-      '& svg:not(:root)': {
-        overflow: 'visible',
+      '& svg': {
+        overflow: 'visible !important',
       },
 
       '& .tooltip_container': {

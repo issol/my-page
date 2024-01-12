@@ -53,7 +53,6 @@ export const GridItem = ({
           justifyContent: 'center',
           height,
           padding,
-
           ...sx,
         }}
       >

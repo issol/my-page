@@ -22,6 +22,24 @@ export const DashboardErrorFallback = ({
   refreshDataQueryKey,
   titleProps,
 }: DashboardSuspenseProps) => {
+  return (
+    <Box sx={{ width: '100%', height: '100%' }}>
+      <Box>
+        <Title
+          {...titleProps}
+          title={sectionTitle}
+          openDialog={setOpenInfoDialog}
+          handleClick={handleClick}
+        />
+      </Box>
+      <TryAgain refreshDataQueryKey={refreshDataQueryKey} />
+    </Box>
+  )
+}
+
+export const TryAgain = ({
+  refreshDataQueryKey,
+}: Pick<DashboardSuspenseProps, 'refreshDataQueryKey'>) => {
   const queryClient = useQueryClient()
 
   const onChange = () => {
@@ -35,39 +53,27 @@ export const DashboardErrorFallback = ({
       queryKey: keys,
     })
   }
-
   return (
-    <Box sx={{ width: '100%', height: '100%' }}>
-      <Box>
-        <Title
-          {...titleProps}
-          title={sectionTitle}
-          openDialog={setOpenInfoDialog}
-          handleClick={handleClick}
-        />
-      </Box>
-      <Box
-        display='flex'
-        flexDirection='column'
-        alignItems='center'
-        justifyContent='center'
-        gap='20px'
-        sx={{ width: '100%', height: '70%' }}
+    <Box
+      display='flex'
+      flexDirection='column'
+      alignItems='center'
+      justifyContent='center'
+      gap='20px'
+      sx={{ width: '100%', height: '70%' }}
+    >
+      <IconButton
+        color='primary'
+        aria-label='refresh'
+        size='large'
+        onClick={() => onChange()}
       >
-        <IconButton
-          color='primary'
-          aria-label='refresh'
-          size='large'
-          onClick={() => onChange()}
-        >
-          <RefreshOutlined sx={{ fontSize: '32px' }} />
-        </IconButton>
-        <Typography>Failed to load data. Please try again.</Typography>
-      </Box>
+        <RefreshOutlined sx={{ fontSize: '32px' }} />
+      </IconButton>
+      <Typography>Failed to load data. Please try again.</Typography>
     </Box>
   )
 }
-
 interface SuspenseProps extends DashboardSuspenseProps {
   children: ReactElement
 }

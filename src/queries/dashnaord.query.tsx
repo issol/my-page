@@ -265,9 +265,9 @@ export const useLongStanding = (params: LongStandingQuery) => {
   return useQuery<{ data: Array<any>; count: number; totalCount: number }>(
     [
       DEFAULT_QUERY_NAME,
+      params.dataType,
       view,
       userId,
-      params.dataType,
       params.skip,
       { sort: params.sort, ordering: params.ordering },
     ],

@@ -15,7 +15,7 @@ import {
   useDashboardReport,
 } from '@src/queries/dashnaord.query'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
@@ -57,6 +57,9 @@ import LongStandingDataGrid from '@src/views/dashboard/dataGrid/longStanding'
 import Notice from '@src/views/dashboard/notice'
 import { mergeData } from '@src/pages/dashboards/tad'
 import { useQueryClient } from 'react-query'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { DashboardErrorFallback, TryAgain } from '@src/views/dashboard/suspense'
+import { ErrorBoundary } from 'react-error-boundary'
 
 dayjs.extend(weekday)
 
@@ -382,12 +385,22 @@ const LPMDashboards = () => {
                     openDialog={setOpenInfoDialog}
                   />
                 </Box>
-                <TotalValueView
-                  type='receivable'
-                  label='Paid this month'
-                  amountLabel='Receivable amount'
-                  countLabel='Counts'
-                />
+                <Suspense fallback={<FallbackSpinner />}>
+                  <ErrorBoundary
+                    fallback={
+                      <TryAgain
+                        refreshDataQueryKey={['PaidThisMonth', 'receivable']}
+                      />
+                    }
+                  >
+                    <TotalValueView
+                      type='receivable'
+                      label='Paid this month'
+                      amountLabel='Receivable amount'
+                      countLabel='Counts'
+                    />
+                  </ErrorBoundary>
+                </Suspense>
               </Box>
             </GridItem>
             <GridItem height={229} sm>
@@ -399,12 +412,22 @@ const LPMDashboards = () => {
                     handleClick={() => router.push('/invoice/payable/')}
                   />
                 </Box>
-                <TotalValueView
-                  type='payable'
-                  label='Paid this month'
-                  amountLabel='Receivable amount'
-                  countLabel='Counts'
-                />
+                <Suspense fallback={<FallbackSpinner />}>
+                  <ErrorBoundary
+                    fallback={
+                      <TryAgain
+                        refreshDataQueryKey={['PaidThisMonth', 'payable']}
+                      />
+                    }
+                  >
+                    <TotalValueView
+                      type='payable'
+                      label='Paid this month'
+                      amountLabel='Receivable amount'
+                      countLabel='Counts'
+                    />
+                  </ErrorBoundary>
+                </Suspense>
               </Box>
             </GridItem>
           </Grid>
@@ -437,6 +460,7 @@ const LPMDashboards = () => {
           <Grid container>
             <LongStandingDataGrid
               title='Long-standing receivables - Action required'
+              overlayTitle='There are no long-standing receivables'
               type='receivable'
               columns={ReceivableColumns}
               initSort={[
@@ -456,6 +480,7 @@ const LPMDashboards = () => {
           <Grid container>
             <LongStandingDataGrid
               title='Long-standing payables - Action required'
+              overlayTitle='There are no long-standing payables'
               type='payable'
               columns={PayablesColumns}
               initSort={[
@@ -476,6 +501,7 @@ const LPMDashboards = () => {
             <Doughnut
               userViewDate={userViewDate}
               title='Clients'
+              overlayTitle='There are no client information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -490,6 +516,7 @@ const LPMDashboards = () => {
             <Doughnut<PairRatioItem>
               userViewDate={userViewDate}
               title='Language pairs'
+              overlayTitle='There are no language information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -529,6 +556,7 @@ const LPMDashboards = () => {
             <Doughnut<CategoryRatioItem>
               userViewDate={userViewDate}
               title='Main categories'
+              overlayTitle='There are no category information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -575,6 +603,7 @@ const LPMDashboards = () => {
             <Doughnut<ServiceRatioItem>
               userViewDate={userViewDate}
               title='Service types'
+              overlayTitle='There are no service type information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -594,6 +623,7 @@ const LPMDashboards = () => {
             <Doughnut<ExpertiseRatioItem>
               userViewDate={userViewDate}
               title='Area of expertises'
+              overlayTitle='There are no area of expertise information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
