@@ -81,13 +81,34 @@ const TADDashboards = () => {
   const [targetLanguages, setTargetLanguages] = useState<CSVDataType>([])
 
   useEffect(() => {
-    const Onboarding = data.filter(item =>
-      item[0].includes('Onboarding'),
-    )[0][1] as TADOnboardingResult
+    let Onboarding: TADOnboardingResult = {
+      onboarded: 0,
+      onboarding: 0,
+      failed: 0,
+    }
+    let OngoingCount: DashboardCountResult = {
+      applied: 0,
+      passed: 0,
+      ongoing: 0,
+      failed: 0,
+      created: 0,
+      invoiced: 0,
+      canceled: 0,
+      approved: 0,
+    }
 
-    const OngoingCount = data.filter(item =>
+    const filterOnboarding = data.filter(item => item[0].includes('Onboarding'))
+    const filterOngoingCount = data.filter(item =>
       item[0].includes('ongoingCount'),
-    )[0][1] as DashboardCountResult
+    )
+
+    if (Array.isArray(filterOnboarding) && filterOnboarding.length > 0) {
+      Onboarding = filterOnboarding[0][1] as TADOnboardingResult
+    }
+
+    if (Array.isArray(filterOngoingCount) && filterOngoingCount.length > 0) {
+      OngoingCount = filterOngoingCount[0][1] as DashboardCountResult
+    }
 
     const fullLangPool = languagePool.map((item: any) => ({
       ...item,
@@ -130,6 +151,7 @@ const TADDashboards = () => {
       'Application Status': 'Failed',
       'Application Status Number': OngoingCount?.failed || 0,
     }
+
     setCSVData(mergeData5)
   }, [
     languagePool,

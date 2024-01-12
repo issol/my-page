@@ -90,10 +90,9 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
     const arr = new Array(title.length + type.length).join(' ')
 
     const filterList = data?.report.map((item, index) => {
-      const name = (getName && getName(charData[index] as T)) || item.name
       return {
         //@ts-ignore
-        [`${title}`]: name,
+        [`${title}`]: item.name || '-',
         [`${title} Number`]: item.count,
         [`${title} Percent`]: item.ratio,
         [arr]: ' ',

@@ -216,7 +216,7 @@ export const useDashboardCountList = ({
   )
 }
 
-export type DashboardCountResult = Record<ViewType, number>
+export type DashboardCountResult = Record<Partial<ViewType>, number>
 export const useDashboardCount = ({
   to,
   from,
