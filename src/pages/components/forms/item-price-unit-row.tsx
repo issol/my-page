@@ -27,7 +27,6 @@ import {
   UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormSetValue,
-  UseFormWatch,
 } from 'react-hook-form'
 import { NestedPriceUnitType } from './item-price-unit-form'
 import { languageType } from '@src/pages/quotes/add-new'
@@ -78,10 +77,6 @@ interface Props {
     detail: Array<ItemDetailType>,
     detailIndex: number,
   ) => void
-  watch: UseFormWatch<{
-    items: ItemType[]
-    languagePairs: languageType[]
-  }>
 }
 
 const Row = ({
@@ -105,7 +100,7 @@ const Row = ({
   showCurrency,
   initialPriceName,
   onChangeCurrency,
-  watch,
+
   setValue,
 }: Props) => {
   const prevValueRef = useRef()

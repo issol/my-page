@@ -17,7 +17,6 @@ import {
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
-  UseFormWatch,
   useFieldArray,
 } from 'react-hook-form'
 import { onCopyAnalysisParamType } from './items-form'
@@ -70,10 +69,7 @@ type Props = {
     'items',
     'id'
   >[]
-  itemWatch: UseFormWatch<{
-    items: ItemType[]
-    languagePairs: languageType[]
-  }>
+
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
     languagePairs: languageType[]
@@ -123,7 +119,7 @@ const Row = ({
   fields,
   itemTrigger,
   sumTotalPrice,
-  itemWatch,
+
   // openMinimumPriceModal,
   splitReady,
   type,
@@ -1017,7 +1013,6 @@ const Row = ({
               fields={fields}
               remove={remove}
               onChangeCurrency={onChangeCurrency}
-              watch={itemWatch}
             />
             {/* price unit end */}
             <Grid item xs={12}>

@@ -933,7 +933,6 @@ export default function AddNewQuote() {
                   type='create'
                   sumTotalPrice={sumTotalPrice}
                   from='quote'
-                  itemWatch={itemWatch}
                 />
               </Grid>
               <Grid item xs={12}>

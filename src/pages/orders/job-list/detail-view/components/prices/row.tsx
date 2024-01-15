@@ -391,7 +391,6 @@ const Row = ({
         append={append}
         update={update}
         getTotalPrice={getTotalPrice}
-        getEachPrice={getEachPrice}
         onDeletePriceUnit={onDeletePriceUnit}
         // onItemBoxLeave={onItemBoxLeave}
         isValid={
@@ -409,6 +408,7 @@ const Row = ({
         showCurrency={true}
         remove={remove}
         onChangeCurrency={onChangeCurrency}
+        setValue={setItem}
       />
       {/* price unit end */}
     </Box>

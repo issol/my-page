@@ -31,7 +31,6 @@ import {
   UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormSetValue,
-  UseFormWatch,
 } from 'react-hook-form'
 
 // ** helpers
@@ -110,10 +109,6 @@ type Props = {
   >[]
   showCurrency?: boolean
   setDarkMode?: boolean
-  watch: UseFormWatch<{
-    items: ItemType[]
-    languagePairs: languageType[]
-  }>
 }
 
 const StyledTableCell = styled(TableCell)<{ dark: boolean }>(
@@ -159,7 +154,6 @@ export default function ItemPriceUnitForm({
   showCurrency,
   setDarkMode,
   remove,
-  watch,
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
@@ -351,7 +345,6 @@ export default function ItemPriceUnitForm({
                 append={append}
                 remove={remove}
                 showCurrency={showCurrency}
-                watch={watch}
                 setValue={setValue}
               />
             ))}

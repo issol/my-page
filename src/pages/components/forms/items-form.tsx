@@ -117,10 +117,6 @@ type Props = {
     subtotal: number
   }[]
   from: 'order' | 'quote' | 'invoice'
-  itemWatch: UseFormWatch<{
-    items: ItemType[]
-    languagePairs: languageType[]
-  }>
 }
 
 export type DetailNewDataType = {
@@ -156,7 +152,6 @@ export default function ItemForm({
   sumTotalPrice,
   orders,
   from,
-  itemWatch,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
@@ -422,7 +417,6 @@ export default function ItemForm({
                       findLangPairIndex={findLangPairIndex}
                       indexing={data.indexing}
                       from={from}
-                      itemWatch={itemWatch}
                     />
                   )
                 })}
@@ -436,7 +430,6 @@ export default function ItemForm({
               key={item.id}
               idx={idx}
               control={control}
-              itemWatch={itemWatch}
               setValue={setValue}
               getValues={getValues}
               getPriceOptions={getPriceOptions}
