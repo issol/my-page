@@ -735,9 +735,51 @@ export default function AddNewQuote() {
       setSubPrice(total)
     }
   }
+
+  const getSubTotal = () => {
+    const items = getItem('items')
+    const currencies = items.flatMap(
+      item =>
+        item.detail
+          ? item.detail
+              .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
+
+              .map(detailItem => detailItem.currency)
+          : [], // Return an empty array if detail is undefined
+    )
+
+    if (currencies.length === 0) return '-'
+    else {
+      const decimalPlace = priceInfo
+        ? priceInfo.decimalPlace
+        : currencies[0] === 'USD' || currencies[0] === 'SGD'
+        ? 2
+        : currencies[0] === 'KRW'
+        ? 1000
+        : currencies[0] === 'JPY'
+        ? 100
+        : 2
+
+      return subPrice === 0
+        ? '-'
+        : formatCurrency(
+            formatByRoundingProcedure(
+              subPrice,
+              decimalPlace,
+              priceInfo ? priceInfo?.roundingProcedure! : 0,
+              priceInfo ? priceInfo.currency : currencies[0],
+            ),
+            priceInfo ? priceInfo.currency : currencies[0],
+          )
+    }
+  }
+
   useEffect(() => {
-    sumTotalPrice()
-  }, [])
+    const subscription = itemWatch((value, { name, type }) => {
+      sumTotalPrice()
+    })
+    return () => subscription.unsubscribe()
+  }, [itemWatch])
 
   console.log(languagePairs)
 
@@ -948,7 +990,7 @@ export default function AddNewQuote() {
                         justifyContent: subPrice === 0 ? 'center' : 'flex-end',
                       }}
                     >
-                      {subPrice === 0
+                      {/* {subPrice === 0
                         ? '-'
                         : formatCurrency(
                             formatByRoundingProcedure(
@@ -961,7 +1003,8 @@ export default function AddNewQuote() {
                               priceInfo?.currency ?? 'USD',
                             ),
                             priceInfo?.currency ?? 'USD',
-                          )}
+                          )} */}
+                      {getSubTotal()}
                     </Typography>
                   </Box>
                 </Box>
