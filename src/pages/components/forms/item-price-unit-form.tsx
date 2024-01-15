@@ -220,15 +220,14 @@ export default function ItemPriceUnitForm({
     return _.uniqBy(data, item => item.id + item.groupName)
   }
 
-  const [isNotApplicable, setIsNotApplicable] = useState(
-    getValues(`items.${index}.priceId`) === NOT_APPLICABLE ? true : false,
-  )
+  const [isNotApplicable, setIsNotApplicable] = useState<boolean[]>([])
   // const [showMinimum, setShowMinimum] = useState(getValues(`items.${index}.minimumPriceApplied`))
 
   const checkPriceId = () => {
-    setIsNotApplicable(
-      getValues(`items.${index}.priceId`) === NOT_APPLICABLE ? true : false,
+    const checkPriceIds = getValues(`items`).map(
+      (item, index) => item.priceId === NOT_APPLICABLE,
     )
+    setIsNotApplicable(checkPriceIds)
   }
 
   const updateTotalPrice = () => {
@@ -239,6 +238,8 @@ export default function ItemPriceUnitForm({
 
     // sumTotalPrice()
   }
+
+  console.log(isNotApplicable, 'hihi')
 
   return (
     <Grid
@@ -327,7 +328,7 @@ export default function ItemPriceUnitForm({
                 getEachPrice={getEachPrice}
                 detailName={detailName}
                 type={type}
-                isNotApplicable={isNotApplicable}
+                isNotApplicable={isNotApplicable[index]}
                 onDeletePriceUnit={onDeletePriceUnit}
                 updateTotalPrice={updateTotalPrice}
                 priceData={priceData}
@@ -342,7 +343,7 @@ export default function ItemPriceUnitForm({
                 showCurrency={showCurrency}
               />
             ))}
-            {showMinimum && !isNotApplicable ? (
+            {showMinimum && !isNotApplicable[index] ? (
               <TableRow tabIndex={-1} /* onBlur={() => onItemBoxLeave()} */>
                 <TableCell>
                   <Typography color='primary' fontSize={14}>

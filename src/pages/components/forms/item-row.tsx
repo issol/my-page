@@ -302,7 +302,6 @@ const Row = ({
     // setPriceData(getPriceData())
 
     const data = getValues(itemName)
-    console.log(data, 'bye')
 
     if (!data?.length) return
     let prices = 0
@@ -326,8 +325,6 @@ const Row = ({
         prices *= percentQuantity !== null ? percentQuantity / 100 : 0
       }
     } else {
-      console.log(detail)
-
       prices =
         detail?.unitPrice !== null && detail?.quantity !== null
           ? detail?.unitPrice * detail?.quantity
@@ -337,7 +334,7 @@ const Row = ({
     // if (prices === data[index].prices) return
     const currency =
       getValues(`items.${idx}.initialPrice.currency`) ??
-      getValues(`items.${idx}.detail.${index}`).currency
+      getValues(`items.${idx}.detail.${index}`)?.currency
 
     const roundingPrice = formatByRoundingProcedure(
       prices,
@@ -434,33 +431,85 @@ const Row = ({
 
   function onChangePrice(v: StandardPriceListType, idx: number) {
     if (v?.id) {
-      const source = getValues(`items.${idx}.source`)!
-      const target = getValues(`items.${idx}.target`)!
-      setValue(`items.${idx}.priceId`, v?.id)
-      const priceData = getPriceOptions(source, target).find(
-        price => price.id === v?.id,
-      )
-      const languagePairData = priceData?.languagePairs?.find(
-        i => i.source === source && i.target === target,
-      )
-      const minimumPrice = languagePairData?.minimumPrice
-      const priceFactor = languagePairData?.priceFactor
-      const currency = languagePairData?.currency
-      const rounding = priceData?.roundingProcedure
-      const numberPlace = priceData?.decimalPlace
-      setValue(`items.${idx}.totalPrice`, 0)
-      setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
-      setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
-      setValue(`items.${idx}.initialPrice.currency`, currency!)
-      setValue(`items.${idx}.initialPrice.numberPlace`, numberPlace!)
-      setValue(
-        `items.${idx}.initialPrice.rounding`,
-        //@ts-ignore
-        RoundingProcedureObj[rounding!],
-      )
-      itemTrigger(`items.${idx}`)
-      getTotalPrice()
-      handleMinimumPrice()
+      const items = getValues('items')
+      const currencies = items
+        .filter(item => item.id !== -1 && item.initialPrice?.currency != null) // Exclude items where id is -1 or currency is undefined or null
+        .map(item => item.initialPrice?.currency)
+
+      if (v.id === NOT_APPLICABLE) {
+        const source = getValues(`items.${idx}.source`)!
+        const target = getValues(`items.${idx}.target`)!
+        setValue(`items.${idx}.priceId`, v?.id)
+        const priceData = getPriceOptions(source, target).find(
+          price => price.id === v?.id,
+        )
+        const languagePairData = priceData?.languagePairs?.find(
+          i => i.source === source && i.target === target,
+        )
+        const minimumPrice = languagePairData?.minimumPrice
+        const priceFactor = languagePairData?.priceFactor
+        const currency = languagePairData?.currency
+        const rounding = priceData?.roundingProcedure
+        const numberPlace = priceData?.decimalPlace
+        setValue(`items.${idx}.totalPrice`, 0)
+        setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
+        setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
+        setValue(`items.${idx}.initialPrice.currency`, currency!)
+        setValue(`items.${idx}.initialPrice.numberPlace`, numberPlace!)
+        setValue(
+          `items.${idx}.initialPrice.rounding`,
+          //@ts-ignore
+          RoundingProcedureObj[rounding!],
+        )
+        itemTrigger(`items.${idx}`)
+        getTotalPrice()
+        handleMinimumPrice()
+      } else if (currencies.length > 0 && currencies[0] !== v?.currency) {
+        openModal({
+          type: 'CurrencyMatchModal',
+          children: (
+            <CustomModal
+              title={`Please check the currency of the selected price. You can't use different currencies in an ${from}.`}
+              soloButton
+              rightButtonText='Okay'
+              onClick={() => {
+                closeModal('CurrencyMatchModal')
+                setValue(`items.${idx}.priceId`, null)
+              }}
+              onClose={() => closeModal('CurrencyMatchModal')}
+              vary='error'
+            />
+          ),
+        })
+      } else {
+        const source = getValues(`items.${idx}.source`)!
+        const target = getValues(`items.${idx}.target`)!
+        setValue(`items.${idx}.priceId`, v?.id)
+        const priceData = getPriceOptions(source, target).find(
+          price => price.id === v?.id,
+        )
+        const languagePairData = priceData?.languagePairs?.find(
+          i => i.source === source && i.target === target,
+        )
+        const minimumPrice = languagePairData?.minimumPrice
+        const priceFactor = languagePairData?.priceFactor
+        const currency = languagePairData?.currency
+        const rounding = priceData?.roundingProcedure
+        const numberPlace = priceData?.decimalPlace
+        setValue(`items.${idx}.totalPrice`, 0)
+        setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
+        setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
+        setValue(`items.${idx}.initialPrice.currency`, currency!)
+        setValue(`items.${idx}.initialPrice.numberPlace`, numberPlace!)
+        setValue(
+          `items.${idx}.initialPrice.rounding`,
+          //@ts-ignore
+          RoundingProcedureObj[rounding!],
+        )
+        itemTrigger(`items.${idx}`)
+        getTotalPrice()
+        handleMinimumPrice()
+      }
     }
   }
 
@@ -468,6 +517,7 @@ const Row = ({
 
   const handleMinimumPrice = () => {
     const minimumPrice = getValues(`items.${idx}.minimumPrice`)
+
     const currency = getValues(`items.${idx}.initialPrice.currency`)
     if (minimumPrice && minimumPrice !== 0) {
       handleShowMinimum(true)
@@ -499,7 +549,7 @@ const Row = ({
         type: 'CurrencyMatchModal',
         children: (
           <CustomModal
-            title={`Please check the currency of the price unit. You can't use different currencies in an ${from}`}
+            title={`Please check the currency of the price unit. You can't use different currencies in an ${from}.`}
             soloButton
             rightButtonText='Okay'
             onClick={() => {
@@ -961,8 +1011,8 @@ const Row = ({
                               }
                               getTotalPrice()
                             }
-                            // }
                           }
+                          // }
                         }}
                         value={
                           value === null
