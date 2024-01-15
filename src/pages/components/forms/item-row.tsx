@@ -245,7 +245,9 @@ const Row = ({
   })
 
   function onDeletePriceUnit(index: number) {
-    const findIndex = details.findIndex(item => item.priceUnitId === index)
+    const findIndex = getValues(`items.${idx}.detail`)?.findIndex(
+      item => item.priceUnitId === index,
+    )
 
     if (findIndex !== -1) {
       remove(findIndex)
