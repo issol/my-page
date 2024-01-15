@@ -97,7 +97,7 @@ const Row = ({
   onChangeCurrency,
 }: Props) => {
   const [savedValue, setSavedValue] = useState<ItemDetailType>(currentItem[idx])
-  const [price, setPrice] = useState(savedValue.prices || 0)
+  const [price, setPrice] = useState(savedValue?.prices || 0)
   const containerRef = useRef<HTMLDivElement | null>(null)
   const { openModal, closeModal } = useModal()
 
@@ -110,7 +110,7 @@ const Row = ({
     // getTotalPrice() // 합계 데이터 업데이트 (setValue)
 
     setSavedValue(newPrice) // setValue된 값 가져오기
-    setPrice(newPrice.prices) // setValue된 값에서 price 정보 가져오기
+    setPrice(newPrice?.prices) // setValue된 값에서 price 정보 가져오기
   }
 
   const handleDeletePriceUnit = (idx: number) => {
@@ -342,9 +342,7 @@ const Row = ({
                         ? priceFactor * v.price
                         : v.price
 
-                      if (isNotApplicable) {
-                        return
-                      } else {
+                      if (!isNotApplicable) {
                         update(idx, {
                           ...savedValue,
                           priceUnitId: v.priceUnitId,
@@ -356,6 +354,23 @@ const Row = ({
                             v.unit !== 'Percent'
                               ? Number(v.quantity! * unitPrice)
                               : PercentPrice(v.quantity!),
+                        })
+                      } else {
+                        update(idx, {
+                          ...savedValue,
+                          priceUnitId: v.priceUnitId,
+                          unit: v.unit,
+                          priceFactor: priceFactor?.toString(),
+                          prices:
+                            v.unit !== 'Percent'
+                              ? Number(
+                                  getValues(`${detailName}.${idx}.quantity`) ??
+                                    0 * unitPrice,
+                                )
+                              : PercentPrice(
+                                  getValues(`${detailName}.${idx}.quantity`) ??
+                                    0,
+                                ),
                         })
                       }
 
