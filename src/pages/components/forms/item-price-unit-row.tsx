@@ -192,8 +192,6 @@ const Row = ({
 
   const [open, setOpen] = useState(false)
 
-  console.log(savedValue)
-
   return (
     <TableRow
       tabIndex={-1}

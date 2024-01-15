@@ -866,8 +866,6 @@ export default function AddNewOrder() {
             })),
           ) || []
 
-        console.log(transformedItems)
-
         const uniqueTransformedItems = Array.from(
           new Set(
             transformedItems.map(item =>
@@ -875,8 +873,6 @@ export default function AddNewOrder() {
             ),
           ),
         ).map(item => JSON.parse(item))
-
-        console.log(uniqueTransformedItems)
 
         const result = uniqueTransformedItems.map(uniqueItem => {
           const originalItem = transformedItems.find(
@@ -892,15 +888,16 @@ export default function AddNewOrder() {
           }
         })
 
-        console.log(result)
-
         setItem('languagePairs', result, { shouldDirty: true })
+        if (result.length > 0 && prices) {
+          const priceInfo =
+            prices?.find(value => value.id === result[0]?.price?.id) ?? null
+
+          setPriceInfo(priceInfo)
+        }
       })
     }
   }
-  useEffect(() => {
-    console.log(languagePairs)
-  }, [languagePairs])
 
   async function onCopyQuote(id: number | null) {
     // const priceList = await getClientPriceList({})
@@ -1237,21 +1234,49 @@ export default function AddNewOrder() {
     }
   }
 
-  useEffect(() => {
-    if (languagePairs.length > 0 && prices) {
-      const priceInfo =
-        prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
-      setPriceInfo(priceInfo)
-    }
-  }, [prices, languagePairs])
-
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
     shouldWarn: isWarn,
     toUrl: '/orders/order-list',
   })
 
-  console.log(languagePairs)
+  const getSubTotal = () => {
+    const items = getItem('items')
+    const currencies = items.flatMap(
+      item =>
+        item.detail
+          ? item.detail
+              .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
+
+              .map(detailItem => detailItem.currency)
+          : [], // Return an empty array if detail is undefined
+    )
+
+    if (currencies.length === 0) return '-'
+    else {
+      const decimalPlace = priceInfo
+        ? priceInfo.decimalPlace
+        : currencies[0] === 'USD' || currencies[0] === 'SGD'
+        ? 2
+        : currencies[0] === 'KRW'
+        ? 1000
+        : currencies[0] === 'JPY'
+        ? 100
+        : 2
+
+      return subPrice === 0
+        ? '-'
+        : formatCurrency(
+            formatByRoundingProcedure(
+              subPrice,
+              decimalPlace,
+              priceInfo ? priceInfo?.roundingProcedure! : 0,
+              priceInfo ? priceInfo.currency : currencies[0],
+            ),
+            priceInfo ? priceInfo.currency : currencies[0],
+          )
+    }
+  }
 
   return (
     <Grid container spacing={6}>
@@ -1478,17 +1503,18 @@ export default function AddNewOrder() {
                       variant='subtitle1'
                       sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
-                      {subPrice === 0
+                      {/* {subPrice === 0
                         ? '-'
                         : formatCurrency(
                             formatByRoundingProcedure(
                               subPrice,
-                              priceInfo?.decimalPlace!,
-                              priceInfo?.roundingProcedure!,
+                              priceInfo ? priceInfo?.decimalPlace! : 2,
+                              priceInfo ? priceInfo?.roundingProcedure! : 0,
                               priceInfo?.currency ?? 'USD',
                             ),
                             priceInfo?.currency ?? 'USD',
-                          )}
+                          )} */}
+                      {getSubTotal()}
                     </Typography>
                   </Box>
                 </Box>
