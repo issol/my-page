@@ -300,6 +300,7 @@ const Row = ({
     // setPriceData(getPriceData())
 
     const data = getValues(itemName)
+    console.log(data, 'bye')
 
     if (!data?.length) return
     let prices = 0
@@ -323,9 +324,11 @@ const Row = ({
         prices *= percentQuantity !== null ? percentQuantity / 100 : 0
       }
     } else {
+      console.log(detail)
+
       prices =
-        detail.unitPrice !== null && detail.quantity !== null
-          ? detail.unitPrice * detail.quantity
+        detail?.unitPrice !== null && detail?.quantity !== null
+          ? detail?.unitPrice * detail?.quantity
           : 0
     }
 
