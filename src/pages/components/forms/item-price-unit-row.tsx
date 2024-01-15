@@ -291,6 +291,7 @@ const Row = ({
                 subPriceUnits: [],
                 groupName: '',
               }
+
               const findValue = allPriceUnits?.current?.find(
                 item => item.priceUnitId === value,
               )
@@ -300,6 +301,7 @@ const Row = ({
                 : showValue
                 ? showValue
                 : null
+
               return (
                 <Autocomplete
                   fullWidth
@@ -322,7 +324,9 @@ const Row = ({
                   )}
                   getOptionLabel={option => {
                     const title =
-                      option?.quantity && option?.quantity >= 2
+                      !isNotApplicable &&
+                      option?.quantity &&
+                      option?.quantity >= 2
                         ? `${option?.quantity} ${option.title}`
                         : option.title
                     return title
@@ -340,18 +344,23 @@ const Row = ({
                         ? priceFactor * v.price
                         : v.price
 
-                      update(idx, {
-                        ...savedValue,
-                        priceUnitId: v.priceUnitId,
-                        quantity: v.quantity ?? 0,
-                        unit: v.unit,
-                        unitPrice: unitPrice,
-                        priceFactor: priceFactor?.toString(),
-                        prices:
-                          v.unit !== 'Percent'
-                            ? Number(v.quantity! * unitPrice)
-                            : PercentPrice(v.quantity!),
-                      })
+                      if (isNotApplicable) {
+                        return
+                      } else {
+                        update(idx, {
+                          ...savedValue,
+                          priceUnitId: v.priceUnitId,
+                          quantity: v.quantity ?? 0,
+                          unit: v.unit,
+                          unitPrice: unitPrice,
+                          priceFactor: priceFactor?.toString(),
+                          prices:
+                            v.unit !== 'Percent'
+                              ? Number(v.quantity! * unitPrice)
+                              : PercentPrice(v.quantity!),
+                        })
+                      }
+
                       if (v.subPriceUnits && v.subPriceUnits.length > 0) {
                         v.subPriceUnits.forEach(item => {
                           const unitPrice = priceFactor
