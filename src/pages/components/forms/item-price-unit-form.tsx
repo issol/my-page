@@ -30,6 +30,7 @@ import {
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
   UseFormGetValues,
+  UseFormWatch,
 } from 'react-hook-form'
 
 // ** helpers
@@ -104,6 +105,10 @@ type Props = {
   >[]
   showCurrency?: boolean
   setDarkMode?: boolean
+  watch: UseFormWatch<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
 }
 
 const StyledTableCell = styled(TableCell)<{ dark: boolean }>(
@@ -148,6 +153,7 @@ export default function ItemPriceUnitForm({
   showCurrency,
   setDarkMode,
   remove,
+  watch,
 }: Props) {
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
@@ -238,8 +244,6 @@ export default function ItemPriceUnitForm({
 
     // sumTotalPrice()
   }
-
-  console.log(isNotApplicable, 'hihi')
 
   return (
     <Grid
@@ -341,6 +345,7 @@ export default function ItemPriceUnitForm({
                 append={append}
                 remove={remove}
                 showCurrency={showCurrency}
+                watch={watch}
               />
             ))}
             {showMinimum && !isNotApplicable[index] ? (
@@ -480,7 +485,7 @@ export default function ItemPriceUnitForm({
               </Typography>
             ) : (
               <Typography fontWeight='bold' fontSize={14}>
-                {isNotApplicable
+                {isNotApplicable[index]
                   ? getValues().items?.[0]?.detail?.[0]?.currency
                     ? formatCurrency(
                         formatByRoundingProcedure(

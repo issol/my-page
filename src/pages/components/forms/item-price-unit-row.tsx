@@ -26,6 +26,7 @@ import {
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
   UseFormGetValues,
+  UseFormWatch,
 } from 'react-hook-form'
 import { NestedPriceUnitType } from './item-price-unit-form'
 import { languageType } from '@src/pages/quotes/add-new'
@@ -72,6 +73,10 @@ interface Props {
     detail: Array<ItemDetailType>,
     detailIndex: number,
   ) => void
+  watch: UseFormWatch<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
 }
 
 const Row = ({
@@ -95,7 +100,9 @@ const Row = ({
   showCurrency,
   initialPriceName,
   onChangeCurrency,
+  watch,
 }: Props) => {
+  const prevValueRef = useRef()
   const [savedValue, setSavedValue] = useState<ItemDetailType>(currentItem[idx])
   const [price, setPrice] = useState(savedValue?.prices || 0)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -107,6 +114,7 @@ const Row = ({
     const newPrice = getValues(`${detailName}.${idx}`)
     if (type !== 'detail' && type !== 'invoiceDetail')
       getEachPrice(idx, isNotApplicable) //폼 데이터 업데이트 (setValue)
+
     // getTotalPrice() // 합계 데이터 업데이트 (setValue)
 
     setSavedValue(newPrice) // setValue된 값 가져오기
@@ -170,25 +178,38 @@ const Row = ({
     updateTotalPrice()
   }, [])
 
-  useEffect(() => {
-    // row 외부가 클릭될때 마다 액션을 준다
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        // 필요한 액션
-        updatePrice()
-        updateTotalPrice()
-      }
-    }
+  // useEffect(() => {
+  //   const subscription = watch((value, { name, type }) => {
+  //     if (name?.startsWith(`items.${index}.detail.${idx}`)) {
+  //       console.log(value, name, type, 'watch')
 
-    window.addEventListener('mousedown', handleOutsideClick)
+  //       updatePrice()
+  //       updateTotalPrice()
+  //       prevValueRef.current = value as unknown as typeof prevValueRef.current
+  //     }
+  //   })
 
-    return () => {
-      window.removeEventListener('mousedown', handleOutsideClick)
-    }
-  }, [])
+  //   return () => subscription.unsubscribe()
+  // }, [watch, index, idx, updatePrice, updateTotalPrice])
+  // useEffect(() => {
+  //   // row 외부가 클릭될때 마다 액션을 준다
+  //   const handleOutsideClick = (event: MouseEvent) => {
+  //     if (
+  //       containerRef.current &&
+  //       !containerRef.current.contains(event.target as Node)
+  //     ) {
+  //       // 필요한 액션
+  //       updatePrice()
+  //       updateTotalPrice()
+  //     }
+  //   }
+
+  //   window.addEventListener('mousedown', handleOutsideClick)
+
+  //   return () => {
+  //     window.removeEventListener('mousedown', handleOutsideClick)
+  //   }
+  // }, [])
 
   const [open, setOpen] = useState(false)
 
@@ -330,11 +351,15 @@ const Row = ({
                     return title
                   }}
                   onChange={(e, v) => {
+                    console.log(e, 'bye')
+                    console.log(v, 'bye')
+
                     if (v) {
                       const priceFactor = Number(
                         getValues(`items.${index}`).priceFactor,
                       )
                       setOpen(false)
+                      console.log(isNotApplicable, 'bye')
 
                       onChange(v.priceUnitId)
 

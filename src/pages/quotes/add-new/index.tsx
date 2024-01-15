@@ -431,7 +431,6 @@ export default function AddNewQuote() {
     }
   }
 
-  console.log(languagePairs)
   function onDeleteLanguagePair(row: languageType) {
     const isDeletable = !getItem()?.items?.length
       ? true
@@ -501,8 +500,6 @@ export default function AddNewQuote() {
     if (getItem('languagePairs').length === 0) return true
     return getItem('languagePairs')?.some(item => !item?.price)
   }
-
-  console.log(requestProjectDueDate)
 
   function addNewItem() {
     const teamMembers = getTeamValues()?.teams
@@ -666,8 +663,6 @@ export default function AddNewQuote() {
       requestId: requestId ?? null,
     }
 
-    // console.log(stepOneData)
-
     createQuotesInfo(stepOneData)
       .then(res => {
         if (res.id) {
@@ -696,7 +691,6 @@ export default function AddNewQuote() {
       supervisorId: undefined,
       members: [],
     }
-    // console.log(data.teams)
 
     data.teams.forEach(item => {
       if (item.type === 'supervisorId') {
@@ -780,8 +774,6 @@ export default function AddNewQuote() {
     })
     return () => subscription.unsubscribe()
   }, [itemWatch])
-
-  console.log(languagePairs)
 
   return (
     <Grid container spacing={6}>
@@ -941,6 +933,7 @@ export default function AddNewQuote() {
                   type='create'
                   sumTotalPrice={sumTotalPrice}
                   from='quote'
+                  itemWatch={itemWatch}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -1076,8 +1069,6 @@ export default function AddNewQuote() {
                         sx={{ maxWidth: '120px', padding: 0 }}
                         inputProps={{ inputMode: 'decimal' }}
                         onChange={e => {
-                          console.log(Number(e.target.value))
-
                           if (e.target.value.length > 10) return
                           else if (e.target.value === '') onChange(null)
                           else onChange(Number(e.target.value))

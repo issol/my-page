@@ -126,10 +126,6 @@ export default function AddLanguagePairForm({
 }: Props) {
   const { openModal, closeModal } = useModal()
 
-  console.log(languagePairs)
-
-  console.log(getItem(`languagePairs.0.price`))
-
   const languageList = getGloLanguage()
   const defaultValue = { value: '', label: '' }
 
@@ -202,11 +198,8 @@ export default function AddLanguagePairForm({
       pair =>
         pair.price !== null && JSON.stringify(pair.price) !== JSON.stringify(v),
     )
-    console.log(firstPricedPair, 'hi')
 
     const targetCurrency = firstPricedPair?.price?.currency ?? null
-
-    console.log(targetCurrency, 'hi')
 
     if (targetCurrency) {
       languagePairs.forEach(pair => {
@@ -452,7 +445,6 @@ export default function AddLanguagePairForm({
                                 field: { value, onChange },
                                 fieldState: { isDirty },
                               }) => {
-                                console.log(value)
                                 return (
                                   <Autocomplete
                                     value={
@@ -480,7 +472,6 @@ export default function AddLanguagePairForm({
                                         //   selectNotApplicableModal()
                                         // } else {
                                         onChange(v)
-                                        console.log(v, 'bye')
 
                                         const copyPairs = [
                                           ...getItem('languagePairs'),

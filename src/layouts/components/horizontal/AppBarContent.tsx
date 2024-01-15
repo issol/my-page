@@ -127,8 +127,6 @@ const AppBarContent = (props: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
 
-  console.log(router)
-
   // const { data: notifications, refetch } = useGetNotificationList({
   //   isShowUnread: 0,
   //   take: 15,
@@ -175,10 +173,10 @@ const AppBarContent = (props: Props) => {
         <Box>
           {!process.env.NEXT_PUBLIC_DISPLAY_MODE
             ? 'local'
-            : process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Development' || process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Test'
-              ? process.env.NEXT_PUBLIC_DISPLAY_MODE
-              : null
-          }
+            : process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Development' ||
+              process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Test'
+            ? process.env.NEXT_PUBLIC_DISPLAY_MODE
+            : null}
           <UserDropdown settings={settings} />
         </Box>
       )}
