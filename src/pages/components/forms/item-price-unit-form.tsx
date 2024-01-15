@@ -30,6 +30,7 @@ import {
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
   UseFormGetValues,
+  UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
 
@@ -72,6 +73,10 @@ type Props = {
     items: ItemType[]
     languagePairs: languageType[]
   }>
+  setValue: UseFormSetValue<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
   append: UseFieldArrayAppend<
     { items: ItemType[]; languagePairs: languageType[] },
     `items.${number}.detail`
@@ -82,7 +87,7 @@ type Props = {
   >
   remove: UseFieldArrayRemove
   getTotalPrice: () => void
-  getEachPrice: (idx: number, isNotApplicable?: boolean) => void
+  // getEachPrice: (idx: number, isNotApplicable?: boolean) => void
   onDeletePriceUnit: (idx: number) => void
   onChangeCurrency: (
     currency: CurrencyType,
@@ -134,10 +139,11 @@ export default function ItemPriceUnitForm({
   details,
   priceData,
   getValues,
+  setValue,
   append,
   update,
   getTotalPrice,
-  getEachPrice,
+  // getEachPrice,
   onDeletePriceUnit,
   onChangeCurrency,
   // onItemBoxLeave,
@@ -329,7 +335,7 @@ export default function ItemPriceUnitForm({
                 nestSubPriceUnits={nestSubPriceUnits}
                 currentItem={currentItem}
                 getValues={getValues}
-                getEachPrice={getEachPrice}
+                // getEachPrice={getEachPrice}
                 detailName={detailName}
                 type={type}
                 isNotApplicable={isNotApplicable[index]}
@@ -346,6 +352,7 @@ export default function ItemPriceUnitForm({
                 remove={remove}
                 showCurrency={showCurrency}
                 watch={watch}
+                setValue={setValue}
               />
             ))}
             {showMinimum && !isNotApplicable[index] ? (

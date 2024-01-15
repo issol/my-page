@@ -26,6 +26,7 @@ import {
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
   UseFormGetValues,
+  UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
 import { NestedPriceUnitType } from './item-price-unit-form'
@@ -42,8 +43,12 @@ interface Props {
     items: ItemType[]
     languagePairs: languageType[]
   }>
+  setValue: UseFormSetValue<{
+    items: ItemType[]
+    languagePairs: languageType[]
+  }>
   currentItem: ItemDetailType[]
-  getEachPrice: (idx: number, isNotApplicable?: boolean | undefined) => void
+  // getEachPrice: (idx: number, isNotApplicable?: boolean | undefined) => void
   detailName: `items.${number}.detail`
   type: string
   isNotApplicable: boolean
@@ -84,7 +89,7 @@ const Row = ({
   nestSubPriceUnits,
   currentItem,
   getValues,
-  getEachPrice,
+  // getEachPrice,
   detailName,
   type,
   isNotApplicable,
@@ -101,6 +106,7 @@ const Row = ({
   initialPriceName,
   onChangeCurrency,
   watch,
+  setValue,
 }: Props) => {
   const prevValueRef = useRef()
   const [savedValue, setSavedValue] = useState<ItemDetailType>(currentItem[idx])
@@ -109,6 +115,72 @@ const Row = ({
   const { openModal, closeModal } = useModal()
 
   const options = nestSubPriceUnits(idx)
+
+  function getEachPrice(index: number, isNotApplicable?: boolean) {
+    const data = getValues(`items.${idx}.detail`)
+
+    if (!data?.length) return
+    let prices = 0
+    const detail = data?.[index]
+
+    if (detail && detail.unit === 'Percent') {
+      const percentQuantity = data[index].quantity
+
+      const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
+      const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
+      if (itemMinimumPrice && showMinimum) {
+        prices =
+          percentQuantity !== null
+            ? (percentQuantity / 100) * itemMinimumPrice
+            : 0
+      } else {
+        const generalPrices = data.filter(item => item.unit !== 'Percent')
+        generalPrices.forEach(item => {
+          prices += item.unitPrice ?? 0
+        })
+        prices *= percentQuantity !== null ? percentQuantity / 100 : 0
+      }
+    } else {
+      prices =
+        detail?.unitPrice !== null && detail?.quantity !== null
+          ? detail?.unitPrice * detail?.quantity
+          : 0
+    }
+
+    // if (prices === data[index].prices) return
+    const currency =
+      getValues(`items.${idx}.initialPrice.currency`) ??
+      getValues(`items.${idx}.detail.${index}`)?.currency
+
+    const roundingPrice = formatByRoundingProcedure(
+      prices,
+      priceData?.decimalPlace!
+        ? priceData?.decimalPlace!
+        : currency === 'USD' || currency === 'SGD'
+        ? 2
+        : 1000,
+      priceData?.roundingProcedure && priceData?.roundingProcedure !== ''
+        ? priceData?.roundingProcedure!
+        : 0,
+      currency,
+    )
+
+    // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
+    // 스탠다드 프라이스의 언어페어 정보 : languagePairs
+    setValue(`items.${idx}.detail.${index}.currency`, currency, {
+      shouldDirty: true,
+      shouldValidate: false,
+    })
+    // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
+    setValue(
+      `items.${idx}.detail.${index}.prices`,
+      isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
+      {
+        shouldDirty: true,
+        shouldValidate: false,
+      },
+    )
+  }
 
   const updatePrice = () => {
     const newPrice = getValues(`${detailName}.${idx}`)
@@ -178,38 +250,26 @@ const Row = ({
     updateTotalPrice()
   }, [])
 
-  // useEffect(() => {
-  //   const subscription = watch((value, { name, type }) => {
-  //     if (name?.startsWith(`items.${index}.detail.${idx}`)) {
-  //       console.log(value, name, type, 'watch')
+  useEffect(() => {
+    // row 외부가 클릭될때 마다 액션을 준다
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node) &&
+        !(event.target instanceof HTMLInputElement) &&
+        !(event.target instanceof HTMLLIElement)
+      ) {
+        // 필요한 액션
+        updatePrice()
+        updateTotalPrice()
+      }
+    }
+    window.addEventListener('mousedown', handleOutsideClick)
 
-  //       updatePrice()
-  //       updateTotalPrice()
-  //       prevValueRef.current = value as unknown as typeof prevValueRef.current
-  //     }
-  //   })
-
-  //   return () => subscription.unsubscribe()
-  // }, [watch, index, idx, updatePrice, updateTotalPrice])
-  // useEffect(() => {
-  //   // row 외부가 클릭될때 마다 액션을 준다
-  //   const handleOutsideClick = (event: MouseEvent) => {
-  //     if (
-  //       containerRef.current &&
-  //       !containerRef.current.contains(event.target as Node)
-  //     ) {
-  //       // 필요한 액션
-  //       updatePrice()
-  //       updateTotalPrice()
-  //     }
-  //   }
-
-  //   window.addEventListener('mousedown', handleOutsideClick)
-
-  //   return () => {
-  //     window.removeEventListener('mousedown', handleOutsideClick)
-  //   }
-  // }, [])
+    return () => {
+      window.removeEventListener('mousedown', handleOutsideClick)
+    }
+  }, [])
 
   const [open, setOpen] = useState(false)
 
