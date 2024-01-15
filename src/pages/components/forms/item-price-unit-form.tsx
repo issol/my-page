@@ -1,5 +1,5 @@
 // ** react
-import { useRef, useState, useEffect, useMemo } from 'react'
+import { useRef, useState } from 'react'
 
 // ** styled components
 import Paper from '@mui/material/Paper'
@@ -87,6 +87,7 @@ type Props = {
     currency: CurrencyType,
     index: number,
     detail: Array<ItemDetailType>,
+    detailIndex: number,
   ) => void
   // onItemBoxLeave: () => void
   isValid: boolean
@@ -148,12 +149,11 @@ export default function ItemPriceUnitForm({
   setDarkMode,
   remove,
 }: Props) {
-  console.log(getValues(`items.${index}.detail`))
-
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
   const { openModal, closeModal } = useModal()
+  const [id, setId] = useState(0)
 
   const currentItem = getValues(`${detailName}`) || []
   const currentInitialItem = getValues(`${initialPriceName}`)
@@ -422,6 +422,7 @@ export default function ItemPriceUnitForm({
             <Button
               onClick={() => {
                 append({
+                  id: id + index,
                   priceUnitId: -1,
                   quantity: null,
                   unitPrice: null,
@@ -431,6 +432,7 @@ export default function ItemPriceUnitForm({
                   currency:
                     getValues(`items.${index}.detail.${0}.currency`) ?? null,
                 })
+                setId(id + 1)
               }}
               variant='contained'
               disabled={!isValid}

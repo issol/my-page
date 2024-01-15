@@ -477,7 +477,38 @@ const Row = ({
     currency: CurrencyType,
     index: number,
     detail: Array<ItemDetailType>,
+    detailIndex: number,
   ) => {
+    const items = getValues('items')
+    const currencies = items.flatMap(
+      item =>
+        item.detail
+          ? item.detail
+              .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
+              .filter(detailItem => !detail.find(d => d.id === detailItem.id)) // Exclude the recently added detail
+              .map(detailItem => detailItem.currency)
+          : [], // Return an empty array if detail is undefined
+    )
+    if (currencies.length > 0 && currencies[0] !== currency) {
+      openModal({
+        type: 'CurrencyMatchModal',
+        children: (
+          <CustomModal
+            title={`Please check the currency of the price unit. You can't use different currencies in an ${from}`}
+            soloButton
+            rightButtonText='Okay'
+            onClick={() => {
+              closeModal('CurrencyMatchModal')
+              setValue(`items.${index}.detail.${detailIndex}.currency`, null)
+            }}
+            onClose={() => closeModal('CurrencyMatchModal')}
+            vary='error'
+          />
+        ),
+      })
+      return
+    }
+
     //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
     detail.map((priceUnit, idx) => {
       setValue(`items.${index}.detail.${idx}.currency`, currency)

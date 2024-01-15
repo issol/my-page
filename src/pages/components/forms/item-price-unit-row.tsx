@@ -70,6 +70,7 @@ interface Props {
     currency: CurrencyType,
     index: number,
     detail: Array<ItemDetailType>,
+    detailIndex: number,
   ) => void
 }
 
@@ -488,10 +489,15 @@ const Row = ({
         type === 'invoiceCreate' ? (
           <Box display='flex' alignItems='center' gap='8px' height={38}>
             <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-              {isNotApplicable || showCurrency
+              {/* {isNotApplicable || showCurrency
                 ? `${getCurrencyMark(
                     getValues(`${initialPriceName}.currency`),
                   )} ${getValues(`${initialPriceName}.currency`) ?? '-'}`
+                : null} */}
+              {isNotApplicable || showCurrency
+                ? `${getCurrencyMark(
+                    getValues(`${detailName}.${idx}.currency`),
+                  )} ${getValues(`${detailName}.${idx}.currency`) ?? '-'}`
                 : null}
             </Typography>
           </Box>
@@ -516,6 +522,7 @@ const Row = ({
                         v.value,
                         index,
                         getValues(`items.${index}.detail`) ?? [],
+                        idx,
                       )
                       updatePrice()
                       updateTotalPrice()

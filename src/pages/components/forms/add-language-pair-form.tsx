@@ -496,7 +496,7 @@ export default function AddLanguagePairForm({
                                       <TextField
                                         {...params}
                                         placeholder='Price*'
-                                        error={isDirty && value === null}
+                                        error={value === null}
                                       />
                                     )}
                                     renderGroup={params => (

@@ -119,116 +119,116 @@ export const getClientRequestDetail = async (
   id: number,
 ): Promise<RequestDetailType> => {
   const { data } = await axios.get(`/api/enough/u/request/${id}`)
-  const testData: RequestDetailType = {
-    id: 160,
-    corporationId: 'R-000218',
-    status: 'Request created',
-    statusUpdatedAt: '2024-01-08T02:03:51.282Z',
-    notes: 'Notes to LSP',
-    sampleFiles: [
-      {
-        fileName: 'Sample file.txt',
-        filePath: '/request/57/sampleFile/Sample file.txt',
-        fileSize: 12,
-        fileExtension: 'txt',
-      },
-    ],
-    canceledReason: null,
-    items: [
-      {
-        id: 220,
+  // const testData: RequestDetailType = {
+  //   id: 160,
+  //   corporationId: 'R-000218',
+  //   status: 'Request created',
+  //   statusUpdatedAt: '2024-01-08T02:03:51.282Z',
+  //   notes: 'Notes to LSP',
+  //   sampleFiles: [
+  //     {
+  //       fileName: 'Sample file.txt',
+  //       filePath: '/request/57/sampleFile/Sample file.txt',
+  //       fileSize: 12,
+  //       fileExtension: 'txt',
+  //     },
+  //   ],
+  //   canceledReason: null,
+  //   items: [
+  //     {
+  //       id: 220,
 
-        sourceLanguage: 'ko',
-        targetLanguage: ['en', 'ja'],
-        quantity: 0,
-        desiredDueDate: '2024-01-30T15:00:00.000Z',
-        desiredDueTimezone: {
-          code: '',
-          label: 'Asia/Seoul',
-          phone: '',
-        },
-        sortingOrder: 1,
+  //       sourceLanguage: 'ko',
+  //       targetLanguage: ['en', 'ja'],
+  //       quantity: 0,
+  //       desiredDueDate: '2024-01-30T15:00:00.000Z',
+  //       desiredDueTimezone: {
+  //         code: '',
+  //         label: 'Asia/Seoul',
+  //         phone: '',
+  //       },
+  //       sortingOrder: 1,
 
-        name: '[Sample] 클라이언트가 발송한 리퀘스트',
-        category: 'Documents/Text',
-        serviceType: ['Translation'],
-        unit: 'CAT discount',
-      },
-      {
-        id: 221,
+  //       name: '[Sample] 클라이언트가 발송한 리퀘스트',
+  //       category: 'Documents/Text',
+  //       serviceType: ['Translation'],
+  //       unit: 'CAT discount',
+  //     },
+  //     {
+  //       id: 221,
 
-        sourceLanguage: 'ko',
-        targetLanguage: ['en', 'br'],
-        quantity: 0,
-        desiredDueDate: '2024-01-30T15:00:00.000Z',
-        desiredDueTimezone: {
-          code: '',
-          label: 'Asia/Seoul',
-          phone: '',
-        },
-        sortingOrder: 1,
+  //       sourceLanguage: 'ko',
+  //       targetLanguage: ['en', 'br'],
+  //       quantity: 0,
+  //       desiredDueDate: '2024-01-30T15:00:00.000Z',
+  //       desiredDueTimezone: {
+  //         code: '',
+  //         label: 'Asia/Seoul',
+  //         phone: '',
+  //       },
+  //       sortingOrder: 1,
 
-        name: '[Sample] 클라이언트가 발송한 리퀘스트',
-        category: 'Documents/Text',
-        serviceType: ['Translation'],
-        unit: 'CAT discount',
-      },
-    ],
-    contactPerson: {
-      id: 10,
+  //       name: '[Sample] 클라이언트가 발송한 리퀘스트',
+  //       category: 'Documents/Text',
+  //       serviceType: ['Translation'],
+  //       unit: 'CAT discount',
+  //     },
+  //   ],
+  //   contactPerson: {
+  //     id: 10,
 
-      userId: 57,
-      personType: 'Ms.',
-      firstName: 'Olivia',
-      middleName: 'Grace',
-      lastName: 'Carter',
-      department: 'Globalization Coordination',
-      jobTitle: 'Cultural Connectivity Manager',
-      timezone: {
-        label: 'Asia/Seoul',
-        code: '',
-        phone: '',
-      },
-      phone: null,
-      mobile: '82|0100000000',
-      fax: '82|01012341234',
-      email: 'enufftestclient@gmail.com',
-      memo: '',
-      isReferred: true,
-    },
+  //     userId: 57,
+  //     personType: 'Ms.',
+  //     firstName: 'Olivia',
+  //     middleName: 'Grace',
+  //     lastName: 'Carter',
+  //     department: 'Globalization Coordination',
+  //     jobTitle: 'Cultural Connectivity Manager',
+  //     timezone: {
+  //       label: 'Asia/Seoul',
+  //       code: '',
+  //       phone: '',
+  //     },
+  //     phone: null,
+  //     mobile: '82|0100000000',
+  //     fax: '82|01012341234',
+  //     email: 'enufftestclient@gmail.com',
+  //     memo: '',
+  //     isReferred: true,
+  //   },
 
-    requestedAt: '2024-01-08T02:03:51.282Z',
+  //   requestedAt: '2024-01-08T02:03:51.282Z',
 
-    lsp: {
-      id: '61c8e2ac-1d2e-428e-8654-c05f777b231f',
+  //   lsp: {
+  //     id: '61c8e2ac-1d2e-428e-8654-c05f777b231f',
 
-      name: 'GloZ',
+  //     name: 'GloZ',
 
-      email: 'gloz@testCompanyEmail.com',
-    },
-    client: {
-      clientId: 10,
-      corporationId: 'C-000019',
+  //     email: 'gloz@testCompanyEmail.com',
+  //   },
+  //   client: {
+  //     clientId: 10,
+  //     corporationId: 'C-000019',
 
-      name: '[Test] 글로지',
-      email: 'gloz@glozinc.com',
-      phone: '82|024567890',
-      mobile: '82|01012345678',
-      fax: '82|023456789',
-      websiteLink: '',
-      status: 'Contacted',
-      timezone: {
-        code: '',
-        phone: '',
-        label: 'Asia/Seoul',
-      },
+  //     name: '[Test] 글로지',
+  //     email: 'gloz@glozinc.com',
+  //     phone: '82|024567890',
+  //     mobile: '82|01012345678',
+  //     fax: '82|023456789',
+  //     websiteLink: '',
+  //     status: 'Contacted',
+  //     timezone: {
+  //       code: '',
+  //       phone: '',
+  //       label: 'Asia/Seoul',
+  //     },
 
-      isTaxable: false,
-      tax: null,
-    },
-  }
-  // return data
-  return testData
+  //     isTaxable: false,
+  //     tax: null,
+  //   },
+  // }
+  return data
+  // return testData
 }
 
 export const updateRequest = async (
