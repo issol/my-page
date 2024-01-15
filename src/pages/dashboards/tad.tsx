@@ -42,17 +42,17 @@ import find from 'lodash/find'
 
 dayjs.extend(weekday)
 
-export const mergeData = (array1: Array<Object>, array2: Array<Object>) => {
-  let tempArray1 = array1
-  let tempArray2 = array2
-  if (array1.length === 0) {
-    tempArray1 = array2
-    tempArray2 = array1
-  }
-  return tempArray1.reduce<Array<Record<string, any>>>(
-    (acc, element, index) => [...acc, { ...element, ...tempArray2[index] }],
-    [],
-  )
+export const mergeData = (
+  array1: Array<Object>,
+  array2: Array<Object>,
+): Array<Record<string, any>> => {
+  const maxLength = Math.max(array1.length, array2.length)
+
+  return Array.from({ length: maxLength }).map((_, index) => {
+    const item1 = array1[index] || {}
+    const item2 = array2[index] || {}
+    return { ...item1, ...item2 }
+  })
 }
 
 const TADDashboards = () => {
@@ -122,6 +122,32 @@ const TADDashboards = () => {
         })?.label || '-',
     }))
     const mergeData1 = mergeData(fullLangPool, jobTypeAndRole)
+
+    mergeData1[0] = {
+      ...mergeData1[0],
+      'Application Status': 'Applied',
+      'Application Status Number': OngoingCount?.applied || 0,
+      '  ': '',
+    }
+    mergeData1[1] = {
+      ...mergeData1[1],
+      'Application Status': 'Passed',
+      'Application Status Number': OngoingCount?.passed || 0,
+      '  ': '',
+    }
+    mergeData1[2] = {
+      ...mergeData1[2],
+      'Application Status': 'Ongoing',
+      'Application Status Number': OngoingCount?.ongoing || 0,
+      '  ': '',
+    }
+    mergeData1[3] = {
+      ...mergeData1[3],
+      'Application Status': 'Failed',
+      'Application Status Number': OngoingCount?.failed || 0,
+      '  ': '',
+    }
+
     const mergeData2 = mergeData(mergeData1, jobTypes)
     const mergeData3 = mergeData(mergeData2, roles)
     const mergeData4 = mergeData(mergeData3, sourceLanguages)
@@ -131,25 +157,8 @@ const TADDashboards = () => {
       'Onboarded Pros': Onboarding?.onboarded || 0,
       'Onboarding in progress': Onboarding?.onboarding || 0,
       'Failed Pros': Onboarding?.failed || 0,
-      '        ': '',
+      '    ': '',
       ...mergeData5[0],
-      'Application Status': 'Applied',
-      'Application Status Number': OngoingCount?.applied || 0,
-    }
-    mergeData5[1] = {
-      ...mergeData5[1],
-      'Application Status': 'Passed',
-      'Application Status Number': OngoingCount?.passed || 0,
-    }
-    mergeData5[2] = {
-      ...mergeData5[2],
-      'Application Status': 'Ongoing',
-      'Application Status Number': OngoingCount?.ongoing || 0,
-    }
-    mergeData5[3] = {
-      ...mergeData5[3],
-      'Application Status': 'Failed',
-      'Application Status Number': OngoingCount?.failed || 0,
     }
 
     setCSVData(mergeData5)

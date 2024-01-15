@@ -226,6 +226,7 @@ const LPMDashboards = () => {
 
     const mergeData1 = mergeData(clients, languagePairs)
     const mergeData2 = mergeData(mergeData1, categories)
+
     const mergeData3 = mergeData(mergeData2, serviceTypes)
     const mergeData4 = mergeData(mergeData3, expertises)
     const mergeData5 = mergeData(mergeObjectData3, mergeData4)
@@ -242,7 +243,15 @@ const LPMDashboards = () => {
     }
 
     setCSVData(mergeData5)
-  }, [receivables, payables, clients, languagePairs, serviceTypes, expertises])
+  }, [
+    receivables,
+    payables,
+    clients,
+    languagePairs,
+    serviceTypes,
+    categories,
+    expertises,
+  ])
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>

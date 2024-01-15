@@ -6,7 +6,7 @@ import { FormProvider, useWatch } from 'react-hook-form'
 import React, { useEffect, useMemo, useState } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 import weekday from 'dayjs/plugin/weekday'
-import { CSVDataType, Office, RatioItem } from '@src/types/dashboard'
+import { CSVDataType, Office } from '@src/types/dashboard'
 import { useRouter } from 'next/router'
 import { getDateFormat } from '@src/pages/dashboards/lpm'
 

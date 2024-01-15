@@ -135,6 +135,7 @@ const SwitchTypeHeader = ({
     hiddenMemberView()
   }, [dashboardStateValue.userInfo])
 
+  console.log('USER', dashboardStateValue.userInfo)
   return (
     <>
       <Grid

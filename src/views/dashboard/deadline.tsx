@@ -75,9 +75,9 @@ const DeadlineContent = (params: Omit<TotalAmountQuery, 'amountType'>) => {
               fontSize='12px'
               color='rgba(100, 198, 35, 1)'
             >
-              {data?.onTimeAverage?.days || 0} day(s){' '}
-              {data?.onTimeAverage?.hours || 0} hour(s){' '}
-              {data?.onTimeAverage?.minutes || 0} min(s)
+              {Math.abs(data?.onTimeAverage?.days || 0)} day(s){' '}
+              {Math.abs(data?.onTimeAverage?.hours || 0)} hour(s){' '}
+              {Math.abs(data?.onTimeAverage?.minutes || 0)} min(s)
             </Typography>
           </Box>
         </Box>
@@ -122,9 +122,9 @@ const DeadlineContent = (params: Omit<TotalAmountQuery, 'amountType'>) => {
               fontSize='12px'
               color='rgba(255, 77, 73, 1)'
             >
-              {data?.delayedAverage?.days || 0} day(s){' '}
-              {data?.delayedAverage?.hours || 0} hour(s){' '}
-              {data?.delayedAverage?.minutes || 0} min(s)
+              {Math.abs(data?.delayedAverage?.days || 0)} day(s){' '}
+              {Math.abs(data?.delayedAverage?.hours || 0)} hour(s){' '}
+              {Math.abs(data?.delayedAverage?.minutes || 0)} min(s)
             </Typography>
           </Box>
         </Box>
