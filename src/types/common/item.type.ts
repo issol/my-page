@@ -56,7 +56,7 @@ export type ItemDetailType = {
   unitPrice: number | null
   prices: number | string
   unit: string
-  currency: CurrencyType
+  currency: CurrencyType | null
   priceFactor?: string | null
   initialPriceUnit?: PriceUnitType
   title?: string

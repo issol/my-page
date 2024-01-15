@@ -113,6 +113,6 @@ export type SaveJobPricesParamsType = {
   jobId: number
   priceId: number
   totalPrice: number
-  currency: CurrencyType
+  currency: CurrencyType | null
   detail: ItemDetailType[]
 }
