@@ -212,7 +212,14 @@ const LanguagePoolBarChart = ({
               if (value < 55) return '#4C4E64DE'
               return '#fff'
             },
-            offset: 35,
+            offset: context => {
+              const index = context.dataIndex
+              const value = context.dataset.data[index] || 0
+              if (value > 10 && value < 100) return 28
+              if (value > 100 && value < 1000) return 34
+              if (value < 1000) return 35
+              return 45
+            },
           },
         },
       },

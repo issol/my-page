@@ -164,7 +164,7 @@ const TotalProgressChart = (props: TotalChartProps) => {
           <TableBody>
             {(items || []).map(([, row], index) => (
               <TableRow
-                key={row.name}
+                key={`${row.name}-${index}`}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
               >
                 <Cell color={colors[index]} className='body__cell'>
@@ -181,7 +181,10 @@ const TotalProgressChart = (props: TotalChartProps) => {
                     {CurrencyUnit[data?.currency || ('$' as Currency)]}
                     {(row?.sum || 0).toLocaleString()}
                     <div className='ratio_chip flex__center'>
-                      {row?.ratio || '0.0'}%
+                      {Math.ceil(row?.ratio || 0) === 100
+                        ? '100'
+                        : row?.ratio || '0.0'}
+                      %
                     </div>
                   </div>
                 </Cell>

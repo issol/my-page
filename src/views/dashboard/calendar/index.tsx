@@ -17,7 +17,6 @@ import { CalendarEventType } from '@src/types/common/calendar.type'
 import { useSettings } from '@src/@core/hooks/useSettings'
 import uniqBy from 'lodash/uniqBy'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
-import { useRouter } from 'next/router'
 import find from 'lodash/find'
 
 const statusObject: Record<string, number> = {
@@ -36,11 +35,10 @@ const statusObject: Record<string, number> = {
 }
 
 const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
-  const router = useRouter()
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const { containerRef, containerWidth } = useCalenderResize()
-  const { data, isSuccess } = useProJonCalendar(params)
+
   const { data: jobStatusList } = useGetStatusList('Job')
   const { data: jobAssignmentStatusList } = useGetStatusList('JobAssignment')
   const { settings } = useSettings()
@@ -53,6 +51,14 @@ const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   const [statuses, setStatuses] = useState<
     Array<{ color: string; value: number; label: string; sort: number }>
   >([])
+
+  const [year, setYear] = useState<number>(params.year)
+  const [month, setMonth] = useState<number>(params.month)
+
+  const { data, isSuccess } = useProJonCalendar({
+    year: year,
+    month: month,
+  })
 
   useEffect(() => {
     if (
@@ -160,8 +166,13 @@ const ProCalendar = (params: Omit<TotalAmountQuery, 'amountType'>) => {
             />
           </Suspense>
         </Box>
-        <Box ref={containerRef} sx={{ width: '100%', height: '876px' }}>
-          <Calendar containerWidth={containerWidth + 40} event={event} />
+        <Box ref={containerRef} sx={{ width: '100%', height: '946px' }}>
+          <Calendar
+            containerWidth={containerWidth + 40}
+            event={event}
+            setYear={setYear}
+            setMonth={setMonth}
+          />
         </Box>
       </CalendarWrapper>
     </Box>

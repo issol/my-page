@@ -430,7 +430,13 @@ export const useExpectedIncome = (params: ExpectedIncomeQuery) => {
 
 export const useTotalAmount = (params: TotalAmountQuery) => {
   return useQuery<TotalAmountItem>(
-    [DEFAULT_QUERY_NAME, 'TotalAmount', params.month, params.year],
+    [
+      DEFAULT_QUERY_NAME,
+      'TotalAmount',
+      params.amountType,
+      params.month,
+      params.year,
+    ],
     () => getTotalAmount(params),
     {
       suspense: true,

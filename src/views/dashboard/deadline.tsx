@@ -11,8 +11,11 @@ import Chip from '@mui/material/Chip'
 import { useDeadlineCompliance } from '@src/queries/dashnaord.query'
 import { TotalAmountQuery } from '@src/types/dashboard'
 import { getProDateFormat } from '@src/views/dashboard/list/currencyByDate'
+import DashboardForSuspense, {
+  DashboardErrorFallback,
+} from '@src/views/dashboard/suspense'
 
-const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
+const DeadlineContent = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   const { data } = useDeadlineCompliance(params)
 
   return (
@@ -130,4 +133,17 @@ const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   )
 }
 
+const Deadline = (props: Omit<TotalAmountQuery, 'amountType'>) => {
+  return (
+    <DashboardForSuspense
+      sectionTitle='Deadline compliance'
+      refreshDataQueryKey='DeadlineCompliance'
+      titleProps={{
+        subTitle: getProDateFormat(props.year, props.month),
+      }}
+    >
+      <DeadlineContent {...props} />
+    </DashboardForSuspense>
+  )
+}
 export default Deadline

@@ -13,6 +13,7 @@ export interface DashboardSuspenseProps {
   handleClick?: () => void
   setOpenInfoDialog?: (open: boolean, key: string) => void
   titleProps?: Partial<SectionTitleProps>
+  contentHeight?: string
 }
 
 export const DashboardErrorFallback = ({
@@ -21,6 +22,7 @@ export const DashboardErrorFallback = ({
   handleClick,
   refreshDataQueryKey,
   titleProps,
+  contentHeight,
 }: DashboardSuspenseProps) => {
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
@@ -32,19 +34,23 @@ export const DashboardErrorFallback = ({
           handleClick={handleClick}
         />
       </Box>
-      <TryAgain refreshDataQueryKey={refreshDataQueryKey} />
+      <TryAgain
+        refreshDataQueryKey={refreshDataQueryKey}
+        contentHeight={contentHeight}
+      />
     </Box>
   )
 }
 
+type PickList = 'refreshDataQueryKey' | 'contentHeight'
 export const TryAgain = ({
   refreshDataQueryKey,
-}: Pick<DashboardSuspenseProps, 'refreshDataQueryKey'>) => {
+  contentHeight = '70%',
+}: Pick<DashboardSuspenseProps, PickList>) => {
   const queryClient = useQueryClient()
 
   const onChange = () => {
     if (typeof refreshDataQueryKey === 'string') {
-      console.log('#@$@#$@#', refreshDataQueryKey)
       queryClient.refetchQueries({
         queryKey: [DEFAULT_QUERY_NAME, refreshDataQueryKey],
       })
@@ -63,7 +69,7 @@ export const TryAgain = ({
       alignItems='center'
       justifyContent='center'
       gap='20px'
-      sx={{ width: '100%', height: '70%' }}
+      sx={{ width: '100%', height: contentHeight }}
     >
       <IconButton
         color='primary'
