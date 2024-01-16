@@ -295,6 +295,7 @@ export default function AddNewQuote() {
       const project = getProjectInfoValues()
 
       const { items } = requestData || []
+
       const transformedItems =
         items.flatMap(item =>
           item.targetLanguage.map(target => ({
@@ -323,6 +324,7 @@ export default function AddNewQuote() {
         minimumPrice: null,
         minimumPriceApplied: false,
         priceFactor: 0,
+        currency: item.price.currency,
       }))
 
       setItem('items', defaultItems, { shouldDirty: true })
@@ -525,6 +527,7 @@ export default function AddNewQuote() {
       minimumPrice: null,
       minimumPriceApplied: false,
       priceFactor: 0,
+      currency: null,
     })
   }
 

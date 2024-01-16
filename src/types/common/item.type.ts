@@ -21,6 +21,7 @@ export type ItemType = Omit<
   orderId?: number
   idx?: number
   indexing?: number
+  currency: CurrencyType | null
 }
 
 export type AnalysisFileType = {
