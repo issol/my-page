@@ -292,6 +292,7 @@ export default function QuotesLanguageItemsDetail({
       minimumPrice: null,
       minimumPriceApplied: false,
       priceFactor: 0,
+      currency: null,
     })
   }
   // console.log(isEditMode)

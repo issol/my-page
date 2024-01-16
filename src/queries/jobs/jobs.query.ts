@@ -17,7 +17,10 @@ import {
   FilterPostType,
   FilterType as ListFilterType,
 } from '@src/pages/orders/job-list/list-view/list-view'
-import { DetailFilterResponseType, DetailFilterType } from '@src/pages/orders/job-list/tracker-view/[id]'
+import {
+  DetailFilterResponseType,
+  DetailFilterType,
+} from '@src/pages/orders/job-list/tracker-view/[id]'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
@@ -55,7 +58,7 @@ export const useGetJobHistory = (
   id: number,
   filter: { skip: number; take: number },
 ) => {
-  return useQuery(['jobHistory', filter], () => getJobHistory(id, filter), {
+  return useQuery(['jobHistory', id, filter], () => getJobHistory(id, filter), {
     staleTime: 60 * 1000, // 1
     suspense: false,
     keepPreviousData: true,
