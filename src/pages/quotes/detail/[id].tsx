@@ -591,6 +591,7 @@ export default function QuotesDetail() {
             minimumPrice: item.minimumPrice,
             minimumPriceApplied: item.minimumPriceApplied,
             priceFactor: 0,
+            currency: item.currency || null,
           }
         }) as ItemType[]
 
