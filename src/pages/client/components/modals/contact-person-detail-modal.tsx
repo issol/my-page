@@ -11,9 +11,12 @@ import {
   Typography,
 } from '@mui/material'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { contryCodeAndPhoneNumberFormatter, splitContryCodeAndPhoneNumber } from '@src/shared/helpers/phone-number-helper'
+import {
+  contryCodeAndPhoneNumberFormatter,
+  splitContryCodeAndPhoneNumber,
+} from '@src/shared/helpers/phone-number-helper'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 type Props = {
   data: ContactPersonType
@@ -80,9 +83,7 @@ export default function ContactPersonDetailModal({
             <InfoContainer>
               <Label>Time zone</Label>
               <Typography variant='body2'>
-                {data?.timezone?.code
-                  ? data?.timezone.label
-                  : '-'}
+                {data?.timezone?.code ? data?.timezone.label : '-'}
               </Typography>
             </InfoContainer>
           </Grid>
@@ -93,9 +94,8 @@ export default function ContactPersonDetailModal({
                 {!data?.phone
                   ? '-'
                   : contryCodeAndPhoneNumberFormatter(
-                    splitContryCodeAndPhoneNumber(data.phone)
-                  )
-                }
+                      splitContryCodeAndPhoneNumber(data.phone),
+                    )}
               </Typography>
             </InfoContainer>
           </Grid>
@@ -107,9 +107,8 @@ export default function ContactPersonDetailModal({
                 {!data?.mobile
                   ? '-'
                   : contryCodeAndPhoneNumberFormatter(
-                    splitContryCodeAndPhoneNumber(data.mobile)
-                  )
-                }
+                      splitContryCodeAndPhoneNumber(data.mobile),
+                    )}
               </Typography>
             </InfoContainer>
           </Grid>
@@ -120,9 +119,8 @@ export default function ContactPersonDetailModal({
                 {!data?.fax
                   ? '-'
                   : contryCodeAndPhoneNumberFormatter(
-                    splitContryCodeAndPhoneNumber(data.fax)
-                  )
-                }
+                      splitContryCodeAndPhoneNumber(data.fax),
+                    )}
               </Typography>
             </InfoContainer>
           </Grid>

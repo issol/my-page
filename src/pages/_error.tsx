@@ -1,6 +1,5 @@
 import { Box, BoxProps, Button, Link, Typography } from '@mui/material'
 import BlankLayout from '@src/@core/layouts/BlankLayout'
-import FooterIllustrations from '@src/views/pages/misc/FooterIllustrations'
 import { NextPage } from 'next'
 import { ReactNode } from 'react'
 import styled from 'styled-components'

@@ -1,6 +1,6 @@
 import { Box, Grid, Typography } from '@mui/material'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { ContentGrid, CopyTextRow } from '@src/views/pro/payment-info'
 
 interface BillingAddressProps {

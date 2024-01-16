@@ -1,7 +1,7 @@
 // ** React Imports
 import { useState, Fragment } from 'react'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** mui
 import { Card, Grid, TablePagination, Tooltip, Typography } from '@mui/material'

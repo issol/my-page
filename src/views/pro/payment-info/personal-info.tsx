@@ -2,7 +2,7 @@ import { Button, Card, CardHeader, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import Icon from '@src/@core/components/icon'
 import { IconButton } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import {
   FileNameType,
   PositionType,

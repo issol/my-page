@@ -1,11 +1,9 @@
-import styled from 'styled-components'
 import CustomChip from 'src/@core/components/mui/chip'
 import { Chip } from '@mui/material'
 import { StatusType } from '@src/apis/client.api'
 
 import { QuoteStatusType } from '@src/types/common/quotes.type'
 import {
-  InvoicePayableStatusType,
   InvoiceProStatusType,
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
@@ -24,6 +22,7 @@ import { JobStatusType } from '@src/types/jobs/jobs.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import { ProAppliedRolesStatusType } from '@src/types/pro/pro-applied-roles'
 import { TestStatusColor } from '@src/shared/const/chipColors'
+import styled from '@emotion/styled'
 
 export function renderStatusChip(status: string) {
   const color =

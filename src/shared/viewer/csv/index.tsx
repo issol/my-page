@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import papaparse from 'papaparse'
 import { DocRenderer } from '@cyntler/react-doc-viewer'
 import { textFileLoader } from '../utils/fileLoaders'

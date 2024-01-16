@@ -60,7 +60,7 @@ const List = <T extends { id: number; orderId?: number }>(
           }}
         >
           <DefaultDataGrid<T>
-            title={`Ongoing ${type}s`}
+            overlayTitle={`There are no ${type}s`}
             data={data}
             columns={statusColumn}
             defaultPageSize={6}

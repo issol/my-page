@@ -33,7 +33,7 @@ import {
   UseFormWatch,
 } from 'react-hook-form'
 import { useRecoilValueLoadable } from 'recoil'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {

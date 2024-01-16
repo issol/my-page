@@ -2,22 +2,20 @@
 import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
+import FullCalendar from '@fullcalendar/react'
 
 // ** types
-
 import { ClientProjectCalendarEventType } from '@src/apis/client.api'
 import { Box, Typography } from '@mui/material'
-import styled from 'styled-components'
 import { calendarDefaultOptions } from '@src/shared/const/calender'
 import {
-  CalenderProps,
   Calender,
+  CalenderProps,
   CustomEvent,
 } from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import Switch from '@mui/material/Switch'
+import { CalendarOptions, DatesSetArg } from '@fullcalendar/core'
 
 type Props = {
   event: Array<ClientProjectCalendarEventType>

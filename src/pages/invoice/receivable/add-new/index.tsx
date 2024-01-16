@@ -17,7 +17,7 @@ import {
   Typography,
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** react hook form
 import { useForm, useFieldArray } from 'react-hook-form'

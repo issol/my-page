@@ -8,7 +8,7 @@ import {
 } from 'react'
 
 // ** styled components
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** MUI Imports
 import Tab from '@mui/material/Tab'

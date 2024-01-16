@@ -5,7 +5,7 @@ export type PronounceType = 'SHE' | 'HE' | 'THEY' | 'NONE'
 export interface CountryType {
   code: string
   label: string
-  phone: string
+  phone?: string
 }
 
 export interface TimeZoneType {

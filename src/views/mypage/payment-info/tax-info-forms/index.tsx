@@ -207,6 +207,7 @@ export default function TaxInfoForm({
                   anchorEl={anchorRef.current}
                   role={undefined}
                   transition
+                  placeholder={undefined}
                 >
                   {({ TransitionProps }) => (
                     <Grow {...TransitionProps}>

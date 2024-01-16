@@ -67,7 +67,7 @@ import { ProRolePair, RoleList } from 'src/shared/const/role/roles'
 
 import { getProfileSchema } from 'src/types/schema/profile.schema'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** types
 import { FileType } from 'src/types/common/file.type'

@@ -1,6 +1,6 @@
 import Card from '@mui/material/Card'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import Divider from '@mui/material/Divider'
 
 import CardHeader from '@mui/material/CardHeader'

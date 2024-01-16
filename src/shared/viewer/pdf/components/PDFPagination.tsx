@@ -1,11 +1,11 @@
 import { IStyledProps } from '@cyntler/react-doc-viewer'
 import Button from '@mui/material/Button'
 import React, { FC, useContext } from 'react'
-import styled from 'styled-components'
 
 import { PDFContext } from '../state'
 import { setCurrentPage } from '../state/actions'
 import { NextPDFNavIcon, PrevPDFNavIcon } from './icons'
+import styled from 'styled-components'
 
 const PDFPagination: FC<{}> = () => {
   const {

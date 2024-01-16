@@ -295,6 +295,7 @@ export const ConvertButtonGroup = ({
         role={undefined}
         transition
         disablePortal
+        placeholder={undefined}
       >
         {({ TransitionProps, placement }) => (
           <Grow

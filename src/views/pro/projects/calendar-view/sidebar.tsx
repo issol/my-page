@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 
 // ** styles
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import UseBgColor, { UseBgColorType } from '@src/@core/hooks/useBgColor'
 
 // ** types

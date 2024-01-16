@@ -15,7 +15,7 @@ import { useGetDeleteAccountReasonList } from '@src/queries/userInfo/userInfo-qu
 
 import { Fragment, useState } from 'react'
 import { useMutation } from 'react-query'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 type Props = {
   onCancel: () => void

@@ -23,7 +23,7 @@ import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -269,7 +269,9 @@ export default function Filters({
                         setFilter({ ...filter, dueDate: date?.toString() })
                       }
                       placeholderText='Due date'
-                      customInput={<CustomInput label='Due date' icon='calendar' />}
+                      customInput={
+                        <CustomInput label='Due date' icon='calendar' />
+                      }
                     />
                   </DatePickerWrapper>
                 </FormControl>

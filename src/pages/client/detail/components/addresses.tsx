@@ -17,7 +17,7 @@ import {
 } from '@mui/material'
 import CustomChip from 'src/@core/components/mui/chip'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** types & schema
 import { ClientDetailType } from '@src/types/client/client'

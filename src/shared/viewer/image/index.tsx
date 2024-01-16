@@ -1,6 +1,6 @@
 import { DocRenderer } from '@cyntler/react-doc-viewer'
 import React from 'react'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 const ImageProxyRenderer: DocRenderer = props => {
   const {

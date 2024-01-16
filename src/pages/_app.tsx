@@ -1,7 +1,6 @@
 // ** React Imports
-import React, { ReactNode, Suspense, useEffect, useState } from 'react'
+import React, { ReactNode, Suspense, useState } from 'react'
 // import * as Sentry from '@sentry/nextjs'
-import { Integrations } from '@sentry/tracing'
 import * as Sentry from '@sentry/nextjs'
 import * as SentryBrowser from '@sentry/browser'
 
@@ -40,21 +39,14 @@ import AclGuard from 'src/@core/components/auth/AclGuard'
 import ThemeComponent from 'src/@core/theme/ThemeComponent'
 import AuthGuard from 'src/@core/components/auth/AuthGuard'
 import GuestGuard from 'src/@core/components/auth/GuestGuard'
-import WindowWrapper from 'src/@core/components/window-wrapper'
 
-import {
-  RecoilRoot,
-  atom,
-  selector,
-  useRecoilState,
-  useRecoilValueLoadable,
-} from 'recoil'
+import { RecoilRoot } from 'recoil'
 
 // ** Spinner Import
 import Spinner from 'src/@core/components/spinner'
+import FallbackSpinner from 'src/@core/components/spinner'
 
 // ** Contexts
-
 import {
   SettingsConsumer,
   SettingsProvider,
@@ -74,7 +66,6 @@ import 'prismjs/components/prism-tsx'
 
 // ** React Perfect Scrollbar Style
 import 'react-perfect-scrollbar/dist/css/styles.css'
-
 import 'src/iconify-bundle/icons-bundle-react'
 
 // ** Global css styles
@@ -90,24 +81,16 @@ import {
 } from 'react-query'
 
 import ErrorFallback from 'src/@core/components/error/error-fallback'
-import FallbackSpinner from 'src/@core/components/spinner'
 
 /* push notification for demo */
-import usePushNotification from '../hooks/pushNotification'
-
 import {
-  ClientErrorHandler,
   ApiErrorHandler,
+  ClientErrorHandler,
   StatusCode,
 } from 'src/shared/sentry-provider'
-
-import logger from '@src/@core/utils/logger'
 import ModalContainer from '@src/@core/components/modal-container'
 import { ErrorBoundary } from 'react-error-boundary'
 import DetailNoUser from '@src/@core/components/error/detail-no-user'
-import useAuth from '@src/hooks/useAuth'
-import AuthProvider from '@src/shared/auth/auth-provider'
-import { log } from 'npmlog'
 import { getUserDataFromBrowser } from '@src/shared/auth/storage'
 
 /* msw mock server */

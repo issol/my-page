@@ -2,7 +2,7 @@
 import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
+import FullCalendar from '@fullcalendar/react'
 
 // ** types
 import { ClientInvoiceCalendarEventType } from '@src/apis/client.api'
@@ -15,6 +15,7 @@ import {
 import { Box, Typography } from '@mui/material'
 import Switch from '@mui/material/Switch'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
+import { CalendarOptions, DatesSetArg } from '@fullcalendar/core'
 
 const ClientInvoiceCalendar = (
   props: CalenderProps<ClientInvoiceCalendarEventType, boolean>,

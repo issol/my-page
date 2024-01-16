@@ -1,7 +1,7 @@
 import { DocRenderer } from '@cyntler/react-doc-viewer'
 import { log } from 'console'
 import React from 'react'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 const MSDocRenderer: DocRenderer = ({ mainState: { currentDocument } }) => {
   if (!currentDocument) return null

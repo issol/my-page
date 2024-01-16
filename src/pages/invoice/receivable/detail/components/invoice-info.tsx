@@ -19,7 +19,7 @@ import {
   JobTypeChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import Icon from '@src/@core/components/icon'
 import {
   FullDateHelper,

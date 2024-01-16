@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { convertLanguageCodeToPair } from 'src/shared/helpers/language.helper'

@@ -2,7 +2,7 @@
 import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
+import FullCalendar from '@fullcalendar/react'
 
 // ** style components
 // ** types
@@ -20,6 +20,7 @@ import { Typography } from '@mui/material'
 import Switch from '@mui/material/Switch'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import { calendarDefaultOptions } from '@src/shared/const/calender'
+import { CalendarOptions, DatesSetArg } from '@fullcalendar/core'
 
 const ReceivableCalendar = (
   props: CalenderProps<InvoiceReceivableListType, InvoiceReceivableFilterType>,
@@ -153,7 +154,7 @@ const ReceivableCalendar = (
           </Box>
         </Box>
       </CustomCalenderToolbar>
-      <FullCalendar {...calendarOptions} `datesSet={handleMonthChange} `/>
+      <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
     </Calender>
   )
 }
