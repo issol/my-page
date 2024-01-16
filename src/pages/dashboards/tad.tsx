@@ -46,6 +46,9 @@ export const mergeData = (
   array1: Array<Object>,
   array2: Array<Object>,
 ): Array<Record<string, any>> => {
+  array1 = array1 || []
+  array2 = array2 || []
+
   const maxLength = Math.max(array1.length, array2.length)
 
   return Array.from({ length: maxLength }).map((_, index) => {

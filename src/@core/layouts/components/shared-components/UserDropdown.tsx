@@ -132,8 +132,8 @@ const UserDropdown = (props: Props) => {
     router.push('/dashboards/lpm')
   }
 
-  const handleLogout = () => {
-    auth.logout()
+  const handleLogout = async () => {
+    await auth.logout()
     handleDropdownClose()
   }
 
