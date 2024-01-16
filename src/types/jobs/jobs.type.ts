@@ -84,6 +84,7 @@ export type JobsTrackerDetailType = {
 export type JobHistoryType = {
   // id: number
   // version: number
+  requestNumber: number
   historyId: number
   requestor: string
   requestedAt: string
