@@ -25,6 +25,7 @@ import AssignPro from '../assign-pro/assign-pro'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
+import { useQueryClient } from 'react-query'
 
 type Props = {
   id: number
@@ -68,6 +69,7 @@ export default function HistoryDetail({
   const [value, setValue] = useState<string>('jobInfo')
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
+  const queryClient = useQueryClient()
 
   const [proListSkip, setProListSkip] = useState(0)
   const [proPageSize, setProPageSize] = useState(10)
@@ -144,7 +146,7 @@ export default function HistoryDetail({
 
   const onClickClose = () => {
     //history-detail 모달을 닫고 JobDetailViewModal 모달을 연다
-
+    queryClient.invalidateQueries(['jobHistory'])
     closeModal('history-detail')
     openModal({
       type: 'JobDetailViewModal',
