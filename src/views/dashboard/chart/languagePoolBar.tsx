@@ -1,35 +1,49 @@
-import { useTheme } from '@mui/material/styles'
 import TablePagination from '@mui/material/TablePagination'
-
-import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import styled from '@emotion/styled'
 import React, { useEffect, useMemo, useState } from 'react'
-import { useLanguagePool } from '@src/queries/dashboard/dashnaord-lpm'
+import { useLanguagePool } from '@src/queries/dashnaord.query'
 import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
-import { ApexOptions } from 'apexcharts'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { useRouter } from 'next/router'
 import { CSVDataRecordProps } from '@src/types/dashboard'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import find from 'lodash/find'
-import { toCapitalize } from '@src/pages/dashboards/lpm'
+
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  ChartOptions,
+  Legend,
+  LinearScale,
+  Tooltip,
+} from 'chart.js'
+import { Bar } from 'react-chartjs-2'
+import ChartDataLabels from 'chartjs-plugin-datalabels'
+import DashboardForSuspense, {
+  DashboardErrorFallback,
+} from '@src/views/dashboard/suspense'
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
 interface TADLanguagePoolBarChartProps extends CSVDataRecordProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
-const TADLanguagePoolBarChart = ({
+const DISPLAY = true
+const CHART_AREA = true
+
+const LanguagePoolBarChart = ({
   dataRecord,
   setDataRecord,
   setOpenInfoDialog,
 }: TADLanguagePoolBarChartProps) => {
   const router = useRouter()
-  const theme = useTheme()
   const gloLanguage = getGloLanguage()
 
-  const [page, setPage] = React.useState(0)
-  const [rowsPerPage, setRowPerPage] = React.useState(6)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowPerPage] = useState(6)
   const [filter, setFilter] = useState<'source' | 'target' | 'pair'>('pair')
 
   const { data, isLoading } = useLanguagePool(filter)
@@ -78,156 +92,170 @@ const TADLanguagePoolBarChart = ({
     setRowPerPage(parseInt(event.target.value, 10))
   }
 
-  const [series, labels, max] = useMemo(() => {
+  const [series, labels, seriesRatioData] = useMemo(() => {
     const sliceData = data?.report.slice(
       page * rowsPerPage,
       page * rowsPerPage + 6,
     )
 
-    let title = `${toCapitalize(filter)} Languages`
-    if (filter === 'pair') title = 'Language Pairs'
-
     const seriesData = [
       {
-        name: `${title}`,
         data: sliceData?.map(item => item.count) || [],
+        backgroundColor: [
+          '#787EFF',
+          '#83E542',
+          '#FDBE42',
+          '#40CDFA',
+          '#FF625F',
+          '#6D788D',
+        ],
+        barThickness: 27,
       },
     ]
+
+    const seriesRatioData = sliceData?.map(item => item.ratio) || []
+
     const labels =
       sliceData?.map(item => {
         if (filter === 'source') {
-          return (
-            find(gloLanguage, {
-              value: item.sourceLanguage,
-            })?.label || '-'
-          )
+          let label = find(gloLanguage, {
+            value: item.sourceLanguage,
+          })?.label?.split('(')
+
+          if (label && label[1]) {
+            label[1] = `(${label[1]}`
+          }
+
+          return label || '-'
         }
 
-        if (filter === 'target')
-          return (
-            find(gloLanguage, {
-              value: item.targetLanguage,
-            })?.label || '-'
-          )
-        return [item.sourceLanguage, ` → ${item.targetLanguage}`]
+        if (filter === 'target') {
+          let label = find(gloLanguage, {
+            value: item.targetLanguage,
+          })?.label?.split('(')
+
+          if (label && label[1]) {
+            label[1] = `(${label[1]}`
+          }
+
+          return label || '-'
+        }
+        return [
+          (item.sourceLanguage || '-').toUpperCase(),
+          `→ ${item.targetLanguage || '-'}`.toUpperCase(),
+        ]
       }) || []
 
-    const max = Math.max(...seriesData[0].data)
-
-    return [seriesData, labels, max]
+    return [seriesData, labels, seriesRatioData]
   }, [data, page])
-
-  //@ts-ignore
-  // NOTE: dataLabel formmater 에 두줄 민드는 기능이 지원하나 타입스크립트에서 지원안함. 차후 CSS로 조정 필요
-  const options: ApexOptions = useMemo(() => {
-    const x = Number(max.toString(10)[0])
-    const n = max.toString(10).slice(1).length
-    const maxNumber = (x + 1) * Math.pow(10, n)
-
-    const chartOffset = filter === 'pair' ? -5 : 0
-    const xaxisOffset = filter === 'pair' ? 3 : 0
-    const align = filter === 'pair' ? 'left' : 'right'
-
-    return {
-      chart: {
-        width: '100%',
-        toolbar: { show: false },
-        offsetX: chartOffset,
-      },
-      plotOptions: {
-        bar: {
-          borderRadius: 8,
-          barHeight: '70%',
-          horizontal: true,
-          distributed: true,
-          startingShape: 'rounded',
-          dataLabels: {
-            position: 'top',
-          },
-        },
-      },
-      dataLabels: {
-        enabled: true,
-        textAnchor: 'start',
-        style: {
-          fontFamily: 'Inter',
-          fontSize: '12px',
-          fontWeight: 600,
-          colors: ['#000'],
-        },
-
-        formatter: function (val, { seriesIndex, dataPointIndex, w }) {
-          return [
-            `${val}`,
-            `(${
-              data?.report[page * rowsPerPage + dataPointIndex].ratio || 0
-            }%)`,
-          ]
-        },
-        offsetY: -10,
-        offsetX: 40,
-      },
-      grid: {
-        strokeDashArray: 8,
-        borderColor: theme.palette.divider,
-        xaxis: {
-          lines: { show: true },
-        },
-        yaxis: {
-          lines: { show: false },
-        },
-      },
-      colors: [
-        '#666CFF',
-        '#72E128',
-        '#FDB528',
-        '#26C6F9',
-        '#FF4D49',
-        '#6D788D',
-      ],
-      legend: { show: false },
-      states: {
-        hover: {
-          filter: { type: 'none' },
-        },
-        active: {
-          filter: { type: 'none' },
-        },
-      },
-      tooltip: {
-        enabled: true,
-      },
-      xaxis: {
-        min: 0,
-        max: maxNumber,
-        axisTicks: { show: false },
-        axisBorder: { show: false },
-        categories: labels,
-        tickAmount: 5,
-      },
-      yaxis: {
-        labels: {
-          align: align,
-          offsetX: xaxisOffset,
-          offsetY: 6,
-          style: {
-            fontFamily: 'Inter',
-            fontWeight: 600,
-            fontSize: '12px',
-            cssClass: 'data-label',
-            colors: theme.palette.text.primary,
-          },
-          maxWidth: 120,
-          minWidth: 120,
-        },
-      },
-    }
-  }, [labels])
 
   const getSubTitle = () => {
     if (filter === 'source') return 'Source languages'
     if (filter === 'target') return 'Target languages'
     return 'Language pairs'
+  }
+
+  const chartOptions: ChartOptions<'bar'> = {
+    indexAxis: 'y' as const,
+    elements: {
+      bar: {
+        borderWidth: 0,
+        borderRadius: 10,
+      },
+    },
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+        labels: {
+          font: {
+            size: 14,
+            weight: '600',
+          },
+        },
+      },
+      datalabels: {
+        anchor: context => {
+          const index = context.dataIndex
+          const value = context.dataset.data[index] || 0
+          if (value < 55) return 'end'
+          return 'start'
+        },
+        align: 'start',
+        clamp: true,
+        offset: 10,
+        font: {
+          weight: 'bold',
+        },
+        labels: {
+          name: {
+            align: 'right',
+            formatter: function (value, context) {
+              return `${value}`
+            },
+            color: context => {
+              const index = context.dataIndex
+              const value = context.dataset.data[index] || 0
+              if (value < 55) return '#4C4E64DE'
+              return '#fff'
+            },
+          },
+          value: {
+            align: 'right',
+            formatter: function (value, context) {
+              return `(${seriesRatioData[context.dataIndex] || 0}%)`
+            },
+            color: context => {
+              const index = context.dataIndex
+              const value = context.dataset.data[index] || 0
+              if (value < 55) return '#4C4E64DE'
+              return '#fff'
+            },
+            offset: context => {
+              const index = context.dataIndex
+              const value = context.dataset.data[index] || 0
+              if (value > 10 && value < 100) return 28
+              if (value > 100 && value < 1000) return 34
+              if (value < 1000) return 35
+              return 45
+            },
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        min: 0,
+        max: 200,
+        beginAtZero: true,
+
+        grid: {
+          display: DISPLAY,
+          drawOnChartArea: CHART_AREA,
+          drawTicks: false,
+          color: '#EAEAEC',
+          borderDash: [10],
+          drawBorder: false,
+        },
+        ticks: {
+          stepSize: 40,
+        },
+      },
+      y: {
+        grid: {
+          display: false,
+          drawBorder: false,
+        },
+        ticks: {
+          font: {
+            size: 14,
+            weight: '600',
+          },
+          crossAlign: 'far',
+        },
+      },
+    },
   }
 
   return (
@@ -280,14 +308,15 @@ const TADLanguagePoolBarChart = ({
           />
         </Box>
       </Box>
-      <div style={{ position: 'relative' }}>
-        <div style={{ display: 'flex' }}>
-          <CustomBarChart
-            type='bar'
-            width={400}
-            height={350}
-            series={series}
-            options={options}
+      <div>
+        <div style={{ display: 'flex', height: '330px' }}>
+          <Bar
+            plugins={[ChartDataLabels]}
+            options={chartOptions}
+            data={{
+              labels,
+              datasets: series,
+            }}
           />
         </div>
         <CustomPagination
@@ -303,41 +332,36 @@ const TADLanguagePoolBarChart = ({
   )
 }
 
-const CustomBarChart = styled(ReactApexcharts)(() => {
-  return {
-    '& .apexcharts-canvas > svg': {
-      width: 500,
-    },
-    '& .data-label': {
-      fontSize: '12px',
-      fontWeight: 600,
-      textTransform: 'uppercase',
-    },
+const TADLanguagePoolBarChart = (props: TADLanguagePoolBarChartProps) => {
+  const router = useRouter()
 
-    '& .apexcharts-data-labels text': {
-      textAnchor: 'middle',
-      dominantBaseline: 'middle',
-    },
-
-    '& .apexcharts-data-labels text > tspan:last-of-type': {
-      fill: 'rgba(76, 78, 100, 0.60)',
-      fontWeight: '400',
-    },
-  }
-})
+  return (
+    <DashboardForSuspense
+      {...props}
+      handleClick={() => router.push('/pro')}
+      setOpenInfoDialog={props.setOpenInfoDialog}
+      sectionTitle='Language pool'
+      refreshDataQueryKey='LanguagePool'
+      titleProps={{
+        subTitle: `Total 0 Language pairs`,
+      }}
+    >
+      <LanguagePoolBarChart {...props} />
+    </DashboardForSuspense>
+  )
+}
 
 const CustomPagination = styled(TablePagination)(() => {
   return {
-    position: 'absolute',
-    right: '-20px',
-    bottom: '-32px',
     width: '100%',
-    minHeight: '50px !important',
+    minHeight: '80px !important',
     display: 'flex',
     justifyContent: 'flex-end',
     border: 'none',
     padding: '0 !important',
     margin: 0,
+
+    '& .MuiTablePagination-toolbar': {},
 
     '& .MuiTablePagination-displayedRows': {
       fontSize: '14px !important',

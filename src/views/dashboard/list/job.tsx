@@ -6,7 +6,7 @@ import {
 import { Box, Typography } from '@mui/material'
 import React from 'react'
 import { ChartBoxIcon } from '@src/views/dashboard/dashboardItem'
-import { useJobOverview } from '@src/queries/dashboard/dashnaord-lpm'
+import { useJobOverview } from '@src/queries/dashnaord.query'
 //inProgress
 // :
 // 0

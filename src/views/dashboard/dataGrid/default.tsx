@@ -11,7 +11,7 @@ import NoList from '@src/pages/components/no-list'
 import styled from '@emotion/styled'
 
 interface DefaultDataGridProps<T extends { id: number; orderId?: number }> {
-  title: string
+  overlayTitle: string
   data?: { data: Array<any>; totalCount: number; count: number }
   columns: GridColumns
   sortModel: GridSortModel
@@ -26,7 +26,7 @@ interface DefaultDataGridProps<T extends { id: number; orderId?: number }> {
 }
 
 const DefaultDataGrid = <T extends { id: number; orderId?: number }>({
-  title,
+  overlayTitle,
   data,
   columns,
   defaultPageSize,
@@ -59,8 +59,8 @@ const DefaultDataGrid = <T extends { id: number; orderId?: number }>({
       sortModel={sortModel}
       onSortModelChange={newSortModel => setSortModel(newSortModel)}
       components={{
-        NoRowsOverlay: () => NoList(`There is no ${title}`),
-        NoResultsOverlay: () => NoList(`There is no ${title}`),
+        NoRowsOverlay: () => NoList(`${overlayTitle}`),
+        NoResultsOverlay: () => NoList(`${overlayTitle}`),
       }}
     />
   )

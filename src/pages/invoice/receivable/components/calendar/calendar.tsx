@@ -153,7 +153,7 @@ const ReceivableCalendar = (
           </Box>
         </Box>
       </CustomCalenderToolbar>
-      <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+      <FullCalendar {...calendarOptions} `datesSet={handleMonthChange} `/>
     </Calender>
   )
 }

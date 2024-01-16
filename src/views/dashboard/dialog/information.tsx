@@ -196,7 +196,6 @@ export const ReplaceTitle: Record<string, string> = {
   Webnovel: 'Sales per category',
 }
 
-const menuOptions = []
 interface InfoDialogProps {
   keyName: string
   open: boolean

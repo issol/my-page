@@ -8,11 +8,14 @@ import {
 import { CheckCircleSharp, WatchLaterRounded } from '@mui/icons-material'
 import Typography from '@mui/material/Typography'
 import Chip from '@mui/material/Chip'
-import { useDeadlineCompliance } from '@src/queries/dashboard/dashnaord-lpm'
+import { useDeadlineCompliance } from '@src/queries/dashnaord.query'
 import { TotalAmountQuery } from '@src/types/dashboard'
 import { getProDateFormat } from '@src/views/dashboard/list/currencyByDate'
+import DashboardForSuspense, {
+  DashboardErrorFallback,
+} from '@src/views/dashboard/suspense'
 
-const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
+const DeadlineContent = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   const { data } = useDeadlineCompliance(params)
 
   return (
@@ -72,9 +75,9 @@ const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
               fontSize='12px'
               color='rgba(100, 198, 35, 1)'
             >
-              {data?.onTimeAverage?.days || 0} day(s){' '}
-              {data?.onTimeAverage?.hours || 0} hour(s){' '}
-              {data?.onTimeAverage?.minutes || 0} min(s)
+              {Math.abs(data?.onTimeAverage?.days || 0)} day(s){' '}
+              {Math.abs(data?.onTimeAverage?.hours || 0)} hour(s){' '}
+              {Math.abs(data?.onTimeAverage?.minutes || 0)} min(s)
             </Typography>
           </Box>
         </Box>
@@ -119,9 +122,9 @@ const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
               fontSize='12px'
               color='rgba(255, 77, 73, 1)'
             >
-              {data?.delayedAverage?.days || 0} day(s){' '}
-              {data?.delayedAverage?.hours || 0} hour(s){' '}
-              {data?.delayedAverage?.minutes || 0} min(s)
+              {Math.abs(data?.delayedAverage?.days || 0)} day(s){' '}
+              {Math.abs(data?.delayedAverage?.hours || 0)} hour(s){' '}
+              {Math.abs(data?.delayedAverage?.minutes || 0)} min(s)
             </Typography>
           </Box>
         </Box>
@@ -130,4 +133,17 @@ const Deadline = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   )
 }
 
+const Deadline = (props: Omit<TotalAmountQuery, 'amountType'>) => {
+  return (
+    <DashboardForSuspense
+      sectionTitle='Deadline compliance'
+      refreshDataQueryKey='DeadlineCompliance'
+      titleProps={{
+        subTitle: getProDateFormat(props.year, props.month),
+      }}
+    >
+      <DeadlineContent {...props} />
+    </DashboardForSuspense>
+  )
+}
 export default Deadline

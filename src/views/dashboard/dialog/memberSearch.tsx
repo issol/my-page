@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react'
 import {
   DEFAULT_QUERY_NAME,
   useDashboardMemberList,
-} from '@src/queries/dashboard/dashnaord-lpm'
+} from '@src/queries/dashnaord.query'
 import { MemberItem } from '@src/types/dashboard'
 import Divider from '@mui/material/Divider'
 import { useRecoilState } from 'recoil'

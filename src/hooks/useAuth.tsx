@@ -130,17 +130,17 @@ const useAuth = () => {
       })
   }
 
-  const handleLogout = () => {
-    // setAuth(prev => ({ ...prev, user: null }))
-    // setCurrentRole(null)
-
+  const handleLogout = async () => {
     removeUserDataFromBrowser()
     removeUserTokenFromBrowser()
     removeCompanyDataFromBrowser()
     removeAllSessionStorage()
 
-    logout()
-    router.push('/login')
+    setAuth({ user: null, company: undefined, loading: false })
+    setCurrentRole(null)
+
+    await logout()
+    await router.push('/login')
   }
 
   const handleRegister = (

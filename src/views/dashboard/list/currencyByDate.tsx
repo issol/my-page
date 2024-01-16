@@ -1,18 +1,9 @@
 import styled from '@emotion/styled'
 import { Box, Typography } from '@mui/material'
-import React, { useCallback } from 'react'
-import { ExpectedIncome, TotalAmountQuery } from '@src/types/dashboard'
-import {
-  CurrencyUnit,
-  SectionTitle,
-  SubDateDescription,
-  Title,
-} from '@src/views/dashboard/dashboardItem'
-import { useTotalAmount } from '@src/queries/dashboard/dashnaord-lpm'
-import dayjs, { Dayjs } from 'dayjs'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import { KeyboardArrowRight } from '@mui/icons-material'
-import { useRouter } from 'next/router'
+import React from 'react'
+import { ExpectedIncome } from '@src/types/dashboard'
+import { CurrencyUnit } from '@src/views/dashboard/dashboardItem'
+import dayjs from 'dayjs'
 
 export interface CurrencyByDateListProps {
   report: Array<ExpectedIncome>
@@ -34,7 +25,6 @@ const CurrencyByDateList = ({ report }: CurrencyByDateListProps) => {
     )
   }
 
-  console.log(report)
   return (
     <Box className='scroll_bar' sx={{ maxHeight: '364px', overflowY: 'auto' }}>
       {report.map((item, index) => (
@@ -91,117 +81,6 @@ const CurrencyByDateList = ({ report }: CurrencyByDateListProps) => {
           </CurrencyItemList>
         </Box>
       ))}
-    </Box>
-  )
-}
-
-interface CurrencyAmountProps extends TotalAmountQuery {
-  title: string
-  setOpenInfoDialog: (open: boolean, key: string) => void
-}
-export const CurrencyAmount = ({
-  title,
-  setOpenInfoDialog,
-  ...params
-}: CurrencyAmountProps) => {
-  const router = useRouter()
-  const { data } = useTotalAmount(params)
-
-  const CurrencyItems = [
-    { path: '/images/dashboard/img_usd.png', currency: '$' },
-    { path: '/images/dashboard/img_krw.png', currency: '₩' },
-    { path: '/images/dashboard/img_jpy.png', currency: '¥' },
-    { path: '/images/dashboard/img_sgd.png', currency: 'SGD' },
-  ]
-
-  return (
-    <Box sx={{ width: '100%', height: '100%' }}>
-      <Box>
-        <Title
-          title={title}
-          subTitle={getProDateFormat(params.year, params.month)}
-          openDialog={setOpenInfoDialog}
-          handleClick={() => router.push('/invoice/pro/')}
-        />
-      </Box>
-      <Box display='flex' alignItems='center' sx={{ padding: '40px 0 ' }}>
-        <Box display='flex' alignItems='center'>
-          <img
-            style={{ height: '32px' }}
-            src={CurrencyItems[0].path}
-            alt='us icon'
-          />
-          <span style={{ fontSize: '16px', padding: '0 3px' }}>
-            {CurrencyItems[0].currency}
-          </span>
-          <Typography
-            display='flex'
-            alignItems='center'
-            fontSize='20px'
-            fontWeight={500}
-            sx={{ width: '96px' }}
-          >
-            {data?.totalAmountUSD.toLocaleString() || 0}
-          </Typography>
-        </Box>
-        <Box display='flex' alignItems='center'>
-          <img
-            style={{ height: '32px' }}
-            src={CurrencyItems[1].path}
-            alt='us icon'
-          />
-          <span style={{ fontSize: '16px', padding: '0 3px' }}>
-            {CurrencyItems[1].currency}
-          </span>
-          <Typography
-            display='flex'
-            alignItems='center'
-            fontSize='20px'
-            fontWeight={500}
-            sx={{ width: '96px' }}
-          >
-            {data?.totalAmountKRW.toLocaleString() || 0}
-          </Typography>
-        </Box>
-        <Box display='flex' alignItems='center'>
-          <img
-            style={{ height: '32px' }}
-            src={CurrencyItems[2].path}
-            alt='us icon'
-          />
-          <span style={{ fontSize: '16px', padding: '0 3px' }}>
-            {CurrencyItems[2].currency}
-          </span>
-          <Typography
-            display='flex'
-            alignItems='center'
-            fontSize='20px'
-            fontWeight={500}
-            sx={{ width: '96px' }}
-          >
-            {data?.totalAmountJPY.toLocaleString() || 0}
-          </Typography>
-        </Box>
-        <Box display='flex' alignItems='center'>
-          <img
-            style={{ height: '32px' }}
-            src={CurrencyItems[3].path}
-            alt='us icon'
-          />
-          <span style={{ fontSize: '16px', padding: '0 3px' }}>
-            {CurrencyItems[3].currency}
-          </span>
-          <Typography
-            display='flex'
-            alignItems='center'
-            fontSize='20px'
-            fontWeight={500}
-            sx={{ width: '96px' }}
-          >
-            {data?.totalAmountSGD.toLocaleString() || 0}
-          </Typography>
-        </Box>
-      </Box>
     </Box>
   )
 }

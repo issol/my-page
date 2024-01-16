@@ -127,20 +127,8 @@ const AppBarContent = (props: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
 
-  // const { data: notifications, refetch } = useGetNotificationList({
-  //   isShowUnread: 0,
-  //   take: 15,
-  //   skip: 0,
-  // })
-
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {/* <NotificationDropdown settings={settings} /> */}
-
-      {/* <Autocomplete hidden={hidden} settings={settings} />
-      <LanguageDropdown settings={settings} saveSettings={saveSettings} />
-      <ModeToggler settings={settings} saveSettings={saveSettings} />
-      <ShortcutsDropdown settings={settings} shortcuts={shortcuts} /> */}
       {publicPage ? (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <Button
