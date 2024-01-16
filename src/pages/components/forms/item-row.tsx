@@ -363,12 +363,23 @@ const Row = ({
     }
   }
 
-  function onChangePrice(v: StandardPriceListType, idx: number) {
+  function onChangePrice(
+    v: StandardPriceListType,
+    idx: number,
+    options: (StandardPriceListType & {
+      groupName?: string | undefined
+    })[],
+  ) {
     if (v?.id) {
       const items = getValues('items')
-      const currencies = items
-        .filter(item => item.id !== -1 && item.initialPrice?.currency != null) // Exclude items where id is -1 or currency is undefined or null
-        .map(item => item.initialPrice?.currency)
+
+      const priceIds = items.map(item => item.priceId)
+      const matchingOptions = options.filter(option =>
+        priceIds.includes(option.id),
+      )
+      const currencies = matchingOptions
+        .map(option => option.currency)
+        .filter(detailItem => detailItem !== null)
 
       if (v.id === NOT_APPLICABLE) {
         const source = getValues(`items.${idx}.source`)!
@@ -937,7 +948,7 @@ const Row = ({
                                 value?.source!,
                                 value?.target!,
                               )
-                              onChangePrice(v, idx)
+                              onChangePrice(v, idx, options)
 
                               if (index !== -1) {
                                 const copyLangPair = [...languagePairs]

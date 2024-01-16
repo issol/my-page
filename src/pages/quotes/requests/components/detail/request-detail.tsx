@@ -121,7 +121,9 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Quantity</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {item?.quantity ?? '-'}
+                      {typeof item?.quantity === 'string'
+                        ? '-'
+                        : item?.quantity ?? '-'}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>
