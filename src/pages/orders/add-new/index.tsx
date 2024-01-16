@@ -1,10 +1,4 @@
-import {
-  ChangeEvent,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -23,10 +17,10 @@ import {
   Typography,
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** react hook form
-import { useForm, useFieldArray, Controller } from 'react-hook-form'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Icon Imports
@@ -37,8 +31,9 @@ import { toast } from 'react-hot-toast'
 
 // ** validation values & types
 import {
-  ProjectTeamType,
+  MemberType,
   projectTeamSchema,
+  ProjectTeamType,
 } from '@src/types/schema/project-team.schema'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { StandardPriceListType } from '@src/types/common/standard-price'
@@ -50,10 +45,8 @@ import {
   orderProjectInfoSchema,
 } from '@src/types/schema/orders-project-info.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
-import { MemberType } from '@src/types/schema/project-team.schema'
 
 // ** components
-
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
@@ -101,7 +94,6 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
-import { useGetStatusList } from '@src/queries/common.query'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import {
@@ -111,7 +103,6 @@ import {
   getProjectTeam,
 } from '@src/apis/order/order-detail.api'
 import { getClientDetail } from '@src/apis/client.api'
-import { set } from 'lodash'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
 import { formatISO } from 'date-fns'
@@ -1061,7 +1052,8 @@ export default function AddNewOrder() {
               minimumPrice: item.minimumPrice,
               minimumPriceApplied: item.minimumPriceApplied,
             }
-          })
+          }) as ItemType[]
+
           itemReset({ items: result, languagePairs: itemLangPairs })
           itemTrigger()
         }
@@ -1207,6 +1199,7 @@ export default function AddNewOrder() {
               },
             }
           })
+
           const result = res?.items?.map(item => {
             return {
               id: item.id,
@@ -1228,7 +1221,8 @@ export default function AddNewOrder() {
               minimumPrice: item.minimumPrice,
               minimumPriceApplied: item.minimumPriceApplied,
             }
-          })
+          }) as ItemType[]
+
           itemReset({ items: result, languagePairs: itemLangPairs })
           itemTrigger()
         }

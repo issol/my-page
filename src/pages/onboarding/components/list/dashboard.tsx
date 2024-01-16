@@ -2,7 +2,7 @@ import { Card, Grid } from '@mui/material'
 import { Box } from '@mui/system'
 import Link from 'next/link'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import CardNormal from 'src/@core/components/card-statistics/card-normal'
 
 import Overview from 'src/@core/components/card-statistics/card-overview'

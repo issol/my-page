@@ -31,7 +31,7 @@ import {
   Tab,
   Typography,
 } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** contexts
@@ -585,14 +585,15 @@ export default function QuotesDetail() {
             contactPerson: item?.contactPerson,
             // initialPrice는 quote 생성시점에 선택한 price의 값을 담고 있음
             // name, currency, decimalPlace, rounding 등 price와 관련된 계산이 필요할때는 initialPrice 내 값을 쓴다
-            initialPrice: item.initialPrice ?? {},
+            initialPrice: item.initialPrice ?? null,
             description: item.description,
             showItemDescription: item.showItemDescription,
             minimumPrice: item.minimumPrice,
             minimumPriceApplied: item.minimumPriceApplied,
             priceFactor: 0,
           }
-        })
+        }) as ItemType[]
+
         itemReset({ items: result, languagePairs: itemLangPairs })
         itemTrigger()
       })()

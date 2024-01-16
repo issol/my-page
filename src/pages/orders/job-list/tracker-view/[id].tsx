@@ -16,7 +16,7 @@ import {
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import {
   TableTitleTypography,

@@ -2,11 +2,9 @@
 import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
+import FullCalendar from '@fullcalendar/react'
 
 // ** style components
-import styled from 'styled-components'
 import { Box, Typography } from '@mui/material'
 
 // ** types
@@ -15,14 +13,15 @@ import {
   InvoicePayableListType,
 } from '@src/types/invoice/payable.type'
 import {
-  CalenderProps,
   Calender,
+  CalenderProps,
   CustomEvent,
 } from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
 import { Role } from '@src/pages/invoice/payable/components/calendar/index'
 import Switch from '@mui/material/Switch'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
-import { calendarDefaultOptions, ValidRange } from '@src/shared/const/calender'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
+import { DatesSetArg, CalendarOptions } from '@fullcalendar/core'
 
 interface Props
   extends CalenderProps<InvoicePayableListType, InvoicePayableFilterType> {

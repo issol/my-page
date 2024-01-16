@@ -3,7 +3,8 @@ import {
   Calender,
   CustomEvent,
 } from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
-import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
+import FullCalendar from '@fullcalendar/react'
+import { CalendarOptions, DatesSetArg } from '@fullcalendar/core'
 import { calendarDefaultOptions } from '@src/shared/const/calender'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import dayGridPlugin from '@fullcalendar/daygrid'

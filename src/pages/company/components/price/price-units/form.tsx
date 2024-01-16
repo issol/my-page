@@ -384,13 +384,14 @@ export default function PriceUnitForm(props: Props) {
                             disabled
                             fullWidth
                             options={PriceUnits}
-                            placeholder='Fixed rate'
                             value={
                               PriceUnits.filter(
                                 item => item.label === field.value,
                               )[0]
                             }
-                            renderInput={params => <TextField {...params} />}
+                            renderInput={params => (
+                              <TextField {...params} placeholder='Fixed rate' />
+                            )}
                           />
                         )}
                       />

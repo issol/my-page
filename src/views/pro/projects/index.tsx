@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'

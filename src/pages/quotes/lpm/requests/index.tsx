@@ -6,7 +6,7 @@ import ButtonGroup from '@mui/material/ButtonGroup'
 import { Card, CardHeader, Grid, Switch, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import PageHeader from '@src/@core/components/page-header'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** components
 import Filter from './components/filter'

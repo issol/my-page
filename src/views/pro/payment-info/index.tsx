@@ -7,7 +7,7 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 // ** Hooks
 import useClipboard from '@src/@core/hooks/useClipboard'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { toast } from 'react-hot-toast'
 
 // ** components

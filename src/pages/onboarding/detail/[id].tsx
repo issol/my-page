@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 
 import { Box } from '@mui/system'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import toast from 'react-hot-toast'
 
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'

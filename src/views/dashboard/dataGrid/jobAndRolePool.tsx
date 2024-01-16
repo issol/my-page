@@ -1,6 +1,6 @@
 import { DataGrid } from '@mui/x-data-grid'
 import { JobTableColumn } from '@src/shared/const/columns/dashboard'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { useJobType } from '@src/queries/dashnaord.query'
 import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
@@ -9,9 +9,7 @@ import OptionsMenu from '@src/@core/components/option-menu'
 import { useRouter } from 'next/router'
 import { CSVDataRecordProps } from '@src/types/dashboard'
 import NoList from '@src/pages/components/no-list'
-import DashboardForSuspense, {
-  DashboardErrorFallback,
-} from '@src/views/dashboard/suspense'
+import DashboardForSuspense from '@src/views/dashboard/suspense'
 
 interface TADJobDataGridProps extends CSVDataRecordProps {
   sectionTitle: string

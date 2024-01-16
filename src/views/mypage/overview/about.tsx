@@ -3,7 +3,7 @@ import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
 import Divider from '@mui/material/Divider'
 import Box from '@mui/material/Box'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import Icon from '@src/@core/components/icon'
 
 import { v4 as uuidv4 } from 'uuid'

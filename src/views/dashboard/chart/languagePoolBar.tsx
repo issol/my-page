@@ -21,9 +21,7 @@ import {
 } from 'chart.js'
 import { Bar } from 'react-chartjs-2'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
-import DashboardForSuspense, {
-  DashboardErrorFallback,
-} from '@src/views/dashboard/suspense'
+import DashboardForSuspense from '@src/views/dashboard/suspense'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend)
 
@@ -35,7 +33,6 @@ const DISPLAY = true
 const CHART_AREA = true
 
 const LanguagePoolBarChart = ({
-  dataRecord,
   setDataRecord,
   setOpenInfoDialog,
 }: TADLanguagePoolBarChartProps) => {

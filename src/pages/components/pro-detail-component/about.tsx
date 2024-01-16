@@ -11,7 +11,7 @@ import Select from '@mui/material/Select'
 import Divider from '@mui/material/Divider'
 import Box from '@mui/material/Box'
 import { UserInfoResType } from 'src/apis/user.api'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import Icon from 'src/@core/components/icon'
 
 import { v4 as uuidv4 } from 'uuid'

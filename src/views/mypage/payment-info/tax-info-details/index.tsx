@@ -3,7 +3,7 @@ import { Box, Button, Grid, Typography } from '@mui/material'
 import { downloadStateFile } from '@src/shared/helpers/file-download.helper'
 import { ProPaymentType } from '@src/types/payment-info/pro/billing-method.type'
 import { TaxInfoType } from '@src/types/payment-info/pro/tax-info.type'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 type Props = {
   billingMethod: ProPaymentType | null

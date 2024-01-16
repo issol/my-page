@@ -17,7 +17,7 @@ import { FileType } from '@src/types/common/file.type'
 import { useEffect, useState } from 'react'
 
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { EditorState, convertFromRaw } from 'draft-js'
+import { convertFromRaw, EditorState } from 'draft-js'
 
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { v4 as uuidv4 } from 'uuid'
@@ -28,10 +28,9 @@ import {
 import { JobsFileType, ProGuidelineType } from '@src/types/jobs/jobs.type'
 import {
   Document,
-  Font,
   Line,
-  PDFDownloadLink,
   Page,
+  PDFDownloadLink,
   StyleSheet,
   Svg,
   Text,

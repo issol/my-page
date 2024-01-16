@@ -14,7 +14,7 @@ import {
 } from '@mui/material'
 import { JobTypeChip } from '@src/@core/components/chips/chips'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { authState } from '@src/states/auth'
 import { useRecoilValueLoadable } from 'recoil'
 

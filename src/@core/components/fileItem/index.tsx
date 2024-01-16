@@ -1,6 +1,6 @@
 import Icon from 'src/@core/components/icon'
 import { IconButton, Typography } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { FileType } from 'src/types/common/file.type'
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 

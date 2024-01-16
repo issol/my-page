@@ -43,7 +43,7 @@ import CustomChip from 'src/@core/components/mui/chip'
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** contexts
 

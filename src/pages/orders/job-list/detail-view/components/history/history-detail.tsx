@@ -7,7 +7,7 @@ import TabContext from '@mui/lab/TabContext'
 import Typography from '@mui/material/Typography'
 import { MouseEvent, Suspense, useContext, useEffect, useState } from 'react'
 import { SyntheticEvent } from 'react-draft-wysiwyg'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import HistoryAssignPro from './history-assign-pro'
 import useModal from '@src/hooks/useModal'
 import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
@@ -147,6 +147,7 @@ export default function HistoryDetail({
   const onClickClose = () => {
     //history-detail 모달을 닫고 JobDetailViewModal 모달을 연다
     queryClient.invalidateQueries(['jobHistory'])
+
     closeModal('history-detail')
     openModal({
       type: 'JobDetailViewModal',

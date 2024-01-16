@@ -1,5 +1,5 @@
 import { Box, Grid, Typography } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** types
 import {
@@ -24,10 +24,7 @@ type Props = {
 }
 
 export default function PaymentMethodDetail({ office, paymentInfo }: Props) {
-  const currentPaymentInfo = useMemo(
-    () => paymentInfo,
-    [office, paymentInfo],
-  )
+  const currentPaymentInfo = useMemo(() => paymentInfo, [office, paymentInfo])
 
   function renderInfo(
     label: string,

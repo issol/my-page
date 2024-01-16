@@ -1,5 +1,5 @@
 import { Button, ButtonGroup } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 export type ToggleMenuType = 'list' | 'calendar'
 export type Props = {
