@@ -1,41 +1,7 @@
-import React, { ReactElement, Suspense, useState } from 'react'
-import { Box } from '@mui/material'
-import {
-  GridItem,
-  SectionTitle,
-  SubDateDescription,
-  Title,
-} from '@src/views/dashboard/dashboardItem'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
+import React, { useState } from 'react'
 import Grid from '@mui/material/Grid'
-import styled from '@emotion/styled'
-import AddIcon from '@mui/icons-material/Add'
-import Typography from '@mui/material/Typography'
-import {
-  Approval,
-  CheckCircleOutline,
-  DoNotDisturbAlt,
-  KeyboardArrowRight,
-  ReceiptLong,
-  SmsFailedRounded,
-} from '@mui/icons-material'
-import {
-  DataGrid,
-  GridColumns,
-  GridRowParams,
-  GridSortModel,
-} from '@mui/x-data-grid'
-
-import {
-  useDashboardCount,
-  useDashboardCountList,
-} from '@src/queries/dashnaord.query'
-import { DashboardQuery, OrderType, ViewType } from '@src/types/dashboard'
-import { toCapitalize } from '@src/pages/dashboards/lpm'
-import { useRouter } from 'next/router'
-import DefaultDataGrid from '@src/views/dashboard/dataGrid/default'
-import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
-import { DashboardSuspenseProps } from '@src/views/dashboard/suspense'
+import { GridColumns, GridRowParams, GridSortModel } from '@mui/x-data-grid'
+import { DashboardQuery, ViewType } from '@src/types/dashboard'
 import OngoingStatus from '@src/views/dashboard/dataGrid/status/ongoing'
 import OngoingList from '@src/views/dashboard/dataGrid/status/list'
 

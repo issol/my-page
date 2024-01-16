@@ -127,22 +127,8 @@ const AppBarContent = (props: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
 
-  console.log(router)
-
-  // const { data: notifications, refetch } = useGetNotificationList({
-  //   isShowUnread: 0,
-  //   take: 15,
-  //   skip: 0,
-  // })
-
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {/* <NotificationDropdown settings={settings} /> */}
-
-      {/* <Autocomplete hidden={hidden} settings={settings} />
-      <LanguageDropdown settings={settings} saveSettings={saveSettings} />
-      <ModeToggler settings={settings} saveSettings={saveSettings} />
-      <ShortcutsDropdown settings={settings} shortcuts={shortcuts} /> */}
       {publicPage ? (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <Button
@@ -175,10 +161,10 @@ const AppBarContent = (props: Props) => {
         <Box>
           {!process.env.NEXT_PUBLIC_DISPLAY_MODE
             ? 'local'
-            : process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Development' || process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Test'
-              ? process.env.NEXT_PUBLIC_DISPLAY_MODE
-              : null
-          }
+            : process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Development' ||
+              process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Test'
+            ? process.env.NEXT_PUBLIC_DISPLAY_MODE
+            : null}
           <UserDropdown settings={settings} />
         </Box>
       )}
