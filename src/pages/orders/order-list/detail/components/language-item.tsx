@@ -261,6 +261,7 @@ const LanguageAndItem = ({
       minimumPrice: null,
       minimumPriceApplied: false,
       priceFactor: 0,
+      currency: null,
     })
   }
 

@@ -367,6 +367,7 @@ export default function AddNewOrder() {
         minimumPrice: null,
         minimumPriceApplied: false,
         priceFactor: 0,
+        currency: null,
       }))
 
       setItem('items', defaultItems, { shouldDirty: true })
@@ -503,6 +504,7 @@ export default function AddNewOrder() {
       minimumPrice: null,
       minimumPriceApplied: false,
       priceFactor: 0,
+      currency: null,
     })
   }
 

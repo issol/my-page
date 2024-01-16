@@ -15,6 +15,7 @@ export const itemDefaultValue: { items: ItemType[] } = {
       minimumPrice: null,
       minimumPriceApplied: false,
       priceFactor: 0,
+      currency: null,
     },
   ],
 }
