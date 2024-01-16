@@ -1,6 +1,6 @@
 import { Box, Button, Typography } from '@mui/material'
 import AlertIcon, { AlertType } from '@src/@core/components/alert-icon'
-import { SmallModalContainer } from '@src/@core/components/modal'
+import { SmallModalContainer } from '@src/pages/client/components/modals/add-confirm-with-title-modal'
 import Dialog from '@mui/material/Dialog'
 import { TitleTypography } from '@src/@core/styles/typography'
 import { Fragment } from 'react'
@@ -17,7 +17,7 @@ type Props = {
 }
 
 /**
- * 
+ *
  * @param vary: error, info, successful, error-report, progress, question-info
  * 기본 버튼은 onClose, onClose만 있을때는 variant가 contained로 설정됨
  * \n 문자열로 줄바꿈 설정 가능
@@ -40,14 +40,14 @@ export default function SimpleMultilineAlertModal({
       {line}
       <br />
     </Fragment>
-  ));
+  ))
 
   const newTitle = title?.split('\n').map((line, index) => (
     <Fragment key={index}>
       {line}
       <br />
     </Fragment>
-  ));
+  ))
 
   return (
     <Dialog
@@ -66,23 +66,25 @@ export default function SimpleMultilineAlertModal({
             fontWeight='bold'
           >
             <Box textAlign={align}>{newTitle}</Box>
-            
           </TitleTypography>
         ) : null}
         <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
-          <Button variant={ onConfirm ? 'outlined' : 'contained'} onClick={onClose}>
+          <Button
+            variant={onConfirm ? 'outlined' : 'contained'}
+            onClick={onClose}
+          >
             {closeButtonText ?? 'Okay'}
           </Button>
           {onConfirm ? (
-          <Button
-            variant='contained'
-            onClick={() => {
-              onConfirm()
-              onClose()
-            }}
-          >
-            {confirmButtonText ?? 'Confirm'}
-          </Button>
+            <Button
+              variant='contained'
+              onClick={() => {
+                onConfirm()
+                onClose()
+              }}
+            >
+              {confirmButtonText ?? 'Confirm'}
+            </Button>
           ) : null}
         </Box>
       </SmallModalContainer>

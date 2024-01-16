@@ -1,6 +1,6 @@
 import AlertIcon from '@src/@core/components/alert-icon'
 import CircularProgress from '@mui/material/CircularProgress'
-import { SmallModalContainer } from '@src/@core/components/modal'
+import { SmallModalContainer } from '@src/pages/client/components/modals/add-confirm-with-title-modal'
 import { Box, Button, Typography } from '@mui/material'
 
 type Props = {

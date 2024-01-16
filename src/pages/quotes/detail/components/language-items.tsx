@@ -322,6 +322,7 @@ export default function QuotesLanguageItemsDetail({
             append={appendLanguagePairs}
             update={updateLanguagePairs}
             itemTrigger={itemTrigger}
+            from='quote'
           />
         </Grid>
       )}

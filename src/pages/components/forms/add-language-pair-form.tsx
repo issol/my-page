@@ -63,6 +63,8 @@ import {
   UseFormTrigger,
 } from 'react-hook-form'
 import { languageType } from '@src/pages/quotes/add-new'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   // languagePairs: languageType[]
@@ -73,6 +75,7 @@ type Props = {
     index?: number,
   ) => Array<StandardPriceListType & { groupName?: string }>
   type: string
+  from: string
   onDeleteLanguagePair: (row: languageType) => void
   items?: ItemType[]
   getItem: UseFormGetValues<{
@@ -119,6 +122,7 @@ export default function AddLanguagePairForm({
   itemTrigger,
   append,
   update,
+  from,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -180,34 +184,43 @@ export default function AddLanguagePairForm({
     // itemTrigger('languagePairs')
   }
 
-  const updateLanguagePairs = (languagePairs: languageType[]) => {
+  const updateLanguagePairs = (
+    languagePairs: languageType[],
+    v: StandardPriceListType & {
+      groupName?: string | undefined
+    },
+    idx: number,
+  ) => {
     let updatedLanguagePairs = { ...languagePairs }
     let isValidCondition = true
     let type = 0
-    const targetCurrency = languagePairs[0]?.price?.currency! ?? null
+    const firstPricedPair = languagePairs.find(
+      pair =>
+        pair.price !== null && JSON.stringify(pair.price) !== JSON.stringify(v),
+    )
+
+    const targetCurrency = firstPricedPair?.price?.currency ?? null
+
     if (targetCurrency) {
-      if (languagePairs[0].price) {
-        languagePairs.map((pair, index) => {
-          if (pair.price && targetCurrency !== pair.price?.currency) {
-            isValidCondition = false
-            type = 1
-            // 첫번째 Language-pair를 기준으로 currency가 맞지 않는 price를 null로 변경
-            updatedLanguagePairs = languagePairs.map(item => ({
-              ...item,
-              price:
-                item.price?.currency === targetCurrency ? item.price : null,
-            }))
-          }
-        })
-      }
+      languagePairs.forEach(pair => {
+        if (pair.price && targetCurrency !== pair.price?.currency) {
+          isValidCondition = v.id === -1 ? true : false
+          type = 1
+          // 첫번째 Language-pair를 기준으로 currency가 맞지 않는 price를 null로 변경
+          updatedLanguagePairs = languagePairs.map((item, index) => ({
+            ...item,
+            price: v.id === -1 || index !== idx ? item.price : null,
+          }))
+        }
+      })
     } else {
       // 첫번째 언어페어의가 null인 경우, 모든 Price를 null로 바꿈
-      isValidCondition = false
-      type = 2
-      updatedLanguagePairs = languagePairs.map(item => ({
-        ...item,
-        price: null,
-      }))
+      // isValidCondition = false
+      // type = 2
+      // updatedLanguagePairs = languagePairs.map(item => ({
+      //   ...item,
+      //   price: null,
+      // }))
     }
     if (isValidCondition) {
       setLanguagePairs(languagePairs)
@@ -233,16 +246,20 @@ export default function AddLanguagePairForm({
   }
 
   const selectCurrencyViolation = (type: number) => {
-    const message1 = `Please check the currency of the selected price. You can't use different currencies in a quote.`
-    const message2 =
-      'Please select the price for the first language pair first.'
     openModal({
       type: 'error-currency-violation',
       children: (
-        <SimpleMultilineAlertModal
+        <CustomModal
+          title={
+            type === 1
+              ? `Please check the currency of the selected price. You can't use different currencies in a ${from}.`
+              : 'Please select the price for the first language pair first.'
+          }
+          soloButton
+          onClick={() => closeModal('error-currency-violation')}
           onClose={() => closeModal('error-currency-violation')}
-          message={type === 1 ? message1 : message2}
-          vary={type === 1 ? 'error' : 'info'}
+          rightButtonText='Okay'
+          vary='error'
         />
       ),
     })
@@ -427,87 +444,95 @@ export default function AddLanguagePairForm({
                               render={({
                                 field: { value, onChange },
                                 fieldState: { isDirty },
-                              }) => (
-                                <Autocomplete
-                                  value={
-                                    !value
-                                      ? null
-                                      : getPriceOptions(
-                                          row.source,
-                                          row.target,
-                                        ).find(item => item.id === value?.id) ||
-                                        null
-                                  }
-                                  size='small'
-                                  sx={{ width: 300 }}
-                                  options={getPriceOptions(
-                                    row.source,
-                                    row.target,
-                                  )}
-                                  groupBy={option => option?.groupName ?? ''}
-                                  onChange={(e, v) => {
-                                    if (!v) {
-                                      onChange(null)
-                                    } else {
-                                      if (v.id === -1) {
-                                        selectNotApplicableModal()
+                              }) => {
+                                return (
+                                  <Autocomplete
+                                    value={
+                                      !value
+                                        ? null
+                                        : getPriceOptions(
+                                            row.source,
+                                            row.target,
+                                          ).find(
+                                            item => item.id === value?.id,
+                                          ) || null
+                                    }
+                                    size='small'
+                                    sx={{ width: 300 }}
+                                    options={getPriceOptions(
+                                      row.source,
+                                      row.target,
+                                    )}
+                                    groupBy={option => option?.groupName ?? ''}
+                                    onChange={(e, v) => {
+                                      if (!v) {
+                                        onChange(null)
                                       } else {
+                                        // if (v.id === -1) {
+                                        //   selectNotApplicableModal()
+                                        // } else {
                                         onChange(v)
 
                                         const copyPairs = [
                                           ...getItem('languagePairs'),
                                         ]
                                         copyPairs[idx].price = v
-                                        updateLanguagePairs(copyPairs)
+                                        updateLanguagePairs(copyPairs, v, idx)
                                       }
-                                    }
-                                  }}
-                                  id='autocomplete-controlled'
-                                  getOptionLabel={option => option.priceName}
-                                  renderInput={params => (
-                                    <TextField
-                                      {...params}
-                                      placeholder='Price*'
-                                      error={isDirty && value === null}
-                                    />
-                                  )}
-                                  renderGroup={params => (
-                                    <li key={params.key}>
-                                      {!getPriceOptions(
-                                        row.source,
-                                        row.target,
-                                      ).find(
-                                        value =>
-                                          value.groupName === 'Matching price',
-                                      ) && params.group ? (
+                                      // }
+                                    }}
+                                    id='autocomplete-controlled'
+                                    getOptionLabel={option => option.priceName}
+                                    renderInput={params => (
+                                      <TextField
+                                        {...params}
+                                        placeholder='Price*'
+                                        error={value === null}
+                                      />
+                                    )}
+                                    renderGroup={params => (
+                                      <li key={params.key}>
+                                        {!getPriceOptions(
+                                          row.source,
+                                          row.target,
+                                        ).find(
+                                          value =>
+                                            value.groupName ===
+                                            'Matching price',
+                                        ) && params.group ? (
+                                          <GroupHeader>
+                                            Matching price{' '}
+                                            <NoResultText>
+                                              (No result)
+                                            </NoResultText>
+                                          </GroupHeader>
+                                        ) : null}
+                                        {!getPriceOptions(
+                                          row.source,
+                                          row.target,
+                                        ).find(
+                                          value =>
+                                            value.groupName ===
+                                            'Standard client price',
+                                        ) && params.group ? (
+                                          <GroupHeader>
+                                            Standard client price{' '}
+                                            <NoResultText>
+                                              (No result)
+                                            </NoResultText>
+                                          </GroupHeader>
+                                        ) : null}
                                         <GroupHeader>
-                                          Matching price{' '}
-                                          <NoResultText>
-                                            (No result)
-                                          </NoResultText>
+                                          {params.group}
                                         </GroupHeader>
-                                      ) : null}
-                                      {!getPriceOptions(
-                                        row.source,
-                                        row.target,
-                                      ).find(
-                                        value =>
-                                          value.groupName ===
-                                          'Standard client price',
-                                      ) && params.group ? (
-                                        <GroupHeader>
-                                          Standard client price{' '}
-                                          <NoResultText>
-                                            (No result)
-                                          </NoResultText>
-                                        </GroupHeader>
-                                      ) : null}
-                                      <GroupHeader>{params.group}</GroupHeader>
-                                      <GroupItems>{params.children}</GroupItems>
-                                    </li>
-                                  )}
-                                />
-                              )}
+                                        <GroupItems>
+                                          {params.children}
+                                        </GroupItems>
+                                      </li>
+                                    )}
+                                  />
+                                )
+                              }}
                             />
                           )}
                         </TableCell>

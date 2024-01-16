@@ -2,7 +2,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 import {
   CurrencyType,
   PriceUnitListType,
@@ -69,6 +69,7 @@ type Props = {
     'items',
     'id'
   >[]
+
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
     languagePairs: languageType[]
@@ -118,6 +119,7 @@ const Row = ({
   fields,
   itemTrigger,
   sumTotalPrice,
+
   // openMinimumPriceModal,
   splitReady,
   type,
@@ -245,7 +247,9 @@ const Row = ({
   })
 
   function onDeletePriceUnit(index: number) {
-    const findIndex = details.findIndex(item => item.priceUnitId === index)
+    const findIndex = getValues(`items.${idx}.detail`)?.findIndex(
+      item => item.priceUnitId === index,
+    )
 
     if (findIndex !== -1) {
       remove(findIndex)
@@ -294,65 +298,6 @@ const Row = ({
     setValue(`items.${idx}.totalPrice`, total, setValueOptions)
     itemTrigger(`items.${idx}.totalPrice`)
     sumTotalPrice()
-  }
-
-  function getEachPrice(index: number, isNotApplicable?: boolean) {
-    // setPriceData(getPriceData())
-    const data = getValues(itemName)
-    if (!data?.length) return
-    let prices = 0
-    const detail = data?.[index]
-    if (detail && detail.unit === 'Percent') {
-      const percentQuantity = data[index].quantity
-
-      const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
-      const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
-      if (itemMinimumPrice && showMinimum) {
-        prices =
-          percentQuantity !== null
-            ? (percentQuantity / 100) * itemMinimumPrice
-            : 0
-      } else {
-        const generalPrices = data.filter(item => item.unit !== 'Percent')
-        generalPrices.forEach(item => {
-          prices += item.unitPrice ?? 0
-        })
-        prices *= percentQuantity !== null ? percentQuantity / 100 : 0
-      }
-    } else {
-      prices =
-        detail.unitPrice !== null && detail.quantity !== null
-          ? detail.unitPrice * detail.quantity
-          : 0
-    }
-
-    // if (prices === data[index].prices) return
-    const currency = getValues(`items.${idx}.initialPrice.currency`) ?? 'KRW'
-    const roundingPrice = formatByRoundingProcedure(
-      prices,
-      priceData()?.decimalPlace!
-        ? priceData()?.decimalPlace!
-        : currency === 'USD' || currency === 'SGD'
-        ? 2
-        : 1000,
-      priceData()?.roundingProcedure! ?? 0,
-      currency,
-    )
-    // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
-    // 스탠다드 프라이스의 언어페어 정보 : languagePairs
-    setValue(`items.${idx}.detail.${index}.currency`, currency, {
-      shouldDirty: true,
-      shouldValidate: false,
-    })
-    // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
-    setValue(
-      `items.${idx}.detail.${index}.prices`,
-      isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
-      {
-        shouldDirty: true,
-        shouldValidate: false,
-      },
-    )
   }
 
   /* tm analysis */
@@ -420,33 +365,85 @@ const Row = ({
 
   function onChangePrice(v: StandardPriceListType, idx: number) {
     if (v?.id) {
-      const source = getValues(`items.${idx}.source`)!
-      const target = getValues(`items.${idx}.target`)!
-      setValue(`items.${idx}.priceId`, v?.id)
-      const priceData = getPriceOptions(source, target).find(
-        price => price.id === v?.id,
-      )
-      const languagePairData = priceData?.languagePairs?.find(
-        i => i.source === source && i.target === target,
-      )
-      const minimumPrice = languagePairData?.minimumPrice
-      const priceFactor = languagePairData?.priceFactor
-      const currency = languagePairData?.currency
-      const rounding = priceData?.roundingProcedure
-      const numberPlace = priceData?.decimalPlace
-      setValue(`items.${idx}.totalPrice`, 0)
-      setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
-      setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
-      setValue(`items.${idx}.initialPrice.currency`, currency!)
-      setValue(`items.${idx}.initialPrice.numberPlace`, numberPlace!)
-      setValue(
-        `items.${idx}.initialPrice.rounding`,
-        //@ts-ignore
-        RoundingProcedureObj[rounding!],
-      )
-      itemTrigger(`items.${idx}`)
-      getTotalPrice()
-      handleMinimumPrice()
+      const items = getValues('items')
+      const currencies = items
+        .filter(item => item.id !== -1 && item.initialPrice?.currency != null) // Exclude items where id is -1 or currency is undefined or null
+        .map(item => item.initialPrice?.currency)
+
+      if (v.id === NOT_APPLICABLE) {
+        const source = getValues(`items.${idx}.source`)!
+        const target = getValues(`items.${idx}.target`)!
+        setValue(`items.${idx}.priceId`, v?.id)
+        const priceData = getPriceOptions(source, target).find(
+          price => price.id === v?.id,
+        )
+        const languagePairData = priceData?.languagePairs?.find(
+          i => i.source === source && i.target === target,
+        )
+        const minimumPrice = languagePairData?.minimumPrice
+        const priceFactor = languagePairData?.priceFactor
+        const currency = languagePairData?.currency
+        const rounding = priceData?.roundingProcedure
+        const numberPlace = priceData?.decimalPlace
+        setValue(`items.${idx}.totalPrice`, 0)
+        setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
+        setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
+        setValue(`items.${idx}.initialPrice.currency`, currency!)
+        setValue(`items.${idx}.initialPrice.numberPlace`, numberPlace!)
+        setValue(
+          `items.${idx}.initialPrice.rounding`,
+          //@ts-ignore
+          RoundingProcedureObj[rounding!],
+        )
+        itemTrigger(`items.${idx}`)
+        getTotalPrice()
+        handleMinimumPrice()
+      } else if (currencies.length > 0 && currencies[0] !== v?.currency) {
+        openModal({
+          type: 'CurrencyMatchModal',
+          children: (
+            <CustomModal
+              title={`Please check the currency of the selected price. You can't use different currencies in an ${from}.`}
+              soloButton
+              rightButtonText='Okay'
+              onClick={() => {
+                closeModal('CurrencyMatchModal')
+                setValue(`items.${idx}.priceId`, null)
+              }}
+              onClose={() => closeModal('CurrencyMatchModal')}
+              vary='error'
+            />
+          ),
+        })
+      } else {
+        const source = getValues(`items.${idx}.source`)!
+        const target = getValues(`items.${idx}.target`)!
+        setValue(`items.${idx}.priceId`, v?.id)
+        const priceData = getPriceOptions(source, target).find(
+          price => price.id === v?.id,
+        )
+        const languagePairData = priceData?.languagePairs?.find(
+          i => i.source === source && i.target === target,
+        )
+        const minimumPrice = languagePairData?.minimumPrice
+        const priceFactor = languagePairData?.priceFactor
+        const currency = languagePairData?.currency
+        const rounding = priceData?.roundingProcedure
+        const numberPlace = priceData?.decimalPlace
+        setValue(`items.${idx}.totalPrice`, 0)
+        setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
+        setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
+        setValue(`items.${idx}.initialPrice.currency`, currency!)
+        setValue(`items.${idx}.initialPrice.numberPlace`, numberPlace!)
+        setValue(
+          `items.${idx}.initialPrice.rounding`,
+          //@ts-ignore
+          RoundingProcedureObj[rounding!],
+        )
+        itemTrigger(`items.${idx}`)
+        getTotalPrice()
+        handleMinimumPrice()
+      }
     }
   }
 
@@ -454,6 +451,7 @@ const Row = ({
 
   const handleMinimumPrice = () => {
     const minimumPrice = getValues(`items.${idx}.minimumPrice`)
+
     const currency = getValues(`items.${idx}.initialPrice.currency`)
     if (minimumPrice && minimumPrice !== 0) {
       handleShowMinimum(true)
@@ -464,11 +462,47 @@ const Row = ({
     } else handleShowMinimum(false)
   }
 
-  const onChangeCurrency = (currency: CurrencyType) => {
+  const onChangeCurrency = (
+    currency: CurrencyType,
+    index: number,
+    detail: Array<ItemDetailType>,
+    detailIndex: number,
+  ) => {
+    const items = getValues('items')
+    const currencies = items.flatMap(
+      item =>
+        item.detail
+          ? item.detail
+              .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
+              .filter(detailItem => !detail.find(d => d.id === detailItem.id)) // Exclude the recently added detail
+              .map(detailItem => detailItem.currency)
+          : [], // Return an empty array if detail is undefined
+    )
+    if (currencies.length > 0 && currencies[0] !== currency) {
+      openModal({
+        type: 'CurrencyMatchModal',
+        children: (
+          <CustomModal
+            title={`Please check the currency of the price unit. You can't use different currencies in an ${from}.`}
+            soloButton
+            rightButtonText='Okay'
+            onClick={() => {
+              closeModal('CurrencyMatchModal')
+              setValue(`items.${index}.detail.${detailIndex}.currency`, null)
+            }}
+            onClose={() => closeModal('CurrencyMatchModal')}
+            vary='error'
+          />
+        ),
+      })
+      return
+    }
+
     //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
-    getValues().items[0].detail?.map((priceUnit, idx) => {
-      setValue(`items.${0}.detail.${idx}.currency`, currency)
+    detail.map((priceUnit, idx) => {
+      setValue(`items.${index}.detail.${idx}.currency`, currency)
     })
+    itemTrigger(`items.${index}.detail`)
   }
 
   return (
@@ -893,26 +927,26 @@ const Row = ({
                           // Not Applicable 임시 막기
                           // currency 체크 로직
                           if (v) {
-                            if (v && v.id === -1) {
-                              selectNotApplicableModal()
-                            } else {
-                              if (checkPriceCurrency(v, idx)) {
-                                onChange(v?.id)
-                                const value = getValues().items[idx]
-                                const index = findLangPairIndex(
-                                  value?.source!,
-                                  value?.target!,
-                                )
-                                onChangePrice(v, idx)
+                            // if (v && v.id === -1) {
+                            //   selectNotApplicableModal()
+                            // } else {
+                            if (checkPriceCurrency(v, idx)) {
+                              onChange(v?.id)
+                              const value = getValues().items[idx]
+                              const index = findLangPairIndex(
+                                value?.source!,
+                                value?.target!,
+                              )
+                              onChangePrice(v, idx)
 
-                                if (index !== -1) {
-                                  const copyLangPair = [...languagePairs]
-                                  copyLangPair[index].price = v
-                                }
-                                getTotalPrice()
+                              if (index !== -1) {
+                                const copyLangPair = [...languagePairs]
+                                copyLangPair[index].price = v
                               }
+                              getTotalPrice()
                             }
                           }
+                          // }
                         }}
                         value={
                           value === null
@@ -956,12 +990,13 @@ const Row = ({
               index={idx}
               minimumPrice={getValues(`items.${idx}.minimumPrice`)!}
               details={details}
+              setValue={setValue}
               priceData={priceData()}
               getValues={getValues}
               append={append}
               update={update}
               getTotalPrice={getTotalPrice}
-              getEachPrice={getEachPrice}
+              // getEachPrice={getEachPrice}
               onDeletePriceUnit={onDeletePriceUnit}
               // onItemBoxLeave={onItemBoxLeave}
               isValid={

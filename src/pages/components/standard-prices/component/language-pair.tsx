@@ -194,7 +194,7 @@ const LanguagePair = ({
           editRowsModel[isEditingLanguagePair].priceFactor.value.toString(),
         minimumPrice:
           editRowsModel[isEditingLanguagePair].minimumPrice.value.toString(),
-        currency: priceData.currency,
+        currency: priceData.currency!,
       }
 
       patchLanguagePairMutation.mutate({ data: res, id: isEditingLanguagePair })

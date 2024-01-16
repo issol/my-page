@@ -42,10 +42,9 @@ import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
@@ -73,12 +72,13 @@ import { RoleList, ProRolePair } from 'src/shared/const/role/roles'
 import { RecruitingStatus } from 'src/shared/const/status/statuses'
 
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
-import { countries } from 'src/@fake-db/autocomplete'
+
 import JobPostingListModal from '../components/jobPosting-modal'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
-import logger from '@src/@core/utils/logger'
 
 import { timezoneSelector } from '@src/states/permission'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 export default function RecruitingPost() {
   const router = useRouter()
@@ -114,7 +114,7 @@ export default function RecruitingPost() {
     skip: skip * pageSize,
     take: pageSize,
     sort: 'createdAt',
-    ordering: 'DESC'
+    ordering: 'DESC',
   })
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
@@ -125,7 +125,7 @@ export default function RecruitingPost() {
 
   // ** contexts
   const auth = useRecoilValueLoadable(authState)
-  const { setModal } = useContext(ModalContext)
+  const { openModal, closeModal } = useModal()
 
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
@@ -180,82 +180,41 @@ export default function RecruitingPost() {
   function addLink(link: string) {
     setValue('jobPostLink', link, setValueOptions)
   }
+
   function onDiscard() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <CustomModal
+          title='Are you sure to discard this request?'
+          onClose={() => closeModal('DiscardModal')}
+          onClick={() => {
+            closeModal('DiscardModal')
+            router.replace('/recruiting/')
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt=''
-          />
-          <Typography variant='body2'>
-            Are you sure to discard this request?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              router.push('/recruiting/')
-            }}
-          >
-            Discard
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='error'
+          rightButtonText='Discard'
+        />
+      ),
+    })
   }
 
   function onUpload() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'UploadModal',
+      children: (
+        <CustomModal
+          title='Are you sure to add this recruiting request?'
+          onClose={() => closeModal('UploadModal')}
+          onClick={() => {
+            closeModal('UploadModal')
+            onSubmit()
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-successful.png'
-            width={60}
-            height={60}
-            alt=''
-          />
-          <Typography variant='body2'>
-            Are you sure to add this recruiting request?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              onSubmit()
-            }}
-          >
-            Upload
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='successful'
+          rightButtonText='Upload'
+        />
+      ),
+    })
   }
 
   const postMutation = useMutation((form: FormType) => postRecruiting(form), {
@@ -293,7 +252,7 @@ export default function RecruitingPost() {
     const filteredForm = Object.fromEntries(
       Object.entries(finalForm).filter(([_, value]) => value !== ''),
     )
-    console.log("filteredForm",filteredForm)
+    console.log('filteredForm', filteredForm)
     // @ts-ignore
     postMutation.mutate(filteredForm)
   }

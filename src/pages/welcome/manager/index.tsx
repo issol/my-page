@@ -9,19 +9,17 @@ import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
-import InputAdornment from '@mui/material/InputAdornment'
+
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import { useMediaQuery } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
-
-import isEmpty from 'lodash/isEmpty'
 
 // ** Third Party Imports
 
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 // ** CleaveJS Imports
-import Cleave from 'cleave.js/react'
+
 import 'cleave.js/dist/addons/cleave-phone.us'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -42,10 +40,9 @@ import {
   ManagerUserInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { managerProfileSchema } from 'src/types/schema/profile.schema'
-import { ModalContext } from 'src/context/ModalContext'
 
-import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
-import { useAppSelector } from 'src/hooks/useRedux'
+import { updateManagerUserInfo } from 'src/apis/user.api'
+
 import useAuth from '@src/hooks/useAuth'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -53,6 +50,8 @@ import { authState } from '@src/states/auth'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import MuiPhone from '@src/pages/components/phone/mui-phone'
 import { timezoneSelector } from '@src/states/permission'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -94,11 +93,10 @@ const defaultValues = {
 }
 
 const PersonalInfoManager = () => {
-  const { setModal } = useContext(ModalContext)
-
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
+  const { openModal, closeModal } = useModal()
 
   const [timeZoneList, setTimeZoneList] = useState<
     {
@@ -169,40 +167,19 @@ const PersonalInfoManager = () => {
         router.push('/dashboards')
       },
       onError: () => {
-        setModal(
-          <Box
-            sx={{
-              padding: '24px',
-              textAlign: 'center',
-              background: '#ffffff',
-              borderRadius: '14px',
-            }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '12px',
-              }}
-            >
-              <img
-                src='/images/icons/project-icons/status-alert-error.png'
-                width={60}
-                height={60}
-                alt='role select error'
-              />
-              <Typography variant='body2'>
-                Something went wrong. Please try again.
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
-              <Button variant='contained' onClick={() => setModal(null)}>
-                Okay
-              </Button>
-            </Box>
-          </Box>,
-        )
+        openModal({
+          type: 'ErrorModal',
+          children: (
+            <CustomModal
+              title='Something went wrong. Please try again.'
+              soloButton
+              rightButtonText='Okay'
+              onClick={() => closeModal('ErrorModal')}
+              onClose={() => closeModal('ErrorModal')}
+              vary='error'
+            />
+          ),
+        })
       },
     },
   )

@@ -45,10 +45,9 @@ import EmptyPost from 'src/@core/components/page/empty-post'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
@@ -87,10 +86,13 @@ import { recruiting } from '@src/shared/const/permission-class'
 import logger from '@src/@core/utils/logger'
 
 import { timezoneSelector } from '@src/states/permission'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 export default function RecruitingEdit() {
   const router = useRouter()
   const id = Number(router.query.id)
+  const { openModal, closeModal } = useModal()
 
   const languageList = getGloLanguage()
 
@@ -124,12 +126,11 @@ export default function RecruitingEdit() {
     skip: skip * pageSize,
     take: pageSize,
     sort: 'createdAt',
-    ordering: 'DESC'
+    ordering: 'DESC',
   })
 
   // ** contexts
   const auth = useRecoilValueLoadable(authState)
-  const { setModal } = useContext(ModalContext)
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
   const clientList = useMemo(
@@ -274,81 +275,39 @@ export default function RecruitingEdit() {
   }
 
   function onDiscard() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <CustomModal
+          title='Are you sure to discard this request?'
+          onClose={() => closeModal('DiscardModal')}
+          onClick={() => {
+            closeModal('DiscardModal')
+            router.replace('/recruiting/')
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt=''
-          />
-          <Typography variant='body2'>
-            Are you sure to discard this request?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              router.replace('/recruiting/')
-            }}
-          >
-            Discard
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='error'
+          rightButtonText='Discard'
+        />
+      ),
+    })
   }
 
   function onUpload() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'UploadModal',
+      children: (
+        <CustomModal
+          title='Are you sure to add this recruiting request?'
+          onClose={() => closeModal('UploadModal')}
+          onClick={() => {
+            closeModal('UploadModal')
+            onSubmit()
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-successful.png'
-            width={60}
-            height={60}
-            alt=''
-          />
-          <Typography variant='body2'>
-            Are you sure to add this recruiting request?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              onSubmit()
-            }}
-          >
-            Upload
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='successful'
+          rightButtonText='Upload'
+        />
+      ),
+    })
   }
 
   const updateMutation = useMutation(

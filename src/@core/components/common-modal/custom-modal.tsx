@@ -172,7 +172,7 @@ const CustomModal = ({
               alignItems: 'center',
               flexDirection: buttonDirection ?? 'row',
               width: '100%',
-              mt: '30px',
+              mt: buttonDirection === 'column-reverse' ? '30px' : 0,
             }}
           >
             {soloButton ? null : (
