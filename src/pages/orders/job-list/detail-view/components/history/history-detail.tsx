@@ -147,7 +147,6 @@ export default function HistoryDetail({
   const onClickClose = () => {
     //history-detail 모달을 닫고 JobDetailViewModal 모달을 연다
     queryClient.invalidateQueries(['jobHistory'])
-
     closeModal('history-detail')
     openModal({
       type: 'JobDetailViewModal',

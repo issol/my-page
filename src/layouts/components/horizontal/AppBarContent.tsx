@@ -127,12 +127,6 @@ const AppBarContent = (props: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
 
-  // const { data: notifications, refetch } = useGetNotificationList({
-  //   isShowUnread: 0,
-  //   take: 15,
-  //   skip: 0,
-  // })
-
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       {publicPage ? (
