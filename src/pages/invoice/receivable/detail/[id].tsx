@@ -1073,7 +1073,7 @@ const ReceivableInvoiceDetail = () => {
                 priceInfo?.currency ?? 'USD',
               )
             : formatCurrency(
-                subtotal,
+               subtotal,
                 // formatByRoundingProcedure(
                 //   subtotal,
                 //   priceInfo?.decimalPlace ?? 0,

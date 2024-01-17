@@ -19,6 +19,7 @@ import { useRouter } from 'next/router'
 // ** contexts
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { useContext } from 'react'
 
 // ** helpers
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
@@ -50,7 +51,7 @@ export default function JobsTrackerList({
   const auth = useRecoilValueLoadable(authState)
   const router = useRouter()
 
-  console.log('tracker', list)
+  console.log("tracker",list)
   const columns: GridColumns<JobsTrackerListType> = [
     {
       flex: 0.1,
@@ -95,13 +96,14 @@ export default function JobsTrackerList({
       renderCell: ({ row }: CellType) => {
         return (
           <Box display='flex' alignItems='center' gap='8px'>
-            {row?.category?.length ? (
-              <JobTypeChip
-                size='small'
-                type={row?.category}
-                label={row?.category}
-              />
-            ) : null}
+            {
+              row?.category?.length ? (
+                <JobTypeChip
+                  size='small'
+                  type={row?.category}
+                  label={row?.category}
+                />
+              ) : null}
 
             <Box></Box>
             {row?.serviceType?.length ? (

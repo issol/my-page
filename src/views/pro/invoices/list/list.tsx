@@ -4,19 +4,30 @@ import { useRouter } from 'next/router'
 import { Box, Tooltip, Typography } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { TableTitleTypography } from '@src/@core/styles/typography'
-import { invoicePayableStatusChip } from '@src/@core/components/chips/chips'
+import {
+  ExtraNumberChip,
+  InvoiceReceivableChip,
+  JobTypeChip,
+  ServiceTypeChip,
+  invoicePayableStatusChip,
+} from '@src/@core/components/chips/chips'
 
 // ** types
+import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 
 // ** helpers
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
-import { formatCurrency } from '@src/shared/helpers/price.helper'
+import {
+  formatCurrency,
+  getCurrencyMark,
+} from '@src/shared/helpers/price.helper'
 
 // ** contexts
-
+import { useContext } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-
+import { ProInvoiceListType } from '@src/types/invoice/common.type'
+import { useGetStatusList } from '@src/queries/common.query'
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 import { timezoneSelector } from '@src/states/permission'
 

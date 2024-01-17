@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-
-import styled from 'styled-components'
-import useModal, { ModalType, modalState } from '@src/hooks/useModal'
-
-import { useRecoilValueLoadable } from 'recoil'
+import { useAppSelector } from '@src/hooks/useRedux'
+import styled from '@emotion/styled'
+import useModal from '@src/hooks/useModal'
+import { ModalType } from '@src/store/modal'
 
 function ModalContainer() {
-  const modalList = useRecoilValueLoadable(modalState)
+  const modalList = useAppSelector(state => state.modal)
   // const [isCSR, setIsCSR] = useState<boolean>(false)
 
   // useEffect(() => {
@@ -30,7 +29,10 @@ function ModalContainer() {
   }
 
   useEffect(() => {
-    if (modalList.getValue().length > 0) {
+    console.log(window.pageYOffset)
+    console.log(window.scrollY)
+
+    if (modalList.length > 0) {
       document.body.style.cssText = `
     position: fixed;
     top: -${window.scrollY}px;
@@ -50,9 +52,8 @@ function ModalContainer() {
 
   // ...
 
-  const renderModal = modalList
-    .getValue()
-    .map(({ type, children, isCloseable = true }: ModalType) => {
+  const renderModal = modalList?.map(
+    ({ type, children, isCloseable = true }: ModalType) => {
       return (
         <Overlay
           key={type}
@@ -63,7 +64,8 @@ function ModalContainer() {
           {children}
         </Overlay>
       )
-    })
+    },
+  )
   const element =
     typeof window !== 'undefined' ? document.getElementById('modal') : null
 

@@ -16,7 +16,7 @@ import {
   ProListFilterType,
   ProListType,
 } from '@src/types/pro/list'
-import { SyntheticEvent, useEffect, useState } from 'react'
+import { SyntheticEvent, useContext, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import JobTypeRole from '../components/job-type-role-chips'
 import LegalNameEmail from '../onboarding/components/list/list-item/legalname-email'
@@ -509,7 +509,6 @@ const Pro = () => {
     queryClient.invalidateQueries(['pro-list'])
     queryClient.invalidateQueries(['pro-overview'])
   }, [])
-
   return (
     <Grid container spacing={6}>
       <PageHeader title={<Typography variant='h5'>Pro list</Typography>} />

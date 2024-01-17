@@ -1,23 +1,11 @@
-import {
-  Box,
-  Grid,
-  TableContainer,
-  Table,
-  TableHead,
-  TableRow,
-  TableBody,
-  Typography,
-} from '@mui/material'
+import { Box, Grid, TableContainer, Table, TableHead, TableRow, TableBody, Typography  } from '@mui/material'
 import Paper from '@mui/material/Paper'
-
-import { ItemDetailType } from '@src/types/common/item.type'
-import { styled } from '@mui/material/styles'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { ModalType } from '@src/store/modal'
+import { ItemDetailType, ItemType } from '@src/types/common/item.type'
+import { styled, lighten, darken } from '@mui/material/styles'
 import TableCell, { tableCellClasses } from '@mui/material/TableCell'
-import {
-  formatByRoundingProcedure,
-  formatCurrency,
-  getCurrencyMark,
-} from '@src/shared/helpers/price.helper'
+import { formatByRoundingProcedure, formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { PriceType } from '@src/types/common/orders-and-quotes.type'
 
 const StyledTableCell = styled(TableCell)<{ dark: boolean }>(
@@ -51,7 +39,9 @@ const PriceHistoryRow = ({
 }: Props) => {
   const Row = ({ idx }: { idx: number }) => {
     return (
-      <TableRow tabIndex={-1}>
+      <TableRow
+        tabIndex={-1}
+      >
         <TableCell sx={{ width: '10%' }}>
           <Box display='flex' alignItems='center' gap='8px' height={38}>
             <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
@@ -68,7 +58,10 @@ const PriceHistoryRow = ({
           </Box>
         </TableCell>
 
-        <TableCell align={'left'} sx={{ width: '15%' }}>
+        <TableCell
+          align={'left'}
+          sx={{ width: '15%' }}
+        >
           <Box display='flex' alignItems='center' gap='8px' height={38}>
             <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
               {formatCurrency(
@@ -82,9 +75,7 @@ const PriceHistoryRow = ({
         <TableCell sx={{ width: '15%' }} align='center'>
           <Box display='flex' alignItems='center' gap='8px' height={38}>
             <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-              {`${getCurrencyMark(initialPrice.currency)} ${
-                initialPrice.currency
-              }`}
+              {`${getCurrencyMark(initialPrice.currency)} ${initialPrice.currency}`}
             </Typography>
           </Box>
         </TableCell>
@@ -96,7 +87,7 @@ const PriceHistoryRow = ({
                 Number(priceHistoryDetail[idx].prices),
                 initialPrice.numberPlace,
                 initialPrice.rounding,
-                initialPrice.currency,
+                initialPrice.currency
               ),
               initialPrice.currency,
             )}
@@ -110,10 +101,12 @@ const PriceHistoryRow = ({
   }
   return (
     <Box
-      style={{
-        borderRadius: '8px',
-        marginBottom: '14px',
-      }}
+      style={
+        {
+          borderRadius: '8px',
+          marginBottom: '14px',
+        }
+    }
     >
       {/* priceHistory unit start */}
       <Grid item xs={12}>
@@ -206,9 +199,9 @@ const PriceHistoryRow = ({
                           minimumPrice ?? 0,
                           initialPrice.numberPlace,
                           initialPrice.rounding,
-                          initialPrice.currency,
+                          initialPrice.currency
                         ),
-                        initialPrice.currency,
+                        initialPrice.currency
                       )}
                     </Typography>
                   </TableCell>
@@ -220,13 +213,15 @@ const PriceHistoryRow = ({
                           minimumPrice ?? 0,
                           initialPrice.numberPlace,
                           initialPrice.rounding,
-                          initialPrice.currency,
+                          initialPrice.currency
                         ),
-                        initialPrice.currency,
+                        initialPrice.currency
                       )}
                     </Typography>
                   </TableCell>
-                  <TableCell align='center'>{null}</TableCell>
+                  <TableCell align='center'>
+                    {null}
+                  </TableCell>
                 </TableRow>
               ) : null}
             </TableBody>
@@ -255,9 +250,9 @@ const PriceHistoryRow = ({
                     Number(totalPrice),
                     initialPrice?.numberPlace,
                     initialPrice?.rounding,
-                    initialPrice?.currency,
+                    initialPrice?.currency
                   ),
-                  initialPrice?.currency,
+                  initialPrice?.currency
                 )}
               </Typography>
             </Box>

@@ -14,15 +14,23 @@ import {
   Typography,
   styled,
 } from '@mui/material'
-
+import Chip from '@src/@core/components/mui/chip'
 import {
   ClientCompanyInfoType,
   CorporateClientInfoType,
+  RoleType,
 } from '@src/context/types'
-
+import { FileType } from '@src/types/common/file.type'
 import CustomChip from '@src/@core/components/mui/chip'
 
-import { Suspense, MouseEvent, useState, useEffect } from 'react'
+import {
+  Suspense,
+  MouseEvent,
+  useState,
+  SyntheticEvent,
+  useEffect,
+  useContext,
+} from 'react'
 
 import useModal from '@src/hooks/useModal'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
@@ -34,6 +42,7 @@ import { useMutation, useQueryClient } from 'react-query'
 
 import { getCurrentRole } from '@src/shared/auth/storage'
 
+import { S3FileType } from 'src/shared/const/signedURLFileType'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 import {
@@ -43,6 +52,7 @@ import {
 import {
   ClientAddressFormType,
   clientAddressAllRequiredSchema,
+  clientAddressDefaultValue,
 } from '@src/types/schema/client-address.schema'
 import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
 import ClientCompanyInfoForm from '@src/pages/client/components/forms/client-info/client-company-info-form'
@@ -184,7 +194,7 @@ export default function ClientCompanyInfoPageComponent() {
         }))
         .filter(i => i.addressType !== 'billing')
       resetAddress({
-        clientAddresses: filteredAddress,
+        clientAddresses: filteredAddress
       })
       filteredAddress?.map((address, idx) => {
         update(idx, { ...address })
@@ -264,7 +274,9 @@ export default function ClientCompanyInfoPageComponent() {
 
   return (
     <Suspense fallback={<FallbackSpinner />}>
-      {updateClientMutation.isLoading ? <OverlaySpinner /> : null}
+      {updateClientMutation.isLoading ? (
+        <OverlaySpinner />
+      ) : null}
       <ConfirmLeaveModal />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <CompanyInfoCard companyInfo={auth.getValue().company!} />

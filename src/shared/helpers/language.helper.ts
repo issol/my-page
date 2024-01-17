@@ -14,16 +14,3 @@ export const convertLanguageCodeToPair = (source?: string, target?: string) => {
   }
   return '-'
 }
-
-export const convertMultipleTargetLanguageCodeToPair = (
-  source?: string,
-  target?: string[],
-) => {
-  if (source && target) {
-    const targetLanguages = target
-      .map(language => languageHelper(language))
-      .join(', ')
-    return `${languageHelper(source)} -> ${targetLanguages}`
-  }
-  return '-'
-}

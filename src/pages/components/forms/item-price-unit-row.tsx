@@ -676,18 +676,18 @@ const Row = ({
         ) : (
           <Typography fontSize={14}>
             {isNotApplicable
-              ? savedValue?.currency
+              ? savedValue.currency
                 ? formatCurrency(
                     formatByRoundingProcedure(
                       Number(price),
-                      savedValue?.currency === 'USD' ||
+                      savedValue.currency === 'USD' ||
                         savedValue.currency === 'SGD'
                         ? 2
                         : 1,
                       0,
-                      savedValue?.currency ?? 'KRW',
+                      savedValue.currency ?? 'KRW',
                     ),
-                    savedValue?.currency ?? null,
+                    savedValue.currency ?? null,
                   )
                 : formatCurrency(
                     formatByRoundingProcedure(

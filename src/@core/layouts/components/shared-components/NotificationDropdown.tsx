@@ -1,5 +1,14 @@
 // ** React Imports
-import { useState, SyntheticEvent, Fragment, ReactNode, useEffect } from 'react'
+import {
+  useState,
+  SyntheticEvent,
+  Fragment,
+  ReactNode,
+  useContext,
+  useRef,
+  useCallback,
+  useEffect,
+} from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -11,6 +20,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import MuiMenu, { MenuProps } from '@mui/material/Menu'
 import MuiMenuItem, { MenuItemProps } from '@mui/material/MenuItem'
 import Typography, { TypographyProps } from '@mui/material/Typography'
+import InfiniteScroll from 'react-infinite-scroller'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -33,7 +43,14 @@ import { NotificationType } from '@src/types/common/notification.type'
 import { useRouter } from 'next/router'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
-import { useInfiniteQuery, useMutation } from 'react-query'
+import {
+  FetchNextPageOptions,
+  InfiniteData,
+  InfiniteQueryObserverResult,
+  useInfiniteQuery,
+  useMutation,
+  UseMutationResult,
+} from 'react-query'
 import {
   getNotificationList,
   markAllAsRead,

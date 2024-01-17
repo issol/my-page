@@ -60,7 +60,7 @@ const WorkDaysCalendar = (props: Props) => {
   const editBtn = document.getElementsByClassName('off-edit')
   const deleteBtn = document.getElementsByClassName('off-delete')
 
-  const calendarOptions: CalendarOptions = {
+  const calendarOptions = {
     ...calendarDefaultOptions,
     validRange: {
       start: dayjs().add(-12, 'month').format('YYYY-MM-DD'),
@@ -133,7 +133,7 @@ const WorkDaysCalendar = (props: Props) => {
     },
   }
 
-  const handleMonthChange = async (payload: DatesSetArg) => {
+  async function handleMonthChange(payload: DatesSetArg) {
     const currDate = payload.view.currentStart
     const currYear = currDate.getFullYear()
     const currMonth = currDate.getMonth() + 1

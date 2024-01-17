@@ -7,7 +7,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
-
+import { ModalType } from '@src/store/modal'
 import { ItemType } from '@src/types/common/item.type'
 import {
   CurrencyType,
@@ -24,7 +24,6 @@ import {
   UseFormTrigger,
 } from 'react-hook-form'
 import { languageType } from '@src/pages/orders/add-new'
-import { ModalType } from '@src/hooks/useModal'
 
 type Props = {
   getItem: UseFormGetValues<{

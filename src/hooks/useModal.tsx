@@ -1,40 +1,19 @@
-import { atom, useRecoilState } from 'recoil'
+import { ModalType, closeModal, openModal } from '@src/store/modal'
+import { useAppDispatch } from './useRedux'
 import { ReactNode } from 'react'
 
-export type ModalType = {
-  type: string
-  children: ReactNode
-  isCloseable?: boolean
-}
+function useModal() {
+  const dispatch = useAppDispatch()
 
-export const modalState = atom<Array<ModalType>>({
-  key: 'modalState',
-  default: [],
-})
-
-export function useModal() {
-  const [modal, setModal] = useRecoilState(modalState)
-
-  const openModal = (newValue: ModalType) => {
-    setModal(oldModalState => {
-      const isCloseable = newValue.isCloseable ?? false
-
-      return oldModalState.concat({
-        ...newValue,
-        isCloseable: isCloseable,
-      })
-    })
+  const handleOpenModal = ({ type, children, isCloseable }: ModalType) => {
+    dispatch(openModal({ type, children, isCloseable }))
   }
 
-  const closeModal = (type: string) => {
-    setModal(oldModalState => {
-      const newModalState = [...oldModalState]
-      newModalState.pop()
-      return newModalState
-    })
+  const handleCloseModal = (type: string) => {
+    dispatch(closeModal(type))
   }
 
-  return { modal, openModal, closeModal }
+  return { openModal: handleOpenModal, closeModal: handleCloseModal }
 }
 
 export default useModal

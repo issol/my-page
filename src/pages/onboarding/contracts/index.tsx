@@ -6,7 +6,7 @@ import Icon from 'src/@core/components/icon'
 import FallbackSpinner from 'src/@core/components/spinner'
 import { toast } from 'react-hot-toast'
 
-import { Fragment, Suspense } from 'react'
+import { Fragment, Suspense, useContext } from 'react'
 
 import { useRouter } from 'next/router'
 
