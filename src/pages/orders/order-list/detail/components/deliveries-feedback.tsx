@@ -105,7 +105,10 @@ const DeliveriesFeedback = ({
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
-  const { data: jobDetails, refetch } = useGetJobDetails(project.id)
+  const { data: jobDetails, refetch } = useGetJobDetails(
+    project.id,
+    currentRole?.name !== 'CLIENT',
+  )
 
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
