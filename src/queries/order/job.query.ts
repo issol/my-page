@@ -28,13 +28,13 @@ export const useGetAssignableProList = (
   )
 }
 
-export const useGetJobDetails = (orderId: number) => {
+export const useGetJobDetails = (orderId: number, enabled: boolean) => {
   return useQuery(['jobDetails', orderId], () => getJobDetails(orderId), {
     staleTime: 10 * 1000, // 1
 
     suspense: false,
     keepPreviousData: true,
-    enabled: !!orderId,
+    enabled: !!orderId && enabled,
   })
 }
 
@@ -63,15 +63,11 @@ export const useGetJobPrices = (jobId: number, isHistory: boolean) => {
 }
 
 export const useGetJobPriceHistory = (jobId: number) => {
-  return useQuery(
-    ['jobPriceHistory', jobId],
-    () => getJobPriceHistory(jobId),
-    {
-      staleTime: 10 * 1000, // 1
+  return useQuery(['jobPriceHistory', jobId], () => getJobPriceHistory(jobId), {
+    staleTime: 10 * 1000, // 1
 
-      suspense: false,
-    },
-  )
+    suspense: false,
+  })
 }
 
 export const useGetMessage = (jobId: number, proId: number) => {
