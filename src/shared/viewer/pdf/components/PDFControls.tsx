@@ -2,7 +2,6 @@ import { IStyledProps } from '@cyntler/react-doc-viewer'
 import Button from '@mui/material/Button'
 import Link from 'next/link'
 import React, { FC, useContext } from 'react'
-import styled from 'styled-components'
 
 import { PDFContext } from '../state'
 import { setPDFPaginated, setZoomLevel } from '../state/actions'
@@ -15,6 +14,7 @@ import {
   ZoomOutPDFIcon,
 } from './icons'
 import PDFPagination from './PDFPagination'
+import styled from 'styled-components'
 
 const PDFControls: FC<{}> = () => {
   const {

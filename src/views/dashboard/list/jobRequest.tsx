@@ -8,15 +8,26 @@ import CurrencyByDateList, {
 } from '@src/views/dashboard/list/currencyByDate'
 import ProJobRequestBarChart from '@src/views/dashboard/chart/jobRequestBar'
 import dayjs from 'dayjs'
-import { useExpectedIncome } from '@src/queries/dashboard/dashnaord-lpm'
+import { useExpectedIncome } from '@src/queries/dashnaord.query'
 import { ExpectedIncome, ExpectedIncomeSort } from '@src/types/dashboard'
 import find from 'lodash/find'
+import DashboardForSuspense, {
+  DashboardErrorFallback,
+} from '@src/views/dashboard/suspense'
+
+const getSubTitle = (date: Date) => {
+  return `Based On ${getProDateFormat(
+    dayjs(date).get('year'),
+    dayjs(date).get('month') + 1,
+  )}`
+}
 
 interface ExpectedIncomeProps {
   date: Date | null
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
-const ExpectedIncome = ({
+
+const JobRequestContent = ({
   date: calendarDate,
   setOpenInfoDialog,
 }: ExpectedIncomeProps) => {
@@ -29,13 +40,6 @@ const ExpectedIncome = ({
     month: date.get('month') - 1,
     sort,
   })
-
-  const getSubTitle = () => {
-    return `Based On ${getProDateFormat(
-      date.get('year'),
-      date.get('month') + 1,
-    )}`
-  }
 
   const CalendarList: Array<ExpectedIncome> = useMemo(() => {
     const _date = dayjs(date).set('date', 1)
@@ -63,7 +67,7 @@ const ExpectedIncome = ({
       <Box sx={{ width: '50%', padding: '20px' }}>
         <Title
           title='Job requests'
-          subTitle={getSubTitle()}
+          subTitle={getSubTitle(date.toDate())}
           openDialog={setOpenInfoDialog}
         />
         <ProJobRequestBarChart report={[...CalendarList].reverse() || []} />
@@ -118,4 +122,19 @@ const ExpectedIncome = ({
   )
 }
 
-export default ExpectedIncome
+const JobRequest = (props: ExpectedIncomeProps) => {
+  return (
+    <DashboardForSuspense
+      {...props}
+      refreshDataQueryKey='ExpectedIncome'
+      sectionTitle='Job requests'
+      titleProps={{
+        subTitle: getSubTitle(dayjs(props.date).toDate()),
+        padding: '20px',
+      }}
+    >
+      <JobRequestContent {...props} />
+    </DashboardForSuspense>
+  )
+}
+export default JobRequest

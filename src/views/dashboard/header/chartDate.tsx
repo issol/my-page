@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import { GridItem } from '@src/views/dashboard/dashboardItem'
 import { Box, ButtonGroup } from '@mui/material'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
@@ -23,6 +23,11 @@ const ChartDate = () => {
     name: ['dateRange', 'selectedRangeDate', 'userViewDate'],
   })
 
+  const [startDate, setStartDate] = useState(
+    (dateRange && dateRange[0]) || new Date(),
+  )
+  const [endDate, setEndDate] = useState(dateRange ? dateRange[1] : null)
+
   const onChangeDateRange = useCallback(
     (type: SelectedRangeDate) => {
       setValue('selectedRangeDate', type)
@@ -39,10 +44,10 @@ const ChartDate = () => {
           setValue('dateRange', dates)
           break
         case 'today':
-          const title2 = getDateFormatter(new Date(), null) || '-'
+          const title2 = getDateFormatter(new Date(), new Date()) || '-'
 
           setValue('userViewDate', title2)
-          setValue('dateRange', [new Date(), null])
+          setValue('dateRange', [new Date(), new Date()])
           break
         case 'week':
           const title3 =
@@ -63,43 +68,40 @@ const ChartDate = () => {
     [dateRange, selectedRangeDate],
   )
 
-  const onChangeDatePicker = (
-    date: Array<Date | null> | null,
-    onChange: (date: Array<Date | null> | null) => void,
-  ) => {
+  const onChangeDatePicker = (date: Array<Date | null> | null) => {
     if (!date || !date[0]) return
 
     const title = getDateFormatter(date[0], date[1]) || '-'
     setValue('userViewDate', title)
-    onChange(date)
+
+    setStartDate(date[0])
+    setEndDate(date[1])
+
+    if (date[0] && date[1]) {
+      setValue('dateRange', date)
+    }
   }
 
   return (
     <GridItem height={76} sm>
       <Box display='flex' justifyContent='space-between' sx={{ width: '100%' }}>
         <DatePickerWrapper display='flex' alignItems='center'>
-          <Controller
-            control={control}
-            name='dateRange'
-            render={({ field: { onChange } }) => (
-              <DatePicker
-                aria-label='date picker button'
-                onChange={date => onChangeDatePicker(date, onChange)}
-                startDate={(dateRange && dateRange[0]) || new Date()}
-                endDate={dateRange && dateRange[1]}
-                selectsRange
-                minDate={dayjs().add(-5, 'year').toDate()}
-                maxDate={dayjs().add(2, 'month').toDate()}
-                customInput={
-                  <Box display='flex' alignItems='center'>
-                    <Typography fontSize='20px' fontWeight={500}>
-                      {userViewDate}
-                    </Typography>
-                    <CalendarTodayIcon sx={{ width: '45px' }} color='primary' />
-                  </Box>
-                }
-              />
-            )}
+          <DatePicker
+            aria-label='date picker button'
+            onChange={date => onChangeDatePicker(date)}
+            startDate={startDate}
+            endDate={endDate}
+            selectsRange
+            minDate={dayjs().add(-5, 'year').toDate()}
+            maxDate={dayjs().add(2, 'month').toDate()}
+            customInput={
+              <Box display='flex' alignItems='center'>
+                <Typography fontSize='20px' fontWeight={500}>
+                  {userViewDate}
+                </Typography>
+                <CalendarTodayIcon sx={{ width: '45px' }} color='primary' />
+              </Box>
+            }
           />
         </DatePickerWrapper>
         <ButtonGroup disableElevation aria-label='date selecor button group'>

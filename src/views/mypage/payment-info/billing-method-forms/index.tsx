@@ -12,7 +12,7 @@ import {
   Switch,
   Typography,
 } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** types & schemas
 import {

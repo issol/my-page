@@ -12,7 +12,7 @@ import {
   PaidThisMonthAmount,
   TotalPriceResult,
   useDashboardReport,
-} from '@src/queries/dashboard/dashnaord-lpm'
+} from '@src/queries/dashnaord.query'
 import { FormProvider, useWatch } from 'react-hook-form'
 import React, { useEffect, useState } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
@@ -31,16 +31,12 @@ import {
 import StatusAndDataGrid from '@src/views/dashboard/dataGrid/status'
 import {
   InvoiceColumns,
-  ReceivableColumns,
   StatusOrderColumns,
 } from '@src/shared/const/columns/dashboard'
 import { getDateFormat } from '@src/pages/dashboards/lpm'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
-import Total, {
-  ReceivableColors,
-  TotalPrice,
-} from '@src/views/dashboard/chart/total'
+import TotalPrice, { ReceivableColors } from '@src/views/dashboard/chart/total'
 import { ReceiptLong } from '@mui/icons-material'
 import ClientReport from '@src/views/dashboard/list/clientReport'
 import Notice from '@src/views/dashboard/notice'
@@ -110,11 +106,11 @@ const ClientDashboards = () => {
       }
     })
 
-    const filterOngoingOrder = Object.entries(ongoingCounts).map(
-      ([key, value]) => {
+    const filterOngoingOrder =
+      ongoingCounts &&
+      Object.entries(ongoingCounts).map(([key, value]) => {
         return { orderStatus: key, orderNumber: value, '   ': '  ' }
-      },
-    )
+      })
 
     const mergeData1 = mergeData(filterInvoiceTotal, receivables)
     mergeData1[0] = {
@@ -244,6 +240,7 @@ const ClientDashboards = () => {
             <LongStandingDataGrid<LongStandingReceivableItem>
               title='Long-standing invoices - Action required'
               type='receivable'
+              overlayTitle='There are no long-standing invoices'
               columns={InvoiceColumns}
               initSort={[
                 {
@@ -283,6 +280,7 @@ const ClientDashboards = () => {
             <Doughnut<PairRatioItem>
               userViewDate={userViewDate}
               title='Language pairs@client'
+              overlayTitle='There are no language information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -314,6 +312,7 @@ const ClientDashboards = () => {
             <Doughnut<CategoryRatioItem>
               userViewDate={userViewDate}
               title='Categories'
+              overlayTitle='There are no category information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -333,6 +332,7 @@ const ClientDashboards = () => {
             <Doughnut<ServiceRatioItem>
               userViewDate={userViewDate}
               title='Service types@client'
+              overlayTitle='There are no service type information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -350,6 +350,7 @@ const ClientDashboards = () => {
             <Doughnut<ExpertiseRatioItem>
               userViewDate={userViewDate}
               title='Area of expertises@client'
+              overlayTitle='There are no area of expertise information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}

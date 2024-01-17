@@ -1,7 +1,7 @@
 import { DataGrid } from '@mui/x-data-grid'
 import { JobTableColumn } from '@src/shared/const/columns/dashboard'
-import styled from 'styled-components'
-import { useJobType } from '@src/queries/dashboard/dashnaord-lpm'
+import styled from '@emotion/styled'
+import { useJobType } from '@src/queries/dashnaord.query'
 import { Box } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
 import React, { useEffect, useState } from 'react'
@@ -9,17 +9,20 @@ import OptionsMenu from '@src/@core/components/option-menu'
 import { useRouter } from 'next/router'
 import { CSVDataRecordProps } from '@src/types/dashboard'
 import NoList from '@src/pages/components/no-list'
+import DashboardForSuspense from '@src/views/dashboard/suspense'
 
 interface TADJobDataGridProps extends CSVDataRecordProps {
+  sectionTitle: string
   setOpenInfoDialog: (open: boolean, key: string) => void
+  handleTitleClick?: () => void
 }
 
-const TADJobDataGrid = ({
-  dataRecord,
+const JobDataGrid = ({
+  sectionTitle,
   setDataRecord,
   setOpenInfoDialog,
+  handleTitleClick,
 }: TADJobDataGridProps) => {
-  const router = useRouter()
   const [filter, setFilter] = useState<'jobType' | 'role' | 'pair'>('pair')
   const [page, setPage] = useState(0)
 
@@ -69,10 +72,10 @@ const TADJobDataGrid = ({
         sx={{ padding: '20px 20px 10px' }}
       >
         <Title
-          title='Job type/Role pool'
+          title={sectionTitle}
           subTitle={`Total ${data?.totalCount || 0} ${getTitle()}`}
           openDialog={setOpenInfoDialog}
-          handleClick={() => router.push('/pro')}
+          handleClick={handleTitleClick}
         />
         <Box>
           <OptionsMenu
@@ -132,6 +135,28 @@ const TADJobDataGrid = ({
         />
       </div>
     </Box>
+  )
+}
+
+const TADJobDataGrid = (props: TADJobDataGridProps) => {
+  const router = useRouter()
+  const handleTitleClick = () => {
+    router.push('/pro')
+  }
+
+  return (
+    <DashboardForSuspense
+      {...props}
+      sectionTitle={props.sectionTitle}
+      handleClick={handleTitleClick}
+      refreshDataQueryKey='JobTypeAndRole'
+      titleProps={{
+        subTitle: 'Total 0 Job type/Role pool',
+        padding: '20px',
+      }}
+    >
+      <JobDataGrid {...props} />
+    </DashboardForSuspense>
   )
 }
 

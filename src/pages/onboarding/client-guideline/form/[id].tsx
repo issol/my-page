@@ -34,10 +34,9 @@ import { StyledEditor } from 'src/@core/components/editor/customEditor'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
@@ -78,6 +77,9 @@ import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 import logger from '@src/@core/utils/logger'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import AlertModal from '@src/@core/components/common-modal/alert-modal'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 const defaultValues = {
   title: '',
@@ -92,7 +94,7 @@ const ClientGuidelineEdit = () => {
   const id = Number(router.query.id)
   // ** contexts
   const auth = useRecoilValueLoadable(authState)
-  const { setModal } = useContext(ModalContext)
+  const { openModal, closeModal } = useModal()
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
   const clientList = useMemo(
@@ -205,42 +207,17 @@ const ClientGuidelineEdit = () => {
           let result = fileSize
           acc.concat(file).forEach((file: FileType) => (result += file.size))
           if (result > MAXIMUM_FILE_SIZE) {
-            setModal(
-              <ModalContainer>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '12px',
-                  }}
-                >
-                  <img
-                    src='/images/icons/project-icons/status-alert-error.png'
-                    width={60}
-                    height={60}
-                    alt={`The maximum file size you can upload is ${byteToMB(
-                      MAXIMUM_FILE_SIZE,
-                    )}.`}
-                  />
-                  <Typography variant='body2'>
-                    {`The maximum file size you can upload is ${byteToMB(
-                      MAXIMUM_FILE_SIZE,
-                    )}.`}
-                  </Typography>
-                </Box>
-                <ModalButtonGroup>
-                  <Button
-                    variant='contained'
-                    onClick={() => {
-                      setModal(null)
-                    }}
-                  >
-                    Okay
-                  </Button>
-                </ModalButtonGroup>
-              </ModalContainer>,
-            )
+            openModal({
+              type: 'AlertMaximumFileSizeModal',
+              children: (
+                <AlertModal
+                  title='The maximum file size you can upload is 2gb.'
+                  onClick={() => closeModal('AlertMaximumFileSizeModal')}
+                  vary='error'
+                  buttonText='Okay'
+                />
+              ),
+            })
             return acc
           } else {
             const found = acc.find(f => f.name === file.name)
@@ -284,81 +261,39 @@ const ClientGuidelineEdit = () => {
   }, [files, savedFiles])
 
   function onDiscard() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <CustomModal
+          title='Are you sure to discard this guideline?'
+          rightButtonText='Discard'
+          onClose={() => closeModal('DiscardModal')}
+          onClick={() => {
+            closeModal('DiscardModal')
+            router.back()
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to discard this guideline?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='outlined'
-            onClick={() => {
-              setModal(null)
-              router.back()
-            }}
-          >
-            Discard
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='error'
+        />
+      ),
+    })
   }
 
   function onUpload() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'UploadModal',
+      children: (
+        <CustomModal
+          title='Are you sure to upload this guideline?'
+          rightButtonText='Upload'
+          onClose={() => closeModal('UploadModal')}
+          onClick={() => {
+            closeModal('UploadModal')
+            onSubmit()
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-successful.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to upload this guideline?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              onSubmit()
-            }}
-          >
-            Upload
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='successful'
+        />
+      ),
+    })
   }
 
   const guidelinePatchMutation = useMutation(

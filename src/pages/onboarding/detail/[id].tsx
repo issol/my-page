@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 
 import { Box } from '@mui/system'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import toast from 'react-hot-toast'
 
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
@@ -15,7 +15,6 @@ import {
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 
-import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../../components/pro-detail-modal/dialog/test-details-modal'
 
 import {
@@ -54,26 +53,18 @@ import NoteFromPro from '@src/pages/components/pro-detail-component/note-pro'
 import Resume from '@src/pages/components/pro-detail-component/resume'
 import Specialties from '@src/pages/components/pro-detail-component/specialities'
 
-import BasicTestActionModal from '@src/pages/components/pro-detail-modal/modal/basic-test-action-modal'
-import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal/cancel-comment-modal'
-
-import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certify-role-modal'
-import DeleteCommentModal from '@src/pages/components/pro-detail-modal/modal/delete-comment-modal'
-import CancelEditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-cancel-comment-modal'
-import EditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-comment-modal'
 import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
 import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
 import ReasonModal from '@src/pages/components/pro-detail-modal/modal/reason-modal'
-import ResumeTestModal from '@src/pages/components/pro-detail-modal/modal/resume-test-modal'
-import SaveCommentModal from '@src/pages/components/pro-detail-modal/modal/save-comment-modal'
-import SkillTestActionModal from '@src/pages/components/pro-detail-modal/modal/skill-test-action-modal'
-import TestAssignModal from '@src/pages/components/pro-detail-modal/modal/test-assign-modal'
+
 import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
 
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import languageHelper from '@src/shared/helpers/language.helper'
 
 const OnboardingDetails = () => (
   <Suspense fallback={<FallbackSpinner />}>
@@ -125,7 +116,6 @@ function OnboardingDetail() {
 
   const languageList = getGloLanguage()
 
-  const { setModal } = useContext(ModalContext)
   const { openModal, closeModal } = useModal()
 
   const queryClient = useQueryClient()
@@ -381,66 +371,148 @@ function OnboardingDetail() {
 
   const onClickRejectOrPause = (jobInfo: AppliedRoleType, type: string) => {
     setActionId(jobInfo.id)
-    setModal(
-      <NegativeActionsTestModal
-        open={true}
-        onClose={() => setModal(null)}
-        type={type}
-        jobInfo={jobInfo}
-        userInfo={userInfo!}
-        handleRejectRole={handleRejectRole}
-        handlePauseRole={handlePauseRole}
-      />,
-    )
+    openModal({
+      type: 'NegativeActionsTestModal',
+      children: (
+        <NegativeActionsTestModal
+          onClose={() => closeModal('NegativeActionsTestModal')}
+          type={type}
+          jobInfo={jobInfo}
+          userInfo={userInfo!}
+          handleRejectRole={handleRejectRole}
+          handlePauseRole={handlePauseRole}
+          vary='error'
+        />
+      ),
+    })
   }
 
   const onClickCertify = (jobInfo: AppliedRoleType) => {
     setActionId(jobInfo.id)
-    setModal(
-      <CertifyRoleModal
-        open={true}
-        onClose={() => setModal(null)}
-        userInfo={jobInfo}
-        handleCertifyRole={handleCertifyRole}
-      />,
-    )
+    openModal({
+      type: 'CertifyRoleModal',
+      children: (
+        <CustomModal
+          title={
+            <>
+              Are you sure you want to certify this role?
+              <Typography variant='body2' fontWeight={600}>
+                {jobInfo.jobType}, {jobInfo.role},{' '}
+                {jobInfo.source &&
+                jobInfo.target &&
+                jobInfo.source !== '' &&
+                jobInfo.target !== '' ? (
+                  <>
+                    {jobInfo.source.toUpperCase()} &rarr;{' '}
+                    {jobInfo.target.toUpperCase()}
+                  </>
+                ) : (
+                  ''
+                )}
+              </Typography>
+            </>
+          }
+          onClose={() => closeModal('CertifyRoleModal')}
+          vary='successful'
+          onClick={() => {
+            closeModal('CertifyRoleModal')
+            handleCertifyRole(jobInfo.id)
+          }}
+          rightButtonText='Certify'
+        />
+      ),
+    })
   }
 
   const onClickResumeTest = (jobInfo: AppliedRoleType) => {
     setActionId(jobInfo.id)
-    setModal(
-      <ResumeTestModal
-        open={true}
-        onClose={() => setModal(null)}
-        userInfo={jobInfo}
-        handleResumeTest={handleResumeTest}
-      />,
-    )
+    openModal({
+      type: 'ResumeTestModal',
+      children: (
+        <CustomModal
+          title={
+            <>
+              Are you sure you want to resume this test?
+              <Typography variant='body2' fontWeight={600}>
+                {jobInfo.jobType}, {jobInfo.role},{' '}
+                {jobInfo.source &&
+                jobInfo.target &&
+                jobInfo.source !== '' &&
+                jobInfo.target !== '' ? (
+                  <>
+                    {jobInfo.source.toUpperCase()} &rarr;{' '}
+                    {jobInfo.target.toUpperCase()}
+                  </>
+                ) : (
+                  ''
+                )}
+              </Typography>
+            </>
+          }
+          onClose={() => closeModal('ResumeTestModal')}
+          vary='successful'
+          onClick={() => {
+            closeModal('ResumeTestModal')
+            handleCertifyRole(jobInfo.id)
+          }}
+          rightButtonText='Resume'
+        />
+      ),
+    })
   }
 
   const onClickReason = (type: string, message: string, reason: string) => {
-    setModal(
-      <ReasonModal
-        open={true}
-        onClose={() => setModal(null)}
-        messageToUser={message}
-        reason={reason}
-        type={type}
-      />,
-    )
+    openModal({
+      type: 'ReasonModal',
+      children: (
+        <ReasonModal
+          onClose={() => closeModal('ReasonModal')}
+          type={type}
+          messageToUser={message}
+          reason={reason}
+        />
+      ),
+    })
   }
 
   const onClickTestAssign = (jobInfo: AppliedRoleType, status?: string) => {
     setActionId(jobInfo.id)
-    setModal(
-      <TestAssignModal
-        open={true}
-        onClose={() => setModal(null)}
-        status={status ?? 'none'}
-        userInfo={jobInfo}
-        handleAssignRole={handleTestAssign}
-      />,
-    )
+    openModal({
+      type: 'TestAssignModal',
+      children: (
+        <CustomModal
+          title={
+            <>
+              Are you sure you want to assign this test?
+              <Typography
+                variant='body2'
+                sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'center' }}
+              >
+                {jobInfo.jobType}, {jobInfo.role},{' '}
+                {jobInfo.source &&
+                jobInfo.target &&
+                jobInfo.source !== '' &&
+                jobInfo.target !== '' ? (
+                  <>
+                    {jobInfo.source.toUpperCase()} &rarr;{' '}
+                    {jobInfo.target.toUpperCase()}
+                  </>
+                ) : (
+                  ''
+                )}
+              </Typography>
+            </>
+          }
+          onClose={() => closeModal('TestAssignModal')}
+          vary='successful'
+          onClick={() => {
+            closeModal('TestAssignModal')
+            handleTestAssign(jobInfo.id, status)
+          }}
+          rightButtonText='Assign'
+        />
+      ),
+    })
   }
 
   const onClickBasicTestAction = (
@@ -451,17 +523,63 @@ function OnboardingDetail() {
   ) => {
     setActionId(id)
 
-    setModal(
-      <BasicTestActionModal
-        open={true}
-        onClose={() => setModal(null)}
-        skillTest={skillTest}
-        basicTest={basicTest}
-        type={type}
-        handleActionBasicTest={handleActionBasicTest}
-        id={id}
-      />,
-    )
+    openModal({
+      type: 'BasicTestActionModal',
+      children: (
+        <CustomModal
+          title={
+            <>
+              Are you sure&nbsp;
+              {type === 'Skipped'
+                ? 'you want to skip'
+                : type === 'Basic test Ready'
+                ? 'you want to proceed'
+                : type === 'Basic failed'
+                ? 'you want to fail'
+                : type === 'Basic passed'
+                ? 'to proceed'
+                : null}
+              &nbsp;this basic test?
+              <Typography
+                variant='body2'
+                sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'center' }}
+              >
+                {basicTest.targetLanguage && basicTest.targetLanguage !== '' ? (
+                  <>
+                    {basicTest.targetLanguage.toUpperCase()}&nbsp;
+                    {`(${languageHelper(basicTest.targetLanguage)})`}
+                  </>
+                ) : (
+                  ''
+                )}
+              </Typography>
+            </>
+          }
+          onClose={() => closeModal('BasicTestActionModal')}
+          vary={type === 'Basic failed' ? 'error' : 'successful'}
+          onClick={() => {
+            closeModal('BasicTestActionModal')
+            if (type === 'Skipped' || type === 'Basic passed') {
+              handleActionBasicTest(basicTest.testId, type)
+            } else {
+              // handleActionBasicTest(basicTest.testId, type)
+              handleActionBasicTest(id, type)
+            }
+          }}
+          rightButtonText={
+            type === 'Skipped'
+              ? 'Skip'
+              : type === 'Basic test Ready'
+              ? 'Proceed'
+              : type === 'Basic failed'
+              ? 'Fail'
+              : type === 'Basic passed'
+              ? 'Pass'
+              : ''
+          }
+        />
+      ),
+    })
   }
 
   const handleAssignTest = (jobInfo: AddRoleType) => {
@@ -473,10 +591,6 @@ function OnboardingDetail() {
       source: value.source?.value ?? null,
       target: value.target?.value ?? null,
     }))
-
-    // console.log(res)
-
-    //** TODO : Assign 연결 */
 
     addTestMutation.mutate(res)
   }
@@ -505,17 +619,73 @@ function OnboardingDetail() {
     type: string,
   ) => {
     setActionId(id)
-    setModal(
-      <SkillTestActionModal
-        open={true}
-        onClose={() => setModal(null)}
-        skillTest={skillTest}
-        basicTest={basicTest}
-        type={type}
-        handleActionSkillTest={handleActionSkillTest}
-        id={id}
-      />,
-    )
+    openModal({
+      type: 'SkillTestActionModal',
+      children: (
+        <CustomModal
+          title={
+            <>
+              Are you sure you want to&nbsp;
+              {type === 'Awaiting assignment' ? (
+                'cancel this skill test?'
+              ) : type === 'Cancelled' ? (
+                'cancel this skill test?'
+              ) : type === 'Skill test Ready' ? (
+                'proceed this skill test?'
+              ) : type === 'Skill failed' ? (
+                <>
+                  <span
+                    style={{
+                      color: '#666CFF',
+                      fontWeight: 600,
+                      fontSize: '16px',
+                    }}
+                  >
+                    fail
+                  </span>
+                  &nbsp;this Pro
+                </>
+              ) : null}
+            </>
+          }
+          vary={
+            type === 'Awaiting assignment' ||
+            type === 'Skill failed' ||
+            type === 'Cancelled'
+              ? 'error'
+              : 'successful'
+          }
+          onClose={() => closeModal('SkillTestActionModal')}
+          onClick={() => {
+            closeModal('SkillTestActionModal')
+
+            handleActionSkillTest(id, type)
+          }}
+          rightButtonText={
+            type === 'Awaiting assignment'
+              ? 'Cancel'
+              : type === 'Skill test Ready'
+              ? 'Proceed'
+              : type === 'Skill failed'
+              ? 'Fail'
+              : type === 'Cancelled'
+              ? 'Cancel'
+              : ''
+          }
+          leftButtonText={
+            type === 'Awaiting assignment'
+              ? 'No'
+              : type === 'Skill test Ready'
+              ? 'Cancel'
+              : type === 'Skill failed'
+              ? 'Cancel'
+              : type === 'Cancelled'
+              ? 'No'
+              : ''
+          }
+        />
+      ),
+    })
   }
 
   const onClickAddRole = () => {
@@ -537,15 +707,19 @@ function OnboardingDetail() {
   }
 
   const onClickTestDetails = (skillTest: TestType, type: string) => {
-    setModal(
-      <TestDetailsModal
-        skillTest={skillTest}
-        // reviewerList={reviewerList!}
-        // history={history!}
-        type={type}
-        user={auth.getValue().user!}
-      />,
-    )
+    openModal({
+      type: 'TestDetailsModal',
+      children: (
+        <TestDetailsModal
+          skillTest={skillTest}
+          // reviewerList={reviewerList!}
+          // history={history!}
+          onClose={() => closeModal('TestDetailsModal')}
+          type={type}
+          user={auth.getValue().user!}
+        />
+      ),
+    })
   }
 
   const handleEditComment = () => {
@@ -581,53 +755,93 @@ function OnboardingDetail() {
   }
 
   const onClickEditConfirmComment = () => {
-    setModal(
-      <EditCommentModal
-        open={true}
-        onClose={() => setModal(null)}
-        editComment={handleEditComment}
-      />,
-    )
+    openModal({
+      type: 'EditCommentModal',
+      children: (
+        <CustomModal
+          title='Are you sure to edit this comment?'
+          onClose={() => closeModal('EditCommentModal')}
+          onClick={() => {
+            closeModal('EditCommentModal')
+            handleEditComment()
+          }}
+          vary='successful'
+          rightButtonText='Confirm'
+        />
+      ),
+    })
   }
 
   const onClickEditCancelComment = () => {
-    setModal(
-      <CancelEditCommentModal
-        open={true}
-        onClose={() => setModal(null)}
-        cancelEdit={handleEditCancelComment}
-      />,
-    )
+    openModal({
+      type: 'CancelEditCommentModal',
+      children: (
+        <CustomModal
+          title='Are you sure to cancel the edit of this comment?'
+          onClose={() => closeModal('CancelEditCommentModal')}
+          onClick={() => {
+            closeModal('CancelEditCommentModal')
+            handleEditCancelComment()
+          }}
+          vary='error'
+          rightButtonText='Confirm'
+        />
+      ),
+    })
   }
 
   const onClickAddConfirmComment = () => {
-    setModal(
-      <SaveCommentModal
-        open={true}
-        onClose={() => setModal(null)}
-        saveComment={handleAddComment}
-      />,
-    )
+    openModal({
+      type: 'SaveCommentModal',
+      children: (
+        <CustomModal
+          title='Are you sure to save this comment?'
+          onClose={() => closeModal('SaveCommentModal')}
+          onClick={() => {
+            closeModal('SaveCommentModal')
+            handleAddComment()
+          }}
+          vary='successful'
+          rightButtonText='Confirm'
+        />
+      ),
+    })
   }
 
   const onClickAddCancelComment = () => {
-    setModal(
-      <CancelSaveCommentModal
-        open={true}
-        onClose={() => setModal(null)}
-        cancelSave={handleAddCancelComment}
-      />,
-    )
+    openModal({
+      type: 'CancelSaveCommentModal',
+      children: (
+        <CustomModal
+          title='Are you sure you want to discard this comment?'
+          onClose={() => closeModal('CancelSaveCommentModal')}
+          onClick={() => {
+            closeModal('CancelSaveCommentModal')
+            handleAddCancelComment()
+          }}
+          vary='error'
+          rightButtonText='Discard'
+        />
+      ),
+    })
   }
 
   const onClickDeleteComment = (comment: CommentsOnProType) => {
-    setModal(
-      <DeleteCommentModal
-        open={true}
-        onClose={() => setModal(null)}
-        deleteComment={() => handleDeleteComment(comment)}
-      />,
-    )
+    openModal({
+      type: 'DeleteCommentModal',
+      children: (
+        <CustomModal
+          title='Are you sure to delete this comment?'
+          onClose={() => closeModal('DeleteCommentModal')}
+          onClick={() => {
+            closeModal('DeleteCommentModal')
+            handleDeleteComment(comment)
+          }}
+          vary='error'
+          rightButtonText='Delete'
+        />
+      ),
+    })
   }
 
   const onClickEditComment = (comment: CommentsOnProType) => {
@@ -673,13 +887,15 @@ function OnboardingDetail() {
         fileName: file.fileName,
         fileExtension: file.fileExtension,
       }
-      setModal(
-        <FilePreviewDownloadModal
-          open={true}
-          onClose={() => setModal(null)}
-          docs={[previewFile]}
-        />,
-      )
+      openModal({
+        type: 'FilePreviewDownloadModal',
+        children: (
+          <FilePreviewDownloadModal
+            onClose={() => closeModal('FilePreviewDownloadModal')}
+            docs={[file]}
+          />
+        ),
+      })
     })
   }
 

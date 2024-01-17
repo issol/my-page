@@ -3,23 +3,19 @@ import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import { Box, Stack } from '@mui/material'
 import dayjs from 'dayjs'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useCallback } from 'react'
+import React, { Suspense, useCallback } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import weekday from 'dayjs/plugin/weekday'
 import { upcomingColumns } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import { DataGrid } from '@mui/x-data-grid'
-import {
-  CurrencyAmount,
-  getProDateFormat,
-} from '@src/views/dashboard/list/currencyByDate'
+import { getProDateFormat } from '@src/views/dashboard/list/currencyByDate'
 import InvoiceTab from '@src/views/dashboard/invoiceTab'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import JobList from '@src/views/dashboard/list/job'
 import Notice from '@src/views/dashboard/notice'
-import { useUpcomingDeadline } from '@src/queries/dashboard/dashnaord-lpm'
-import ExpectedIncome from '@src/views/dashboard/list/expectedIncome'
+import { useUpcomingDeadline } from '@src/queries/dashnaord.query'
 import Doughnut from '@src/views/dashboard/chart/doughnut'
 import { ServiceRatioItem } from '@src/types/dashboard'
 import { Colors } from '@src/shared/const/dashboard/chart'
@@ -28,6 +24,12 @@ import ProCalendar from '@src/views/dashboard/calendar'
 import Deadline from '@src/views/dashboard/deadline'
 import Information from '@src/views/dashboard/dialog/information'
 import ProChartDate from '@src/views/dashboard/header/proChartDate'
+import JobRequest from '@src/views/dashboard/list/jobRequest'
+import CurrencyAmount from '@src/views/dashboard/list/currencyAmount'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { DashboardErrorFallback, TryAgain } from '@src/views/dashboard/suspense'
+import { ErrorBoundary } from 'react-error-boundary'
+import UpcomingDeadlines from '@src/views/dashboard/list/upcomingDeadlines'
 
 dayjs.extend(weekday)
 
@@ -42,8 +44,6 @@ const ProDashboards = () => {
     control,
     name: ['date', 'userViewDate'],
   })
-
-  const { data: upcomingData } = useUpcomingDeadline()
 
   const getDate = useCallback(
     (dateType: dayjs.UnitType) => {
@@ -86,39 +86,19 @@ const ProDashboards = () => {
                 </Box>
               </GridItem>
               <GridItem sm height={387} padding='0px'>
-                <Box sx={{ width: '100%', height: '100%' }}>
-                  <Title padding='20px' title='Upcoming deadlines' />
-                  <DataGrid
-                    hideFooter
-                    components={{
-                      NoRowsOverlay: () => (
-                        <Stack
-                          height='50%'
-                          alignItems='center'
-                          justifyContent='center'
-                        >
-                          There are no deadlines
-                        </Stack>
-                      ),
-                    }}
-                    rows={upcomingData || []}
-                    columns={upcomingColumns}
-                    disableSelectionOnClick
-                    pagination={undefined}
-                  />
-                </Box>
+                <UpcomingDeadlines />
               </GridItem>
             </Grid>
             <Grid container gap='24px'>
               <GridItem sm height={490} padding='0px'>
-                <ExpectedIncome
+                <JobRequest
                   setOpenInfoDialog={setOpenInfoDialog}
                   date={date || new Date()}
                 />
               </GridItem>
               <Doughnut<ServiceRatioItem>
                 title='Completed deliveries'
-                emptyTitle='delivery this month'
+                overlayTitle='There are no deliveries'
                 subTitle={`Based On ${getProDateFormat(
                   getDate('year'),
                   getDate('month'),
@@ -178,10 +158,18 @@ const ProDashboards = () => {
                       )}
                       openDialog={setOpenInfoDialog}
                     />
-                    <InvoiceTab
-                      year={getDate('year')}
-                      month={getDate('month') + 1}
-                    />
+                    <Suspense fallback={<FallbackSpinner />}>
+                      <ErrorBoundary
+                        fallback={
+                          <TryAgain refreshDataQueryKey='InvoiceOverview' />
+                        }
+                      >
+                        <InvoiceTab
+                          year={getDate('year')}
+                          month={getDate('month') + 1}
+                        />
+                      </ErrorBoundary>
+                    </Suspense>
                   </Box>
                 </GridItem>
               </Grid>
@@ -210,7 +198,6 @@ const ProDashboards = () => {
               <ProCalendar year={getDate('year')} month={getDate('month')} />
             </Grid>
           </Grid>
-
           <Information
             open={isShowInfoDialog}
             keyName={infoDialogKey}

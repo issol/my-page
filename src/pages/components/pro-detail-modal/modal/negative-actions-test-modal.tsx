@@ -1,18 +1,8 @@
-import Image from 'next/image'
-
 import Box from '@mui/material/Box'
-
-import Dialog from '@mui/material/Dialog'
-
-import DialogContent from '@mui/material/DialogContent'
-
-import DialogContentText from '@mui/material/DialogContentText'
 
 import Button from '@mui/material/Button'
 
 import Typography from '@mui/material/Typography'
-
-import { OnboardingJobInfoType } from 'src/types/onboarding/list'
 
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
@@ -26,11 +16,11 @@ import {
   OnboardingProDetailsType,
 } from 'src/types/onboarding/details'
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
-import { Pause } from '@mui/icons-material'
+
 import { RejectReason, PauseReason } from '@src/shared/const/reason/reason'
+import AlertIcon from '@src/@core/components/alert-icon'
 
 type Props = {
-  open: boolean
   onClose: any
   type: string
   jobInfo: AppliedRoleType
@@ -45,15 +35,23 @@ type Props = {
     pauseReason: string,
     messageToUser: string,
   ) => void
+  vary:
+    | 'error'
+    | 'info'
+    | 'error-report'
+    | 'progress'
+    | 'successful'
+    | 'guideline-info'
+    | 'question-info'
 }
 export default function NegativeActionsTestModal({
-  open,
   onClose,
   type,
   jobInfo,
   userInfo,
   handleRejectRole,
   handlePauseRole,
+  vary,
 }: Props) {
   const [reason, setReason] = useState<string>('')
   const [messageToPro, setMessageToPro] = useState<string>('')
@@ -81,36 +79,34 @@ export default function NegativeActionsTestModal({
   }
 
   return (
-    <Dialog
-      open={open}
-      keepMounted
-      onClose={onClose}
-      aria-labelledby='alert-dialog-slide-title'
-      aria-describedby='alert-dialog-slide-description'
+    <Box
+      sx={{
+        maxWidth: '482px',
+        width: '100%',
+        background: '#ffffff',
+        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+        borderRadius: '10px',
+      }}
     >
-      <DialogContent
+      <Box
         sx={{
-          padding: 10,
+          padding: '20px',
           display: 'flex',
           flexDirection: 'column',
+          justifyContent: 'center',
           gap: '24px',
         }}
       >
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'column',
-            gap: '0.5rem',
             justifyContent: 'center',
+            flexDirection: 'column',
             alignItems: 'center',
+            gap: '8px',
           }}
         >
-          <Image
-            src='/images/icons/alert/alert-error-color.svg'
-            width={68}
-            height={68}
-            alt=''
-          />
+          <AlertIcon type={vary} />
           <Box>
             <Typography
               sx={{
@@ -240,7 +236,7 @@ export default function NegativeActionsTestModal({
             {type === 'reject' ? 'Reject' : 'Pause'}
           </Button>
         </Box>
-      </DialogContent>
-    </Dialog>
+      </Box>
+    </Box>
   )
 }

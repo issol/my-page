@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 
 export const StyledEditor = styled(EditorWrapper)<{ error?: boolean }>`

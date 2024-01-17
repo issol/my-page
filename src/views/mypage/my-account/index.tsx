@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardContent, Grid, Typography } from '@mui/material'
 import { UserDataType } from '@src/context/types'
 import { Fragment, useState } from 'react'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import ChangePasswordForm from './change-password-form'
 import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'

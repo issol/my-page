@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 
 // ** style component
 import { Box, Divider, Grid, Typography } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { Icon } from '@iconify/react'
 
 // ** types

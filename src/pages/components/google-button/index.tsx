@@ -5,7 +5,7 @@ import Script from 'next/script'
 import { useRouter } from 'next/router'
 
 // ** styles
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** context
 

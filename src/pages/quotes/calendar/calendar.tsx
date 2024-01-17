@@ -2,11 +2,8 @@
 import { Dispatch, useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import styled from 'styled-components'
+import FullCalendar from '@fullcalendar/react'
 import { QuotesListType } from '@src/types/common/quotes.type'
-import { CalendarEventType } from '@src/types/common/calendar.type'
 import { Box, Typography } from '@mui/material'
 import {
   Calender,
@@ -17,6 +14,7 @@ import { QuotesFilterType } from '@src/types/quotes/quote'
 import Switch from '@mui/material/Switch'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import { calendarDefaultOptions } from '@src/shared/const/calender'
+import { DatesSetArg } from '@fullcalendar/core'
 
 type BooleanNumber = 0 | 1
 

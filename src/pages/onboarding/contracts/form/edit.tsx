@@ -6,7 +6,7 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** Third Party Imports
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
@@ -20,11 +20,9 @@ import { StyledEditor } from 'src/@core/components/editor/customEditor'
 import CustomChip from 'src/@core/components/mui/chip'
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { useRouter } from 'next/router'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -48,6 +46,8 @@ import { FormErrors } from 'src/shared/const/formErrors'
 
 // ** fetches
 import { useMutation } from 'react-query'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 const ContractForm = () => {
   const router = useRouter()
@@ -60,7 +60,7 @@ const ContractForm = () => {
   const [showError, setShowError] = useState(false)
 
   const auth = useRecoilValueLoadable(authState)
-  const { setModal } = useContext(ModalContext)
+  const { openModal, closeModal } = useModal()
 
   const { data, refetch } = useGetContract({
     type,
@@ -92,82 +92,39 @@ const ContractForm = () => {
   }, [contract])
 
   function onDiscard() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <CustomModal
+          title='Are you sure to discard this contract?'
+          onClose={() => closeModal('DiscardModal')}
+          onClick={() => {
+            closeModal('DiscardModal')
+            router.back()
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to discard this contract?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              router.back()
-            }}
-          >
-            Discard
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='error'
+          rightButtonText='Discard'
+        />
+      ),
+    })
   }
 
   function onSave() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'SaveModal',
+      children: (
+        <CustomModal
+          title='Are you sure to save all changes?'
+          onClose={() => closeModal('SaveModal')}
+          onClick={() => {
+            closeModal('SaveModal')
+            onSubmit()
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-successful.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to save all changes?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            type='submit'
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              onSubmit()
-            }}
-          >
-            Save
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='successful'
+          rightButtonText='Save'
+        />
+      ),
+    })
   }
 
   const updateContractMutation = useMutation(

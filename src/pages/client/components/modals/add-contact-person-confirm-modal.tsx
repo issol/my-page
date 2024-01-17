@@ -1,7 +1,8 @@
 import { Box, Button, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
-import { SmallModalContainer } from '@src/@core/components/modal'
+
 import Dialog from '@mui/material/Dialog'
+import { SmallModalContainer } from './add-confirm-with-title-modal'
 
 interface AddContactPersonConfirmModalProps {
   formMode: 'create' | 'update'

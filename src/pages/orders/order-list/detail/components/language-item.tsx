@@ -261,6 +261,7 @@ const LanguageAndItem = ({
       minimumPrice: null,
       minimumPriceApplied: false,
       priceFactor: 0,
+      currency: null,
     })
   }
 
@@ -373,6 +374,7 @@ const LanguageAndItem = ({
             update={updateLanguagePairs}
             languagePairs={languagePairs}
             itemTrigger={itemTrigger}
+            from='order'
           />
         </Grid>
       )}

@@ -1,9 +1,9 @@
 import { Box, Button, Typography } from '@mui/material'
 import AlertIcon, { AlertType } from '@src/@core/components/alert-icon'
-import { SmallModalContainer } from '@src/@core/components/modal'
+import { SmallModalContainer } from '@src/pages/client/components/modals/add-confirm-with-title-modal'
 import Dialog from '@mui/material/Dialog'
 import { Fragment } from 'react'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 type Props = {
   vary?: AlertType
@@ -16,7 +16,7 @@ type Props = {
 }
 
 /**
- * 
+ *
  * @param vary: error, info, successful, error-report, progress, question-info
  * 기본 버튼은 onClose, onClose만 있을때는 variant가 contained로 설정됨
  * \n 문자열로 줄바꿈 설정 가능
@@ -37,18 +37,18 @@ export default function SimpleMultilineAlertWithCumtomTitleModal({
       {line}
       <br />
     </Fragment>
-  ));
+  ))
 
   let hiddenLineCount = title.length - 3 > 0 ? title.length - 3 : 0
   const lengthFixedTitle = [...title]
-  if(lengthFixedTitle.length >= 3) lengthFixedTitle.length = 3
-  
+  if (lengthFixedTitle.length >= 3) lengthFixedTitle.length = 3
+
   const newTitle = lengthFixedTitle.map((line, index) => (
     <Fragment key={index}>
       {line}
       <br />
     </Fragment>
-  ));
+  ))
 
   return (
     <Dialog
@@ -69,23 +69,24 @@ export default function SimpleMultilineAlertWithCumtomTitleModal({
             {newTitle}
           </TitleTypography>
         ) : null}
-        {newTitle && hiddenLineCount>0 ? (
-          `+ ${hiddenLineCount} more`
-        ) : null}
+        {newTitle && hiddenLineCount > 0 ? `+ ${hiddenLineCount} more` : null}
         <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
-          <Button variant={ onConfirm ? 'outlined' : 'contained'} onClick={onClose}>
+          <Button
+            variant={onConfirm ? 'outlined' : 'contained'}
+            onClick={onClose}
+          >
             {closeButtonText ?? 'Okay'}
           </Button>
           {onConfirm ? (
-          <Button
-            variant='contained'
-            onClick={() => {
-              onClose()
-              onConfirm()
-            }}
-          >
-            {confirmButtonText ?? 'Confirm'}
-          </Button>
+            <Button
+              variant='contained'
+              onClick={() => {
+                onClose()
+                onConfirm()
+              }}
+            >
+              {confirmButtonText ?? 'Confirm'}
+            </Button>
           ) : null}
         </Box>
       </SmallModalContainer>

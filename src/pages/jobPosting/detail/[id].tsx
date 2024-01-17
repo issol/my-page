@@ -26,21 +26,18 @@ import PageHeader from 'src/@core/components/page-header'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
+
 import { LinkReadOnlyItem } from 'src/@core/components/linkItem'
 import Icon from 'src/@core/components/icon'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** helpers
-import {
-  convertTimeToTimezone,
-  MMDDYYYYHelper,
-} from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -55,6 +52,8 @@ import { CurrentHistoryType } from 'src/apis/recruiting.api'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { job_posting } from '@src/shared/const/permission-class'
 import { timezoneSelector } from '@src/states/permission'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type CellType = {
   row: CurrentHistoryType
@@ -66,8 +65,8 @@ const JobPostingDetail = () => {
 
   const [content, setContent] = useState(EditorState.createEmpty())
 
-  const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
+  const { openModal, closeModal } = useModal()
 
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
@@ -151,83 +150,22 @@ const JobPostingDetail = () => {
     )
   }
 
-  const columns = [
-    {
-      flex: 0.28,
-      field: 'version',
-      minWidth: 80,
-      headerName: 'Version',
-      renderHeader: () => <Box>Version</Box>,
-    },
-    {
-      flex: 0.3,
-      minWidth: 130,
-      field: 'email',
-      headerName: 'Email',
-      renderHeader: () => <Box>Email</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Typography variant='body2'>{row.email}</Typography>
-      ),
-    },
-    {
-      flex: 0.23,
-      minWidth: 120,
-      field: 'createdAt',
-      headerName: 'Date & Time',
-      renderHeader: () => <Box>Date & Time</Box>,
-      renderCell: ({ row }: CellType) => {
-        if (auth.state === 'hasValue' && auth.getValue().user) {
-          return (
-            <Box sx={{ overflowX: 'scroll' }}>
-              {convertTimeToTimezone(
-                row.createdAt,
-                auth.getValue().user?.timezone!,
-                timezone.getValue(),
-              )}
-            </Box>
-          )
-        }
-      },
-    },
-  ]
-
   function onDelete() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DeleteModal',
+      children: (
+        <CustomModal
+          title='Are you sure to delete this recruiting request?'
+          onClose={() => closeModal('DeleteModal')}
+          onClick={() => {
+            closeModal('DeleteModal')
+            deleteMutation.mutate(id)
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to delete this recruiting request?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              deleteMutation.mutate(id)
-            }}
-          >
-            Delete
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='error'
+          rightButtonText='Delete'
+        />
+      ),
+    })
   }
 
   function onEdit() {

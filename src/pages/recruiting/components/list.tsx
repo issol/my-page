@@ -8,7 +8,7 @@ import CardHeader from '@mui/material/CardHeader'
 import { StyledNextLink } from 'src/@core/components/customLink'
 
 // ** third party
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** helpers
 import {

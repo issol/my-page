@@ -46,7 +46,7 @@ import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { TaxTypeList } from '@src/shared/const/tax/tax-type'
 import { getTypeList } from '@src/shared/transformer/type.transformer'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { DatePickerDefaultOptions } from '@src/shared/const/datePicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'

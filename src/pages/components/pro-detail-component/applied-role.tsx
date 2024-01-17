@@ -230,10 +230,27 @@ const AppliedRole = ({
           </>
         )
       }
+    } else if (jobInfo.requestStatus === 'Awaiting response') {
+      return (
+        <Button
+          fullWidth
+          variant='contained'
+          disabled
+          sx={{
+            '&.Mui-disabled': {
+              background: 'rgba(76, 78, 100, 0.12)',
+              border: 'none',
+              color: ' rgba(76, 78, 100, 0.38)',
+            },
+          }}
+        >
+          {jobInfo.requestStatusOfPro} - Awaiting response
+        </Button>
+      )
     } else if (
       // requestStatus가 Certified인데 testStatus가 Cancelled로 남아있는 디비 정보가 있어 예외처리함
-      (jobInfo.testStatus === 'Skill failed' ||
-        jobInfo.testStatus === 'Cancelled') &&
+      // 2024.01.09 예외처리 제거
+      jobInfo.testStatus === 'Skill failed' &&
       jobInfo.requestStatus !== 'Certified'
     ) {
       return (
@@ -278,7 +295,8 @@ const AppliedRole = ({
       )
     } else if (
       basicTest &&
-      jobInfo!.requestStatus === 'Test in progress' &&
+      (jobInfo!.requestStatus === 'Test in progress' ||
+        jobInfo!.requestStatus === 'Basic in progress') &&
       (jobInfo!.testStatus === 'Basic in progress' ||
         jobInfo!.testStatus === 'Basic submitted' ||
         jobInfo!.testStatus === 'Basic failed' ||
@@ -416,7 +434,7 @@ const AppliedRole = ({
           </Button>
         )
       }
-    } else if (jobInfo.requestStatus === 'Rejected') {
+    } else if (jobInfo.requestStatus === 'Test rejected') {
       return (
         <Button
           fullWidth
@@ -686,7 +704,7 @@ const AppliedRole = ({
                               value.requestStatus !== 'Certified' &&
                               value.requestStatus !== 'Awaiting assignment' &&
                               value.requestStatus !== 'Paused' &&
-                              value.requestStatus !== 'Rejected' &&
+                              value.requestStatus !== 'Test rejected' &&
                               !(
                                 value.test.find(
                                   data => data.testType === 'basic',
@@ -725,7 +743,7 @@ const AppliedRole = ({
                                   Resume
                                 </Button>
                               ) : null}
-                              {value.requestStatus === 'Rejected' ||
+                              {value.requestStatus === 'Test rejected' ||
                               value.requestStatus === 'Paused' ? (
                                 <Box
                                   sx={{

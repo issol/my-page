@@ -96,6 +96,7 @@ export type languageType = {
   id: number | string
   source: string
   target: string
+
   price:
     | (StandardPriceListType & {
         groupName?: string
@@ -112,7 +113,7 @@ export const defaultOption: StandardPriceListType & {
   groupName: '',
   category: '',
   serviceType: [],
-  currency: 'KRW',
+  currency: null,
   catBasis: '',
   decimalPlace: 0,
   roundingProcedure: '',
@@ -128,6 +129,8 @@ export default function AddNewQuote() {
 
   const requestId = router.query?.requestId
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
+  const [requestProjectDueDate, setRequestProjectDueDate] =
+    useState<Date | null>(null)
   const [isWarn, setIsWarn] = useState(true)
 
   const { openModal, closeModal } = useModal()
@@ -141,10 +144,6 @@ export default function AddNewQuote() {
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
-  }
-
-  const onNextStep = () => {
-    setActiveStep(activeStep + 1)
   }
 
   const steps = [
@@ -286,7 +285,51 @@ export default function AddNewQuote() {
     name: 'languagePairs',
   })
 
-  console.log(getItem('languagePairs'))
+  const onNextStep = () => {
+    setActiveStep(activeStep + 1)
+    if (activeStep === 2 && requestData && requestId) {
+      const teamMembers = getTeamValues()?.teams
+      const projectManager = teamMembers.find(
+        item => item.type === 'projectManagerId',
+      )
+      const project = getProjectInfoValues()
+
+      const { items } = requestData || []
+
+      const transformedItems =
+        items.flatMap(item =>
+          item.targetLanguage.map(target => ({
+            id: item.id,
+            source: item.sourceLanguage,
+            target,
+            price: defaultOption,
+          })),
+        ) || []
+
+      const defaultItems = transformedItems.map(item => ({
+        itemName: null,
+        source: item.source,
+        target: item.target,
+        contactPersonId: projectManager?.id!,
+        dueAt: requestProjectDueDate
+          ? changeTimeZoneOffset(
+              requestProjectDueDate.toISOString(),
+              auth.getValue().user?.timezone!,
+            )
+          : null,
+        priceId: -1,
+        detail: [],
+        totalPrice: 0,
+        showItemDescription: false,
+        minimumPrice: null,
+        minimumPriceApplied: false,
+        priceFactor: 0,
+        currency: item.price.currency,
+      }))
+
+      setItem('items', defaultItems, { shouldDirty: true })
+    }
+  }
 
   useEffect(() => {
     if (!router.isReady) return
@@ -328,7 +371,16 @@ export default function AddNewQuote() {
       const isCategoryNotSame = items.some(
         i => i.category !== items[0]?.category,
       )
-
+      setRequestProjectDueDate(
+        new Date(
+          convertTimeToTimezone(
+            findEarliestDate(desiredDueDates),
+            items[0].desiredDueTimezone,
+            timezone.getValue(),
+            true,
+          )!,
+        ),
+      )
       projectInfoReset({
         projectDueDate: {
           date: new Date(
@@ -346,19 +398,41 @@ export default function AddNewQuote() {
         showDescription: requestData?.showDescription ?? false,
         status: 20000,
       })
-      const itemLangPairs =
-        items?.map(i => ({
-          id: i.id,
-          source: i.sourceLanguage,
-          target: i.targetLanguage,
-          price: null,
-        })) || []
-      // setLanguagePairs(itemLangPairs)
-      setItem('languagePairs', itemLangPairs)
+      const transformedItems =
+        items.flatMap(item =>
+          item.targetLanguage.map(target => ({
+            id: item.id,
+            source: item.sourceLanguage,
+            target,
+            price: defaultOption,
+          })),
+        ) || []
+      const uniqueTransformedItems = Array.from(
+        new Set(
+          transformedItems.map(item =>
+            JSON.stringify({ source: item.source, target: item.target }),
+          ),
+        ),
+      ).map(item => JSON.parse(item))
+
+      const result = uniqueTransformedItems.map(uniqueItem => {
+        const originalItem = transformedItems.find(
+          item =>
+            item.source === uniqueItem.source &&
+            item.target === uniqueItem.target,
+        )
+
+        return {
+          ...uniqueItem,
+          id: originalItem?.id,
+          price: originalItem?.price,
+        }
+      })
+
+      setItem('languagePairs', result, { shouldDirty: true })
     }
   }
 
-  console.log(getItem('languagePairs'))
   function onDeleteLanguagePair(row: languageType) {
     const isDeletable = !getItem()?.items?.length
       ? true
@@ -420,12 +494,13 @@ export default function AddNewQuote() {
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
         ...item,
       }))
+
     return [defaultOption].concat(filteredList)
   }
 
   function isAddItemDisabled(): boolean {
     if (getItem('languagePairs').length === 0) return true
-    return getItem('languagePairs').some(item => !item?.price)
+    return getItem('languagePairs')?.some(item => !item?.price)
   }
 
   function addNewItem() {
@@ -433,11 +508,18 @@ export default function AddNewQuote() {
     const projectManager = teamMembers.find(
       item => item.type === 'projectManagerId',
     )
+    const project = getProjectInfoValues()
     appendItems({
       itemName: null,
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
+      dueAt: requestProjectDueDate
+        ? changeTimeZoneOffset(
+            project.projectDueDate.date.toISOString(),
+            auth.getValue().user?.timezone!,
+          )
+        : null,
       priceId: null,
       detail: [],
       totalPrice: 0,
@@ -445,6 +527,7 @@ export default function AddNewQuote() {
       minimumPrice: null,
       minimumPriceApplied: false,
       priceFactor: 0,
+      currency: null,
     })
   }
 
@@ -583,8 +666,6 @@ export default function AddNewQuote() {
       requestId: requestId ?? null,
     }
 
-    // console.log(stepOneData)
-
     createQuotesInfo(stepOneData)
       .then(res => {
         if (res.id) {
@@ -613,7 +694,6 @@ export default function AddNewQuote() {
       supervisorId: undefined,
       members: [],
     }
-    // console.log(data.teams)
 
     data.teams.forEach(item => {
       if (item.type === 'supervisorId') {
@@ -652,9 +732,51 @@ export default function AddNewQuote() {
       setSubPrice(total)
     }
   }
+
+  const getSubTotal = () => {
+    const items = getItem('items')
+    const currencies = items.flatMap(
+      item =>
+        item.detail
+          ? item.detail
+              .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
+
+              .map(detailItem => detailItem.currency)
+          : [], // Return an empty array if detail is undefined
+    )
+
+    if (currencies.length === 0) return '-'
+    else {
+      const decimalPlace = priceInfo
+        ? priceInfo.decimalPlace
+        : currencies[0] === 'USD' || currencies[0] === 'SGD'
+        ? 2
+        : currencies[0] === 'KRW'
+        ? 1000
+        : currencies[0] === 'JPY'
+        ? 100
+        : 2
+
+      return subPrice === 0
+        ? '-'
+        : formatCurrency(
+            formatByRoundingProcedure(
+              subPrice,
+              decimalPlace,
+              priceInfo ? priceInfo?.roundingProcedure! : 0,
+              priceInfo ? priceInfo.currency : currencies[0],
+            ),
+            priceInfo ? priceInfo.currency : currencies[0],
+          )
+    }
+  }
+
   useEffect(() => {
-    sumTotalPrice()
-  }, [])
+    const subscription = itemWatch((value, { name, type }) => {
+      sumTotalPrice()
+    })
+    return () => subscription.unsubscribe()
+  }, [itemWatch])
 
   return (
     <Grid container spacing={6}>
@@ -795,6 +917,7 @@ export default function AddNewQuote() {
                   onDeleteLanguagePair={onDeleteLanguagePair}
                   control={itemControl}
                   itemTrigger={itemTrigger}
+                  from='quote'
                 />
               </Grid>
               <Grid item xs={12} mt={6} mb={6}>
@@ -862,7 +985,7 @@ export default function AddNewQuote() {
                         justifyContent: subPrice === 0 ? 'center' : 'flex-end',
                       }}
                     >
-                      {subPrice === 0
+                      {/* {subPrice === 0
                         ? '-'
                         : formatCurrency(
                             formatByRoundingProcedure(
@@ -875,7 +998,8 @@ export default function AddNewQuote() {
                               priceInfo?.currency ?? 'USD',
                             ),
                             priceInfo?.currency ?? 'USD',
-                          )}
+                          )} */}
+                      {getSubTotal()}
                     </Typography>
                   </Box>
                 </Box>
@@ -947,8 +1071,6 @@ export default function AddNewQuote() {
                         sx={{ maxWidth: '120px', padding: 0 }}
                         inputProps={{ inputMode: 'decimal' }}
                         onChange={e => {
-                          console.log(Number(e.target.value))
-
                           if (e.target.value.length > 10) return
                           else if (e.target.value === '') onChange(null)
                           else onChange(Number(e.target.value))

@@ -11,7 +11,7 @@ import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
-import InputAdornment from '@mui/material/InputAdornment'
+
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import { FormControlLabel, Grid, List, useMediaQuery } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -28,7 +28,7 @@ import FileItem from 'src/@core/components/fileItem'
 import { useForm, Controller, useFieldArray, Control } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 // ** CleaveJS Imports
-import Cleave from 'cleave.js/react'
+
 import 'cleave.js/dist/addons/cleave-phone.us'
 import { v4 as uuidv4 } from 'uuid'
 // ** Hooks
@@ -40,7 +40,7 @@ import { Checkbox } from '@mui/material'
 import { useMutation } from 'react-query'
 
 // ** Data
-import { countries } from 'src/@fake-db/autocomplete'
+
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
 // ** helpers
@@ -51,7 +51,6 @@ import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
 
 import { useDropzone } from 'react-dropzone'
-import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
 
 // ** values
 import {
@@ -67,8 +66,8 @@ import { JobList, ProJobPair } from 'src/shared/const/job/jobs'
 import { ProRolePair, RoleList } from 'src/shared/const/role/roles'
 
 import { getProfileSchema } from 'src/types/schema/profile.schema'
-import { ModalContext } from 'src/context/ModalContext'
-import styled from 'styled-components'
+
+import styled from '@emotion/styled'
 
 // ** types
 import { FileType } from 'src/types/common/file.type'
@@ -91,7 +90,7 @@ import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import useAuth from '@src/hooks/useAuth'
-import { useGetJobOpeningDetail } from '@src/queries/pro/pro-job-openings'
+
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getJobOpeningDetail } from '@src/apis/pro/pro-job-openings.api'
@@ -144,8 +143,6 @@ const defaultValues: Omit<PersonalInfo, 'address'> = {
 }
 
 const PersonalInfoPro = () => {
-  const { setModal } = useContext(ModalContext)
-
   const theme = useTheme()
   const router = useRouter()
   const jobId = router.query
@@ -303,40 +300,19 @@ const PersonalInfoPro = () => {
         router.push('/dashboards')
       },
       onError: () => {
-        setModal(
-          <Box
-            sx={{
-              padding: '24px',
-              textAlign: 'center',
-              background: '#ffffff',
-              borderRadius: '14px',
-            }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '12px',
-              }}
-            >
-              <img
-                src='/images/icons/project-icons/status-alert-error.png'
-                width={60}
-                height={60}
-                alt='role select error'
-              />
-              <Typography variant='body2'>
-                Something went wrong. Please try again.
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
-              <Button variant='contained' onClick={() => setModal(null)}>
-                Okay
-              </Button>
-            </Box>
-          </Box>,
-        )
+        openModal({
+          type: 'ErrorModal',
+          children: (
+            <CustomModal
+              title='Something went wrong. Please try again.'
+              soloButton
+              rightButtonText='Okay'
+              onClick={() => closeModal('ErrorModal')}
+              onClose={() => closeModal('ErrorModal')}
+              vary='error'
+            />
+          ),
+        })
       },
     },
   )
@@ -398,40 +374,26 @@ const PersonalInfoPro = () => {
 
   function addJobInfo() {
     if (jobInfoFields.length >= 10) {
-      setModal(
-        <Box
-          sx={{
-            padding: '24px',
-            textAlign: 'center',
-            background: '#ffffff',
-            borderRadius: '14px',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px',
+      openModal({
+        type: 'MaximumError',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('MaximumError')}
+            onClick={() => {
+              closeModal('MaximumError')
             }}
-          >
-            <img
-              src='/images/icons/project-icons/status-alert-error.png'
-              width={60}
-              height={60}
-              alt='role select error'
-            />
-            <Typography variant='body2'>
-              You can select up to 10 at maximum.
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
-            <Button variant='contained' onClick={() => setModal(null)}>
-              Okay
-            </Button>
-          </Box>
-        </Box>,
-      )
+            vary='error'
+            soloButton
+            rightButtonText='Okay'
+            title={
+              <Typography variant='h6'>
+                You can select up to 10 at maximum.
+              </Typography>
+            }
+          />
+        ),
+      })
+
       return
     }
     append({ jobType: '', role: '', source: '', target: '' })

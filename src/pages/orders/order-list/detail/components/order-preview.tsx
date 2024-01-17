@@ -1,40 +1,11 @@
-import { Box, Button, Divider, Typography } from '@mui/material'
-
-import {
-  Page,
-  Text,
-  View,
-  Document,
-  StyleSheet,
-  Image,
-  PDFViewer,
-  BlobProvider,
-} from '@react-pdf/renderer'
-import { styled } from '@mui/material/styles'
-import Table from '@mui/material/Table'
-import TableBody from '@mui/material/TableBody'
-import TableCell, { tableCellClasses } from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
-import TableRow from '@mui/material/TableRow'
-import Paper from '@mui/material/Paper'
-import { v4 as uuidv4 } from 'uuid'
-import languageHelper from '@src/shared/helpers/language.helper'
-import { formatCurrency } from '@src/shared/helpers/price.helper'
-import Html from 'react-pdf-html'
-import ReactDOMServer, {
-  renderToStaticMarkup,
-  renderToString,
-} from 'react-dom/server'
-import { useContext, useEffect, useRef } from 'react'
-import MakeTable, { Row } from './rows'
+import { Box, Button } from '@mui/material'
+import { useRef } from 'react'
 import { useRouter } from 'next/router'
 import PrintOrderPage from '../../../order-print/print-page'
 import useModal from '@src/hooks/useModal'
 import { OrderDownloadData } from '@src/types/orders/order-detail'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { useAppSelector } from '@src/hooks/useRedux'
 
 type Props = {
   onClose: any

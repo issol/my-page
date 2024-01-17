@@ -2,7 +2,8 @@
 import { ChangeEvent, useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
-import FullCalendar, { CalendarOptions, DatesSetArg } from '@fullcalendar/react'
+import FullCalendar from '@fullcalendar/react'
+import { CalendarOptions, DatesSetArg } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import { OrderListType } from '@src/types/orders/order-list'
 import {

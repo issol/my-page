@@ -10,7 +10,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { Icon } from '@iconify/react'
 
 // ** components
@@ -292,6 +292,7 @@ export default function QuotesLanguageItemsDetail({
       minimumPrice: null,
       minimumPriceApplied: false,
       priceFactor: 0,
+      currency: null,
     })
   }
   // console.log(isEditMode)
@@ -322,6 +323,7 @@ export default function QuotesLanguageItemsDetail({
             append={appendLanguagePairs}
             update={updateLanguagePairs}
             itemTrigger={itemTrigger}
+            from='quote'
           />
         </Grid>
       )}

@@ -22,7 +22,7 @@ import {
 } from '@mui/icons-material'
 import { Currency, TotalItem } from '@src/types/dashboard'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
-import { usePaidThisMonthAmount } from '@src/queries/dashboard/dashnaord-lpm'
+import { usePaidThisMonthAmount } from '@src/queries/dashnaord.query'
 import { SxProps } from '@mui/system'
 
 interface GridItemProps {
@@ -53,7 +53,6 @@ export const GridItem = ({
           justifyContent: 'center',
           height,
           padding,
-
           ...sx,
         }}
       >
@@ -296,6 +295,7 @@ export const ConvertButtonGroup = ({
         role={undefined}
         transition
         disablePortal
+        placeholder={undefined}
       >
         {({ TransitionProps, placement }) => (
           <Grow
@@ -484,7 +484,7 @@ export const LinearMultiProgress = ({
   )
 }
 
-interface SectionTitleProps {
+export interface SectionTitleProps {
   title: string
   openDialog?: (open: boolean, key: string) => void
   handleClick?: () => void
@@ -515,7 +515,7 @@ export const Title = ({
           }}
         >
           {prefix}
-          {title.split('@')[0]}
+          {title?.split('@')[0]}
           {postfix}
         </span>
         {openDialog && (

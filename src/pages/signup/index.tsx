@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent, useEffect, useContext } from 'react'
+import { useState, ReactNode, MouseEvent, useEffect } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -51,7 +51,6 @@ import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
 
 // ** Context
-import { ModalContext } from 'src/context/ModalContext'
 
 // ** values
 import { FormErrors } from 'src/shared/const/formErrors'
@@ -62,6 +61,8 @@ import GoogleButton from '../components/google-button'
 // ** types
 import { loginResType } from 'src/types/sign/signInTypes'
 import useAuth from '@src/hooks/useAuth'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import useModal from '@src/hooks/useModal'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -160,9 +161,8 @@ const SignUpPage = () => {
   const router = useRouter()
   const { jobId } = router.query
   const { email } = router.query
-  const { setModal } = useContext(ModalContext)
 
-  console.log(jobId)
+  const { openModal, closeModal } = useModal()
 
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [showPassword, setShowPassword] = useState<boolean>(false)
@@ -383,52 +383,21 @@ const SignUpPage = () => {
             .then(res => {
               if (res) setRole([...filtered, value])
               else {
-                setModal(
-                  <Box
-                    sx={{
-                      padding: '24px',
-                      textAlign: 'center',
-                      background: '#ffffff',
-                      borderRadius: '14px',
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '12px',
+                openModal({
+                  type: 'AlertModal',
+                  children: (
+                    <CustomModal
+                      title='Please use the company email only.'
+                      onClose={() => closeModal('AlertModal')}
+                      onClick={() => {
+                        closeModal('AlertModal')
+                        setStep(1)
                       }}
-                    >
-                      <img
-                        src='/images/icons/project-icons/status-alert-error.png'
-                        width={60}
-                        height={60}
-                        alt='role select error'
-                      />
-                      <Typography variant='body2'>
-                        Please use the company email only.
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex', gap: '8px' }} mt={4}>
-                      <Button
-                        variant='contained'
-                        onClick={() => setModal(null)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        variant='outlined'
-                        onClick={() => {
-                          setStep(1)
-                          setModal(null)
-                        }}
-                      >
-                        Move to sign up
-                      </Button>
-                    </Box>
-                  </Box>,
-                )
+                      rightButtonText='Move to sign up'
+                      vary='error'
+                    />
+                  ),
+                })
               }
             })
             .catch((e: any) => {

@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -38,7 +38,6 @@ import { authState } from '@src/states/auth'
 // ** types & validation
 import {
   RequestFormPayloadType,
-  RequestFormType,
   RequestItemFormPayloadType,
   RequestType,
 } from '@src/types/requests/common.type'
@@ -71,12 +70,8 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 // ** values
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import {
-  changeTimeZoneOffset,
-  convertDateToLocalTimezoneISOString,
-  convertLocalTimezoneToUTC,
-} from '@src/shared/helpers/date.helper'
-import { changeTimezoneFromLocalTimezoneISOString } from '@src/shared/helpers/timezone.helper'
+import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
+
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 
 export default function AddNewRequest() {
@@ -100,7 +95,7 @@ export default function AddNewRequest() {
   // ** file managing
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
-      ...srtUploadFileExtension.accept
+      ...srtUploadFileExtension.accept,
     },
     maxSize: MAXIMUM_FILE_SIZE,
     onDrop: (acceptedFiles: File[]) => {
@@ -152,6 +147,9 @@ export default function AddNewRequest() {
     ),
     resolver: yupResolver(clientRequestSchema),
   })
+
+  console.log(getValues())
+  console.log(errors)
 
   const { fields, append, remove, update } = useFieldArray({
     control,
@@ -222,32 +220,27 @@ export default function AddNewRequest() {
     const data: RequestType = getValues()
     const dateFixedItem: RequestItemFormPayloadType[] = data.items.map(
       (item, idx) => {
-        // const newDesiredDueDate = convertLocalTimezoneToUTC(new Date(item.desiredDueDate)).toISOString()
-        // const newDesiredDueDate = () => {
-        //   const convertISOString = convertDateToLocalTimezoneISOString(
-        //     item.desiredDueDate!,
-        //   )
-        //   if (convertISOString)
-        //     return changeTimezoneFromLocalTimezoneISOString(
-        //       convertISOString,
-        //       item.desiredDueTimezone?.code!,
-        //     )
-        //   return item.desiredDueDate?.toISOString()!
-        // }
-        return {
+        let newItem = {
           ...item,
+          targetLanguage: item.targetLanguage?.map(value => value.value)!,
           desiredDueDate: changeTimeZoneOffset(
             item.desiredDueDate!.toISOString(),
-            item.desiredDueTimezone!
+            item.desiredDueTimezone!,
           )!,
           desiredDueTimezone: {
             ...item.desiredDueTimezone!,
             code: '',
-            phone: ''
+            phone: '',
           },
-          serviceType: item.serviceType.map(value => value.value),
+          serviceType: item.serviceType?.map(value => value.value)!,
           sortingOrder: idx + 1,
         }
+        Object.keys(newItem).forEach(
+          // @ts-ignore
+          key => newItem[key] === undefined && delete newItem[key],
+        )
+
+        return newItem
       },
     )
     // TODO Contact Person 드롭다운에서 값을 선택하지 않는 경우 contactPersonId가 아니라 userId가 들어감
@@ -513,9 +506,9 @@ export default function AddNewRequest() {
                   append({
                     name: '',
                     sourceLanguage: '',
-                    targetLanguage: '',
+                    targetLanguage: null,
                     category: '',
-                    serviceType: [],
+                    serviceType: null,
                     desiredDueDate: null,
                     desiredDueTimezone: timezone!,
                   })

@@ -1,8 +1,9 @@
 import { Box, Button, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
-import { SmallModalContainer } from '@src/@core/components/modal'
+
 import { TitleTypography } from '@src/@core/styles/typography'
 import Dialog from '@mui/material/Dialog'
+import { SmallModalContainer } from '@src/pages/client/components/modals/add-confirm-with-title-modal'
 
 type Props = {
   open: boolean

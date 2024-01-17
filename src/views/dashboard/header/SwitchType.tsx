@@ -18,7 +18,7 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye'
 import { LogoutOutlined } from '@mui/icons-material'
 import React, { MouseEvent, useEffect, useState } from 'react'
 import { DashboardForm } from '@src/pages/dashboards/lpm'
-import { DEFAULT_QUERY_NAME } from '@src/queries/dashboard/dashnaord-lpm'
+import { DEFAULT_QUERY_NAME } from '@src/queries/dashnaord.query'
 import { useQueryClient } from 'react-query'
 import { useRecoilState, useRecoilValueLoadable } from 'recoil'
 import { dashboardState } from '@src/states/dashboard'
@@ -135,6 +135,7 @@ const SwitchTypeHeader = ({
     hiddenMemberView()
   }, [dashboardStateValue.userInfo])
 
+  console.log('USER', dashboardStateValue.userInfo)
   return (
     <>
       <Grid

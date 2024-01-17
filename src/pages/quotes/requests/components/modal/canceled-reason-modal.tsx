@@ -1,21 +1,10 @@
 import { Icon } from '@iconify/react'
-import {
-  Box,
-  Button,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  Radio,
-  RadioGroup,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Box, Grid, IconButton, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
 import { CancelReasonType } from '@src/types/requests/detail.type'
-import { useState } from 'react'
 
 type Props = {
-  data: CancelReasonType | undefined
+  data: CancelReasonType | undefined | null
   onClose: () => void
   onClick: (data: { option: string; reason?: string }) => void
 }

@@ -47,7 +47,7 @@ export type RequestItemFormType = {
 export type RequestItemFormPayloadType = {
   name: string
   sourceLanguage: string
-  targetLanguage: string
+  targetLanguage: string[]
   category: string
   serviceType: string[]
   unit?: string
@@ -72,9 +72,9 @@ export type RequestType = {
 export type RequestItemType = {
   name: string
   sourceLanguage: string
-  targetLanguage: string
+  targetLanguage: Array<{ value: string; label: string }> | null
   category: string
-  serviceType: Array<{ value: string; label: string }>
+  serviceType: Array<{ value: string; label: string }> | null
   unit?: string
   quantity?: number | null
   desiredDueDate: Date | null

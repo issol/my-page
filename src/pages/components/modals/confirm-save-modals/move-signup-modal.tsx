@@ -1,5 +1,5 @@
 import AlertIcon from '@src/@core/components/alert-icon'
-import { SmallModalContainer } from '@src/@core/components/modal'
+import { SmallModalContainer } from '@src/pages/client/components/modals/add-confirm-with-title-modal'
 import { Box, Button, Typography } from '@mui/material'
 
 type Props = {
@@ -17,7 +17,8 @@ export default function MoveSignupModal({ onClose, onConfirm }: Props) {
           alignItems: 'center',
           width: '68px',
           height: '68px',
-          background: 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF;',
+          background:
+            'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF;',
           borderRadius: '68px',
         }}
       >
@@ -29,18 +30,18 @@ export default function MoveSignupModal({ onClose, onConfirm }: Props) {
         Would you like to go to the sign-up page?
       </Typography>
       <Box display='flex' gap='20px' justifyContent='center' mt='26px'>
-          <Button variant='outlined' onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              onConfirm()
-              onClose()
-            }}
-          >
-            Confirm
-          </Button>
+        <Button variant='outlined' onClick={onClose}>
+          Cancel
+        </Button>
+        <Button
+          variant='contained'
+          onClick={() => {
+            onConfirm()
+            onClose()
+          }}
+        >
+          Confirm
+        </Button>
       </Box>
     </SmallModalContainer>
   )

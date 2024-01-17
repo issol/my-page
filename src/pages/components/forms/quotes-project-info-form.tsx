@@ -14,7 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { v4 as uuidv4 } from 'uuid'
 
 // ** Third Party Imports
@@ -169,11 +169,8 @@ export default function ProjectInfoForm({
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
-  console.log(getValues())
-
   useEffect(() => {
     if (clientTimezone) {
-      console.log(clientTimezone)
       ;[
         'quoteDate.timezone',
         'projectDueDate.timezone',
@@ -306,8 +303,6 @@ export default function ProjectInfoForm({
               placeholderText='MM/DD/YYYY, HH:MM'
               selected={!value ? null : formattedNow(new Date(value))}
               onChange={e => {
-                console.log(e)
-
                 onChange(e)
               }}
               customInput={
@@ -430,6 +425,7 @@ export default function ProjectInfoForm({
                 PopperComponent={props => (
                   <>
                     <Popper
+                      placeholder={undefined}
                       {...props}
                       sx={{
                         cursor: 'pointer',

@@ -16,7 +16,7 @@ import { authState } from '@src/states/auth'
 import { useRouter } from 'next/router'
 import { Suspense, MouseEvent, useState, useEffect } from 'react'
 import { useRecoilValueLoadable } from 'recoil'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import InvoiceInfo from '../../payable/components/detail/invoice-info'
 import {
   useGetPayableDetail,

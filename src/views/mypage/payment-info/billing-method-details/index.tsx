@@ -14,7 +14,7 @@ import {
 // ** Custom Components Imports
 import CustomChip from '@src/@core/components/mui/chip'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { Icon } from '@iconify/react'
 import { downloadStateFile } from '@src/shared/helpers/file-download.helper'
 
@@ -158,10 +158,11 @@ export default function BillingMethodDetail({
         <Box
           sx={
             info && {
-            padding: '20px',
-            borderRadius: '10px',
-            border: '1px solid rgba(76, 78, 100, 0.12)',
-          }}
+              padding: '20px',
+              borderRadius: '10px',
+              border: '1px solid rgba(76, 78, 100, 0.12)',
+            }
+          }
         >
           {!info?.type ? null : info?.type === 'paypal' ? (
             <>

@@ -31,7 +31,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** store
 import { useAppDispatch } from '@src/hooks/useRedux'

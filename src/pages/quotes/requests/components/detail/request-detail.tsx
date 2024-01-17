@@ -1,25 +1,16 @@
 import { Icon } from '@iconify/react'
-import {
-  Box,
-  Button,
-  Card,
-  Divider,
-  Grid,
-  IconButton,
-  Typography,
-} from '@mui/material'
+import { Box, Divider, Grid, IconButton, Typography } from '@mui/material'
 import {
   ClientRequestStatusChip,
   JobTypeChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
-import {
-  convertTimeToTimezone,
-} from '@src/shared/helpers/date.helper'
+import { v4 as uuidv4 } from 'uuid'
+
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { useRouter } from 'next/router'
-import styled from 'styled-components'
+
+import styled from '@emotion/styled'
 
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { convertLanguageCodeToPair } from 'src/shared/helpers/language.helper'
@@ -130,18 +121,33 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Quantity</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {item?.quantity ?? '-'}
+                      {typeof item?.quantity === 'string'
+                        ? '-'
+                        : item?.quantity ?? '-'}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>
                 <Grid item xs={6}>
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Language pair</CustomTypo>
-                    <CustomTypo variant='body2'>
-                      {convertLanguageCodeToPair(
-                        item?.sourceLanguage,
-                        item?.targetLanguage,
-                      )}
+                    <CustomTypo
+                      variant='body2'
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
+                      {item?.targetLanguage.map(value => {
+                        return (
+                          <Box key={uuidv4()}>
+                            {convertLanguageCodeToPair(
+                              item?.sourceLanguage,
+                              value,
+                            )}
+                          </Box>
+                        )
+                      })}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>

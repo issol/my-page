@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppSelector } from '@src/hooks/useRedux'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import useModal from '@src/hooks/useModal'
 import { ModalType } from '@src/store/modal'
 

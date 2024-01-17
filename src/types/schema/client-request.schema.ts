@@ -15,9 +15,9 @@ export function getClientRequestDefaultValue(
       {
         name: '',
         sourceLanguage: '',
-        targetLanguage: '',
+        targetLanguage: null,
         category: '',
-        serviceType: [],
+        serviceType: null,
         desiredDueDate: null,
         desiredDueTimezone: timezone,
       },
@@ -29,25 +29,40 @@ export function getClientRequestDefaultValue(
 export const clientRequestSchema = yup.object().shape({
   lspId: yup.string().required(FormErrors.required),
   contactPersonId: yup.number().required(FormErrors.required),
+  userId: yup.number().nullable(),
   items: yup.array().of(
     yup.object().shape({
       name: yup.string().required(FormErrors.required),
       sourceLanguage: yup.string().required(FormErrors.required),
-      targetLanguage: yup.string().required(FormErrors.required),
+      targetLanguage: yup
+        .array()
+        .of(
+          yup.object().shape({
+            value: yup.string().required(FormErrors.required),
+            label: yup.string().required(FormErrors.required),
+          }),
+        )
+        .required(FormErrors.required),
       category: yup.string().required(FormErrors.required),
-      serviceType: yup.array().of(
-        yup.object().shape({
-          value: yup.string().required(FormErrors.required),
-          label: yup.string().required(FormErrors.required),
-        }),
-      ),
+      serviceType: yup
+        .array()
+        .of(
+          yup.object().shape({
+            value: yup.string().required(FormErrors.required),
+            label: yup.string().required(FormErrors.required),
+          }),
+        )
+        .required(FormErrors.required),
       unit: yup.string().nullable(),
       quantity: yup.number().nullable(),
-      desiredDueDate: yup.string().required(FormErrors.required),
-      desiredDueTimezone: yup.object().shape({
-        code: yup.string().nullable(),
-        label: yup.string().required(FormErrors.required),
-      }),
+      desiredDueDate: yup.date().required(),
+      desiredDueTimezone: yup
+        .object()
+        .shape({
+          code: yup.string().nullable(),
+          label: yup.string().required(FormErrors.required),
+        })
+        .required(),
     }),
   ),
   sampleFiles: yup
@@ -61,3 +76,40 @@ export const clientRequestSchema = yup.object().shape({
     .nullable(),
   notes: yup.string().nullable(),
 })
+
+// export const clientRequestSchema = yup.object().shape({
+//   lspId: yup.string().required(FormErrors.required),
+//   contactPersonId: yup.number().required(FormErrors.required),
+//   items: yup.array().of(
+//     yup.object().shape({
+//       name: yup.string().required(FormErrors.required),
+//       sourceLanguage: yup.string().required(FormErrors.required),
+//       targetLanguage: yup.object().shape({
+//         label: yup.string().required(FormErrors.required),
+//         value: yup.string().required(FormErrors.required),
+//       }),
+//       category: yup.string().required(FormErrors.required),
+//       serviceType: yup.object().shape({
+//         label: yup.string().required(FormErrors.required),
+//         value: yup.string().required(FormErrors.required),
+//       }),
+//       unit: yup.string().nullable(),
+//       quantity: yup.number().nullable(),
+//       desiredDueDate: yup.string().required(FormErrors.required),
+//       desiredDueTimezone: yup.object().shape({
+//         code: yup.string().nullable(),
+//         label: yup.string().required(FormErrors.required),
+//       }),
+//     }),
+//   ),
+//   sampleFiles: yup
+//     .array()
+//     .of(
+//       yup.object().shape({
+//         fileName: yup.string().nullable(),
+//         fileSize: yup.number().nullable(),
+//       }),
+//     )
+//     .nullable(),
+//   notes: yup.string().nullable(),
+// })
