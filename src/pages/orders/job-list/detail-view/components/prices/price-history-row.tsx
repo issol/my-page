@@ -227,7 +227,7 @@ const PriceHistoryRow = ({
             </TableBody>
           </Table>
         </TableContainer>
-        
+
         <Grid item xs={12}>
           <Box
             display='flex'

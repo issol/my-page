@@ -154,7 +154,7 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                             )}
                           </Box>
                         )
-                      })} */}
+                      })}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>

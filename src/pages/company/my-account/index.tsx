@@ -46,7 +46,7 @@ const MyAccount = () => {
   const { openModal, closeModal } = useModal()
 
   const userAuth = useRecoilValueLoadable(authState)
-  
+
   const { data: userInfo, refetch } = useGetProfile(
     userAuth.getValue().user?.id! ?? 0,
   )
@@ -78,8 +78,8 @@ const MyAccount = () => {
       ['LPM','TAD','ACCOUNT_MANAGER'].includes(getCurrentUserRole())
         ? updateManagerUserInfo({ ...data as ManagerUserInfoType & { userId: number }, company: 'GloZ' })
         : getCurrentUserRole() === 'CLIENT'
-          ? updateClientUserInfo({ 
-              ...data as ContactPersonType & { userId: number }, 
+          ? updateClientUserInfo({
+              ...data as ContactPersonType & { userId: number },
               clientId: userAuth.getValue().company?.clientId!,
               companyId: userAuth.getValue().company?.companyId!,
             })

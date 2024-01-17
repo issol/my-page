@@ -70,7 +70,7 @@ const JobDetails = () => {
 
   const { orderId, jobId } = router.query
 
-  const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId!))
+  const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId!), true)
   const { data: orderDetail } = useGetProjectInfo(Number(orderId!))
   const { data: projectTeam, isLoading: projectTeamLoading } =
     useGetProjectTeam(Number(orderId!))
