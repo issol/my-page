@@ -162,8 +162,6 @@ export default function ProjectInfoForm({
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
-  console.log(getValues())
-
   useEffect(() => {
     if (clientTimezone) {
       ;[
@@ -298,8 +296,6 @@ export default function ProjectInfoForm({
               placeholderText='MM/DD/YYYY, HH:MM'
               selected={!value ? null : formattedNow(new Date(value))}
               onChange={e => {
-                console.log(e)
-
                 onChange(e)
               }}
               customInput={

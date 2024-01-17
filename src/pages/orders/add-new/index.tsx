@@ -106,6 +106,7 @@ import { getClientDetail } from '@src/apis/client.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
 import { formatISO } from 'date-fns'
+import { getClientRequestDetail } from '@src/apis/requests/client-request.api'
 
 export type languageType = {
   id: number | string
@@ -1228,16 +1229,6 @@ export default function AddNewOrder() {
       })
     }
   }
-
-  useEffect(() => {
-    if (getItem('languagePairs') && prices) {
-      const priceInfo =
-        prices?.find(
-          value => value.id === getItem('languagePairs')[0]?.price?.id,
-        ) ?? null
-      setPriceInfo(priceInfo)
-    }
-  }, [prices, getItem('languagePairs')])
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
