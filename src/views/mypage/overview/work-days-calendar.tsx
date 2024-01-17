@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useRef } from 'react'
-import { DatesSetArg } from '@fullcalendar/common'
-import FullCalendar, { CalendarOptions } from '@fullcalendar/react'
+import FullCalendar from '@fullcalendar/react'
+import { CalendarOptions, DatesSetArg } from '@fullcalendar/core'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 
@@ -9,7 +9,7 @@ import {
   OffDayEventType,
 } from '@src/types/common/calendar.type'
 import { addOneDay } from '@src/shared/helpers/date.helper'
-import { calendarDefaultOptions, ValidRange } from '@src/shared/const/calender'
+import { calendarDefaultOptions } from '@src/shared/const/calender'
 import dayjs from 'dayjs'
 
 /**
@@ -60,12 +60,13 @@ const WorkDaysCalendar = (props: Props) => {
   const editBtn = document.getElementsByClassName('off-edit')
   const deleteBtn = document.getElementsByClassName('off-delete')
 
-  const calendarOptions: CalendarOptions = {
+  const calendarOptions = {
     ...calendarDefaultOptions,
     validRange: {
       start: dayjs().add(-12, 'month').format('YYYY-MM-DD'),
       end: dayjs().add(12, 'month').format('YYYY-MM-DD'),
     },
+    ref: calendarRef,
     events: (finalEvent || []) as CalendarOptions['events'],
     plugins: [dayGridPlugin, interactionPlugin],
     headerToolbar: {
@@ -132,7 +133,7 @@ const WorkDaysCalendar = (props: Props) => {
     },
   }
 
-  const handleMonthChange = async (payload: DatesSetArg) => {
+  async function handleMonthChange(payload: DatesSetArg) {
     const currDate = payload.view.currentStart
     const currYear = currDate.getFullYear()
     const currMonth = currDate.getMonth() + 1
@@ -179,14 +180,7 @@ const WorkDaysCalendar = (props: Props) => {
     })
   }
 
-  //@ts-ignore
-  return (
-    <FullCalendar
-      ref={calendarRef}
-      {...calendarOptions}
-      datesSet={handleMonthChange}
-    />
-  )
+  return <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
 }
 
 export default WorkDaysCalendar

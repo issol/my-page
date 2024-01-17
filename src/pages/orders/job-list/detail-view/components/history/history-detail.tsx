@@ -7,7 +7,7 @@ import TabContext from '@mui/lab/TabContext'
 import Typography from '@mui/material/Typography'
 import { MouseEvent, Suspense, useContext, useEffect, useState } from 'react'
 import { SyntheticEvent } from 'react-draft-wysiwyg'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import HistoryAssignPro from './history-assign-pro'
 import useModal from '@src/hooks/useModal'
 import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
@@ -25,6 +25,7 @@ import AssignPro from '../assign-pro/assign-pro'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
+import { useQueryClient } from 'react-query'
 
 type Props = {
   id: number
@@ -46,7 +47,6 @@ type Props = {
     jobTitle: string
   }[]
   statusList: Array<{ value: number; label: string }>
-
 }
 
 /* TODO
@@ -69,6 +69,7 @@ export default function HistoryDetail({
   const [value, setValue] = useState<string>('jobInfo')
   const { openModal, closeModal } = useModal()
   const auth = useRecoilValueLoadable(authState)
+  const queryClient = useQueryClient()
 
   const [proListSkip, setProListSkip] = useState(0)
   const [proPageSize, setProPageSize] = useState(10)
@@ -82,7 +83,7 @@ export default function HistoryDetail({
   const { data: jobPrices, isLoading: jobPricesLoading } = useGetJobPrices(
     id,
     true,
-  )  as { data: jobPriceHistoryType, isLoading: boolean };
+  ) as { data: jobPriceHistoryType; isLoading: boolean }
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -138,13 +139,14 @@ export default function HistoryDetail({
         minimumPrice: null,
         minimumPriceApplied: false,
         priceFactor: 0,
+        currency: null,
       })
     }
   }, [jobPrices])
 
   const onClickClose = () => {
     //history-detail 모달을 닫고 JobDetailViewModal 모달을 연다
-    
+    queryClient.invalidateQueries(['jobHistory'])
     closeModal('history-detail')
     openModal({
       type: 'JobDetailViewModal',
@@ -245,15 +247,12 @@ export default function HistoryDetail({
                 item={item}
                 projectTeam={projectTeam}
                 statusList={statusList}
-                jobDeliveriesFeedbacks={{deliveries:[], feedbacks:[]}}
+                jobDeliveriesFeedbacks={{ deliveries: [], feedbacks: [] }}
               />
             )}
           </TabPanel>
           <TabPanel value='prices' sx={{ pt: '30px' }}>
-            <ViewHistoryPrices
-              jobInfo={jobInfo!}
-              jobPrices={jobPrices!}
-            />
+            <ViewHistoryPrices jobInfo={jobInfo!} jobPrices={jobPrices!} />
           </TabPanel>
           <TabPanel value='assignPro'>
             <AssignPro
@@ -263,7 +262,7 @@ export default function HistoryDetail({
               type='history'
               // assignProList={row.assignPro}
               item={item}
-              //TODO: assignment status에 70000대 코드 처리 추가해야 함 
+              //TODO: assignment status에 70000대 코드 처리 추가해야 함
               statusList={statusList!}
             />
           </TabPanel>

@@ -3,26 +3,11 @@ import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
 import Autocomplete from '@mui/material/Autocomplete'
-import { ModalContext } from '@src/context/ModalContext'
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField'
 import FormControl from '@mui/material/FormControl'
-import {
-  Control,
-  Controller,
-  FieldErrors,
-  UseFormGetValues,
-  UseFormHandleSubmit,
-  UseFormSetValue,
-  UseFormTrigger,
-  UseFormWatch,
-} from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 import FormHelperText from '@mui/material/FormHelperText'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { CategoryList } from '@src/shared/const/category/categories'
@@ -134,7 +119,7 @@ const AddSavePriceModal = ({
   const [selected, setSelected] = useState<StandardPriceListType | null>(null)
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
-  console.log("isValid",isValid,errors)
+  console.log('isValid', isValid, errors)
   const [category, setCategory] = useState<{
     label: String
     value: String
@@ -197,7 +182,7 @@ const AddSavePriceModal = ({
                 : selected.currency === 'SGD'
                 ? '$ SGD'
                 : '',
-            value: selected.currency,
+            value: selected.currency!,
           },
           setValueOptions,
         )
@@ -250,7 +235,7 @@ const AddSavePriceModal = ({
               : selected.currency === 'SGD'
               ? '$ SGD'
               : '',
-          value: selected.currency,
+          value: selected.currency!,
         })
         page === 'client' &&
           setValue('catBasis', {
@@ -290,7 +275,7 @@ const AddSavePriceModal = ({
   function onAddCopiedPrice(data: StandardPriceListType) {
     setSelected(data)
   }
-  console.log("RoundingProcedureList",RoundingProcedureList)
+  console.log('RoundingProcedureList', RoundingProcedureList)
   return (
     <Dialog
       open={open}
@@ -298,7 +283,7 @@ const AddSavePriceModal = ({
       fullWidth
       onClose={() => {
         resetData()
-        // setModal(null)
+
         onClose()
       }}
       // TransitionComponent={Transition}

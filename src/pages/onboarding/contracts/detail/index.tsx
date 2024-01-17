@@ -13,12 +13,7 @@ import { Suspense, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Third Party Imports
-import {
-  ContentBlock,
-  ContentState,
-  convertFromRaw,
-  EditorState,
-} from 'draft-js'
+import { convertFromRaw, EditorState } from 'draft-js'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -30,11 +25,11 @@ import CustomChip from 'src/@core/components/mui/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
+
 import Icon from 'src/@core/components/icon'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
@@ -59,6 +54,9 @@ import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { contract as Contract } from '@src/shared/const/permission-class'
 import { timezoneSelector } from '@src/states/permission'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { ModalButtonGroup } from '@src/pages/jobPosting/components/edit-link-modal'
 
 type CellType = {
   row: {
@@ -82,6 +80,7 @@ const ContractDetail = () => {
   const language = router.query.language as LangType
 
   const [openDetail, setOpenDetail] = useState(false)
+  const { openModal, closeModal } = useModal()
 
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
   const [historyContent, setHistoryContent] = useState(
@@ -97,8 +96,6 @@ const ContractDetail = () => {
     updatedAt: '',
     content: null,
   })
-
-  const { setModal } = useContext(ModalContext)
 
   const { data, refetch } = useGetContract({
     type,
@@ -313,42 +310,21 @@ const ContractDetail = () => {
   }
 
   function onDelete() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DeleteModal',
+      children: (
+        <CustomModal
+          title='Are you sure to delete this contract?'
+          rightButtonText='Delete'
+          onClose={() => closeModal('DeleteModal')}
+          onClick={() => {
+            closeModal('DeleteModal')
+            deleteMutation.mutate()
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to delete this contract?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              deleteMutation.mutate()
-            }}
-          >
-            Delete
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          vary='error'
+        />
+      ),
+    })
   }
 
   function onEdit() {
@@ -375,48 +351,24 @@ const ContractDetail = () => {
 
   function onRestore(restoreDoc: any) {
     setOpenDetail(false)
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'RestoreModal',
+      children: (
+        <CustomModal
+          title='Are you sure to restore this version?'
+          rightButtonText='Restore'
+          onClose={() => {
+            setOpenDetail(true)
+            closeModal('RestoreModal')
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to restore this version?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button
-            variant='outlined'
-            onClick={() => {
-              setModal(null)
-              setOpenDetail(true)
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              restoreMutation.mutate(restoreDoc.documentId)
-            }}
-          >
-            Restore
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          onClick={() => {
+            closeModal('RestoreModal')
+            restoreMutation.mutate(restoreDoc.documentId)
+          }}
+          vary='error'
+        />
+      ),
+    })
   }
 
   function noHistory() {

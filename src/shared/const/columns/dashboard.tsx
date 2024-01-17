@@ -797,7 +797,9 @@ export const JobTableColumn: GridColumns = [
     minWidth: 140,
     renderHeader: () => <Box>Pros</Box>,
     renderCell: ({ row }: { row: JobTypeAndRole }) => {
-      return <Box sx={{ textAlign: 'center' }}>{row.count}</Box>
+      return (
+        <Box sx={{ textAlign: 'center' }}>{row.count.toLocaleString()}</Box>
+      )
     },
   },
   {

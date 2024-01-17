@@ -13,16 +13,38 @@ import UserLayout from '@src/layouts/UserLayout'
 import { useAppSelector } from '@src/hooks/useRedux'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { setAllTimeZoneList } from '@src/shared/helpers/timezone.helper'
+import { useRecoilValueLoadable } from 'recoil'
+import { currentRoleSelector } from '@src/states/permission'
 
 const Home = () => {
-  // ** Hooks
-
   const router = useRouter()
+  const { contents: role, state: roleFetchState } =
+    useRecoilValueLoadable(currentRoleSelector)
 
   useEffect(() => {
-    router.replace('/dashboards')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    //'CLIENT' | 'PRO' | 'LPM' | 'TAD' | 'ACCOUNT_MANAGER'
+    if (role.name === 'TAD') {
+      router.replace('/dashboards/tad')
+      return
+    }
+
+    if (role.name === 'LPM') {
+      router.replace('/dashboards/lpm')
+      return
+    }
+
+    if (role.name === 'ACCOUNT_MANAGER') {
+      router.replace('/dashboards/account')
+      return
+    }
+
+    if (role.name === 'PRO') {
+      router.replace('/dashboards/pro')
+      return
+    }
+
+    router.replace('/dashboards/client')
+  }, [role])
 
   return <Spinner sx={{ height: '100%' }} />
 }

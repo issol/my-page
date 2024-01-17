@@ -15,7 +15,7 @@ import {
   Tab,
   Typography,
 } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'

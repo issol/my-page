@@ -1,6 +1,6 @@
 import { Box, Button, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
-import { SmallModalContainer } from '@src/@core/components/modal'
+import { SmallModalContainer } from '@src/pages/client/components/modals/add-confirm-with-title-modal'
 import Dialog from '@mui/material/Dialog'
 
 type Props = {

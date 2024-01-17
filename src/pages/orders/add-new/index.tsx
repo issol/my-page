@@ -1,10 +1,4 @@
-import {
-  ChangeEvent,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -23,10 +17,10 @@ import {
   Typography,
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** react hook form
-import { useForm, useFieldArray, Controller } from 'react-hook-form'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Icon Imports
@@ -37,8 +31,9 @@ import { toast } from 'react-hot-toast'
 
 // ** validation values & types
 import {
-  ProjectTeamType,
+  MemberType,
   projectTeamSchema,
+  ProjectTeamType,
 } from '@src/types/schema/project-team.schema'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { StandardPriceListType } from '@src/types/common/standard-price'
@@ -50,10 +45,8 @@ import {
   orderProjectInfoSchema,
 } from '@src/types/schema/orders-project-info.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
-import { MemberType } from '@src/types/schema/project-team.schema'
 
 // ** components
-
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
@@ -101,7 +94,6 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
-import { useGetStatusList } from '@src/queries/common.query'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import {
@@ -111,10 +103,10 @@ import {
   getProjectTeam,
 } from '@src/apis/order/order-detail.api'
 import { getClientDetail } from '@src/apis/client.api'
-import { set } from 'lodash'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
 import { formatISO } from 'date-fns'
+import { getClientRequestDetail } from '@src/apis/requests/client-request.api'
 
 export type languageType = {
   id: number | string
@@ -128,23 +120,22 @@ export type languageType = {
 }
 
 export const defaultOption: StandardPriceListType & {
-  groupName?: string
+  groupName: string
 } = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
-  // groupName: 'Not applicable',
+  groupName: '',
   category: '',
   serviceType: [],
-  currency: 'KRW',
+  currency: null,
   catBasis: '',
   decimalPlace: 0,
-  roundingProcedure: 'Round (Round down to 0.5 - round up from 0.5)',
+  roundingProcedure: '',
   languagePairs: [],
   priceUnit: [],
   catInterface: { memSource: [], memoQ: [] },
 }
-
 export const proDefaultOption: StandardPriceListType & {
   groupName?: string
 } = {
@@ -173,7 +164,8 @@ export default function AddNewOrder() {
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
   const [isWarn, setIsWarn] = useState(true)
   const [isFatching, setIsFatching] = useState(false)
-
+  const [requestProjectDueDate, setRequestProjectDueDate] =
+    useState<Date | null>(null)
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
   const [taxFocus, setTaxFocus] = useState(false)
 
@@ -185,7 +177,7 @@ export default function AddNewOrder() {
       onCopyQuote(Number(quoteId))
     }
     if (requestId) {
-      initializeFormWithRequest()
+      initializeFormWithRequest(Number(requestId))
     }
   }, [router.query])
 
@@ -198,10 +190,6 @@ export default function AddNewOrder() {
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
-  }
-
-  const onNextStep = () => {
-    setActiveStep(activeStep + 1)
   }
 
   const steps = [
@@ -331,6 +319,51 @@ export default function AddNewOrder() {
     control: itemControl,
     name: 'languagePairs',
   })
+
+  const onNextStep = () => {
+    setActiveStep(activeStep + 1)
+    if (activeStep === 2 && requestData && requestId) {
+      const teamMembers = getTeamValues()?.teams
+      const projectManager = teamMembers.find(
+        item => item.type === 'projectManagerId',
+      )
+      const project = getProjectInfoValues()
+
+      const { items } = requestData || []
+      const transformedItems =
+        items.flatMap(item =>
+          item.targetLanguage.map(target => ({
+            id: item.id,
+            source: item.sourceLanguage,
+            target,
+            price: defaultOption,
+          })),
+        ) || []
+
+      const defaultItems = transformedItems.map(item => ({
+        itemName: null,
+        source: item.source,
+        target: item.target,
+        contactPersonId: projectManager?.id!,
+        dueAt: requestProjectDueDate
+          ? changeTimeZoneOffset(
+              requestProjectDueDate.toISOString(),
+              auth.getValue().user?.timezone!,
+            )
+          : null,
+        priceId: -1,
+        detail: [],
+        totalPrice: 0,
+        showItemDescription: false,
+        minimumPrice: null,
+        minimumPriceApplied: false,
+        priceFactor: 0,
+        currency: null,
+      }))
+
+      setItem('items', defaultItems, { shouldDirty: true })
+    }
+  }
 
   function sumTotalPrice() {
     const subPrice = getItem('items')
@@ -462,6 +495,7 @@ export default function AddNewOrder() {
       minimumPrice: null,
       minimumPriceApplied: false,
       priceFactor: 0,
+      currency: null,
     })
   }
 
@@ -756,59 +790,105 @@ export default function AddNewOrder() {
     return result
   }
 
-  function initializeFormWithRequest() {
-    if (requestId && requestData) {
-      const { client } = requestData || undefined
-      clientReset({
-        clientId: client.clientId,
-        contactPersonId: requestData.contactPerson.id,
-        addressType: 'shipping',
-        contacts: {
-          timezone: client?.timezone,
-          phone: client?.phone ?? '',
-          mobile: client?.mobile ?? '',
-          fax: client?.fax ?? '',
-          email: client?.email ?? '',
-          addresses:
-            client?.addresses?.filter(
-              item => item.addressType !== 'additional',
-            ) || [],
-        },
-      })
+  function initializeFormWithRequest(requestId: number) {
+    if (requestId) {
+      getClientRequestDetail(requestId).then(res => {
+        const { client } = res || undefined
+        clientReset({
+          clientId: client.clientId,
+          contactPersonId: res.contactPerson.id,
+          addressType: 'shipping',
+          contacts: {
+            timezone: client?.timezone,
+            phone: client?.phone ?? '',
+            mobile: client?.mobile ?? '',
+            fax: client?.fax ?? '',
+            email: client?.email ?? '',
+            addresses:
+              client?.addresses?.filter(
+                item => item.addressType !== 'additional',
+              ) || [],
+          },
+        })
 
-      const { items } = requestData || []
-      const desiredDueDates = items?.map(i => i.desiredDueDate)
-      const isCategoryNotSame = items.some(
-        i => i.category !== items[0]?.category,
-      )
-      projectInfoReset({
-        orderedAt: formattedNow(new Date()),
-        projectDueAt: new Date(
-          convertTimeToTimezone(
-            findEarliestDate(desiredDueDates),
-            items[0].desiredDueTimezone,
-            timezone.getValue(),
-            true,
-          )!,
-        ),
-        // projectDueAt: findEarliestDate(desiredDueDates),
-        // projectDueDate: {
-        //   date: findEarliestDate(desiredDueDates),
-        // },
-        category: isCategoryNotSame ? '' : items[0].category,
-        serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
-        projectDescription: requestData?.notes ?? '',
-        showDescription: requestData?.showDescription ?? false,
-        status: 10000,
+        const { items } = res || []
+
+        const desiredDueDates = items?.map(i => i.desiredDueDate)
+        const isCategoryNotSame = items.some(
+          i => i.category !== items[0]?.category,
+        )
+        setRequestProjectDueDate(
+          new Date(
+            convertTimeToTimezone(
+              findEarliestDate(desiredDueDates),
+              items[0].desiredDueTimezone,
+              timezone.getValue(),
+              true,
+            )!,
+          ),
+        )
+        projectInfoReset({
+          orderedAt: formattedNow(new Date()),
+          projectDueAt: new Date(
+            convertTimeToTimezone(
+              findEarliestDate(desiredDueDates),
+              items[0].desiredDueTimezone,
+              timezone.getValue(),
+              true,
+            )!,
+          ),
+          // projectDueAt: findEarliestDate(desiredDueDates),
+          // projectDueDate: {
+          //   date: findEarliestDate(desiredDueDates),
+          // },
+          category: isCategoryNotSame ? '' : items[0].category,
+          serviceType: isCategoryNotSame
+            ? []
+            : items.flatMap(i => i.serviceType),
+          projectDescription: requestData?.notes ?? '',
+          showDescription: requestData?.showDescription ?? false,
+          status: 10000,
+        })
+        const transformedItems =
+          items.flatMap(item =>
+            item.targetLanguage.map(target => ({
+              id: item.id,
+              source: item.sourceLanguage,
+              target,
+              price: defaultOption,
+            })),
+          ) || []
+
+        const uniqueTransformedItems = Array.from(
+          new Set(
+            transformedItems.map(item =>
+              JSON.stringify({ source: item.source, target: item.target }),
+            ),
+          ),
+        ).map(item => JSON.parse(item))
+
+        const result = uniqueTransformedItems.map(uniqueItem => {
+          const originalItem = transformedItems.find(
+            item =>
+              item.source === uniqueItem.source &&
+              item.target === uniqueItem.target,
+          )
+
+          return {
+            ...uniqueItem,
+            id: originalItem?.id,
+            price: originalItem?.price,
+          }
+        })
+
+        setItem('languagePairs', result, { shouldDirty: true })
+        if (result.length > 0 && prices) {
+          const priceInfo =
+            prices?.find(value => value.id === result[0]?.price?.id) ?? null
+
+          setPriceInfo(priceInfo)
+        }
       })
-      const itemLangPairs =
-        items?.map(i => ({
-          id: i.id,
-          source: i.sourceLanguage,
-          target: i.targetLanguage,
-          price: null,
-        })) || []
-      setItem('languagePairs', itemLangPairs)
     }
   }
 
@@ -972,7 +1052,8 @@ export default function AddNewOrder() {
               minimumPrice: item.minimumPrice,
               minimumPriceApplied: item.minimumPriceApplied,
             }
-          })
+          }) as ItemType[]
+
           itemReset({ items: result, languagePairs: itemLangPairs })
           itemTrigger()
         }
@@ -1118,6 +1199,7 @@ export default function AddNewOrder() {
               },
             }
           })
+
           const result = res?.items?.map(item => {
             return {
               id: item.id,
@@ -1139,7 +1221,8 @@ export default function AddNewOrder() {
               minimumPrice: item.minimumPrice,
               minimumPriceApplied: item.minimumPriceApplied,
             }
-          })
+          }) as ItemType[]
+
           itemReset({ items: result, languagePairs: itemLangPairs })
           itemTrigger()
         }
@@ -1147,21 +1230,49 @@ export default function AddNewOrder() {
     }
   }
 
-  useEffect(() => {
-    if (getItem('languagePairs') && prices) {
-      const priceInfo =
-        prices?.find(
-          value => value.id === getItem('languagePairs')[0]?.price?.id,
-        ) ?? null
-      setPriceInfo(priceInfo)
-    }
-  }, [prices, getItem('languagePairs')])
-
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
     shouldWarn: isWarn,
     toUrl: '/orders/order-list',
   })
+
+  const getSubTotal = () => {
+    const items = getItem('items')
+    const currencies = items.flatMap(
+      item =>
+        item.detail
+          ? item.detail
+              .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
+
+              .map(detailItem => detailItem.currency)
+          : [], // Return an empty array if detail is undefined
+    )
+
+    if (currencies.length === 0) return '-'
+    else {
+      const decimalPlace = priceInfo
+        ? priceInfo.decimalPlace
+        : currencies[0] === 'USD' || currencies[0] === 'SGD'
+        ? 2
+        : currencies[0] === 'KRW'
+        ? 1000
+        : currencies[0] === 'JPY'
+        ? 100
+        : 2
+
+      return subPrice === 0
+        ? '-'
+        : formatCurrency(
+            formatByRoundingProcedure(
+              subPrice,
+              decimalPlace,
+              priceInfo ? priceInfo?.roundingProcedure! : 0,
+              priceInfo ? priceInfo.currency : currencies[0],
+            ),
+            priceInfo ? priceInfo.currency : currencies[0],
+          )
+    }
+  }
 
   return (
     <Grid container spacing={6}>
@@ -1314,6 +1425,7 @@ export default function AddNewOrder() {
             <Grid container>
               <Grid item xs={12}>
                 <AddLanguagePairForm
+                  from='order'
                   type='create'
                   getItem={getItem}
                   setLanguagePairs={(languagePair: languageType[]) =>
@@ -1387,17 +1499,18 @@ export default function AddNewOrder() {
                       variant='subtitle1'
                       sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
-                      {subPrice === 0
+                      {/* {subPrice === 0
                         ? '-'
                         : formatCurrency(
                             formatByRoundingProcedure(
                               subPrice,
-                              priceInfo?.decimalPlace!,
-                              priceInfo?.roundingProcedure!,
+                              priceInfo ? priceInfo?.decimalPlace! : 2,
+                              priceInfo ? priceInfo?.roundingProcedure! : 0,
                               priceInfo?.currency ?? 'USD',
                             ),
                             priceInfo?.currency ?? 'USD',
-                          )}
+                          )} */}
+                      {getSubTotal()}
                     </Typography>
                   </Box>
                 </Box>

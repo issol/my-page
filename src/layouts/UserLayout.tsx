@@ -13,35 +13,27 @@ import Layout from 'src/@core/layouts/Layout'
 import VerticalNavItems from 'src/navigation/vertical'
 import HorizontalNavItems from 'src/navigation/horizontal'
 
-// ** Component Import
-// Uncomment the below line (according to the layout type) when using server-side menu
-// import ServerSideVerticalNavItems from './components/vertical/ServerSideNavItems'
-// import ServerSideHorizontalNavItems from './components/horizontal/ServerSideNavItems'
-
 import VerticalAppBarContent from './components/vertical/AppBarContent'
 import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
-import { useAppSelector } from '@src/hooks/useRedux'
 import {
-  LPMMenu,
-  TADMenu,
-  PROMenu,
   CLIENTMenu,
+  LPMMenu,
+  PROMenu,
+  TADMenu,
 } from '@src/shared/const/menu/menu'
-import { getCurrentRole, getUserDataFromBrowser } from 'src/shared/auth/storage'
-import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
+import { getCurrentRole } from 'src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 import { currentRoleSelector, permissionState } from '@src/states/permission'
-import { current } from '@reduxjs/toolkit'
 import { HorizontalNavItemsType } from '@src/@core/layouts/types'
 import { UserRoleType } from '@src/context/types'
 import { useQuery } from 'react-query'
 import { getUserBeHealthz } from '@src/apis/common.api'
 import ErrorServerMaintenance from '@src/@core/components/error/error-server-maintenance'
 import { authState } from '@src/states/auth'
-import { setAllTimeZoneList } from '@src/shared/helpers/timezone.helper'
+
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean

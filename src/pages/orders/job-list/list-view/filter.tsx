@@ -26,7 +26,7 @@ import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'

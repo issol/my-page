@@ -13,9 +13,9 @@ import {
   PaidThisMonthAmount,
   TotalPriceResult,
   useDashboardReport,
-} from '@src/queries/dashboard/dashnaord-lpm'
+} from '@src/queries/dashnaord.query'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import DashboardDataGrid from '@src/views/dashboard/dataGrid/request'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
@@ -47,10 +47,9 @@ import {
 } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
 import Information from '@src/views/dashboard/dialog/information'
-import {
+import TotalPrice, {
   payableColors,
   ReceivableColors,
-  TotalPrice,
 } from '@src/views/dashboard/chart/total'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import SwitchTypeHeader from '@src/views/dashboard/header/SwitchType'
@@ -58,6 +57,9 @@ import LongStandingDataGrid from '@src/views/dashboard/dataGrid/longStanding'
 import Notice from '@src/views/dashboard/notice'
 import { mergeData } from '@src/pages/dashboards/tad'
 import { useQueryClient } from 'react-query'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { DashboardErrorFallback, TryAgain } from '@src/views/dashboard/suspense'
+import { ErrorBoundary } from 'react-error-boundary'
 
 dayjs.extend(weekday)
 
@@ -71,7 +73,7 @@ export const getRangeDateTitle = (date1: Date, date2: Date | null) => {
 export const getDateFormatter = (date1: Date, date2: Date | null) => {
   if (!date1) return
 
-  if (date1 && !date2) {
+  if (dayjs(date1).isSame(dayjs(date2), 'day')) {
     return `${dayjs(date1).format('MMMM D, YYYY')}`
   }
 
@@ -89,7 +91,7 @@ export const getDateFormatter = (date1: Date, date2: Date | null) => {
 }
 
 export const getDateFormat = (date: Date | null) => {
-  if (!date) return dayjs().format('YYYY-MM-DD')
+  if (!date) return ''
   return dayjs(date).format('YYYY-MM-DD')
 }
 
@@ -143,6 +145,7 @@ const LPMDashboards = () => {
     const paidThisMonths = data.filter(item =>
       item[0].includes('PaidThisMonth'),
     )
+
     const totalPrices = data.filter(item => item[0].includes('totalPrice'))
 
     const ongoingOrder = ongoingCounts.filter(item =>
@@ -183,18 +186,18 @@ const LPMDashboards = () => {
 
     const filterPayableTotal = (payableTotal?.report || []).map(item => {
       return {
-        'Payables total Count': item.count,
-        'Payables total Price': item.sum,
-        'Payables total Number': item.count,
+        'Payables total Count': item.count || 0,
+        'Payables total Price': item.sum || 0,
+        'Payables total Number': item.count || 0,
         ' ': ' ',
       }
     })
 
     const filterReceivableTotal = (receivableTotal?.report || []).map(item => {
       return {
-        'Receivables total Count': item.count,
-        'Receivables total Price': item.sum,
-        'Receivables total Number': item.count,
+        'Receivables total Count': item.count || 0,
+        'Receivables total Price': item.sum || 0,
+        'Receivables total Number': item.count || 0,
         ' ': ' ',
       }
     })
@@ -205,7 +208,7 @@ const LPMDashboards = () => {
     mergeObjectData2[0] = {
       'Payables - paid this month Price': payableMonth?.totalPrice || 0,
       'Payables - paid this month Number': payableMonth?.count || 0,
-      ' ': ' ',
+      '   ': ' ',
       ...mergeObjectData2[0],
     }
 
@@ -214,32 +217,41 @@ const LPMDashboards = () => {
     mergeObjectData3[0] = {
       'Receivables - paid this month Price': receivableMonth?.totalPrice || 0,
       'Receivables - paid this month Number': receivableMonth?.count || 0,
-      '': '',
+      '  ': '',
+      ...receivables[0],
+      ...payables[0],
       ...mergeObjectData3[0],
+      '      ': '  ',
     }
 
-    const mergeData1 = mergeData(receivables, payables)
-    mergeData1[0] = { ...mergeData1[0], '   ': '' }
-    const mergeData2 = mergeData(mergeData1, clients)
-    const mergeData3 = mergeData(mergeData2, languagePairs)
-    const mergeData4 = mergeData(mergeData3, categories)
-    const mergeData5 = mergeData(mergeData4, serviceTypes)
-    const mergeData6 = mergeData(mergeData5, expertises)
-    const mergeData7 = mergeData(mergeData6, mergeObjectData3)
+    const mergeData1 = mergeData(clients, languagePairs)
+    const mergeData2 = mergeData(mergeData1, categories)
 
-    mergeData7[0] = {
+    const mergeData3 = mergeData(mergeData2, serviceTypes)
+    const mergeData4 = mergeData(mergeData3, expertises)
+    const mergeData5 = mergeData(mergeObjectData3, mergeData4)
+
+    mergeData5[0] = {
       Requests: ReportData?.requests || 0,
       Quotes: ReportData?.quotes || 0,
       Orders: ReportData?.orders || 0,
       Receivables: ReportData?.invoiceReceivables || 0,
       Payables: ReportData?.invoicePayables || 0,
       Canceled: ReportData?.canceled || 0,
-      '': '',
-      ...mergeData7[0],
+      '     ': '',
+      ...mergeData5[0],
     }
 
-    setCSVData(mergeData7)
-  }, [receivables, payables, clients, languagePairs, serviceTypes, expertises])
+    setCSVData(mergeData5)
+  }, [
+    receivables,
+    payables,
+    clients,
+    languagePairs,
+    serviceTypes,
+    categories,
+    expertises,
+  ])
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
@@ -303,20 +315,16 @@ const LPMDashboards = () => {
             )}
             <GridItem height={362} sm padding='0'>
               <Box sx={{ width: '100%' }}>
-                <Title
-                  title='New requests'
-                  padding='10px 20px 0'
-                  marginBottom='20px'
-                  handleClick={() => router.push('/quotes/lpm/requests/')}
-                  openDialog={setOpenInfoDialog}
-                />
                 <DashboardDataGrid
-                  title='New requests from clients'
+                  sectionTitle='New requests'
+                  overlayTitle='New requests from clients'
                   sectionHeight={280}
                   path='u/dashboard/client-request/list/new'
                   pageNumber={4}
                   movePage={params => router.push('/')}
                   columns={RequestColumns}
+                  setOpenInfoDialog={setOpenInfoDialog}
+                  handleClick={() => router.push('/quotes/lpm/requests/')}
                 />
               </Box>
             </GridItem>
@@ -386,12 +394,22 @@ const LPMDashboards = () => {
                     openDialog={setOpenInfoDialog}
                   />
                 </Box>
-                <TotalValueView
-                  type='receivable'
-                  label='Paid this month'
-                  amountLabel='Receivable amount'
-                  countLabel='Counts'
-                />
+                <Suspense fallback={<FallbackSpinner />}>
+                  <ErrorBoundary
+                    fallback={
+                      <TryAgain
+                        refreshDataQueryKey={['PaidThisMonth', 'receivable']}
+                      />
+                    }
+                  >
+                    <TotalValueView
+                      type='receivable'
+                      label='Paid this month'
+                      amountLabel='Receivable amount'
+                      countLabel='Counts'
+                    />
+                  </ErrorBoundary>
+                </Suspense>
               </Box>
             </GridItem>
             <GridItem height={229} sm>
@@ -403,12 +421,22 @@ const LPMDashboards = () => {
                     handleClick={() => router.push('/invoice/payable/')}
                   />
                 </Box>
-                <TotalValueView
-                  type='payable'
-                  label='Paid this month'
-                  amountLabel='Receivable amount'
-                  countLabel='Counts'
-                />
+                <Suspense fallback={<FallbackSpinner />}>
+                  <ErrorBoundary
+                    fallback={
+                      <TryAgain
+                        refreshDataQueryKey={['PaidThisMonth', 'payable']}
+                      />
+                    }
+                  >
+                    <TotalValueView
+                      type='payable'
+                      label='Paid this month'
+                      amountLabel='Receivable amount'
+                      countLabel='Counts'
+                    />
+                  </ErrorBoundary>
+                </Suspense>
               </Box>
             </GridItem>
           </Grid>
@@ -441,6 +469,7 @@ const LPMDashboards = () => {
           <Grid container>
             <LongStandingDataGrid
               title='Long-standing receivables - Action required'
+              overlayTitle='There are no long-standing receivables'
               type='receivable'
               columns={ReceivableColumns}
               initSort={[
@@ -460,6 +489,7 @@ const LPMDashboards = () => {
           <Grid container>
             <LongStandingDataGrid
               title='Long-standing payables - Action required'
+              overlayTitle='There are no long-standing payables'
               type='payable'
               columns={PayablesColumns}
               initSort={[
@@ -480,6 +510,7 @@ const LPMDashboards = () => {
             <Doughnut
               userViewDate={userViewDate}
               title='Clients'
+              overlayTitle='There are no client information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -494,6 +525,7 @@ const LPMDashboards = () => {
             <Doughnut<PairRatioItem>
               userViewDate={userViewDate}
               title='Language pairs'
+              overlayTitle='There are no language information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -533,6 +565,7 @@ const LPMDashboards = () => {
             <Doughnut<CategoryRatioItem>
               userViewDate={userViewDate}
               title='Main categories'
+              overlayTitle='There are no category information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -579,6 +612,7 @@ const LPMDashboards = () => {
             <Doughnut<ServiceRatioItem>
               userViewDate={userViewDate}
               title='Service types'
+              overlayTitle='There are no service type information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}
@@ -598,6 +632,7 @@ const LPMDashboards = () => {
             <Doughnut<ExpertiseRatioItem>
               userViewDate={userViewDate}
               title='Area of expertises'
+              overlayTitle='There are no area of expertise information'
               from={getDateFormat(
                 (Array.isArray(dateRange) && dateRange[0]) || null,
               )}

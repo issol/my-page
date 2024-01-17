@@ -22,7 +22,7 @@ import TableContainer from '@mui/material/TableContainer'
 
 import { ChangeEvent, useEffect, useState } from 'react'
 import CustomChip from 'src/@core/components/mui/chip'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import {
   CatInterfaceType,
   StandardPriceListType,

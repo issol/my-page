@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@mui/material'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** components
 import FileInfo from '@src/@core/components/file-info'

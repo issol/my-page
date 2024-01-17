@@ -24,7 +24,7 @@ import {
   useEffect,
 } from 'react'
 import { useQueryClient } from 'react-query'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
@@ -81,7 +81,6 @@ const ProJobsDetail = () => {
     }
     queryClient.invalidateQueries(['proJobList', filter])
     router.push('/jobs')
-
   }
 
   useEffect(() => {
@@ -142,8 +141,7 @@ const ProJobsDetail = () => {
                   jobDetailDots.includes('dueAt') ||
                   jobDetailDots.includes('dueAtTimezone') ||
                   jobDetailDots.includes('prices') ||
-                  jobDetailDots.includes('description')
-                  ? (
+                  jobDetailDots.includes('description') ? (
                     <Badge
                       variant='dot'
                       color='primary'

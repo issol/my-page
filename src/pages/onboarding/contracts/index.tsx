@@ -1,13 +1,13 @@
 import { Button, Card, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import Icon from 'src/@core/components/icon'
 import FallbackSpinner from 'src/@core/components/spinner'
 import { toast } from 'react-hot-toast'
 
 import { Fragment, Suspense, useContext } from 'react'
-import { ModalContext } from 'src/context/ModalContext'
+
 import { useRouter } from 'next/router'
 
 import {
@@ -16,10 +16,11 @@ import {
   ContractTypeEnum,
   getContractDetail,
 } from 'src/apis/contract.api'
+import useModal from '@src/hooks/useModal'
 
 export default function ContractForm() {
-  const { setModal } = useContext(ModalContext)
   const router = useRouter()
+  const { openModal, closeModal } = useModal()
 
   function onButtonClick({ type, language }: ContractParam) {
     getContractDetail({ type, language })
@@ -44,45 +45,48 @@ export default function ContractForm() {
   }
 
   function onInfoClick() {
-    setModal(
-      <ModalContainer>
-        <ModalBody>
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <img
-              src='/images/icons/project-icons/status-alert-info.png'
-              width={60}
-              height={60}
-              alt='role select error'
-            />
-            <Icon
-              icon='mdi:close'
-              style={{
-                opacity: '0.7',
-                position: 'absolute',
-                top: '24px',
-                right: '20px',
-              }}
-              cursor='pointer'
-              onClick={() => setModal(null)}
-            />
-          </Box>
+    openModal({
+      type: 'InfoModal',
+      children: (
+        <ModalContainer>
+          <ModalBody>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <img
+                src='/images/icons/project-icons/status-alert-info.png'
+                width={60}
+                height={60}
+                alt='role select error'
+              />
+              <Icon
+                icon='mdi:close'
+                style={{
+                  opacity: '0.7',
+                  position: 'absolute',
+                  top: '24px',
+                  right: '20px',
+                }}
+                cursor='pointer'
+                onClick={() => closeModal('InfoModal')}
+              />
+            </Box>
 
-          <Typography variant='h6'>Contracts information</Typography>
-          <Typography variant='body2'>
-            <Ul>
-              <li>
-                Pros sign the NDA only once before taking their first
-                Certification test.
-              </li>
-              <li>
-                Pros sign the Privacy contract and Freelancer contract after the
-                onboarding.
-              </li>
-            </Ul>
-          </Typography>
-        </ModalBody>
-      </ModalContainer>,
-    )
+            <Typography variant='h6'>Contracts information</Typography>
+            <Typography variant='body2'>
+              <Ul>
+                <li>
+                  Pros sign the NDA only once before taking their first
+                  Certification test.
+                </li>
+                <li>
+                  Pros sign the Privacy contract and Freelancer contract after
+                  the onboarding.
+                </li>
+              </Ul>
+            </Typography>
+          </ModalBody>
+        </ModalContainer>
+      ),
+    })
   }
 
   return (

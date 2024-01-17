@@ -15,7 +15,7 @@ import {
   OutlinedInput,
   Typography,
 } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 // ** component
 import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'

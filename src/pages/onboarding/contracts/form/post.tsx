@@ -6,7 +6,7 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** Third Party Imports
 import { convertToRaw, EditorState } from 'draft-js'
@@ -20,12 +20,11 @@ import { StyledEditor } from 'src/@core/components/editor/customEditor'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
+
 import CustomChip from 'src/@core/components/mui/chip'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { useRouter } from 'next/router'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -54,7 +53,7 @@ const ContractForm = () => {
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const auth = useRecoilValueLoadable(authState)
-  const { setModal } = useContext(ModalContext)
+
   const { openModal, closeModal } = useModal()
 
   useEffect(() => {
@@ -96,83 +95,39 @@ const ContractForm = () => {
   }
 
   function onDiscard() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <CustomModal
+          title='Are you sure to discard this contract?'
+          rightButtonText='Discard'
+          onClick={() => {
+            closeModal('DiscardModal')
+            router.push('/onboarding/contracts/')
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to discard this contract?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              setValue(EditorState.createEmpty())
-              router.push('/onboarding/contracts/')
-            }}
-          >
-            Discard
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          onClose={() => closeModal('DiscardModal')}
+          vary='error'
+        />
+      ),
+    })
   }
 
   function onUpload() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'UploadModal',
+      children: (
+        <CustomModal
+          title='Are you sure to upload this contract?'
+          rightButtonText='Upload'
+          onClick={() => {
+            closeModal('UploadModal')
+            onSubmit()
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-successful.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to upload this contract?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            type='button'
-            onClick={() => {
-              setModal(null)
-              onSubmit()
-            }}
-          >
-            Upload
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          onClose={() => closeModal('UploadModal')}
+          vary='successful'
+        />
+      ),
+    })
   }
 
   function onSubmit() {

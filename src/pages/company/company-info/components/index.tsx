@@ -2,19 +2,14 @@ import { Icon } from '@iconify/react'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import { Box, Card, Tab, Typography, styled } from '@mui/material'
-import Chip from '@src/@core/components/mui/chip'
-import { RoleType } from '@src/context/types'
-import { FileType } from '@src/types/common/file.type'
+import { Box, styled, Tab } from '@mui/material'
 import { useGetCompanyInfo } from '@src/queries/company/company-info.query'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import {
-  Suspense,
   MouseEvent,
-  useState,
+  Suspense,
   SyntheticEvent,
   useEffect,
-  useContext,
+  useState,
 } from 'react'
 
 import useModal from '@src/hooks/useModal'
@@ -30,10 +25,7 @@ import {
   CompanyAddressParamsType,
   CompanyInfoFormType,
   CompanyInfoParamsType,
-  CompanyInfoType,
 } from '@src/types/company/info'
-import { set } from 'nprogress'
-import { c } from 'msw/lib/glossary-de6278a9'
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import { useRecoilValueLoadable } from 'recoil'
@@ -45,8 +37,8 @@ import {
 } from '@src/apis/company/company-info.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import {
-  getUploadUrlforCommon,
   getDownloadUrlforCommon,
+  getUploadUrlforCommon,
   uploadFileToS3,
 } from 'src/apis/common.api'
 import { S3FileType } from 'src/shared/const/signedURLFileType'
@@ -192,14 +184,16 @@ const CompanyInfoPageComponent = () => {
       setAddressEdit(false)
 
       addressReset({
-        address: companyInfo?.companyAddresses?.map(item => ({
-          ...item,
-          country: {
-            label: item.country,
-            value: item.country,
-          },
-        })),
+        address:
+          (companyInfo?.companyAddresses?.map(item => ({
+            ...item,
+            country: {
+              label: item.country,
+              value: item.country,
+            },
+          })) as Array<CompanyAddressFormType>) || [],
       })
+
       if (companyInfo && companyInfo.companyAddresses.length === 0) {
         appendAddress({
           name: '',
@@ -356,13 +350,14 @@ const CompanyInfoPageComponent = () => {
         companyId: companyInfo.id,
       })
       addressReset({
-        address: companyInfo.companyAddresses?.map(item => ({
-          ...item,
-          country: {
-            label: item.country,
-            value: item.country,
-          },
-        })),
+        address:
+          (companyInfo.companyAddresses?.map(item => ({
+            ...item,
+            country: {
+              label: item.country,
+              value: item.country,
+            },
+          })) as Array<CompanyAddressFormType>) || [],
       })
 
       if (companyInfo.ceo === null) {

@@ -2,27 +2,25 @@ import {
   Button,
   CardHeader,
   FormControl,
-  IconButton,
   InputAdornment,
   InputLabel,
   MenuItem,
   OutlinedInput,
   Select,
-  Typography,
 } from '@mui/material'
 import { Box } from '@mui/system'
-import { useContext, useEffect, useState } from 'react'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import { ModalContext } from 'src/context/ModalContext'
+import { useEffect, useState } from 'react'
+
 import { Icon } from '@iconify/react'
 import { LinkType } from 'src/types/schema/jobPosting.schema'
+import styled from '@emotion/styled'
 
 type Props = {
   savedLink: { id?: string | number; category: string; link: string }
   onAdd: (item: LinkType) => void
+  onClose: any
 }
-export default function EditLinkModal({ savedLink, onAdd }: Props) {
-  const { setModal } = useContext(ModalContext)
+export default function EditLinkModal({ savedLink, onAdd, onClose }: Props) {
   const values = ['JobKorea', 'Albamon', '알바천국', 'Linkedin', 'Etc']
   const [state, setState] = useState({ category: '', link: '' })
 
@@ -30,14 +28,11 @@ export default function EditLinkModal({ savedLink, onAdd }: Props) {
     setState(savedLink)
   }, [savedLink])
 
-  function close() {
-    setModal(null)
-  }
   return (
     <form
       onSubmit={e => {
         e.preventDefault()
-        close()
+        onClose()
         onAdd(state)
       }}
     >
@@ -98,7 +93,7 @@ export default function EditLinkModal({ savedLink, onAdd }: Props) {
           />
         </Box>
         <ModalButtonGroup style={{ margin: '24px 0 20px' }}>
-          <Button variant='outlined' onClick={close}>
+          <Button variant='outlined' onClick={onClose}>
             Cancel
           </Button>
           <Button variant='contained' type='submit'>
@@ -109,3 +104,19 @@ export default function EditLinkModal({ savedLink, onAdd }: Props) {
     </form>
   )
 }
+
+export const ModalContainer = styled(Box)`
+  min-width: 250px;
+  margin: 25px;
+  padding: 24px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 14px;
+`
+
+export const ModalButtonGroup = styled(Box)`
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+`

@@ -16,6 +16,7 @@ import {
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
+  UseFormWatch,
 } from 'react-hook-form'
 
 // ** types

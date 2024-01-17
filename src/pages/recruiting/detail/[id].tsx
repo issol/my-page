@@ -27,11 +27,11 @@ import PageHeader from 'src/@core/components/page-header'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
+
 import Icon from 'src/@core/components/icon'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -56,6 +56,9 @@ import {
 import FallbackSpinner from '@src/@core/components/spinner'
 import { recruiting } from '@src/shared/const/permission-class'
 import { timezoneSelector } from '@src/states/permission'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { ModalButtonGroup } from '@src/pages/jobPosting/components/edit-link-modal'
 
 // ** types
 
@@ -98,7 +101,7 @@ const RecruitingDetail = () => {
 
   const [openDetail, setOpenDetail] = useState(false)
 
-  const { setModal } = useContext(ModalContext)
+  const { openModal, closeModal } = useModal()
   const ability = useContext(AbilityContext)
 
   const auth = useRecoilValueLoadable(authState)
@@ -221,42 +224,21 @@ const RecruitingDetail = () => {
   ]
 
   function onDelete() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DeleteModal',
+      children: (
+        <CustomModal
+          title='Are you sure to delete this recruiting request?'
+          vary='error'
+          rightButtonText='Delete'
+          onClick={() => {
+            closeModal('DeleteModal')
+            deleteMutation.mutate(id)
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to delete this recruiting request?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              deleteMutation.mutate(id)
-            }}
-          >
-            Delete
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          onClose={() => closeModal('DeleteModal')}
+        />
+      ),
+    })
   }
 
   const hideMutation = useMutation(

@@ -1,8 +1,5 @@
 import AlertIcon from '@src/@core/components/alert-icon'
-import {
-  ModalContainer,
-  SmallModalContainer,
-} from '@src/@core/components/modal'
+import { SmallModalContainer } from './add-confirm-with-title-modal'
 import { Box, Button, Typography } from '@mui/material'
 
 type Props = {

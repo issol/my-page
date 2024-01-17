@@ -12,7 +12,7 @@ import Icon from 'src/@core/components/icon'
 import clsx from 'clsx'
 import { useKeenSlider } from 'keen-slider/react'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 
 export type FileItemType = {
   id?: number

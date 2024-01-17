@@ -19,7 +19,7 @@ import Icon from 'src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import LanguagePairActionModal from '../standard-prices-modal/modal/language-pair-action-modal'
 
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 
 type Props = {

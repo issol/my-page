@@ -144,10 +144,12 @@ export const setAllTimeZoneList = (
 }
 
 export const timeZoneFormatter = (
-  timeZone: CountryType,
+  timeZone: CountryType | string,
   timezoneList: TimeZoneType[],
 ) => {
   try {
+    if (typeof timeZone === 'string') return timeZone
+
     if (timeZone.code === '' || timeZone.label === '') return ''
     const localStorageTimeZoneList: TimeZoneType[] =
       timezoneList as TimeZoneType[]

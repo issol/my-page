@@ -9,7 +9,7 @@ import { ClientAddressType } from '../schema/client-address.schema'
 
 export type RequestDetailType = {
   id: number
-  corporationId: number
+  corporationId: string
   lsp: { id: string; name: string; email: string }
   contactPerson: ContactPersonType
   client: ClientRowType & { addresses?: ClientAddressType[] } //lpm에게만 오는 데이터
@@ -25,7 +25,7 @@ export type RequestDetailType = {
   requestedAt: string
   statusUpdatedAt: string | null
   notes?: string
-  canceledReason?: CancelReasonType
+  canceledReason?: CancelReasonType | null
   linkedQuote?: LinkedInfoType
   linkedOrder?: LinkedInfoType
   showDescription?: boolean

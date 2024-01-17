@@ -21,6 +21,7 @@ export type ItemType = Omit<
   orderId?: number
   idx?: number
   indexing?: number
+  currency: CurrencyType | null
 }
 
 export type AnalysisFileType = {
@@ -56,7 +57,7 @@ export type ItemDetailType = {
   unitPrice: number | null
   prices: number | string
   unit: string
-  currency: CurrencyType
+  currency: CurrencyType | null
   priceFactor?: string | null
   initialPriceUnit?: PriceUnitType
   title?: string

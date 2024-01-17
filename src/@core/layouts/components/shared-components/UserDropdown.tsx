@@ -105,45 +105,35 @@ const UserDropdown = (props: Props) => {
     }
   }, [role])
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(event.target.checked)
-    // 스위치가 바뀔때 Role을 세션 스토리지에 저장
-    if (role.state === 'hasValue' && hasTadAndLpm(role.getValue())) {
-      const switchedRole: UserRoleType | undefined = event.target.checked
-        ? role.getValue().find(item => item.name === 'LPM')
-        : role.getValue().find(item => item.name === 'TAD')
-
-      console.log(switchedRole)
-
-      setCurrentRole(switchedRole!)
-    }
-    router.push('/dashboards')
-  }
-
-  function hasTadAndLpm(role: UserRoleType[]): boolean {
+  const hasTadAndLpm = (role: UserRoleType[]): boolean => {
     return (
       role.some(value => value.name === 'TAD') &&
       role.some(value => value.name === 'LPM')
     )
   }
 
-  const styles = {
-    py: 2,
-    px: 4,
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    color: 'text.primary',
-    textDecoration: 'none',
-    '& svg': {
-      mr: 2,
-      fontSize: '1.375rem',
-      color: 'text.primary',
-    },
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked)
+
+    // 스위치가 바뀔때 Role을 세션 스토리지에 저장
+    if (role.state !== 'hasValue' && !hasTadAndLpm(role.getValue())) return
+
+    const switchedRole: UserRoleType | undefined = event.target.checked
+      ? role.getValue().find(item => item.name === 'LPM')
+      : role.getValue().find(item => item.name === 'TAD')
+
+    setCurrentRole(switchedRole!)
+
+    if (switchedRole?.name === 'TAD') {
+      router.push('/dashboards/tad')
+      return
+    }
+
+    router.push('/dashboards/lpm')
   }
 
-  const handleLogout = () => {
-    auth.logout()
+  const handleLogout = async () => {
+    await auth.logout()
     handleDropdownClose()
   }
 

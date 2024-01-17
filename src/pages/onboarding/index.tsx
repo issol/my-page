@@ -356,8 +356,8 @@ export default function Onboarding() {
         expanded={expanded}
       />
       <OnboardingList
-        onboardingProListCount={onboardingProList!.totalCount}
-        onboardingProList={onboardingProList!.data}
+        onboardingProListCount={onboardingProList?.totalCount || 0}
+        onboardingProList={onboardingProList?.data || []}
         onboardingListPage={onboardingListPage}
         setOnboardingListPage={setOnboardingListPage}
         onboardingListPageSize={onboardingListPageSize}

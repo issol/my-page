@@ -1,24 +1,31 @@
-import React, { useRef } from 'react'
+import React, { Dispatch, useRef } from 'react'
 import {
   Calender,
   CustomEvent,
 } from '@src/pages/quotes/lpm/requests/components/calendar/calendar'
-import FullCalendar, { CalendarOptions } from '@fullcalendar/react'
+import FullCalendar from '@fullcalendar/react'
+import { CalendarOptions, DatesSetArg } from '@fullcalendar/core'
 import { calendarDefaultOptions } from '@src/shared/const/calender'
 import CustomCalenderToolbar from '@src/pages/quotes/lpm/requests/components/calendar/customCalenderToolbar'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import Box from '@mui/material/Box'
 import { CalendarEventType } from '@src/types/common/calendar.type'
-import { ProJobCalendarResult } from '@src/queries/dashboard/dashnaord-lpm'
+import { ProJobCalendarResult } from '@src/queries/dashnaord.query'
 import dayjs from 'dayjs'
 
 interface CalendarProps {
   event: Array<CalendarEventType<ProJobCalendarResult>>
   containerWidth: number
+  setYear: Dispatch<number>
+  setMonth: Dispatch<number>
 }
 
-const Calendar = ({ event, containerWidth }: CalendarProps) => {
-  // ** Refs
+const Calendar = ({
+  event,
+  containerWidth,
+  setYear,
+  setMonth,
+}: CalendarProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const calendarRef = useRef<FullCalendar>(null)
 
@@ -50,6 +57,15 @@ const Calendar = ({ event, containerWidth }: CalendarProps) => {
     eventClick({ event }: any) {
       // setCurrentListId(Number(event?.id))
     },
+  }
+
+  const handleMonthChange = async (payload: DatesSetArg) => {
+    const currDate = payload.view.currentStart
+    const currYear = currDate.getFullYear()
+    const currMonth = currDate.getMonth() + 1
+
+    setYear(currYear)
+    setMonth(currMonth)
   }
 
   return (
@@ -88,7 +104,11 @@ const Calendar = ({ event, containerWidth }: CalendarProps) => {
           position: 'relative',
         }}
       >
-        <FullCalendar {...calendarOptions} height={780} />
+        <FullCalendar
+          {...calendarOptions}
+          datesSet={handleMonthChange}
+          height={850}
+        />
         <span
           style={{
             position: 'absolute',

@@ -25,7 +25,7 @@ import Icon from 'src/@core/components/icon'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 // ** React Imports
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -42,11 +42,11 @@ import CustomChip from 'src/@core/components/mui/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
+
+import styled from '@emotion/styled'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
@@ -61,16 +61,16 @@ import { useMutation, useQueryClient } from 'react-query'
 
 // ** types
 import { S3FileType } from 'src/shared/const/signedURLFileType'
-import { FormType } from 'src/apis/client-guideline.api'
+
 import { toast } from 'react-hot-toast'
 import { FormErrors } from 'src/shared/const/formErrors'
-import { AxiosErrors } from 'src/shared/const/axiosErrors'
+
 import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 import {
   certificationTestSchema,
   TestMaterialPostType,
 } from 'src/types/schema/certification-test.schema'
-import { TestMaterialFormType } from 'src/types/certification-test/post'
+
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import _ from 'lodash'
 import {
@@ -79,7 +79,6 @@ import {
   postTest,
   PatchFormType,
   TestFormType,
-  deleteTestFile,
 } from 'src/apis/certification-test.api'
 import { RoleSelectType, SelectType } from 'src/types/onboarding/list'
 import { JobList } from 'src/shared/const/job/jobs'
@@ -89,7 +88,7 @@ import { useGetTestDetail } from 'src/queries/certification-test/certification-t
 import languageHelper from 'src/shared/helpers/language.helper'
 import { FileType } from 'src/types/common/file.type'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
-import FallbackSpinner from '@src/@core/components/spinner'
+
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 import useModal from '@src/hooks/useModal'
@@ -98,7 +97,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
-import { log } from 'npmlog'
+import AlertModal from '@src/@core/components/common-modal/alert-modal'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -125,7 +124,6 @@ const TestMaterialPost = () => {
   const { id } = router.query
   const queryClient = useQueryClient()
 
-  const { setModal } = useContext(ModalContext)
   const { openModal, closeModal } = useModal()
 
   // ** states
@@ -181,42 +179,17 @@ const TestMaterialPost = () => {
           let result = fileSize
           acc.concat(file).forEach((file: FileProp) => (result += file.size))
           if (result > MAXIMUM_FILE_SIZE) {
-            setModal(
-              <ModalContainer>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '12px',
-                  }}
-                >
-                  <img
-                    src='/images/icons/project-icons/status-alert-error.png'
-                    width={60}
-                    height={60}
-                    alt={`The maximum file size you can upload is ${byteToMB(
-                      MAXIMUM_FILE_SIZE,
-                    )}.`}
-                  />
-                  <Typography variant='body2'>
-                    {`The maximum file size you can upload is ${byteToMB(
-                      MAXIMUM_FILE_SIZE,
-                    )}.`}
-                  </Typography>
-                </Box>
-                <ModalButtonGroup>
-                  <Button
-                    variant='contained'
-                    onClick={() => {
-                      setModal(null)
-                    }}
-                  >
-                    Okay
-                  </Button>
-                </ModalButtonGroup>
-              </ModalContainer>,
-            )
+            openModal({
+              type: 'AlertMaximumFileSizeModal',
+              children: (
+                <AlertModal
+                  title='The maximum file size you can upload is 2gb.'
+                  onClick={() => closeModal('AlertMaximumFileSizeModal')}
+                  vary='error'
+                  buttonText='Okay'
+                />
+              ),
+            })
             return acc
           } else {
             const found = acc.find(f => f.name === file.name)
@@ -462,87 +435,49 @@ const TestMaterialPost = () => {
   }
 
   function onDiscard(edit: boolean) {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-          }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt=''
-          />
-          <Typography variant='body2'>
-            {edit
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <CustomModal
+          title={
+            edit
               ? 'Are you sure you want to discard all changes?'
-              : 'Are you sure you want to discard this test?'}
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              edit
-                ? router.push(`/certification-test/detail/${id}`)
-                : router.push('/certification-test')
-            }}
-          >
-            Discard
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+              : 'Are you sure you want to discard this test?'
+          }
+          rightButtonText='Discard'
+          vary='error'
+          onClose={() => closeModal('DiscardModal')}
+          onClick={() => {
+            closeModal('DiscardModal')
+            edit
+              ? router.push(`/certification-test/detail/${id}`)
+              : router.push('/certification-test')
+          }}
+        />
+      ),
+    })
   }
 
   function onUpload(edit: boolean) {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-          }}
-        >
-          <img
-            src='/images/icons/project-icons/alert-success.svg'
-            width={60}
-            height={60}
-            alt=''
-          />
-          <Typography variant='body2'>
-            {edit
+    openModal({
+      type: 'SubmitModal',
+      children: (
+        <CustomModal
+          title={
+            edit
               ? 'Are you sure you want to save all changes?'
-              : 'Are you sure you want to upload this test?'}
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='outlined' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              onSubmit(edit)
-            }}
-          >
-            {edit ? 'Save' : 'Upload'}
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+              : 'Are you sure you want to upload this test?'
+          }
+          rightButtonText={edit ? 'Save' : 'Upload'}
+          vary='successful'
+          onClose={() => closeModal('SubmitModal')}
+          onClick={() => {
+            closeModal('SubmitModal')
+            onSubmit(edit)
+          }}
+        />
+      ),
+    })
   }
 
   const postTestMutation = useMutation((form: TestFormType) => postTest(form), {
@@ -568,11 +503,7 @@ const TestMaterialPost = () => {
           children: (
             <CustomModal
               onClose={() => closeModal('MalformedURLModal')}
-              title={
-                <>
-                  Please enter the edit link of the Google form
-                </>
-              }
+              title={<>Please enter the edit link of the Google form</>}
               vary='error'
               rightButtonText='Okay'
               onClick={() => closeModal('MalformedURLModal')}
@@ -589,21 +520,14 @@ const TestMaterialPost = () => {
           children: (
             <CustomModal
               onClose={() => closeModal('UrlPermissionModal')}
-              title={
-                <>
-                  Unauthorized Google form
-                </>
-              }
+              title={<>Unauthorized Google form</>}
               titleSize='large'
               titleStyle='bold'
               body={
                 <>
-                  Please add the account below to the
-                  Google form as an editor. This account is
-                  used for the sole purpose of delivering
-                  test to Pros and is not used for any other
-                  purpose.
-                  
+                  Please add the account below to the Google form as an editor.
+                  This account is used for the sole purpose of delivering test
+                  to Pros and is not used for any other purpose.
                 </>
               }
               subtitle={`test-801@enough-service-dev.iam.gserviceaccount.com`}
@@ -630,18 +554,18 @@ const TestMaterialPost = () => {
           onClose={() => closeModal('GoogleFormLinkInfoModal')}
           noButton
           closeButton
-          title={
-            <>
-              Google form link guideline
-            </>
-          }
+          title={<>Google form link guideline</>}
           titleSize='large'
           titleStyle='bold'
           body={
             <>
               The link must be an edit link of the Google form.
-              <br /><br />
-              <b>test-801@enough-service-dev.iam.gserviceaccount.com</b> account must be added to the Google form as an editor. This account is used for the sole purpose of delivering test to Pros and is not used for any other purpose.
+              <br />
+              <br />
+              <b>test-801@enough-service-dev.iam.gserviceaccount.com</b> account
+              must be added to the Google form as an editor. This account is
+              used for the sole purpose of delivering test to Pros and is not
+              used for any other purpose.
             </>
           }
           vary='info'
@@ -673,11 +597,7 @@ const TestMaterialPost = () => {
             children: (
               <CustomModal
                 onClose={() => closeModal('MalformedURLModal')}
-                title={
-                  <>
-                    Please enter the edit link of the Google form
-                  </>
-                }
+                title={<>Please enter the edit link of the Google form</>}
                 vary='error'
                 rightButtonText='Okay'
                 onClick={() => closeModal('MalformedURLModal')}
@@ -694,21 +614,15 @@ const TestMaterialPost = () => {
             children: (
               <CustomModal
                 onClose={() => closeModal('UrlPermissionModal')}
-                title={
-                  <>
-                    Unauthorized Google form
-                  </>
-                }
+                title={<>Unauthorized Google form</>}
                 titleSize='large'
                 titleStyle='bold'
                 body={
                   <>
-                    Please add the account below to the
-                    Google form as an editor. This account is
-                    used for the sole purpose of delivering
-                    test to Pros and is not used for any other
+                    Please add the account below to the Google form as an
+                    editor. This account is used for the sole purpose of
+                    delivering test to Pros and is not used for any other
                     purpose.
-                    
                   </>
                 }
                 subtitle={`test-801@enough-service-dev.iam.gserviceaccount.com`}
@@ -885,55 +799,44 @@ const TestMaterialPost = () => {
 
   useEffect(() => {
     if (isDuplicated && !isFetched) {
-      setModal(
-        <ModalContainer>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px',
+      openModal({
+        type: 'DuplicatedModal',
+        children: (
+          <CustomModal
+            soloButton
+            title={
+              <>
+                {selectedTestType === 'Basic test' ? (
+                  <Typography variant='body2' fontSize={16}>
+                    <span style={{ fontWeight: 700 }}>
+                      {languageHelper(getValues('target.value'))}&nbsp;
+                    </span>
+                    {selectedTestType.toLowerCase()} has already been created.
+                  </Typography>
+                ) : (
+                  <Typography variant='body2' fontSize={16}>
+                    <span style={{ fontWeight: 700 }}>
+                      {`${getValues('jobType.label')}, ${getValues(
+                        'role.label',
+                      )}, ${getValues('source.value').toUpperCase()}`}
+                      &rarr;{getValues('target.value').toUpperCase()}
+                    </span>
+                    <br />
+                    {selectedTestType.toLowerCase()} has already been created.
+                  </Typography>
+                )}
+              </>
+            }
+            rightButtonText='Okay'
+            vary='error'
+            onClose={() => closeModal('DuplicatedModal')}
+            onClick={() => {
+              closeModal('DuplicatedModal')
+              resetFormSelection()
             }}
-          >
-            <img
-              src='/images/icons/project-icons/status-alert-error.png'
-              width={60}
-              height={60}
-              alt='The guide line is already exist.'
-            />
-            {selectedTestType === 'Basic test' ? (
-              <Typography variant='body2'>
-                <span style={{ fontWeight: 700 }}>
-                  {languageHelper(getValues('target.value'))}&nbsp;
-                </span>
-                {selectedTestType.toLowerCase()} has already been created.
-              </Typography>
-            ) : (
-              <Typography variant='body2'>
-                <span style={{ fontWeight: 700 }}>
-                  {`${getValues('jobType.label')}, ${getValues(
-                    'role.label',
-                  )}, ${getValues('source.value').toUpperCase()}`}
-                  &rarr;{getValues('target.value').toUpperCase()}
-                </span>
-                <br />
-                {selectedTestType.toLowerCase()} has already been created.
-              </Typography>
-            )}
-          </Box>
-          <ModalButtonGroup>
-            <Button
-              variant='contained'
-              onClick={() => {
-                setModal(null)
-                resetFormSelection()
-              }}
-            >
-              Okay
-            </Button>
-          </ModalButtonGroup>
-        </ModalContainer>,
-      )
+          />
+        ),
+      })
     }
   }, [isDuplicated])
 
@@ -1177,10 +1080,7 @@ const TestMaterialPost = () => {
                           }}
                           sx={{ padding: '0px' }}
                         >
-                          <img
-                            src='/images/icons/info.svg'
-                            alt='more'
-                          />
+                          <img src='/images/icons/info.svg' alt='more' />
                         </IconButton>
                       </Grid>
                       <Grid item xs={12} mb='20px'>

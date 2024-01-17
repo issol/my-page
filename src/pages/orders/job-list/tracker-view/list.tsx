@@ -104,7 +104,7 @@ export default function JobsTrackerList({
                   label={row?.category}
                 />
               ) : null}
-            
+
             <Box></Box>
             {row?.serviceType?.length ? (
               <Box display='flex' gap='8px'>

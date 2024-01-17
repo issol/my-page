@@ -78,7 +78,7 @@ export default function JobHistory({
       disableColumnMenu: true,
       renderHeader: () => <Box>Request</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Typography>Request. {row.historyId}</Typography>
+        return <Typography>Request. {row.requestNumber}</Typography>
       },
     },
     {

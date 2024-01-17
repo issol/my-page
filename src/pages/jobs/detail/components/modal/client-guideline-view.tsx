@@ -10,16 +10,15 @@ import {
   Typography,
 } from '@mui/material'
 import { StyledViewer } from '@src/@core/components/editor/customEditor'
-import { ModalButtonGroup } from '@src/@core/components/modal'
+
 import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FileType } from '@src/types/common/file.type'
 import { useEffect, useState } from 'react'
 
-import CustomChip from 'src/@core/components/mui/chip'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { EditorState, convertFromRaw } from 'draft-js'
-import { CurrentGuidelineType } from '@src/apis/client-guideline.api'
+import { convertFromRaw, EditorState } from 'draft-js'
+
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { v4 as uuidv4 } from 'uuid'
 import {
@@ -29,10 +28,9 @@ import {
 import { JobsFileType, ProGuidelineType } from '@src/types/jobs/jobs.type'
 import {
   Document,
-  Font,
   Line,
-  PDFDownloadLink,
   Page,
+  PDFDownloadLink,
   StyleSheet,
   Svg,
   Text,

@@ -33,8 +33,6 @@ const AclGuard = (props: AclGuardProps) => {
   // ** Props
   const { aclAbilities, children, guestGuard } = props
 
-  console.log(aclAbilities)
-
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
 
   const permission = useRecoilValueLoadable(permissionState)

@@ -573,7 +573,7 @@ const CatInterface = ({
                             ),
                             priceData.decimalPlace,
                             priceData.roundingProcedure,
-                            priceData.currency,
+                            priceData.currency ?? null,
                           ),
                           priceData.currency,
                           priceData.decimalPlace >= 10

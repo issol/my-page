@@ -192,6 +192,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
         minimumPriceApplied: false,
         initialPrice: null,
         priceFactor: 0,
+        currency: null,
       })
     }
   }, [jobPrices, row, item])
@@ -342,9 +343,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   // }
   return (
     <>
-      {saveJobPricesMutation.isLoading ? (
-        <OverlaySpinner />
-      ) : null}
+      {saveJobPricesMutation.isLoading ? <OverlaySpinner /> : null}
       {!isLoading && jobInfo ? (
         <Box sx={{ padding: '50px 60px', position: 'relative' }}>
           <IconButton

@@ -12,7 +12,6 @@ import TimelineContent from '@mui/lab/TimelineContent'
 import TimelineSeparator from '@mui/lab/TimelineSeparator'
 import TimelineConnector from '@mui/lab/TimelineConnector'
 import MuiTimeline, { TimelineProps } from '@mui/lab/Timeline'
-import CircularProgress from '@mui/material/CircularProgress'
 import Box from '@mui/material/Box'
 
 import languageHelper from 'src/shared/helpers/language.helper'
@@ -126,7 +125,7 @@ const CertificationTest = ({
       selectedJobInfo.jobType !== 'Interpretation' &&
       !verifiedNoTest(selectedJobInfo) ? (
         <CardContent sx={{ padding: 0, mt: '24px' }}>
-          <Timeline sx={{ my: 0, py: 0 }}>
+          <Timeline sx={{ my: 0, py: 0 }} placeholder={undefined}>
             <TimelineItem>
               <TimelineSeparator>
                 <TimelineDot color='warning' />
@@ -695,7 +694,7 @@ const CertificationTest = ({
         selectedJobInfo?.role !== 'DTP QCer' &&
         selectedJobInfo?.jobType !== 'Interpretation' ? (
         <CardContent sx={{ padding: 0, mt: '24px', pb: '0 !important' }}>
-          <Timeline sx={{ my: 0, py: 0 }}>
+          <Timeline sx={{ my: 0, py: 0 }} placeholder={undefined}>
             <TimelineItem>
               <TimelineSeparator>
                 <TimelineDot color='warning' />

@@ -27,11 +27,11 @@ import EmptyPost from 'src/@core/components/page/empty-post'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
+
 import Icon from 'src/@core/components/icon'
 
 // ** contexts
-import { ModalContext } from 'src/context/ModalContext'
+
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
@@ -50,7 +50,7 @@ import {
   restoreGuideline,
 } from 'src/apis/client-guideline.api'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
-import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
+
 import { useMutation } from 'react-query'
 
 // ** helpers
@@ -59,13 +59,15 @@ import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 // ** types
 import { FileType } from 'src/types/common/file.type'
 import FallbackSpinner from '@src/@core/components/spinner'
-import logger from '@src/@core/utils/logger'
+
 import { client_guideline } from '@src/shared/const/permission-class'
 import { S3FileType } from 'src/shared/const/signedURLFileType'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { timezoneSelector } from '@src/states/permission'
-import { time } from 'console'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import useModal from '@src/hooks/useModal'
+import { ModalButtonGroup } from '@src/pages/jobPosting/components/edit-link-modal'
 
 type CellType = {
   row: {
@@ -86,6 +88,7 @@ type CellType = {
 const ClientGuidelineDetail = () => {
   const router = useRouter()
   const id = Number(router.query?.id)
+  const { openModal, closeModal } = useModal()
 
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
   const [historyContent, setHistoryContent] = useState(
@@ -108,7 +111,6 @@ const ClientGuidelineDetail = () => {
 
   const [openDetail, setOpenDetail] = useState(false)
 
-  const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
@@ -276,42 +278,21 @@ const ClientGuidelineDetail = () => {
   }
 
   function onDelete() {
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'DeleteModal',
+      children: (
+        <CustomModal
+          title='Are you sure to delete this contract?'
+          vary='error'
+          rightButtonText='Delete'
+          onClick={() => {
+            closeModal('DeleteModal')
+            deleteMutation.mutate(id)
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to delete this contract?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
-            Cancel
-          </Button>
-          <Button
-            variant='outlined'
-            onClick={() => {
-              setModal(null)
-              deleteMutation.mutate(id)
-            }}
-          >
-            Delete
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          onClose={() => closeModal('DeleteModal')}
+        />
+      ),
+    })
   }
 
   function onEdit() {
@@ -320,52 +301,28 @@ const ClientGuidelineDetail = () => {
 
   function onRestore() {
     setOpenDetail(false)
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+    openModal({
+      type: 'RestoreModal',
+      children: (
+        <CustomModal
+          title='  Are you sure to restore this version?'
+          vary='error'
+          rightButtonText='Restore'
+          onClick={() => {
+            closeModal('RestoreModal')
+            restoreMutation.mutate({
+              id: currentRow?.id!,
+              writer: currentRow?.writer!,
+              email: currentRow?.email!,
+            })
           }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to restore this version?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              setOpenDetail(true)
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant='outlined'
-            onClick={() => {
-              setModal(null)
-              restoreMutation.mutate({
-                id: currentRow?.id!,
-                writer: currentRow?.writer!,
-                email: currentRow?.email!,
-              })
-            }}
-          >
-            Restore
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
+          onClose={() => {
+            closeModal('RestoreModal')
+            setOpenDetail(true)
+          }}
+        />
+      ),
+    })
   }
 
   function noHistory() {

@@ -1,6 +1,6 @@
 import Icon from 'src/@core/components/icon'
 import { IconButton, Tooltip, Typography } from '@mui/material'
-import styled from 'styled-components'
+import styled from '@emotion/styled'
 import { LinkType } from 'src/types/schema/jobPosting.schema'
 
 type Props = {

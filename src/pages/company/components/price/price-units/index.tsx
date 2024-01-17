@@ -2,7 +2,7 @@
 import { useState, useContext } from 'react'
 
 // ** context
-import { ModalContext } from '@src/context/ModalContext'
+
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
@@ -24,8 +24,6 @@ import {
 
 // ** components
 import PriceUnitTable from './table'
-import DeleteModal from './modal/delete-modal'
-import CancelModal from './modal/cancel-baseprice-modal'
 
 // ** action
 import { QueryObserverResult, useMutation } from 'react-query'
@@ -37,6 +35,8 @@ import {
   updatePriceUnit,
 } from '@src/apis/price-units.api'
 import FallbackSpinner from '@src/@core/components/spinner'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 type Props = {
   list: PriceUnitDataType
   refetch: (
@@ -57,12 +57,9 @@ export default function PriceUnits({
 }: Props) {
   const auth = useRecoilValueLoadable(authState)
   const ability = useContext(AbilityContext)
+  const { openModal, closeModal } = useModal()
 
   const [editModeRow, setEditModeRow] = useState<PriceUnitType>()
-  const { setModal } = useContext(ModalContext)
-  const [open, setOpen] = useState(false)
-
-  const closeModal = () => setOpen(false)
 
   function abilityCheck(can: 'create' | 'update' | 'delete', id: number) {
     const writer = new company_price(id)
@@ -137,13 +134,25 @@ export default function PriceUnits({
   }
 
   function onDeleteClick(row: PriceUnitType) {
-    setModal(
-      <DeleteModal
-        row={row}
-        onDelete={onDelete}
-        onClose={() => setModal(null)}
-      />,
-    )
+    openModal({
+      type: 'DeletePriceUnitModal',
+      children: (
+        <CustomModal
+          title={
+            !row.isBase
+              ? 'Are you sure you want to delete this price unit?'
+              : 'Are you sure you want to delete this base price unit? The associated price units will also be deleted.'
+          }
+          onClose={() => closeModal('DeletePriceUnitModal')}
+          vary='error'
+          onClick={() => {
+            onDelete(row)
+            closeModal('DeletePriceUnitModal')
+          }}
+          rightButtonText='Delete'
+        />
+      ),
+    })
   }
 
   function onDelete(row: PriceUnitType) {
@@ -154,7 +163,25 @@ export default function PriceUnits({
   const [row, setRow] = useState<PriceUnitType>()
   function onBasePriceClick(isChecked: boolean, row: PriceUnitType) {
     if (!isChecked) {
-      setOpen(true)
+      // setOpen(true)
+
+      openModal({
+        type: 'CancelBasePriceModal',
+        children: (
+          <CustomModal
+            title='Are you sure you want to cancel the base price setting? The associated
+          price units will be deleted.'
+            leftButtonText='No'
+            rightButtonText='Cancel'
+            onClose={() => closeModal('CancelBasePriceModal')}
+            onClick={() => {
+              onCancelBasePrice()
+              closeModal('CancelBasePriceModal')
+            }}
+            vary='error'
+          />
+        ),
+      })
       setRow({ ...row })
     } else {
       setEditModeRow({
@@ -220,11 +247,6 @@ export default function PriceUnits({
               user={auth.getValue().user}
             />
           </Card>
-          <CancelModal
-            open={open}
-            onCancelBasePrice={onCancelBasePrice}
-            onClose={closeModal}
-          />
         </Grid>
       ) : null}
     </>

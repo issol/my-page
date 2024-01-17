@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material'
 
-export default function NoList(title: string) {
+const NoList = (title: string) => {
   return (
     <Box
       sx={{
@@ -15,3 +15,5 @@ export default function NoList(title: string) {
     </Box>
   )
 }
+
+export default NoList

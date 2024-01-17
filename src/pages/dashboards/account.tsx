@@ -6,7 +6,7 @@ import { FormProvider, useWatch } from 'react-hook-form'
 import React, { useEffect, useMemo, useState } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 import weekday from 'dayjs/plugin/weekday'
-import { CSVDataType, Office, RatioItem } from '@src/types/dashboard'
+import { CSVDataType, Office } from '@src/types/dashboard'
 import { useRouter } from 'next/router'
 import { getDateFormat } from '@src/pages/dashboards/lpm'
 
@@ -14,10 +14,7 @@ import ChartDate from '@src/views/dashboard/header/chartDate'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import Information from '@src/views/dashboard/dialog/information'
 import { CSVDownload } from '@src/views/dashboard/csvDownload'
-import {
-  useAccountCount,
-  useAccountRatio,
-} from '@src/queries/dashboard/dashnaord-lpm'
+import { useAccountCount, useAccountRatio } from '@src/queries/dashnaord.query'
 import Notice from '@src/views/dashboard/notice'
 import AccountTable from '@src/views/dashboard/accountTable'
 import AccountDoughnut from '@src/views/dashboard/chart/accountDoughnut'
