@@ -13,7 +13,7 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { Suspense, useContext, useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'

@@ -1,6 +1,6 @@
 import { Box, Grid, Switch, Typography } from '@mui/material'
 import { NotificationCenterFilterType } from '@src/types/my-page/notification-center/notification.type'
-import { Suspense, useContext, useState } from 'react'
+import { Suspense, useState } from 'react'
 import NotificationCenterFilter from './components/filter'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetNotificationList } from '@src/queries/notification.query'

@@ -24,14 +24,7 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** types
-import {
-  Fragment,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-  useRef,
-} from 'react'
+import { Fragment, ReactNode, useEffect, useState, useRef } from 'react'
 
 // ** react hook form
 import {
@@ -169,6 +162,8 @@ export default function ProjectInfoForm({
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
+  console.log(getValues())
+
   useEffect(() => {
     if (clientTimezone) {
       ;[
@@ -303,6 +298,8 @@ export default function ProjectInfoForm({
               placeholderText='MM/DD/YYYY, HH:MM'
               selected={!value ? null : formattedNow(new Date(value))}
               onChange={e => {
+                console.log(e)
+
                 onChange(e)
               }}
               customInput={
