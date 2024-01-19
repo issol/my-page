@@ -187,8 +187,8 @@ export default function Filter({
                         if (!e.length) return
                         setFilter({
                           ...filter,
-                          invoicedDateFrom: e[0]?.toString(),
-                          invoicedDateTo: e[1]?.toString(),
+                          invoicedDateFrom: e[0]?.toISOString(),
+                          invoicedDateTo: e[1]?.toISOString(),
                         })
                       }}
                       placeholderText=''
