@@ -623,7 +623,7 @@ const ProDetailOverview = () => {
           vary='successful'
           onClick={() => {
             closeModal('TestAssignModal')
-            handleTestAssign(jobInfo.id, status)
+            handleTestAssign(jobInfo.id, status ?? 'none')
           }}
           rightButtonText='Assign'
         />
