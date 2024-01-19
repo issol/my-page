@@ -25,10 +25,7 @@ import { RequestDetailType } from '@src/types/requests/detail.type'
 import { StyledNextLink } from '@src/@core/components/customLink'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import { UserDataType, UserRoleType } from '@src/context/types'
-import {
-  convertLanguageCodeToPair,
-  convertMultipleTargetLanguageCodeToPair,
-} from 'src/shared/helpers/language.helper'
+import { convertLanguageCodeToPair } from 'src/shared/helpers/language.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
 
@@ -196,11 +193,7 @@ export default function RequestDetailCard({
                         gap: '8px',
                       }}
                     >
-                      {convertMultipleTargetLanguageCodeToPair(
-                        item.sourceLanguage,
-                        item.targetLanguage,
-                      )}
-                      {/* {item?.targetLanguage.map(value => {
+                      {item?.targetLanguage.map(value => {
                         return (
                           <Box key={uuidv4()}>
                             {convertLanguageCodeToPair(
@@ -209,7 +202,7 @@ export default function RequestDetailCard({
                             )}
                           </Box>
                         )
-                      })} */}
+                      })}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>
