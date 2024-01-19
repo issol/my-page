@@ -232,8 +232,8 @@ export default function Filter({
                         if (!e.length) return
                         setFilter({
                           ...filter,
-                          payDueDateFrom: e[0]?.toString(),
-                          payDueDateTo: e[1]?.toString(),
+                          payDueDateFrom: e[0]?.toISOString(),
+                          payDueDateTo: e[1]?.toISOString(),
                         })
                       }}
                       customInput={
@@ -274,8 +274,8 @@ export default function Filter({
                         if (!e.length) return
                         setFilter({
                           ...filter,
-                          paidDateFrom: e[0]?.toString(),
-                          paidDateTo: e[1]?.toString(),
+                          paidDateFrom: e[0]?.toISOString(),
+                          paidDateTo: e[1]?.toISOString(),
                         })
                       }}
                       customInput={
