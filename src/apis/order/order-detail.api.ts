@@ -1,6 +1,5 @@
 import axios from '@src/configs/axios'
 import { updateOrderType } from '@src/pages/orders/order-list/detail/[id]'
-import { Row } from '@src/pages/orders/order-list/detail/components/rows'
 import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import {
   ClientType,
@@ -68,11 +67,26 @@ export const patchOrderProjectInfo = async (
 }
 
 // client 전용
+export const patchClientFeedback = async (
+  orderId: number,
+  feedback: string,
+) => {
+  const { data } = await axios.patch(
+    `/api/enough/u/order/${orderId}/deliveries/feedback`,
+    { feedback },
+  )
+
+  return data
+}
+
 export const patchOrderContactPerson = async (
   id: number,
   form: updateOrderType,
 ) => {
-  const { data } = await axios.patch(`/api/enough/u/order/${id}/set-contact-person`, { ...form })
+  const { data } = await axios.patch(
+    `/api/enough/u/order/${id}/set-contact-person`,
+    { ...form },
+  )
 
   return data
 }
