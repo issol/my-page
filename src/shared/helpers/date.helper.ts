@@ -1,6 +1,10 @@
 import { CountryType, TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import dayjs from 'dayjs'
-import { convertCountryCodeToTimezone, getTimezone } from './timezone.helper'
+import {
+  convertCountryCodeToTimezone,
+  getTimezone,
+  getTimezoneOffset,
+} from './timezone.helper'
 
 import { DateTime, IANAZone } from 'luxon'
 
@@ -72,13 +76,61 @@ export const changeTimeZoneOffset = (
   return setNewOffsetDate
 }
 
+export const changeTimeZoneOffsetFilter = (
+  dateStr: string,
+  toTimeZone: CountryType,
+) => {
+  //입력 받은 ISOString(로컬 타임존이 설정되어 있음)를 includeOffset 옵션을 이용하여 offset을 제거한다
+  const removeOffsetDate = DateTime.fromISO(dateStr).toISO({
+    includeOffset: false,
+  })
+
+  //오프셋이 제거된 ISOString에 변경하고자 하는 타임존을 적용한 후 UTC->ISO 처리한다.
+
+  const offset = getTimezoneOffset(toTimeZone.label) ?? 0
+  let setNewOffsetDate
+
+  if (offset < 0) {
+    setNewOffsetDate = DateTime.fromISO(removeOffsetDate!, {
+      zone: toTimeZone.label,
+      setZone: true,
+    }).minus({ hours: Math.abs(offset) })
+
+    console.log(setNewOffsetDate)
+  } else {
+    setNewOffsetDate = DateTime.fromISO(removeOffsetDate!, {
+      zone: toTimeZone.label,
+      setZone: true,
+    }).plus({ hours: offset })
+  }
+  if (setNewOffsetDate) {
+    const isoDate = setNewOffsetDate.toISODate() // YYYY-MM-DD
+    const isoTime = setNewOffsetDate.toISOTime({
+      suppressMilliseconds: true,
+      includeOffset: false,
+    }) // hh:mm:ss
+
+    const isoDateTime = `${isoDate}T${isoTime}Z`
+
+    return isoDateTime
+  } else {
+    return ''
+  }
+}
+
 export const convertTimeToTimezone = (
   dateStr: string | Date | undefined | null,
   timezoneInfo: CountryType | string | undefined | null,
   timezoneList: TimeZoneType[],
   useISOString?: boolean,
 ): string => {
-  if (dateStr === undefined || dateStr === null || timezoneInfo === undefined || timezoneInfo === null) return '-'
+  if (
+    dateStr === undefined ||
+    dateStr === null ||
+    timezoneInfo === undefined ||
+    timezoneInfo === null
+  )
+    return '-'
 
   try {
     let toTimeZone = ''

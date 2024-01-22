@@ -39,7 +39,12 @@ import useModal from '@src/hooks/useModal'
 import { useMutation, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
-import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
+
+import dayjs from 'dayjs'
+import {
+  changeTimeZoneOffset,
+  changeTimeZoneOffsetFilter,
+} from '@src/shared/helpers/date.helper'
 
 const initialFilter: InvoicePayableFilterType = {
   invoiceStatus: [],
@@ -77,44 +82,79 @@ export default function Payable() {
   const { data: list, isLoading } = useGetPayableList(activeFilter)
 
   function onSearch() {
+    console.log(
+      filter.invoicedDateFrom
+        ? dayjs(new Date(filter.invoicedDateFrom)).startOf('day').format()
+        : null,
+    )
+    console.log(
+      filter.invoicedDateFrom
+        ? changeTimeZoneOffset(
+            dayjs(new Date(filter.invoicedDateFrom)).startOf('day').format(),
+            user.getValue().user?.timezone ?? {
+              label: 'Asia/Seoul',
+              code: 'KST',
+            },
+          )
+        : null,
+    )
+
     setActiveFilter({
       ...filter,
       skip: skip * activeFilter.take,
       take: activeFilter.take,
       invoicedDateFrom: filter.invoicedDateFrom
-        ? changeTimeZoneOffset(
+        ? changeTimeZoneOffsetFilter(
             filter.invoicedDateFrom,
-            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+            user.getValue().user?.timezone ?? {
+              label: 'Asia/Seoul',
+              code: 'KST',
+            },
           ) ?? undefined
         : undefined,
       invoicedDateTo: filter.invoicedDateTo
-        ? changeTimeZoneOffset(
+        ? changeTimeZoneOffsetFilter(
             filter.invoicedDateTo,
-            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+            user.getValue().user?.timezone ?? {
+              label: 'Asia/Seoul',
+              code: 'KST',
+            },
           ) ?? undefined
         : undefined,
       payDueDateFrom: filter.payDueDateFrom
-        ? changeTimeZoneOffset(
+        ? changeTimeZoneOffsetFilter(
             filter.payDueDateFrom,
-            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+            user.getValue().user?.timezone ?? {
+              label: 'Asia/Seoul',
+              code: 'KST',
+            },
           ) ?? undefined
         : undefined,
       payDueDateTo: filter.payDueDateTo
-        ? changeTimeZoneOffset(
+        ? changeTimeZoneOffsetFilter(
             filter.payDueDateTo,
-            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+            user.getValue().user?.timezone ?? {
+              label: 'Asia/Seoul',
+              code: 'KST',
+            },
           ) ?? undefined
         : undefined,
       paidDateFrom: filter.paidDateFrom
-        ? changeTimeZoneOffset(
+        ? changeTimeZoneOffsetFilter(
             filter.paidDateFrom,
-            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+            user.getValue().user?.timezone ?? {
+              label: 'Asia/Seoul',
+              code: 'KST',
+            },
           ) ?? undefined
         : undefined,
       paidDateTo: filter.paidDateTo
-        ? changeTimeZoneOffset(
+        ? changeTimeZoneOffsetFilter(
             filter.paidDateTo,
-            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+            user.getValue().user?.timezone ?? {
+              label: 'Asia/Seoul',
+              code: 'KST',
+            },
           ) ?? undefined
         : undefined,
     })
