@@ -32,6 +32,9 @@ import { useGetProList } from '@src/queries/pro/pro-list.query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useGetStatusList } from '@src/queries/common.query'
 import dayjs from 'dayjs'
+import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
+import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   filter: InvoicePayableFilterType
@@ -52,6 +55,7 @@ export default function Filter({
   statusList,
 }: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
+  const user = useRecoilValueLoadable(authState)
 
   //TODO: 프로 전체 list를 필터에 표시하는건 pro가 많아질 수록 좋지 않음. 이런식의 필터는 일괄 변경하는 방향으로 기획에 문의하기 (추후에) [bon]
   const { data: proList } = useGetProList({ take: 100, skip: 0 })
@@ -186,10 +190,33 @@ export default function Filter({
                       onChange={e => {
                         if (!e.length) return
 
+                        // dayjs(e[0]?.toLocaleDateString())
+                        // .startOf('day')
+                        // .format('YYYY-MM-DD HH:mm:ss'),
+
                         setFilter({
                           ...filter,
                           invoicedDateFrom: e[0]?.toISOString(),
+                          // invoicedDateFrom: e[0]
+                          //   ? changeTimeZoneOffset(e[0].toISOString(), {
+                          //       label: 'KST',
+                          //       code: 'KST',
+                          //     }) ?? undefined
+                          //   : undefined,
+                          // invoicedDateTo: e[1]
+                          //   ? changeTimeZoneOffset(
+                          //       e[1].toISOString(),
+                          //       user.getValue().user?.timezone ?? {
+                          //         label: 'KST',
+                          //         code: 'KST',
+                          //       },
+                          //     ) ?? undefined
+                          //   : undefined,
                           invoicedDateTo: e[1]?.toISOString(),
+                          // invoicedDateFrom: dayjs(e[0]?.toLocaleDateString())
+                          //   .startOf('day')
+                          //   .format('YYYY-MM-DD HH:mm:ss'),
+                          // invoicedDateTo: e[1]?.toISOString(),
                         })
                       }}
                       placeholderText=''
