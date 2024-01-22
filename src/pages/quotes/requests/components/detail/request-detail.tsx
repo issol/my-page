@@ -13,7 +13,10 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import styled from '@emotion/styled'
 
 import { RequestDetailType } from '@src/types/requests/detail.type'
-import { convertLanguageCodeToPair } from 'src/shared/helpers/language.helper'
+import {
+  convertLanguageCodeToPair,
+  convertLanguageCodeToPairMultipleTarget,
+} from 'src/shared/helpers/language.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
@@ -138,16 +141,10 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                         gap: '8px',
                       }}
                     >
-                      {item?.targetLanguage.map(value => {
-                        return (
-                          <Box key={uuidv4()}>
-                            {convertLanguageCodeToPair(
-                              item?.sourceLanguage,
-                              value,
-                            )}
-                          </Box>
-                        )
-                      })}
+                      {convertLanguageCodeToPairMultipleTarget(
+                        item?.sourceLanguage,
+                        item?.targetLanguage,
+                      )}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>
