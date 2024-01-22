@@ -428,7 +428,7 @@ export default function ItemPriceUnitForm({
             <Button
               onClick={() => {
                 append({
-                  id: id + index,
+                  // id: id + index,
                   priceUnitId: -1,
                   quantity: null,
                   unitPrice: null,

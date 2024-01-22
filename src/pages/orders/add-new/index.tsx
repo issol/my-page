@@ -300,6 +300,9 @@ export default function AddNewOrder() {
     resolver: yupResolver(itemSchema),
   })
 
+  console.log(getItem())
+  console.log(itemErrors)
+
   const {
     fields: items,
     append: appendItems,
