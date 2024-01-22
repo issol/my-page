@@ -185,6 +185,7 @@ export default function Filter({
                       shouldCloseOnSelect={false}
                       onChange={e => {
                         if (!e.length) return
+
                         setFilter({
                           ...filter,
                           invoicedDateFrom: e[0]?.toISOString(),

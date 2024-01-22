@@ -39,6 +39,7 @@ import useModal from '@src/hooks/useModal'
 import { useMutation, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
+import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
 
 const initialFilter: InvoicePayableFilterType = {
   invoiceStatus: [],
@@ -57,6 +58,7 @@ const initialFilter: InvoicePayableFilterType = {
 export default function Payable() {
   const queryClient = useQueryClient()
   const ability = useContext(AbilityContext)
+  const user = useRecoilValueLoadable(authState)
   const { data: statusList } = useGetStatusList('InvoicePayable')
 
   const { openModal, closeModal } = useModal()
@@ -79,6 +81,42 @@ export default function Payable() {
       ...filter,
       skip: skip * activeFilter.take,
       take: activeFilter.take,
+      invoicedDateFrom: filter.invoicedDateFrom
+        ? changeTimeZoneOffset(
+            filter.invoicedDateFrom,
+            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+          ) ?? undefined
+        : undefined,
+      invoicedDateTo: filter.invoicedDateTo
+        ? changeTimeZoneOffset(
+            filter.invoicedDateTo,
+            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+          ) ?? undefined
+        : undefined,
+      payDueDateFrom: filter.payDueDateFrom
+        ? changeTimeZoneOffset(
+            filter.payDueDateFrom,
+            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+          ) ?? undefined
+        : undefined,
+      payDueDateTo: filter.payDueDateTo
+        ? changeTimeZoneOffset(
+            filter.payDueDateTo,
+            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+          ) ?? undefined
+        : undefined,
+      paidDateFrom: filter.paidDateFrom
+        ? changeTimeZoneOffset(
+            filter.paidDateFrom,
+            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+          ) ?? undefined
+        : undefined,
+      paidDateTo: filter.paidDateTo
+        ? changeTimeZoneOffset(
+            filter.paidDateTo,
+            user.getValue().user?.timezone ?? { label: 'KST', code: 'KST' },
+          ) ?? undefined
+        : undefined,
     })
     queryClient.invalidateQueries([
       'invoice/payable/list',
