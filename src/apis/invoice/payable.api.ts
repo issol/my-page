@@ -14,7 +14,6 @@ import {
   PayableFormType,
   PayableHistoryType,
 } from '@src/types/invoice/payable.type'
-import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { AxiosError } from 'axios'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
@@ -124,6 +123,13 @@ export const updateInvoicePayable = async (
   return data
 }
 
+export const updateInvoicePaidStatus = async (payableId: number) => {
+  const { data } = await axios.patch(
+    `/api/enough/u/invoice/payable/${payableId}/set-paid`,
+  )
+  return data
+}
+
 export const deleteInvoicePayable = async (id: number) => {
   const { data } = await axios.delete(`/api/enough/u/invoice/payable/${id}`)
   return data
@@ -146,67 +152,67 @@ export const getPayableHistoryList = async (
 ): Promise<PayableHistoryType[]> => {
   try {
     const { data } = await axios.get(
-       `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
+      `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
     )
-/*
-    const temp: PayableHistoryType[] = [
-      {
-        id: 1,
-        version: 1,
-        account: 'leriel_lpm@glozinc.com',
-        corporationId: 'IP-000001',
-        invoicedAt: '2022-01-01',
-        invoicedAtTimezone: {
-          code: 'KR',
-          label: 'Korea, Republic of',
-          phone: '82',
-        },
-        invoiceStatus: 'Invoiced',
+    /*
+        const temp: PayableHistoryType[] = [
+          {
+            id: 1,
+            version: 1,
+            account: 'leriel_lpm@glozinc.com',
+            corporationId: 'IP-000001',
+            invoicedAt: '2022-01-01',
+            invoicedAtTimezone: {
+              code: 'KR',
+              label: 'Korea, Republic of',
+              phone: '82',
+            },
+            invoiceStatus: 'Invoiced',
 
-    //     taxInfo: '123-45-67890',
-    //     taxRate: 10,
+        //     taxInfo: '123-45-67890',
+        //     taxRate: 10,
 
-    //     paidAt: '2022-01-15',
-    //     paidDateTimezone: {
-    //       code: 'KR',
-    //       label: 'Korea, Republic of',
-    //       phone: '82',
-    //     },
-    //     description: 'Consulting services',
-    //     currency: 'USD',
-    //     subtotal: 1000,
-    //     totalPrice: 1100,
-    //     tax: 100,
-    //     invoiceConfirmedAt: '2022-01-15',
-    //     jobs: {
-    //       totalCount: 1,
-    //       count: 1,
-    //       data: [
-    //         {
-    //           id: 98,
-    //           corporationId: 'KR-100',
-    //           serviceType: 'Editing',
-    //           name: 'bon',
-    //           totalPrice: 100000,
-    //           contactPerson: 'Bon',
-    //           isRemove: true,
-    //           sourceLanguage: 'ko',
-    //           targetLanguage: 'en',
+        //     paidAt: '2022-01-15',
+        //     paidDateTimezone: {
+        //       code: 'KR',
+        //       label: 'Korea, Republic of',
+        //       phone: '82',
+        //     },
+        //     description: 'Consulting services',
+        //     currency: 'USD',
+        //     subtotal: 1000,
+        //     totalPrice: 1100,
+        //     tax: 100,
+        //     invoiceConfirmedAt: '2022-01-15',
+        //     jobs: {
+        //       totalCount: 1,
+        //       count: 1,
+        //       data: [
+        //         {
+        //           id: 98,
+        //           corporationId: 'KR-100',
+        //           serviceType: 'Editing',
+        //           name: 'bon',
+        //           totalPrice: 100000,
+        //           contactPerson: 'Bon',
+        //           isRemove: true,
+        //           sourceLanguage: 'ko',
+        //           targetLanguage: 'en',
 
-              prices: [
-                {
-                  name: 'Price',
-                  unitPrice: 1000,
-                  quantity: 3,
-                  prices: '100000',
-                  unit: 'Words',
+                  prices: [
+                    {
+                      name: 'Price',
+                      unitPrice: 1000,
+                      quantity: 3,
+                      prices: '100000',
+                      unit: 'Words',
+                    },
+                  ],
                 },
               ],
             },
-          ],
-        },
-      },
-    ]*/
+          },
+        ]*/
     return data.map((history: any) => ({
       ...history,
       jobs: {

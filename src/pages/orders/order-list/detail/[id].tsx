@@ -10,10 +10,10 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  styled,
   Tab,
   TextField,
   Typography,
-  styled,
 } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 import {
@@ -32,7 +32,6 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   OrderDownloadData,
   OrderFeatureType,
-  ProjectInfoType,
   ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
@@ -76,8 +75,7 @@ import {
 } from '@src/apis/order/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
-import { defaultOption, languageType } from '../../add-new'
-import { useGetClientPriceList } from '@src/queries/company/standard-price'
+import { languageType } from '../../add-new'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -85,11 +83,10 @@ import { itemSchema } from '@src/types/schema/item.schema'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   MemberType,
-  ProjectTeamType,
   projectTeamSchema,
+  ProjectTeamType,
 } from '@src/types/schema/project-team.schema'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import {
   LanguagePairsPostType,
   LanguagePairsType,
@@ -776,6 +773,7 @@ const OrderDetail = () => {
       },
     },
   ]
+
   function makePdfData() {
     const pm = projectTeam?.find(value => value.position === 'projectManager')
 
