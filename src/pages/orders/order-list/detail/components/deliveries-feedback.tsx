@@ -28,16 +28,10 @@ import {
   OrderFeatureType,
   ProjectInfoType,
 } from '@src/types/orders/order-detail'
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
-import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
+import { useMutation, UseMutationResult, useQueryClient } from 'react-query'
 import { updateOrderType } from '../[id]'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { v4 as uuidv4 } from 'uuid'
@@ -45,27 +39,21 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { CancelReasonType } from '@src/types/requests/detail.type'
-import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
-import {
-  CancelOrderReason,
-  RequestRedeliveryReason,
-} from '@src/shared/const/reason/reason'
+import { RequestRedeliveryReason } from '@src/shared/const/reason/reason'
 import { useGetJobDetails } from '@src/queries/order/job.query'
 import ImportFromJob from './modal/import-from-job'
-import { GridCallbackDetails, GridSelectionModel } from '@mui/x-data-grid'
-import { set } from 'lodash'
 import {
   completeDelivery,
   confirmDelivery,
   deliverySendToClient,
+  patchClientFeedback,
 } from '@src/apis/order/order-detail.api'
-import NoList from '@src/pages/components/no-list'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import SelectRequestRedeliveryReasonModal from './modal/select-request-redelivery-reason-modal'
 import { ReasonType } from '@src/types/quotes/quote'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 import { timezoneSelector } from '@src/states/permission'
+import { useRouter } from 'next/router'
 
 type Props = {
   project: ProjectInfoType
@@ -99,6 +87,11 @@ const DeliveriesFeedback = ({
   setUploadFileProcessing,
   isEditable,
 }: Props) => {
+  const router = useRouter()
+  const { id: orderId } = router.query
+
+  const queryClient = useQueryClient()
+
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
@@ -114,8 +107,6 @@ const DeliveriesFeedback = ({
   const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
   const [importedFiles, setImportedFiles] = useState<DeliveryFileType[]>([])
-
-  const queryClient = useQueryClient()
 
   const updateDeliveries = useMutation(
     (
@@ -215,7 +206,7 @@ const DeliveriesFeedback = ({
     },
   })
 
-  function fetchFile(fileName: string) {
+  const fetchFile = (fileName: string) => {
     const path = getFilePath(['delivery', project.id.toString()], fileName)
 
     getDownloadUrlforCommon(S3FileType.ORDER_DELIVERY, path).then(res => {
@@ -246,11 +237,13 @@ const DeliveriesFeedback = ({
     })
   }
 
-  function downloadOneFile(file: DeliveryFileType) {
+  const downloadOneFile = (file: DeliveryFileType) => {
     fetchFile(file.fileName)
   }
 
-  function downloadAllFiles(files: Array<DeliveryFileType> | [] | undefined) {
+  const downloadAllFiles = (
+    files: Array<DeliveryFileType> | [] | undefined,
+  ) => {
     if (!files || !files.length) return
 
     files.forEach(file => {
@@ -402,21 +395,6 @@ const DeliveriesFeedback = ({
       </IconButton>
     </Box>
   ))
-
-  // const groupedFiles: DeliveryFileType[][] = savedFiles.reduce(
-  //   (acc: DeliveryFileType[][], curr: DeliveryFileType) => {
-  //     const existingGroup = acc.find(
-  //       group => group[0]?.createdAt === curr.createdAt,
-  //     )
-  //     if (existingGroup) {
-  //       existingGroup.push(curr)
-  //     } else {
-  //       acc.push([curr])
-  //     }
-  //     return acc
-  //   },
-  //   [],
-  // )
 
   interface GroupedDeliveryFileType {
     createdAt: string
@@ -693,6 +671,10 @@ const DeliveriesFeedback = ({
     })
   }
 
+  const updateClientFeedback = useMutation((feedback: string) =>
+    patchClientFeedback(Number(orderId), feedback),
+  )
+
   const onClickSendFeedback = () => {
     openModal({
       type: 'SendFeedbackModal',
@@ -700,14 +682,14 @@ const DeliveriesFeedback = ({
         <CustomModal
           onClick={(feedback: string) => {
             if (feedback !== '') {
-              updateProject.mutate(
-                { feedback: feedback },
-                {
-                  onSuccess: () => {
-                    closeModal('SendFeedbackModal')
-                  },
+              updateClientFeedback.mutate(feedback, {
+                onSuccess: () => {
+                  closeModal('SendFeedbackModal')
+                  queryClient.invalidateQueries({
+                    queryKey: ['orderDetail'],
+                  })
                 },
-              )
+              })
             }
           }}
           onClose={() => closeModal('SendFeedbackModal')}
