@@ -394,9 +394,11 @@ const Row = ({
         const minimumPrice = languagePairData?.minimumPrice
         const priceFactor = languagePairData?.priceFactor
         const currency = languagePairData?.currency
+
         const rounding = priceData?.roundingProcedure
         const numberPlace = priceData?.decimalPlace
         setValue(`items.${idx}.totalPrice`, 0)
+        setValue(`items.${idx}.currency`, null)
         setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
         setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
         setValue(`items.${idx}.initialPrice.currency`, currency!)
@@ -436,11 +438,15 @@ const Row = ({
         const languagePairData = priceData?.languagePairs?.find(
           i => i.source === source && i.target === target,
         )
+
         const minimumPrice = languagePairData?.minimumPrice
         const priceFactor = languagePairData?.priceFactor
-        const currency = languagePairData?.currency
+        const currency = languagePairData?.currency ?? null
+        const priceCurrency = priceData?.currency ?? null
         const rounding = priceData?.roundingProcedure
         const numberPlace = priceData?.decimalPlace
+
+        setValue(`items.${idx}.currency`, priceCurrency)
         setValue(`items.${idx}.totalPrice`, 0)
         setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
         setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
@@ -480,14 +486,17 @@ const Row = ({
     detailIndex: number,
   ) => {
     const items = getValues('items')
-    const currencies = items.flatMap(
-      item =>
-        item.detail
-          ? item.detail
-              .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
-              .filter(detailItem => !detail.find(d => d.id === detailItem.id)) // Exclude the recently added detail
-              .map(detailItem => detailItem.currency)
-          : [], // Return an empty array if detail is undefined
+    console.log(items)
+
+    const currencies = items.flatMap(item =>
+      item.detail && item.detail.length > 0
+        ? item.detail
+            .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
+            .filter(detailItem => !detail.find(d => d.id === detailItem.id)) // Exclude the recently added detail
+            .map(detailItem => detailItem.currency)
+        : item.currency !== null
+        ? [item.currency]
+        : [],
     )
     if (currencies.length > 0 && currencies[0] !== currency) {
       openModal({
