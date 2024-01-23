@@ -79,13 +79,6 @@ interface Props {
     detail: Array<ItemDetailType>,
     detailIndex: number,
   ) => void
-  row: FieldArrayWithId<
-    {
-      items: ItemType[]
-    },
-    `items.${number}.detail`,
-    'id'
-  >[]
 }
 
 const Row = ({
@@ -110,7 +103,7 @@ const Row = ({
   showCurrency,
   initialPriceName,
   onChangeCurrency,
-  row,
+
   setValue,
 }: Props) => {
   const prevValueRef = useRef()

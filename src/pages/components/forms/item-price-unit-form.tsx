@@ -351,7 +351,6 @@ export default function ItemPriceUnitForm({
                 remove={remove}
                 showCurrency={showCurrency}
                 setValue={setValue}
-                row={details}
               />
             ))}
             {showMinimum && !isNotApplicable[index] ? (
