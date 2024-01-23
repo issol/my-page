@@ -14,7 +14,6 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { DeliveryFileType } from '@src/types/orders/order-detail'
 import { Dispatch, useState } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   items: JobItemType[]
@@ -56,31 +55,7 @@ const ImportFromJob = ({ items, onClickUpload, onClose }: Props) => {
               return (
                 <Row
                   info={value}
-                  key={uuidv4()}
-                  index={index}
-                  setSelectedJobs={setSelectedJobs}
-                  selectedIds={selectedIds}
-                  setSelectedIds={setSelectedIds}
-                />
-              )
-            })}
-            {items.map((value, index) => {
-              return (
-                <Row
-                  info={value}
-                  key={uuidv4()}
-                  index={index}
-                  setSelectedJobs={setSelectedJobs}
-                  selectedIds={selectedIds}
-                  setSelectedIds={setSelectedIds}
-                />
-              )
-            })}
-            {items.map((value, index) => {
-              return (
-                <Row
-                  info={value}
-                  key={uuidv4()}
+                  key={`${value.id}-${index}`}
                   index={index}
                   setSelectedJobs={setSelectedJobs}
                   selectedIds={selectedIds}
@@ -116,6 +91,7 @@ const ImportFromJob = ({ items, onClickUpload, onClose }: Props) => {
 const Row = ({
   info,
   index,
+  setSelectedIds,
   selectedIds = [],
   setSelectedJobs,
 }: {
@@ -150,7 +126,7 @@ const Row = ({
           }))
       : []
 
-    setSelectionModel(curSelected)
+    setSelectedIds(curSelected)
     setSelectedJobs(selected)
     setSelectionModel(selectionModel)
   }
