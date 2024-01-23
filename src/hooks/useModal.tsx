@@ -13,8 +13,6 @@ export const modalState = atom<Array<ModalType>>({
 })
 
 export function useModal() {
-  console.log('check merge')
-
   const [modal, setModal] = useRecoilState(modalState)
 
   const openModal = (newValue: ModalType) => {

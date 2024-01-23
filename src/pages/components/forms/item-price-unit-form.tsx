@@ -87,7 +87,8 @@ type Props = {
   remove: UseFieldArrayRemove
   getTotalPrice: () => void
   // getEachPrice: (idx: number, isNotApplicable?: boolean) => void
-  onDeletePriceUnit: (idx: number) => void
+  onDeletePriceUnit: (priceUnitId: number) => void
+  onDeleteNoPriceUnit: (index: number) => void
   onChangeCurrency: (
     currency: CurrencyType,
     index: number,
@@ -140,6 +141,7 @@ export default function ItemPriceUnitForm({
   getTotalPrice,
   // getEachPrice,
   onDeletePriceUnit,
+  onDeleteNoPriceUnit,
   onChangeCurrency,
   // onItemBoxLeave,
   isValid,
@@ -155,6 +157,8 @@ export default function ItemPriceUnitForm({
   setDarkMode,
   remove,
 }: Props) {
+  console.log(details)
+
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
@@ -334,6 +338,7 @@ export default function ItemPriceUnitForm({
                 type={type}
                 isNotApplicable={isNotApplicable[index]}
                 onDeletePriceUnit={onDeletePriceUnit}
+                onDeleteNoPriceUnit={onDeleteNoPriceUnit}
                 updateTotalPrice={updateTotalPrice}
                 priceData={priceData}
                 allPriceUnits={allPriceUnits}
@@ -346,6 +351,7 @@ export default function ItemPriceUnitForm({
                 remove={remove}
                 showCurrency={showCurrency}
                 setValue={setValue}
+                row={details}
               />
             ))}
             {showMinimum && !isNotApplicable[index] ? (
