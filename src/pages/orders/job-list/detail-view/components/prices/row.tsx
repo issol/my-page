@@ -241,6 +241,10 @@ const Row = ({
     }
   }
 
+  const onDeleteNoPriceUnit = (index: number) => {
+    remove(index)
+  }
+
   const handleShowMinimum = (value: boolean) => {
     const minimumPrice = Number(getItem(`items.${0}.minimumPrice`))
     const totalPrice = Number(getItem(`items.${0}.totalPrice`))
@@ -409,6 +413,7 @@ const Row = ({
         remove={remove}
         onChangeCurrency={onChangeCurrency}
         setValue={setItem}
+        onDeleteNoPriceUnit={onDeleteNoPriceUnit}
       />
       {/* price unit end */}
     </Box>
