@@ -122,6 +122,8 @@ const Row = ({
     const detail = data?.[index]
 
     if (detail) {
+      setSavedValue(detail) // setValue된 값 가져오기
+      setPrice(detail?.prices) // setValue된 값에서 price 정보 가져오기
       if (detail && detail.unit === 'Percent') {
         const percentQuantity = data[unitIndex].quantity
 
@@ -193,9 +195,9 @@ const Row = ({
       getEachPrice(idx, isNotApplicable) //폼 데이터 업데이트 (setValue)
 
     // getTotalPrice() // 합계 데이터 업데이트 (setValue)
-
-    setSavedValue(newPrice) // setValue된 값 가져오기
-    setPrice(newPrice?.prices) // setValue된 값에서 price 정보 가져오기
+    console.log(newPrice)
+    if (newPrice) {
+    }
   }
 
   const handleDeletePriceUnit = (idx: number) => {
@@ -684,8 +686,8 @@ const Row = ({
               ? savedValue.currency
                 ? formatCurrency(
                     formatByRoundingProcedure(
-                      Number(price),
-                      savedValue.currency === 'USD' ||
+                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
+                      savedValue?.currency === 'USD' ||
                         savedValue.currency === 'SGD'
                         ? 2
                         : 1,
@@ -696,7 +698,7 @@ const Row = ({
                   )
                 : formatCurrency(
                     formatByRoundingProcedure(
-                      Number(price),
+                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                       getValues(`${initialPriceName}.currency`) === 'USD' ||
                         getValues(`${initialPriceName}.currency`) === 'SGD'
                         ? 2
@@ -709,7 +711,7 @@ const Row = ({
               : priceData
               ? formatCurrency(
                   formatByRoundingProcedure(
-                    Number(price) ?? 0,
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     priceData?.decimalPlace!,
                     priceData?.roundingProcedure!,
                     priceData?.currency! ?? 'KRW',
@@ -718,7 +720,7 @@ const Row = ({
                 )
               : formatCurrency(
                   formatByRoundingProcedure(
-                    Number(price) ?? 0,
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     getValues(`${initialPriceName}.numberPlace`),
                     getValues(`${initialPriceName}.rounding`),
                     getValues(`${initialPriceName}.currency`) || 'KRW',
