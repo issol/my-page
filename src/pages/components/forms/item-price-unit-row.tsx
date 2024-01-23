@@ -329,7 +329,7 @@ const Row = ({
                       updatePrice(idx)
                     }}
                   />
-                  {savedValue.unit === 'Percent' ? '%' : null}
+                  {savedValue?.unit === 'Percent' ? '%' : null}
                 </Box>
               )
             }}
@@ -565,13 +565,13 @@ const Row = ({
                     }
                     value={
                       value
-                        ? savedValue.unit === 'Percent'
+                        ? savedValue?.unit === 'Percent'
                           ? '-'
                           : value
                         : null
                     }
                     error={value === null || value === 0}
-                    disabled={savedValue.unit === 'Percent'}
+                    disabled={savedValue?.unit === 'Percent'}
                     onChange={e => {
                       onChange(Number(e.target.value))
                       updatePrice(idx)
