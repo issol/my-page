@@ -22,6 +22,7 @@ import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import {
   Control,
   Controller,
+  FieldArrayWithId,
   UseFieldArrayAppend,
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
@@ -38,6 +39,7 @@ import {
 interface Props {
   idx: number
   nestSubPriceUnits: (idx: number) => NestedPriceUnitType[]
+  onDeleteNoPriceUnit: (index: number) => void
   getValues: UseFormGetValues<{
     items: ItemType[]
     languagePairs: languageType[]
@@ -77,6 +79,13 @@ interface Props {
     detail: Array<ItemDetailType>,
     detailIndex: number,
   ) => void
+  row: FieldArrayWithId<
+    {
+      items: ItemType[]
+    },
+    `items.${number}.detail`,
+    'id'
+  >[]
 }
 
 const Row = ({
@@ -85,6 +94,7 @@ const Row = ({
   currentItem,
   getValues,
   // getEachPrice,
+  onDeleteNoPriceUnit,
   detailName,
   type,
   isNotApplicable,
@@ -100,7 +110,7 @@ const Row = ({
   showCurrency,
   initialPriceName,
   onChangeCurrency,
-
+  row,
   setValue,
 }: Props) => {
   const prevValueRef = useRef()
@@ -118,63 +128,70 @@ const Row = ({
     let prices = 0
     const detail = data?.[index]
 
-    if (detail && detail.unit === 'Percent') {
-      const percentQuantity = data[index].quantity
+    if (detail) {
+      if (detail && detail.unit === 'Percent') {
+        const percentQuantity = data[unitIndex].quantity
 
-      const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
-      const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
-      if (itemMinimumPrice && showMinimum) {
-        prices =
-          percentQuantity !== null
-            ? (percentQuantity / 100) * itemMinimumPrice
-            : 0
+        const itemMinimumPrice = getValues(`items.${index}.minimumPrice`)
+        const showMinimum = getValues(`items.${index}.minimumPriceApplied`)
+
+        if (itemMinimumPrice && showMinimum) {
+          prices =
+            percentQuantity !== null
+              ? (percentQuantity / 100) * itemMinimumPrice
+              : 0
+        } else {
+          const generalPrices = data.filter(item => item?.unit !== 'Percent')
+          generalPrices.forEach(item => {
+            prices += item.unitPrice ?? 0
+          })
+          prices *= percentQuantity !== null ? percentQuantity / 100 : 0
+        }
       } else {
-        const generalPrices = data.filter(item => item.unit !== 'Percent')
-        generalPrices.forEach(item => {
-          prices += item.unitPrice ?? 0
-        })
-        prices *= percentQuantity !== null ? percentQuantity / 100 : 0
+        console.log(detail)
+
+        prices =
+          detail?.unitPrice !== null && detail?.quantity !== null
+            ? detail?.unitPrice * detail?.quantity
+            : 0
       }
-    } else {
-      prices =
-        detail?.unitPrice !== null && detail?.quantity !== null
-          ? detail?.unitPrice * detail?.quantity
-          : 0
-    }
 
-    // if (prices === data[index].prices) return
-    const currency =
-      getValues(`items.${idx}.initialPrice.currency`) ??
-      getValues(`items.${idx}.detail.${index}`)?.currency
+      // if (prices === data[index].prices) return
+      const currency =
+        getValues(`items.${index}.initialPrice.currency`) ??
+        getValues(`items.${index}.detail.${unitIndex}`)?.currency ??
+        priceData?.currency
 
-    const roundingPrice = formatByRoundingProcedure(
-      prices,
-      priceData?.decimalPlace!
-        ? priceData?.decimalPlace!
-        : currency === 'USD' || currency === 'SGD'
-        ? 2
-        : 1000,
-      priceData?.roundingProcedure && priceData?.roundingProcedure !== ''
-        ? priceData?.roundingProcedure!
-        : 0,
-      currency,
-    )
+      const roundingPrice = formatByRoundingProcedure(
+        prices,
+        priceData?.decimalPlace!
+          ? priceData?.decimalPlace!
+          : currency === 'USD' || currency === 'SGD'
+          ? 2
+          : 1000,
+        priceData?.roundingProcedure && priceData?.roundingProcedure !== ''
+          ? priceData?.roundingProcedure!
+          : 0,
+        currency,
+      )
+      console.log(getValues(`items.${index}.detail`), 'check')
 
-    // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
-    // 스탠다드 프라이스의 언어페어 정보 : languagePairs
-    setValue(`items.${idx}.detail.${index}.currency`, currency, {
-      shouldDirty: true,
-      shouldValidate: false,
-    })
-    // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
-    setValue(
-      `items.${idx}.detail.${index}.prices`,
-      isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
-      {
+      // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
+      // 스탠다드 프라이스의 언어페어 정보 : languagePairs
+      setValue(`items.${index}.detail.${unitIndex}.currency`, currency, {
         shouldDirty: true,
         shouldValidate: false,
-      },
-    )
+      })
+      // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
+      setValue(
+        `items.${index}.detail.${unitIndex}.prices`,
+        isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
+        {
+          shouldDirty: true,
+          shouldValidate: false,
+        },
+      )
+    }
   }
 
   const updatePrice = () => {
@@ -406,9 +423,6 @@ const Row = ({
                     return title
                   }}
                   onChange={(e, v) => {
-                    console.log(e, 'bye')
-                    console.log(v, 'bye')
-
                     if (v) {
                       const priceFactor = Number(
                         getValues(`items.${index}`).priceFactor,
@@ -608,8 +622,6 @@ const Row = ({
             name={`${detailName}.${idx}.currency`}
             control={control}
             render={({ field: { value, onChange } }) => {
-              console.log(value)
-
               return (
                 <Autocomplete
                   autoHighlight
@@ -730,8 +742,13 @@ const Row = ({
         type === 'invoiceCreate' ? null : (
           <IconButton
             onClick={() => {
-              if (getValues(`${detailName}.${idx}.priceUnitId`) === null) {
-                remove(idx)
+              if (
+                getValues(`${detailName}.${idx}.priceUnitId`) === null ||
+                getValues(`${detailName}.${idx}.priceUnitId`) === -1
+              ) {
+                onDeleteNoPriceUnit(idx)
+                updatePrice(idx)
+                updateTotalPrice()
               } else {
                 onClickDeletePriceUnit(
                   getValues(`${detailName}.${idx}.priceUnitId`)!,

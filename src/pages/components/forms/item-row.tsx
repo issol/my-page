@@ -246,10 +246,11 @@ const Row = ({
     name: itemName,
   })
 
-  function onDeletePriceUnit(index: number) {
+  function onDeletePriceUnit(priceUnitId: number) {
     const findIndex = getValues(`items.${idx}.detail`)?.findIndex(
-      item => item.priceUnitId === index,
+      item => item.priceUnitId === priceUnitId,
     )
+    console.log(findIndex, 'find')
 
     if (findIndex !== -1) {
       remove(findIndex)
@@ -259,6 +260,23 @@ const Row = ({
       handleShowMinimum(true)
     }
   }
+
+  const onDeleteNoPriceUnit = (index: number) => {
+    const item = getValues(`items.${idx}.detail`)
+    const detailItem = getValues(`items.${idx}.detail.${index}`)
+    if (detailItem && item) {
+      console.log(item)
+      console.log(detailItem)
+      const indexToRemove = item.findIndex(field => field === detailItem)
+      console.log(indexToRemove)
+
+      remove(index)
+    }
+
+    itemTrigger(`items.${idx}.detail`)
+  }
+
+  console.log(details)
 
   function onDeleteAllPriceUnit() {
     details.map((unit, idx) => remove(idx))
@@ -478,6 +496,30 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
+  const findCurrency = (items: ItemType[]) => {
+    // Find an item with a currency property
+    const itemWithCurrency = items.find(item => item.currency)
+
+    if (itemWithCurrency) {
+      return itemWithCurrency.currency
+    }
+
+    // If no item with a currency property was found, look in the details
+    for (const item of items) {
+      if (item.detail) {
+        const detailWithCurrency = item.detail.find(
+          (detail: any) => detail.currency !== null,
+        )
+
+        if (detailWithCurrency) {
+          return detailWithCurrency.currency
+        }
+      }
+    }
+
+    // If no currency was found, return null
+    return null
+  }
 
   const onChangeCurrency = (
     currency: CurrencyType,
@@ -486,19 +528,22 @@ const Row = ({
     detailIndex: number,
   ) => {
     const items = getValues('items')
-    console.log(items)
+    console.log(items, 'hi')
 
-    const currencies = items.flatMap(item =>
-      item.detail && item.detail.length > 0
-        ? item.detail
-            .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
-            .filter(detailItem => !detail.find(d => d.id === detailItem.id)) // Exclude the recently added detail
-            .map(detailItem => detailItem.currency)
-        : item.currency !== null
-        ? [item.currency]
-        : [],
-    )
-    if (currencies.length > 0 && currencies[0] !== currency) {
+    // const currencies = items.flatMap(item =>
+    //   item.detail && item.detail.length > 0
+    //     ? item.detail
+    //         .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
+    //         .filter(detailItem => !detail.find(d => d.id === detailItem.id)) // Exclude the recently added detail
+    //         .map(detailItem => detailItem.currency)
+    //     : [],
+    // )
+    const detailCurrency = findCurrency(items)
+    console.log(detailCurrency, 'hi')
+
+    // console.log(currencies, 'hi')
+
+    if (currency && detailCurrency !== currency) {
       openModal({
         type: 'CurrencyMatchModal',
         children: (
@@ -1018,6 +1063,7 @@ const Row = ({
               getTotalPrice={getTotalPrice}
               // getEachPrice={getEachPrice}
               onDeletePriceUnit={onDeletePriceUnit}
+              onDeleteNoPriceUnit={onDeleteNoPriceUnit}
               // onItemBoxLeave={onItemBoxLeave}
               isValid={
                 !!itemData.source &&
