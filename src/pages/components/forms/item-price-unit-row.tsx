@@ -113,20 +113,21 @@ const Row = ({
 
   const options = nestSubPriceUnits(idx)
 
-  function getEachPrice(rowIndex: number, isNotApplicable?: boolean) {
-    console.log(rowIndex)
+  // index: item의 index, job price에서는 항상 0임
+  // unitIndex: item의 detail의 index, 각 unit price의 index
+  function getEachPrice(unitIndex: number, isNotApplicable?: boolean) {
     const data = getValues(`items.${index}.detail`)
-    console.log(data)
 
     if (!data?.length) return
     let prices = 0
-    const detail = data?.[rowIndex]
+    const detail = data?.[unitIndex]
 
-    if (detail && detail?.unit === 'Percent') {
-      const percentQuantity = data[index].quantity
+    if (detail && detail.unit === 'Percent') {
+      const percentQuantity = data[unitIndex].quantity
 
       const itemMinimumPrice = getValues(`items.${index}.minimumPrice`)
       const showMinimum = getValues(`items.${index}.minimumPriceApplied`)
+
       if (itemMinimumPrice && showMinimum) {
         prices =
           percentQuantity !== null
@@ -151,7 +152,8 @@ const Row = ({
     // if (prices === data[index].prices) return
     const currency =
       getValues(`items.${index}.initialPrice.currency`) ??
-      getValues(`items.${index}.detail.${rowIndex}`)?.currency
+      getValues(`items.${index}.detail.${unitIndex}`)?.currency ??
+      priceData?.currency
 
     const roundingPrice = formatByRoundingProcedure(
       prices,
@@ -168,13 +170,13 @@ const Row = ({
 
     // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
     // 스탠다드 프라이스의 언어페어 정보 : languagePairs
-    setValue(`items.${index}.detail.${rowIndex}.currency`, currency, {
+    setValue(`items.${index}.detail.${unitIndex}.currency`, currency, {
       shouldDirty: true,
       shouldValidate: false,
     })
     // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
     setValue(
-      `items.${index}.detail.${rowIndex}.prices`,
+      `items.${index}.detail.${unitIndex}.prices`,
       isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
       {
         shouldDirty: true,
@@ -416,15 +418,12 @@ const Row = ({
                     return title
                   }}
                   onChange={(e, v) => {
-                    console.log(e, 'bye')
-                    console.log(v, 'bye')
 
                     if (v) {
                       const priceFactor = Number(
                         getValues(`items.${index}`).priceFactor,
                       )
                       setOpen(false)
-                      console.log(isNotApplicable, 'bye')
 
                       onChange(v.priceUnitId)
 
@@ -618,7 +617,6 @@ const Row = ({
             name={`${detailName}.${idx}.currency`}
             control={control}
             render={({ field: { value, onChange } }) => {
-              console.log(value)
 
               return (
                 <Autocomplete
@@ -626,7 +624,6 @@ const Row = ({
                   fullWidth
                   options={CurrencyList}
                   onChange={(e, v) => {
-                    console.log(v)
                     if (v) {
                       onChange(v.value)
 
