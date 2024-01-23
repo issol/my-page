@@ -7,18 +7,13 @@ import {
   IconButton,
   Typography,
 } from '@mui/material'
-import {
-  DataGrid,
-  GridCallbackDetails,
-  GridColumns,
-  GridSelectionModel,
-} from '@mui/x-data-grid'
+import { DataGrid, GridColumns, GridSelectionModel } from '@mui/x-data-grid'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { DeliveryFileType } from '@src/types/orders/order-detail'
-import { useState } from 'react'
+import { Dispatch, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
@@ -28,15 +23,119 @@ type Props = {
 }
 
 const ImportFromJob = ({ items, onClickUpload, onClose }: Props) => {
-  const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
+  const [selectedIds, setSelectedIds] = useState<GridSelectionModel>([])
   const [selectedJobs, setSelectedJobs] = useState<DeliveryFileType[]>([])
 
+  return (
+    <Box
+      sx={{
+        // maxWidth: '1266px',
+        maxWidth: '1100px',
+        width: '100%',
+        maxHeight: '800px',
+        // height: '100%',
+        background: '#ffffff',
+        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+        borderRadius: '10px',
+        overflowY: 'scroll',
+      }}
+    >
+      <Box
+        sx={{
+          padding: '50px 60px',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          // justifyContent: 'space-between',
+          gap: '24px',
+        }}
+      >
+        <Card sx={{ overflow: 'scroll' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {items.map((value, index) => {
+              return (
+                <Row
+                  info={value}
+                  key={uuidv4()}
+                  index={index}
+                  setSelectedJobs={setSelectedJobs}
+                  selectedIds={selectedIds}
+                  setSelectedIds={setSelectedIds}
+                />
+              )
+            })}
+            {items.map((value, index) => {
+              return (
+                <Row
+                  info={value}
+                  key={uuidv4()}
+                  index={index}
+                  setSelectedJobs={setSelectedJobs}
+                  selectedIds={selectedIds}
+                  setSelectedIds={setSelectedIds}
+                />
+              )
+            })}
+            {items.map((value, index) => {
+              return (
+                <Row
+                  info={value}
+                  key={uuidv4()}
+                  index={index}
+                  setSelectedJobs={setSelectedJobs}
+                  selectedIds={selectedIds}
+                  setSelectedIds={setSelectedIds}
+                />
+              )
+            })}
+          </Box>
+        </Card>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: '16px',
+            justifyContent: 'center',
+          }}
+        >
+          <Button variant='outlined' color='secondary' onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant='contained'
+            disabled={selectedIds.length === 0}
+            onClick={() => onClickUpload(selectedJobs)}
+          >
+            Upload
+          </Button>
+        </Box>
+      </Box>
+    </Box>
+  )
+}
+
+const Row = ({
+  info,
+  index,
+  selectedIds = [],
+  setSelectedJobs,
+}: {
+  info: JobItemType
+  index: number
+  selectedIds: GridSelectionModel
+  setSelectedIds: Dispatch<GridSelectionModel>
+  setSelectedJobs: Dispatch<DeliveryFileType[]>
+}) => {
+  const [open, setOpen] = useState<boolean>(true)
+  const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
   const handleSelectionModelChange = (
     selectionModel: GridSelectionModel,
     jobs: JobType[],
   ) => {
+    const filterIds = selectedIds.filter(id => !selectionModel.includes(id))
+    const curSelected = selectionModel.filter(id => !filterIds.includes(id))
+
     const selected: DeliveryFileType[] = jobs.filter(job =>
-      selectionModel.includes(job.id),
+      curSelected.includes(job.id),
     )
       ? jobs
           .filter(job => selectionModel.includes(job.id))
@@ -51,8 +150,8 @@ const ImportFromJob = ({ items, onClickUpload, onClose }: Props) => {
           }))
       : []
 
+    setSelectionModel(curSelected)
     setSelectedJobs(selected)
-
     setSelectionModel(selectionModel)
   }
 
@@ -134,111 +233,56 @@ const ImportFromJob = ({ items, onClickUpload, onClose }: Props) => {
     },
   ]
 
-  const Row = ({ info, index }: { info: JobItemType; index: number }) => {
-    const [open, setOpen] = useState<boolean>(true)
-
-    return (
-      <Box>
-        <Box
-          sx={{
-            display: 'flex',
-            gap: '8px',
-            alignItems: 'center',
-            padding: '24px',
-          }}
-        >
-          <IconButton
-            aria-label='expand row'
-            size='small'
-            onClick={() => setOpen(!open)}
-          >
-            <Icon icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
-          </IconButton>
-          <Typography
-            variant='body1'
-            sx={{
-              fontWeight: 600,
-              display: 'flex',
-              gap: '5px',
-              alignItems: 'center',
-            }}
-          >
-            {String(index + 1).padStart(2, '0')}. &nbsp;
-            {languageHelper(info.sourceLanguage)}
-            &nbsp;&rarr;&nbsp;
-            {languageHelper(info.targetLanguage)}&nbsp;
-            {info.itemName}
-          </Typography>
-        </Box>
-        <Collapse in={open} timeout='auto' unmountOnExit>
-          <Box sx={{ padding: '0 24px' }}>
-            <DataGrid
-              columns={columns}
-              rows={info.jobs}
-              autoHeight
-              checkboxSelection
-              selectionModel={selectionModel}
-              onSelectionModelChange={(selectionModel: GridSelectionModel) =>
-                handleSelectionModelChange(selectionModel, info.jobs)
-              }
-              hideFooterPagination
-              hideFooterSelectedRowCount
-              getRowId={row => row.id}
-            />
-          </Box>
-        </Collapse>
-      </Box>
-    )
-  }
   return (
-    <Box
-      sx={{
-        // maxWidth: '1266px',
-        maxWidth: '1100px',
-        width: '100%',
-        maxHeight: '800px',
-        // height: '100%',
-        background: '#ffffff',
-        boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
-        borderRadius: '10px',
-      }}
-    >
+    <Box>
       <Box
         sx={{
-          padding: '50px 60px',
-          height: '100%',
           display: 'flex',
-          flexDirection: 'column',
-          // justifyContent: 'space-between',
-          gap: '24px',
+          gap: '8px',
+          alignItems: 'center',
+          padding: '24px',
         }}
       >
-        <Card sx={{ overflow: 'scroll' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {items.map((value, index) => {
-              return <Row info={value} key={uuidv4()} index={index} />
-            })}
-          </Box>
-        </Card>
-        <Box
+        <IconButton
+          aria-label='expand row'
+          size='small'
+          onClick={() => setOpen(!open)}
+        >
+          <Icon icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
+        </IconButton>
+        <Typography
+          variant='body1'
           sx={{
+            fontWeight: 600,
             display: 'flex',
-            gap: '16px',
-            justifyContent: 'center',
+            gap: '5px',
+            alignItems: 'center',
           }}
         >
-          <Button variant='outlined' color='secondary' onClick={onClose}>
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            disabled={selectionModel.length === 0}
-            onClick={() => onClickUpload(selectedJobs)}
-          >
-            Upload
-          </Button>
-        </Box>
+          {String(index + 1).padStart(2, '0')}. &nbsp;
+          {languageHelper(info.sourceLanguage)}
+          &nbsp;&rarr;&nbsp;
+          {languageHelper(info.targetLanguage)}&nbsp;
+          {info.itemName}
+        </Typography>
       </Box>
+      <Collapse in={open} timeout='auto' unmountOnExit>
+        <Box sx={{ padding: '0 24px' }}>
+          <DataGrid
+            columns={columns}
+            rows={info.jobs}
+            autoHeight
+            checkboxSelection
+            selectionModel={selectionModel}
+            onSelectionModelChange={(selectionModel: GridSelectionModel) =>
+              handleSelectionModelChange(selectionModel, info.jobs)
+            }
+            hideFooterPagination
+            hideFooterSelectedRowCount
+            getRowId={row => row.id}
+          />
+        </Box>
+      </Collapse>
     </Box>
   )
 }
