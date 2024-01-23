@@ -740,7 +740,7 @@ const Row = ({
                 getValues(`${detailName}.${idx}.priceUnitId`) === -1
               ) {
                 remove(idx)
-                updatePrice()
+                updatePrice(idx)
                 updateTotalPrice()
               } else {
                 onClickDeletePriceUnit(
