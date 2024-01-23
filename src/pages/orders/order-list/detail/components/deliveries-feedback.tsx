@@ -760,9 +760,9 @@ const DeliveriesFeedback = ({
                   <Button
                     variant='contained'
                     sx={{ height: '34px' }}
-                    // disabled={
-                    //   !canUseFeature('button-Deliveries&Feedback-ImportFromJob')
-                    // }
+                    disabled={
+                      !canUseFeature('button-Deliveries&Feedback-ImportFromJob')
+                    }
                     onClick={onClickImportJob}
                   >
                     <Icon icon='mdi:import' fontSize={18} />
