@@ -178,6 +178,7 @@ const Row = ({
         append({
           ...item,
           unitPrice: 0,
+          currency: selectedPrice?.currency!,
         })
       })
     }
