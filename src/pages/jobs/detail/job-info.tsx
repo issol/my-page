@@ -131,7 +131,8 @@ const ProJobInfo = ({
             jobInfo.status !== 70200 &&
             jobInfo.status !== 70300 &&
             jobInfo.status !== 70400 &&
-            jobInfo.status !== 70500
+            jobInfo.status !== 70500 &&
+            jobInfo.status !== 60100
           ) {
             return value.type === 'SOURCE'
           } else {
@@ -195,7 +196,8 @@ const ProJobInfo = ({
         jobInfo.status !== 70200 &&
         jobInfo.status !== 70300 &&
         jobInfo.status !== 70400 &&
-        jobInfo.status !== 70500
+        jobInfo.status !== 70500 &&
+        jobInfo.status !== 60100
       ) {
         return value.type === 'SOURCE'
       } else {
@@ -1226,9 +1228,13 @@ const ProJobInfo = ({
               >
                 <Box display='flex' justifyContent='space-between'>
                   <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                    {jobInfo.status !== 70200 &&
-                    jobInfo.status !== 70400 &&
-                    jobInfo.status !== 70500
+                    {jobInfo.status !== 70000 &&
+                      jobInfo.status !== 70100 &&
+                      jobInfo.status !== 70200 &&
+                      jobInfo.status !== 70300 &&
+                      jobInfo.status !== 70400 &&
+                      jobInfo.status !== 70500 &&
+                      jobInfo.status !== 60100
                       ? 'Source files'
                       : 'Sample files'}
                   </Typography>
