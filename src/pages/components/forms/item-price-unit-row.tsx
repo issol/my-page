@@ -208,10 +208,13 @@ const Row = ({
   }
 
   const onClickDeletePriceUnit = (idx: number) => {
+    console.log(options)
+    console.log(idx)
+
     if (
-      options.find(item => item.id === idx) ||
-      (idx !== -1 &&
-        getValues().items[0].detail?.find(item => item.priceUnitId === idx))
+      options.find(item => item.id === idx)
+      // (idx !== -1 &&
+      //   getValues().items[0].detail?.find(item => item.priceUnitId === idx))
     ) {
       openModal({
         type: 'DeletePriceUnitModal',
@@ -676,7 +679,7 @@ const Row = ({
         ) : (
           <Typography fontSize={14}>
             {isNotApplicable
-              ? savedValue.currency
+              ? savedValue?.currency
                 ? formatCurrency(
                     formatByRoundingProcedure(
                       Number(price),
@@ -730,8 +733,15 @@ const Row = ({
         type === 'invoiceCreate' ? null : (
           <IconButton
             onClick={() => {
-              if (getValues(`${detailName}.${idx}.priceUnitId`) === null) {
+              console.log(getValues(`${detailName}.${idx}.priceUnitId`))
+
+              if (
+                getValues(`${detailName}.${idx}.priceUnitId`) === null ||
+                getValues(`${detailName}.${idx}.priceUnitId`) === -1
+              ) {
                 remove(idx)
+                updatePrice()
+                updateTotalPrice()
               } else {
                 onClickDeletePriceUnit(
                   getValues(`${detailName}.${idx}.priceUnitId`)!,
