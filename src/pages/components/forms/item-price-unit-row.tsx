@@ -122,7 +122,7 @@ const Row = ({
     let prices = 0
     const detail = data?.[rowIndex]
 
-    if (detail && detail.unit === 'Percent') {
+    if (detail && detail?.unit === 'Percent') {
       const percentQuantity = data[index].quantity
 
       const itemMinimumPrice = getValues(`items.${index}.minimumPrice`)
@@ -133,7 +133,7 @@ const Row = ({
             ? (percentQuantity / 100) * itemMinimumPrice
             : 0
       } else {
-        const generalPrices = data.filter(item => item.unit !== 'Percent')
+        const generalPrices = data.filter(item => item?.unit !== 'Percent')
         generalPrices.forEach(item => {
           prices += item.unitPrice ?? 0
         })
@@ -204,7 +204,7 @@ const Row = ({
     let prices = 0
     if (currentItem) {
       const percentQuantity = quantity
-      const generalPrices = currentItem.filter(item => item.unit !== 'Percent')
+      const generalPrices = currentItem.filter(item => item?.unit !== 'Percent')
       generalPrices.forEach(item => {
         prices += item.unitPrice ?? 0
       })
@@ -214,10 +214,13 @@ const Row = ({
   }
 
   const onClickDeletePriceUnit = (idx: number) => {
+    console.log(options)
+    console.log(idx)
+
     if (
-      options.find(item => item.id === idx) ||
-      (idx !== -1 &&
-        getValues().items[0].detail?.find(item => item.priceUnitId === idx))
+      options.find(item => item.id === idx)
+      // (idx !== -1 &&
+      //   getValues().items[0].detail?.find(item => item.priceUnitId === idx))
     ) {
       openModal({
         type: 'DeletePriceUnitModal',
@@ -434,11 +437,11 @@ const Row = ({
                           ...savedValue,
                           priceUnitId: v.priceUnitId,
                           quantity: v.quantity ?? 0,
-                          unit: v.unit,
+                          unit: v?.unit,
                           unitPrice: unitPrice,
                           priceFactor: priceFactor?.toString(),
                           prices:
-                            v.unit !== 'Percent'
+                            v?.unit !== 'Percent'
                               ? Number(v.quantity! * unitPrice)
                               : PercentPrice(v.quantity!),
                         })
@@ -446,10 +449,10 @@ const Row = ({
                         update(idx, {
                           ...savedValue,
                           priceUnitId: v.priceUnitId,
-                          unit: v.unit,
+                          unit: v?.unit,
                           priceFactor: priceFactor?.toString(),
                           prices:
-                            v.unit !== 'Percent'
+                            v?.unit !== 'Percent'
                               ? Number(
                                   getValues(`${detailName}.${idx}.quantity`) ??
                                     0 * unitPrice,
@@ -472,10 +475,10 @@ const Row = ({
                             priceFactor: priceFactor?.toString(),
                             priceUnitId: item.priceUnitId,
                             quantity: item.quantity!,
-                            unit: item.unit,
+                            unit: item?.unit,
                             unitPrice: unitPrice,
                             prices:
-                              item.unit !== 'Percent'
+                              item?.unit !== 'Percent'
                                 ? Number(item.quantity! * unitPrice)
                                 : PercentPrice(item.quantity!),
                           })
@@ -737,8 +740,15 @@ const Row = ({
         type === 'invoiceCreate' ? null : (
           <IconButton
             onClick={() => {
-              if (getValues(`${detailName}.${idx}.priceUnitId`) === null) {
+              console.log(getValues(`${detailName}.${idx}.priceUnitId`))
+
+              if (
+                getValues(`${detailName}.${idx}.priceUnitId`) === null ||
+                getValues(`${detailName}.${idx}.priceUnitId`) === -1
+              ) {
                 remove(idx)
+                updatePrice()
+                updateTotalPrice()
               } else {
                 onClickDeletePriceUnit(
                   getValues(`${detailName}.${idx}.priceUnitId`)!,
