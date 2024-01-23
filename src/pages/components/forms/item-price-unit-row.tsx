@@ -118,7 +118,7 @@ const Row = ({
     let prices = 0
     const detail = data?.[index]
 
-    if (detail && detail.unit === 'Percent') {
+    if (detail && detail?.unit === 'Percent') {
       const percentQuantity = data[index].quantity
 
       const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
@@ -129,7 +129,7 @@ const Row = ({
             ? (percentQuantity / 100) * itemMinimumPrice
             : 0
       } else {
-        const generalPrices = data.filter(item => item.unit !== 'Percent')
+        const generalPrices = data.filter(item => item?.unit !== 'Percent')
         generalPrices.forEach(item => {
           prices += item.unitPrice ?? 0
         })
@@ -198,7 +198,7 @@ const Row = ({
     let prices = 0
     if (currentItem) {
       const percentQuantity = quantity
-      const generalPrices = currentItem.filter(item => item.unit !== 'Percent')
+      const generalPrices = currentItem.filter(item => item?.unit !== 'Percent')
       generalPrices.forEach(item => {
         prices += item.unitPrice ?? 0
       })
@@ -322,7 +322,7 @@ const Row = ({
                       updatePrice()
                     }}
                   />
-                  {savedValue.unit === 'Percent' ? '%' : null}
+                  {savedValue?.unit === 'Percent' ? '%' : null}
                 </Box>
               )
             }}
@@ -427,11 +427,11 @@ const Row = ({
                           ...savedValue,
                           priceUnitId: v.priceUnitId,
                           quantity: v.quantity ?? 0,
-                          unit: v.unit,
+                          unit: v?.unit,
                           unitPrice: unitPrice,
                           priceFactor: priceFactor?.toString(),
                           prices:
-                            v.unit !== 'Percent'
+                            v?.unit !== 'Percent'
                               ? Number(v.quantity! * unitPrice)
                               : PercentPrice(v.quantity!),
                         })
@@ -439,10 +439,10 @@ const Row = ({
                         update(idx, {
                           ...savedValue,
                           priceUnitId: v.priceUnitId,
-                          unit: v.unit,
+                          unit: v?.unit,
                           priceFactor: priceFactor?.toString(),
                           prices:
-                            v.unit !== 'Percent'
+                            v?.unit !== 'Percent'
                               ? Number(
                                   getValues(`${detailName}.${idx}.quantity`) ??
                                     0 * unitPrice,
@@ -465,10 +465,10 @@ const Row = ({
                             priceFactor: priceFactor?.toString(),
                             priceUnitId: item.priceUnitId,
                             quantity: item.quantity!,
-                            unit: item.unit,
+                            unit: item?.unit,
                             unitPrice: unitPrice,
                             prices:
-                              item.unit !== 'Percent'
+                              item?.unit !== 'Percent'
                                 ? Number(item.quantity! * unitPrice)
                                 : PercentPrice(item.quantity!),
                           })
@@ -558,13 +558,13 @@ const Row = ({
                     }
                     value={
                       value
-                        ? savedValue.unit === 'Percent'
+                        ? savedValue?.unit === 'Percent'
                           ? '-'
                           : value
                         : null
                     }
                     error={value === null || value === 0}
-                    disabled={savedValue.unit === 'Percent'}
+                    disabled={savedValue?.unit === 'Percent'}
                     onChange={e => {
                       onChange(Number(e.target.value))
                       updatePrice()
