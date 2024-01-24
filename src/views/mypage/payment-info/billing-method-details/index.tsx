@@ -14,7 +14,7 @@ import {
 // ** Custom Components Imports
 import CustomChip from '@src/@core/components/mui/chip'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { Icon } from '@iconify/react'
 import { downloadStateFile } from '@src/shared/helpers/file-download.helper'
 
@@ -277,7 +277,7 @@ export default function BillingMethodDetail({
   )
 }
 
-const ContentGrid = styled.div`
+const ContentGrid = styled('div')`
   margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);

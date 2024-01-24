@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import useModal from '@src/hooks/useModal'
 
 // ** style components
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import { Box, Dialog, DialogContent, Grid, Typography } from '@mui/material'

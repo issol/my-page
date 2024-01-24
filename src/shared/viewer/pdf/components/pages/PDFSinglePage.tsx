@@ -1,9 +1,8 @@
-import { IStyledProps } from '@cyntler/react-doc-viewer'
 import React, { FC, useContext } from 'react'
 import { Page } from 'react-pdf'
-import styled from 'styled-components'
 
 import { PDFContext } from '../../state'
+import { styled } from '@mui/system'
 
 interface Props {
   pageNum?: number
@@ -40,17 +39,19 @@ interface PageWrapperProps {
   last?: boolean
 }
 
-const PageWrapper = styled.div<PageWrapperProps>`
+const PageWrapper = styled('div')<PageWrapperProps>`
   margin: 20px 0;
 `
 
-const PageTag = styled.div`
-  padding: 0 0 10px 10px;
-  color: ${(props: IStyledProps) => props.theme.textTertiary};
-  font-size: 14px;
-  text-align: left;
+const PageTag = styled('div')(({ theme }) => {
+  return {
+    padding: '0 0 10px 10px',
+    color: theme.palette.textTertiary,
+    fontSize: '14px',
+    textAlign: 'left',
 
-  @media (max-width: 768px) {
-    font-size: 10px;
+    '@media (max-width: 768px)': {
+      fontSize: '10px',
+    },
   }
-`
+})

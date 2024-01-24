@@ -4,7 +4,7 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { CorporateClientInfoType } from '@src/context/types'
 import { Control, Controller, FieldErrors } from 'react-hook-form'
 import DatePicker from 'react-datepicker'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 type Props = {
   control: Control<CorporateClientInfoType, any>
@@ -21,7 +21,7 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
             <TextField
               autoFocus
               fullWidth
-              type="number"
+              type='number'
               label='Business registration number*'
               value={value}
               onBlur={onBlur}

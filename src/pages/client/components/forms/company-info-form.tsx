@@ -18,7 +18,7 @@ import { Fragment, useEffect, useState } from 'react'
 
 // ** data
 import { ClientStatus } from '@src/shared/const/status/statuses'
-import { countries } from 'src/@fake-db/autocomplete'
+import { countries } from '@src/@fake-db/autocomplete'
 
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import { v4 as uuidv4 } from 'uuid'
@@ -46,7 +46,7 @@ import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { TaxTypeList } from '@src/shared/const/tax/tax-type'
 import { getTypeList } from '@src/shared/transformer/type.transformer'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { DatePickerDefaultOptions } from '@src/shared/const/datePicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
@@ -125,6 +125,7 @@ export default function CompanyInfoForm({
       </>
     )
   }
+
   function renderPhoneField(key: keyof CompanyInfoFormType, label: string) {
     return (
       <>

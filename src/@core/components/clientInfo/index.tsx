@@ -1,5 +1,5 @@
 // ** styled components
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** MUI Imports
 import { Box } from '@mui/system'

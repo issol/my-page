@@ -2,7 +2,7 @@ import { Box, Button, Dialog, DialogContent, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { CurrencyType } from '@src/types/common/standard-price'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 type Props = {
   onClose: () => void
   reason: {

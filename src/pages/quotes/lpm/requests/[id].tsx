@@ -12,7 +12,7 @@ import {
 } from '@mui/material'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** components
 import RequestDetailCard from './components/detail/request-detail'

@@ -7,16 +7,16 @@ import {
   Typography,
 } from '@mui/material'
 import { ReactElement } from 'react'
-import CardNormal from 'src/@core/components/card-statistics/card-normal'
+import CardNormal from '@src/@core/components/card-statistics/card-normal'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
-import { ThemeColor } from 'src/@core/layouts/types'
+import Icon from '@src/@core/components/icon'
+import { ThemeColor } from '@src/@core/layouts/types'
 
-import CustomAvatar from 'src/@core/components/mui/avatar'
+import CustomAvatar from '@src/@core/components/mui/avatar'
 
 // ** types
-import { RecruitingCountType } from 'src/apis/recruiting.api'
+import { RecruitingCountType } from '@src/apis/recruiting.api'
 
 interface RecruitingData {
   stats: string

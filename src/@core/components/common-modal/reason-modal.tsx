@@ -12,9 +12,9 @@ import Button from '@mui/material/Button'
 
 import Typography from '@mui/material/Typography'
 
-import { AddRoleType } from 'src/types/onboarding/list'
+import { AddRoleType } from '@src/types/onboarding/list'
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import AlertIcon from '../alert-icon'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ca } from 'date-fns/locale'
@@ -122,8 +122,8 @@ export default function ReasonModal({
                     ? 'to'
                     : 'from'
                   : role === 'lpm'
-                  ? 'from'
-                  : 'to'}{' '}
+                    ? 'from'
+                    : 'to'}{' '}
                 {role === 'lpm' ? 'client' : 'LSP'}
               </Typography>
               <Typography

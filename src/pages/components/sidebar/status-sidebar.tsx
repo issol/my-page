@@ -3,7 +3,7 @@ import Drawer from '@mui/material/Drawer'
 import Box from '@mui/material/Box'
 
 // ** styles
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { Typography } from '@mui/material'
 
 type Props = {

@@ -77,8 +77,22 @@ interface Props {
     currency: CurrencyType,
     index: number,
     detail: Array<ItemDetailType>,
+    // detail: FieldArrayWithId<
+    //   {
+    //     items: ItemType[]
+    //   },
+    //   `items.${number}.detail`,
+    //   'id'
+    // >,
     detailIndex: number,
   ) => void
+  row: FieldArrayWithId<
+    {
+      items: ItemType[]
+    },
+    `items.${number}.detail`,
+    'id'
+  >
 }
 
 const Row = ({
@@ -105,8 +119,10 @@ const Row = ({
   onChangeCurrency,
 
   setValue,
+  row,
 }: Props) => {
   console.log(idx)
+  console.log(row)
 
   const prevValueRef = useRef()
   const [savedValue, setSavedValue] = useState<ItemDetailType>(currentItem[idx])
@@ -637,6 +653,7 @@ const Row = ({
                         v.value,
                         index,
                         getValues(`items.${index}.detail`) ?? [],
+                        // row,
                         idx,
                       )
                       updatePrice(idx)
@@ -743,6 +760,8 @@ const Row = ({
         type === 'invoiceCreate' ? null : (
           <IconButton
             onClick={() => {
+              console.log(getValues(`${detailName}.${idx}.priceUnitId`))
+
               if (
                 getValues(`${detailName}.${idx}.priceUnitId`) === null ||
                 getValues(`${detailName}.${idx}.priceUnitId`) === -1

@@ -6,7 +6,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField'
 import FormControl from '@mui/material/FormControl'
-import { Controller } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 import FormHelperText from '@mui/material/FormHelperText'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { CategoryList } from '@src/shared/const/category/categories'
@@ -18,9 +18,9 @@ import { CurrencyList } from '@src/shared/const/currency/currency'
 import { CatBasisList } from '@src/shared/const/catBasis/cat-basis'
 import {
   RoundingProcedureList,
+  RoundingProcedureObj,
   RoundingProcedureObjReversed,
 } from '@src/shared/const/rounding-procedure/rounding-procedure'
-import { useForm } from 'react-hook-form'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
@@ -31,16 +31,12 @@ import {
 } from '@src/types/common/standard-price'
 import PriceActionModal from '../../standard-prices-modal/modal/price-action-modal'
 import useModal from '@src/hooks/useModal'
-import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
-
-import { v4 as uuidv4 } from 'uuid'
+import Icon from '@src/@core/components/icon'
 
 import CopyPriceModal from './copy-price-modal'
-import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 const defaultValue = {
   priceName: '',
@@ -74,6 +70,7 @@ const AddSavePriceModal = ({
 }: Props) => {
   const { closeModal, openModal } = useModal()
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+
   function getKeyByValue<T extends { [key: string]: string }>(
     object: T,
     value: string,
@@ -96,7 +93,9 @@ const AddSavePriceModal = ({
   } = useForm<AddPriceType>({
     mode: 'onChange',
     defaultValues: defaultValue,
-    resolver: yupResolver(standardPricesSchema),
+    resolver: yupResolver(
+      standardPricesSchema,
+    ) as unknown as Resolver<AddPriceType>,
   })
   const {
     data: standardPrices,
@@ -155,12 +154,12 @@ const AddSavePriceModal = ({
             selected.currency === 'USD'
               ? '$ USD'
               : selected.currency === 'KRW'
-              ? '₩ KRW'
-              : selected.currency === 'JPY'
-              ? '¥ JPY'
-              : selected.currency === 'SGD'
-              ? '$ SGD'
-              : '',
+                ? '₩ KRW'
+                : selected.currency === 'JPY'
+                  ? '¥ JPY'
+                  : selected.currency === 'SGD'
+                    ? '$ SGD'
+                    : '',
           value: selected.currency! ?? 'KRW',
         },
         setValueOptions,
@@ -205,6 +204,7 @@ const AddSavePriceModal = ({
       ),
     })
   }
+
   function onAddCopiedPrice(data: StandardPriceListType) {
     setSelected(data)
   }
@@ -481,9 +481,9 @@ const AddSavePriceModal = ({
                         watch('currency').value === 'SGD'
                           ? 'Number of decimal places*'
                           : watch('currency').value === 'KRW' ||
-                            watch('currency').value === 'JPY'
-                          ? 'Place value*'
-                          : ''
+                              watch('currency').value === 'JPY'
+                            ? 'Place value*'
+                            : ''
                       }
                       onChange={e => {
                         const { value } = e.target
@@ -498,9 +498,9 @@ const AddSavePriceModal = ({
                                 watch('currency').value === 'SGD'
                                 ? 1
                                 : watch('currency').value === 'KRW' ||
-                                  watch('currency').value === 'JPY'
-                                ? 10
-                                : 0,
+                                    watch('currency').value === 'JPY'
+                                  ? 10
+                                  : 0,
                             )
                           e.target.value = filteredValue
                           onChange(e.target.value)
@@ -512,9 +512,9 @@ const AddSavePriceModal = ({
                         watch('currency').value === 'SGD'
                           ? '2'
                           : watch('currency').value === 'KRW' ||
-                            watch('currency').value === 'JPY'
-                          ? '1000'
-                          : ''
+                              watch('currency').value === 'JPY'
+                            ? '1000'
+                            : ''
                       }
                     />
                   )}

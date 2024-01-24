@@ -7,11 +7,10 @@ import Autocomplete from '@mui/material/Autocomplete'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField'
 import FormControl from '@mui/material/FormControl'
-import { Controller } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 import FormHelperText from '@mui/material/FormHelperText'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { CategoryList } from '@src/shared/const/category/categories'
-import { JobList } from '@src/shared/const/job/jobs'
 import {
   ServiceTypeList,
   ServiceTypePair,
@@ -20,29 +19,23 @@ import { CurrencyList } from '@src/shared/const/currency/currency'
 import { CatBasisList } from '@src/shared/const/catBasis/cat-basis'
 import {
   RoundingProcedureList,
-  RoundingProcedureObjReversed,
   RoundingProcedureObj,
+  RoundingProcedureObjReversed,
 } from '@src/shared/const/rounding-procedure/rounding-procedure'
-import { useForm } from 'react-hook-form'
 
 import { yupResolver } from '@hookform/resolvers/yup'
 import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
 import { FormErrors } from '@src/shared/const/formErrors'
 import {
-  AddNewPriceType,
   CurrencyType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import PriceActionModal from '../modal/price-action-modal'
 import useModal from '@src/hooks/useModal'
-import { useMutation, useQueryClient } from 'react-query'
-import { createPrice } from '@src/apis/company/company-price.api'
-import toast from 'react-hot-toast'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
 import CopyPriceModal from '@src/pages/components/client-prices-modal/dialog/copy-price-modal'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 const defaultValue = {
   priceName: '',
@@ -87,6 +80,7 @@ const AddSavePriceModal = ({
 }: Props) => {
   const { closeModal, openModal } = useModal()
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+
   function getKeyByValue<T extends { [key: string]: string }>(
     object: T,
     value: string,
@@ -109,7 +103,9 @@ const AddSavePriceModal = ({
   } = useForm<AddPriceType>({
     mode: 'onChange',
     defaultValues: defaultValue,
-    resolver: yupResolver(standardPricesSchema),
+    resolver: yupResolver(
+      standardPricesSchema,
+    ) as unknown as Resolver<AddPriceType>,
   })
   const {
     data: standardPrices,
@@ -176,12 +172,12 @@ const AddSavePriceModal = ({
               selected.currency === 'USD'
                 ? '$ USD'
                 : selected.currency === 'KRW'
-                ? '₩ KRW'
-                : selected.currency === 'JPY'
-                ? '¥ JPY'
-                : selected.currency === 'SGD'
-                ? '$ SGD'
-                : '',
+                  ? '₩ KRW'
+                  : selected.currency === 'JPY'
+                    ? '¥ JPY'
+                    : selected.currency === 'SGD'
+                      ? '$ SGD'
+                      : '',
             value: selected.currency!,
           },
           setValueOptions,
@@ -229,12 +225,12 @@ const AddSavePriceModal = ({
             selected.currency === 'USD'
               ? '$ USD'
               : selected.currency === 'KRW'
-              ? '₩ KRW'
-              : selected.currency === 'JPY'
-              ? '¥ JPY'
-              : selected.currency === 'SGD'
-              ? '$ SGD'
-              : '',
+                ? '₩ KRW'
+                : selected.currency === 'JPY'
+                  ? '¥ JPY'
+                  : selected.currency === 'SGD'
+                    ? '$ SGD'
+                    : '',
           value: selected.currency!,
         })
         page === 'client' &&
@@ -275,6 +271,7 @@ const AddSavePriceModal = ({
   function onAddCopiedPrice(data: StandardPriceListType) {
     setSelected(data)
   }
+
   console.log('RoundingProcedureList', RoundingProcedureList)
   return (
     <Dialog
@@ -539,9 +536,9 @@ const AddSavePriceModal = ({
                         watch('currency').value === 'SGD'
                           ? 'Number of decimal places*'
                           : watch('currency').value === 'KRW' ||
-                            watch('currency').value === 'JPY'
-                          ? 'Place value*'
-                          : ''
+                              watch('currency').value === 'JPY'
+                            ? 'Place value*'
+                            : ''
                       }
                       onChange={e => {
                         const { value } = e.target
@@ -556,9 +553,9 @@ const AddSavePriceModal = ({
                                 watch('currency').value === 'SGD'
                                 ? 1
                                 : watch('currency').value === 'KRW' ||
-                                  watch('currency').value === 'JPY'
-                                ? 10
-                                : 0,
+                                    watch('currency').value === 'JPY'
+                                  ? 10
+                                  : 0,
                             )
                           if (
                             watch('currency').value === 'KRW' ||
@@ -585,9 +582,9 @@ const AddSavePriceModal = ({
                         watch('currency').value === 'SGD'
                           ? '2'
                           : watch('currency').value === 'KRW' ||
-                            watch('currency').value === 'JPY'
-                          ? '1000'
-                          : ''
+                              watch('currency').value === 'JPY'
+                            ? '1000'
+                            : ''
                       }
                     />
                   )}

@@ -3,7 +3,7 @@ import Box from '@mui/material/Box'
 import { useTheme } from '@mui/material/styles'
 
 // ** Type Import
-import { LayoutProps } from 'src/@core/layouts/types'
+import { LayoutProps } from '@src/@core/layouts/types'
 
 // ** Footer Content Component
 import FooterContent from './FooterContent'
@@ -45,37 +45,48 @@ const Footer = (props: Props) => {
             ? { px: [4, 6] }
             : {
                 backgroundColor: 'background.paper',
-                ...(skin === 'bordered' ? { borderTop: `1px solid ${theme.palette.divider}` } : { boxShadow: 6 })
-              })
+                ...(skin === 'bordered'
+                  ? { borderTop: `1px solid ${theme.palette.divider}` }
+                  : { boxShadow: 6 }),
+              }),
         }),
-        ...footerStyles
+        ...footerStyles,
       }}
     >
       <Box
         className='footer-content-container'
         sx={{
           width: '100%',
-          py: theme.spacing(footer === 'fixed' && skin === 'bordered' ? 3.875 : 4),
-          ...(contentWidth === 'boxed' && { '@media (min-width:1440px)': { maxWidth: 1440 } }),
+          py: theme.spacing(
+            footer === 'fixed' && skin === 'bordered' ? 3.875 : 4,
+          ),
+          ...(contentWidth === 'boxed' && {
+            '@media (min-width:1440px)': { maxWidth: 1440 },
+          }),
           ...(layout === 'vertical' && {
             borderTopLeftRadius: 14,
             borderTopRightRadius: 14,
-            ...(footer === 'fixed' && { backgroundColor: 'background.paper' })
+            ...(footer === 'fixed' && { backgroundColor: 'background.paper' }),
           }),
           ...(footer === 'fixed'
             ? {
                 px: [5, 6],
                 ...(contentWidth === 'boxed' &&
                   layout === 'vertical' && {
-                    '@media (min-width:1440px)': { maxWidth: `calc(1440px - ${theme.spacing(6)} * 2)` }
+                    '@media (min-width:1440px)': {
+                      maxWidth: `calc(1440px - ${theme.spacing(6)} * 2)`,
+                    },
                   }),
                 ...(layout === 'vertical' && {
                   ...(skin === 'bordered'
-                    ? { border: `1px solid ${theme.palette.divider}`, borderBottomWidth: 0 }
-                    : { boxShadow: 6 })
-                })
+                    ? {
+                        border: `1px solid ${theme.palette.divider}`,
+                        borderBottomWidth: 0,
+                      }
+                    : { boxShadow: 6 }),
+                }),
               }
-            : { px: [4, 6] })
+            : { px: [4, 6] }),
         }}
       >
         {userFooterContent ? userFooterContent(props) : <FooterContent />}

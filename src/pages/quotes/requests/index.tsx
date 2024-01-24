@@ -7,7 +7,7 @@ import { Card, CardHeader, Grid, Switch, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import PageHeader from '@src/@core/components/page-header'
 import { StyledNextLink } from '@src/@core/components/customLink'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** components
 import Filter from './components/filter'

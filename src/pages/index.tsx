@@ -5,13 +5,13 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Spinner Import
-import Spinner from 'src/@core/components/spinner'
+import Spinner from '@src/@core/components/spinner'
 
 // ** Hook Imports
 
 import UserLayout from '@src/layouts/UserLayout'
 import { useAppSelector } from '@src/hooks/useRedux'
-import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { setAllTimeZoneList } from '@src/shared/helpers/timezone.helper'
 import { useRecoilValueLoadable } from 'recoil'
 import { currentRoleSelector } from '@src/states/permission'

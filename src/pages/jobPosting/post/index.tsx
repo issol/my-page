@@ -12,7 +12,7 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** React Imports
 import { useEffect, useState } from 'react'
@@ -24,23 +24,23 @@ import { useRouter } from 'next/router'
 import { convertToRaw, EditorState } from 'draft-js'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
 import DatePicker from 'react-datepicker'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import AddLinkModal from '../components/add-link-modal'
 import EditLinkModal from '../components/edit-link-modal'
 
 // ** Styled Component Import
-import { StyledEditor } from 'src/@core/components/editor/customEditor'
-import CustomChip from 'src/@core/components/mui/chip'
-import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-import { LinkItem } from 'src/@core/components/linkItem'
+import { StyledEditor } from '@src/@core/components/editor/customEditor'
+import CustomChip from '@src/@core/components/mui/chip'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import { LinkItem } from '@src/@core/components/linkItem'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** contexts
 
@@ -48,7 +48,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** form
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** fetches
@@ -60,22 +60,20 @@ import {
   jobPostingFormSchema,
   JobPostingFormType,
   LinkType,
-} from 'src/types/schema/jobPosting.schema'
-import { CountryType } from 'src/types/sign/personalInfoTypes'
+} from '@src/types/schema/jobPosting.schema'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 // ** third parties
 import { v4 as uuidv4 } from 'uuid'
 
 // ** values
-import { JobList } from 'src/shared/const/job/jobs'
-import { JobPostingStatus } from 'src/shared/const/status/statuses'
-import { RoleList } from 'src/shared/const/role/roles'
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
-import { countries } from 'src/@fake-db/autocomplete'
-import { ExperiencedYears } from 'src/shared/const/experienced-years'
+import { JobList } from '@src/shared/const/job/jobs'
+import { JobPostingStatus } from '@src/shared/const/status/statuses'
+import { RoleList } from '@src/shared/const/role/roles'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
+import { ExperiencedYears } from '@src/shared/const/experienced-years'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { FormErrors } from '@src/shared/const/formErrors'
 
 import { timezoneSelector } from '@src/states/permission'
 import useModal from '@src/hooks/useModal'
@@ -138,7 +136,7 @@ export default function JobPostingPost() {
   } = useForm<JobPostingFormType>({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(jobPostingFormSchema),
+    resolver: yupResolver(jobPostingFormSchema) as Resolver<JobPostingFormType>,
   })
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
@@ -225,6 +223,7 @@ export default function JobPostingPost() {
       ),
     })
   }
+
   function editLink(item: LinkType) {
     const itemToDelete = link.filter(v => v.id !== item.id)
     const itemToAdd = { ...item, id: uuidv4() }

@@ -16,7 +16,7 @@ import {
 import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 import useModal from '@src/hooks/useModal'
 import { JobList } from '@src/shared/const/job/jobs'
@@ -27,7 +27,7 @@ import {
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { languagePairSchema } from '@src/types/schema/price-unit.schema'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import LanguagePairActionModal from '../modal/language-pair-action-modal'
 import LanguagePairDuplicationModal from '@src/pages/components/standard-prices-modal/modal/language-pair-duplication-modal'
 import { Input } from './set-price-unit-modal'
@@ -62,7 +62,9 @@ const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
   } = useForm<AddNewLanguagePair>({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(languagePairSchema),
+    resolver: yupResolver(
+      languagePairSchema,
+    ) as unknown as Resolver<AddNewLanguagePair>,
   })
 
   const {
@@ -428,12 +430,12 @@ const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
                                   {priceData.currency === 'USD'
                                     ? '($ USD)'
                                     : priceData.currency === 'KRW'
-                                    ? '(₩ KRW)'
-                                    : priceData.currency === 'JPY'
-                                    ? '(¥ JPY)'
-                                    : priceData.currency === 'SGD'
-                                    ? '($ SGD)'
-                                    : '-'}
+                                      ? '(₩ KRW)'
+                                      : priceData.currency === 'JPY'
+                                        ? '(¥ JPY)'
+                                        : priceData.currency === 'SGD'
+                                          ? '($ SGD)'
+                                          : '-'}
                                 </InputAdornment>
                               ),
                               // inputProps: {
@@ -517,12 +519,12 @@ const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
                                   {priceData.currency === 'USD'
                                     ? '($ USD)'
                                     : priceData.currency === 'KRW'
-                                    ? '(₩ KRW)'
-                                    : priceData.currency === 'JPY'
-                                    ? '(¥ JPY)'
-                                    : priceData.currency === 'SGD'
-                                    ? '($ SGD)'
-                                    : '-'}
+                                      ? '(₩ KRW)'
+                                      : priceData.currency === 'JPY'
+                                        ? '(¥ JPY)'
+                                        : priceData.currency === 'SGD'
+                                          ? '($ SGD)'
+                                          : '-'}
                                 </InputAdornment>
                               ),
                             }}

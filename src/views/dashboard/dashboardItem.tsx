@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material'
 import React, { ReactElement, useState } from 'react'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Button from '@mui/material/Button'
 import Popper from '@mui/material/Popper'
 import Grow from '@mui/material/Grow'
@@ -107,7 +107,7 @@ export const SubDateDescription = styled(Typography)(() => {
   }
 })
 
-export const StatusSquare = styled.span<{ color: string }>(({ color }) => {
+export const StatusSquare = styled('span')<{ color: string }>(({ color }) => {
   return {
     display: 'flex',
     alignItems: 'center',
@@ -329,7 +329,9 @@ export const ConvertButtonGroup = ({
   )
 }
 
-export const TableStatusCircle = styled.span<{ color: string }>(({ color }) => {
+export const TableStatusCircle = styled('span')<{ color: string }>(({
+  color,
+}) => {
   return {
     display: 'block',
     width: '12px',
@@ -339,25 +341,26 @@ export const TableStatusCircle = styled.span<{ color: string }>(({ color }) => {
   }
 })
 
-export const TitleIcon = styled.div<Omit<ChartBoxIconProps, 'icon'>>(
-  ({ color, boxSize }) => {
-    return {
-      width: `${boxSize || '50px'}`,
-      height: `${boxSize || '50px'}`,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: color,
-      borderRadius: '8px',
+export const TitleIcon = styled('div')<Omit<ChartBoxIconProps, 'icon'>>(({
+  color,
+  boxSize,
+}) => {
+  return {
+    width: `${boxSize || '50px'}`,
+    height: `${boxSize || '50px'}`,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: color,
+    borderRadius: '8px',
 
-      '& .icon': {
-        width: '34px',
-        height: '34px',
-        color: 'rgba(114, 225, 40, 1)',
-      },
-    }
-  },
-)
+    '& .icon': {
+      width: '34px',
+      height: '34px',
+      color: 'rgba(114, 225, 40, 1)',
+    },
+  }
+})
 
 interface ChartBoxIconProps {
   icon: SvgIconComponent
@@ -446,7 +449,7 @@ export const TotalValueView = ({
   )
 }
 
-const Progress = styled.ul(() => {
+const Progress = styled('ul')(() => {
   return {
     display: 'flex',
     width: '100%',

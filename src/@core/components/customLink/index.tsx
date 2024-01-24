@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 export const StyledNextLink = styled(Link)<{
   color?: 'primary' | 'secondary' | 'white' | 'black'
@@ -9,8 +9,8 @@ export const StyledNextLink = styled(Link)<{
     color === 'secondary'
       ? '#6D788D'
       : color === 'white'
-      ? '#ffffff'
-      : color === 'black'
-      ? 'rgba(76, 78, 100, 0.87);'
-      : '#666cff'};
+        ? '#ffffff'
+        : color === 'black'
+          ? 'rgba(76, 78, 100, 0.87);'
+          : '#666cff'};
 `

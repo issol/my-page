@@ -1,7 +1,7 @@
 import { Box, Card, Divider, Typography } from '@mui/material'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import CustomChip from '@src/@core/components/mui/chip'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { TitleTypography } from '@src/@core/styles/typography'
 
 type Props = {

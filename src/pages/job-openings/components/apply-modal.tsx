@@ -4,7 +4,7 @@ import Chip from '@src/@core/components/mui/chip'
 import { JobPostingDetailType } from '@src/apis/jobPosting.api'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { JobOpeningDetailType } from '@src/types/pro/pro-job-openings'
-import { JobTypeColor, RoleColor } from 'src/shared/const/chipColors'
+import { JobTypeColor, RoleColor } from '@src/shared/const/chipColors'
 
 type Props = {
   onClick: any

@@ -70,10 +70,10 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
       plotOptions: {
         pie: {
           offsetX: 0,
-          offsetY: 62,
-          customScale: isNoRatio ? 1.4 : 1.5,
+          offsetY: 3,
+          customScale: isNoRatio ? 1.1 : 1.2,
           donut: {
-            size: isNoRatio ? '60%' : '45%',
+            size: '45%',
             expandOnClick: false,
             labels: {
               show: true,
@@ -101,15 +101,19 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
   }, [data, totalCount, isNoRatio])
 
   return (
-    <Box display='flex' alignItems='center' sx={{ width: '100%' }}>
+    <Box
+      display='flex'
+      alignItems='center'
+      sx={{ width: '100%', height: '70%' }}
+    >
       {data.length === 0 && <NoRatio title='' />}
       <Suspense fallback={<div>로딩 중</div>}>
         <Box>
           <CustomChart
             type='donut'
             options={options}
-            width={192}
-            heigt={176}
+            width={220}
+            heigt={350}
             series={isNoRatio ? [100] : data.map(item => item.ratio)}
           />
         </Box>

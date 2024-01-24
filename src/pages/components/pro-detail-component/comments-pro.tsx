@@ -1,16 +1,16 @@
 import Card from '@mui/material/Card'
 import Divider from '@mui/material/Divider'
 import CardContent from '@mui/material/CardContent'
-import { CommentsOnProType } from 'src/types/onboarding/list'
+import { CommentsOnProType } from '@src/types/onboarding/list'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import Button from '@mui/material/Button'
-import CustomPagination from 'src/pages/components/custom-pagination'
+import CustomPagination from '@src/pages/components/custom-pagination'
 import Grid from '@mui/material/Grid'
-import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
-import Chip from 'src/@core/components/mui/chip'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import Chip from '@src/@core/components/mui/chip'
 import { ChangeEvent, Dispatch, Fragment, SetStateAction } from 'react'
 import TextField from '@mui/material/TextField'
 import { UserDataType } from '@src/context/types'
@@ -72,6 +72,7 @@ export default function CommentsAboutPro({
   ability,
 }: Props) {
   const timezone = useRecoilValueLoadable(timezoneSelector)
+
   function getLegalName(row: {
     firstName: string
     middleName: string

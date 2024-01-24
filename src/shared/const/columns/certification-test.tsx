@@ -1,18 +1,19 @@
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { GridColumns } from '@mui/x-data-grid'
-import { CountryType, TimeZoneType } from '@src/types/sign/personalInfoTypes'
-import TestTypeChip from 'src/pages/certification-test/components/list/list-item/test-type-chip'
-import JobTypeRole from 'src/pages/components/job-type-role-chips'
 
-import { TestMaterialListType } from 'src/types/certification-test/list'
+import { CountryType, TimeZoneType } from '@src/types/sign/personalInfoTypes'
+import TestTypeChip from '@src/pages/certification-test/components/list/list-item/test-type-chip'
+import JobTypeRole from '@src/pages/components/job-type-role-chips'
+
+import { TestMaterialListType } from '@src/types/certification-test/list'
 import { convertTimeToTimezone } from '../../helpers/date.helper'
+import { GridColDef } from '@mui/x-data-grid'
 
 export const getColumns = (
   timezone: CountryType,
   timezoneList: TimeZoneType[],
 ) => {
-  const materialColumns: GridColumns<TestMaterialListType> = [
+  const materialColumns: GridColDef[] = [
     {
       flex: 0.12,
       minWidth: 100,

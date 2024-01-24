@@ -7,7 +7,7 @@ import useModal from '@src/hooks/useModal'
 import { Box, Button, Card, Grid, Typography } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** components
 import LanguagePair from '@src/pages/components/client-prices/language-pair'

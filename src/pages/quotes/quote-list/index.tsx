@@ -5,7 +5,7 @@ import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import { Card, CardHeader, Grid, Switch, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { StyledNextLink } from '@src/@core/components/customLink'
 import PageHeader from '@src/@core/components/page-header'
 

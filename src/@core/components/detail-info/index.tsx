@@ -1,5 +1,5 @@
 import { Box, Grid, Typography } from '@mui/material'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 type Props = {
   label: string
@@ -17,7 +17,7 @@ export default function DetailInfoField({ label, value, interval }: Props) {
   )
 }
 
-const LabelContainer = styled.div`
+const LabelContainer = styled('div')`
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;

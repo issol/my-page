@@ -13,7 +13,7 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { Suspense, useContext, useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -22,15 +22,15 @@ import { useRouter } from 'next/router'
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
-import FallbackSpinner from 'src/@core/components/spinner'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
+import FallbackSpinner from '@src/@core/components/spinner'
 import { toast } from 'react-hot-toast'
 
 // ** Styled Component Import
-import CustomChip from 'src/@core/components/mui/chip'
-import FileItem from 'src/@core/components/fileItem'
-import EmptyPost from 'src/@core/components/page/empty-post'
-import { StyledEditor } from 'src/@core/components/editor/customEditor'
+import CustomChip from '@src/@core/components/mui/chip'
+import FileItem from '@src/@core/components/fileItem'
+import EmptyPost from '@src/@core/components/page/empty-post'
+import { StyledEditor } from '@src/@core/components/editor/customEditor'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -41,39 +41,38 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** form
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
 import {
   clientGuidelineSchema,
   ClientGuidelineType,
-} from 'src/types/schema/client-guideline.schema'
+} from '@src/types/schema/client-guideline.schema'
 
-import { CategoryList } from 'src/shared/const/category/categories'
+import { CategoryList } from '@src/shared/const/category/categories'
 
-import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
+import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 
 // ** fetches
 import { useMutation } from 'react-query'
+// ** types
 import {
   deleteGuidelineFile,
   FilePostType,
+  FormType,
   updateGuideline,
-} from 'src/apis/client-guideline.api'
-import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
-import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
+} from '@src/apis/client-guideline.api'
+import { useGetGuideLineDetail } from '@src/queries/client-guideline.query'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import { useGetClientList } from '@src/queries/client.query'
-
-// ** types
-import { FormType } from 'src/apis/client-guideline.api'
-import { FileType } from 'src/types/common/file.type'
-import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { FileType } from '@src/types/common/file.type'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 // ** values
-import { FormErrors } from 'src/shared/const/formErrors'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 // ** helpers
-import { getFilePath } from 'src/shared/transformer/filePath.transformer'
+import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import logger from '@src/@core/utils/logger'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
@@ -149,7 +148,9 @@ const ClientGuidelineEdit = () => {
   } = useForm<ClientGuidelineType>({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(clientGuidelineSchema),
+    resolver: yupResolver(
+      clientGuidelineSchema,
+    ) as unknown as Resolver<ClientGuidelineType>,
   })
 
   function initializeValue(

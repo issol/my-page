@@ -10,16 +10,16 @@ import {
   Grid,
   IconButton,
   InputAdornment,
+  styled,
   TextField,
   Typography,
-  styled,
 } from '@mui/material'
 
 import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
 
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 import useModal from '@src/hooks/useModal'
 
@@ -28,20 +28,14 @@ import { v4 as uuidv4 } from 'uuid'
 import {
   CommonPriceUnitType,
   PriceUnitListType,
+  PriceUnitType,
   SetPriceUnit,
   SetPriceUnitPair,
   StandardPriceListType,
   SubPriceUnitType,
 } from '@src/types/common/standard-price'
 import { setPriceUnitSchema } from '@src/types/schema/price-unit.schema'
-import {
-  Controller,
-  FieldArrayWithId,
-  useFieldArray,
-  useForm,
-} from 'react-hook-form'
-
-import { PriceUnitType } from '@src/types/common/standard-price'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { SyntheticEvent, useEffect, useState } from 'react'
 import _ from 'lodash'
 
@@ -111,7 +105,9 @@ const SetPriceUnitModal = ({
   } = useForm<SetPriceUnit>({
     // defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(setPriceUnitSchema),
+    resolver: yupResolver(
+      setPriceUnitSchema,
+    ) as unknown as Resolver<SetPriceUnit>,
   })
 
   const {
@@ -149,26 +145,26 @@ const SetPriceUnitModal = ({
         typeof value.quantity === 'string' && value.quantity === '-'
           ? null
           : typeof value.quantity === 'string' && value.quantity !== '-'
-          ? value.quantity
-          : typeof value.quantity === 'number'
-          ? value.quantity.toString()
-          : null,
+            ? value.quantity
+            : typeof value.quantity === 'number'
+              ? value.quantity.toString()
+              : null,
       price:
         typeof value.price === 'string' && value.price === '-'
           ? null
           : typeof value.price === 'string' && value.price !== '-'
-          ? value.price
-          : typeof value.price === 'number'
-          ? value.price.toString()
-          : null,
+            ? value.price
+            : typeof value.price === 'number'
+              ? value.price.toString()
+              : null,
       weighting:
         typeof value.weighting === 'string' && value.weighting === '-'
           ? null
           : typeof value.weighting === 'string' && value.weighting !== '-'
-          ? value.weighting
-          : typeof value.weighting === 'number'
-          ? value.weighting.toString()
-          : null,
+            ? value.weighting
+            : typeof value.weighting === 'number'
+              ? value.weighting.toString()
+              : null,
     }))
 
     openModal({
@@ -763,12 +759,12 @@ const SetPriceUnitModal = ({
                                         {currency === 'USD'
                                           ? '($ USD)'
                                           : currency === 'KRW'
-                                          ? '(₩ KRW)'
-                                          : currency === 'JPY'
-                                          ? '(¥ JPY)'
-                                          : currency === 'SGD'
-                                          ? '($ SGD)'
-                                          : '-'}
+                                            ? '(₩ KRW)'
+                                            : currency === 'JPY'
+                                              ? '(¥ JPY)'
+                                              : currency === 'SGD'
+                                                ? '($ SGD)'
+                                                : '-'}
                                       </InputAdornment>
                                     ),
                                   }}
@@ -1102,12 +1098,12 @@ const SetPriceUnitModal = ({
                                             {currency === 'USD'
                                               ? '($ USD)'
                                               : currency === 'KRW'
-                                              ? '(₩ KRW)'
-                                              : currency === 'JPY'
-                                              ? '(¥ JPY)'
-                                              : currency === 'SGD'
-                                              ? '($ SGD)'
-                                              : '-'}
+                                                ? '(₩ KRW)'
+                                                : currency === 'JPY'
+                                                  ? '(¥ JPY)'
+                                                  : currency === 'SGD'
+                                                    ? '($ SGD)'
+                                                    : '-'}
                                           </InputAdornment>
                                         ),
                                       }}

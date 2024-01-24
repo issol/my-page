@@ -15,7 +15,7 @@ import { Icon } from '@iconify/react'
 // ** Hooks
 
 // ** layout
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 
 // ** NextJS
 import Link from 'next/link'
@@ -92,13 +92,10 @@ export default function ClientInformationHome() {
                 companyId: selected.id,
               })
                 .then(() => {
-                  toast.success(
-                    'Requested successfully.',
-                    {
-                      duration: 3000,
-                      position: 'bottom-left',
-                    },
-                  )
+                  toast.success('Requested successfully.', {
+                    duration: 3000,
+                    position: 'bottom-left',
+                  })
                   setTimeout(() => {
                     logout()
                   }, 1000)

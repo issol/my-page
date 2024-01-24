@@ -14,7 +14,7 @@ import {
 
 import useModal from '@src/hooks/useModal'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import {
   lpmCompanyAddressSchema,
@@ -40,8 +40,8 @@ import {
   getDownloadUrlforCommon,
   getUploadUrlforCommon,
   uploadFileToS3,
-} from 'src/apis/common.api'
-import { S3FileType } from 'src/shared/const/signedURLFileType'
+} from '@src/apis/common.api'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 import CompanyInfoCard from './info-card'
 import CompanyInfoOverview from './overview'
 import CompanyInfoAddress from './address'
@@ -106,7 +106,9 @@ const CompanyInfoPageComponent = () => {
     formState: { errors, isValid },
   } = useForm<Omit<CompanyInfoFormType, 'billingPlan' | 'logo' | 'address'>>({
     mode: 'onChange',
-    resolver: yupResolver(lpmCompanyInfoSchema),
+    resolver: yupResolver(lpmCompanyInfoSchema) as unknown as Resolver<
+      Omit<CompanyInfoFormType, 'billingPlan' | 'logo' | 'address'>
+    >,
   })
 
   const {
@@ -117,7 +119,9 @@ const CompanyInfoPageComponent = () => {
     formState: { errors: addressErrors, isValid: addressIsValid },
   } = useForm<{ address: Array<CompanyAddressFormType> }>({
     mode: 'onChange',
-    resolver: yupResolver(lpmCompanyAddressSchema),
+    resolver: yupResolver(lpmCompanyAddressSchema) as Resolver<{
+      address: Array<CompanyAddressFormType>
+    }>,
   })
 
   const {

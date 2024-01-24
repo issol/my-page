@@ -8,15 +8,15 @@ import {
   getOnboardingStatistic,
   getResume,
   getStatistic,
-} from 'src/apis/onboarding.api'
+} from '@src/apis/onboarding.api'
 import {
   OnboardingFilterType,
   OnboardingListType,
-} from 'src/types/onboarding/list'
+} from '@src/types/onboarding/list'
 import {
   AppliedRoleType,
   CertifiedRoleType,
-} from 'src/types/onboarding/details'
+} from '@src/types/onboarding/details'
 
 import { DetailUserType } from '@src/types/common/detail-user.type'
 

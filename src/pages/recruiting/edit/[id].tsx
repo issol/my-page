@@ -7,7 +7,6 @@ import {
   Card,
   FormHelperText,
   InputAdornment,
-  List,
   MenuItem,
   OutlinedInput,
   Select,
@@ -17,10 +16,10 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 
-import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { v4 as uuidv4 } from 'uuid'
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** React Imports
 import { useContext, useEffect, useMemo, useState } from 'react'
@@ -32,16 +31,16 @@ import { useRouter } from 'next/router'
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
 import DatePicker from 'react-datepicker'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** Styled Component Import
-import { StyledEditor } from 'src/@core/components/editor/customEditor'
-import CustomChip from 'src/@core/components/mui/chip'
-import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-import EmptyPost from 'src/@core/components/page/empty-post'
+import { StyledEditor } from '@src/@core/components/editor/customEditor'
+import CustomChip from '@src/@core/components/mui/chip'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import EmptyPost from '@src/@core/components/page/empty-post'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -52,11 +51,11 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** form
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** fetches
-import { useGetRecruitingDetail } from 'src/queries/recruiting.query'
+import { useGetRecruitingDetail } from '@src/queries/recruiting.query'
 import {
   FormType,
   StatusType,
@@ -68,22 +67,21 @@ import { useGetClientList } from '@src/queries/client.query'
 import {
   recruitingFormSchema,
   RecruitingFormType,
-} from 'src/types/schema/recruiting.schema'
-import { CountryType } from 'src/types/sign/personalInfoTypes'
+} from '@src/types/schema/recruiting.schema'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 // ** values
-import { JobList } from 'src/shared/const/job/jobs'
-import { RoleList } from 'src/shared/const/role/roles'
-import { RecruitingStatus } from 'src/shared/const/status/statuses'
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
-import { countries } from 'src/@fake-db/autocomplete'
+import { JobList } from '@src/shared/const/job/jobs'
+import { RoleList } from '@src/shared/const/role/roles'
+import { RecruitingStatus } from '@src/shared/const/status/statuses'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
+import { countries } from '@src/@fake-db/autocomplete'
 import { useMutation } from 'react-query'
 import JobPostingListModal from '../components/jobPosting-modal'
 import { useGetJobPostingList } from '@src/queries/jobs/jobPosting.query'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import { recruiting } from '@src/shared/const/permission-class'
-import logger from '@src/@core/utils/logger'
 
 import { timezoneSelector } from '@src/states/permission'
 import useModal from '@src/hooks/useModal'
@@ -248,7 +246,7 @@ export default function RecruitingEdit() {
   } = useForm<RecruitingFormType>({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(recruitingFormSchema),
+    resolver: yupResolver(recruitingFormSchema) as Resolver<RecruitingFormType>,
   })
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }

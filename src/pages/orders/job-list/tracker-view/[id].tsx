@@ -16,7 +16,7 @@ import {
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import {
   TableTitleTypography,
@@ -259,11 +259,11 @@ export default function JobTrackerDetail() {
                   row?.assignedPro?.isOnboarded && row?.assignedPro?.isActive
                     ? `/images/icons/onboarding-icons/pro-active.png`
                     : !row?.assignedPro?.isOnboarded
-                    ? `/images/icons/onboarding-icons/pro-onboarding.png`
-                    : row?.assignedPro?.isOnboarded &&
-                      !row?.assignedPro?.isActive
-                    ? `/images/icons/onboarding-icons/pro-inactive.png`
-                    : ''
+                      ? `/images/icons/onboarding-icons/pro-onboarding.png`
+                      : row?.assignedPro?.isOnboarded &&
+                          !row?.assignedPro?.isActive
+                        ? `/images/icons/onboarding-icons/pro-inactive.png`
+                        : ''
                 }
               />
             </Box>

@@ -3,7 +3,7 @@ import CleaveWrapper from '@src/@core/styles/libs/react-cleave'
 import { CreditCardFormType } from '@src/types/payment-info/client/index.type'
 import Cleave from 'cleave.js/react'
 import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 type Props = {
   control: Control<CreditCardFormType, any>
   errors: FieldErrors<CreditCardFormType>

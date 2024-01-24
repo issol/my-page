@@ -1,8 +1,8 @@
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from '@src/@core/components/mui/chip'
 
 import { v4 as uuidv4 } from 'uuid'
 
-import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 type Props = {
   user: {
@@ -40,8 +40,8 @@ const RenderRoleChips = ({ user, handleDeleteRole, handleAddRole }: Props) => {
               value.includes('TAD')
                 ? 'error'
                 : value.includes('LPM')
-                ? 'primary'
-                : 'primary'
+                  ? 'primary'
+                  : 'primary'
             }
             sx={{
               textTransform: 'capitalize',
@@ -54,8 +54,8 @@ const RenderRoleChips = ({ user, handleDeleteRole, handleAddRole }: Props) => {
               value.includes('TAD')
                 ? 'primary'
                 : value.includes('LPM')
-                ? 'error'
-                : 'primary'
+                  ? 'error'
+                  : 'primary'
             }
             onClick={() => handleAddRole(value, user)}
             aria-label='add'
@@ -88,8 +88,8 @@ const RenderRoleChips = ({ user, handleDeleteRole, handleAddRole }: Props) => {
             value.includes('TAD')
               ? 'error'
               : value.includes('LPM')
-              ? 'primary'
-              : 'primary'
+                ? 'primary'
+                : 'primary'
           }
           sx={{
             textTransform: 'capitalize',

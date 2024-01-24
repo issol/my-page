@@ -15,19 +15,19 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** Context
 
 // ** Type Imports
-import { Settings } from 'src/@core/context/settingsContext'
-import { RoleType, UserRoleType } from 'src/context/types'
+import { Settings } from '@src/@core/context/settingsContext'
+import { RoleType, UserRoleType } from '@src/context/types'
 
 // ** hooks
-import { useAppDispatch, useAppSelector } from 'src/hooks/useRedux'
+import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { Switch } from '@mui/material'
 
-import { getCurrentRole } from 'src/shared/auth/storage'
+import { getCurrentRole } from '@src/shared/auth/storage'
 import {
   useRecoilState,
   useRecoilStateLoadable,

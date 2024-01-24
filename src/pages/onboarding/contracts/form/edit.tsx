@@ -13,11 +13,11 @@ import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 import { toast } from 'react-hot-toast'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { StyledEditor } from 'src/@core/components/editor/customEditor'
-import CustomChip from 'src/@core/components/mui/chip'
+import { StyledEditor } from '@src/@core/components/editor/customEditor'
+import CustomChip from '@src/@core/components/mui/chip'
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 
@@ -31,7 +31,7 @@ import { authState } from '@src/states/auth'
 import {
   useGetContract,
   useInvalidateContractQuery,
-} from 'src/queries/contract/contract.query'
+} from '@src/queries/contract/contract.query'
 
 // ** types
 import {
@@ -41,8 +41,8 @@ import {
   ContractUpdateFormType,
   LangType,
   updateContract,
-} from 'src/apis/contract.api'
-import { FormErrors } from 'src/shared/const/formErrors'
+} from '@src/apis/contract.api'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 // ** fetches
 import { useMutation } from 'react-query'

@@ -27,9 +27,6 @@
       "apexcharts/*": [
         "./node_modules/apexcharts-clevision/*"
       ],
-      // "./src/*": [
-      //   "src/*"
-      // ],
       "@src/*": [
         "src/*"
       ]
@@ -39,8 +36,11 @@
     // "src",
     "src/**/*",
     "declaration.d.ts",
-    "global.d.ts"
+    "global.d.ts",
+    " /*.ts",
+    " /*.tsx"
   ],
+
   "exclude": [
     "node_modules"
   ]

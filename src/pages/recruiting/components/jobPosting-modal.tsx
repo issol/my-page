@@ -13,15 +13,15 @@ import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 
 // ** helpers
-import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import {
   JobTypeChip,
   renderStatusChip,
   RoleChip,
-} from 'src/@core/components/chips/chips'
+} from '@src/@core/components/chips/chips'
 
 // ** types
-import { JobPostingDataType } from 'src/apis/jobPosting.api'
+import { JobPostingDataType } from '@src/apis/jobPosting.api'
 import { useState } from 'react'
 import { Icon } from '@iconify/react'
 import { useRecoilValueLoadable } from 'recoil'

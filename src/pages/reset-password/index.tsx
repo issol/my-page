@@ -1,17 +1,15 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react'
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 import Box, { BoxProps } from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import { styled, useTheme } from '@mui/material/styles'
 import MuiCard, { CardProps } from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import themeConfig from 'src/configs/themeConfig'
-import TextField from '@mui/material/TextField'
-import Link from 'next/link'
+import themeConfig from '@src/configs/themeConfig'
 import Button from '@mui/material/Button'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 import useResetPasswordSchema from './validation'
 import FormControl from '@mui/material/FormControl'
 import OutlinedInput from '@mui/material/OutlinedInput'
@@ -22,8 +20,11 @@ import IconButton from '@mui/material/IconButton'
 import cloneDeep from 'lodash/cloneDeep'
 import { useRouter } from 'next/router'
 import { useMutation } from 'react-query'
-import { resetPassword } from 'src/apis/user.api'
-import { removeCompanyDataFromBrowser, removeUserDataFromBrowser } from 'src/shared/auth/storage'
+import { resetPassword } from '@src/apis/user.api'
+import {
+  removeCompanyDataFromBrowser,
+  removeUserDataFromBrowser,
+} from '@src/shared/auth/storage'
 
 const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -86,7 +87,7 @@ const ResetPassword = () => {
     formState: { errors, dirtyFields },
   } = useForm<ResetPasswordProps>({
     mode: 'onChange',
-    resolver: yupResolver(resetPasswordSchema),
+    resolver: yupResolver(resetPasswordSchema) as Resolver<ResetPasswordProps>,
     defaultValues: { password: null, confirmPassword: null },
   })
 

@@ -4,15 +4,15 @@ import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useRouter } from 'next/router'
-import { useGetTestDetail } from 'src/queries/certification-test/certification-test-detail.query'
+import { useGetTestDetail } from '@src/queries/certification-test/certification-test-detail.query'
 import IconButton from '@mui/material/IconButton'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import { useContext, useEffect, useState, Fragment } from 'react'
 
 import Divider from '@mui/material/Divider'
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from '@src/@core/components/mui/chip'
 
-import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { convertFromRaw, EditorState } from 'draft-js'
 import _ from 'lodash'
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -20,19 +20,19 @@ import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import styled from '@emotion/styled'
 import CardHeader from '@mui/material/CardHeader'
 import { DataGrid } from '@mui/x-data-grid/DataGrid'
-import { CurrentTestType } from 'src/types/certification-test/detail'
+import { CurrentTestType } from '@src/types/certification-test/detail'
 import Dialog from '@mui/material/Dialog'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 import List from '@mui/material/List'
 import toast from 'react-hot-toast'
-import { deleteTest } from 'src/apis/certification-test.api'
-import { getFilePath } from 'src/shared/transformer/filePath.transformer'
+import { deleteTest } from '@src/apis/certification-test.api'
+import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import axios from 'axios'
-import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
+import { getUserTokenFromBrowser } from '@src/shared/auth/storage'
 import { v4 as uuidv4 } from 'uuid'
 import { GridColumns } from '@mui/x-data-grid'
-import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 import { useMutation } from 'react-query'
 
@@ -42,8 +42,8 @@ import { useAppSelector } from '@src/hooks/useRedux'
 import logger from '@src/@core/utils/logger'
 import certification_test from '@src/shared/const/permission-class/certification-test'
 
-import { getDownloadUrlforCommon } from 'src/apis/common.api'
-import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { useRecoilValueLoadable } from 'recoil'
@@ -1019,7 +1019,7 @@ const StyledEditor = styled(EditorWrapper)<{
   }
 `
 
-const FileList = styled.div`
+const FileList = styled('div')`
   display: flex;
   width: 100%;
   margin-bottom: 8px;

@@ -33,7 +33,7 @@ import {
 } from '@mui/material'
 import { Icon } from '@iconify/react'
 import { FullDateHelper } from '@src/shared/helpers/date.helper'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import DatePicker from 'react-datepicker'
 import TmAnalysisForm from './tm-analysis-form'
 import ItemPriceUnitForm from './item-price-unit-form'
@@ -496,7 +496,7 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
-  const findCurrency = (items: ItemType[]) => {
+  const findCurrency = (items: ItemType[], detailIndex: number) => {
     // Find an item with a currency property
     const itemWithCurrency = items.find(item => item.currency)
 
@@ -507,9 +507,13 @@ const Row = ({
     // If no item with a currency property was found, look in the details
     for (const item of items) {
       if (item.detail) {
-        const detailWithCurrency = item.detail.find(
-          (detail: any) => detail.currency !== null,
+        const filteredDetails = item.detail.filter(
+          (detail, index) => index !== detailIndex,
         )
+        const detailWithCurrency = filteredDetails.find(
+          detail => detail.currency !== null,
+        )
+        console.log(detailWithCurrency)
 
         if (detailWithCurrency) {
           return detailWithCurrency.currency
@@ -525,10 +529,18 @@ const Row = ({
     currency: CurrencyType,
     index: number,
     detail: Array<ItemDetailType>,
+    // detail: FieldArrayWithId<
+    //   {
+    //     items: ItemType[]
+    //   },
+    //   `items.${number}.detail`,
+    //   'id'
+    // >,
     detailIndex: number,
   ) => {
     const items = getValues('items')
     console.log(items, 'hi')
+    console.log(detailIndex)
 
     // const currencies = items.flatMap(item =>
     //   item.detail && item.detail.length > 0
@@ -538,7 +550,7 @@ const Row = ({
     //         .map(detailItem => detailItem.currency)
     //     : [],
     // )
-    const detailCurrency = findCurrency(items)
+    const detailCurrency = findCurrency(items, detailIndex)
     console.log(detailCurrency, 'hi')
 
     // console.log(currencies, 'hi')
@@ -564,9 +576,9 @@ const Row = ({
     }
 
     //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
-    detail.map((priceUnit, idx) => {
-      setValue(`items.${index}.detail.${idx}.currency`, currency)
-    })
+    // detail.map((priceUnit, idx) => {
+    //   setValue(`items.${index}.detail.${idx}.currency`, currency)
+    // })
     itemTrigger(`items.${index}.detail`)
   }
 
@@ -811,15 +823,15 @@ const Row = ({
                                   )
                                 : null
                               : value
-                              ? contactPersonList.find(
-                                  item =>
-                                    item.value ===
-                                    teamMembers?.find(
-                                      member =>
-                                        member.type === 'projectManagerId',
-                                    )?.id!,
-                                )
-                              : null
+                                ? contactPersonList.find(
+                                    item =>
+                                      item.value ===
+                                      teamMembers?.find(
+                                        member =>
+                                          member.type === 'projectManagerId',
+                                      )?.id!,
+                                  )
+                                : null
                           }
                           renderInput={params => (
                             <TextField
@@ -1134,9 +1146,9 @@ const Row = ({
                       ? getValues(`items.${idx}.description`)
                       : '-'
                     : getValues(`items.${idx}.description`) !== '' &&
-                      getValues(`items.${idx}.description`) !== null
-                    ? getValues(`items.${idx}.description`)
-                    : '-'}
+                        getValues(`items.${idx}.description`) !== null
+                      ? getValues(`items.${idx}.description`)
+                      : '-'}
                 </Typography>
               ) : (
                 <Controller

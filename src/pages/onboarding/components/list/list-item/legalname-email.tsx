@@ -1,9 +1,9 @@
-import { OnboardingListType } from 'src/types/onboarding/list'
-import { getLegalName } from 'src/shared/helpers/legalname.helper'
+import { OnboardingListType } from '@src/types/onboarding/list'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import Box from '@mui/material/Box'
 import Link from 'next/link'
 import Typography from '@mui/material/Typography'
-import { OnboardingListCellType } from 'src/types/onboarding/list'
+import { OnboardingListCellType } from '@src/types/onboarding/list'
 
 const LegalNameEmail = ({
   row,
@@ -45,10 +45,10 @@ const LegalNameEmail = ({
             row.isOnboarded && row.isActive
               ? `/images/icons/onboarding-icons/pro-active.png`
               : !row.isOnboarded
-              ? `/images/icons/onboarding-icons/pro-onboarding.png`
-              : row.isOnboarded && !row.isActive
-              ? `/images/icons/onboarding-icons/pro-inactive.png`
-              : ''
+                ? `/images/icons/onboarding-icons/pro-onboarding.png`
+                : row.isOnboarded && !row.isActive
+                  ? `/images/icons/onboarding-icons/pro-inactive.png`
+                  : ''
           }
         />
       </Box>

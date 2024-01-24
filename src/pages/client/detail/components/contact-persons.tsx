@@ -14,7 +14,7 @@ import {
 import { TableTitleTypography } from '@src/@core/styles/typography'
 
 // ** react hook form
-import { useFieldArray, useForm, useWatch } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm, useWatch } from 'react-hook-form'
 
 // ** types & schema
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -162,7 +162,9 @@ const ContactPersons = ({
   } = useForm<ClientContactPersonType>({
     defaultValues: contactPersonDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientContactPersonSchema),
+    resolver: yupResolver(
+      clientContactPersonSchema,
+    ) as Resolver<ClientContactPersonType>,
   })
 
   const { fields, append, remove } = useFieldArray({

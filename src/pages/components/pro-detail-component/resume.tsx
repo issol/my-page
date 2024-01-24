@@ -1,23 +1,23 @@
 import Card from '@mui/material/Card'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-import { OnboardingUserType } from 'src/types/onboarding/list'
+import { OnboardingUserType } from '@src/types/onboarding/list'
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import TypoGraphy from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import { v4 as uuidv4 } from 'uuid'
-import { OnboardingProDetailsType } from 'src/types/onboarding/details'
+import { OnboardingProDetailsType } from '@src/types/onboarding/details'
 
 import Slider from 'react-slick'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { S3FileType } from 'src/shared/const/signedURLFileType'
-import { getDownloadUrlforCommon } from 'src/apis/common.api'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -147,8 +147,8 @@ export default function Resume({ userInfo, onClickResume }: Props) {
       userInfo.resume && userInfo.resume.length && userInfo.resume.length < 6
         ? userInfo.resume.length
         : userInfo.resume?.length === 0
-        ? 1
-        : 6,
+          ? 1
+          : 6,
     slidesToScroll: 6,
     nextArrow: <NextArrow />,
     prevArrow: <PrevButton />,
@@ -229,7 +229,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
   )
 }
 
-const ResumeFileName = styled.div`
+const ResumeFileName = styled('div')`
   width: 100%;
   // height: 51px;
   font-family: Inter;

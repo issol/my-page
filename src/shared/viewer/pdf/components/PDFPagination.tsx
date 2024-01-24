@@ -1,11 +1,10 @@
-import { IStyledProps } from '@cyntler/react-doc-viewer'
 import Button from '@mui/material/Button'
 import React, { FC, useContext } from 'react'
 
 import { PDFContext } from '../state'
 import { setCurrentPage } from '../state/actions'
 import { NextPDFNavIcon, PrevPDFNavIcon } from './icons'
-import styled from 'styled-components'
+import { styled } from '@mui/system'
 
 const PDFPagination: FC<{}> = () => {
   const {
@@ -40,7 +39,7 @@ const PDFPagination: FC<{}> = () => {
 
 export default PDFPagination
 
-const Container = styled.div`
+const Container = styled('div')`
   display: flex;
   align-items: center;
 `
@@ -59,12 +58,14 @@ const PageNavButtonRight = styled(PageNavButtonLeft)`
   margin: 0 20px 0 5px;
 `
 
-const PageTag = styled.div`
-  color: ${(props: IStyledProps) => props.theme.textPrimary};
-  font-size: 14px;
-  text-align: left;
+const PageTag = styled('div')(({ theme }) => {
+  return {
+    color: theme.palette.text.primary,
+    fontSize: '14px',
+    textAlign: 'left',
 
-  @media (max-width: 768px) {
-    font-size: 10px;
+    '@media (max-width: 768px)': {
+      fontSize: '10px',
+    },
   }
-`
+})

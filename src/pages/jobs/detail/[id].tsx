@@ -24,7 +24,7 @@ import {
   useEffect,
 } from 'react'
 import { useQueryClient } from 'react-query'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'

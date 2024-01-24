@@ -13,7 +13,7 @@ import TablePagination from '@mui/material/TablePagination'
 import { Box, Grid, Typography } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** parent value imports
 import { HeaderCell } from '@src/pages/orders/add-new'
@@ -89,38 +89,39 @@ export default function LanguagePairTable({ languagePairs, items }: Props) {
                   </TableCell>
                 </TableRow>
               ) : null}
-              {items && items
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, idx) => {
-                  return (
-                    <TableRow hover tabIndex={-1} key={row.id}>
-                      <TableCell>
-                        <Box display='flex' alignItems='center' gap='4px'>
-                          <Typography fontWeight='bold' variant='body2'>
-                            {/* {languageHelper(row.source)} */}
-                            {languageHelper(items?.[idx].sourceLanguage)}
-                          </Typography>
+              {items &&
+                items
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, idx) => {
+                    return (
+                      <TableRow hover tabIndex={-1} key={row.id}>
+                        <TableCell>
+                          <Box display='flex' alignItems='center' gap='4px'>
+                            <Typography fontWeight='bold' variant='body2'>
+                              {/* {languageHelper(row.source)} */}
+                              {languageHelper(items?.[idx].sourceLanguage)}
+                            </Typography>
 
-                          <Icon
-                            icon='material-symbols:arrow-forward'
-                            fontSize='20px'
-                            opacity={0.7}
-                          />
-                          <Typography fontWeight='bold' variant='body2'>
-                            {/* {languageHelper(row.target)} */}
-                            {languageHelper(items?.[idx].targetLanguage)}
+                            <Icon
+                              icon='material-symbols:arrow-forward'
+                              fontSize='20px'
+                              opacity={0.7}
+                            />
+                            <Typography fontWeight='bold' variant='body2'>
+                              {/* {languageHelper(row.target)} */}
+                              {languageHelper(items?.[idx].targetLanguage)}
+                            </Typography>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant='body1' fontSize={14}>
+                            {/* {row.price?.name} */}
+                            {items?.[idx].initialPrice?.name}
                           </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant='body1' fontSize={14}>
-                          {/* {row.price?.name} */}
-                          {items?.[idx].initialPrice?.name}
-                        </Typography>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
             </TableBody>
           </Table>
         </TableContainer>

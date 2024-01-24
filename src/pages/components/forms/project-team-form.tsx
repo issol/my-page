@@ -36,10 +36,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import { getUserInfo } from '@src/apis/user.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useEffect, useState } from 'react'
@@ -155,6 +155,7 @@ export default function ProjectTeamForm({
     }
     return findValue || { value: 0, label: '', jobTitle: '' }
   }
+
   function renderMemberField(name: `teams.${number}.id`, idx: number) {
     return (
       <Controller
@@ -274,8 +275,8 @@ export default function ProjectTeamForm({
                   {item.type === 'supervisorId'
                     ? 'Supervisor'
                     : item.type === 'projectManagerId'
-                    ? 'Project manager*'
-                    : 'Team member'}
+                      ? 'Project manager*'
+                      : 'Team member'}
                 </Typography>
               </TableCell>
               <TableCell align='left'>

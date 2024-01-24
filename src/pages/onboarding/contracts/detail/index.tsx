@@ -16,12 +16,12 @@ import { useRouter } from 'next/router'
 import { convertFromRaw, EditorState } from 'draft-js'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { StyledViewer } from 'src/@core/components/editor/customEditor'
-import FallbackSpinner from 'src/@core/components/spinner'
-import CustomChip from 'src/@core/components/mui/chip'
+import { StyledViewer } from '@src/@core/components/editor/customEditor'
+import FallbackSpinner from '@src/@core/components/spinner'
+import CustomChip from '@src/@core/components/mui/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -32,14 +32,14 @@ import Icon from 'src/@core/components/icon'
 
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
-import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** fetcher
 import {
   useInvalidateContractQuery,
   useGetContract,
-} from 'src/queries/contract/contract.query'
+} from '@src/queries/contract/contract.query'
 
 // ** types
 import {
@@ -49,7 +49,7 @@ import {
   restoreContract,
   ContractTypeEnum,
   ContractLangEnum,
-} from 'src/apis/contract.api'
+} from '@src/apis/contract.api'
 import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { contract as Contract } from '@src/shared/const/permission-class'

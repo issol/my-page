@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react'
 
 import { Icon } from '@iconify/react'
 import { LinkType } from 'src/types/schema/jobPosting.schema'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 type Props = {
   savedLink: { id?: string | number; category: string; link: string }

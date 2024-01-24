@@ -31,7 +31,7 @@ import {
   TableRow,
   Typography,
 } from '@mui/material'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** store
 import { useAppDispatch } from '@src/hooks/useRedux'
@@ -277,10 +277,12 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                       splitContryCodeAndPhoneNumber(data.contactPerson.mobile),
                     )
                   : data?.client?.client?.mobile
-                  ? contryCodeAndPhoneNumberFormatter(
-                      splitContryCodeAndPhoneNumber(data.client.client.mobile),
-                    )
-                  : '-'}
+                    ? contryCodeAndPhoneNumberFormatter(
+                        splitContryCodeAndPhoneNumber(
+                          data.client.client.mobile,
+                        ),
+                      )
+                    : '-'}
               </Typography>
             </Box>
           </Grid>

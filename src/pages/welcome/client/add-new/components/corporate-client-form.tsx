@@ -16,8 +16,8 @@ import {
   corporateClientInfoSchema,
 } from '@src/types/schema/client-info/corporate-company-info.schema'
 import {
-  getClientCompanyInfoDefaultValue,
   clientCompanyInfoSchema,
+  getClientCompanyInfoDefaultValue,
 } from '@src/types/schema/client-info/client-company-info.schema'
 
 // ** components
@@ -26,7 +26,7 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 // ** hooks
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import useModal from '@src/hooks/useModal'
 
 // ** apis
@@ -37,9 +37,9 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { isEmpty } from 'lodash'
 import ClientCompanyInfoForm from '@src/pages/client/components/forms/client-info/client-company-info-form'
 import {
-  ClientAddressFormType,
   clientAddressAllRequiredSchema,
   clientAddressDefaultValue,
+  ClientAddressFormType,
 } from '@src/types/schema/client-address.schema'
 
 import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
@@ -75,7 +75,9 @@ export default function CorporateClientForm({
   } = useForm<CorporateClientInfoType>({
     defaultValues: corporateClientDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(corporateClientInfoSchema),
+    resolver: yupResolver(
+      corporateClientInfoSchema,
+    ) as unknown as Resolver<CorporateClientInfoType>,
   })
 
   const {
@@ -87,7 +89,9 @@ export default function CorporateClientForm({
   } = useForm<ClientCompanyInfoType>({
     defaultValues: getClientCompanyInfoDefaultValue(clientType),
     mode: 'onChange',
-    resolver: yupResolver(clientCompanyInfoSchema),
+    resolver: yupResolver(
+      clientCompanyInfoSchema,
+    ) as Resolver<ClientCompanyInfoType>,
   })
 
   const {
@@ -97,7 +101,9 @@ export default function CorporateClientForm({
   } = useForm<ClientAddressFormType>({
     defaultValues: clientAddressDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientAddressAllRequiredSchema),
+    resolver: yupResolver(
+      clientAddressAllRequiredSchema,
+    ) as Resolver<ClientAddressFormType>,
   })
 
   const [checked, setChecked] = useState(false)
@@ -119,12 +125,13 @@ export default function CorporateClientForm({
   }
   function handleVerify() {
     const corporateCompanyInfo = getValues()
-    corporateCompanyInfo.commencementDate = formatDateToYYYYMMDD(corporateCompanyInfo.commencementDate)
+    corporateCompanyInfo.commencementDate = formatDateToYYYYMMDD(
+      corporateCompanyInfo.commencementDate,
+    )
     verifyCompanyInfo(corporateCompanyInfo)
       .then(res => {
-        if(res) setActiveStep(2)
+        if (res) setActiveStep(2)
         else verifyFailModal()
-        
       })
       .catch(e => {
         verifyFailModal()

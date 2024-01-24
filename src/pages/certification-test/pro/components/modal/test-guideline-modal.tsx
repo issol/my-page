@@ -24,7 +24,7 @@ import { EditorState, convertFromRaw } from 'draft-js'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from '@src/@core/components/mui/chip'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {

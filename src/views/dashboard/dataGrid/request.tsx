@@ -6,7 +6,7 @@ import {
   GridRowsProp,
 } from '@mui/x-data-grid'
 import { RequestColumns } from '@src/shared/const/columns/dashboard'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import React, { Suspense, useState } from 'react'
 import { useDashboardRequest } from '@src/queries/dashnaord.query'
 import { useRouter } from 'next/router'

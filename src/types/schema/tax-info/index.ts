@@ -10,6 +10,8 @@ import { usTaxSchema } from './us-tax.schema'
 import { singaporeTaxSchema } from './singapore-tax.schema'
 import { japanTaxSchema } from './japan-tax.schema'
 import { payPalSchema } from '../payment-method/client/paypal.schema'
+import { Resolver } from 'react-hook-form'
+import { ObjectSchema } from 'yup'
 
 export const clientTaxInitialData = (type: OfficeType) => {
   switch (type) {
@@ -53,7 +55,10 @@ export const clientTaxInitialData = (type: OfficeType) => {
   }
 }
 
-export function getTaxInfoSchema(type: OfficeType, host?: 'client' | 'lpm') {
+export function getTaxInfoSchema(
+  type: OfficeType,
+  host?: 'client' | 'lpm',
+): ObjectSchema<any> {
   switch (type) {
     case 'Korea':
       if (host === 'client') {

@@ -2,14 +2,14 @@ import React from 'react'
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 
 import { Alert, Grid } from '@mui/material'
-import CardSnippet from 'src/@core/components/card-snippet'
+import CardSnippet from '@src/@core/components/card-snippet'
 
 // ** Custom Components Imports
-import ReactApexcharts from 'src/@core/components/react-apexcharts'
+import ReactApexcharts from '@src/@core/components/react-apexcharts'
 
 import { ApexOptions } from 'apexcharts'
-import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
-import DefaultPalette from 'src/@core/theme/palette'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
+import DefaultPalette from '@src/@core/theme/palette'
 
 const palette = DefaultPalette('light', 'default')
 const series = [{ data: [38, 55, 48, 65, 80, 38, 48] }]
@@ -147,11 +147,11 @@ const source = (
     <code className='language-jsx'>{`
 // ** Custom Components Imports
 // ** Custom Components Imports
-import ReactApexcharts from 'src/@core/components/react-apexcharts'
+import ReactApexcharts from '@src/@core/components/react-apexcharts'
 
 import { ApexOptions } from 'apexcharts'
-import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
-import DefaultPalette from 'src/@core/theme/palette'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
+import DefaultPalette from '@src/@core/theme/palette'
 
 const palette = DefaultPalette('light', 'default')
 const series = [{ data: [38, 55, 48, 65, 80, 38, 48] }]

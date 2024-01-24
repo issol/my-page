@@ -13,7 +13,7 @@ import {
   removeRedirectPath,
   getCompanyDataFromBrowser,
   removeCompanyDataFromBrowser,
-} from 'src/shared/auth/storage'
+} from '@src/shared/auth/storage'
 
 import { useGetClientUserInfo } from '@src/queries/common.query'
 

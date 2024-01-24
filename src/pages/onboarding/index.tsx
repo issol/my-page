@@ -1,14 +1,14 @@
 import { Grid, IconButton, Typography } from '@mui/material'
 
-import PageHeader from 'src/@core/components/page-header'
+import PageHeader from '@src/@core/components/page-header'
 import OnboardingDashboard from './components/list/dashboard'
 import Filters from './components/list/filters'
 import OnboardingList from './components/list/list'
 import { SyntheticEvent, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { JobList } from 'src/shared/const/job/jobs'
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+import { JobList } from '@src/shared/const/job/jobs'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import {
   FilterType,
   OnboardingFilterType,
@@ -16,19 +16,19 @@ import {
   OnboardingListType,
   RoleSelectType,
   SelectType,
-} from 'src/types/onboarding/list'
+} from '@src/types/onboarding/list'
 import {
   useGetOnboardingProList,
   useGetOnboardingStatistic,
   useGetStatistic,
-} from 'src/queries/onboarding/onboarding-query'
+} from '@src/queries/onboarding/onboarding-query'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import { GridColumns } from '@mui/x-data-grid'
 import Box from '@mui/material/Box'
 import LegalNameEmail from './components/list/list-item/legalname-email'
 import JobTypeRole from '../components/job-type-role-chips'
 import TestStatus from './components/list/list-item/test-status'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import { useQueryClient } from 'react-query'
 
 const defaultValues: FilterType = {

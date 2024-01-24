@@ -6,23 +6,23 @@ import Box, { BoxProps } from '@mui/material/Box'
 import MuiToolbar, { ToolbarProps } from '@mui/material/Toolbar'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** Theme Config Import
-import themeConfig from 'src/configs/themeConfig'
+import themeConfig from '@src/configs/themeConfig'
 
 // ** Type Import
-import { LayoutProps } from 'src/@core/layouts/types'
+import { LayoutProps } from '@src/@core/layouts/types'
 
 // ** Components
-import Customizer from 'src/@core/components/customizer'
+import Customizer from '@src/@core/components/customizer'
 import Footer from './components/shared-components/footer'
 import Navigation from './components/horizontal/navigation'
-import ScrollToTop from 'src/@core/components/scroll-to-top'
+import ScrollToTop from '@src/@core/components/scroll-to-top'
 import AppBarContent from './components/horizontal/app-bar-content'
 
 // ** Util Import
-import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import { useEffect, useRef } from 'react'
 import HorizontalNavItems from '@src/navigation/horizontal'
 import {
@@ -110,8 +110,8 @@ const HorizontalLayout = (props: LayoutProps) => {
       currentRoleState.state === 'hasValue'
         ? currentRoleState.getValue()
         : currentRoleStorage
-        ? currentRoleStorage
-        : null
+          ? currentRoleStorage
+          : null
 
     if (permission.state === 'hasValue' && current) {
       switch (current.name) {

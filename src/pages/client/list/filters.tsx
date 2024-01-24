@@ -21,7 +21,7 @@ import {
 } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import { FilterType } from '..'
 import { ClientStatus } from '@src/shared/const/status/statuses'
 

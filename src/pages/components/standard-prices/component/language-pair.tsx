@@ -44,7 +44,7 @@ import {
 } from 'react'
 
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import LanguagePairActionModal from '../../standard-prices-modal/modal/language-pair-action-modal'
 import {
@@ -171,8 +171,8 @@ const LanguagePair = ({
     return isEditMode
       ? 'edit-row'
       : params.field === 'action'
-      ? 'action-row'
-      : ''
+        ? 'action-row'
+        : ''
   }
 
   const [editRowsModel, setEditRowsModel] = useState<GridEditRowsModel>({})

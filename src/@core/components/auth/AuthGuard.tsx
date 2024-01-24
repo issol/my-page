@@ -9,7 +9,7 @@ import { useRouter } from 'next/router'
 import {
   getUserDataFromBrowser,
   setRedirectPath,
-} from 'src/shared/auth/storage'
+} from '@src/shared/auth/storage'
 
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'

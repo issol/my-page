@@ -1,6 +1,6 @@
 import { DocRenderer } from '@cyntler/react-doc-viewer'
 import React from 'react'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 import ImageProxyRenderer from '../image'
 

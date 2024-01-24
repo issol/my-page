@@ -36,7 +36,7 @@ import {
 } from 'react-hook-form'
 
 // ** Data
-import { countries } from 'src/@fake-db/autocomplete'
+import { countries } from '@src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 import MuiPhone from '../phone/mui-phone'

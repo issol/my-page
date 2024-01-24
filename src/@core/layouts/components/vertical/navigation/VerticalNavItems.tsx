@@ -4,7 +4,7 @@ import {
   NavGroup,
   LayoutProps,
   NavSectionTitle,
-} from 'src/@core/layouts/types'
+} from '@src/@core/layouts/types'
 
 // ** Custom Menu Components
 import VerticalNavLink from './VerticalNavLink'

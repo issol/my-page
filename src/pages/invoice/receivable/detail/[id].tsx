@@ -6,9 +6,9 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  styled,
   Tab,
   Typography,
-  styled,
 } from '@mui/material'
 import {
   useGetReceivableClient,
@@ -20,12 +20,12 @@ import {
 import { useRouter } from 'next/router'
 import InvoiceInfo from './components/invoice-info'
 import {
-  useState,
   MouseEvent,
+  Suspense,
   SyntheticEvent,
   useContext,
   useEffect,
-  Suspense,
+  useState,
 } from 'react'
 import TabPanel from '@mui/lab/TabPanel'
 import { Icon } from '@iconify/react'
@@ -37,13 +37,13 @@ import InvoiceLanguageAndItem from './components/language-item'
 import { ItemType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema } from '@src/types/schema/item.schema'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { defaultOption, languageType } from '../add-new'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   MemberType,
-  ProjectTeamType,
   projectTeamSchema,
+  ProjectTeamType,
 } from '@src/types/schema/project-team.schema'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRecoilValueLoadable } from 'recoil'
@@ -60,7 +60,6 @@ import {
 } from '@src/types/invoice/receivable.type'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import InvoiceVersionHistory from './components/version-history'
-import VersionHistoryModal from '@src/pages/quotes/detail/components/version-history-detail'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import { useMutation, useQueryClient } from 'react-query'
@@ -91,18 +90,15 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import Link from 'next/link'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import {
-  account_manage,
   invoice_receivable,
   invoice_receivable_accounting_info,
 } from '@src/shared/const/permission-class'
 import { useGetStatusList } from '@src/queries/common.query'
-import { StyledNextLink } from '@src/@core/components/customLink'
 
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { InvoiceReceivableChip } from '@src/@core/components/chips/chips'
 import ClientInvoice from './components/client-invoice'
 import { StandardPriceListType } from '@src/types/common/standard-price'
-import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import PrintInvoicePage from './invoice-print/print-page'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import SelectOrder from '../components/list/select-order'
@@ -427,7 +423,9 @@ const ReceivableInvoiceDetail = () => {
   } = useForm<InvoiceProjectInfoFormType>({
     mode: 'onChange',
     defaultValues: invoiceProjectInfoDefaultValue,
-    resolver: yupResolver(invoiceProjectInfoSchema),
+    resolver: yupResolver(
+      invoiceProjectInfoSchema,
+    ) as unknown as Resolver<InvoiceProjectInfoFormType>,
   })
 
   const {
@@ -440,7 +438,10 @@ const ReceivableInvoiceDetail = () => {
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(itemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
   })
 
   const {
@@ -487,7 +488,7 @@ const ReceivableInvoiceDetail = () => {
         { type: 'member', id: null },
       ],
     },
-    resolver: yupResolver(projectTeamSchema),
+    resolver: yupResolver(projectTeamSchema) as Resolver<ProjectTeamType>,
   })
 
   const {
@@ -515,7 +516,7 @@ const ReceivableInvoiceDetail = () => {
       contactPersonId: null,
       addressType: 'shipping',
     },
-    resolver: yupResolver(clientSchema),
+    resolver: yupResolver(clientSchema) as Resolver<ClientFormType>,
   })
 
   const versionHistoryColumns: GridColumns<InvoiceVersionHistoryType> = [
@@ -906,8 +907,8 @@ const ReceivableInvoiceDetail = () => {
           item.position === 'projectManager'
             ? 'projectManagerId'
             : item.position === 'supervisor'
-            ? 'supervisorId'
-            : 'member',
+              ? 'supervisorId'
+              : 'member',
         id: item.userId,
         name: getLegalName({
           firstName: item?.firstName!,
@@ -1073,7 +1074,7 @@ const ReceivableInvoiceDetail = () => {
                 priceInfo?.currency ?? 'USD',
               )
             : formatCurrency(
-               subtotal,
+                subtotal,
                 // formatByRoundingProcedure(
                 //   subtotal,
                 //   priceInfo?.decimalPlace ?? 0,

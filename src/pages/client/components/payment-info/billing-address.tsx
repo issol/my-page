@@ -1,12 +1,13 @@
-import { Box, Grid, Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { ContentGrid, CopyTextRow } from '@src/views/pro/payment-info'
 
 interface BillingAddressProps {
   onCopy?: (info: string) => void
   billingAddress: ClientAddressType | undefined
 }
+
 const BillingAddress = ({ billingAddress, onCopy }: BillingAddressProps) => {
   const renderInfo = (label: string, value: string | null | undefined) => {
     return (
@@ -67,7 +68,7 @@ const BillingAddress = ({ billingAddress, onCopy }: BillingAddressProps) => {
   )
 }
 
-const LabelContainer = styled.div`
+const LabelContainer = styled('div')`
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;

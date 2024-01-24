@@ -8,7 +8,7 @@ import clsx from 'clsx'
 import { CustomChipProps } from './types'
 
 // ** Hooks Imports
-import useBgColor, { UseBgColorType } from 'src/@core/hooks/useBgColor'
+import useBgColor, { UseBgColorType } from '@src/@core/hooks/useBgColor'
 import { createTheme } from '@mui/material/styles'
 
 const Chip = (props: CustomChipProps) => {

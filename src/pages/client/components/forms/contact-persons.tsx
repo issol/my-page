@@ -22,7 +22,7 @@ import {
 } from '@src/types/schema/client-contact-person.schema'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** react hook form
 import {
@@ -38,7 +38,7 @@ import {
 } from 'react-hook-form'
 
 // ** helper
-import { getLegalName } from 'src/shared/helpers/legalname.helper'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 import useModal from '@src/hooks/useModal'
 

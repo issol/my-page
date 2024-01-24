@@ -10,7 +10,7 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import FullCalendar from '@fullcalendar/react'
 import dayjs from 'dayjs'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 
@@ -100,12 +100,12 @@ const CustomCalenderToolbar = forwardRef(
   },
 )
 
-const CalenderTitle = styled.h4`
+const CalenderTitle = styled('h4')`
   font-size: 20px;
   font-weight: 500;
 `
 
-const ButtonGroup = styled.div`
+const ButtonGroup = styled('div')`
   width: 56px;
   display: flex;
   align-items: center;
@@ -113,7 +113,7 @@ const ButtonGroup = styled.div`
   margin-right: 10px;
 `
 
-const Button = styled.button<{ disabled: boolean }>(disabled => ({
+const Button = styled('button')<{ disabled: boolean }>(disabled => ({
   background: 'none',
   border: 'none',
   cursor: 'pointer',

@@ -2,12 +2,13 @@ import { Card, Grid } from '@mui/material'
 import { Box } from '@mui/system'
 import Link from 'next/link'
 
-import styled from '@emotion/styled'
-import CardNormal from 'src/@core/components/card-statistics/card-normal'
+import { styled } from '@mui/system'
+import CardNormal from '@src/@core/components/card-statistics/card-normal'
 
-import Overview from 'src/@core/components/card-statistics/card-overview'
+import Overview from '@src/@core/components/card-statistics/card-overview'
 
 import logger from '@src/@core/utils/logger'
+
 type Props = {
   totalStatistics: { todayRegisteredUser: number; totalUser: number }
   onboardingStatistic: { onboarded: number; testing: number; waiting: number }

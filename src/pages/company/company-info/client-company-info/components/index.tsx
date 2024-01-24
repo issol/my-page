@@ -33,7 +33,7 @@ import {
 } from 'react'
 
 import useModal from '@src/hooks/useModal'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 import { useRecoilValueLoadable } from 'recoil'
@@ -42,7 +42,7 @@ import { useMutation, useQueryClient } from 'react-query'
 
 import { getCurrentRole } from '@src/shared/auth/storage'
 
-import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 import {
@@ -146,7 +146,9 @@ export default function ClientCompanyInfoPageComponent() {
       auth.getValue().company?.businessClassification ?? 'corporate',
     ),
     mode: 'onChange',
-    resolver: yupResolver(clientCompanyInfoSchema),
+    resolver: yupResolver(
+      clientCompanyInfoSchema,
+    ) as Resolver<ClientCompanyInfoType>,
   })
 
   const companyInfoAddressDefaultValue: ClientAddressFormType = {
@@ -165,7 +167,9 @@ export default function ClientCompanyInfoPageComponent() {
   } = useForm<ClientAddressFormType>({
     defaultValues: companyInfoAddressDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientAddressAllRequiredSchema),
+    resolver: yupResolver(
+      clientAddressAllRequiredSchema,
+    ) as Resolver<ClientAddressFormType>,
   })
 
   function resetCompanyInfoForm() {
@@ -194,7 +198,7 @@ export default function ClientCompanyInfoPageComponent() {
         }))
         .filter(i => i.addressType !== 'billing')
       resetAddress({
-        clientAddresses: filteredAddress
+        clientAddresses: filteredAddress,
       })
       filteredAddress?.map((address, idx) => {
         update(idx, { ...address })
@@ -274,9 +278,7 @@ export default function ClientCompanyInfoPageComponent() {
 
   return (
     <Suspense fallback={<FallbackSpinner />}>
-      {updateClientMutation.isLoading ? (
-        <OverlaySpinner />
-      ) : null}
+      {updateClientMutation.isLoading ? <OverlaySpinner /> : null}
       <ConfirmLeaveModal />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <CompanyInfoCard companyInfo={auth.getValue().company!} />

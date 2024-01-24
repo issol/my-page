@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { ComponentMeta } from '@storybook/react'
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Divider, Grid } from '@mui/material'
 import ProProfileForm from '@src/pages/components/forms/pro/profile.form'
@@ -62,7 +62,9 @@ export const Default = () => {
       timezone: { code: '', label: '' },
     },
     mode: 'onChange',
-    resolver: yupResolver(getProfileSchema('edit')),
+    resolver: yupResolver(getProfileSchema('edit')) as Resolver<
+      Omit<PersonalInfo, 'address'>
+    >,
   })
   return (
     <Grid container spacing={6}>

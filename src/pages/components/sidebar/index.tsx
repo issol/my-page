@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 
 // ** styles
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** types
 import { Button } from '@mui/material'

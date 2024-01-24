@@ -2,7 +2,7 @@ import { Box, BoxProps, Button, Link, Typography } from '@mui/material'
 import BlankLayout from '@src/@core/layouts/BlankLayout'
 import { NextPage } from 'next'
 import { ReactNode } from 'react'
-import styled from 'styled-components'
+import { styled } from '@mui/system'
 
 interface Props {
   statusCode?: number

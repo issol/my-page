@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography'
 import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import StandardPrices from '@src/pages/components/standard-prices'
 
 // ** fetches
@@ -21,6 +21,7 @@ import { useGetPriceUnitList } from '@src/queries/price-units.query'
 import PriceUnits from '../components/price/price-units'
 
 import { useRouter } from 'next/router'
+
 type tabMenu = '1' | '2' | '3'
 
 export default function Price() {

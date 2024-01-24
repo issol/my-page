@@ -6,7 +6,7 @@ import Icon from '@src/@core/components/icon'
 import { useState } from 'react'
 import Slider from 'react-slick'
 import { v4 as uuidv4 } from 'uuid'
-import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 type Props = {
   resume: Array<{
@@ -16,13 +16,16 @@ type Props = {
     url: string
     fileExtension: string
   }>
-  onClickFile: (file: {
-    id: number
-    url: string
-    filePath: string
-    fileName: string
-    fileExtension: string
-  }, fileType: string) => void
+  onClickFile: (
+    file: {
+      id: number
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    },
+    fileType: string,
+  ) => void
 }
 
 const ListResume = ({ resume, onClickFile }: Props) => {
@@ -36,8 +39,8 @@ const ListResume = ({ resume, onClickFile }: Props) => {
       direction === 'prev'
         ? Math.max(page - 1, 0)
         : direction === 'next'
-        ? page + 1
-        : 0
+          ? page + 1
+          : 0
 
     setPage(changedPage)
   }
@@ -100,8 +103,8 @@ const ListResume = ({ resume, onClickFile }: Props) => {
       resume && resume.length && resume.length < 3
         ? resume.length
         : resume?.length === 0
-        ? 1
-        : 3,
+          ? 1
+          : 3,
     slidesToScroll: 3,
     nextArrow: <NextArrow />,
     prevArrow: <PrevButton />,

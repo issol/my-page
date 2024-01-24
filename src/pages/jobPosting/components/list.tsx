@@ -5,21 +5,21 @@ import { DataGrid, GridRowParams } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 
 // ** custom component
-import { StyledNextLink } from 'src/@core/components/customLink'
+import { StyledNextLink } from '@src/@core/components/customLink'
 
 // ** helpers
-import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import {
   JobTypeChip,
   renderStatusChip,
   RoleChip,
-} from 'src/@core/components/chips/chips'
+} from '@src/@core/components/chips/chips'
 
 // ** nextJS
 import { useRouter } from 'next/router'
 
 // ** types
-import { JobPostingDataType } from 'src/apis/jobPosting.api'
+import { JobPostingDataType } from '@src/apis/jobPosting.api'
 import { timezoneSelector } from '@src/states/permission'
 import { useRecoilValueLoadable } from 'recoil'
 

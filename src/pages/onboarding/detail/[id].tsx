@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 
 import { Box } from '@mui/system'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import toast from 'react-hot-toast'
 
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
@@ -12,7 +12,7 @@ import {
   AddRolePayloadType,
   AddRoleType,
   CommentsOnProType,
-} from 'src/types/onboarding/list'
+} from '@src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 
 import TestDetailsModal from '../../components/pro-detail-modal/dialog/test-details-modal'
@@ -21,17 +21,17 @@ import {
   useGetAppliedRole,
   useGetCertifiedRole,
   useGetOnboardingProDetails,
-} from 'src/queries/onboarding/onboarding-query'
+} from '@src/queries/onboarding/onboarding-query'
 import AppliedRoleModal from '../../components/pro-detail-modal/dialog/applied-role-modal'
-import { RoleType } from 'src/context/types'
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+import { RoleType } from '@src/context/types'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 
-import { getLegalName } from 'src/shared/helpers/legalname.helper'
-import FallbackSpinner from 'src/@core/components/spinner'
-import Icon from 'src/@core/components/icon'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import FallbackSpinner from '@src/@core/components/spinner'
+import Icon from '@src/@core/components/icon'
 import IconButton from '@mui/material/IconButton'
 
-import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
+import { AppliedRoleType, TestType } from '@src/types/onboarding/details'
 import {
   addCommentOnPro,
   addCreateProAppliedRole,
@@ -40,7 +40,7 @@ import {
   editCommentOnPro,
   patchAppliedRole,
   patchTestStatus,
-} from 'src/apis/onboarding.api'
+} from '@src/apis/onboarding.api'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
@@ -61,7 +61,7 @@ import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
 
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { getDownloadUrlforCommon } from 'src/apis/common.api'
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -231,8 +231,8 @@ function OnboardingDetail() {
       direction === 'prev'
         ? Math.max(rolePage - 1, 0)
         : direction === 'next'
-        ? rolePage + 1
-        : 0
+          ? rolePage + 1
+          : 0
 
     setRolePage(changedPage)
     setSelectedJobInfo(null)
@@ -243,8 +243,8 @@ function OnboardingDetail() {
       direction === 'prev'
         ? Math.max(commentsProPage - 1, 0)
         : direction === 'next'
-        ? commentsProPage + 1
-        : 0
+          ? commentsProPage + 1
+          : 0
 
     setCommentsProPage(changedPage)
   }
@@ -533,12 +533,12 @@ function OnboardingDetail() {
               {type === 'Skipped'
                 ? 'you want to skip'
                 : type === 'Basic test Ready'
-                ? 'you want to proceed'
-                : type === 'Basic failed'
-                ? 'you want to fail'
-                : type === 'Basic passed'
-                ? 'to proceed'
-                : null}
+                  ? 'you want to proceed'
+                  : type === 'Basic failed'
+                    ? 'you want to fail'
+                    : type === 'Basic passed'
+                      ? 'to proceed'
+                      : null}
               &nbsp;this basic test?
               <Typography
                 variant='body2'
@@ -570,12 +570,12 @@ function OnboardingDetail() {
             type === 'Skipped'
               ? 'Skip'
               : type === 'Basic test Ready'
-              ? 'Proceed'
-              : type === 'Basic failed'
-              ? 'Fail'
-              : type === 'Basic passed'
-              ? 'Pass'
-              : ''
+                ? 'Proceed'
+                : type === 'Basic failed'
+                  ? 'Fail'
+                  : type === 'Basic passed'
+                    ? 'Pass'
+                    : ''
           }
         />
       ),
@@ -665,23 +665,23 @@ function OnboardingDetail() {
             type === 'Awaiting assignment'
               ? 'Cancel'
               : type === 'Skill test Ready'
-              ? 'Proceed'
-              : type === 'Skill failed'
-              ? 'Fail'
-              : type === 'Cancelled'
-              ? 'Cancel'
-              : ''
+                ? 'Proceed'
+                : type === 'Skill failed'
+                  ? 'Fail'
+                  : type === 'Cancelled'
+                    ? 'Cancel'
+                    : ''
           }
           leftButtonText={
             type === 'Awaiting assignment'
               ? 'No'
               : type === 'Skill test Ready'
-              ? 'Cancel'
-              : type === 'Skill failed'
-              ? 'Cancel'
-              : type === 'Cancelled'
-              ? 'No'
-              : ''
+                ? 'Cancel'
+                : type === 'Skill failed'
+                  ? 'Cancel'
+                  : type === 'Cancelled'
+                    ? 'No'
+                    : ''
           }
         />
       ),
@@ -966,10 +966,10 @@ function OnboardingDetail() {
                           userInfo!.isOnboarded && userInfo!.isActive
                             ? `/images/icons/onboarding-icons/pro-active.png`
                             : !userInfo!.isOnboarded
-                            ? `/images/icons/onboarding-icons/pro-onboarding.svg`
-                            : userInfo!.isOnboarded && !userInfo!.isActive
-                            ? `/images/icons/onboarding-icons/pro-inactive.png`
-                            : ''
+                              ? `/images/icons/onboarding-icons/pro-onboarding.svg`
+                              : userInfo!.isOnboarded && !userInfo!.isActive
+                                ? `/images/icons/onboarding-icons/pro-inactive.png`
+                                : ''
                         }
                         alt='onboarding'
                       />

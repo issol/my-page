@@ -3,7 +3,7 @@ import AlertIcon, { AlertType } from '@src/@core/components/alert-icon'
 import { SmallModalContainer } from '@src/pages/client/components/modals/add-confirm-with-title-modal'
 import Dialog from '@mui/material/Dialog'
 import { Fragment } from 'react'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 type Props = {
   vary?: AlertType

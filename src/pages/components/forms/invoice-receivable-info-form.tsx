@@ -17,7 +17,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
@@ -57,7 +57,7 @@ import {
   AreaOfExpertiseList,
 } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
-import { countries } from 'src/@fake-db/autocomplete'
+import { countries } from '@src/@fake-db/autocomplete'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
@@ -726,8 +726,8 @@ export default function InvoiceProjectInfoForm({
                       !client
                         ? selected
                         : isClientRegistered
-                        ? clientConfirmedTimezone
-                        : selected
+                          ? clientConfirmedTimezone
+                          : selected
                     }
                     disabled={!isClientRegistered}
                     options={timeZoneList as CountryType[]}

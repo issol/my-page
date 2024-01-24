@@ -1,5 +1,5 @@
 // ** React Imports
-import { ReactNode, useEffect, useContext, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -15,8 +15,7 @@ import { useMediaQuery } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 
 // ** Third Party Imports
-
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 // ** CleaveJS Imports
 
@@ -24,14 +23,11 @@ import 'cleave.js/dist/addons/cleave-phone.us'
 import { v4 as uuidv4 } from 'uuid'
 
 // ** Hooks
-
 // ** Layout Import
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 import { useMutation } from 'react-query'
 
 // ** Data
-import { countries } from 'src/@fake-db/autocomplete'
-
 // ** Third Party Components
 import { useRouter } from 'next/router'
 import {
@@ -148,7 +144,7 @@ const PersonalInfoManager = () => {
   } = useForm<ManagerInfo>({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(managerProfileSchema),
+    resolver: yupResolver(managerProfileSchema) as Resolver<ManagerInfo>,
   })
 
   /* TODO: 추후 company에 들어갈 값은 동적으로 사용자가 입력 가능하게 기획 수정되어야 함 */

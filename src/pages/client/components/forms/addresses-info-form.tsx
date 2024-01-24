@@ -18,7 +18,7 @@ import {
 import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** react hook form
 import {
@@ -68,20 +68,22 @@ export default function ClientAddressesForm({
 }: Props) {
   const country = getTypeList('CountryCode')
   const basicAddress = fields
-  .filter(item => {
-    // 필터링 조건 설정
-    if (useBillingAddress) {
-      return item.addressType !== 'additional';
-    } else {
-      return item.addressType !== 'billing' && item.addressType !== 'additional';
-    }
-  })
-  .sort((a, b) => {
-    // 'shipping'이 항상 첫 번째 위치에 오도록 정렬
-    if (a.addressType === 'shipping') return -1;
-    if (b.addressType === 'shipping') return 1;
-    return 0;
-  });
+    .filter(item => {
+      // 필터링 조건 설정
+      if (useBillingAddress) {
+        return item.addressType !== 'additional'
+      } else {
+        return (
+          item.addressType !== 'billing' && item.addressType !== 'additional'
+        )
+      }
+    })
+    .sort((a, b) => {
+      // 'shipping'이 항상 첫 번째 위치에 오도록 정렬
+      if (a.addressType === 'shipping') return -1
+      if (b.addressType === 'shipping') return 1
+      return 0
+    })
 
   const additionalAddress = fields.filter(
     item => item.addressType === 'additional',
@@ -189,7 +191,11 @@ export default function ClientAddressesForm({
     )
   }
 
-  function setAddress(useCopy: boolean, copyFromField: 'billing' | 'shipping', copyToField: 'billing' | 'shipping') {
+  function setAddress(
+    useCopy: boolean,
+    copyFromField: 'billing' | 'shipping',
+    copyToField: 'billing' | 'shipping',
+  ) {
     const id = fields.filter(item => item.addressType === copyToField)[0].id
     const idx = fields.map(item => item.id).indexOf(id)
 
@@ -215,6 +221,7 @@ export default function ClientAddressesForm({
       idx !== -1 && remove(idx)
     }
   }
+
   return (
     <Fragment>
       {basicAddress.map((item, idx) => {

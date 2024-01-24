@@ -14,7 +14,7 @@ import {
 } from '@mui/material'
 import { JobTypeChip } from '@src/@core/components/chips/chips'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { authState } from '@src/states/auth'
 import { useRecoilValueLoadable } from 'recoil'
 
@@ -577,8 +577,8 @@ export default function QuotesProjectInfoDetail({
                         ? ` / ${client?.contactPerson?.jobTitle}`
                         : ''
                       : project?.contactPerson?.jobTitle
-                      ? ` / ${project?.contactPerson?.jobTitle}`
-                      : ''}
+                        ? ` / ${project?.contactPerson?.jobTitle}`
+                        : ''}
                     {type === 'history' ||
                     project.status === 'Changed into order' ||
                     project.status === 'Rejected' ||
@@ -834,7 +834,7 @@ export default function QuotesProjectInfoDetail({
   )
 }
 
-const LabelContainer = styled.div`
+const LabelContainer = styled('div')`
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 2fr;

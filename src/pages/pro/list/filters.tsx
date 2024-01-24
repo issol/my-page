@@ -3,7 +3,7 @@ import Button from '@mui/material/Button'
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
 import Box from '@mui/material/Box'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import {
   Controller,
   Control,
@@ -14,10 +14,10 @@ import {
 import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
-import { JobList } from 'src/shared/const/job/jobs'
-import { OnboardingListRolePair } from 'src/shared/const/role/roles'
-import { ProStatus, TestStatus } from 'src/shared/const/status/statuses'
-import { ExperiencedYearsForFilter } from 'src/shared/const/experienced-years'
+import { JobList } from '@src/shared/const/job/jobs'
+import { OnboardingListRolePair } from '@src/shared/const/role/roles'
+import { ProStatus, TestStatus } from '@src/shared/const/status/statuses'
+import { ExperiencedYearsForFilter } from '@src/shared/const/experienced-years'
 
 import {
   useState,
@@ -32,7 +32,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import { styled } from '@mui/material/styles'
 import OutlinedInput from '@mui/material/OutlinedInput'
 
-import { FilterType } from 'src/types/onboarding/list'
+import { FilterType } from '@src/types/onboarding/list'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'

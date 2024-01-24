@@ -1,7 +1,7 @@
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import { IconButton, Tooltip, Typography } from '@mui/material'
-import styled from '@emotion/styled'
-import { LinkType } from 'src/types/schema/jobPosting.schema'
+import { styled } from '@mui/system'
+import { LinkType } from '@src/types/schema/jobPosting.schema'
 
 type Props = {
   link: LinkType
@@ -58,7 +58,7 @@ export function LinkReadOnlyItem({ link, onClick }: ReadOnlyProps) {
   )
 }
 
-const FileList = styled.div`
+const FileList = styled('div')`
   display: flex;
   /* cursor: pointer; */
   justify-content: space-between;

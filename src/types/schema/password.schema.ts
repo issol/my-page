@@ -20,6 +20,6 @@ export const passwordSchema = yup.object().shape({
   //   confirmPassword: yup.string().required(FormErrors.required),
   confirmPassword: yup
     .string()
-    .oneOf([yup.ref('newPassword'), null], FormErrors.passwordDoesntMatch)
+    .oneOf([yup.ref('newPassword'), ''], FormErrors.passwordDoesntMatch)
     .required(FormErrors.required),
 })

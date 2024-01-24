@@ -1,11 +1,10 @@
 import {
-  SyntheticEvent,
-  useState,
+  Fragment,
   MouseEvent,
   Suspense,
+  SyntheticEvent,
   useEffect,
-  useContext,
-  Fragment,
+  useState,
 } from 'react'
 
 // ** style components
@@ -14,13 +13,13 @@ import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import {
   Box,
+  Button,
+  DialogTitle,
+  Grid,
   IconButton,
+  styled,
   Tab,
   Typography,
-  Grid,
-  styled,
-  DialogTitle,
-  Button,
 } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 import CloseIcon from '@mui/icons-material/Close'
@@ -38,7 +37,7 @@ import { saveJobInfo, saveJobPrices } from '@src/apis/job-detail.api'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** helpers
@@ -118,7 +117,10 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(jobItemSchema),
+    resolver: yupResolver(jobItemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
   })
 
   const {

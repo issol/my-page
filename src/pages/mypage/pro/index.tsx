@@ -7,7 +7,7 @@ import TabContext from '@mui/lab/TabContext'
 import { Grid } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** nextJS
 import { MouseEvent, Suspense, useCallback, useEffect, useState } from 'react'
@@ -30,7 +30,7 @@ import useModal from '@src/hooks/useModal'
 import { useRouter } from 'next/router'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import useChangeRouterBlocking from '@src/hooks/useChangeRouterBlocking'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 type MenuType = 'overview' | 'paymentInfo' | 'myAccount'
 

@@ -21,7 +21,7 @@ import { Control, Controller, UseFormHandleSubmit } from 'react-hook-form'
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { Icon } from '@iconify/react'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import dayjs from 'dayjs'
 
 type Props = {

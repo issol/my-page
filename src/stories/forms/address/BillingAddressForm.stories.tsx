@@ -3,7 +3,7 @@ import { ComponentMeta } from '@storybook/react'
 import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Divider, Grid } from '@mui/material'
 
@@ -72,7 +72,9 @@ export const Default = () => {
       zipCode: '',
     },
     mode: 'onChange',
-    resolver: yupResolver(clientBillingAddressSchema),
+    resolver: yupResolver(
+      clientBillingAddressSchema,
+    ) as Resolver<ClientAddressType>,
   })
 
   return (

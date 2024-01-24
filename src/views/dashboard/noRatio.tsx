@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box } from '@mui/material'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Typography from '@mui/material/Typography'
 
 const NoRatio = ({ title }: { title: string }) => {

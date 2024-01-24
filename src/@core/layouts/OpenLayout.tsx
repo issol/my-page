@@ -1,13 +1,13 @@
 import { ReactNode, useEffect, useState } from 'react'
 import Layout from './Layout'
 import { useSettings } from '../hooks/useSettings'
-import VerticalNavItems from 'src/navigation/vertical'
-import HorizontalNavItems from 'src/navigation/horizontal'
+import VerticalNavItems from '@src/navigation/vertical'
+import HorizontalNavItems from '@src/navigation/horizontal'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import { Theme } from '@mui/material/styles'
 import { HorizontalNavItemsType } from './types'
 import { PROMenu } from '@src/shared/const/menu/menu'
-import HorizontalAppBarContent from 'src/layouts/components/horizontal/AppBarContent'
+import HorizontalAppBarContent from '@src/layouts/components/horizontal/AppBarContent'
 
 interface Props {
   children: ReactNode

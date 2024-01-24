@@ -1,7 +1,7 @@
 import { Button, Card, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Icon from 'src/@core/components/icon'
 import FallbackSpinner from 'src/@core/components/spinner'
 import { toast } from 'react-hot-toast'
@@ -265,7 +265,7 @@ const StyledBox = styled(Box)`
   border-radius: 10px;
 `
 
-const Ul = styled.ul`
+const Ul = styled('ul')`
   padding-left: 24px;
   text-align: left;
 `

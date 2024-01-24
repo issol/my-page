@@ -104,7 +104,7 @@ const Calendar = (props: CalenderProps<RequestListType, RequestFilterType>) => {
 
 export default Calendar
 
-const FullCalenderContainer = styled.div`
+const FullCalenderContainer = styled('div')`
   .fc-time-grid .fc-slats {
     z-index: 4;
     pointer-events: none;

@@ -76,7 +76,7 @@ import {
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { languageType } from '../../add-new'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema } from '@src/types/schema/item.schema'
@@ -287,7 +287,9 @@ const OrderDetail = () => {
   } = useForm<OrderProjectInfoFormType>({
     mode: 'onChange',
     defaultValues: orderProjectInfoDefaultValue,
-    resolver: yupResolver(orderProjectInfoSchema),
+    resolver: yupResolver(
+      orderProjectInfoSchema,
+    ) as unknown as Resolver<OrderProjectInfoFormType>,
   })
 
   const {
@@ -315,7 +317,7 @@ const OrderDetail = () => {
         addresses: [],
       },
     },
-    resolver: yupResolver(clientSchema),
+    resolver: yupResolver(clientSchema) as Resolver<ClientFormType>,
   })
 
   const {
@@ -328,7 +330,10 @@ const OrderDetail = () => {
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(itemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
   })
 
   const {
@@ -376,7 +381,7 @@ const OrderDetail = () => {
         { type: 'member', id: null },
       ],
     },
-    resolver: yupResolver(projectTeamSchema),
+    resolver: yupResolver(projectTeamSchema) as Resolver<ProjectTeamType>,
   })
 
   const {

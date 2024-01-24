@@ -21,7 +21,7 @@ export const projectTeamSchema = yup.object().shape({
       id: yup
         .number()
         .nullable()
-        .when('type', (type, schema) =>
+        .when('type', ([type], schema) =>
           type === 'projectManagerId'
             ? yup.number().required(FormErrors.required)
             : schema,

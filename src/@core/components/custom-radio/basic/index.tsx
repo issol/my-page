@@ -5,7 +5,7 @@ import Radio from '@mui/material/Radio'
 import Typography from '@mui/material/Typography'
 
 // ** Type Imports
-import { CustomRadioBasicProps } from 'src/@core/components/custom-radio/types'
+import { CustomRadioBasicProps } from '@src/@core/components/custom-radio/types'
 
 const CustomRadioBasic = (props: CustomRadioBasicProps) => {
   // ** Props

@@ -5,7 +5,7 @@ import { Button, Grid } from '@mui/material'
 import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** react hook form
 import {

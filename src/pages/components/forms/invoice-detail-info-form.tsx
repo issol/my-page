@@ -16,12 +16,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 
 // ** values
-import { countries } from 'src/@fake-db/autocomplete'
+import { countries } from '@src/@fake-db/autocomplete'
 import { TaxInfo } from '@src/shared/const/tax/tax-info'
 
 // ** apis
@@ -242,10 +242,10 @@ export default function InvoiceDetailInfoForm({
                       v.value === 'US resident'
                       ? null
                       : v.value === 'Korea resident'
-                      ? '-3.3'
-                      : v.value === 'Korea resident (Sole proprietorship)'
-                      ? '10'
-                      : null,
+                        ? '-3.3'
+                        : v.value === 'Korea resident (Sole proprietorship)'
+                          ? '10'
+                          : null,
                   )
                   trigger('taxRate')
                 } else {

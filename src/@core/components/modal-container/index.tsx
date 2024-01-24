@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
-import styled from 'styled-components'
+import { styled } from '@mui/system'
 import useModal, { ModalType, modalState } from '@src/hooks/useModal'
 
 import { useRecoilValueLoadable } from 'recoil'
@@ -77,7 +77,7 @@ function ModalContainer() {
 
 export default ModalContainer
 
-const Overlay = styled.div`
+const Overlay = styled('div')`
   width: 100%;
   height: 100%;
   position: fixed;

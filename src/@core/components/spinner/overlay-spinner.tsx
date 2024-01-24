@@ -1,8 +1,8 @@
 // ** MUI Import
 import { useTheme } from '@mui/material/styles'
-import Box, { BoxProps } from '@mui/material/Box'
+import { BoxProps } from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
-import styled, { keyframes } from 'styled-components'
+import { keyframes, styled } from '@mui/system'
 
 const OverlaySpinner = ({ sx }: { sx?: BoxProps['sx'] }) => {
   // ** Hook
@@ -36,7 +36,7 @@ const LoadingImageOpacity = keyframes`
   }
 `
 
-const Overlay = styled.div`
+const Overlay = styled('div')`
   position: fixed;
   top: 0;
   left: 0;
@@ -45,18 +45,18 @@ const Overlay = styled.div`
   z-index: 10000;
 `
 
-const LoadingContainer = styled.div`
+const LoadingContainer = styled('div')`
   width: 100%;
 `
 
-const LoadingWrapper = styled.div`
+const LoadingWrapper = styled('div')`
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
 `
 
-const LoadingImage = styled.div`
+const LoadingImage = styled('div')`
   width: 400px;
   height: auto;
 

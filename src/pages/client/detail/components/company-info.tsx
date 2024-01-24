@@ -18,7 +18,7 @@ import {
   Typography,
 } from '@mui/material'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** types & schema
 import { ClientDetailType } from '@src/types/client/client'
@@ -43,7 +43,7 @@ import {
 import { toast } from 'react-hot-toast'
 
 // ** react hook form
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 
 // ** components
 import CompanyInfoForm from '../../components/forms/company-info-form'
@@ -97,7 +97,7 @@ export default function ClientInfo({
   } = useForm<CompanyInfoFormType>({
     mode: 'onChange',
     defaultValues: companyInfoDefaultValue,
-    resolver: yupResolver(companyInfoSchema),
+    resolver: yupResolver(companyInfoSchema) as Resolver<CompanyInfoFormType>,
   })
 
   useEffect(() => {
@@ -416,22 +416,23 @@ export default function ClientInfo({
                     {clientInfo.websiteLink && clientInfo.websiteLink !== ''
                       ? clientInfo.websiteLink
                       : '-'}
-                    {clientInfo.websiteLink && clientInfo.websiteLink !== '' && (
-                      <IconButton
-                        edge='end'
-                        disabled={!clientInfo.websiteLink}
-                        sx={{ padding: 0 }}
-                        onClick={() =>
-                          window.open(`${clientInfo.websiteLink}`, '_blank')
-                        }
-                      >
-                        <Icon
-                          icon='material-symbols:open-in-new'
-                          opacity={0.7}
-                          fontSize={18}
-                        />
-                      </IconButton>
-                    )}
+                    {clientInfo.websiteLink &&
+                      clientInfo.websiteLink !== '' && (
+                        <IconButton
+                          edge='end'
+                          disabled={!clientInfo.websiteLink}
+                          sx={{ padding: 0 }}
+                          onClick={() =>
+                            window.open(`${clientInfo.websiteLink}`, '_blank')
+                          }
+                        >
+                          <Icon
+                            icon='material-symbols:open-in-new'
+                            opacity={0.7}
+                            fontSize={18}
+                          />
+                        </IconButton>
+                      )}
                   </Typography>
                 </Typography>
               </InfoBox>

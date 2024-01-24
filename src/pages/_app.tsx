@@ -12,7 +12,7 @@ import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'
 
 // ** Store Imports
-import { store } from 'src/store'
+import { store } from '@src/store'
 import { Provider } from 'react-redux'
 
 // ** Loader Import
@@ -23,12 +23,12 @@ import { CacheProvider } from '@emotion/react'
 import type { EmotionCache } from '@emotion/cache'
 
 // ** Config Imports
-import 'src/configs/i18n'
-import { defaultACLObj } from 'src/configs/acl'
-import themeConfig from 'src/configs/themeConfig'
+import '@src/configs/i18n'
+import { defaultACLObj } from '@src/configs/acl'
+import themeConfig from '@src/configs/themeConfig'
 
 // ** Fake-DB Import
-import 'src/@fake-db'
+import '@src/@fake-db'
 
 // ** Third Party Import
 import { Toaster } from 'react-hot-toast'
@@ -43,20 +43,20 @@ import GuestGuard from 'src/@core/components/auth/GuestGuard'
 import { RecoilRoot } from 'recoil'
 
 // ** Spinner Import
-import Spinner from 'src/@core/components/spinner'
-import FallbackSpinner from 'src/@core/components/spinner'
+import Spinner from '@src/@core/components/spinner'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 // ** Contexts
 import {
   SettingsConsumer,
   SettingsProvider,
-} from 'src/@core/context/settingsContext'
+} from '@src/@core/context/settingsContext'
 
 // ** Styled Components
-import ReactHotToast from 'src/@core/styles/libs/react-hot-toast'
+import ReactHotToast from '@src/@core/styles/libs/react-hot-toast'
 
 // ** Utils Imports
-import { createEmotionCache } from 'src/@core/utils/create-emotion-cache'
+import { createEmotionCache } from '@src/@core/utils/create-emotion-cache'
 
 // ** Prismjs Styles
 import 'prismjs'
@@ -124,7 +124,7 @@ const SentryIntegrations =
           blockAllMedia: false,
         }),
       ]
-// console.log(JSON.parse(getUserDataFromBrowser()!).email)
+
 const userData = getUserDataFromBrowser()
 
 Sentry.init({
@@ -159,21 +159,6 @@ Sentry.init({
 })
 
 const clientSideEmotionCache = createEmotionCache()
-// const PushAlarm = dynamic<any>(
-//   () => import('../views/components/push-alarm').then(m => m),
-//   { ssr: false },
-// )
-
-const BeusableScriptsDynamic = dynamic(
-  () => import('@src/shared/scripts/beusable'),
-  {
-    suspense: true,
-  },
-)
-
-const GAScriptsDynamic = dynamic(() => import('@src/shared/scripts/ga'), {
-  suspense: true,
-})
 
 const AuthProviderDynamic = dynamic(
   () => import('@src/shared/auth/auth-provider'),
@@ -216,7 +201,7 @@ const App = (props: ExtendedAppProps) => {
         defaultOptions: {
           queries: {
             // staleTime: 60 * 1000, // 1
-            cacheTime: 1000 * 60 * 1,
+            cacheTime: 1000 * 60,
             // useErrorBoundary: true,
             refetchOnWindowFocus: false,
             suspense: false,

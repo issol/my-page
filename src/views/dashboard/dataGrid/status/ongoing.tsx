@@ -8,7 +8,7 @@ import {
   DEFAULT_QUERY_NAME,
   useDashboardCount,
 } from '@src/queries/dashnaord.query'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Typography from '@mui/material/Typography'
 import { StatusAndListProps } from '@src/views/dashboard/dataGrid/status'
 import {

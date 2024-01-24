@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'

@@ -17,14 +17,14 @@ import {
   Typography,
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** react hook form
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** third parties
 import { toast } from 'react-hot-toast'
@@ -208,7 +208,6 @@ export default function AddNewOrder() {
   ]
 
   // ** step1
-
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -234,7 +233,7 @@ export default function AddNewOrder() {
         { type: 'member', id: null },
       ],
     },
-    resolver: yupResolver(projectTeamSchema),
+    resolver: yupResolver(projectTeamSchema) as Resolver<ProjectTeamType>,
   })
 
   const {
@@ -263,7 +262,7 @@ export default function AddNewOrder() {
       contactPersonId: null,
       addressType: 'shipping',
     },
-    resolver: yupResolver(clientSchema),
+    resolver: yupResolver(clientSchema) as Resolver<ClientFormType>,
   })
 
   // ** step3
@@ -278,7 +277,9 @@ export default function AddNewOrder() {
   } = useForm<OrderProjectInfoFormType>({
     mode: 'onChange',
     defaultValues: { ...orderProjectInfoDefaultValue, status: 10000 },
-    resolver: yupResolver(orderProjectInfoSchema),
+    resolver: yupResolver(
+      orderProjectInfoSchema,
+    ) as unknown as Resolver<OrderProjectInfoFormType>,
   })
 
   // ** step4
@@ -297,7 +298,10 @@ export default function AddNewOrder() {
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onChange',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(itemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
   })
 
   console.log(getItem())
@@ -379,6 +383,7 @@ export default function AddNewOrder() {
       setSubPrice(total)
     }
   }
+
   useEffect(() => {
     const subscription = itemWatch((value, { name, type }) => {
       sumTotalPrice()
@@ -767,6 +772,7 @@ export default function AddNewOrder() {
       position: 'bottom-left',
     })
   }
+
   function transformTeamData(data: ProjectTeamType) {
     let result: ProjectTeamFormType = {
       projectManagerId: 0,
@@ -911,8 +917,8 @@ export default function AddNewOrder() {
                 item.position === 'projectManager'
                   ? 'projectManagerId'
                   : item.position === 'supervisor'
-                  ? 'supervisorId'
-                  : 'member'
+                    ? 'supervisorId'
+                    : 'member'
               const id = item.userId
               const name = getLegalName({
                 firstName: item?.firstName!,
@@ -1081,8 +1087,8 @@ export default function AddNewOrder() {
                 item.position === 'projectManager'
                   ? 'projectManagerId'
                   : item.position === 'supervisor'
-                  ? 'supervisorId'
-                  : 'member'
+                    ? 'supervisorId'
+                    : 'member'
               const id = item.userId
               const name = getLegalName({
                 firstName: item?.firstName!,
@@ -1256,12 +1262,12 @@ export default function AddNewOrder() {
       const decimalPlace = priceInfo
         ? priceInfo.decimalPlace
         : currencies[0] === 'USD' || currencies[0] === 'SGD'
-        ? 2
-        : currencies[0] === 'KRW'
-        ? 1000
-        : currencies[0] === 'JPY'
-        ? 100
-        : 2
+          ? 2
+          : currencies[0] === 'KRW'
+            ? 1000
+            : currencies[0] === 'JPY'
+              ? 100
+              : 2
 
       return subPrice === 0
         ? '-'

@@ -10,7 +10,7 @@ import { styled as muiStyled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
 // ** Layout Import
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 import { useRouter } from 'next/router'
 
 const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({

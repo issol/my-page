@@ -21,7 +21,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from '@src/@core/components/mui/chip'
 
 // ** types & mutation
 import { useMutation, useQueryClient } from 'react-query'
@@ -35,7 +35,7 @@ import {
 
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 // ** components
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
@@ -99,8 +99,8 @@ export default function ClientMemo({ clientId, memo }: Props) {
       direction === 'prev'
         ? Math.max(page - 1, 0)
         : direction === 'next'
-        ? page + 1
-        : 0
+          ? page + 1
+          : 0
 
     setPage(changedPage)
   }
@@ -145,6 +145,7 @@ export default function ClientMemo({ clientId, memo }: Props) {
     setIsCreate(false)
     return queryClient.invalidateQueries(`get-client/memo`)
   }
+
   function onMutationError() {
     setCurrentMemo({ memoId: null, memo: '' })
     setNewMemo('')

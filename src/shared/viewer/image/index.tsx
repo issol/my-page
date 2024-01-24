@@ -1,6 +1,6 @@
 import { DocRenderer } from '@cyntler/react-doc-viewer'
 import React from 'react'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 const ImageProxyRenderer: DocRenderer = props => {
   const {
@@ -24,7 +24,7 @@ export default ImageProxyRenderer
 ImageProxyRenderer.fileTypes = []
 ImageProxyRenderer.weight = 0
 
-const Container = styled.div`
+const Container = styled('div')`
   display: flex;
   flex: 1;
   align-items: center;
@@ -34,7 +34,7 @@ const Container = styled.div`
   background-color: #fff;
 `
 
-const Img = styled.img`
+const Img = styled('img')`
   max-width: 95%;
   max-height: 95%;
 `

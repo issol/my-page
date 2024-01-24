@@ -51,7 +51,7 @@ import dynamic from 'next/dynamic'
 
 import dayjs from 'dayjs'
 import PriceUnitGuideline from './components/modal/price-unit-guideline'
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from '@src/@core/components/mui/chip'
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -1229,12 +1229,12 @@ const ProJobInfo = ({
                 <Box display='flex' justifyContent='space-between'>
                   <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
                     {jobInfo.status !== 70000 &&
-                      jobInfo.status !== 70100 &&
-                      jobInfo.status !== 70200 &&
-                      jobInfo.status !== 70300 &&
-                      jobInfo.status !== 70400 &&
-                      jobInfo.status !== 70500 &&
-                      jobInfo.status !== 60100
+                    jobInfo.status !== 70100 &&
+                    jobInfo.status !== 70200 &&
+                    jobInfo.status !== 70300 &&
+                    jobInfo.status !== 70400 &&
+                    jobInfo.status !== 70500 &&
+                    jobInfo.status !== 60100
                       ? 'Source files'
                       : 'Sample files'}
                   </Typography>

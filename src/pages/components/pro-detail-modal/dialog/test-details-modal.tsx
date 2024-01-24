@@ -39,7 +39,7 @@ import {
   getReviewer,
   requestReviewer,
   cancelReviewer,
-} from 'src/apis/onboarding.api'
+} from '@src/apis/onboarding.api'
 import { UserDataType } from '@src/context/types'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
@@ -188,6 +188,7 @@ export default function TestDetailsModal({
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
+
   function getLegalName(row: any) {
     return !row.firstName || !row.lastName
       ? '-'

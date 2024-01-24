@@ -10,7 +10,7 @@ import { Dispatch, SetStateAction } from 'react'
 import {
   OnboardingFilterType,
   OnboardingListType,
-} from 'src/types/onboarding/list'
+} from '@src/types/onboarding/list'
 
 type Props = {
   onboardingListPage: number

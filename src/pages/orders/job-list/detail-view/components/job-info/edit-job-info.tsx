@@ -7,7 +7,6 @@ import {
   Divider,
   FormHelperText,
   Grid,
-  List,
   TextField,
   Typography,
   useTheme,
@@ -15,33 +14,26 @@ import {
 
 import {
   AddJobInfoFormType,
-  AddJobInfoType,
   SaveJobInfoParamsType,
 } from '@src/types/orders/job-detail'
 import { addJobInfoFormSchema } from '@src/types/schema/job-detail'
-import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import dayjs from 'dayjs'
-import { countries } from '@src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
-import CustomCheckbox from '@src/@core/components/custom-checkbox/basic'
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { FileType } from '@src/types/common/file.type'
 import { useDropzone } from 'react-dropzone'
 import FileItem from '@src/@core/components/fileItem'
 import { v4 as uuidv4 } from 'uuid'
-import toast, { Toaster, resolveValue } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import languageHelper from '@src/shared/helpers/language.helper'
-import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
+import { ProjectInfoType } from '@src/types/orders/order-detail'
 import { CurrencyType } from '@src/types/common/standard-price'
-import { set } from 'nprogress'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { id } from 'date-fns/locale'
 import {
   QueryObserverResult,
   RefetchOptions,
@@ -50,23 +42,15 @@ import {
   useQueryClient,
 } from 'react-query'
 import {
-  deleteJob,
   deleteJobFile,
   saveJobInfo,
   uploadFile,
 } from '@src/apis/job-detail.api'
-import {
-  getDownloadUrlforCommon,
-  getUploadUrlforCommon,
-  uploadFileToS3,
-} from '@src/apis/common.api'
-import { FilePostType } from '@src/apis/client-guideline.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
-import { JobStatusType } from '@src/types/jobs/common.type'
-import { log } from 'npmlog'
 import { FormErrors } from '@src/shared/const/formErrors'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
@@ -222,7 +206,7 @@ const EditJobInfo = ({
   } = useForm<AddJobInfoFormType>({
     mode: 'onSubmit',
 
-    resolver: yupResolver(addJobInfoFormSchema),
+    resolver: yupResolver(addJobInfoFormSchema) as Resolver<AddJobInfoFormType>,
   })
   const description = watch('description')
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE

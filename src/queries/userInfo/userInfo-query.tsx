@@ -4,7 +4,7 @@ import {
   getIsDeletableAccount,
   getProDetails,
   getUserInfo,
-} from 'src/apis/user.api'
+} from '@src/apis/user.api'
 
 export const useGetUserInfoWithResume = (
   userId: string | string[] | undefined,

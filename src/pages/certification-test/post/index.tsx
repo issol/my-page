@@ -21,7 +21,7 @@ import IconButton from '@mui/material/IconButton'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 
 // ** React Imports
@@ -34,16 +34,16 @@ import { useRouter } from 'next/router'
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
-import CustomChip from 'src/@core/components/mui/chip'
+import { EditorWrapper } from '@src/@core/styles/libs/react-draft-wysiwyg'
+import CustomChip from '@src/@core/components/mui/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** contexts
 
@@ -51,12 +51,12 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** form
-import { useForm, Controller } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
+import { Controller, Resolver, useForm } from 'react-hook-form'
+
 import { useDropzone } from 'react-dropzone'
 
 // ** fetches
-import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** types
@@ -75,18 +75,18 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import _ from 'lodash'
 import {
   checkBasicTestExistence,
+  PatchFormType,
   patchTest,
   postTest,
-  PatchFormType,
   TestFormType,
 } from 'src/apis/certification-test.api'
 import { RoleSelectType, SelectType } from 'src/types/onboarding/list'
 import { JobList } from 'src/shared/const/job/jobs'
 
-import { BasicTestExistencePayloadType } from 'src/types/certification-test/list'
-import { useGetTestDetail } from 'src/queries/certification-test/certification-test-detail.query'
-import languageHelper from 'src/shared/helpers/language.helper'
-import { FileType } from 'src/types/common/file.type'
+import { BasicTestExistencePayloadType } from '@src/types/certification-test/list'
+import { useGetTestDetail } from '@src/queries/certification-test/certification-test-detail.query'
+import languageHelper from '@src/shared/helpers/language.helper'
+import { FileType } from '@src/types/common/file.type'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
@@ -98,12 +98,14 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { content } from 'html2canvas/dist/types/css/property-descriptors/content'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
+  googleFormLink: '',
   source: { value: '', label: '' },
   target: { value: '', label: '' },
-  googleFormLink: '',
   jobType: { value: '', label: '' },
   role: { value: '', label: '' },
   // content: null,
@@ -343,7 +345,9 @@ const TestMaterialPost = () => {
   } = useForm<TestMaterialPostType>({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(certificationTestSchema),
+    resolver: yupResolver(
+      certificationTestSchema,
+    ) as Resolver<TestMaterialPostType>,
   })
 
   const getValid = () => {
@@ -1356,7 +1360,7 @@ const StyledEditor = styled(EditorWrapper)<{
     max-height: ${({ maxHeight }) => (maxHeight ? `300px` : '800px')};
   }
 `
-const FileList = styled.div`
+const FileList = styled('div')`
   width: 100%;
   margin-bottom: 8px;
   border-radius: 8px;

@@ -1,13 +1,13 @@
 import { Icon } from '@iconify/react'
-import { Box, Grid, IconButton } from '@mui/material'
+import { Box, IconButton } from '@mui/material'
 import Tab from '@mui/material/Tab'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'
 import Typography from '@mui/material/Typography'
-import { MouseEvent, Suspense, useContext, useEffect, useState } from 'react'
+import { MouseEvent, useEffect, useState } from 'react'
 import { SyntheticEvent } from 'react-draft-wysiwyg'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import HistoryAssignPro from './history-assign-pro'
 import useModal from '@src/hooks/useModal'
 import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
@@ -16,7 +16,7 @@ import ViewJobInfo from '../job-info/view-job-info'
 import JobInfoDetailView from '../..'
 import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
 import { PriceUnitListType } from '@src/types/common/standard-price'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { jobItemSchema } from '@src/types/schema/item.schema'
 // import ViewPrices from '../prices/view-prices'
@@ -29,7 +29,6 @@ import { useQueryClient } from 'react-query'
 
 type Props = {
   id: number
-
   title: string
   onClose: () => void
   row: JobHistoryType
@@ -99,7 +98,9 @@ export default function HistoryDetail({
   } = useForm<{ items: ItemType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [] },
-    resolver: yupResolver(jobItemSchema),
+    resolver: yupResolver(jobItemSchema) as unknown as Resolver<{
+      items: ItemType[]
+    }>,
   })
 
   const {

@@ -1,12 +1,12 @@
 // ** styled components
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** MUI Imports
 import { Box } from '@mui/system'
 import { Card, Typography } from '@mui/material'
 import { RoleType } from '@src/context/types'
 
-import { getLegalName } from 'src/shared/helpers/legalname.helper'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 export type UserInfoCardType = {
   userInfo: {

@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardContent, Grid, Typography } from '@mui/material'
 import { UserDataType } from '@src/context/types'
 import { Fragment, useState } from 'react'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import ChangePasswordForm from './change-password-form'
 import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
@@ -201,7 +201,7 @@ const BorderBox = styled(Box)`
   border-radius: 10px;
   border: 1px solid rgba(76, 78, 100, 0.12);
 `
-const LabelContainer = styled.div`
+const LabelContainer = styled('div')`
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 5fr;

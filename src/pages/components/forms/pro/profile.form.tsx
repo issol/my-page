@@ -17,14 +17,14 @@ import { CountryType, PersonalInfo } from '@src/types/sign/personalInfoTypes'
 import { Fragment, useEffect, useState } from 'react'
 import { Control, Controller, FieldErrors, UseFormWatch } from 'react-hook-form'
 import { Pronunciation } from 'src/shared/const/pronunciation'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import DatePicker from 'react-datepicker'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import { v4 as uuidv4 } from 'uuid'
 
 // ** Data
-import { countries } from 'src/@fake-db/autocomplete'
+import { countries } from '@src/@fake-db/autocomplete'
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'
 
