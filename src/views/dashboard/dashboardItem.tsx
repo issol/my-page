@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material'
 import React, { ReactElement, useState } from 'react'
-import { styled } from '@mui/system'
+import { styled, SxProps } from '@mui/system'
 import Button from '@mui/material/Button'
 import Popper from '@mui/material/Popper'
 import Grow from '@mui/material/Grow'
@@ -23,7 +23,6 @@ import {
 import { Currency, TotalItem } from '@src/types/dashboard'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import { usePaidThisMonthAmount } from '@src/queries/dashnaord.query'
-import { SxProps } from '@mui/system'
 
 interface GridItemProps {
   width?: number | string
@@ -35,6 +34,7 @@ interface GridItemProps {
   spacing?: number
   children: ReactElement
 }
+
 export const GridItem = ({
   width = '100%',
   height,
@@ -295,7 +295,6 @@ export const ConvertButtonGroup = ({
         role={undefined}
         transition
         disablePortal
-        placeholder={undefined}
       >
         {({ TransitionProps, placement }) => (
           <Grow
@@ -471,6 +470,7 @@ interface LinearMultiProgressProps {
   items: Array<TotalItem>
   colors: Array<string>
 }
+
 export const LinearMultiProgress = ({
   items,
   colors,
@@ -497,6 +497,7 @@ export interface SectionTitleProps {
   prefix?: string
   postfix?: string
 }
+
 export const Title = ({
   title,
   handleClick,

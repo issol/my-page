@@ -353,7 +353,6 @@ export default function ProjectInfoForm({
                 PopperComponent={props => (
                   <>
                     <Popper
-                      placeholder={undefined}
                       {...props}
                       sx={{
                         cursor: 'pointer',

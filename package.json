@@ -40,7 +40,7 @@
     "@mui/system": "5.15.4",
     "@mui/x-data-grid": "5.17.9",
     "@popperjs/core": "2.11.8",
-    "@react-pdf/renderer": "^3.1.17",
+    "@react-pdf/renderer": "^3.3.4",
     "@reduxjs/toolkit": "2.0.1",
     "@sentry/browser": "^7.93.0",
     "@sentry/nextjs": "^7.93.0",
@@ -182,7 +182,9 @@
   "overrides": {
     "react-credit-cards": {
       "react": "$react"
-    }
+    },
+    "@react-pdf/image": "2.2.3",
+    "@react-pdf/pdfkit": "3.0.4"
   },
   "msw": {
     "workerDirectory": "public"

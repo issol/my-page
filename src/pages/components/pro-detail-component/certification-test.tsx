@@ -125,7 +125,7 @@ const CertificationTest = ({
       selectedJobInfo.jobType !== 'Interpretation' &&
       !verifiedNoTest(selectedJobInfo) ? (
         <CardContent sx={{ padding: 0, mt: '24px' }}>
-          <Timeline sx={{ my: 0, py: 0 }} placeholder={undefined}>
+          <Timeline sx={{ my: 0, py: 0 }}>
             <TimelineItem>
               <TimelineSeparator>
                 <TimelineDot color='warning' />
@@ -694,7 +694,7 @@ const CertificationTest = ({
         selectedJobInfo?.role !== 'DTP QCer' &&
         selectedJobInfo?.jobType !== 'Interpretation' ? (
         <CardContent sx={{ padding: 0, mt: '24px', pb: '0 !important' }}>
-          <Timeline sx={{ my: 0, py: 0 }} placeholder={undefined}>
+          <Timeline sx={{ my: 0, py: 0 }}>
             <TimelineItem>
               <TimelineSeparator>
                 <TimelineDot color='warning' />

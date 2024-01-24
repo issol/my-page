@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
 import { styled } from '@mui/system'
-import useModal, { ModalType, modalState } from '@src/hooks/useModal'
+import useModal, { modalState, ModalType } from '@src/hooks/useModal'
 
 import { useRecoilValueLoadable } from 'recoil'
 
