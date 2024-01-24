@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -9,31 +9,30 @@ import {
   Box,
   Button,
   Card,
-  Checkbox,
   Grid,
   IconButton,
   TableCell,
-  TextField,
   Typography,
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** react hook form
-import { useForm, useFieldArray } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { v4 as uuidv4 } from 'uuid'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** third parties
 import { toast } from 'react-hot-toast'
 
 // ** validation values & types
 import {
-  ProjectTeamType,
+  MemberType,
   projectTeamSchema,
+  ProjectTeamType,
 } from '@src/types/schema/project-team.schema'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { StandardPriceListType } from '@src/types/common/standard-price'
@@ -41,14 +40,12 @@ import { itemSchema } from '@src/types/schema/item.schema'
 import { ItemType } from '@src/types/common/item.type'
 
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
-import { MemberType } from '@src/types/schema/project-team.schema'
 
 // ** components
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
@@ -73,7 +70,6 @@ import {
 } from '@src/apis/order/order-detail.api'
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { getClientPriceList } from '@src/apis/company/company-price.api'
 import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
 import {
   InvoiceMultipleOrderType,
@@ -83,33 +79,21 @@ import {
   invoiceProjectInfoDefaultValue,
   invoiceProjectInfoSchema,
 } from '@src/types/schema/invoice-project-info.schema'
-import {
-  formatByRoundingProcedure,
-  formatCurrency,
-  getCurrencyMark,
-} from '@src/shared/helpers/price.helper'
-import FallbackSpinner from '@src/@core/components/spinner'
+import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   CreateInvoiceReceivableRes,
   InvoiceReceivablePatchParamsType,
 } from '@src/types/invoice/receivable.type'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import {
-  createInvoice,
-  getInvoiceLanguageItems,
-} from '@src/apis/invoice/receivable.api'
+import { createInvoice } from '@src/apis/invoice/receivable.api'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetStatusList } from '@src/queries/common.query'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { getMultipleOrder } from '@src/apis/invoice/common.api'
 import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
 import { formatISO } from 'date-fns'
-import { resolve } from 'path'
-import {
-  ProjectInfoType,
-  ProjectTeamListType,
-} from '@src/types/orders/order-detail'
+import { ProjectTeamListType } from '@src/types/orders/order-detail'
 
 export type languageType = {
   id: number | string
@@ -162,8 +146,8 @@ export default function AddNewInvoice() {
       ? typeof router.query.orderId === 'object'
         ? router.query.orderId.map(item => Number(item))
         : typeof router.query.orderId === 'string'
-        ? Number(router.query.orderId)
-        : 0
+          ? Number(router.query.orderId)
+          : 0
       : []
     const verifiedOrderIds =
       typeof orderId === 'number'
@@ -179,6 +163,7 @@ export default function AddNewInvoice() {
   const { openModal, closeModal } = useModal()
 
   const [subPrice, setSubPrice] = useState(0)
+
   function sumTotalPrice() {
     const subPrice = getItem()?.items!
     if (subPrice) {
@@ -188,6 +173,7 @@ export default function AddNewInvoice() {
       setSubPrice(total)
     }
   }
+
   useEffect(() => {
     sumTotalPrice()
   }, [])
@@ -256,7 +242,7 @@ export default function AddNewInvoice() {
         { type: 'member', id: null },
       ],
     },
-    resolver: yupResolver(projectTeamSchema),
+    resolver: yupResolver(projectTeamSchema) as Resolver<ProjectTeamType>,
   })
 
   const {
@@ -285,7 +271,7 @@ export default function AddNewInvoice() {
       contactPersonId: null,
       addressType: 'shipping',
     },
-    resolver: yupResolver(clientSchema),
+    resolver: yupResolver(clientSchema) as Resolver<ClientFormType>,
   })
 
   // ** step3
@@ -300,7 +286,9 @@ export default function AddNewInvoice() {
   } = useForm<InvoiceProjectInfoFormType>({
     mode: 'onChange',
     defaultValues: invoiceProjectInfoDefaultValue,
-    resolver: yupResolver(invoiceProjectInfoSchema),
+    resolver: yupResolver(
+      invoiceProjectInfoSchema,
+    ) as unknown as Resolver<InvoiceProjectInfoFormType>,
   })
 
   // ** step4
@@ -319,7 +307,10 @@ export default function AddNewInvoice() {
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [] },
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(itemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
   })
 
   const {
@@ -411,8 +402,8 @@ export default function AddNewInvoice() {
       ? typeof router.query.orderId === 'object'
         ? router.query.orderId.map(item => Number(item))
         : typeof router.query.orderId === 'string'
-        ? Number(router.query.orderId)
-        : 0
+          ? Number(router.query.orderId)
+          : 0
       : []
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
@@ -502,6 +493,7 @@ export default function AddNewInvoice() {
       position: 'bottom-left',
     })
   }
+
   function transformTeamData(data: ProjectTeamType) {
     let result: ProjectTeamFormType = {
       projectManagerId: 0,
@@ -639,8 +631,8 @@ export default function AddNewInvoice() {
               item.position === 'projectManager'
                 ? 'projectManagerId'
                 : item.position === 'supervisor'
-                ? 'supervisorId'
-                : 'member',
+                  ? 'supervisorId'
+                  : 'member',
             id: item.userId,
             name: getLegalName({
               firstName: item?.firstName!,

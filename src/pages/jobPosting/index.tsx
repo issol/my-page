@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 // ** mui imports
 import { Grid, Typography } from '@mui/material'
-import PageHeader from 'src/@core/components/page-header'
+import PageHeader from '@src/@core/components/page-header'
 
 // ** values
-import { ProRolePair } from 'src/shared/const/role/roles'
-import { ProJobPair } from 'src/shared/const/job/jobs'
+import { ProRolePair } from '@src/shared/const/role/roles'
+import { ProJobPair } from '@src/shared/const/job/jobs'
 import Filters from './components/filter'
 
 // ** fetch
@@ -36,7 +36,7 @@ export const initialFilter: FilterType = {
   skip: 0,
   take: 10,
   sort: 'createdAt',
-  ordering: 'DESC'
+  ordering: 'DESC',
 }
 export default function jobPosting() {
   type FilterState = Array<{ value: string; label: string }>

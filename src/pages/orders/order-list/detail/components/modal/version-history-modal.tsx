@@ -4,27 +4,19 @@ import {
   Box,
   Button,
   Card,
+  styled,
   Switch,
   Tab,
   Typography,
-  styled,
-  Grid,
 } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 import { v4 as uuidv4 } from 'uuid'
 import TabContext from '@mui/lab/TabContext'
-import {
-  MouseEvent,
-  SyntheticEvent,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { MouseEvent, SyntheticEvent, useEffect, useState } from 'react'
 import ProjectInfo from '../project-info'
 import OrderDetailClient from '../client'
 import ProjectTeam from '../project-team'
 import {
-  HistoryType,
   OrderDownloadData,
   ProjectInfoType,
   ProjectTeamListType,
@@ -34,20 +26,19 @@ import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { useGetStatusList } from '@src/queries/common.query'
 import ClientOrder from '../client-order'
 import LanguageAndItem from '../language-item'
 import { languageType } from '@src/pages/orders/add-new'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { ItemType } from '@src/types/common/item.type'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   MemberType,
-  ProjectTeamType,
   projectTeamSchema,
+  ProjectTeamType,
 } from '@src/types/schema/project-team.schema'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
@@ -102,7 +93,10 @@ const VersionHistoryModal = ({
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(itemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
   })
 
   const {
@@ -150,7 +144,7 @@ const VersionHistoryModal = ({
         { type: 'member', id: null },
       ],
     },
-    resolver: yupResolver(projectTeamSchema),
+    resolver: yupResolver(projectTeamSchema) as Resolver<ProjectTeamType>,
   })
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
@@ -256,8 +250,8 @@ const VersionHistoryModal = ({
           item.position === 'projectManager'
             ? 'projectManagerId'
             : item.position === 'supervisor'
-            ? 'supervisorId'
-            : 'member',
+              ? 'supervisorId'
+              : 'member',
         id: item.userId,
         name: getLegalName({
           firstName: item?.firstName!,

@@ -29,7 +29,7 @@ import {
   useRecoilState,
   useSetRecoilState,
 } from 'recoil'
-import authConfig from 'src/configs/auth'
+import authConfig from '@src/configs/auth'
 import useRecoilCacheRefresh from './useRecoilCacheRefresh'
 import {
   currentRoleSelector,

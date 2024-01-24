@@ -1,6 +1,6 @@
 import Box from '@mui/material/Box'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { v4 as uuidv4 } from 'uuid'
 import JobTypeRoleChips from './role-chip'
 
@@ -37,7 +37,7 @@ const JobTypeRole = ({ jobInfo }: Props) => {
   )
 }
 
-const CountChip = styled.p`
+const CountChip = styled('p')`
   padding: 3px 4px;
   text-align: center;
   width: 40px;

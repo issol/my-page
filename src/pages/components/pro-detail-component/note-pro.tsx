@@ -1,11 +1,12 @@
 import Card from '@mui/material/Card'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-import { OnboardingUserType } from 'src/types/onboarding/list'
+import { OnboardingUserType } from '@src/types/onboarding/list'
+
 type Props = {
   userInfo: OnboardingUserType
 }

@@ -8,7 +8,7 @@ import {
 } from '@mui/x-data-grid'
 import React, { Dispatch, useState } from 'react'
 import NoList from '@src/pages/components/no-list'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 interface DefaultDataGridProps<T extends { id: number; orderId?: number }> {
   overlayTitle: string

@@ -4,11 +4,18 @@ import Grid from '@mui/material/Grid'
 import Radio from '@mui/material/Radio'
 
 // ** Type Imports
-import { CustomRadioImgProps } from 'src/@core/components/custom-radio/types'
+import { CustomRadioImgProps } from '@src/@core/components/custom-radio/types'
 
 const CustomRadioImg = (props: CustomRadioImgProps) => {
   // ** Props
-  const { name, data, selected, gridProps, handleChange, color = 'primary' } = props
+  const {
+    name,
+    data,
+    selected,
+    gridProps,
+    handleChange,
+    color = 'primary',
+  } = props
 
   const { alt, img, value } = data
 
@@ -30,15 +37,24 @@ const CustomRadioImg = (props: CustomRadioImgProps) => {
             border: theme => `2px solid ${theme.palette.divider}`,
             ...(selected === value
               ? { borderColor: `${color}.main` }
-              : { '&:hover': { borderColor: theme => `rgba(${theme.palette.customColors.main}, 0.25)` } }),
+              : {
+                  '&:hover': {
+                    borderColor: theme =>
+                      `rgba(${theme.palette.customColors.main}, 0.25)`,
+                  },
+                }),
             '& img': {
               width: '100%',
               height: '100%',
-              objectFit: 'cover'
-            }
+              objectFit: 'cover',
+            },
           }}
         >
-          {typeof img === 'string' ? <img src={img} alt={alt ?? `radio-image-${value}`} /> : img}
+          {typeof img === 'string' ? (
+            <img src={img} alt={alt ?? `radio-image-${value}`} />
+          ) : (
+            img
+          )}
           <Radio
             name={name}
             size='small'

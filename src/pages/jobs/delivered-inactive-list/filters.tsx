@@ -20,7 +20,7 @@ import { FilterType } from '.'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { Icon } from '@iconify/react'
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import { useState } from 'react'
 
 type Props = {

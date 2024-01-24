@@ -23,19 +23,19 @@ import Typography, { TypographyProps } from '@mui/material/Typography'
 import InfiniteScroll from 'react-infinite-scroller'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** Third Party Components
 import PerfectScrollbarComponent from 'react-perfect-scrollbar'
 
 // ** Type Imports
 
-import { Settings } from 'src/@core/context/settingsContext'
-import { CustomAvatarProps } from 'src/@core/components/mui/avatar/types'
+import { Settings } from '@src/@core/context/settingsContext'
+import { CustomAvatarProps } from '@src/@core/components/mui/avatar/types'
 
 // ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
-import CustomAvatar from 'src/@core/components/mui/avatar'
+import CustomChip from '@src/@core/components/mui/chip'
+import CustomAvatar from '@src/@core/components/mui/avatar'
 
 // ** Util Import
 

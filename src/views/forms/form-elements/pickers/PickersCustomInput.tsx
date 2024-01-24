@@ -11,7 +11,8 @@ import {
   OutlinedInput,
 } from '@mui/material'
 
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
+
 interface PickerProps {
   label?: string
   readOnly?: boolean

@@ -3,35 +3,28 @@
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import { Box, Button, IconButton, Tab, Typography, styled } from '@mui/material'
+import { Box, Button, IconButton, styled, Tab, Typography } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import {
-  SyntheticEvent,
-  useState,
+  Fragment,
   MouseEvent,
   Suspense,
+  SyntheticEvent,
   useEffect,
-  useContext,
-  Fragment,
   useRef,
+  useState,
 } from 'react'
 
-import Prices from './components/prices/edit-prices'
+import EditPrices from './components/prices/edit-prices'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
-import { PriceUnitListType } from '@src/types/common/standard-price'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { itemSchema, jobItemSchema } from '@src/types/schema/item.schema'
-import { is } from 'date-fns/locale'
+import { jobItemSchema } from '@src/types/schema/item.schema'
 import AssignPro from './components/assign-pro/assign-pro'
+import { SaveJobPricesParamsType } from '@src/types/orders/job-detail'
 import {
-  AssignProFilterPostType,
-  SaveJobPricesParamsType,
-} from '@src/types/orders/job-detail'
-import {
-  useGetAssignableProList,
   useGetJobInfo,
   useGetJobPriceHistory,
   useGetJobPrices,
@@ -44,7 +37,6 @@ import JobHistory from './components/history'
 import EditJobInfo from './components/job-info/edit-job-info'
 import ViewJobInfo from './components/job-info/view-job-info'
 import ViewPrices from './components/prices/view-prices'
-import EditPrices from './components/prices/edit-prices'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 import {
   useGetLangItem,
@@ -139,7 +131,10 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(jobItemSchema),
+    resolver: yupResolver(jobItemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
   })
 
   // console.log(isItemValid)

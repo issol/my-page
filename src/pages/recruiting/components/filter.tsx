@@ -18,12 +18,12 @@ import {
 } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
-import { JobList } from 'src/shared/const/job/jobs'
-import { RoleList } from 'src/shared/const/role/roles'
+import { JobList } from '@src/shared/const/job/jobs'
+import { RoleList } from '@src/shared/const/role/roles'
 
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 
 // ** types
 import { FilterType } from '..'

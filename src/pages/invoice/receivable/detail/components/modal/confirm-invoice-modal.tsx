@@ -12,7 +12,7 @@ import DatePicker from 'react-datepicker'
 
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { useEffect, useState } from 'react'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import { countries } from '@src/@fake-db/autocomplete'
 import { timeZoneFormatter } from '@src/shared/helpers/timezone.helper'

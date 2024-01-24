@@ -33,7 +33,7 @@ import {
   UseFormWatch,
 } from 'react-hook-form'
 import { useRecoilValueLoadable } from 'recoil'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
@@ -459,7 +459,7 @@ const Contracts = ({
   )
 }
 
-const LabelTitle = styled.label`
+const LabelTitle = styled('label')`
   font-weight: 600;
   font-size: 1rem;
   line-height: 24px;
@@ -467,7 +467,7 @@ const LabelTitle = styled.label`
 
   color: rgba(76, 78, 100, 0.87);
 `
-const Label = styled.label`
+const Label = styled('label')`
   font-weight: 400;
   font-size: 1rem;
   line-height: 24px;

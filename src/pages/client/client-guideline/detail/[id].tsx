@@ -14,16 +14,16 @@ import { Fragment, useContext, useEffect, useState } from 'react'
 import { convertFromRaw, EditorState } from 'draft-js'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { StyledViewer } from 'src/@core/components/editor/customEditor'
+import { StyledViewer } from '@src/@core/components/editor/customEditor'
 import { toast } from 'react-hot-toast'
-import FileItem from 'src/@core/components/fileItem'
+import FileItem from '@src/@core/components/fileItem'
 
 // ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
-import EmptyPost from 'src/@core/components/page/empty-post'
+import CustomChip from '@src/@core/components/mui/chip'
+import EmptyPost from '@src/@core/components/page/empty-post'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -37,14 +37,14 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** helpers
-import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
 
 // ** fetches
 import axios from 'axios'
-import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
+import { useGetGuideLineDetail } from '@src/queries/client-guideline.query'
 import {
   deleteGuideline,
   restoreGuideline,
@@ -54,14 +54,14 @@ import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import { useMutation } from 'react-query'
 
 // ** helpers
-import { getFilePath } from 'src/shared/transformer/filePath.transformer'
+import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 
 // ** types
-import { FileType } from 'src/types/common/file.type'
+import { FileType } from '@src/types/common/file.type'
 import FallbackSpinner from '@src/@core/components/spinner'
 
 import { client_guideline } from '@src/shared/const/permission-class'
-import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { timezoneSelector } from '@src/states/permission'

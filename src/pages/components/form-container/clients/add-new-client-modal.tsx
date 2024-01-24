@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 
 // ** mui
 import {
@@ -12,38 +11,26 @@ import {
 } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** react hook form
-import {
-  Control,
-  FieldArrayWithId,
-  FieldErrors,
-  UseFieldArrayAppend,
-  UseFieldArrayRemove,
-  UseFieldArrayUpdate,
-  UseFormGetValues,
-  UseFormSetValue,
-  UseFormWatch,
-  useFieldArray,
-  useForm,
-} from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 
 import {
-  CompanyInfoFormType,
   companyInfoDefaultValue,
+  CompanyInfoFormType,
   companyInfoSchema,
 } from '@src/types/schema/company-info.schema'
 import {
-  ClientAddressFormType,
   clientAddressDefaultValue,
+  ClientAddressFormType,
   clientAddressSchema,
 } from '@src/types/schema/client-address.schema'
 import {
-  ClientContactPersonType,
-  ContactPersonType,
   clientContactPersonSchema,
+  ClientContactPersonType,
   contactPersonDefaultValue,
+  ContactPersonType,
 } from '@src/types/schema/client-contact-person.schema'
 
 // ** components
@@ -51,7 +38,6 @@ import Stepper from '@src/pages/components/stepper'
 import CompanyInfoForm from '@src/pages/client/components/forms/company-info-form'
 import AddContactPersonForm from '@src/pages/components/forms/add-contact-person-form'
 import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
-import { useGetClientList } from '@src/queries/client.query'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { CreateClientBodyType } from '@src/apis/client.api'
 
@@ -95,8 +81,7 @@ export default function AddNewClientModal({ onClose, onSave }: Props) {
   } = useForm<CompanyInfoFormType>({
     mode: 'onChange',
     defaultValues: companyInfoDefaultValue,
-
-    resolver: yupResolver(companyInfoSchema),
+    resolver: yupResolver(companyInfoSchema) as Resolver<CompanyInfoFormType>,
   })
 
   console.log(getCompanyInfoValues())
@@ -109,7 +94,9 @@ export default function AddNewClientModal({ onClose, onSave }: Props) {
   } = useForm<ClientAddressFormType>({
     defaultValues: clientAddressDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientAddressSchema),
+    resolver: yupResolver(
+      clientAddressSchema,
+    ) as Resolver<ClientAddressFormType>,
   })
 
   const {
@@ -131,7 +118,9 @@ export default function AddNewClientModal({ onClose, onSave }: Props) {
   } = useForm<ClientContactPersonType>({
     defaultValues: contactPersonDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientContactPersonSchema),
+    resolver: yupResolver(
+      clientContactPersonSchema,
+    ) as Resolver<ClientContactPersonType>,
   })
 
   const {

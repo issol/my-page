@@ -1,23 +1,13 @@
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import { Box, Button, Grid, Tab, Typography, styled } from '@mui/material'
+import { Box, Button, Grid, styled, Tab, Typography } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 
 import TabContext from '@mui/lab/TabContext'
-import {
-  MouseEvent,
-  SyntheticEvent,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { MouseEvent, SyntheticEvent, useEffect, useState } from 'react'
 
 import ProjectTeam from '../project-team'
-import {
-  HistoryType,
-  ProjectTeamListType,
-  VersionHistoryType,
-} from '@src/types/orders/order-detail'
+import { ProjectTeamListType } from '@src/types/orders/order-detail'
 import { v4 as uuidv4 } from 'uuid'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import {
@@ -31,13 +21,13 @@ import InvoiceLanguageAndItem from '../language-item'
 import { defaultOption, languageType } from '../../../add-new'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { ItemType } from '@src/types/common/item.type'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import {
   MemberType,
-  ProjectTeamType,
   projectTeamSchema,
+  ProjectTeamType,
 } from '@src/types/schema/project-team.schema'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { UserDataType } from '@src/context/types'
@@ -143,7 +133,9 @@ const InvoiceVersionHistoryModal = ({
   } = useForm<InvoiceProjectInfoFormType>({
     mode: 'onChange',
     defaultValues: invoiceProjectInfoDefaultValue,
-    resolver: yupResolver(invoiceProjectInfoSchema),
+    resolver: yupResolver(
+      invoiceProjectInfoSchema,
+    ) as unknown as Resolver<InvoiceProjectInfoFormType>,
   })
 
   const {
@@ -161,7 +153,7 @@ const InvoiceVersionHistoryModal = ({
       contactPersonId: null,
       addressType: 'shipping',
     },
-    resolver: yupResolver(clientSchema),
+    resolver: yupResolver(clientSchema) as Resolver<ClientFormType>,
   })
 
   const {
@@ -174,7 +166,10 @@ const InvoiceVersionHistoryModal = ({
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(itemSchema),
+    resolver: yupResolver(itemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
   })
 
   const {
@@ -211,7 +206,7 @@ const InvoiceVersionHistoryModal = ({
         { type: 'member', id: null },
       ],
     },
-    resolver: yupResolver(projectTeamSchema),
+    resolver: yupResolver(projectTeamSchema) as Resolver<ProjectTeamType>,
   })
 
   function getPriceOptions(source: string, target: string) {
@@ -415,8 +410,8 @@ const InvoiceVersionHistoryModal = ({
           item.position === 'projectManager'
             ? 'projectManagerId'
             : item.position === 'supervisor'
-            ? 'supervisorId'
-            : 'member',
+              ? 'supervisorId'
+              : 'member',
         id: item.userId,
         name: getLegalName({
           firstName: item?.firstName!,

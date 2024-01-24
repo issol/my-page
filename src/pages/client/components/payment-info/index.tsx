@@ -23,7 +23,7 @@ import FileInfo from '@src/@core/components/file-info'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** types & schema
@@ -113,7 +113,9 @@ export default function PaymentInfo({ clientId, clientInfo }: Props) {
       zipCode: '',
     },
     mode: 'onChange',
-    resolver: yupResolver(clientBillingAddressSchema),
+    resolver: yupResolver(
+      clientBillingAddressSchema,
+    ) as Resolver<ClientAddressType>,
   })
 
   useEffect(() => {

@@ -8,7 +8,7 @@ import MenuItem from '@mui/material/MenuItem'
 import { Typography } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import { PriceUnitType } from '@src/types/common/standard-price'
 
 type Props = {

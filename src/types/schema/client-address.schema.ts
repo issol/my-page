@@ -43,7 +43,7 @@ export const clientAddressSchema = yup.object().shape({
         name: yup
           .string()
           .nullable()
-          .when('addressType', (addressType, schema) =>
+          .when('addressType', ([addressType], schema) =>
             addressType === 'additional'
               ? yup.string().required(FormErrors.required)
               : schema,
@@ -69,7 +69,7 @@ export const clientAddressAllRequiredSchema = yup.object().shape({
       name: yup
         .string()
         .nullable()
-        .when('addressType', (addressType, schema) =>
+        .when('addressType', ([addressType], schema) =>
           addressType === 'additional'
             ? yup.string().required(FormErrors.required)
             : schema,

@@ -1,7 +1,7 @@
 // ** React Imports
 import { useState, Fragment } from 'react'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** mui
 import { Card, Grid, TablePagination, Tooltip, Typography } from '@mui/material'
@@ -260,11 +260,11 @@ const Title = styled(Typography)`
   font-size: 0.875rem;
   font-weight: 700;
 `
-const Desc = styled.p`
+const Desc = styled('p')`
   font-size: 1rem;
   color: rgba(76, 78, 100, 0.87);
 `
-const ColumnText = styled.span(() => {
+const ColumnText = styled('span')(() => {
   return {
     display: 'flex',
     alignItems: 'center',

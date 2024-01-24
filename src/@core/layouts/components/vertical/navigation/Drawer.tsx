@@ -1,9 +1,11 @@
 // ** MUI Imports
 import { styled, useTheme } from '@mui/material/styles'
-import MuiSwipeableDrawer, { SwipeableDrawerProps } from '@mui/material/SwipeableDrawer'
+import MuiSwipeableDrawer, {
+  SwipeableDrawerProps,
+} from '@mui/material/SwipeableDrawer'
 
 // ** Type Import
-import { LayoutProps } from 'src/@core/layouts/types'
+import { LayoutProps } from '@src/@core/layouts/types'
 
 interface Props {
   navWidth: number
@@ -23,18 +25,18 @@ const SwipeableDrawer = styled(MuiSwipeableDrawer)<SwipeableDrawerProps>({
   overflowX: 'hidden',
   transition: 'width .25s ease-in-out',
   '& ul': {
-    listStyle: 'none'
+    listStyle: 'none',
   },
   '& .MuiListItem-gutters': {
     paddingLeft: 4,
-    paddingRight: 4
+    paddingRight: 4,
   },
   '& .MuiDrawer-paper': {
     left: 'unset',
     right: 'unset',
     overflowX: 'hidden',
-    transition: 'width .25s ease-in-out, box-shadow .25s ease-in-out'
-  }
+    transition: 'width .25s ease-in-out, box-shadow .25s ease-in-out',
+  },
 })
 
 const Drawer = (props: Props) => {
@@ -50,7 +52,7 @@ const Drawer = (props: Props) => {
     navMenuProps,
     setNavVisible,
     collapsedNavWidth,
-    navigationBorderWidth
+    navigationBorderWidth,
   } = props
 
   // ** Hook
@@ -66,12 +68,12 @@ const Drawer = (props: Props) => {
       return {
         backgroundColor: 'customColors.darkBg',
         '& .MuiTypography-root': {
-          color: `rgba(${theme.palette.customColors.dark}, 0.87)`
-        }
+          color: `rgba(${theme.palette.customColors.dark}, 0.87)`,
+        },
       }
     } else
       return {
-        backgroundColor: 'background.default'
+        backgroundColor: 'background.default',
       }
   }
 
@@ -81,8 +83,8 @@ const Drawer = (props: Props) => {
     onOpen: () => setNavVisible(true),
     onClose: () => setNavVisible(false),
     ModalProps: {
-      keepMounted: true // Better open performance on mobile.
-    }
+      keepMounted: true, // Better open performance on mobile.
+    },
   }
 
   // Drawer Props for Laptop & Desktop screens
@@ -101,7 +103,7 @@ const Drawer = (props: Props) => {
       if (navCollapsed) {
         setNavHover(false)
       }
-    }
+    },
   }
 
   let userNavMenuStyle = {}
@@ -126,14 +128,17 @@ const Drawer = (props: Props) => {
           ...drawerColors(),
           width: navCollapsed && !navHover ? collapsedNavWidth : navWidth,
           ...(!hidden && navCollapsed && navHover ? { boxShadow: 10 } : {}),
-          borderRight: navigationBorderWidth === 0 ? 0 : `${navigationBorderWidth}px solid ${theme.palette.divider}`,
-          ...userNavMenuPaperStyle
+          borderRight:
+            navigationBorderWidth === 0
+              ? 0
+              : `${navigationBorderWidth}px solid ${theme.palette.divider}`,
+          ...userNavMenuPaperStyle,
         },
-        ...navMenuProps?.PaperProps
+        ...navMenuProps?.PaperProps,
       }}
       sx={{
         width: navCollapsed ? collapsedNavWidth : navWidth,
-        ...userNavMenuStyle
+        ...userNavMenuStyle,
       }}
       {...userNavMenuProps}
     >

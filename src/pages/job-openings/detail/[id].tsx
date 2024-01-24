@@ -8,10 +8,8 @@ import {
   IconButton,
   Typography,
 } from '@mui/material'
-import { renderStatusChip } from '@src/@core/components/chips/chips'
 import LoginRequiredModal from '@src/@core/components/common-modal/login-modal'
 import { StyledViewer } from '@src/@core/components/editor/customEditor'
-import { LinkReadOnlyItem } from '@src/@core/components/linkItem'
 import PageHeader from '@src/@core/components/page-header'
 import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 import FallbackSpinner from '@src/@core/components/spinner'
@@ -19,21 +17,21 @@ import useModal from '@src/hooks/useModal'
 import UserLayout from '@src/layouts/UserLayout'
 import { useGetJobOpeningDetail } from '@src/queries/pro/pro-job-openings'
 import {
-  FullDateTimezoneHelper,
   convertTimeToTimezone,
+  FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { authState } from '@src/states/auth'
 import {
-  JobOpeningDetailType,
   applyResponseEnum,
+  JobOpeningDetailType,
 } from '@src/types/pro/pro-job-openings'
-import { EditorState, convertFromRaw } from 'draft-js'
+import { convertFromRaw, EditorState } from 'draft-js'
 import { useRouter } from 'next/router'
 import { ReactNode, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from '@src/@core/components/mui/chip'
 import ApplyModal from '../components/apply-modal'
 import {
   createJobInfo,
@@ -43,8 +41,6 @@ import { useMutation } from 'react-query'
 import { AddRolePayloadType } from '@src/types/onboarding/list'
 import { addCreateProAppliedRole } from '@src/apis/onboarding.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { c } from 'msw/lib/glossary-de6278a9'
-import { JobPostingDetailType } from '@src/apis/jobPosting.api'
 import { timezoneSelector } from '@src/states/permission'
 
 const JobOpeningDetail = () => {

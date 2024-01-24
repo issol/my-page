@@ -9,7 +9,7 @@ import {
 import Box from '@mui/material/Box'
 
 import { ApexOptions } from 'apexcharts'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { useDashboardRatio } from '@src/queries/dashnaord.query'
 import { renderToString } from 'react-dom/server'
 import {

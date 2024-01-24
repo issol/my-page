@@ -13,15 +13,15 @@ import { convertToRaw, EditorState } from 'draft-js'
 import { toast } from 'react-hot-toast'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { StyledEditor } from 'src/@core/components/editor/customEditor'
+import { StyledEditor } from '@src/@core/components/editor/customEditor'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from '@src/@core/components/mui/chip'
 
 // ** contexts
 
@@ -30,7 +30,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** values
-import { FormErrors } from 'src/shared/const/formErrors'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 // ** fetches
 import { useMutation } from 'react-query'
@@ -41,7 +41,7 @@ import {
   LangType,
   ContractTypeEnum,
   ContractLangEnum,
-} from 'src/apis/contract.api'
+} from '@src/apis/contract.api'
 import { Icon } from '@iconify/react'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'

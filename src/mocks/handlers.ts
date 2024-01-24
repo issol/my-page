@@ -1,23 +1,20 @@
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
-import { rest } from 'msw'
+import { http, HttpResponse } from 'msw'
 import { BASEURL } from 'src/configs/axios'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
-import { TestDetailType } from 'src/types/certification-test/detail'
 
-import { Book, Review } from './types'
+import { Review } from './types'
 
 const languageList = getGloLanguage()
 
 const image = '/sample/seo.pdf'
 
 type ReqType = {
-  body: {
-    category?: any
-    client?: any
-    content?: any
-    serviceType?: any
-    title?: any
-  }
+  category?: any
+  client?: any
+  content?: any
+  serviceType?: any
+  title?: any
 }
 
 type ReqType2 = {
@@ -141,42 +138,46 @@ const extensions = ['docx', 'jpg', 'png', 'csv', 'pdf']
 
 export const handlers = [
   // Handles a GET /user request
-  rest.get(BASEURL + '/api/enough/u/pu/r-check', (req, res, ctx) => {
-    const userEmail = req.url.searchParams.get('email')
+  http.get(BASEURL + '/api/enough/u/pu/r-check', ({ request }) => {
+    const url = new URL(request.url)
+    const userEmail = url.searchParams.get('email')
     if (userEmail != 'jay@glozinc.com') {
-      return res(ctx.status(200), ctx.body('good to go!'))
+      return new HttpResponse('', {
+        status: 200,
+      })
     } else {
-      return res(
-        ctx.status(409),
-        ctx.json({
-          statusCode: 409,
-          message: 'Email: jay@glozinc.com 이미 가입된 계정입니다.',
-          error: 'Conflict',
-        }),
-      )
+      return HttpResponse.json({
+        statusCode: 409,
+        message: 'Email: jay@glozinc.com 이미 가입된 계정입니다.',
+        error: 'Conflict',
+      })
     }
   }),
 
   // 클라이언트 가이드라인
   // get list
-  rest.get(BASEURL + '/api/enough/onboard/guideline', (req, res, ctx) => {
-    interface Data {
+  http.get(BASEURL + '/api/enough/onboard/guideline', ({ request }) => {
+    interface Items {
       title: string
       client: string
       category: string
       serviceType: string
     }
-    const f_Skip = Number(req.url.searchParams.get('skip')) || 1
-    const f_PageSize = Number(req.url.searchParams.get('pageSize')) || 10
-    const f_Title = req.url.searchParams.get('title') || ''
-    const f_Client = req.url.searchParams.get('client')
-      ? [req.url.searchParams.get('client')]
+
+    const url = new URL(request.url)
+
+    const f_Skip = Number(url.searchParams.get('skip')) || 1
+    const f_PageSize = Number(url.searchParams.get('pageSize')) || 10
+
+    const f_Title = url.searchParams.get('title') || ''
+    const f_Client = url.searchParams.get('client')
+      ? [url.searchParams.get('client')]
       : []
-    const f_Category = req.url.searchParams.get('category')
-      ? [req.url.searchParams.get('category')]
+    const f_Category = url.searchParams.get('category')
+      ? [url.searchParams.get('category')]
       : []
-    const f_ServiceType = req.url.searchParams.get('serviceType')
-      ? [req.url.searchParams.get('serviceType')]
+    const f_ServiceType = url.searchParams.get('serviceType')
+      ? [url.searchParams.get('serviceType')]
       : []
 
     const titles = [
@@ -252,12 +253,14 @@ export const handlers = [
       return data
     }
 
+    const sampleList: Items[] = generateRandomData()
+
     function filterData(
       titles?: string,
       clients?: Array<string | null>,
       categories?: Array<string | null>,
       serviceTypes?: Array<string | null>,
-    ): Data[] {
+    ): Items[] {
       return sampleList.filter(
         item =>
           (!titles || titles === item.title) &&
@@ -268,138 +271,152 @@ export const handlers = [
       )
     }
 
-    const sampleList: Data[] = generateRandomData()
     const finalList = filterData(f_Title, f_Client, f_Category, f_ServiceType)
-    return res(
-      ctx.status(200),
-      ctx.json({
+
+    return HttpResponse.json(
+      {
         data: finalList,
         count: finalList.length,
-      }),
+      },
+      {
+        status: 200,
+      },
     )
   }),
 
   // guideline upload
+  http.post(`${BASEURL}/api/enough/onboard/guideline`, ({ request }) => {
+    const body = request.body as ReqType
 
-  rest.post(
-    BASEURL + '/api/enough/onboard/guideline',
-    (req: ReqType, res, ctx) => {
-      if (
-        req.body?.category &&
-        req.body?.client &&
-        req.body?.content &&
-        req.body?.serviceType &&
-        req.body?.title
-      ) {
-        return res(ctx.status(200), ctx.json(req.body))
-      } else {
-        return res(ctx.status(404), ctx.json(req.body))
-      }
-    },
-  ),
-
-  rest.get(BASEURL + '/api/enough/onboard/guideline/:id', (req, res, ctx) => {
-    const id = req.params.id
-    const detail = {
-      currentVersion: {
-        id: id,
-        userId: 12345,
-        title: 'title sample',
-        writer: 'Jay Lee',
-        email: 'jay@glozinc.com',
-        client: 'GloZ',
-        category: 'Dubbing',
-        serviceType: 'Editing',
-        updatedAt: '2023-02-10T07:33:53.740Z1',
-        content: {
-          blocks: [
-            {
-              key: 'd9so6',
-              text: 'translation guidelines document for web novels:',
-              type: 'unstyled',
-              depth: 0,
-              inlineStyleRanges: [],
-              entityRanges: [],
-              data: {},
-            },
-            {
-              key: 'b75mm',
-              text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
-              type: 'unstyled',
-              depth: 0,
-              inlineStyleRanges: [],
-              entityRanges: [],
-              data: {},
-            },
-          ],
-          entityMap: {},
-        },
-        files: [
-          { name: 'file1.docx', size: 34876123 },
-          { name: 'file2.xlsx', size: 25161 },
-        ],
-      },
-      versionHistory: [
-        {
-          id: 2,
-          userId: 12345,
-          title: 'title sample',
-          name: 'Jay Lee',
-          email: 'jay@glozinc.com',
-          client: 'GloZ',
-          category: 'Dubbing',
-          serviceType: 'Editing',
-          content: 'awefawef',
-          updatedAt: '2023-02-10T07:33:53.740Z1',
-          files: [
-            { name: 'file1.docx', size: 34876123 },
-            { name: 'file2.xlsx', size: 25161 },
-          ],
-        },
-        {
-          id: 1,
-          userId: 12345,
-          title: 'title sample',
-          name: 'Jay Lee',
-          email: 'jay@glozinc.com',
-          client: 'GloZ',
-          category: 'Dubbing',
-          serviceType: 'Editing',
-          content: 'awefawef',
-          updatedAt: '2023-02-10T07:33:53.740Z1',
-          files: [
-            { name: 'file1.docx', size: 34876123 },
-            { name: 'file2.xlsx', size: 25161 },
-          ],
-        },
-      ],
+    if (
+      body?.category &&
+      body?.client &&
+      body?.content &&
+      body?.serviceType &&
+      body?.title
+    ) {
+      return HttpResponse.json(body, {
+        status: 200,
+      })
+    } else {
+      return HttpResponse.json(body, {
+        status: 404,
+      })
     }
-    return res(ctx.status(200), ctx.json(detail))
   }),
 
-  rest.patch(
-    BASEURL + '/api/enough/onboard/guideline/:guidelineId',
-    (req: ReqType2, res, ctx) => {
-      return res(ctx.status(200), ctx.body(req.params.guidelineId))
+  http.get(
+    `${BASEURL}/api/enough/onboard/guideline/:id`,
+    ({ params, request }) => {
+      const id = params.id
+
+      const detail = {
+        currentVersion: {
+          id: id,
+          userId: 12345,
+          title: 'title sample',
+          writer: 'Jay Lee',
+          email: 'jay@glozinc.com',
+          client: 'GloZ',
+          category: 'Dubbing',
+          serviceType: 'Editing',
+          updatedAt: '2023-02-10T07:33:53.740Z1',
+          content: {
+            blocks: [
+              {
+                key: 'd9so6',
+                text: 'translation guidelines document for web novels:',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+              {
+                key: 'b75mm',
+                text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+            ],
+            entityMap: {},
+          },
+          files: [
+            { name: 'file1.docx', size: 34876123 },
+            { name: 'file2.xlsx', size: 25161 },
+          ],
+        },
+        versionHistory: [
+          {
+            id: 2,
+            userId: 12345,
+            title: 'title sample',
+            name: 'Jay Lee',
+            email: 'jay@glozinc.com',
+            client: 'GloZ',
+            category: 'Dubbing',
+            serviceType: 'Editing',
+            content: 'awefawef',
+            updatedAt: '2023-02-10T07:33:53.740Z1',
+            files: [
+              { name: 'file1.docx', size: 34876123 },
+              { name: 'file2.xlsx', size: 25161 },
+            ],
+          },
+          {
+            id: 1,
+            userId: 12345,
+            title: 'title sample',
+            name: 'Jay Lee',
+            email: 'jay@glozinc.com',
+            client: 'GloZ',
+            category: 'Dubbing',
+            serviceType: 'Editing',
+            content: 'awefawef',
+            updatedAt: '2023-02-10T07:33:53.740Z1',
+            files: [
+              { name: 'file1.docx', size: 34876123 },
+              { name: 'file2.xlsx', size: 25161 },
+            ],
+          },
+        ],
+      }
+      return HttpResponse.json(detail, { status: 200 })
     },
   ),
 
-  rest.delete(
+  http.patch(
     BASEURL + '/api/enough/onboard/guideline/:guidelineId',
-    (req: ReqType2, res, ctx) => {
-      return res(ctx.status(200), ctx.body(req.params.guidelineId))
+    ({ params }) => {
+      return HttpResponse.json(params.guidelineId, {
+        status: 200,
+      })
     },
   ),
 
-  rest.delete(
+  http.delete(
+    BASEURL + '/api/enough/onboard/guideline/:guidelineId',
+    ({ params }) => {
+      return HttpResponse.json(params.guidelineId, {
+        status: 200,
+      })
+    },
+  ),
+
+  http.delete(
     BASEURL + '/api/enough/onboard/guideline/file/:fileId',
-    (req: ReqType2, res, ctx) => {
-      return res(ctx.status(200), ctx.body(req.params.fileId))
+    ({ params }) => {
+      return HttpResponse.json(params.fileId, {
+        status: 200,
+      })
     },
   ),
 
   // 잡포스팅 리스트 가져오기
-  rest.get(BASEURL + '/api/enough/recruiting/jobposting', (req, res, ctx) => {
+  http.get(BASEURL + '/api/enough/recruiting/jobposting', () => {
     const jobpostingList = {
       data: [
         {
@@ -448,138 +465,163 @@ export const handlers = [
     //   req.url.searchParams.get('skip')
     // )
     //   return
-    res(ctx.status(200), ctx.json(jobpostingList))
+    return HttpResponse.json(jobpostingList, {
+      status: 200,
+    })
     // else return res(ctx.status(409), ctx.body(''))
   }),
 
   // 잡포스팅 디테일 가져오기
-  rest.get(
-    BASEURL + '/api/enough/recruiting/jobposting/:id',
-    (req, res, ctx) => {
-      const jobpostingDetailList = {
-        id: Number(req.params.id),
-        writer: 'Jay Cha',
-        email: 'jaycha@glozinc.com',
-        jobType: 'Webcomics',
-        role: 'Proofreader',
-        status: 'Not started',
-        sourceLanguage: 'en',
-        targetLanguage: 'ko',
-        dueDate: '02/02/2023, 06:20 PM',
-        openings: 5,
-        dueDateTimezone: '?',
-        yearsOfExperience: '3~5 years',
-        postLink: [
+  http.get(`${BASEURL}/api/enough/recruiting/jobposting/:id`, ({ params }) => {
+    const jobpostingDetailList = {
+      id: Number(params.id),
+      writer: 'Jay Cha',
+      email: 'jaycha@glozinc.com',
+      jobType: 'Webcomics',
+      role: 'Proofreader',
+      status: 'Not started',
+      sourceLanguage: 'en',
+      targetLanguage: 'ko',
+      dueDate: '02/02/2023, 06:20 PM',
+      openings: 5,
+      dueDateTimezone: '?',
+      yearsOfExperience: '3~5 years',
+      postLink: [
+        {
+          id: 1,
+          category: 'JobKorea',
+          link: 'https://jobkorea.com/123123',
+        },
+        {
+          id: 2,
+          category: 'Albamon',
+          link: 'https://albamon.com/123123',
+        },
+      ],
+      jobPostLink: 'htps://gloz.io/short2',
+      createdAt: '02/02/2023, 06:20 PM',
+      content: {
+        blocks: [
           {
-            id: 1,
-            category: 'JobKorea',
-            link: 'https://jobkorea.com/123123',
+            key: 'd9so6',
+            text: 'translation guidelines document for web novels:',
+            type: 'unstyled',
+            depth: 0,
+            inlineStyleRanges: [],
+            entityRanges: [],
+            data: {},
           },
           {
-            id: 2,
-            category: 'Albamon',
-            link: 'https://albamon.com/123123',
+            key: 'b75mm',
+            text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+            type: 'unstyled',
+            depth: 0,
+            inlineStyleRanges: [],
+            entityRanges: [],
+            data: {},
           },
         ],
-        jobPostLink: 'htps://gloz.io/short2',
-        createdAt: '02/02/2023, 06:20 PM',
-        content: {
-          blocks: [
-            {
-              key: 'd9so6',
-              text: 'translation guidelines document for web novels:',
-              type: 'unstyled',
-              depth: 0,
-              inlineStyleRanges: [],
-              entityRanges: [],
-              data: {},
-            },
-            {
-              key: 'b75mm',
-              text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
-              type: 'unstyled',
-              depth: 0,
-              inlineStyleRanges: [],
-              entityRanges: [],
-              data: {},
-            },
-          ],
-          entityMap: {},
-        },
-        view: 23,
-      }
-      if (req.params.id)
-        return res(ctx.status(200), ctx.json(jobpostingDetailList))
-      else return res(ctx.status(409), ctx.body(''))
-    },
-  ),
-
+        entityMap: {},
+      },
+      view: 23,
+    }
+    if (params.id) {
+      return HttpResponse.json(jobpostingDetailList, {
+        status: 200,
+      })
+    } else {
+      return HttpResponse.json(jobpostingDetailList, {
+        status: 409,
+      })
+    }
+  }),
   // 잡포스팅 요청서
-  rest.post(
-    BASEURL + '/api/enough/recruiting/jobposting',
-    (req: any, res, ctx) => {
-      if (
-        req.body?.status &&
-        req.body?.jobType &&
-        req.body?.role &&
-        req.body?.sourceLanguage &&
-        req.body?.targetLanguage &&
-        req.body?.yearsOfExperience &&
-        req.body?.openings &&
-        req.body?.dueDate &&
-        req.body?.dueDateTimezone &&
-        req.body?.postLink &&
-        req.body?.content
+  http.post(BASEURL + '/api/enough/recruiting/jobposting', ({ request }) => {
+    const body = request.body as any
+    if (
+      body?.status &&
+      body?.jobType &&
+      body?.role &&
+      body?.sourceLanguage &&
+      body?.targetLanguage &&
+      body?.yearsOfExperience &&
+      body?.openings &&
+      body?.dueDate &&
+      body?.dueDateTimezone &&
+      body?.postLink &&
+      body?.content
+    )
+      return HttpResponse.json(
+        { id: 5 },
+        {
+          status: 200,
+        },
       )
-        return res(
-          ctx.status(200),
-          ctx.json({
-            id: 5,
-          }),
-        )
-      else return res(ctx.status(409), ctx.body(''))
-    },
-  ),
+    else
+      return HttpResponse.json(
+        { id: 5 },
+        {
+          status: 409,
+        },
+      )
+  }),
 
   // 잡포스팅 업데이트
-  rest.patch(
+  http.patch(
     BASEURL + '/api/enough/recruiting/jobposting/:id',
-    (req: any, res, ctx) => {
+    ({ params, request }) => {
+      const body = request.body as any
       if (
-        req.body?.status &&
-        req.body?.jobType &&
-        req.body?.role &&
-        req.body?.sourceLanguage &&
-        req.body?.targetLanguage &&
-        req.body?.yearsOfExperience &&
-        req.body?.openings &&
-        req.body?.dueDate &&
-        req.body?.dueDateTimezone &&
-        req.body?.postLink &&
-        req.body?.content
+        body?.status &&
+        body?.jobType &&
+        body?.role &&
+        body?.sourceLanguage &&
+        body?.targetLanguage &&
+        body?.yearsOfExperience &&
+        body?.openings &&
+        body?.dueDate &&
+        body?.dueDateTimezone &&
+        body?.postLink &&
+        body?.content
       )
-        return res(
-          ctx.status(200),
-          ctx.json({
-            id: req.params.id,
-          }),
+        return HttpResponse.json(
+          {
+            id: params.id,
+          },
+          {
+            status: 200,
+          },
         )
-      else return res(ctx.status(409), ctx.body(''))
+      else
+        return HttpResponse.json(
+          {
+            id: params.id,
+          },
+          {
+            status: 409,
+          },
+        )
     },
   ),
 
   // 리크루팅 삭제
-  rest.delete(
+  http.delete(
     BASEURL + '/api/enough/recruiting/jobposting/:id',
-    (req, res, ctx) => {
-      if (req.params.id) return res(ctx.status(200), ctx.body(''))
-      else return res(ctx.status(409), ctx.body(''))
+    ({ params }) => {
+      if (params.id)
+        return HttpResponse.json('', {
+          status: 200,
+        })
+      else
+        return HttpResponse.json('', {
+          status: 409,
+        })
     },
   ),
 
   // Recruiting
   // 리크루팅 리스트 가져오기
-  rest.get(BASEURL + '/api/enough/recruiting', (req, res, ctx) => {
+  http.get(BASEURL + '/api/enough/recruiting', () => {
     const recruitingList = {
       data: [
         {
@@ -622,13 +664,15 @@ export const handlers = [
     //   req.url.searchParams.get('source') &&
     //   req.url.searchParams.get('target')
     // )
-    return res(ctx.status(200), ctx.json(recruitingList))
+    return HttpResponse.json(recruitingList, {
+      status: 200,
+    })
     // else return res(ctx.status(409), ctx.body(''))
   }),
 
   //리크루팅 디테일 가져오기
-  rest.get(BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
-    const id = req.params.id
+  http.get(BASEURL + '/api/enough/recruiting/:id', ({ params }) => {
+    const id = params.id
     const detail = {
       currentVersion: {
         id: 1,
@@ -756,55 +800,73 @@ export const handlers = [
         },
       ],
     }
-    if (id) return res(ctx.status(200), ctx.json(detail))
-    else return res(ctx.status(409), ctx.body(''))
+    if (id)
+      return HttpResponse.json(detail, {
+        status: 200,
+      })
+    else
+      return HttpResponse.json(detail, {
+        status: 409,
+      })
   }),
 
   //리크루팅 디테일 가져오기
-  rest.get(
-    BASEURL + '/api/enough/recruiting/dashboard?company=GloZ',
-    (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json({
-          onGoing: 55,
-          done: 125,
-          hold: 76,
-          total: 256243,
-        }),
-      )
-    },
-  ),
+  http.get(BASEURL + '/api/enough/recruiting/dashboard?company=GloZ', () => {
+    return HttpResponse.json(
+      {
+        onGoing: 55,
+        done: 125,
+        hold: 76,
+        total: 256243,
+      },
+      {
+        status: 200,
+      },
+    )
+  }),
 
   //리크루팅 요청서
-  rest.post(BASEURL + '/api/enough/recruiting', (req: any, res, ctx) => {
+  http.post(BASEURL + '/api/enough/recruiting', ({ request }) => {
+    const body = request.body as any
     if (
-      req.body?.status &&
-      req.body?.client &&
-      req.body?.jobType &&
-      req.body?.role &&
-      req.body?.sourceLanguage &&
-      req.body?.targetLanguage &&
-      req.body?.openings &&
-      req.body?.dueAt &&
-      req.body?.timezone &&
-      req.body?.jobPostLink &&
-      req.body?.content
+      body?.status &&
+      body?.client &&
+      body?.jobType &&
+      body?.role &&
+      body?.sourceLanguage &&
+      body?.targetLanguage &&
+      body?.openings &&
+      body?.dueAt &&
+      body?.timezone &&
+      body?.jobPostLink &&
+      body?.content
     )
-      return res(
-        ctx.status(200),
-        ctx.json({
+      return HttpResponse.json(
+        {
           id: 123,
-        }),
+        },
+        {
+          status: 200,
+        },
       )
-    else return res(ctx.status(409), ctx.body(''))
+    else
+      return HttpResponse.json(
+        {
+          id: 123,
+        },
+        {
+          status: 409,
+        },
+      )
   }),
 
   //리크루팅 업데이트
-  rest.patch(BASEURL + '/api/enough/recruiting/:id', (req: any, res, ctx) => {
+  http.patch(BASEURL + '/api/enough/recruiting/:id', ({ params, request }) => {
+    const body = request.body as any
+
     if (
-      req.params.id &&
-      req.body?.status
+      params.id &&
+      body?.status
       // &&
       // req.body?.client &&
       // req.body?.jobType &&
@@ -817,13 +879,23 @@ export const handlers = [
       // req.body?.jobPostLink &&
       // req.body?.content
     )
-      return res(
-        ctx.status(200),
-        ctx.json({
-          id: req.params.id,
-        }),
+      return HttpResponse.json(
+        {
+          id: params.id,
+        },
+        {
+          status: 200,
+        },
       )
-    else return res(ctx.status(409), ctx.body(''))
+    else
+      return HttpResponse.json(
+        {
+          id: params.id,
+        },
+        {
+          status: 409,
+        },
+      )
   }),
 
   //리크루팅 숨김처리
@@ -842,9 +914,12 @@ export const handlers = [
   // )
 
   // 리크루팅 삭제
-  rest.delete(BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
-    if (req.params.id) return res(ctx.status(200), ctx.body(''))
-    else return res(ctx.status(409), ctx.body(''))
+  http.delete(BASEURL + '/api/enough/recruiting/:id', ({ params }) => {
+    if (params.id) return HttpResponse.json('', { status: 200 })
+    else
+      return HttpResponse.json('', {
+        status: 409,
+      })
   }),
 
   // 시험지 리스트
@@ -1143,8 +1218,8 @@ export const handlers = [
   //   return res(ctx.status(200), ctx.json(detail))
   // }),
 
-  rest.get(BASEURL + '/api/enough/onboard/user/:userId', (req, res, ctx) => {
-    const id = req.params.userId
+  http.get(BASEURL + '/api/enough/onboard/user/:userId', ({ params }) => {
+    const id = params.userId
     if (id.includes('P')) {
       const details: OnboardingProDetailsType = {
         id: 'P-000001',
@@ -1204,7 +1279,7 @@ export const handlers = [
         company: 'GloZ',
       }
 
-      return res(ctx.status(200), ctx.json(details))
+      return HttpResponse.json(details, { status: 200 })
     }
   }),
 
@@ -1490,7 +1565,7 @@ export const handlers = [
   //   return res(ctx.status(200), ctx.json([]))
   // }),
 
-  rest.get(BASEURL + '/api/enough/pro/user/al', (req, res, ctx) => {
+  http.get(BASEURL + '/api/enough/pro/user/al', ({ request }) => {
     interface Data {
       id: string
       userId: number
@@ -1514,21 +1589,23 @@ export const handlers = [
       isActive: boolean
     }
 
-    const f_Skip = Number(req.url.searchParams.get('skip')) || 0
-    const f_Take = Number(req.url.searchParams.get('take')) || 10
+    const url = new URL(request.url)
 
-    const f_Search = req.url.searchParams.get('search') || ''
+    const f_Skip = Number(url.searchParams.get('skip')) || 0
+    const f_Take = Number(url.searchParams.get('take')) || 10
 
-    const f_JobType = req.url.searchParams.getAll('jobType') ?? []
+    const f_Search = url.searchParams.get('search') || ''
 
-    const f_Role = req.url.searchParams.getAll('role') ?? []
-    const f_Source = req.url.searchParams.getAll('source') ?? []
-    const f_Target = req.url.searchParams.getAll('target') ?? []
+    const f_JobType = url.searchParams.getAll('jobType') ?? []
 
-    const f_Experience = req.url.searchParams.getAll('experience') ?? []
+    const f_Role = url.searchParams.getAll('role') ?? []
+    const f_Source = url.searchParams.getAll('source') ?? []
+    const f_Target = url.searchParams.getAll('target') ?? []
 
-    const f_Status = req.url.searchParams.getAll('status') ?? []
-    const f_Clients = req.url.searchParams.getAll('clients') ?? []
+    const f_Experience = url.searchParams.getAll('experience') ?? []
+
+    const f_Status = url.searchParams.getAll('status') ?? []
+    const f_Clients = url.searchParams.getAll('clients') ?? []
 
     function getRandomDate() {
       const start = new Date('2022-01-01')
@@ -1674,17 +1751,17 @@ export const handlers = [
       f_Clients,
     )
 
-    return res(
-      ctx.status(200),
-      ctx.json({
+    return HttpResponse.json(
+      {
         data: finalList,
         totalCount: sampleList.length,
-      }),
+      },
+      { status: 200 },
     )
   }),
 
-  rest.get(BASEURL + '/api/enough/pro/detail/:id', (req, res, ctx) => {
-    const id = req.params.userId
+  http.get(BASEURL + '/api/enough/pro/detail/:id', ({ params }) => {
+    const id = params.userId
     if (id.includes('P')) {
       const details: OnboardingProDetailsType = {
         id: 'P-000001',
@@ -1743,11 +1820,11 @@ export const handlers = [
         havePreferredName: true,
         company: 'GloZ',
       }
-      return res(ctx.status(200), ctx.json(details))
+      return HttpResponse.json(details, { status: 200 })
     }
   }),
 
-  rest.get(BASEURL + '/api/enough/u/client/projects', (req, res, ctx) => {
+  http.get(BASEURL + '/api/enough/u/client/projects', () => {
     const list = [
       {
         id: 0,
@@ -1774,12 +1851,12 @@ export const handlers = [
         projectDescription: 'Test2',
       },
     ]
-    return res(
-      ctx.status(200),
-      ctx.json({
+    return HttpResponse.json(
+      {
         data: list,
         totalCount: list.length,
-      }),
+      },
+      { status: 200 },
     )
   }),
 ]

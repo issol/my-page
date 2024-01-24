@@ -3,6 +3,7 @@ import { bankTransferSchema } from './bank-transfer.schema'
 import { creditCardSchema } from './credit-card.schema'
 import { payPalSchema } from './paypal.schema'
 import { accountMethodSchema } from './account-method.schema'
+import { ObjectSchema } from 'yup'
 
 export function clientPaymentInitialData(type: PaymentType) {
   switch (type) {
@@ -31,7 +32,7 @@ export function clientPaymentInitialData(type: PaymentType) {
   }
 }
 
-export function getPaymentMethodSchema(type: PaymentType) {
+export function getPaymentMethodSchema(type: PaymentType): ObjectSchema<any> {
   switch (type) {
     case 'bankTransfer':
     case 'directDeposit':

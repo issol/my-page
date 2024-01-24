@@ -12,22 +12,24 @@ import Typography from '@mui/material/Typography'
 import Box, { BoxProps } from '@mui/material/Box'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import { styled, useTheme } from '@mui/material/styles'
-import ListItemButton, { ListItemButtonProps } from '@mui/material/ListItemButton'
+import ListItemButton, {
+  ListItemButtonProps,
+} from '@mui/material/ListItemButton'
 
 // ** Configs Import
-import themeConfig from 'src/configs/themeConfig'
+import themeConfig from '@src/configs/themeConfig'
 
 // ** Types
-import { NavLink, NavGroup } from 'src/@core/layouts/types'
-import { Settings } from 'src/@core/context/settingsContext'
+import { NavLink, NavGroup } from '@src/@core/layouts/types'
+import { Settings } from '@src/@core/context/settingsContext'
 
 // ** Custom Components Imports
-import UserIcon from 'src/layouts/components/UserIcon'
-import Translations from 'src/layouts/components/Translations'
-import CanViewNavLink from 'src/layouts/components/acl/CanViewNavLink'
+import UserIcon from '@src/layouts/components/UserIcon'
+import Translations from '@src/layouts/components/Translations'
+import CanViewNavLink from '@src/layouts/components/acl/CanViewNavLink'
 
 // ** Util Import
-import { handleURLQueries } from 'src/@core/layouts/utils'
+import { handleURLQueries } from '@src/@core/layouts/utils'
 
 interface Props {
   parent?: boolean
@@ -43,7 +45,11 @@ interface Props {
 
 // ** Styled Components
 const MenuNavLink = styled(ListItemButton)<
-  ListItemButtonProps & { component?: ElementType; href: string; target?: '_blank' | undefined }
+  ListItemButtonProps & {
+    component?: ElementType
+    href: string
+    target?: '_blank' | undefined
+  }
 >(({ theme }) => ({
   width: '100%',
   borderRadius: 8,
@@ -52,17 +58,17 @@ const MenuNavLink = styled(ListItemButton)<
     '&, &:hover': {
       backgroundColor: theme.palette.primary.light,
       '&.Mui-focusVisible': {
-        backgroundColor: theme.palette.primary.main
-      }
+        backgroundColor: theme.palette.primary.main,
+      },
     },
     '& .MuiTypography-root': {
       fontWeight: 500,
-      color: `${theme.palette.common.white} !important`
+      color: `${theme.palette.common.white} !important`,
     },
     '& .MuiListItemIcon-root': {
-      color: `${theme.palette.common.white} !important`
-    }
-  }
+      color: `${theme.palette.common.white} !important`,
+    },
+  },
 }))
 
 const MenuItemTextMetaWrapper = styled(Box)<BoxProps>({
@@ -71,7 +77,7 @@ const MenuItemTextMetaWrapper = styled(Box)<BoxProps>({
   alignItems: 'center',
   justifyContent: 'space-between',
   transition: 'opacity .25s ease-in-out',
-  ...(themeConfig.menuTextTruncate && { overflow: 'hidden' })
+  ...(themeConfig.menuTextTruncate && { overflow: 'hidden' }),
 })
 
 const VerticalNavLink = ({
@@ -83,7 +89,7 @@ const VerticalNavLink = ({
   isSubToSub,
   collapsedNavWidth,
   toggleNavVisibility,
-  navigationBorderWidth
+  navigationBorderWidth,
 }: Props) => {
   // ** Hooks
   const theme = useTheme()
@@ -97,11 +103,11 @@ const VerticalNavLink = ({
   const conditionalIconColor = () => {
     if (mode === 'semi-dark') {
       return {
-        color: `rgba(${theme.palette.customColors.dark}, ${parent ? 0.6 : 0.87})`
+        color: `rgba(${theme.palette.customColors.dark}, ${parent ? 0.6 : 0.87})`,
       }
     } else
       return {
-        color: parent ? 'text.secondary' : 'text.primary'
+        color: parent ? 'text.secondary' : 'text.primary',
       }
   }
 
@@ -109,8 +115,8 @@ const VerticalNavLink = ({
     if (mode === 'semi-dark') {
       return {
         '&:hover': {
-          backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.05)`
-        }
+          backgroundColor: `rgba(${theme.palette.customColors.dark}, 0.05)`,
+        },
       }
     } else return {}
   }
@@ -132,7 +138,9 @@ const VerticalNavLink = ({
         sx={{
           mt: 1.5,
           transition: 'padding .25s ease-in-out',
-          px: parent ? '0 !important' : `${theme.spacing(navCollapsed && !navHover ? 2 : 3)} !important`
+          px: parent
+            ? '0 !important'
+            : `${theme.spacing(navCollapsed && !navHover ? 2 : 3)} !important`,
         }}
       >
         <MenuNavLink
@@ -153,9 +161,17 @@ const VerticalNavLink = ({
           sx={{
             py: 2.25,
             ...conditionalBgColor(),
-            ...(item.disabled ? { pointerEvents: 'none' } : { cursor: 'pointer' }),
-            pr: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 24 - 16) / 8 : 3,
-            pl: navCollapsed && !navHover ? (collapsedNavWidth - navigationBorderWidth - 24 - 16) / 8 : 4
+            ...(item.disabled
+              ? { pointerEvents: 'none' }
+              : { cursor: 'pointer' }),
+            pr:
+              navCollapsed && !navHover
+                ? (collapsedNavWidth - navigationBorderWidth - 24 - 16) / 8
+                : 3,
+            pl:
+              navCollapsed && !navHover
+                ? (collapsedNavWidth - navigationBorderWidth - 24 - 16) / 8
+                : 4,
           }}
         >
           {isSubToSub ? null : (
@@ -166,9 +182,11 @@ const VerticalNavLink = ({
                 ...(navCollapsed && !navHover ? { mr: 0 } : { mr: 2 }),
                 ...(parent ? { ml: 2, mr: 4 } : {}), // This line should be after (navCollapsed && !navHover) condition for proper styling
                 '& svg': {
-                  ...(!parent ? { fontSize: '1.5rem' } : { fontSize: '0.5rem' }),
-                  ...(parent && item.icon ? { fontSize: '0.875rem' } : {})
-                }
+                  ...(!parent
+                    ? { fontSize: '1.5rem' }
+                    : { fontSize: '0.5rem' }),
+                  ...(parent && item.icon ? { fontSize: '0.875rem' } : {}),
+                },
               }}
             >
               <UserIcon icon={icon as string} />
@@ -178,12 +196,15 @@ const VerticalNavLink = ({
           <MenuItemTextMetaWrapper
             sx={{
               ...(isSubToSub ? { ml: 8 } : {}),
-              ...(navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 })
+              ...(navCollapsed && !navHover ? { opacity: 0 } : { opacity: 1 }),
             }}
           >
             <Typography
-              {...((themeConfig.menuTextTruncate || (!themeConfig.menuTextTruncate && navCollapsed && !navHover)) && {
-                noWrap: true
+              {...((themeConfig.menuTextTruncate ||
+                (!themeConfig.menuTextTruncate &&
+                  navCollapsed &&
+                  !navHover)) && {
+                noWrap: true,
               })}
             >
               <Translations text={item.title} />
@@ -193,7 +214,14 @@ const VerticalNavLink = ({
                 size='small'
                 label={item.badgeContent}
                 color={item.badgeColor || 'primary'}
-                sx={{ ml: 1.5, '& .MuiChip-label': { px: 2.5, lineHeight: 1.385, textTransform: 'capitalize' } }}
+                sx={{
+                  ml: 1.5,
+                  '& .MuiChip-label': {
+                    px: 2.5,
+                    lineHeight: 1.385,
+                    textTransform: 'capitalize',
+                  },
+                }}
               />
             ) : null}
           </MenuItemTextMetaWrapper>

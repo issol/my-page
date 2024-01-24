@@ -1,13 +1,13 @@
-import { MembersType, SignUpRequestsType } from 'src/types/company/members'
+import { MembersType, SignUpRequestsType } from '@src/types/company/members'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
-import RenderChips from 'src/pages/company/components/sign-up-requests/render-chips'
+import RenderChips from '@src/pages/company/components/sign-up-requests/render-chips'
 import Button from '@mui/material/Button'
 import { Dispatch, SetStateAction } from 'react'
-import RenderRoleChips from 'src/pages/company/components/sign-up-requests/render-chips'
+import RenderRoleChips from '@src/pages/company/components/sign-up-requests/render-chips'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {

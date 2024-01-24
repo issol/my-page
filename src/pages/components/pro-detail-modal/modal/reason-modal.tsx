@@ -12,9 +12,10 @@ import Button from '@mui/material/Button'
 
 import Typography from '@mui/material/Typography'
 
-import { AddRoleType } from 'src/types/onboarding/list'
+import { AddRoleType } from '@src/types/onboarding/list'
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
+
 type Props = {
   onClose: any
   messageToUser: string

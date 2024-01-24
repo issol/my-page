@@ -14,15 +14,15 @@ import TimelineConnector from '@mui/lab/TimelineConnector'
 import MuiTimeline, { TimelineProps } from '@mui/lab/Timeline'
 import Box from '@mui/material/Box'
 
-import languageHelper from 'src/shared/helpers/language.helper'
-import Chip from 'src/@core/components/mui/chip'
-import { TestStatusColor } from 'src/shared/const/chipColors'
+import languageHelper from '@src/shared/helpers/language.helper'
+import Chip from '@src/@core/components/mui/chip'
+import { TestStatusColor } from '@src/shared/const/chipColors'
 
 import {
   AppliedRoleType,
   OnboardingProDetailsType,
   TestType,
-} from 'src/types/onboarding/details'
+} from '@src/types/onboarding/details'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilStateLoadable } from 'recoil'
@@ -204,8 +204,8 @@ const CertificationTest = ({
                         basicTest!.status === 'Basic passed'
                           ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128'
                           : basicTest!.status === 'Basic failed'
-                          ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;'
-                          : 'rgba(76, 78, 100, 0.05)',
+                            ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;'
+                            : 'rgba(76, 78, 100, 0.05)',
                       boxShadow: 'none',
                     }}
                   >
@@ -472,8 +472,8 @@ const CertificationTest = ({
                           skillTest!.status === 'Skill passed'
                             ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128'
                             : skillTest!.status === 'Skill failed'
-                            ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49'
-                            : 'rgba(76, 78, 100, 0.05)',
+                              ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49'
+                              : 'rgba(76, 78, 100, 0.05)',
                         boxShadow: 'none',
                       }}
                     >

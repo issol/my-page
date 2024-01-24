@@ -11,9 +11,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-
-import AlertIcon from '../alert-icon'
-import { useState, MouseEvent } from 'react'
+import { MouseEvent, useState } from 'react'
 import { Icon } from '@iconify/react'
 import Link from 'next/link'
 import GoogleButton from '@src/pages/components/google-button'

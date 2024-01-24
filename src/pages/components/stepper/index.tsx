@@ -9,7 +9,7 @@ import CardContent from '@mui/material/CardContent'
 // import StepperCustomDot from './StepperCustomDot'
 
 // ** Styled Components
-import StepperWrapper from 'src/@core/styles/mui/stepper'
+import StepperWrapper from '@src/@core/styles/mui/stepper'
 import StepperCustomDot from '@src/views/forms/form-elements/form-wizard/StepperCustomDot'
 import { Card } from '@mui/material'
 

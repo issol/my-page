@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -18,30 +18,27 @@ import {
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
-import { useForm, useFieldArray, Controller } from 'react-hook-form'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** third parties
 import { toast } from 'react-hot-toast'
 
 // ** validation values & types
 import {
-  ProjectTeamType,
   projectTeamSchema,
+  ProjectTeamType,
 } from '@src/types/schema/project-team.schema'
-import {
-  QuotesProjectInfoAddNewType,
-  QuotesProjectInfoFormType,
-} from '@src/types/common/quotes.type'
+import { QuotesProjectInfoAddNewType } from '@src/types/common/quotes.type'
 import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
 } from '@src/types/schema/quotes-project-info.schema'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import { itemSchema, quoteItemSchema } from '@src/types/schema/item.schema'
+import { quoteItemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
@@ -81,14 +78,11 @@ import {
   createQuotesInfo,
 } from '@src/apis/quote/quotes.api'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
-import { getUserDataFromBrowser } from '@src/shared/auth/storage'
 import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
-import { string } from 'yup'
 import { timezoneSelector } from '@src/states/permission'
 import { formatISO } from 'date-fns'
 
@@ -187,7 +181,7 @@ export default function AddNewQuote() {
         { type: 'member', id: null },
       ],
     },
-    resolver: yupResolver(projectTeamSchema),
+    resolver: yupResolver(projectTeamSchema) as Resolver<ProjectTeamType>,
   })
 
   const {
@@ -215,7 +209,7 @@ export default function AddNewQuote() {
       contactPersonId: null,
       addressType: 'shipping',
     },
-    resolver: yupResolver(clientSchema),
+    resolver: yupResolver(clientSchema) as Resolver<ClientFormType>,
   })
 
   // ** step3
@@ -237,7 +231,9 @@ export default function AddNewQuote() {
       },
       status: 20000,
     },
-    resolver: yupResolver(quotesProjectInfoSchema),
+    resolver: yupResolver(
+      quotesProjectInfoSchema,
+    ) as unknown as Resolver<QuotesProjectInfoAddNewType>,
   })
 
   // ** step4
@@ -262,7 +258,10 @@ export default function AddNewQuote() {
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onChange',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(quoteItemSchema),
+    resolver: yupResolver(quoteItemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
   })
 
   const {
@@ -688,6 +687,7 @@ export default function AddNewQuote() {
       position: 'bottom-left',
     })
   }
+
   function transformTeamData(data: ProjectTeamType) {
     let result: ProjectTeamFormType = {
       projectManagerId: 0,
@@ -722,6 +722,7 @@ export default function AddNewQuote() {
   })
 
   const [subPrice, setSubPrice] = useState(0)
+
   function sumTotalPrice() {
     const subPrice = getItem()?.items!
     if (subPrice) {
@@ -750,12 +751,12 @@ export default function AddNewQuote() {
       const decimalPlace = priceInfo
         ? priceInfo.decimalPlace
         : currencies[0] === 'USD' || currencies[0] === 'SGD'
-        ? 2
-        : currencies[0] === 'KRW'
-        ? 1000
-        : currencies[0] === 'JPY'
-        ? 100
-        : 2
+          ? 2
+          : currencies[0] === 'KRW'
+            ? 1000
+            : currencies[0] === 'JPY'
+              ? 100
+              : 2
 
       return subPrice === 0
         ? '-'

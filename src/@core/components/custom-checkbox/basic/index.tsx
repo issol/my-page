@@ -5,51 +5,108 @@ import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 
 // ** Type Imports
-import { CustomCheckboxBasicProps } from 'src/@core/components/custom-checkbox/types'
+import { CustomCheckboxBasicProps } from '@src/@core/components/custom-checkbox/types'
 
 const CustomCheckbox = (props: CustomCheckboxBasicProps) => {
   // ** Props
-  const { data, name, selected, gridProps, handleChange, color = 'primary' } = props
+  const {
+    data,
+    name,
+    selected,
+    gridProps,
+    handleChange,
+    color = 'primary',
+  } = props
 
   const { meta, title, value, content } = data
 
   const renderData = () => {
     if (meta && title && content) {
       return (
-        <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Box
+          sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           <Box
             sx={{
               mb: 1,
               width: '100%',
               display: 'flex',
               alignItems: 'flex-start',
-              justifyContent: 'space-between'
+              justifyContent: 'space-between',
             }}
           >
-            {typeof title === 'string' ? <Typography sx={{ mr: 2, fontWeight: 500 }}>{title}</Typography> : title}
-            {typeof meta === 'string' ? <Typography sx={{ color: 'text.secondary' }}>{meta}</Typography> : meta}
+            {typeof title === 'string' ? (
+              <Typography sx={{ mr: 2, fontWeight: 500 }}>{title}</Typography>
+            ) : (
+              title
+            )}
+            {typeof meta === 'string' ? (
+              <Typography sx={{ color: 'text.secondary' }}>{meta}</Typography>
+            ) : (
+              meta
+            )}
           </Box>
-          {typeof content === 'string' ? <Typography variant='body2'>{content}</Typography> : content}
+          {typeof content === 'string' ? (
+            <Typography variant='body2'>{content}</Typography>
+          ) : (
+            content
+          )}
         </Box>
       )
     } else if (meta && title && !content) {
       return (
-        <Box sx={{ width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          {typeof title === 'string' ? <Typography sx={{ mr: 2, fontWeight: 500 }}>{title}</Typography> : title}
-          {typeof meta === 'string' ? <Typography sx={{ color: 'text.secondary' }}>{meta}</Typography> : meta}
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+          }}
+        >
+          {typeof title === 'string' ? (
+            <Typography sx={{ mr: 2, fontWeight: 500 }}>{title}</Typography>
+          ) : (
+            title
+          )}
+          {typeof meta === 'string' ? (
+            <Typography sx={{ color: 'text.secondary' }}>{meta}</Typography>
+          ) : (
+            meta
+          )}
         </Box>
       )
     } else if (!meta && title && content) {
       return (
         <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          {typeof title === 'string' ? <Typography sx={{ mb: 1, fontWeight: 500 }}>{title}</Typography> : title}
-          {typeof content === 'string' ? <Typography variant='body2'>{content}</Typography> : content}
+          {typeof title === 'string' ? (
+            <Typography sx={{ mb: 1, fontWeight: 500 }}>{title}</Typography>
+          ) : (
+            title
+          )}
+          {typeof content === 'string' ? (
+            <Typography variant='body2'>{content}</Typography>
+          ) : (
+            content
+          )}
         </Box>
       )
     } else if (!meta && !title && content) {
-      return typeof content === 'string' ? <Typography variant='body2'>{content}</Typography> : content
+      return typeof content === 'string' ? (
+        <Typography variant='body2'>{content}</Typography>
+      ) : (
+        content
+      )
     } else if (!meta && title && !content) {
-      return typeof title === 'string' ? <Typography sx={{ fontWeight: 500 }}>{title}</Typography> : title
+      return typeof title === 'string' ? (
+        <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
+      ) : (
+        title
+      )
     } else {
       return null
     }
@@ -71,7 +128,12 @@ const CustomCheckbox = (props: CustomCheckboxBasicProps) => {
             border: theme => `1px solid ${theme.palette.divider}`,
             ...(selected.includes(value)
               ? { borderColor: `${color}.main` }
-              : { '&:hover': { borderColor: theme => `rgba(${theme.palette.customColors.main}, 0.25)` } })
+              : {
+                  '&:hover': {
+                    borderColor: theme =>
+                      `rgba(${theme.palette.customColors.main}, 0.25)`,
+                  },
+                }),
           }}
         >
           <Checkbox

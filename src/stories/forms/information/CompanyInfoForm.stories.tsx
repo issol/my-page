@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentMeta } from '@storybook/react'
 import { Divider, Grid } from '@mui/material'
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import CompanyInfoForm from '@src/pages/client/components/forms/company-info-form'
 import {
@@ -70,7 +70,7 @@ export const Default = ({ type }: { type: 'create' | 'update' }) => {
   } = useForm<CompanyInfoFormType>({
     defaultValues: companyInfoDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(companyInfoSchema),
+    resolver: yupResolver(companyInfoSchema) as Resolver<CompanyInfoFormType>,
   })
 
   return (

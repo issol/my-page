@@ -16,7 +16,7 @@ import {
   splitContryCodeAndPhoneNumber,
 } from '@src/shared/helpers/phone-number-helper'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 type Props = {
   data: ContactPersonType

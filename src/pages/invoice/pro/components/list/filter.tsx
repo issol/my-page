@@ -23,7 +23,7 @@ import { InvoiceProFilterType } from '@src/types/invoice/pro.type'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { Control, Controller, UseFormHandleSubmit } from 'react-hook-form'
 import { FilterType } from '../..'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import dayjs from 'dayjs'

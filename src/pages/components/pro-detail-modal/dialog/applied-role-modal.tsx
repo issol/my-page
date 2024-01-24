@@ -4,20 +4,20 @@ import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import {
   AddRoleType,
   RoleSelectType,
   SelectType,
-} from 'src/types/onboarding/list'
+} from '@src/types/onboarding/list'
 import Tab from '@mui/material/Tab'
 import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'
 import FormControl from '@mui/material/FormControl'
 import MuiTabList, { TabListProps } from '@mui/lab/TabList'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { JobList } from 'src/shared/const/job/jobs'
-import { OnboardingListRolePair } from 'src/shared/const/role/roles'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
+import { JobList } from '@src/shared/const/job/jobs'
+import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import FormHelperText from '@mui/material/FormHelperText'
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
@@ -69,6 +69,7 @@ interface AppliedRoleModalProps {
   handleAssignRole: (jobInfo: AddRoleType) => void
   proId: number
 }
+
 const AppliedRoleModal = ({
   onClose,
   languageList,
@@ -114,7 +115,7 @@ const AppliedRoleModal = ({
   } = useForm<AddRoleType>({
     defaultValues,
     mode: 'onSubmit',
-    resolver: yupResolver(assignTestSchema),
+    resolver: yupResolver(assignTestSchema) as unknown as Resolver<AddRoleType>,
   })
 
   const {
@@ -128,7 +129,7 @@ const AppliedRoleModal = ({
   } = useForm<AddRoleType>({
     defaultValues,
     mode: 'onSubmit',
-    resolver: yupResolver(assignTestSchema),
+    resolver: yupResolver(assignTestSchema) as unknown as Resolver<AddRoleType>,
   })
 
   const {

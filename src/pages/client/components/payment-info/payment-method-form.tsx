@@ -24,10 +24,10 @@ import {
   KoreaTaxFormType,
   OfficeTaxType,
   OfficeType,
-  PayPalFormType,
   PaymentMethodPairs,
   PaymentMethodUnionType,
   PaymentType,
+  PayPalFormType,
   SingaporeTaxFormType,
   USTaxFormType,
 } from '@src/types/payment-info/client/index.type'
@@ -42,7 +42,7 @@ import {
 
 // ** third parties
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Control, useForm } from 'react-hook-form'
+import { Control, Resolver, useForm } from 'react-hook-form'
 
 // ** components
 import KoreaTaxForm from '../forms/tax-info/korea-tax-form'
@@ -90,7 +90,7 @@ export default function PaymentMethodForm({
   } = useForm<OfficeTaxType>({
     mode: 'onChange',
     defaultValues: clientTaxInitialData(office),
-    resolver: yupResolver(getTaxInfoSchema(office)),
+    resolver: yupResolver(getTaxInfoSchema(office)) as Resolver<OfficeTaxType>,
   })
 
   const {
@@ -101,7 +101,9 @@ export default function PaymentMethodForm({
   } = useForm<PaymentMethodUnionType>({
     mode: 'onChange',
     defaultValues: clientPaymentInitialData(currentMethod),
-    resolver: yupResolver(getPaymentMethodSchema(currentMethod)),
+    resolver: yupResolver(
+      getPaymentMethodSchema(currentMethod),
+    ) as Resolver<PaymentMethodUnionType>,
   })
 
   useEffect(() => {

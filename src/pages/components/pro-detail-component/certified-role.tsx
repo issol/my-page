@@ -1,15 +1,16 @@
 import Card from '@mui/material/Card'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 
-import { CertifiedRoleType } from 'src/types/onboarding/details'
+import { CertifiedRoleType } from '@src/types/onboarding/details'
 import { v4 as uuidv4 } from 'uuid'
 import Box from '@mui/material/Box'
 import { Typography } from '@mui/material'
+
 type Props = {
   userInfo: CertifiedRoleType[]
 }

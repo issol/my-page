@@ -3,16 +3,14 @@ import { Fragment, useContext, useEffect } from 'react'
 // ** style components
 import { Icon } from '@iconify/react'
 import {
-  Autocomplete,
   Box,
   Button,
   Divider,
   Grid,
   IconButton,
-  TextField,
   Typography,
 } from '@mui/material'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 // ** contexts
@@ -37,7 +35,7 @@ import {
 } from '@src/types/invoice/common.type'
 
 // ** react hook form
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** components
@@ -46,19 +44,15 @@ import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-mod
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
+import { UseMutationResult } from 'react-query'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 // ** helpers
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 // ** values
-import { InvoicePayableStatus } from '@src/shared/const/status/statuses'
 import { getCurrentRole } from '@src/shared/auth/storage'
-import {
-  InvoiceProChip,
-  invoicePayableStatusChip,
-} from '@src/@core/components/chips/chips'
+import { invoicePayableStatusChip } from '@src/@core/components/chips/chips'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
@@ -104,7 +98,9 @@ export default function InvoiceDetailCard({
   } = useForm<PayableFormType>({
     mode: 'onChange',
     defaultValues: invoiceDetailInfoDefaultValue,
-    resolver: yupResolver(getInvoiceDetailInfoSchema(isAccountManager)),
+    resolver: yupResolver(
+      getInvoiceDetailInfoSchema(isAccountManager),
+    ) as unknown as Resolver<PayableFormType>,
   })
 
   console.log(getValues())
@@ -376,7 +372,7 @@ export default function InvoiceDetailCard({
   )
 }
 
-const LabelContainer = styled.div`
+const LabelContainer = styled('div')`
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 2fr;

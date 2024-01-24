@@ -5,18 +5,22 @@ import MuiAppBar, { AppBarProps } from '@mui/material/AppBar'
 import MuiToolbar, { ToolbarProps } from '@mui/material/Toolbar'
 
 // ** Type Import
-import { LayoutProps } from 'src/@core/layouts/types'
+import { LayoutProps } from '@src/@core/layouts/types'
 
 // ** Util Import
-import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 interface Props {
   hidden: LayoutProps['hidden']
   toggleNavVisibility: () => void
   settings: LayoutProps['settings']
   saveSettings: LayoutProps['saveSettings']
-  appBarContent: NonNullable<LayoutProps['verticalLayoutProps']['appBar']>['content']
-  appBarProps: NonNullable<LayoutProps['verticalLayoutProps']['appBar']>['componentProps']
+  appBarContent: NonNullable<
+    LayoutProps['verticalLayoutProps']['appBar']
+  >['content']
+  appBarProps: NonNullable<
+    LayoutProps['verticalLayoutProps']['appBar']
+  >['componentProps']
 }
 
 const AppBar = styled(MuiAppBar)<AppBarProps>(({ theme }) => ({
@@ -29,8 +33,8 @@ const AppBar = styled(MuiAppBar)<AppBarProps>(({ theme }) => ({
   minHeight: theme.mixins.toolbar.minHeight,
   [theme.breakpoints.down('sm')]: {
     paddingLeft: theme.spacing(4),
-    paddingRight: theme.spacing(4)
-  }
+    paddingRight: theme.spacing(4),
+  },
 }))
 
 const Toolbar = styled(MuiToolbar)<ToolbarProps>(({ theme }) => ({
@@ -39,7 +43,8 @@ const Toolbar = styled(MuiToolbar)<ToolbarProps>(({ theme }) => ({
   borderBottomLeftRadius: theme.shape.borderRadius,
   borderBottomRightRadius: theme.shape.borderRadius,
   minHeight: `${theme.mixins.toolbar.minHeight}px !important`,
-  transition: 'padding .25s ease-in-out, box-shadow .25s ease-in-out, backdrop-filter .25s ease-in-out'
+  transition:
+    'padding .25s ease-in-out, box-shadow .25s ease-in-out, backdrop-filter .25s ease-in-out',
 }))
 
 const LayoutAppBar = (props: Props) => {
@@ -48,7 +53,10 @@ const LayoutAppBar = (props: Props) => {
 
   // ** Hooks
   const theme = useTheme()
-  const scrollTrigger = useScrollTrigger({ threshold: 0, disableHysteresis: true })
+  const scrollTrigger = useScrollTrigger({
+    threshold: 0,
+    disableHysteresis: true,
+  })
 
   // ** Vars
   const { skin, appBar, appBarBlur, contentWidth } = settings
@@ -58,8 +66,14 @@ const LayoutAppBar = (props: Props) => {
       px: `${theme.spacing(6)} !important`,
       boxShadow: skin === 'bordered' ? 0 : 3,
       ...(appBarBlur && { backdropFilter: 'blur(8px)' }),
-      backgroundColor: hexToRGBA(theme.palette.background.paper, appBarBlur ? 0.9 : 1),
-      ...(skin === 'bordered' && { border: `1px solid ${theme.palette.divider}`, borderTopWidth: 0 })
+      backgroundColor: hexToRGBA(
+        theme.palette.background.paper,
+        appBarBlur ? 0.9 : 1,
+      ),
+      ...(skin === 'bordered' && {
+        border: `1px solid ${theme.palette.divider}`,
+        borderTopWidth: 0,
+      }),
     }
   }
 
@@ -86,10 +100,13 @@ const LayoutAppBar = (props: Props) => {
       <Toolbar
         className='navbar-content-container'
         sx={{
-          ...(appBar === 'fixed' && scrollTrigger && { ...appBarFixedStyles() }),
+          ...(appBar === 'fixed' &&
+            scrollTrigger && { ...appBarFixedStyles() }),
           ...(contentWidth === 'boxed' && {
-            '@media (min-width:1440px)': { maxWidth: `calc(1440px - ${theme.spacing(6)} * 2)` }
-          })
+            '@media (min-width:1440px)': {
+              maxWidth: `calc(1440px - ${theme.spacing(6)} * 2)`,
+            },
+          }),
         }}
       >
         {(userAppBarContent && userAppBarContent(props)) || null}

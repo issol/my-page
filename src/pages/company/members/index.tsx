@@ -10,7 +10,7 @@ import {
   patchMember,
   requestAction,
   undoRequest,
-} from 'src/apis/company/company-members.api'
+} from '@src/apis/company/company-members.api'
 
 import toast from 'react-hot-toast'
 import Button from '@mui/material/Button'
@@ -21,9 +21,9 @@ import {
   MembersType,
   RequestPayloadType,
   SignUpRequestsType,
-} from 'src/types/company/members'
+} from '@src/types/company/members'
 
-import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { roleState } from '@src/states/permission'

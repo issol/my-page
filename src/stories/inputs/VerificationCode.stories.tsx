@@ -1,9 +1,9 @@
 import { ComponentMeta } from '@storybook/react'
 import { Alert, Grid } from '@mui/material'
-import CardSnippet from 'src/@core/components/card-snippet'
+import CardSnippet from '@src/@core/components/card-snippet'
 
 import React, { ChangeEvent, useState } from 'react'
-import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
+import CleaveWrapper from '@src/@core/styles/libs/react-cleave'
 import { styled } from '@mui/material/styles'
 import Cleave from 'cleave.js/react'
 
@@ -119,10 +119,10 @@ const source = (
     <code className='language-jsx'>{`
   // ** Custom Components Imports
   import React, { ChangeEvent, useState } from 'react'
-  import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
+  import CleaveWrapper from '@src/@core/styles/libs/react-cleave'
   import { styled } from '@mui/material/styles'
   import Cleave from 'cleave.js/react'
-  
+
 
   export const Default = () => {
     const [isBackspace, setIsBackspace] = useState<boolean>(false)
@@ -150,13 +150,13 @@ const source = (
         WebkitAppearance: 'none',
       },
     }))
-  
+
     const handleChange = (
       event: ChangeEvent,
     ) => {
       if (!isBackspace) {
           /* 여기에서 setState수행 */
-  
+
         // @ts-ignore
         const form = event.target.form
         const index = [...form].indexOf(event.target)
@@ -166,11 +166,11 @@ const source = (
         event.preventDefault()
       }
     }
-  
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Backspace') {
         setIsBackspace(true)
-  
+
         // @ts-ignore
         const form = event.target.form
         const index = [...form].indexOf(event.target)
@@ -183,7 +183,7 @@ const source = (
         setIsBackspace(false)
       }
     }
-  
+
     const renderInputs = () => {
       return Object.keys(defaultValues).map((val, index) => {
         return (

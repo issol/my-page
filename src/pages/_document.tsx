@@ -8,7 +8,7 @@ import Document, { Html, Head, Main, NextScript } from 'next/document'
 import createEmotionServer from '@emotion/server/create-instance'
 
 // ** Utils Imports
-import { createEmotionCache } from 'src/@core/utils/create-emotion-cache'
+import { createEmotionCache } from '@src/@core/utils/create-emotion-cache'
 
 class CustomDocument extends Document {
   render() {
@@ -45,13 +45,12 @@ CustomDocument.getInitialProps = async ctx => {
 
   ctx.renderPage = () =>
     originalRenderPage({
-      enhanceApp: App => props =>
-        (
-          <App
-            {...props} // @ts-ignore
-            emotionCache={cache}
-          />
-        ),
+      enhanceApp: App => props => (
+        <App
+          {...props} // @ts-ignore
+          emotionCache={cache}
+        />
+      ),
     })
 
   const initialProps = await Document.getInitialProps(ctx)

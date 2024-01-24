@@ -10,9 +10,9 @@ import FormControl from '@mui/material/FormControl'
 import Select from '@mui/material/Select'
 import Divider from '@mui/material/Divider'
 import Box from '@mui/material/Box'
-import { UserInfoResType } from 'src/apis/user.api'
-import styled from '@emotion/styled'
-import Icon from 'src/@core/components/icon'
+import { UserInfoResType } from '@src/apis/user.api'
+import { styled } from '@mui/system'
+import Icon from '@src/@core/components/icon'
 
 import { v4 as uuidv4 } from 'uuid'
 
@@ -185,7 +185,7 @@ const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
   )
 }
 
-const LabelTitle = styled.label`
+const LabelTitle = styled('label')`
   font-weight: 600;
   font-size: 1rem;
   line-height: 24px;
@@ -193,12 +193,11 @@ const LabelTitle = styled.label`
 
   color: rgba(76, 78, 100, 0.6);
 `
-const Label = styled.label`
+const Label = styled('label')`
   font-weight: 400;
   font-size: 1rem;
   line-height: 24px;
   letter-spacing: 0.15px;
-
   color: rgba(76, 78, 100, 0.6);
 `
 

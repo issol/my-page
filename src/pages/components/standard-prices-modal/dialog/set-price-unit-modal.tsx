@@ -10,9 +10,9 @@ import {
   Grid,
   IconButton,
   InputAdornment,
+  styled,
   TextField,
   Typography,
-  styled,
 } from '@mui/material'
 
 import { v4 as uuidv4 } from 'uuid'
@@ -21,27 +21,21 @@ import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
 
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 import useModal from '@src/hooks/useModal'
 
 import {
   CommonPriceUnitType,
   PriceUnitListType,
+  PriceUnitType,
   SetPriceUnit,
   SetPriceUnitPair,
   StandardPriceListType,
   SubPriceUnitType,
 } from '@src/types/common/standard-price'
 import { setPriceUnitSchema } from '@src/types/schema/price-unit.schema'
-import {
-  Controller,
-  FieldArrayWithId,
-  useFieldArray,
-  useForm,
-} from 'react-hook-form'
-
-import { PriceUnitType } from '@src/types/common/standard-price'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import {
   Dispatch,
   SetStateAction,
@@ -61,12 +55,8 @@ import {
   useQueryClient,
 } from 'react-query'
 import toast from 'react-hot-toast'
-import {
-  putPriceUnitPair,
-  setPriceUnitPair,
-} from '@src/apis/company/company-price.api'
+import { putPriceUnitPair } from '@src/apis/company/company-price.api'
 import BasePriceUnitRemoveModal from '../modal/base-price-unit-remove-modal'
-import { sub } from 'date-fns'
 
 type Props = {
   onClose: any
@@ -146,7 +136,9 @@ const SetPriceUnitModal = ({
   } = useForm<SetPriceUnit>({
     // defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(setPriceUnitSchema),
+    resolver: yupResolver(
+      setPriceUnitSchema,
+    ) as unknown as Resolver<SetPriceUnit>,
   })
 
   const {
@@ -208,26 +200,26 @@ const SetPriceUnitModal = ({
           typeof quantity === 'string' && quantity === '-'
             ? null
             : typeof quantity === 'string' && quantity !== '-'
-            ? quantity
-            : typeof quantity === 'number'
-            ? quantity.toString()
-            : null,
+              ? quantity
+              : typeof quantity === 'number'
+                ? quantity.toString()
+                : null,
         price:
           typeof price === 'string' && price === '-'
             ? null
             : typeof price === 'string' && price !== '-'
-            ? price
-            : typeof price === 'number'
-            ? price.toString()
-            : null,
+              ? price
+              : typeof price === 'number'
+                ? price.toString()
+                : null,
         weighting:
           typeof weighting === 'string' && weighting === '-'
             ? null
             : typeof weighting === 'string' && weighting !== '-'
-            ? weighting
-            : typeof weighting === 'number'
-            ? weighting.toString()
-            : null,
+              ? weighting
+              : typeof weighting === 'number'
+                ? weighting.toString()
+                : null,
       })
       return acc
     }, [])
@@ -251,26 +243,26 @@ const SetPriceUnitModal = ({
           typeof quantity === 'string' && quantity === '-'
             ? null
             : typeof quantity === 'string' && quantity !== '-'
-            ? quantity
-            : typeof quantity === 'number'
-            ? quantity.toString()
-            : null,
+              ? quantity
+              : typeof quantity === 'number'
+                ? quantity.toString()
+                : null,
         price:
           typeof price === 'string' && price === '-'
             ? null
             : typeof price === 'string' && price !== '-'
-            ? price
-            : typeof price === 'number'
-            ? price.toString()
-            : null,
+              ? price
+              : typeof price === 'number'
+                ? price.toString()
+                : null,
         weighting:
           typeof weighting === 'string' && weighting === '-'
             ? null
             : typeof weighting === 'string' && weighting !== '-'
-            ? weighting
-            : typeof weighting === 'number'
-            ? weighting.toString()
-            : null,
+              ? weighting
+              : typeof weighting === 'number'
+                ? weighting.toString()
+                : null,
       })
       return acc
     }, [])
@@ -878,12 +870,12 @@ const SetPriceUnitModal = ({
                                         {currency === 'USD'
                                           ? '($ USD)'
                                           : currency === 'KRW'
-                                          ? '(₩ KRW)'
-                                          : currency === 'JPY'
-                                          ? '(¥ JPY)'
-                                          : currency === 'SGD'
-                                          ? '($ SGD)'
-                                          : '-'}
+                                            ? '(₩ KRW)'
+                                            : currency === 'JPY'
+                                              ? '(¥ JPY)'
+                                              : currency === 'SGD'
+                                                ? '($ SGD)'
+                                                : '-'}
                                       </InputAdornment>
                                     ),
                                   }}
@@ -1217,12 +1209,12 @@ const SetPriceUnitModal = ({
                                             {currency === 'USD'
                                               ? '($ USD)'
                                               : currency === 'KRW'
-                                              ? '(₩ KRW)'
-                                              : currency === 'JPY'
-                                              ? '(¥ JPY)'
-                                              : currency === 'SGD'
-                                              ? '($ SGD)'
-                                              : '-'}
+                                                ? '(₩ KRW)'
+                                                : currency === 'JPY'
+                                                  ? '(¥ JPY)'
+                                                  : currency === 'SGD'
+                                                    ? '($ SGD)'
+                                                    : '-'}
                                           </InputAdornment>
                                         ),
                                       }}

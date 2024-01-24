@@ -7,7 +7,7 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 // ** Hooks
 import useClipboard from '@src/@core/hooks/useClipboard'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { toast } from 'react-hot-toast'
 
 // ** components
@@ -218,7 +218,7 @@ const PaymentInfo = ({ id, userRole }: Props) => {
   )
 }
 
-export const ContentGrid = styled.div`
+export const ContentGrid = styled('div')`
   display: grid;
   grid-template-columns: 134px 1fr;
   align-items: center;

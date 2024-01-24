@@ -3,7 +3,7 @@ import { Box, Button, Grid, Typography } from '@mui/material'
 import { downloadStateFile } from '@src/shared/helpers/file-download.helper'
 import { ProPaymentType } from '@src/types/payment-info/pro/billing-method.type'
 import { TaxInfoType } from '@src/types/payment-info/pro/tax-info.type'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 type Props = {
   billingMethod: ProPaymentType | null
@@ -71,7 +71,7 @@ const BorderBox = styled(Box)`
   border: 1px solid rgba(76, 78, 100, 0.12);
 `
 
-const ContentGrid = styled.div`
+const ContentGrid = styled('div')`
   /* margin-top: 12px; */
   display: grid;
   grid-template-columns: repeat(2, 1fr);

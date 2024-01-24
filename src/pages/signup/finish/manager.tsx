@@ -11,7 +11,7 @@ import Typography, { TypographyProps } from '@mui/material/Typography'
 import { Card, CardContent, Link } from '@mui/material'
 
 // ** Layout Import
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 import { useRouter } from 'next/router'
 
 const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({

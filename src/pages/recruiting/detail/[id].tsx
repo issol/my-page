@@ -14,16 +14,16 @@ import { useContext, useEffect, useState } from 'react'
 import { convertFromRaw, EditorState } from 'draft-js'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { StyledViewer } from 'src/@core/components/editor/customEditor'
+import { StyledViewer } from '@src/@core/components/editor/customEditor'
 import { toast } from 'react-hot-toast'
 
 // ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
-import EmptyPost from 'src/@core/components/page/empty-post'
-import PageHeader from 'src/@core/components/page-header'
+import CustomChip from '@src/@core/components/mui/chip'
+import EmptyPost from '@src/@core/components/page/empty-post'
+import PageHeader from '@src/@core/components/page-header'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -40,19 +40,19 @@ import { authState } from '@src/states/auth'
 import {
   convertTimeToTimezone,
   MMDDYYYYHelper,
-} from 'src/shared/helpers/date.helper'
+} from '@src/shared/helpers/date.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
 
 // ** fetches
-import { useGetRecruitingDetail } from 'src/queries/recruiting.query'
+import { useGetRecruitingDetail } from '@src/queries/recruiting.query'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   CurrentHistoryType,
   deleteRecruiting,
   hideRecruiting,
-} from 'src/apis/recruiting.api'
+} from '@src/apis/recruiting.api'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { recruiting } from '@src/shared/const/permission-class'
 import { timezoneSelector } from '@src/states/permission'

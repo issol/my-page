@@ -7,7 +7,7 @@ import { DataGrid, GridColumns, GridSortDirection } from '@mui/x-data-grid'
 import { ExtraNumberChip } from '@src/@core/components/chips/chips'
 
 // ** third party
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** helpers
 

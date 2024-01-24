@@ -7,24 +7,31 @@ import { AvatarProps } from '@mui/material/Avatar'
 import CardContent from '@mui/material/CardContent'
 
 // ** Custom Components Imports
-import CustomAvatar from 'src/@core/components/mui/avatar'
+import CustomAvatar from '@src/@core/components/mui/avatar'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** Types Imports
-import { CardStatsHorizontalProps } from 'src/@core/components/card-statistics/types'
+import { CardStatsHorizontalProps } from '@src/@core/components/card-statistics/types'
 
 // ** Styled Avatar component
 const Avatar = styled(CustomAvatar)<AvatarProps>(({ theme }) => ({
   width: 40,
   height: 40,
-  marginRight: theme.spacing(4)
+  marginRight: theme.spacing(4),
 }))
 
 const CardStatsHorizontal = (props: CardStatsHorizontalProps) => {
   // ** Props
-  const { title, icon, stats, trendNumber, color = 'primary', trend = 'positive' } = props
+  const {
+    title,
+    icon,
+    stats,
+    trendNumber,
+    color = 'primary',
+    trend = 'positive',
+  } = props
 
   return (
     <Card>
@@ -34,13 +41,31 @@ const CardStatsHorizontal = (props: CardStatsHorizontalProps) => {
             {icon}
           </Avatar>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+            <Box
+              sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}
+            >
               <Typography variant='h6'>{stats}</Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ display: 'inline-flex', color: trend === 'positive' ? 'success.main' : 'error.main' }}>
-                  <Icon icon={trend === 'positive' ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
+                <Box
+                  sx={{
+                    display: 'inline-flex',
+                    color: trend === 'positive' ? 'success.main' : 'error.main',
+                  }}
+                >
+                  <Icon
+                    icon={
+                      trend === 'positive'
+                        ? 'mdi:chevron-up'
+                        : 'mdi:chevron-down'
+                    }
+                  />
                 </Box>
-                <Typography variant='caption' sx={{ color: trend === 'positive' ? 'success.main' : 'error.main' }}>
+                <Typography
+                  variant='caption'
+                  sx={{
+                    color: trend === 'positive' ? 'success.main' : 'error.main',
+                  }}
+                >
                   {trendNumber}
                 </Typography>
               </Box>

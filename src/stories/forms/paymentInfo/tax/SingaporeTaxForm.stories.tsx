@@ -4,7 +4,7 @@ import { Divider, Grid } from '@mui/material'
 import SingaporeTaxForm from '@src/pages/client/components/forms/tax-info/singapore-tax-form'
 import { SingaporeTaxFormType } from '@src/types/payment-info/client/index.type'
 import { singaporeTaxSchema } from '@src/types/schema/tax-info/singapore-tax.schema'
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { clientTaxInitialData } from '@src/types/schema/tax-info'
 
@@ -65,7 +65,7 @@ export const Default = () => {
   } = useForm<SingaporeTaxFormType>({
     defaultValues: clientTaxInitialData('Singapore'),
     mode: 'onChange',
-    resolver: yupResolver(singaporeTaxSchema),
+    resolver: yupResolver(singaporeTaxSchema) as Resolver<SingaporeTaxFormType>,
   })
 
   return <SingaporeTaxForm control={control} errors={errors} />

@@ -3,7 +3,7 @@ import { Box, Tab, Typography } from '@mui/material'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import { Suspense, SyntheticEvent, useState, MouseEvent } from 'react'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import TabPanel from '@mui/lab/TabPanel'
 import { Icon } from '@iconify/react'
 

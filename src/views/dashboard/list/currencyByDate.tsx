@@ -1,4 +1,4 @@
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { Box, Typography } from '@mui/material'
 import React from 'react'
 import { ExpectedIncome } from '@src/types/dashboard'
@@ -85,7 +85,7 @@ const CurrencyByDateList = ({ report }: CurrencyByDateListProps) => {
   )
 }
 
-const CurrencyItemList = styled.ul(() => {
+const CurrencyItemList = styled('ul')(() => {
   return {
     display: 'flex',
     justifyContent: 'space-between',

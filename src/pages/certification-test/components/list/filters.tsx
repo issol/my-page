@@ -10,7 +10,7 @@ import Button from '@mui/material/Button'
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
 import Box from '@mui/material/Box'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import {
   useForm,
   Controller,
@@ -23,7 +23,7 @@ import {
 import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
-import { JobList } from 'src/shared/const/job/jobs'
+import { JobList } from '@src/shared/const/job/jobs'
 
 import { useState, Dispatch, SetStateAction, SyntheticEvent } from 'react'
 import _ from 'lodash'
@@ -34,7 +34,7 @@ import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import {
   TestMaterialFilterType,
   TestType,
-} from 'src/types/certification-test/list'
+} from '@src/types/certification-test/list'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 
 export type CardProps = {

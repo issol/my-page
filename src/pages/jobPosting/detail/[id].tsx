@@ -12,17 +12,17 @@ import { useContext, useEffect, useState } from 'react'
 import { convertFromRaw, EditorState } from 'draft-js'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { StyledViewer } from 'src/@core/components/editor/customEditor'
+import { StyledViewer } from '@src/@core/components/editor/customEditor'
 import { toast } from 'react-hot-toast'
-import { renderStatusChip } from 'src/@core/components/chips/chips'
+import { renderStatusChip } from '@src/@core/components/chips/chips'
 
 // ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
-import EmptyPost from 'src/@core/components/page/empty-post'
-import PageHeader from 'src/@core/components/page-header'
+import CustomChip from '@src/@core/components/mui/chip'
+import EmptyPost from '@src/@core/components/page/empty-post'
+import PageHeader from '@src/@core/components/page-header'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -44,11 +44,11 @@ import { useRouter } from 'next/router'
 
 // ** fetches
 import { useGetJobPostingDetail } from '@src/queries/jobs/jobPosting.query'
-import { deleteJobPosting } from 'src/apis/jobPosting.api'
+import { deleteJobPosting } from '@src/apis/jobPosting.api'
 import { useMutation } from 'react-query'
 
 // ** types
-import { CurrentHistoryType } from 'src/apis/recruiting.api'
+import { CurrentHistoryType } from '@src/apis/recruiting.api'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { job_posting } from '@src/shared/const/permission-class'
 import { timezoneSelector } from '@src/states/permission'

@@ -4,7 +4,7 @@ import { StepIconProps } from '@mui/material/StepIcon'
 import { alpha, styled, useTheme } from '@mui/material/styles'
 
 // ** Custom Icon Import
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // Styled Box component
 const Box = styled(MuiBox)<BoxProps>(() => ({

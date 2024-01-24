@@ -5,13 +5,13 @@ import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 
 // ** custom component
-import { StyledNextLink } from 'src/@core/components/customLink'
+import { StyledNextLink } from '@src/@core/components/customLink'
 
 // ** third party
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** helpers
-import { convertTimeToTimezone } from 'src/shared/helpers/date.helper'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 
 // ** nextJS
 import { useRouter } from 'next/router'

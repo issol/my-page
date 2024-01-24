@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useState } from 'react'
 
 // ** style components
 import {
@@ -40,7 +40,7 @@ import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confi
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { useForm, useFormContext } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** types & schemas
@@ -144,8 +144,8 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
       direction === 'prev'
         ? Math.max(rolePage - 1, 0)
         : direction === 'next'
-        ? rolePage + 1
-        : 0
+          ? rolePage + 1
+          : 0
 
     setRolePage(changedPage)
   }
@@ -317,7 +317,9 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   } = useForm<OffDayEventType & { otherReason?: string }>({
     // mode: 'onChange',
     mode: 'onChange',
-    resolver: yupResolver(offDaySchema),
+    resolver: yupResolver(offDaySchema) as unknown as Resolver<
+      OffDayEventType & { otherReason?: string }
+    >,
   })
 
   const createOffDay = useMutation(

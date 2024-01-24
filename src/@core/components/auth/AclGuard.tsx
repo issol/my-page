@@ -5,17 +5,17 @@ import { ReactNode, Suspense, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Types
-import type { ACLObj, AppAbility } from 'src/configs/acl'
+import type { ACLObj, AppAbility } from '@src/configs/acl'
 
 // ** Context Imports
-import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** Config Import
-import { buildAbilityFor } from 'src/configs/acl'
+import { buildAbilityFor } from '@src/configs/acl'
 
 // ** Component Import
-import NotAuthorized from 'src/pages/401'
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import NotAuthorized from '@src/pages/401'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 
 /* redux */
 

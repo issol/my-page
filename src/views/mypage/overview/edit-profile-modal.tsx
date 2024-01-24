@@ -1,7 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Box, Button, Divider, Grid, Typography } from '@mui/material'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { updateConsumerUserInfo } from '@src/apis/user.api'
 import useAuth from '@src/hooks/useAuth'
 import useModal from '@src/hooks/useModal'
 import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
@@ -14,16 +12,11 @@ import {
   clientBillingAddressSchema,
 } from '@src/types/schema/client-billing-address.schema'
 import { getProfileSchema } from '@src/types/schema/profile.schema'
-import {
-  PersonalInfo,
-  ProUserInfoType,
-} from '@src/types/sign/personalInfoTypes'
+import { PersonalInfo } from '@src/types/sign/personalInfoTypes'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { useMutation } from 'react-query'
+import { Resolver, useForm } from 'react-hook-form'
 import { useRecoilValueLoadable } from 'recoil'
-import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   userInfo: DetailUserType
@@ -54,7 +47,9 @@ const EditProfileModal = ({ userInfo, onClick, onClose }: Props) => {
       timezone: { code: '', label: '' },
     },
     mode: 'onChange',
-    resolver: yupResolver(getProfileSchema('edit')),
+    resolver: yupResolver(getProfileSchema('edit')) as Resolver<
+      Omit<PersonalInfo, 'address'>
+    >,
   })
 
   const {
@@ -72,7 +67,9 @@ const EditProfileModal = ({ userInfo, onClick, onClose }: Props) => {
       addressType: 'billing',
     },
     mode: 'onChange',
-    resolver: yupResolver(clientBillingAddressSchema),
+    resolver: yupResolver(
+      clientBillingAddressSchema,
+    ) as Resolver<ClientAddressType>,
   })
 
   useEffect(() => {

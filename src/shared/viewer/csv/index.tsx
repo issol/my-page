@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import papaparse from 'papaparse'
 import { DocRenderer } from '@cyntler/react-doc-viewer'
 import { textFileLoader } from '../utils/fileLoaders'
@@ -69,11 +69,11 @@ CSVRenderer.fileTypes = ['csv', 'text/csv']
 CSVRenderer.weight = 0
 CSVRenderer.fileLoader = textFileLoader
 
-const Container = styled.div`
+const Container = styled('div')`
   width: 100%;
 `
 
-const Table = styled.table`
+const Table = styled('table')`
   width: 100%;
   text-align: left;
 

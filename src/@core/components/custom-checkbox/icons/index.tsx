@@ -5,14 +5,23 @@ import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 
 // ** Type Imports
-import { CustomCheckboxIconsProps } from 'src/@core/components/custom-checkbox/types'
+import { CustomCheckboxIconsProps } from '@src/@core/components/custom-checkbox/types'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 const CustomCheckboxIcons = (props: CustomCheckboxIconsProps) => {
   // ** Props
-  const { data, icon, name, selected, gridProps, iconProps, handleChange, color = 'primary' } = props
+  const {
+    data,
+    icon,
+    name,
+    selected,
+    gridProps,
+    iconProps,
+    handleChange,
+    color = 'primary',
+  } = props
 
   const { title, value, content } = data
 
@@ -33,20 +42,35 @@ const CustomCheckboxIcons = (props: CustomCheckboxIconsProps) => {
             border: theme => `1px solid ${theme.palette.divider}`,
             ...(selected.includes(value)
               ? { borderColor: `${color}.main` }
-              : { '&:hover': { borderColor: theme => `rgba(${theme.palette.customColors.main}, 0.25)` } })
+              : {
+                  '&:hover': {
+                    borderColor: theme =>
+                      `rgba(${theme.palette.customColors.main}, 0.25)`,
+                  },
+                }),
           }}
         >
           {icon ? <Icon icon={icon} {...iconProps} /> : null}
           {title ? (
             typeof title === 'string' ? (
-              <Typography sx={{ fontWeight: 500, ...(content ? { mb: 1 } : { my: 'auto' }) }}>{title}</Typography>
+              <Typography
+                sx={{
+                  fontWeight: 500,
+                  ...(content ? { mb: 1 } : { my: 'auto' }),
+                }}
+              >
+                {title}
+              </Typography>
             ) : (
               title
             )
           ) : null}
           {content ? (
             typeof content === 'string' ? (
-              <Typography variant='body2' sx={{ my: 'auto', textAlign: 'center' }}>
+              <Typography
+                variant='body2'
+                sx={{ my: 'auto', textAlign: 'center' }}
+              >
                 {content}
               </Typography>
             ) : (

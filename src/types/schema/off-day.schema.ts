@@ -8,7 +8,7 @@ export const offDaySchema = yup.object().shape({
   otherReason: yup
     .string()
     .nullable()
-    .when('reason', (reason, schema) =>
+    .when('reason', ([reason], schema) =>
       reason === 'etc.' ? yup.string().required(FormErrors.required) : schema,
     ),
 })

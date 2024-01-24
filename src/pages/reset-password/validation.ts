@@ -18,7 +18,7 @@ export default function useResetPasswordSchema() {
       .string()
       .label('confirm password')
       .required()
-      .oneOf([yup.ref('password'), null], `Password doesn't match.`),
+      .oneOf([yup.ref('password'), ''], `Password doesn't match.`),
   })
   return resetPasswordSchema
 }

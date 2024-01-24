@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 
 // ** Hooks Import
 
-import { getUserDataFromBrowser } from 'src/shared/auth/storage'
+import { getUserDataFromBrowser } from '@src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 
 interface GuestGuardProps {

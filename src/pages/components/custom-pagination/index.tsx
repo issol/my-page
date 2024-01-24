@@ -1,4 +1,4 @@
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Image from 'next/image'
 
 type Props = {
@@ -92,7 +92,7 @@ const Pagination = ({
   )
 }
 
-const PaginationContainer = styled.div`
+const PaginationContainer = styled('div')`
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
@@ -103,7 +103,7 @@ const PaginationContainer = styled.div`
   font-size: 14px;
 `
 
-const PaginationButton = styled.button`
+const PaginationButton = styled('button')`
   width: 30px;
   height: 30px;
   cursor: pointer;

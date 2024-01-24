@@ -1,21 +1,21 @@
 import Card from '@mui/material/Card'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
-import { OnboardingUserType } from 'src/types/onboarding/list'
+import { OnboardingUserType } from '@src/types/onboarding/list'
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import TypoGraphy from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import { v4 as uuidv4 } from 'uuid'
-import { OnboardingProDetailsType } from 'src/types/onboarding/details'
+import { OnboardingProDetailsType } from '@src/types/onboarding/details'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import Slider from 'react-slick'
-import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -139,8 +139,8 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
       userInfo.contracts.length < 6
         ? userInfo.contracts.length
         : userInfo.contracts?.length === 0
-        ? 1
-        : 6,
+          ? 1
+          : 6,
     slidesToScroll: 6,
     nextArrow: <NextArrow />,
     prevArrow: <PrevButton />,
@@ -225,7 +225,7 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
   )
 }
 
-const ContractsFileName = styled.div`
+const ContractsFileName = styled('div')`
   width: 100%;
   font-family: Inter;
   font-style: normal;

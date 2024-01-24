@@ -22,7 +22,7 @@ import TableContainer from '@mui/material/TableContainer'
 
 import { ChangeEvent, useEffect, useState } from 'react'
 import CustomChip from 'src/@core/components/mui/chip'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import {
   CatInterfaceType,
   StandardPriceListType,
@@ -430,9 +430,7 @@ export default function MemoQModal({
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {data.data
                 // ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                ?.map((item, idx) => (
-                  <Row key={idx} idx={idx} item={item} />
-                ))}
+                ?.map((item, idx) => <Row key={idx} idx={idx} item={item} />)}
             </Box>
           </Grid>
           {/* <Grid item xs={12}>

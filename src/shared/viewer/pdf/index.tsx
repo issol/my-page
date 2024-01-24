@@ -2,7 +2,7 @@
 import { DocRenderer, IStyledProps } from '@cyntler/react-doc-viewer'
 import React from 'react'
 import { pdfjs } from 'react-pdf'
-import styled from 'styled-components'
+import { styled } from '@mui/system'
 
 import PDFPages from './components/pages/PDFPages'
 import PDFControls from './components/PDFControls'
@@ -26,28 +26,20 @@ export default PDFRenderer
 PDFRenderer.fileTypes = ['pdf', 'application/pdf']
 PDFRenderer.weight = 0
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow-y: auto;
+const Container = styled('div')(({ theme }) => {
+  return {
+    display: 'flex',
+    flexDirection: 'column',
+    flex: 1,
+    overflowY: 'auto',
 
-  /* width */
-  &::-webkit-scrollbar {
-    ${(props: IStyledProps) => {
-      return props.theme.disableThemeScrollbar ? '' : 'width: 10px'
-    }};
+    /* Handle */
+    '&::-webkit-scrollbar-thumb': {
+      background: theme.palette.primary.main,
+    },
+    /* Handle on hover */
+    '&::-webkit-scrollbar-thumb:hover': {
+      background: theme.palette.primary.main,
+    },
   }
-  /* Track */
-  &::-webkit-scrollbar-track {
-    /* background: ${(props: IStyledProps) => props.theme.secondary}; */
-  }
-  /* Handle */
-  &::-webkit-scrollbar-thumb {
-    background: ${(props: IStyledProps) => props.theme.tertiary};
-  }
-  /* Handle on hover */
-  &::-webkit-scrollbar-thumb:hover {
-    background: ${(props: IStyledProps) => props.theme.primary};
-  }
-`
+})

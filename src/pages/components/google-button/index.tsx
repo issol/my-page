@@ -5,25 +5,22 @@ import Script from 'next/script'
 import { useRouter } from 'next/router'
 
 // ** styles
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** context
-
 // ** hooks
 import useModal from '@src/hooks/useModal'
 
 // ** modals
 import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
-import MoveSignupModal from '@src/pages/components/modals/confirm-save-modals/move-signup-modal'
 import ServerErrorModal from '@src/pages/components/modals/confirm-modals/server-error-modal'
 
 // ** fetch
 import { useMutation } from 'react-query'
-import { saveUserTokenToBrowser } from 'src/shared/auth/storage'
-import { googleAuth } from 'src/apis/sign.api'
+import { googleAuth } from '@src/apis/sign.api'
 
 // ** third party
-import jwt_decode from 'jwt-decode'
+import { jwtDecode } from 'jwt-decode'
 import { toast } from 'react-hot-toast'
 import logger from '@src/@core/utils/logger'
 import useAuth from '@src/hooks/useAuth'
@@ -122,7 +119,7 @@ export default function GoogleButton({ type }: Props) {
   function handleCredentialResponse(response: { credential?: string }) {
     if (response.credential) {
       //@ts-ignore
-      const email = jwt_decode(response.credential)?.email as string
+      const email = jwtDecode(response.credential)?.email as string
       emailRef.current = email
       googleMutation.mutate(response.credential)
     }
@@ -146,6 +143,7 @@ export default function GoogleButton({ type }: Props) {
       },
     )
   }
+
   return (
     <>
       <Script
@@ -161,7 +159,7 @@ export default function GoogleButton({ type }: Props) {
   )
 }
 
-const GoogleButtonWrapper = styled.div`
+const GoogleButtonWrapper = styled('div')`
   position: absolute;
   opacity: 0.0001 !important;
 `

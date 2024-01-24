@@ -1,4 +1,4 @@
-import { useState, ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 
@@ -6,27 +6,22 @@ import Image from 'next/image'
 import Box, { BoxProps } from '@mui/material/Box'
 import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import { Button, Grid, Typography, useMediaQuery } from '@mui/material'
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 
 // ** Hooks
-
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** third parties
 import toast from 'react-hot-toast'
 
 // ** types
-
 // ** components
-
 // ** apis
-import { createClient } from '@src/apis/client.api'
-import { getCurrentRole } from '@src/shared/auth/storage'
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import {
-  ContactPersonType,
   clientContactPersonDefaultValue,
+  ContactPersonType,
   createContactPersonSchema,
 } from '@src/types/schema/client-contact-person.schema'
 import CreateContactPersonForm from '@src/pages/components/forms/create-contact-person-form'
@@ -34,11 +29,7 @@ import { updateClientUserInfo } from '@src/apis/user.api'
 import useAuth from '@src/hooks/useAuth'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import {
-  currentRoleSelector,
-  roleSelector,
-  roleState,
-} from '@src/states/permission'
+import { roleState } from '@src/states/permission'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -95,7 +86,9 @@ export default function NewGeneralClientForm() {
   } = useForm<ContactPersonType>({
     defaultValues: clientContactPersonDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(createContactPersonSchema),
+    resolver: yupResolver(
+      createContactPersonSchema,
+    ) as unknown as Resolver<ContactPersonType>,
   })
 
   function onError() {

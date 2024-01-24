@@ -1,13 +1,12 @@
-import { Box, Button, Card, Typography, styled } from '@mui/material'
+import { Box, Card, styled, Typography } from '@mui/material'
 import { MemberChip, PermissionChip } from '@src/@core/components/chips/chips'
 
 import { RoleType } from '@src/context/types'
-import { useAppSelector } from '@src/hooks/useRedux'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Contracts from './contracts'
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { managerProfileSchema } from '@src/types/schema/profile.schema'
 import {
@@ -22,14 +21,17 @@ import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 import { useMutation } from 'react-query'
-import { getUserInfo, updateClientUserInfo, updateConsumerUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
+import {
+  updateClientUserInfo,
+  updateConsumerUserInfo,
+  updateManagerUserInfo,
+} from '@src/apis/user.api'
 import useAuth from '@src/hooks/useAuth'
 import { useGetProfile } from '@src/queries/userInfo/userInfo-query'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { roleState } from '@src/states/permission'
 import { useRouter } from 'next/router'
-import { BrandingWatermarkSharp } from '@mui/icons-material'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
@@ -74,17 +76,25 @@ const MyAccount = () => {
     }
   }, [])
   const saveUserInfoMutation = useMutation(
-    (data: (ManagerUserInfoType | ContactPersonType | ProUserInfoType) & { userId: number }) => (
-      ['LPM','TAD','ACCOUNT_MANAGER'].includes(getCurrentUserRole())
-        ? updateManagerUserInfo({ ...data as ManagerUserInfoType & { userId: number }, company: 'GloZ' })
+    (
+      data: (ManagerUserInfoType | ContactPersonType | ProUserInfoType) & {
+        userId: number
+      },
+    ) =>
+      ['LPM', 'TAD', 'ACCOUNT_MANAGER'].includes(getCurrentUserRole())
+        ? updateManagerUserInfo({
+            ...(data as ManagerUserInfoType & { userId: number }),
+            company: 'GloZ',
+          })
         : getCurrentUserRole() === 'CLIENT'
           ? updateClientUserInfo({
-              ...data as ContactPersonType & { userId: number },
+              ...(data as ContactPersonType & { userId: number }),
               clientId: userAuth.getValue().company?.clientId!,
               companyId: userAuth.getValue().company?.companyId!,
             })
-          : updateConsumerUserInfo(data as ProUserInfoType & { userId: number })
-    ),
+          : updateConsumerUserInfo(
+              data as ProUserInfoType & { userId: number },
+            ),
     {
       onSuccess: () => {
         setContractsEdit(false)
@@ -111,7 +121,7 @@ const MyAccount = () => {
     formState: { errors, isValid },
   } = useForm<ManagerInfo>({
     mode: 'onChange',
-    resolver: yupResolver(managerProfileSchema),
+    resolver: yupResolver(managerProfileSchema) as Resolver<ManagerInfo>,
   })
 
   useEffect(() => {
@@ -184,8 +194,7 @@ const MyAccount = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      { saveUserInfoMutation.isLoading ?
-        <OverlaySpinner /> : null }
+      {saveUserInfoMutation.isLoading ? <OverlaySpinner /> : null}
       <DesignedCard>
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ position: 'relative', display: 'flex', gap: '30px' }}>

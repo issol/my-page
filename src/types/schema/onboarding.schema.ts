@@ -23,11 +23,13 @@ export const assignTestSchema = yup.object().shape({
         .when('role', {
           is: (role: { value: string; label: string }) =>
             role?.value === 'DTPer' || role?.value === 'DTP QCer',
-          then: yup.object().nullable(),
-          otherwise: yup.object().shape({
-            label: yup.string().required(FormErrors.required),
-            value: yup.string().required(FormErrors.required),
-          }),
+          then: schema => schema.nullable(),
+          otherwise: schema => {
+            return schema.shape({
+              label: yup.string().required(FormErrors.required),
+              value: yup.string().required(FormErrors.required),
+            })
+          },
         }),
 
       target: yup
@@ -40,11 +42,13 @@ export const assignTestSchema = yup.object().shape({
         .when('role', {
           is: (role: { value: string; label: string }) =>
             role?.value === 'DTPer' || role?.value === 'DTP QCer',
-          then: yup.object().nullable(),
-          otherwise: yup.object().shape({
-            label: yup.string().required(FormErrors.required),
-            value: yup.string().required(FormErrors.required),
-          }),
+          then: (schema: any) => schema.nullable(),
+          otherwise: schema => {
+            return schema.shape({
+              label: yup.string().required(FormErrors.required),
+              value: yup.string().required(FormErrors.required),
+            })
+          },
         }),
 
       // source: yup

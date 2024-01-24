@@ -3,7 +3,7 @@ import AlertIcon from '@src/@core/components/alert-icon'
 
 import Dialog from '@mui/material/Dialog'
 import { TitleTypography } from '@src/@core/styles/typography'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 type Props = {
   message: string

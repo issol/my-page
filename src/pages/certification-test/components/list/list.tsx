@@ -10,7 +10,7 @@ import { Dispatch, SetStateAction } from 'react'
 import {
   TestMaterialFilterPayloadType,
   TestMaterialListType,
-} from 'src/types/certification-test/list'
+} from '@src/types/certification-test/list'
 import { getColumns } from '@src/shared/const/columns/certification-test'
 import { NextRouter } from 'next/router'
 import { UserDataType } from '@src/context/types'

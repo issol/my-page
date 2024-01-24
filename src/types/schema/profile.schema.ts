@@ -37,13 +37,13 @@ export const getProfileSchema = (type: 'join' | 'edit') => {
         source: yup
           .string()
           .required(FormErrors.required)
-          .when('jobType', (jobType, schema) =>
+          .when('jobType', ([jobType], schema) =>
             jobType === 'DTP' ? yup.string().nullable() : schema,
           ),
         target: yup
           .string()
           .required(FormErrors.required)
-          .when('jobType', (jobType, schema) =>
+          .when('jobType', ([jobType], schema) =>
             jobType === 'DTP' ? yup.string().nullable() : schema,
           ),
       }),
@@ -86,7 +86,7 @@ export const getProfileSchema = (type: 'join' | 'edit') => {
           name: yup
             .string()
             .nullable()
-            .when('addressType', (addressType, schema) =>
+            .when('addressType', ([addressType], schema) =>
               addressType === 'additional'
                 ? yup.string().required(FormErrors.required)
                 : schema,

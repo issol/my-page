@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 
 // ** mui imports
 import { Grid, Typography } from '@mui/material'
-import PageHeader from 'src/@core/components/page-header'
+import PageHeader from '@src/@core/components/page-header'
 
 // ** component imports
 import RecruitingDashboard from './components/dashboard'
@@ -11,17 +11,17 @@ import Filters from './components/filter'
 import RecruitingList from './components/list'
 
 // ** values
-import { ProRolePair } from 'src/shared/const/role/roles'
-import { ProJobPair } from 'src/shared/const/job/jobs'
+import { ProRolePair } from '@src/shared/const/role/roles'
+import { ProJobPair } from '@src/shared/const/job/jobs'
 
 // ** fetch
 import {
   useGetRecruitingCount,
   useGetRecruitingList,
-} from 'src/queries/recruiting.query'
+} from '@src/queries/recruiting.query'
 
 // ** types
-import { RecruitingCountType } from 'src/apis/recruiting.api'
+import { RecruitingCountType } from '@src/apis/recruiting.api'
 import { useQueryClient } from 'react-query'
 
 export type FilterType = {
@@ -45,7 +45,7 @@ export const initialFilter: FilterType = {
   skip: 0,
   take: 10,
   sort: 'createdAt',
-  ordering: 'DESC'
+  ordering: 'DESC',
 }
 export default function Recruiting() {
   type FilterState = Array<{ value: string; label: string }>

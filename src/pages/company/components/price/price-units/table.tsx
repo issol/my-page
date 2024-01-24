@@ -1,5 +1,5 @@
 // ** react
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useState } from 'react'
 
 // ** mui
 import {
@@ -8,7 +8,7 @@ import {
   TablePagination,
   Typography,
 } from '@mui/material'
-import { Box } from '@mui/system'
+import { Box, css, styled } from '@mui/system'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
@@ -23,12 +23,8 @@ import {
 } from '@src/types/common/standard-price'
 import Switch from '@mui/material/Switch'
 
-import styled, { css } from 'styled-components'
-
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
-
-import logger from '@src/@core/utils/logger'
+import Icon from '@src/@core/components/icon'
 
 // ** components
 import TableMenu from './table-menu'
@@ -282,7 +278,7 @@ export default function PriceUnitTable({
   )
 }
 
-const Divider = styled.div`
+const Divider = styled('div')`
   width: 100%;
   height: 10px;
   background: #f5f5f7;

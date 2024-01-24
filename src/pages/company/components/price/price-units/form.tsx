@@ -4,7 +4,6 @@ import { Fragment, useEffect, useState } from 'react'
 // ** mui
 import { Button, Checkbox, IconButton, Switch } from '@mui/material'
 import { Box } from '@mui/system'
-import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -13,7 +12,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import { PriceUnits } from '@src/shared/const/price/price-unit'
 
 // ** Third Party Imports
-import { useForm, Controller, useFieldArray } from 'react-hook-form'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import {
   PriceFormType,
@@ -21,10 +20,9 @@ import {
 } from '@src/types/schema/price-unit.schema'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** logger
-import logger from '@src/@core/utils/logger'
 
 // ** Components
 
@@ -44,7 +42,6 @@ type Props = {
   onEditCancel?: () => void
   shouldDisabled?: boolean
 }
-
 export default function PriceUnitForm(props: Props) {
   const { mutation, showModal } = props
   const { openModal, closeModal } = useModal()
@@ -69,7 +66,9 @@ export default function PriceUnitForm(props: Props) {
   } = useForm<PriceFormType>({
     defaultValues,
     mode: 'onBlur',
-    resolver: yupResolver(priceUnitSchema),
+    resolver: yupResolver(
+      priceUnitSchema,
+    ) as unknown as Resolver<PriceFormType>,
   })
 
   const {
@@ -175,6 +174,7 @@ export default function PriceUnitForm(props: Props) {
       mutation({ ...data, sortingOrder: 0 }, onCancel())
     }
   }
+
   const [expend, setExpend] = useState(true)
   return (
     <Fragment>

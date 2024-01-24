@@ -14,7 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { v4 as uuidv4 } from 'uuid'
 
 // ** Third Party Imports
@@ -24,14 +24,7 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** types
-import {
-  Fragment,
-  ReactNode,
-  useContext,
-  useEffect,
-  useState,
-  useRef,
-} from 'react'
+import { Fragment, ReactNode, useEffect, useRef, useState } from 'react'
 
 // ** react hook form
 import {
@@ -54,15 +47,15 @@ import AddConfirmModal from '@src/pages/client/components/modals/add-confirm-wit
 
 // ** values
 import { CategoryList } from '@src/shared/const/category/categories'
-import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
-import { ServiceTypePair } from '@src/shared/const/service-type/service-types'
 import {
-  AreaOfExpertisePair,
+  ServiceTypeList,
+  ServiceTypePair,
+} from '@src/shared/const/service-type/service-types'
+import {
   AreaOfExpertiseList,
+  AreaOfExpertisePair,
 } from '@src/shared/const/area-of-expertise/area-of-expertise'
-import { countries } from 'src/@fake-db/autocomplete'
-import { QuotesStatus } from '@src/shared/const/status/statuses'
-import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
+import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
@@ -222,6 +215,7 @@ export default function ProjectInfoForm({
   function onWorkNameInputChange(name: string) {
     setWorkNameError(workName?.some(item => item.value === name) || false)
   }
+
   useEffect(() => {
     const handleOutsideClick = (event: MouseEvent) => {
       if (

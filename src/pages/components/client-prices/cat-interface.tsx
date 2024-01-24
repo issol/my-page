@@ -17,7 +17,7 @@ import {
 import { v4 as uuidv4 } from 'uuid'
 
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import {
   useState,
   MouseEvent,
@@ -423,8 +423,8 @@ const CatInterface = ({
                       {obj.unit && obj.unit !== 'Percent'
                         ? obj.unit
                         : obj.unit && obj.unit === 'Percent'
-                        ? ''
-                        : ''}
+                          ? ''
+                          : ''}
                       &nbsp;
                       {obj.title}
                     </Typography>
@@ -541,8 +541,8 @@ const CatInterface = ({
                       {obj.unit && obj.unit !== 'Percent'
                         ? obj.unit
                         : obj.unit && obj.unit === 'Percent'
-                        ? ''
-                        : ''}
+                          ? ''
+                          : ''}
                       &nbsp;
                       {obj.title}
                     </Typography>

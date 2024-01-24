@@ -22,11 +22,11 @@ import {
 import PageHeader from '@src/@core/components/page-header'
 
 // ** react hook form
-import { useForm, useFieldArray, Controller } from 'react-hook-form'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** third parties
 import { toast } from 'react-hot-toast'
@@ -42,8 +42,8 @@ import {
   RequestType,
 } from '@src/types/requests/common.type'
 import {
-  getClientRequestDefaultValue,
   clientRequestSchema,
+  getClientRequestDefaultValue,
 } from '@src/types/schema/client-request.schema'
 import { FileType } from '@src/types/common/file.type'
 
@@ -145,7 +145,7 @@ export default function AddNewRequest() {
       auth.getValue().user?.userId!,
       auth.getValue().user?.timezone!,
     ),
-    resolver: yupResolver(clientRequestSchema),
+    resolver: yupResolver(clientRequestSchema) as Resolver<RequestType>,
   })
 
   console.log(getValues())
@@ -292,6 +292,7 @@ export default function AddNewRequest() {
       createMutation.mutate(calData)
     }
   }
+
   function onRequest() {
     setPreventLeave(false)
     openModal({

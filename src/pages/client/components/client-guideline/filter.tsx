@@ -17,10 +17,10 @@ import Autocomplete from '@mui/material/Autocomplete'
 import { Box } from '@mui/system'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // **values
-import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
+import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
 
 // ** types

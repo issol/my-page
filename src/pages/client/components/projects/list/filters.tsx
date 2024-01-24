@@ -22,7 +22,7 @@ import {
 } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import { FilterType } from '..'
 import { ClientStatus, WorkStatus } from '@src/shared/const/status/statuses'
 import { ClientProjectFilterType } from '@src/types/client/client-projects.type'
@@ -41,7 +41,7 @@ import {
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import {
   ServiceTypeList,

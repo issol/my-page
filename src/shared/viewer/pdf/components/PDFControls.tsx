@@ -1,4 +1,3 @@
-import { IStyledProps } from '@cyntler/react-doc-viewer'
 import Button from '@mui/material/Button'
 import Link from 'next/link'
 import React, { FC, useContext } from 'react'
@@ -7,14 +6,13 @@ import { PDFContext } from '../state'
 import { setPDFPaginated, setZoomLevel } from '../state/actions'
 
 import {
-  // DownloadPDFIcon,
   ResetZoomPDFIcon,
   TogglePaginationPDFIcon,
   ZoomInPDFIcon,
   ZoomOutPDFIcon,
 } from './icons'
 import PDFPagination from './PDFPagination'
-import styled from 'styled-components'
+import { styled } from '@mui/system'
 
 const PDFControls: FC<{}> = () => {
   const {
@@ -86,7 +84,7 @@ const PDFControls: FC<{}> = () => {
 
 export default PDFControls
 
-const Container = styled.div`
+const Container = styled('div')`
   display: flex;
   position: sticky;
   top: 0;
@@ -94,9 +92,8 @@ const Container = styled.div`
   z-index: 1;
   justify-content: center;
   padding: 8px;
-  // background-color: ${(props: IStyledProps) => props.theme.tertiary};
   background-color: #ffffff;
-  box-shadow: 0px 2px 3px #00000033;
+  box-shadow: 0 2px 3px #00000033;
 
   @media (max-width: 768px) {
     padding: 6px;

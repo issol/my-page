@@ -10,28 +10,28 @@ import TextField from '@mui/material/TextField'
 import Box, { BoxProps } from '@mui/material/Box'
 
 import { styled, useTheme } from '@mui/material/styles'
-import Typography, { TypographyProps } from '@mui/material/Typography'
+import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useRouter } from 'next/router'
 // ** Configs
-import themeConfig from 'src/configs/themeConfig'
 
 // ** Layout Import
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 
 // ** Hooks
-
 import MuiCard, { CardProps } from '@mui/material/Card'
 // ** Demo Imports
-
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import useForgotPasswordSchema from './validation'
 import { useMutation } from 'react-query'
-import { sendResetEmail } from 'src/apis/user.api'
-import { removeCompanyDataFromBrowser, removeUserDataFromBrowser } from 'src/shared/auth/storage'
+import { sendResetEmail } from '@src/apis/user.api'
+import {
+  removeCompanyDataFromBrowser,
+  removeUserDataFromBrowser,
+} from '@src/shared/auth/storage'
 
 // Styled Components
 
@@ -70,9 +70,11 @@ const ForgotPassword = () => {
     reset,
     formState: { errors },
   } = useForm<ForgotPasswordProps>({
-    mode: 'onChange',
-    resolver: yupResolver(forgotPasswordSchema),
     defaultValues: { email: null },
+    mode: 'onChange',
+    resolver: yupResolver(
+      forgotPasswordSchema,
+    ) as Resolver<ForgotPasswordProps>,
   })
 
   const isValid = !watch(['email']).includes(null)

@@ -14,24 +14,22 @@ import { styled as muiStyled } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
-import { Card, CardContent, Link } from '@mui/material'
+import { Card, CardContent, Checkbox, Link } from '@mui/material'
 
 import cloneDeep from 'lodash/cloneDeep'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** Third Party Imports
 import * as yup from 'yup'
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import PinInput from 'react-pin-input'
 
 // ** Hooks
-
 // ** Layout Import
-import BlankLayout from 'src/@core/layouts/BlankLayout'
-import { Checkbox } from '@mui/material'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 import {
   checkEmailDuplication,
   redirectLinkedInAuth,
@@ -40,8 +38,8 @@ import {
   snsSignUp,
   validateRole,
   verifyPinCode,
-} from 'src/apis/sign.api'
-import { RoleType } from 'src/context/types'
+} from '@src/apis/sign.api'
+import { RoleType } from '@src/context/types'
 import { useMutation } from 'react-query'
 
 // ** Third Party Components
@@ -53,13 +51,13 @@ import { useRouter } from 'next/router'
 // ** Context
 
 // ** values
-import { FormErrors } from 'src/shared/const/formErrors'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 // ** components
 import GoogleButton from '../components/google-button'
 
 // ** types
-import { loginResType } from 'src/types/sign/signInTypes'
+import { loginResType } from '@src/types/sign/signInTypes'
 import useAuth from '@src/hooks/useAuth'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
@@ -129,7 +127,7 @@ const schema = yup.object().shape({
         /[$@$!%*#?&]/g.test(val)
       )
     })
-    .when('type', (type, schema) =>
+    .when('type', ([type], schema) =>
       type === 'sns' ? yup.string().nullable() : schema,
     ),
 
@@ -200,10 +198,10 @@ const SignUpPage = () => {
     getValues,
     watch,
     formState: { errors, isValid },
-  } = useForm({
+  } = useForm<FormData>({
     defaultValues,
     mode: 'onBlur',
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema) as unknown as Resolver<FormData>,
   })
 
   useEffect(() => {

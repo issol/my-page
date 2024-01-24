@@ -1,8 +1,8 @@
 import Box from '@mui/material/Box'
 
-import { TestStatusColor } from 'src/shared/const/chipColors'
+import { TestStatusColor } from '@src/shared/const/chipColors'
 import { v4 as uuidv4 } from 'uuid'
-import Chip from 'src/@core/components/mui/chip'
+import Chip from '@src/@core/components/mui/chip'
 
 const TestStatus = ({
   row,

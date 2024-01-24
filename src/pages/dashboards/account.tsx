@@ -8,6 +8,7 @@ import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 import weekday from 'dayjs/plugin/weekday'
 import { CSVDataType, Office } from '@src/types/dashboard'
 import { useRouter } from 'next/router'
+
 import { getDateFormat } from '@src/pages/dashboards/lpm'
 
 import ChartDate from '@src/views/dashboard/header/chartDate'
@@ -20,6 +21,7 @@ import AccountTable from '@src/views/dashboard/accountTable'
 import AccountDoughnut from '@src/views/dashboard/chart/accountDoughnut'
 import OptionsMenu from '@src/@core/components/option-menu'
 import sortBy from 'lodash/sortBy'
+import { mergeData } from '@src/pages/dashboards/tad'
 
 dayjs.extend(weekday)
 
@@ -37,19 +39,6 @@ const ProData = [
   { count: 0, name: 'Transferwise (Wise)', type: '', ratio: 0 },
   { count: 0, name: 'International wire', type: '', ratio: 0 },
 ]
-
-export const mergeData = (array1: Array<Object>, array2: Array<Object>) => {
-  let tempArray1 = array1
-  let tempArray2 = array2
-  if (array1.length === 0) {
-    tempArray1 = array2
-    tempArray2 = array1
-  }
-  return tempArray1.reduce<Array<Record<string, any>>>(
-    (acc, element, index) => [...acc, { ...element, ...tempArray2[index] }],
-    [],
-  )
-}
 
 // NOTE : 데이터가 많아지는 경우 Suspense 단위로 분리
 const AccountDashboards = () => {
@@ -109,6 +98,7 @@ const AccountDashboards = () => {
         'Payable Prices': item?.prices || '-',
         '   ': '',
       })) || []
+
     const filterClient =
       Client?.report.map(item => ({
         'Client Payment Method': item?.paymentMethod || '-',
@@ -128,6 +118,7 @@ const AccountDashboards = () => {
     const mergeData2 = mergeData(mergeData1, filterPayable)
     const mergeData3 = mergeData(mergeData2, filterClient)
     const mergeData4 = mergeData(mergeData3, filterPro)
+
     setCSVData(mergeData4)
   }, [Sales, Receivable, Payable, Client, Pro])
 
@@ -157,16 +148,6 @@ const AccountDashboards = () => {
     if (Pro?.report.length === 0) {
       return ProData
     }
-
-    console.log(
-      sortBy(
-        Pro?.report.map(item => ({
-          ...item,
-          name: item?.type || '',
-        })),
-        ['count', 'name'],
-      ),
-    )
 
     return sortBy(
       Pro?.report.map(item => ({

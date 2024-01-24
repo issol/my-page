@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** style components
 import {
@@ -12,7 +12,7 @@ import {
   Switch,
   Typography,
 } from '@mui/material'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** types & schemas
 import {
@@ -22,9 +22,9 @@ import {
   KoreaDomesticTransferSoloType,
   KoreaDomesticTransferType,
   PayPalType,
+  proPaymentMethodPairs,
   ProPaymentType,
   TransferWiseFormType,
-  proPaymentMethodPairs,
 } from '@src/types/payment-info/pro/billing-method.type'
 import {
   billingMethodInitialData,
@@ -48,12 +48,11 @@ import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 // ** react hook form
 import {
   Control,
-  Controller,
   FieldErrors,
+  Resolver,
+  useForm,
   UseFormGetValues,
   UseFormSetValue,
-  UseFormWatch,
-  useForm,
 } from 'react-hook-form'
 
 // ** third parties
@@ -64,7 +63,6 @@ import useModal from '@src/hooks/useModal'
 import KoreaDomesticForm from './korea-domestic-form'
 import KoreaDomesticSoloForm from './korea-domestic-solo-form'
 import {
-  PositionType,
   ProPaymentFormType,
   ProPaymentInfoType,
 } from '@src/apis/payment-info.api'
@@ -156,7 +154,9 @@ const BillingMethod = ({
       ...billingMethodInitialData(billingMethod, isSolo),
       type: billingMethod,
     },
-    resolver: yupResolver(getBillingMethodSchema(billingMethod, isSolo)),
+    resolver: yupResolver(
+      getBillingMethodSchema(billingMethod, isSolo),
+    ) as unknown as Resolver<BillingMethodUnionType>,
   })
 
   const {
@@ -171,7 +171,7 @@ const BillingMethod = ({
   } = useForm<BankInfo>({
     mode: 'onChange',
     defaultValues: bankInfoDefaultValue,
-    resolver: yupResolver(bankInfoSchema),
+    resolver: yupResolver(bankInfoSchema) as Resolver<BankInfo>,
   })
 
   const {
@@ -186,7 +186,9 @@ const BillingMethod = ({
   } = useForm<CorrespondentBankInfo>({
     mode: 'onChange',
     defaultValues: corrBankInfoDefaultValue,
-    resolver: yupResolver(corrBankInfoSchema),
+    resolver: yupResolver(
+      corrBankInfoSchema,
+    ) as Resolver<CorrespondentBankInfo>,
   })
 
   useEffect(() => {

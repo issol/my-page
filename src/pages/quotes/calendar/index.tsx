@@ -13,10 +13,10 @@ import Calendar from './calendar'
 import QuotesList from '../quote-list/list'
 
 // ** Hooks
-import { useSettings } from 'src/@core/hooks/useSettings'
+import { useSettings } from '@src/@core/hooks/useSettings'
 
 // ** FullCalendar & App Components Imports
-import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
+import CalendarWrapper from '@src/@core/styles/libs/fullcalendar'
 
 import { useGetQuotesCalendarData } from '@src/queries/quotes.query'
 import { CalendarEventType } from '@src/types/common/calendar.type'
@@ -96,32 +96,32 @@ const CalendarContainer = () => {
     return status === 'New'
       ? '#666CFF'
       : status === 'In preparation'
-      ? `#F572D8`
-      : status === 'Internal review'
-      ? `#D8AF1D`
-      : status === 'Client review'
-      ? `#FDB528`
-      : status === 'Expired'
-      ? '#FF4D49'
-      : status === 'Rejected'
-      ? '#FF4D49'
-      : status === 'Accepted'
-      ? '#64C623'
-      : status === 'Changed into order'
-      ? '#1A6BBA'
-      : status === 'Canceled'
-      ? '#FF4D49'
-      : status === 'Under review'
-      ? '#FDB528'
-      : status === 'Revised'
-      ? '#AD7028'
-      : status === 'Revision requested'
-      ? '#A81988'
-      : status === 'Under revision'
-      ? '#26C6F9'
-      : status === 'Quote sent'
-      ? '#2B6603'
-      : ''
+        ? `#F572D8`
+        : status === 'Internal review'
+          ? `#D8AF1D`
+          : status === 'Client review'
+            ? `#FDB528`
+            : status === 'Expired'
+              ? '#FF4D49'
+              : status === 'Rejected'
+                ? '#FF4D49'
+                : status === 'Accepted'
+                  ? '#64C623'
+                  : status === 'Changed into order'
+                    ? '#1A6BBA'
+                    : status === 'Canceled'
+                      ? '#FF4D49'
+                      : status === 'Under review'
+                        ? '#FDB528'
+                        : status === 'Revised'
+                          ? '#AD7028'
+                          : status === 'Revision requested'
+                            ? '#A81988'
+                            : status === 'Under revision'
+                              ? '#26C6F9'
+                              : status === 'Quote sent'
+                                ? '#2B6603'
+                                : ''
   }
 
   useEffect(() => {

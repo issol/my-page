@@ -3,9 +3,9 @@ import { ComponentMeta, ComponentStory } from '@storybook/react'
 // ** Custom Components Imports
 
 import { Alert, Grid } from '@mui/material'
-import CardSnippet from 'src/@core/components/card-snippet'
+import CardSnippet from '@src/@core/components/card-snippet'
 
-import ReactApexcharts from 'src/@core/components/react-apexcharts'
+import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 
 const series = [{ data: [50, 20, 5, 30, 15, 45] }]
@@ -141,7 +141,7 @@ const source = (
   <pre className='language-jsx'>
     <code className='language-jsx'>{`
 // ** Custom Components Imports
-import ReactApexcharts from 'src/@core/components/react-apexcharts'
+import ReactApexcharts from '@src/@core/components/react-apexcharts'
 
 import { ApexOptions } from 'apexcharts'
 

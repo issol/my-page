@@ -19,7 +19,7 @@ import { ContactPersonType } from '@src/types/schema/client-contact-person.schem
 import { Control, Controller, FieldErrors, UseFormWatch } from 'react-hook-form'
 
 // ** Data
-import { countries } from 'src/@fake-db/autocomplete'
+import { countries } from '@src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 // ** components

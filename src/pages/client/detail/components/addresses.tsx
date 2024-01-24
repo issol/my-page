@@ -15,19 +15,18 @@ import {
   IconButton,
   Typography,
 } from '@mui/material'
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from '@src/@core/components/mui/chip'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** types & schema
 import { ClientDetailType } from '@src/types/client/client'
 import { TitleTypography } from '@src/@core/styles/typography'
 import {
-  ClientAddressFormType,
-  ClientAddressType,
   clientAddressAllRequiredSchema,
   clientAddressDefaultValue,
-  clientAddressSchema,
+  ClientAddressFormType,
+  ClientAddressType,
 } from '@src/types/schema/client-address.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -39,7 +38,7 @@ import { updateClientAddress } from '@src/apis/client.api'
 import useModal from '@src/hooks/useModal'
 
 // ** react hook form
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 
 // ** components
 import ClientAddressesForm from '../../components/forms/addresses-info-form'
@@ -79,6 +78,7 @@ export default function ClientAddresses({
       clientAddresses: !filteredAddress()?.length ? [] : filteredAddress(),
     })
   }
+
   const {
     control,
     getValues,
@@ -90,7 +90,9 @@ export default function ClientAddresses({
   } = useForm<ClientAddressFormType>({
     defaultValues: clientAddressDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientAddressAllRequiredSchema),
+    resolver: yupResolver(
+      clientAddressAllRequiredSchema,
+    ) as Resolver<ClientAddressFormType>,
   })
 
   const { fields, append, remove, update } = useFieldArray({
@@ -113,6 +115,7 @@ export default function ClientAddresses({
   function onMutationSuccess() {
     return queryClient.invalidateQueries(`client-detail-${clientId}`)
   }
+
   function onMutationError() {
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',

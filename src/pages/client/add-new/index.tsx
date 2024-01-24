@@ -5,17 +5,15 @@ import { useRouter } from 'next/router'
 import useModal from '@src/hooks/useModal'
 
 // ** redux
-import { useAppSelector } from '@src/hooks/useRedux'
 
 // ** mui
 import { Box, Card, Grid, IconButton, Typography } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** components
-
 import Stepper from '@src/pages/components/stepper'
 import CompanyInfoForm from '../components/forms/company-info-container'
 import AddressesForm from '../components/forms/addresses-container'
@@ -25,48 +23,46 @@ import PriceActionModal from '@src/pages/components/standard-prices-modal/modal/
 
 import AddSavePriceModal from '@src/pages/components/standard-prices-modal/dialog/add-save-price-modal'
 import NoPriceUnitModal from '@src/pages/components/standard-prices-modal/modal/no-price-unit-modal'
-import AddConfirmModal from '../components/modals/add-confirm-with-title-modal'
 import AddNewLanguagePairModal from '@src/pages/components/client-prices-modal/dialog/add-new-language-pair-modal'
 import SetPriceUnitModal from '@src/pages/components/client-prices-modal/dialog/set-price-unit-modal'
 
 // ** react hook form
-import { useForm, useFieldArray } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** validation values & types
 import {
-  CompanyInfoFormType,
   companyInfoDefaultValue,
+  CompanyInfoFormType,
   companyInfoSchema,
 } from '@src/types/schema/company-info.schema'
 import {
-  ClientAddressFormType,
   clientAddressDefaultValue,
+  ClientAddressFormType,
   clientAddressSchema,
 } from '@src/types/schema/client-address.schema'
 import {
-  ClientContactPersonType,
   clientContactPersonSchema,
+  ClientContactPersonType,
   contactPersonDefaultValue,
 } from '@src/types/schema/client-contact-person.schema'
 import {
-  LanguagePairParams,
+  AddNewLanguagePair,
   AddNewPriceType,
   LanguagePairListType,
+  LanguagePairParams,
   PriceUnitListType,
   SetPriceUnitPair,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
-import { AddNewLanguagePair } from '@src/types/common/standard-price'
-import { CreateClientBodyType } from '@src/apis/client.api'
+import { createClient, CreateClientBodyType } from '@src/apis/client.api'
 import { GridCellParams } from '@mui/x-data-grid'
 import { CreateClientResType } from '@src/types/client/client'
 
 // ** fetch
 import { useMutation } from 'react-query'
 import { useGetPriceUnitList } from '@src/queries/price-units.query'
-import { createClient } from '@src/apis/client.api'
 import {
   createCatInterface,
   createLanguagePair,
@@ -153,7 +149,7 @@ const AddNewClient = () => {
   } = useForm<CompanyInfoFormType>({
     mode: 'onChange',
     defaultValues: companyInfoDefaultValue,
-    resolver: yupResolver(companyInfoSchema),
+    resolver: yupResolver(companyInfoSchema) as Resolver<CompanyInfoFormType>,
   })
 
   // ** step2
@@ -167,7 +163,9 @@ const AddNewClient = () => {
   } = useForm<ClientAddressFormType>({
     defaultValues: clientAddressDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientAddressSchema),
+    resolver: yupResolver(
+      clientAddressSchema,
+    ) as Resolver<ClientAddressFormType>,
   })
 
   const {
@@ -191,7 +189,9 @@ const AddNewClient = () => {
   } = useForm<ClientContactPersonType>({
     defaultValues: contactPersonDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientContactPersonSchema),
+    resolver: yupResolver(
+      clientContactPersonSchema,
+    ) as Resolver<ClientContactPersonType>,
   })
 
   const {

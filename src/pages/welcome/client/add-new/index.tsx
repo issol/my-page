@@ -6,7 +6,7 @@ import Image from 'next/image'
 import Box, { BoxProps } from '@mui/material/Box'
 import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import { useMediaQuery } from '@mui/material'
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 
 // ** Hooks
 

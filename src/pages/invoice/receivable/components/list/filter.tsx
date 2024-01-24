@@ -21,7 +21,7 @@ import {
   useTheme,
 } from '@mui/material'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 
 // ** apis
@@ -549,8 +549,8 @@ export default function Filter({
                               a.value > b.value
                                 ? 1
                                 : b.value > a.value
-                                ? -1
-                                : 0,
+                                  ? -1
+                                  : 0,
                             )}
                             value={value}
                             limitTags={1}

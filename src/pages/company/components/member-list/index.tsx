@@ -1,4 +1,4 @@
-import { MembersType, SignUpRequestsType } from 'src/types/company/members'
+import { MembersType, SignUpRequestsType } from '@src/types/company/members'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import {
@@ -41,7 +41,7 @@ import { patchMember } from '@src/apis/company/company-members.api'
 import toast from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { useAppSelector } from 'src/hooks/useRedux'
+import { useAppSelector } from '@src/hooks/useRedux'
 import { splitPermissionName } from '@src/shared/helpers/role.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
 

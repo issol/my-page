@@ -1,17 +1,17 @@
 import { SyntheticEvent, useContext, useEffect, useState } from 'react'
 import { Grid } from '@mui/material'
 
-import { RoleSelectType } from 'src/types/onboarding/list'
-import { SelectType } from 'src/types/onboarding/list'
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
-import { JobList } from 'src/shared/const/job/jobs'
+import { RoleSelectType } from '@src/types/onboarding/list'
+import { SelectType } from '@src/types/onboarding/list'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
+import { JobList } from '@src/shared/const/job/jobs'
 import {
   TestMaterialFilterPayloadType,
   TestMaterialFilterType,
-} from 'src/types/certification-test/list'
+} from '@src/types/certification-test/list'
 import { useForm } from 'react-hook-form'
 import TestMaterialList from './components/list/list'
-import { useGetTestMaterialList } from 'src/queries/certification-test/ceritification-test-list.query'
+import { useGetTestMaterialList } from '@src/queries/certification-test/ceritification-test-list.query'
 import TestMaterialFilters from './components/list/filters'
 import { useRouter } from 'next/router'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'

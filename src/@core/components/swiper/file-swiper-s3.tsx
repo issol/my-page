@@ -6,13 +6,13 @@ import Box from '@mui/material/Box'
 import { Button, Direction, IconButton, Typography } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** Third Party Components
 import clsx from 'clsx'
 import { useKeenSlider } from 'keen-slider/react'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 export type FileItemType = {
   id?: number

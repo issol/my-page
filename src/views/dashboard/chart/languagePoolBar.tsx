@@ -1,5 +1,5 @@
 import TablePagination from '@mui/material/TablePagination'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLanguagePool } from '@src/queries/dashnaord.query'
 import { Box } from '@mui/material'
@@ -168,7 +168,7 @@ const LanguagePoolBarChart = ({
         labels: {
           font: {
             size: 14,
-            weight: '600',
+            weight: 'bold',
           },
         },
       },
@@ -176,7 +176,7 @@ const LanguagePoolBarChart = ({
         anchor: context => {
           const index = context.dataIndex
           const value = context.dataset.data[index] || 0
-          if (value < 55) return 'end'
+          if (typeof value === 'number' && value < 55) return 'end'
           return 'start'
         },
         align: 'start',
@@ -194,7 +194,7 @@ const LanguagePoolBarChart = ({
             color: context => {
               const index = context.dataIndex
               const value = context.dataset.data[index] || 0
-              if (value < 55) return '#4C4E64DE'
+              if (typeof value === 'number' && value < 55) return '#4C4E64DE'
               return '#fff'
             },
           },
@@ -206,15 +206,17 @@ const LanguagePoolBarChart = ({
             color: context => {
               const index = context.dataIndex
               const value = context.dataset.data[index] || 0
-              if (value < 55) return '#4C4E64DE'
+              if (typeof value === 'number' && value < 55) return '#4C4E64DE'
               return '#fff'
             },
             offset: context => {
               const index = context.dataIndex
               const value = context.dataset.data[index] || 0
-              if (value > 10 && value < 100) return 28
-              if (value > 100 && value < 1000) return 34
-              if (value < 1000) return 35
+              if (typeof value === 'number' && value > 10 && value < 100)
+                return 28
+              if (typeof value === 'number' && value > 100 && value < 1000)
+                return 34
+              if (typeof value === 'number' && value < 1000) return 35
               return 45
             },
           },
@@ -232,8 +234,7 @@ const LanguagePoolBarChart = ({
           drawOnChartArea: CHART_AREA,
           drawTicks: false,
           color: '#EAEAEC',
-          borderDash: [10],
-          drawBorder: false,
+          tickBorderDash: [10],
         },
         ticks: {
           stepSize: 40,
@@ -242,12 +243,11 @@ const LanguagePoolBarChart = ({
       y: {
         grid: {
           display: false,
-          drawBorder: false,
         },
         ticks: {
           font: {
             size: 14,
-            weight: '600',
+            weight: 'bold',
           },
           crossAlign: 'far',
         },

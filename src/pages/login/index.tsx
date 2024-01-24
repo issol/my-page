@@ -20,7 +20,7 @@ import { Checkbox, FormControlLabel } from '@mui/material'
 import Link from 'next/link'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** Third Party Imports
 import * as yup from 'yup'
@@ -30,23 +30,23 @@ import { yupResolver } from '@hookform/resolvers/yup'
 // ** Hooks
 
 // ** Configs
-import themeConfig from 'src/configs/themeConfig'
+import themeConfig from '@src/configs/themeConfig'
 
 // ** Layout Import
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 
 // ** fetches
-import { login, redirectLinkedInAuth } from 'src/apis/sign.api'
+import { login, redirectLinkedInAuth } from '@src/apis/sign.api'
 import {
   getRememberMe,
   removeRememberMe,
   saveRememberMe,
   saveUserDataToBrowser,
   saveUserTokenToBrowser,
-} from 'src/shared/auth/storage'
+} from '@src/shared/auth/storage'
 
 // ** values
-import { FormErrors } from 'src/shared/const/formErrors'
+import { FormErrors } from '@src/shared/const/formErrors'
 import GoogleButton from '../components/google-button'
 import useAuth from '@src/hooks/useAuth'
 
@@ -382,9 +382,3 @@ LoginPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 LoginPage.guestGuard = true
 
 export default LoginPage
-
-// const GoogleButtonWrapper = styled.div`
-//   position: absolute;
-//   /* opacity: 0.7; */
-//   opacity: 0.0001 !important;
-// `

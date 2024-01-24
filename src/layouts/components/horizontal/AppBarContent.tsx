@@ -2,13 +2,13 @@
 import Box from '@mui/material/Box'
 
 // ** Type Import
-import { Settings } from 'src/@core/context/settingsContext'
+import { Settings } from '@src/@core/context/settingsContext'
 
 // ** Components
-import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
+import UserDropdown from '@src/@core/layouts/components/shared-components/UserDropdown'
 
-import NotificationDropdown from 'src/@core/layouts/components/shared-components/NotificationDropdown'
-import { ShortcutsType } from 'src/@core/layouts/components/shared-components/ShortcutsDropdown'
+import NotificationDropdown from '@src/@core/layouts/components/shared-components/NotificationDropdown'
+import { ShortcutsType } from '@src/@core/layouts/components/shared-components/ShortcutsDropdown'
 import { useGetNotificationList } from '@src/queries/notification.query'
 import { Suspense } from 'react'
 import { useInfiniteQuery, useMutation } from 'react-query'
@@ -162,9 +162,9 @@ const AppBarContent = (props: Props) => {
           {!process.env.NEXT_PUBLIC_DISPLAY_MODE
             ? 'local'
             : process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Development' ||
-              process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Test'
-            ? process.env.NEXT_PUBLIC_DISPLAY_MODE
-            : null}
+                process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Test'
+              ? process.env.NEXT_PUBLIC_DISPLAY_MODE
+              : null}
           <UserDropdown settings={settings} />
         </Box>
       )}

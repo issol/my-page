@@ -12,15 +12,21 @@ import MenuItem from '@mui/material/MenuItem'
 import IconButton from '@mui/material/IconButton'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** Type Imports
 import { OptionType, OptionsMenuType, OptionMenuItemType } from './types'
 
 // ** Hook Import
-import { useSettings } from 'src/@core/hooks/useSettings'
+import { useSettings } from '@src/@core/hooks/useSettings'
 
-const MenuItemWrapper = ({ children, option }: { children: ReactNode; option: OptionMenuItemType }) => {
+const MenuItemWrapper = ({
+  children,
+  option,
+}: {
+  children: ReactNode
+  option: OptionMenuItemType
+}) => {
   if (option.href) {
     return (
       <Box
@@ -34,7 +40,7 @@ const MenuItemWrapper = ({ children, option }: { children: ReactNode; option: Op
           display: 'flex',
           color: 'inherit',
           alignItems: 'center',
-          textDecoration: 'none'
+          textDecoration: 'none',
         }}
       >
         {children}
@@ -47,7 +53,14 @@ const MenuItemWrapper = ({ children, option }: { children: ReactNode; option: Op
 
 const OptionsMenu = (props: OptionsMenuType) => {
   // ** Props
-  const { icon, options, menuProps, iconProps, leftAlignMenu, iconButtonProps } = props
+  const {
+    icon,
+    options,
+    menuProps,
+    iconProps,
+    leftAlignMenu,
+    iconButtonProps,
+  } = props
 
   // ** State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -66,7 +79,11 @@ const OptionsMenu = (props: OptionsMenuType) => {
 
   return (
     <>
-      <IconButton aria-haspopup='true' onClick={handleClick} {...iconButtonProps}>
+      <IconButton
+        aria-haspopup='true'
+        onClick={handleClick}
+        {...iconButtonProps}
+      >
         {icon ? icon : <Icon icon='mdi:dots-vertical' {...iconProps} />}
       </IconButton>
       <Menu
@@ -75,8 +92,14 @@ const OptionsMenu = (props: OptionsMenuType) => {
         onClose={handleClose}
         open={Boolean(anchorEl)}
         {...(!leftAlignMenu && {
-          anchorOrigin: { vertical: 'bottom', horizontal: direction === 'ltr' ? 'right' : 'left' },
-          transformOrigin: { vertical: 'top', horizontal: direction === 'ltr' ? 'right' : 'left' }
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: direction === 'ltr' ? 'right' : 'left',
+          },
+          transformOrigin: {
+            vertical: 'top',
+            horizontal: direction === 'ltr' ? 'right' : 'left',
+          },
         })}
         {...menuProps}
       >
@@ -88,7 +111,9 @@ const OptionsMenu = (props: OptionsMenuType) => {
               </MenuItem>
             )
           } else if ('divider' in option) {
-            return option.divider && <Divider key={index} {...option.dividerProps} />
+            return (
+              option.divider && <Divider key={index} {...option.dividerProps} />
+            )
           } else {
             return (
               <MenuItem
@@ -97,7 +122,9 @@ const OptionsMenu = (props: OptionsMenuType) => {
                 {...(option.href && { sx: { p: 0 } })}
                 onClick={e => {
                   handleClose()
-                  option.menuItemProps && option.menuItemProps.onClick ? option.menuItemProps.onClick(e) : null
+                  option.menuItemProps && option.menuItemProps.onClick
+                    ? option.menuItemProps.onClick(e)
+                    : null
                 }}
               >
                 <MenuItemWrapper option={option}>

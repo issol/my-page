@@ -1,5 +1,4 @@
-import { Typography } from '@mui/material'
-import styled from 'styled-components'
+import { styled, Typography } from '@mui/material'
 
 //output : 3줄부터 ...처리
 export const TitleTypography = styled(Typography)`

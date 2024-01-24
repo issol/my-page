@@ -5,7 +5,7 @@ import { Button, Divider, Grid } from '@mui/material'
 import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** react hook form
 import {

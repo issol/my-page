@@ -23,15 +23,12 @@ import {
   DialogContent,
   Grid,
   IconButton,
-  ListItemIcon,
-  ListItemText,
   Menu,
   MenuItem,
-  Switch,
   Tab,
   Typography,
 } from '@mui/material'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** contexts
@@ -52,7 +49,6 @@ import QuotesLanguageItemsDetail from './components/language-items'
 import QuotesClientDetail from './components/client'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
-import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import ProjectInfoForm from '@src/pages/components/forms/quotes-project-info-form'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
@@ -64,37 +60,32 @@ import DownloadQuotesModal from './components/pdf-download/download-qoutes-modal
 import PrintQuotePage from './components/pdf-download/quote-preview'
 
 // ** react hook form
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 
 // ** type & validation
 import {
   MemberType,
-  ProjectTeamType,
   projectTeamSchema,
+  ProjectTeamType,
 } from '@src/types/schema/project-team.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import {
   ClientFormType as ClientPostType,
-  LanguagePairsPostType,
   LanguagePairsType,
   ProjectTeamFormType,
 } from '@src/types/common/orders-and-quotes.type'
 import {
   QuoteDownloadData,
-  QuoteStatusType,
   QuotesProjectInfoAddNewType,
   QuotesProjectInfoFormType,
   VersionHistoryType,
 } from '@src/types/common/quotes.type'
-import {
-  quotesProjectInfoDefaultValue,
-  quotesProjectInfoSchema,
-} from '@src/types/schema/quotes-project-info.schema'
+import { quotesProjectInfoSchema } from '@src/types/schema/quotes-project-info.schema'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import { itemSchema, quoteItemSchema } from '@src/types/schema/item.schema'
+import { quoteItemSchema } from '@src/types/schema/item.schema'
 import { languageType } from '../add-new'
 
 // ** hook
@@ -111,8 +102,6 @@ import {
 import {
   confirmQuote,
   deleteQuotes,
-  patchQuoteItems,
-  patchQuoteLanguagePairs,
   patchQuoteProjectInfo,
   patchQuoteStatus,
   restoreVersion,
@@ -122,10 +111,10 @@ import { getClientPriceList } from '@src/apis/company/company-price.api'
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import {
-  convertTimeToTimezone,
-  convertLocalTimezoneToUTC,
-  formatDateToISOString,
   changeTimeZoneOffset,
+  convertLocalTimezoneToUTC,
+  convertTimeToTimezone,
+  formatDateToISOString,
 } from '@src/shared/helpers/date.helper'
 import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
@@ -139,7 +128,6 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import ClientQuote from './components/client-quote'
 import SelectReasonModal from '../components/modal/select-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
-import { update } from 'lodash'
 import { useGetStatusList } from '@src/queries/common.query'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import Link from 'next/link'
@@ -147,10 +135,9 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { QuoteStatusChip } from '@src/@core/components/chips/chips'
 import { CancelOrderReason } from '@src/shared/const/reason/reason'
 
-import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
+import { ProjectTeamListType } from '@src/types/orders/order-detail'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
-import dayjs from 'dayjs'
 import { ReasonType } from '@src/types/quotes/quote'
 import { timezoneSelector } from '@src/states/permission'
 
@@ -398,7 +385,9 @@ export default function QuotesDetail() {
       projectName: '',
       showDescription: false,
     },
-    resolver: yupResolver(quotesProjectInfoSchema),
+    resolver: yupResolver(
+      quotesProjectInfoSchema,
+    ) as unknown as Resolver<QuotesProjectInfoAddNewType>,
   })
 
   const setProjectInfoData = () => {
@@ -515,7 +504,10 @@ export default function QuotesDetail() {
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
-    resolver: yupResolver(quoteItemSchema),
+    resolver: yupResolver(quoteItemSchema) as unknown as Resolver<{
+      items: ItemType[]
+      languagePairs: languageType[]
+    }>,
   })
 
   const {
@@ -618,7 +610,7 @@ export default function QuotesDetail() {
       contactPersonId: null,
       addressType: 'shipping',
     },
-    resolver: yupResolver(clientSchema),
+    resolver: yupResolver(clientSchema) as Resolver<ClientFormType>,
   })
 
   useEffect(() => {
@@ -666,7 +658,7 @@ export default function QuotesDetail() {
         { type: 'member', id: null },
       ],
     },
-    resolver: yupResolver(projectTeamSchema),
+    resolver: yupResolver(projectTeamSchema) as Resolver<ProjectTeamType>,
   })
 
   const {
@@ -689,8 +681,8 @@ export default function QuotesDetail() {
           item.position === 'projectManager'
             ? 'projectManagerId'
             : item.position === 'supervisor'
-            ? 'supervisorId'
-            : 'member',
+              ? 'supervisorId'
+              : 'member',
         id: item.userId,
         name: getLegalName({
           firstName: item?.firstName!,
@@ -769,8 +761,8 @@ export default function QuotesDetail() {
           item.position === 'projectManager'
             ? 'projectManagerId'
             : item.position === 'supervisor'
-            ? 'supervisorId'
-            : 'member',
+              ? 'supervisorId'
+              : 'member',
         id: item.userId,
         name: getLegalName({
           firstName: item?.firstName!,
@@ -1447,7 +1439,8 @@ export default function QuotesDetail() {
 
   const onClickConfirmQuote = () => {
     const projectStatus = () => {
-      if (project?.status === 'Under revision') return 20700 // Revised로 변경
+      if (project?.status === 'Under revision')
+        return 20700 // Revised로 변경
       else return 20300 // Quote sent로 변경, 초기값
     }
     openModal({

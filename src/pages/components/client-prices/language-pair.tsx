@@ -15,11 +15,11 @@ import { LanguagePairListType } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import LanguagePairActionModal from '../standard-prices-modal/modal/language-pair-action-modal'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 
 type Props = {
@@ -63,8 +63,8 @@ const LanguagePair = ({
     return isEditMode
       ? 'edit-row'
       : params.field === 'action'
-      ? 'action-row'
-      : ''
+        ? 'action-row'
+        : ''
   }
 
   const [rowToEdit, setRowToEdit] = useState<LanguagePairListType | null>(null)
@@ -220,10 +220,10 @@ const LanguagePair = ({
               {row.currency === 'USD' || row.currency === 'SGD'
                 ? '$'
                 : row.currency === 'KRW'
-                ? '₩'
-                : row.currency === 'JPY'
-                ? '¥'
-                : '-'}
+                  ? '₩'
+                  : row.currency === 'JPY'
+                    ? '¥'
+                    : '-'}
               &nbsp;{row.minimumPrice}
             </Box>
           )}
@@ -422,7 +422,7 @@ const LanguagePair = ({
 
 export default LanguagePair
 
-const SmallInput = styled.input`
+const SmallInput = styled('input')`
   max-width: 80px;
   padding: 4px;
   background: transparent;

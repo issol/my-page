@@ -1,5 +1,5 @@
-import styled from '@emotion/styled'
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { styled } from '@mui/system'
+import { EditorWrapper } from '@src/@core/styles/libs/react-draft-wysiwyg'
 
 export const StyledEditor = styled(EditorWrapper)<{ error?: boolean }>`
   .rdw-editor-main {

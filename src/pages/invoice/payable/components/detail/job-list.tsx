@@ -1,7 +1,6 @@
-import { Card, Checkbox, IconButton, TablePagination } from '@mui/material'
+import { Checkbox, IconButton, TablePagination } from '@mui/material'
 import { Fragment, useState } from 'react'
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import TableContainer from '@mui/material/TableContainer'
 import Typography from '@mui/material/Typography'
 import Table from '@mui/material/Table'
@@ -12,11 +11,14 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import { Icon } from '@iconify/react'
-import styled, { css } from 'styled-components'
+import { css, styled } from '@mui/system'
 import { InvoicePayableJobType } from '@src/types/invoice/payable.type'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import { CurrencyType } from '@src/types/common/standard-price'
-import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
+import {
+  formatCurrency,
+  getCurrencyMark,
+} from '@src/shared/helpers/price.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { useRouter } from 'next/router'
@@ -33,9 +35,9 @@ type Props = {
   setSelectedJobs: (id: number[]) => void
   isUpdatable: boolean
   auth: {
-    user: UserDataType | null;
-    company: ClientUserType | null | undefined;
-    loading: boolean;
+    user: UserDataType | null
+    company: ClientUserType | null | undefined
+    loading: boolean
   }
 }
 export default function InvoiceJobList({
@@ -132,10 +134,7 @@ export default function InvoiceJobList({
           </TableCell>
           {/* Prices */}
           <TableCell sx={{ flex: 0.1148 }}>
-            <Typography
-              fontWeight={600}
-              sx={disabledTextUi}
-            >
+            <Typography fontWeight={600} sx={disabledTextUi}>
               {/* {`${currencyMark} ${item.totalPrice?.toLocaleString()}`} */}
               {formatCurrency(item.totalPrice, currency!)}
             </Typography>
@@ -269,9 +268,7 @@ export default function InvoiceJobList({
               <TableBody>
                 {jobList
                   ?.slice(page * pageSize, page * pageSize + pageSize)
-                  ?.map((item, idx) => (
-                    <Row key={idx} item={item} />
-                  ))}
+                  ?.map((item, idx) => <Row key={idx} item={item} />)}
               </TableBody>
             </Table>
           </TableContainer>

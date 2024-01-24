@@ -4,11 +4,11 @@ import Box from '@mui/material/Box'
 import Badge from '@mui/material/Badge'
 import { Direction } from '@mui/material'
 
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 import clsx from 'clsx'
 import { useKeenSlider } from 'keen-slider/react'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 interface SwiperControlsProps {
   direction: Direction

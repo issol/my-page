@@ -13,7 +13,7 @@ import {
   getDateFormatter,
   SelectedRangeDate,
 } from '@src/pages/dashboards/lpm'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 const ChartDate = () => {
   const { control, setValue } = useFormContext<DashboardForm>()

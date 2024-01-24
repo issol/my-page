@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { FC, useContext, useEffect } from 'react'
 import { Document } from 'react-pdf'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 import { PDFContext } from '../../state'
 import { setNumPages } from '../../state/actions'

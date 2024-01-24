@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ComponentMeta } from '@storybook/react'
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Divider, Grid } from '@mui/material'
 import RegisterClientForm from '@src/pages/components/forms/register-client-form'
@@ -76,8 +76,9 @@ export const Default = ({
       addressType: 'shipping',
     },
     mode: 'onChange',
-    resolver: yupResolver(clientSchema),
+    resolver: yupResolver(clientSchema) as Resolver<ClientFormType>,
   })
+
   const [tax, setTax] = useState<number | null>(null)
   const [taxable, setTaxable] = useState(false)
   const [clientList, setClientList] = useState<

@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { ReactNode } from 'react'
 
-import BlankLayout from 'src/@core/layouts/BlankLayout'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 
 import Box, { BoxProps } from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -9,9 +9,8 @@ import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import { styled, useTheme } from '@mui/material/styles'
 import MuiCard, { CardProps } from '@mui/material/Card'
-import Link from 'next/link'
-import themeConfig from 'src/configs/themeConfig'
-import RightIllustration from 'src/pages/forgot-password/complete/right-illustration'
+import themeConfig from '@src/configs/themeConfig'
+import RightIllustration from '@src/pages/forgot-password/complete/right-illustration'
 
 import toast from 'react-hot-toast'
 

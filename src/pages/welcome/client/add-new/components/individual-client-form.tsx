@@ -11,15 +11,15 @@ import {
   ClientCompanyInfoType,
 } from '@src/context/types'
 import {
-  getClientCompanyInfoDefaultValue,
   clientCompanyInfoSchema,
+  getClientCompanyInfoDefaultValue,
 } from '@src/types/schema/client-info/client-company-info.schema'
 
 // ** components
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 // ** hooks
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import useModal from '@src/hooks/useModal'
 
 // ** third parties
@@ -27,9 +27,9 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { isEmpty } from 'lodash'
 import ClientCompanyInfoForm from '@src/pages/client/components/forms/client-info/client-company-info-form'
 import {
-  ClientAddressFormType,
   clientAddressAllRequiredSchema,
   clientAddressDefaultValue,
+  ClientAddressFormType,
 } from '@src/types/schema/client-address.schema'
 
 import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
@@ -62,7 +62,9 @@ export default function IndividualClientForm({
   } = useForm<ClientCompanyInfoType>({
     defaultValues: getClientCompanyInfoDefaultValue(clientType),
     mode: 'onChange',
-    resolver: yupResolver(clientCompanyInfoSchema),
+    resolver: yupResolver(
+      clientCompanyInfoSchema,
+    ) as Resolver<ClientCompanyInfoType>,
   })
 
   const {
@@ -74,7 +76,9 @@ export default function IndividualClientForm({
   } = useForm<ClientAddressFormType>({
     defaultValues: clientAddressDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientAddressAllRequiredSchema),
+    resolver: yupResolver(
+      clientAddressAllRequiredSchema,
+    ) as Resolver<ClientAddressFormType>,
   })
 
   const [checked, setChecked] = useState(false)

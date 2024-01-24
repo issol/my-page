@@ -13,10 +13,10 @@ import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import Calendar from './calendar'
 
 // ** Hooks
-import { useSettings } from 'src/@core/hooks/useSettings'
+import { useSettings } from '@src/@core/hooks/useSettings'
 
 // ** FullCalendar & App Components Imports
-import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
+import CalendarWrapper from '@src/@core/styles/libs/fullcalendar'
 
 // ** apis
 // ** values

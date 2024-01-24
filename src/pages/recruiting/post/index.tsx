@@ -7,7 +7,6 @@ import {
   Card,
   FormHelperText,
   InputAdornment,
-  List,
   MenuItem,
   OutlinedInput,
   Select,
@@ -18,10 +17,10 @@ import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** React Imports
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -30,15 +29,15 @@ import { v4 as uuidv4 } from 'uuid'
 import { convertToRaw, EditorState } from 'draft-js'
 
 // ** Component Import
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+import ReactDraftWysiwyg from '@src/@core/components/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
 import DatePicker from 'react-datepicker'
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** Styled Component Import
-import { StyledEditor } from 'src/@core/components/editor/customEditor'
-import CustomChip from 'src/@core/components/mui/chip'
-import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+import { StyledEditor } from '@src/@core/components/editor/customEditor'
+import CustomChip from '@src/@core/components/mui/chip'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -49,7 +48,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 
 // ** form
-import { useForm, Controller } from 'react-hook-form'
+import { Controller, Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** fetches
@@ -62,14 +61,14 @@ import { useGetClientList } from '@src/queries/client.query'
 import {
   recruitingFormSchema,
   RecruitingFormType,
-} from 'src/types/schema/recruiting.schema'
-import { CountryType } from 'src/types/sign/personalInfoTypes'
+} from '@src/types/schema/recruiting.schema'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 // ** values
-import { JobList, ProJobPair } from 'src/shared/const/job/jobs'
-import { RoleList, ProRolePair } from 'src/shared/const/role/roles'
+import { JobList, ProJobPair } from '@src/shared/const/job/jobs'
+import { ProRolePair, RoleList } from '@src/shared/const/role/roles'
 
-import { RecruitingStatus } from 'src/shared/const/status/statuses'
+import { RecruitingStatus } from '@src/shared/const/status/statuses'
 
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
@@ -156,7 +155,7 @@ export default function RecruitingPost() {
   } = useForm<RecruitingFormType>({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(recruitingFormSchema),
+    resolver: yupResolver(recruitingFormSchema) as Resolver<RecruitingFormType>,
   })
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
   const currDueDate = watch('dueDate')
@@ -259,6 +258,7 @@ export default function RecruitingPost() {
 
   const currJobType = watch('jobType')
   const currRole = watch('role')
+
   function findDynamicFilterOptions(
     type: 'role' | 'jobType',
   ): Array<{ value: string; label: string }> {

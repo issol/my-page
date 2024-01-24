@@ -19,7 +19,7 @@ import {
   JobTypeChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import Icon from '@src/@core/components/icon'
 import {
   FullDateHelper,
@@ -2281,8 +2281,8 @@ const InvoiceInfo = ({
                       )
                     })
                   : isFileUploading
-                  ? null
-                  : '-'}
+                    ? null
+                    : '-'}
               </Box>
             </Card>
           </Grid>
@@ -2459,8 +2459,8 @@ const InvoiceInfo = ({
                       )
                     })
                   : isFileUploading
-                  ? null
-                  : '-'}
+                    ? null
+                    : '-'}
               </Box>
 
               <Grid item xs={12} mt={1}>

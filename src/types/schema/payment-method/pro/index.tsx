@@ -12,11 +12,12 @@ import {
   koreaDomesticDefaultValue,
   koreaDomesticSchema,
 } from './korea-domestic.schema'
+import { ObjectSchema } from 'yup'
 
 export function getBillingMethodSchema(
   billingMethod: ProPaymentType | null,
   isSolo = false,
-) {
+): ObjectSchema<any> {
   switch (billingMethod) {
     case 'internationalWire':
     case 'wise':

@@ -1,15 +1,15 @@
 import Box from '@mui/material/Box'
 
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 import Typography from '@mui/material/Typography'
 import DocViewer, { IHeaderOverride } from '@cyntler/react-doc-viewer'
-import PDFRenderer from 'src/shared/viewer/pdf'
-import MSDocRenderer from 'src/shared/viewer/msdoc'
-import JPGRenderer from 'src/shared/viewer/jpg'
-import PNGRenderer from 'src/shared/viewer/png'
-import CSVRenderer from 'src/shared/viewer/csv'
+import PDFRenderer from '@src/shared/viewer/pdf'
+import MSDocRenderer from '@src/shared/viewer/msdoc'
+import JPGRenderer from '@src/shared/viewer/jpg'
+import PNGRenderer from '@src/shared/viewer/png'
+import CSVRenderer from '@src/shared/viewer/csv'
 
 type Props = {
   onClose: any

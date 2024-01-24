@@ -1,13 +1,13 @@
-import { ApiErrorHandler } from '@src/shared/sentry-provider'
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
-import authConfig from 'src/configs/auth'
+import {ApiErrorHandler} from '@src/shared/sentry-provider'
+import type {AxiosResponse, InternalAxiosRequestConfig,} from 'axios'
+import axios from 'axios'
+
 import {
-  getUserTokenFromBrowser,
-  removeUserTokenFromBrowser,
-  saveUserTokenToBrowser,
-  removeUserDataFromBrowser,
-  removeCompanyDataFromBrowser,
   getUserDataFromBrowser,
+  getUserTokenFromBrowser,
+  removeCompanyDataFromBrowser,
+  removeUserDataFromBrowser,
+  saveUserTokenToBrowser,
 } from 'src/shared/auth/storage'
 
 export const BASEURL =
@@ -46,7 +46,7 @@ export const getHeaderToken = () => {
 }
 
 instance.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
+  (config: InternalAxiosRequestConfig) => {
     const token = getHeaderToken()
     if (token) {
       config.headers = config.headers ?? {}
@@ -63,7 +63,7 @@ instance.interceptors.response.use(
   (response: AxiosResponse) => {
     return response
   },
-  async (error: AxiosError) => {
+  async error => {
     error.config = error.config ?? {}
     const originalRequest = error.config
     const originalRequestHeader = error.config.headers ?? {}

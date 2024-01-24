@@ -1,18 +1,16 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Box, Button, Card, Grid, Typography } from '@mui/material'
 import { UserDataType } from '@src/context/types'
-import { DetailUserType } from '@src/types/common/detail-user.type'
 
 import {
   BillingMethodUnionType,
   KoreaDomesticTransferType,
-  PayPalType,
   ProPaymentType,
   TransferWiseFormType,
 } from '@src/types/payment-info/pro/billing-method.type'
 import BillingMethod from './billing-method-forms'
 import BillingAddress from '@src/pages/client/components/payment-info/billing-address'
-import { useForm, useFormContext } from 'react-hook-form'
+import { Resolver, useForm, useFormContext } from 'react-hook-form'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
@@ -35,10 +33,10 @@ import TaxInfoDetail from './tax-info-details'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import {
-  PositionType,
-  ProPaymentFormType,
   deleteProPaymentFile,
   getProPaymentFile,
+  PositionType,
+  ProPaymentFormType,
   updateProBillingAddress,
   updateProBillingAddressAndTax,
   updateProBillingMethod,
@@ -214,7 +212,9 @@ const ProPaymentInfo = ({ user }: Props) => {
       zipCode: null,
     },
     mode: 'onChange',
-    resolver: yupResolver(clientBillingAddressSchema),
+    resolver: yupResolver(
+      clientBillingAddressSchema,
+    ) as Resolver<ClientAddressType>,
   })
 
   const {
@@ -226,7 +226,9 @@ const ProPaymentInfo = ({ user }: Props) => {
   } = useForm<TaxInfoType>({
     defaultValues: taxInfoDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(taxInfoSchema(billingMethod)),
+    resolver: yupResolver(
+      taxInfoSchema(billingMethod),
+    ) as Resolver<TaxInfoType>,
   })
 
   const resetBillingMethodData = async () => {

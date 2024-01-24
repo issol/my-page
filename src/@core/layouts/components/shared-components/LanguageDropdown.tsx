@@ -1,14 +1,14 @@
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** Third Party Import
 import { useTranslation } from 'react-i18next'
 
 // ** Custom Components Imports
-import OptionsMenu from 'src/@core/components/option-menu'
+import OptionsMenu from '@src/@core/components/option-menu'
 
 // ** Type Import
-import { Settings } from 'src/@core/context/settingsContext'
+import { Settings } from '@src/@core/context/settingsContext'
 
 interface Props {
   settings: Settings
@@ -30,7 +30,10 @@ const LanguageDropdown = ({ settings, saveSettings }: Props) => {
     <OptionsMenu
       icon={<Icon icon='mdi:translate' />}
       menuProps={{ sx: { '& .MuiMenu-paper': { mt: 4, minWidth: 130 } } }}
-      iconButtonProps={{ color: 'inherit', sx: { ...(layout === 'vertical' ? { mr: 0.75 } : { mx: 0.75 }) } }}
+      iconButtonProps={{
+        color: 'inherit',
+        sx: { ...(layout === 'vertical' ? { mr: 0.75 } : { mx: 0.75 }) },
+      }}
       options={[
         {
           text: 'English',
@@ -40,8 +43,8 @@ const LanguageDropdown = ({ settings, saveSettings }: Props) => {
             onClick: () => {
               handleLangItemClick('en')
               saveSettings({ ...settings, direction: 'ltr' })
-            }
-          }
+            },
+          },
         },
         {
           text: 'French',
@@ -51,8 +54,8 @@ const LanguageDropdown = ({ settings, saveSettings }: Props) => {
             onClick: () => {
               handleLangItemClick('fr')
               saveSettings({ ...settings, direction: 'ltr' })
-            }
-          }
+            },
+          },
         },
         {
           text: 'Arabic',
@@ -62,9 +65,9 @@ const LanguageDropdown = ({ settings, saveSettings }: Props) => {
             onClick: () => {
               handleLangItemClick('ar')
               saveSettings({ ...settings, direction: 'rtl' })
-            }
-          }
-        }
+            },
+          },
+        },
       ]}
     />
   )

@@ -7,7 +7,6 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  TextField,
   Typography,
 } from '@mui/material'
 import {
@@ -29,9 +28,7 @@ import { JobItemType, JobType } from '@src/types/common/item.type'
 
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import { PositionType } from '@src/types/orders/order-detail'
-import { ro } from 'date-fns/locale'
-import { f } from 'msw/lib/glossary-de6278a9'
-import { Dispatch, SetStateAction, useState, useEffect } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import {
   QueryObserverResult,
@@ -44,7 +41,6 @@ import { v4 as uuidv4 } from 'uuid'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { statusType } from '@src/types/common/status.type'
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
-import { TroubleshootRounded } from '@mui/icons-material'
 import {
   JobStatusType,
   ProJobDeliveryType,
@@ -295,8 +291,8 @@ const ViewJobInfo = ({
             type === 'approve'
               ? approveMessage
               : type === 'cancel'
-              ? cancelMessage
-              : withoutInvoiceMessage
+                ? cancelMessage
+                : withoutInvoiceMessage
           }
           vary={type === 'approve' ? 'successful' : 'error'}
           textAlign={'center'}
@@ -519,8 +515,8 @@ const ViewJobInfo = ({
       direction === 'prev'
         ? Math.max(feedbackPage - 1, 0)
         : direction === 'next'
-        ? feedbackPage + 1
-        : 0
+          ? feedbackPage + 1
+          : 0
 
     setFeedbackPage(changedPage)
   }

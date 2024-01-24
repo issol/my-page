@@ -13,7 +13,7 @@ import {
   Typography,
 } from '@mui/material'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** components
 import FileInfo from '@src/@core/components/file-info'
@@ -32,7 +32,7 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** ability
@@ -138,7 +138,9 @@ export default function CompanyPaymentInfo() {
       zipCode: '',
     },
     mode: 'onChange',
-    resolver: yupResolver(clientBillingAddressSchema),
+    resolver: yupResolver(
+      clientBillingAddressSchema,
+    ) as Resolver<ClientAddressType>,
   })
 
   function resetBillingAddressForm() {

@@ -7,7 +7,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 
 // ** Layout Imports
 // !Do not remove this Layout import
-import Layout from 'src/@core/layouts/Layout'
+import Layout from '@src/@core/layouts/Layout'
 
 // ** Navigation Imports
 import VerticalNavItems from 'src/navigation/vertical'
@@ -84,8 +84,8 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       currentRoleState.state === 'hasValue'
         ? currentRoleState.getValue()
         : currentRoleStorage
-        ? currentRoleStorage
-        : null
+          ? currentRoleStorage
+          : null
 
     setCurrentRole(current)
 

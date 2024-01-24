@@ -2,10 +2,10 @@
 import Box from '@mui/material/Box'
 
 // ** Type Import
-import { LayoutProps } from 'src/@core/layouts/types'
+import { LayoutProps } from '@src/@core/layouts/types'
 
 // ** Config Import
-import themeConfig from 'src/configs/themeConfig'
+import themeConfig from '@src/configs/themeConfig'
 
 // ** Menu Components
 import HorizontalNavItems from './HorizontalNavItems'

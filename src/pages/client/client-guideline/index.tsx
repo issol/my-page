@@ -4,16 +4,16 @@ import { useContext, useEffect, useState } from 'react'
 import { Grid, Typography } from '@mui/material'
 
 // ** components
-import PageHeader from 'src/@core/components/page-header'
+import PageHeader from '@src/@core/components/page-header'
 
 // ** fetch
-import { useGetGuideLines } from 'src/queries/client-guideline.query'
+import { useGetGuideLines } from '@src/queries/client-guideline.query'
 
 // **values
 import {
   ServiceTypeList,
   ServiceTypePair,
-} from 'src/shared/const/service-type/service-types'
+} from '@src/shared/const/service-type/service-types'
 
 import Filters from '../components/client-guideline/filter'
 import ClientGuideLineList from '../components/client-guideline/list'

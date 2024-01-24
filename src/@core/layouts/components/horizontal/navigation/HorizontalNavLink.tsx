@@ -18,20 +18,20 @@ import MuiListItem, { ListItemProps } from '@mui/material/ListItem'
 import clsx from 'clsx'
 
 // ** Theme Config Import
-import themeConfig from 'src/configs/themeConfig'
+import themeConfig from '@src/configs/themeConfig'
 
 // ** Types
-import { NavLink } from 'src/@core/layouts/types'
-import { Settings } from 'src/@core/context/settingsContext'
+import { NavLink } from '@src/@core/layouts/types'
+import { Settings } from '@src/@core/context/settingsContext'
 
 // ** Custom Components Imports
-import UserIcon from 'src/layouts/components/UserIcon'
-import Translations from 'src/layouts/components/Translations'
-import CanViewNavLink from 'src/layouts/components/acl/CanViewNavLink'
+import UserIcon from '@src/layouts/components/UserIcon'
+import Translations from '@src/layouts/components/Translations'
+import CanViewNavLink from '@src/layouts/components/acl/CanViewNavLink'
 
 // ** Util Imports
-import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
-import { handleURLQueries } from 'src/@core/layouts/utils'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
+import { handleURLQueries } from '@src/@core/layouts/utils'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'

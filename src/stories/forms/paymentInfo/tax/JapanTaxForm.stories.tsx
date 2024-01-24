@@ -2,7 +2,7 @@ import React from 'react'
 import { ComponentMeta } from '@storybook/react'
 import { Divider, Grid } from '@mui/material'
 
-import { useForm } from 'react-hook-form'
+import { Resolver, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 import JapanTaxForm from '@src/pages/client/components/forms/tax-info/japan-tax-form'
@@ -69,7 +69,7 @@ export const Default = () => {
     //@ts-ignore
     defaultValues: clientTaxInitialData('Japan'),
     mode: 'onChange',
-    resolver: yupResolver(japanTaxSchema),
+    resolver: yupResolver(japanTaxSchema) as Resolver<JapanTaxFormType>,
   })
 
   return <JapanTaxForm control={control} errors={errors} />

@@ -12,7 +12,7 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 import MuiMenu, { MenuProps } from '@mui/material/Menu'
 import MuiMenuItem, { MenuItemProps } from '@mui/material/MenuItem'
 import ListItemIcon from '@mui/material/ListItemIcon'

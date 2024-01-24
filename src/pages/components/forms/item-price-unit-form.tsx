@@ -12,7 +12,7 @@ import TableContainer from '@mui/material/TableContainer'
 import { Box, Button, Grid, IconButton, Typography } from '@mui/material'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** types
 import {
@@ -531,26 +531,26 @@ export default function ItemPriceUnitForm({
                         getValues().items?.[0]?.initialPrice?.currency ?? null,
                       )
                   : priceData
-                  ? formatCurrency(
-                      formatByRoundingProcedure(
-                        Number(getValues(`items.${index}.totalPrice`)) ?? 0,
-                        priceData?.decimalPlace!,
-                        priceData?.roundingProcedure!,
-                        priceData?.currency! ?? 'KRW',
-                      ),
-                      priceData?.currency! ?? null,
-                    )
-                  : currentInitialItem
-                  ? formatCurrency(
-                      formatByRoundingProcedure(
-                        Number(getValues(`items.${index}.totalPrice`)) ?? 0,
-                        getValues(`${initialPriceName}.numberPlace`),
-                        getValues(`${initialPriceName}.rounding`),
-                        getValues(`${initialPriceName}.currency`) || 'KRW',
-                      ),
-                      getValues(`${initialPriceName}.currency`) || null,
-                    )
-                  : 0}
+                    ? formatCurrency(
+                        formatByRoundingProcedure(
+                          Number(getValues(`items.${index}.totalPrice`)) ?? 0,
+                          priceData?.decimalPlace!,
+                          priceData?.roundingProcedure!,
+                          priceData?.currency! ?? 'KRW',
+                        ),
+                        priceData?.currency! ?? null,
+                      )
+                    : currentInitialItem
+                      ? formatCurrency(
+                          formatByRoundingProcedure(
+                            Number(getValues(`items.${index}.totalPrice`)) ?? 0,
+                            getValues(`${initialPriceName}.numberPlace`),
+                            getValues(`${initialPriceName}.rounding`),
+                            getValues(`${initialPriceName}.currency`) || 'KRW',
+                          ),
+                          getValues(`${initialPriceName}.currency`) || null,
+                        )
+                      : 0}
               </Typography>
             )}
             {type === 'detail' ||

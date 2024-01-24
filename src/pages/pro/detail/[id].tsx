@@ -2,7 +2,7 @@
 import { MouseEvent, Suspense, SyntheticEvent, useState } from 'react'
 
 // ** styled components
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** MUI Imports
 import Tab from '@mui/material/Tab'
@@ -11,7 +11,7 @@ import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import Icon from '@src/@core/components/icon'
 
 // ** nextJS
 import { useRouter } from 'next/router'

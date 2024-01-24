@@ -1,12 +1,12 @@
 import React from 'react'
 import { ComponentMeta } from '@storybook/react'
 import { Divider, Grid } from '@mui/material'
-import { useFieldArray, useForm } from 'react-hook-form'
+import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
 import {
-  ClientAddressFormType,
   clientAddressDefaultValue,
+  ClientAddressFormType,
   clientAddressSchema,
 } from '@src/types/schema/client-address.schema'
 
@@ -66,7 +66,9 @@ export const Default = () => {
   } = useForm<ClientAddressFormType>({
     defaultValues: clientAddressDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientAddressSchema),
+    resolver: yupResolver(
+      clientAddressSchema,
+    ) as Resolver<ClientAddressFormType>,
   })
 
   const { fields, append, remove, update } = useFieldArray({

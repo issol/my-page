@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid'
 
 import Box from '@mui/material/Box'
-import Chip from 'src/@core/components/mui/chip'
+import Chip from '@src/@core/components/mui/chip'
 
 import React from 'react'
-import { TestTypeColor } from 'src/shared/const/chipColors'
+import { TestTypeColor } from '@src/shared/const/chipColors'
 
 type Props = {
   testType: string

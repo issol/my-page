@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, useEffect, useContext, Fragment } from 'react'
+import { Fragment, ReactNode, useEffect, useState } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -13,29 +13,33 @@ import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 
 import Typography, { TypographyProps } from '@mui/material/Typography'
-import { FormControlLabel, Grid, List, useMediaQuery } from '@mui/material'
+import {
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  List,
+  useMediaQuery,
+} from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 
 import DatePicker from 'react-datepicker'
 
-import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 // ** styled components
-import FileItem from 'src/@core/components/fileItem'
+import FileItem from '@src/@core/components/fileItem'
 
 // ** Third Party Imports
-import { useForm, Controller, useFieldArray, Control } from 'react-hook-form'
+import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 // ** CleaveJS Imports
 
 import 'cleave.js/dist/addons/cleave-phone.us'
 import { v4 as uuidv4 } from 'uuid'
 // ** Hooks
-
 // ** Layout Import
-import BlankLayout from 'src/@core/layouts/BlankLayout'
-import { Checkbox } from '@mui/material'
+import BlankLayout from '@src/@core/layouts/BlankLayout'
 
 import { useMutation } from 'react-query'
 
@@ -44,7 +48,7 @@ import { useMutation } from 'react-query'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
 // ** helpers
-import { getResumeFilePath } from 'src/shared/transformer/filePath.transformer'
+import { getResumeFilePath } from '@src/shared/transformer/filePath.transformer'
 
 // ** Third Party Components
 import toast from 'react-hot-toast'
@@ -54,28 +58,28 @@ import { useDropzone } from 'react-dropzone'
 
 // ** values
 import {
-  ProUserInfoType,
   CountryType,
   PersonalInfo,
-} from 'src/types/sign/personalInfoTypes'
-import { FormErrors } from 'src/shared/const/formErrors'
-import { ExperiencedYears } from 'src/shared/const/experienced-years'
-import { Pronunciation } from 'src/shared/const/pronunciation'
-import { AreaOfExpertiseList } from 'src/shared/const/area-of-expertise/area-of-expertise'
-import { JobList, ProJobPair } from 'src/shared/const/job/jobs'
-import { ProRolePair, RoleList } from 'src/shared/const/role/roles'
+  ProUserInfoType,
+} from '@src/types/sign/personalInfoTypes'
+import { FormErrors } from '@src/shared/const/formErrors'
+import { ExperiencedYears } from '@src/shared/const/experienced-years'
+import { Pronunciation } from '@src/shared/const/pronunciation'
+import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
+import { JobList, ProJobPair } from '@src/shared/const/job/jobs'
+import { ProRolePair, RoleList } from '@src/shared/const/role/roles'
 
 import { getProfileSchema } from 'src/types/schema/profile.schema'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 // ** types
-import { FileType } from 'src/types/common/file.type'
-import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { FileType } from '@src/types/common/file.type'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 // **fetches
-import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
-import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
+import { updateConsumerUserInfo } from '@src/apis/user.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
@@ -239,7 +243,9 @@ const PersonalInfoPro = () => {
   } = useForm<Omit<PersonalInfo, 'address'>>({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(getProfileSchema('join')),
+    resolver: yupResolver(getProfileSchema('join')) as Resolver<
+      Omit<PersonalInfo, 'address'>
+    >,
   })
 
   const {
@@ -254,7 +260,9 @@ const PersonalInfoPro = () => {
       addressType: 'billing',
     },
     mode: 'onChange',
-    resolver: yupResolver(clientBillingAddressSchema),
+    resolver: yupResolver(
+      clientBillingAddressSchema,
+    ) as Resolver<ClientAddressType>,
   })
 
   const {
@@ -1496,7 +1504,7 @@ PersonalInfoPro.acl = {
 }
 
 export default PersonalInfoPro
-const StepperImgWrapper = styled.div<{ step: number }>`
+const StepperImgWrapper = styled('div')<{ step: number }>`
   img {
     opacity: ${({ step }) => (step === 1 ? 0.3 : 1)};
   }

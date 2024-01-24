@@ -7,7 +7,7 @@ import React, {
 } from 'react'
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 import { Box, Typography } from '@mui/material'
 
 import dayjs from 'dayjs'

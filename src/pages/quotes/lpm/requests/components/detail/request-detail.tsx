@@ -19,7 +19,7 @@ import { useGetClientRequestStatus } from '@src/queries/requests/client-request.
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
-import styled from '@emotion/styled'
+import { styled } from '@mui/system'
 
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { StyledNextLink } from '@src/@core/components/customLink'
@@ -234,7 +234,7 @@ export default function RequestDetailCard({
   )
 }
 
-const LabelContainer = styled.div`
+const LabelContainer = styled('div')`
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 2fr;
