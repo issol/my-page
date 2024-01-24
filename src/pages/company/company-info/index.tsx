@@ -17,6 +17,6 @@ export default function CompanyInfo() {
 }
 
 CompanyInfo.acl = {
-  subject: 'client',
+  subject: 'company_info',
   action: 'read',
 }
