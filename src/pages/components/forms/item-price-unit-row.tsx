@@ -22,6 +22,7 @@ import { MutableRefObject, useEffect, useRef, useState } from 'react'
 import {
   Control,
   Controller,
+  FieldArrayWithId,
   UseFieldArrayAppend,
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
@@ -38,6 +39,7 @@ import {
 interface Props {
   idx: number
   nestSubPriceUnits: (idx: number) => NestedPriceUnitType[]
+  onDeleteNoPriceUnit: (index: number) => void
   getValues: UseFormGetValues<{
     items: ItemType[]
     languagePairs: languageType[]
@@ -75,8 +77,22 @@ interface Props {
     currency: CurrencyType,
     index: number,
     detail: Array<ItemDetailType>,
+    // detail: FieldArrayWithId<
+    //   {
+    //     items: ItemType[]
+    //   },
+    //   `items.${number}.detail`,
+    //   'id'
+    // >,
     detailIndex: number,
   ) => void
+  row: FieldArrayWithId<
+    {
+      items: ItemType[]
+    },
+    `items.${number}.detail`,
+    'id'
+  >
 }
 
 const Row = ({
@@ -85,6 +101,7 @@ const Row = ({
   currentItem,
   getValues,
   // getEachPrice,
+  onDeleteNoPriceUnit,
   detailName,
   type,
   isNotApplicable,
@@ -102,7 +119,11 @@ const Row = ({
   onChangeCurrency,
 
   setValue,
+  row,
 }: Props) => {
+  console.log(idx)
+  console.log(row)
+
   const prevValueRef = useRef()
   const [savedValue, setSavedValue] = useState<ItemDetailType>(currentItem[idx])
   const [price, setPrice] = useState(savedValue?.prices || 0)
@@ -111,81 +132,92 @@ const Row = ({
 
   const options = nestSubPriceUnits(idx)
 
-  function getEachPrice(index: number, isNotApplicable?: boolean) {
-    const data = getValues(`items.${idx}.detail`)
+  // index: item의 index, job price에서는 항상 0임
+  // unitIndex: item의 detail의 index, 각 unit price의 index
+  function getEachPrice(unitIndex: number, isNotApplicable?: boolean) {
+    const data = getValues(`items.${index}.detail`)
 
     if (!data?.length) return
     let prices = 0
-    const detail = data?.[index]
+    const detail = data?.[unitIndex]
 
-    if (detail && detail.unit === 'Percent') {
-      const percentQuantity = data[index].quantity
+    if (detail) {
+      setSavedValue(detail) // setValue된 값 가져오기
+      setPrice(detail?.prices) // setValue된 값에서 price 정보 가져오기
+      if (detail && detail.unit === 'Percent') {
+        const percentQuantity = data[unitIndex].quantity
 
-      const itemMinimumPrice = getValues(`items.${idx}.minimumPrice`)
-      const showMinimum = getValues(`items.${idx}.minimumPriceApplied`)
-      if (itemMinimumPrice && showMinimum) {
-        prices =
-          percentQuantity !== null
-            ? (percentQuantity / 100) * itemMinimumPrice
-            : 0
+        const itemMinimumPrice = getValues(`items.${index}.minimumPrice`)
+        const showMinimum = getValues(`items.${index}.minimumPriceApplied`)
+
+        if (itemMinimumPrice && showMinimum) {
+          prices =
+            percentQuantity !== null
+              ? (percentQuantity / 100) * itemMinimumPrice
+              : 0
+        } else {
+          const generalPrices = data.filter(item => item?.unit !== 'Percent')
+          generalPrices.forEach(item => {
+            prices += item.unitPrice ?? 0
+          })
+          prices *= percentQuantity !== null ? percentQuantity / 100 : 0
+        }
       } else {
-        const generalPrices = data.filter(item => item.unit !== 'Percent')
-        generalPrices.forEach(item => {
-          prices += item.unitPrice ?? 0
-        })
-        prices *= percentQuantity !== null ? percentQuantity / 100 : 0
+        console.log(detail)
+
+        prices =
+          detail?.unitPrice !== null && detail?.quantity !== null
+            ? detail?.unitPrice * detail?.quantity
+            : 0
       }
-    } else {
-      prices =
-        detail?.unitPrice !== null && detail?.quantity !== null
-          ? detail?.unitPrice * detail?.quantity
-          : 0
-    }
 
-    // if (prices === data[index].prices) return
-    const currency =
-      getValues(`items.${idx}.initialPrice.currency`) ??
-      getValues(`items.${idx}.detail.${index}`)?.currency
+      // if (prices === data[index].prices) return
+      const currency =
+        getValues(`items.${index}.initialPrice.currency`) ??
+        getValues(`items.${index}.detail.${unitIndex}`)?.currency ??
+        priceData?.currency
 
-    const roundingPrice = formatByRoundingProcedure(
-      prices,
-      priceData?.decimalPlace!
-        ? priceData?.decimalPlace!
-        : currency === 'USD' || currency === 'SGD'
-        ? 2
-        : 1000,
-      priceData?.roundingProcedure && priceData?.roundingProcedure !== ''
-        ? priceData?.roundingProcedure!
-        : 0,
-      currency,
-    )
+      const roundingPrice = formatByRoundingProcedure(
+        prices,
+        priceData?.decimalPlace!
+          ? priceData?.decimalPlace!
+          : currency === 'USD' || currency === 'SGD'
+          ? 2
+          : 1000,
+        priceData?.roundingProcedure && priceData?.roundingProcedure !== ''
+          ? priceData?.roundingProcedure!
+          : 0,
+        currency,
+      )
+      console.log(getValues(`items.${index}.detail`), 'check')
 
-    // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
-    // 스탠다드 프라이스의 언어페어 정보 : languagePairs
-    setValue(`items.${idx}.detail.${index}.currency`, currency, {
-      shouldDirty: true,
-      shouldValidate: false,
-    })
-    // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
-    setValue(
-      `items.${idx}.detail.${index}.prices`,
-      isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
-      {
+      // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
+      // 스탠다드 프라이스의 언어페어 정보 : languagePairs
+      setValue(`items.${index}.detail.${unitIndex}.currency`, currency, {
         shouldDirty: true,
         shouldValidate: false,
-      },
-    )
+      })
+      // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
+      setValue(
+        `items.${index}.detail.${unitIndex}.prices`,
+        isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
+        {
+          shouldDirty: true,
+          shouldValidate: false,
+        },
+      )
+    }
   }
 
-  const updatePrice = () => {
-    const newPrice = getValues(`${detailName}.${idx}`)
+  const updatePrice = (rowIndex: number) => {
+    const newPrice = getValues(`${detailName}.${rowIndex}`)
     if (type !== 'detail' && type !== 'invoiceDetail')
-      getEachPrice(idx, isNotApplicable) //폼 데이터 업데이트 (setValue)
+      getEachPrice(rowIndex, isNotApplicable) //폼 데이터 업데이트 (setValue)
 
     // getTotalPrice() // 합계 데이터 업데이트 (setValue)
-
-    setSavedValue(newPrice) // setValue된 값 가져오기
-    setPrice(newPrice?.prices) // setValue된 값에서 price 정보 가져오기
+    console.log(newPrice)
+    if (newPrice) {
+    }
   }
 
   const handleDeletePriceUnit = (idx: number) => {
@@ -198,7 +230,7 @@ const Row = ({
     let prices = 0
     if (currentItem) {
       const percentQuantity = quantity
-      const generalPrices = currentItem.filter(item => item.unit !== 'Percent')
+      const generalPrices = currentItem.filter(item => item?.unit !== 'Percent')
       generalPrices.forEach(item => {
         prices += item.unitPrice ?? 0
       })
@@ -208,10 +240,13 @@ const Row = ({
   }
 
   const onClickDeletePriceUnit = (idx: number) => {
+    console.log(options)
+    console.log(idx)
+
     if (
-      options.find(item => item.id === idx) ||
-      (idx !== -1 &&
-        getValues().items[0].detail?.find(item => item.priceUnitId === idx))
+      options.find(item => item.id === idx)
+      // (idx !== -1 &&
+      //   getValues().items[0].detail?.find(item => item.priceUnitId === idx))
     ) {
       openModal({
         type: 'DeletePriceUnitModal',
@@ -241,7 +276,7 @@ const Row = ({
   //init
   useEffect(() => {
     // row init시에 동작하는 로직, 불필요한 리랜더링이 발생할 수 있다
-    updatePrice()
+    updatePrice(idx)
     updateTotalPrice()
   }, [])
 
@@ -254,8 +289,9 @@ const Row = ({
         !(event.target instanceof HTMLInputElement) &&
         !(event.target instanceof HTMLLIElement)
       ) {
+        console.log('outside')
         // 필요한 액션
-        updatePrice()
+        updatePrice(idx)
         updateTotalPrice()
       }
     }
@@ -319,10 +355,10 @@ const Row = ({
                     error={value === null || value === 0}
                     onChange={e => {
                       onChange(Number(e.target.value))
-                      updatePrice()
+                      updatePrice(idx)
                     }}
                   />
-                  {savedValue.unit === 'Percent' ? '%' : null}
+                  {savedValue?.unit === 'Percent' ? '%' : null}
                 </Box>
               )
             }}
@@ -406,15 +442,11 @@ const Row = ({
                     return title
                   }}
                   onChange={(e, v) => {
-                    console.log(e, 'bye')
-                    console.log(v, 'bye')
-
                     if (v) {
                       const priceFactor = Number(
                         getValues(`items.${index}`).priceFactor,
                       )
                       setOpen(false)
-                      console.log(isNotApplicable, 'bye')
 
                       onChange(v.priceUnitId)
 
@@ -427,11 +459,11 @@ const Row = ({
                           ...savedValue,
                           priceUnitId: v.priceUnitId,
                           quantity: v.quantity ?? 0,
-                          unit: v.unit,
+                          unit: v?.unit,
                           unitPrice: unitPrice,
                           priceFactor: priceFactor?.toString(),
                           prices:
-                            v.unit !== 'Percent'
+                            v?.unit !== 'Percent'
                               ? Number(v.quantity! * unitPrice)
                               : PercentPrice(v.quantity!),
                         })
@@ -439,10 +471,10 @@ const Row = ({
                         update(idx, {
                           ...savedValue,
                           priceUnitId: v.priceUnitId,
-                          unit: v.unit,
+                          unit: v?.unit,
                           priceFactor: priceFactor?.toString(),
                           prices:
-                            v.unit !== 'Percent'
+                            v?.unit !== 'Percent'
                               ? Number(
                                   getValues(`${detailName}.${idx}.quantity`) ??
                                     0 * unitPrice,
@@ -465,10 +497,10 @@ const Row = ({
                             priceFactor: priceFactor?.toString(),
                             priceUnitId: item.priceUnitId,
                             quantity: item.quantity!,
-                            unit: item.unit,
+                            unit: item?.unit,
                             unitPrice: unitPrice,
                             prices:
-                              item.unit !== 'Percent'
+                              item?.unit !== 'Percent'
                                 ? Number(item.quantity! * unitPrice)
                                 : PercentPrice(item.quantity!),
                           })
@@ -558,16 +590,16 @@ const Row = ({
                     }
                     value={
                       value
-                        ? savedValue.unit === 'Percent'
+                        ? savedValue?.unit === 'Percent'
                           ? '-'
                           : value
                         : null
                     }
                     error={value === null || value === 0}
-                    disabled={savedValue.unit === 'Percent'}
+                    disabled={savedValue?.unit === 'Percent'}
                     onChange={e => {
                       onChange(Number(e.target.value))
-                      updatePrice()
+                      updatePrice(idx)
                     }}
                     sx={{
                       maxWidth: '104px',
@@ -608,15 +640,12 @@ const Row = ({
             name={`${detailName}.${idx}.currency`}
             control={control}
             render={({ field: { value, onChange } }) => {
-              console.log(value)
-
               return (
                 <Autocomplete
                   autoHighlight
                   fullWidth
                   options={CurrencyList}
                   onChange={(e, v) => {
-                    console.log(v)
                     if (v) {
                       onChange(v.value)
 
@@ -624,9 +653,10 @@ const Row = ({
                         v.value,
                         index,
                         getValues(`items.${index}.detail`) ?? [],
+                        // row,
                         idx,
                       )
-                      updatePrice()
+                      updatePrice(idx)
                       updateTotalPrice()
                     } else {
                       onChange(null)
@@ -676,11 +706,11 @@ const Row = ({
         ) : (
           <Typography fontSize={14}>
             {isNotApplicable
-              ? savedValue.currency
+              ? savedValue?.currency
                 ? formatCurrency(
                     formatByRoundingProcedure(
-                      Number(price),
-                      savedValue.currency === 'USD' ||
+                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
+                      savedValue?.currency === 'USD' ||
                         savedValue.currency === 'SGD'
                         ? 2
                         : 1,
@@ -691,7 +721,7 @@ const Row = ({
                   )
                 : formatCurrency(
                     formatByRoundingProcedure(
-                      Number(price),
+                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                       getValues(`${initialPriceName}.currency`) === 'USD' ||
                         getValues(`${initialPriceName}.currency`) === 'SGD'
                         ? 2
@@ -704,7 +734,7 @@ const Row = ({
               : priceData
               ? formatCurrency(
                   formatByRoundingProcedure(
-                    Number(price) ?? 0,
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     priceData?.decimalPlace!,
                     priceData?.roundingProcedure!,
                     priceData?.currency! ?? 'KRW',
@@ -713,7 +743,7 @@ const Row = ({
                 )
               : formatCurrency(
                   formatByRoundingProcedure(
-                    Number(price) ?? 0,
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
                     getValues(`${initialPriceName}.numberPlace`),
                     getValues(`${initialPriceName}.rounding`),
                     getValues(`${initialPriceName}.currency`) || 'KRW',
@@ -730,8 +760,15 @@ const Row = ({
         type === 'invoiceCreate' ? null : (
           <IconButton
             onClick={() => {
-              if (getValues(`${detailName}.${idx}.priceUnitId`) === null) {
-                remove(idx)
+              console.log(getValues(`${detailName}.${idx}.priceUnitId`))
+
+              if (
+                getValues(`${detailName}.${idx}.priceUnitId`) === null ||
+                getValues(`${detailName}.${idx}.priceUnitId`) === -1
+              ) {
+                onDeleteNoPriceUnit(idx)
+                updatePrice(idx)
+                updateTotalPrice()
               } else {
                 onClickDeletePriceUnit(
                   getValues(`${detailName}.${idx}.priceUnitId`)!,

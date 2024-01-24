@@ -178,6 +178,7 @@ const Row = ({
         append({
           ...item,
           unitPrice: 0,
+          currency: selectedPrice?.currency!,
         })
       })
     }
@@ -239,6 +240,10 @@ const Row = ({
     if (findIndex !== -1) {
       remove(findIndex)
     }
+  }
+
+  const onDeleteNoPriceUnit = (index: number) => {
+    remove(index)
   }
 
   const handleShowMinimum = (value: boolean) => {
@@ -409,6 +414,7 @@ const Row = ({
         remove={remove}
         onChangeCurrency={onChangeCurrency}
         setValue={setItem}
+        onDeleteNoPriceUnit={onDeleteNoPriceUnit}
       />
       {/* price unit end */}
     </Box>

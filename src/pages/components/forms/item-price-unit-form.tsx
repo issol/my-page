@@ -87,11 +87,19 @@ type Props = {
   remove: UseFieldArrayRemove
   getTotalPrice: () => void
   // getEachPrice: (idx: number, isNotApplicable?: boolean) => void
-  onDeletePriceUnit: (idx: number) => void
+  onDeletePriceUnit: (priceUnitId: number) => void
+  onDeleteNoPriceUnit: (index: number) => void
   onChangeCurrency: (
     currency: CurrencyType,
     index: number,
     detail: Array<ItemDetailType>,
+    // detail: FieldArrayWithId<
+    //   {
+    //     items: ItemType[]
+    //   },
+    //   `items.${number}.detail`,
+    //   'id'
+    // >,
     detailIndex: number,
   ) => void
   // onItemBoxLeave: () => void
@@ -140,6 +148,7 @@ export default function ItemPriceUnitForm({
   getTotalPrice,
   // getEachPrice,
   onDeletePriceUnit,
+  onDeleteNoPriceUnit,
   onChangeCurrency,
   // onItemBoxLeave,
   isValid,
@@ -155,6 +164,8 @@ export default function ItemPriceUnitForm({
   setDarkMode,
   remove,
 }: Props) {
+  console.log(details)
+
   const detailName: `items.${number}.detail` = `items.${index}.detail`
   const initialPriceName: `items.${number}.initialPrice` = `items.${index}.initialPrice`
 
@@ -334,6 +345,7 @@ export default function ItemPriceUnitForm({
                 type={type}
                 isNotApplicable={isNotApplicable[index]}
                 onDeletePriceUnit={onDeletePriceUnit}
+                onDeleteNoPriceUnit={onDeleteNoPriceUnit}
                 updateTotalPrice={updateTotalPrice}
                 priceData={priceData}
                 allPriceUnits={allPriceUnits}
@@ -346,6 +358,7 @@ export default function ItemPriceUnitForm({
                 remove={remove}
                 showCurrency={showCurrency}
                 setValue={setValue}
+                row={row}
               />
             ))}
             {showMinimum && !isNotApplicable[index] ? (
@@ -428,7 +441,7 @@ export default function ItemPriceUnitForm({
             <Button
               onClick={() => {
                 append({
-                  id: id + index,
+                  // id: id + index,
                   priceUnitId: -1,
                   quantity: null,
                   unitPrice: null,

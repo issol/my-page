@@ -9,7 +9,6 @@ import {
   Box,
   Button,
   Card,
-  CardContent,
   Grid,
   IconButton,
   Tab,
@@ -36,14 +35,16 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import PayableHistory from './components/detail/version-history'
 
 // ** store
-import { setInvoicePayableIsReady } from '@src/store/invoice-payable'
+import {
+  setInvoicePayable,
+  setInvoicePayableIsReady,
+  setInvoicePayableLang,
+} from '@src/store/invoice-payable'
 import {
   InvoicePayableDetailType,
   InvoicePayableDownloadData,
   PayableFormType,
 } from '@src/types/invoice/payable.type'
-import { setInvoicePayable } from '@src/store/invoice-payable'
-import { setInvoicePayableLang } from '@src/store/invoice-payable'
 
 // ** apis
 import {
@@ -54,22 +55,17 @@ import {
 import { useMutation, useQueryClient } from 'react-query'
 import {
   deleteInvoicePayable,
+  updateInvoicePaidStatus,
   updateInvoicePayable,
 } from '@src/apis/invoice/payable.api'
 
 import { toast } from 'react-hot-toast'
-import { getCurrentRole } from '@src/shared/auth/storage'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import {
   account_manage,
   invoice_payable,
-  invoice_receivable,
-  invoice_receivable_accounting_info,
 } from '@src/shared/const/permission-class'
-import { MarkDayInfo } from '@src/types/invoice/receivable.type'
-import { markInvoiceAsPaid } from '@src/apis/invoice/receivable.api'
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 
@@ -310,14 +306,28 @@ export default function PayableDetail() {
     }
   }
 
-  function onChangeStatusToPaid() {
+  const updateInvoicePaidStatusMutation = useMutation(
+    (payableId: number) => updateInvoicePaidStatus(payableId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/list' })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+  const onChangeStatusToPaid = () => {
     openModal({
       type: 'changeStatus',
       children: (
         <ModalWithButtonName
           message={`Are you sure you want to mark this invoice as paid?`}
           onClick={() => {
-            updateStatusMutation.mutate({ id: Number(id), status: 40300 })
+            updateInvoicePaidStatusMutation.mutate(Number(id))
           }}
           onClose={() => closeModal('changeStatus')}
           rightButtonName='Mark as paid'

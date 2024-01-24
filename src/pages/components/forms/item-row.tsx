@@ -246,10 +246,11 @@ const Row = ({
     name: itemName,
   })
 
-  function onDeletePriceUnit(index: number) {
+  function onDeletePriceUnit(priceUnitId: number) {
     const findIndex = getValues(`items.${idx}.detail`)?.findIndex(
-      item => item.priceUnitId === index,
+      item => item.priceUnitId === priceUnitId,
     )
+    console.log(findIndex, 'find')
 
     if (findIndex !== -1) {
       remove(findIndex)
@@ -259,6 +260,23 @@ const Row = ({
       handleShowMinimum(true)
     }
   }
+
+  const onDeleteNoPriceUnit = (index: number) => {
+    const item = getValues(`items.${idx}.detail`)
+    const detailItem = getValues(`items.${idx}.detail.${index}`)
+    if (detailItem && item) {
+      console.log(item)
+      console.log(detailItem)
+      const indexToRemove = item.findIndex(field => field === detailItem)
+      console.log(indexToRemove)
+
+      remove(index)
+    }
+
+    itemTrigger(`items.${idx}.detail`)
+  }
+
+  console.log(details)
 
   function onDeleteAllPriceUnit() {
     details.map((unit, idx) => remove(idx))
@@ -394,9 +412,11 @@ const Row = ({
         const minimumPrice = languagePairData?.minimumPrice
         const priceFactor = languagePairData?.priceFactor
         const currency = languagePairData?.currency
+
         const rounding = priceData?.roundingProcedure
         const numberPlace = priceData?.decimalPlace
         setValue(`items.${idx}.totalPrice`, 0)
+        setValue(`items.${idx}.currency`, null)
         setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
         setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
         setValue(`items.${idx}.initialPrice.currency`, currency!)
@@ -436,11 +456,15 @@ const Row = ({
         const languagePairData = priceData?.languagePairs?.find(
           i => i.source === source && i.target === target,
         )
+
         const minimumPrice = languagePairData?.minimumPrice
         const priceFactor = languagePairData?.priceFactor
-        const currency = languagePairData?.currency
+        const currency = languagePairData?.currency ?? null
+        const priceCurrency = priceData?.currency ?? null
         const rounding = priceData?.roundingProcedure
         const numberPlace = priceData?.decimalPlace
+
+        setValue(`items.${idx}.currency`, priceCurrency)
         setValue(`items.${idx}.totalPrice`, 0)
         setValue(`items.${idx}.minimumPrice`, minimumPrice ?? 0)
         setValue(`items.${idx}.priceFactor`, priceFactor ?? 0)
@@ -472,24 +496,66 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
+  const findCurrency = (items: ItemType[], detailIndex: number) => {
+    // Find an item with a currency property
+    const itemWithCurrency = items.find(item => item.currency)
+
+    if (itemWithCurrency) {
+      return itemWithCurrency.currency
+    }
+
+    // If no item with a currency property was found, look in the details
+    for (const item of items) {
+      if (item.detail) {
+        const filteredDetails = item.detail.filter(
+          (detail, index) => index !== detailIndex,
+        )
+        const detailWithCurrency = filteredDetails.find(
+          detail => detail.currency !== null,
+        )
+        console.log(detailWithCurrency)
+
+        if (detailWithCurrency) {
+          return detailWithCurrency.currency
+        }
+      }
+    }
+
+    // If no currency was found, return null
+    return null
+  }
 
   const onChangeCurrency = (
     currency: CurrencyType,
     index: number,
     detail: Array<ItemDetailType>,
+    // detail: FieldArrayWithId<
+    //   {
+    //     items: ItemType[]
+    //   },
+    //   `items.${number}.detail`,
+    //   'id'
+    // >,
     detailIndex: number,
   ) => {
     const items = getValues('items')
-    const currencies = items.flatMap(
-      item =>
-        item.detail
-          ? item.detail
-              .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
-              .filter(detailItem => !detail.find(d => d.id === detailItem.id)) // Exclude the recently added detail
-              .map(detailItem => detailItem.currency)
-          : [], // Return an empty array if detail is undefined
-    )
-    if (currencies.length > 0 && currencies[0] !== currency) {
+    console.log(items, 'hi')
+    console.log(detailIndex)
+
+    // const currencies = items.flatMap(item =>
+    //   item.detail && item.detail.length > 0
+    //     ? item.detail
+    //         .filter(detailItem => detailItem.currency !== null) // Exclude items where currency is null
+    //         .filter(detailItem => !detail.find(d => d.id === detailItem.id)) // Exclude the recently added detail
+    //         .map(detailItem => detailItem.currency)
+    //     : [],
+    // )
+    const detailCurrency = findCurrency(items, detailIndex)
+    console.log(detailCurrency, 'hi')
+
+    // console.log(currencies, 'hi')
+
+    if (currency && detailCurrency !== currency) {
       openModal({
         type: 'CurrencyMatchModal',
         children: (
@@ -510,9 +576,9 @@ const Row = ({
     }
 
     //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
-    detail.map((priceUnit, idx) => {
-      setValue(`items.${index}.detail.${idx}.currency`, currency)
-    })
+    // detail.map((priceUnit, idx) => {
+    //   setValue(`items.${index}.detail.${idx}.currency`, currency)
+    // })
     itemTrigger(`items.${index}.detail`)
   }
 
@@ -1009,6 +1075,7 @@ const Row = ({
               getTotalPrice={getTotalPrice}
               // getEachPrice={getEachPrice}
               onDeletePriceUnit={onDeletePriceUnit}
+              onDeleteNoPriceUnit={onDeleteNoPriceUnit}
               // onItemBoxLeave={onItemBoxLeave}
               isValid={
                 !!itemData.source &&
