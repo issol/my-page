@@ -98,6 +98,9 @@ if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
   require('../mocks')
 }
 
+// App version
+console.log('App Version: ', process.env.NEXT_PUBLIC_APP_VERSION ?? 'localhost')
+
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
   Component: NextPage
