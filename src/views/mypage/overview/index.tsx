@@ -676,6 +676,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
                 mobilePhone: user.mobilePhone,
                 telephone: user.telephone ?? '',
                 timezone: userInfo.timezone!,
+                status: userInfo.status ?? '',
               }}
             />
           </Card>

@@ -111,6 +111,29 @@ export const ProStatus = [
   },
 ]
 
+export const ProSideViewStatus = [
+  {
+    value: 'Onboard',
+    label: 'Onboard',
+  },
+  {
+    value: 'Netflix Onboard',
+    label: 'Netflix Onboard',
+  },
+  {
+    value: 'Off-board',
+    label: 'Off-board',
+  },
+  {
+    value: 'On-hold Do not assign',
+    label: 'Off-board',
+  },
+  {
+    value: 'Do not Contact',
+    label: 'Off-board',
+  },
+]
+
 export const WorkStatus = [
   {
     value: 'Approved',
