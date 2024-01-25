@@ -105,7 +105,11 @@ export default function Payable() {
       take: activeFilter.take,
       invoicedDateFrom: filter.invoicedDateFrom
         ? changeTimeZoneOffsetFilter(
-            filter.invoicedDateFrom,
+            new Date(
+              new Date(filter.invoicedDateFrom).setDate(
+                new Date(filter.invoicedDateFrom).getDate() - 1,
+              ),
+            ).toISOString(),
             user.getValue().user?.timezone ?? {
               label: 'Asia/Seoul',
               code: 'KST',
@@ -123,7 +127,11 @@ export default function Payable() {
         : undefined,
       payDueDateFrom: filter.payDueDateFrom
         ? changeTimeZoneOffsetFilter(
-            filter.payDueDateFrom,
+            new Date(
+              new Date(filter.payDueDateFrom).setDate(
+                new Date(filter.payDueDateFrom).getDate() - 1,
+              ),
+            ).toISOString(),
             user.getValue().user?.timezone ?? {
               label: 'Asia/Seoul',
               code: 'KST',
@@ -141,7 +149,11 @@ export default function Payable() {
         : undefined,
       paidDateFrom: filter.paidDateFrom
         ? changeTimeZoneOffsetFilter(
-            filter.paidDateFrom,
+            new Date(
+              new Date(filter.paidDateFrom).setDate(
+                new Date(filter.paidDateFrom).getDate() - 1,
+              ),
+            ).toISOString(),
             user.getValue().user?.timezone ?? {
               label: 'Asia/Seoul',
               code: 'KST',
