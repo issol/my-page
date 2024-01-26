@@ -2,14 +2,16 @@ import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import { toCapitalize } from '@src/pages/dashboards/lpm'
 import DefaultDataGrid from '@src/views/dashboard/dataGrid/default'
-import React, { useState } from 'react'
+import React, { Suspense, useState } from 'react'
 import { GridSortModel } from '@mui/x-data-grid'
 import {
   useDashboardCount,
   useDashboardCountList,
 } from '@src/queries/dashnaord.query'
 import { OngoingProps } from '@src/views/dashboard/dataGrid/status/ongoing'
-import DashboardForSuspense from '@src/views/dashboard/suspense'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { ErrorBoundary } from 'react-error-boundary'
+import { TryAgain } from '@src/views/dashboard/suspense'
 
 const List = <T extends { id: number; orderId?: number }>(
   props: OngoingProps<T>,
@@ -79,23 +81,17 @@ const OngoingList = <T extends { id: number; orderId?: number }>(
   props: OngoingProps<T>,
 ) => {
   return (
-    <DashboardForSuspense
-      {...props}
-      refreshDataQueryKey={['ongoingCount', props.type]}
-      sectionTitle={`Ongoing ${props.type}s > ${toCapitalize(
-        props.activeStatus,
-      )}`}
-      titleProps={{
-        postfix: '(0)',
-        marginBottom: '20px',
-        padding: '20px 20px 0',
-      }}
-      handleClick={props.movePage && props.movePage}
-    >
-      <GridItem sm height={489} padding='0'>
+    <Suspense fallback={<FallbackSpinner />}>
+      <ErrorBoundary
+        fallback={
+          <GridItem sm height={489} padding='0'>
+            <TryAgain refreshDataQueryKey={['ongoingCount', props.type]} />
+          </GridItem>
+        }
+      >
         <List {...props} />
-      </GridItem>
-    </DashboardForSuspense>
+      </ErrorBoundary>
+    </Suspense>
   )
 }
 export default OngoingList

@@ -23,9 +23,7 @@ import {
 import Icon from '@src/@core/components/icon'
 
 // ** logger
-
 // ** Components
-
 // ** type
 import {
   PriceUnitFormType,
@@ -83,6 +81,8 @@ export default function PriceUnitForm(props: Props) {
     control,
     name: 'subPriceUnits',
   })
+
+  console.log('isValid', isValid)
 
   const isBase = watch('isBase')
   const unit = watch('unit')
@@ -179,6 +179,7 @@ export default function PriceUnitForm(props: Props) {
   }
 
   const [expend, setExpend] = useState(true)
+
   return (
     <Fragment>
       <CustomTableRow
