@@ -23,9 +23,7 @@ import {
 import Icon from '@src/@core/components/icon'
 
 // ** logger
-
 // ** Components
-
 // ** type
 import {
   PriceUnitFormType,
@@ -80,6 +78,8 @@ export default function PriceUnitForm(props: Props) {
     control,
     name: 'subPriceUnits',
   })
+
+  console.log('isValid', isValid)
 
   const isBase = watch('isBase')
   const unit = watch('unit')
@@ -176,6 +176,7 @@ export default function PriceUnitForm(props: Props) {
   }
 
   const [expend, setExpend] = useState(true)
+
   return (
     <Fragment>
       <CustomTableRow
@@ -327,7 +328,7 @@ export default function PriceUnitForm(props: Props) {
             <Button
               variant='contained'
               // isValid가 unit 드롭다운 값을 제대로 체크하지 못해서 unit 체크조건 추가 설정(임시)
-              disabled={!isValid || Boolean(watch('unit') === '')}
+              disabled={!isValid}
               onClick={onAddClick}
             >
               {props.data ? 'Save' : 'Add'}

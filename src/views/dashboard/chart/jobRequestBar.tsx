@@ -1,16 +1,8 @@
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import React, { useMemo } from 'react'
 import ReactApexcharts from '@src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 import { styled } from '@mui/system'
 import { Box, Typography } from '@mui/material'
-
-import dayjs from 'dayjs'
 import { useTheme } from '@mui/material/styles'
 import { CurrencyByDateListProps } from '@src/views/dashboard/list/currencyByDate'
 
@@ -72,7 +64,6 @@ const ProJobRequestBarChart = ({ report }: CurrencyByDateListProps) => {
           columnWidth: '24%',
           horizontal: false,
           borderRadius: 30,
-          dataLabels: {},
         },
       },
       xaxis: {
@@ -92,14 +83,14 @@ const ProJobRequestBarChart = ({ report }: CurrencyByDateListProps) => {
       yaxis: {
         labels: {
           formatter: value => {
-            return `${Math.abs(value)}`
+            return `${Math.abs(value).toFixed(1)}`
           },
           style: {
             colors: 'rgba(76, 78, 100, 0.38)',
           },
         },
         min: 0,
-        max: max,
+        max: max || 30,
         tickAmount: 3,
       },
       dataLabels: {
