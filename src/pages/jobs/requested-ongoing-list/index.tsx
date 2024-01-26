@@ -35,7 +35,7 @@ export type JobListFilterType = {
   listType?: 'requested-ongoing' | 'completed-inactive' | 'invoice'
 }
 
-const defaultFilters: JobListFilterType = {
+export const ongoingDefaultFilters: JobListFilterType = {
   take: 10,
   skip: 0,
   search: '',
@@ -47,7 +47,9 @@ const defaultFilters: JobListFilterType = {
 }
 
 const RequestedOngoingList = () => {
-  const [filters, setFilters] = useState<JobListFilterType>(defaultFilters)
+  const [filters, setFilters] = useState<JobListFilterType>(
+    ongoingDefaultFilters,
+  )
 
   const { data: jobList, isLoading } = useGetProJobList(filters)
   const { data: clientList, isLoading: clientLoading } = useGetProJobClientList(
@@ -58,8 +60,10 @@ const RequestedOngoingList = () => {
 
   const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
-  const { data: assignmentJobStatusList, isLoading: assignmentStatusListLoading } =
-    useGetStatusList('JobAssignment')
+  const {
+    data: assignmentJobStatusList,
+    isLoading: assignmentStatusListLoading,
+  } = useGetStatusList('JobAssignment')
 
   const [statusList, setStatusList] = useState<Array<statusType>>([])
 
@@ -72,15 +76,25 @@ const RequestedOngoingList = () => {
   })
 
   useEffect(() => {
-    if (jobStatusList && assignmentJobStatusList && !statusListLoading && !assignmentStatusListLoading) {
-      setStatusList([ ...jobStatusList, ...assignmentJobStatusList ])
+    if (
+      jobStatusList &&
+      assignmentJobStatusList &&
+      !statusListLoading &&
+      !assignmentStatusListLoading
+    ) {
+      setStatusList([...jobStatusList, ...assignmentJobStatusList])
     }
-  }, [jobStatusList, statusListLoading, assignmentJobStatusList, assignmentStatusListLoading])
+  }, [
+    jobStatusList,
+    statusListLoading,
+    assignmentJobStatusList,
+    assignmentStatusListLoading,
+  ])
 
   const onClickResetButton = () => {
     reset(defaultValues)
 
-    setFilters(defaultFilters)
+    setFilters(ongoingDefaultFilters)
   }
 
   const onSubmit = (data: FilterType) => {
