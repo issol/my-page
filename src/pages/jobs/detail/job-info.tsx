@@ -1200,7 +1200,9 @@ const ProJobInfo = ({
                     }}
                   >
                     <Typography variant='body2'>
-                      {jobInfo.description === '' || !jobInfo.description
+                      {jobInfo.description === '' ||
+                      !jobInfo.description ||
+                      !jobInfo.isShowDescription
                         ? '-'
                         : jobInfo.description}
                     </Typography>
