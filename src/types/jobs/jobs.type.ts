@@ -236,6 +236,7 @@ export type ProJobDetailType = {
   guideLines: ProGuidelineType | null
   description: string
   files: Array<JobsFileType>
+  isShowDescription: boolean
 
   // deliveries: [
   //   {
