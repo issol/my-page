@@ -163,8 +163,6 @@ const Row = ({
           prices *= percentQuantity !== null ? percentQuantity / 100 : 0
         }
       } else {
-        console.log(detail)
-
         prices =
           detail?.unitPrice !== null && detail?.quantity !== null
             ? detail?.unitPrice * detail?.quantity
@@ -223,6 +221,7 @@ const Row = ({
   const handleDeletePriceUnit = (idx: number) => {
     onDeletePriceUnit(idx)
     updateTotalPrice()
+    remove(idx)
     closeModal('DeletePriceUnitModal')
   }
 
@@ -241,7 +240,7 @@ const Row = ({
 
   const onClickDeletePriceUnit = (idx: number, id: number) => {
     const findItem = options.find(item => item.id === id)
-
+    console.log('@#$@#$@#$#@', findItem)
     if (findItem) {
       openModal({
         type: 'DeletePriceUnitModal',
@@ -428,15 +427,14 @@ const Row = ({
                     </li>
                   )}
                   getOptionLabel={option => {
-                    const title =
-                      !isNotApplicable &&
+                    return !isNotApplicable &&
                       option?.quantity &&
                       option?.quantity >= 2
-                        ? `${option?.quantity} ${option.title}`
-                        : option.title
-                    return title
+                      ? `${option?.quantity} ${option.title}`
+                      : option.title
                   }}
                   onChange={(e, v) => {
+                    console.log('Change', v)
                     if (v) {
                       const priceFactor = Number(
                         getValues(`items.${index}`).priceFactor,
