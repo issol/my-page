@@ -11,6 +11,8 @@ import {
   ManagerUserInfoType,
   ProUserResumeInfoType,
   ProUserNoteInfoType,
+  ProUserExperienceInfoType,
+  ProUserSpecialtiesInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { UserDataType } from 'src/context/types'
 import { CurrencyType } from '@src/types/common/standard-price'
@@ -61,6 +63,8 @@ export const updateConsumerUserInfo = async (
     | ManagerUserInfoType
     | ProUserResumeInfoType
     | ProUserNoteInfoType
+    | ProUserExperienceInfoType
+    | ProUserSpecialtiesInfoType
   ) & {
     userId: number
   },

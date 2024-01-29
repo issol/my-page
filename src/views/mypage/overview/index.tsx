@@ -47,9 +47,11 @@ import { useMutation, useQueryClient } from 'react-query'
 import { UserDataType } from '@src/context/types'
 import {
   PersonalInfo,
+  ProUserExperienceInfoType,
   ProUserInfoType,
   ProUserNoteInfoType,
   ProUserResumeInfoType,
+  ProUserSpecialtiesInfoType,
 } from '@src/types/sign/personalInfoTypes'
 import { OffDayEventType } from '@src/types/common/calendar.type'
 import { offDaySchema } from '@src/types/schema/off-day.schema'
@@ -154,7 +156,13 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
 
   const updateUserInfoMutation = useMutation(
     (
-      data: (ProUserInfoType | ProUserResumeInfoType | ProUserNoteInfoType) & {
+      data: (
+        | ProUserInfoType
+        | ProUserResumeInfoType
+        | ProUserNoteInfoType
+        | ProUserExperienceInfoType
+        | ProUserSpecialtiesInfoType
+      ) & {
         userId: number
       },
     ) => updateConsumerUserInfo(data),
@@ -577,6 +585,12 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   }
 
   const onSaveExperience = () => {
+    updateUserInfoMutation.mutate({
+      userId: auth.getValue().user?.id || 0,
+      extraData: {
+        experience: experience,
+      },
+    })
     setEditExperience(false)
   }
 
@@ -605,6 +619,12 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
   }
 
   const onSaveSpecialties = () => {
+    updateUserInfoMutation.mutate({
+      userId: auth.getValue().user?.id || 0,
+      extraData: {
+        specialties: specialties,
+      },
+    })
     setEditSpecialties(false)
   }
 
@@ -841,7 +861,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
             </Grid>
             {/* Years of experience */}
             <Grid item md={6} lg={6} xs={6}>
-              <Card sx={{ padding: '20px', height: '186px' }}>
+              <Card sx={{ padding: '20px', height: '100%' }}>
                 <CardHeader
                   title={
                     <Box
@@ -887,7 +907,9 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
             </Grid>
             {/* Specialties */}
             <Grid item xs={6}>
-              <Card sx={{ padding: '20px', minHeight: '154px' }}>
+              <Card
+                sx={{ padding: '20px', minHeight: '154px', height: '100%' }}
+              >
                 <Box
                   display='flex'
                   alignItems='center'
