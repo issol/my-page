@@ -185,7 +185,7 @@ const InvoiceClient = ({
         >
           {type === 'detail' &&
           isUpdatable &&
-          client?.contactPerson?.userId === null &&
+          // client?.contactPerson?.userId === null &&
           ![30900, 301200].includes(invoiceInfo?.invoiceStatus!) ? (
             <IconButton
               sx={{ position: 'absolute', top: 0, right: 0 }}
@@ -283,10 +283,12 @@ const InvoiceClient = ({
                             ),
                           )
                         : client?.client?.phone
-                        ? contryCodeAndPhoneNumberFormatter(
-                            splitContryCodeAndPhoneNumber(client.client.phone),
-                          )
-                        : '-'}
+                          ? contryCodeAndPhoneNumberFormatter(
+                              splitContryCodeAndPhoneNumber(
+                                client.client.phone,
+                              ),
+                            )
+                          : '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -315,10 +317,12 @@ const InvoiceClient = ({
                             ),
                           )
                         : client?.client?.mobile
-                        ? contryCodeAndPhoneNumberFormatter(
-                            splitContryCodeAndPhoneNumber(client.client.mobile),
-                          )
-                        : '-'}
+                          ? contryCodeAndPhoneNumberFormatter(
+                              splitContryCodeAndPhoneNumber(
+                                client.client.mobile,
+                              ),
+                            )
+                          : '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -344,10 +348,10 @@ const InvoiceClient = ({
                             ),
                           )
                         : client?.client?.fax
-                        ? contryCodeAndPhoneNumberFormatter(
-                            splitContryCodeAndPhoneNumber(client.client.fax),
-                          )
-                        : '-'}
+                          ? contryCodeAndPhoneNumberFormatter(
+                              splitContryCodeAndPhoneNumber(client.client.fax),
+                            )
+                          : '-'}
                     </Typography>
                   </Box>
                 </Box>
