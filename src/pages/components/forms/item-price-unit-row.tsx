@@ -12,9 +12,9 @@ import useModal from '@src/hooks/useModal'
 import { CurrencyList } from '@src/shared/const/currency/currency'
 import { styled } from '@mui/material/styles'
 import {
+  formatByRoundingProcedure,
   formatCurrency,
   getCurrencyMark,
-  formatByRoundingProcedure,
 } from '@src/shared/helpers/price.helper'
 import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 import Icon from 'src/@core/components/icon'
@@ -182,8 +182,8 @@ const Row = ({
         priceData?.decimalPlace!
           ? priceData?.decimalPlace!
           : currency === 'USD' || currency === 'SGD'
-          ? 2
-          : 1000,
+            ? 2
+            : 1000,
         priceData?.roundingProcedure && priceData?.roundingProcedure !== ''
           ? priceData?.roundingProcedure!
           : 0,
@@ -239,15 +239,10 @@ const Row = ({
     return prices
   }
 
-  const onClickDeletePriceUnit = (idx: number) => {
-    console.log(options)
-    console.log(idx)
+  const onClickDeletePriceUnit = (idx: number, id: number) => {
+    const findItem = options.find(item => item.id === id)
 
-    if (
-      options.find(item => item.id === idx)
-      // (idx !== -1 &&
-      //   getValues().items[0].detail?.find(item => item.priceUnitId === idx))
-    ) {
+    if (findItem) {
       openModal({
         type: 'DeletePriceUnitModal',
         children: (
@@ -394,8 +389,8 @@ const Row = ({
                 title: getValues(`${detailName}.${idx}`).title
                   ? getValues(`${detailName}.${idx}`).title!
                   : getValues(`${detailName}.${idx}.initialPriceUnit.title`)
-                  ? getValues(`${detailName}.${idx}.initialPriceUnit.title`)!
-                  : '',
+                    ? getValues(`${detailName}.${idx}.initialPriceUnit.title`)!
+                    : '',
                 id: getValues(`${detailName}.${idx}`).id!,
                 weighting: Number(getValues(`${detailName}.${idx}`).weighting!),
                 subPriceUnits: [],
@@ -409,8 +404,8 @@ const Row = ({
                     item => item.priceUnitId === value,
                   )
                 : showValue
-                ? showValue
-                : null
+                  ? showValue
+                  : null
 
               return (
                 <Autocomplete
@@ -732,24 +727,24 @@ const Row = ({
                     getValues(`${initialPriceName}.currency`) ?? null,
                   )
               : priceData
-              ? formatCurrency(
-                  formatByRoundingProcedure(
-                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                    priceData?.decimalPlace!,
-                    priceData?.roundingProcedure!,
-                    priceData?.currency! ?? 'KRW',
-                  ),
-                  priceData?.currency! ?? null,
-                )
-              : formatCurrency(
-                  formatByRoundingProcedure(
-                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                    getValues(`${initialPriceName}.numberPlace`),
-                    getValues(`${initialPriceName}.rounding`),
-                    getValues(`${initialPriceName}.currency`) || 'KRW',
-                  ),
-                  getValues(`${initialPriceName}.currency`) ?? null,
-                )}
+                ? formatCurrency(
+                    formatByRoundingProcedure(
+                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
+                      priceData?.decimalPlace!,
+                      priceData?.roundingProcedure!,
+                      priceData?.currency! ?? 'KRW',
+                    ),
+                    priceData?.currency! ?? null,
+                  )
+                : formatCurrency(
+                    formatByRoundingProcedure(
+                      Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
+                      getValues(`${initialPriceName}.numberPlace`),
+                      getValues(`${initialPriceName}.rounding`),
+                      getValues(`${initialPriceName}.currency`) || 'KRW',
+                    ),
+                    getValues(`${initialPriceName}.currency`) ?? null,
+                  )}
           </Typography>
         )}
       </TableCell>
@@ -760,7 +755,10 @@ const Row = ({
         type === 'invoiceCreate' ? null : (
           <IconButton
             onClick={() => {
-              console.log(getValues(`${detailName}.${idx}.priceUnitId`))
+              console.log(
+                'Delete',
+                getValues(`${detailName}.${idx}.priceUnitId`),
+              )
 
               if (
                 getValues(`${detailName}.${idx}.priceUnitId`) === null ||
@@ -771,6 +769,7 @@ const Row = ({
                 updateTotalPrice()
               } else {
                 onClickDeletePriceUnit(
+                  idx,
                   getValues(`${detailName}.${idx}.priceUnitId`)!,
                 )
               }
