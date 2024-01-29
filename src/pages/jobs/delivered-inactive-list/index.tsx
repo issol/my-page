@@ -44,7 +44,7 @@ const defaultValues: FilterType = {
   search: '',
 }
 
-const defaultFilters: JobListFilterType = {
+export const completedDefaultFilters: JobListFilterType = {
   take: 10,
   skip: 0,
   search: '',
@@ -63,14 +63,18 @@ const DeliveredInactiveList = () => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
 
-  const [filters, setFilters] = useState<JobListFilterType>(defaultFilters)
+  const [filters, setFilters] = useState<JobListFilterType>(
+    completedDefaultFilters,
+  )
 
   const { data: jobList, isLoading } = useGetProJobList(filters)
 
   const { data: jobStatusList, isLoading: statusListLoading } =
-  useGetStatusList('Job')
-  const { data: assignmentJobStatusList, isLoading: assignmentStatusListLoading } =
-  useGetStatusList('JobAssignment')
+    useGetStatusList('Job')
+  const {
+    data: assignmentJobStatusList,
+    isLoading: assignmentStatusListLoading,
+  } = useGetStatusList('JobAssignment')
 
   const [statusList, setStatusList] = useState<Array<statusType>>([])
 
@@ -88,10 +92,20 @@ const DeliveredInactiveList = () => {
     })
 
   useEffect(() => {
-    if (jobStatusList && assignmentJobStatusList && !statusListLoading && !assignmentStatusListLoading) {
-      setStatusList([ ...jobStatusList, ...assignmentJobStatusList ])
+    if (
+      jobStatusList &&
+      assignmentJobStatusList &&
+      !statusListLoading &&
+      !assignmentStatusListLoading
+    ) {
+      setStatusList([...jobStatusList, ...assignmentJobStatusList])
     }
-  }, [jobStatusList, statusListLoading, assignmentJobStatusList, assignmentStatusListLoading])
+  }, [
+    jobStatusList,
+    statusListLoading,
+    assignmentJobStatusList,
+    assignmentStatusListLoading,
+  ])
 
   const createInvoiceMutation = useMutation(
     (params: {
@@ -108,7 +122,7 @@ const DeliveredInactiveList = () => {
       // invoicedTimezone: CountryType
     }) => createInvoicePayable(params),
     {
-      onSuccess: (res) => {
+      onSuccess: res => {
         closeModal('CreateInvoiceModal')
         router.push(`/invoice/pro/detail/${res?.id}`)
         toast.success('Success', {
@@ -116,16 +130,17 @@ const DeliveredInactiveList = () => {
         })
       },
       onError: (res: any) => {
-        if (res.response?.data?.message === `Pro's payment information is not saved`) {
+        if (
+          res.response?.data?.message ===
+          `Pro's payment information is not saved`
+        ) {
           openModal({
             type: 'ErrorModal',
             children: (
               <CustomModal
                 title={
                   <>
-                    Payment information is a prerequisite
-                    for invoice creation. 
-                    
+                    Payment information is a prerequisite for invoice creation.
                     Please register your payment information first.
                   </>
                 }
@@ -146,7 +161,7 @@ const DeliveredInactiveList = () => {
             position: 'bottom-left',
           })
         }
-      }
+      },
     },
   )
 
@@ -158,7 +173,7 @@ const DeliveredInactiveList = () => {
   const onClickResetButton = () => {
     reset(defaultValues)
 
-    setFilters(defaultFilters)
+    setFilters(completedDefaultFilters)
   }
 
   const onSubmit = (data: FilterType) => {
@@ -225,8 +240,7 @@ const DeliveredInactiveList = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      { createInvoiceMutation.isLoading ?
-        <OverlaySpinner /> : null }
+      {createInvoiceMutation.isLoading ? <OverlaySpinner /> : null}
       <Filters
         clientList={clientList!}
         contactPersonList={contactPersonList!}

@@ -1,15 +1,29 @@
-import { Box, Tab, Typography } from '@mui/material'
+import { Badge, Box, Tab, Typography } from '@mui/material'
 
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
-import { Suspense, SyntheticEvent, useState, MouseEvent } from 'react'
+import {
+  Suspense,
+  SyntheticEvent,
+  useState,
+  MouseEvent,
+  useEffect,
+} from 'react'
 import { styled } from '@mui/system'
 import TabPanel from '@mui/lab/TabPanel'
 import { Icon } from '@iconify/react'
 
-import RequestedOngoingList from './requested-ongoing-list'
-import DeliveredInactiveList from './delivered-inactive-list'
-import { useGetProJobClientList } from '@src/queries/jobs/jobs.query'
+import RequestedOngoingList, {
+  ongoingDefaultFilters,
+} from './requested-ongoing-list'
+import DeliveredInactiveList, {
+  completedDefaultFilters,
+} from './delivered-inactive-list'
+import {
+  useGetProJobClientList,
+  useGetProJobList,
+} from '@src/queries/jobs/jobs.query'
+import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
 
 type MenuType = 'requested' | 'completed'
 
@@ -22,10 +36,27 @@ export type FilterType = {
 }
 
 const Jobs = () => {
+  const { data: completedJob } = useGetProJobList(completedDefaultFilters)
+
+  const { data: ongoingJob } = useGetProJobList(ongoingDefaultFilters)
+
+  const [completedDot, setCompletedDot] = useState(false)
+  const [ongoingDot, setOngoingDot] = useState(false)
+
   const [value, setValue] = useState<MenuType>('requested')
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
   }
+
+  useEffect(() => {
+    if (completedJob && ongoingJob) {
+      const completedDot = completedJob?.data?.some(job => job?.lightUpDot)
+      const ongoingDot = ongoingJob?.data?.some(job => job?.lightUpDot)
+
+      setCompletedDot(completedDot)
+      setOngoingDot(ongoingDot)
+    }
+  }, [completedJob, ongoingJob])
 
   return (
     <>
@@ -38,7 +69,18 @@ const Jobs = () => {
         >
           <CustomTab
             value='requested'
-            label='Requested & Ongoing'
+            label={
+              <>
+                {ongoingDot ? (
+                  <Badge
+                    variant='dot'
+                    color='primary'
+                    sx={{ marginLeft: '4px' }}
+                  ></Badge>
+                ) : null}{' '}
+                Requested & Ongoing
+              </>
+            }
             iconPosition='start'
             icon={<Icon icon='ic:outline-list-alt' fontSize={'18px'} />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
@@ -46,7 +88,18 @@ const Jobs = () => {
 
           <CustomTab
             value='completed'
-            label='Completed & Inactive'
+            label={
+              <>
+                {completedDot ? (
+                  <Badge
+                    variant='dot'
+                    color='primary'
+                    sx={{ marginLeft: '4px' }}
+                  ></Badge>
+                ) : null}{' '}
+                Completed & Inactive
+              </>
+            }
             iconPosition='start'
             icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
