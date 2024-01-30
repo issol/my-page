@@ -1,21 +1,18 @@
 import Grid from '@mui/material/Grid'
 import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
-import { Box, Stack } from '@mui/material'
+import { Box } from '@mui/material'
 import dayjs from 'dayjs'
 import { FormProvider, useWatch } from 'react-hook-form'
 import React, { Suspense, useCallback } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 
 import weekday from 'dayjs/plugin/weekday'
-import { upcomingColumns } from '@src/shared/const/columns/dashboard'
 import { useRouter } from 'next/router'
-import { DataGrid } from '@mui/x-data-grid'
 import { getProDateFormat } from '@src/views/dashboard/list/currencyByDate'
 import InvoiceTab from '@src/views/dashboard/invoiceTab'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import JobList from '@src/views/dashboard/list/job'
 import Notice from '@src/views/dashboard/notice'
-import { useUpcomingDeadline } from '@src/queries/dashnaord.query'
 import Doughnut from '@src/views/dashboard/chart/doughnut'
 import { ServiceRatioItem } from '@src/types/dashboard'
 import { Colors } from '@src/shared/const/dashboard/chart'
@@ -27,7 +24,7 @@ import ProChartDate from '@src/views/dashboard/header/proChartDate'
 import JobRequest from '@src/views/dashboard/list/jobRequest'
 import CurrencyAmount from '@src/views/dashboard/list/currencyAmount'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { DashboardErrorFallback, TryAgain } from '@src/views/dashboard/suspense'
+import { TryAgain } from '@src/views/dashboard/suspense'
 import { ErrorBoundary } from 'react-error-boundary'
 import UpcomingDeadlines from '@src/views/dashboard/list/upcomingDeadlines'
 
@@ -181,14 +178,18 @@ const ProDashboards = () => {
                   display='flex'
                   alignItems='center'
                   justifyContent='center'
-                  sx={{ width: '100%', height: '100%', overflow: 'hidden' }}
-                >
-                  <img
-                    style={{ width: '110%' }}
-                    alt='empty_imgage'
-                    src='/images/dashboard/img_montly.png'
-                  />
-                </Box>
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    overflow: 'hidden',
+
+                    backgroundImage: 'url(/images/dashboard/img_montly.png)',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    transform: 'scale(1.1,1.1)',
+                  }}
+                ></Box>
               </GridItem>
               <GridItem xs={6} height={223}>
                 <Deadline year={getDate('year')} month={getDate('month')} />
