@@ -1,12 +1,6 @@
 // ** React Imports
 
-import React, {
-  SyntheticEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import React, { SyntheticEvent, useEffect, useMemo, useState } from 'react'
 
 // ** MUI Imports
 import Tab from '@mui/material/Tab'
@@ -18,12 +12,9 @@ import Box from '@mui/material/Box'
 import { CustomChart } from '@src/views/dashboard/chart/jobRequestBar'
 import { useTheme } from '@mui/material/styles'
 import { ApexOptions } from 'apexcharts'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import { useInvoiceOverview } from '@src/queries/dashnaord.query'
-import { InvoiceOverviewItem, TotalAmountQuery } from '@src/types/dashboard'
-import { unionBy } from 'lodash'
-import { renderToString } from 'react-dom/server'
-import { StatusSquare } from '@src/views/dashboard/dashboardItem'
+import { TotalAmountQuery } from '@src/types/dashboard'
 
 type Invoice = {
   USD: Array<number>
@@ -32,58 +23,11 @@ type Invoice = {
   SGD: Array<number>
 }
 
-const TEMP = {
-  data: [
-    {
-      month: 'Jul',
-      invoiceKRW: 75474,
-      invoiceUSD: 39266,
-      invoiceJPY: 63672,
-      invoiceSGD: 90409,
-    },
-    {
-      month: 'Aug',
-      invoiceKRW: 27756,
-      invoiceUSD: 16401,
-      invoiceJPY: 19591,
-      invoiceSGD: 93909,
-    },
-    {
-      month: 'Sep',
-      invoiceKRW: 2040,
-      invoiceUSD: 36974,
-      invoiceJPY: 27424,
-      invoiceSGD: 70556,
-    },
-    {
-      month: 'Oct',
-      invoiceKRW: 5483,
-      invoiceUSD: 83171,
-      invoiceJPY: 54638,
-      invoiceSGD: 70990,
-    },
-    {
-      month: 'Nov',
-      invoiceKRW: 11200,
-      invoiceUSD: 845,
-      invoiceJPY: 49970,
-      invoiceSGD: 13026,
-    },
-    {
-      month: 'Dec',
-      invoiceKRW: 79933,
-      invoiceUSD: 32767,
-      invoiceJPY: 57720,
-      invoiceSGD: 18036,
-    },
-  ],
-}
-
 const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
   const { data } = useInvoiceOverview(params)
   const [tabIndex, setTabIndex] = useState<string>('1')
 
-  const [tabData, setTabData] = useState<Invoice>({
+  const [tabData] = useState<Invoice>({
     USD: [],
     JPY: [],
     KRW: [],
@@ -110,7 +54,7 @@ const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
     return Array(6)
       .fill(0)
       .map((i, index) => {
-        return _date.add(-(index + 1), 'month').format('MMMM')
+        return _date.add(-index, 'month').format('MMMM')
       })
   }, [params.month])
 
@@ -119,17 +63,33 @@ const InvoiceTab = (params: Omit<TotalAmountQuery, 'amountType'>) => {
     return Array(6)
       .fill(0)
       .map((i, index) => {
-        return _date.add(-(index + 1), 'month').format('MMM')
+        return _date.add(-index, 'month').format('MMM')
       })
   }, [params.month])
 
   return (
     <TabContext value={tabIndex}>
-      <TabList onChange={handleChange} aria-label='simple tabs example'>
-        <Tab value='1' label='$' />
-        <Tab value='2' label='¥' />
-        <Tab value='3' label='₩' />
-        <Tab value='4' label='SGD' />
+      <TabList onChange={handleChange} aria-label='Invoice overview Tabs'>
+        <Tab
+          value='1'
+          label='$'
+          sx={{ minWidth: 'calc(50% / 4) !important' }}
+        />
+        <Tab
+          value='2'
+          label='¥'
+          sx={{ minWidth: 'calc(50% / 4) !important' }}
+        />
+        <Tab
+          value='3'
+          label='₩'
+          sx={{ minWidth: 'calc(50% / 4) !important' }}
+        />
+        <Tab
+          value='4'
+          label='SGD'
+          sx={{ minWidth: 'calc(50% / 4) !important' }}
+        />
       </TabList>
       <TabPanel value='1' sx={{ height: '100%', padding: '0 !important' }}>
         <TabContent
@@ -173,6 +133,7 @@ interface TabContentProps {
   values: Array<number>
   dateList: Array<string>
 }
+
 const TabContent = ({
   categories,
   values,

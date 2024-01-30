@@ -9,11 +9,13 @@ import CurrencyByDateList, {
 import ProJobRequestBarChart from '@src/views/dashboard/chart/jobRequestBar'
 import dayjs from 'dayjs'
 import { useExpectedIncome } from '@src/queries/dashnaord.query'
-import { ExpectedIncome, ExpectedIncomeSort } from '@src/types/dashboard'
+import {
+  ExpectedIncome,
+  ExpectedIncomeSort,
+  TotalAmountQuery,
+} from '@src/types/dashboard'
 import find from 'lodash/find'
-import DashboardForSuspense, {
-  DashboardErrorFallback,
-} from '@src/views/dashboard/suspense'
+import DashboardForSuspense from '@src/views/dashboard/suspense'
 
 const getSubTitle = (date: Date) => {
   return `Based On ${getProDateFormat(
@@ -22,27 +24,25 @@ const getSubTitle = (date: Date) => {
   )}`
 }
 
-interface ExpectedIncomeProps {
-  date: Date | null
+interface ExpectedIncomeProps extends Omit<TotalAmountQuery, 'amountType'> {
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
 const JobRequestContent = ({
-  date: calendarDate,
+  year,
+  month,
   setOpenInfoDialog,
 }: ExpectedIncomeProps) => {
-  const date = dayjs(calendarDate)
-
   const [checked, setChecked] = useState(false)
   const [sort, setSort] = useState<ExpectedIncomeSort>('requestDate')
-  const { data, isSuccess } = useExpectedIncome({
-    year: date.get('year'),
-    month: date.get('month') - 1,
+  const { data } = useExpectedIncome({
+    year,
+    month,
     sort,
   })
 
   const CalendarList: Array<ExpectedIncome> = useMemo(() => {
-    const _date = dayjs(date).set('date', 1)
+    const _date = dayjs(`${year}-${month}`).set('date', 1)
 
     return Array(6)
       .fill(0)
@@ -60,14 +60,16 @@ const JobRequestContent = ({
           rejectedCount: 0,
         }
       })
-  }, [data, calendarDate])
+  }, [data])
 
   return (
     <Box display='flex' sx={{ width: '100%', height: '100%' }}>
       <Box sx={{ width: '50%', padding: '20px' }}>
         <Title
           title='Job requests'
-          subTitle={getSubTitle(date.toDate())}
+          subTitle={getSubTitle(
+            dayjs(dayjs(`${year}-${month}`).set('date', 1)).toDate(),
+          )}
           openDialog={setOpenInfoDialog}
         />
         <ProJobRequestBarChart report={[...CalendarList].reverse() || []} />
@@ -129,7 +131,9 @@ const JobRequest = (props: ExpectedIncomeProps) => {
       refreshDataQueryKey='ExpectedIncome'
       sectionTitle='Job requests'
       titleProps={{
-        subTitle: getSubTitle(dayjs(props.date).toDate()),
+        subTitle: getSubTitle(
+          dayjs(dayjs(`${props.year}-${props.month}`).set('date', 1)).toDate(),
+        ),
         padding: '20px',
       }}
     >
