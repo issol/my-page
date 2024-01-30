@@ -90,7 +90,8 @@ const ProDashboards = () => {
               <GridItem sm height={490} padding='0px'>
                 <JobRequest
                   setOpenInfoDialog={setOpenInfoDialog}
-                  date={date || new Date()}
+                  year={getDate('year')}
+                  month={getDate('month')}
                 />
               </GridItem>
               <Doughnut<ServiceRatioItem>
@@ -163,7 +164,7 @@ const ProDashboards = () => {
                       >
                         <InvoiceTab
                           year={getDate('year')}
-                          month={getDate('month') + 1}
+                          month={getDate('month')}
                         />
                       </ErrorBoundary>
                     </Suspense>
