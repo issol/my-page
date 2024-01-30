@@ -5,14 +5,13 @@ import { Box, Typography } from '@mui/material'
 import { Title } from '@src/views/dashboard/dashboardItem'
 import React from 'react'
 import { getProDateFormat } from '@src/views/dashboard/list/currencyByDate'
-import DashboardForSuspense, {
-  DashboardErrorFallback,
-} from '@src/views/dashboard/suspense'
+import DashboardForSuspense from '@src/views/dashboard/suspense'
 
 interface CurrencyAmountProps extends TotalAmountQuery {
   title: string
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
+
 const CurrencyAmountContent = ({
   title,
   setOpenInfoDialog,
@@ -38,7 +37,12 @@ const CurrencyAmountContent = ({
           handleClick={() => router.push('/invoice/pro/')}
         />
       </Box>
-      <Box display='flex' alignItems='center' sx={{ padding: '40px 0 ' }}>
+      <Box
+        display='flex'
+        alignItems='center'
+        justifyContent='space-between'
+        sx={{ padding: '40px 0 ' }}
+      >
         <Box display='flex' alignItems='center'>
           <img
             style={{ height: '32px' }}
@@ -51,9 +55,8 @@ const CurrencyAmountContent = ({
           <Typography
             display='flex'
             alignItems='center'
-            fontSize='20px'
-            fontWeight={500}
-            sx={{ width: '96px' }}
+            fontSize='16px'
+            fontWeight={600}
           >
             {data?.totalAmountUSD.toLocaleString() || 0}
           </Typography>
@@ -70,9 +73,8 @@ const CurrencyAmountContent = ({
           <Typography
             display='flex'
             alignItems='center'
-            fontSize='20px'
-            fontWeight={500}
-            sx={{ width: '96px' }}
+            fontSize='16px'
+            fontWeight={600}
           >
             {data?.totalAmountKRW.toLocaleString() || 0}
           </Typography>
@@ -89,9 +91,8 @@ const CurrencyAmountContent = ({
           <Typography
             display='flex'
             alignItems='center'
-            fontSize='20px'
-            fontWeight={500}
-            sx={{ width: '96px' }}
+            fontSize='16px'
+            fontWeight={600}
           >
             {data?.totalAmountJPY.toLocaleString() || 0}
           </Typography>
@@ -108,9 +109,9 @@ const CurrencyAmountContent = ({
           <Typography
             display='flex'
             alignItems='center'
-            fontSize='20px'
-            fontWeight={500}
-            sx={{ width: '96px' }}
+            fontSize='16px'
+            fontWeight={600}
+            sx={{ width: ' 94px' }}
           >
             {data?.totalAmountSGD.toLocaleString() || 0}
           </Typography>
