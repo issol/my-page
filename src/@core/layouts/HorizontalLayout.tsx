@@ -15,8 +15,6 @@ import themeConfig from '@src/configs/themeConfig'
 import { LayoutProps } from '@src/@core/layouts/types'
 
 // ** Components
-import Customizer from '@src/@core/components/customizer'
-import Footer from './components/shared-components/footer'
 import Navigation from './components/horizontal/navigation'
 import ScrollToTop from '@src/@core/components/scroll-to-top'
 import AppBarContent from './components/horizontal/app-bar-content'
@@ -24,13 +22,6 @@ import AppBarContent from './components/horizontal/app-bar-content'
 // ** Util Import
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import { useEffect, useRef } from 'react'
-import HorizontalNavItems from '@src/navigation/horizontal'
-import {
-  CLIENTMenu,
-  LPMMenu,
-  PROMenu,
-  TADMenu,
-} from '@src/shared/const/menu/menu'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRecoilValueLoadable } from 'recoil'
 import { currentRoleSelector, permissionState } from '@src/states/permission'
@@ -136,7 +127,6 @@ const HorizontalLayout = (props: LayoutProps) => {
         sx={{ ...(contentHeightFixed && { maxHeight: '100vh' }) }}
       >
         {/* Navbar (or AppBar) and Navigation Menu Wrapper */}
-
         <AppBar
           color='default'
           elevation={skin === 'bordered' ? 0 : 3}
@@ -238,7 +228,6 @@ const HorizontalLayout = (props: LayoutProps) => {
         </AppBar>
 
         {/* Content */}
-
         <ContentWrapper
           className='layout-page-content'
           sx={{
@@ -253,17 +242,6 @@ const HorizontalLayout = (props: LayoutProps) => {
           {children}
         </ContentWrapper>
 
-        {/* Footer */}
-        {/* <Footer
-          {...props}
-          footerStyles={footerProps?.sx}
-          footerContent={footerProps?.content}
-        /> */}
-
-        {/* Customizer */}
-        {/* {themeConfig.disableCustomizer || hidden ? null : <Customizer />} */}
-
-        {/* Scroll to top button */}
         {scrollToTop ? (
           scrollToTop(props)
         ) : (

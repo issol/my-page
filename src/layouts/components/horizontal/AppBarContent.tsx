@@ -6,14 +6,8 @@ import { Settings } from '@src/@core/context/settingsContext'
 
 // ** Components
 import UserDropdown from '@src/@core/layouts/components/shared-components/UserDropdown'
-
-import NotificationDropdown from '@src/@core/layouts/components/shared-components/NotificationDropdown'
 import { ShortcutsType } from '@src/@core/layouts/components/shared-components/ShortcutsDropdown'
-import { useGetNotificationList } from '@src/queries/notification.query'
-import { Suspense } from 'react'
-import { useInfiniteQuery, useMutation } from 'react-query'
-import { getNotificationList, markAsRead } from '@src/apis/notification.api'
-import { Button, Typography } from '@mui/material'
+import { Button } from '@mui/material'
 import useModal from '@src/hooks/useModal'
 import LoginRequiredModal from '@src/@core/components/common-modal/login-modal'
 import { useRouter } from 'next/router'

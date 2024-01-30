@@ -1,5 +1,5 @@
 // ** React Imports
-import { SyntheticEvent, useState, useEffect, Fragment } from 'react'
+import { Fragment, SyntheticEvent, useEffect, useState } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -27,7 +27,7 @@ import Icon from '@src/@core/components/icon'
 import themeConfig from '@src/configs/themeConfig'
 
 // ** Types
-import { NavGroup } from '@src/@core/layouts/types'
+import { NavGroup, NavLink } from '@src/@core/layouts/types'
 import { Settings } from '@src/@core/context/settingsContext'
 
 // ** Custom Components Imports
@@ -148,9 +148,21 @@ const HorizontalNavGroup = (props: Props) => {
     setMenuOpen(false)
   }
 
+  const handleMoveMenu = () => {
+    const firstRouteItem = item?.children?.[0] as NavLink
+
+    if (!firstRouteItem) return
+
+    if (firstRouteItem?.path) {
+      router.push(firstRouteItem.path)
+    }
+  }
+
+  // NOTE : 기획팀 요청으로 대분류 메뉴 클릭 시 첫번째 메뉴로 이동하도록 수정
   const handleMenuToggleOnClick = (event: SyntheticEvent) => {
     if (anchorEl) {
       handleGroupClose()
+      handleMoveMenu()
     } else {
       handleGroupOpen(event)
     }
@@ -208,7 +220,7 @@ const HorizontalNavGroup = (props: Props) => {
               })}
               {...(horizontalMenuToggle === 'click'
                 ? { onClick: handleMenuToggleOnClick }
-                : {})}
+                : { onClick: handleMenuToggleOnClick })}
               sx={{
                 ...(menuOpen ? { backgroundColor: 'action.hover' } : {}),
                 ...(!hasParent
