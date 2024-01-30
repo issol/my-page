@@ -111,6 +111,7 @@ const CurrencyAmountContent = ({
             alignItems='center'
             fontSize='16px'
             fontWeight={600}
+            sx={{ width: ' 94px' }}
           >
             {data?.totalAmountSGD.toLocaleString() || 0}
           </Typography>
