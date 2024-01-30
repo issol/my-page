@@ -53,7 +53,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
     refetchInterval: 600000,
     refetchIntervalInBackground: true,
     refetchOnMount: 'always',
-    // refetchOnWindowFocus: 'always',
     retry: false,
   })
 
@@ -180,9 +179,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
           verticalLayoutProps={{
             navMenu: {
               navItems: VerticalNavItems(),
-
-              // Uncomment the below line when using server-side menu in vertical layout and comment the above line
-              // navItems: verticalMenuItems
             },
           }}
           horizontalLayoutProps={{
@@ -195,6 +191,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
             },
             appBar: {
               content: () => (
+                // NOTE : 헤더 - 유저 프로필 및 메뉴
                 <HorizontalAppBarContent
                   hidden={hidden}
                   settings={settings}
@@ -218,9 +215,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
               verticalLayoutProps={{
                 navMenu: {
                   navItems: VerticalNavItems(),
-
-                  // Uncomment the below line when using server-side menu in vertical layout and comment the above line
-                  // navItems: verticalMenuItems
                 },
                 appBar: {
                   content: props => (
@@ -247,26 +241,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
                   ),
                 },
               }}
-
-              // {...(settings.layout === 'horizontal' && {
-              //   horizontalLayoutProps: {
-              // navMenu: {
-              //   navItems: HorizontalNavItems(),
-
-              //   // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
-              //   // navItems: horizontalMenuItems
-              // },
-              //   appBar: {
-              //     content: () => (
-              //       <HorizontalAppBarContent
-              //         hidden={hidden}
-              //         settings={settings}
-              //         saveSettings={saveSettings}
-              //       />
-              //     ),
-              //   },
-              // },
-              // })}
             >
               {children}
             </Layout>
