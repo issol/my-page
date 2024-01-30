@@ -2,21 +2,18 @@ import { ClientUserType } from './../context/types'
 import axios from 'src/configs/axios'
 import axiosDefault from 'axios'
 import {
-  ClientCompanyInfoType,
   CorporateClientInfoType,
   RoleType,
+  UserDataType,
 } from 'src/context/types'
 import {
-  ProUserInfoType,
   ManagerUserInfoType,
-  ProUserResumeInfoType,
+  ProUserExperienceInfoType,
+  ProUserInfoType,
   ProUserNoteInfoType,
+  ProUserResumeInfoType,
 } from 'src/types/sign/personalInfoTypes'
-import { UserDataType } from 'src/context/types'
-import { CurrencyType } from '@src/types/common/standard-price'
-import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
-import { DashboardMemberQuery } from '@src/types/dashboard'
 
 export type UserInfoResType = Omit<
   UserDataType,
@@ -61,6 +58,7 @@ export const updateConsumerUserInfo = async (
     | ManagerUserInfoType
     | ProUserResumeInfoType
     | ProUserNoteInfoType
+    | ProUserExperienceInfoType
   ) & {
     userId: number
   },
