@@ -39,6 +39,9 @@ import CanViewNavGroup from '@src/layouts/components/acl/CanViewNavGroup'
 // ** Utils
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import { hasActiveChild } from '@src/@core/layouts/utils'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { useRecoilValueLoadable } from 'recoil'
+import { currentRoleSelector, permissionState } from '@src/states/permission'
 
 interface Props {
   item: NavGroup
@@ -89,6 +92,10 @@ const NavigationMenu = styled(Paper)(({ theme }) => ({
 const HorizontalNavGroup = (props: Props) => {
   // ** Props
   const { item, hasParent, settings } = props
+
+  const currentRoleStorage = getCurrentRole()
+  const currentRoleState = useRecoilValueLoadable(currentRoleSelector)
+  const permission = useRecoilValueLoadable(permissionState)
 
   // ** Hooks & Vars
   const theme = useTheme()
@@ -149,12 +156,26 @@ const HorizontalNavGroup = (props: Props) => {
   }
 
   const handleMoveMenu = () => {
-    const firstRouteItem = item?.children?.[0] as NavLink
+    console.log('DAGTA', item, item?.children)
+    const current =
+      currentRoleState.state === 'hasValue'
+        ? currentRoleState.getValue()
+        : currentRoleStorage
+          ? currentRoleStorage
+          : null
 
-    if (!firstRouteItem) return
+    let routeItem = item?.children?.[0] as NavLink
 
-    if (firstRouteItem?.path) {
-      router.push(firstRouteItem.path)
+    if (item.title === 'Quotes' && current && current.name === 'LPM') {
+      const findMenu = item?.children?.find(
+        (item: NavLink) => item.path === '/quotes/lpm/requests',
+      )
+
+      if (findMenu) routeItem = findMenu
+    }
+
+    if (routeItem?.path) {
+      router.push(routeItem.path)
     }
   }
 
