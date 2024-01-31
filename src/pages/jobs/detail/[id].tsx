@@ -42,11 +42,12 @@ const ProJobsDetail = () => {
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
   }
-
+  const { data: jobDetailDots, isFetched } = useGetProJobDots(Number(id))
   // assigned이 false이면 히스토리를 조회한다.
   const { data: jobDetail, isLoading } = useGetProJobDetail(
     Number(id),
     assigned && assigned === 'false' ? true : false,
+    isFetched,
   )
   useEffect(() => {
     if (!isLoading && Number(jobDetail?.id) !== Number(id)) {
@@ -66,8 +67,6 @@ const ProJobsDetail = () => {
   } = useGetStatusList('JobAssignment')
 
   const [statusList, setStatusList] = useState<Array<statusType>>([])
-
-  const { data: jobDetailDots } = useGetProJobDots(Number(id))
 
   const onClickBack = () => {
     const filter: JobListFilterType = {

@@ -37,23 +37,18 @@ import {
 import {
   formatByRoundingProcedure,
   formatCurrency,
-  getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
 
 // ** values
-import { CurrencyList } from '@src/shared/const/currency/currency'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
 
 // ** components
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-
 // import styled from "@emotion/styled"
-import { styled, lighten, darken } from '@mui/material/styles'
+import { styled } from '@mui/material/styles'
 import _ from 'lodash'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { languageType } from '@src/pages/quotes/add-new'
 import Row from './item-price-unit-row'
 

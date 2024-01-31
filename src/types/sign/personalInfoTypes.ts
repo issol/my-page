@@ -77,6 +77,18 @@ export type ProUserNoteInfoType = {
   }
 }
 
+export type ProUserExperienceInfoType = {
+  extraData: {
+    experience: string
+  }
+}
+
+export type ProUserSpecialtiesInfoType = {
+  extraData: {
+    specialties: Array<string>
+  }
+}
+
 export type ManagerUserInfoType = {
   firstName: string
   middleName?: string

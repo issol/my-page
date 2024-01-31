@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid'
 //** data */
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { MMDDYYYYHelper } from '@src/shared/helpers/date.helper'
-import { ProStatus } from '@src/shared/const/status/statuses'
+import { ProSideViewStatus, ProStatus } from '@src/shared/const/status/statuses'
 import { Fragment } from 'react'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import {
@@ -169,7 +169,7 @@ export default function About({ userInfo }: Props) {
                 label='Status'
                 disabled={true}
               >
-                {Object.values(ProStatus).map(value => {
+                {Object.values(ProSideViewStatus).map(value => {
                   return (
                     <MenuItem key={uuidv4()} value={value.value}>
                       {value.label || '-'}

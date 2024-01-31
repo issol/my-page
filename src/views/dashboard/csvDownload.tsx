@@ -5,14 +5,16 @@ import Button from '@mui/material/Button'
 import DownloadIcon from '@mui/icons-material/Download'
 import { CSVDataType } from '@src/types/dashboard'
 import { ListItemIcon, ListItemText, MenuItem } from '@mui/material'
+import { Headers } from 'react-csv/lib/core'
 
 interface CSVDownloadProps {
   title?: string
   data: CSVDataType
+  header?: Headers
   onClose?: () => void
 }
 
-export const CSVDownload = ({ title, data }: CSVDownloadProps) => {
+export const CSVDownload = ({ title, data, header }: CSVDownloadProps) => {
   const csvRef = useRef<
     CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }
   >(null)
@@ -27,6 +29,7 @@ export const CSVDownload = ({ title, data }: CSVDownloadProps) => {
     <div>
       <CSVLink
         ref={csvRef}
+        headers={header}
         data={data}
         filename={title || dayjs().format('YYYY-MM-DD')}
         target='_blank'
@@ -42,7 +45,11 @@ export const CSVDownload = ({ title, data }: CSVDownloadProps) => {
   )
 }
 
-export const CSVOptionsMenuDownload = ({ data, onClose }: CSVDownloadProps) => {
+export const CSVOptionsMenuDownload = ({
+  data,
+  header,
+  onClose,
+}: CSVDownloadProps) => {
   const csvRef = useRef<
     CSVLink & HTMLAnchorElement & { link: HTMLAnchorElement }
   >(null)
@@ -58,6 +65,7 @@ export const CSVOptionsMenuDownload = ({ data, onClose }: CSVDownloadProps) => {
     <div>
       <CSVLink
         ref={csvRef}
+        headers={header || []}
         data={data || []}
         filename={dayjs().format('YYYY-MM-DD')}
         target='_blank'

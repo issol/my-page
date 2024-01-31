@@ -264,9 +264,9 @@ const Message = ({
                       color={user.email === item.email ? 'primary' : 'default'}
                     >
                       {getLegalName({
-                        firstName: info.firstName,
-                        middleName: info.middleName,
-                        lastName: info.lastName,
+                        firstName: item.firstName,
+                        middleName: item.middleName,
+                        lastName: item.lastName,
                       })}
                     </Typography>
                     <Divider orientation='vertical' variant='middle' flexItem />

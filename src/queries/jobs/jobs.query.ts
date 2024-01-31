@@ -73,11 +73,16 @@ export const useGetProJobList = (filter: JobListFilterType) => {
   })
 }
 
-export const useGetProJobDetail = (id: number, isHistory: boolean) => {
+export const useGetProJobDetail = (
+  id: number,
+  isHistory: boolean,
+  enabled: boolean,
+) => {
   return useQuery(['proJobDetail', id], () => getProJobDetail(id, isHistory), {
     staleTime: 60 * 1000, // 1
     suspense: true,
     keepPreviousData: true,
+    enabled: enabled,
   })
 }
 

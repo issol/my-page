@@ -915,6 +915,10 @@ const InvoiceInfo = ({
       })
     }
   }
+
+  console.log(isAccountInfoUpdatable)
+  console.log(isUpdatable)
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {isFileUploading ? null : (
@@ -1060,7 +1064,7 @@ const InvoiceInfo = ({
                     {type === 'detail' &&
                     isUpdatable &&
                     currentRole &&
-                    !isAccountInfoUpdatable &&
+                    // !isAccountInfoUpdatable &&
                     isInvoiceInfoUpdatable &&
                     currentRole.name !== 'CLIENT' ? (
                       <IconButton
@@ -2314,7 +2318,7 @@ const InvoiceInfo = ({
                       {formatFileSize(fileSize)}/ 50MB
                     </Typography>
                   </Box>
-                  {(isUpdatable && isUpdatable) || isAccountInfoUpdatable ? (
+                  {isUpdatable || isAccountInfoUpdatable ? (
                     <div {...getRootProps({ className: 'dropzone' })}>
                       <Button
                         variant='contained'

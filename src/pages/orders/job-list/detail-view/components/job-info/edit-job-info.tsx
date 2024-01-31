@@ -163,6 +163,7 @@ const EditJobInfo = ({
           setJobId && setJobId(data.id)
         }
         setEditJobInfo(false)
+        setFiles([])
       },
     },
   )

@@ -11,6 +11,7 @@ import {
   DataGrid,
   GridCallbackDetails,
   GridColumns,
+  GridRowParams,
   GridSelectionModel,
 } from '@mui/x-data-grid'
 import { JobType } from '@src/types/common/item.type'
@@ -170,6 +171,9 @@ const AssignProList = ({
           pageSize={pageSize}
           paginationMode='server'
           checkboxSelection={type === 'history' || jobInfo.pro ? false : true}
+          isRowSelectable={(params: GridRowParams<AssignProListType>) =>
+            params.row.assignmentStatus === null ? true : false
+          }
           onSelectionModelChange={handleSelectionModelChange}
           onPageChange={(newPage: number) => {
             setFilters!((prevState: AssignProFilterPostType) => ({

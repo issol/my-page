@@ -28,17 +28,14 @@ import {
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
-import {
-  useGetAssignableProList,
-  useGetJobDetails,
-} from '@src/queries/order/job.query'
+import { useGetJobDetails } from '@src/queries/order/job.query'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import languageHelper from '@src/shared/helpers/language.helper'
 
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { SyntheticEvent, useEffect, useRef, useState, MouseEvent } from 'react'
+import { MouseEvent, SyntheticEvent, useEffect, useRef, useState } from 'react'
 
 import { v4 as uuidv4 } from 'uuid'
 import JobInfoDetailView from '../detail-view'
@@ -436,10 +433,8 @@ const JobDetails = () => {
                     <TableCell
                       sx={{
                         height: '54px',
-
                         fontWeight: '400 !important',
                         fontSize: '14px !important',
-                        // paddingRight: '0 !important',
                         display: 'flex !important',
                         alignItems: 'center',
                         flex: 0.1205,
@@ -454,10 +449,8 @@ const JobDetails = () => {
                     <TableCell
                       sx={{
                         height: '54px',
-
                         fontWeight: '400 !important',
                         fontSize: '14px !important',
-                        // paddingRight: '0 !important',
                         display: 'flex',
                         alignItems: 'center',
                         flex: 0.241,
@@ -472,10 +465,8 @@ const JobDetails = () => {
                     <TableCell
                       sx={{
                         height: '54px',
-
                         fontWeight: '400 !important',
                         fontSize: '14px !important',
-                        // paddingRight: '0 !important',
                         display: 'flex',
                         alignItems: 'center',
                         flex: 0.1377,
@@ -490,10 +481,8 @@ const JobDetails = () => {
                     <TableCell
                       sx={{
                         height: '54px',
-
                         fontWeight: '400 !important',
                         fontSize: '14px !important',
-                        // paddingRight: '0 !important',
                         display: 'flex',
                         alignItems: 'center',
                         flex: 0.3012,
@@ -508,12 +497,9 @@ const JobDetails = () => {
                     <TableCell
                       sx={{
                         height: '54px',
-
                         fontWeight: '400 !important',
                         fontSize: '14px !important',
-                        // paddingRight: '0 !important',
                         display: 'flex',
-
                         alignItems: 'center',
                         flex: 0.1377,
                         minWidth: '160px',
@@ -529,10 +515,8 @@ const JobDetails = () => {
                         <TableCell
                           sx={{
                             height: '54px',
-
                             fontWeight: '400 !important',
                             fontSize: '14px !important',
-                            // paddingRight: '0 !important',
                             display: 'flex',
                             alignItems: 'center',
                             flex: 0.062,
@@ -570,10 +554,8 @@ const JobDetails = () => {
                             <TableCell
                               sx={{
                                 height: '54px',
-
                                 fontWeight: '400 !important',
                                 fontSize: '14px !important',
-                                // paddingRight: '0 !important',
                                 display: 'flex !important',
                                 alignItems: 'center',
                                 flex: 0.1205,
@@ -588,10 +570,8 @@ const JobDetails = () => {
                             <TableCell
                               sx={{
                                 height: '54px',
-
                                 fontWeight: '400 !important',
                                 fontSize: '14px !important',
-                                // paddingRight: '0 !important',
                                 display: 'flex',
                                 alignItems: 'center',
                                 flex: 0.241,
@@ -608,10 +588,8 @@ const JobDetails = () => {
                             <TableCell
                               sx={{
                                 height: '54px',
-
                                 fontWeight: '400 !important',
                                 fontSize: '14px !important',
-                                // paddingRight: '0 !important',
                                 display: 'flex',
                                 alignItems: 'center',
                                 flex: 0.1377,
@@ -629,10 +607,8 @@ const JobDetails = () => {
                             <TableCell
                               sx={{
                                 height: '54px',
-
                                 fontWeight: '400 !important',
                                 fontSize: '14px !important',
-                                // paddingRight: '0 !important',
                                 display: 'flex',
                                 alignItems: 'center',
                                 flex: 0.3012,
@@ -663,12 +639,9 @@ const JobDetails = () => {
                             <TableCell
                               sx={{
                                 height: '54px',
-
                                 fontWeight: '400 !important',
                                 fontSize: '14px !important',
-                                // paddingRight: '0 !important',
                                 display: 'flex',
-
                                 alignItems: 'center',
                                 flex: 0.1377,
                                 minWidth: '160px',
@@ -691,10 +664,8 @@ const JobDetails = () => {
                                 <TableCell
                                   sx={{
                                     height: '54px',
-
                                     fontWeight: '400 !important',
                                     fontSize: '14px !important',
-                                    // paddingRight: '0 !important',
                                     display: 'flex',
                                     alignItems: 'center',
                                     flex: 0.062,
@@ -744,7 +715,6 @@ const JobDetails = () => {
             display: 'flex',
             background: '#ffffff',
             alignItems: 'center',
-            // justifyContent: 'space-between',
             padding: '20px',
             gap: '12px',
           }}
