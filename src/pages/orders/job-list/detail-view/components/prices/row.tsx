@@ -1,12 +1,7 @@
 import { Box } from '@mui/material'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import {
-  formatByRoundingProcedure,
-  formatCurrency,
-} from '@src/shared/helpers/price.helper'
+import { formatByRoundingProcedure } from '@src/shared/helpers/price.helper'
 import { ModalType } from '@src/store/modal'
 import { ItemType } from '@src/types/common/item.type'
 import {
@@ -18,9 +13,9 @@ import {
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Control,
+  useFieldArray,
   UseFormGetValues,
   UseFormSetValue,
-  useFieldArray,
   UseFormTrigger,
 } from 'react-hook-form'
 import { languageType } from '@src/pages/orders/add-new'
@@ -183,6 +178,7 @@ const Row = ({
       })
     }
   }, [orderItems])
+
   // useUnitPriceOverrideInPrice가 true일 경우,
   // 선택된(또는 변경된) selectedPrice 값에 포함된 priceUnit과 현재 form의 priceUnit을 비교하여
   // unitPrice 값을 override 한다.
@@ -334,15 +330,15 @@ const Row = ({
     const currency = isNotApplicable
       ? getItem()?.items?.[0]?.detail?.[0]?.currency!
       : selectedPrice && selectedPrice.currency
-      ? selectedPrice.currency
-      : getItem(`items.${0}.initialPrice.currency`)
+        ? selectedPrice.currency
+        : getItem(`items.${0}.initialPrice.currency`)
     const roundingPrice = formatByRoundingProcedure(
       prices,
       priceData()?.decimalPlace!
         ? priceData()?.decimalPlace!
         : currency === 'USD' || currency === 'SGD'
-        ? 2
-        : 1,
+          ? 2
+          : 1,
       priceData()?.roundingProcedure! ?? 0,
       currency,
     )

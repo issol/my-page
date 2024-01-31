@@ -27,9 +27,10 @@ import { currentRoleSelector } from '@src/states/permission'
 import MemberSearchList from '@src/views/dashboard/dialog/memberSearch'
 import { CSVDataType } from '@src/types/dashboard'
 import { CSVOptionsMenuDownload } from '@src/views/dashboard/csvDownload'
-import useStickyHeader from '@src/hooks/useStickyHeader'
+import { Headers } from 'react-csv/lib/core'
 
 interface SwitchTypeHeaderProps {
+  csvHeader?: Headers
   csvData?: CSVDataType
   isShowMemberView: boolean
   hiddenMemberView: () => void
@@ -37,6 +38,7 @@ interface SwitchTypeHeaderProps {
 }
 
 const SwitchTypeHeader = ({
+  csvHeader,
   csvData,
   isShowMemberView,
   showMemberView,
@@ -135,7 +137,6 @@ const SwitchTypeHeader = ({
     hiddenMemberView()
   }, [dashboardStateValue.userInfo])
 
-  console.log('USER', dashboardStateValue.userInfo)
   return (
     <>
       <Grid
@@ -244,6 +245,7 @@ const SwitchTypeHeader = ({
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
               <CSVOptionsMenuDownload
+                header={csvHeader}
                 data={csvData || []}
                 onClose={handleClose}
               />

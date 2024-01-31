@@ -1,5 +1,5 @@
 // ** React Imports
-import { SyntheticEvent, useState, useEffect, Fragment } from 'react'
+import { Fragment, SyntheticEvent, useEffect, useState } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -27,7 +27,7 @@ import Icon from '@src/@core/components/icon'
 import themeConfig from '@src/configs/themeConfig'
 
 // ** Types
-import { NavGroup } from '@src/@core/layouts/types'
+import { NavGroup, NavLink } from '@src/@core/layouts/types'
 import { Settings } from '@src/@core/context/settingsContext'
 
 // ** Custom Components Imports
@@ -39,6 +39,9 @@ import CanViewNavGroup from '@src/layouts/components/acl/CanViewNavGroup'
 // ** Utils
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import { hasActiveChild } from '@src/@core/layouts/utils'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { useRecoilValueLoadable } from 'recoil'
+import { currentRoleSelector, permissionState } from '@src/states/permission'
 
 interface Props {
   item: NavGroup
@@ -89,6 +92,10 @@ const NavigationMenu = styled(Paper)(({ theme }) => ({
 const HorizontalNavGroup = (props: Props) => {
   // ** Props
   const { item, hasParent, settings } = props
+
+  const currentRoleStorage = getCurrentRole()
+  const currentRoleState = useRecoilValueLoadable(currentRoleSelector)
+  const permission = useRecoilValueLoadable(permissionState)
 
   // ** Hooks & Vars
   const theme = useTheme()
@@ -148,9 +155,35 @@ const HorizontalNavGroup = (props: Props) => {
     setMenuOpen(false)
   }
 
+  const handleMoveMenu = () => {
+    console.log('DAGTA', item, item?.children)
+    const current =
+      currentRoleState.state === 'hasValue'
+        ? currentRoleState.getValue()
+        : currentRoleStorage
+          ? currentRoleStorage
+          : null
+
+    let routeItem = item?.children?.[0] as NavLink
+
+    if (item.title === 'Quotes' && current && current.name === 'LPM') {
+      const findMenu = item?.children?.find(
+        (item: NavLink) => item.path === '/quotes/lpm/requests',
+      )
+
+      if (findMenu) routeItem = findMenu
+    }
+
+    if (routeItem?.path) {
+      router.push(routeItem.path)
+    }
+  }
+
+  // NOTE : 기획팀 요청으로 대분류 메뉴 클릭 시 첫번째 메뉴로 이동하도록 수정
   const handleMenuToggleOnClick = (event: SyntheticEvent) => {
     if (anchorEl) {
       handleGroupClose()
+      handleMoveMenu()
     } else {
       handleGroupOpen(event)
     }
@@ -208,7 +241,7 @@ const HorizontalNavGroup = (props: Props) => {
               })}
               {...(horizontalMenuToggle === 'click'
                 ? { onClick: handleMenuToggleOnClick }
-                : {})}
+                : { onClick: handleMenuToggleOnClick })}
               sx={{
                 ...(menuOpen ? { backgroundColor: 'action.hover' } : {}),
                 ...(!hasParent

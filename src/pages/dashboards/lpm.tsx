@@ -58,8 +58,9 @@ import Notice from '@src/views/dashboard/notice'
 import { mergeData } from '@src/pages/dashboards/tad'
 import { useQueryClient } from 'react-query'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { DashboardErrorFallback, TryAgain } from '@src/views/dashboard/suspense'
+import { TryAgain } from '@src/views/dashboard/suspense'
 import { ErrorBoundary } from 'react-error-boundary'
+import { Headers } from 'react-csv/lib/core'
 
 dayjs.extend(weekday)
 
@@ -127,6 +128,7 @@ const LPMDashboards = () => {
   })
 
   const [CSVData, setCSVData] = useState<CSVDataType>([])
+  const [CSVHeader, setCSVHeader] = useState<Headers>([])
   const [receivables, setReceivables] = useState<CSVDataType>([])
   const [payables, setPayables] = useState<CSVDataType>([])
   const [clients, setClients] = useState<CSVDataType>([])
@@ -174,55 +176,68 @@ const LPMDashboards = () => {
 
     const filterOngoingOrder = Object.entries(ongoingOrder || {}).map(
       ([key, value]) => {
-        return { orderStatus: key, orderNumber: value, '   ': '  ' }
+        return {
+          orderStatus: key,
+          orderNumber: value,
+          'ongoing order empty': '',
+        }
       },
     )
 
     const filterOngoingJob = Object.entries(ongoingJob || {}).map(
       ([key, value]) => {
-        return { jobStatus: key, jobNumber: value, '    ': '  ' }
+        return { jobStatus: key, jobNumber: value, 'ongoing job empty': '' }
       },
     )
 
-    const filterPayableTotal = (payableTotal?.report || []).map(item => {
-      return {
-        'Payables total Count': item.count || 0,
-        'Payables total Price': item.sum || 0,
-        'Payables total Number': item.count || 0,
-        ' ': ' ',
-      }
-    })
+    const filterPayableTotal = (payableTotal?.report || []).map(
+      (item, index) => {
+        if (index === 0) {
+          return {
+            'Payables total Count': item.count || 0,
+            'Payables total Price': item.sum || 0,
+            'Payables total Number': item.count || 0,
+            'Payables-total-empty': '',
+            'Payables - paid this month Price': payableMonth?.totalPrice || 0,
+            'Payables - paid this month Number': payableMonth?.count || 0,
+            'Payables month empty': '',
+          }
+        }
+        return {
+          'Payables total Count': item.count || 0,
+          'Payables total Price': item.sum || 0,
+          'Payables total Number': item.count || 0,
+          'Payables total empty': '',
+        }
+      },
+    )
 
-    const filterReceivableTotal = (receivableTotal?.report || []).map(item => {
-      return {
-        'Receivables total Count': item.count || 0,
-        'Receivables total Price': item.sum || 0,
-        'Receivables total Number': item.count || 0,
-        ' ': ' ',
-      }
-    })
+    const filterReceivableTotal = (receivableTotal?.report || []).map(
+      (item, index) => {
+        if (index === 0) {
+          return {
+            'Receivables total Count': item.count || 0,
+            'Receivables total Price': item.sum || 0,
+            'Receivables total Number': item.count || 0,
+            'Receivables total empty': '',
+            'Receivables - paid this month Price':
+              receivableMonth?.totalPrice || 0,
+            'Receivables - paid this month Number': receivableMonth?.count || 0,
+            'Receivables month empty': ' ',
+          }
+        }
+        return {
+          'Receivables total Count': item.count || 0,
+          'Receivables total Price': item.sum || 0,
+          'Receivables total Number': item.count || 0,
+          'Receivables total empty': ' ',
+        }
+      },
+    )
 
     const mergeObjectData1 = mergeData(filterOngoingOrder, filterOngoingJob)
-    const mergeObjectData2 = mergeData(mergeObjectData1, filterPayableTotal)
-
-    mergeObjectData2[0] = {
-      'Payables - paid this month Price': payableMonth?.totalPrice || 0,
-      'Payables - paid this month Number': payableMonth?.count || 0,
-      '   ': ' ',
-      ...mergeObjectData2[0],
-    }
-
-    const mergeObjectData3 = mergeData(mergeObjectData2, filterReceivableTotal)
-
-    mergeObjectData3[0] = {
-      'Receivables - paid this month Price': receivableMonth?.totalPrice || 0,
-      'Receivables - paid this month Number': receivableMonth?.count || 0,
-      '  ': '',
-      ...receivables[0],
-      ...payables[0],
-      ...mergeObjectData3[0],
-      '      ': '  ',
-    }
+    const mergeObjectData2 = mergeData(mergeObjectData1, filterReceivableTotal)
+    const mergeObjectData3 = mergeData(mergeObjectData2, filterPayableTotal)
 
     const mergeData1 = mergeData(clients, languagePairs)
     const mergeData2 = mergeData(mergeData1, categories)
@@ -231,17 +246,27 @@ const LPMDashboards = () => {
     const mergeData4 = mergeData(mergeData3, expertises)
     const mergeData5 = mergeData(mergeObjectData3, mergeData4)
 
-    mergeData5[0] = {
-      Requests: ReportData?.requests || 0,
-      Quotes: ReportData?.quotes || 0,
-      Orders: ReportData?.orders || 0,
-      Receivables: ReportData?.invoiceReceivables || 0,
-      Payables: ReportData?.invoicePayables || 0,
-      Canceled: ReportData?.canceled || 0,
-      '     ': '',
-      ...mergeData5[0],
+    if (!isShowMemberView) {
+      mergeData5[0] = {
+        Requests: ReportData?.requests || 0,
+        Quotes: ReportData?.quotes || 0,
+        Orders: ReportData?.orders || 0,
+        Receivables: ReportData?.invoiceReceivables || 0,
+        Payables: ReportData?.invoicePayables || 0,
+        Canceled: ReportData?.canceled || 0,
+        'ReportData empty': '',
+        ...mergeData5[0],
+      }
     }
 
+    const csvHeaders = Object.keys(mergeData5[0]).map((key, index) => {
+      if (key.includes('empty')) {
+        return { label: '', key: key }
+      }
+      return { label: key, key }
+    })
+
+    setCSVHeader(csvHeaders)
     setCSVData(mergeData5)
   }, [
     receivables,
@@ -251,6 +276,7 @@ const LPMDashboards = () => {
     serviceTypes,
     categories,
     expertises,
+    isShowMemberView,
   ])
 
   return (
@@ -270,6 +296,7 @@ const LPMDashboards = () => {
             hiddenMemberView={hiddenMemberView}
             showMemberView={showMemberView}
             csvData={CSVData}
+            csvHeader={CSVHeader}
           />
 
           <Grid container gap='24px'>
@@ -579,32 +606,13 @@ const LPMDashboards = () => {
               }}
               menuOptions={[
                 {
-                  key: 'T/Translation',
-                  text: 'Translation',
+                  key: 'mainCategories',
+                  text: 'Main categories',
                 },
                 {
-                  key: 'T/Dubbing',
-                  text: 'Dubbing',
+                  key: 'detailedCategories',
+                  text: 'Detailed categories',
                 },
-                {
-                  key: 'T/Translation',
-                  text: 'Interpretation',
-                },
-                {
-                  key: 'T/Misc.',
-                  text: 'Misc.',
-                },
-                {
-                  key: 'T/Misc',
-                  text: 'Subtitle',
-                },
-                { key: 'C/Documents/Text', text: 'Documents/Text' },
-                { key: 'C/Documents/Text', text: 'Dubbing' },
-                { key: 'C/Interpretation', text: 'Interpretation' },
-                { key: 'C/Misc.', text: 'Misc.' },
-                { key: 'C/OTT/Subtitle', text: 'OTT/Subtitle' },
-                { key: 'C/Webcomics', text: 'Webcomics' },
-                { key: 'C/Webnovel', text: 'Webnovel' },
               ]}
               setDataRecord={setCategories}
               setOpenInfoDialog={setOpenInfoDialog}

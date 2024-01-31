@@ -40,6 +40,7 @@ const DefaultDataGrid = <T extends { id: number; orderId?: number }>({
 
   return (
     <CustomDataGrid
+      sortingOrder={['desc', 'asc']}
       initialState={{
         sorting: { sortModel },
       }}
