@@ -47,6 +47,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { UserDataType } from '@src/context/types'
 import {
   PersonalInfo,
+  ProUserExperienceInfoType,
   ProUserInfoType,
   ProUserNoteInfoType,
   ProUserResumeInfoType,
@@ -154,7 +155,12 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
 
   const updateUserInfoMutation = useMutation(
     (
-      data: (ProUserInfoType | ProUserResumeInfoType | ProUserNoteInfoType) & {
+      data: (
+        | ProUserInfoType
+        | ProUserResumeInfoType
+        | ProUserNoteInfoType
+        | ProUserExperienceInfoType
+      ) & {
         userId: number
       },
     ) => updateConsumerUserInfo(data),
@@ -537,16 +543,6 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
       onResumeSave(updatedResume)
     }
   }
-  // const deleteResumeMutation = useMutation(
-  //   (fileId: number) => deleteResume(user.userId!, fileId),
-  //   {
-  //     onSuccess: () => {
-  //       onSuccess()
-  //       invalidateUserInfo()
-  //     },
-  //     onError: () => onError(),
-  //   },
-  // )
 
   const onDeleteFile = (file: FileItemType) => {
     if (userInfo?.resume?.length && userInfo.resume.length <= 1) {
@@ -578,6 +574,19 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
 
   const onSaveExperience = () => {
     setEditExperience(false)
+    updateUserInfoMutation.mutate(
+      {
+        userId: auth.getValue().user?.id || 0,
+        extraData: {
+          experience: experience || '',
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditExperience(false)
+        },
+      },
+    )
   }
 
   /* Contracts */

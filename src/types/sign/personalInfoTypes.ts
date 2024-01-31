@@ -77,6 +77,12 @@ export type ProUserNoteInfoType = {
   }
 }
 
+export type ProUserExperienceInfoType = {
+  extraData: {
+    experience: string
+  }
+}
+
 export type ManagerUserInfoType = {
   firstName: string
   middleName?: string
