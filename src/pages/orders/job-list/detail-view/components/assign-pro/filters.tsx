@@ -179,7 +179,7 @@ const AssignProFilters = ({
                       id='source'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
-                        <TextField {...params} label='Source' size='small' />
+                        <TextField {...params} autoComplete='off' label='Source' size='small' />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -242,7 +242,7 @@ const AssignProFilters = ({
                       id='target'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
-                        <TextField {...params} label='Target' size='small' />
+                        <TextField {...params} autoComplete='off' label='Target' size='small' />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -322,7 +322,7 @@ const AssignProFilters = ({
                       id='category'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
-                        <TextField {...params} label='Category' size='small' />
+                        <TextField {...params} autoComplete='off' label='Category' size='small' />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -406,6 +406,7 @@ const AssignProFilters = ({
                       renderInput={params => (
                         <TextField
                           {...params}
+                          autoComplete='off'
                           label='Service type'
                           size='small'
                         />
@@ -473,7 +474,7 @@ const AssignProFilters = ({
                       id='client'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
-                        <TextField {...params} label='Client' size='small' />
+                        <TextField {...params} autoComplete='off' label='Client' size='small' />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -533,6 +534,7 @@ const AssignProFilters = ({
                       renderInput={params => (
                         <TextField
                           {...params}
+                          autoComplete='off'
                           label='Area of expertise'
                           size='small'
                         />

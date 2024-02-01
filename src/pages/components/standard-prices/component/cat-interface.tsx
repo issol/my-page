@@ -602,6 +602,7 @@ const CatInterface = ({
                       ) : (
                         <TextField
                           value={obj.perWords}
+                          autoComplete='off'
                           onFocus={() => handleFocus(obj.id)}
                           onBlur={handleBlur}
                           autoFocus={obj.id === editingItemId}
@@ -736,6 +737,7 @@ const CatInterface = ({
                       ) : (
                         <TextField
                           value={obj.perWords}
+                          autoComplete='off'
                           onFocus={() => handleFocus(obj.id)}
                           onBlur={handleBlur}
                           autoFocus={obj.id === editingItemId}

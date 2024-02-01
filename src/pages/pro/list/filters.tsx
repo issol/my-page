@@ -177,7 +177,7 @@ const ProListFilters = ({
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Status' />
+                            <TextField {...params} autoComplete='off' label='Status' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -216,7 +216,7 @@ const ProListFilters = ({
                           id='clients'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Clients' />
+                            <TextField {...params} autoComplete='off' label='Clients' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -266,7 +266,7 @@ const ProListFilters = ({
                           id='source'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Source' />
+                            <TextField {...params} autoComplete='off' label='Source' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -315,7 +315,7 @@ const ProListFilters = ({
                           id='target'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Target' />
+                            <TextField {...params} autoComplete='off' label='Target' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -378,7 +378,7 @@ const ProListFilters = ({
                           id='jobType'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Job type' />
+                            <TextField {...params} autoComplete='off' label='Job type' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -445,7 +445,7 @@ const ProListFilters = ({
                           id='role'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Role' />
+                            <TextField {...params} autoComplete='off' label='Role' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -486,6 +486,7 @@ const ProListFilters = ({
                           renderInput={params => (
                             <TextField
                               {...params}
+                              autoComplete='off'
                               label='Years of experience'
                             />
                           )}

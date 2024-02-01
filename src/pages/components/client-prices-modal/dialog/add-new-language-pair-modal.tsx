@@ -211,6 +211,7 @@ const AddNewLanguagePairModal = ({ onClose, currency, onSubmit }: Props) => {
                             )}
                             renderInput={params => (
                               <TextField
+                                autoComplete='off'
                                 {...params}
                                 label='Source*'
                                 error={
@@ -263,6 +264,7 @@ const AddNewLanguagePairModal = ({ onClose, currency, onSubmit }: Props) => {
                             )}
                             renderInput={params => (
                               <TextField
+                                autoComplete='off'
                                 {...params}
                                 label='Target*'
                                 error={

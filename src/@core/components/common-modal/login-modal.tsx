@@ -214,6 +214,7 @@ const LoginRequiredModal = ({ onClose, onClick, path, jobId }: Props) => {
                 rules={{ required: true }}
                 render={({ field: { value, onChange, onBlur } }) => (
                   <TextField
+                    autoComplete='off'
                     autoFocus
                     label='Email'
                     value={value}

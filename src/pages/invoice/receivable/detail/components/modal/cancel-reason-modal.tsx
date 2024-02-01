@@ -44,6 +44,7 @@ export default function CancelInvoiceModal({ onClose, onClick }: Props) {
             </Typography>
             <TextField
               rows={4}
+              autoComplete='off'
               multiline
               fullWidth
               placeholder='Write down a reason for canceling this invoice.'

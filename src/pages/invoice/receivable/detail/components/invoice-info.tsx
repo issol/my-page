@@ -1267,6 +1267,7 @@ const InvoiceInfo = ({
                                 renderInput={params => (
                                   <TextField
                                     {...params}
+                                    autoComplete='off'
                                     size='small'
                                     placeholder='Select a member'
                                     // label='Contact person*'

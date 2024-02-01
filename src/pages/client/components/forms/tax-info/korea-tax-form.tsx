@@ -25,6 +25,7 @@ export default function KoreaTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.businessNumber)}
               value={value}
               type='number'
@@ -46,6 +47,7 @@ export default function KoreaTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.companyName)}
               value={value}
               inputProps={{ maxLength: 100 }}
@@ -63,6 +65,7 @@ export default function KoreaTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.representativeName)}
               value={value}
               inputProps={{ maxLength: 100 }}
@@ -80,6 +83,7 @@ export default function KoreaTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.businessAddress)}
               value={value}
               inputProps={{ maxLength: 500 }}
@@ -97,6 +101,7 @@ export default function KoreaTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.businessType)}
               value={value}
               inputProps={{ maxLength: 100 }}
@@ -114,6 +119,7 @@ export default function KoreaTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.recipientEmail)}
               value={value}
               inputProps={{ maxLength: 100 }}

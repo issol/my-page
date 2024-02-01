@@ -154,6 +154,7 @@ export default function TaxInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   error={Boolean(errors.taxInfo)}
                   label='Tax info.'
                 />
@@ -166,6 +167,7 @@ export default function TaxInfoForm({
       <Grid item xs={6}>
         <TextField
           fullWidth
+          autoComplete='off'
           disabled
           value={getValues('tax') ? `${getValues('tax')}%` : '-'}
           label='Tax rate'

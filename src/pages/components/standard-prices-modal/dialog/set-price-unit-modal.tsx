@@ -594,7 +594,7 @@ const SetPriceUnitModal = ({
             options={priceUnitOptions}
             id='priceUnit'
             getOptionLabel={option => option.title}
-            renderInput={params => <TextField {...params} label='Price unit' />}
+            renderInput={params => <TextField {...params} autoComplete='off' label='Price unit' />}
             renderOption={(props, option, { selected }) => (
               <li {...props}>
                 <Checkbox checked={selected} sx={{ mr: 2 }} />
@@ -1364,7 +1364,7 @@ const SetPriceUnitModal = ({
                           id='priceUnit'
                           getOptionLabel={option => option.title}
                           renderInput={params => (
-                            <TextField {...params} label='Price unit' />
+                            <TextField {...params} autoComplete='off' label='Price unit' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>

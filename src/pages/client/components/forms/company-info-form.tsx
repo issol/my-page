@@ -203,6 +203,7 @@ export default function CompanyInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   error={Boolean(errors.status)}
                   label='Status*'
                   placeholder='Status*'
@@ -220,6 +221,7 @@ export default function CompanyInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.name)}
               label='Company name*'
               value={value}
@@ -237,6 +239,7 @@ export default function CompanyInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.email)}
               label='Email*'
               value={value}
@@ -275,6 +278,7 @@ export default function CompanyInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone*'
                   error={Boolean(errors.timezone)}
                   inputProps={{
@@ -355,6 +359,7 @@ export default function CompanyInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Headquarter'
                   inputProps={{
                     ...params.inputProps,
@@ -372,6 +377,7 @@ export default function CompanyInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.registrationNumber)}
               label='Business registration number'
               value={value}
@@ -389,6 +395,7 @@ export default function CompanyInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.representativeName)}
               label='Name of representative'
               value={value}
@@ -446,6 +453,7 @@ export default function CompanyInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     error={Boolean(errors.isTaxable)}
                     label='Tax type*'
                     placeholder='Tax type*'
@@ -509,6 +517,7 @@ export default function CompanyInfoForm({
                 <>
                   <TextField
                     rows={4}
+                    autoComplete='off'
                     multiline
                     fullWidth
                     error={Boolean(errors.memo)}

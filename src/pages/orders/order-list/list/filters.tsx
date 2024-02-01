@@ -178,7 +178,7 @@ export default function OrdersFilters({
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Status' />
+                            <TextField {...params} autoComplete='off' label='Status' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -212,7 +212,7 @@ export default function OrdersFilters({
                             id='client'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
-                              <TextField {...params} label='Client' />
+                              <TextField {...params} autoComplete='off' label='Client' />
                             )}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>
@@ -244,7 +244,7 @@ export default function OrdersFilters({
                             id='lsp'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
-                              <TextField {...params} label='LSP' />
+                              <TextField {...params} autoComplete='off' label='LSP' />
                             )}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>
@@ -295,7 +295,7 @@ export default function OrdersFilters({
                           id='category'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Category' />
+                            <TextField {...params} autoComplete='off' label='Category' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -347,7 +347,7 @@ export default function OrdersFilters({
                           limitTags={1}
                           getOptionLabel={option => option.label || ''}
                           renderInput={params => (
-                            <TextField {...params} label='Service type' />
+                            <TextField {...params} autoComplete='off' label='Service type' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -459,7 +459,7 @@ export default function OrdersFilters({
                             id='revenueFrom'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
-                              <TextField {...params} label='Revenue from' />
+                              <TextField {...params} autoComplete='off' label='Revenue from' />
                             )}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>

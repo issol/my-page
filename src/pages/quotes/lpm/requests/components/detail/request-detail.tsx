@@ -90,7 +90,7 @@ export default function RequestDetailCard({
                 }}
                 id='status'
                 renderInput={params => (
-                  <TextField {...params} placeholder='Status' />
+                  <TextField {...params} autoComplete='off' placeholder='Status' />
                 )}
                 clearIcon={null}
               />

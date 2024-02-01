@@ -312,6 +312,7 @@ export default function ClientMemo({ clientId, memo }: Props) {
                 <Box display='flex' flexDirection='column'>
                   <TextField
                     sx={{ margin: '16px 0' }}
+                    autoComplete='off'
                     multiline
                     maxRows={4}
                     value={newMemo}
@@ -426,6 +427,7 @@ export default function ClientMemo({ clientId, memo }: Props) {
                       <Box display='flex' flexDirection='column'>
                         <TextField
                           sx={{ margin: '16px 0' }}
+                          autoComplete='off'
                           multiline
                           maxRows={4}
                           value={currentMemo.memo}

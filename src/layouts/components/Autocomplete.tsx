@@ -542,6 +542,7 @@ const AutocompleteComponent = ({ hidden, settings }: Props) => {
                 renderInput={(params: AutocompleteRenderInputParams) => {
                   return (
                     <TextField
+                      autoComplete='off'
                       {...params}
                       value={searchValue}
                       onChange={(event: ChangeEvent<HTMLInputElement>) =>

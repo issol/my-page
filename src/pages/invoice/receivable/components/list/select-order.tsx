@@ -551,7 +551,7 @@ export default function SelectOrder({
                               id='client'
                               getOptionLabel={option => option.label}
                               renderInput={params => (
-                                <TextField {...params} label='Client' />
+                                <TextField {...params} autoComplete='off' label='Client' />
                               )}
                             />
                           )
@@ -579,6 +579,7 @@ export default function SelectOrder({
                             renderInput={params => (
                               <TextField
                                 {...params}
+                                autoComplete='off'
                                 label='Revenue from'
                                 // placeholder='Revenue from'
                               />
@@ -620,7 +621,7 @@ export default function SelectOrder({
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Status' />
+                            <TextField {...params} autoComplete='off' label='Status' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>

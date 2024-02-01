@@ -382,6 +382,7 @@ export default function ClientCompanyInfoPageComponent() {
                             renderInput={params => (
                               <TextField
                                 {...params}
+                                autoComplete='off'
                                 label='Headquarter'
                                 inputProps={{
                                   ...params.inputProps,

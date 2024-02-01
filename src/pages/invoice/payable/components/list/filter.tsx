@@ -122,7 +122,7 @@ export default function Filter({
                       }
                       id='status'
                       renderInput={params => (
-                        <TextField {...params} label='Status' />
+                        <TextField {...params} autoComplete='off' label='Status' />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -156,7 +156,7 @@ export default function Filter({
                         })
                       }
                       renderInput={params => (
-                        <TextField {...params} label='Pro' />
+                        <TextField {...params} autoComplete='off' label='Pro' />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>

@@ -81,6 +81,7 @@ export default function DeleteAccount({ onCancel, onDelete }: Props) {
             <InnerBox>
               <TextField
                 sx={{ width: '420px' }}
+                autoComplete='off'
                 label='Current password*'
                 value={currentPw}
                 onChange={e => validatePw(e.target.value)}
@@ -117,6 +118,7 @@ export default function DeleteAccount({ onCancel, onDelete }: Props) {
                   <Divider style={{ margin: '24px 0' }} />
                   <TextField
                     sx={{ width: '420px' }}
+                    autoComplete='off'
                     rows={4}
                     multiline
                     fullWidth

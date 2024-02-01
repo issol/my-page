@@ -278,6 +278,7 @@ export default function RegisterClientForm({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete="off"
                     label='Company name*'
                     inputProps={{
                       ...params.inputProps,
@@ -387,6 +388,7 @@ export default function RegisterClientForm({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     label='Contact person*'
                     inputProps={{
                       ...params.inputProps,
@@ -412,6 +414,7 @@ export default function RegisterClientForm({
             return (
               <TextField
                 fullWidth
+                autoComplete='off'
                 label={
                   handleShowLabelAndPlaceHolder(
                     Boolean(
@@ -462,6 +465,7 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               label={
                 handleShowLabelAndPlaceHolder(
                   Boolean(getValue('contacts.phone')),
@@ -499,6 +503,7 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               label={
                 handleShowLabelAndPlaceHolder(
                   Boolean(getValue('contacts.mobile')),
@@ -537,6 +542,7 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               label={
                 handleShowLabelAndPlaceHolder(Boolean(getValue('contacts.fax')))
                   ? 'Fax'
@@ -573,6 +579,7 @@ export default function RegisterClientForm({
           render={({ field: { value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               // placeholder='Email'
               label={
                 handleShowLabelAndPlaceHolder(

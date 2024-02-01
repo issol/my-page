@@ -157,6 +157,7 @@ export default function AddRequestForm({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <TextField
                     fullWidth
+                    autoComplete='off'
                     value={value}
                     onChange={onChange}
                     inputProps={{ maxLength: 200 }}
@@ -190,6 +191,7 @@ export default function AddRequestForm({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         error={Boolean(errors?.items?.[idx]?.sourceLanguage)}
                         label='Source*'
                         // placeholder='Source*'
@@ -253,7 +255,7 @@ export default function AddRequestForm({
                     id='target'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Target*' />
+                      <TextField {...params} autoComplete='off' label='Target*' />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -293,6 +295,7 @@ export default function AddRequestForm({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         error={Boolean(errors?.items?.[idx]?.category)}
                         label='Category*'
                         // placeholder='Category*'
@@ -335,6 +338,7 @@ export default function AddRequestForm({
                       renderInput={params => (
                         <TextField
                           {...params}
+                          autoComplete='off'
                           // error={Boolean(errors?.items?.[idx]?.serviceType)}
                           label='Service type*'
                           // placeholder='Service type*'
@@ -376,6 +380,7 @@ export default function AddRequestForm({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         error={Boolean(errors?.items?.[idx]?.unit)}
                         label='Unit'
                         // placeholder='Unit'
@@ -395,6 +400,7 @@ export default function AddRequestForm({
                   return (
                     <TextField
                       fullWidth
+                      autoComplete='off'
                       value={value ?? ''}
                       onChange={e => {
                         const val = e.target.value
@@ -466,6 +472,7 @@ export default function AddRequestForm({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Time zone*'
                         error={Boolean(errors.items?.[idx]?.desiredDueTimezone)}
                         inputProps={{

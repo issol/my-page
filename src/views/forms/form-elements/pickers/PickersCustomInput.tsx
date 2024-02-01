@@ -54,6 +54,7 @@ const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
         return (
           <TextField
             inputRef={ref}
+            autoComplete='off'
             {...props}
             label={label || ''}
             {...(readOnly && { inputProps: { readOnly: true } })}
@@ -64,6 +65,7 @@ const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
   return (
     <TextField
       inputRef={ref}
+      autoComplete='off'
       {...props}
       label={label || ''}
       {...(readOnly && { inputProps: { readOnly: true } })}

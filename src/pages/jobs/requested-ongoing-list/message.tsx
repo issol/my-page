@@ -231,6 +231,7 @@ const ProJobsMessage = ({ row }: Props) => {
               <Box>
                 <TextField
                   rows={4}
+                  autoComplete='off'
                   multiline
                   fullWidth
                   // label='Write down a message to Pro'

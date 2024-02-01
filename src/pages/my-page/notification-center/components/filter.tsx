@@ -142,6 +142,7 @@ const NotificationCenterFilter = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Category'
                         // placeholder='Status'
                       />
@@ -189,6 +190,7 @@ const NotificationCenterFilter = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Duration'
                         placeholder='Duration'
                       />

@@ -105,6 +105,7 @@ export default function OffDayForm({
             <Grid item xs={12}>
               <TextField
                 rows={4}
+                autoComplete='off'
                 multiline
                 fullWidth
                 placeholder='Write down a reason for setting off days.'

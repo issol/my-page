@@ -93,6 +93,7 @@ export default function ClientListFilter({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Status'
                         placeholder='Status'
                       />

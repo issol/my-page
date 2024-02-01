@@ -301,7 +301,7 @@ const EditPrices = ({
               getOptionLabel={option => option.label}
               disabled
               renderInput={params => (
-                <TextField {...params} label='Language pair*' />
+                <TextField {...params} autoComplete='off' label='Language pair*' />
               )}
             />
           </Box>
@@ -327,7 +327,7 @@ const EditPrices = ({
               id='autocomplete-controlled'
               getOptionLabel={option => option.priceName}
               renderInput={params => (
-                <TextField {...params} placeholder='Price*' />
+                <TextField {...params} autoComplete='off' placeholder='Price*' />
               )}
             />
           </Box>

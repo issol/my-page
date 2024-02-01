@@ -198,6 +198,7 @@ export default function ProjectTeamForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   // label='Member'
                   placeholder={focusField[idx]?.isFocus ? '' : 'Member'}
                   inputProps={{
@@ -225,6 +226,7 @@ export default function ProjectTeamForm({
         render={({ field }) => (
           <TextField
             fullWidth
+            autoComplete='off'
             disabled={true}
             className={
               memberList.filter(item => item.value === field?.value)[0]

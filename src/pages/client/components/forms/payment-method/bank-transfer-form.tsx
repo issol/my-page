@@ -25,6 +25,7 @@ export default function BankTransferForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.bankName)}
               value={value}
               inputProps={{ maxLength: 100 }}
@@ -43,6 +44,7 @@ export default function BankTransferForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.accountHolder)}
               value={value}
               inputProps={{ maxLength: 100 }}

@@ -79,6 +79,7 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
         </Typography>
         <TextField
           rows={4}
+          autoComplete='off'
           multiline
           fullWidth
           placeholder='Write down a reason for canceling this request.'

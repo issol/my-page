@@ -115,6 +115,7 @@ export default function PaypalForm({
             <>
               <TextField
                 fullWidth
+                autoComplete='off'
                 autoFocus
                 value={value}
                 onBlur={onBlur}
@@ -143,6 +144,7 @@ export default function PaypalForm({
             <>
               <TextField
                 fullWidth
+                autoComplete='off'
                 value={value}
                 onBlur={onBlur}
                 onChange={onChange}

@@ -419,6 +419,7 @@ export default function RecruitingEdit() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.status)}
                                   label='Status*'
                                   placeholder='Status*'
@@ -456,6 +457,7 @@ export default function RecruitingEdit() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.client)}
                                   label='Client*'
                                   placeholder='Client*'
@@ -494,6 +496,7 @@ export default function RecruitingEdit() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.jobType)}
                                   label='Job type*'
                                   placeholder='Job type*'
@@ -532,6 +535,7 @@ export default function RecruitingEdit() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.role)}
                                   label='Role*'
                                   placeholder='Role*'
@@ -570,6 +574,7 @@ export default function RecruitingEdit() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.sourceLanguage)}
                                   label='Source*'
                                   placeholder='Source*'
@@ -609,6 +614,7 @@ export default function RecruitingEdit() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.targetLanguage)}
                                   label='Target*'
                                   placeholder='Target*'
@@ -642,6 +648,7 @@ export default function RecruitingEdit() {
                           render={({ field: { value, onChange, onBlur } }) => (
                             <TextField
                               fullWidth
+                              autoComplete='off'
                               disabled={!isWriter}
                               onChange={e => {
                                 const value = Number(e.target.value)
@@ -709,6 +716,7 @@ export default function RecruitingEdit() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   label='Due date timezone'
                                   error={Boolean(errors.dueDateTimezone)}
                                 />

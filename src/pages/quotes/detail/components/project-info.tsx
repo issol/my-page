@@ -366,6 +366,7 @@ export default function QuotesProjectInfoDetail({
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       placeholder='Status'
                       size='small'
                       sx={{ maxWidth: '300px' }}
@@ -517,6 +518,7 @@ export default function QuotesProjectInfoDetail({
                       renderInput={params => (
                         <TextField
                           {...params}
+                          autoComplete='off'
                           size='small'
                           // label='Contact person*'
                           inputProps={{

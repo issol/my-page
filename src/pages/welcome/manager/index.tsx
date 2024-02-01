@@ -262,6 +262,7 @@ const PersonalInfoManager = () => {
                       render={({ field: { value, onChange, onBlur } }) => (
                         <TextField
                           autoFocus
+                          autoComplete='off'
                           value={value}
                           onBlur={onBlur}
                           onChange={onChange}
@@ -285,6 +286,7 @@ const PersonalInfoManager = () => {
                       render={({ field: { value, onChange, onBlur } }) => (
                         <TextField
                           autoFocus
+                          autoComplete='off'
                           value={value}
                           onBlur={onBlur}
                           onChange={onChange}
@@ -308,6 +310,7 @@ const PersonalInfoManager = () => {
                       render={({ field: { value, onChange, onBlur } }) => (
                         <TextField
                           autoFocus
+                          autoComplete='off'
                           value={value}
                           onBlur={onBlur}
                           onChange={onChange}
@@ -332,6 +335,7 @@ const PersonalInfoManager = () => {
                     render={({ field: { value, onChange, onBlur } }) => (
                       <TextField
                         autoFocus
+                        autoComplete='off'
                         value={value}
                         onBlur={onBlur}
                         onChange={onChange}
@@ -369,6 +373,7 @@ const PersonalInfoManager = () => {
                           renderInput={params => (
                             <TextField
                               {...params}
+                              autoComplete='off'
                               label='Time zone*'
                               error={Boolean(errors.timezone)}
                               inputProps={{
