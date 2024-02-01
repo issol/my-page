@@ -112,7 +112,7 @@ const JobFilters = ({
                       id='client'
                       getOptionLabel={option => option.name}
                       renderInput={params => (
-                        <TextField {...params} label={'Client'} />
+                        <TextField {...params} autoComplete='off' label={'Client'} />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>

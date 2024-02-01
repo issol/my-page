@@ -438,6 +438,7 @@ export default function QuotesLanguageItemsDetail({
               <>
                 <TextField
                   size='small'
+                  autoComplete='off'
                   type='number'
                   value={!tax ? '-' : tax}
                   disabled={!taxable}

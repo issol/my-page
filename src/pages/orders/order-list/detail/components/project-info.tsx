@@ -687,6 +687,7 @@ const ProjectInfo = ({
                         renderInput={params => (
                           <TextField
                             {...params}
+                            autoComplete='off'
                             size='small'
                             // label='Contact person*'
                             inputProps={{

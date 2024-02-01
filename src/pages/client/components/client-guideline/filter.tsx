@@ -96,6 +96,7 @@ export default function Filters({
                       {...params}
                       label='Client'
                       placeholder='Client'
+                      autoComplete='off'
                     />
                   )}
                   renderOption={(props, option, { selected }) => (
@@ -131,6 +132,7 @@ export default function Filters({
                         {...params}
                         label='Category'
                         placeholder='Category'
+                        autoComplete='off'
                       />
                     )}
                     renderOption={(props, option, { selected }) => (
@@ -166,6 +168,7 @@ export default function Filters({
                       {...params}
                       label='Service type'
                       placeholder='Service type'
+                      autoComplete='off'
                     />
                   )}
                   renderOption={(props, option, { selected }) => (

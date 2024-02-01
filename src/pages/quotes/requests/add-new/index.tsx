@@ -424,6 +424,7 @@ export default function AddNewRequest() {
                       renderInput={params => (
                         <TextField
                           {...params}
+                          autoComplete='off'
                           label='Contact person*'
                           inputProps={{
                             ...params.inputProps,
@@ -468,6 +469,7 @@ export default function AddNewRequest() {
                       renderInput={params => (
                         <TextField
                           {...params}
+                          autoComplete='off'
                           label='LSP*'
                           inputProps={{
                             ...params.inputProps,
@@ -537,6 +539,7 @@ export default function AddNewRequest() {
                   <>
                     <TextField
                       rows={4}
+                      autoComplete='off'
                       multiline
                       fullWidth
                       error={Boolean(errors.notes)}

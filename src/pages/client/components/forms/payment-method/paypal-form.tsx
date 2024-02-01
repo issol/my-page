@@ -32,6 +32,7 @@ export default function PayPalForm({
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.email)}
               value={value}
               inputProps={{ maxLength: 100 }}

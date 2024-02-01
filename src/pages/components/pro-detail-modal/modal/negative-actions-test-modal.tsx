@@ -173,6 +173,7 @@ export default function NegativeActionsTestModal({
           </Typography>
           <TextField
             fullWidth
+            autoComplete='off'
             rows={4}
             multiline
             value={messageToPro}

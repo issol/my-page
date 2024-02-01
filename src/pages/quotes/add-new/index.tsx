@@ -1044,6 +1044,7 @@ export default function AddNewQuote() {
                     render={({ field: { value, onChange } }) => (
                       <TextField
                         size='small'
+                        autoComplete='off'
                         type='number'
                         onFocus={e =>
                           e.target.addEventListener(

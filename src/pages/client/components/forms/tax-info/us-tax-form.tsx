@@ -25,6 +25,7 @@ export default function USTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.clientName)}
               value={value}
               inputProps={{ maxLength: 50 }}
@@ -42,6 +43,7 @@ export default function USTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.clientAddress)}
               value={value}
               inputProps={{ maxLength: 500 }}

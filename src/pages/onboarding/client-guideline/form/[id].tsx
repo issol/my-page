@@ -443,6 +443,7 @@ const ClientGuidelineEdit = () => {
                           <>
                             <TextField
                               fullWidth
+                              autoComplete='off'
                               autoFocus
                               value={value}
                               onBlur={onBlur}
@@ -485,6 +486,7 @@ const ClientGuidelineEdit = () => {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   label='Client*'
                                   placeholder='Client*'
                                   disabled
@@ -521,6 +523,7 @@ const ClientGuidelineEdit = () => {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   label='Category*'
                                   placeholder='Category*'
                                   disabled
@@ -558,6 +561,7 @@ const ClientGuidelineEdit = () => {
                             renderInput={params => (
                               <TextField
                                 {...params}
+                                autoComplete='off'
                                 label='Service type*'
                                 placeholder='Service type*'
                                 disabled

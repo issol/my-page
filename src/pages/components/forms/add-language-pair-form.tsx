@@ -310,6 +310,7 @@ export default function AddLanguagePairForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   placeholder={sourceFocused ? '' : 'Source'}
                 />
               )}
@@ -349,6 +350,7 @@ export default function AddLanguagePairForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   placeholder={
                     targetFocused || languagePair.target.length > 0
                       ? ''
@@ -486,6 +488,7 @@ export default function AddLanguagePairForm({
                                     renderInput={params => (
                                       <TextField
                                         {...params}
+                                        autoComplete='off'
                                         placeholder='Price*'
                                         error={value === null}
                                       />

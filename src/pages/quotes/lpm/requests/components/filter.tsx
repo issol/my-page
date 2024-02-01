@@ -193,7 +193,7 @@ export default function Filter({
                           }}
                           id='status'
                           renderInput={params => (
-                            <TextField {...params} label='Status' />
+                            <TextField {...params} autoComplete='off' label='Status' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -227,6 +227,7 @@ export default function Filter({
                             renderInput={params => (
                               <TextField
                                 {...params}
+                                autoComplete='off'
                                 label='LSP'
                                 // placeholder='Lsp'
                               />
@@ -265,7 +266,7 @@ export default function Filter({
                               }`
                             }
                             renderInput={params => (
-                              <TextField {...params} label='Client' />
+                              <TextField {...params} autoComplete='off' label='Client' />
                             )}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>
@@ -317,7 +318,7 @@ export default function Filter({
                           id='category'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Category' />
+                            <TextField {...params} autoComplete='off' label='Category' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -370,7 +371,7 @@ export default function Filter({
                           limitTags={1}
                           getOptionLabel={option => option.label || ''}
                           renderInput={params => (
-                            <TextField {...params} label='Service type' />
+                            <TextField {...params} autoComplete='off' label='Service type' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>

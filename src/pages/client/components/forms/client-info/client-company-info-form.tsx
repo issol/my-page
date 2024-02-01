@@ -100,6 +100,7 @@ export default function ClientCompanyInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.name)}
               label='Company name*'
               value={value}
@@ -117,6 +118,7 @@ export default function ClientCompanyInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.email)}
               label='Company email*'
               value={value}
@@ -147,6 +149,7 @@ export default function ClientCompanyInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone*'
                   error={Boolean(errors.timezone)}
                   inputProps={{

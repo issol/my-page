@@ -377,6 +377,7 @@ const JobDetails = () => {
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     size='small'
                     placeholder={
                       serviceType.length ? undefined : 'Service type'

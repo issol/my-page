@@ -116,7 +116,7 @@ const Filters = ({
                       id='contactPerson'
                       getOptionLabel={option => option.name}
                       renderInput={params => (
-                        <TextField {...params} label={'Contact person'} />
+                        <TextField {...params} autoComplete='off' label={'Contact person'} />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -150,7 +150,7 @@ const Filters = ({
                       id='client'
                       getOptionLabel={option => option.name}
                       renderInput={params => (
-                        <TextField {...params} label={'Client'} />
+                        <TextField {...params} autoComplete='off' label={'Client'} />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -183,7 +183,7 @@ const Filters = ({
                       id='status'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
-                        <TextField {...params} label={'Status'} />
+                        <TextField {...params} autoComplete='off' label={'Status'} />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>

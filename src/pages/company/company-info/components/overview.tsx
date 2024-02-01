@@ -276,6 +276,7 @@ const CompanyInfoOverview = ({
               render={({ field: { value, onChange } }) => (
                 <TextField
                   fullWidth
+                  autoComplete='off'
                   label='Company name*'
                   value={value || ''}
                   onChange={onChange}
@@ -316,6 +317,7 @@ const CompanyInfoOverview = ({
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
+                            autoComplete='off'
                             value={value || ''}
                             onChange={onChange}
                             label='First name'
@@ -331,6 +333,7 @@ const CompanyInfoOverview = ({
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
+                            autoComplete='off'
                             value={value || ''}
                             onChange={onChange}
                             label='Middle name'
@@ -345,6 +348,7 @@ const CompanyInfoOverview = ({
                         render={({ field: { value, onChange } }) => (
                           <TextField
                             fullWidth
+                            autoComplete='off'
                             value={value || ''}
                             onChange={onChange}
                             label='Last name'
@@ -389,6 +393,7 @@ const CompanyInfoOverview = ({
                         renderInput={params => (
                           <TextField
                             {...params}
+                            autoComplete='off'
                             label='Headquarter'
                             inputProps={{
                               ...params.inputProps,
@@ -422,6 +427,7 @@ const CompanyInfoOverview = ({
                         renderInput={params => (
                           <TextField
                             {...params}
+                            autoComplete='off'
                             label='Timezone*'
                             // error={Boolean(errors.dueTimezone)}
                           />
@@ -440,6 +446,7 @@ const CompanyInfoOverview = ({
                     render={({ field: { value, onChange } }) => (
                       <TextField
                         fullWidth
+                        autoComplete='off'
                         value={value || ''}
                         onChange={onChange}
                         label='Company registration number'
@@ -454,6 +461,7 @@ const CompanyInfoOverview = ({
                     render={({ field: { value, onChange } }) => (
                       <TextField
                         fullWidth
+                        autoComplete='off'
                         value={value || ''}
                         onChange={onChange}
                         label='Company e-mail'

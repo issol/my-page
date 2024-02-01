@@ -472,6 +472,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                   </Typography>
                   <TextField
                     fullWidth
+                    autoComplete='off'
                     placeholder='Leave a note for LPM.'
                     multiline
                     rows={2}

@@ -101,6 +101,7 @@ const Filters = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Work name'
                         placeholder='Work name'
                       />
@@ -133,6 +134,7 @@ const Filters = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Item name'
                         placeholder='Item name'
                       />
@@ -165,6 +167,7 @@ const Filters = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Status'
                         placeholder='Status'
                       />
@@ -200,6 +203,7 @@ const Filters = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Source'
                         placeholder='Source'
                       />
@@ -235,6 +239,7 @@ const Filters = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Target'
                         placeholder='Target'
                       />
@@ -267,6 +272,7 @@ const Filters = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Clients'
                         placeholder='Clients'
                       />

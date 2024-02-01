@@ -127,6 +127,7 @@ export default function AddContactPersonForm<
             render={({ field: { value, onChange } }) => (
               <TextField
                 fullWidth
+                autoComplete='off'
                 error={Boolean(errors?.contactPersons?.[idx]?.[key])}
                 label={label}
                 value={value ?? ''}
@@ -247,6 +248,7 @@ export default function AddContactPersonForm<
                       renderInput={params => (
                         <TextField
                           {...params}
+                          autoComplete='off'
                           label='Time zone*'
                           error={Boolean(
                             errors.contactPersons?.[fieldIndex]?.timezone,
@@ -297,6 +299,7 @@ export default function AddContactPersonForm<
                     <>
                       <TextField
                         rows={4}
+                        autoComplete='off'
                         multiline
                         fullWidth
                         placeholder='Write down some information to keep in mind about this contact person.'

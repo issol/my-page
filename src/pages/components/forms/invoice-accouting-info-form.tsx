@@ -176,6 +176,7 @@ export default function InvoiceAccountingInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone*'
                   error={Boolean(errors?.paymentDueDate?.timezone)}
                   inputProps={{
@@ -236,6 +237,7 @@ export default function InvoiceAccountingInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone'
                   error={Boolean(errors?.taxInvoiceIssuanceDate?.timezone)}
                   inputProps={{
@@ -293,6 +295,7 @@ export default function InvoiceAccountingInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone'
                   error={Boolean(errors?.salesRecognitionDate?.timezone)}
                   inputProps={{
@@ -346,6 +349,7 @@ export default function InvoiceAccountingInfoForm({
             <>
               <TextField
                 rows={4}
+                autoComplete='off'
                 multiline
                 fullWidth
                 error={Boolean(errors.notes)}

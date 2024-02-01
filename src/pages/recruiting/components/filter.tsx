@@ -106,6 +106,7 @@ export default function Filters({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Client'
                         placeholder='Client'
                       />
@@ -139,6 +140,7 @@ export default function Filters({
                       renderInput={params => (
                         <TextField
                           {...params}
+                          autoComplete='off'
                           label='Job type'
                           placeholder='Job type'
                         />
@@ -170,7 +172,7 @@ export default function Filters({
                     id='role'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Role' placeholder='Role' />
+                      <TextField {...params} autoComplete='off' label='Role' placeholder='Role' />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -200,6 +202,7 @@ export default function Filters({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Source'
                         placeholder='Source'
                       />
@@ -232,6 +235,7 @@ export default function Filters({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Target'
                         placeholder='Target'
                       />

@@ -163,6 +163,7 @@ const EditJobInfo = ({
           setJobId && setJobId(data.id)
         }
         setEditJobInfo(false)
+        setFiles([])
       },
     },
   )
@@ -530,6 +531,7 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <TextField
                     fullWidth
+                    autoComplete='off'
                     value={value || ''}
                     onBlur={onBlur}
                     label='Job name*'
@@ -556,6 +558,7 @@ const EditJobInfo = ({
             <Grid item xs={6}>
               <TextField
                 disabled
+                autoComplete='off'
                 id='status'
                 label='Status*'
                 fullWidth
@@ -619,6 +622,7 @@ const EditJobInfo = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Contact person for job*'
                         error={Boolean(errors.contactPerson)}
                       />
@@ -656,6 +660,7 @@ const EditJobInfo = ({
               /> */}
               <TextField
                 disabled
+                autoComplete='off'
                 id='serviceType'
                 label='Service type*'
                 fullWidth
@@ -740,6 +745,7 @@ const EditJobInfo = ({
                           renderInput={params => (
                             <TextField
                               {...params}
+                              autoComplete='off'
                               label='Language pair*'
                               defaultValue={'hi'}
                               error={Boolean(errors.source)}
@@ -811,6 +817,7 @@ const EditJobInfo = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Timezone'
                         // error={Boolean(errors.startTimezone)}
                       />
@@ -877,6 +884,7 @@ const EditJobInfo = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Timezone*'
                         error={Boolean(errors.dueTimezone)}
                       />
@@ -934,6 +942,7 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <TextField
                     multiline
+                    autoComplete='off'
                     fullWidth
                     rows={4}
                     value={value}

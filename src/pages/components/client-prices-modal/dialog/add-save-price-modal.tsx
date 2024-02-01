@@ -288,6 +288,7 @@ const AddSavePriceModal = ({
                   render={({ field: { value, onChange, onBlur } }) => (
                     <TextField
                       value={value || ''}
+                      autoComplete='off'
                       onBlur={onBlur}
                       label='Price name*'
                       onChange={onChange}
@@ -330,6 +331,7 @@ const AddSavePriceModal = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Category*'
                         error={watch('category') === null}
                       />
@@ -372,6 +374,7 @@ const AddSavePriceModal = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Service type*'
                         disabled={
                           watch('category') === null ||
@@ -428,6 +431,7 @@ const AddSavePriceModal = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Currency*'
                         error={watch('currency') === null}
                       />
@@ -460,7 +464,7 @@ const AddSavePriceModal = ({
                     id='CAT Basis'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='CAT calculation basis' />
+                      <TextField {...params} autoComplete='off' label='CAT calculation basis' />
                     )}
                   />
                 )}
@@ -475,6 +479,7 @@ const AddSavePriceModal = ({
                   render={({ field: { value, onChange, onBlur } }) => (
                     <TextField
                       value={value || null}
+                      autoComplete='off'
                       onBlur={onBlur}
                       label={
                         watch('currency').value === 'USD' ||
@@ -547,6 +552,7 @@ const AddSavePriceModal = ({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Rounding procedure*'
                         error={watch('roundingProcedure') === null}
                       />
@@ -570,6 +576,7 @@ const AddSavePriceModal = ({
                 render={({ field: { onChange, value } }) => (
                   <TextField
                     fullWidth
+                    autoComplete='off'
                     rows={4}
                     multiline
                     value={value}

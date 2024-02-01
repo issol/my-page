@@ -271,6 +271,7 @@ export default function InvoiceProjectInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone*'
                   error={Boolean(errors?.invoiceDateTimezone)}
                   inputProps={{
@@ -317,6 +318,7 @@ export default function InvoiceProjectInfoForm({
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       error={Boolean(errors.workName)}
                       label='Work name'
                       placeholder='Work name'
@@ -336,6 +338,7 @@ export default function InvoiceProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               // disabled={true}
               label='Project name*'
               variant='outlined'
@@ -387,6 +390,7 @@ export default function InvoiceProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     error={Boolean(errors.category)}
                     label='Category'
                     placeholder='Category'
@@ -435,7 +439,7 @@ export default function InvoiceProjectInfoForm({
                     value?.includes(item.value),
                   )}
                   renderInput={params => (
-                    <TextField {...params} label='Service type' />
+                    <TextField {...params} autoComplete='off' label='Service type' />
                   )}
                 />
               )
@@ -472,6 +476,7 @@ export default function InvoiceProjectInfoForm({
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       label='Area of expertise'
                       sx={{ color: 'red' }}
                     />
@@ -520,6 +525,7 @@ export default function InvoiceProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     error={Boolean(errors.revenueFrom)}
                     label='Revenue from*'
                     placeholder='Revenue from*'
@@ -559,6 +565,7 @@ export default function InvoiceProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     error={Boolean(errors.isTaxable)}
                     label='Tax type*'
                   />
@@ -657,6 +664,7 @@ export default function InvoiceProjectInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone*'
                   error={Boolean(errors?.paymentDueDate?.timezone)}
                   inputProps={{
@@ -743,6 +751,7 @@ export default function InvoiceProjectInfoForm({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Time zone'
                         error={Boolean(errors?.invoiceConfirmDate?.timezone)}
                         inputProps={{
@@ -818,6 +827,7 @@ export default function InvoiceProjectInfoForm({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Time zone'
                         error={Boolean(errors?.taxInvoiceDueDate?.timezone)}
                         inputProps={{
@@ -868,6 +878,7 @@ export default function InvoiceProjectInfoForm({
             <>
               <TextField
                 rows={4}
+                autoComplete='off'
                 multiline
                 fullWidth
                 error={Boolean(errors.invoiceDescription)}

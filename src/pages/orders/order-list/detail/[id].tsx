@@ -2057,6 +2057,7 @@ const OrderDetail = () => {
                               render={({ field: { value, onChange } }) => (
                                 <TextField
                                   size='small'
+                                  autoComplete='off'
                                   type='number'
                                   value={value ? value : ''}
                                   disabled={!getProjectInfo('isTaxable')}

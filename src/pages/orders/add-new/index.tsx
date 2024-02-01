@@ -1562,6 +1562,7 @@ export default function AddNewOrder() {
                     render={({ field: { value, onChange } }) => (
                       <TextField
                         size='small'
+                        autoComplete='off'
                         type='number'
                         onFocus={e =>
                           e.target.addEventListener(

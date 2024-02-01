@@ -324,6 +324,7 @@ const Row = ({
                 <Box display='flex' alignItems='center' gap='8px'>
                   <TextField
                     placeholder='0'
+                    autoComplete='off'
                     type='number'
                     onFocus={e =>
                       e.target.addEventListener(
@@ -528,6 +529,7 @@ const Row = ({
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       // label='Price unit*'
                       placeholder={open ? '' : 'Price unit*'}
                     />
@@ -570,6 +572,7 @@ const Row = ({
                 <Box>
                   <TextField
                     placeholder='0.00'
+                    autoComplete='off'
                     inputProps={{ inputMode: 'decimal' }}
                     type='number'
                     onFocus={e =>
@@ -669,6 +672,7 @@ const Row = ({
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       label='Currency*'
                       error={value === null}
                     />

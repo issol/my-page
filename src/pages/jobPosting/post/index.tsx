@@ -352,6 +352,7 @@ export default function JobPostingPost() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.status)}
                                   label='Status*'
                                 />
@@ -390,6 +391,7 @@ export default function JobPostingPost() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.jobType)}
                                   label='Job type*'
                                 />
@@ -427,6 +429,7 @@ export default function JobPostingPost() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.role)}
                                   label='Role*'
                                 />
@@ -464,6 +467,7 @@ export default function JobPostingPost() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.sourceLanguage)}
                                   label='Source*'
                                 />
@@ -502,6 +506,7 @@ export default function JobPostingPost() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.targetLanguage)}
                                   label='Target*'
                                 />
@@ -534,6 +539,7 @@ export default function JobPostingPost() {
                           render={({ field: { value, onChange, onBlur } }) => (
                             <TextField
                               fullWidth
+                              autoComplete='off'
                               onChange={e => {
                                 const value = Number(e.target.value)
                                 if (value <= 15) onChange(value)
@@ -577,6 +583,7 @@ export default function JobPostingPost() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   error={Boolean(errors.yearsOfExperience)}
                                   label='Years of experience'
                                 />
@@ -634,6 +641,7 @@ export default function JobPostingPost() {
                               renderInput={params => (
                                 <TextField
                                   {...params}
+                                  autoComplete='off'
                                   label='Due date timezone'
                                   // error={Boolean(errors.dueDateTimezone)}
                                   inputProps={{

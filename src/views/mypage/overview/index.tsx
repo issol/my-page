@@ -970,6 +970,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
           </Typography>
           <TextField
             sx={{ width: '470px' }}
+            autoComplete='off'
             rows={4}
             multiline
             fullWidth
@@ -1127,6 +1128,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       label='Specialties'
                       placeholder='Specialties'
                     />

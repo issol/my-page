@@ -156,6 +156,7 @@ const SelectReasonModal = ({
           </Typography>
           <TextField
             fullWidth
+            autoComplete='off'
             rows={4}
             multiline
             value={messageToLsp}

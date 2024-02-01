@@ -177,6 +177,7 @@ const SelectRequestRedeliveryReasonModal = ({
           </Typography>
           <TextField
             fullWidth
+            autoComplete='off'
             rows={4}
             multiline
             value={messageToLsp}

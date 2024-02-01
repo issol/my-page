@@ -156,7 +156,7 @@ export default function ClientProjectsFilter({
                           id='projectType'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Project type' />
+                            <TextField {...params} autoComplete='off' label='Project type' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -206,7 +206,7 @@ export default function ClientProjectsFilter({
                           id='category'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Category' />
+                            <TextField {...params} autoComplete='off' label='Category' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -258,7 +258,7 @@ export default function ClientProjectsFilter({
                           limitTags={1}
                           getOptionLabel={option => option.label || ''}
                           renderInput={params => (
-                            <TextField {...params} label='Service type' />
+                            <TextField {...params} autoComplete='off' label='Service type' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>

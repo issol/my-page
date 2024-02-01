@@ -46,6 +46,7 @@ export default function MuiPhone({
       sx={{
         width: '100%',
       }}
+      autoComplete='off'
       variant='outlined'
       label='Phone number'
       color='primary'

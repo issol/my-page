@@ -155,6 +155,7 @@ const ConfirmInvoiceModal = ({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     label='Time zone'
                     inputProps={{
                       ...params.inputProps,

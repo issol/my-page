@@ -78,6 +78,7 @@ export default function CreateContactPersonForm<
             render={({ field: { value, onChange } }) => (
               <TextField
                 fullWidth
+                autoComplete='off'
                 error={Boolean(errors?.[key])}
                 label={label}
                 value={value ?? ''}
@@ -157,6 +158,7 @@ export default function CreateContactPersonForm<
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone*'
                   error={Boolean(errors.timezone)}
                   inputProps={{
