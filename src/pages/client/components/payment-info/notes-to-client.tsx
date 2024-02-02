@@ -32,6 +32,7 @@ import {
   deleteNotesToClientFiles,
   updateNotesToClient,
 } from '@src/apis/client.api'
+import { ClientUserType, UserDataType } from '@src/context/types'
 
 type Props = {
   notesToClient: {
@@ -40,8 +41,15 @@ type Props = {
     file: FileType[]
   }
   clientId: number
+  user: {
+    user: UserDataType | null;
+    company: ClientUserType | null | undefined;
+    loading: boolean;
+  }
+  clientAuthorId: number
+  isEnrolledClient: boolean
 }
-const NotesToClient = ({ notesToClient, clientId }: Props) => {
+const NotesToClient = ({ notesToClient, clientId, user, clientAuthorId, isEnrolledClient }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.NOTES_TO_CLIENT
   const queryClient = useQueryClient()
 
@@ -204,6 +212,21 @@ const NotesToClient = ({ notesToClient, clientId }: Props) => {
     )
   }
 
+  const canEdit = () => {
+    if (user) {
+      const isMaster = user.user?.roles?.some(
+        role => ['Manager','Master'].includes(role.type) 
+        && ['LPM','TAD','ACCOUNTING'].includes(role.name)
+      )
+
+      if (isMaster) return true
+      else {
+        if (isEnrolledClient) return false
+        else if (clientAuthorId === user.user?.userId) return true
+      }
+    }
+  }
+
   function downloadOneFile(file: FileType) {
     fetchFile(file)
   }
@@ -303,9 +326,16 @@ const NotesToClient = ({ notesToClient, clientId }: Props) => {
               Download all
             </Button>
           </Box>
-          <IconButton onClick={onClickEditNotesToClient}>
-            <Icon icon='mdi:pencil-outline' />
-          </IconButton>
+          {
+            canEdit()
+              ? (
+                <IconButton onClick={onClickEditNotesToClient}>
+                  <Icon icon='mdi:pencil-outline' />
+                </IconButton>
+              )
+              : null
+          }
+
         </Box>
 
         <Typography variant='body2'>
