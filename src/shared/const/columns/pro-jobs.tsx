@@ -45,10 +45,10 @@ export const getProJobColumns = (
 
     const isPast = diff < 0
 
-    const days = Math.abs(Math.floor(diff / 86400))
-    const hours = Math.abs(Math.floor((diff % 86400) / 3600))
-    const minutes = Math.abs(Math.floor((diff % 3600) / 60))
-    const seconds = Math.abs(diff % 60)
+    const days = Math.floor(Math.abs(diff) / 86400)
+    const hours = Math.floor((Math.abs(diff) % 86400) / 3600)
+    const minutes = Math.floor((Math.abs(diff) % 3600) / 60)
+    const seconds = diff % 60
 
     if (isPast) {
       return (
