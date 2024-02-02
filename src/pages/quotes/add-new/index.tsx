@@ -113,7 +113,7 @@ export const defaultOption: StandardPriceListType & {
   roundingProcedure: '',
   languagePairs: [],
   priceUnit: [],
-  catInterface: { memSource: [], memoQ: [] },
+  catInterface: { phrase: [], memoQ: [] },
 }
 
 export default function AddNewQuote() {

@@ -514,7 +514,7 @@ const OrderDetail = () => {
           RoundingProcedureList[item.initialPrice?.rounding!]?.label,
         languagePairs: [],
         priceUnit: [],
-        catInterface: { memSource: [], memoQ: [] },
+        catInterface: { phrase: [], memoQ: [] },
       },
     }))!
 
@@ -899,7 +899,7 @@ const OrderDetail = () => {
             RoundingProcedureList[item.initialPrice?.rounding!]?.label,
           languagePairs: [],
           priceUnit: [],
-          catInterface: { memSource: [], memoQ: [] },
+          catInterface: { phrase: [], memoQ: [] },
         },
       }))
       const result = langItem?.items?.map(item => {

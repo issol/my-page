@@ -18,7 +18,8 @@ export type StandardPriceListType = {
   languagePairs: Array<LanguagePairListType>
   priceUnit: Array<PriceUnitListType>
   catInterface?: {
-    memSource: Array<CatInterfaceType>
+    phrase: Array<CatInterfaceType>
+    memSource?: Array<CatInterfaceType>
     memoQ: Array<CatInterfaceType>
   }
 }

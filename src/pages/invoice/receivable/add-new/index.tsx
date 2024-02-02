@@ -121,7 +121,7 @@ export const defaultOption: StandardPriceListType & {
   roundingProcedure: '',
   languagePairs: [],
   priceUnit: [],
-  catInterface: { memSource: [], memoQ: [] },
+  catInterface: { phrase: [], memoQ: [] },
 }
 
 export default function AddNewInvoice() {
@@ -565,7 +565,7 @@ export default function AddNewInvoice() {
                 RoundingProcedureList[item.initialPrice?.rounding!]?.label,
               languagePairs: [],
               priceUnit: [],
-              catInterface: { memSource: [], memoQ: [] },
+              catInterface: { phrase: [], memoQ: [] },
             },
           }))
           itemReset({ items: items, languagePairs: itemLangPairs })
@@ -745,7 +745,7 @@ export default function AddNewInvoice() {
                     RoundingProcedureList[item.initialPrice?.rounding!]?.label,
                   languagePairs: [],
                   priceUnit: [],
-                  catInterface: { memSource: [], memoQ: [] },
+                  catInterface: { phrase: [], memoQ: [] },
                 },
               }
             })

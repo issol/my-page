@@ -41,7 +41,7 @@ const CatInterface = ({
   existPriceUnit,
   setSelectedPrice,
 }: Props) => {
-  const [alignment, setAlignment] = useState<string>('Memsource')
+  const [alignment, setAlignment] = useState<string>('Phrase')
   const [editing, setEditing] = useState(false)
 
   const { data: catInterface, isLoading } = useGetCatInterfaceHeaders(
@@ -49,13 +49,13 @@ const CatInterface = ({
   )
 
   const [originalHeaders, setOriginalHeaders] = useState<{
-    Memsource: PriceUnitListWithHeaders[]
+    Phrase: PriceUnitListWithHeaders[]
     memoQ: PriceUnitListWithHeaders[]
-  }>({ Memsource: [], memoQ: [] })
+  }>({ Phrase: [], memoQ: [] })
   const [priceUnitListWithHeaders, setPriceUnitListWithHeaders] = useState<{
-    Memsource: PriceUnitListWithHeaders[]
+    Phrase: PriceUnitListWithHeaders[]
     memoQ: PriceUnitListWithHeaders[]
-  }>({ Memsource: [], memoQ: [] })
+  }>({ Phrase: [], memoQ: [] })
 
   const [editingItemId, setEditingItemId] = useState<number | null>(null)
 
@@ -68,9 +68,9 @@ const CatInterface = ({
 
   const handleItemChange = (id: number, field: string, value: string) => {
     if (id === editingItemId) {
-      if (alignment === 'Memsource') {
+      if (alignment === 'Phrase') {
         setPriceUnitListWithHeaders(prevState => {
-          const res = prevState.Memsource.map(obj => {
+          const res = prevState.Phrase.map(obj => {
             if (obj.id === id) {
               return {
                 ...obj,
@@ -80,7 +80,7 @@ const CatInterface = ({
               return obj
             }
           })
-          return { ...prevState, Memsource: res }
+          return { ...prevState, Phrase: res }
         })
       } else if (alignment === 'memoQ') {
         setPriceUnitListWithHeaders(prevState => {
@@ -113,8 +113,8 @@ const CatInterface = ({
   }
 
   const onClickSaveEditCatInterface = () => {
-    const memSource: CatInterfaceParams[] =
-      priceUnitListWithHeaders.Memsource.map(value => ({
+    const phrase: CatInterfaceParams[] =
+      priceUnitListWithHeaders.Phrase.map(value => ({
         priceUnitPairId: value.priceUnitPairId,
         priceUnitTitle: value.title,
         priceUnitPrice: value.price!,
@@ -142,7 +142,7 @@ const CatInterface = ({
       }),
     )
     const data = {
-      memSource: memSource,
+      phrase: phrase,
       memoQ: memoQ,
     }
 
@@ -155,9 +155,9 @@ const CatInterface = ({
     data: { id: number; title: string; selected: boolean },
     value: PriceUnitListWithHeaders,
   ) => {
-    if (alignment === 'Memsource') {
+    if (alignment === 'Phrase') {
       setPriceUnitListWithHeaders(prevState => {
-        const res = prevState.Memsource.map(obj => {
+        const res = prevState.Phrase.map(obj => {
           if (obj.id === value.id) {
             const tmp = obj.chips.map(obj2 => {
               if (obj2.id === data.id) {
@@ -178,7 +178,7 @@ const CatInterface = ({
         })
 
         if (res) {
-          return { ...prevState, Memsource: res }
+          return { ...prevState, Phrase: res }
         } else {
           return prevState
         }
@@ -215,7 +215,7 @@ const CatInterface = ({
   }
 
   useEffect(() => {
-    let memSource: PriceUnitListWithHeaders[] = []
+    let phrase: PriceUnitListWithHeaders[] = []
     let memoQ: PriceUnitListWithHeaders[] = []
 
     if (!isLoading && catInterface && priceUnitList.length > 0 && priceData) {
@@ -238,9 +238,9 @@ const CatInterface = ({
         chips: formattedHeader,
       }))
 
-      memSource = priceData.catInterface!.memSource.length
+      phrase = priceData.catInterface!.phrase.length
         ? [
-            ...priceData.catInterface!.memSource.map(value => ({
+            ...priceData.catInterface!.phrase.map(value => ({
               id: value.id,
               priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
@@ -258,7 +258,7 @@ const CatInterface = ({
             ...withHeaders.filter(
               value =>
                 !priceData
-                  .catInterface!.memSource.map(data => data.priceUnitTitle)
+                  .catInterface!.phrase.map(data => data.priceUnitTitle)
                   .includes(value.title),
             ),
           ]
@@ -284,7 +284,7 @@ const CatInterface = ({
             ...withHeaders.filter(
               value =>
                 !priceData
-                  .catInterface!.memSource.map(data => data.priceUnitTitle)
+                  .catInterface!.phrase.map(data => data.priceUnitTitle)
                   .includes(value.title),
             ),
           ]
@@ -297,7 +297,7 @@ const CatInterface = ({
         tmpSelected: false,
       }))
 
-      memoQ = memSource = [
+      memoQ = phrase = [
         {
           id: 0,
           priceUnitPairId: 0,
@@ -311,8 +311,8 @@ const CatInterface = ({
       ]
     }
 
-    setPriceUnitListWithHeaders({ Memsource: memSource, memoQ })
-    setOriginalHeaders({ Memsource: memSource, memoQ })
+    setPriceUnitListWithHeaders({ Phrase: phrase, memoQ })
+    setOriginalHeaders({ Phrase: phrase, memoQ })
   }, [catInterface, isLoading, priceUnitList, priceData])
 
   return (
@@ -338,10 +338,10 @@ const CatInterface = ({
               }}
             >
               <ToggleButton
-                value='Memsource'
+                value='Phrase'
                 sx={{ color: '#666CFF', textTransform: 'none !important' }}
               >
-                Memsource
+                Phrase
               </ToggleButton>
               <ToggleButton
                 value='memoQ'
@@ -392,8 +392,8 @@ const CatInterface = ({
         ) : null}
       </Box>
       <Box sx={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
-        {alignment === 'Memsource'
-          ? priceUnitListWithHeaders.Memsource.map(obj => {
+        {alignment === 'Phrase'
+          ? priceUnitListWithHeaders.Phrase.map(obj => {
               return (
                 <Box
                   key={uuidv4()}

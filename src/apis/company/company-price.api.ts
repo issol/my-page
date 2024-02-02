@@ -18,10 +18,22 @@ export const getClientPriceList = async (
   filter: ClientPriceListFilterType,
 ): Promise<StandardPriceListType[]> => {
   try {
-    const { data } = await axios.get(
+    const response = await axios.get(
       `/api/enough/u/client-price/preset?${makeQuery(filter)}`,
     )
-    return data
+    const responseData = response.data;
+
+    if (Array.isArray(responseData)) {
+      responseData.forEach((item: StandardPriceListType) => {
+        if (item.catInterface && 'memSource' in item.catInterface) {
+          item.catInterface.phrase = item.catInterface.memSource!;
+          delete item.catInterface.memSource;
+        }
+      });
+    }
+
+    return responseData;
+    
   } catch (e: any) {
     return []
   }
@@ -48,19 +60,31 @@ export const getStandardPrice = async (
   count: number
 }> => {
   try {
-    const { data } = await axios.get(
-      `/api/enough/u/${page}-price/al?${makeQuery(filter)}`,
-    )
-    // /api/enough/u/price/al
-    return data
+    const response = await axios.get(`/api/enough/u/${page}-price/al?${makeQuery(filter)}`);
+
+    const responseData = response.data;
+
+    if (Array.isArray(responseData.data)) {
+      responseData.data.forEach((item: StandardPriceListType) => {
+        if (item.catInterface && 'memSource' in item.catInterface) {
+          item.catInterface.phrase = item.catInterface.memSource!;
+          delete item.catInterface.memSource;
+        }
+      });
+    }
+
+    return responseData;
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
 export const getCatInterfaceHeaders = async (toolName: string) => {
+  const filteredToolName = toolName === 'Phrase'
+    ? 'Memsource'
+    : toolName
   const { data } = await axios.get(
-    `/api/enough/u/cat-tool/interface?toolName=${toolName}`,
+    `/api/enough/u/cat-tool/interface?toolName=${filteredToolName}`,
   )
 
   return data
@@ -138,7 +162,7 @@ export const deleteLanguagePair = async (
 export const createCatInterface = async (
   id: number,
   data: {
-    memSource: Array<CatInterfaceParams>
+    phrase: Array<CatInterfaceParams>
     memoQ: Array<CatInterfaceParams>
   },
 ) => {
@@ -146,7 +170,7 @@ export const createCatInterface = async (
     priceId: id,
     data: [
       {
-        memSource: data.memSource,
+        memSource: data.phrase,
         memoQ: data.memoQ,
       },
     ],
@@ -156,7 +180,7 @@ export const createCatInterface = async (
 export const patchCatInterface = async (
   id: number,
   data: {
-    memSource: Array<CatInterfaceParams>
+    phrase: Array<CatInterfaceParams>
     memoQ: Array<CatInterfaceParams>
   },
 ) => {
@@ -164,7 +188,7 @@ export const patchCatInterface = async (
     priceId: id,
     data: [
       {
-        memSource: data.memSource,
+        memSource: data.phrase,
         memoQ: data.memoQ,
       },
     ],

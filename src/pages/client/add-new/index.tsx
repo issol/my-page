@@ -321,7 +321,7 @@ const AddNewClient = () => {
           roundingProcedure: data?.roundingProcedure.value.toString()!,
           languagePairs: selectedData?.languagePairs || [],
           priceUnit: selectedData?.priceUnit || [],
-          catInterface: { memSource: [], memoQ: [] },
+          catInterface: { phrase: [], memoQ: [] },
         }
 
         setPriceList([...priceList, formData])
