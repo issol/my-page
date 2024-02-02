@@ -1,4 +1,4 @@
-import React, { Suspense, useMemo } from 'react'
+import React, { Dispatch, Suspense, useEffect, useMemo } from 'react'
 import { CustomChart, List } from '@src/views/dashboard/chart/doughnut'
 import { ApexOptions } from 'apexcharts'
 import { renderToString } from 'react-dom/server'
@@ -6,19 +6,66 @@ import { StatusSquare } from '@src/views/dashboard/dashboardItem'
 import { FourthColors } from '@src/shared/const/dashboard/chart'
 import Box from '@mui/material/Box'
 import { toCapitalize } from '@src/pages/dashboards/lpm'
-import NoRatio from '@src/views/dashboard/noRatio'
+import {
+  AccountRatio,
+  DEFAULT_QUERY_NAME,
+  useAccountRatio,
+} from '@src/queries/dashnaord.query'
+import { Office } from '@src/types/dashboard'
+import sortBy from 'lodash/sortBy'
+import { TryAgain } from '@src/views/dashboard/suspense'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { ErrorBoundary } from 'react-error-boundary'
+
+const ClientData = [
+  { count: 0, name: 'Direct deposit', type: '', ratio: 0 },
+  { count: 0, name: 'PayPal', type: '', ratio: 0 },
+  { count: 0, name: 'Check', type: '', ratio: 0 },
+  { count: 0, name: 'Wise', type: '', ratio: 0 },
+]
+
+const ProData = [
+  { count: 0, name: 'Korea domestic transfer', type: '', ratio: 0 },
+  { count: 0, name: 'US ACH (US residents only)', type: '', ratio: 0 },
+  { count: 0, name: 'PayPal', type: '', ratio: 0 },
+  { count: 0, name: 'Transferwise (Wise)', type: '', ratio: 0 },
+  { count: 0, name: 'International wire', type: '', ratio: 0 },
+]
 
 interface AccountDoughnutProps {
-  data: Array<{
-    count: number
-    name: string
-    ratio: number
-  }>
-  totalCount: number
+  userType: 'client' | 'pro'
+  office?: Office
+  setItemData: Dispatch<Array<AccountRatio>>
 }
 
-const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
-  const isNoRatio = data.every(item => item.ratio === 0)
+const Doughnut = ({ userType, office, setItemData }: AccountDoughnutProps) => {
+  const { data } = useAccountRatio({ userType, office })
+
+  useEffect(() => {
+    setItemData(data?.report || [])
+  }, [data])
+
+  const ratioData = useMemo(() => {
+    if (!data || data?.totalCount === 0) {
+      if (userType === 'client') return ClientData
+      return ProData
+    }
+
+    const keyName = userType === 'client' ? 'paymentMethod' : 'type'
+
+    return sortBy(
+      data?.report.map(item => ({
+        ...item,
+        name: item?.[keyName] || '',
+      })),
+      ['count', 'name'],
+    ).reverse()
+  }, [data])
+
+  const isNoRatio = useMemo(
+    () => ratioData.every(item => item.ratio === 0) || false,
+    [ratioData],
+  )
 
   const options: ApexOptions = useMemo(() => {
     return {
@@ -40,13 +87,13 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
               <div className='tooltip_container'>
                 <div className='flex-center'>
                   <span className='tooltip_text_bold'>
-                    {data[seriesIndex]?.name || '-'}
+                    {ratioData[seriesIndex]?.name || '-'}
                   </span>
-                  <span className='tooltip__count'>{`(${data[seriesIndex]?.count})`}</span>
+                  <span className='tooltip__count'>{`(${ratioData[seriesIndex]?.count})`}</span>
                 </div>
                 <div className='flex-center' style={{ marginTop: '10px' }}>
                   <span className='tooltip__sum'></span>
-                  <span className='tooltip__ratio'>{`${data[seriesIndex]?.ratio}%`}</span>
+                  <span className='tooltip__ratio'>{`${ratioData[seriesIndex]?.ratio}%`}</span>
                 </div>
               </div>{' '}
             </div>,
@@ -91,14 +138,14 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
                 fontSize: '32px',
                 color: '#4C4E6499',
                 formatter: val =>
-                  `(${Number(totalCount || 0).toLocaleString()})`,
+                  `(${Number(data?.totalCount || 0).toLocaleString()})`,
               },
             },
           },
         },
       },
     }
-  }, [data, totalCount, isNoRatio])
+  }, [ratioData, isNoRatio])
 
   return (
     <Box
@@ -106,21 +153,19 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
       alignItems='center'
       sx={{ width: '100%', height: '70%' }}
     >
-      {data.length === 0 && <NoRatio title='' />}
-      <Suspense fallback={<div>로딩 중</div>}>
-        <Box>
-          <CustomChart
-            type='donut'
-            options={options}
-            width={220}
-            heigt={350}
-            series={isNoRatio ? [100] : data.map(item => item.ratio)}
-          />
-        </Box>
-      </Suspense>
+      <Box>
+        <CustomChart
+          type='donut'
+          options={options}
+          width={220}
+          heigt={352}
+          series={isNoRatio ? [100] : ratioData?.map(item => item.ratio)}
+        />
+      </Box>
+
       <Box sx={{ width: '100%', marginRight: '20px' }}>
         <List>
-          {data.map((item, index) => (
+          {ratioData?.map((item, index) => (
             <li key={`{item.name}-${index}`}>
               <Box display='flex' alignItems='center'>
                 <StatusSquare color={FourthColors[index]} />
@@ -140,6 +185,26 @@ const AccountDoughnut = ({ data, totalCount }: AccountDoughnutProps) => {
         </List>
       </Box>
     </Box>
+  )
+}
+
+const AccountDoughnut = (props: AccountDoughnutProps) => {
+  return (
+    <Suspense fallback={<FallbackSpinner />}>
+      <ErrorBoundary
+        fallback={
+          <TryAgain
+            refreshDataQueryKey={[
+              DEFAULT_QUERY_NAME,
+              'AccountRatio',
+              props.userType,
+            ]}
+          />
+        }
+      >
+        <Doughnut {...props} />
+      </ErrorBoundary>
+    </Suspense>
   )
 }
 

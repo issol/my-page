@@ -548,14 +548,16 @@ export const useAccountCount = (path: string, params: DashboardQuery) => {
   )
 }
 
+export type AccountRatio = {
+  count: number
+  paymentMethod?: string
+  type?: string
+  ratio: number
+}
+
 export interface AccountRatioResult {
   totalCount: number
-  report: Array<{
-    count: number
-    paymentMethod?: string
-    type?: string
-    ratio: number
-  }>
+  report: Array<AccountRatio>
 }
 
 export const useAccountRatio = ({ office, userType }: PaymentType) => {

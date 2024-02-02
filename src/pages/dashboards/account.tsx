@@ -3,7 +3,7 @@ import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
 import { Box } from '@mui/material'
 import dayjs from 'dayjs'
 import { FormProvider, useWatch } from 'react-hook-form'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ApexChartWrapper from '@src/@core/styles/libs/react-apexcharts'
 import weekday from 'dayjs/plugin/weekday'
 import { CSVDataType, Office } from '@src/types/dashboard'
@@ -15,30 +15,14 @@ import ChartDate from '@src/views/dashboard/header/chartDate'
 import UseDashboardControl from '@src/hooks/useDashboardControl'
 import Information from '@src/views/dashboard/dialog/information'
 import { CSVDownload } from '@src/views/dashboard/csvDownload'
-import { useAccountCount, useAccountRatio } from '@src/queries/dashnaord.query'
 import Notice from '@src/views/dashboard/notice'
 import AccountTable from '@src/views/dashboard/accountTable'
 import AccountDoughnut from '@src/views/dashboard/chart/accountDoughnut'
 import OptionsMenu from '@src/@core/components/option-menu'
-import sortBy from 'lodash/sortBy'
+import { AccountItem, AccountRatio } from '@src/queries/dashnaord.query'
 import { mergeData } from '@src/pages/dashboards/tad'
 
 dayjs.extend(weekday)
-
-const ClientData = [
-  { count: 0, name: 'Direct deposit', type: '', ratio: 0 },
-  { count: 0, name: 'PayPal', type: '', ratio: 0 },
-  { count: 0, name: 'Check', type: '', ratio: 0 },
-  { count: 0, name: 'Wise', type: '', ratio: 0 },
-]
-
-const ProData = [
-  { count: 0, name: 'Korea domestic transfer', type: '', ratio: 0 },
-  { count: 0, name: 'US ACH (US residents only)', type: '', ratio: 0 },
-  { count: 0, name: 'PayPal', type: '', ratio: 0 },
-  { count: 0, name: 'Transferwise (Wise)', type: '', ratio: 0 },
-  { count: 0, name: 'International wire', type: '', ratio: 0 },
-]
 
 // NOTE : 데이터가 많아지는 경우 Suspense 단위로 분리
 const AccountDashboards = () => {
@@ -57,42 +41,29 @@ const AccountDashboards = () => {
   const [office, setOffice] = useState<Office>('Japan')
   const [CSVData, setCSVData] = useState<CSVDataType>([])
 
-  const { data: Sales } = useAccountCount('sales-recognition', {
-    from: getDateFormat((Array.isArray(dateRange) && dateRange[0]) || null),
-    to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
-  })
-
-  const { data: Receivable } = useAccountCount(
-    'invoice/receivable/paid/count',
-    {
-      from: getDateFormat((Array.isArray(dateRange) && dateRange[0]) || null),
-      to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
-    },
-  )
-  const { data: Payable } = useAccountCount('invoice/payable/paid/count', {
-    from: getDateFormat((Array.isArray(dateRange) && dateRange[0]) || null),
-    to: getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null),
-  })
-
-  const { data: Client } = useAccountRatio({ userType: 'client', office })
-  const { data: Pro } = useAccountRatio({ userType: 'pro' })
+  //  Sales, Receivable, Payable, Client, Pro
+  const [salesData, setSalesData] = useState<Array<AccountItem>>([])
+  const [receivableData, setReceivableData] = useState<Array<AccountItem>>([])
+  const [payableData, setPayableData] = useState<Array<AccountItem>>([])
+  const [clientData, setClientData] = useState<Array<AccountRatio>>([])
+  const [proData, setProData] = useState<Array<AccountRatio>>([])
 
   useEffect(() => {
     const filterSales =
-      Sales?.report.map(item => ({
+      salesData.map(item => ({
         'Sales Currency': item?.currency || '-',
         'Sales Prices': item?.prices || '-',
         ' ': '',
       })) || []
     const filterReceivable =
-      Receivable?.report.map(item => ({
+      receivableData.map(item => ({
         'Receivable Currency': item?.currency || '-',
         'Receivable Count': item?.count || 0,
         'Receivable Prices': item?.prices || '-',
         '  ': '',
       })) || []
     const filterPayable =
-      Payable?.report.map(item => ({
+      payableData.map(item => ({
         'Payable Currency': item?.currency || '-',
         'Payable Count': item?.count || 0,
         'Payable Prices': item?.prices || '-',
@@ -100,14 +71,14 @@ const AccountDashboards = () => {
       })) || []
 
     const filterClient =
-      Client?.report.map(item => ({
+      clientData.map(item => ({
         'Client Payment Method': item?.paymentMethod || '-',
         'Client Number': item?.count || 0,
         'Client Percent': item?.ratio || 0,
         '    ': '',
       })) || []
     const filterPro =
-      Pro?.report.map(item => ({
+      proData.map(item => ({
         'Pro Payment Method': item?.type || '-',
         'Pro Number': item?.count || 0,
         'Pro Percent': item?.ratio || 0,
@@ -120,7 +91,7 @@ const AccountDashboards = () => {
     const mergeData4 = mergeData(mergeData3, filterPro)
 
     setCSVData(mergeData4)
-  }, [Sales, Receivable, Payable, Client, Pro])
+  }, [salesData, receivableData, payableData, clientData, proData])
 
   const getFileTitle = () => {
     const from = getDateFormat(
@@ -129,34 +100,6 @@ const AccountDashboards = () => {
     const to = getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)
     return `account-data-${from}-${to}`
   }
-
-  const clientData = useMemo(() => {
-    if (Client?.report.length === 0) {
-      return ClientData
-    }
-
-    return sortBy(
-      Client?.report.map(item => ({
-        ...item,
-        name: item?.paymentMethod || '',
-      })),
-      ['count', 'name'],
-    ).reverse()
-  }, [Client])
-
-  const proData = useMemo(() => {
-    if (Pro?.report.length === 0) {
-      return ProData
-    }
-
-    return sortBy(
-      Pro?.report.map(item => ({
-        ...item,
-        name: item?.type || '',
-      })),
-      ['count', 'name'],
-    ).reverse()
-  }, [Pro])
 
   return (
     <FormProvider {...props} setValue={setValue} control={control}>
@@ -196,7 +139,14 @@ const AccountDashboards = () => {
                   { label: 'Currency' },
                   { label: 'Prices', align: 'right' },
                 ]}
-                data={Sales?.report || []}
+                path='sales-recognition'
+                from={getDateFormat(
+                  (Array.isArray(dateRange) && dateRange[0]) || null,
+                )}
+                to={getDateFormat(
+                  (Array.isArray(dateRange) && dateRange[1]) || null,
+                )}
+                setItemData={setSalesData}
               />
             </Box>
           </GridItem>
@@ -215,7 +165,14 @@ const AccountDashboards = () => {
                   { label: 'Count', align: 'center' },
                   { label: 'Prices', align: 'right' },
                 ]}
-                data={Receivable?.report || []}
+                path='invoice/receivable/paid/count'
+                from={getDateFormat(
+                  (Array.isArray(dateRange) && dateRange[0]) || null,
+                )}
+                to={getDateFormat(
+                  (Array.isArray(dateRange) && dateRange[1]) || null,
+                )}
+                setItemData={setReceivableData}
               />
             </Box>
           </GridItem>
@@ -234,7 +191,14 @@ const AccountDashboards = () => {
                   { label: 'Count', align: 'center' },
                   { label: 'Prices', align: 'right' },
                 ]}
-                data={Payable?.report || []}
+                path='invoice/payable/paid/count'
+                from={getDateFormat(
+                  (Array.isArray(dateRange) && dateRange[0]) || null,
+                )}
+                to={getDateFormat(
+                  (Array.isArray(dateRange) && dateRange[1]) || null,
+                )}
+                setItemData={setPayableData}
               />
             </Box>
           </GridItem>
@@ -297,8 +261,9 @@ const AccountDashboards = () => {
                 </Box>
               </Box>
               <AccountDoughnut
-                data={clientData || []}
-                totalCount={Client?.totalCount || 0}
+                userType='client'
+                office={office}
+                setItemData={setClientData}
               />
             </Box>
           </GridItem>
@@ -316,13 +281,11 @@ const AccountDashboards = () => {
                   openDialog={setOpenInfoDialog}
                 />
               </Box>
-              <AccountDoughnut
-                data={proData || []}
-                totalCount={Pro?.totalCount || 0}
-              />
+              <AccountDoughnut userType='pro' setItemData={setProData} />
             </Box>
           </GridItem>
         </Grid>
+
         <Information
           open={isShowInfoDialog}
           keyName={infoDialogKey}

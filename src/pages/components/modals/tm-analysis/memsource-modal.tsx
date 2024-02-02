@@ -3,13 +3,10 @@ import {
   Box,
   Button,
   Card,
-  Dialog,
-  DialogContent,
   Divider,
   Grid,
   IconButton,
   Radio,
-  TablePagination,
   Typography,
 } from '@mui/material'
 import Paper from '@mui/material/Paper'
@@ -37,10 +34,10 @@ import {
 } from '@src/types/common/tm-analysis.type'
 import languageHelper from '@src/shared/helpers/language.helper'
 import {
+  formatByRoundingProcedure,
   formatCurrency,
   getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
-import { formatByRoundingProcedure } from '@src/shared/helpers/price.helper'
 import {
   DetailNewDataType,
   onCopyAnalysisParamType,
@@ -171,6 +168,7 @@ export default function PhraseModal({
     onCopyAnalysis(result)
     onClose()
   }
+
   function renderPriceUnitTitle(header: string) {
     let res = '-'
 
@@ -486,6 +484,7 @@ export const HeaderCell = styled(TableCell)`
   height: 20px;
   position: relative;
   text-transform: none;
+
   &::before {
     content: '';
     position: absolute;

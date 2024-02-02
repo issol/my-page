@@ -1,30 +1,54 @@
-import React, { useMemo } from 'react'
+import React, { Dispatch, Suspense, useEffect, useMemo } from 'react'
 import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
 import TableBody from '@mui/material/TableBody'
 import TableCell, { TableCellProps } from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableContainer from '@mui/material/TableContainer'
-import { Currency } from '@src/types/dashboard'
-import { AccountItem } from '@src/queries/dashnaord.query'
+import {
+  AccountItem,
+  DEFAULT_QUERY_NAME,
+  useAccountCount,
+} from '@src/queries/dashnaord.query'
 import Typography from '@mui/material/Typography'
-import { CurrencyUnit } from '@src/views/dashboard/dashboardItem'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { ErrorBoundary } from 'react-error-boundary'
+import { TryAgain } from '@src/views/dashboard/suspense'
 
 type Keys = 'Japan' | 'Korea' | 'Singapore' | 'US'
+
 interface AccountTableProps {
-  data: Array<AccountItem>
+  path: string
   headers: Array<{ label: string; align?: TableCellProps['align'] }>
+  from: string
+  to: string
+  setItemData: Dispatch<Array<AccountItem>>
 }
 
 const Unit = ['¥', '₩', '$', '$']
-const AccountTable = ({ data, headers }: AccountTableProps) => {
+const AccountCountTable = ({
+  path,
+  headers,
+  from,
+  to,
+  setItemData,
+}: AccountTableProps) => {
+  const { data } = useAccountCount(path, {
+    from,
+    to,
+  })
+
   const filterData = useMemo(() => {
     return {
-      Japan: data?.find(item => item.currency === 'JPY'),
-      Korea: data?.find(item => item.currency === 'KRW'),
-      Singapore: data?.find(item => item.currency === 'SGD'),
-      US: data?.find(item => item.currency === 'USD'),
+      Japan: data?.report.find(item => item.currency === 'JPY'),
+      Korea: data?.report.find(item => item.currency === 'KRW'),
+      Singapore: data?.report.find(item => item.currency === 'SGD'),
+      US: data?.report.find(item => item.currency === 'USD'),
     } as Record<Keys, AccountItem>
+  }, [data])
+
+  useEffect(() => {
+    setItemData(data?.report || [])
   }, [data])
 
   return (
@@ -119,4 +143,23 @@ const AccountTable = ({ data, headers }: AccountTableProps) => {
   )
 }
 
+const AccountTable = (props: AccountTableProps) => {
+  return (
+    <Suspense fallback={<FallbackSpinner />}>
+      <ErrorBoundary
+        fallback={
+          <TryAgain
+            refreshDataQueryKey={[
+              DEFAULT_QUERY_NAME,
+              'AccountCount',
+              props.path,
+            ]}
+          />
+        }
+      >
+        <AccountCountTable {...props} />
+      </ErrorBoundary>
+    </Suspense>
+  )
+}
 export default AccountTable
