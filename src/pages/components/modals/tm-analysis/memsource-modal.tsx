@@ -57,7 +57,7 @@ type Props = {
   onCopyAnalysis?: (data: onCopyAnalysisParamType) => void
 }
 
-export default function MemsourceModal({
+export default function PhraseModal({
   fileName,
   onClose,
   data,
@@ -75,47 +75,47 @@ export default function MemsourceModal({
 
   const catBasis = priceData?.catBasis as CatCalculationType
 
-  console.log(priceData)
-
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
 
   const catInterfaces: CatInterfaceType[] =
-    priceData?.catInterface?.memSource.map(item => ({
+    priceData?.catInterface?.phrase.map(item => ({
       ...item,
       chips: item.chips.filter(chip => chip.selected),
     })) || []
-
+  
   useEffect(() => {
-    if (!data.calculationBasis.includes(catBasis) || !catInterfaces.length) {
-      openModal({
-        isCloseable: false,
-        type: 'catBasis-not-match',
-        children: (
-          <SimpleAlertModal
-            message="The CAT interface doesn't match. Please check the price setting or the file."
-            onClose={() => {
-              closeModal('catBasis-not-match')
-              onClose()
-            }}
-          />
-        ),
-      })
-    } else if (data.toolName !== 'Memsource') {
-      openModal({
-        isCloseable: false,
-        type: 'tool-not-match',
-        children: (
-          <SimpleAlertModal
-            message='Only files with all CAT Tool matches can be analyzed.'
-            onClose={() => {
-              closeModal('tool-not-match')
-              onClose()
-            }}
-          />
-        ),
-      })
+    if (catInterfaces && data.calculationBasis && catBasis) {
+      if (!data.calculationBasis.includes(catBasis) || !catInterfaces.length) {
+        openModal({
+          isCloseable: false,
+          type: 'catBasis-not-match',
+          children: (
+            <SimpleAlertModal
+              message="The CAT interface doesn't match. Please check the price setting or the file."
+              onClose={() => {
+                closeModal('catBasis-not-match')
+                onClose()
+              }}
+            />
+          ),
+        })
+      } else if (data.toolName !== 'Memsource') {
+        openModal({
+          isCloseable: false,
+          type: 'tool-not-match',
+          children: (
+            <SimpleAlertModal
+              message='Only files with all CAT Tool matches can be analyzed.'
+              onClose={() => {
+                closeModal('tool-not-match')
+                onClose()
+              }}
+            />
+          ),
+        })
+      }
     }
-  }, [data, priceData, catInterfaces])
+  }, [])
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)

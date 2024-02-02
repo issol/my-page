@@ -31,7 +31,7 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { onCopyAnalysisParamType } from './items-form'
 import { MemSourceType, MemoQType } from '@src/types/common/tm-analysis.type'
-import MemsourceModal from '../modals/tm-analysis/memsource-modal'
+import PhraseModal from '../modals/tm-analysis/memsource-modal'
 
 // ** helpers
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
@@ -149,7 +149,7 @@ export default function TmAnalysisForm({
         openModal({
           type: 'memsource-modal',
           children: (
-            <MemsourceModal
+            <PhraseModal
               fileName={name}
               onClose={() => closeModal('memsource-modal')}
               data={fields[index].data! as MemSourceType}
