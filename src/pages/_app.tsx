@@ -92,6 +92,7 @@ import ModalContainer from '@src/@core/components/modal-container'
 import { ErrorBoundary } from 'react-error-boundary'
 import DetailNoUser from '@src/@core/components/error/detail-no-user'
 import { getUserDataFromBrowser } from '@src/shared/auth/storage'
+import BeusableScript from '@src/shared/scripts/beusable'
 
 /* msw mock server */
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
@@ -239,92 +240,99 @@ const App = (props: ExtendedAppProps) => {
   const [errorString, setErrorString] = useState('app')
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <RecoilRoot>
-        <Provider store={store}>
-          <CacheProvider value={emotionCache}>
-            <Head>
-              <title>{`${themeConfig.templateName}`}</title>
-              <meta
-                name='description'
-                content={`${themeConfig.templateName} – E'nuff`}
-              />
-              <meta name='keywords' content={`E'nuff`} />
-              <meta
-                name='viewport'
-                content='initial-scale=1, width=device-width'
-              />
-            </Head>
-            <Suspense>
-              <ErrorBoundary
-                onError={err => {
-                  console.log(err)
-                }}
-                onReset={details => {
-                  reset()
-                  setErrorString('')
-                }}
-                resetKeys={[errorString]}
-                fallbackRender={({ error, resetErrorBoundary }) => {
-                  if (
-                    !!error.response &&
-                    error.response.status === 400 &&
-                    (router.asPath.includes('/pro/detail') ||
-                      router.asPath.includes('/onboarding/detail'))
-                  ) {
-                    return <DetailNoUser />
-                  } else {
-                    return (
-                      <ErrorFallback resetErrorBoundary={resetErrorBoundary} />
-                    )
-                  }
-                }}
-              >
-                <AuthProviderDynamic>
-                  <SettingsProvider
-                    {...(setConfig ? { pageSettings: setConfig() } : {})}
-                  >
-                    <SettingsConsumer>
-                      {({ settings }) => {
-                        return (
-                          <ThemeComponent settings={settings}>
-                            {/* <WindowWrapper> */}
-                            <ModalContainer />
+    <>
+      <QueryClientProvider client={queryClient}>
+        <RecoilRoot>
+          <Provider store={store}>
+            <CacheProvider value={emotionCache}>
+              <Head>
+                <title>{`${themeConfig.templateName}`}</title>
+                <meta
+                  name='description'
+                  content={`${themeConfig.templateName} – E'nuff`}
+                />
+                <meta name='keywords' content={`E'nuff`} />
+                <meta
+                  name='viewport'
+                  content='initial-scale=1, width=device-width'
+                />
+              </Head>
+              <Suspense>
+                <ErrorBoundary
+                  onError={err => {
+                    console.log(err)
+                  }}
+                  onReset={details => {
+                    reset()
+                    setErrorString('')
+                  }}
+                  resetKeys={[errorString]}
+                  fallbackRender={({ error, resetErrorBoundary }) => {
+                    if (
+                      !!error.response &&
+                      error.response.status === 400 &&
+                      (router.asPath.includes('/pro/detail') ||
+                        router.asPath.includes('/onboarding/detail'))
+                    ) {
+                      return <DetailNoUser />
+                    } else {
+                      return (
+                        <ErrorFallback
+                          resetErrorBoundary={resetErrorBoundary}
+                        />
+                      )
+                    }
+                  }}
+                >
+                  <AuthProviderDynamic>
+                    <SettingsProvider
+                      {...(setConfig ? { pageSettings: setConfig() } : {})}
+                    >
+                      <SettingsConsumer>
+                        {({ settings }) => {
+                          return (
+                            <ThemeComponent settings={settings}>
+                              {/* <WindowWrapper> */}
+                              <ModalContainer />
 
-                            <Guard
-                              authGuard={authGuard}
-                              guestGuard={guestGuard}
-                            >
-                              <AclGuard
-                                aclAbilities={aclAbilities}
+                              <Guard
+                                authGuard={authGuard}
                                 guestGuard={guestGuard}
                               >
-                                <Suspense fallback={<FallbackSpinner />}>
-                                  {getLayout(<Component {...pageProps} />)}
-                                  {/* </ErrorBoundary> */}
-                                </Suspense>
-                              </AclGuard>
-                            </Guard>
+                                <AclGuard
+                                  aclAbilities={aclAbilities}
+                                  guestGuard={guestGuard}
+                                >
+                                  <Suspense fallback={<FallbackSpinner />}>
+                                    {getLayout(<Component {...pageProps} />)}
+                                    {/* </ErrorBoundary> */}
+                                  </Suspense>
+                                </AclGuard>
+                              </Guard>
 
-                            {/* </WindowWrapper> */}
-                            <ReactHotToast>
-                              <Toaster
-                                position={settings.toastPosition}
-                                toastOptions={{ className: 'react-hot-toast' }}
-                              />
-                            </ReactHotToast>
-                          </ThemeComponent>
-                        )
-                      }}
-                    </SettingsConsumer>
-                  </SettingsProvider>
-                </AuthProviderDynamic>
-              </ErrorBoundary>
-            </Suspense>
-          </CacheProvider>
-        </Provider>
-      </RecoilRoot>
-    </QueryClientProvider>
+                              {/* </WindowWrapper> */}
+                              <ReactHotToast>
+                                <Toaster
+                                  position={settings.toastPosition}
+                                  toastOptions={{
+                                    className: 'react-hot-toast',
+                                  }}
+                                />
+                              </ReactHotToast>
+                            </ThemeComponent>
+                          )
+                        }}
+                      </SettingsConsumer>
+                    </SettingsProvider>
+                  </AuthProviderDynamic>
+                </ErrorBoundary>
+              </Suspense>
+            </CacheProvider>
+          </Provider>
+        </RecoilRoot>
+      </QueryClientProvider>
+      <BeusableScript />
+    </>
   )
 }
 
