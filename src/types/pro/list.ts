@@ -50,13 +50,14 @@ export type ProListType = {
   lastName: string
   clients: Array<{ id: number; client: string }>
   isActive: boolean
-  resume: Array<{
-    id: number
-    fileName: string
-    filePath: string
-    url: string
-    fileExtension: string
-  }>
+  // resume: Array<{
+  //   id: number
+  //   fileName: string
+  //   filePath: string
+  //   url: string
+  //   fileExtension: string
+  // }>
+  resume: Array<string>
   status: string
   isOnboarded: boolean
   onboardedAt: string
