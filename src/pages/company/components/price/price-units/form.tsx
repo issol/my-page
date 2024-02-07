@@ -242,6 +242,7 @@ export default function PriceUnitForm(props: Props) {
             render={({ field: { value, onChange, onBlur } }) => (
               <TextField
                 fullWidth
+                autoComplete='off'
                 id='price-unit'
                 error={Boolean(errors.title)}
                 placeholder='0-80 cuts'
@@ -276,6 +277,7 @@ export default function PriceUnitForm(props: Props) {
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     label='Fixed rate'
                     error={Boolean(errors.unit)}
                   />
@@ -291,6 +293,7 @@ export default function PriceUnitForm(props: Props) {
             render={({ field: { value, onChange } }) => (
               <TextField
                 fullWidth
+                autoComplete='off'
                 id='weighing'
                 placeholder='-'
                 disabled
@@ -364,6 +367,7 @@ export default function PriceUnitForm(props: Props) {
                           render={({ field }) => (
                             <TextField
                               {...field}
+                              autoComplete='off'
                               fullWidth
                               error={Boolean(
                                 errors.subPriceUnits?.length
@@ -395,7 +399,7 @@ export default function PriceUnitForm(props: Props) {
                               )[0]
                             }
                             renderInput={params => (
-                              <TextField {...params} placeholder='Fixed rate' />
+                              <TextField {...params} autoComplete='off' placeholder='Fixed rate' />
                             )}
                           />
                         )}
@@ -408,6 +412,7 @@ export default function PriceUnitForm(props: Props) {
                         render={({ field }) => (
                           <TextField
                             {...field}
+                            autoComplete='off'
                             fullWidth
                             id='weighting'
                             placeholder='-'

@@ -254,6 +254,7 @@ const LoginPage = () => {
                   render={({ field: { value, onChange, onBlur } }) => (
                     <TextField
                       autoFocus
+                      autoComplete='off'
                       label='Email'
                       value={value}
                       onBlur={onBlur}

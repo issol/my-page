@@ -275,6 +275,7 @@ const NotesToClientForm = ({
       <Box sx={{ padding: '20px 0' }}>
         <TextField
           fullWidth
+          autoComplete='off'
           placeholder='Upload a file or write down a payment information of your company. It will be delivered to the client.'
           multiline
           rows={4}

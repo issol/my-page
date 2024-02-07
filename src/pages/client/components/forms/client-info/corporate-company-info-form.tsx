@@ -20,6 +20,7 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
           render={({ field: { value, onChange, onBlur } }) => (
             <TextField
               autoFocus
+              autoComplete='off'
               fullWidth
               type='number'
               label='Business registration number*'
@@ -39,6 +40,7 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               label='Name of representative*'
               value={value}
               onChange={onChange}

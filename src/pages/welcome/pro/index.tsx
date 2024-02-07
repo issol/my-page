@@ -611,6 +611,7 @@ const PersonalInfoPro = () => {
                         render={({ field: { value, onChange, onBlur } }) => (
                           <TextField
                             autoFocus
+                            autoComplete='off'
                             value={value}
                             onBlur={onBlur}
                             onChange={onChange}
@@ -634,6 +635,7 @@ const PersonalInfoPro = () => {
                         render={({ field: { value, onChange, onBlur } }) => (
                           <TextField
                             autoFocus
+                            autoComplete='off'
                             value={value}
                             onBlur={onBlur}
                             onChange={onChange}
@@ -657,6 +659,7 @@ const PersonalInfoPro = () => {
                         render={({ field: { value, onChange, onBlur } }) => (
                           <TextField
                             autoFocus
+                            autoComplete='off'
                             value={value}
                             onBlur={onBlur}
                             onChange={onChange}
@@ -682,6 +685,7 @@ const PersonalInfoPro = () => {
                         render={({ field: { value, onChange, onBlur } }) => (
                           <TextField
                             autoFocus
+                            autoComplete='off'
                             value={value}
                             onBlur={onBlur}
                             onChange={onChange}
@@ -758,6 +762,7 @@ const PersonalInfoPro = () => {
                           render={({ field: { value, onChange, onBlur } }) => (
                             <TextField
                               autoFocus
+                              autoComplete='off'
                               value={value}
                               onBlur={onBlur}
                               onChange={onChange}
@@ -781,6 +786,7 @@ const PersonalInfoPro = () => {
                           render={({ field: { value, onChange, onBlur } }) => (
                             <TextField
                               autoFocus
+                              autoComplete='off'
                               value={value}
                               onBlur={onBlur}
                               onChange={onChange}
@@ -856,6 +862,7 @@ const PersonalInfoPro = () => {
                             renderInput={params => (
                               <TextField
                                 {...params}
+                                autoComplete='off'
                                 label='Timezone*'
                                 error={Boolean(errors.timezone)}
                                 inputProps={{
@@ -1029,6 +1036,7 @@ const PersonalInfoPro = () => {
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label='Job type*'
                                       placeholder='Job type *'
                                       error={
@@ -1074,6 +1082,7 @@ const PersonalInfoPro = () => {
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label='Role*'
                                       placeholder='Role *'
                                       error={
@@ -1168,6 +1177,7 @@ const PersonalInfoPro = () => {
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label='Source*'
                                       error={
                                         errors.jobInfo?.length
@@ -1223,6 +1233,7 @@ const PersonalInfoPro = () => {
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label='Target*'
                                       error={
                                         errors.jobInfo?.length
@@ -1298,6 +1309,7 @@ const PersonalInfoPro = () => {
                             renderInput={params => (
                               <TextField
                                 {...params}
+                                autoComplete='off'
                                 label='Years of experience*'
                                 placeholder='Years of experience *'
                                 error={Boolean(errors.experience)}
@@ -1375,6 +1387,7 @@ const PersonalInfoPro = () => {
                             renderInput={params => (
                               <TextField
                                 {...params}
+                                autoComplete='off'
                                 error={Boolean(errors.specialties)}
                                 label='Specialties'
                                 placeholder='Specialties'

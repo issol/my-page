@@ -49,6 +49,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
               control={control}
               render={({ field: { value, onChange, onBlur } }) => (
                 <TextField
+                  autoComplete='off'
                   fullWidth
                   value={value || ''}
                   onBlur={onBlur}
@@ -74,7 +75,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
             )}
           </Grid>
           <Grid item xs={6}>
-            <TextField fullWidth value={row.status} label='Status*' disabled />
+            <TextField fullWidth autoComplete='off' value={row.status} label='Status*' disabled />
           </Grid>
           <Grid item xs={6}>
             <Controller
@@ -101,6 +102,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       label='Contact person for job*'
                       error={Boolean(errors.contactPersonId)}
                     />
@@ -117,6 +119,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
           <Grid item xs={6}>
             <TextField
               fullWidth
+              autoComplete='off'
               disabled
               value={row.serviceType}
               label='Service type*'
@@ -125,6 +128,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
           <Grid item xs={6}>
             <TextField
               disabled
+              autoComplete='off'
               fullWidth
               label='Language pair*'
               value={`${languageHelper(row.sourceLanguage)} → ${languageHelper(
@@ -135,6 +139,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
           <Grid item xs={6}>
             <TextField
               disabled
+              autoComplete='off'
               fullWidth
               label='Job start date'
               value={FullDateHelper(row.startedAt)}
@@ -143,6 +148,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
           <Grid item xs={6}>
             <TextField
               disabled
+              autoComplete='off'
               fullWidth
               value={row.startTimezone?.label}
               label='Timezone'
@@ -151,6 +157,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
           <Grid item xs={6}>
             <TextField
               disabled
+              autoComplete='off'
               fullWidth
               value={FullDateHelper(row.dueAt)}
               label='Job due date*'
@@ -159,6 +166,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
           <Grid item xs={6}>
             <TextField
               disabled
+              autoComplete='off'
               fullWidth
               value={row.dueTimezone?.label}
               label='Timezone*'
@@ -185,6 +193,7 @@ const EditJobInfo = ({ control, errors, row, contactPersonList }: Props) => {
           <Box>
             <TextField
               disabled
+              autoComplete='off'
               multiline
               fullWidth
               rows={4}

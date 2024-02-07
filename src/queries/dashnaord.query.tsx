@@ -174,6 +174,7 @@ export const useDashboardCountList = ({
   skip,
   sort,
   countType,
+  ordering,
   ...props
 }: CountQuery) => {
   const { userId: initUserId, view: initView } = getUserViewModeInfo()
@@ -193,6 +194,7 @@ export const useDashboardCountList = ({
       { from, to },
       skip,
       sort,
+      ordering,
     ],
     () =>
       getOngoing({
@@ -205,6 +207,7 @@ export const useDashboardCountList = ({
         userId,
         view,
         countType,
+        ordering,
       }),
     {
       suspense: true,
@@ -267,7 +270,8 @@ export const useLongStanding = (params: LongStandingQuery) => {
       view,
       userId,
       params.skip,
-      { sort: params.sort, ordering: params.ordering },
+      params.sort,
+      params.ordering,
     ],
     () => getLongStanding({ ...params, view, userId }),
     {
@@ -355,6 +359,7 @@ export interface LanguagePoolResult {
     sortingOrder: number
   }>
 }
+
 export const useLanguagePool = (base: 'source' | 'target' | 'pair') => {
   return useQuery<LanguagePoolResult>(
     [DEFAULT_QUERY_NAME, 'LanguagePool', base],
@@ -371,6 +376,7 @@ export interface JobTypeAndRoleResult {
   totalCount: number
   report: Array<JobTypeAndRole>
 }
+
 export const useJobType = (base: 'jobType' | 'role' | 'pair') => {
   return useQuery<{
     count: number
@@ -388,6 +394,7 @@ export interface JobOverViewResult {
   requested: number
   inProgress: number
 }
+
 export const useJobOverview = () => {
   return useQuery<JobOverViewResult>(
     [DEFAULT_QUERY_NAME, 'JobOverview'],
@@ -467,6 +474,7 @@ type DeadlineAverageTime = {
   seconds: number
   milliseconds: number
 }
+
 interface DeadlineComplianceResult {
   delayedCount: number
   delayedRatio: number
@@ -475,6 +483,7 @@ interface DeadlineComplianceResult {
   delayedAverage?: DeadlineAverageTime
   onTimeAverage?: DeadlineAverageTime
 }
+
 export const useDeadlineCompliance = (
   params: Omit<TotalAmountQuery, 'amountType'>,
 ) => {
@@ -517,6 +526,7 @@ export type AccountItem = {
   count?: number
   prices: number
 }
+
 interface AccountCountResult {
   report: Array<AccountItem>
 }
@@ -538,15 +548,18 @@ export const useAccountCount = (path: string, params: DashboardQuery) => {
   )
 }
 
+export type AccountRatio = {
+  count: number
+  paymentMethod?: string
+  type?: string
+  ratio: number
+}
+
 export interface AccountRatioResult {
   totalCount: number
-  report: Array<{
-    count: number
-    paymentMethod?: string
-    type?: string
-    ratio: number
-  }>
+  report: Array<AccountRatio>
 }
+
 export const useAccountRatio = ({ office, userType }: PaymentType) => {
   return useQuery<AccountRatioResult>(
     [DEFAULT_QUERY_NAME, 'AccountRatio', userType, office],

@@ -172,6 +172,7 @@ export default function JobFeedback({
             >
               <TextField
                 fullWidth
+                autoComplete='off'
                 rows={4}
                 value={addJobFeedbackData}
                 placeholder='Write down a job description.'

@@ -142,6 +142,7 @@ const CustomModal = ({
         {textarea ? (
           <Box sx={{ mt: '24px' }}>
             <TextField
+              autoComplete='off'
               fullWidth
               rows={4}
               multiline

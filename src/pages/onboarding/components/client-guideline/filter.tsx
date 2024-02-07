@@ -94,6 +94,7 @@ export default function Filters({
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       label='Client'
                       placeholder='Client'
                     />
@@ -129,6 +130,7 @@ export default function Filters({
                     renderInput={params => (
                       <TextField
                         {...params}
+                        autoComplete='off'
                         label='Category'
                         placeholder='Category'
                       />
@@ -164,6 +166,7 @@ export default function Filters({
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       label='Service type'
                       placeholder='Service type'
                     />

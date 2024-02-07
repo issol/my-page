@@ -75,8 +75,6 @@ export default function PaymentInfo({ clientId, clientInfo }: Props) {
   // const auth = useRecoilValueLoadable(authState)
   const user = useRecoilValueLoadable(authState)
 
-  console.log(user)
-
   const User = new client(clientId)
 
   const isAccountManager = ability.can('read', 'account_manage')
@@ -282,6 +280,9 @@ export default function PaymentInfo({ clientId, clientInfo }: Props) {
               <NotesToClient
                 notesToClient={notesToClient!}
                 clientId={clientId}
+                user={user.getValue()}
+                clientAuthorId={clientInfo.authorId}
+                isEnrolledClient={clientInfo.isEnrolledClient}
               />
             )}
           </Suspense>

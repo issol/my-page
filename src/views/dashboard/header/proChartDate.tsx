@@ -37,13 +37,14 @@ const ProChartDate = () => {
           <Controller
             control={control}
             name='date'
-            render={({ field: { onChange } }) => (
+            render={({ field: { onChange, value } }) => (
               <DatePicker
                 aria-label='date picker button'
                 onChange={date => onChangeDatePicker(date, onChange)}
                 showMonthYearPicker
                 minDate={dayjs().add(-5, 'year').toDate()}
                 maxDate={dayjs().add(2, 'month').toDate()}
+                selected={value || dayjs(date).toDate()}
                 customInput={
                   <Box display='flex' alignItems='center'>
                     <Typography fontSize='24px' fontWeight={500}>

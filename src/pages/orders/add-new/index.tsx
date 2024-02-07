@@ -134,7 +134,7 @@ export const defaultOption: StandardPriceListType & {
   roundingProcedure: '',
   languagePairs: [],
   priceUnit: [],
-  catInterface: { memSource: [], memoQ: [] },
+  catInterface: { phrase: [], memoQ: [] },
 }
 export const proDefaultOption: StandardPriceListType & {
   groupName?: string
@@ -1035,7 +1035,7 @@ export default function AddNewOrder() {
                   RoundingProcedureList[item.initialPrice?.rounding!].label,
                 languagePairs: [],
                 priceUnit: [],
-                catInterface: { memSource: [], memoQ: [] },
+                catInterface: { phrase: [], memoQ: [] },
               },
             }
           })
@@ -1204,7 +1204,7 @@ export default function AddNewOrder() {
                   RoundingProcedureList[item.initialPrice?.rounding!].label,
                 languagePairs: [],
                 priceUnit: [],
-                catInterface: { memSource: [], memoQ: [] },
+                catInterface: { phrase: [], memoQ: [] },
               },
             }
           })
@@ -1562,6 +1562,7 @@ export default function AddNewOrder() {
                     render={({ field: { value, onChange } }) => (
                       <TextField
                         size='small'
+                        autoComplete='off'
                         type='number'
                         onFocus={e =>
                           e.target.addEventListener(

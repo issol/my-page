@@ -199,6 +199,7 @@ export default function CommentsAboutPro({
             >
               <TextField
                 fullWidth
+                autoComplete='off'
                 rows={4}
                 value={addComment}
                 placeholder='What is your comment on this Pro?'
@@ -354,6 +355,7 @@ export default function CommentsAboutPro({
                       >
                         <TextField
                           fullWidth
+                          autoComplete='off'
                           rows={4}
                           value={comment}
                           onChange={handleCommentChange}

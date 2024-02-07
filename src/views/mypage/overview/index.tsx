@@ -545,16 +545,6 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
       onResumeSave(updatedResume)
     }
   }
-  // const deleteResumeMutation = useMutation(
-  //   (fileId: number) => deleteResume(user.userId!, fileId),
-  //   {
-  //     onSuccess: () => {
-  //       onSuccess()
-  //       invalidateUserInfo()
-  //     },
-  //     onError: () => onError(),
-  //   },
-  // )
 
   const onDeleteFile = (file: FileItemType) => {
     if (userInfo?.resume?.length && userInfo.resume.length <= 1) {
@@ -592,6 +582,19 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
       },
     })
     setEditExperience(false)
+    updateUserInfoMutation.mutate(
+      {
+        userId: auth.getValue().user?.id || 0,
+        extraData: {
+          experience: experience || '',
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditExperience(false)
+        },
+      },
+    )
   }
 
   /* Contracts */
@@ -967,6 +970,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
           </Typography>
           <TextField
             sx={{ width: '470px' }}
+            autoComplete='off'
             rows={4}
             multiline
             fullWidth
@@ -1124,6 +1128,7 @@ const MyPageOverview = ({ user, userInfo, certifiedRoleInfo }: Props) => {
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       label='Specialties'
                       placeholder='Specialties'
                     />

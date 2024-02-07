@@ -121,6 +121,7 @@ export default function KoreaDomesticForm({
             <>
               <TextField
                 fullWidth
+                autoComplete='off'
                 autoFocus
                 value={value}
                 onBlur={onBlur}

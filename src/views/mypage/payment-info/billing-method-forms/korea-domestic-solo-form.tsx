@@ -104,6 +104,7 @@ export default function KoreaDomesticSoloForm({
             <>
               <TextField
                 fullWidth
+                autoComplete='off'
                 autoFocus
                 value={value}
                 onBlur={onBlur}
@@ -126,6 +127,7 @@ export default function KoreaDomesticSoloForm({
             <>
               <TextField
                 fullWidth
+                autoComplete='off'
                 autoFocus
                 value={value}
                 onBlur={onBlur}

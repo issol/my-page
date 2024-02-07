@@ -435,6 +435,7 @@ const ClientGuidelineForm = () => {
                         <>
                           <TextField
                             fullWidth
+                            autoComplete='off'
                             value={value}
                             onBlur={onBlur}
                             onChange={onChange}
@@ -475,6 +476,7 @@ const ClientGuidelineForm = () => {
                             renderInput={params => (
                               <TextField
                                 {...params}
+                                autoComplete='off'
                                 error={Boolean(errors.client)}
                                 label='Client*'
                                 // placeholder='Client*'
@@ -534,6 +536,7 @@ const ClientGuidelineForm = () => {
                             renderInput={params => (
                               <TextField
                                 {...params}
+                                autoComplete='off'
                                 error={Boolean(errors.category)}
                                 label='Category*'
                                 // placeholder='Category*'
@@ -594,6 +597,7 @@ const ClientGuidelineForm = () => {
                             renderInput={params => (
                               <TextField
                                 {...params}
+                                autoComplete='off'
                                 error={
                                   !!getValues('category') &&
                                   !!getValues('category.label') &&

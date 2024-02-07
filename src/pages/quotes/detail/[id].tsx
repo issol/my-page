@@ -556,7 +556,7 @@ export default function QuotesDetail() {
 
               languagePairs: [],
               priceUnit: [],
-              catInterface: { memSource: [], memoQ: [] },
+              catInterface: { phrase: [], memoQ: [] },
             },
           }
         })

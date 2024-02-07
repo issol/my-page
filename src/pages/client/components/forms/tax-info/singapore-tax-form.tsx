@@ -25,6 +25,7 @@ export default function SingaporeTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.clientName)}
               value={value}
               inputProps={{ maxLength: 100 }}
@@ -42,6 +43,7 @@ export default function SingaporeTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.clientAddress)}
               value={value}
               inputProps={{ maxLength: 500 }}
@@ -59,6 +61,7 @@ export default function SingaporeTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.taxId)}
               value={value}
               type='number'
@@ -80,6 +83,7 @@ export default function SingaporeTaxForm({ control, errors }: Props) {
           render={({ field: { onChange, value } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               error={Boolean(errors.uenId)}
               value={value}
               type='number'

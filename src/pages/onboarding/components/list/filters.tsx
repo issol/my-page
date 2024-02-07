@@ -198,7 +198,7 @@ export default function Filters({
                           id='jobType'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Job type' />
+                            <TextField {...params} autoComplete='off' label='Job type' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -265,7 +265,7 @@ export default function Filters({
                           id='role'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Role' />
+                            <TextField {...params} autoComplete='off' label='Role' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -314,7 +314,7 @@ export default function Filters({
                           id='source'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Source' />
+                            <TextField {...params} autoComplete='off' label='Source' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -363,7 +363,7 @@ export default function Filters({
                           id='target'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Target' />
+                            <TextField {...params} autoComplete='off' label='Target' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -402,7 +402,7 @@ export default function Filters({
                           id='experience'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Experience' />
+                            <TextField {...params} autoComplete='off' label='Experience' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -441,7 +441,7 @@ export default function Filters({
                           id='testStatus'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Test status' />
+                            <TextField {...params} autoComplete='off' label='Test status' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>

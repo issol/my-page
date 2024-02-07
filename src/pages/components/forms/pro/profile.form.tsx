@@ -67,6 +67,7 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               label='Pronunciation of legal name'
               value={value}
               onChange={onChange}
@@ -138,6 +139,7 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
                 render={({ field: { value, onChange, onBlur } }) => (
                   <TextField
                     value={value}
+                    autoComplete='off'
                     onBlur={onBlur}
                     onChange={onChange}
                     inputProps={{ maxLength: 200 }}
@@ -162,6 +164,7 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
                 render={({ field: { value, onChange, onBlur } }) => (
                   <TextField
                     value={value}
+                    autoComplete='off'
                     onBlur={onBlur}
                     onChange={onChange}
                     inputProps={{ maxLength: 200 }}
@@ -221,6 +224,7 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone*'
                   error={Boolean(errors.timezone)}
                   inputProps={{

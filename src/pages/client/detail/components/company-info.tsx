@@ -490,6 +490,7 @@ export default function ClientInfo({
                   renderInput={params => (
                     <TextField
                       {...params}
+                      autoComplete='off'
                       error={Boolean(errors.status)}
                       label='Status*'
                       placeholder='Status*'

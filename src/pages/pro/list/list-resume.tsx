@@ -9,13 +9,14 @@ import { v4 as uuidv4 } from 'uuid'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 type Props = {
-  resume: Array<{
-    id: number
-    fileName: string
-    filePath: string
-    url: string
-    fileExtension: string
-  }>
+  // resume: Array<{
+  //   id: number
+  //   fileName: string
+  //   filePath: string
+  //   url: string
+  //   fileExtension: string
+  // }>
+  resume: Array<string>
   onClickFile: (
     file: {
       id: number
@@ -31,7 +32,7 @@ type Props = {
 const ListResume = ({ resume, onClickFile }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(3)
-
+  console.log("resume",resume)
   const handleChangePage = (direction: string) => {
     // window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
 
@@ -150,7 +151,7 @@ const ListResume = ({ resume, onClickFile }: Props) => {
             return (
               <Tooltip
                 key={uuidv4()}
-                title={`${value.fileName}.${value.fileExtension}`}
+                title={`${value}`}
               >
                 <Box
                   sx={{
@@ -158,7 +159,15 @@ const ListResume = ({ resume, onClickFile }: Props) => {
                     maxWidth: '24px',
                     cursor: 'pointer',
                   }}
-                  onClick={() => onClickFile(value, S3FileType.RESUME)}
+                  onClick={() =>
+                    onClickFile({
+                      id: 0,
+                      url: value,
+                      filePath: value,
+                      fileName: value,
+                      fileExtension: value,
+                    }, S3FileType.RESUME)
+                  }
                 >
                   <Box
                     sx={{

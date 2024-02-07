@@ -401,6 +401,7 @@ const ClientGuidelineForm = () => {
                     <>
                       <TextField
                         fullWidth
+                        autoComplete='off'
                         autoFocus
                         value={value}
                         onBlur={onBlur}
@@ -442,6 +443,7 @@ const ClientGuidelineForm = () => {
                         renderInput={params => (
                           <TextField
                             {...params}
+                            autoComplete='off'
                             error={Boolean(errors.client)}
                             label='Client*'
                             placeholder='Client*'
@@ -480,6 +482,7 @@ const ClientGuidelineForm = () => {
                         renderInput={params => (
                           <TextField
                             {...params}
+                            autoComplete='off'
                             error={Boolean(errors.category)}
                             label='Category*'
                             placeholder='Category*'
@@ -519,6 +522,7 @@ const ClientGuidelineForm = () => {
                       renderInput={params => (
                         <TextField
                           {...params}
+                          autoComplete='off'
                           error={Boolean(errors.serviceType)}
                           label='Service type*'
                           placeholder='Service type*'

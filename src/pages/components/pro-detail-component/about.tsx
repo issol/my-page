@@ -149,6 +149,7 @@ const About = ({ userInfo, type, handleChangeStatus, status }: Props) => {
               <FormControl fullWidth>
                 <TextField
                   disabled
+                  autoComplete='off'
                   id='about-status-textfield'
                   label='Status'
                   defaultValue={userInfo.status ? userInfo.status : ' '} // 온보딩이 진행중인 경우엔 상태값이 없음, 공백으로 빈칸 처리함

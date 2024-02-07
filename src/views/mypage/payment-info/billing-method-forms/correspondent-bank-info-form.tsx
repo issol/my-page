@@ -20,6 +20,7 @@ export default function CorresPondentBankInfoForm({ control, errors }: Props) {
             <>
               <TextField
                 fullWidth
+                autoComplete='off'
                 value={value}
                 onBlur={onBlur}
                 onChange={e => {
@@ -44,6 +45,7 @@ export default function CorresPondentBankInfoForm({ control, errors }: Props) {
             <>
               <TextField
                 fullWidth
+                autoComplete='off'
                 value={value}
                 onBlur={onBlur}
                 onChange={e => {
@@ -68,6 +70,7 @@ export default function CorresPondentBankInfoForm({ control, errors }: Props) {
             <>
               <TextField
                 fullWidth
+                autoComplete='off'
                 value={value}
                 onBlur={onBlur}
                 onChange={e => {

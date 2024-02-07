@@ -162,6 +162,7 @@ export default function InvoiceDetailInfoForm({
       <Grid item xs={6}>
         <TextField
           fullWidth
+          autoComplete='off'
           disabled
           value={data?.invoicedAt ? dateValue(new Date(data.invoicedAt)) : '-'}
           label='Invoice date*'
@@ -172,6 +173,7 @@ export default function InvoiceDetailInfoForm({
       <Grid item xs={6}>
         <TextField
           fullWidth
+          autoComplete='off'
           disabled
           value={timeZoneFormatter(
             auth.getValue().user?.timezone!,
@@ -217,6 +219,7 @@ export default function InvoiceDetailInfoForm({
       <Grid item xs={12}>
         <TextField
           fullWidth
+          autoComplete='off'
           disabled
           value={data?.pro?.name}
           label='Pro*'
@@ -257,6 +260,7 @@ export default function InvoiceDetailInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   error={Boolean(errors.taxInfo)}
                   label='Tax info*'
                 />
@@ -361,6 +365,7 @@ export default function InvoiceDetailInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone'
                   error={Boolean(errors?.payDueTimezone)}
                   inputProps={{
@@ -415,6 +420,7 @@ export default function InvoiceDetailInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone'
                   error={Boolean(errors?.paidDateTimezone)}
                   inputProps={{
@@ -438,6 +444,7 @@ export default function InvoiceDetailInfoForm({
             <>
               <TextField
                 rows={4}
+                autoComplete='off'
                 multiline
                 fullWidth
                 disabled={isAccountManager}

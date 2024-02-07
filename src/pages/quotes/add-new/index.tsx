@@ -113,7 +113,7 @@ export const defaultOption: StandardPriceListType & {
   roundingProcedure: '',
   languagePairs: [],
   priceUnit: [],
-  catInterface: { memSource: [], memoQ: [] },
+  catInterface: { phrase: [], memoQ: [] },
 }
 
 export default function AddNewQuote() {
@@ -1044,6 +1044,7 @@ export default function AddNewQuote() {
                     render={({ field: { value, onChange } }) => (
                       <TextField
                         size='small'
+                        autoComplete='off'
                         type='number'
                         onFocus={e =>
                           e.target.addEventListener(

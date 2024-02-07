@@ -377,6 +377,7 @@ const JobDetails = () => {
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     size='small'
                     placeholder={
                       serviceType.length ? undefined : 'Service type'
@@ -651,7 +652,11 @@ const JobDetails = () => {
                               <Box>
                                 {row?.totalPrice
                                   ? formatCurrency(
-                                      row?.totalPrice,
+                                    // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
+                                    // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
+                                      Number(row?.totalPrice) < 1000 && row?.currency === 'KRW'
+                                        ? 0
+                                        : Number(row?.totalPrice),
                                       row?.currency!,
                                     )
                                   : '-'}

@@ -304,6 +304,7 @@ export default function ProjectInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone*'
                   error={Boolean(errors?.orderTimezone)}
                   inputProps={{
@@ -412,6 +413,7 @@ export default function ProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     // onClick={() => setOpenPopper(!openPopper)}
                     error={Boolean(errors.workName)}
                     label='Work name'
@@ -427,6 +429,7 @@ export default function ProjectInfoForm({
             <CardContent>
               <TextField
                 fullWidth
+                autoComplete='off'
                 error={workNameError}
                 onChange={e => setNewWorkName(e.target.value)}
                 value={newWorkName}
@@ -471,6 +474,7 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
+              autoComplete='off'
               label='Project name*'
               variant='outlined'
               value={value ?? ''}
@@ -505,6 +509,7 @@ export default function ProjectInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   error={Boolean(errors.category)}
                   label='Category'
                 />
@@ -544,6 +549,7 @@ export default function ProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     label='Service type'
                     // placeholder='Service type'
                   />
@@ -592,6 +598,7 @@ export default function ProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     label='Area of expertise'
                     // placeholder='Area of expertise'
                   />
@@ -631,6 +638,7 @@ export default function ProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
+                    autoComplete='off'
                     error={Boolean(errors.revenueFrom)}
                     label='Revenue from*'
                     // placeholder='Revenue from*'
@@ -696,6 +704,7 @@ export default function ProjectInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
+                  autoComplete='off'
                   label='Time zone*'
                   error={Boolean(errors?.projectDueTimezone)}
                   inputProps={{
@@ -749,6 +758,7 @@ export default function ProjectInfoForm({
               <TextField
                 rows={4}
                 multiline
+                autoComplete='off'
                 fullWidth
                 error={Boolean(errors.projectDescription)}
                 placeholder='Write down a project description.'

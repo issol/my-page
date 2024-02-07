@@ -796,6 +796,7 @@ const AppliedRoleModal = ({
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label='Job type*'
                                       error={
                                         getValues(`jobInfo.${idx}.jobType`) ===
@@ -907,6 +908,7 @@ const AppliedRoleModal = ({
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label='Role*'
                                       error={
                                         getValues(`jobInfo.${idx}.role`) ===
@@ -973,6 +975,7 @@ const AppliedRoleModal = ({
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label={
                                         getValues(`jobInfo.${idx}.role`)
                                           ?.label !== 'DTPer' &&
@@ -1037,6 +1040,7 @@ const AppliedRoleModal = ({
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label={
                                         getValues(`jobInfo.${idx}.role`)
                                           ?.label !== 'DTPer' &&
@@ -1235,6 +1239,7 @@ const AppliedRoleModal = ({
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label='Job type*'
                                       error={
                                         roleGetValues(
@@ -1344,6 +1349,7 @@ const AppliedRoleModal = ({
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label='Role*'
                                       error={
                                         roleGetValues(`jobInfo.${idx}.role`) ===
@@ -1410,6 +1416,7 @@ const AppliedRoleModal = ({
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label={
                                         roleGetValues(`jobInfo.${idx}.role`)
                                           .label !== 'DTPer' &&
@@ -1475,6 +1482,7 @@ const AppliedRoleModal = ({
                                   renderInput={params => (
                                     <TextField
                                       {...params}
+                                      autoComplete='off'
                                       label={
                                         roleGetValues(`jobInfo.${idx}.role`)
                                           .label !== 'DTPer' &&

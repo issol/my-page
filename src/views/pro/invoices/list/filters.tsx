@@ -103,6 +103,7 @@ export default function Filter({
                       renderInput={params => (
                         <TextField
                           {...params}
+                          autoComplete='off'
                           label='Status'
                           placeholder='Status'
                         />

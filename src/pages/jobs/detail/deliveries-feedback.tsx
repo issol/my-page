@@ -405,7 +405,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                   {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
-              {jobInfo.status === 60900 ? null : (
+              {[60500,60600,60700,60800,60900,601000,601100].includes(jobInfo.status) ? null : (
                 <Box
                   sx={{
                     display: 'flex',
@@ -448,7 +448,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                 </Box>
               )}
             </Box>
-            {[60900, 601000].includes(jobInfo.status) ? null : (
+            {[60500,60600,60700,60800,60900,601000,601100].includes(jobInfo.status) ? null : (
               <>
                 {fileList.length > 0 && (
                   <Box
@@ -472,6 +472,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                   </Typography>
                   <TextField
                     fullWidth
+                    autoComplete='off'
                     placeholder='Leave a note for LPM.'
                     multiline
                     rows={2}
@@ -515,7 +516,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       <Grid item xs={3.25}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <Card sx={{ padding: '24px' }}>
-            {jobInfo.status === 60900 ? (
+            {[60500,60600,60700,60800,60900,601000,601100].includes(jobInfo.status) ? (
               <Box
                 sx={{
                   height: '38px',

@@ -106,7 +106,7 @@ const Filter = ({
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Status' />
+                            <TextField {...params} autoComplete='off' label='Status' />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>

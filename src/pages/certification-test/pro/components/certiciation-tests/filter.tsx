@@ -140,7 +140,7 @@ const Filter = ({
                     id='jobType'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Job type' />
+                      <TextField {...params} autoComplete='off' label='Job type' />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -206,7 +206,7 @@ const Filter = ({
                     id='role'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Role' />
+                      <TextField {...params} autoComplete='off' label='Role' />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -245,7 +245,7 @@ const Filter = ({
                     id='source'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Source' />
+                      <TextField {...params} autoComplete='off' label='Source' />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>
@@ -284,7 +284,7 @@ const Filter = ({
                     id='target'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Target' />
+                      <TextField {...params} autoComplete='off' label='Target' />
                     )}
                     renderOption={(props, option, { selected }) => (
                       <li {...props}>

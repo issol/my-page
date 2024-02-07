@@ -308,7 +308,7 @@ const InvoiceVersionHistoryModal = ({
                 RoundingProcedureList[item.initialPrice?.rounding!]?.label,
               languagePairs: [],
               priceUnit: [],
-              catInterface: { memSource: [], memoQ: [] },
+              catInterface: { phrase: [], memoQ: [] },
             },
           }
         }),

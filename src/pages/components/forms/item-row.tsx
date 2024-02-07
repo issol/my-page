@@ -667,6 +667,7 @@ const Row = ({
                     return (
                       <TextField
                         fullWidth
+                        autoComplete='off'
                         autoFocus={Boolean(value && value?.length < 2)}
                         label='Item name*'
                         variant='outlined'
@@ -836,6 +837,7 @@ const Row = ({
                           renderInput={params => (
                             <TextField
                               {...params}
+                              autoComplete='off'
                               label={
                                 from === 'quote'
                                   ? 'Contact person form job'
@@ -924,6 +926,7 @@ const Row = ({
                         renderInput={params => (
                           <TextField
                             {...params}
+                            autoComplete='off'
                             error={Boolean(errors?.items?.[idx]?.source)}
                             label='Language pair*'
                           />
@@ -1033,6 +1036,7 @@ const Row = ({
                         renderInput={params => (
                           <TextField
                             {...params}
+                            autoComplete='off'
                             error={Boolean(errors?.items?.[idx]?.priceId)}
                             label='Price*'
                           />
@@ -1159,6 +1163,7 @@ const Row = ({
                       <>
                         <TextField
                           rows={4}
+                          autoComplete='off'
                           multiline
                           fullWidth
                           placeholder='Write down an item description.'
