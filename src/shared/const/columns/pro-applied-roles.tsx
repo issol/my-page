@@ -144,8 +144,8 @@ export const getProAppliedRolesColumns = (
                     row.basicTest.isPassed === null
                       ? 'rgba(76, 78, 100, 0.38)'
                       : row.basicTest.isPassed
-                      ? '#72E128'
-                      : '#FF4D49'
+                        ? '#72E128'
+                        : '#FF4D49'
                   }
                 >
                   Basic:{' '}
@@ -154,8 +154,8 @@ export const getProAppliedRolesColumns = (
                       ? '→'
                       : '-'
                     : row.basicTest.isPassed
-                    ? 'P'
-                    : 'F'}
+                      ? 'P'
+                      : 'F'}
                 </Typography>{' '}
                 <Typography
                   variant='body1'
@@ -172,16 +172,16 @@ export const getProAppliedRolesColumns = (
                     row.skillTest.isPassed === null
                       ? 'rgba(76, 78, 100, 0.38)'
                       : row.skillTest.isPassed
-                      ? '#72E128'
-                      : '#FF4D49'
+                        ? '#72E128'
+                        : '#FF4D49'
                   }
                 >
                   Skill:{' '}
                   {row.skillTest.isPassed === null
                     ? '-'
                     : row.skillTest.isPassed
-                    ? 'P'
-                    : 'F'}
+                      ? 'P'
+                      : 'F'}
                 </Typography>
               </>
             )}
@@ -209,8 +209,8 @@ export const getProAppliedRolesColumns = (
             {ProAppliedRolesStatusChip(row.status!, row.status)}
             {row.status === 'Test in preparation' ||
             row.status === 'Rejected by TAD' ||
-            (row.basicTest.isSkipped && row.status === 'Skill test Ready') ||
-            (!row.basicTest.isPassed && row.status === 'Skill test Ready') ||
+            (row.basicTest?.isSkipped && row.status === 'Skill test Ready') ||
+            (!row.basicTest?.isPassed && row.status === 'Skill test Ready') ||
             row.status === 'Basic failed' ||
             row.status === 'Skill failed' ||
             row.status === 'Test assigned' ||
@@ -343,8 +343,8 @@ export const getProAppliedRolesColumns = (
               row.status === 'Basic in progress'
                 ? row.basicTest.testStartedAt
                 : row.status === 'Skill in progress'
-                ? row.skillTest.testStartedAt
-                : null,
+                  ? row.skillTest.testStartedAt
+                  : null,
               auth.getValue().user?.timezone!,
             )}
           </Box>
