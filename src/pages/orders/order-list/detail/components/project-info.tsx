@@ -281,17 +281,23 @@ const ProjectInfo = ({
   const filterStatusList = () => {
     if (client && statusList) {
       if (!client.isEnrolledClient) {
-        if (project.status === 'Delivery confirmed') {
-          // return statusList?.filter(value => value.label === 'Without invoice')
-          return statusList!
-        } else {
-          return statusList?.filter(
-            value =>
-              value.label !== 'Invoiced' &&
-              value.label !== 'Paid' &&
-              value.label !== 'Canceled',
-          )
-        }
+        return statusList?.filter(
+          value =>
+            value.label !== 'Invoiced' &&
+            value.label !== 'Paid' &&
+            value.label !== 'Canceled',
+        )
+        // if (project.status === 'Delivery confirmed') {
+        //   // return statusList?.filter(value => value.label === 'Without invoice')
+        //   return statusList!
+        // } else {
+        //   return statusList?.filter(
+        //     value =>
+        //       value.label !== 'Invoiced' &&
+        //       value.label !== 'Paid' &&
+        //       value.label !== 'Canceled',
+        //   )
+        // }
       } else {
         if (project.status === 'Delivery confirmed') {
           return statusList?.filter(
@@ -312,6 +318,8 @@ const ProjectInfo = ({
       return statusList!
     }
   }
+
+  console.log(filterStatusList(), 'filterStatusList')
 
   const onClickEditSaveContactPerson = () => {
     if (role.name === 'CLIENT') {
