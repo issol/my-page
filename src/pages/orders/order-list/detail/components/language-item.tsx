@@ -44,6 +44,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
 
 type Props = {
   // languagePairs: Array<languageType>
@@ -175,7 +176,7 @@ const LanguageAndItem = ({
   updateLanguagePairs,
 }: Props) => {
   console.log(getItem())
-
+  console.log(project)
   const { openModal, closeModal } = useModal()
 
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -254,6 +255,13 @@ const LanguageAndItem = ({
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
+      dueAt:
+        project?.projectDueAt && project?.projectDueTimezone
+          ? changeTimeZoneOffset(
+              project?.projectDueAt,
+              project?.projectDueTimezone,
+            )
+          : null,
       priceId: null,
       detail: [],
       totalPrice: 0,
