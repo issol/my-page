@@ -388,6 +388,11 @@ const Row = ({
       groupName?: string | undefined
     })[],
   ) {
+    console.group('onChangePrice')
+    console.log(v, 'hi')
+    console.log(options, 'hi')
+    console.groupEnd()
+
     if (v?.id) {
       const items = getValues('items')
 
@@ -496,32 +501,35 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
-  const findCurrency = (items: ItemType[], detailIndex: number) => {
+  const findCurrency = (
+    items: ItemType[],
+    index: number,
+    detailIndex: number,
+  ) => {
     // Find an item with a currency property
     const itemWithCurrency = items.find(item => item.currency)
+    console.log(itemWithCurrency)
 
     if (itemWithCurrency) {
       return itemWithCurrency.currency
     }
 
     // If no item with a currency property was found, look in the details
-    for (const item of items) {
-      if (item.detail) {
-        const filteredDetails = item.detail.filter(
-          (detail, index) => index !== detailIndex,
-        )
-        const detailWithCurrency = filteredDetails.find(
-          detail => detail.currency !== null,
-        )
-        console.log(detailWithCurrency)
+    const filteredDetails = items
+      .filter(value => value.detail && value.detail.length > 0)
+      .map(item => {
+        if (item.detail) return item.detail
+        else return []
+      })
+      .flat()
 
-        if (detailWithCurrency) {
-          return detailWithCurrency.currency
-        }
-      }
+    const detailWithCurrency = filteredDetails.find(
+      detail => detail.currency !== null,
+    )
+    if (detailWithCurrency) {
+      return detailWithCurrency.currency
     }
 
-    // If no currency was found, return null
     return null
   }
 
@@ -539,6 +547,7 @@ const Row = ({
     detailIndex: number,
   ) => {
     const items = getValues('items')
+    console.group('onChangeCurrency')
     console.log(items, 'hi')
     console.log(detailIndex)
 
@@ -550,12 +559,13 @@ const Row = ({
     //         .map(detailItem => detailItem.currency)
     //     : [],
     // )
-    const detailCurrency = findCurrency(items, detailIndex)
+    const detailCurrency = findCurrency(items, index, detailIndex)
     console.log(detailCurrency, 'hi')
+    console.groupEnd()
 
     // console.log(currencies, 'hi')
 
-    if (currency && detailCurrency !== currency) {
+    if (detailCurrency && currency && detailCurrency !== currency) {
       openModal({
         type: 'CurrencyMatchModal',
         children: (

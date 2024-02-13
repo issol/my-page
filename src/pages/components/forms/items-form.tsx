@@ -198,6 +198,12 @@ export default function ItemForm({
   // 값이 다르면 item의 price를 null 처리한다.
   const checkPriceCurrency = (price: StandardPriceListType, index: number) => {
     const targetCurrency = fields[0]?.initialPrice?.currency ?? null
+    console.log(price, 'price check 0')
+
+    if (price.id === -1) return true
+
+    console.log(targetCurrency, 'price check 1')
+
     if (targetCurrency) {
       if (price?.currency !== targetCurrency) {
         setValue(`items.${index}.priceId`, null, setValueOptions)
