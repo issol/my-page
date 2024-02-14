@@ -477,6 +477,7 @@ function OnboardingDetail() {
 
   const onClickTestAssign = (jobInfo: AppliedRoleType, status?: string) => {
     setActionId(jobInfo.id)
+
     openModal({
       type: 'TestAssignModal',
       children: (
@@ -507,7 +508,7 @@ function OnboardingDetail() {
           vary='successful'
           onClick={() => {
             closeModal('TestAssignModal')
-            handleTestAssign(jobInfo.id, status)
+            handleTestAssign(jobInfo.id, status ?? 'none')
           }}
           rightButtonText='Assign'
         />
