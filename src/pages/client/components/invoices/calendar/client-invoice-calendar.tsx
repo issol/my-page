@@ -37,7 +37,7 @@ const ClientInvoiceCalendar = (
       ...item,
       start: item.updatedAt,
       end: item.updatedAt,
-      title: item.orders?.projectName ?? '-',
+      title: item.projectName ?? '-',
     }
   })
 

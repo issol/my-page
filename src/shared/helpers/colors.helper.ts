@@ -7,6 +7,7 @@ import { statusType } from '@src/types/common/status.type'
 import {
   InvoicePayableStatusType,
   InvoiceProStatusType,
+  InvoiceReceivableStatusCodeLabelMixType,
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
@@ -42,29 +43,31 @@ export function getPayableColor(status: InvoicePayableStatusType) {
     : ''
 }
 
-export function getReceivableStatusColor(status: InvoiceReceivableStatusType) {
+export function getReceivableStatusColor(status: InvoiceReceivableStatusCodeLabelMixType) {
   const color =
-    status === 30000
+    status === 30000 || status === 'New' //'New'
       ? '#666CFF'
-      : status === 30100
+      : status === 30100 || status === 'In preparation' //'In preparation'
       ? '#F572D8'
-      : status === 30200
+      : status === 30200 || status === 'Internal review' //'Internal review'
       ? '#D8AF1D'
-      : status === 30300
+      : status === 30300 || status === 'Invoice sent' //'Invoice sent'
       ? '#547ED1'
-      : status === 30400
+      : status === 30400 || status === 'Client review' //'Client review'
       ? '#FDB528'
-      : status === 30500
+      : status === 30500 || status === 'Under revision' //'Under revision'
       ? '#26C6F9'
-      : status === 30600
+      : status === 30600 || status === 'Revised' //'Revised'
       ? '#AD7028'
-      : status === 30700
+      : status === 30700 || status === 'Invoice confirmed' //'Invoice confirmed'
       ? '#64C623'
-      : status === 30800
+      : status === 30800 || status === 'Tax invoice issued' //'Tax invoice issued'
       ? '#323A42'
-      : status === 30900
+      : status === 30900 || status === 'Paid' //'Paid'
       ? '#267838'
-      : status === 301000 || status === 301100 || status === 301200
+      : status === 301000 || status === 'Overdue' //'Overdue'
+        || status === 301100 || status === 'Overdue (Reminder sent)' //'Overdue (Reminder sent)'
+        || status === 301200 || status === 'Canceled' //'Canceled'
       ? '#FF4D49'
       : ''
   return color
