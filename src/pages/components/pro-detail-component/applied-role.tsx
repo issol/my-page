@@ -233,10 +233,9 @@ const AppliedRole = ({
         )
       }
     } else if (
-      (jobInfo.requestStatus === 'Awaiting response' &&
-        skillTest &&
-        skillTest.status !== 'No test') ||
-      jobInfo.test.length === 0
+      jobInfo.requestStatus === 'Awaiting response' &&
+      ((skillTest && skillTest.status !== 'No test') ||
+        jobInfo.test.length === 0)
     ) {
       return (
         <Button
