@@ -98,7 +98,10 @@ const DeliveredInactiveList = () => {
       !statusListLoading &&
       !assignmentStatusListLoading
     ) {
-      setStatusList([...jobStatusList, ...assignmentJobStatusList])
+      const filteredJobStatusList = jobStatusList.filter(value => {
+        return value.value >= 60600 && value.value !== 601100
+      })
+      setStatusList([...filteredJobStatusList])
     }
   }, [
     jobStatusList,
@@ -187,6 +190,11 @@ const DeliveredInactiveList = () => {
       search,
     } = data
 
+    let statusResult = status.map(value => value.value)
+    if (statusResult.some(item => item === 601000)) {
+      statusResult.push(70400)
+    }
+
     const filter: JobListFilterType = {
       client: client?.id,
       listType: 'completed-inactive',
@@ -197,7 +205,7 @@ const DeliveredInactiveList = () => {
       requestedDateFrom: requestedDate[0]?.toISOString() ?? '',
       requestedDateTo: requestedDate[1]?.toISOString() ?? '',
 
-      status: status.map(value => value.value),
+      status: statusResult,
       contactPerson: contactPerson?.id,
 
       search: search,
