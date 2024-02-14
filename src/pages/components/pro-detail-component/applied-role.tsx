@@ -128,8 +128,8 @@ const AppliedRole = ({
         // no test case 1, jobInfo.requestStatus가 Awaiting assignment일 경우
         basicTest &&
         skillTest &&
-        ((basicTest!.status === 'NO_TEST' && skillTest!.status === 'NO_TEST') ||
-          (basicTest!.status !== 'NO_TEST' && skillTest!.status === 'NO_TEST'))
+        ((basicTest!.status === 'No test' && skillTest!.status === 'No test') ||
+          (basicTest!.status !== 'No test' && skillTest!.status === 'No test'))
       ) {
         if (
           jobInfo.role === 'DTPer' ||
@@ -211,7 +211,7 @@ const AppliedRole = ({
                 variant='contained'
                 onClick={() => {
                   onClickTestAssign(jobInfo)
-                  // basicTest!.status === 'NO_TEST'
+                  // basicTest!.status === 'No test'
                   //   ? onClickTestAssign(jobInfo, 'Skill in progress')
                   //   : onClickTestAssign(jobInfo)
                 }}
@@ -274,7 +274,7 @@ const AppliedRole = ({
       jobInfo!.requestStatus === 'Test assigned' &&
       jobInfo.testStatus === 'Awaiting assignment' &&
       skillTest &&
-      skillTest.status !== 'NO_TEST'
+      skillTest.status !== 'No test'
     ) {
       return (
         <Button
@@ -295,8 +295,8 @@ const AppliedRole = ({
       )
     } else if (
       basicTest &&
-      (jobInfo!.requestStatus === 'Test in progress' ||
-        jobInfo!.requestStatus === 'Basic in progress') &&
+      // (jobInfo!.requestStatus === 'Test in progress' ||
+      //   jobInfo!.requestStatus === 'Basic in progress') &&
       (jobInfo!.testStatus === 'Basic in progress' ||
         jobInfo!.testStatus === 'Basic submitted' ||
         jobInfo!.testStatus === 'Basic failed' ||
@@ -321,7 +321,7 @@ const AppliedRole = ({
       )
     } else if (
       skillTest &&
-      jobInfo!.requestStatus === 'Test in progress' &&
+      // jobInfo!.requestStatus === 'Test in progress' &&
       (jobInfo!.testStatus === 'Skill in progress' ||
         jobInfo!.testStatus === 'Skill submitted' ||
         jobInfo!.testStatus === 'Reviewing' ||
@@ -350,7 +350,7 @@ const AppliedRole = ({
         jobInfo!.testStatus === 'Skipped') ||
       (jobInfo!.requestStatus === 'Test in progress' &&
         basicTest &&
-        basicTest.status === 'NO_TEST' &&
+        basicTest.status === 'No test' &&
         skillTest &&
         skillTest.status === 'Awaiting assignment')
     ) {
@@ -376,8 +376,8 @@ const AppliedRole = ({
       // no test case 2, jobInfo.requestStatus에 상관없이 체크
       basicTest &&
       skillTest &&
-      ((basicTest!.status === 'NO_TEST' && skillTest!.status === 'NO_TEST') ||
-        (basicTest!.status !== 'NO_TEST' && skillTest!.status === 'NO_TEST'))
+      ((basicTest!.status === 'No test' && skillTest!.status === 'No test') ||
+        (basicTest!.status !== 'No test' && skillTest!.status === 'No test'))
     ) {
       if (
         jobInfo.role === 'DTPer' ||
@@ -690,16 +690,16 @@ const AppliedRole = ({
                               {!(
                                 (value.test.find(
                                   data => data.testType === 'basic',
-                                )?.status === 'NO_TEST' &&
+                                )?.status === 'No test' &&
                                   value.test.find(
                                     data => data.testType === 'skill',
-                                  )?.status === 'NO_TEST') ||
+                                  )?.status === 'No test') ||
                                 (value.test.find(
                                   data => data.testType === 'basic',
-                                )?.status !== 'NO_TEST' &&
+                                )?.status !== 'No test' &&
                                   value.test.find(
                                     data => data.testType === 'skill',
-                                  )?.status === 'NO_TEST')
+                                  )?.status === 'No test')
                               ) &&
                               value.requestStatus !== 'Certified' &&
                               value.requestStatus !== 'Awaiting assignment' &&
