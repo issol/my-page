@@ -1,5 +1,6 @@
 import { CurrencyType } from '../common/standard-price'
-import { InvoiceReceivableStatusType } from '../invoice/common.type'
+import { InvoiceReceivableStatusCodeLabelMixType, InvoiceReceivableStatusType } from '../invoice/common.type'
+import { InvoiceReceivableOrderType } from '../invoice/receivable.type'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type ClientProjectFilterType = {
@@ -54,10 +55,9 @@ export type ClientInvoiceListType = {
   payDueAt: string
   payDueTimezone: CountryType
   description: string
-  invoiceStatus: InvoiceReceivableStatusType
+  invoiceStatus: InvoiceReceivableStatusCodeLabelMixType
   currency?: CurrencyType
   updatedAt: string
-  orders: {
-    projectName: string
-  }
+  orders: InvoiceReceivableOrderType[]
+  projectName: string
 }

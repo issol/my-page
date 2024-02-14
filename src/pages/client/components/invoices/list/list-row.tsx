@@ -30,7 +30,7 @@ export default function ClientInvoicesRows(props: {
 
   const { data: statusList } = useGetStatusList('InvoiceReceivable')
   const statusLabel =
-    statusList?.find(i => i.value === row.invoiceStatus)?.label || ''
+    statusList?.find(i => i.label === row.invoiceStatus)?.label || ''
 
   const separateLine = () => {
     return (
@@ -44,6 +44,15 @@ export default function ClientInvoicesRows(props: {
         }}
       ></TableCell>
     )
+  }
+
+  const calTotalPrice = (row: ClientInvoiceListType) => {
+    if (!row.orders || row.orders.length === 0) return 0
+    const subtotal = row.orders.reduce(
+      (total, obj) => total + Number(obj.subtotal),
+      0,
+    )
+    return subtotal
   }
 
   return (
@@ -126,7 +135,7 @@ export default function ClientInvoicesRows(props: {
           }}
           size='small'
         >
-          <Typography variant='body1'>{row.orders.projectName}</Typography>
+          <Typography variant='body1'>{row.projectName}</Typography>
         </TableCell>
         {separateLine()}
         <TableCell
@@ -141,7 +150,7 @@ export default function ClientInvoicesRows(props: {
           size='small'
         >
           <Typography variant='body1' sx={{ fontWeight: 600 }}>
-            {formatCurrency(row.totalPrice, row.currency ?? 'USD')}
+            {formatCurrency(calTotalPrice(row), row.currency ?? 'USD')}
           </Typography>
         </TableCell>
         {separateLine()}
@@ -208,7 +217,10 @@ export default function ClientInvoicesRows(props: {
             <Grid container xs={12} padding='20px 64px'>
               <Grid item xs={3}>
                 <Title>Invoice description</Title>
-                <Desc>{row.description ?? '-'}</Desc>
+                <Desc>{row.description && row.description !== '' 
+                  ? row.description
+                  : '-'
+                }</Desc>
               </Grid>
             </Grid>
             {/* <Grid container xs={12} padding='0 60px 20px 60px'>
