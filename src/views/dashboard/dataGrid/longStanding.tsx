@@ -15,11 +15,7 @@ import {
 import { Box } from '@mui/material'
 import { useLongStanding } from '@src/queries/dashnaord.query'
 import { GridItem, Title } from '@src/views/dashboard/dashboardItem'
-import NoList from '@src/pages/components/no-list'
-import DashboardForSuspense, {
-  DashboardErrorFallback,
-  DashboardSuspenseProps,
-} from '@src/views/dashboard/suspense'
+import DashboardForSuspense from '@src/views/dashboard/suspense'
 
 interface LongStandingDataGridProps<T extends { id: number; status?: number }>
   extends CSVDataRecordProps {
@@ -114,7 +110,7 @@ const LongStandingDataGrid = <T extends { id: number; status?: number }>(
         postfix: `(0)`,
         padding: '20px',
       }}
-      refreshDataQueryKey={props.type}
+      refreshDataQueryKey={['Long-standing', props.type]}
     >
       <GridItem
         height={isData ? props.containerHeight || 547 : 253}
