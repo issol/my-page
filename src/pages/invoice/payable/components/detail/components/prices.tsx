@@ -22,6 +22,7 @@ const ViewPrices = ({ jobInfo, prices }: Props) => {
             prices: item.prices,
             unit: item.unit,
             currency: prices.currency,
+            title: item.title,
           } || []),
       ),
     [prices],
@@ -55,7 +56,7 @@ const ViewPrices = ({ jobInfo, prices }: Props) => {
               Price
             </Typography>
             <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-              {prices?.detail[0]?.title}
+              {prices?.initialPrice?.name}
             </Typography>
           </Box>
         </Box>
