@@ -155,7 +155,7 @@ const TADJobDataGrid = (props: TADJobDataGridProps) => {
         padding: '20px',
       }}
     >
-      <JobDataGrid {...props} />
+      <JobDataGrid {...props} handleTitleClick={handleTitleClick} />
     </DashboardForSuspense>
   )
 }
