@@ -146,9 +146,17 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
           source: jobPrices.source!,
           target: jobPrices.target!,
           priceId: jobPrices.priceId!,
-          detail: !jobPrices.detail?.length ? [] : jobPrices.detail!,
-
+          detail: !jobPrices.detail?.length 
+            ? [] 
+            : jobPrices.detail.map(value => ({
+                ...value,
+                priceUnitId: value.priceUnitId ?? value.id,
+              })),
+          minimumPrice: jobPrices.minimumPrice,
+          minimumPriceApplied: jobPrices.minimumPriceApplied,
+          initialPrice: jobPrices.initialPrice,
           totalPrice: Number(jobPrices?.totalPrice!),
+          priceFactor: Number(jobPrices.languagePair?.priceFactor ?? 0),
         },
       ]
 
