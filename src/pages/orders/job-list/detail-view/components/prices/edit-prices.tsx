@@ -106,6 +106,7 @@ const EditPrices = ({
   getItem,
   setItem,
   itemTrigger,
+  itemReset,
   itemErrors,
   isItemValid,
   appendItems,
@@ -213,6 +214,7 @@ const EditPrices = ({
       )
 
       setPrice(res!)
+      itemTrigger()
     }
   }, [jobPrices, item, prices])
 
@@ -320,6 +322,7 @@ const EditPrices = ({
                   if (matchedLanguagePair && matchedLanguagePair.minimumPrice)
                     openMinimumPriceModal(v)
                     setOverridePriceUnit(true)
+                    itemTrigger()
                 } else {
                   setPrice(null)
                 }
