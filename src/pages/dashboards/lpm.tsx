@@ -348,9 +348,11 @@ const LPMDashboards = () => {
                   sectionHeight={280}
                   path='u/dashboard/client-request/list/new'
                   pageNumber={4}
-                  movePage={params => router.push('/')}
                   columns={RequestColumns}
                   setOpenInfoDialog={setOpenInfoDialog}
+                  movePage={params =>
+                    router.push(`/quotes/lpm/requests/${params.id}/`)
+                  }
                   handleClick={() => router.push('/quotes/lpm/requests/')}
                 />
               </Box>
