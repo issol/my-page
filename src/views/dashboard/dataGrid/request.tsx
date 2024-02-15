@@ -1,16 +1,8 @@
 import { Box } from '@mui/material'
-import {
-  DataGrid,
-  GridColumns,
-  GridRowParams,
-  GridRowsProp,
-} from '@mui/x-data-grid'
-import { RequestColumns } from '@src/shared/const/columns/dashboard'
+import { DataGrid, GridColumns, GridRowParams } from '@mui/x-data-grid'
 import { styled } from '@mui/system'
-import React, { Suspense, useState } from 'react'
+import React, { useState } from 'react'
 import { useDashboardRequest } from '@src/queries/dashnaord.query'
-import { useRouter } from 'next/router'
-import { RequestType } from '@src/types/dashboard'
 import NoList from '@src/pages/components/no-list'
 import DashboardForSuspense, {
   DashboardSuspenseProps,
@@ -98,7 +90,11 @@ const RequestDashboard = ({
 
 const RequestDashboardDataGrid = (props: DashboardDataGridProps) => {
   return (
-    <DashboardForSuspense {...props} refreshDataQueryKey='request'>
+    <DashboardForSuspense
+      {...props}
+      refreshDataQueryKey='request'
+      titleProps={{ padding: '20px 20px 0' }}
+    >
       <RequestDashboard {...props} />
     </DashboardForSuspense>
   )
