@@ -23,6 +23,7 @@ type Props = {
   totalPrice: number | string
 }
 
+// TODO: 이 컴포넌트를 invoice payable과 quote의 history에서 사용하는데, quote history쪽 데이터가 잘나오는지 체크하지 못함
 export default function ItemPriceUnitTable({ price, itemDetail, totalPrice }: Props) {
   const Row = ({ idx, item }: { idx: number; item: ItemDetailType }) => {
     return (
@@ -34,7 +35,7 @@ export default function ItemPriceUnitTable({ price, itemDetail, totalPrice }: Pr
         </TableCell>
         <TableCell>
           <Typography variant='subtitle1' fontSize={14}>
-            {item.initialPriceUnit?.title}
+            {item.title}
           </Typography>
         </TableCell>
         <TableCell>
@@ -46,7 +47,11 @@ export default function ItemPriceUnitTable({ price, itemDetail, totalPrice }: Pr
             ) ?? '-'}
           </Typography>
         </TableCell>
-        <TableCell align='center'></TableCell>
+        <TableCell align='center'>
+          <Typography fontSize={14}>
+            {`${getCurrencyMark(price?.currency)} ${price?.currency}`}
+          </Typography>
+        </TableCell>
         <TableCell align='center'>
           <Typography fontSize={14}>
             {/* {`${getCurrencyMark(item.currency)} ${item.prices}`} */}
