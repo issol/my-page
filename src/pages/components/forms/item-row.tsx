@@ -151,13 +151,19 @@ const Row = ({
   const itemName: `items.${number}.detail` = `items.${idx}.detail`
 
   // standard price에 등록된 데이터중 매칭된 데이터
-
   const priceData = () => {
-    return (
-      getPriceOptions(itemData.source!, itemData.target!).find(
+    if (!itemData) {
+      const source = getValues(`items.${idx}.source`)
+      const target = getValues(`items.${idx}.target`)
+      const priceId = getValues(`items.${idx}.priceId`)
+      return getPriceOptions(source!, target!).find(
+        price => price.id === priceId,
+      ) || null
+    } else {
+      return getPriceOptions(itemData.source!, itemData.target!).find(
         price => price.id === itemData.priceId,
       ) || null
-    )
+    }
   }
 
   const openMinimumPriceModal = (value: {
@@ -1082,9 +1088,9 @@ const Row = ({
               onDeleteNoPriceUnit={onDeleteNoPriceUnit}
               // onItemBoxLeave={onItemBoxLeave}
               isValid={
-                !!itemData.source &&
-                !!itemData.target &&
-                (!!itemData.priceId || itemData.priceId === NOT_APPLICABLE)
+                !!getValues(`items.${idx}.source`) &&
+                !!getValues(`items.${idx}.target`) &&
+                (!!getValues(`items.${idx}.priceId`) || getValues(`items.${idx}.priceId`) === NOT_APPLICABLE)
               }
               // isNotApplicable={isNotApplicable()}
               priceUnitsList={priceUnitsList}

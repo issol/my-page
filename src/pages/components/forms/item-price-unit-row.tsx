@@ -386,13 +386,13 @@ const Row = ({
                 ...getValues(`${detailName}.${idx}`),
                 isBase: false,
                 price: 0,
-                title: getValues(`${detailName}.${idx}`).title
+                title: getValues(`${detailName}.${idx}`)?.title
                   ? getValues(`${detailName}.${idx}`).title!
                   : getValues(`${detailName}.${idx}.initialPriceUnit.title`)
                     ? getValues(`${detailName}.${idx}.initialPriceUnit.title`)!
                     : '',
-                id: getValues(`${detailName}.${idx}`).id!,
-                weighting: Number(getValues(`${detailName}.${idx}`).weighting!),
+                id: getValues(`${detailName}.${idx}`)?.id!,
+                weighting: Number(getValues(`${detailName}.${idx}`)?.weighting!),
                 subPriceUnits: [],
                 groupName: '',
               }
@@ -438,7 +438,7 @@ const Row = ({
                     console.log('Change', v)
                     if (v) {
                       const priceFactor = Number(
-                        getValues(`items.${index}`).priceFactor,
+                        getValues(`items.${index}`)?.priceFactor,
                       )
                       setOpen(false)
 
