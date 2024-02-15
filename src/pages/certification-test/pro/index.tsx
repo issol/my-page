@@ -9,16 +9,9 @@ import {
   useGetProAppliedRoles,
   useGetProContract,
 } from '@src/queries/pro/pro-applied-roles'
-import {
-  ProAppliedRolesFilterType,
-  ProAppliedRolesStatusHistoryType,
-} from '@src/types/pro/pro-applied-roles'
-import useModal from '@src/hooks/useModal'
-import StatusHistoryModal from './components/modal/status-history-modal'
+import { ProAppliedRolesFilterType } from '@src/types/pro/pro-applied-roles'
 import ProCertificationTests from './components/certiciation-tests'
-import { useGetContract } from '@src/queries/contract/contract.query'
 import NDASigned from './components/nda-signed'
-import { currentVersionType } from '@src/apis/contract.api'
 import Image from 'next/image'
 import ContractSigned from './components/contract-signed'
 
@@ -221,13 +214,6 @@ const ProCertificationTest = () => {
                     sx={{ height: '40px' }}
                     onClick={() => {
                       setSignContract(true)
-                      // setSignNDA(true)
-                      // setLanguage('ENG')
-                      // getContractDetail({ type: 'NDA', language: 'ENG' }).then(
-                      //   res => {
-                      //     setNDA(res.currentVersion)
-                      //   },
-                      // )
                     }}
                   >
                     Sign Contracts
@@ -265,6 +251,8 @@ const ProCertificationTest = () => {
               <ProCertificationTests
                 appliedRoles={appliedRoles?.data ?? []}
                 auth={auth}
+                setSignNDA={setSignNDA}
+                setLanguage={setNdaLanguage}
               />
             </Suspense>
           </Box>

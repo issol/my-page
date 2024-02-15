@@ -6,11 +6,9 @@ import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import JobTypeRole from '@src/pages/components/job-type-role-chips'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import {
-  ProAppliedRolesType,
   ProAppliedRolesStatusHistoryType,
+  ProAppliedRolesType,
 } from '@src/types/pro/pro-applied-roles'
-
-import { Dispatch, SetStateAction } from 'react'
 import { Loadable } from 'recoil'
 
 export const getProAppliedRolesColumns = (
@@ -237,7 +235,6 @@ export const getProAppliedRolesColumns = (
       flex: 0.1672,
       minWidth: 275,
       field: 'action',
-
       headerName: 'Action',
       disableColumnMenu: true,
       sortable: false,
@@ -295,6 +292,7 @@ export const getProAppliedRolesColumns = (
                     minWidth: '28px !important',
                     padding: '0px !important',
                   }}
+                  onClick={() => onClickTestGuideLine(row)}
                 >
                   <Icon
                     icon='fluent:book-information-24-regular'

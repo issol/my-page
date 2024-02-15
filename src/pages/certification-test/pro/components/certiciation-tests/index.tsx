@@ -3,7 +3,7 @@ import {
   ProCertificationTestFilterType,
   ProCertificationTestListType,
 } from '@src/types/pro/pro-certification-test'
-import { Suspense, useState } from 'react'
+import { Dispatch, SetStateAction, Suspense, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Filter from './filter'
 import {
@@ -19,16 +19,12 @@ import { useGetProCertificationTestList } from '@src/queries/pro/pro-certificati
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { ProAppliedRolesType } from '@src/types/pro/pro-applied-roles'
-import AlertModal from '@src/@core/components/common-modal/alert-modal'
-import InformationModal from '@src/@core/components/common-modal/information-modal'
 import { getIsProBasicTestPassed } from '@src/apis/pro/pro-certification-tests'
-import { Loadable } from 'recoil'
+import { Loadable, useRecoilStateLoadable } from 'recoil'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { useMutation, useQueryClient } from 'react-query'
-import {
-  addCreateProAppliedRole,
-  addCreatedAppliedRole,
-} from '@src/apis/onboarding.api'
+import { addCreateProAppliedRole } from '@src/apis/onboarding.api'
+import { currentRoleSelector } from '@src/states/permission'
 
 export type FilterType = {
   jobType: Array<{ label: string; value: string }>
@@ -60,14 +56,23 @@ type Props = {
     loading: boolean
   }>
   appliedRoles: ProAppliedRolesType[]
+  setSignNDA: Dispatch<SetStateAction<boolean>>
+  setLanguage: Dispatch<SetStateAction<'ENG' | 'KOR'>>
 }
 
-const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
-  const { openModal, closeModal } = useModal()
+const ProCertificationTests = ({
+  auth,
+  setSignNDA,
+  setLanguage,
+  appliedRoles,
+}: Props) => {
   const queryClient = useQueryClient()
+  const [currentRole] = useRecoilStateLoadable(currentRoleSelector)
+
+  const { openModal, closeModal } = useModal()
+
   const [filters, setFilters] =
     useState<ProCertificationTestFilterType>(defaultFilter)
-
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,
@@ -124,6 +129,36 @@ const ProCertificationTests = ({ auth, appliedRoles }: Props) => {
   }
 
   const onClickApply = (data: ProCertificationTestListType) => {
+    //isSignToNDA
+    const isNotSignToNDA =
+      !auth.getValue().user?.isSignToNDA &&
+      currentRole.getValue()?.name === 'PRO'
+
+    if (isNotSignToNDA) {
+      openModal({
+        type: 'SignedNDAModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('SignedNDAModal')}
+            vary='info'
+            onClick={() => {
+              if (data.source === 'ko' || data.target === 'ko') {
+                setLanguage('KOR')
+              } else {
+                setLanguage('ENG')
+              }
+              setSignNDA(true)
+              closeModal('SignedNDAModal')
+            }}
+            title='In order to proceed, agreement to the Non-Disclosure Agreement (NDA) is required.'
+            rightButtonText='Sign NDA'
+            leftButtonText='Later'
+          />
+        ),
+      })
+      return
+    }
+
     const validAppliedRoles = appliedRoles.filter(
       value =>
         value.status === 'Awaiting approval' ||
