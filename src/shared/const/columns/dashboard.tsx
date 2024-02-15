@@ -190,7 +190,7 @@ export const RequestColumns: GridColumns = [
           gap='8px'
           sx={{ marginLeft: '24px' }}
         >
-          <Inbox />
+          <CalendarTodayIcon />
           <Typography sx={{ width: '100%', color }}>{`${moment(
             row.desiredDueDate,
           )
