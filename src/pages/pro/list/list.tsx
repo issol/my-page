@@ -4,14 +4,9 @@ import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 // ** Data Import
-
 import { Dispatch, SetStateAction } from 'react'
 
-import {
-  ProFilterType,
-  ProListFilterType,
-  ProListType,
-} from '@src/types/pro/list'
+import { ProListFilterType, ProListType } from '@src/types/pro/list'
 
 type Props = {
   proListPage: number

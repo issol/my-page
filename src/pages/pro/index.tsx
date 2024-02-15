@@ -16,11 +16,9 @@ import {
   ProListFilterType,
   ProListType,
 } from '@src/types/pro/list'
-import { SyntheticEvent, useContext, useEffect, useState } from 'react'
+import { SyntheticEvent, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import JobTypeRole from '../components/job-type-role-chips'
 import LegalNameEmail from '../onboarding/components/list/list-item/legalname-email'
-import TestStatus from '../onboarding/components/list/list-item/test-status'
 import ProListFilters from './list/filters'
 import ProList from './list/list'
 import { v4 as uuidv4 } from 'uuid'
@@ -35,7 +33,6 @@ import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
-import { setDate } from 'date-fns'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import { useQueryClient } from 'react-query'
 import { timezoneSelector } from '@src/states/permission'
@@ -244,6 +241,9 @@ const Pro = () => {
       sortable: false,
       renderHeader: () => <Box>Legal name / Email</Box>,
       renderCell: ({ row }: ProListCellType) => {
+        {
+          console.log('USERID', row.userId)
+        }
         return (
           <LegalNameEmail
             row={{
