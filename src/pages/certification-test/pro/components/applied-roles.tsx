@@ -1,33 +1,18 @@
-import {
-  Box,
-  Button,
-  Card,
-  CardHeader,
-  Switch,
-  Typography,
-} from '@mui/material'
+import { Box, Card, CardHeader, Switch, Typography } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 
 import { ClientUserType, UserDataType, UserRoleType } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
-import { useGetProAppliedRoles } from '@src/queries/pro/pro-applied-roles'
 
 import { getProAppliedRolesColumns } from '@src/shared/const/columns/pro-applied-roles'
 import {
   ProAppliedRolesFilterType,
-  ProAppliedRolesType,
   ProAppliedRolesStatusHistoryType,
+  ProAppliedRolesType,
 } from '@src/types/pro/pro-applied-roles'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { Loadable } from 'recoil'
 import StatusHistoryModal from './modal/status-history-modal'
-import { useGetContract } from '@src/queries/contract/contract.query'
-import {
-  ContractDetailType,
-  currentVersionType,
-  getContractDetail,
-} from '@src/apis/contract.api'
-import NDASigned from './nda-signed'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import ReasonModal from './modal/reson-modal'
 import TestGuidelineModal from './modal/test-guideline-modal'
@@ -60,15 +45,12 @@ type Props = {
 
 const ProAppliedRoles = ({
   role,
-
   statusList,
   auth,
   setSignNDA,
   setLanguage,
-  filters,
   setFilters,
   seeOnlyActiveTests,
-  setSeeOnlyActiveTests,
   handleSeeOnlyActiveTests,
   appliedRoles,
   appliedRolesLoading,
@@ -139,9 +121,9 @@ const ProAppliedRoles = ({
                         row.status === 'Basic in progress'
                         ? row.basicTest?.testPaperFormUrl
                         : row.status === 'Skill test Ready' ||
-                          row.status === 'Skill in progress'
-                        ? row.skillTest?.testPaperFormUrl
-                        : '',
+                            row.status === 'Skill in progress'
+                          ? row.skillTest?.testPaperFormUrl
+                          : '',
                       '_blank',
                     )
                     closeModal('BeforeStartTestModal')
@@ -213,6 +195,31 @@ const ProAppliedRoles = ({
   }
 
   const onClickTestGuideLine = (row: ProAppliedRolesType) => {
+    if (!auth.getValue().user?.isSignToNDA) {
+      openModal({
+        type: 'TestGuideLineNDAModal',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('TestGuideLineNDAModal')}
+            vary='info'
+            onClick={() => {
+              if (row.sourceLanguage === 'ko' || row.targetLanguage === 'ko') {
+                setLanguage('KOR')
+              } else {
+                setLanguage('ENG')
+              }
+              setSignNDA(true)
+              closeModal('TestGuideLineNDAModal')
+            }}
+            title='In order to proceed, agreement to the Non-Disclosure Agreement (NDA) is required.'
+            rightButtonText='Sign NDA'
+            leftButtonText='Later'
+          />
+        ),
+      })
+      return
+    }
+
     openModal({
       type: 'TestGuidelineModal',
       children: (
@@ -230,9 +237,9 @@ const ProAppliedRoles = ({
       row.status === 'Basic test Ready' || row.status === 'Basic in progress'
         ? row.basicTest?.testPaperFormUrl
         : row.status === 'Skill test Ready' ||
-          row.status === 'Skill in progress'
-        ? row.skillTest?.testPaperFormUrl
-        : '',
+            row.status === 'Skill in progress'
+          ? row.skillTest?.testPaperFormUrl
+          : '',
       '_blank',
     )
   }
@@ -367,18 +374,6 @@ const ProAppliedRoles = ({
                   id: row.id,
                   reply: 'assign_role_pro',
                 })
-
-                // patchTestStatusMutation.mutate(
-                //   {
-                //     id: row.id,
-                //     status: ''Contract required,
-                //   },
-                //   {
-                //     onSuccess: () => {
-                //       closeModal('AcceptModal')
-                //     },
-                //   },
-                // )
               }}
               rightButtonText='Accept'
             />
