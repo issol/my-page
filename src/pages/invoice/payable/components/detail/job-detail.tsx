@@ -31,7 +31,7 @@ import EditJobInfo from './components/job-info-form'
 import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-modals/confirm-save-all-chages'
 
 // ** apis
-import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
+import { useGetJobDetails, useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetProjectTeam } from '@src/queries/order/order.query'
 import { saveJobInfo, saveJobPrices } from '@src/apis/job-detail.api'
 
@@ -52,13 +52,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { editJobInfoSchema } from '@src/types/schema/job-detail'
 
 import { toast } from 'react-hot-toast'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemType, JobItemType } from '@src/types/common/item.type'
 import { jobItemSchema } from '@src/types/schema/item.schema'
 import ViewPrices from './components/prices'
 import EditPrices from '@src/pages/orders/job-list/detail-view/components/prices/edit-prices'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useGetStatusList } from '@src/queries/common.query'
 import { languageType } from '@src/pages/orders/add-new'
+import { useGetProPriceList } from '@src/queries/company/standard-price'
 
 type Props = {
   id: number
@@ -83,6 +84,9 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
   const { data: jobPrices } = useGetJobPrices(id, false)
   const { data: projectTeam } = useGetProjectTeam(jobInfo?.order.id!)
   const { data: statusList } = useGetStatusList('Job')
+  const { data: jobDetails } = useGetJobDetails(jobInfo?.order.id!, true)
+
+  const { data: prices, isSuccess } = useGetProPriceList({})
 
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
@@ -294,6 +298,24 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
     )
   }
 
+  function findItemWithJobId(data: {
+    id: number
+    cooperationId: string
+    items: JobItemType[]
+  }, jobId: number) {
+    // `data.items` 배열을 순회하면서 `jobId`와 일치하는 `id`를 포함하는 `item`을 찾습니다.
+    for (const item of data.items) {
+      // `item.jobs` 배열 내에서 `jobId`와 일치하는 `id`를 가진 `job`을 찾습니다.
+      const foundJob = item.jobs.find(job => job.id === jobId);
+      // 일치하는 `job`을 찾았다면, 해당 `item`을 반환합니다.
+      if (foundJob) {
+        return item;
+      }
+    }
+    // 일치하는 `item`을 찾지 못했다면, `null`을 반환합니다.
+    // return null;
+  }
+
   return (
     <Suspense fallback={<FallbackSpinner />}>
       <Grid container spacing={6}>
@@ -409,6 +431,10 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
                           row={jobInfo}
                           jobPrices={jobPrices!}
                           orderItems={[]}
+                          item={
+                            findItemWithJobId(jobDetails!, jobInfo.id!)
+                          }
+                          prices={prices}
                         />
                       )}
                     </Grid>
