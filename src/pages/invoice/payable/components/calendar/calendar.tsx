@@ -45,7 +45,7 @@ const PayableCalendar = (props: Props) => {
   const finalEvent = event.map(item => {
     return {
       ...item,
-      title: item.pro?.name,
+      title: item.corporationId,
       start: item.statusUpdatedAt,
       end: item.statusUpdatedAt,
     }
