@@ -40,6 +40,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 import { changeTimeZoneOffsetFilter } from '@src/shared/helpers/date.helper'
+import moment from 'moment-timezone'
 
 const initialFilter: InvoicePayableFilterType = {
   invoiceStatus: [],
@@ -82,26 +83,18 @@ export default function Payable() {
       skip: skip * activeFilter.take,
       take: activeFilter.take,
       invoicedDateFrom: filter.invoicedDateFrom
-        ? changeTimeZoneOffsetFilter(
-            new Date(
-              new Date(filter.invoicedDateFrom).setDate(
-                new Date(filter.invoicedDateFrom).getDate() - 1,
-              ),
-            ).toISOString(),
-            user.getValue().user?.timezone ?? {
-              label: 'Asia/Seoul',
-              code: 'KST',
-            },
-          ) ?? undefined
+        ? moment
+            .utc(filter.invoicedDateFrom)
+            .add(1, 'days')
+            .startOf('day')
+            .toISOString()
         : undefined,
       invoicedDateTo: filter.invoicedDateTo
-        ? changeTimeZoneOffsetFilter(
-            filter.invoicedDateTo,
-            user.getValue().user?.timezone ?? {
-              label: 'Asia/Seoul',
-              code: 'KST',
-            },
-          ) ?? undefined
+        ? moment
+            .utc(filter.invoicedDateTo)
+            .add(1, 'days')
+            .endOf('day')
+            .toISOString()
         : undefined,
       payDueDateFrom: filter.payDueDateFrom
         ? changeTimeZoneOffsetFilter(
@@ -150,7 +143,11 @@ export default function Payable() {
     })
     queryClient.invalidateQueries([
       'invoice/payable/list',
-      { ...filter, skip: skip * activeFilter.take, take: activeFilter.take },
+      {
+        ...filter,
+        skip: skip * activeFilter.take,
+        take: activeFilter.take,
+      },
     ])
   }
 
