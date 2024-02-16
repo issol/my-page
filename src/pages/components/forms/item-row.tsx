@@ -104,6 +104,7 @@ type Props = {
   selectNotApplicableModal: () => void
   priceUnitsList: Array<PriceUnitListType>
   checkPriceCurrency: (price: StandardPriceListType, index: number) => boolean
+  validateCurrency: () => void
   findLangPairIndex: (source: string, target: string) => number
   teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
   indexing?: number
@@ -132,6 +133,7 @@ const Row = ({
   selectNotApplicableModal,
   priceUnitsList,
   checkPriceCurrency,
+  validateCurrency,
   findLangPairIndex,
   teamMembers,
   indexing,
@@ -256,7 +258,6 @@ const Row = ({
     const findIndex = getValues(`items.${idx}.detail`)?.findIndex(
       item => item.priceUnitId === priceUnitId,
     )
-    console.log(findIndex, 'find')
 
     if (findIndex !== -1) {
       remove(findIndex)
@@ -271,18 +272,13 @@ const Row = ({
     const item = getValues(`items.${idx}.detail`)
     const detailItem = getValues(`items.${idx}.detail.${index}`)
     if (detailItem && item) {
-      console.log(item)
-      console.log(detailItem)
       const indexToRemove = item.findIndex(field => field === detailItem)
-      console.log(indexToRemove)
 
       remove(index)
     }
 
     itemTrigger(`items.${idx}.detail`)
   }
-
-  console.log(details)
 
   function onDeleteAllPriceUnit() {
     details.map((unit, idx) => remove(idx))
@@ -393,19 +389,25 @@ const Row = ({
     options: (StandardPriceListType & {
       groupName?: string | undefined
     })[],
-  ) {
+  ) { 
+
     if (v?.id) {
-      const items = getValues('items')
+      // TODO: 이부분 레리엘과 코드리뷰 해야 함(Jay)
+      // const items = getValues('items')
 
-      const priceIds = items.map(item => item.priceId)
-      const matchingOptions = options.filter(option =>
-        priceIds.includes(option.id),
-      )
-      const currencies = matchingOptions
-        .map(option => option.currency)
-        .filter(detailItem => detailItem !== null)
+      // const priceIds = items.map(item => item.priceId)
+      // const matchingOptions = options.filter(option =>
+      //   priceIds.includes(option.id),
+      // )
+      // const currencies = matchingOptions
+      //   .map(option => option.currency)
+      //   .filter(detailItem => detailItem !== null)
 
-      if (v.id === NOT_APPLICABLE) {
+      // 첫번째 아이템의 currnecy가 order의 기준 currency가 된다.
+      const baseCurrency = getValues(`items.${0}.currency`)
+      if (baseCurrency && baseCurrency !== v?.currency) {
+        validateCurrency()
+      } else if (v.id === NOT_APPLICABLE) {
         const source = getValues(`items.${idx}.source`)!
         const target = getValues(`items.${idx}.target`)!
         setValue(`items.${idx}.priceId`, v?.id)
@@ -435,23 +437,6 @@ const Row = ({
         itemTrigger(`items.${idx}`)
         getTotalPrice()
         handleMinimumPrice()
-      } else if (currencies.length > 0 && currencies[0] !== v?.currency) {
-        openModal({
-          type: 'CurrencyMatchModal',
-          children: (
-            <CustomModal
-              title={`Please check the currency of the selected price. You can't use different currencies in an ${from}.`}
-              soloButton
-              rightButtonText='Okay'
-              onClick={() => {
-                closeModal('CurrencyMatchModal')
-                setValue(`items.${idx}.priceId`, null)
-              }}
-              onClose={() => closeModal('CurrencyMatchModal')}
-              vary='error'
-            />
-          ),
-        })
       } else {
         const source = getValues(`items.${idx}.source`)!
         const target = getValues(`items.${idx}.target`)!
@@ -467,6 +452,7 @@ const Row = ({
         const priceFactor = languagePairData?.priceFactor
         const currency = languagePairData?.currency ?? null
         const priceCurrency = priceData?.currency ?? null
+
         const rounding = priceData?.roundingProcedure
         const numberPlace = priceData?.decimalPlace
 
@@ -502,7 +488,11 @@ const Row = ({
       })
     } else handleShowMinimum(false)
   }
-  const findCurrency = (items: ItemType[], detailIndex: number) => {
+  const findCurrency = (
+    items: ItemType[],
+    index: number,
+    detailIndex: number,
+  ) => {
     // Find an item with a currency property
     const itemWithCurrency = items.find(item => item.currency)
 
@@ -511,23 +501,21 @@ const Row = ({
     }
 
     // If no item with a currency property was found, look in the details
-    for (const item of items) {
-      if (item.detail) {
-        const filteredDetails = item.detail.filter(
-          (detail, index) => index !== detailIndex,
-        )
-        const detailWithCurrency = filteredDetails.find(
-          detail => detail.currency !== null,
-        )
-        console.log(detailWithCurrency)
+    const filteredDetails = items
+      .filter(value => value.detail && value.detail.length > 0)
+      .map(item => {
+        if (item.detail) return item.detail
+        else return []
+      })
+      .flat()
 
-        if (detailWithCurrency) {
-          return detailWithCurrency.currency
-        }
-      }
+    const detailWithCurrency = filteredDetails.find(
+      detail => detail.currency !== null,
+    )
+    if (detailWithCurrency) {
+      return detailWithCurrency.currency
     }
 
-    // If no currency was found, return null
     return null
   }
 
@@ -545,8 +533,6 @@ const Row = ({
     detailIndex: number,
   ) => {
     const items = getValues('items')
-    console.log(items, 'hi')
-    console.log(detailIndex)
 
     // const currencies = items.flatMap(item =>
     //   item.detail && item.detail.length > 0
@@ -556,12 +542,10 @@ const Row = ({
     //         .map(detailItem => detailItem.currency)
     //     : [],
     // )
-    const detailCurrency = findCurrency(items, detailIndex)
-    console.log(detailCurrency, 'hi')
+    const detailCurrency = findCurrency(items, index, detailIndex)
 
-    // console.log(currencies, 'hi')
-
-    if (currency && detailCurrency !== currency) {
+    const baseCurrency = getValues(`items.${0}.currency`)
+    if (baseCurrency && currency && baseCurrency !== currency && index !== 0) {
       openModal({
         type: 'CurrencyMatchModal',
         children: (
@@ -582,10 +566,12 @@ const Row = ({
     }
 
     //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
-    // detail.map((priceUnit, idx) => {
-    //   setValue(`items.${index}.detail.${idx}.currency`, currency)
-    // })
+    detail.map((priceUnit, idx) => {
+      setValue(`items.${index}.detail.${idx}.currency`, currency)
+    })
+    setValue(`items.${index}.currency`, currency)
     itemTrigger(`items.${index}.detail`)
+    validateCurrency()
   }
 
   return (
@@ -1016,21 +1002,21 @@ const Row = ({
                             // if (v && v.id === -1) {
                             //   selectNotApplicableModal()
                             // } else {
-                            if (checkPriceCurrency(v, idx)) {
-                              onChange(v?.id)
-                              const value = getValues().items[idx]
-                              const index = findLangPairIndex(
-                                value?.source!,
-                                value?.target!,
-                              )
-                              onChangePrice(v, idx, options)
+                            // if (checkPriceCurrency(v, idx)) {
+                            // }
+                            onChange(v?.id)
+                            const value = getValues().items[idx]
+                            const index = findLangPairIndex(
+                              value?.source!,
+                              value?.target!,
+                            )
+                            onChangePrice(v, idx, options)
 
-                              if (index !== -1) {
-                                const copyLangPair = [...languagePairs]
-                                copyLangPair[index].price = v
-                              }
-                              getTotalPrice()
+                            if (index !== -1) {
+                              const copyLangPair = [...languagePairs]
+                              copyLangPair[index].price = v
                             }
+                            getTotalPrice()
                           }
                           // }
                         }}

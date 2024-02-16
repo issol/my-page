@@ -121,9 +121,6 @@ const Row = ({
   setValue,
   row,
 }: Props) => {
-  console.log(idx)
-  console.log(row)
-
   const prevValueRef = useRef()
   const [savedValue, setSavedValue] = useState<ItemDetailType>(currentItem[idx])
   const [price, setPrice] = useState(savedValue?.prices || 0)
@@ -187,15 +184,16 @@ const Row = ({
           : 0,
         currency,
       )
-      console.log(getValues(`items.${index}.detail`), 'check')
 
       // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
+      // NOT_APPLICAABLE일때는 제외
       // 스탠다드 프라이스의 언어페어 정보 : languagePairs
-      setValue(`items.${index}.detail.${unitIndex}.currency`, currency, {
-        shouldDirty: true,
-        shouldValidate: false,
-      })
-      // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
+      if (!isNotApplicable) {
+        setValue(`items.${index}.detail.${unitIndex}.currency`, currency, {
+          shouldDirty: true,
+          shouldValidate: false,
+        })
+      }
       setValue(
         `items.${index}.detail.${unitIndex}.prices`,
         isNaN(Number(roundingPrice)) ? 0 : Number(roundingPrice),
@@ -213,7 +211,6 @@ const Row = ({
       getEachPrice(rowIndex, isNotApplicable) //폼 데이터 업데이트 (setValue)
 
     // getTotalPrice() // 합계 데이터 업데이트 (setValue)
-    console.log(newPrice)
     if (newPrice) {
     }
   }
@@ -240,7 +237,7 @@ const Row = ({
 
   const onClickDeletePriceUnit = (idx: number, id: number) => {
     const findItem = options.find(item => item.id === id)
-    console.log('@#$@#$@#$#@', findItem)
+
     if (findItem) {
       openModal({
         type: 'DeletePriceUnitModal',
@@ -283,7 +280,6 @@ const Row = ({
         !(event.target instanceof HTMLInputElement) &&
         !(event.target instanceof HTMLLIElement)
       ) {
-        console.log('outside')
         // 필요한 액션
         updatePrice(idx)
         updateTotalPrice()
@@ -435,7 +431,6 @@ const Row = ({
                       : option.title
                   }}
                   onChange={(e, v) => {
-                    console.log('Change', v)
                     if (v) {
                       const priceFactor = Number(
                         getValues(`items.${index}`)?.priceFactor,
@@ -757,11 +752,6 @@ const Row = ({
         type === 'invoiceCreate' ? null : (
           <IconButton
             onClick={() => {
-              console.log(
-                'Delete',
-                getValues(`${detailName}.${idx}.priceUnitId`),
-              )
-
               if (
                 getValues(`${detailName}.${idx}.priceUnitId`) === null ||
                 getValues(`${detailName}.${idx}.priceUnitId`) === -1
