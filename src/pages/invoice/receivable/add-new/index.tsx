@@ -658,6 +658,7 @@ export default function AddNewInvoice() {
           }
         })
         getProjectInfo(id[0]).then(res => {
+          console.log("getProjectInfo-res", res)
           projectInfoReset({
             invoiceDate: new Date(),
             showDescription: false,
@@ -668,6 +669,7 @@ export default function AddNewInvoice() {
             tax: res.tax ? res.tax.toString() : null,
             subtotal: res.subtotal,
             workName: res.workName,
+            projectName: res.projectName,
           })
         })
       } else {
