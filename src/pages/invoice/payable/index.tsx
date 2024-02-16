@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { Fragment, useContext, useEffect, useMemo, useState } from 'react'
 
 // ** style components
 import {
@@ -39,7 +39,7 @@ import useModal from '@src/hooks/useModal'
 import { useMutation, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
-import { changeTimeZoneOffsetFilter } from '@src/shared/helpers/date.helper'
+import { convertLocalToUtc } from '@src/shared/helpers/date.helper'
 import moment from 'moment-timezone'
 
 const initialFilter: InvoicePayableFilterType = {
@@ -77,68 +77,42 @@ export default function Payable() {
 
   const { data: list, isLoading } = useGetPayableList(activeFilter)
 
+  const userTimezone = useMemo(() => {
+    const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    return user.getValue().user?.timezone.label || browserTimezone
+  }, [user])
+
   const onSearch = () => {
     setActiveFilter({
       ...filter,
       skip: skip * activeFilter.take,
       take: activeFilter.take,
       invoicedDateFrom: filter.invoicedDateFrom
-        ? moment
-            .utc(filter.invoicedDateFrom)
-            .add(1, 'days')
-            .startOf('day')
-            .toISOString()
+        ? convertLocalToUtc(filter.invoicedDateFrom, userTimezone)
         : undefined,
-      invoicedDateTo: filter.invoicedDateTo
-        ? moment
-            .utc(filter.invoicedDateTo)
-            .add(1, 'days')
-            .endOf('day')
-            .toISOString()
+      invoicedDateTo: filter.invoicedDateFrom
+        ? convertLocalToUtc(
+            moment(filter.invoicedDateFrom).add(1, 'day').format(),
+            userTimezone,
+          )
         : undefined,
       payDueDateFrom: filter.payDueDateFrom
-        ? changeTimeZoneOffsetFilter(
-            new Date(
-              new Date(filter.payDueDateFrom).setDate(
-                new Date(filter.payDueDateFrom).getDate() - 1,
-              ),
-            ).toISOString(),
-            user.getValue().user?.timezone ?? {
-              label: 'Asia/Seoul',
-              code: 'KST',
-            },
-          ) ?? undefined
+        ? convertLocalToUtc(filter.payDueDateFrom, userTimezone)
         : undefined,
       payDueDateTo: filter.payDueDateTo
-        ? changeTimeZoneOffsetFilter(
-            filter.payDueDateTo,
-            user.getValue().user?.timezone ?? {
-              label: 'Asia/Seoul',
-              code: 'KST',
-            },
-          ) ?? undefined
+        ? convertLocalToUtc(
+            moment(filter.payDueDateTo).add(1, 'day').format(),
+            userTimezone,
+          )
         : undefined,
       paidDateFrom: filter.paidDateFrom
-        ? changeTimeZoneOffsetFilter(
-            new Date(
-              new Date(filter.paidDateFrom).setDate(
-                new Date(filter.paidDateFrom).getDate() - 1,
-              ),
-            ).toISOString(),
-            user.getValue().user?.timezone ?? {
-              label: 'Asia/Seoul',
-              code: 'KST',
-            },
-          ) ?? undefined
+        ? convertLocalToUtc(filter.paidDateFrom, userTimezone)
         : undefined,
       paidDateTo: filter.paidDateTo
-        ? changeTimeZoneOffsetFilter(
-            filter.paidDateTo,
-            user.getValue().user?.timezone ?? {
-              label: 'Asia/Seoul',
-              code: 'KST',
-            },
-          ) ?? undefined
+        ? convertLocalToUtc(
+            moment(filter.paidDateTo).add(1, 'day').format(),
+            userTimezone,
+          )
         : undefined,
     })
     queryClient.invalidateQueries([

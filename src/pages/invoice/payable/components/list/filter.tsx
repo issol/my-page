@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -31,7 +31,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import dayjs from 'dayjs'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { convertAndFormatToIso } from '@src/shared/helpers/date.helper'
+import moment from 'moment-timezone'
 
 type Props = {
   filter: InvoicePayableFilterType
@@ -64,11 +64,6 @@ const Filter = ({ filter, setFilter, onReset, search, statusList }: Props) => {
           endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
         }`
   }
-
-  const userTimezone = useMemo(() => {
-    const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
-    return user.getValue().user?.timezone.label || browserTimezone
-  }, [user])
 
   return (
     <DatePickerWrapper>
@@ -187,19 +182,17 @@ const Filter = ({ filter, setFilter, onReset, search, statusList }: Props) => {
                           : null
                       }
                       shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
-
-                        const date1 = convertAndFormatToIso(e[0], userTimezone)
-                        let date2: string | undefined = undefined
-                        if (e[1]) {
-                          date2 = convertAndFormatToIso(e[1], userTimezone)
-                        }
+                      onChange={([start, end]) => {
+                        if (!start && !end) return
 
                         setFilter({
                           ...filter,
-                          invoicedDateFrom: date1,
-                          invoicedDateTo: date2,
+                          invoicedDateFrom: start
+                            ? moment(start).toISOString()
+                            : undefined,
+                          invoicedDateTo: end
+                            ? moment(end).toISOString()
+                            : undefined,
                         })
                       }}
                       placeholderText=''
@@ -239,17 +232,17 @@ const Filter = ({ filter, setFilter, onReset, search, statusList }: Props) => {
                           : null
                       }
                       shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
-                        const date1 = convertAndFormatToIso(e[0], userTimezone)
-                        let date2: string | undefined = undefined
-                        if (e[1]) {
-                          date2 = convertAndFormatToIso(e[1], userTimezone)
-                        }
+                      onChange={([start, end]) => {
+                        if (!start && !end) return
+
                         setFilter({
                           ...filter,
-                          payDueDateFrom: date1,
-                          payDueDateTo: date2,
+                          payDueDateFrom: start
+                            ? moment(start).toISOString()
+                            : undefined,
+                          payDueDateTo: end
+                            ? moment(end).toISOString()
+                            : undefined,
                         })
                       }}
                       customInput={
@@ -286,17 +279,17 @@ const Filter = ({ filter, setFilter, onReset, search, statusList }: Props) => {
                           : null
                       }
                       shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
-                        const date1 = convertAndFormatToIso(e[0], userTimezone)
-                        let date2: string | undefined = undefined
-                        if (e[1]) {
-                          date2 = convertAndFormatToIso(e[1], userTimezone)
-                        }
+                      onChange={([start, end]) => {
+                        if (!start && !end) return
+
                         setFilter({
                           ...filter,
-                          paidDateFrom: date1,
-                          paidDateTo: date2,
+                          paidDateFrom: start
+                            ? moment(start).toISOString()
+                            : undefined,
+                          paidDateTo: end
+                            ? moment(end).toISOString()
+                            : undefined,
                         })
                       }}
                       customInput={

@@ -332,6 +332,9 @@ export const formattedNow = (now: Date) => {
   return formattedDate
 }
 
-export const convertAndFormatToIso = (date: Date | null, timezone: string) => {
-  return moment(date).tz(timezone).toISOString()
+export const convertLocalToUtc = (date: string, timezone: string) => {
+  const localTime = moment(date).add('day', 1).tz(timezone)
+  const localMidnight = localTime.startOf('day')
+  const utcMidnight = localMidnight.utc()
+  return utcMidnight.toISOString()
 }
