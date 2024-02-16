@@ -39,12 +39,7 @@ import useModal from '@src/hooks/useModal'
 import { useMutation, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
-
-import dayjs from 'dayjs'
-import {
-  changeTimeZoneOffset,
-  changeTimeZoneOffsetFilter,
-} from '@src/shared/helpers/date.helper'
+import { changeTimeZoneOffsetFilter } from '@src/shared/helpers/date.helper'
 
 const initialFilter: InvoicePayableFilterType = {
   invoiceStatus: [],
@@ -81,24 +76,7 @@ export default function Payable() {
 
   const { data: list, isLoading } = useGetPayableList(activeFilter)
 
-  function onSearch() {
-    console.log(
-      filter.invoicedDateFrom
-        ? dayjs(new Date(filter.invoicedDateFrom)).startOf('day').format()
-        : null,
-    )
-    console.log(
-      filter.invoicedDateFrom
-        ? changeTimeZoneOffset(
-            dayjs(new Date(filter.invoicedDateFrom)).startOf('day').format(),
-            user.getValue().user?.timezone ?? {
-              label: 'Asia/Seoul',
-              code: 'KST',
-            },
-          )
-        : null,
-    )
-
+  const onSearch = () => {
     setActiveFilter({
       ...filter,
       skip: skip * activeFilter.take,
@@ -176,7 +154,7 @@ export default function Payable() {
     ])
   }
 
-  function onReset() {
+  const onReset = () => {
     setFilter({ ...initialFilter })
     setActiveFilter({ ...initialFilter })
     queryClient.invalidateQueries([
@@ -200,7 +178,7 @@ export default function Payable() {
     },
   )
 
-  function onChangeStatusToPaid() {
+  const onChangeStatusToPaid = () => {
     openModal({
       type: 'changeStatus',
       children: (

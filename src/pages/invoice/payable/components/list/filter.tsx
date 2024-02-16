@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -24,17 +24,14 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 import DatePicker from 'react-datepicker'
 
 // ** apis
-import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
-
 // ** types
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
 import { useGetProList } from '@src/queries/pro/pro-list.query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { useGetStatusList } from '@src/queries/common.query'
 import dayjs from 'dayjs'
-import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
-import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import { convertAndFormatToIso } from '@src/shared/helpers/date.helper'
 
 type Props = {
   filter: InvoicePayableFilterType
@@ -47,13 +44,7 @@ type Props = {
   }[]
 }
 
-export default function Filter({
-  filter,
-  setFilter,
-  onReset,
-  search,
-  statusList,
-}: Props) {
+const Filter = ({ filter, setFilter, onReset, search, statusList }: Props) => {
   const [collapsed, setCollapsed] = useState<boolean>(true)
   const user = useRecoilValueLoadable(authState)
 
@@ -73,6 +64,11 @@ export default function Filter({
           endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
         }`
   }
+
+  const userTimezone = useMemo(() => {
+    const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    return user.getValue().user?.timezone.label || browserTimezone
+  }, [user])
 
   return (
     <DatePickerWrapper>
@@ -122,7 +118,11 @@ export default function Filter({
                       }
                       id='status'
                       renderInput={params => (
-                        <TextField {...params} autoComplete='off' label='Status' />
+                        <TextField
+                          {...params}
+                          autoComplete='off'
+                          label='Status'
+                        />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -190,33 +190,16 @@ export default function Filter({
                       onChange={e => {
                         if (!e.length) return
 
-                        // dayjs(e[0]?.toLocaleDateString())
-                        // .startOf('day')
-                        // .format('YYYY-MM-DD HH:mm:ss'),
+                        const date1 = convertAndFormatToIso(e[0], userTimezone)
+                        let date2: string | undefined = undefined
+                        if (e[1]) {
+                          date2 = convertAndFormatToIso(e[1], userTimezone)
+                        }
 
                         setFilter({
                           ...filter,
-                          invoicedDateFrom: e[0]?.toISOString(),
-                          // invoicedDateFrom: e[0]
-                          //   ? changeTimeZoneOffset(e[0].toISOString(), {
-                          //       label: 'KST',
-                          //       code: 'KST',
-                          //     }) ?? undefined
-                          //   : undefined,
-                          // invoicedDateTo: e[1]
-                          //   ? changeTimeZoneOffset(
-                          //       e[1].toISOString(),
-                          //       user.getValue().user?.timezone ?? {
-                          //         label: 'KST',
-                          //         code: 'KST',
-                          //       },
-                          //     ) ?? undefined
-                          //   : undefined,
-                          invoicedDateTo: e[1]?.toISOString(),
-                          // invoicedDateFrom: dayjs(e[0]?.toLocaleDateString())
-                          //   .startOf('day')
-                          //   .format('YYYY-MM-DD HH:mm:ss'),
-                          // invoicedDateTo: e[1]?.toISOString(),
+                          invoicedDateFrom: date1,
+                          invoicedDateTo: date2,
                         })
                       }}
                       placeholderText=''
@@ -258,10 +241,15 @@ export default function Filter({
                       shouldCloseOnSelect={false}
                       onChange={e => {
                         if (!e.length) return
+                        const date1 = convertAndFormatToIso(e[0], userTimezone)
+                        let date2: string | undefined = undefined
+                        if (e[1]) {
+                          date2 = convertAndFormatToIso(e[1], userTimezone)
+                        }
                         setFilter({
                           ...filter,
-                          payDueDateFrom: e[0]?.toISOString(),
-                          payDueDateTo: e[1]?.toISOString(),
+                          payDueDateFrom: date1,
+                          payDueDateTo: date2,
                         })
                       }}
                       customInput={
@@ -300,10 +288,15 @@ export default function Filter({
                       shouldCloseOnSelect={false}
                       onChange={e => {
                         if (!e.length) return
+                        const date1 = convertAndFormatToIso(e[0], userTimezone)
+                        let date2: string | undefined = undefined
+                        if (e[1]) {
+                          date2 = convertAndFormatToIso(e[1], userTimezone)
+                        }
                         setFilter({
                           ...filter,
-                          paidDateFrom: e[0]?.toISOString(),
-                          paidDateTo: e[1]?.toISOString(),
+                          paidDateFrom: date1,
+                          paidDateTo: date2,
                         })
                       }}
                       customInput={
@@ -369,3 +362,5 @@ export default function Filter({
     </DatePickerWrapper>
   )
 }
+
+export default Filter

@@ -9,6 +9,7 @@ import {
 import { DateTime, IANAZone } from 'luxon'
 
 import { countries } from '@src/@fake-db/autocomplete'
+import moment from 'moment-timezone'
 
 // 미사용, 추후 제거
 export function convertDateByTimezone(date: string, from: string, to: string) {
@@ -329,4 +330,8 @@ export const formattedNow = (now: Date) => {
   formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
 
   return formattedDate
+}
+
+export const convertAndFormatToIso = (date: Date | null, timezone: string) => {
+  return moment(date).tz(timezone).toISOString()
 }
