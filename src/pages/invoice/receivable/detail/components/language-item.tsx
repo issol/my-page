@@ -19,6 +19,7 @@ import useModal from '@src/hooks/useModal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
+import InvoiceReceivableLanguagePairInfoForm from '@src/pages/components/forms/invoice-receivable-language-pair-info-form'
 import ItemForm from '@src/pages/components/forms/items-form'
 import { defaultOption, languageType } from '@src/pages/orders/add-new'
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
@@ -221,17 +222,6 @@ const InvoiceLanguageAndItem = ({
     }
   }
 
-  console.log(getInvoiceInfo())
-
-  console.log(
-    Number(getInvoiceInfo('subtotal')) +
-      Number(getInvoiceInfo('subtotal')) *
-        (Number(getInvoiceInfo('tax')) / 100),
-  )
-
-  console.log(
-    Number(getInvoiceInfo('subtotal')) * (Number(getInvoiceInfo('tax')) / 100),
-  )
   function decimalPlus(a: number, b: number, n = 1) {
     const unit = Math.pow(10, n)
 
@@ -261,18 +251,14 @@ const InvoiceLanguageAndItem = ({
           </Button>
         )}
       </Box>
-      {/* {currentRole && currentRole.name === 'CLIENT' ? null : (
+      {currentRole && currentRole.name === 'CLIENT' ? null : (
         <Grid item xs={12}>
-          <AddLanguagePairForm
+          <InvoiceReceivableLanguagePairInfoForm
             languagePairs={languagePairs}
-            setLanguagePairs={setLanguagePairs}
-            getPriceOptions={getPriceOptions}
-            type={'detail'}
-            onDeleteLanguagePair={onDeleteLanguagePair}
             items={items}
           />
         </Grid>
-      )} */}
+      )}
 
       <Grid item xs={12} mb={6}>
         <ItemForm
