@@ -924,132 +924,136 @@ const Row = ({
               )}
             </Grid>
             <Grid item xs={6}>
-              {type === 'detail' ||
-              type === 'invoiceDetail' ||
-              type === 'invoiceHistory' ||
-              type === 'invoiceCreate' ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    height: '21px',
-                    gap: '8px',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Typography
-                    sx={{ width: '193px', fontWeight: 600, fontSize: '14px' }}
-                    variant='body1'
-                  >
-                    Price
-                  </Typography>
-                  <Typography variant='body1' fontSize={14}>
-                    {
-                      // getPriceOptions(
-                      //   getValues(`items.${idx}.source`),
-                      //   getValues(`items.${idx}.target`),
-                      // ).find(
-                      //   item => item.id === getValues(`items.${idx}.priceId`),
-                      // )?.priceName
-                      itemData.initialPrice?.name
-                    }
-                  </Typography>
-                </Box>
-              ) : (
-                <Controller
-                  name={`items.${idx}.priceId`}
-                  control={control}
-                  render={({ field: { value, onChange } }) => {
-                    const options = getPriceOptions(
-                      getValues(`items.${idx}.source`)!,
-                      getValues(`items.${idx}.target`)!,
-                      idx,
-                    )
-                    let hasMatchingPrice = false
-                    let hasStandardPrice = false
-                    options.find(option => {
-                      if (
-                        option.groupName &&
-                        option.groupName === 'Matching price'
-                      )
-                        hasMatchingPrice = true
-                      if (
-                        option.groupName &&
-                        option.groupName === 'Standard client price'
-                      )
-                        hasStandardPrice = true
-                    })
-                    return (
-                      <Autocomplete
-                        // <StyledAutocomplete
-
-                        fullWidth
-                        options={options}
-                        groupBy={option => option?.groupName ?? ''}
-                        isOptionEqualToValue={(option, newValue) => {
-                          return option.priceName === newValue?.priceName
-                        }}
-                        getOptionLabel={option => option.priceName}
-                        onChange={(e, v) => {
-                          // Not Applicable 임시 막기
-                          // currency 체크 로직
-                          if (v) {
-                            // if (v && v.id === -1) {
-                            //   selectNotApplicableModal()
-                            // } else {
-                            // if (checkPriceCurrency(v, idx)) {
-                            // }
-                            onChange(v?.id)
-                            const value = getValues().items[idx]
-                            const index = findLangPairIndex(
-                              value?.source!,
-                              value?.target!,
-                            )
-                            onChangePrice(v, idx, options)
-
-                            if (index !== -1) {
-                              const copyLangPair = [...languagePairs]
-                              copyLangPair[index].price = v
-                            }
-                            getTotalPrice()
-                          }
-                          // }
-                        }}
-                        value={
-                          value === null
-                            ? null
-                            : options.find(item => item.id === value)
+              {/* TODO: role이 client 일때는 price를 숨긴다 */}
+              {currentRole?.name === 'CLIENT' 
+                ? null 
+                : type === 'detail' ||
+                  type === 'invoiceDetail' ||
+                  type === 'invoiceHistory' ||
+                  type === 'invoiceCreate' ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        height: '21px',
+                        gap: '8px',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Typography
+                        sx={{ width: '193px', fontWeight: 600, fontSize: '14px' }}
+                        variant='body1'
+                      >
+                        Price
+                      </Typography>
+                      <Typography variant='body1' fontSize={14}>
+                        {
+                          // getPriceOptions(
+                          //   getValues(`items.${idx}.source`),
+                          //   getValues(`items.${idx}.target`),
+                          // ).find(
+                          //   item => item.id === getValues(`items.${idx}.priceId`),
+                          // )?.priceName
+                          itemData.initialPrice?.name
                         }
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            autoComplete='off'
-                            error={Boolean(errors?.items?.[idx]?.priceId)}
-                            label='Price*'
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Controller
+                      name={`items.${idx}.priceId`}
+                      control={control}
+                      render={({ field: { value, onChange } }) => {
+                        const options = getPriceOptions(
+                          getValues(`items.${idx}.source`)!,
+                          getValues(`items.${idx}.target`)!,
+                          idx,
+                        )
+                        let hasMatchingPrice = false
+                        let hasStandardPrice = false
+                        options.find(option => {
+                          if (
+                            option.groupName &&
+                            option.groupName === 'Matching price'
+                          )
+                            hasMatchingPrice = true
+                          if (
+                            option.groupName &&
+                            option.groupName === 'Standard client price'
+                          )
+                            hasStandardPrice = true
+                        })
+                        return (
+                          <Autocomplete
+                            // <StyledAutocomplete
+
+                            fullWidth
+                            options={options}
+                            groupBy={option => option?.groupName ?? ''}
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.priceName === newValue?.priceName
+                            }}
+                            getOptionLabel={option => option.priceName}
+                            onChange={(e, v) => {
+                              // Not Applicable 임시 막기
+                              // currency 체크 로직
+                              if (v) {
+                                // if (v && v.id === -1) {
+                                //   selectNotApplicableModal()
+                                // } else {
+                                // if (checkPriceCurrency(v, idx)) {
+                                // }
+                                onChange(v?.id)
+                                const value = getValues().items[idx]
+                                const index = findLangPairIndex(
+                                  value?.source!,
+                                  value?.target!,
+                                )
+                                onChangePrice(v, idx, options)
+
+                                if (index !== -1) {
+                                  const copyLangPair = [...languagePairs]
+                                  copyLangPair[index].price = v
+                                }
+                                getTotalPrice()
+                              }
+                              // }
+                            }}
+                            value={
+                              value === null
+                                ? null
+                                : options.find(item => item.id === value)
+                            }
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                autoComplete='off'
+                                error={Boolean(errors?.items?.[idx]?.priceId)}
+                                label='Price*'
+                              />
+                            )}
+                            renderGroup={params => (
+                              <li key={params.key}>
+                                {!hasMatchingPrice && params.group ? (
+                                  <GroupHeader>
+                                    Matching price{' '}
+                                    <NoResultText>(No result)</NoResultText>
+                                  </GroupHeader>
+                                ) : null}
+                                {!hasStandardPrice && params.group ? (
+                                  <GroupHeader>
+                                    Standard client price{' '}
+                                    <NoResultText>(No result)</NoResultText>
+                                  </GroupHeader>
+                                ) : null}
+                                <GroupHeader>{params.group}</GroupHeader>
+                                <GroupItems>{params.children}</GroupItems>
+                              </li>
+                            )}
                           />
-                        )}
-                        renderGroup={params => (
-                          <li key={params.key}>
-                            {!hasMatchingPrice && params.group ? (
-                              <GroupHeader>
-                                Matching price{' '}
-                                <NoResultText>(No result)</NoResultText>
-                              </GroupHeader>
-                            ) : null}
-                            {!hasStandardPrice && params.group ? (
-                              <GroupHeader>
-                                Standard client price{' '}
-                                <NoResultText>(No result)</NoResultText>
-                              </GroupHeader>
-                            ) : null}
-                            <GroupHeader>{params.group}</GroupHeader>
-                            <GroupItems>{params.children}</GroupItems>
-                          </li>
-                        )}
-                      />
-                    )
-                  }}
-                />
-              )}
+                        )
+                      }}
+                    />
+                  )
+              }
             </Grid>
             {/* price unit start */}
             <ItemPriceUnitForm
