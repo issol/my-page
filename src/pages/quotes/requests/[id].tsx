@@ -51,6 +51,7 @@ import { RequestDetailType } from '@src/types/requests/detail.type'
 import { FileType } from '@src/types/common/file.type'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { useGetStatusList } from '@src/queries/common.query'
 
 export default function RequestDetail() {
   const router = useRouter()
@@ -81,6 +82,8 @@ export default function RequestDetail() {
   }
 
   const { data } = useGetClientRequestDetail(Number(id))
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetStatusList('RequestClient')
 
   const fileSize = useMemo(() => {
     if (data?.sampleFiles) {
@@ -164,7 +167,7 @@ export default function RequestDetail() {
         form: {
           ...data,
           lspId: data.lsp.id,
-          status: 'Canceled',
+          status: 50005,
           canceledReason: {
             from: 'client',
             reason: form.option,
@@ -210,11 +213,7 @@ export default function RequestDetail() {
 
   function isNotCancelable() {
     const status = data?.status
-    return (
-      status === 'Changed into order' ||
-      status === 'Changed into quote' ||
-      status === 'Canceled'
-    )
+    return status && status >= 50003
   }
 
   return (
@@ -285,7 +284,13 @@ export default function RequestDetail() {
       </Grid>
       <Grid item xs={9}>
         <Card sx={{ padding: '24px' }}>
-          <RequestDetailCard data={data} openReasonModal={openReasonModal} />
+          {data ? (
+            <RequestDetailCard
+              data={data}
+              openReasonModal={openReasonModal}
+              statusList={statusList ?? []}
+            />
+          ) : null}
         </Card>
         {isDeletable ? (
           <Grid item xs={4} mt='24px'>

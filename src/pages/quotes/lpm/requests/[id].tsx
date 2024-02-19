@@ -13,6 +13,7 @@ import {
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import { styled } from '@mui/system'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** components
 import RequestDetailCard from './components/detail/request-detail'
@@ -56,6 +57,7 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { BookOnline } from '@mui/icons-material'
 import { getStaleDuration, hasObjValues } from '@src/shared/helpers/data.helper'
+import { useGetStatusList } from '@src/queries/common.query'
 
 export default function RequestDetail() {
   const router = useRouter()
@@ -87,6 +89,8 @@ export default function RequestDetail() {
   }
 
   const { data, dataUpdatedAt } = useGetClientRequestDetail(Number(id))
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetStatusList('RequestClient')
 
   // 변경된 linkedQuote, linkedOrder 정보를 캐시로 인해 못가져오는 케이스가 있어 컴포넌트 전역에 refetch를 추가함
   // 데이터가 패칭된지 2초 ~ 60초 사이일 경우에만 refetch 처리를 하고 그 외에는 컴포넌트 로딩시 리엑트 쿼리가 데이터를 가져오도록 함
@@ -219,7 +223,7 @@ export default function RequestDetail() {
         form: {
           ...data,
           lspId: data.lsp.id,
-          status: 'Canceled',
+          status: 50005,
           canceledReason: {
             from: 'lsp',
             reason: form.option,
@@ -266,11 +270,7 @@ export default function RequestDetail() {
   function isNotCancelable() {
     if (!isDeletable) return true
     const status = data?.status
-    return (
-      status === 'Changed into order' ||
-      status === 'Changed into quote' ||
-      status === 'Canceled'
-    )
+    return status && status >= 50003
   }
 
   function createNextStep(type: 'quote' | 'order') {
@@ -391,8 +391,8 @@ export default function RequestDetail() {
               variant='outlined'
               onClick={() => createNextStep('quote')}
               disabled={
-                data?.status === 'Changed into quote' ||
-                data?.status === 'Canceled' ||
+                data?.status === 50003 ||
+                data?.status === 50005 ||
                 hasObjValues(data?.linkedQuote)
               }
             >
@@ -402,8 +402,8 @@ export default function RequestDetail() {
               variant='outlined'
               onClick={() => createNextStep('order')}
               disabled={
-                data?.status === 'Changed into order' ||
-                data?.status === 'Canceled' ||
+                data?.status === 50004 ||
+                data?.status === 50005 ||
                 hasObjValues(data?.linkedOrder)
               }
             >
@@ -414,13 +414,17 @@ export default function RequestDetail() {
       </Grid>
       <Grid item xs={9}>
         <Card sx={{ padding: '24px' }}>
-          <RequestDetailCard
-            data={data}
-            user={auth.getValue().user}
-            currentRole={currentRole}
-            openReasonModal={openReasonModal}
-            onStatusChange={onStatusChange}
-          />
+          {data ? (
+            <RequestDetailCard
+              data={data}
+              user={auth.getValue().user}
+              currentRole={currentRole}
+              openReasonModal={openReasonModal}
+              onStatusChange={onStatusChange}
+              statusList={statusList ?? []}
+              statusListLoading={statusListLoading}
+            />
+          ) : null}
         </Card>
         {currentRole?.type === 'General' ? null : (
           <Grid item xs={4} mt='24px'>

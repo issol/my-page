@@ -107,6 +107,7 @@ export default function List({
       rowCount={list.totalCount}
       loading={isLoading}
       rowsPerPageOptions={[10, 25, 50]}
+      hideFooterSelectedRowCount
       pagination
       hideFooter={type === 'calendar'}
       page={page}
