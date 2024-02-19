@@ -69,6 +69,7 @@ import {
 } from '@src/shared/const/permission-class'
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
+import { fixDigit } from '@src/shared/helpers/price.helper'
 
 type MenuType = 'info' | 'history'
 
@@ -298,7 +299,7 @@ export default function PayableDetail() {
         subtotal: data.subtotal,
         tax: data.tax,
         totalPrice: data.totalPrice,
-        taxRate: data.taxRate,
+        taxRate: fixDigit(data?.taxRate, 2),
         currency: data.currency,
       }
       dispatch(setInvoicePayable(res))
