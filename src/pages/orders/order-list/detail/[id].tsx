@@ -1565,7 +1565,8 @@ const OrderDetail = () => {
             (projectInfo?.status === 'New' ||
               projectInfo?.status === 'In preparation' ||
               projectInfo?.status === 'Internal review' ||
-              projectInfo?.status === 'Under revision') &&
+              projectInfo?.status === 'Under revision' ||
+              projectInfo?.status === 'Without invoice') &&
             isIncludeProjectTeam()
           break
         case 'button-Edit-Set-Status-To-UnderRevision':
