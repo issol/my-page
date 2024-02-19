@@ -553,8 +553,8 @@ const OrderDetail = () => {
           item.position === 'projectManager'
             ? 'projectManagerId'
             : item.position === 'supervisor'
-            ? 'supervisorId'
-            : 'member',
+              ? 'supervisorId'
+              : 'member',
         id: item.userId,
         name: getLegalName({
           firstName: item?.firstName!,
@@ -976,8 +976,8 @@ const OrderDetail = () => {
           item.position === 'projectManager'
             ? 'projectManagerId'
             : item.position === 'supervisor'
-            ? 'supervisorId'
-            : 'member',
+              ? 'supervisorId'
+              : 'member',
         id: item.userId,
         name: getLegalName({
           firstName: item?.firstName!,

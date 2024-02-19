@@ -126,7 +126,7 @@ const ProjectInfo = ({
   })
 
   const onClickDelete = () => {
-    if (!project.linkedInvoiceReceivable && !project.linkedJobs.length) {
+    if (!project.linkedInvoiceReceivable && project.linkedJobs.length === 0) {
       openModal({
         type: 'DeleteOrderModal',
         children: (
@@ -138,7 +138,7 @@ const ProjectInfo = ({
           />
         ),
       })
-    } else if (!project.linkedInvoiceReceivable) {
+    } else if (project.linkedInvoiceReceivable) {
       openModal({
         type: 'DisableDeleteOrderModal',
         children: (
@@ -151,7 +151,7 @@ const ProjectInfo = ({
           />
         ),
       })
-    } else if (!project.linkedJobs.length) {
+    } else if (project.linkedJobs.length > 0) {
       openModal({
         type: 'DisableDeleteOrderModal',
         children: (
