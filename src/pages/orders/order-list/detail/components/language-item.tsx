@@ -432,7 +432,7 @@ const LanguageAndItem = ({
                 gap: '20px',
                 borderBottom: '2px solid #666CFF',
                 justifyContent: 'center',
-                width: '30%',
+                width: 'fit-content',
               }}
             >
               <Typography
@@ -440,9 +440,9 @@ const LanguageAndItem = ({
                 variant='subtitle1'
                 sx={{
                   padding: '16px 16px 16px 20px',
-                  flex: 1,
+                  // flex: 1,
                   display: 'flex',
-                  justifyContent: 'flex-end',
+                  // justifyContent: 'flex-end',
                 }}
               >
                 Subtotal
@@ -452,9 +452,9 @@ const LanguageAndItem = ({
                 variant='subtitle1'
                 sx={{
                   padding: '16px 16px 16px 20px',
-                  flex: 1,
+                  // flex: 1,
                   display: 'flex',
-                  justifyContent: 'flex-end',
+                  // justifyContent: 'flex-end',
                 }}
               >
                 {getItem().items.length && getItem().items[0].initialPrice

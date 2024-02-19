@@ -1489,7 +1489,8 @@ export default function AddNewOrder() {
                       gap: '20px',
                       borderBottom: '2px solid #666CFF',
                       justifyContent: 'center',
-                      width: '257px',
+                      width: 'fit-content',
+                      // width: '257px',
                     }}
                   >
                     <Typography
@@ -1497,7 +1498,7 @@ export default function AddNewOrder() {
                       variant='subtitle1'
                       sx={{
                         padding: '16px 16px 16px 20px',
-                        flex: 1,
+
                         textAlign: 'right',
                       }}
                     >
@@ -1506,19 +1507,8 @@ export default function AddNewOrder() {
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                      sx={{ padding: '16px 16px 16px 20px' }}
                     >
-                      {/* {subPrice === 0
-                        ? '-'
-                        : formatCurrency(
-                            formatByRoundingProcedure(
-                              subPrice,
-                              priceInfo ? priceInfo?.decimalPlace! : 2,
-                              priceInfo ? priceInfo?.roundingProcedure! : 0,
-                              priceInfo?.currency ?? 'USD',
-                            ),
-                            priceInfo?.currency ?? 'USD',
-                          )} */}
                       {getSubTotal()}
                     </Typography>
                   </Box>
