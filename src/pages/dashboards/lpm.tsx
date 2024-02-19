@@ -160,27 +160,27 @@ const LPMDashboards = () => {
 
     const ongoingOrder = ongoingCounts.filter(item =>
       item[0].includes('order'),
-    )[0][1] as DashboardCountResult
+    )[0]?.[1] as DashboardCountResult
 
     const ongoingJob = ongoingCounts.filter(item =>
       item[0].includes('job'),
-    )[0][1] as DashboardCountResult
+    )[0]?.[1] as DashboardCountResult
 
     const receivableTotal = totalPrices.filter(item =>
       item[0].includes('receivable'),
-    )[0][1] as TotalPriceResult
+    )[0]?.[1] as TotalPriceResult
 
     const payableTotal = totalPrices.filter(item =>
       item[0].includes('payable'),
-    )[0][1] as TotalPriceResult
+    )[0]?.[1] as TotalPriceResult
 
     const receivableMonth = paidThisMonths.filter(item =>
       item[0].includes('receivable'),
-    )[0][1] as PaidThisMonthAmount
+    )[0]?.[1] as PaidThisMonthAmount
 
     const payableMonth = paidThisMonths.filter(item =>
       item[0].includes('payable'),
-    )[0][1] as PaidThisMonthAmount | null
+    )[0]?.[1] as PaidThisMonthAmount | null
 
     const filterOngoingOrder = Object.entries(ongoingOrder || {}).map(
       ([key, value]) => {

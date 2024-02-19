@@ -29,9 +29,6 @@ interface TADLanguagePoolBarChartProps extends CSVDataRecordProps {
   setOpenInfoDialog: (open: boolean, key: string) => void
 }
 
-const DISPLAY = true
-const CHART_AREA = true
-
 const LanguagePoolBarChart = ({
   setDataRecord,
   setOpenInfoDialog,
@@ -228,13 +225,13 @@ const LanguagePoolBarChart = ({
         min: 0,
         max: 200,
         beginAtZero: true,
-
         grid: {
-          display: DISPLAY,
-          drawOnChartArea: CHART_AREA,
+          display: true,
           drawTicks: false,
           color: '#EAEAEC',
-          tickBorderDash: [10],
+        },
+        border: {
+          dash: [12, 6],
         },
         ticks: {
           stepSize: 40,
@@ -242,6 +239,9 @@ const LanguagePoolBarChart = ({
       },
       y: {
         grid: {
+          display: false,
+        },
+        border: {
           display: false,
         },
         ticks: {

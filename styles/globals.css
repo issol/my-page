@@ -9,17 +9,19 @@ body {
 
 code {
   font-family: 'Inter', sans-serif, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
-    'Droid Sans', 'Helvetica Neue';
+  'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+  'Droid Sans', 'Helvetica Neue';
   padding: 0.1rem 0.4rem;
   font-size: 90%;
   color: #d400ff;
   border-radius: 0.1335rem;
 }
+
 code:not([class*='language-']):before,
 code:not([class*='language-']):after {
   content: '`';
 }
+
 code[class*='language-'] {
   padding: 0;
 }
@@ -101,4 +103,20 @@ input::-webkit-inner-spin-button {
 
 .pro_bg {
   background-color: rgba(221, 230, 237, 0.5) !important;
+}
+
+canvas {
+  aspect-ratio: 2 !important;
+}
+
+
+/* chart*/
+.chart__tooltip_ratio {
+  display: block;
+  padding: 0 6px;
+  border-radius: 20px;
+  background-color: #6D788D;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500
 }
