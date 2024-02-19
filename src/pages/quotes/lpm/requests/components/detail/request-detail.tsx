@@ -63,7 +63,11 @@ export default function RequestDetailCard({
           <CustomTypo fontWeight={600}>Request date</CustomTypo>
           <CustomTypo
             variant='body2'
-            sx={{ height: '40px', alignItems: 'center', display: 'flex' }}
+            sx={
+              data.status !== 50002
+                ? { height: '40px', alignItems: 'center', display: 'flex' }
+                : undefined
+            }
           >
             {convertTimeToTimezone(
               data?.requestedAt,
