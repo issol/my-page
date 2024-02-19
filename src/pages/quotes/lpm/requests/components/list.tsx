@@ -109,6 +109,7 @@ export default function List({
       pagination
       page={page}
       hideFooter={type === 'calendar'}
+      hideFooterSelectedRowCount
       pageSize={pageSize}
       paginationMode='server'
       onPageChange={(newPage: number) => {
