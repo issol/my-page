@@ -503,7 +503,9 @@ export default function ItemPriceUnitForm({
                             getValues().items?.[0]?.detail?.[0]?.currency ===
                               'SGD'
                             ? 2
-                            : 1,
+                            : getValues().items?.[0]?.initialPrice?.currency === 'KRW'
+                              ? 10
+                              : 1,
                           0,
                           getValues().items?.[0]?.detail?.[0]?.currency ??
                             'KRW',
@@ -518,7 +520,9 @@ export default function ItemPriceUnitForm({
                             getValues().items?.[0]?.initialPrice?.currency ===
                               'SGD'
                             ? 2
-                            : 1,
+                            : getValues().items?.[0]?.initialPrice?.currency === 'KRW'
+                              ? 10
+                              : 1,
                           0,
                           getValues().items?.[0]?.initialPrice?.currency ??
                             'KRW',

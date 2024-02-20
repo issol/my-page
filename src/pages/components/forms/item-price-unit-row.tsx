@@ -178,7 +178,9 @@ const Row = ({
           ? priceData?.decimalPlace!
           : currency === 'USD' || currency === 'SGD'
             ? 2
-            : 1000,
+            : currency === 'KRW'
+              ? 10
+              : 1,
         priceData?.roundingProcedure && priceData?.roundingProcedure !== ''
           ? priceData?.roundingProcedure!
           : 0,
@@ -705,7 +707,7 @@ const Row = ({
                       savedValue?.currency === 'USD' ||
                         savedValue.currency === 'SGD'
                         ? 2
-                        : 1,
+                        : 10,
                       0,
                       savedValue?.currency ?? 'KRW',
                     ),
@@ -717,7 +719,7 @@ const Row = ({
                       getValues(`${initialPriceName}.currency`) === 'USD' ||
                         getValues(`${initialPriceName}.currency`) === 'SGD'
                         ? 2
-                        : 1,
+                        : 10,
                       0,
                       getValues(`${initialPriceName}.currency`) ?? 'KRW',
                     ),
