@@ -166,42 +166,71 @@ export default function ItemForm({
     return options
   }
   // Language pair에 price가 변경된 경우 field(item)의 initialPrice.currency와 모든 item의 price의 currency를 비교하여
-  // currency가 다른 경우 해당 item의 price를 null 처리한다.
+  // currency가 다른 경우 해당 item의 price와 languagePair의 price를 null 처리한다.
   // 모달은 등록한 Language pair가 1개인 경우에만 발생시킨다.
   // (등록한 Language pair가 여러개인 경우 AddLanguagePairForm 폼에서 처리된다.)
-  useEffect(() => {
-    const targetCurrency = fields[0]?.initialPrice?.currency ?? null
+  // 첫번째 item의 price가 변경되었을때 currency를 체크하는 로직은 item-row에서 처리한다. (여기서 감지가 안됨)
+  const validateCurrency = () => {
     let items = getValues('items')
+    let languagePairs = getValues('languagePairs')
+    // const baseCurrency = fields[0]?.initialPrice?.currency ?? null
+    const baseCurrency = items[0]?.currency ?? fields[0]?.initialPrice?.currency
+
     let isUpdate = false
-    if (items.length && targetCurrency) {
+    if (items.length && baseCurrency) {
       items.map((item, idx) => {
         const matchPriceList = getPricebyPairs(idx)
         const itemPriceId = item.priceId
         const itemPrice = matchPriceList.filter(
           pair => itemPriceId === pair.id!,
         )
+        // 첫번째 item과 Currency가 다른 item을 찾아 priceId를 null 처리한다.
         if (
           itemPrice[0]?.currency &&
-          targetCurrency !== itemPrice[0]?.currency
+          baseCurrency !== itemPrice[0]?.currency
         ) {
           setValue(`items.${idx}.priceId`, null, setValueOptions)
           isUpdate = true
         }
+        // 첫번째 item과 Currency가 다른 item 중 Not Applicable을 사용하는 경우, price unit의 currency를 baseCurrency로 변경한다.
+        if (item.priceId === -1 && item.currency !== baseCurrency) {
+          item.detail?.map((priceUnit, priceUnitIdx) => {
+            setValue(`items.${idx}.detail.${priceUnitIdx}.currency`, baseCurrency, setValueOptions)
+          })
+          setValue(`items.${idx}.currency`, baseCurrency, setValueOptions)
+        }
       })
-      if (languagePairs.length === 1 && isUpdate) {
+      // 첫번째 item과 Currency가 다른 Price가 languagePair에 있는 경우, languagePair의 price를 null 처리한다.
+      if (languagePairs.length && baseCurrency) {
+        languagePairs.map((pair, idx) => {
+          if (pair.price?.currency && baseCurrency !== pair.price?.currency) {
+            setValue(`languagePairs.${idx}.price`, null, setValueOptions)
+            isUpdate = true
+          }
+        })
+      }
+      if (languagePairs.length && isUpdate) {
         selectCurrencyViolation(1)
       }
     }
+  }
+  useEffect(() => {
+    validateCurrency()
   }, [languagePairs, fields])
 
   // item의 Price currency와 field(item)의 initialPrice.currency를 비교한다.
   // 값이 다르면 item의 price를 null 처리한다.
   const checkPriceCurrency = (price: StandardPriceListType, index: number) => {
-    const targetCurrency = fields[0]?.initialPrice?.currency ?? null
-    if (targetCurrency) {
-      if (price?.currency !== targetCurrency) {
+    const items = getValues('items')
+    // const baseCurrency = fields[0]?.initialPrice?.currency ?? null
+    const baseCurrency = items[0]?.currency ?? fields[0]?.initialPrice?.currency
+
+    if (price.id === -1) return true
+
+    if (baseCurrency) {
+      if (price?.currency !== baseCurrency) {
         setValue(`items.${index}.priceId`, null, setValueOptions)
-        selectCurrencyViolation(1)
+        // selectCurrencyViolation(1)
         return false
       }
     }
@@ -222,7 +251,7 @@ export default function ItemForm({
   }
 
   const selectCurrencyViolation = (type: number) => {
-    const message1 = `Please check the currency of the selected price. You can't use different currencies in a quote.`
+    const message1 = `Please check the currency of the selected price. You can't use different currencies in item.`
     const message2 =
       'Please select the price for the first language pair first.'
     openModal({
@@ -414,6 +443,7 @@ export default function ItemForm({
                       selectNotApplicableModal={selectNotApplicableModal}
                       priceUnitsList={priceUnitsList}
                       checkPriceCurrency={checkPriceCurrency}
+                      validateCurrency={validateCurrency}
                       findLangPairIndex={findLangPairIndex}
                       indexing={data.indexing}
                       from={from}
@@ -448,6 +478,7 @@ export default function ItemForm({
               selectNotApplicableModal={selectNotApplicableModal}
               priceUnitsList={priceUnitsList}
               checkPriceCurrency={checkPriceCurrency}
+              validateCurrency={validateCurrency}
               findLangPairIndex={findLangPairIndex}
               from={from}
             />

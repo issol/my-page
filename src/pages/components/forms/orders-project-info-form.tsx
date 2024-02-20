@@ -88,7 +88,6 @@ export default function ProjectInfoForm({
   getClientValue,
   getValues,
 }: Props) {
-  const [openPopper, setOpenPopper] = useState(false)
   const [isAddMode, setIsAddMode] = useState(false)
   const [workNameError, setWorkNameError] = useState(false)
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
@@ -104,7 +103,6 @@ export default function ProjectInfoForm({
 
   const auth = useRecoilValueLoadable(authState)
   const [newWorkName, setNewWorkName] = useState('')
-  const containerRef = useRef<HTMLDivElement | null>(null)
 
   const addWorkNameMutation = useMutation(
     (data: { clientId: number; value: string; label: string }) =>
@@ -166,10 +164,16 @@ export default function ProjectInfoForm({
   }, [getClientValue, getValues])
 
   useEffect(() => {
-    if (isSuccess) {
-      setWorkName(data)
+    if (isSuccess && data) {
+      let result = data
+
+      data.unshift({
+        value: 'add',
+        label: 'Add new a work name',
+      })
+      setWorkName(result)
     }
-  }, [isSuccess])
+  }, [isSuccess, data])
 
   useEffect(() => {
     onWorkNameInputChange(newWorkName)
@@ -178,23 +182,6 @@ export default function ProjectInfoForm({
   function onWorkNameInputChange(name: string) {
     setWorkNameError(workName?.some(item => item.value === name) || false)
   }
-
-  useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setOpenPopper(false)
-      }
-    }
-
-    window.addEventListener('mousedown', handleOutsideClick)
-
-    return () => {
-      window.removeEventListener('mousedown', handleOutsideClick)
-    }
-  }, [])
 
   function onAddWorkName() {
     openModal({
@@ -221,7 +208,7 @@ export default function ProjectInfoForm({
                   )
                   setNewWorkName('')
                   setIsAddMode(false)
-                  setOpenPopper(false)
+
                   setValue('workName', newWorkName, setValueOptions)
                 },
               },
@@ -317,155 +304,121 @@ export default function ProjectInfoForm({
         />
       </Grid>
 
-      <Grid item xs={6} ref={containerRef}>
-        <Controller
-          name='workName'
-          control={control}
-          render={({ field: { value, onChange } }) => {
-            const finedValue = workName.find(item => item.value === value) || {
-              value: value,
-              label: value,
-            }
-            return (
-              <Autocomplete
-                disableClearable={value ? false : true}
-                // autoHighlight
-                // onClick={() => setOpenPopper(!openPopper)}
-                // onClickCapture={() => setOpenPopper(!openPopper)}
-
-                fullWidth
-                options={workName || []}
-                onChange={(e, v) => {
-                  if (v) {
-                    onChange(v?.value)
-                    // setIsAddMode(false)
-                    // setOpenPopper(false)
-                  } else {
-                    onChange(null)
-                    // setIsAddMode(false)
-                    // setOpenPopper(false)
-                  }
-                }}
-                value={
-                  !value || !workName
-                    ? defaultValue
-                    : finedValue ?? defaultValue
-                }
-                PopperComponent={props => (
-                  <>
-                    <Popper
-                      {...props}
-                      sx={{
-                        cursor: 'pointer',
-                        background: '#fff',
-                        borderRadius: '8px',
-                        boxShadow: '0px 2px 10px 0px rgba(76, 78, 100, 0.22)',
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          padding: '4px 0',
-                        }}
-                        onMouseDown={() => setIsAddMode(true)}
-                      >
-                        <IconButton color='primary'>
-                          <Icon icon='material-symbols:add-circle-outline' />
-                        </IconButton>
-                        <Typography variant='body2' color='primary'>
-                          Add a new work name
-                        </Typography>
-                      </Box>
-                      {props.children as ReactNode}
-                    </Popper>
-                  </>
-                )}
-                // PopperComponent={props => {
-                //   const children = props.children as ReactNode
-                //   return (
-                //     <>
-                //       {openPopper ? (
-                //         <Box>
-                //           {isAddMode ? null : (
-                //             <Box>
-                //               <Box
-                //                 display='flex'
-                //                 alignItems='center'
-                //                 margin='4px 0'
-                //                 onClick={() => setIsAddMode(true)}
-                //               >
-                //                 <IconButton color='primary'>
-                //                   <Icon icon='material-symbols:add-circle-outline' />
-                //                 </IconButton>
-                //                 <Typography variant='body2' color='primary'>
-                //                   Add a new work name
-                //                 </Typography>
-                //               </Box>
-                //               <Box>{children}</Box>
-                //             </Box>
-                //           )}
-                //         </Box>
-                //       ) : null}
-                //     </>
-                //   )
-                // }}
-                renderInput={params => (
-                  <TextField
-                    {...params}
-                    autoComplete='off'
-                    // onClick={() => setOpenPopper(!openPopper)}
-                    error={Boolean(errors.workName)}
-                    label='Work name'
-                    // placeholder='Work name'
-                  />
-                )}
-              />
-            )
-          }}
-        />
-        {isAddMode ? (
-          <Card>
-            <CardContent>
-              <TextField
-                fullWidth
-                autoComplete='off'
-                error={workNameError}
-                onChange={e => setNewWorkName(e.target.value)}
-                value={newWorkName}
-                label='Work name*'
-                variant='outlined'
-                sx={{ margin: '4px 0' }}
-              />
-              {workNameError ? (
-                <FormHelperText sx={{ color: 'error.main' }}>
-                  The same work name already exists
-                </FormHelperText>
-              ) : null}
-
-              <Box display='flex' justifyContent='flex-end' gap='8px' mt='8px'>
-                <Button
-                  variant='outlined'
-                  size='small'
-                  onClick={() => {
-                    setIsAddMode(false)
-                    setOpenPopper(false)
+      <Grid item xs={6}>
+        <Box sx={{ position: 'relative' }}>
+          <Controller
+            name='workName'
+            control={control}
+            render={({ field: { value, onChange } }) => {
+              const finedValue = workName.find(
+                item => item.value === value,
+              ) || {
+                value: value,
+                label: value,
+              }
+              return (
+                <Autocomplete
+                  disableClearable={value ? false : true}
+                  fullWidth
+                  options={workName || []}
+                  onChange={(e, v) => {
+                    if (v) {
+                      if (v.value === 'add') {
+                        onChange(null)
+                        setIsAddMode(true)
+                      } else {
+                        onChange(v?.value)
+                      }
+                    } else {
+                      onChange(null)
+                    }
                   }}
+                  value={
+                    !value || !workName
+                      ? defaultValue
+                      : finedValue ?? defaultValue
+                  }
+                  renderOption={(props, option) => {
+                    if (option.value === 'add') {
+                      return (
+                        <li {...props} style={{ paddingLeft: 4 }}>
+                          <IconButton color='primary'>
+                            <Icon icon='material-symbols:add-circle-outline' />
+                          </IconButton>
+                          <Typography variant='body1' color='primary'>
+                            Add a new work name
+                          </Typography>
+                        </li>
+                      )
+                    } else {
+                      return <li {...props}>{option.label}</li>
+                    }
+                  }}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      autoComplete='off'
+                      // onClick={() => setOpenPopper(!openPopper)}
+                      error={Boolean(errors.workName)}
+                      label='Work name'
+                      // placeholder='Work name'
+                    />
+                  )}
+                />
+              )
+            }}
+          />
+          {isAddMode ? (
+            <Card
+              sx={{ position: 'absolute', top: 60, width: '100%', zIndex: 100 }}
+            >
+              <CardContent>
+                <TextField
+                  fullWidth
+                  autoComplete='off'
+                  error={workNameError}
+                  onChange={e => setNewWorkName(e.target.value)}
+                  value={newWorkName}
+                  label='Work name*'
+                  variant='outlined'
+                  sx={{ margin: '4px 0' }}
+                />
+                {workNameError ? (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    The same work name already exists
+                  </FormHelperText>
+                ) : null}
+
+                <Box
+                  display='flex'
+                  justifyContent='flex-end'
+                  gap='8px'
+                  mt='8px'
                 >
-                  Cancel
-                </Button>
-                <Button
-                  variant='contained'
-                  size='small'
-                  disabled={workNameError || !newWorkName}
-                  onClick={onAddWorkName}
-                >
-                  Add
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        ) : null}
+                  <Button
+                    variant='outlined'
+                    size='small'
+                    onClick={() => {
+                      setIsAddMode(false)
+
+                      setNewWorkName('')
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant='contained'
+                    size='small'
+                    disabled={workNameError || !newWorkName}
+                    onClick={onAddWorkName}
+                  >
+                    Add
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          ) : null}
+        </Box>
       </Grid>
       <Grid item xs={6}>
         <Controller

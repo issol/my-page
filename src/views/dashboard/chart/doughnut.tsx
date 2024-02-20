@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
   ConvertButtonGroup,
   CurrencyUnit,
@@ -7,23 +7,32 @@ import {
   Title,
 } from '@src/views/dashboard/dashboardItem'
 import Box from '@mui/material/Box'
-
-import { ApexOptions } from 'apexcharts'
 import { styled } from '@mui/system'
 import { useDashboardRatio } from '@src/queries/dashnaord.query'
-import { renderToString } from 'react-dom/server'
 import {
   APIType,
   CSVDataRecordProps,
   Currency,
   RatioItem,
 } from '@src/types/dashboard'
-import Typography from '@mui/material/Typography'
-import NoRatio from '@src/views/dashboard/noRatio'
-import ReactApexcharts from '@src/@core/components/react-apexcharts'
-import OptionsMenu from '@src/@core/components/option-menu'
 import { OptionType } from '@src/@core/components/option-menu/types'
 import DashboardForSuspense from '@src/views/dashboard/suspense'
+import {
+  ArcElement,
+  Chart as ChartJS,
+  ChartOptions,
+  Legend,
+  Plugin,
+  Tooltip,
+} from 'chart.js'
+import { Doughnut as Chart } from 'react-chartjs-2'
+import OptionsMenu from '@src/@core/components/option-menu'
+import {
+  getStringCountTooltip,
+  getStringPriceTooltip,
+} from '@src/views/dashboard/chart/tooltip'
+
+ChartJS.register(ArcElement, Tooltip, Legend)
 
 interface DoughnutChartProps<T> extends Partial<CSVDataRecordProps> {
   title: string
@@ -146,86 +155,137 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
     })
   }, [menuOptions])
 
-  const options: ApexOptions = useMemo(() => {
+  const datasets = useMemo(() => {
+    const labels =
+      charData.length !== 0 ? charData.map(item => item.name) : ['']
+    const data =
+      charData.length !== 0 ? charData.map(item => item.ratio) : [100]
     return {
-      legend: { show: false },
-      colors: colors,
-      labels: [],
-      stroke: {
-        width: 5,
+      labels,
+      datasets: [
+        {
+          data,
+          backgroundColor: charData.length === 0 ? '#F1F1F3' : colors,
+        },
+      ],
+    }
+  }, [charData])
+
+  const options: ChartOptions<'doughnut'> = {
+    cutout: '55%',
+    spacing: charData.length === 0 ? 0 : 2,
+    offset: charData.length === 0 ? 0 : 5,
+    responsive: false,
+    maintainAspectRatio: true,
+    borderColor: charData.length === 0 ? '#F1F1F3' : 'transparent',
+    hover: {
+      mode: 'index',
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        display: false,
       },
       tooltip: {
-        enabled: true,
-        custom: function ({ series, seriesIndex, dataPointIndex, w }) {
-          const price = charData[seriesIndex]?.sum || 0
-
-          return renderToString(
-            <div
-              className='flex-center'
-              style={{ alignItems: 'flex-start', paddingTop: '10px' }}
-            >
-              <StatusSquare color={colors[seriesIndex]} />
-              <div className='tooltip_container'>
-                <div className='flex-center'>
-                  <span className='tooltip_text_bold'>
-                    {(getName && getName(charData[seriesIndex] as T)) ||
-                      charData[seriesIndex].name}
-                  </span>
-                  <span className='tooltip__count'>{`(${charData[seriesIndex].count})`}</span>
-                </div>
-                <div className='flex-center' style={{ marginTop: '10px' }}>
-                  {!isHiddenValue && (
-                    <span className='tooltip__sum'>{`${Number(
-                      price,
-                    ).toLocaleString()}`}</span>
-                  )}
-                  <span className='tooltip__ratio'>{`${charData[seriesIndex].ratio}%`}</span>
-                </div>
-              </div>{' '}
-            </div>,
-          )
-        },
-      },
-      dataLabels: {
         enabled: false,
-      },
-      states: {
-        hover: {
-          filter: { type: 'none' },
+        position: 'average',
+        external: ({ chart, tooltip }) => {
+          if (!data) return
+          let tooltipEl = chart.canvas.parentNode?.querySelector('div')
+
+          if (!tooltipEl) {
+            tooltipEl = document.createElement('div')
+            tooltipEl.style.background = 'rgb(255, 255, 255)'
+            tooltipEl.style.borderRadius = '3px'
+            tooltipEl.style.color = '#4C4E64DE'
+            tooltipEl.style.opacity = '1'
+            tooltipEl.style.pointerEvents = 'none'
+            tooltipEl.style.position = 'absolute'
+            tooltipEl.style.transform = 'translate(-50%, 0)'
+            tooltipEl.style.transition = 'all .1s ease'
+            tooltipEl.style.padding = '0 12px'
+            tooltipEl.style.boxShadow =
+              '0px 2px 10px 0px rgba(76, 78, 100, 0.22)'
+            tooltipEl.style.borderRadius = '10px'
+
+            const table = document.createElement('table')
+            table.style.margin = '0px'
+
+            tooltipEl.appendChild(table)
+            chart.canvas.parentNode?.appendChild(tooltipEl)
+          }
+
+          if (tooltip.opacity === 0) {
+            tooltipEl.style.opacity = '0'
+            return
+          }
+
+          const index = tooltip.dataPoints[0].dataIndex
+
+          let renderViewToolTipContent = ''
+
+          if ('price' in charData[index]) {
+            renderViewToolTipContent = getStringPriceTooltip({
+              color: colors[index],
+              count: charData[index]?.count,
+              name:
+                (getName && getName(charData[index] as T)) ||
+                charData[index]?.name,
+              ratio: charData[index]?.ratio,
+              price: `${CurrencyUnit[currency]}${charData[index]?.sum}`,
+            })
+          } else {
+            renderViewToolTipContent = getStringCountTooltip({
+              color: colors[index],
+              count: charData[index]?.count,
+              name:
+                (getName && getName(charData[index] as T)) ||
+                charData[index]?.name,
+              ratio: charData[index]?.ratio,
+            })
+          }
+
+          tooltipEl.innerHTML = renderViewToolTipContent
+          const { offsetLeft: positionX, offsetTop: positionY } = chart.canvas
+          tooltipEl.style.opacity = '1'
+          tooltipEl.style.left = positionX + tooltip.caretX + 'px'
+          tooltipEl.style.top = positionY + tooltip.caretY + 'px'
+          tooltipEl.style.padding =
+            tooltip.options.padding + 'px ' + tooltip.options.padding + 'px'
         },
-        active: {
-          filter: { type: 'none' },
+      },
+    },
+  }
+
+  const innerLabel: Plugin<'doughnut'>[] = useMemo(() => {
+    return [
+      {
+        id: 'innerLabel',
+        beforeDraw: chart => {
+          const ctx = chart.ctx
+          // @ts-ignore
+          const index = chart._active[0]?.index
+
+          const xCoor =
+            chart.chartArea.left +
+            (chart.chartArea.right - chart.chartArea.left) / 2
+          const yCoor =
+            chart.chartArea.top +
+            (chart.chartArea.bottom - chart.chartArea.top) / 2
+          ctx.save()
+          ctx.font = '18px sans-serif'
+          ctx.fillStyle = '#4C4E6499'
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
+          ctx.fillText(
+            `(${charData[index]?.count || data?.totalCount || 0})`,
+            xCoor,
+            yCoor,
+          )
+          ctx.restore()
         },
       },
-      chart: {
-        redrawOnParentResize: true,
-      },
-      plotOptions: {
-        pie: {
-          donut: {
-            size: '45%',
-            labels: {
-              show: true,
-              name: { show: false },
-              total: {
-                label: '',
-                show: true,
-                showAlways: true,
-                fontWeight: 600,
-                fontSize: '32px',
-                color: '#4C4E6499',
-                formatter: val => {
-                  const total = data?.totalCount
-                    ? data?.totalCount
-                    : data?.totalOrderCount
-                  return `(${Number(total || 0).toLocaleString()})`
-                },
-              },
-            },
-          },
-        },
-      },
-    }
+    ]
   }, [charData])
 
   return (
@@ -235,7 +295,6 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
       sx={{
         width: '100%',
         height: '100%',
-        overflow: 'hidden',
       }}
     >
       <Box
@@ -245,12 +304,10 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
         sx={{ position: 'relative' }}
       >
         <Title
-          marginBottom='30px'
           title={getTitle()}
           subTitle={userViewDate || subTitle}
           openDialog={setOpenInfoDialog}
         />
-
         {menuOptions && (
           <Box sx={{ position: 'absolute', right: 0, top: 0 }}>
             <OptionsMenu
@@ -269,76 +326,67 @@ const DoughnutChart = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
       >
         <ConvertButtonGroup onChangeCurrency={onChangeCurrency} />
       </Box>
-      {!data && <NoRatio title={overlayTitle || title} />}
-      {data && (
-        <Box
-          display='flex'
-          sx={{
-            width: '100%',
-            height: '100%',
-            paddingBottom: '20px',
-            position: 'relative',
-          }}
-        >
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '-45px',
-              transform: 'translateY(-50%)',
-            }}
-          >
-            <CustomChart
-              type='donut'
-              options={options}
-              width={276}
-              heigt={176}
-              series={charData.map(item => item.ratio) || []}
-            />
-            <Typography
-              fontSize='20px'
-              fontWeight={500}
-              sx={{
-                textAlign: 'center',
-                visibility: isHiddenValue ? 'hidden' : 'visible',
-              }}
+
+      <Box
+        display='flex'
+        alignItems='center'
+        justifyContent='space-between'
+        flexWrap='wrap'
+        sx={{ width: '100%', height: '100%' }}
+      >
+        <div style={{ width: '210px' }}>
+          <CustomChart
+            data={datasets}
+            options={options}
+            plugins={innerLabel}
+            width='200'
+            height='200'
+          />
+        </div>
+        <Box sx={{ width: 'calc(100% - 230px)' }}>
+          {charData.length === 0 && (
+            <span
+              style={{ display: 'block', width: '100%', textAlign: 'center' }}
             >
-              {getTotalPrice() && CurrencyUnit[currency]}
-              {(getTotalPrice() || 0).toLocaleString()}
-            </Typography>
-          </Box>
-          <Box sx={{ position: 'absolute', right: 0 }}>
-            <List>
-              {charData.map((item, index) => (
-                <li key={`${item.name}-${index}`}>
-                  <Box display='flex' alignItems='center'>
-                    <StatusSquare color={colors[index]} />
-                    <span className='name'>
-                      {(getName && getName(charData[index] as T)) ||
-                        charData[index].name}
-                      <span className='item-count'>({item.count})</span>
-                    </span>
-                  </Box>
-                  <Box display='flex' justifyContent='space-between'>
-                    <span
-                      className='money'
-                      style={{
-                        visibility: isHiddenValue ? 'hidden' : 'visible',
-                      }}
-                    >
-                      {CurrencyUnit[currency]}
-                      {Number(item.sum).toLocaleString()}
-                    </span>
-                    <span className='ratio'>
-                      {(item.ratio || 0).toFixed(2)}%
-                    </span>
-                  </Box>
-                </li>
-              ))}
-            </List>
-          </Box>
+              {overlayTitle}
+            </span>
+          )}
+          <List>
+            {charData.map((item, index) => (
+              <li key={`${item.name}-${index}`}>
+                <Box
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='flex-start'
+                  flexShrink={1}
+                  flexGrow={0}
+                  overflow='hidden'
+                  sx={{ minWidth: '120px', padding: '0 3px' }}
+                >
+                  <StatusSquare color={colors[index]} />
+                  <span className='name'>
+                    {(getName && getName(charData[index] as T)) ||
+                      charData[index].name}
+                    <span className='item-count'>({item.count})</span>
+                  </span>
+                </Box>
+                <Box display='flex' justifyContent='space-between'>
+                  <span
+                    className='money'
+                    style={{
+                      visibility: isHiddenValue ? 'hidden' : 'visible',
+                    }}
+                  >
+                    {CurrencyUnit[currency]}
+                    {Number(item.sum).toLocaleString()}
+                  </span>
+                  <span className='ratio'>{(item.ratio || 0).toFixed(1)}%</span>
+                </Box>
+              </li>
+            ))}
+          </List>
         </Box>
-      )}
+      </Box>
     </Box>
   )
 }
@@ -362,27 +410,35 @@ const Doughnut = <T extends RatioItem>(props: DoughnutChartProps<T>) => {
 
 export const List = styled('ul')(() => {
   return {
-    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
     listStyle: 'none',
     padding: '0 0 0 16px',
 
     '& > li': {
-      height: '35px',
+      flexGrow: 1,
+      flexShrink: 1,
+      minWidth: 0,
+      width: '100%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
+      height: '35px',
       fontSize: '14px',
       color: '#4C4E64DE',
     },
 
     '& > li  .name': {
+      minWidth: '100px',
+      height: 'fit-content',
       display: 'block',
       fontWeight: 600,
-      width: '220px',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     },
 
     '& > li  .left__items': {
-      width: '100%',
       display: 'flex',
     },
 
@@ -393,80 +449,41 @@ export const List = styled('ul')(() => {
     },
 
     '& > li  .money': {
-      width: '120px',
       fontWeight: 600,
       textAlign: 'right',
       marginRight: '16px',
     },
 
     '& > li  .ratio': {
+      fontFamily: 'Inter',
       width: '46px',
       padding: '0 7px',
       height: '20px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontWeight: 600,
+      fontWeight: 500,
       color: '#fff',
       borderRadius: '64px',
-      fontSize: '11px',
+      fontSize: '12px',
+      letterSpacing: '0.14px',
       backgroundColor: '#4C4E64DE',
-      letterSpacing: '-0.14px',
     },
   }
 })
 
-export const CustomChart = styled(ReactApexcharts)(() => {
+export const CustomChart = styled(Chart)(() => {
   return {
-    '& .apexcharts-tooltip': {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      height: '80px',
-      padding: '0 20px',
-      color: '#4C4E64DE !important',
-      boxShadow: '0px 2px 10px 0px rgba(76, 78, 100, 0.22)',
-
-      '& > .apexcharts-tooltip-series-group ': {},
-
-      '& svg': {
-        overflow: 'visible !important',
+    '& .tooltip': {
+      '&__count': {
+        color: '#4C4E6499',
+        margin: '0 5px 0 10px',
       },
-
-      '& .tooltip_container': {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      },
-
-      '& .flex-center': {
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
-
-      '& .tooltip_text_bold': {
+      '&__sum': {
         fontWeight: 600,
+        marginRight: '5px',
       },
-
-      '& .tooltip': {
-        '&__count': {
-          color: '#4C4E6499',
-          margin: '0 5px 0 10px',
-        },
-        '&__sum': {
-          fontWeight: 600,
-          marginRight: '5px',
-        },
-        '&__ratio': {
-          display: 'block',
-          padding: '0 6px',
-          borderRadius: '20px',
-          backgroundColor: '#6D788D',
-          color: '#fff',
-          fontWeight: 500,
-        },
-      },
+      '&__ratio': {},
     },
   }
 })

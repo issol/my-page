@@ -94,6 +94,11 @@ import DetailNoUser from '@src/@core/components/error/detail-no-user'
 import { getUserDataFromBrowser } from '@src/shared/auth/storage'
 import BeusableScript from '@src/shared/scripts/beusable'
 
+import { Inter } from 'next/font/google'
+
+// If loading a variable font, you don't need to specify the font weight
+const inter = Inter({ subsets: ['latin'] })
+
 /* msw mock server */
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
   require('../mocks')
@@ -304,7 +309,12 @@ const App = (props: ExtendedAppProps) => {
                                   guestGuard={guestGuard}
                                 >
                                   <Suspense fallback={<FallbackSpinner />}>
-                                    {getLayout(<Component {...pageProps} />)}
+                                    {getLayout(
+                                      <Component
+                                        {...pageProps}
+                                        className={inter.className}
+                                      />,
+                                    )}
                                     {/* </ErrorBoundary> */}
                                   </Suspense>
                                 </AclGuard>

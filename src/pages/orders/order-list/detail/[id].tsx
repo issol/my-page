@@ -553,8 +553,8 @@ const OrderDetail = () => {
           item.position === 'projectManager'
             ? 'projectManagerId'
             : item.position === 'supervisor'
-            ? 'supervisorId'
-            : 'member',
+              ? 'supervisorId'
+              : 'member',
         id: item.userId,
         name: getLegalName({
           firstName: item?.firstName!,
@@ -976,8 +976,8 @@ const OrderDetail = () => {
           item.position === 'projectManager'
             ? 'projectManagerId'
             : item.position === 'supervisor'
-            ? 'supervisorId'
-            : 'member',
+              ? 'supervisorId'
+              : 'member',
         id: item.userId,
         name: getLegalName({
           firstName: item?.firstName!,
@@ -1565,7 +1565,8 @@ const OrderDetail = () => {
             (projectInfo?.status === 'New' ||
               projectInfo?.status === 'In preparation' ||
               projectInfo?.status === 'Internal review' ||
-              projectInfo?.status === 'Under revision') &&
+              projectInfo?.status === 'Under revision' ||
+              projectInfo?.status === 'Without invoice') &&
             isIncludeProjectTeam()
           break
         case 'button-Edit-Set-Status-To-UnderRevision':

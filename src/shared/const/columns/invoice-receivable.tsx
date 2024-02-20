@@ -206,7 +206,6 @@ export const getInvoiceReceivableListColumns = (
             auth.getValue().user?.timezone,
             timezoneList,
           )
-          console.log('date', row.invoicedAt)
           return (
             <Tooltip title={date}>
               <Typography variant='body2'>{date}</Typography>

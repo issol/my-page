@@ -33,11 +33,16 @@ import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
-  data: RequestDetailType | undefined
+  data: RequestDetailType
   user: UserDataType | null
   currentRole: UserRoleType | null
   openReasonModal: () => void
   onStatusChange: (status: RequestStatusType) => void
+  statusList: {
+    value: number
+    label: string
+  }[]
+  statusListLoading: boolean
 }
 export default function RequestDetailCard({
   data,
@@ -45,16 +50,25 @@ export default function RequestDetailCard({
   currentRole,
   openReasonModal,
   onStatusChange,
+  statusList,
+  statusListLoading,
 }: Props) {
-  const { data: statusList, isLoading } = useGetClientRequestStatus()
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const label = statusList?.find(i => i.value === data.status)?.label
 
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
-        <LabelContainer>
+        <LabelContainer style={{ alignItems: 'center' }}>
           <CustomTypo fontWeight={600}>Request date</CustomTypo>
-          <CustomTypo variant='body2'>
+          <CustomTypo
+            variant='body2'
+            sx={
+              data.status !== 50002
+                ? { height: '40px', alignItems: 'center', display: 'flex' }
+                : undefined
+            }
+          >
             {convertTimeToTimezone(
               data?.requestedAt,
               user?.timezone,
@@ -64,41 +78,43 @@ export default function RequestDetailCard({
         </LabelContainer>
       </Grid>
       <Grid item xs={6}>
-        <LabelContainer>
+        <LabelContainer style={{ alignItems: 'center' }}>
           <CustomTypo fontWeight={600}>Status</CustomTypo>
-          {data?.status === 'Request created' ? (
+          {data?.status === 50001 ? (
             <FormControl fullWidth>
               <Autocomplete
-                loading={isLoading}
+                loading={statusListLoading}
                 options={
-                  statusList?.filter(
-                    status => status.label === 'In preparation',
-                  ) || []
+                  statusList?.filter(status => status.value === 50002) || []
                 }
                 size='small'
                 getOptionLabel={option => option.label}
                 value={
                   !statusList || !data?.status
                     ? null
-                    : statusList?.find(item =>
-                        data?.status?.includes(item.label),
-                      )
+                    : statusList?.find(item => data?.status === item.value)
                 }
                 limitTags={1}
                 onChange={(e, v) => {
-                  if (v?.label) onStatusChange(v?.label as RequestStatusType)
+                  if (v) onStatusChange(v.value as RequestStatusType)
                 }}
                 id='status'
                 renderInput={params => (
-                  <TextField {...params} autoComplete='off' placeholder='Status' />
+                  <TextField
+                    {...params}
+                    autoComplete='off'
+                    placeholder='Status'
+                  />
                 )}
                 clearIcon={null}
               />
             </FormControl>
           ) : (
             <Box display='flex' alignItems='center' gap='8px'>
-              {!data?.status ? null : ClientRequestStatusChip(data?.status)}
-              {data?.status === 'Canceled' && (
+              {!data.status && !label
+                ? '-'
+                : ClientRequestStatusChip(data.status, label!)}
+              {data.status === 50005 && (
                 <IconButton sx={{ padding: 0 }} onClick={openReasonModal}>
                   <Icon icon='material-symbols:help-outline' />
                 </IconButton>
@@ -164,9 +180,20 @@ export default function RequestDetailCard({
                 <Grid item xs={6}>
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Service type</CustomTypo>
-                    <Box display='flex'>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '8px',
+                        width: '100%',
+                      }}
+                    >
                       {item.serviceType?.map(i => (
-                        <ServiceTypeChip size='small' key={i} label={i} />
+                        <ServiceTypeChip
+                          size='small'
+                          key={uuidv4()}
+                          label={i}
+                        />
                       ))}
                     </Box>
                   </LabelContainer>

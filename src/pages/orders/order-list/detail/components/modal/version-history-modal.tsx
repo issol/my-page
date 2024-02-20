@@ -480,7 +480,15 @@ const VersionHistoryModal = ({
           </TabPanel>
           <TabPanel
             value='1'
-            sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
+            sx={{
+              height: '100%',
+              maxHeight: '552px',
+              minHeight: '552px',
+              overflowY: 'scroll',
+              '&::-webkit-scrollbar': {
+                display: 'none',
+              },
+            }}
           >
             <ProjectInfo
               type='history'

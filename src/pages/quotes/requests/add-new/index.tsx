@@ -243,6 +243,8 @@ export default function AddNewRequest() {
         return newItem
       },
     )
+    console.log(dateFixedItem)
+
     // TODO Contact Person 드롭다운에서 값을 선택하지 않는 경우 contactPersonId가 아니라 userId가 들어감
     // TODO 초기값 설정할때 clients 값을 map 돌려서 contactPersonId를 추출하는게 로딩 시점상 맞지가 않아서 부득이하게 mutation 타이밍에 변경하는 코드를 추가함
     const contactPersonId = clients?.find(
@@ -257,6 +259,8 @@ export default function AddNewRequest() {
           : data.contactPersonId,
       items: dateFixedItem,
     }
+    console.log(calData)
+    console.log(files.length)
 
     if (files.length) {
       const fileInfo: Array<{ fileName: string; fileSize: number }> = []

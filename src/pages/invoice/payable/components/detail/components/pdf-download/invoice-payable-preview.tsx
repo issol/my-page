@@ -464,7 +464,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
                           }}
                         >
                           {columnName.tax}{' '}
-                          {`(${Number(data.taxRate)?.toFixed(2)}%)`}:
+                          {`(${Number(data.taxRate)}%)`}:
                         </Typography>
                         <Typography
                           variant='subtitle1'
