@@ -332,13 +332,17 @@ export const formattedNow = (now: Date) => {
   return formattedDate
 }
 
-export const convertLocalToUtc = (date: string, timezone: string) => {
+export const convertLocalToUtc = (
+  date: string,
+  timezone: string,
+  isEndDate: boolean = false,
+) => {
   console.log(date, timezone)
 
-  const localTime = moment(date)
-    .tz(timezone === 'ROK' ? 'Asia/Seoul' : timezone)
-    .add(1, 'day')
-  const localMidnight = localTime.startOf('day')
-  const utcMidnight = localMidnight.utc()
-  return utcMidnight.toISOString()
+  const localTime = moment(date).tz(
+    timezone === 'ROK' ? 'Asia/Seoul' : timezone,
+  )
+
+  const utcTime = localTime.utc()
+  return utcTime.toISOString()
 }
