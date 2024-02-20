@@ -88,16 +88,22 @@ export default function Payable() {
       skip: skip * activeFilter.take,
       take: activeFilter.take,
       invoicedDateFrom: filter.invoicedDateFrom
-        ? convertLocalToUtc(filter.invoicedDateFrom, userTimezone)
+        ? convertLocalToUtc(
+            moment(filter.invoicedDateFrom).format(),
+            userTimezone,
+          )
         : undefined,
       invoicedDateTo: filter.invoicedDateTo
         ? convertLocalToUtc(
-            moment(filter.invoicedDateTo).add(1, 'day').format(),
+            moment(filter.invoicedDateTo).format(),
             userTimezone,
           )
         : undefined,
       payDueDateFrom: filter.payDueDateFrom
-        ? convertLocalToUtc(filter.payDueDateFrom, userTimezone)
+        ? convertLocalToUtc(
+            moment(filter.payDueDateFrom).format(),
+            userTimezone,
+          )
         : undefined,
       payDueDateTo: filter.payDueDateTo
         ? convertLocalToUtc(
@@ -106,7 +112,7 @@ export default function Payable() {
           )
         : undefined,
       paidDateFrom: filter.paidDateFrom
-        ? convertLocalToUtc(filter.paidDateFrom, userTimezone)
+        ? convertLocalToUtc(moment(filter.paidDateFrom).format(), userTimezone)
         : undefined,
       paidDateTo: filter.paidDateTo
         ? convertLocalToUtc(
