@@ -95,8 +95,9 @@ export default function Payable() {
         : undefined,
       invoicedDateTo: filter.invoicedDateTo
         ? convertLocalToUtc(
-            moment(filter.invoicedDateTo).format(),
+            moment(filter.invoicedDateTo).add(1, 'day').format(),
             userTimezone,
+            true,
           )
         : undefined,
       payDueDateFrom: filter.payDueDateFrom
@@ -109,6 +110,7 @@ export default function Payable() {
         ? convertLocalToUtc(
             moment(filter.payDueDateTo).add(1, 'day').format(),
             userTimezone,
+            true,
           )
         : undefined,
       paidDateFrom: filter.paidDateFrom
@@ -118,6 +120,7 @@ export default function Payable() {
         ? convertLocalToUtc(
             moment(filter.paidDateTo).add(1, 'day').format(),
             userTimezone,
+            true,
           )
         : undefined,
     })
