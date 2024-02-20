@@ -89,7 +89,7 @@ export default function Payable() {
       take: activeFilter.take,
       invoicedDateFrom: filter.invoicedDateFrom
         ? convertLocalToUtc(
-            moment(filter.invoicedDateFrom).format(),
+            moment(filter.invoicedDateFrom).format('YYYY-MM-DD'),
             userTimezone,
           )
         : undefined,

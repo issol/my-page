@@ -337,9 +337,8 @@ export const convertLocalToUtc = (
   timezone: string,
   isEndDate: boolean = false,
 ) => {
-  console.log(date, timezone)
-
-  const localTime = moment(date).tz(
+  const localTime = moment.tz(
+    moment(date).format('YYYY-MM-DD'),
     timezone === 'ROK' ? 'Asia/Seoul' : timezone,
   )
 
