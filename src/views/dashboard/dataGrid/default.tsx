@@ -49,6 +49,7 @@ const DefaultDataGrid = <T extends { id: number; orderId?: number }>({
         setPage(newPage)
         setSkip(newPage * defaultPageSize)
       }}
+      sortingMode='server'
       pageSize={pageSize}
       onPageSizeChange={pageSize => setPageSize(pageSize)}
       paginationMode='server'
