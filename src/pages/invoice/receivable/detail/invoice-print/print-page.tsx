@@ -51,7 +51,10 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
 
   // print page에서 사용할 Currency 정보
   // const invoiceCurrency = data.currency
-  const invoiceCurrency = data.orders[0].languagePairs[0].currency
+  const invoiceCurrency =
+    data.orders.length > 0 && data.orders[0].languagePairs.length > 0
+      ? data.orders[0].languagePairs[0]?.currency ?? ''
+      : ''
 
   useEffect(() => {
     if (type === 'download') {
@@ -296,10 +299,10 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                   splitContryCodeAndPhoneNumber(data.contactPerson.mobile),
                 )
               : data?.client?.client?.mobile
-              ? contryCodeAndPhoneNumberFormatter(
-                  splitContryCodeAndPhoneNumber(data.client.client.mobile),
-                )
-              : '-'}
+                ? contryCodeAndPhoneNumberFormatter(
+                    splitContryCodeAndPhoneNumber(data.client.client.mobile),
+                  )
+                : '-'}
           </Typography>
         </Box>
       </Box>
