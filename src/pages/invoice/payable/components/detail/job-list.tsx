@@ -22,6 +22,7 @@ import {
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import { useRouter } from 'next/router'
+import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   data: {
@@ -64,6 +65,19 @@ export default function InvoiceJobList({
     const disabledTextUi = {
       textDecoration: item.isRemove ? 'line-through' : '',
     }
+
+    const priceNames = item?.prices?.map(price => price.name)
+    const prices = item?.prices?.map(price => {
+      return `${formatCurrency(price.prices, currency!)}`
+    })
+
+    const priceUnits = item?.prices?.map(price => {
+      const unitPrice = `${formatCurrency(price.unitPrice, currency!)}`
+      const priceUnit =
+        price.quantity < 1 ? unitPrice : `(${unitPrice} X ${price.quantity})`
+
+      return priceUnit
+    })
 
     return (
       <Fragment>
@@ -156,30 +170,82 @@ export default function InvoiceJobList({
                 <Typography fontSize={14} fontWeight={600}>
                   Price details
                 </Typography>
-                <ul>
-                  {item?.prices?.map((price, i) => {
-                    // const unitPrice = `${currencyMark} ${price.unitPrice.toLocaleString()}`
-                    const unitPrice = `${formatCurrency(price.unitPrice, currency!)}`
-                    const priceUnit =
-                      price.quantity < 1
-                        ? unitPrice
-                        : `(${unitPrice} X ${price.quantity})`
-                    return (
-                      <li key={i}>
-                        <Box display='flex' gap='24px' alignItems='left'>
-                          <Typography fontWeight={600}>
-                            {price?.name}
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: '24px',
+                    marginLeft: '8px',
+                    marginTop: '10px',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'stretch',
+                    }}
+                  >
+                    {priceNames.map(value => {
+                      return (
+                        <Typography
+                          key={uuidv4()}
+                          fontWeight={600}
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography fontSize={10} component={'span'}>
+                            ⦁
                           </Typography>
-                          <Typography variant='body2'>{priceUnit}</Typography>
-                          <Typography variant='body2'>
-                            {/* {`${currencyMark} ${price.prices.toLocaleString()}`} */}
-                            {`${formatCurrency(price.prices, currency!)}`}
-                          </Typography>
-                        </Box>
-                      </li>
-                    )
-                  })}
-                </ul>
+                          {value}
+                        </Typography>
+                      )
+                    })}
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'stretch',
+                    }}
+                  >
+                    {priceUnits.map(value => {
+                      return (
+                        <Typography
+                          key={uuidv4()}
+                          variant='body2'
+                          fontSize={16}
+                          lineHeight={1.5}
+                        >
+                          {value}
+                        </Typography>
+                      )
+                    })}
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'stretch',
+                    }}
+                  >
+                    {prices.map(value => {
+                      return (
+                        <Typography
+                          key={uuidv4()}
+                          variant='body2'
+                          fontSize={16}
+                          lineHeight={1.5}
+                        >
+                          {value}
+                        </Typography>
+                      )
+                    })}
+                  </Box>
+                </Box>
               </Box>
             </TableCell>
           </TableRow>
