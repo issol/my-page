@@ -213,12 +213,6 @@ export default function Receivable() {
         value: 301100,
       })
 
-    if (invoiceStatus.find(value => value.value === 301000))
-      invoiceStatus.push({
-        label: 'Overdue',
-        value: 301100,
-      })
-
     const filter: InvoiceReceivableFilterType = {
       revenueFrom: revenueFrom?.map(value => value.value) ?? [],
       invoiceStatus: invoiceStatus.map(value => value.value),
