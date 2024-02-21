@@ -41,6 +41,8 @@ import { toast } from 'react-hot-toast'
 import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 import { convertLocalToUtc } from '@src/shared/helpers/date.helper'
 import moment from 'moment-timezone'
+import { getInvoicePayableListColumns } from '@src/shared/const/columns/invoice-payable'
+import { timezoneSelector } from '@src/states/permission'
 
 const initialFilter: InvoicePayableFilterType = {
   invoiceStatus: [],
@@ -60,6 +62,8 @@ export default function Payable() {
   const queryClient = useQueryClient()
   const ability = useContext(AbilityContext)
   const user = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
+
   const { data: statusList } = useGetStatusList('InvoicePayable')
 
   const { openModal, closeModal } = useModal()
@@ -285,6 +289,13 @@ export default function Payable() {
                 setPageSize={(n: number) =>
                   setActiveFilter({ ...activeFilter, take: n })
                 }
+                type='list'
+                columns={getInvoicePayableListColumns(
+                  statusList!,
+                  user,
+                  timezone,
+                  'list',
+                )}
               />
             </Card>
           </Grid>
