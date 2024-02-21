@@ -274,6 +274,10 @@ const ClientDashboards = () => {
             to={getDateFormat(
               (Array.isArray(dateRange) && dateRange[1]) || null,
             )}
+            moveDetailPage={params =>
+              //orders/order-list/detail/291/
+              router.push(`/orders/order-list/detail/${params.row.id}`)
+            }
             setOpenInfoDialog={setOpenInfoDialog}
           />
           <Grid container spacing={5}>

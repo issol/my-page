@@ -9,6 +9,7 @@ import {
 import { DateTime, IANAZone } from 'luxon'
 
 import { countries } from '@src/@fake-db/autocomplete'
+import moment from 'moment-timezone'
 
 // 미사용, 추후 제거
 export function convertDateByTimezone(date: string, from: string, to: string) {
@@ -329,4 +330,18 @@ export const formattedNow = (now: Date) => {
   formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
 
   return formattedDate
+}
+
+export const convertLocalToUtc = (
+  date: string,
+  timezone: string,
+  isEndDate: boolean = false,
+) => {
+  const localTime = moment.tz(
+    moment(date).format('YYYY-MM-DD'),
+    timezone === 'ROK' ? 'Asia/Seoul' : timezone,
+  )
+
+  const utcTime = localTime.utc()
+  return utcTime.toISOString()
 }

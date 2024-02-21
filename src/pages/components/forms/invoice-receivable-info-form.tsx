@@ -339,7 +339,7 @@ export default function InvoiceProjectInfoForm({
             <TextField
               fullWidth
               autoComplete='off'
-              // disabled={true}
+              disabled={!multipleOrder}
               label='Project name*'
               variant='outlined'
               value={value ?? ''}

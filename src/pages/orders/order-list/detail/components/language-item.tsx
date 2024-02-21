@@ -44,6 +44,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
 
 type Props = {
   // languagePairs: Array<languageType>
@@ -175,7 +176,7 @@ const LanguageAndItem = ({
   updateLanguagePairs,
 }: Props) => {
   console.log(getItem())
-
+  console.log(project)
   const { openModal, closeModal } = useModal()
 
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -254,6 +255,13 @@ const LanguageAndItem = ({
       source: '',
       target: '',
       contactPersonId: projectManager?.id!,
+      dueAt:
+        project?.projectDueAt && project?.projectDueTimezone
+          ? changeTimeZoneOffset(
+              project?.projectDueAt,
+              project?.projectDueTimezone,
+            )
+          : null,
       priceId: null,
       detail: [],
       totalPrice: 0,
@@ -432,7 +440,7 @@ const LanguageAndItem = ({
                 gap: '20px',
                 borderBottom: '2px solid #666CFF',
                 justifyContent: 'center',
-                width: '30%',
+                width: 'fit-content',
               }}
             >
               <Typography
@@ -440,9 +448,9 @@ const LanguageAndItem = ({
                 variant='subtitle1'
                 sx={{
                   padding: '16px 16px 16px 20px',
-                  flex: 1,
+                  // flex: 1,
                   display: 'flex',
-                  justifyContent: 'flex-end',
+                  // justifyContent: 'flex-end',
                 }}
               >
                 Subtotal
@@ -452,9 +460,9 @@ const LanguageAndItem = ({
                 variant='subtitle1'
                 sx={{
                   padding: '16px 16px 16px 20px',
-                  flex: 1,
+                  // flex: 1,
                   display: 'flex',
-                  justifyContent: 'flex-end',
+                  // justifyContent: 'flex-end',
                 }}
               >
                 {getItem().items.length && getItem().items[0].initialPrice

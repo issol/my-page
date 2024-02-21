@@ -24,17 +24,14 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 import DatePicker from 'react-datepicker'
 
 // ** apis
-import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
-
 // ** types
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
 import { useGetProList } from '@src/queries/pro/pro-list.query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { useGetStatusList } from '@src/queries/common.query'
 import dayjs from 'dayjs'
-import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
-import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
+import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
+import moment from 'moment-timezone'
 
 type Props = {
   filter: InvoicePayableFilterType
@@ -47,13 +44,7 @@ type Props = {
   }[]
 }
 
-export default function Filter({
-  filter,
-  setFilter,
-  onReset,
-  search,
-  statusList,
-}: Props) {
+const Filter = ({ filter, setFilter, onReset, search, statusList }: Props) => {
   const [collapsed, setCollapsed] = useState<boolean>(true)
   const user = useRecoilValueLoadable(authState)
 
@@ -122,7 +113,11 @@ export default function Filter({
                       }
                       id='status'
                       renderInput={params => (
-                        <TextField {...params} autoComplete='off' label='Status' />
+                        <TextField
+                          {...params}
+                          autoComplete='off'
+                          label='Status'
+                        />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -187,36 +182,17 @@ export default function Filter({
                           : null
                       }
                       shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
-
-                        // dayjs(e[0]?.toLocaleDateString())
-                        // .startOf('day')
-                        // .format('YYYY-MM-DD HH:mm:ss'),
+                      onChange={([start, end]) => {
+                        if (!start && !end) return
 
                         setFilter({
                           ...filter,
-                          invoicedDateFrom: e[0]?.toISOString(),
-                          // invoicedDateFrom: e[0]
-                          //   ? changeTimeZoneOffset(e[0].toISOString(), {
-                          //       label: 'KST',
-                          //       code: 'KST',
-                          //     }) ?? undefined
-                          //   : undefined,
-                          // invoicedDateTo: e[1]
-                          //   ? changeTimeZoneOffset(
-                          //       e[1].toISOString(),
-                          //       user.getValue().user?.timezone ?? {
-                          //         label: 'KST',
-                          //         code: 'KST',
-                          //       },
-                          //     ) ?? undefined
-                          //   : undefined,
-                          invoicedDateTo: e[1]?.toISOString(),
-                          // invoicedDateFrom: dayjs(e[0]?.toLocaleDateString())
-                          //   .startOf('day')
-                          //   .format('YYYY-MM-DD HH:mm:ss'),
-                          // invoicedDateTo: e[1]?.toISOString(),
+                          invoicedDateFrom: start
+                            ? moment(start).toISOString()
+                            : undefined,
+                          invoicedDateTo: end
+                            ? moment(end).toISOString()
+                            : undefined,
                         })
                       }}
                       placeholderText=''
@@ -256,12 +232,17 @@ export default function Filter({
                           : null
                       }
                       shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
+                      onChange={([start, end]) => {
+                        if (!start && !end) return
+
                         setFilter({
                           ...filter,
-                          payDueDateFrom: e[0]?.toISOString(),
-                          payDueDateTo: e[1]?.toISOString(),
+                          payDueDateFrom: start
+                            ? moment(start).toISOString()
+                            : undefined,
+                          payDueDateTo: end
+                            ? moment(end).toISOString()
+                            : undefined,
                         })
                       }}
                       customInput={
@@ -298,12 +279,17 @@ export default function Filter({
                           : null
                       }
                       shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
+                      onChange={([start, end]) => {
+                        if (!start && !end) return
+
                         setFilter({
                           ...filter,
-                          paidDateFrom: e[0]?.toISOString(),
-                          paidDateTo: e[1]?.toISOString(),
+                          paidDateFrom: start
+                            ? moment(start).toISOString()
+                            : undefined,
+                          paidDateTo: end
+                            ? moment(end).toISOString()
+                            : undefined,
                         })
                       }}
                       customInput={
@@ -369,3 +355,5 @@ export default function Filter({
     </DatePickerWrapper>
   )
 }
+
+export default Filter

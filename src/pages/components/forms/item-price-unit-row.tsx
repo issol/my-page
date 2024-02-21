@@ -178,7 +178,9 @@ const Row = ({
           ? priceData?.decimalPlace!
           : currency === 'USD' || currency === 'SGD'
             ? 2
-            : 1000,
+            : currency === 'KRW'
+              ? 10
+              : 1,
         priceData?.roundingProcedure && priceData?.roundingProcedure !== ''
           ? priceData?.roundingProcedure!
           : 0,
@@ -382,13 +384,13 @@ const Row = ({
                 ...getValues(`${detailName}.${idx}`),
                 isBase: false,
                 price: 0,
-                title: getValues(`${detailName}.${idx}`).title
+                title: getValues(`${detailName}.${idx}`)?.title
                   ? getValues(`${detailName}.${idx}`).title!
                   : getValues(`${detailName}.${idx}.initialPriceUnit.title`)
                     ? getValues(`${detailName}.${idx}.initialPriceUnit.title`)!
                     : '',
-                id: getValues(`${detailName}.${idx}`).id!,
-                weighting: Number(getValues(`${detailName}.${idx}`).weighting!),
+                id: getValues(`${detailName}.${idx}`)?.id!,
+                weighting: Number(getValues(`${detailName}.${idx}`)?.weighting!),
                 subPriceUnits: [],
                 groupName: '',
               }
@@ -433,7 +435,7 @@ const Row = ({
                   onChange={(e, v) => {
                     if (v) {
                       const priceFactor = Number(
-                        getValues(`items.${index}`).priceFactor,
+                        getValues(`items.${index}`)?.priceFactor,
                       )
                       setOpen(false)
 
@@ -705,7 +707,7 @@ const Row = ({
                       savedValue?.currency === 'USD' ||
                         savedValue.currency === 'SGD'
                         ? 2
-                        : 1,
+                        : 10,
                       0,
                       savedValue?.currency ?? 'KRW',
                     ),
@@ -717,7 +719,7 @@ const Row = ({
                       getValues(`${initialPriceName}.currency`) === 'USD' ||
                         getValues(`${initialPriceName}.currency`) === 'SGD'
                         ? 2
-                        : 1,
+                        : 10,
                       0,
                       getValues(`${initialPriceName}.currency`) ?? 'KRW',
                     ),

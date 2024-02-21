@@ -143,12 +143,20 @@ const LPMDashboards = () => {
   })
 
   useEffect(() => {
+    console.log(data)
     const ongoingCounts = data.filter(item => item[0].includes('ongoingCount'))
     const paidThisMonths = data.filter(item =>
       item[0].includes('PaidThisMonth'),
     )
 
     const totalPrices = data.filter(item => item[0].includes('totalPrice'))
+    const receivableLong = data.filter(
+      item =>
+        item[0].includes('Long-standing') && item[0].includes('receivable'),
+    )[0][1] as { data: Array<any>; count: number; totalCount: number }
+    const payableLong = data.filter(
+      item => item[0].includes('Long-standing') && item[0].includes('payable'),
+    )[0][1] as { data: Array<any>; count: number; totalCount: number }
 
     const ongoingOrder = ongoingCounts.filter(item =>
       item[0].includes('order'),
@@ -194,19 +202,19 @@ const LPMDashboards = () => {
       (item, index) => {
         if (index === 0) {
           return {
-            'Payables total Count': item.count || 0,
-            'Payables total Price': item.sum || 0,
-            'Payables total Number': item.count || 0,
-            'Payables-total-empty': '',
             'Payables - paid this month Price': payableMonth?.totalPrice || 0,
             'Payables - paid this month Number': payableMonth?.count || 0,
             'Payables month empty': '',
+            'Payables total Count': item.count || 0,
+            'Payables total Price': item.sum || 0,
+            'Payables total Percent': item.ratio || 0,
+            'Payables total empty': '',
           }
         }
         return {
           'Payables total Count': item.count || 0,
           'Payables total Price': item.sum || 0,
-          'Payables total Number': item.count || 0,
+          'Payables total Percent': item.ratio || 0,
           'Payables total empty': '',
         }
       },
@@ -216,20 +224,25 @@ const LPMDashboards = () => {
       (item, index) => {
         if (index === 0) {
           return {
-            'Receivables total Count': item.count || 0,
-            'Receivables total Price': item.sum || 0,
-            'Receivables total Number': item.count || 0,
-            'Receivables total empty': '',
             'Receivables - paid this month Price':
               receivableMonth?.totalPrice || 0,
             'Receivables - paid this month Number': receivableMonth?.count || 0,
             'Receivables month empty': ' ',
+            'Receivables total Count': item.count || 0,
+            'Receivables total Price': item.sum || 0,
+            'Receivables total Percent': item.ratio || 0,
+            'Receivables total empty': '',
+            'Long-standing receivables - Action required':
+              receivableLong?.count || 0,
+            'Long-standing receivables - Action required empty': '',
+            'Long-standing payables - Action required': payableLong?.count || 0,
+            'Long-standing payables - Action required empty': '',
           }
         }
         return {
           'Receivables total Count': item.count || 0,
           'Receivables total Price': item.sum || 0,
-          'Receivables total Number': item.count || 0,
+          'Receivables total Percent': item.ratio || 0,
           'Receivables total empty': ' ',
         }
       },
@@ -348,9 +361,11 @@ const LPMDashboards = () => {
                   sectionHeight={280}
                   path='u/dashboard/client-request/list/new'
                   pageNumber={4}
-                  movePage={params => router.push('/')}
                   columns={RequestColumns}
                   setOpenInfoDialog={setOpenInfoDialog}
+                  movePage={params =>
+                    router.push(`/quotes/lpm/requests/${params.id}/`)
+                  }
                   handleClick={() => router.push('/quotes/lpm/requests/')}
                 />
               </Box>

@@ -1,9 +1,8 @@
 import { Box } from '@mui/material'
-import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
+import { DataGrid, gridClasses, GridColumns } from '@mui/x-data-grid'
 
 import NoList from '@src/pages/components/no-list'
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
-import { InvoiceProListType } from '@src/types/invoice/pro.type'
 
 import { useRouter } from 'next/router'
 
@@ -60,7 +59,10 @@ const List = ({
         rows={list.data}
         rowCount={list.totalCount ?? 0}
         loading={isLoading}
-        onCellClick={params => router.push(`/invoice/pro/detail/${params.id}`)}
+        onCellClick={params =>
+          params.row.invoiceStatus !== 40100 &&
+          router.push(`/invoice/pro/detail/${params.id}`)
+        }
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={page}
@@ -74,12 +76,10 @@ const List = ({
         onPageSizeChange={(newPageSize: number) => {
           setPageSize(newPageSize)
         }}
-        getRowClassName={params =>
-          params.row.invoiceStatus === 40100 ? 'disabled' : 'normal' //Under revision
+        getRowClassName={
+          params => (params.row.invoiceStatus === 40100 ? 'disabled' : 'normal') //Under revision
         }
-        isRowSelectable={params =>
-          params.row.invoiceStatus !== 40100
-        }
+        isRowSelectable={params => params.row.invoiceStatus !== 40100}
       />
     </Box>
   )

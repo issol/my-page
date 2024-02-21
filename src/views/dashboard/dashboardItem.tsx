@@ -17,11 +17,11 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import MenuList from '@mui/material/MenuList'
 import {
   ArrowDropDown,
+  InfoOutlined,
   KeyboardArrowRight,
   SvgIconComponent,
 } from '@mui/icons-material'
 import { Currency, TotalItem } from '@src/types/dashboard'
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import { usePaidThisMonthAmount } from '@src/queries/dashnaord.query'
 
 interface GridItemProps {
@@ -524,7 +524,7 @@ export const Title = ({
         </span>
         {openDialog && (
           <>
-            <ErrorOutlineIcon
+            <InfoOutlined
               className='info_icon'
               onClick={() => openDialog(true, title)}
             />

@@ -41,8 +41,8 @@ import {
 } from '@src/shared/const/dashboard/chip'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
-import { TestStatusColor } from '@src/shared/const/chipColors'
 import { useRouter } from 'next/router'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -190,7 +190,7 @@ export const RequestColumns: GridColumns = [
           gap='8px'
           sx={{ marginLeft: '24px' }}
         >
-          <Inbox />
+          <CalendarTodayIcon />
           <Typography sx={{ width: '100%', color }}>{`${moment(
             row.desiredDueDate,
           )
@@ -432,7 +432,7 @@ export const RecruitingRequestColumn: GridColumns = [
 
       return (
         <Box display='flex' alignItems='center' gap='8px'>
-          <Inbox />
+          <CalendarTodayIcon />
           <Typography fontSize='16px' sx={{ width: '100%', color }}>
             {row.dueAt && timeZone
               ? `${moment(row.dueAt).tz(timeZone)?.format('MM/DD/YYYY (z)')}`

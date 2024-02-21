@@ -5,6 +5,7 @@ import { StatusType } from '@src/apis/client.api'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
 import {
   InvoiceProStatusType,
+  InvoiceReceivableStatusCodeLabelMixType,
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
 import { RoleType, UserType } from '@src/context/types'
@@ -452,7 +453,7 @@ export function invoicePayableStatusChip(
 
 export function InvoiceReceivableChip(
   label: string,
-  status: InvoiceReceivableStatusType,
+  status: InvoiceReceivableStatusType | InvoiceReceivableStatusCodeLabelMixType,
 ) {
   const color = getReceivableStatusColor(status)
 

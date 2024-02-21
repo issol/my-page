@@ -2,9 +2,7 @@ import { Card, Grid, Typography } from '@mui/material'
 
 import { useRouter } from 'next/router'
 
-import { Box } from '@mui/system'
-
-import { styled } from '@mui/system'
+import { Box, styled } from '@mui/system'
 import toast from 'react-hot-toast'
 
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
@@ -80,6 +78,7 @@ function OnboardingDetail() {
     data: userInfo,
     isError,
     isFetched,
+    refetch,
   } = useGetOnboardingProDetails(Number(id!))
 
   const { data: appliedRole } = useGetAppliedRole(Number(id!))
@@ -226,6 +225,10 @@ function OnboardingDetail() {
       },
     },
   )
+
+  useEffect(() => {
+    refetch()
+  }, [id])
   const handleChangeRolePage = (direction: string) => {
     const changedPage =
       direction === 'prev'
@@ -477,6 +480,7 @@ function OnboardingDetail() {
 
   const onClickTestAssign = (jobInfo: AppliedRoleType, status?: string) => {
     setActionId(jobInfo.id)
+
     openModal({
       type: 'TestAssignModal',
       children: (
@@ -507,7 +511,7 @@ function OnboardingDetail() {
           vary='successful'
           onClick={() => {
             closeModal('TestAssignModal')
-            handleTestAssign(jobInfo.id, status)
+            handleTestAssign(jobInfo.id, status ?? 'none')
           }}
           rightButtonText='Assign'
         />
@@ -1128,6 +1132,7 @@ OnboardingDetails.acl = {
 
 const DesignedCard = styled(Card)`
   position: relative;
+
   :before {
     content: '';
     position: absolute;

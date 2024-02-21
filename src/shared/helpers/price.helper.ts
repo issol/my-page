@@ -145,3 +145,23 @@ export function sliceCurrencyMark(value: string) {
     return value.slice(1, value.length)
   return value
 }
+
+export const fixDigit = (number: string | null | undefined, digit: number) => {
+  if (!number) return ''
+  let str = number.toString();
+
+  // 소수점이 있는 경우, 불필요한 0 제거
+  if (str.indexOf('.') !== -1) {
+    // 소수점 아래 숫자가 모두 0인 경우 소수점 이하를 제거
+    str = str.replace(/\.0+$|(\.\d*?[1-9])0+$/, '$1');
+  } else {
+    // 소수점이 없는 경우, digit에 주어진 값 만큼 소수점 자리를 잘라냄
+    const decimalPart = str.split('.')[1];
+    if (decimalPart && decimalPart.length > digit) {
+      str = str.slice(0, str.indexOf('.') + digit + 1);
+    }
+  }
+
+  // 문자열을 숫자로 변환하여 반환, 소수점 아래가 0으로만 구성된 경우 정수로 반환
+  return String(parseFloat(str));
+}

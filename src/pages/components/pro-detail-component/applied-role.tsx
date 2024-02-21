@@ -128,8 +128,9 @@ const AppliedRole = ({
         // no test case 1, jobInfo.requestStatus가 Awaiting assignment일 경우
         basicTest &&
         skillTest &&
-        ((basicTest!.status === 'NO_TEST' && skillTest!.status === 'NO_TEST') ||
-          (basicTest!.status !== 'NO_TEST' && skillTest!.status === 'NO_TEST'))
+        // ((basicTest!.status === 'No test' && skillTest!.status === 'No test') ||
+        //   (basicTest!.status !== 'No test' && skillTest!.status === 'No test'))
+        skillTest!.status === 'No test'
       ) {
         if (
           jobInfo.role === 'DTPer' ||
@@ -176,9 +177,10 @@ const AppliedRole = ({
               disabled
               sx={{
                 '&.Mui-disabled': {
-                  background: 'rgba(76, 78, 100, 0.12)',
-                  border: 'none',
-                  color: ' rgba(76, 78, 100, 0.38)',
+                  background:
+                    'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
+                  border: '1px solid rgba(255, 77, 73, 0.5)',
+                  color: '#E04440',
                 },
               }}
             >
@@ -211,7 +213,7 @@ const AppliedRole = ({
                 variant='contained'
                 onClick={() => {
                   onClickTestAssign(jobInfo)
-                  // basicTest!.status === 'NO_TEST'
+                  // basicTest!.status === 'No test'
                   //   ? onClickTestAssign(jobInfo, 'Skill in progress')
                   //   : onClickTestAssign(jobInfo)
                 }}
@@ -230,7 +232,11 @@ const AppliedRole = ({
           </>
         )
       }
-    } else if (jobInfo.requestStatus === 'Awaiting response') {
+    } else if (
+      jobInfo.requestStatus === 'Awaiting response' &&
+      ((skillTest && skillTest.status !== 'No test') ||
+        jobInfo.test.length === 0)
+    ) {
       return (
         <Button
           fullWidth
@@ -240,7 +246,7 @@ const AppliedRole = ({
             '&.Mui-disabled': {
               background: 'rgba(76, 78, 100, 0.12)',
               border: 'none',
-              color: ' rgba(76, 78, 100, 0.38)',
+              color: 'rgba(76, 78, 100, 0.38)',
             },
           }}
         >
@@ -274,7 +280,7 @@ const AppliedRole = ({
       jobInfo!.requestStatus === 'Test assigned' &&
       jobInfo.testStatus === 'Awaiting assignment' &&
       skillTest &&
-      skillTest.status !== 'NO_TEST'
+      skillTest.status !== 'No test'
     ) {
       return (
         <Button
@@ -295,8 +301,8 @@ const AppliedRole = ({
       )
     } else if (
       basicTest &&
-      (jobInfo!.requestStatus === 'Test in progress' ||
-        jobInfo!.requestStatus === 'Basic in progress') &&
+      // (jobInfo!.requestStatus === 'Test in progress' ||
+      //   jobInfo!.requestStatus === 'Basic in progress') &&
       (jobInfo!.testStatus === 'Basic in progress' ||
         jobInfo!.testStatus === 'Basic submitted' ||
         jobInfo!.testStatus === 'Basic failed' ||
@@ -321,7 +327,7 @@ const AppliedRole = ({
       )
     } else if (
       skillTest &&
-      jobInfo!.requestStatus === 'Test in progress' &&
+      // jobInfo!.requestStatus === 'Test in progress' &&
       (jobInfo!.testStatus === 'Skill in progress' ||
         jobInfo!.testStatus === 'Skill submitted' ||
         jobInfo!.testStatus === 'Reviewing' ||
@@ -350,7 +356,7 @@ const AppliedRole = ({
         jobInfo!.testStatus === 'Skipped') ||
       (jobInfo!.requestStatus === 'Test in progress' &&
         basicTest &&
-        basicTest.status === 'NO_TEST' &&
+        basicTest.status === 'No test' &&
         skillTest &&
         skillTest.status === 'Awaiting assignment')
     ) {
@@ -376,8 +382,9 @@ const AppliedRole = ({
       // no test case 2, jobInfo.requestStatus에 상관없이 체크
       basicTest &&
       skillTest &&
-      ((basicTest!.status === 'NO_TEST' && skillTest!.status === 'NO_TEST') ||
-        (basicTest!.status !== 'NO_TEST' && skillTest!.status === 'NO_TEST'))
+      // ((basicTest!.status === 'No test' && skillTest!.status === 'No test') ||
+      //   (basicTest!.status !== 'No test' && skillTest!.status === 'No test'))
+      skillTest!.status === 'No test'
     ) {
       if (
         jobInfo.role === 'DTPer' ||
@@ -424,9 +431,10 @@ const AppliedRole = ({
             disabled
             sx={{
               '&.Mui-disabled': {
-                background: 'rgba(76, 78, 100, 0.12)',
-                border: 'none',
-                color: ' rgba(76, 78, 100, 0.38)',
+                background:
+                  'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
+                border: '1px solid rgba(255, 77, 73, 0.5)',
+                color: '#E04440',
               },
             }}
           >
@@ -459,10 +467,9 @@ const AppliedRole = ({
           variant='contained'
           sx={{
             '&.Mui-disabled': {
-              background:
-                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
-              border: '1px solid rgba(255, 77, 73, 0.5)',
-              color: '#E04440',
+              background: 'rgba(76, 78, 100, 0.12)',
+              border: 'none',
+              color: 'rgba(76, 78, 100, 0.38)',
             },
           }}
           disabled={isDisabled()}
@@ -690,16 +697,16 @@ const AppliedRole = ({
                               {!(
                                 (value.test.find(
                                   data => data.testType === 'basic',
-                                )?.status === 'NO_TEST' &&
+                                )?.status === 'No test' &&
                                   value.test.find(
                                     data => data.testType === 'skill',
-                                  )?.status === 'NO_TEST') ||
+                                  )?.status === 'No test') ||
                                 (value.test.find(
                                   data => data.testType === 'basic',
-                                )?.status !== 'NO_TEST' &&
+                                )?.status !== 'No test' &&
                                   value.test.find(
                                     data => data.testType === 'skill',
-                                  )?.status === 'NO_TEST')
+                                  )?.status === 'No test')
                               ) &&
                               value.requestStatus !== 'Certified' &&
                               value.requestStatus !== 'Awaiting assignment' &&

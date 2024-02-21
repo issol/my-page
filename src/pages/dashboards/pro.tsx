@@ -179,14 +179,18 @@ const ProDashboards = () => {
                   display='flex'
                   alignItems='center'
                   justifyContent='center'
-                  sx={{ width: '100%', height: '100%', overflow: 'hidden' }}
-                >
-                  <img
-                    style={{ width: '110%' }}
-                    alt='empty_imgage'
-                    src='/images/dashboard/img_montly.png'
-                  />
-                </Box>
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    overflow: 'hidden',
+
+                    backgroundImage: 'url(/images/dashboard/img_montly.png)',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    transform: 'scale(1.1,1.1)',
+                  }}
+                ></Box>
               </GridItem>
               <GridItem xs={6} height={223}>
                 <Deadline year={getDate('year')} month={getDate('month')} />

@@ -6,9 +6,9 @@ export const splitPermissionName = (permission: string) => {
   return permission.split('-')[1]
 }
 
-// permissionGroups 값에서 Role 이름이 LPM, TAD 인것만 필터하여 보내줍니다.
+// permissionGroups 값에서 Role 이름이 LPM, TAD, CLIENT 인것만 필터하여 보내줍니다.
 export const filterRole = (role: string[]) => {
-  return role.filter(item => item.includes('LPM') || item.includes('TAD'))
+  return role.filter(item => item.includes('LPM') || item.includes('TAD') || item.includes('CLIENT'))
 }
 
 export const sortRole = (role: string[], mode: 'role' | 'permission') => {
