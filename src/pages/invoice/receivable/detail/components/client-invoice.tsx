@@ -171,7 +171,7 @@ Props) => {
         ) : null}
         <PrintInvoicePage
           data={downloadData!}
-          type={'preview'}
+          type={'view'}
           user={user!}
           lang={downloadLanguage ?? 'EN'}
           timezoneList={timezoneList}
