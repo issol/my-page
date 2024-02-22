@@ -1006,6 +1006,7 @@ const ReceivableInvoiceDetail = () => {
         (total, obj) => total + obj.subtotal,
         0,
       )
+
       const tax = subtotal * (invoiceTax / 100)
 
       const res: InvoiceDownloadData = {
@@ -1037,17 +1038,8 @@ const ReceivableInvoiceDetail = () => {
         langItem: items,
         currency: invoiceInfo!.currency,
         // langItem: {id : langItem.invoiceId, languagePairs : langItem.orders } !,
-        subtotal: priceInfo
-          ? formatCurrency(
-              formatByRoundingProcedure(
-                subtotal,
-                priceInfo?.decimalPlace!,
-                priceInfo?.roundingProcedure!,
-                priceInfo?.currency!,
-              ),
-              priceInfo?.currency!,
-            )
-          : '',
+        subtotal: formatCurrency(subtotal, invoiceInfo?.currency!),
+
         taxPercent: invoiceTax,
         tax:
           invoiceInfo!.isTaxable && priceInfo
@@ -1074,7 +1066,7 @@ const ReceivableInvoiceDetail = () => {
                 //     PriceRoundingResponseEnum.Type_0,
                 //   priceInfo?.currency ?? 'USD',
                 // ),
-                priceInfo?.currency ?? 'USD',
+                invoiceInfo?.currency!,
               )
             : formatCurrency(
                 subtotal,
@@ -1085,7 +1077,7 @@ const ReceivableInvoiceDetail = () => {
                 //     PriceRoundingResponseEnum.Type_0,
                 //   priceInfo?.currency ?? 'USD',
                 // ),
-                priceInfo?.currency ?? 'USD',
+                invoiceInfo?.currency!,
               ),
       }
       setDownloadData(res)
@@ -1107,6 +1099,7 @@ const ReceivableInvoiceDetail = () => {
     if (languagePairs && prices) {
       const priceInfo =
         prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
+
       setPriceInfo(priceInfo)
     }
   }, [prices, languagePairs])
