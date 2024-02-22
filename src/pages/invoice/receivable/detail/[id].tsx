@@ -107,6 +107,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { ProjectTeamListType } from '@src/types/orders/order-detail'
 import { ReasonType } from '@src/types/quotes/quote'
 import { timezoneSelector } from '@src/states/permission'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 type MenuType =
   | 'invoice'
@@ -1479,28 +1480,44 @@ const ReceivableInvoiceDetail = () => {
             <TabPanel value='item' sx={{ pt: '24px' }}>
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
-                  <InvoiceLanguageAndItem
-                    languagePairs={getItem('languagePairs')}
-                    setLanguagePairs={(languagePair: languageType[]) =>
-                      setItem('languagePairs', languagePair)
-                    }
-                    clientId={client?.client.clientId!}
-                    itemControl={itemControl}
-                    getItem={getItem}
-                    setItem={setItem}
-                    itemErrors={itemErrors}
-                    isItemValid={isItemValid}
-                    priceUnitsList={priceUnitsList || []}
-                    items={items}
-                    removeItems={removeItems}
-                    getTeamValues={getTeamValues}
-                    invoiceInfo={invoiceInfo!}
-                    itemTrigger={itemTrigger}
-                    invoiceLanguageItem={invoiceLanguageItem!}
-                    getInvoiceInfo={getInvoiceInfo}
-                    onClickAddOrder={onClickAddOrder}
-                    isUpdatable={isUserInTeamMember}
-                  />
+                  {invoiceInfo &&
+                  !invoiceInfoIsLoading &&
+                  langItem &&
+                  !langItemLoading &&
+                  prices ? (
+                    <InvoiceLanguageAndItem
+                      languagePairs={getItem('languagePairs')}
+                      setLanguagePairs={(languagePair: languageType[]) =>
+                        setItem('languagePairs', languagePair)
+                      }
+                      clientId={client?.client.clientId!}
+                      itemControl={itemControl}
+                      getItem={getItem}
+                      setItem={setItem}
+                      itemErrors={itemErrors}
+                      isItemValid={isItemValid}
+                      priceUnitsList={priceUnitsList || []}
+                      items={items}
+                      removeItems={removeItems}
+                      getTeamValues={getTeamValues}
+                      invoiceInfo={invoiceInfo!}
+                      itemTrigger={itemTrigger}
+                      invoiceLanguageItem={invoiceLanguageItem!}
+                      getInvoiceInfo={getInvoiceInfo}
+                      onClickAddOrder={onClickAddOrder}
+                      isUpdatable={isUserInTeamMember}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        width: '100%',
+                      }}
+                    >
+                      <FallbackSpinner />
+                    </Box>
+                  )}
                 </Grid>
               </Card>
             </TabPanel>

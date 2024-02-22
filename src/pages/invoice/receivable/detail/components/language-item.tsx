@@ -51,7 +51,14 @@ import { LanguageAndItemType } from '@src/types/orders/order-detail'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
 import { useRouter } from 'next/router'
-import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import {
   Control,
   FieldArrayWithId,
@@ -139,6 +146,8 @@ const InvoiceLanguageAndItem = ({
   console.log(invoiceLanguageItem)
 
   const { openModal, closeModal } = useModal()
+  const ref = useRef<HTMLElement | null>(null)
+  const totalRef = useRef<HTMLElement | null>(null)
 
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
@@ -292,19 +301,18 @@ const InvoiceLanguageAndItem = ({
               display: 'flex',
               gap: '20px',
               borderBottom: '2px solid #666CFF',
-              // justifyContent: 'center',
-              width: '25%',
-
-              // width: '357px',
+              justifyContent: 'center',
+              width: 'fit-content',
             }}
           >
             <Typography
               fontWeight={600}
               variant='subtitle1'
+              ref={ref}
               sx={{
                 padding: '16px 16px 16px 20px',
                 display: 'flex',
-                flex: 1,
+                // flex: 1,
                 justifyContent: 'flex-end',
               }}
             >
@@ -315,20 +323,19 @@ const InvoiceLanguageAndItem = ({
               variant='subtitle1'
               sx={{
                 padding: '16px 16px 16px 20px',
-                flex: 1,
+                // flex: 1,
                 display: 'flex',
+                width: totalRef.current?.offsetWidth ?? 'auto',
                 justifyContent: 'flex-end',
               }}
             >
               {/* {getCurrencyMark(invoiceInfo.currency)}
               &nbsp;
               {Number(getInvoiceInfo('subtotal'))} */}
-              {
-                formatCurrency(
-                  Number(getInvoiceInfo('subtotal')),
-                  invoiceInfo.currency
-                )
-              }
+              {formatCurrency(
+                Number(getInvoiceInfo('subtotal')),
+                invoiceInfo?.currency,
+              )}
             </Typography>
           </Box>
         </Box>
@@ -361,10 +368,9 @@ const InvoiceLanguageAndItem = ({
             sx={{
               display: 'flex',
               gap: '20px',
-              borderBottom: '1.5px solid #666CFF',
+              borderBottom: '2px solid #666CFF',
               justifyContent: 'center',
-              // width: '257px',
-              width: '25%',
+              width: 'fit-content',
             }}
           >
             <Typography
@@ -372,8 +378,9 @@ const InvoiceLanguageAndItem = ({
               variant='subtitle1'
               sx={{
                 padding: '16px 16px 16px 20px',
-                flex: 1,
+                // flex: 1,
                 display: 'flex',
+                width: ref.current?.offsetWidth ?? 'auto',
                 justifyContent: 'flex-end',
               }}
             >
@@ -384,8 +391,9 @@ const InvoiceLanguageAndItem = ({
               variant='subtitle1'
               sx={{
                 padding: '16px 16px 16px 20px',
-                flex: 1,
+                // flex: 1,
                 display: 'flex',
+                width: totalRef.current?.offsetWidth ?? 'auto',
                 justifyContent: 'flex-end',
               }}
             >
@@ -402,13 +410,16 @@ const InvoiceLanguageAndItem = ({
                   )
                 : '-'} */}
               {invoiceInfo.isTaxable
-                // ? `${getCurrencyMark(invoiceInfo?.currency)} ${
-                //     Number(getInvoiceInfo('subtotal')) *
-                //     (Number(invoiceInfo.tax!) / 100)
-                //   }`
-                ? `${formatCurrency(
-                    Number(getInvoiceInfo('subtotal')) * (Number(invoiceInfo.tax!) / 100),
-                    invoiceInfo?.currency
+                ? // ? `${getCurrencyMark(invoiceInfo?.currency)} ${
+                  //     Number(getInvoiceInfo('subtotal')) *
+                  //     (Number(invoiceInfo.tax!) / 100)
+                  //   }`
+                  `${formatCurrency(
+                    (
+                      Number(getInvoiceInfo('subtotal')) *
+                      (Number(invoiceInfo.tax!) / 100)
+                    ).toFixed(9),
+                    invoiceInfo?.currency,
                   )}`
                 : '-'}
             </Typography>
@@ -421,10 +432,9 @@ const InvoiceLanguageAndItem = ({
             sx={{
               display: 'flex',
               gap: '20px',
-              borderBottom: '1.5px solid #666CFF',
+              borderBottom: '2px solid #666CFF',
               justifyContent: 'center',
-              // width: '250px',
-              width: '25%',
+              width: 'fit-content',
             }}
           >
             <Typography
@@ -433,8 +443,9 @@ const InvoiceLanguageAndItem = ({
               color={'#666CFF'}
               sx={{
                 padding: '16px 16px 16px 20px',
-                flex: 1,
+
                 display: 'flex',
+                width: ref.current?.offsetWidth ?? 'auto',
                 justifyContent: 'flex-end',
               }}
             >
@@ -443,33 +454,33 @@ const InvoiceLanguageAndItem = ({
             <Typography
               fontWeight={600}
               variant='subtitle1'
+              ref={totalRef}
               color={'#666CFF'}
               sx={{
                 padding: '16px 16px 16px 20px',
-                flex: 1,
+
                 display: 'flex',
-                justifyContent: 'flex-end',
               }}
             >
               {invoiceInfo.isTaxable
-                // ? `${getCurrencyMark(invoiceInfo?.currency)} ${decimalPlus(
-                //     Number(getInvoiceInfo('subtotal')),
-                //     Number(getInvoiceInfo('subtotal')) *
-                //       (Number(getInvoiceInfo('tax')) / 100),
-                //   )}`
-                // : `${getCurrencyMark(invoiceInfo?.currency)} ${Number(
-                //     getInvoiceInfo('subtotal'),
-                //   )}`}
-                ? `${formatCurrency(
-                      Number(getInvoiceInfo('subtotal')) +
-                        Number(getInvoiceInfo('subtotal')) * (Number(invoiceInfo.tax!) / 100),
-                      invoiceInfo?.currency
+                ? // ? `${getCurrencyMark(invoiceInfo?.currency)} ${decimalPlus(
+                  //     Number(getInvoiceInfo('subtotal')),
+                  //     Number(getInvoiceInfo('subtotal')) *
+                  //       (Number(getInvoiceInfo('tax')) / 100),
+                  //   )}`
+                  // : `${getCurrencyMark(invoiceInfo?.currency)} ${Number(
+                  //     getInvoiceInfo('subtotal'),
+                  //   )}`}
+                  `${formatCurrency(
+                    Number(getInvoiceInfo('subtotal')) +
+                      Number(getInvoiceInfo('subtotal')) *
+                        (Number(invoiceInfo.tax!) / 100),
+                    invoiceInfo?.currency,
                   )}`
                 : `${formatCurrency(
-                      Number(getInvoiceInfo('subtotal')),
-                      invoiceInfo?.currency
-                  )}`
-              }
+                    Number(getInvoiceInfo('subtotal')),
+                    invoiceInfo?.currency,
+                  )}`}
             </Typography>
           </Box>
         </Box>
