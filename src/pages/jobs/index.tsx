@@ -70,38 +70,44 @@ const Jobs = () => {
           <CustomTab
             value='requested'
             label={
-              <>
+              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                Requested & Ongoing
                 {ongoingDot ? (
                   <Badge
                     variant='dot'
                     color='primary'
                     sx={{ marginLeft: '4px' }}
                   ></Badge>
-                ) : null}{' '}
-                Requested & Ongoing
-              </>
+                ) : null}
+              </Box>
             }
             iconPosition='start'
-            icon={<Icon icon='ic:outline-list-alt' fontSize={'18px'} />}
+            icon={
+              <Icon
+                icon='material-symbols:progress-activity-sharp'
+                fontSize={18}
+                style={{ transform: 'rotate(225deg)' }}
+              />
+            }
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
 
           <CustomTab
             value='completed'
             label={
-              <>
+              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 {completedDot ? (
                   <Badge
                     variant='dot'
                     color='primary'
                     sx={{ marginLeft: '4px' }}
                   ></Badge>
-                ) : null}{' '}
+                ) : null}
                 Completed & Inactive
-              </>
+              </Box>
             }
             iconPosition='start'
-            icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
+            icon={<Icon icon='ic:sharp-file-download-done' fontSize={18} />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
         </TabList>
