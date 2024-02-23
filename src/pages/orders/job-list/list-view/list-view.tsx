@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 
 // ** style components
 import {
@@ -29,14 +29,18 @@ import {
 import JobsList from './list'
 import { statusType } from '@src/types/common/status.type'
 import { useGetJobsList } from '@src/queries/jobs/jobs.query'
+import { convertLocalToUtc } from '@src/shared/helpers/date.helper'
+import moment from 'moment'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
 
 export type FilterType = {
   status?: number[]
   client?: string[]
   category?: string[]
   serviceType?: string[]
-  startedAt?: Array<Date | null>
-  dueAt?: Array<Date | null>
+  startedAt?: Array<string | null>
+  dueAt?: Array<string | null>
   search?: string //filter for Work name, Project name
   isMyJobs?: '0' | '1'
   isHidePaid?: '0' | '1'
@@ -49,8 +53,8 @@ export type FilterPostType = {
   client?: string[]
   category?: string[]
   serviceType?: string[]
-  startedAt?: Array<Date | null>
-  dueAt?: Array<Date | null>
+  startedAt?: Array<string | null>
+  dueAt?: Array<string | null>
   search?: string //filter for Work name, Project name
   isMyJobs?: '0' | '1'
   isHidePaid?: '0' | '1'
@@ -83,6 +87,7 @@ export default function JobListView({
   onCreateNewJob,
   statusList,
 }: Props) {
+  const user = useRecoilValueLoadable(authState)
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
   const [activeFilter, setActiveFilter] = useState<FilterType>({
@@ -93,6 +98,11 @@ export default function JobListView({
   >([])
 
   const { data: list, isLoading } = useGetJobsList(activeFilter)
+
+  const userTimezone = useMemo(() => {
+    const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+    return user.getValue().user?.timezone.label || browserTimezone
+  }, [user])
 
   useEffect(() => {
     const newFilter = findServiceTypeFilter()
@@ -111,6 +121,16 @@ export default function JobListView({
       ...filter,
       skip: skip * activeFilter.take,
       take: activeFilter.take,
+      startedAt: filter.startedAt?.map(item => {
+        return item
+          ? convertLocalToUtc(moment(item).format('YYYY-MM-DD'), userTimezone)
+          : null
+      }),
+      dueAt: filter.dueAt?.map(item => {
+        return item
+          ? convertLocalToUtc(moment(item).format('YYYY-MM-DD'), userTimezone)
+          : null
+      }),
     })
   }
 
