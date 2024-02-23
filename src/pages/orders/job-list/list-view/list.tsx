@@ -59,6 +59,7 @@ export default function JobsList({
   const router = useRouter()
 
   console.log('list', list)
+  console.log(auth.getValue().user?.timezone)
 
   const columns: GridColumns<JobsListType> = [
     {
@@ -165,14 +166,14 @@ export default function JobsList({
           <Tooltip
             title={convertTimeToTimezone(
               row?.startedAt,
-              auth.getValue().user?.timezone?.code!,
+              auth.getValue().user?.timezone,
               timezone.getValue(),
             )}
           >
             <div>
               {convertTimeToTimezone(
                 row?.startedAt,
-                auth.getValue().user?.timezone?.code!,
+                auth.getValue().user?.timezone,
                 timezone.getValue(),
               )}
             </div>
@@ -191,14 +192,14 @@ export default function JobsList({
           <Tooltip
             title={convertTimeToTimezone(
               row?.dueAt,
-              auth.getValue().user?.timezone?.code!,
+              auth.getValue().user?.timezone,
               timezone.getValue(),
             )}
           >
             <div>
               {convertTimeToTimezone(
                 row?.dueAt,
-                auth.getValue().user?.timezone?.code!,
+                auth.getValue().user?.timezone,
                 timezone.getValue(),
               )}
             </div>
