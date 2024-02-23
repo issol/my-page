@@ -25,6 +25,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
 import { useGetStatusList } from '@src/queries/common.query'
 import { UserRoleType } from '@src/context/types'
+import NoList from '@src/pages/components/no-list'
 
 type Props = {
   page: number
@@ -60,22 +61,6 @@ export default function ReceivableList({
 }: Props) {
   const router = useRouter()
 
-  function NoList() {
-    return (
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant='subtitle1'>There are no invoices</Typography>
-      </Box>
-    )
-  }
-
   return (
     <Box
       sx={{
@@ -87,8 +72,8 @@ export default function ReceivableList({
       <DataGrid
         autoHeight
         components={{
-          NoRowsOverlay: () => NoList(),
-          NoResultsOverlay: () => NoList(),
+          NoRowsOverlay: () => NoList('There are no invoices'),
+          NoResultsOverlay: () => NoList('There are no invoices'),
         }}
         sx={{
           overflowX: 'scroll',

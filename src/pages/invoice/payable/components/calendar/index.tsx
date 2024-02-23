@@ -42,6 +42,11 @@ import {
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
 import useCalenderResize from '@src/hooks/useCalenderResize'
+import { getInvoicePayableListColumns } from '@src/shared/const/columns/invoice-payable'
+import { time } from 'console'
+import { useRecoilValueLoadable } from 'recoil'
+import { authState } from '@src/states/auth'
+import { timezoneSelector } from '@src/states/permission'
 
 export type Role = 'pro' | 'lpm'
 type Props = {
@@ -54,7 +59,8 @@ type Props = {
 
 const CalendarContainer = ({ type }: Props) => {
   // ** States
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
+  const user = useRecoilValueLoadable(authState)
+  const timezone = useRecoilValueLoadable(timezoneSelector)
 
   // ** Hooks
   const { settings } = useSettings()
@@ -113,7 +119,7 @@ const CalendarContainer = ({ type }: Props) => {
   }, [data])
 
   return (
-    <Box>
+    <Box sx={{ paddingBottom: '40px' }}>
       <CalendarWrapper
         className='app-calendar'
         sx={{
@@ -180,6 +186,13 @@ const CalendarContainer = ({ type }: Props) => {
                 : { data: [], totalCount: 0 }
             }
             statusList={statusList!}
+            type='calendar'
+            columns={getInvoicePayableListColumns(
+              statusList!,
+              user,
+              timezone,
+              'calendar',
+            )}
           />
         </Box>
       )}
