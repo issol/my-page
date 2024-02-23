@@ -242,6 +242,11 @@ export default function PayableList({
       }}
     >
       <DataGrid
+        initialState={{
+          sorting: {
+            sortModel: [{ field: 'corporationId', sort: 'desc' }],
+          },
+        }}
         autoHeight
         checkboxSelection={isAccountManager}
         isRowSelectable={(params: GridRowParams<InvoicePayableListType>) =>
