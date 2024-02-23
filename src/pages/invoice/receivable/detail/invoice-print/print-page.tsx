@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { useRouter } from 'next/router'
 import {
@@ -39,6 +39,8 @@ type Props = {
 const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
   const router = useRouter()
   const dispatch = useAppDispatch()
+  const ref = useRef<HTMLElement | null>(null)
+  const totalRef = useRef<HTMLElement | null>(null)
 
   const patchInvoiceInfoMutation = useMutation(
     (data: {
@@ -93,6 +95,8 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
 
     return formattedIds.join(' ')
   }
+
+  console.log(data)
 
   return (
     <Box
@@ -456,9 +460,8 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                 sx={{
                   display: 'flex',
                   justifyContent: 'flex-end',
-                  gap: '50px',
-                  paddingRight: '11%',
-
+                  paddingRight:
+                    type === 'preview' || type === 'download' ? '51px' : '93px',
                   mt: '10px',
                 }}
                 className='total-price'
@@ -466,19 +469,23 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                 <Box
                   sx={{
                     display: 'flex',
-
-                    justifyContent: 'space-between',
-                    width: '221px',
+                    gap: '20px',
+                    justifyContent: 'center',
+                    width: 'fit-content',
                   }}
                 >
                   <Typography
                     variant='subtitle1'
+                    ref={ref}
                     sx={{
                       fontWeight: 600,
                       color: 'rgba(76, 78, 100, 0.87)',
                       fontSize: '14px',
-                      flex: 1,
-                      textAlign: 'right',
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+
+                      // flex: 1,
+                      // textAlign: 'right',
                     }}
                   >
                     {lang === 'EN' ? 'Subtotal' : '총 금액'}:
@@ -489,9 +496,8 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                       fontWeight: 600,
                       color: 'rgba(76, 78, 100, 0.87)',
                       fontSize: '14px',
-                      flex: 1,
-
-                      textAlign: 'right',
+                      display: 'flex',
+                      justifyContent: 'flex-end',
                     }}
                   >
                     {data.subtotal}
@@ -504,7 +510,10 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                     display: 'flex',
                     justifyContent: 'flex-end',
 
-                    paddingRight: '11%',
+                    paddingRight:
+                      type === 'preview' || type === 'download'
+                        ? '51px'
+                        : '93px',
 
                     mt: '10px',
                   }}
@@ -514,19 +523,21 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                     sx={{
                       display: 'flex',
 
-                      justifyContent: 'space-between',
-                      width: '221px',
+                      justifyContent: 'center',
+                      width: 'fit-content',
+                      gap: '20px',
                     }}
                   >
                     <Typography
                       variant='subtitle1'
                       sx={{
                         fontWeight: 600,
-
+                        border: '1px solid',
+                        width: ref.current?.offsetWidth ?? 'auto',
                         color: 'rgba(76, 78, 100, 0.6)',
                         fontSize: '14px',
-                        flex: 1,
-                        textAlign: 'right',
+                        display: 'flex',
+                        justifyContent: 'flex-end',
                       }}
                     >
                       {lang === 'EN' ? 'Tax' : '세액'}({data.taxPercent}%):
@@ -537,11 +548,11 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                         fontWeight: 600,
                         color: 'rgba(76, 78, 100, 0.87)',
                         fontSize: '14px',
-                        flex: 1,
-                        textAlign: 'right',
+                        display: 'flex',
+                        width: totalRef.current?.offsetWidth ?? 'auto',
                       }}
                     >
-                      {data.tax}
+                      {/* {data.tax} */}$ 100
                     </Typography>
                   </Box>
                 </Box>
@@ -551,8 +562,9 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                 sx={{
                   display: 'flex',
                   justifyContent: 'flex-end',
-                  gap: '50px',
-                  paddingRight: '11%',
+                  // gap: '50px',
+                  paddingRight:
+                    type === 'preview' || type === 'download' ? '51px' : '93px',
 
                   mt: '10px',
                 }}
@@ -562,8 +574,9 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                   sx={{
                     display: 'flex',
 
-                    justifyContent: 'space-between',
-                    width: '221px',
+                    justifyContent: 'center',
+                    width: 'fit-content',
+                    gap: '20px',
                     // minWidth: '221px',
                   }}
                 >
@@ -572,22 +585,24 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                     sx={{
                       fontWeight: 600,
                       color: '#666CFF',
-                      fontSize: '14px',
 
-                      textAlign: 'right',
-                      flex: 1,
+                      fontSize: '14px',
+                      display: 'flex',
+                      width: ref.current?.offsetWidth ?? 'auto',
+                      justifyContent: 'flex-end',
                     }}
                   >
                     {lang === 'EN' ? 'Total' : '실제 청구액'}:
                   </Typography>
                   <Typography
+                    ref={totalRef}
                     variant='subtitle1'
                     sx={{
                       fontWeight: 600,
                       color: '#666CFF',
                       fontSize: '14px',
-                      textAlign: 'right',
-                      flex: 1,
+                      display: 'flex',
+                      justifyContent: 'flex-end',
                     }}
                   >
                     {data.total}

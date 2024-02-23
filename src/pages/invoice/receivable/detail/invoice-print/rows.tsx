@@ -93,16 +93,28 @@ export default function MakeTable({
             <Box
               sx={{
                 display: 'flex',
-                justifyContent: 'space-between',
-                padding: '20px 20px 10px 20px',
+                // justifyContent: 'space-between',
+                // padding: '20px 20px 10px 20px',
+                paddingTop: '20px',
+                paddingLeft: '20px',
+
+                // marginLeft: '16px',
               }}
             >
-              <Box sx={{ display: 'flex', gap: '3px' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '3px',
+                  flex: 0.8095,
+                }}
+              >
                 <Typography
                   variant='body2'
                   color='#666CFF'
                   fontWeight={600}
-                  sx={{ textDecoration: 'underline' }}
+                  sx={{
+                    textDecoration: 'underline',
+                  }}
                 >
                   [{value.corporationId}]
                 </Typography>
@@ -111,8 +123,26 @@ export default function MakeTable({
                 </Typography>
               </Box>
 
-              <Box sx={{ paddingRight: '30px' }}>
-                <Typography variant='body2' color='#666CFF' fontWeight={600}>
+              <Box
+                sx={{
+                  flex: 0.1905,
+                  paddingLeft: '26px',
+                  display: 'flex',
+                }}
+              >
+                <Typography
+                  variant='h6'
+                  color='#666CFF'
+                  fontWeight={600}
+                  lineHeight={1.75}
+                  sx={{
+                    fontSize: '14px !important',
+
+                    paddingRight: '16px',
+                    width: '100%',
+                    maxWidth: '159px',
+                  }}
+                >
                   {getCurrencyMark(value.items[0]?.initialPrice?.currency)}{' '}
                   {value.subtotal?.toLocaleString('ko-KR')}
                 </Typography>
