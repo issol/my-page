@@ -1012,7 +1012,9 @@ const ReceivableInvoiceDetail = () => {
         adminCompanyName: 'GloZ Inc.',
         corporationId: invoiceInfo?.corporationId!,
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
-        orderCorporationId: invoiceInfo!.linkedOrders.map(
+        orderCorporationId: invoiceInfo!.linkedOrders
+        .sort((a, b) => a.id - b.id)
+        .map(
           value => value.corporationId,
         ),
         orders: langItem.orders,
@@ -1287,7 +1289,9 @@ const ReceivableInvoiceDetail = () => {
                               gap: '10px',
                             }}
                           >
-                            {invoiceInfo.linkedOrders.map(value => {
+                            {invoiceInfo.linkedOrders
+                            .sort((a, b) => a.id - b.id)
+                            .map(value => {
                               return (
                                 <Link
                                   key={uuidv4()}
