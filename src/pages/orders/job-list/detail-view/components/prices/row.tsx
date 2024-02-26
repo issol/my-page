@@ -172,7 +172,7 @@ const Row = ({
       currentItem?.detail?.map(item => {
         append({
           ...item,
-          unitPrice: 0,
+          unitPrice: null,
           currency: selectedPrice?.currency!,
         })
       })

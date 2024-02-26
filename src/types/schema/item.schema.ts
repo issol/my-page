@@ -66,13 +66,21 @@ export const jobItemSchema = yup.object().shape({
         yup.object().shape({
           priceUnitId: yup.number().required(FormErrors.required),
           quantity: yup.number().required(FormErrors.required),
-          unitPrice: yup.number().nullable(),
+          unitPrice: yup.string().required(FormErrors.required),
           prices: yup.number().required(FormErrors.required),
           unit: yup.string().required(FormErrors.required),
           currency: yup
             .string()
             .oneOf<CurrencyType>(['USD', 'KRW', 'SGD', 'JPY'])
-            .nullable(),
+            // .required(FormErrors.required),
+            .when('$priceId', ([priceId], schema) => {
+              console.log(priceId)
+
+              // return schema
+              return priceId === -1
+                ? schema.required(FormErrors.required)
+                : schema.nullable()
+            }),
         }),
       ),
 
