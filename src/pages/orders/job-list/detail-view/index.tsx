@@ -85,6 +85,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const [success, setSuccess] = useState(false)
   const auth = useRecoilValueLoadable(authState)
   const role = useRecoilValueLoadable(roleState)
+  const [priceId, setPriceId] = useState<number | null>(null)
 
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string; userId: any }[]
@@ -127,7 +128,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     setValue: setItem,
     trigger: itemTrigger,
     reset: itemReset,
-    formState: { errors: itemErrors, isValid: isItemValid },
+    formState: { errors: itemErrors, isValid: itemValid },
   } = useForm<{ items: ItemType[]; languagePairs: languageType[] }>({
     mode: 'onBlur',
     defaultValues: { items: [], languagePairs: [] },
@@ -135,10 +136,10 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
       items: ItemType[]
       languagePairs: languageType[]
     }>,
+    context: {
+      priceId: priceId,
+    },
   })
-
-  // console.log(isItemValid)
-  // console.log(getItem())
 
   const {
     fields: items,
@@ -160,12 +161,13 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
           source: jobPrices.sourceLanguage ?? item.sourceLanguage,
           target: jobPrices.targetLanguage ?? item.targetLanguage,
           priceId: jobPrices.initialPrice?.priceId!,
-          detail: !jobPrices.detail?.length
-            ? []
-            : jobPrices.detail.map(value => ({
-                ...value,
-                priceUnitId: value.priceUnitId ?? value.id,
-              })),
+          detail:
+            !jobPrices.detail || jobPrices.detail?.length === 0
+              ? []
+              : jobPrices.detail.map(value => ({
+                  ...value,
+                  priceUnitId: value.priceUnitId ?? value.id,
+                })),
           minimumPrice: jobPrices.minimumPrice,
           minimumPriceApplied: jobPrices.minimumPriceApplied,
           initialPrice: jobPrices.initialPrice,
@@ -471,7 +473,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                           setItem={setItem}
                           itemTrigger={itemTrigger}
                           itemReset={itemReset}
-                          isItemValid={isItemValid}
+                          isItemValid={itemValid}
                           appendItems={appendItems}
                           fields={items}
                           row={jobInfo}
@@ -480,6 +482,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                           item={item}
                           prices={prices}
                           orderItems={langItem?.items || []}
+                          setPriceId={setPriceId}
                         />
                       ) : null}
 
@@ -496,7 +499,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                           <Button
                             variant='contained'
                             onClick={onSubmit}
-                            disabled={!isItemValid}
+                            disabled={!itemValid}
                           >
                             Save draft
                           </Button>
@@ -514,7 +517,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                             <Button
                               variant='contained'
                               onClick={onClickUpdatePrice}
-                              disabled={!isItemValid}
+                              disabled={!itemValid}
                             >
                               Save
                             </Button>
@@ -532,7 +535,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                       setItem={setItem}
                       itemTrigger={itemTrigger}
                       itemReset={itemReset}
-                      isItemValid={isItemValid}
+                      isItemValid={itemValid}
                       appendItems={appendItems}
                       fields={items}
                       setEditPrices={setEditPrices}
