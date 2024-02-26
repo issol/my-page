@@ -465,14 +465,10 @@ const LanguageAndItem = ({
                   // justifyContent: 'flex-end',
                 }}
               >
+                {/* Subtotal에는 rounding을 적용하지 않는다. */}
                 {getItem().items.length && getItem().items[0].initialPrice
                   ? formatCurrency(
-                      formatByRoundingProcedure(
-                        langItemsEdit ? subtotal : Number(project?.subtotal),
-                        getItem().items[0].initialPrice?.numberPlace!,
-                        getItem().items[0].initialPrice?.rounding!,
-                        getItem().items[0].initialPrice?.currency!,
-                      ),
+                      langItemsEdit ? subtotal : Number(project?.subtotal),
                       getItem().items[0].initialPrice?.currency!,
                     )
                   : '-'}

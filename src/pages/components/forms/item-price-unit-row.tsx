@@ -180,7 +180,7 @@ const Row = ({
             ? 2
             : currency === 'KRW'
               ? 10
-              : 1,
+              : 0,
         priceData?.roundingProcedure && priceData?.roundingProcedure !== ''
           ? priceData?.roundingProcedure!
           : 0,
@@ -686,16 +686,31 @@ const Row = ({
         type === 'invoiceHistory' ||
         type === 'invoiceCreate' ? (
           <Typography fontSize={14}>
-            {formatCurrency(
-              formatByRoundingProcedure(
-                Number(getValues(`${detailName}.${idx}.prices`)),
-                // Number(fields?.[index]?.detail?.[idx]?.prices) || 0,
-                getValues(`${initialPriceName}.numberPlace`),
-                getValues(`${initialPriceName}.rounding`),
-                getValues(`${initialPriceName}.currency`) || 'KRW',
-              ),
-              getValues(`${initialPriceName}.currency`) || 'KRW',
-            )}
+            {isNotApplicable
+              ? formatCurrency(
+                formatByRoundingProcedure(
+                  Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
+                  savedValue?.currency === 'USD' || savedValue.currency === 'SGD'
+                    ? 2
+                    : savedValue?.currency === 'KRW'
+                      ? 10
+                      : 0,
+                  0,
+                  savedValue?.currency ?? 'KRW',
+                ),
+                savedValue?.currency ?? null,
+              )
+              : formatCurrency(
+                  formatByRoundingProcedure(
+                    Number(getValues(`${detailName}.${idx}.prices`)),
+                    // Number(fields?.[index]?.detail?.[idx]?.prices) || 0,
+                    getValues(`${initialPriceName}.numberPlace`),
+                    getValues(`${initialPriceName}.rounding`),
+                    getValues(`${initialPriceName}.currency`) || 'KRW',
+                  ),
+                  getValues(`${initialPriceName}.currency`) || 'KRW',
+                )
+            }
           </Typography>
         ) : (
           <Typography fontSize={14}>
@@ -704,10 +719,11 @@ const Row = ({
                 ? formatCurrency(
                     formatByRoundingProcedure(
                       Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      savedValue?.currency === 'USD' ||
-                        savedValue.currency === 'SGD'
+                      savedValue?.currency === 'USD' || savedValue.currency === 'SGD'
                         ? 2
-                        : 10,
+                        : savedValue?.currency === 'KRW'
+                          ? 10
+                          : 0,
                       0,
                       savedValue?.currency ?? 'KRW',
                     ),
@@ -716,10 +732,11 @@ const Row = ({
                 : formatCurrency(
                     formatByRoundingProcedure(
                       Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      getValues(`${initialPriceName}.currency`) === 'USD' ||
-                        getValues(`${initialPriceName}.currency`) === 'SGD'
+                      getValues(`${initialPriceName}.currency`) === 'USD' || getValues(`${initialPriceName}.currency`) === 'SGD'
                         ? 2
-                        : 10,
+                        : getValues(`${initialPriceName}.currency`) === 'KRW'
+                          ? 10
+                          : 0,
                       0,
                       getValues(`${initialPriceName}.currency`) ?? 'KRW',
                     ),

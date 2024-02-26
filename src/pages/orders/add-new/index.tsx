@@ -1259,25 +1259,10 @@ export default function AddNewOrder() {
 
     if (currencies.length === 0) return '-'
     else {
-      const decimalPlace = priceInfo
-        ? priceInfo.decimalPlace
-        : currencies[0] === 'USD' || currencies[0] === 'SGD'
-          ? 2
-          : currencies[0] === 'KRW'
-            ? 1000
-            : currencies[0] === 'JPY'
-              ? 100
-              : 2
-
       return subPrice === 0
         ? '-'
         : formatCurrency(
-            formatByRoundingProcedure(
-              subPrice,
-              decimalPlace,
-              priceInfo ? priceInfo?.roundingProcedure! : 0,
-              priceInfo ? priceInfo.currency : currencies[0],
-            ),
+            subPrice,
             priceInfo ? priceInfo.currency : currencies[0],
           )
     }
@@ -1509,6 +1494,7 @@ export default function AddNewOrder() {
                       variant='subtitle1'
                       sx={{ padding: '16px 16px 16px 20px' }}
                     >
+                      {/* subtotal에는 rounding 처리를 하지 않는다. */}
                       {getSubTotal()}
                     </Typography>
                   </Box>

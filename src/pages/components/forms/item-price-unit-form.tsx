@@ -478,18 +478,36 @@ export default function ItemPriceUnitForm({
             type === 'invoiceHistory' ||
             type === 'invoiceCreate' ? (
               <Typography fontWeight='bold' fontSize={14}>
-                {formatCurrency(
-                  formatByRoundingProcedure(
-                    // getValues로 가져오면 폼에서 계산된 값이 반영됨
-                    // fields에서 가져오면 서버에서 넘어온 값이 반영됨
-                    Number(getValues(`items.${index}.totalPrice`)),
-                    // fields?.[index].totalPrice! ?? 0,
-                    getValues(`${initialPriceName}.numberPlace`),
-                    getValues(`${initialPriceName}.rounding`),
-                    getValues(`${initialPriceName}.currency`) || 'KRW',
-                  ),
-                  getValues(`${initialPriceName}.currency`) ?? null,
-                )}
+                {isNotApplicable[index]
+                  ? formatCurrency(
+                      formatByRoundingProcedure(
+                        Number(getValues(`items.${index}.totalPrice`)),
+                        getValues().items?.[0]?.detail?.[0]?.currency ===
+                          'USD' ||
+                          getValues().items?.[0]?.detail?.[0]?.currency ===
+                            'SGD'
+                          ? 2
+                          : getValues().items?.[0]?.initialPrice?.currency === 'KRW'
+                            ? 10
+                            : 0,
+                        0,
+                        getValues().items?.[0]?.detail?.[0]?.currency ??
+                          'KRW',
+                      ),
+                      getValues().items?.[0]?.detail?.[0]?.currency ?? null,
+                    )
+                  : formatCurrency(
+                      formatByRoundingProcedure(
+                        // getValues로 가져오면 폼에서 계산된 값이 반영됨
+                        // fields에서 가져오면 서버에서 넘어온 값이 반영됨
+                        Number(getValues(`items.${index}.totalPrice`)),
+                        // fields?.[index].totalPrice! ?? 0,
+                        getValues(`${initialPriceName}.numberPlace`),
+                        getValues(`${initialPriceName}.rounding`),
+                        getValues(`${initialPriceName}.currency`) || 'KRW',
+                      ),
+                      getValues(`${initialPriceName}.currency`) ?? null,
+                    )}
               </Typography>
             ) : (
               <Typography fontWeight='bold' fontSize={14}>
