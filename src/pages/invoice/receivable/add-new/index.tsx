@@ -520,6 +520,38 @@ export default function AddNewInvoice() {
     return result
   }
 
+  const sortByOrderCorporationId = (a: string, b: string) => {
+    // 각 문자열을 하이픈('-')을 기준으로 분리합니다.
+    const partsA = a.split('-');
+    const partsB = b.split('-');
+
+    // 첫 번째 아이디 비교합니다.
+    const firstIdCompare = partsA[1].localeCompare(partsB[1]);
+    if (firstIdCompare !== 0) {
+      return firstIdCompare;
+    }
+
+    if (partsA.length > 1 && partsB.length > 1) {
+      // 두 번째 부분이 존재하는 경우, 이를 숫자로 변환하여 비교합니다.
+      const secondIdA = parseInt(partsA[2], 10);
+      const secondIdB = parseInt(partsB[2], 10);
+
+      // 숫자 부분이 같거나 하나만 숫자 부분이 있는 경우를 처리합니다.
+      if (!isNaN(secondIdA) && !isNaN(secondIdB)) {
+        // 두 번째 부분(숫자)이 모두 존재하는 경우 숫자로 비교합니다.
+        return secondIdA - secondIdB;
+      } else if (!isNaN(secondIdA)) {
+        // A만 숫자 부분이 있는 경우 A를 앞으로 정렬합니다.
+        return -1;
+      } else if (!isNaN(secondIdB)) {
+        // B만 숫자 부분이 있는 경우 B를 앞으로 정렬합니다.
+        return 1;
+      }
+    }
+    // 모든 비교가 끝난 후에도 순서를 결정할 수 없는 경우는 동일한 것으로 간주합니다.
+    return 0;
+  }
+
   async function onCopyOrder(id: number[] | null) {
     closeModal('copy-order')
     if (id) {
@@ -700,6 +732,7 @@ export default function AddNewInvoice() {
               ),
             })
             const items = res.orders
+              .sort((a, b) => sortByOrderCorporationId(a.corporationId, b.corporationId))
               .map(item =>
                 item.items.map((value, idx) => ({
                   ...value,
