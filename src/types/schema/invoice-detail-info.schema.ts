@@ -13,12 +13,6 @@ export function getInvoiceDetailInfoSchema(isAccountManager: boolean) {
       .string()
       .typeError(FormErrors.required)
       .required(FormErrors.required),
-    then: yup.string().nullable(),
-    otherwise: yup
-      .string()
-      .typeError(FormErrors.required)
-      .required(FormErrors.required),
-    // TODO : 현재 업데이트된 Yup 에 따라 수정 됨 작동 되는지 확인 필요함
     taxRate: yup.string().when('taxInfo', {
       is: (taxInfo: string) =>
         ['Japan resident', 'US resident', 'Singapore resident'].includes(
