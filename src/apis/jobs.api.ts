@@ -5,7 +5,10 @@ import {
   FilterPostType,
   FilterType,
 } from '@src/pages/orders/job-list/list-view/list-view'
-import { DetailFilterResponseType, DetailFilterType } from '@src/pages/orders/job-list/tracker-view/[id]'
+import {
+  DetailFilterResponseType,
+  DetailFilterType,
+} from '@src/pages/orders/job-list/tracker-view/[id]'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
   CreateJobParamsType,
@@ -22,20 +25,20 @@ export const getJobsList = async (
   console.log(filter)
 
   try {
-    const res =
-      filter.startedAt && filter.startedAt[0] !== null
-        ? {
-            ...filter,
-            startedAt: filter.startedAt.map(value => value?.toISOString()),
-          }
-        : filter.dueAt && filter.dueAt[0] !== null
-        ? {
-            ...filter,
-            dueAt: filter.dueAt.map(value => value?.toISOString()),
-          }
-        : filter
+    // const res =
+    //   filter.startedAt && filter.startedAt[0] !== null
+    //     ? {
+    //         ...filter,
+    //         startedAt: filter.startedAt.map(value => value?.toISOString()),
+    //       }
+    //     : filter.dueAt && filter.dueAt[0] !== null
+    //     ? {
+    //         ...filter,
+    //         dueAt: filter.dueAt.map(value => value?.toISOString()),
+    //       }
+    //     : filter
 
-    const { data } = await axios.get(`/api/enough/u/job?${makeQuery(res)}`)
+    const { data } = await axios.get(`/api/enough/u/job?${makeQuery(filter)}`)
     return data
   } catch (error) {
     return {
@@ -71,7 +74,6 @@ export const getJobsTrackerDetail = async (
       `/api/enough/u/job/tracker/detail?${makeQuery(filter)}`,
     )
     return data
-
   } catch (error) {
     return {
       workName: '',
