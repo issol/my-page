@@ -107,6 +107,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { ProjectTeamListType } from '@src/types/orders/order-detail'
 import { ReasonType } from '@src/types/quotes/quote'
 import { timezoneSelector } from '@src/states/permission'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 type MenuType =
   | 'invoice'
@@ -677,6 +678,38 @@ const ReceivableInvoiceDetail = () => {
     }
   }, [client, clientReset])
 
+  const sortByOrderCorporationId = (a: string, b: string) => {
+    // 각 문자열을 하이픈('-')을 기준으로 분리합니다.
+    const partsA = a.split('-');
+    const partsB = b.split('-');
+
+    // 첫 번째 아이디 비교합니다.
+    const firstIdCompare = partsA[1].localeCompare(partsB[1]);
+    if (firstIdCompare !== 0) {
+      return firstIdCompare;
+    }
+
+    if (partsA.length > 1 && partsB.length > 1) {
+      // 두 번째 부분이 존재하는 경우, 이를 숫자로 변환하여 비교합니다.
+      const secondIdA = parseInt(partsA[2], 10);
+      const secondIdB = parseInt(partsB[2], 10);
+
+      // 숫자 부분이 같거나 하나만 숫자 부분이 있는 경우를 처리합니다.
+      if (!isNaN(secondIdA) && !isNaN(secondIdB)) {
+        // 두 번째 부분(숫자)이 모두 존재하는 경우 숫자로 비교합니다.
+        return secondIdA - secondIdB;
+      } else if (!isNaN(secondIdA)) {
+        // A만 숫자 부분이 있는 경우 A를 앞으로 정렬합니다.
+        return -1;
+      } else if (!isNaN(secondIdB)) {
+        // B만 숫자 부분이 있는 경우 B를 앞으로 정렬합니다.
+        return 1;
+      }
+    }
+    // 모든 비교가 끝난 후에도 순서를 결정할 수 없는 경우는 동일한 것으로 간주합니다.
+    return 0;
+  }
+  
   useEffect(() => {
     if (langItem && prices && invoiceInfo && client) {
       const clientTimezone =
@@ -689,6 +722,7 @@ const ReceivableInvoiceDetail = () => {
       const languagePair = langItem.orders[0].languagePairs
 
       const items = langItem.orders
+        .sort((a, b) => sortByOrderCorporationId(a.corporationId, b.corporationId))
         .map(item =>
           item.items.map((value, idx) => ({
             ...value,
@@ -1005,6 +1039,7 @@ const ReceivableInvoiceDetail = () => {
         (total, obj) => total + obj.subtotal,
         0,
       )
+
       const tax = subtotal * (invoiceTax / 100)
 
       const res: InvoiceDownloadData = {
@@ -1036,17 +1071,8 @@ const ReceivableInvoiceDetail = () => {
         langItem: items,
         currency: invoiceInfo!.currency,
         // langItem: {id : langItem.invoiceId, languagePairs : langItem.orders } !,
-        subtotal: priceInfo
-          ? formatCurrency(
-              formatByRoundingProcedure(
-                subtotal,
-                priceInfo?.decimalPlace!,
-                priceInfo?.roundingProcedure!,
-                priceInfo?.currency!,
-              ),
-              priceInfo?.currency!,
-            )
-          : '',
+        subtotal: formatCurrency(subtotal, invoiceInfo?.currency!),
+
         taxPercent: invoiceTax,
         tax:
           invoiceInfo!.isTaxable && priceInfo
@@ -1073,7 +1099,7 @@ const ReceivableInvoiceDetail = () => {
                 //     PriceRoundingResponseEnum.Type_0,
                 //   priceInfo?.currency ?? 'USD',
                 // ),
-                priceInfo?.currency ?? 'USD',
+                invoiceInfo?.currency!,
               )
             : formatCurrency(
                 subtotal,
@@ -1084,7 +1110,7 @@ const ReceivableInvoiceDetail = () => {
                 //     PriceRoundingResponseEnum.Type_0,
                 //   priceInfo?.currency ?? 'USD',
                 // ),
-                priceInfo?.currency ?? 'USD',
+                invoiceInfo?.currency!,
               ),
       }
       setDownloadData(res)
@@ -1106,6 +1132,7 @@ const ReceivableInvoiceDetail = () => {
     if (languagePairs && prices) {
       const priceInfo =
         prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
+
       setPriceInfo(priceInfo)
     }
   }, [prices, languagePairs])
@@ -1479,28 +1506,44 @@ const ReceivableInvoiceDetail = () => {
             <TabPanel value='item' sx={{ pt: '24px' }}>
               <Card sx={{ padding: '24px' }}>
                 <Grid xs={12} container>
-                  <InvoiceLanguageAndItem
-                    languagePairs={getItem('languagePairs')}
-                    setLanguagePairs={(languagePair: languageType[]) =>
-                      setItem('languagePairs', languagePair)
-                    }
-                    clientId={client?.client.clientId!}
-                    itemControl={itemControl}
-                    getItem={getItem}
-                    setItem={setItem}
-                    itemErrors={itemErrors}
-                    isItemValid={isItemValid}
-                    priceUnitsList={priceUnitsList || []}
-                    items={items}
-                    removeItems={removeItems}
-                    getTeamValues={getTeamValues}
-                    invoiceInfo={invoiceInfo!}
-                    itemTrigger={itemTrigger}
-                    invoiceLanguageItem={invoiceLanguageItem!}
-                    getInvoiceInfo={getInvoiceInfo}
-                    onClickAddOrder={onClickAddOrder}
-                    isUpdatable={isUserInTeamMember}
-                  />
+                  {invoiceInfo &&
+                  !invoiceInfoIsLoading &&
+                  langItem &&
+                  !langItemLoading &&
+                  prices ? (
+                    <InvoiceLanguageAndItem
+                      languagePairs={getItem('languagePairs')}
+                      setLanguagePairs={(languagePair: languageType[]) =>
+                        setItem('languagePairs', languagePair)
+                      }
+                      clientId={client?.client.clientId!}
+                      itemControl={itemControl}
+                      getItem={getItem}
+                      setItem={setItem}
+                      itemErrors={itemErrors}
+                      isItemValid={isItemValid}
+                      priceUnitsList={priceUnitsList || []}
+                      items={items}
+                      removeItems={removeItems}
+                      getTeamValues={getTeamValues}
+                      invoiceInfo={invoiceInfo!}
+                      itemTrigger={itemTrigger}
+                      invoiceLanguageItem={invoiceLanguageItem!}
+                      getInvoiceInfo={getInvoiceInfo}
+                      onClickAddOrder={onClickAddOrder}
+                      isUpdatable={isUserInTeamMember}
+                    />
+                  ) : (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        width: '100%',
+                      }}
+                    >
+                      <FallbackSpinner />
+                    </Box>
+                  )}
                 </Grid>
               </Card>
             </TabPanel>

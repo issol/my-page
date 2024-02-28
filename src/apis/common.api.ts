@@ -12,6 +12,7 @@ type Paths = FilePathEnum.resume | FilePathEnum.contract
 
 export type StatusType =
   | 'RequestClient'
+  | 'Request'
   | 'Quote'
   | 'Order'
   | 'InvoiceReceivable'

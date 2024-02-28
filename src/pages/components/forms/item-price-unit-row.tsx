@@ -297,21 +297,30 @@ const Row = ({
   const [open, setOpen] = useState(false)
 
   return (
-    <TableRow
-      tabIndex={-1}
-      // onMouseLeave={() => {
-      //   updateTotalPrice()
-      // }}
+    <tr
+    // tabIndex={-1}
+
+    // onMouseLeave={() => {
+    //   updateTotalPrice()
+    // }}
     >
-      <TableCell sx={{ width: '10%' }} ref={containerRef}>
+      <TableCell ref={containerRef}>
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
         type === 'invoiceCreate' ? (
-          <Box display='flex' alignItems='center' gap='8px' height={38}>
-            <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
+          <Box
+            sx={{
+              fontSize: '14px',
+              fontWeight: 400,
+              color: 'rgba(76, 78, 100, 0.87)',
+              lineHeight: '21px',
+            }}
+          >
+            {Number(getValues(`${detailName}.${idx}.quantity`))}
+            {/* <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
               {Number(getValues(`${detailName}.${idx}.quantity`))}
-            </Typography>
+            </Typography> */}
           </Box>
         ) : (
           <Controller
@@ -358,19 +367,26 @@ const Row = ({
           />
         )}
       </TableCell>
-      <TableCell sx={{ width: 'auto' }}>
+      <TableCell>
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
         type === 'invoiceCreate' ? (
-          <Box display='flex' alignItems='center' gap='8px' height={38}>
-            <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-              {allPriceUnits?.current?.find(
-                item =>
-                  item.priceUnitId ===
-                  getValues(`${detailName}.${idx}.priceUnitId`),
-              )?.title ?? getValues(`${detailName}.${idx}.title`)}
-            </Typography>
+          <Box
+            sx={{
+              fontSize: '14px',
+              fontWeight: 400,
+              color: 'rgba(76, 78, 100, 0.87)',
+              lineHeight: '21px',
+            }}
+          >
+            {/* <Typography variant='subtitle1' fontSize={14} lineHeight={21}> */}
+            {allPriceUnits?.current?.find(
+              item =>
+                item.priceUnitId ===
+                getValues(`${detailName}.${idx}.priceUnitId`),
+            )?.title ?? getValues(`${detailName}.${idx}.title`)}
+            {/* </Typography> */}
           </Box>
         ) : (
           <Controller
@@ -390,7 +406,9 @@ const Row = ({
                     ? getValues(`${detailName}.${idx}.initialPriceUnit.title`)!
                     : '',
                 id: getValues(`${detailName}.${idx}`)?.id!,
-                weighting: Number(getValues(`${detailName}.${idx}`)?.weighting!),
+                weighting: Number(
+                  getValues(`${detailName}.${idx}`)?.weighting!,
+                ),
                 subPriceUnits: [],
                 groupName: '',
               }
@@ -552,13 +570,20 @@ const Row = ({
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
         type === 'invoiceCreate' ? (
-          <Box display='flex' alignItems='center' gap='8px' height={38}>
-            <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-              {formatCurrency(
-                getValues(`${detailName}.${idx}.unitPrice`) || 0,
-                getValues(`${initialPriceName}.currency`) || 'KRW',
-              ) ?? '-'}
-            </Typography>
+          <Box
+            sx={{
+              fontSize: '14px',
+              fontWeight: 400,
+              color: 'rgba(76, 78, 100, 0.87)',
+              lineHeight: '21px',
+            }}
+          >
+            {/* <Typography variant='subtitle1' fontSize={14} lineHeight={21}> */}
+            {formatCurrency(
+              getValues(`${detailName}.${idx}.unitPrice`) || 0,
+              getValues(`${initialPriceName}.currency`) || 'KRW',
+            ) ?? '-'}
+            {/* </Typography> */}
           </Box>
         ) : (
           <Controller
@@ -609,24 +634,19 @@ const Row = ({
           />
         )}
       </TableCell>
-      <TableCell sx={{ width: '15%' }} align='center'>
+      <TableCell align='center'>
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
         type === 'invoiceCreate' ? (
           <Box display='flex' alignItems='center' gap='8px' height={38}>
-            <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-              {/* {isNotApplicable || showCurrency
-                ? `${getCurrencyMark(
-                    getValues(`${initialPriceName}.currency`),
-                  )} ${getValues(`${initialPriceName}.currency`) ?? '-'}`
-                : null} */}
-              {isNotApplicable || showCurrency
-                ? `${getCurrencyMark(
-                    getValues(`${detailName}.${idx}.currency`),
-                  )} ${getValues(`${detailName}.${idx}.currency`) ?? '-'}`
-                : null}
-            </Typography>
+            {/* <Typography variant='subtitle1' fontSize={14} lineHeight={21}> */}
+            {isNotApplicable || showCurrency
+              ? `${getCurrencyMark(
+                  getValues(`${detailName}.${idx}.currency`),
+                )} ${getValues(`${detailName}.${idx}.currency`) ?? '-'}`
+              : null}
+            {/* </Typography> */}
           </Box>
         ) : isNotApplicable ? (
           <Controller
@@ -655,17 +675,7 @@ const Row = ({
                       onChange(null)
                     }
                   }}
-                  value={
-                    value ? { label: value, value: value } : null
-                    // CurrencyList.find(item => item.value === value)
-                    // value
-                    //   ? CurrencyList.find(item => item.value === value) ||
-                    //     null
-                    //   : {
-                    //       label: getValues(`${initialPriceName}.currency`),
-                    //       value: getValues(`${initialPriceName}.currency`),
-                    //     }
-                  }
+                  value={value ? { label: value, value: value } : null}
                   renderInput={params => (
                     <TextField
                       {...params}
@@ -680,7 +690,7 @@ const Row = ({
           />
         ) : null}
       </TableCell>
-      <TableCell sx={{ width: '20%' }} align='left'>
+      <TableCell align='left'>
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
@@ -688,18 +698,19 @@ const Row = ({
           <Typography fontSize={14}>
             {isNotApplicable
               ? formatCurrency(
-                formatByRoundingProcedure(
-                  Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                  savedValue?.currency === 'USD' || savedValue.currency === 'SGD'
-                    ? 2
-                    : savedValue?.currency === 'KRW'
-                      ? 10
-                      : 0,
-                  0,
-                  savedValue?.currency ?? 'KRW',
-                ),
-                savedValue?.currency ?? null,
-              )
+                  formatByRoundingProcedure(
+                    Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
+                    savedValue?.currency === 'USD' ||
+                      savedValue.currency === 'SGD'
+                      ? 2
+                      : savedValue?.currency === 'KRW'
+                        ? 10
+                        : 0,
+                    0,
+                    savedValue?.currency ?? 'KRW',
+                  ),
+                  savedValue?.currency ?? null,
+                )
               : formatCurrency(
                   formatByRoundingProcedure(
                     Number(getValues(`${detailName}.${idx}.prices`)),
@@ -709,17 +720,24 @@ const Row = ({
                     getValues(`${initialPriceName}.currency`) || 'KRW',
                   ),
                   getValues(`${initialPriceName}.currency`) || 'KRW',
-                )
-            }
+                )}
           </Typography>
         ) : (
-          <Typography fontSize={14}>
+          <Box
+            sx={{
+              fontSize: '14px',
+              fontWeight: 400,
+              color: 'rgba(76, 78, 100, 0.87)',
+              lineHeight: '21px',
+            }}
+          >
             {isNotApplicable
               ? savedValue?.currency
                 ? formatCurrency(
                     formatByRoundingProcedure(
                       Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      savedValue?.currency === 'USD' || savedValue.currency === 'SGD'
+                      savedValue?.currency === 'USD' ||
+                        savedValue.currency === 'SGD'
                         ? 2
                         : savedValue?.currency === 'KRW'
                           ? 10
@@ -732,7 +750,8 @@ const Row = ({
                 : formatCurrency(
                     formatByRoundingProcedure(
                       Number(getValues(`${detailName}.${idx}.prices`)) ?? 0,
-                      getValues(`${initialPriceName}.currency`) === 'USD' || getValues(`${initialPriceName}.currency`) === 'SGD'
+                      getValues(`${initialPriceName}.currency`) === 'USD' ||
+                        getValues(`${initialPriceName}.currency`) === 'SGD'
                         ? 2
                         : getValues(`${initialPriceName}.currency`) === 'KRW'
                           ? 10
@@ -761,10 +780,10 @@ const Row = ({
                     ),
                     getValues(`${initialPriceName}.currency`) ?? null,
                   )}
-          </Typography>
+          </Box>
         )}
       </TableCell>
-      <TableCell sx={{ width: '5%' }} align='center'>
+      <TableCell align='center'>
         {type === 'detail' ||
         type === 'invoiceDetail' ||
         type === 'invoiceHistory' ||
@@ -790,7 +809,7 @@ const Row = ({
           </IconButton>
         )}
       </TableCell>
-    </TableRow>
+    </tr>
   )
 }
 

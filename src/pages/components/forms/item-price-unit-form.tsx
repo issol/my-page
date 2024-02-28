@@ -125,6 +125,14 @@ const StyledTableCell = styled(TableCell)<{ dark: boolean }>(
     },
   }),
 )
+
+const styledTd = {
+  background:
+    'linear-gradient( 0deg, rgba(255,255,255,0.88), rgba(255,255,255,0.88) ), #666cff',
+  padding: '16px',
+  fontSize: '12px',
+  fontWeight: 500,
+}
 export type NestedPriceUnitType = PriceUnitListType & {
   subPriceUnits: PriceUnitListType[] | undefined
   groupName: string
@@ -251,6 +259,8 @@ export default function ItemPriceUnitForm({
     // sumTotalPrice()
   }
 
+  console.log(details)
+
   return (
     <Grid
       item
@@ -261,73 +271,216 @@ export default function ItemPriceUnitForm({
       //   }
       // }}
     >
-      <TableContainer
-        component={Paper}
-        sx={
-          setDarkMode
-            ? {
-                maxHeight: 400,
-                backgroundColor: 'rgba(76, 78, 100, 0)',
-                // opacity: 0.7,
-              }
-            : { maxHeight: 400 }
-        }
+      {/* <Box
+        sx={{
+          maxHeight: 400,
+          height: '100%',
+          // height: 'fit-content',
+
+          overflow: 'auto',
+        }}
+      > */}
+      {/* <Table
+        sx={{
+          display: 'block',
+          maxHeight: 400,
+          overflowY: 'auto',
+          height: '100%',
+        }}
       >
-        <Table stickyHeader aria-label='sticky table'>
-          <TableHead
-            sx={{
-              position: 'sticky',
-              top: 0,
-              zIndex: 10,
-            }}
-          >
-            <TableRow sx={{ border: '1px solid' }}>
-              <StyledTableCell
-                sx={{
-                  width: '10%',
-                  textTransform: 'none',
-                }}
-                align='left'
-                dark={setDarkMode!}
-              >
-                Quantity
-              </StyledTableCell>
-              <StyledTableCell
-                sx={{ width: 'auto', textTransform: 'none' }}
-                align='left'
-                dark={setDarkMode!}
-              >
-                Price unit
-              </StyledTableCell>
-              <StyledTableCell
-                sx={{ width: '15%', textTransform: 'none' }}
-                align='left'
-                dark={setDarkMode!}
-              >
-                Unit price
-              </StyledTableCell>
-              <StyledTableCell
-                sx={{ width: '17%', textTransform: 'none' }}
-                align='left'
-                dark={setDarkMode!}
-              >
-                Currency
-              </StyledTableCell>
-              <StyledTableCell
-                sx={{ width: '17%', textTransform: 'none' }}
-                align='left'
-                dark={setDarkMode!}
-              >
-                Prices
-              </StyledTableCell>
-              <StyledTableCell
-                sx={{ width: '5%', textTransform: 'none' }}
-                align='left'
-                dark={setDarkMode!}
-              ></StyledTableCell>
+        <TableHead
+          sx={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 10,
+            display: 'table',
+            width: '100%',
+          }}
+        >
+          <TableRow sx={{ display: 'table', width: '100%' }}>
+            <StyledTableCell
+              sx={{
+                width: '10%',
+                textTransform: 'none',
+              }}
+              align='left'
+              dark={setDarkMode!}
+            >
+              Quantity
+            </StyledTableCell>
+            <StyledTableCell
+              sx={{ width: '36%', textTransform: 'none' }}
+              align='left'
+              dark={setDarkMode!}
+            >
+              Price unit
+            </StyledTableCell>
+            <StyledTableCell
+              sx={{ width: '15%', textTransform: 'none' }}
+              align='left'
+              dark={setDarkMode!}
+            >
+              Unit price
+            </StyledTableCell>
+            <StyledTableCell
+              sx={{ width: '17%', textTransform: 'none' }}
+              align='left'
+              dark={setDarkMode!}
+            >
+              Currency
+            </StyledTableCell>
+            <StyledTableCell
+              sx={{ width: '17%', textTransform: 'none' }}
+              align='left'
+              dark={setDarkMode!}
+            >
+              Prices
+            </StyledTableCell>
+            <StyledTableCell
+              sx={{ width: '5%', textTransform: 'none' }}
+              align='left'
+              dark={setDarkMode!}
+            ></StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody sx={{ display: 'block', maxHeight: 400, height: '100%' }}>
+          {details?.map((row, idx) => (
+            <Row
+              key={row.id}
+              idx={idx}
+              nestSubPriceUnits={nestSubPriceUnits}
+              currentItem={currentItem}
+              getValues={getValues}
+              // getEachPrice={getEachPrice}
+              detailName={detailName}
+              type={type}
+              isNotApplicable={isNotApplicable[index]}
+              onDeletePriceUnit={onDeletePriceUnit}
+              onDeleteNoPriceUnit={onDeleteNoPriceUnit}
+              updateTotalPrice={updateTotalPrice}
+              priceData={priceData}
+              allPriceUnits={allPriceUnits}
+              index={index}
+              update={update}
+              initialPriceName={initialPriceName}
+              onChangeCurrency={onChangeCurrency}
+              control={control}
+              append={append}
+              remove={remove}
+              showCurrency={showCurrency}
+              setValue={setValue}
+              row={row}
+            />
+          ))}
+
+          {showMinimum && !isNotApplicable[index] ? (
+            <TableRow tabIndex={-1}>
+              <TableCell>
+                <Typography color='primary' fontSize={14}>
+                  1
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography color='primary' fontSize={14}>
+                  Minimum price per item
+                </Typography>
+              </TableCell>
+              <TableCell align='left'>
+                <Typography color='primary' fontSize={14}>
+                  {!priceData ||
+                  priceData.id === NOT_APPLICABLE ||
+                  type === 'edit'
+                    ? formatByRoundingProcedure(
+                        minimumPrice ?? 0,
+                        priceData?.decimalPlace!,
+                        priceData?.roundingProcedure!,
+                        priceData?.currency! ?? 'KRW',
+                      )
+                    : formatCurrency(
+                        formatByRoundingProcedure(
+                          minimumPrice ?? 0,
+                          priceData?.decimalPlace!,
+                          priceData?.roundingProcedure!,
+                          priceData?.currency! ?? 'KRW',
+                        ),
+                        priceData?.currency ?? 'KRW',
+                      )}
+                </Typography>
+              </TableCell>
+              <TableCell align='center'></TableCell>
+              <TableCell align='left'>
+                <Typography color='primary' fontSize={14}>
+                  {!priceData || priceData.id === NOT_APPLICABLE
+                    ? minimumPrice ?? 0
+                    : formatCurrency(
+                        formatByRoundingProcedure(
+                          minimumPrice ?? 0,
+                          priceData?.decimalPlace!,
+                          priceData?.roundingProcedure!,
+                          priceData?.currency! ?? 'KRW',
+                        ),
+                        priceData?.currency ?? 'KRW',
+                      )}
+                </Typography>
+              </TableCell>
+              <TableCell align='center'>
+                {type === 'detail' ||
+                type === 'invoiceDetail' ||
+                type === 'invoiceHistory' ||
+                type === 'invoiceCreate' ? null : (
+                  <IconButton onClick={() => setShowMinimum(false)}>
+                    <Icon icon='mdi:trash-outline' />
+                  </IconButton>
+                )}
+              </TableCell>
             </TableRow>
-          </TableHead>
-          <TableBody>
+          ) : null}
+        </TableBody>
+      </Table> */}
+      <table
+        style={{
+          borderCollapse: 'collapse',
+          textAlign: 'left',
+          width: '100%',
+        }}
+      >
+        <colgroup>
+          <col width='10%'></col>
+          <col width='36%'></col>
+          <col width='15%'></col>
+          <col width='17%'></col>
+          <col width='17%'></col>
+          <col width='5%'></col>
+        </colgroup>
+        <thead>
+          <tr>
+            <td style={styledTd}>Quantity</td>
+            <td style={styledTd}>Price unit</td>
+            <td style={styledTd}>Unit price</td>
+            <td style={styledTd}>Currency</td>
+            <td style={styledTd}>Prices</td>
+            <td style={styledTd}></td>
+          </tr>
+        </thead>
+      </table>
+      <Box
+        sx={{
+          maxHeight: '250px',
+          overflowY: 'scroll',
+          width: '100%',
+          height: 'fit-content',
+        }}
+      >
+        <table style={{ width: '100%' }}>
+          <colgroup>
+            <col width='10%'></col>
+            <col width='36%'></col>
+            <col width='15%'></col>
+            <col width='17%'></col>
+            <col width='17%'></col>
+            <col width='5%'></col>
+          </colgroup>
+          <tbody>
             {details?.map((row, idx) => (
               <Row
                 key={row.id}
@@ -356,71 +509,10 @@ export default function ItemPriceUnitForm({
                 row={row}
               />
             ))}
-            {showMinimum && !isNotApplicable[index] ? (
-              <TableRow tabIndex={-1} /* onBlur={() => onItemBoxLeave()} */>
-                <TableCell>
-                  <Typography color='primary' fontSize={14}>
-                    1
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography color='primary' fontSize={14}>
-                    Minimum price per item
-                  </Typography>
-                </TableCell>
-                <TableCell align='left'>
-                  <Typography color='primary' fontSize={14}>
-                    {!priceData ||
-                    priceData.id === NOT_APPLICABLE ||
-                    type === 'edit'
-                      ? formatByRoundingProcedure(
-                          minimumPrice ?? 0,
-                          priceData?.decimalPlace!,
-                          priceData?.roundingProcedure!,
-                          priceData?.currency! ?? 'KRW',
-                        )
-                      : formatCurrency(
-                          formatByRoundingProcedure(
-                            minimumPrice ?? 0,
-                            priceData?.decimalPlace!,
-                            priceData?.roundingProcedure!,
-                            priceData?.currency! ?? 'KRW',
-                          ),
-                          priceData?.currency ?? 'KRW',
-                        )}
-                  </Typography>
-                </TableCell>
-                <TableCell align='center'></TableCell>
-                <TableCell align='left'>
-                  <Typography color='primary' fontSize={14}>
-                    {!priceData || priceData.id === NOT_APPLICABLE
-                      ? minimumPrice ?? 0
-                      : formatCurrency(
-                          formatByRoundingProcedure(
-                            minimumPrice ?? 0,
-                            priceData?.decimalPlace!,
-                            priceData?.roundingProcedure!,
-                            priceData?.currency! ?? 'KRW',
-                          ),
-                          priceData?.currency ?? 'KRW',
-                        )}
-                  </Typography>
-                </TableCell>
-                <TableCell align='center'>
-                  {type === 'detail' ||
-                  type === 'invoiceDetail' ||
-                  type === 'invoiceHistory' ||
-                  type === 'invoiceCreate' ? null : (
-                    <IconButton onClick={() => setShowMinimum(false)}>
-                      <Icon icon='mdi:trash-outline' />
-                    </IconButton>
-                  )}
-                </TableCell>
-              </TableRow>
-            ) : null}
-          </TableBody>
-        </Table>
-      </TableContainer>
+          </tbody>
+        </table>
+      </Box>
+      {/* </Box> */}
       {type === 'detail' ||
       type === 'invoiceDetail' ||
       type === 'invoiceHistory' ||
@@ -521,7 +613,8 @@ export default function ItemPriceUnitForm({
                             getValues().items?.[0]?.detail?.[0]?.currency ===
                               'SGD'
                             ? 2
-                            : getValues().items?.[0]?.initialPrice?.currency === 'KRW'
+                            : getValues().items?.[0]?.initialPrice?.currency ===
+                                'KRW'
                               ? 10
                               : 1,
                           0,
@@ -538,7 +631,8 @@ export default function ItemPriceUnitForm({
                             getValues().items?.[0]?.initialPrice?.currency ===
                               'SGD'
                             ? 2
-                            : getValues().items?.[0]?.initialPrice?.currency === 'KRW'
+                            : getValues().items?.[0]?.initialPrice?.currency ===
+                                'KRW'
                               ? 10
                               : 1,
                           0,

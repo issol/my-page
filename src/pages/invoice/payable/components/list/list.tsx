@@ -25,6 +25,7 @@ import {
   InvoiceProStatusType,
 } from '@src/types/invoice/common.type'
 import { timezoneSelector } from '@src/states/permission'
+import NoList from '@src/pages/components/no-list'
 
 type CellType = {
   row: InvoicePayableListType
@@ -47,6 +48,8 @@ type Props = {
     totalCount: number
   }
   isLoading: boolean
+  type: 'list' | 'calendar'
+  columns: GridColumns<InvoicePayableListType>
 }
 
 export default function PayableList({
@@ -60,178 +63,10 @@ export default function PayableList({
   setPageSize,
   list,
   isLoading,
+  type,
+  columns,
 }: Props) {
-  const auth = useRecoilValueLoadable(authState)
-  const timezone = useRecoilValueLoadable(timezoneSelector)
   const router = useRouter()
-
-  function NoList() {
-    return (
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant='subtitle1'>There are no invoices</Typography>
-      </Box>
-    )
-  }
-
-  const columns: GridColumns<InvoicePayableListType> = [
-    {
-      field: 'corporationId',
-      minWidth: 130,
-      flex: 0.0807,
-      headerName: 'No.',
-      disableColumnMenu: true,
-      renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          No.
-        </Typography>
-      ),
-      renderCell: ({ row }: CellType) => {
-        return <>{row.corporationId}</>
-      },
-    },
-    {
-      field: 'Status',
-      minWidth: 240,
-      flex: 0.1491,
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Status
-        </Typography>
-      ),
-      renderCell: ({ row }: CellType) => {
-        return (
-          <>
-            {/* {InvoicePayableChip(row.invoiceStatus as InvoicePayableStatusType)} */}
-            {/* TODO: invoiceStatus 넘버로 오는지 확인 필요 */}
-            {invoicePayableStatusChip(
-              row.invoiceStatus as InvoiceProStatusType,
-              statusList,
-            )}
-          </>
-        )
-      },
-    },
-    {
-      field: 'Pro / Email',
-      minWidth: 260,
-      flex: 0.1615,
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Pro / Email
-        </Typography>
-      ),
-      renderCell: ({ row }: CellType) => {
-        return (
-          <Box>
-            <Typography fontWeight={600}>{row.pro?.name}</Typography>
-            <Typography variant='body2'>{row.pro?.email}</Typography>
-          </Box>
-        )
-      },
-    },
-    {
-      field: 'invoicedAt',
-      minWidth: 280,
-      flex: 0.1739,
-      disableColumnMenu: true,
-      renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Invoice date
-        </Typography>
-      ),
-      renderCell: ({ row }: CellType) => {
-        if (auth.state === 'hasValue' && auth.getValue().user) {
-          const date = convertTimeToTimezone(
-            row.invoicedAt,
-            auth.getValue().user?.timezone,
-            timezone.getValue(),
-          )
-          return (
-            <Tooltip title={date}>
-              <Typography variant='body2'>{date}</Typography>
-            </Tooltip>
-          )
-        }
-      },
-    },
-    {
-      field: 'payDueAt',
-      minWidth: 280,
-      flex: 0.1739,
-      disableColumnMenu: true,
-      renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Payment due
-        </Typography>
-      ),
-      renderCell: ({ row }: CellType) => {
-        const date = convertTimeToTimezone(
-          row.payDueAt,
-          auth.getValue().user?.timezone,
-          timezone.getValue(),
-        )
-        return (
-          <Tooltip title={date}>
-            <Typography variant='body2'>{date}</Typography>
-          </Tooltip>
-        )
-      },
-    },
-    {
-      field: 'paidAt',
-      minWidth: 280,
-      flex: 0.1739,
-      disableColumnMenu: true,
-      renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Payment date
-        </Typography>
-      ),
-      renderCell: ({ row }: CellType) => {
-        const date = convertTimeToTimezone(
-          row.paidAt,
-          auth.getValue().user?.timezone,
-          timezone.getValue(),
-        )
-        return (
-          <Tooltip title={date}>
-            <Typography variant='body2'>{date}</Typography>
-          </Tooltip>
-        )
-      },
-    },
-    {
-      field: 'totalPrice',
-      minWidth: 140,
-      flex: 0.087,
-      disableColumnMenu: true,
-      renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Total price
-        </Typography>
-      ),
-      renderCell: ({ row }: CellType) => {
-        const price = `${formatCurrency(row.totalPrice, row.currency)}`
-        return (
-          <Tooltip title={price}>
-            <Typography fontWeight={600}>{price}</Typography>
-          </Tooltip>
-        )
-      },
-    },
-  ]
 
   return (
     <Box
@@ -242,6 +77,11 @@ export default function PayableList({
       }}
     >
       <DataGrid
+        initialState={{
+          sorting: {
+            sortModel: [{ field: 'corporationId', sort: 'desc' }],
+          },
+        }}
         autoHeight
         checkboxSelection={isAccountManager}
         isRowSelectable={(params: GridRowParams<InvoicePayableListType>) =>
@@ -253,8 +93,8 @@ export default function PayableList({
         }}
         selectionModel={statuses}
         components={{
-          NoRowsOverlay: () => NoList(),
-          NoResultsOverlay: () => NoList(),
+          NoRowsOverlay: () => NoList('There are no invoices'),
+          NoResultsOverlay: () => NoList('There are no invoices'),
         }}
         columns={columns}
         rows={list.data}
@@ -268,6 +108,7 @@ export default function PayableList({
         paginationMode='server'
         onPageChange={setSkip}
         disableSelectionOnClick
+        hideFooter={type === 'calendar'}
         onPageSizeChange={newPageSize => setPageSize(newPageSize)}
         onCellClick={(params, event) => {
           // 체크박스 클릭 시에는 행 클릭 이벤트 무시

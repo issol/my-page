@@ -22,12 +22,21 @@ import { authState } from '@src/states/auth'
 import { timezoneSelector } from '@src/states/permission'
 
 type Props = {
-  data: RequestDetailType | undefined
+  data: RequestDetailType
   openReasonModal: () => void
+  statusList: {
+    value: number
+    label: string
+  }[]
 }
-export default function RequestDetailCard({ data, openReasonModal }: Props) {
+export default function RequestDetailCard({
+  data,
+  openReasonModal,
+  statusList,
+}: Props) {
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const label = statusList?.find(i => i.value === data.status)?.label
 
   return (
     <Grid container spacing={6}>
@@ -47,8 +56,10 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
         <LabelContainer>
           <CustomTypo fontWeight={600}>Status</CustomTypo>
           <Box display='flex' alignItems='center' gap='8px'>
-            {!data?.status ? null : ClientRequestStatusChip(data?.status)}
-            {data?.status === 'Canceled' && (
+            {!data?.status && !label
+              ? '-'
+              : ClientRequestStatusChip(data.status, label!)}
+            {data?.status === 50005 && (
               <IconButton sx={{ padding: 0 }} onClick={openReasonModal}>
                 <Icon icon='material-symbols:help-outline' />
               </IconButton>
@@ -80,8 +91,10 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
       <Grid item xs={12}>
         <Divider />
       </Grid>
-      {data?.items?.map((item, idx) => {
+      {data.items?.map((item, idx) => {
         const numbering = idx + 1 > 9 ? `${idx}.` + 1 : `0${idx + 1}.`
+        console.log(item?.quantity)
+
         return (
           <Grid item xs={12} key={item?.id}>
             <ItemBox>
@@ -107,9 +120,20 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                 <Grid item xs={6}>
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Service type</CustomTypo>
-                    <Box display='flex'>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '8px',
+                        width: '100%',
+                      }}
+                    >
                       {item.serviceType?.map(i => (
-                        <ServiceTypeChip size='small' key={i} label={i} />
+                        <ServiceTypeChip
+                          size='small'
+                          key={uuidv4()}
+                          label={i}
+                        />
                       ))}
                     </Box>
                   </LabelContainer>
@@ -124,7 +148,9 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Quantity</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {typeof item?.quantity === 'string' && isNaN(item?.quantity)
+                      {(typeof item?.quantity === 'string' &&
+                        isNaN(item?.quantity)) ||
+                      item?.quantity === null
                         ? '-'
                         : Number(item?.quantity) ?? '-'}
                     </CustomTypo>

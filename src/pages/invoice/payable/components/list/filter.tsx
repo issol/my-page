@@ -167,7 +167,7 @@ const Filter = ({ filter, setFilter, onReset, search, statusList }: Props) => {
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
-                  <FormControl fullWidth>
+                  <Box sx={{ width: '100%' }}>
                     <DatePicker
                       selectsRange
                       monthsShown={2}
@@ -214,10 +214,10 @@ const Filter = ({ filter, setFilter, onReset, search, statusList }: Props) => {
                         </Box>
                       }
                     />
-                  </FormControl>
+                  </Box>
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
-                  <FormControl fullWidth>
+                  <Box sx={{ width: '100%' }}>
                     <DatePicker
                       selectsRange
                       monthsShown={2}
@@ -263,10 +263,10 @@ const Filter = ({ filter, setFilter, onReset, search, statusList }: Props) => {
                         </Box>
                       }
                     />
-                  </FormControl>
+                  </Box>
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
-                  <FormControl fullWidth>
+                  <Box sx={{ width: '100%' }}>
                     <DatePicker
                       selectsRange
                       monthsShown={2}
@@ -310,7 +310,7 @@ const Filter = ({ filter, setFilter, onReset, search, statusList }: Props) => {
                         </Box>
                       }
                     />
-                  </FormControl>
+                  </Box>
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <FormControl fullWidth>

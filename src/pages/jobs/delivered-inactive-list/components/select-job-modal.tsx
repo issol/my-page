@@ -27,7 +27,10 @@ import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
 import { useRouter } from 'next/router'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
-import { formatCurrency, getCurrencyMark } from '@src/shared/helpers/price.helper'
+import {
+  formatCurrency,
+  getCurrencyMark,
+} from '@src/shared/helpers/price.helper'
 import useModal from '@src/hooks/useModal'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
@@ -118,7 +121,6 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
   }
 
   const onClickCreateInvoice = () => {
-    
     const invoiceData = {
       currency: selectedJobs[0].currency,
       subtotal: getTotalPrice(selectedJobs),
@@ -337,8 +339,8 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
             autoHeight
             // getRowId={row => row?.orderId}
             components={{
-              NoRowsOverlay: () => NoList('There are no jobs'),
-              NoResultsOverlay: () => NoList('There are no jobs'),
+              NoRowsOverlay: () => NoList('There are no approved jobs yet'),
+              NoResultsOverlay: () => NoList('There are no approved jobs yet'),
             }}
             sx={{
               overflowX: 'scroll',
@@ -399,14 +401,13 @@ const SelectJobModal = ({ onClose, onClick }: Props) => {
               Selected job(s): {selectedJobs.length ?? 0}
             </Typography>
             <Typography variant='body1' fontWeight={600} color='#666CFF'>
-              Subtotal: {
-                selectedJobs && selectedJobs.length
+              Subtotal:{' '}
+              {selectedJobs && selectedJobs.length
                 ? formatCurrency(
                     getTotalPrice(selectedJobs),
-                    selectedJobs[0].currency
+                    selectedJobs[0].currency,
                   )
-                : '-'
-              }
+                : '-'}
             </Typography>
           </Box>
         </Card>

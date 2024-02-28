@@ -104,15 +104,15 @@ const CustomModal = ({
                 ? titleStyle === 'bold'
                   ? '700'
                   : titleStyle === 'normal'
-                  ? '400'
-                  : null
+                    ? '400'
+                    : null
                 : null,
               fontSize: titleSize
                 ? titleSize === 'large'
                   ? '20px'
                   : titleSize === 'normal'
-                  ? '16px'
-                  : null
+                    ? '16px'
+                    : null
                 : '16px',
               marginBottom: '16px',
             }}
@@ -173,7 +173,7 @@ const CustomModal = ({
               alignItems: 'center',
               flexDirection: buttonDirection ?? 'row',
               width: '100%',
-              mt: buttonDirection === 'column-reverse' ? '30px' : 0,
+              mt: buttonDirection === 'column-reverse' || subtitle ? '30px' : 0,
             }}
           >
             {soloButton ? null : (

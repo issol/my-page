@@ -528,23 +528,26 @@ export function PermissionChip(permission: UserType) {
   )
 }
 
-export function ClientRequestStatusChip(status: RequestStatusType) {
+export function ClientRequestStatusChip(
+  status: RequestStatusType,
+  label: string,
+) {
   const color =
-    status === 'Request created'
+    status === 50001
       ? '#A81988'
-      : status === 'In preparation'
+      : status === 50002
         ? '#FDB528'
-        : status === 'Changed into quote'
+        : status === 50003
           ? '#64C623'
-          : status === 'Changed into order'
+          : status === 50004
             ? '#1A6BBA'
-            : status === 'Canceled'
+            : status === 50005
               ? '#FF4D49'
               : ''
 
   return (
     <CustomChip
-      label={status}
+      label={label}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
