@@ -11,6 +11,7 @@ import { Button } from '@mui/material'
 import useModal from '@src/hooks/useModal'
 import LoginRequiredModal from '@src/@core/components/common-modal/login-modal'
 import { useRouter } from 'next/router'
+import NotificationDropdown from '@src/@core/layouts/components/shared-components/NotificationDropdown'
 
 interface Props {
   hidden: boolean
@@ -159,6 +160,7 @@ const AppBarContent = (props: Props) => {
                 process.env.NEXT_PUBLIC_DISPLAY_MODE === 'Test'
               ? process.env.NEXT_PUBLIC_DISPLAY_MODE
               : null}
+            <NotificationDropdown settings={settings} />
           <UserDropdown settings={settings} />
         </Box>
       )}
