@@ -60,8 +60,8 @@ export const getRequestListColumns = (
       sortable: false,
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: CellType) => {
-        const label = statusList?.find(i => i.label === row.status)?.label
-        if (label) return <>{ClientRequestStatusChip(row.status)}</>
+        const label = statusList?.find(i => i.value === row.status)?.label
+        if (label) return <>{ClientRequestStatusChip(row.status, label)}</>
       },
     },
     {

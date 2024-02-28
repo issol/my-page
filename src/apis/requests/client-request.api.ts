@@ -56,17 +56,17 @@ export const getClientRequestList = async (
 }
 
 function getColor(status: RequestStatusType) {
-  return status === 'Request created'
+  return status === 50001
     ? '#A81988'
-    : status === 'In preparation'
-    ? '#FDB528'
-    : status === 'Changed into quote'
-    ? '#64C623'
-    : status === 'Changed into order'
-    ? '#1A6BBA'
-    : status === 'Canceled'
-    ? '#FF4D49'
-    : ''
+    : status === 50002
+      ? '#FDB528'
+      : status === 50003
+        ? '#64C623'
+        : status === 50004
+          ? '#1A6BBA'
+          : status === 50005
+            ? '#FF4D49'
+            : ''
 }
 
 export const getClientRequestCalendarData = async (

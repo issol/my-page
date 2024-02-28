@@ -38,6 +38,7 @@ import { authState } from '@src/states/auth'
 import { useQueryClient } from 'react-query'
 import useCalenderResize from '@src/hooks/useCalenderResize'
 import { timezoneSelector } from '@src/states/permission'
+import { useGetStatusList } from '@src/queries/common.query'
 
 // ** components
 export type FilterType = {
@@ -125,8 +126,10 @@ export default function Requests() {
 
   const { data: list, isLoading } = useGetClientRequestList(filters)
 
+  // const { data: statusList, isLoading: statusListLoading } =
+  //   useGetClientRequestStatus()
   const { data: statusList, isLoading: statusListLoading } =
-    useGetClientRequestStatus()
+    useGetStatusList('RequestClient')
 
   const {
     control,
