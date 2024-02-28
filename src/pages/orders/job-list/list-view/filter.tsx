@@ -41,6 +41,8 @@ import { FilterType } from './list-view'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
 import { ClientRowType } from '@src/apis/client.api'
 import { useGetStatusList } from '@src/queries/common.query'
+import moment from 'moment'
+import dayjs from 'dayjs'
 
 type Props = {
   filter: FilterType
@@ -75,6 +77,14 @@ export default function Filters({
       : option?.filter((item: { value: string; label: string }) =>
           filter[keyName]?.includes(item.value),
         )
+  }
+
+  const dateValue = (startDate?: string, endDate?: string) => {
+    return startDate === endDate
+      ? dayjs(startDate).format('MM/DD/YYYY')
+      : `${dayjs(startDate).format('MM/DD/YYYY')}${
+          endDate ? ` - ${dayjs(endDate).format('MM/DD/YYYY')}` : ''
+        }`
   }
 
   return (
@@ -195,7 +205,11 @@ export default function Filters({
                         id='category'
                         getOptionLabel={option => option.label}
                         renderInput={params => (
-                          <TextField {...params} autoComplete='off' label='Category' />
+                          <TextField
+                            {...params}
+                            autoComplete='off'
+                            label='Category'
+                          />
                         )}
                         renderOption={(props, option, { selected }) => (
                           <li {...props}>
@@ -246,19 +260,58 @@ export default function Filters({
                     <DatePicker
                       selectsRange
                       monthsShown={2}
-                      startDate={filter?.startedAt?.[0] ?? null}
-                      endDate={filter?.startedAt?.[1] ?? null}
+                      startDate={
+                        filter?.startedAt?.[0]
+                          ? new Date(filter?.startedAt?.[0])
+                          : null
+                      }
+                      endDate={
+                        filter?.startedAt?.[1]
+                          ? new Date(filter?.startedAt?.[1])
+                          : null
+                      }
                       placeholderText='MM/DD/YYYY - MM/DD/YYYY'
                       id='date-range-picker-months'
-                      onChange={e => {
+                      onChange={([start, end]) => {
+                        console.log(start, end)
+
+                        if (!start && !end) return
                         setFilter({
                           ...filter,
-                          startedAt: e,
+                          startedAt: [
+                            moment(start).toISOString(),
+                            moment(end).toISOString(),
+                          ],
                         })
+                      }}
+                      onCalendarClose={() => {
+                        if (
+                          filter.startedAt &&
+                          (!filter.startedAt[0] || !filter.startedAt[1])
+                        ) {
+                          setFilter({
+                            ...filter,
+                            startedAt: [null, null],
+                          })
+                        }
                       }}
                       popperPlacement={popperPlacement}
                       customInput={
-                        <CustomInput label='Job start date' icon='calendar' />
+                        <Box>
+                          <CustomInput
+                            label='Job start date'
+                            icon='calendar'
+                            placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                            value={
+                              filter?.startedAt?.[0] || filter?.startedAt?.[1]
+                                ? dateValue(
+                                    filter?.startedAt?.[0]!,
+                                    filter?.startedAt?.[1]!,
+                                  )
+                                : ''
+                            }
+                          />
+                        </Box>
                       }
                     />
                   </FormControl>
@@ -268,19 +321,54 @@ export default function Filters({
                     <DatePicker
                       selectsRange
                       monthsShown={2}
-                      startDate={filter?.dueAt?.[0] ?? null}
-                      endDate={filter?.dueAt?.[1] ?? null}
+                      startDate={
+                        filter?.dueAt?.[0] ? new Date(filter?.dueAt?.[0]) : null
+                      }
+                      endDate={
+                        filter?.dueAt?.[1] ? new Date(filter?.dueAt?.[1]) : null
+                      }
                       placeholderText='MM/DD/YYYY - MM/DD/YYYY'
                       id='date-range-picker-months'
-                      onChange={e => {
+                      onChange={([start, end]) => {
+                        console.log(start, end)
+
+                        if (!start && !end) return
                         setFilter({
                           ...filter,
-                          dueAt: e,
+                          dueAt: [
+                            moment(start).toISOString(),
+                            moment(end).toISOString(),
+                          ],
                         })
+                      }}
+                      onCalendarClose={() => {
+                        if (
+                          filter.dueAt &&
+                          (!filter.dueAt[0] || !filter.dueAt[1])
+                        ) {
+                          setFilter({
+                            ...filter,
+                            dueAt: [null, null],
+                          })
+                        }
                       }}
                       popperPlacement={popperPlacement}
                       customInput={
-                        <CustomInput label='Job due date' icon='calendar' />
+                        <Box>
+                          <CustomInput
+                            label='Job due date'
+                            icon='calendar'
+                            placeholder='MM/DD/YYYY - MM/DD/YYYY'
+                            value={
+                              filter?.dueAt?.[0] || filter?.dueAt?.[1]
+                                ? dateValue(
+                                    filter?.dueAt?.[0]!,
+                                    filter?.dueAt?.[1]!,
+                                  )
+                                : ''
+                            }
+                          />
+                        </Box>
                       }
                     />
                   </FormControl>

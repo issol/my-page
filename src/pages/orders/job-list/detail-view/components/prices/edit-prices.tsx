@@ -27,7 +27,7 @@ import {
 } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { addJobInfoFormSchema } from '@src/types/schema/job-detail'
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Control,
   FieldArrayWithId,
@@ -49,6 +49,7 @@ import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { set } from 'lodash'
 
 type Props = {
   row: JobType
@@ -98,6 +99,7 @@ type Props = {
   item?: JobItemType
   prices?: StandardPriceListType[]
   orderItems: ItemType[]
+  setPriceId: Dispatch<SetStateAction<number | null>>
 }
 
 const EditPrices = ({
@@ -117,6 +119,7 @@ const EditPrices = ({
   item,
   prices,
   orderItems,
+  setPriceId,
 }: Props) => {
   const queryClient = useQueryClient()
 
@@ -146,11 +149,16 @@ const EditPrices = ({
 
   const [overridePriceUnit, setOverridePriceUnit] = useState(false)
 
-  const findMatchedLanguagePairInItems = (v: (StandardPriceListType & {
-    groupName?: string | undefined;
-  })) => {
+  const findMatchedLanguagePairInItems = (
+    v: StandardPriceListType & {
+      groupName?: string | undefined
+    },
+  ) => {
     return v.languagePairs.find((pair, idx) => {
-      if (pair?.source === languagePair?.sourceLanguage && pair?.target === languagePair?.targetLanguage) {
+      if (
+        pair?.source === languagePair?.sourceLanguage &&
+        pair?.target === languagePair?.targetLanguage
+      ) {
         return pair
       }
     })
@@ -160,7 +168,12 @@ const EditPrices = ({
     // if (!isSuccess) return [proDefaultOption]
     if (!prices) return [proDefaultOption]
 
+    // const filteredPriceUnit = prices.priceUnit.filter(value => value !== null)
     const filteredList = prices
+      .map(item => ({
+        ...item,
+        priceUnit: item.priceUnit.filter(value => value !== null),
+      }))
       .filter(item => {
         const matchingPairs = item.languagePairs.filter(
           pair => pair.source === source && pair.target === target,
@@ -169,6 +182,7 @@ const EditPrices = ({
       })
       .map(item => ({
         groupName: item.isStandard ? 'Standard pro price' : 'Matching price',
+
         ...item,
       }))
 
@@ -213,7 +227,10 @@ const EditPrices = ({
         value => value.id === jobPrices.initialPrice?.priceId,
       )
 
-      setPrice(res!)
+      // setPrice(res!)
+      if (res) {
+        setPrice(res)
+      }
       itemTrigger()
     }
   }, [jobPrices, item, prices])
@@ -303,7 +320,11 @@ const EditPrices = ({
               getOptionLabel={option => option.label}
               disabled
               renderInput={params => (
-                <TextField {...params} autoComplete='off' label='Language pair*' />
+                <TextField
+                  {...params}
+                  autoComplete='off'
+                  label='Language pair*'
+                />
               )}
             />
           </Box>
@@ -315,14 +336,17 @@ const EditPrices = ({
               groupBy={option => option?.groupName ?? ''}
               onChange={(e, v) => {
                 if (v) {
+                  console.log(v)
+
                   setPrice(v)
-                  setItem(`items.${0}.priceId`, v.id)
+                  setItem(`items.${0}.priceId`, v.id, { shouldValidate: true })
                   // if (v?.languagePairs[0]?.minimumPrice)
                   const matchedLanguagePair = findMatchedLanguagePairInItems(v)
                   if (matchedLanguagePair && matchedLanguagePair.minimumPrice)
                     openMinimumPriceModal(v)
-                    setOverridePriceUnit(true)
-                    itemTrigger()
+                  setOverridePriceUnit(true)
+                  setPriceId(v.id)
+                  itemTrigger()
                 } else {
                   setPrice(null)
                 }
@@ -330,7 +354,11 @@ const EditPrices = ({
               id='autocomplete-controlled'
               getOptionLabel={option => option.priceName}
               renderInput={params => (
-                <TextField {...params} autoComplete='off' placeholder='Price*' />
+                <TextField
+                  {...params}
+                  autoComplete='off'
+                  placeholder='Price*'
+                />
               )}
             />
           </Box>

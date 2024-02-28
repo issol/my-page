@@ -2147,7 +2147,7 @@ const InvoiceInfo = ({
           <Grid item xs={isFileUploading ? 9 : 12}>
             <Card sx={{ padding: '24px' }}>
               <Grid item xs={12}>
-                <Box display='flex' gap='20px' alignItems='center'>
+                <Box display='flex' gap='20px'>
                   <Box display='flex' flexDirection='column'>
                     <Typography variant='h6'>Tax invoice</Typography>
                     <Typography variant='caption'>
@@ -2155,7 +2155,7 @@ const InvoiceInfo = ({
                     </Typography>
                   </Box>
 
-                  {isFileUploading || !isUpdatable ? null : (
+                  {isFileUploading ? null : (
                     <Box sx={{ display: 'flex', gap: '16px' }}>
                       <Button
                         variant='outlined'
@@ -2274,7 +2274,7 @@ const InvoiceInfo = ({
 
                                   <IconButton
                                     onClick={() => downloadOneFile(item)}
-                                    disabled={isFileUploading || !isUpdatable}
+                                    disabled={isFileUploading}
                                   >
                                     <Icon icon='mdi:download' fontSize={24} />
                                   </IconButton>
