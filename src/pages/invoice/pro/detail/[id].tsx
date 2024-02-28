@@ -129,9 +129,7 @@ const ProInvoiceDetail = () => {
           }),
           email: user?.email ?? '-',
           mobile: user?.mobilePhone,
-          address:
-            user?.addresses.find(value => value.addressType === 'billing') ??
-            data.pro?.address,
+          address: data.pro?.address,
         },
         jobList: jobList?.data || [],
         subtotal: data.subtotal,
