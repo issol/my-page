@@ -96,8 +96,6 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
     return formattedIds.join(' ')
   }
 
-  console.log(data)
-
   return (
     <Box
       sx={{ padding: '24px', width: '100%', background: '#FFFFFF' }}
@@ -552,7 +550,7 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                         width: totalRef.current?.offsetWidth ?? 'auto',
                       }}
                     >
-                      {/* {data.tax} */}$ 100
+                      {data.tax}
                     </Typography>
                   </Box>
                 </Box>
