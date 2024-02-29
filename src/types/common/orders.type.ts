@@ -41,7 +41,7 @@ export type OrderProjectInfoFormType = {
   projectDescription?: string
   category?: string
   serviceType?: Array<string>
-  expertise?: Array<string>
+  genre?: Array<string>
   revenueFrom: RevenueFormType | null
   orderedAt: Date
   orderTimezone: CountryType
@@ -63,7 +63,7 @@ export type QuotesProjectInfoType = {
   projectDescription?: string
   category: string
   serviceType: Array<string>
-  expertise?: Array<string>
+  genre?: Array<string>
   quoteDate: { date: string; timezone: CountryType }
   projectDueDate: { date: string; timezone: CountryType }
   quoteDeadline: { date: string; timezone: CountryType }
@@ -81,7 +81,7 @@ export type CreateOrderInfoRes = {
   projectDescription: string | null
   category: string | null
   serviceType: string[]
-  expertise: string[]
+  genre: string[]
   status: OrderStatusType
   constructorId: number
   supervisorId: number

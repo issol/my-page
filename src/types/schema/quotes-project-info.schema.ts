@@ -14,10 +14,11 @@ export const quotesProjectInfoSchema = yup.object().shape({
 
   // serviceType: yup.array().of(yup.string()).required(FormErrors.required),
   serviceType: yup
-  .array()
-  .of(yup.string())
-  .min(1, FormErrors.required).required(FormErrors.required),
-  expertise: yup.array().of(yup.string()).nullable(),
+    .array()
+    .of(yup.string())
+    .min(1, FormErrors.required)
+    .required(FormErrors.required),
+  genre: yup.array().of(yup.string()).nullable(),
   // quoteDate: yup.date().required(FormErrors.required),
   quoteDate: yup.object().shape({
     date: yup.date().required(FormErrors.required),

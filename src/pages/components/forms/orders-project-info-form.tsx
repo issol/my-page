@@ -450,7 +450,7 @@ export default function ProjectInfoForm({
               disableClearable={value ? false : true}
               onChange={(e, v) => {
                 setValue('serviceType', [], setValueOptions)
-                setValue('expertise', [], setValueOptions)
+                setValue('genre', [], setValueOptions)
 
                 onChange(v?.value ?? '')
               }}
@@ -520,7 +520,7 @@ export default function ProjectInfoForm({
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='expertise'
+          name='genre'
           control={control}
           render={({ field: { value, onChange } }) => {
             const category = watch(
