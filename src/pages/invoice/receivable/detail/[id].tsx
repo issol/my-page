@@ -172,11 +172,9 @@ const ReceivableInvoiceDetail = () => {
   )
 
   const isUpdatable = ability.can('update', User)
-  console.log(isUpdatable)
 
   const isDeletable = ability.can('delete', User)
   const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
-  console.log(AccountingTeam, 'AccountingTeam')
 
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -993,7 +991,6 @@ const ReceivableInvoiceDetail = () => {
   function makePdfData() {
     if (langItem) {
       const pm = projectTeam!.find(value => value.position === 'projectManager')
-      console.log(invoiceInfo)
 
       const items: ItemType[] = langItem.orders
         .map(item =>
@@ -1077,7 +1074,7 @@ const ReceivableInvoiceDetail = () => {
 
         taxPercent: invoiceTax,
         tax:
-          invoiceInfo!.isTaxable && priceInfo
+          invoiceInfo!.isTaxable
             ? formatCurrency(
                 tax,
                 // formatByRoundingProcedure(
@@ -1087,11 +1084,11 @@ const ReceivableInvoiceDetail = () => {
                 //     PriceRoundingResponseEnum.Type_0,
                 //   priceInfo?.currency!,
                 // ),
-                priceInfo?.currency!,
+                invoiceInfo!.currency,
               )
             : null,
         total:
-          invoiceInfo!.isTaxable && priceInfo
+          invoiceInfo!.isTaxable
             ? formatCurrency(
                 subtotal + tax,
                 // formatByRoundingProcedure(
@@ -1130,7 +1127,6 @@ const ReceivableInvoiceDetail = () => {
   }, [invoiceInfo, client, langItem, projectTeam, prices, priceInfo])
 
   useEffect(() => {
-    // console.log(languagePairs)
     if (languagePairs && prices) {
       const priceInfo =
         prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
