@@ -182,7 +182,7 @@ const CustomModal = ({
                 onClick={onClose}
                 sx={{
                   width:
-                    buttonDirection === 'column-reverse' ? '210px' : 'auto',
+                    buttonDirection === 'column-reverse' ? '210px' : '100%',
                 }}
               >
                 {leftButtonText ?? 'Cancel'}
@@ -193,7 +193,7 @@ const CustomModal = ({
               variant='contained'
               onClick={() => (textarea ? onClick(text) : onClick())}
               sx={{
-                width: buttonDirection === 'column-reverse' ? '210px' : 'auto',
+                width: buttonDirection === 'column-reverse' ? '210px' : '100%',
               }}
               disabled={textareaRequired ? textarea && text === '' : false}
             >

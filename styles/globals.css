@@ -54,6 +54,15 @@ code[class*='language-'] {
       padding: 7px 12px;
     }
   }
+  .Mui-focused {
+    .MuiFormControl-root,
+    .MuiInputBase-root {
+      height: 100%;
+    }
+    .MuiInputBase-root {
+      padding-top: 12px;
+    }
+  }
 
   .MuiFormControl-root,
   .MuiInputBase-root {
@@ -70,7 +79,7 @@ code[class*='language-'] {
 
   .MuiChip-root {
     height: 24px;
-    margin: 0 !important;
+    /* margin: 0 !important; */
   }
 }
 
