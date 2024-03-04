@@ -38,6 +38,15 @@ const NotificationCategoryList = {
     { value: 'Company', label: 'Company' },
     { value: 'Requests', label: 'Requests' },
   ],
+  ACCOUNT_MANAGER: [
+    { value: 'Quotes', label: 'Quotes' },
+    { value: 'Orders', label: 'Orders' },
+    { value: 'Invoices', label: 'Invoices' },
+    { value: 'Pros', label: 'Pros' },
+    { value: 'Clients', label: 'Clients' },
+    { value: 'Company', label: 'Company' },
+    { value: 'Requests', label: 'Requests' },
+  ],
   TAD: [
     { value: 'Recruiting', label: 'Recruiting' },
     { value: 'Onboarding', label: 'Onboarding' },
