@@ -265,6 +265,7 @@ export default function InvoiceDetailInfoForm({
                   label='Tax info*'
                 />
               )}
+              disabled={getValues().invoiceStatus === 40300}
             />
           )}
         />
@@ -290,7 +291,8 @@ export default function InvoiceDetailInfoForm({
                 disabled={
                   getValues('taxInfo') === 'Japan resident' ||
                   getValues('taxInfo') === 'Singapore resident' ||
-                  getValues('taxInfo') === 'US resident'
+                  getValues('taxInfo') === 'US resident' ||
+                  getValues().invoiceStatus === 40300
                 }
                 onChange={e => {
                   if (e.target.value.length > 10) return
@@ -327,7 +329,7 @@ export default function InvoiceDetailInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              disabled={isAccountManager}
+              disabled={getValues().invoiceStatus === 40300}
               showTimeSelect
               timeFormat='HH:mm'
               timeIntervals={30}
@@ -349,7 +351,7 @@ export default function InvoiceDetailInfoForm({
             <Autocomplete
               autoHighlight
               fullWidth
-              disabled={isAccountManager}
+              disabled={getValues().invoiceStatus === 40300}
               disableClearable={value ? false : true}
               value={value ?? null}
               options={timeZoneList as CountryType[]}
@@ -385,6 +387,7 @@ export default function InvoiceDetailInfoForm({
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               showTimeSelect
+              disabled={getValues().invoiceStatus !== 40300 || !isAccountManager}
               timeFormat='HH:mm'
               timeIntervals={30}
               selected={!value ? null : new Date(value)}
@@ -405,6 +408,7 @@ export default function InvoiceDetailInfoForm({
             <Autocomplete
               autoHighlight
               fullWidth
+              disabled={getValues().invoiceStatus !== 40300 || !isAccountManager}
               disableClearable={value ? false : true}
               value={value ?? null}
               options={timeZoneList as CountryType[]}

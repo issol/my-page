@@ -332,6 +332,10 @@ export const formattedNow = (now: Date) => {
   return formattedDate
 }
 
+export const dateValue = (date: Date) => {
+  return dayjs(date).format('MM/DD/YYYY, hh:mm A')
+}
+
 export const convertLocalToUtc = (
   date: string,
   timezone: string,
