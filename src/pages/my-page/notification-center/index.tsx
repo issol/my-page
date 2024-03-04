@@ -151,6 +151,6 @@ const NotificationCenter = () => {
 export default NotificationCenter
 
 NotificationCenter.acl = {
-  subject: 'my_page',
+  subject: 'company_info',
   action: 'read',
 }
