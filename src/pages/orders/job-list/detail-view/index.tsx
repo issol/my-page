@@ -50,7 +50,7 @@ import {
   useQueryClient,
 } from 'react-query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { saveJobPrices } from '@src/apis/job-detail.api'
+import { saveJobPrices } from '@src/apis/jobs/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import { toast } from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'

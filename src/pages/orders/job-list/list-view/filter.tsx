@@ -61,7 +61,6 @@ export default function Filters({
   serviceTypeOptions,
   clients,
 }: Props) {
-  const [collapsed, setCollapsed] = useState<boolean>(true)
   const theme = useTheme()
   const { direction } = theme
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =

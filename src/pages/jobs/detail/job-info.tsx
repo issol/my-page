@@ -61,7 +61,7 @@ import {
   handleJobAssignStatus,
   patchProJobDetail,
   patchProJobSourceFileDownload,
-} from '@src/apis/job-detail.api'
+} from '@src/apis/jobs/job-detail.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
 

@@ -33,6 +33,7 @@ import TabContext from '@mui/lab/TabContext'
 
 import { Icon } from '@iconify/react'
 import TabPanel from '@mui/lab/TabPanel'
+import JobTemplateView from './job-template'
 
 type tabMenu = 'list' | 'tracker' | 'template'
 
@@ -100,33 +101,14 @@ export default function JobList() {
       <Box sx={{ mt: 4 }}>
         <TabContext value={value}>
           <TabList onChange={handleChange} aria-label='Company price menu'>
-            <Tab
-              value='list'
-              label='List'
-              // iconPosition='start'
-              // icon={<Icon icon='mdi:account-star-outline' />}
-              // sx={{ marginLeft: '24px' }}
-            />
-            <Tab
-              value='tracker'
-              label='Job tracker'
-              // iconPosition='start'
-              // icon={<Icon icon='ic:baseline-people-outline' />}
-              // sx={{ marginLeft: '24px' }}
-            />
-            <Tab
-              value='template'
-              label='Job Template'
-              // iconPosition='start'
-              // icon={<Icon icon='mdi:dollar' />}
-              // sx={{ marginLeft: '24px' }}
-            />
+            <Tab value='list' label='List' />
+            <Tab value='tracker' label='Job tracker' />
+            <Tab value='template' label='Job Template' />
           </TabList>
           <TabPanel value='list' sx={{ padding: 0 }}>
             <JobListView
               clients={clients?.data || []}
               onCreateNewJob={onCreateNewJob}
-              // TODO 고도화 이후 변경
               statusList={statusList!.filter(value => value.value !== 601100)}
             />
           </TabPanel>
@@ -136,7 +118,9 @@ export default function JobList() {
               onCreateNewJob={onCreateNewJob}
             />
           </TabPanel>
-          <TabPanel value='template'></TabPanel>
+          <TabPanel value='template'>
+            <JobTemplateView />
+          </TabPanel>
         </TabContext>
       </Box>
     </Box>
