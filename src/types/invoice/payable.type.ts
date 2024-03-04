@@ -87,6 +87,7 @@ export type InvoicePayableDetailType = {
   totalPrice: number
   tax: string | null
   invoiceConfirmedAt: string | null
+  invoiceConfirmTimezone?: CountryType
 }
 
 export type InvoicePayableJobType = {
@@ -117,6 +118,7 @@ export type PayableHistoryType = {
   invoicedTimezone: CountryType
   invoiceStatus: InvoicePayableStatusType | InvoiceProStatusType
   invoiceConfirmedAt: string | null
+  invoiceConfirmTimezone?: CountryType
   pro?: { name: string; email: string; id: number }
   taxInfo: string
   taxRate: string

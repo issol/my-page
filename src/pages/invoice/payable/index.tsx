@@ -31,7 +31,7 @@ import CalendarContainer from './components/calendar'
 // ** apis
 import { useGetPayableList } from '@src/queries/invoice/payable.query'
 import { Icon } from '@iconify/react'
-import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
+import { updateInvoicePaidStatus } from '@src/apis/invoice/payable.api'
 import { useGetStatusList } from '@src/queries/common.query'
 
 // ** hooks
@@ -43,6 +43,8 @@ import { convertLocalToUtc } from '@src/shared/helpers/date.helper'
 import moment from 'moment-timezone'
 import { getInvoicePayableListColumns } from '@src/shared/const/columns/invoice-payable'
 import { timezoneSelector } from '@src/states/permission'
+import ModalWithDatePicker from '@src/pages/client/components/modals/modal-with-datepicker'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 const initialFilter: InvoicePayableFilterType = {
   invoiceStatus: [],
@@ -147,11 +149,16 @@ export default function Payable() {
     ])
   }
 
-  const updateMutation = useMutation(
-    (data: { id: number; status: InvoicePayableStatusType }) =>
-      updateInvoicePayable(data.id, { invoiceStatus: data.status }),
+  const updateInvoicePaidStatusMutation = useMutation(
+    (data: {
+      payableId: number;
+      paidAt: string;
+      paidDateTimezone: CountryType;
+    }) => updateInvoicePaidStatus(data.payableId, data.paidAt, data.paidDateTimezone),
     {
       onSuccess: () => {
+        setStatuses([])
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
         queryClient.invalidateQueries({ queryKey: 'invoice/payable/list' })
       },
       onError: () => {
@@ -166,15 +173,28 @@ export default function Payable() {
     openModal({
       type: 'changeStatus',
       children: (
-        <ModalWithButtonName
-          message={`Are you sure you want to change ${statuses.length} invoice(s) as paid?`}
-          onClick={() => {
+        <ModalWithDatePicker
+          title={`Mark as paid?`}
+          message={`Are you sure you want to mark ${statuses.length} invoice(s) as paid? The payment date will be applied to all selected invoice(s).`}
+          onClick={({
+            paymentAt,
+            paymentTimezone,
+          }: {
+            paymentAt: Date
+            paymentTimezone: CountryType
+          }) => {
             statuses.forEach(st => {
-              updateMutation.mutateAsync({ id: st, status: 40300 })
+              updateInvoicePaidStatusMutation.mutateAsync({ 
+                payableId: st,
+                paidAt: paymentAt.toISOString(),
+                paidDateTimezone: paymentTimezone,
+              })
             })
           }}
           onClose={() => closeModal('changeStatus')}
-          rightButtonName='Change'
+          rightButtonName='Confirm'
+          leftButtonName='Cancel'
+          contactPersonTimezone={user.getValue().user?.timezone ?? null}
         />
       ),
     })

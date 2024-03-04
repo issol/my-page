@@ -103,8 +103,6 @@ export default function InvoiceDetailCard({
     ) as unknown as Resolver<PayableFormType>,
   })
 
-  console.log(getValues())
-
   useEffect(() => {
     if (data) {
       reset({
@@ -120,6 +118,23 @@ export default function InvoiceDetailCard({
     }
   }, [data])
 
+  const changedDataChecker = () => {
+    const saveData = getValues()
+    const changedData = []
+    if (data) {
+      for (const key in saveData) {
+        if (saveData[key as keyof PayableFormType] !== data[key as keyof PayableFormType]) {
+          changedData.push(key)
+        }
+      }
+    }
+
+    return {
+      isChanged: Boolean(changedData.length > 0),
+      changedData,
+    }
+  }
+
   function onInvoiceSave() {
     openModal({
       type: 'save',
@@ -129,6 +144,24 @@ export default function InvoiceDetailCard({
           onSave={() => {
             if (!updatePayable) return
             updatePayable.mutate(getValues())
+            // Save 할때 status를 under revision으로 변경해 준다
+            // 만약 계정이 Accounting팀 계정이고 
+            // payDueAt, payDueTimezone, paidAt, paidDateTimezone중 하나라도 변경되었을 경우엔 status를 변경하지 않는다
+            const isDataChanged = changedDataChecker()
+            if (isDataChanged.isChanged) {
+              if (isAccountManager) {
+                if (
+                  !isDataChanged.changedData.includes('payDueAt') &&
+                  !isDataChanged.changedData.includes('payDueTimezone') &&
+                  !isDataChanged.changedData.includes('paidAt') &&
+                  !isDataChanged.changedData.includes('paidDateTimezone')
+                ) {
+                  onInvoiceStatusChange(40100)
+                }
+              } else {
+                onInvoiceStatusChange(40100)
+              }
+            }
             setEditInfo(false)
             closeModal('save')
           }}
@@ -149,7 +182,6 @@ export default function InvoiceDetailCard({
 
   const onClickInvoiceDetailEdit = () => {
     setEditInfo(true)
-    onInvoiceStatusChange(40100)
   }
 
   return (
@@ -159,8 +191,8 @@ export default function InvoiceDetailCard({
         {editInfo ? null : (
           <Grid item xs={12} display='flex' justifyContent='space-between'>
             <Typography variant='h6'>Invoice details</Typography>
-            {(isUpdatable || isAccountManager) &&
-            data?.invoiceStatus !== 40300 ? ( //Paid
+            {(isUpdatable && data?.invoiceStatus !== 40300) ||
+              isAccountManager ? ( //Paid
               <IconButton onClick={onClickInvoiceDetailEdit}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
