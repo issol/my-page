@@ -21,7 +21,7 @@ import AccountDoughnut from '@src/views/dashboard/chart/accountDoughnut'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { AccountItem, AccountRatio } from '@src/queries/dashnaord.query'
 import { mergeData } from '@src/pages/dashboards/tad'
-import { AccountingDownload } from '@src/views/dashboard/\baccountDownload'
+import { AccountingDownload } from '@src/views/dashboard/accountDownload'
 
 dayjs.extend(weekday)
 
@@ -94,12 +94,14 @@ const AccountDashboards = () => {
     setCSVData(mergeData4)
   }, [salesData, receivableData, payableData, clientData, proData])
 
-  const getFileTitle = () => {
+  const getFileTitle = (type: 'DASHBOARD' | 'ACCOUNTING') => {
     const from = getDateFormat(
       (Array.isArray(dateRange) && dateRange[0]) || null,
     )
     const to = getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)
-    return `account-data-${from}-${to}`
+    return type === 'DASHBOARD'
+      ? `account-data-${from}-${to}`
+      : `accounting-report-${from}-${to}`
   }
 
   return (
@@ -122,8 +124,8 @@ const AccountDashboards = () => {
           </Grid>
           <GridItem width={450} height={76}>
             <Box sx={{ display: 'flex', gap: '8px' }}>
-              <CSVDownload title={`${getFileTitle()}`} data={CSVData || []} />
-              <AccountingDownload title={`${getFileTitle()}`} />
+              <CSVDownload title={`${getFileTitle('DASHBOARD')}`} data={CSVData || []} />
+              <AccountingDownload title={`${getFileTitle('ACCOUNTING')}`} />
             </Box>
           </GridItem>
         </Grid>
