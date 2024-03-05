@@ -19,7 +19,8 @@
     min-height: initial;
     box-shadow: initial;
     background: initial;
-    page-break-after: always;
+    /* 아래 코드 사용시 무조건 다음 페이지가 생성됨 */
+    /* page-break-after: always; */
   }
 
   .table-item {

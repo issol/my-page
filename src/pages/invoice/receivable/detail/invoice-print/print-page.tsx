@@ -533,7 +533,7 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                       sx={{
                         fontWeight: 600,
                         border: '1px solid',
-                        width: ref.current?.offsetWidth ?? 'auto',
+                        width: '75px',
                         color: 'rgba(76, 78, 100, 0.6)',
                         fontSize: '14px',
                         display: 'flex',
@@ -549,7 +549,7 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
                         color: 'rgba(76, 78, 100, 0.87)',
                         fontSize: '14px',
                         display: 'flex',
-                        width: totalRef.current?.offsetWidth ?? 'auto',
+                        width: '75px',
                       }}
                     >
                       {/* {data.tax} */}$ 100
@@ -588,7 +588,7 @@ const PrintInvoicePage = ({ data, type, user, lang, timezoneList }: Props) => {
 
                       fontSize: '14px',
                       display: 'flex',
-                      width: ref.current?.offsetWidth ?? 'auto',
+                      width: '75px',
                       justifyContent: 'flex-end',
                     }}
                   >
