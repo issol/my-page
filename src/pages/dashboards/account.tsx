@@ -21,6 +21,7 @@ import AccountDoughnut from '@src/views/dashboard/chart/accountDoughnut'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { AccountItem, AccountRatio } from '@src/queries/dashnaord.query'
 import { mergeData } from '@src/pages/dashboards/tad'
+import { AccountingDownload } from '@src/views/dashboard/\baccountDownload'
 
 dayjs.extend(weekday)
 
@@ -119,9 +120,10 @@ const AccountDashboards = () => {
           >
             <ChartDate />
           </Grid>
-          <GridItem width={207} height={76}>
-            <Box>
+          <GridItem width={450} height={76}>
+            <Box sx={{ display: 'flex', gap: '8px' }}>
               <CSVDownload title={`${getFileTitle()}`} data={CSVData || []} />
+              <AccountingDownload title={`${getFileTitle()}`} />
             </Box>
           </GridItem>
         </Grid>
