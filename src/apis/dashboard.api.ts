@@ -229,3 +229,12 @@ export const getAccountPaymentType = async ({
 
   return data
 }
+
+export const getAccountOrderJobDataToCSV = async () => {
+  const { data } = await axios.get(
+    `/api/enough/u/account-report`,
+  )
+
+  return data
+}
+
