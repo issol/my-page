@@ -35,7 +35,7 @@ export const AccountingDownload = ({ title }: CSVDownloadProps) => {
     } catch(err) {
       console.log("err",err)
       toast.error(
-        'Something went wrong while uploading files. Please try again.',
+        'Something went wrong while downloading files. Please try again.',
         {
           position: 'bottom-left',
         },
