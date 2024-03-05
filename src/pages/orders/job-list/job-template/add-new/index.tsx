@@ -110,6 +110,111 @@ const AddNewJobTemplate = () => {
     })
   }
 
+  const onClickJobTemplateHelpIcon = () => {
+    openModal({
+      type: 'JobTemplateHelp',
+      children: (
+        <CustomModal
+          vary='info'
+          title={
+            <Box
+              sx={{
+                display: 'flex',
+                gap: '10px',
+                flexDirection: 'column',
+              }}
+            >
+              <Typography variant='body1' fontSize={20} fontWeight={500}>
+                Job template
+              </Typography>
+              <Typography variant='body2' fontSize={16} fontWeight={400}>
+                Job Template feature allows multiple related jobs to be created
+                into a single template, enabling automatic notifications to the
+                next assignee or sharing of files.
+              </Typography>
+            </Box>
+          }
+          noButton
+          closeButton
+          rightButtonText='Close'
+          onClick={() => closeModal('JobTemplateHelp')}
+          onClose={() => closeModal('JobTemplateHelp')}
+        />
+      ),
+    })
+  }
+
+  const onClickAutoTriggerHelpIcon = () => {
+    openModal({
+      type: 'AutoTriggerHelp',
+      children: (
+        <CustomModal
+          vary='info'
+          title={
+            <Box
+              sx={{
+                display: 'flex',
+                gap: '10px',
+                flexDirection: 'column',
+              }}
+            >
+              <Typography variant='body1' fontSize={20} fontWeight={500}>
+                Automatic trigger
+              </Typography>
+              <Typography variant='body2' fontSize={16} fontWeight={400}>
+                The automatic trigger is a job automation feature that enables
+                the next assignee to receive automatic notifications of job
+                initiation through preconfigured triggers without manual
+                confirmation by the LPM.
+              </Typography>
+            </Box>
+          }
+          noButton
+          closeButton
+          rightButtonText='Close'
+          onClick={() => closeModal('AutoTriggerHelp')}
+          onClose={() => closeModal('AutoTriggerHelp')}
+        />
+      ),
+    })
+  }
+
+  const onClickAutoFileShareHelpIcon = () => {
+    openModal({
+      type: 'AutoFileShareHelp',
+      children: (
+        <CustomModal
+          vary='info'
+          title={
+            <Box
+              sx={{
+                display: 'flex',
+                gap: '10px',
+                flexDirection: 'column',
+              }}
+            >
+              <Typography variant='body1' fontSize={20} fontWeight={500}>
+                Automatic file share
+              </Typography>
+              <Typography variant='body2' fontSize={16} fontWeight={400}>
+                "Automatic file share" is an option where files previously
+                worked on are automatically transferred to the next worker once
+                the previous task is completed. The criteria for considering the
+                previous task completed may vary depending on the automatic
+                trigger.
+              </Typography>
+            </Box>
+          }
+          noButton
+          closeButton
+          rightButtonText='Close'
+          onClick={() => closeModal('AutoFileShareHelp')}
+          onClose={() => closeModal('AutoFileShareHelp')}
+        />
+      ),
+    })
+  }
+
   return (
     <Card sx={{ height: '100%' }}>
       <Box
@@ -133,7 +238,7 @@ const AddNewJobTemplate = () => {
         >
           Create new job template
         </Typography>
-        <IconButton sx={{ padding: 0 }}>
+        <IconButton sx={{ padding: 0 }} onClick={onClickJobTemplateHelpIcon}>
           <Icon icon='mdi:info-circle-outline' />
         </IconButton>
       </Box>
@@ -348,7 +453,10 @@ const AddNewJobTemplate = () => {
                                 <Typography fontSize={14} fontWeight={600}>
                                   Automatic trigger
                                 </Typography>
-                                <IconButton sx={{ padding: 0 }}>
+                                <IconButton
+                                  sx={{ padding: 0 }}
+                                  onClick={onClickAutoTriggerHelpIcon}
+                                >
                                   <Icon
                                     icon='mdi:info-circle-outline'
                                     fontSize={20}
@@ -439,7 +547,10 @@ const AddNewJobTemplate = () => {
                                   >
                                     Automatic file share
                                   </Typography>
-                                  <IconButton sx={{ padding: 0 }}>
+                                  <IconButton
+                                    sx={{ padding: 0 }}
+                                    onClick={onClickAutoFileShareHelpIcon}
+                                  >
                                     <Icon
                                       icon='mdi:info-circle-outline'
                                       fontSize={20}

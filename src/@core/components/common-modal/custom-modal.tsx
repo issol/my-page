@@ -77,7 +77,7 @@ const CustomModal = ({
       ) : null}
       <Box
         sx={{
-          padding: '20px',
+          padding: '32px 20px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -173,7 +173,8 @@ const CustomModal = ({
               alignItems: 'center',
               flexDirection: buttonDirection ?? 'row',
               width: '100%',
-              mt: buttonDirection === 'column-reverse' || subtitle ? '30px' : 0,
+              // mt: buttonDirection === 'column-reverse' || subtitle ? '30px' : 0,
+              mt: '16px',
             }}
           >
             {soloButton ? null : (
