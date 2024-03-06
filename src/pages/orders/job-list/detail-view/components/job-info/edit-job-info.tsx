@@ -45,7 +45,7 @@ import {
   deleteJobFile,
   saveJobInfo,
   uploadFile,
-} from '@src/apis/job-detail.api'
+} from '@src/apis/jobs/job-detail.api'
 import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 
 // ** helpers

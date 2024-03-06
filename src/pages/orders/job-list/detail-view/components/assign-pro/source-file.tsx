@@ -25,7 +25,7 @@ import {
   QueryObserverResult,
   useMutation,
 } from 'react-query'
-import { uploadFile } from '@src/apis/job-detail.api'
+import { uploadFile } from '@src/apis/jobs/job-detail.api'
 import toast from 'react-hot-toast'
 import {
   getDownloadUrlforCommon,

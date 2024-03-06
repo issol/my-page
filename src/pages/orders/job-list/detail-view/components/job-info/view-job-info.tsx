@@ -15,7 +15,7 @@ import {
 } from '@src/@core/components/chips/chips'
 import FileItem from '@src/@core/components/fileItem'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
-import { addJobFeedback, saveJobInfo } from '@src/apis/job-detail.api'
+import { addJobFeedback, saveJobInfo } from '@src/apis/jobs/job-detail.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 // import { JobStatus } from '@src/shared/const/status/statuses'

@@ -155,8 +155,8 @@ export default function JobListView({
   }
 
   return (
-    <Fragment>
-      <Grid item xs={12}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <Box sx={{ display: 'flex', width: '100%' }}>
         <Filters
           filter={filter}
           clients={clients}
@@ -165,14 +165,13 @@ export default function JobListView({
           setFilter={setFilter}
           serviceTypeOptions={serviceTypeOptions}
         />
-      </Grid>
-      <Grid
-        item
-        xs={12}
+      </Box>
+      <Box
         display='flex'
         gap='10px'
         alignItems='center'
         justifyContent='flex-end'
+        width='100%'
       >
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>See only my jobs</Typography>
@@ -198,9 +197,9 @@ export default function JobListView({
             }
           />
         </Box>
-      </Grid>
+      </Box>
 
-      <Grid item xs={12}>
+      <Box width='100%'>
         <Card>
           <CardHeader
             title={
@@ -230,7 +229,7 @@ export default function JobListView({
             statusList={statusList!}
           />
         </Card>
-      </Grid>
-    </Fragment>
+      </Box>
+    </Box>
   )
 }
