@@ -7,11 +7,10 @@ export type LinguistTeamListType = {
   serviceTypeId: number
   client: string
   description?: string
-  pros: [
-    {
-      userId: number
-      firstName: string
-      lastName: string
-    },
-  ]
+  pros: Array<{
+    userId: number
+    firstName: string
+    lastName: string
+  }>
+  isPrivate: boolean
 }

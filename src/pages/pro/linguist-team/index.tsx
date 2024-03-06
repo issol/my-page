@@ -43,7 +43,7 @@ const LinguistTeam = ({ menu }: Props) => {
 
   const languageList = getGloLanguage()
   const { data: serviceTypeList } = useGetServiceType()
-  const { data: linguistList } = useGetLinguistTeam(activeFilter)
+  const { data: linguistList, isLoading } = useGetLinguistTeam(activeFilter)
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
   const clientList = useMemo(
     () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
@@ -97,7 +97,22 @@ const LinguistTeam = ({ menu }: Props) => {
         </Box>
       </Box>
       <Box sx={{ width: '100%' }}>
-        <LinguistTeamList data={linguistList!} menu={menu} />
+        {linguistList ? (
+          <LinguistTeamList
+            data={linguistList!}
+            isLoading={isLoading}
+            menu={menu}
+            serviceTypeList={serviceTypeList || []}
+            skip={activeFilter.skip}
+            pageSize={activeFilter.take}
+            setSkip={(n: number) => {
+              setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+            }}
+            setPageSize={(n: number) =>
+              setActiveFilter({ ...activeFilter, take: n })
+            }
+          />
+        ) : null}
       </Box>
     </Box>
   )
