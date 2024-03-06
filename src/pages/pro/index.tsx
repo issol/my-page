@@ -10,15 +10,18 @@ import { useRouter } from 'next/router'
 
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
-import { Tab, styled } from '@mui/material'
+import { Button, ButtonGroup, Tab, styled } from '@mui/material'
 import TabPanel from '@mui/lab/TabPanel'
 import ProsList from './list'
+import LinguistTeam from './linguist-team'
 
 type tabMenu = 'proList' | 'linguistList'
+export type MenuType = 'card' | 'list'
 
 const Pro = () => {
   const router = useRouter()
   const tabQuery = router.query.tab as tabMenu
+  const [menu, setMenu] = useState<MenuType>('card')
 
   const [value, setValue] = useState<tabMenu>('proList')
 
@@ -28,13 +31,39 @@ const Pro = () => {
   }
 
   useEffect(() => {
-    if (tabQuery && ['list', 'tracker', 'template'].includes(tabQuery))
+    if (tabQuery && ['proList', 'linguistList'].includes(tabQuery))
       setValue(tabQuery)
   }, [tabQuery])
 
   return (
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>
-      <PageHeader title={<Typography variant='h5'>Pros</Typography>} />
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <Typography variant='h5'>Pros</Typography>
+        {value === 'linguistList' ? (
+          <ButtonGroup variant='outlined'>
+            <CustomBtn
+              value='card'
+              $focus={menu === 'card'}
+              onClick={e => setMenu(e.currentTarget.value as MenuType)}
+            >
+              Card view
+            </CustomBtn>
+            <CustomBtn
+              $focus={menu === 'list'}
+              value='list'
+              onClick={e => setMenu(e.currentTarget.value as MenuType)}
+            >
+              List view
+            </CustomBtn>
+          </ButtonGroup>
+        ) : null}
+      </Box>
       <Box sx={{ mt: 4 }}>
         <TabContext value={value}>
           <TabList
@@ -51,7 +80,9 @@ const Pro = () => {
           <TabPanel value='proList' sx={{ padding: 0 }}>
             <ProsList />
           </TabPanel>
-          <TabPanel value='linguistList'></TabPanel>
+          <TabPanel value='linguistList'>
+            <LinguistTeam menu={menu} />
+          </TabPanel>
         </TabContext>
       </Box>
     </Box>
@@ -72,4 +103,9 @@ const CustomTab = styled(Tab)`
   min-width: inherit;
   display: flex;
   gap: 1px;
+`
+
+const CustomBtn = styled(Button)<{ $focus: boolean }>`
+  width: 145px;
+  background: ${({ $focus }) => ($focus ? 'rgba(102, 108, 255, 0.08)' : '')};
 `
