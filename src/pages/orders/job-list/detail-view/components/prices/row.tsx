@@ -3,7 +3,7 @@ import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { formatByRoundingProcedure } from '@src/shared/helpers/price.helper'
 import { ModalType } from '@src/store/modal'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 import {
   CurrencyType,
   LanguagePairListType,
@@ -13,6 +13,7 @@ import {
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Control,
+  FieldArrayWithId,
   useFieldArray,
   UseFormGetValues,
   UseFormSetValue,
@@ -355,11 +356,25 @@ const Row = ({
     })
   }
 
-  const onChangeCurrency = (currency: CurrencyType) => {
+  const onChangeCurrency = (
+    currency: CurrencyType,
+    index: number,
+    detail: Array<ItemDetailType>,
+    // detail: FieldArrayWithId<
+    //   {
+    //     items: ItemType[]
+    //   },
+    //   `items.${number}.detail`,
+    //   'id'
+    // >,
+    detailIndex: number,
+  ) => {
     //not applicable일때 모든 price unit의 currency는 동일하게 변경되게 한다.
     getItem().items[0].detail?.map((priceUnit, idx) => {
       setItem(`items.${0}.detail.${idx}.currency`, currency)
     })
+    setItem(`items.${index}.currency`, currency)
+    itemTrigger(`items.${index}.detail`)
   }
 
   const sumTotalPrice = () => {

@@ -226,20 +226,18 @@ export default function InvoiceInfo({
       {!isDeletable || editInfo ? null : (
         <Grid item xs={4}>
           <Card sx={{ padding: '20px', width: '100%' }}>
-            <CardContent>
-              <Button
-                variant='outlined'
-                fullWidth
-                color='error'
-                size='large'
-                onClick={() => onClickDelete && onClickDelete()}
-                disabled={
-                  ![40000, 40100, 40200, 40400].includes(data?.invoiceStatus!)
-                }
-              >
-                Delete this invoice
-              </Button>
-            </CardContent>
+            <Button
+              variant='outlined'
+              fullWidth
+              color='error'
+              size='large'
+              onClick={() => onClickDelete && onClickDelete()}
+              disabled={
+                ![40000, 40100, 40200, 40400].includes(data?.invoiceStatus!)
+              }
+            >
+              Delete this invoice
+            </Button>
           </Card>
         </Grid>
       )}

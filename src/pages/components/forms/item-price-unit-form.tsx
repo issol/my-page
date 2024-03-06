@@ -247,6 +247,7 @@ export default function ItemPriceUnitForm({
     const checkPriceIds = getValues(`items`).map(
       (item, index) => item.priceId === NOT_APPLICABLE,
     )
+
     setIsNotApplicable(checkPriceIds)
   }
 
@@ -258,8 +259,6 @@ export default function ItemPriceUnitForm({
 
     // sumTotalPrice()
   }
-
-  console.log(details)
 
   return (
     <Grid
@@ -579,12 +578,12 @@ export default function ItemPriceUnitForm({
                           getValues().items?.[0]?.detail?.[0]?.currency ===
                             'SGD'
                           ? 2
-                          : getValues().items?.[0]?.initialPrice?.currency === 'KRW'
+                          : getValues().items?.[0]?.initialPrice?.currency ===
+                              'KRW'
                             ? 10
                             : 0,
                         0,
-                        getValues().items?.[0]?.detail?.[0]?.currency ??
-                          'KRW',
+                        getValues().items?.[0]?.detail?.[0]?.currency ?? 'KRW',
                       ),
                       getValues().items?.[0]?.detail?.[0]?.currency ?? null,
                     )

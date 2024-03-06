@@ -14,6 +14,7 @@ import {
   PayableFormType,
   PayableHistoryType,
 } from '@src/types/invoice/payable.type'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { AxiosError } from 'axios'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
@@ -123,9 +124,13 @@ export const updateInvoicePayable = async (
   return data
 }
 
-export const updateInvoicePaidStatus = async (payableId: number) => {
+export const updateInvoicePaidStatus = async (payableId: number, paidAt: string, paidDateTimezone: CountryType ) => {
   const { data } = await axios.patch(
     `/api/enough/u/invoice/payable/${payableId}/set-paid`,
+    {
+      paidAt,
+      paidDateTimezone,
+    }
   )
   return data
 }

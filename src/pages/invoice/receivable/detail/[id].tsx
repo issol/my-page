@@ -719,7 +719,7 @@ const ReceivableInvoiceDetail = () => {
       })
       const languagePair = langItem.orders[0].languagePairs
 
-      const items = langItem.orders
+      const items = [...langItem.orders]
         .sort((a, b) => sortByOrderCorporationId(a.corporationId, b.corporationId))
         .map(item =>
           item.items.map((value, idx) => ({

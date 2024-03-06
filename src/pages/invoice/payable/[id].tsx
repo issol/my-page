@@ -70,6 +70,8 @@ import {
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 import { fixDigit } from '@src/shared/helpers/price.helper'
+import ModalWithDatePicker from '@src/pages/client/components/modals/modal-with-datepicker'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 type MenuType = 'info' | 'history'
 
@@ -158,7 +160,6 @@ export default function PayableDetail() {
             rightButtonText='Confirm'
             onClose={() => closeModal('CompleteRevisionModal')}
             onClick={() => {
-              //TODO: api 연결해야함
               updateMutation.mutate({
                 invoiceStatus: 40200,
               })
@@ -309,7 +310,11 @@ export default function PayableDetail() {
   }
 
   const updateInvoicePaidStatusMutation = useMutation(
-    (payableId: number) => updateInvoicePaidStatus(payableId),
+    (data: {
+      payableId: number;
+      paidAt: string;
+      paidDateTimezone: CountryType;
+    }) => updateInvoicePaidStatus(data.payableId, data.paidAt, data.paidDateTimezone),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
@@ -322,17 +327,31 @@ export default function PayableDetail() {
       },
     },
   )
+
   const onChangeStatusToPaid = () => {
     openModal({
       type: 'changeStatus',
       children: (
-        <ModalWithButtonName
-          message={`Are you sure you want to mark this invoice as paid?`}
-          onClick={() => {
-            updateInvoicePaidStatusMutation.mutate(Number(id))
+        <ModalWithDatePicker
+          title={`Mark as paid?`}
+          message={`Are you sure you want to mark this invoice as paid? The payment date will be applied to the invoice.`}
+          onClick={({
+            paymentAt,
+            paymentTimezone,
+          }: {
+            paymentAt: Date
+            paymentTimezone: CountryType
+          }) => {
+            updateInvoicePaidStatusMutation.mutate({
+              payableId: Number(id),
+              paidAt: paymentAt.toISOString(),
+              paidDateTimezone: paymentTimezone,
+            })
           }}
           onClose={() => closeModal('changeStatus')}
-          rightButtonName='Mark as paid'
+          rightButtonName='Confirm'
+          leftButtonName='Cancel'
+          contactPersonTimezone={auth.getValue().user?.timezone ?? null}
         />
       ),
     })
@@ -342,6 +361,7 @@ export default function PayableDetail() {
     <Grid container spacing={6}>
       {updateMutation.isLoading ||
       deleteMutation.isLoading ||
+      updateInvoicePaidStatusMutation.isLoading ||
       isPayableDetailLoading ? (
         <OverlaySpinner />
       ) : null}

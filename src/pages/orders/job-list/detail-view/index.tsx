@@ -152,7 +152,9 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   })
 
   useEffect(() => {
-    if (jobPrices && row) {
+    if (jobPrices && row && jobInfo) {
+      console.log(row)
+
       const result = [
         {
           id: jobPrices.priceId!,
@@ -167,6 +169,9 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
               : jobPrices.detail.map(value => ({
                   ...value,
                   priceUnitId: value.priceUnitId ?? value.id,
+                  currency: value.currency
+                    ? value.currency
+                    : jobInfo.currency ?? null,
                 })),
           minimumPrice: jobPrices.minimumPrice,
           minimumPriceApplied: jobPrices.minimumPriceApplied,
@@ -192,7 +197,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
         currency: null,
       })
     }
-  }, [jobPrices, row, item])
+  }, [jobPrices, row, item, jobInfo])
 
   useEffect(() => {
     if (projectTeam) {

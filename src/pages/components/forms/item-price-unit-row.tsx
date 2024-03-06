@@ -35,6 +35,7 @@ import {
   CurrencyType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 interface Props {
   idx: number
@@ -131,8 +132,11 @@ const Row = ({
 
   // index: item의 index, job price에서는 항상 0임
   // unitIndex: item의 detail의 index, 각 unit price의 index
-  function getEachPrice(unitIndex: number, isNotApplicable?: boolean) {
+  function getEachPrice(unitIndex: number) {
     const data = getValues(`items.${index}.detail`)
+    const notApplicable = getValues(`items`).map(
+      value => value.priceId === NOT_APPLICABLE,
+    )[index]
 
     if (!data?.length) return
     let prices = 0
@@ -190,7 +194,9 @@ const Row = ({
       // 새롭게 등록할때는 기존 데이터에 언어페어, 프라이스 정보가 없으므로 스탠다드 프라이스 정보를 땡겨와서 채운다
       // NOT_APPLICAABLE일때는 제외
       // 스탠다드 프라이스의 언어페어 정보 : languagePairs
-      if (!isNotApplicable) {
+      if (!notApplicable) {
+        console.log('not applicable')
+
         setValue(`items.${index}.detail.${unitIndex}.currency`, currency, {
           shouldDirty: true,
           shouldValidate: false,
@@ -209,8 +215,7 @@ const Row = ({
 
   const updatePrice = (rowIndex: number) => {
     const newPrice = getValues(`${detailName}.${rowIndex}`)
-    if (type !== 'detail' && type !== 'invoiceDetail')
-      getEachPrice(rowIndex, isNotApplicable) //폼 데이터 업데이트 (setValue)
+    if (type !== 'detail' && type !== 'invoiceDetail') getEachPrice(rowIndex) //폼 데이터 업데이트 (setValue)
 
     // getTotalPrice() // 합계 데이터 업데이트 (setValue)
     if (newPrice) {
@@ -653,6 +658,8 @@ const Row = ({
             name={`${detailName}.${idx}.currency`}
             control={control}
             render={({ field: { value, onChange } }) => {
+              console.log(value)
+
               return (
                 <Autocomplete
                   autoHighlight
@@ -669,8 +676,8 @@ const Row = ({
                         // row,
                         idx,
                       )
-                      updatePrice(idx)
                       updateTotalPrice()
+                      updatePrice(idx)
                     } else {
                       onChange(null)
                     }
