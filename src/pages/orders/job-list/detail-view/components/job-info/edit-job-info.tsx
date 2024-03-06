@@ -247,6 +247,7 @@ const EditJobInfo = ({
     const uploadedFiles = files
     const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
     setFiles([...filtered])
+    setFileSize(prev => prev - file.size)
   }
 
   const handleRemoveUploadedFile = (file: FileType) => {
@@ -254,6 +255,7 @@ const EditJobInfo = ({
     const filtered = removeFile.filter((i: FileType) => i.name !== file.name)
     setUploadedFiles([...filtered])
     setDeletedFiles([...deletedFiles, file])
+    setFileSize(prev => prev - file.size)
   }
 
   const uploadedFileList = (file: FileType[], type: string) => {
@@ -397,122 +399,79 @@ const EditJobInfo = ({
   }
 
   useEffect(() => {
-    // reset({
-    //   name: row.name ?? '',
-    //   description: row.description ?? '',
-    //   status: row.status,
-    //   source: row.name ? row.sourceLanguage : item.sourceLanguage,
-    //   target: row.name ? row.targetLanguage : item.targetLanguage,
-    //   serviceType: row.serviceType,
-    //   isShowDescription: row.isShowDescription,
-
-    //   contactPerson:
-    //     row.contactPerson &&
-    //     contactPersonList.find(
-    //       value => value.userId === row.contactPerson?.userId,
-    //     )
-    //       ? {
-    //           value: contactPersonList.find(
-    //             value => value.userId === row.contactPerson?.userId,
-    //           )?.value!,
-    //           label: contactPersonList.find(
-    //             value => value.userId === row.contactPerson?.userId,
-    //           )?.label!,
-    //           userId: row.contactPerson.userId,
-    //         }
-    //       : {
-    //           value: contactPersonList.find(
-    //             value => value.userId === item.contactPersonId,
-    //           )?.value!,
-    //           label: contactPersonList.find(
-    //             value => value.userId === item.contactPersonId,
-    //           )?.label!,
-    //           userId: item.contactPersonId,
-    //         },
-    //   startedAt: row.startedAt ? new Date(row.startedAt) : undefined,
-    //   startTimezone: row.startTimezone ?? null,
-    //   dueAt: new Date(row.dueAt),
-    //   dueTimezone: row.dueTimezone ?? null,
-    // })
-
-    setValue('name', row.name ?? '')
-    setValue('description', row.description ?? '')
-    setValue('status', row.status)
-    setValue('source', row.name ? row.sourceLanguage : item.sourceLanguage, {
-      shouldDirty: true,
-      shouldValidate: true,
-    })
-    setValue('target', row.name ? row.targetLanguage : item.targetLanguage, {
-      shouldDirty: true,
-      shouldValidate: true,
-    })
-
-    // trigger('source')
-    // trigger('target')
-
-    setValue('serviceType', row.serviceType, {
-      shouldDirty: true,
-      shouldValidate: true,
-    })
-
-    setValue('isShowDescription', row.isShowDescription, {
-      shouldDirty: true,
-      shouldValidate: true,
-    })
-
-    setValue(
-      'contactPerson',
-      row.contactPerson &&
-        contactPersonList.find(
-          value => value.userId === row.contactPerson?.userId,
-        )
-        ? {
-            value: contactPersonList.find(
-              value => value.userId === row.contactPerson?.userId,
-            )?.value!,
-            label: contactPersonList.find(
-              value => value.userId === row.contactPerson?.userId,
-            )?.label!,
-            userId: row.contactPerson.userId,
-          }
-        : {
-            value: contactPersonList.find(
-              value => value.userId === item.contactPersonId,
-            )?.value!,
-            label: contactPersonList.find(
-              value => value.userId === item.contactPersonId,
-            )?.label!,
-            userId: item.contactPersonId,
-          },
-    )
-    row.startedAt && setValue('startedAt', new Date(row.startedAt))
-
-    row.startTimezone &&
-      setValue('startTimezone', row.startTimezone ?? null, {
+    if (contactPersonList.length > 0) {
+      setValue('name', row.name ?? '')
+      setValue('description', row.description ?? '')
+      setValue('status', row.status)
+      setValue('source', row.name ? row.sourceLanguage : item.sourceLanguage, {
         shouldDirty: true,
         shouldValidate: true,
       })
-    row.dueAt && setValue('dueAt', new Date(row.dueAt))
-    row.dueTimezone &&
-      setValue('dueTimezone', row.dueTimezone ?? null, {
+      setValue('target', row.name ? row.targetLanguage : item.targetLanguage, {
         shouldDirty: true,
         shouldValidate: true,
       })
 
-    // const langPairList = languagePair.map((item, index) => ({
-    //   value: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
-    //   label: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
-    // }))
-    // setLanguageItemList([
-    //   {
-    //     value: 'Language-independent',
-    //     label: 'Language-independent',
-    //   },
-    //   ...langPairList,
-    // ])
-    setUploadedFiles(row.files ?? [])
-    // trigger()
-  }, [row, item])
+      // trigger('source')
+      // trigger('target')
+
+      setValue('serviceType', row.serviceType, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+
+      setValue('isShowDescription', row.isShowDescription, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+
+      setValue(
+        'contactPerson',
+        row.contactPerson &&
+          contactPersonList.find(
+            value => value.userId === row.contactPerson?.userId,
+          )
+          ? {
+              value: contactPersonList.find(
+                value => value.userId === row.contactPerson?.userId,
+              )?.value!,
+              label: contactPersonList.find(
+                value => value.userId === row.contactPerson?.userId,
+              )?.label!,
+              userId: row.contactPerson.userId,
+            }
+          : {
+              value: contactPersonList.find(
+                value => value.userId === item.contactPersonId,
+              )?.value!,
+              label: contactPersonList.find(
+                value => value.userId === item.contactPersonId,
+              )?.label!,
+              userId: item.contactPersonId,
+            },
+      )
+
+      row.startedAt && setValue('startedAt', new Date(row.startedAt))
+
+      row.startTimezone &&
+        setValue('startTimezone', row.startTimezone ?? null, {
+          shouldDirty: true,
+          shouldValidate: true,
+        })
+      row.dueAt && setValue('dueAt', new Date(row.dueAt))
+      row.dueTimezone &&
+        setValue('dueTimezone', row.dueTimezone ?? null, {
+          shouldDirty: true,
+          shouldValidate: true,
+        })
+
+      setUploadedFiles(row.files ?? [])
+      const uploadedFileSize = row.files?.reduce((acc, file) => {
+        return acc + file.size
+      }, 0)
+      setFileSize(uploadedFileSize ?? 0)
+    }
+  }, [row, item, contactPersonList])
 
   return (
     <>
