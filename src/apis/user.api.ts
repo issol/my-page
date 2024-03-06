@@ -116,7 +116,7 @@ export const getIsDeletableAccount = async (): Promise<boolean> => {
 }
 
 export const deleteAccount = async (reasonCode: number, text: string) => {
-  return await axios.delete('/api/enough/u/pw/reset/save', {
+  return await axios.delete('/api/enough/u/pu/delete-account', {
     data: { reasonCode, text },
   })
 }
