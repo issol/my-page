@@ -54,7 +54,7 @@ code[class*='language-'] {
       padding: 7px 12px;
     }
   }
-  .Mui-focused {
+  .Mui-focused.MuiAutocomplete-hasClearIcon {
     .MuiFormControl-root,
     .MuiInputBase-root {
       height: 100%;
@@ -161,3 +161,6 @@ input::-webkit-inner-spin-button {
 .pro_bg {
   background-color: rgba(221, 230, 237, 0.5) !important;
 }
+
+/* "MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-uqpg96-MuiInputBase-root-MuiOutlinedInput-root" */
+/* MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wxwjf-MuiInputBase-root-MuiOutlinedInput-root */
