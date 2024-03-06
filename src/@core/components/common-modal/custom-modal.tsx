@@ -21,6 +21,7 @@ type Props = {
     | 'successful'
     | 'guideline-info'
     | 'question-info'
+    | 'error-alert'
   textarea?: boolean
   textareaRequired?: boolean
   textareaPlaceholder?: string
@@ -77,7 +78,7 @@ const CustomModal = ({
       ) : null}
       <Box
         sx={{
-          padding: '20px',
+          padding: '32px 20px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -173,7 +174,8 @@ const CustomModal = ({
               alignItems: 'center',
               flexDirection: buttonDirection ?? 'row',
               width: '100%',
-              mt: buttonDirection === 'column-reverse' || subtitle ? '30px' : 0,
+              // mt: buttonDirection === 'column-reverse' || subtitle ? '30px' : 0,
+              mt: '16px',
             }}
           >
             {soloButton ? null : (
@@ -182,7 +184,7 @@ const CustomModal = ({
                 onClick={onClose}
                 sx={{
                   width:
-                    buttonDirection === 'column-reverse' ? '210px' : 'auto',
+                    buttonDirection === 'column-reverse' ? '210px' : '100%',
                 }}
               >
                 {leftButtonText ?? 'Cancel'}
@@ -193,7 +195,7 @@ const CustomModal = ({
               variant='contained'
               onClick={() => (textarea ? onClick(text) : onClick())}
               sx={{
-                width: buttonDirection === 'column-reverse' ? '210px' : 'auto',
+                width: buttonDirection === 'column-reverse' ? '210px' : '100%',
               }}
               disabled={textareaRequired ? textarea && text === '' : false}
             >

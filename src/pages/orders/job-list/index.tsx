@@ -1,13 +1,22 @@
-import { useEffect, useState } from 'react'
+import { SyntheticEvent, useEffect, useState } from 'react'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
 
 // ** style components
-import { styled } from '@mui/system'
+
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
-import { Box, Dialog, DialogContent, Grid, Typography } from '@mui/material'
+import MuiTabList, { TabListProps } from '@mui/lab/TabList'
+import {
+  Box,
+  Dialog,
+  DialogContent,
+  Grid,
+  Tab,
+  Typography,
+  styled,
+} from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
 // ** components
@@ -21,28 +30,52 @@ import { useGetClientList } from '@src/queries/client.query'
 import { useRouter } from 'next/router'
 import OrderList from './components/order-list'
 import { useGetStatusList } from '@src/queries/common.query'
+import TabContext from '@mui/lab/TabContext'
 
-type MenuType = 'list' | 'tracker'
+import { Icon } from '@iconify/react'
+import TabPanel from '@mui/lab/TabPanel'
+import JobTemplateView from './job-template'
+import TabList from '@mui/lab/TabList'
+
+type tabMenu = 'list' | 'tracker' | 'template'
 
 export default function JobList() {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const { data: statusList } = useGetStatusList('Job')
+  const tabQuery = router.query.tab as tabMenu
 
-  const menuQuery = router.query.menu as MenuType
-  const [menu, setMenu] = useState<MenuType>('list')
+  const [value, setValue] = useState<tabMenu>('list')
+  const handleChange = (event: SyntheticEvent, newValue: string) => {
+    // setValue(newValue
+    router.push({ pathname: '/orders/job-list/', query: { tab: newValue } })
+  }
 
   const { data: clients } = useGetClientList({ take: 1000, skip: 0 })
 
-  useEffect(() => {
-    if (menuQuery && ['list', 'tracker'].includes(menuQuery)) {
-      setMenu(menuQuery)
-    }
-  }, [menuQuery])
+  // const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
+  //   marginBottom: '24px',
+  //   '& .MuiTabs-indicator': {
+  //     display: 'none',
+  //   },
+  //   '& .Mui-selected': {
+  //     backgroundColor: theme.palette.primary.main,
+  //     color: `${theme.palette.common.white} !important`,
+  //   },
+  //   '& .MuiTab-root': {
+  //     minHeight: 38,
+  //     minWidth: 110,
+  //     borderRadius: 8,
+  //     paddingTop: theme.spacing(2),
+  //     paddingBottom: theme.spacing(2),
+  //     textTransform: 'none',
+  //   },
+  // }))
 
   useEffect(() => {
-    router.replace(`/orders/job-list/?menu=${menu}`)
-  }, [menu])
+    if (tabQuery && ['list', 'tracker', 'template'].includes(tabQuery))
+      setValue(tabQuery)
+  }, [tabQuery])
 
   function onCreateNewJob() {
     openModal({
@@ -64,56 +97,56 @@ export default function JobList() {
   console.log(statusList)
 
   return (
-    <Grid container spacing={6} className='match-height'>
-      <Grid item xs={12} display='flex' alignItems='center'>
-        <PageHeader
-          title={
-            <Typography variant='h5'>
-              {menu === 'list' ? 'Job list' : 'Job tracker'}
-            </Typography>
-          }
-        />
-        <ButtonGroup variant='outlined'>
-          <CustomBtn
-            value='list'
-            $focus={menu === 'list'}
-            onClick={e => setMenu(e.currentTarget.value as MenuType)}
+    // <Grid container spacing={6} className='match-height'>
+    <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>
+      <PageHeader title={<Typography variant='h5'>Job list</Typography>} />
+      <Box sx={{ mt: 4 }}>
+        <TabContext value={value}>
+          <TabList
+            onChange={handleChange}
+            aria-label='Company price menu'
+            style={{
+              borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+              marginBottom: '24px',
+            }}
           >
-            List view
-          </CustomBtn>
-          <CustomBtn
-            $focus={menu === 'tracker'}
-            value='tracker'
-            onClick={e => setMenu(e.currentTarget.value as MenuType)}
-          >
-            Job tracker
-          </CustomBtn>
-        </ButtonGroup>
-      </Grid>
-
-      {menu === 'list' ? (
-        <JobListView
-          clients={clients?.data || []}
-          onCreateNewJob={onCreateNewJob}
-          // TODO 고도화 이후 변경
-          statusList={statusList!.filter(value => value.value !== 601100)}
-        />
-      ) : (
-        <JobTrackerView
-          clients={clients?.data || []}
-          onCreateNewJob={onCreateNewJob}
-        />
-      )}
-    </Grid>
+            <CustomTab value='list' label='List' />
+            <CustomTab value='tracker' label='Job tracker' />
+            <CustomTab value='template' label='Job Template' />
+          </TabList>
+          <TabPanel value='list' sx={{ padding: 0 }}>
+            <JobListView
+              clients={clients?.data || []}
+              onCreateNewJob={onCreateNewJob}
+              statusList={statusList!.filter(value => value.value !== 601100)}
+            />
+          </TabPanel>
+          <TabPanel value='tracker'>
+            <JobTrackerView
+              clients={clients?.data || []}
+              onCreateNewJob={onCreateNewJob}
+            />
+          </TabPanel>
+          <TabPanel value='template'>
+            <JobTemplateView />
+          </TabPanel>
+        </TabContext>
+      </Box>
+    </Box>
+    // </Grid>
   )
 }
-
-const CustomBtn = styled(Button)<{ $focus: boolean }>`
-  width: 145px;
-  background: ${({ $focus }) => ($focus ? 'rgba(102, 108, 255, 0.08)' : '')};
-`
 
 JobList.acl = {
   subject: 'job_list',
   action: 'read',
 }
+
+const CustomTab = styled(Tab)`
+  text-transform: none;
+  padding: 5px 10px;
+  width: fit-content;
+  min-width: inherit;
+  display: flex;
+  gap: 1px;
+`

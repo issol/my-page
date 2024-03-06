@@ -1,10 +1,13 @@
-import { StatusType, getStatusList } from '@src/apis/common.api'
+import { StatusType, getServiceType, getStatusList } from '@src/apis/common.api'
 import { getClientUserInfo } from '@src/apis/user.api'
 import { useQuery } from 'react-query'
 
-export const useGetStatusList = (type: StatusType, isSelectable?: '1' | '0') => {
+export const useGetStatusList = (
+  type: StatusType,
+  isSelectable?: '1' | '0',
+) => {
   return useQuery(
-    [`${type}-status-list`,isSelectable],
+    [`${type}-status-list`, isSelectable],
     () => {
       return getStatusList(isSelectable ? type : type, isSelectable)
     },
@@ -29,4 +32,10 @@ export const useGetClientUserInfo = () => {
       keepPreviousData: true,
     },
   )
+}
+
+export const useGetServiceType = () => {
+  return useQuery([`serviceType`], () => {
+    return getServiceType()
+  })
 }

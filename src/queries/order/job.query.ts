@@ -6,7 +6,7 @@ import {
   getJobPrices,
   getMessageList,
   getSourceFileToPro,
-} from '@src/apis/job-detail.api'
+} from '@src/apis/jobs/job-detail.api'
 import { AssignProFilterPostType } from '@src/types/orders/job-detail'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'

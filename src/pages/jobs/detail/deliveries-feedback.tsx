@@ -49,7 +49,7 @@ import {
   patchProJobFeedbackCheck,
   patchProJobSourceFileDownload,
   postProJobDeliveries,
-} from '@src/apis/job-detail.api'
+} from '@src/apis/jobs/job-detail.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
 
@@ -405,7 +405,9 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                   {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
-              {[60500,60600,60700,60800,60900,601000,601100].includes(jobInfo.status) ? null : (
+              {[60500, 60600, 60700, 60800, 60900, 601000, 601100].includes(
+                jobInfo.status,
+              ) ? null : (
                 <Box
                   sx={{
                     display: 'flex',
@@ -448,7 +450,9 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                 </Box>
               )}
             </Box>
-            {[60500,60600,60700,60800,60900,601000,601100].includes(jobInfo.status) ? null : (
+            {[60500, 60600, 60700, 60800, 60900, 601000, 601100].includes(
+              jobInfo.status,
+            ) ? null : (
               <>
                 {fileList.length > 0 && (
                   <Box
@@ -516,7 +520,9 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       <Grid item xs={3.25}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <Card sx={{ padding: '24px' }}>
-            {[60500,60600,60700,60800,60900,601000,601100].includes(jobInfo.status) ? (
+            {[60500, 60600, 60700, 60800, 60900, 601000, 601100].includes(
+              jobInfo.status,
+            ) ? (
               <Box
                 sx={{
                   height: '38px',
