@@ -69,7 +69,9 @@ const JobTemplateView = () => {
                 <Button
                   variant='contained'
                   onClick={() =>
-                    router.push(`/orders/job-list/job-template/add-new`)
+                    router.push(
+                      `/orders/job-list/job-template/form?mode=create`,
+                    )
                   }
                 >
                   Create new template

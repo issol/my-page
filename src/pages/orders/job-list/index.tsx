@@ -4,7 +4,7 @@ import { SyntheticEvent, useEffect, useState } from 'react'
 import useModal from '@src/hooks/useModal'
 
 // ** style components
-import { styled } from '@mui/system'
+
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import MuiTabList, { TabListProps } from '@mui/lab/TabList'
@@ -15,6 +15,7 @@ import {
   Grid,
   Tab,
   Typography,
+  styled,
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
@@ -34,6 +35,7 @@ import TabContext from '@mui/lab/TabContext'
 import { Icon } from '@iconify/react'
 import TabPanel from '@mui/lab/TabPanel'
 import JobTemplateView from './job-template'
+import TabList from '@mui/lab/TabList'
 
 type tabMenu = 'list' | 'tracker' | 'template'
 
@@ -51,24 +53,24 @@ export default function JobList() {
 
   const { data: clients } = useGetClientList({ take: 1000, skip: 0 })
 
-  const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
-    marginBottom: '24px',
-    '& .MuiTabs-indicator': {
-      display: 'none',
-    },
-    '& .Mui-selected': {
-      backgroundColor: theme.palette.primary.main,
-      color: `${theme.palette.common.white} !important`,
-    },
-    '& .MuiTab-root': {
-      minHeight: 38,
-      minWidth: 110,
-      borderRadius: 8,
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(2),
-      textTransform: 'none',
-    },
-  }))
+  // const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
+  //   marginBottom: '24px',
+  //   '& .MuiTabs-indicator': {
+  //     display: 'none',
+  //   },
+  //   '& .Mui-selected': {
+  //     backgroundColor: theme.palette.primary.main,
+  //     color: `${theme.palette.common.white} !important`,
+  //   },
+  //   '& .MuiTab-root': {
+  //     minHeight: 38,
+  //     minWidth: 110,
+  //     borderRadius: 8,
+  //     paddingTop: theme.spacing(2),
+  //     paddingBottom: theme.spacing(2),
+  //     textTransform: 'none',
+  //   },
+  // }))
 
   useEffect(() => {
     if (tabQuery && ['list', 'tracker', 'template'].includes(tabQuery))
@@ -100,10 +102,17 @@ export default function JobList() {
       <PageHeader title={<Typography variant='h5'>Job list</Typography>} />
       <Box sx={{ mt: 4 }}>
         <TabContext value={value}>
-          <TabList onChange={handleChange} aria-label='Company price menu'>
-            <Tab value='list' label='List' />
-            <Tab value='tracker' label='Job tracker' />
-            <Tab value='template' label='Job Template' />
+          <TabList
+            onChange={handleChange}
+            aria-label='Company price menu'
+            style={{
+              borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+              marginBottom: '24px',
+            }}
+          >
+            <CustomTab value='list' label='List' />
+            <CustomTab value='tracker' label='Job tracker' />
+            <CustomTab value='template' label='Job Template' />
           </TabList>
           <TabPanel value='list' sx={{ padding: 0 }}>
             <JobListView
@@ -132,3 +141,12 @@ JobList.acl = {
   subject: 'job_list',
   action: 'read',
 }
+
+const CustomTab = styled(Tab)`
+  text-transform: none;
+  padding: 5px 10px;
+  width: fit-content;
+  min-width: inherit;
+  display: flex;
+  gap: 1px;
+`

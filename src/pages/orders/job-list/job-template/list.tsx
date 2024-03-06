@@ -27,6 +27,7 @@ const JobTemplateList = ({
   isLoading,
   serviceTypeList,
 }: Props) => {
+  const router = useRouter()
   return (
     <Box
       sx={{
@@ -50,6 +51,11 @@ const JobTemplateList = ({
         rowCount={list.totalCount ?? 0}
         loading={isLoading}
         rowsPerPageOptions={[10, 25, 50]}
+        onCellClick={params => {
+          router.push(
+            `/orders/job-list/job-template/form?mode=detail&id=${params.id}`,
+          )
+        }}
         pagination
         page={skip}
         pageSize={pageSize}

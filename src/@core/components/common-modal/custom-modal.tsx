@@ -21,6 +21,7 @@ type Props = {
     | 'successful'
     | 'guideline-info'
     | 'question-info'
+    | 'error-alert'
   textarea?: boolean
   textareaRequired?: boolean
   textareaPlaceholder?: string

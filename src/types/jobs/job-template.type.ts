@@ -23,6 +23,24 @@ export type JobTemplateListType = {
   options: Array<JobTemplateOptionType>
 }
 
+export type JobTemplateDetailType = {
+  id: number
+  name: string
+  description: string
+  corporationId: string
+  authorId: number
+  options: Array<JobTemplateOptionType>
+  author: {
+    userId: number
+    firstName: string
+    middleName: string | null
+    lastName: string
+    email: string
+  }
+
+  updatedAt: string
+}
+
 export type JobListFilterType = {
   serviceType?: number[]
   skip: number
