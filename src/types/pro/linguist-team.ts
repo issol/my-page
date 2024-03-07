@@ -14,3 +14,13 @@ export type LinguistTeamListType = {
   }>
   isPrivate: boolean
 }
+
+export type LinguistTeamFormType = {
+  isPrivate: boolean
+  name: string
+  client: string
+  serviceTypeId: number
+  source: string
+  target: string
+  description?: string
+}

@@ -19,6 +19,7 @@ import { Icon } from '@iconify/react'
 import { DataGrid } from '@mui/x-data-grid'
 import NoList from '@src/pages/components/no-list'
 import { getLinguistTeamColumns } from '@src/shared/const/columns/linguist-team'
+import { useRouter } from 'next/router'
 
 type Props = {
   data: {
@@ -47,6 +48,7 @@ const LinguistTeamList = ({
   setSkip,
   setPageSize,
 }: Props) => {
+  const router = useRouter()
   return (
     <Card>
       <CardHeader
@@ -55,7 +57,14 @@ const LinguistTeamList = ({
             <Typography variant='h6'>
               Linguist team ({data ? data.totalCount.toLocaleString() : 0})
             </Typography>
-            <Button variant='contained'>Create new team</Button>
+            <Button
+              variant='contained'
+              onClick={() => {
+                router.push('/pro/linguist-team/add-new')
+              }}
+            >
+              Create new team
+            </Button>
           </Box>
         }
         sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
