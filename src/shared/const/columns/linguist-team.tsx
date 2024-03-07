@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react'
 import { Box, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
-import { LinguistTeamListType } from '@src/types/pro/linguist-team'
+import { LinguistTeamListType, ProsType } from '@src/types/pro/linguist-team'
 
 type CellType = {
   row: LinguistTeamListType
@@ -152,6 +152,100 @@ export const getLinguistTeamColumns = (
           </Typography>
         )
       },
+    },
+  ]
+
+  return columns
+}
+
+export const getLinguistTeamProColumns = (isPriorityMode: boolean) => {
+  const columns: GridColumns<ProsType> = [
+    {
+      flex: 0.0584,
+      field: 'move',
+      disableColumnMenu: true,
+      sortable: false,
+      hide: isPriorityMode ? false : true,
+      renderHeader: () => <></>,
+      renderCell: () => <></>,
+    },
+    {
+      flex: 0.248,
+      field: 'name',
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Legal name / Email
+        </Typography>
+      ),
+      renderCell: () => <></>,
+    },
+    {
+      flex: 0.144,
+      field: 'status',
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Status
+        </Typography>
+      ),
+      renderCell: () => <></>,
+    },
+    {
+      flex: 0.144,
+      field: 'client',
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Client
+        </Typography>
+      ),
+      renderCell: () => <></>,
+    },
+    {
+      flex: 0.264,
+      field: 'jobTypeRole',
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Job type / Role
+        </Typography>
+      ),
+      renderCell: () => <></>,
+    },
+    {
+      flex: isPriorityMode ? 0.0936 : 0.152,
+      field: 'experience',
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography
+          variant='subtitle1'
+          fontWeight={500}
+          fontSize={14}
+          sx={{
+            overflow: 'hidden',
+            wordWrap: 'break-word',
+            // overflowWrap: 'break-word',
+            height: '100%',
+          }}
+        >
+          Years of experience
+        </Typography>
+      ),
+      renderCell: () => <></>,
+    },
+    {
+      flex: 0.048,
+      field: 'action',
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <></>,
+      renderCell: () => <></>,
     },
   ]
 

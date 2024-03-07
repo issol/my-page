@@ -15,6 +15,19 @@ export type LinguistTeamListType = {
   isPrivate: boolean
 }
 
+export type ProsType = {
+  userId: number
+  firstName: string
+  lastName: string
+  middLeName?: string
+  status: string
+  client: string
+  jobType: string
+  role: string
+  experience: string
+  priority: number
+}
+
 export type LinguistTeamFormType = {
   isPrivate: boolean
   name: string
@@ -23,4 +36,6 @@ export type LinguistTeamFormType = {
   source: string
   target: string
   description?: string
+  isPriority: boolean
+  pros: Array<ProsType>
 }
