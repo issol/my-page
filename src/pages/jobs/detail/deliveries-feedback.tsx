@@ -225,8 +225,9 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       const uniqueFiles = files
         .concat(acceptedFiles)
         .reduce((acc: File[], file: File) => {
-          let result = fileSize
+          let result = 0
           acc.concat(file).forEach((file: FileType) => (result += file.size))
+          console.log("file size",result,MAXIMUM_FILE_SIZE)
           if (result > MAXIMUM_FILE_SIZE) {
             openModal({
               type: 'AlertMaximumFileSizeModal',
@@ -419,7 +420,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
               >
                 <Typography variant='h6'>Deliveries</Typography>
                 <Typography variant='body2'>
-                  {formatFileSize(deliveryFileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+                  {formatFileSize(fileSize+deliveryFileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
               {[60500, 60600, 60700, 60800, 60900, 601000, 601100].includes(
