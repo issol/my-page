@@ -305,7 +305,7 @@ const PersonalInfoPro = () => {
           accessToken: accessTokenAsString,
         })
 
-        router.push('/dashboards')
+        router.push('/dashboards/pro')
       },
       onError: () => {
         openModal({

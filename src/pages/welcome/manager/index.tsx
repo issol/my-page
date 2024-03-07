@@ -48,6 +48,7 @@ import MuiPhone from '@src/pages/components/phone/mui-phone'
 import { timezoneSelector } from '@src/states/permission'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -93,6 +94,8 @@ const PersonalInfoManager = () => {
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const { openModal, closeModal } = useModal()
+
+  const role = getCurrentRole()
 
   const [timeZoneList, setTimeZoneList] = useState<
     {
@@ -160,7 +163,7 @@ const PersonalInfoManager = () => {
           email: auth.getValue().user!.email,
           accessToken: accessTokenAsString,
         })
-        router.push('/dashboards')
+        router.push(`/dashboards/${role?.name.toLowerCase()}`)
       },
       onError: () => {
         openModal({
