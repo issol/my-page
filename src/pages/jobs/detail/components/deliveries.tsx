@@ -33,9 +33,9 @@ const Deliveries = ({ delivery, downloadAllFiles, downloadOneFile }: Props) => {
   function getFileSize(files: Array<JobsFileType> | [] | undefined) {
     if (!files || !files.length) return 0
     /* @ts-ignore */
-    return files.reduce((acc: number, file: JobsFileType) => acc + file.size, 0)
+    return files.reduce((acc: number, file: JobsFileType) => acc + Number(file.size), 0)
   }
-
+  console.log("delivery",delivery)
   return (
     <>
       {delivery.map(value => {
