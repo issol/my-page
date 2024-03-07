@@ -98,10 +98,11 @@ const DeliveredInactiveList = () => {
       !statusListLoading &&
       !assignmentStatusListLoading
     ) {
-      const filteredJobStatusList = jobStatusList.filter(value => {
-        return value.value >= 60600 && value.value !== 601100
-      })
-      setStatusList([...filteredJobStatusList])
+      // const filteredJobStatusList = jobStatusList.filter(value => {
+      //   return value.value >= 60600 && value.value !== 601100
+      // })
+      // setStatusList([...filteredJobStatusList])
+      setStatusList([...jobStatusList, ...assignmentJobStatusList])
     }
   }, [
     jobStatusList,
