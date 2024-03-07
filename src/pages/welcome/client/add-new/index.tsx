@@ -117,7 +117,7 @@ export default function NewClientProfileForm() {
               email: emailAsString,
               accessToken: accessTokenAsString,
             })
-            .then(() => router.push('/dashboards'))
+            .then(() => router.push('/dashboards/client'))
         } else {
           //토큰 확인 안됨, 로그아웃 시켜서 재 로그인 유도
           openModal({
