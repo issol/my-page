@@ -39,7 +39,7 @@ import {
   JobsFileType,
   ProJobDetailType,
 } from '@src/types/jobs/jobs.type'
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
@@ -427,7 +427,7 @@ const ProJobInfo = ({
               extra={`If you need any assistance related to this matter, please contact ${jobInfo.contactPerson?.email}.`}
             />
           ) : (
-            status === 601000 && (
+            status === 60300 && (
               <PriceUnitGuideline
                 subtitle={
                   <>
@@ -537,6 +537,15 @@ const ProJobInfo = ({
       )
     }
   }
+
+  // status가 Overdue일 때, onClickOnClickStatusMoreInfo를 호출하여 디테일 페이지 진입시 모달을 띄워준다.
+  useEffect(() => {
+    if (jobInfo) {
+      if (jobInfo.status === 60300) {
+        onClickOnClickStatusMoreInfo(jobInfo.status as ProJobStatusType)
+      }
+    }
+  }, [jobInfo])
 
   return (
     <Grid container xs={12} spacing={4}>
