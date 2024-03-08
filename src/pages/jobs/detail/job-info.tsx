@@ -498,8 +498,10 @@ const ProJobInfo = ({
     }
   }
 
-  const getJobDateDiff = (jobDueDate: string) => {
-    const now = dayjs()
+  const getJobDateDiff = (jobDueDate: string , deliveredDate?: string) => {
+    const now = deliveredDate
+      ? dayjs(deliveredDate)
+      : dayjs()
     const dueDate = dayjs(jobDueDate)
     const diff = dueDate.diff(now, 'second')
     const isPast = diff < 0
@@ -987,9 +989,9 @@ const ProJobInfo = ({
                         alignItems: 'center',
                       }}
                     >
-                      {jobInfo.status === 601000 ? (
+                      {[60300, 60500].includes(jobInfo.status) ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                          {getJobDateDiff(jobInfo.dueAt)}
+                          {getJobDateDiff(jobInfo.dueAt, jobInfo.finalProDeliveredAt)}
                         </Box>
                       ) : (
                         <Typography variant='body2'>

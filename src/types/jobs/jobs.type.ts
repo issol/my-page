@@ -186,6 +186,7 @@ export type ProJobListType = {
         }[]
       | null
   }
+  finalProDeliveredAt: string
 }
 
 export type JobsFileType = {
@@ -237,7 +238,7 @@ export type ProJobDetailType = {
   description: string
   files: Array<JobsFileType>
   isShowDescription: boolean
-
+  finalProDeliveredAt: string
   // deliveries: [
   //   {
   //     id: number
