@@ -37,7 +37,7 @@ type MenuType = 'jobInfo' | 'feedback'
 const ProJobsDetail = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const { id, assigned } = router.query
+  const { id, assigned, tab } = router.query
   const [value, setValue] = useState<MenuType>('jobInfo')
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
@@ -69,17 +69,7 @@ const ProJobsDetail = () => {
   const [statusList, setStatusList] = useState<Array<statusType>>([])
 
   const onClickBack = () => {
-    const filter: JobListFilterType = {
-      take: 10,
-      skip: 0,
-      search: '',
-      client: null,
-      dueDateFrom: '',
-      dueDateTo: '',
-      listType: 'requested-ongoing',
-    }
-    queryClient.invalidateQueries(['proJobList', filter])
-    router.push('/jobs')
+    router.push(`/jobs?tab=${tab}`)
   }
 
   useEffect(() => {

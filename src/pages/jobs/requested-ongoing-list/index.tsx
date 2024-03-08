@@ -8,6 +8,7 @@ import {
   useGetProJobClientList,
   useGetProJobList,
 } from '@src/queries/jobs/jobs.query'
+import { useQueryClient } from 'react-query'
 import { useForm } from 'react-hook-form'
 import { useGetStatusList } from '@src/queries/common.query'
 import { statusType } from '@src/types/common/status.type'
@@ -47,6 +48,8 @@ export const ongoingDefaultFilters: JobListFilterType = {
 }
 
 const RequestedOngoingList = () => {
+  const queryClient = useQueryClient()
+
   const [filters, setFilters] = useState<JobListFilterType>(
     ongoingDefaultFilters,
   )
@@ -122,6 +125,10 @@ const RequestedOngoingList = () => {
 
     setFilters(filter)
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['proJobList', filters])
+  }, [])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

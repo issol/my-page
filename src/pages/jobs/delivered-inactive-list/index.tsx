@@ -8,7 +8,7 @@ import {
 import { useForm } from 'react-hook-form'
 import Filters from './filters'
 import { useGetStatusList } from '@src/queries/common.query'
-
+import { useQueryClient } from 'react-query'
 import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
 import JobList from '../requested-ongoing-list/list'
 import useModal from '@src/hooks/useModal'
@@ -62,6 +62,7 @@ export const completedDefaultFilters: JobListFilterType = {
 const DeliveredInactiveList = () => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const [filters, setFilters] = useState<JobListFilterType>(
     completedDefaultFilters,
@@ -245,6 +246,10 @@ const DeliveredInactiveList = () => {
       ),
     })
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['proJobList', filters])
+  }, [])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
