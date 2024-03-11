@@ -22,12 +22,14 @@ import {
 } from 'react-hook-form'
 
 type Props = {
-  handleNext: () => void
+  handleNext: (data: LinguistTeamFormType) => void
   control: Control<LinguistTeamFormType, any>
   handleSubmit: UseFormHandleSubmit<LinguistTeamFormType, undefined>
-  onClickSave: (data: LinguistTeamFormType) => void
   isSubmitted: boolean
-  clientList: Array<string>
+  clientList: Array<{
+    clientId: number
+    name: string
+  }>
   languageList: Array<{ value: string; label: GloLanguageEnum }>
   serviceTypeList: Array<{ value: number; label: string }>
   getValues: UseFormGetValues<LinguistTeamFormType>
@@ -38,7 +40,6 @@ const LinguistTeamInfoForm = ({
   handleNext,
   control,
   handleSubmit,
-  onClickSave,
 
   isSubmitted,
   clientList,
@@ -48,7 +49,7 @@ const LinguistTeamInfoForm = ({
   trigger,
 }: Props) => {
   return (
-    <form onSubmit={handleSubmit(onClickSave)}>
+    <form onSubmit={handleSubmit(handleNext)}>
       <Box
         sx={{
           padding: '32px 0',
@@ -86,8 +87,10 @@ const LinguistTeamInfoForm = ({
                   return (
                     <Checkbox
                       sx={{ paddingRight: 0 }}
-                      checked={field.value}
-                      onChange={e => field.onChange(e.target.checked)}
+                      checked={field.value === '1' ? true : false}
+                      onChange={e =>
+                        field.onChange(e.target.checked ? '1' : '0')
+                      }
                     />
                   )
                 }}
@@ -99,11 +102,11 @@ const LinguistTeamInfoForm = ({
               <Icon icon='mdi:lock' color='#8D8E9A' fontSize={20} />
             </Box>
             <Typography fontSize={12} fontWeight={400} color='#8D8E9A'>
-              This team will be visible only to you
+              Only you will be able to see this team.
             </Typography>
           </Box>
 
-          <Grid container xs={12} spacing={6} rowSpacing={4} mt={4}>
+          <Grid container spacing={6} rowSpacing={4} mt={4}>
             <Grid item xs={12}>
               <Box
                 sx={{
@@ -113,7 +116,7 @@ const LinguistTeamInfoForm = ({
                 }}
               >
                 <Typography fontSize={14} fontWeight={600}>
-                  Name of the team&nbsp;
+                  Team name&nbsp;
                   <Typography color='#666CFF' component='span'>
                     *
                   </Typography>
@@ -170,15 +173,28 @@ const LinguistTeamInfoForm = ({
                 </Typography>
                 <Box className='filterFormSoloAutoComplete'>
                   <Controller
-                    name='client'
+                    name='clientId'
                     control={control}
                     render={({ field, formState }) => {
                       return (
                         <Autocomplete
                           fullWidth
                           options={clientList}
-                          value={field.value}
-                          onChange={(e, v) => field.onChange(v ? v : null)}
+                          value={
+                            clientList.find(
+                              value => value.clientId === field.value,
+                            ) ?? null
+                          }
+                          getOptionLabel={option => option.name}
+                          onChange={(e, v) => {
+                            console.log(v)
+
+                            if (v) {
+                              field.onChange(v.clientId)
+                            } else {
+                              field.onChange(null)
+                            }
+                          }}
                           renderInput={params => (
                             <TextField {...params} autoComplete='off' />
                           )}
@@ -267,7 +283,7 @@ const LinguistTeamInfoForm = ({
                 </Box>
                 <Box className='filterFormSoloAutoComplete'>
                   <Controller
-                    name='source'
+                    name='sourceLanguage'
                     control={control}
                     render={({ field, formState }) => {
                       return (
@@ -295,12 +311,12 @@ const LinguistTeamInfoForm = ({
                               {...params}
                               autoComplete='off'
                               error={
-                                !!formState.errors.source &&
+                                !!formState.errors.sourceLanguage &&
                                 formState.isSubmitted
                               }
                               helperText={
                                 formState.isSubmitted
-                                  ? formState.errors.source?.message
+                                  ? formState.errors.sourceLanguage?.message
                                   : ''
                               }
                             />
@@ -330,7 +346,7 @@ const LinguistTeamInfoForm = ({
                 </Box>
                 <Box className='filterFormSoloAutoComplete'>
                   <Controller
-                    name='target'
+                    name='targetLanguage'
                     control={control}
                     render={({ field, formState }) => {
                       return (
@@ -358,12 +374,12 @@ const LinguistTeamInfoForm = ({
                               {...params}
                               autoComplete='off'
                               error={
-                                !!formState.errors.target &&
+                                !!formState.errors.targetLanguage &&
                                 formState.isSubmitted
                               }
                               helperText={
                                 formState.isSubmitted
-                                  ? formState.errors.target?.message
+                                  ? formState.errors.targetLanguage?.message
                                   : ''
                               }
                             />

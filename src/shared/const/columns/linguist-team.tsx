@@ -1,8 +1,16 @@
 import { Icon } from '@iconify/react'
 import { Box, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
-import { ServiceTypeChip } from '@src/@core/components/chips/chips'
+import {
+  JobTypeChip,
+  ProStatusChip,
+  RoleChip,
+  ServiceTypeChip,
+} from '@src/@core/components/chips/chips'
+import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { LinguistTeamListType, ProsType } from '@src/types/pro/linguist-team'
+import { ProListCellType, ProListType } from '@src/types/pro/list'
+import { v4 as uuidv4 } from 'uuid'
 
 type CellType = {
   row: LinguistTeamListType
@@ -29,7 +37,7 @@ export const getLinguistTeamColumns = (
       renderCell: ({ row }: CellType) => {
         return (
           <Typography variant='body2' fontWeight={400} fontSize={14}>
-            {row.corporateId}
+            {row.corporationId}
           </Typography>
         )
       },
@@ -92,25 +100,6 @@ export const getLinguistTeamColumns = (
       },
     },
     {
-      field: 'languagePair',
-      flex: 0.1,
-
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => (
-        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
-          Language pair
-        </Typography>
-      ),
-      renderCell: ({ row }: CellType) => {
-        return (
-          <Typography variant='body1' fontWeight={600}>
-            {row.source?.toUpperCase()} &rarr; {row.target?.toUpperCase()}
-          </Typography>
-        )
-      },
-    },
-    {
       field: 'serviceType',
       flex: 0.1,
 
@@ -135,6 +124,27 @@ export const getLinguistTeamColumns = (
       },
     },
     {
+      field: 'languagePair',
+      flex: 0.1,
+
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Language pair
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Typography variant='body1' fontWeight={600}>
+            {row.sourceLanguage?.toUpperCase()} &rarr;{' '}
+            {row.targetLanguage?.toUpperCase()}
+          </Typography>
+        )
+      },
+    },
+
+    {
       field: 'numberOfLinguist',
       flex: 0.1,
 
@@ -158,10 +168,14 @@ export const getLinguistTeamColumns = (
   return columns
 }
 
-export const getLinguistTeamProColumns = (isPriorityMode: boolean) => {
-  const columns: GridColumns<ProsType> = [
+export const getLinguistTeamProColumns = (
+  isPriorityMode: boolean,
+  modal: boolean = false,
+  type: 'create' | 'edit' | 'detail',
+) => {
+  const columns: GridColumns<ProListType> = [
     {
-      flex: 0.0584,
+      flex: type === 'detail' && isPriorityMode ? 0.032 : 0.0584,
       field: 'move',
       disableColumnMenu: true,
       sortable: false,
@@ -179,7 +193,22 @@ export const getLinguistTeamProColumns = (isPriorityMode: boolean) => {
           Legal name / Email
         </Typography>
       ),
-      renderCell: () => <></>,
+      renderCell: ({ row }: ProListCellType) => {
+        return (
+          <LegalNameEmail
+            row={{
+              isOnboarded: row.isOnboarded,
+              isActive: row.isActive,
+
+              firstName: row.firstName,
+              middleName: row.middleName,
+              lastName: row.lastName,
+              email: row.email,
+            }}
+            // link={`/pro/detail/${row.userId}`}
+          />
+        )
+      },
     },
     {
       flex: 0.144,
@@ -191,7 +220,9 @@ export const getLinguistTeamProColumns = (isPriorityMode: boolean) => {
           Status
         </Typography>
       ),
-      renderCell: () => <></>,
+      renderCell: ({ row }: ProListCellType) => {
+        return <ProStatusChip status={row.status} label={row.status} />
+      },
     },
     {
       flex: 0.144,
@@ -203,7 +234,45 @@ export const getLinguistTeamProColumns = (isPriorityMode: boolean) => {
           Client
         </Typography>
       ),
-      renderCell: () => <></>,
+      renderCell: ({ row }: ProListCellType) => {
+        return (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {!row.clients?.length
+              ? '-'
+              : row.clients?.map(
+                  (item, idx) =>
+                    idx < 2 && (
+                      <Box
+                        key={uuidv4()}
+                        sx={{
+                          display: 'flex',
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            maxWidth: '150px',
+                            overflow: 'hidden',
+                            whiteSpace: 'nowrap',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {item.client}{' '}
+                          {idx === 0 && row.clients.length > 1 && ','}&nbsp;
+                        </Box>
+                      </Box>
+                    ),
+                )}
+            {row.clients?.length > 1 ? (
+              <Box>+{row.clients?.length - 1}</Box>
+            ) : null}
+          </Box>
+        )
+      },
     },
     {
       flex: 0.264,
@@ -215,10 +284,29 @@ export const getLinguistTeamProColumns = (isPriorityMode: boolean) => {
           Job type / Role
         </Typography>
       ),
-      renderCell: () => <></>,
+      renderCell: ({ row }: ProListCellType) => {
+        return (
+          <Box sx={{ display: 'flex', gap: '8px' }}>
+            {row.jobInfo && row.jobInfo.length ? (
+              <>
+                <JobTypeChip
+                  type={row.jobInfo[0]?.jobType}
+                  label={row.jobInfo[0]?.jobType}
+                />
+                <RoleChip
+                  type={row.jobInfo[0]?.role}
+                  label={row.jobInfo[0]?.role}
+                />
+              </>
+            ) : (
+              '-'
+            )}
+          </Box>
+        )
+      },
     },
     {
-      flex: isPriorityMode ? 0.0936 : 0.152,
+      flex: type === 'detail' ? 0.168 : isPriorityMode ? 0.0936 : 0.152,
       field: 'experience',
       disableColumnMenu: true,
       sortable: false,
@@ -237,13 +325,16 @@ export const getLinguistTeamProColumns = (isPriorityMode: boolean) => {
           Years of experience
         </Typography>
       ),
-      renderCell: () => <></>,
+      renderCell: ({ row }: ProListCellType) => {
+        return <Typography variant='body1'>{row.experience}</Typography>
+      },
     },
     {
       flex: 0.048,
       field: 'action',
       disableColumnMenu: true,
       sortable: false,
+      hide: type === 'detail' ? true : false,
       renderHeader: () => <></>,
       renderCell: () => <></>,
     },

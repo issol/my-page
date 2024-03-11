@@ -1,19 +1,22 @@
 import { Box, Switch, Typography } from '@mui/material'
 import Filters from './list/filter'
 
-import { useMemo, useState } from 'react'
-import { useGetServiceType } from '@src/queries/common.query'
+import { useMemo, useState, MouseEvent } from 'react'
+import {
+  useGetServiceType,
+  useGetSimpleClientList,
+} from '@src/queries/common.query'
 import { useGetClientList } from '@src/queries/client.query'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { useGetLinguistTeam } from '@src/queries/pro/linguist-team'
 import LinguistTeamList from './list/list'
-import { MenuType } from '..'
 
+export type MenuType = 'card' | 'list'
 export type FilterType = {
-  serviceType?: number[]
+  serviceTypeId?: number[]
   source?: string | null
   target?: string | null
-  clients?: string[]
+  clientId?: number[]
   search?: string
   skip: number
   take: number
@@ -21,21 +24,19 @@ export type FilterType = {
 }
 
 export const initialFilter: FilterType = {
-  serviceType: [],
+  serviceTypeId: [],
   source: null,
   target: null,
   seeMyTeams: '0',
-  clients: [],
+  clientId: [],
   search: '',
   skip: 0,
   take: 12,
 }
 
-type Props = {
-  menu: MenuType
-}
-
-const LinguistTeam = ({ menu }: Props) => {
+const LinguistTeam = () => {
+  const [menu, setMenu] = useState<MenuType>('card')
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
   const [activeFilter, setActiveFilter] = useState<FilterType>({
     ...initialFilter,
@@ -44,11 +45,12 @@ const LinguistTeam = ({ menu }: Props) => {
   const languageList = getGloLanguage()
   const { data: serviceTypeList } = useGetServiceType()
   const { data: linguistList, isLoading } = useGetLinguistTeam(activeFilter)
-  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
-  const clientList = useMemo(
-    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
-    [clientData],
-  )
+  const { data: clientList } = useGetSimpleClientList()
+  // const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  // const clientList = useMemo(
+  //   () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+  //   [clientData],
+  // )
 
   const onSearch = () => {
     setActiveFilter({
@@ -63,6 +65,13 @@ const LinguistTeam = ({ menu }: Props) => {
     setActiveFilter({ ...initialFilter })
   }
 
+  const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Box sx={{ width: '100%' }}>
@@ -72,7 +81,7 @@ const LinguistTeam = ({ menu }: Props) => {
           onSearch={onSearch}
           onReset={onReset}
           serviceTypeList={serviceTypeList || []}
-          clientList={clientList}
+          clientList={clientList || []}
           languageList={languageList}
         />
       </Box>
@@ -102,6 +111,7 @@ const LinguistTeam = ({ menu }: Props) => {
             data={linguistList!}
             isLoading={isLoading}
             menu={menu}
+            setMenu={setMenu}
             serviceTypeList={serviceTypeList || []}
             skip={activeFilter.skip}
             pageSize={activeFilter.take}
@@ -111,6 +121,9 @@ const LinguistTeam = ({ menu }: Props) => {
             setPageSize={(n: number) =>
               setActiveFilter({ ...activeFilter, take: n })
             }
+            handleMenuClick={handleMenuClick}
+            handleMenuClose={handleMenuClose}
+            anchorEl={anchorEl}
           />
         ) : null}
       </Box>

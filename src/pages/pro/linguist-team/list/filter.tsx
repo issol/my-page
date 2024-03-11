@@ -23,7 +23,7 @@ type Props = {
   onSearch: () => void
   onReset: () => void
   serviceTypeList: Array<{ value: number; label: string }>
-  clientList: Array<{ value: string; label: string }>
+  clientList: Array<{ clientId: number; name: string }>
   languageList: {
     value: string
     label: GloLanguageEnum
@@ -51,23 +51,23 @@ const Filters = ({
               options={clientList}
               disableCloseOnSelect
               value={clientList.filter(
-                (item: { value: string; label: string }) =>
-                  filter.clients?.includes(item.value),
+                (item: { clientId: number; name: string }) =>
+                  filter.clientId?.includes(item.clientId),
               )}
               onChange={(e, v) =>
                 setFilter({
                   ...filter,
-                  clients: v.map(item => item.value),
+                  clientId: v.map(item => item.clientId),
                 })
               }
-              getOptionLabel={option => option.label}
+              getOptionLabel={option => option.name}
               renderInput={params => (
                 <TextField {...params} autoComplete='off' label='Clients' />
               )}
               renderOption={(props, option, { selected }) => (
                 <li {...props}>
                   <Checkbox checked={selected} sx={{ mr: 2 }} />
-                  {option.label}
+                  {option.name}
                 </li>
               )}
             />
@@ -83,12 +83,12 @@ const Filters = ({
               disableCloseOnSelect
               value={serviceTypeList.filter(
                 (item: { value: number; label: string }) =>
-                  filter.serviceType?.includes(item.value),
+                  filter.serviceTypeId?.includes(item.value),
               )}
               onChange={(e, v) =>
                 setFilter({
                   ...filter,
-                  serviceType: v.map(item => item.value),
+                  serviceTypeId: v.map(item => item.value),
                 })
               }
               getOptionLabel={option => option.label}

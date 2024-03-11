@@ -153,3 +153,10 @@ export const getServiceType = async (): Promise<
 
   return res
 }
+
+export const getSimpleClientList = async (): Promise<
+  Array<{ clientId: number; name: string }>
+> => {
+  const { data } = await axios.get(`/api/enough/u/client/ref/list`)
+  return data.data
+}

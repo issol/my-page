@@ -4,7 +4,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
 import { useRouter } from 'next/router'
 import Stepper from '@src/pages/components/stepper'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { LinguistTeamFormType } from '@src/types/pro/linguist-team'
@@ -13,9 +13,17 @@ import { linguistTeamSchema } from '@src/types/schema/pro/linguist-team.schema'
 import LinguistTeamInfoForm from './components/info'
 import { useGetClientList } from '@src/queries/client.query'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
-import { useGetServiceType } from '@src/queries/common.query'
+import {
+  useGetServiceType,
+  useGetSimpleClientList,
+} from '@src/queries/common.query'
 import SelectPro from './components/select-pro'
 import SelectProModal from './components/select-pro-modal'
+import { ProListType } from '@src/types/pro/list'
+import registDND from './components/dnd'
+import { useMutation } from 'react-query'
+import { createLinguistTeam } from '@src/apis/pro/linguist-team'
+import { displayCustomToast } from '@src/shared/utils/toast'
 
 const steps = [
   {
@@ -32,13 +40,23 @@ const AddNew = () => {
 
   const [activeStep, setActiveStep] = useState<number>(0)
 
+  const createMutation = useMutation(
+    (
+      data: Omit<LinguistTeamFormType, 'pros'> & {
+        pros: Array<{ userId: number; order: number }>
+      },
+    ) => createLinguistTeam(data),
+    {
+      onSuccess: (data: any) => {
+        displayCustomToast('Saved successfully', 'success')
+        router.replace(`/pro/linguist-team/detail/${data.id}`)
+      },
+    },
+  )
+
   const languageList = getGloLanguage()
   const { data: serviceTypeList } = useGetServiceType()
-  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
-  const clientList = useMemo(
-    () => clientData?.data?.map(i => i.name) || [],
-    [clientData],
-  )
+  const { data: clientList } = useGetSimpleClientList()
 
   const {
     control,
@@ -53,8 +71,8 @@ const AddNew = () => {
   } = useForm<LinguistTeamFormType>({
     mode: 'onSubmit',
     defaultValues: {
-      isPrivate: false,
-      isPriority: false,
+      isPrivate: '0',
+      isPrioritized: '0',
       pros: [],
     },
     resolver: yupResolver(
@@ -62,7 +80,7 @@ const AddNew = () => {
     ) as unknown as Resolver<LinguistTeamFormType>,
   })
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove, update, move } = useFieldArray({
     control: control,
     name: 'pros',
   })
@@ -71,12 +89,26 @@ const AddNew = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
   }
 
-  const handleNext = () => {
+  const handleNext = (data: LinguistTeamFormType) => {
     setActiveStep(prevActiveStep => prevActiveStep + 1)
   }
 
-  const onClickSave = (data: LinguistTeamFormType) => {
-    handleNext()
+  const onClickSave = () => {
+    // TODO API call
+    // router.replace('/pro/linguist-team/detail/1')
+    console.log(getValues())
+    const pros = getValues().pros.map((pro, index) => {
+      return {
+        userId: pro.userId,
+        order: index + 1,
+      }
+    })
+    const result = {
+      ...getValues(),
+      pros,
+    }
+
+    createMutation.mutate(result)
   }
 
   const onClickLinguistHelperIcon = () => {
@@ -102,9 +134,8 @@ const AddNew = () => {
                 priority mode, which enables setting priority to the selected
                 Pros.
                 <br />
-                <br /> The linguist team registered here will be recommended
-                when assigning Pros for actual projects based on the registered
-                team information.
+                <br /> You can select the linguist team registered here when
+                assigning Pros for actual projects.
               </Typography>
             </Box>
           }
@@ -133,18 +164,11 @@ const AddNew = () => {
               }}
             >
               <Typography variant='body1' fontSize={20} fontWeight={500}>
-                Select Pros
+                Selected Pros
               </Typography>
               <Typography variant='body2' fontSize={16} fontWeight={400}>
                 "Selected Pros" is the place where Pros intended to be added to
                 the Linguist team are displayed.
-                <br />
-                <br /> If there is a priority order among Pros, you can assign
-                priority to a Pro using the "Priority mode" checkbox.
-                <br />
-                <br />
-                This assigned priority can be taken into consideration when
-                submitting job requests to the Pros.
               </Typography>
             </Box>
           }
@@ -157,14 +181,37 @@ const AddNew = () => {
       ),
     })
   }
+  const onClickSelectPro = (proList: ProListType[]) => {
+    proList.forEach((pro, index) => {
+      append({ ...pro, order: index + 1 })
+    })
+    closeModal('SelectProModal')
+  }
 
   const onClickAddPros = () => {
     openModal({
       type: 'SelectProModal',
-      children: <SelectProModal onClose={() => closeModal('SelectProModal')} />,
+      children: (
+        <SelectProModal
+          onClose={() => closeModal('SelectProModal')}
+          getValues={getValues}
+          onClickSelectPro={onClickSelectPro}
+        />
+      ),
       isCloseable: true,
     })
   }
+
+  // console.log(getValues())
+
+  useEffect(() => {
+    const clear = registDND(({ source, destination }) => {
+      if (!destination) return
+
+      move(source.index, destination.index)
+    })
+    return () => clear()
+  }, [move])
 
   return (
     <Box
@@ -173,6 +220,7 @@ const AddNew = () => {
         flexDirection: 'column',
         gap: '24px',
         height: '100%',
+        paddingBottom: '100px',
       }}
     >
       <Box display='flex' alignItems='center' gap='8px'>
@@ -184,7 +232,13 @@ const AddNew = () => {
           <Icon icon='mdi:info-circle-outline' />
         </IconButton>
       </Box>
-      <Card sx={{ height: '100%' }}>
+      <Card
+        sx={{
+          height: '100%',
+          position: 'relative',
+          paddingBottom: '100px',
+        }}
+      >
         <Stepper
           activeStep={activeStep}
           steps={steps}
@@ -201,9 +255,8 @@ const AddNew = () => {
             handleNext={handleNext}
             control={control}
             handleSubmit={handleSubmit}
-            onClickSave={onClickSave}
             isSubmitted={isSubmitted}
-            clientList={clientList}
+            clientList={clientList || []}
             languageList={languageList}
             serviceTypeList={serviceTypeList || []}
             getValues={getValues}
@@ -213,12 +266,14 @@ const AddNew = () => {
           <SelectPro
             onClickSelectProsHelperIcon={onClickSelectProsHelperIcon}
             fields={fields}
-            append={append}
-            setValue={setValue}
             control={control}
             trigger={trigger}
             getValues={getValues}
             onClickAddPros={onClickAddPros}
+            remove={remove}
+            handleBack={handleBack}
+            onClickSave={onClickSave}
+            type='create'
           />
         )}
       </Card>

@@ -16,12 +16,10 @@ import ProsList from './list'
 import LinguistTeam from './linguist-team'
 
 type tabMenu = 'proList' | 'linguistList'
-export type MenuType = 'card' | 'list'
 
 const Pro = () => {
   const router = useRouter()
   const tabQuery = router.query.tab as tabMenu
-  const [menu, setMenu] = useState<MenuType>('card')
 
   const [value, setValue] = useState<tabMenu>('proList')
 
@@ -45,7 +43,7 @@ const Pro = () => {
         }}
       >
         <Typography variant='h5'>Pros</Typography>
-        {value === 'linguistList' ? (
+        {/* {value === 'linguistList' ? (
           <ButtonGroup variant='outlined'>
             <CustomBtn
               value='card'
@@ -62,7 +60,7 @@ const Pro = () => {
               List view
             </CustomBtn>
           </ButtonGroup>
-        ) : null}
+        ) : null} */}
       </Box>
       <Box sx={{ mt: 4 }}>
         <TabContext value={value}>
@@ -81,7 +79,7 @@ const Pro = () => {
             <ProsList />
           </TabPanel>
           <TabPanel value='linguistList'>
-            <LinguistTeam menu={menu} />
+            <LinguistTeam />
           </TabPanel>
         </TabContext>
       </Box>
