@@ -361,6 +361,7 @@ const ProJobInfo = ({
   }
 
   const onClickOnClickStatusMoreInfo = (status: ProJobStatusType) => {
+    console.log("status", status)
     openModal({
       type: 'StatusMoreInfoModal',
       children: (
@@ -398,7 +399,7 @@ const ProJobInfo = ({
                 </>
               }
             />
-          ) : status === 60400 ? (
+          ) : [601000, 70400].includes(status) ? (
             <PriceUnitGuideline
               vary='info'
               subtitle='We’re sorry to inform that O-000001-TRA-001 has been canceled due to internal circumstances.'
