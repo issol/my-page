@@ -1,0 +1,75 @@
+import { ProListType } from './list'
+
+export type LinguistTeamListType = {
+  id: number
+  corporationId: string
+  name: string
+  sourceLanguage: string
+  targetLanguage: string
+  serviceTypeId: number
+  client: string
+  description?: string
+  pros: Array<{
+    userId: number
+    firstName: string
+    lastName: string
+  }>
+  isPrivate: boolean
+}
+
+export type LinguistTeamProListFilterType = {
+  take: number
+  skip: number
+  status?: string[]
+  clientId?: number[]
+  role?: string[]
+  jobType?: string[]
+  search?: string
+  sourceLanguage?: string[]
+  targetLanguage?: string[]
+  experience?: string[]
+  sortId?: string
+  sortDate?: string
+}
+
+export type LinguistTeamFormType = {
+  isPrivate: '1' | '0'
+  name: string
+  clientId: number
+  serviceTypeId: number
+  sourceLanguage: string
+  targetLanguage: string
+  description?: string
+  isPrioritized: '1' | '0'
+  pros: Array<
+    ProListType & {
+      order: number
+    }
+  >
+}
+
+export type LinguistTeamDetailType = {
+  id: number
+  corporationId: string
+  name: string
+  author: {
+    userId: number
+    firstName: string
+    lastName: string
+    middleName?: string
+    email: string
+  }
+  sourceLanguage: string
+  targetLanguage: string
+  serviceTypeId: number
+  clientId: number
+  description?: string
+  updatedAt: string
+  isPrivate: boolean
+  isPrioritized: boolean
+  pros: Array<
+    ProListType & {
+      order: number
+    }
+  >
+}

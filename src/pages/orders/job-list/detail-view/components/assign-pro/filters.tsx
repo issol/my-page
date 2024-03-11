@@ -18,7 +18,7 @@ import {
   InputLabel,
   OutlinedInput,
 } from '@mui/material'
-import { AutoCompleteComponent } from '@src/pages/pro/list/filters'
+import { AutoCompleteComponent } from '@src/pages/pro/list/list/filters'
 import { useGetClientList } from '@src/queries/client.query'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import {
@@ -102,7 +102,8 @@ const AssignProFilters = ({
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
   const clientList = useMemo(
-    () => clientData?.data?.map(i => ({ label: i.name, value: i.clientId })) || [],
+    () =>
+      clientData?.data?.map(i => ({ label: i.name, value: i.clientId })) || [],
     [clientData],
   )
 
@@ -179,7 +180,12 @@ const AssignProFilters = ({
                       id='source'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
-                        <TextField {...params} autoComplete='off' label='Source' size='small' />
+                        <TextField
+                          {...params}
+                          autoComplete='off'
+                          label='Source'
+                          size='small'
+                        />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -242,7 +248,12 @@ const AssignProFilters = ({
                       id='target'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
-                        <TextField {...params} autoComplete='off' label='Target' size='small' />
+                        <TextField
+                          {...params}
+                          autoComplete='off'
+                          label='Target'
+                          size='small'
+                        />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -322,7 +333,12 @@ const AssignProFilters = ({
                       id='category'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
-                        <TextField {...params} autoComplete='off' label='Category' size='small' />
+                        <TextField
+                          {...params}
+                          autoComplete='off'
+                          label='Category'
+                          size='small'
+                        />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -474,7 +490,12 @@ const AssignProFilters = ({
                       id='client'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
-                        <TextField {...params} autoComplete='off' label='Client' size='small' />
+                        <TextField
+                          {...params}
+                          autoComplete='off'
+                          label='Client'
+                          size='small'
+                        />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>

@@ -39,7 +39,9 @@ export default function FormStepper({ activeStep, steps, style }: Props) {
                       index + 1
                     }`}</Typography>
                     <div>
-                      <Typography className='step-title'>
+                      <Typography
+                        className={`step-title-${index === activeStep ? 'active' : 'inactive'}`}
+                      >
                         {step.title}
                       </Typography>
                     </div>

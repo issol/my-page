@@ -1,5 +1,11 @@
-import { StatusType, getServiceType, getStatusList } from '@src/apis/common.api'
+import {
+  StatusType,
+  getServiceType,
+  getSimpleClientList,
+  getStatusList,
+} from '@src/apis/common.api'
 import { getClientUserInfo } from '@src/apis/user.api'
+import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
 export const useGetStatusList = (
@@ -38,4 +44,24 @@ export const useGetServiceType = () => {
   return useQuery([`serviceType`], () => {
     return getServiceType()
   })
+}
+
+export const useGetSimpleClientList = () => {
+  return useQuery(
+    ['clientList'],
+    () => {
+      return getSimpleClientList()
+    },
+    {
+      suspense: true,
+      staleTime: 60 * 1000,
+
+      keepPreviousData: true,
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
 }
