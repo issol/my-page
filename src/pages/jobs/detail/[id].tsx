@@ -108,7 +108,7 @@ const ProJobsDetail = () => {
             <Icon icon='mdi:chevron-left' width={24} height={24} />
           </IconButton>
           <img src='/images/icons/job-icons/job-detail.svg' alt='' />
-          <Typography variant='h5'>{jobDetail?.corporationId}</Typography>
+          <Typography variant='h5'>{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
         </Box>
       </Box>
       {jobDetail && jobPrices && statusList && jobDetailDots && (

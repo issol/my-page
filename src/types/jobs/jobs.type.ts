@@ -219,6 +219,7 @@ export type ProJobDetailType = {
       taxable: boolean
       tax: number | null
     }
+    corporationId: string
   }
 
   contactPerson: ContactPersonType | null
