@@ -8,7 +8,7 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
-import { LinguistTeamListType, ProsType } from '@src/types/pro/linguist-team'
+import { LinguistTeamListType } from '@src/types/pro/linguist-team'
 import { ProListCellType, ProListType } from '@src/types/pro/list'
 import { v4 as uuidv4 } from 'uuid'
 
