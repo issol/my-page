@@ -39,7 +39,7 @@ import {
   JobsFileType,
   ProJobDetailType,
 } from '@src/types/jobs/jobs.type'
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
@@ -361,6 +361,7 @@ const ProJobInfo = ({
   }
 
   const onClickOnClickStatusMoreInfo = (status: ProJobStatusType) => {
+    console.log("status", status)
     openModal({
       type: 'StatusMoreInfoModal',
       children: (
@@ -398,7 +399,7 @@ const ProJobInfo = ({
                 </>
               }
             />
-          ) : status === 60400 ? (
+          ) : [601000, 70400].includes(status) ? (
             <PriceUnitGuideline
               vary='info'
               subtitle='We’re sorry to inform that O-000001-TRA-001 has been canceled due to internal circumstances.'
@@ -427,7 +428,7 @@ const ProJobInfo = ({
               extra={`If you need any assistance related to this matter, please contact ${jobInfo.contactPerson?.email}.`}
             />
           ) : (
-            status === 601000 && (
+            status === 60300 && (
               <PriceUnitGuideline
                 subtitle={
                   <>
@@ -498,8 +499,10 @@ const ProJobInfo = ({
     }
   }
 
-  const getJobDateDiff = (jobDueDate: string) => {
-    const now = dayjs()
+  const getJobDateDiff = (jobDueDate: string , deliveredDate?: string) => {
+    const now = deliveredDate
+      ? dayjs(deliveredDate)
+      : dayjs()
     const dueDate = dayjs(jobDueDate)
     const diff = dueDate.diff(now, 'second')
     const isPast = diff < 0
@@ -537,6 +540,15 @@ const ProJobInfo = ({
       )
     }
   }
+
+  // status가 Overdue일 때, onClickOnClickStatusMoreInfo를 호출하여 디테일 페이지 진입시 모달을 띄워준다.
+  useEffect(() => {
+    if (jobInfo) {
+      if (jobInfo.status === 60300) {
+        onClickOnClickStatusMoreInfo(jobInfo.status as ProJobStatusType)
+      }
+    }
+  }, [jobInfo])
 
   return (
     <Grid container xs={12} spacing={4}>
@@ -978,9 +990,9 @@ const ProJobInfo = ({
                         alignItems: 'center',
                       }}
                     >
-                      {jobInfo.status === 601000 ? (
+                      {[60300, 60500].includes(jobInfo.status) ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                          {getJobDateDiff(jobInfo.dueAt)}
+                          {getJobDateDiff(jobInfo.dueAt, jobInfo.finalProDeliveredAt)}
                         </Box>
                       ) : (
                         <Typography variant='body2'>
