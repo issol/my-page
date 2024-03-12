@@ -173,6 +173,10 @@ export const ServiceTypePair = {
       value: ServiceType['Post-mix'],
       label: ServiceType['Post-mix'],
     },
+    {
+      value: ServiceType.PLDL,
+      label: ServiceType.PLDL,
+    },
   ],
   Interpretation: [
     { label: ServiceType['In-person'], value: ServiceType['In-person'] },
@@ -205,8 +209,8 @@ export const ServiceTypePair = {
       label: ServiceType['SDH/CC'],
     },
     {
-      value: ServiceType['Template/PLDL'],
-      label: ServiceType['Template/PLDL'],
+      value: ServiceType['Template'],
+      label: ServiceType['Template'],
     },
     {
       value: ServiceType['Supplemental/Marketing'],
