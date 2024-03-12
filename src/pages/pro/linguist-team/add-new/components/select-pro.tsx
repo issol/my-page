@@ -25,6 +25,7 @@ import {
   ProStatusChip,
   RoleChip,
 } from '@src/@core/components/chips/chips'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 type Props = {
   onClickSelectProsHelperIcon: () => void
@@ -58,6 +59,7 @@ const SelectPro = ({
         width: '100%',
         flexDirection: 'column',
         height: '100%',
+        minHeight: '772px',
       }}
     >
       <Box
@@ -160,7 +162,7 @@ const SelectPro = ({
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
-
+            minHeight: '772px',
             background: '#F7F8FF',
           }}
           className='selectPro'
@@ -171,7 +173,18 @@ const SelectPro = ({
               data-droppable-id={'proList'}
               sx={{
                 overflowY: 'scroll',
-                maxHeight: '520px',
+                maxHeight: '650px',
+                '&::-webkit-scrollbar': {
+                  width: 6,
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  borderRadius: 20,
+                  background: hexToRGBA('#57596C', 0.6),
+                },
+                '&::-webkit-scrollbar-track': {
+                  borderRadius: 20,
+                  background: 'transparent',
+                },
               }}
             >
               {fields.map((value, index) => {

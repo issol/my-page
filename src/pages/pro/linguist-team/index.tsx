@@ -46,11 +46,6 @@ const LinguistTeam = () => {
   const { data: serviceTypeList } = useGetServiceType()
   const { data: linguistList, isLoading } = useGetLinguistTeam(activeFilter)
   const { data: clientList } = useGetSimpleClientList()
-  // const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
-  // const clientList = useMemo(
-  //   () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
-  //   [clientData],
-  // )
 
   const onSearch = () => {
     setActiveFilter({
