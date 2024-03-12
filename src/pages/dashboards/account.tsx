@@ -125,7 +125,15 @@ const AccountDashboards = () => {
           <GridItem width={450} height={76}>
             <Box sx={{ display: 'flex', gap: '8px' }}>
               <CSVDownload title={`${getFileTitle('DASHBOARD')}`} data={CSVData || []} />
-              <AccountingDownload title={`${getFileTitle('ACCOUNTING')}`} />
+              <AccountingDownload 
+                title={`${getFileTitle('ACCOUNTING')}`}
+                projectDueDateFrom={getDateFormat(
+                  (Array.isArray(dateRange) && dateRange[0]) || null,
+                )}
+                projectDueDateTo={getDateFormat(
+                  (Array.isArray(dateRange) && dateRange[1]) || null,
+                )}
+              />
             </Box>
           </GridItem>
         </Grid>

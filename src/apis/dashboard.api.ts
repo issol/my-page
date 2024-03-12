@@ -230,9 +230,23 @@ export const getAccountPaymentType = async ({
   return data
 }
 
-export const getAccountOrderJobDataToCSV = async () => {
+export const getAccountOrderDataToCSV = async (
+  projectDueDateFrom: string,
+  projectDueDateTo: string,
+) => {
   const { data } = await axios.get(
-    `/api/enough/u/account-report`,
+    `/api/enough/u/account-report/order?projectDueDateFrom=${projectDueDateFrom}&projectDueDateTo=${projectDueDateTo}`,
+  )
+
+  return data
+}
+
+export const getAccountJobDataToCSV = async (
+  projectDueDateFrom: string,
+  projectDueDateTo: string,
+) => {
+  const { data } = await axios.get(
+    `/api/enough/u/account-report/job?projectDueDateFrom=${projectDueDateFrom}&projectDueDateTo=${projectDueDateTo}`,
   )
 
   return data
