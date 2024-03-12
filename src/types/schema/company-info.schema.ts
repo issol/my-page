@@ -38,25 +38,26 @@ export const companyInfoSchema = yup.object().shape({
   // websiteLink: yup.string().url(FormErrors.invalidUrl).nullable(),
   websiteLink: yup
     .string()
-    .matches(
-      /[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/,
-      FormErrors.invalidUrl,
-    )
     .test('is-http-url', FormErrors.notHTTPPrefixUrl, value => {
-      if (!value) return true // Pass validation if value is empty
+      if (!value || value === "") return true // Pass validation if value is empty
       return value.startsWith('https://') || value.startsWith('http://')
-    }),
+    })
+    .url(FormErrors.invalidUrl)
+    .nullable(),
   timezone: yup.object().shape({
     code: yup.string().nullable(),
     label: yup.string().required(FormErrors.required),
   }),
   isTaxable: yup.boolean().required(FormErrors.required),
+  // TODO: isTaxable 결과에 따른 tax 유효성 검사가 잘 되지 않아 tax를 nullable 처리하고 필드에서 별도 유효성 로직을 추가함
   tax: yup
     .number()
-    .required(FormErrors.required)
-    .when('isTaxable', (isTaxable, schema) =>
-      !isTaxable ? yup.number().nullable() : schema,
-    ),
+    .nullable(),
+    // .when('isTaxable', (isTaxable, schema) =>
+    //   isTaxable
+    //     ? schema.required(FormErrors.required)
+    //     : yup.number().nullable().notRequired(),
+    // ),
   memo: yup.string().nullable(),
   headquarter: yup.string().nullable(),
   registrationNumber: yup.string().nullable(),
