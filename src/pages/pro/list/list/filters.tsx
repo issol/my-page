@@ -206,7 +206,7 @@ const ProListFilters = ({
           </Grid>
 
           <Grid item xs={3}>
-            <Box className='filterFormAutoComplete'>
+            <Box className='filterFormSoloAutoComplete'>
               <Controller
                 control={control}
                 name='source'
@@ -261,7 +261,7 @@ const ProListFilters = ({
             </Box>
           </Grid>
           <Grid item xs={3}>
-            <Box className='filterFormAutoComplete'>
+            <Box className='filterFormSoloAutoComplete'>
               <Controller
                 control={control}
                 name='target'

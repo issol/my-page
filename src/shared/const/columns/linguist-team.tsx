@@ -62,9 +62,6 @@ export const getLinguistTeamColumns = (
               alignItems: 'center',
             }}
           >
-            <Typography variant='body1' fontWeight={600}>
-              {row.name}
-            </Typography>
             {row.isPrivate ? (
               <Box
                 sx={{
@@ -80,6 +77,9 @@ export const getLinguistTeamColumns = (
                 <Icon icon='mdi:lock' color='#8D8E9A' />
               </Box>
             ) : null}
+            <Typography variant='body1' fontWeight={600}>
+              {row.name}
+            </Typography>
           </Box>
         )
       },

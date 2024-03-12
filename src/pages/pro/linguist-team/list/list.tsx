@@ -189,7 +189,11 @@ const LinguistTeamList = ({
                 return (
                   <Grid key={uuidv4()} item lg={3} md={4} xs={4}>
                     <Card>
-                      <CardActionArea>
+                      <CardActionArea
+                        onClick={() => {
+                          router.push(`/pro/linguist-team/detail/${item.id}`)
+                        }}
+                      >
                         <Box
                           sx={{
                             display: 'flex',
@@ -335,11 +339,9 @@ const LinguistTeamList = ({
             rowCount={data.totalCount ?? 0}
             loading={isLoading}
             rowsPerPageOptions={[10, 25, 50]}
-            // onCellClick={params => {
-            //   router.push(
-            //     `/orders/job-list/job-template/form?mode=detail&id=${params.id}`,
-            //   )
-            // }}
+            onCellClick={params => {
+              router.push(`/pro/linguist-team/detail/${params.id}`)
+            }}
             pagination
             page={skip}
             pageSize={pageSize}

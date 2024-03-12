@@ -47,7 +47,50 @@ const detailData: LinguistTeamDetailType = {
   description: 'Description1',
   isPrivate: true,
   isPrioritized: true,
-  pros: [],
+  pros: [
+    {
+      id: 'P-122345',
+      userId: 122345,
+      resume: [
+        'user/122345/resume/LeslieShea_Resume.pdf',
+        'user/122345/resume/Copy of NDA_GLOCCONT_GDR_US (11).pdf',
+        'user/122345/resume/Non-US Citizen W-8 (13) (1).pdf',
+        'user/122345/resume/US Contractor Form W9.pdf',
+      ],
+      email: 'leslieyshea@gmail.com',
+      firstName: 'Leslie',
+
+      lastName: 'Shea',
+      experience: '1-3 years',
+      isOnboarded: true,
+      onboardedAt: '2022-03-17T18:13:48.000Z',
+      order: 1,
+      status: 'Onboard',
+      isActive: true,
+      jobInfo: [
+        {
+          id: 113540,
+          createdAt: '2023-10-30T16:58:28.993Z',
+          updatedAt: '2023-10-30T16:58:28.993Z',
+          jobId: '1',
+          jobType: 'OTT/Subtitle',
+          role: 'Subtitle author',
+          source: 'en-US',
+          target: 'en-US',
+          roleRequestId: null,
+          roleRequestStatus: null,
+          testStatus: 'Awaiting assignment',
+          selected: true,
+        },
+      ],
+      clients: [
+        {
+          id: 1,
+          client: '[TEST] NHN',
+        },
+      ],
+    },
+  ],
 }
 
 export const getLinguistTeamList = async (filter: FilterType) => {

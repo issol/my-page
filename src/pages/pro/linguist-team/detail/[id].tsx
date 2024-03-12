@@ -53,6 +53,7 @@ const LinguistTeamDetail = () => {
 
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
+  const [expandSelectProArea, setExpandSelectProArea] = useState<boolean>(false)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -214,38 +215,57 @@ const LinguistTeamDetail = () => {
   }
 
   const handleBack = () => {
-    if (!isDirty) {
+    if (!editMode) {
       router.replace('/pro/?tab=linguistList')
     } else {
-      openModal({
-        type: 'LinguistEditCancel',
-        children: (
-          <CustomModal
-            vary='error-alert'
-            title={
-              <Box
-                sx={{
-                  display: 'flex',
-                  gap: '10px',
-                  flexDirection: 'column',
-                }}
-              >
-                <Typography variant='body1' fontSize={20} fontWeight={500}>
-                  Discard changes?
-                </Typography>
-                Are you sure you want to discard all changes?
-              </Box>
-            }
-            rightButtonText='Discard'
-            onClick={() => {
-              closeModal('LinguistEditCancel')
-              router.replace('/pro/?tab=linguistList')
-            }}
-            onClose={() => closeModal('LinguistEditCancel')}
-          />
-        ),
-      })
+      if (!isDirty) {
+        setEditMode(false)
+      } else {
+        openModal({
+          type: 'LinguistEditCancel',
+          children: (
+            <CustomModal
+              vary='error-alert'
+              title={
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: '10px',
+                    flexDirection: 'column',
+                  }}
+                >
+                  <Typography variant='body1' fontSize={20} fontWeight={500}>
+                    Discard changes?
+                  </Typography>
+                  Are you sure you want to discard all changes?
+                </Box>
+              }
+              rightButtonText='Discard'
+              onClick={() => {
+                closeModal('LinguistEditCancel')
+                setEditMode(false)
+              }}
+              onClose={() => closeModal('LinguistEditCancel')}
+            />
+          ),
+        })
+      }
     }
+  }
+
+  const handleSaveChanges = () => {
+    const pros = getValues().pros.map((pro, index) => {
+      return {
+        userId: pro.userId,
+        order: index + 1,
+      }
+    })
+    const result = {
+      ...getValues(),
+      pros,
+    }
+
+    // TODO API call
   }
 
   const onClickSave = () => {
@@ -271,6 +291,7 @@ const LinguistTeamDetail = () => {
           rightButtonText='Save'
           onClick={() => {
             closeModal('SaveLinguistTeam')
+            handleSaveChanges()
           }}
           onClose={() => closeModal('SaveLinguistTeam')}
         />
@@ -307,7 +328,13 @@ const LinguistTeamDetail = () => {
   return (
     <>
       {data && !isLoading && serviceTypeList ? (
-        <Card sx={{ position: 'relative', height: '100%' }}>
+        <Card
+          sx={{
+            position: 'relative',
+            paddingBottom: editMode ? '100px' : 0,
+            height: editMode ? '100%' : 'auto',
+          }}
+        >
           <Box
             display='flex'
             alignItems='center'
@@ -474,487 +501,535 @@ const LinguistTeamDetail = () => {
             )}
           </Box>
           {/* info */}
-          <Grid
-            container
-            spacing={6}
-            rowSpacing={4}
-            sx={{ padding: '24px 20px', borderBottom: '1px solid #E9EAEC' }}
-          >
-            {editMode ? (
-              <>
-                <Grid item xs={4}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                    }}
-                  >
-                    <Typography fontSize={14} fontWeight={600}>
-                      Team name&nbsp;
-                      <Typography color='#666CFF' component='span'>
-                        *
+          {expandSelectProArea ? null : (
+            <Grid
+              container
+              spacing={6}
+              rowSpacing={4}
+              sx={{ padding: '24px 20px', borderBottom: '1px solid #E9EAEC' }}
+            >
+              {editMode ? (
+                <>
+                  <Grid item xs={4}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
+                      <Typography fontSize={14} fontWeight={600}>
+                        Team name&nbsp;
+                        <Typography color='#666CFF' component='span'>
+                          *
+                        </Typography>
                       </Typography>
-                    </Typography>
-                    <FormControl fullWidth className='filterFormControl'>
+                      <FormControl fullWidth className='filterFormControl'>
+                        <Controller
+                          name='name'
+                          control={control}
+                          render={({ field, formState }) => {
+                            return (
+                              <TextField
+                                value={field.value}
+                                error={
+                                  !!formState.errors.name &&
+                                  formState.isSubmitted
+                                }
+                                helperText={
+                                  formState.isSubmitted
+                                    ? formState.errors.name?.message
+                                    : ''
+                                }
+                                sx={{
+                                  height: '46px',
+                                }}
+                                inputProps={{
+                                  style: {
+                                    height: '46px',
+                                    padding: '0 14px',
+                                  },
+                                }}
+                                onChange={e => {
+                                  if (e.target.value) {
+                                    if (e.target.value.length <= 50)
+                                      field.onChange(e, {
+                                        shouldDirty: true,
+                                      })
+                                  } else {
+                                    field.onChange(null)
+                                  }
+                                }}
+                              />
+                            )
+                          }}
+                        />
+                      </FormControl>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
+                      <Typography fontSize={14} fontWeight={600}>
+                        Client
+                      </Typography>
+                      <Box className='filterFormSoloAutoComplete'>
+                        <Controller
+                          name='clientId'
+                          control={control}
+                          render={({ field, formState }) => {
+                            return (
+                              <Autocomplete
+                                fullWidth
+                                options={clientList || []}
+                                value={
+                                  clientList?.find(
+                                    value => value.clientId === field.value,
+                                  ) ?? null
+                                }
+                                getOptionLabel={option => option.name}
+                                onChange={(e, v) => {
+                                  console.log(v)
+
+                                  if (v) {
+                                    field.onChange(v.clientId)
+                                  } else {
+                                    field.onChange(null)
+                                  }
+                                }}
+                                renderInput={params => (
+                                  <TextField {...params} autoComplete='off' />
+                                )}
+                              />
+                            )
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        // gap: '8px',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', gap: '4px' }}>
+                        <Typography fontSize={14} fontWeight={600}>
+                          Service type
+                        </Typography>
+                        <Typography color='#666CFF' fontSize={14}>
+                          *
+                        </Typography>
+                      </Box>
+
+                      <Box className='filterFormSoloAutoComplete'>
+                        <Controller
+                          name='serviceTypeId'
+                          control={control}
+                          render={({ field, formState }) => {
+                            return (
+                              <Autocomplete
+                                fullWidth
+                                options={serviceTypeList}
+                                value={serviceTypeList.find(
+                                  (item: { value: number; label: string }) =>
+                                    field.value === item.value,
+                                )}
+                                onChange={(e, v) => {
+                                  if (v) {
+                                    field.onChange(v.value)
+                                  } else {
+                                    field.onChange(null)
+                                  }
+                                }}
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    autoComplete='off'
+                                    error={
+                                      !!formState.errors.serviceTypeId &&
+                                      formState.isSubmitted
+                                    }
+                                    helperText={
+                                      formState.isSubmitted
+                                        ? formState.errors.serviceTypeId
+                                            ?.message
+                                        : ''
+                                    }
+                                  />
+                                )}
+                              />
+                            )
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', gap: '4px' }}>
+                        <Typography fontSize={14} fontWeight={600}>
+                          Source language
+                        </Typography>
+                        <Typography color='#666CFF' fontSize={14}>
+                          *
+                        </Typography>
+                      </Box>
+                      <Box className='filterFormSoloAutoComplete'>
+                        <Controller
+                          name='sourceLanguage'
+                          control={control}
+                          render={({ field, formState }) => {
+                            return (
+                              <Autocomplete
+                                fullWidth
+                                options={_.uniqBy(languageList, 'value')}
+                                getOptionLabel={option => option.label}
+                                value={
+                                  languageList.find(
+                                    (item: {
+                                      value: string
+                                      label: GloLanguageEnum
+                                    }) => field.value === item.value,
+                                  ) ?? null
+                                }
+                                onChange={(e, v) => {
+                                  if (v) {
+                                    field.onChange(v.value)
+                                  } else {
+                                    field.onChange(null)
+                                  }
+                                }}
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    autoComplete='off'
+                                    error={
+                                      !!formState.errors.sourceLanguage &&
+                                      formState.isSubmitted
+                                    }
+                                    helperText={
+                                      formState.isSubmitted
+                                        ? formState.errors.sourceLanguage
+                                            ?.message
+                                        : ''
+                                    }
+                                  />
+                                )}
+                              />
+                            )
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', gap: '4px' }}>
+                        <Typography fontSize={14} fontWeight={600}>
+                          Target language
+                        </Typography>
+                        <Typography color='#666CFF' fontSize={14}>
+                          *
+                        </Typography>
+                      </Box>
+                      <Box className='filterFormSoloAutoComplete'>
+                        <Controller
+                          name='targetLanguage'
+                          control={control}
+                          render={({ field, formState }) => {
+                            return (
+                              <Autocomplete
+                                fullWidth
+                                options={_.uniqBy(languageList, 'value')}
+                                getOptionLabel={option => option.label}
+                                value={
+                                  languageList.find(
+                                    (item: {
+                                      value: string
+                                      label: GloLanguageEnum
+                                    }) => field.value === item.value,
+                                  ) ?? null
+                                }
+                                onChange={(e, v) => {
+                                  if (v) {
+                                    field.onChange(v.value)
+                                  } else {
+                                    field.onChange(null)
+                                  }
+                                }}
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    autoComplete='off'
+                                    error={
+                                      !!formState.errors.targetLanguage &&
+                                      formState.isSubmitted
+                                    }
+                                    helperText={
+                                      formState.isSubmitted
+                                        ? formState.errors.targetLanguage
+                                            ?.message
+                                        : ''
+                                    }
+                                  />
+                                )}
+                              />
+                            )
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                        '& .MuiInputBase-root': {
+                          height: '46px',
+                        },
+                      }}
+                    >
+                      <Typography fontSize={14} fontWeight={600}>
+                        Description
+                      </Typography>
+
                       <Controller
-                        name='name'
+                        name='description'
                         control={control}
-                        render={({ field, formState }) => {
+                        render={({ field }) => {
                           return (
                             <TextField
-                              value={field.value}
-                              error={
-                                !!formState.errors.name && formState.isSubmitted
-                              }
-                              helperText={
-                                formState.isSubmitted
-                                  ? formState.errors.name?.message
-                                  : ''
-                              }
                               sx={{
                                 height: '46px',
                               }}
-                              inputProps={{
-                                style: {
-                                  height: '46px',
-                                  padding: '0 14px',
-                                },
-                              }}
+                              value={field.value}
                               onChange={e => {
                                 if (e.target.value) {
-                                  if (e.target.value.length <= 50)
-                                    field.onChange(e, {
-                                      shouldDirty: true,
-                                    })
+                                  if (e.target.value.length <= 50) {
+                                    field.onChange(e)
+                                  }
                                 } else {
                                   field.onChange(null)
                                 }
+                                trigger('description')
                               }}
                             />
                           )
                         }}
                       />
-                    </FormControl>
-                  </Box>
-                </Grid>
-                <Grid item xs={4}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                    }}
-                  >
-                    <Typography fontSize={14} fontWeight={600}>
-                      Client
-                    </Typography>
-                    <Box className='filterFormSoloAutoComplete'>
-                      <Controller
-                        name='clientId'
-                        control={control}
-                        render={({ field, formState }) => {
-                          return (
-                            <Autocomplete
-                              fullWidth
-                              options={clientList || []}
-                              value={
-                                clientList?.find(
-                                  value => value.clientId === field.value,
-                                ) ?? null
-                              }
-                              onChange={(e, v) => field.onChange(v ? v : null)}
-                              renderInput={params => (
-                                <TextField {...params} autoComplete='off' />
-                              )}
-                            />
-                          )
-                        }}
-                      />
+
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Typography color='#888' fontSize={12} fontWeight={400}>
+                          {getValues('description')
+                            ? getValues('description')?.length
+                            : 0}
+                          /50
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </Grid>
-                <Grid item xs={4}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                      // gap: '8px',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', gap: '4px' }}>
-                      <Typography fontSize={14} fontWeight={600}>
+                  </Grid>
+                </>
+              ) : (
+                <>
+                  <Grid item xs={2.8}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <Typography
+                        fontSize={12}
+                        color='#8D8E9A'
+                        fontWeight={400}
+                      >
+                        No.
+                      </Typography>
+                      <Typography fontSize={14} fontWeight={400}>
+                        {data.corporationId}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={2.8}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <Typography
+                        fontSize={12}
+                        color='#8D8E9A'
+                        fontWeight={400}
+                      >
+                        Creator
+                      </Typography>
+                      <Typography fontSize={14} fontWeight={400}>
+                        {getLegalName({
+                          firstName: data.author.firstName,
+                          lastName: data.author.lastName,
+                          middleName: data.author.middleName,
+                        })}
+                        ({data.author.email})
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={2.8}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <Typography
+                        fontSize={12}
+                        color='#8D8E9A'
+                        fontWeight={400}
+                      >
+                        Last updated
+                      </Typography>
+                      <Typography fontSize={14} fontWeight={400}>
+                        {convertTimeToTimezone(
+                          data.updatedAt,
+                          auth.getValue().user?.timezone,
+                          timezone.getValue(),
+                        )}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={3.6}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <Typography
+                        fontSize={12}
+                        color='#8D8E9A'
+                        fontWeight={400}
+                      >
+                        Description
+                      </Typography>
+                      <Typography fontSize={14} fontWeight={400}>
+                        {data.description ?? '-'}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={2.8}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <Typography
+                        fontSize={12}
+                        color='#8D8E9A'
+                        fontWeight={400}
+                      >
+                        Client
+                      </Typography>
+                      <Typography fontSize={14} fontWeight={400}>
+                        {data.clientId}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={2.8}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <Typography
+                        fontSize={12}
+                        color='#8D8E9A'
+                        fontWeight={400}
+                      >
                         Service type
                       </Typography>
-                      <Typography color='#666CFF' fontSize={14}>
-                        *
+                      <Typography fontSize={14} fontWeight={400}>
+                        {serviceTypeList?.find(
+                          value => value.value === data.serviceTypeId,
+                        )?.label ?? '-'}
                       </Typography>
                     </Box>
-
-                    <Box className='filterFormSoloAutoComplete'>
-                      <Controller
-                        name='serviceTypeId'
-                        control={control}
-                        render={({ field, formState }) => {
-                          return (
-                            <Autocomplete
-                              fullWidth
-                              options={serviceTypeList}
-                              value={serviceTypeList.find(
-                                (item: { value: number; label: string }) =>
-                                  field.value === item.value,
-                              )}
-                              onChange={(e, v) => {
-                                if (v) {
-                                  field.onChange(v.value)
-                                } else {
-                                  field.onChange(null)
-                                }
-                              }}
-                              renderInput={params => (
-                                <TextField
-                                  {...params}
-                                  autoComplete='off'
-                                  error={
-                                    !!formState.errors.serviceTypeId &&
-                                    formState.isSubmitted
-                                  }
-                                  helperText={
-                                    formState.isSubmitted
-                                      ? formState.errors.serviceTypeId?.message
-                                      : ''
-                                  }
-                                />
-                              )}
-                            />
-                          )
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                </Grid>
-                <Grid item xs={4}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', gap: '4px' }}>
-                      <Typography fontSize={14} fontWeight={600}>
+                  </Grid>
+                  <Grid item xs={2.8}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <Typography
+                        fontSize={12}
+                        color='#8D8E9A'
+                        fontWeight={400}
+                      >
                         Source language
                       </Typography>
-                      <Typography color='#666CFF' fontSize={14}>
-                        *
+                      <Typography fontSize={14} fontWeight={400}>
+                        {languageHelper(data.sourceLanguage)}
                       </Typography>
                     </Box>
-                    <Box className='filterFormSoloAutoComplete'>
-                      <Controller
-                        name='sourceLanguage'
-                        control={control}
-                        render={({ field, formState }) => {
-                          return (
-                            <Autocomplete
-                              fullWidth
-                              options={_.uniqBy(languageList, 'value')}
-                              getOptionLabel={option => option.label}
-                              value={
-                                languageList.find(
-                                  (item: {
-                                    value: string
-                                    label: GloLanguageEnum
-                                  }) => field.value === item.value,
-                                ) ?? null
-                              }
-                              onChange={(e, v) => {
-                                if (v) {
-                                  field.onChange(v.value)
-                                } else {
-                                  field.onChange(null)
-                                }
-                              }}
-                              renderInput={params => (
-                                <TextField
-                                  {...params}
-                                  autoComplete='off'
-                                  error={
-                                    !!formState.errors.sourceLanguage &&
-                                    formState.isSubmitted
-                                  }
-                                  helperText={
-                                    formState.isSubmitted
-                                      ? formState.errors.sourceLanguage?.message
-                                      : ''
-                                  }
-                                />
-                              )}
-                            />
-                          )
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                </Grid>
-                <Grid item xs={4}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', gap: '4px' }}>
-                      <Typography fontSize={14} fontWeight={600}>
+                  </Grid>
+                  <Grid item xs={3.6}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px',
+                      }}
+                    >
+                      <Typography
+                        fontSize={12}
+                        color='#8D8E9A'
+                        fontWeight={400}
+                      >
                         Target language
                       </Typography>
-                      <Typography color='#666CFF' fontSize={14}>
-                        *
+                      <Typography fontSize={14} fontWeight={400}>
+                        {languageHelper(data.targetLanguage)}
                       </Typography>
                     </Box>
-                    <Box className='filterFormSoloAutoComplete'>
-                      <Controller
-                        name='targetLanguage'
-                        control={control}
-                        render={({ field, formState }) => {
-                          return (
-                            <Autocomplete
-                              fullWidth
-                              options={_.uniqBy(languageList, 'value')}
-                              getOptionLabel={option => option.label}
-                              value={
-                                languageList.find(
-                                  (item: {
-                                    value: string
-                                    label: GloLanguageEnum
-                                  }) => field.value === item.value,
-                                ) ?? null
-                              }
-                              onChange={(e, v) => {
-                                if (v) {
-                                  field.onChange(v.value)
-                                } else {
-                                  field.onChange(null)
-                                }
-                              }}
-                              renderInput={params => (
-                                <TextField
-                                  {...params}
-                                  autoComplete='off'
-                                  error={
-                                    !!formState.errors.targetLanguage &&
-                                    formState.isSubmitted
-                                  }
-                                  helperText={
-                                    formState.isSubmitted
-                                      ? formState.errors.targetLanguage?.message
-                                      : ''
-                                  }
-                                />
-                              )}
-                            />
-                          )
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                </Grid>
-                <Grid item xs={4}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px',
-                      '& .MuiInputBase-root': {
-                        height: '46px',
-                      },
-                    }}
-                  >
-                    <Typography fontSize={14} fontWeight={600}>
-                      Description
-                    </Typography>
+                  </Grid>
+                </>
+              )}
+            </Grid>
+          )}
 
-                    <Controller
-                      name='description'
-                      control={control}
-                      render={({ field }) => {
-                        return (
-                          <TextField
-                            sx={{
-                              height: '46px',
-                            }}
-                            value={field.value}
-                            onChange={e => {
-                              if (e.target.value) {
-                                if (e.target.value.length <= 50) {
-                                  field.onChange(e)
-                                }
-                              } else {
-                                field.onChange(null)
-                              }
-                              trigger('description')
-                            }}
-                          />
-                        )
-                      }}
-                    />
-
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                      <Typography color='#888' fontSize={12} fontWeight={400}>
-                        {getValues('description')
-                          ? getValues('description')?.length
-                          : 0}
-                        /50
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Grid>
-              </>
-            ) : (
-              <>
-                <Grid item xs={2.8}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                    }}
-                  >
-                    <Typography fontSize={12} color='#8D8E9A' fontWeight={400}>
-                      No.
-                    </Typography>
-                    <Typography fontSize={14} fontWeight={400}>
-                      {data.corporationId}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={2.8}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                    }}
-                  >
-                    <Typography fontSize={12} color='#8D8E9A' fontWeight={400}>
-                      Creator
-                    </Typography>
-                    <Typography fontSize={14} fontWeight={400}>
-                      {getLegalName({
-                        firstName: data.author.firstName,
-                        lastName: data.author.lastName,
-                        middleName: data.author.middleName,
-                      })}
-                      ({data.author.email})
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={2.8}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                    }}
-                  >
-                    <Typography fontSize={12} color='#8D8E9A' fontWeight={400}>
-                      Last updated
-                    </Typography>
-                    <Typography fontSize={14} fontWeight={400}>
-                      {convertTimeToTimezone(
-                        data.updatedAt,
-                        auth.getValue().user?.timezone,
-                        timezone.getValue(),
-                      )}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={3.6}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                    }}
-                  >
-                    <Typography fontSize={12} color='#8D8E9A' fontWeight={400}>
-                      Description
-                    </Typography>
-                    <Typography fontSize={14} fontWeight={400}>
-                      {data.description ?? '-'}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={2.8}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                    }}
-                  >
-                    <Typography fontSize={12} color='#8D8E9A' fontWeight={400}>
-                      Client
-                    </Typography>
-                    <Typography fontSize={14} fontWeight={400}>
-                      {data.clientId}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={2.8}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                    }}
-                  >
-                    <Typography fontSize={12} color='#8D8E9A' fontWeight={400}>
-                      Service type
-                    </Typography>
-                    <Typography fontSize={14} fontWeight={400}>
-                      {serviceTypeList?.find(
-                        value => value.value === data.serviceTypeId,
-                      )?.label ?? '-'}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={2.8}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                    }}
-                  >
-                    <Typography fontSize={12} color='#8D8E9A' fontWeight={400}>
-                      Source language
-                    </Typography>
-                    <Typography fontSize={14} fontWeight={400}>
-                      {languageHelper(data.sourceLanguage)}
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={3.6}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '4px',
-                    }}
-                  >
-                    <Typography fontSize={12} color='#8D8E9A' fontWeight={400}>
-                      Target language
-                    </Typography>
-                    <Typography fontSize={14} fontWeight={400}>
-                      {languageHelper(data.targetLanguage)}
-                    </Typography>
-                  </Box>
-                </Grid>
-              </>
-            )}
-          </Grid>
           <SelectPro
             onClickSelectProsHelperIcon={onClickSelectProsHelperIcon}
             fields={fields}
@@ -965,6 +1040,8 @@ const LinguistTeamDetail = () => {
             remove={remove}
             handleBack={handleBack}
             onClickSave={onClickSave}
+            setExpandSelectProArea={setExpandSelectProArea}
+            expandSelectProArea={expandSelectProArea}
             type={editMode ? 'edit' : 'detail'}
           />
         </Card>

@@ -19,6 +19,7 @@ import { getValue } from '@mui/system'
 import {
   DataGrid,
   GridCallbackDetails,
+  GridRowsProp,
   GridSelectionModel,
 } from '@mui/x-data-grid'
 import NoList from '@src/pages/components/no-list'
@@ -94,6 +95,8 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
 
   const { data: proList, isLoading } = useGetProList(activeFilter)
   const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
+  const [rows, setRows] = useState<ProListType[]>([])
+  const [pagedRows, setPagedRows] = useState<ProListType[]>([])
 
   const languageList = getGloLanguage()
   const { data: clientList } = useGetSimpleClientList()
@@ -130,15 +133,18 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
   useEffect(() => {
     if (proList) {
       const prosValues = getValues('pros').map(value => value.userId)
-      // console.log(prosValues)
-
       setSelectionModel(prosValues)
+      setRows(proList.data)
+      setPagedRows(prev => [
+        ...prev,
+        ...proList.data.filter(
+          pro => !prev.some(prevPro => prevPro.userId === pro.userId),
+        ),
+      ])
 
-      const filteredProList = proList.data.filter(pro =>
-        prosValues.some(proValue => pro.userId === proValue),
-      )
-
-      // console.log(filteredProList)
+      // const filteredProList = proList.data.filter(pro =>
+      //   prosValues.some(proValue => pro.userId !== proValue),
+      // )
     }
   }, [proList])
 
@@ -481,7 +487,7 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
         <DataGrid
           autoHeight
           sx={{ minHeight: '482px' }}
-          rows={proList?.data || []}
+          rows={rows || []}
           components={{
             NoRowsOverlay: () => NoList('There are no pros'),
             NoResultsOverlay: () => NoList('There are no pros'),
@@ -519,10 +525,11 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
             startIcon={<Icon icon='mdi:check' />}
             disabled={!selectionModel.length}
             onClick={() => {
+              console.log(selectionModel)
+
               onClickSelectPro(
-                proList?.data?.filter(pro =>
-                  selectionModel.includes(pro.userId),
-                ) || [],
+                pagedRows.filter(pro => selectionModel.includes(pro.userId)) ||
+                  [],
               )
               onClose()
             }}
