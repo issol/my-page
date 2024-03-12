@@ -83,6 +83,7 @@ export const CategoryListPair = {
   [ServiceType['Post-mix']]: [
     { label: Category.Dubbing, value: Category.Dubbing },
   ],
+  [ServiceType['PLDL']]: [{ label: Category.Dubbing, value: Category.Dubbing }],
 
   [ServiceType['In-person']]: [
     { label: Category.Interpretation, value: Category.Interpretation },
@@ -107,7 +108,7 @@ export const CategoryListPair = {
   [ServiceType['SDH/CC']]: [
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
   ],
-  [ServiceType['Template/PLDL']]: [
+  [ServiceType['Template']]: [
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
   ],
   [ServiceType['Supplemental/Marketing']]: [

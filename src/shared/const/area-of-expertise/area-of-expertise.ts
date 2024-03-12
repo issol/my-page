@@ -47,8 +47,8 @@ export const AreaOfExpertisePair = {
       label: AreaOfExpertise['Game'],
     },
     {
-      value: AreaOfExpertise['Government/Infographics'],
-      label: AreaOfExpertise['Government/Infographics'],
+      value: AreaOfExpertise['Governments/Infographics'],
+      label: AreaOfExpertise['Governments/Infographics'],
     },
     {
       value: AreaOfExpertise['Legal'],
@@ -210,13 +210,10 @@ export const AreaOfExpertisePair = {
     },
     { value: AreaOfExpertise['Game'], label: AreaOfExpertise['Game'] },
     {
-      value: AreaOfExpertise['Government/Infographics'],
-      label: AreaOfExpertise['Government/Infographics'],
+      value: AreaOfExpertise['Governments/Infographics'],
+      label: AreaOfExpertise['Governments/Infographics'],
     },
-    {
-      value: AreaOfExpertise['Interpreting'],
-      label: AreaOfExpertise['Interpreting'],
-    },
+
     { value: AreaOfExpertise['Legal'], label: AreaOfExpertise['Legal'] },
     { value: AreaOfExpertise['LGBTQ/BL'], label: AreaOfExpertise['LGBTQ/BL'] },
     {
@@ -366,8 +363,8 @@ export const AreaOfExpertisePair = {
       label: AreaOfExpertise['Historical'],
     },
     {
-      value: AreaOfExpertise['Government/Infographics'],
-      label: AreaOfExpertise['Government/Infographics'],
+      value: AreaOfExpertise['Governments/Infographics'],
+      label: AreaOfExpertise['Governments/Infographics'],
     },
 
     { value: AreaOfExpertise['LGBTQ/BL'], label: AreaOfExpertise['LGBTQ/BL'] },
