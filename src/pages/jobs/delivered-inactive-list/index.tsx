@@ -8,7 +8,7 @@ import {
 import { useForm } from 'react-hook-form'
 import Filters from './filters'
 import { useGetStatusList } from '@src/queries/common.query'
-
+import { useQueryClient } from 'react-query'
 import { getProJobColumns } from '@src/shared/const/columns/pro-jobs'
 import JobList from '../requested-ongoing-list/list'
 import useModal from '@src/hooks/useModal'
@@ -62,6 +62,7 @@ export const completedDefaultFilters: JobListFilterType = {
 const DeliveredInactiveList = () => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const [filters, setFilters] = useState<JobListFilterType>(
     completedDefaultFilters,
@@ -98,11 +99,24 @@ const DeliveredInactiveList = () => {
       !statusListLoading &&
       !assignmentStatusListLoading
     ) {
-      // const filteredJobStatusList = jobStatusList.filter(value => {
-      //   return value.value >= 60600 && value.value !== 601100
-      // })
-      // setStatusList([...filteredJobStatusList])
-      setStatusList([...jobStatusList, ...assignmentJobStatusList])
+      const customStatusList = [
+        60600,
+        60700,
+        60800,
+        70200,
+        601000,
+        70500,
+        60900,
+      ]
+      const filteredJobStatusList = [
+        ...jobStatusList.filter(value => {
+          return value.value >= 60600 && value.value !== 601100
+        }),
+        ...assignmentJobStatusList.filter(value => {
+          return [70200, 70500].includes(value.value)
+        }),
+      ].sort((a, b) => customStatusList.indexOf(a.value) - customStatusList.indexOf(b.value));
+      setStatusList([...filteredJobStatusList])
     }
   }, [
     jobStatusList,
@@ -246,6 +260,10 @@ const DeliveredInactiveList = () => {
       ),
     })
   }
+
+  useEffect(() => {
+    queryClient.invalidateQueries(['proJobList', filters])
+  }, [])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

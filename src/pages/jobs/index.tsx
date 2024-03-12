@@ -24,6 +24,7 @@ import {
   useGetProJobList,
 } from '@src/queries/jobs/jobs.query'
 import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
+import { useRouter } from 'next/router'
 
 type MenuType = 'requested' | 'completed'
 
@@ -36,6 +37,9 @@ export type FilterType = {
 }
 
 const Jobs = () => {
+  const router = useRouter()
+  const tabQuery = router.query.tab as MenuType
+
   const { data: completedJob } = useGetProJobList(completedDefaultFilters)
 
   const { data: ongoingJob } = useGetProJobList(ongoingDefaultFilters)
@@ -46,6 +50,7 @@ const Jobs = () => {
   const [value, setValue] = useState<MenuType>('requested')
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
+    router.push({ pathname: '/jobs/', query: { tab: newValue } })
   }
 
   useEffect(() => {
@@ -57,6 +62,10 @@ const Jobs = () => {
       setOngoingDot(ongoingDot)
     }
   }, [completedJob, ongoingJob])
+
+  useEffect(() => {
+    if (tabQuery && (tabQuery === 'requested' || tabQuery === 'completed')) setValue(tabQuery)
+  }, [tabQuery])
 
   return (
     <>

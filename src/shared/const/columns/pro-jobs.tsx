@@ -37,8 +37,11 @@ export const getProJobColumns = (
     })
   }
 
-  const getJobDateDiff = (jobDueDate: string) => {
-    const now = dayjs()
+  const getJobDateDiff = (jobDueDate: string, useRemainingTime: Boolean, deliveredDate?: string) => {
+    const now = deliveredDate
+      ? dayjs(deliveredDate)
+      : dayjs()
+
     const dueDate = dayjs(jobDueDate)
 
     const diff = dueDate.diff(now, 'second')
@@ -57,7 +60,7 @@ export const getProJobColumns = (
             variant='body1'
             fontWeight={600}
             fontSize={14}
-            color='#e04440'
+            color={useRemainingTime ? '#e04440' : undefined}
           >
             {convertTimeToTimezone(
               jobDueDate,
@@ -65,16 +68,18 @@ export const getProJobColumns = (
               timezone.getValue(),
             )}
           </Typography>
-          <Typography
-            variant='body1'
-            fontWeight={400}
-            fontSize={14}
-            color='#e04440'
-          >{`${days > 0 ? days : ''} day(s) ${hours
-            .toString()
-            .padStart(2, '0')} hr(s) ${minutes
-            .toString()
-            .padStart(2, '0')} min(s) over`}</Typography>
+          {useRemainingTime && (
+            <Typography
+              variant='body1'
+              fontWeight={400}
+              fontSize={14}
+              color='#e04440'
+            >{`${days > 0 ? days : ''} day(s) ${hours
+              .toString()
+              .padStart(2, '0')} hr(s) ${minutes
+              .toString()
+              .padStart(2, '0')} min(s) over`}</Typography>
+          )}
         </>
       )
     } else if (!isPast && days === 0 && hours < 24) {
@@ -87,14 +92,16 @@ export const getProJobColumns = (
               timezone.getValue(),
             )}
           </Typography>
-          <Typography
-            variant='body1'
-            fontWeight={400}
-            fontSize={14}
-            color='#666CFF'
-          >{`${hours.toString().padStart(2, '0')} hrs ${minutes
-            .toString()
-            .padStart(2, '0')} mins left`}</Typography>
+          {useRemainingTime && (
+            <Typography
+              variant='body1'
+              fontWeight={400}
+              fontSize={14}
+              color='#666CFF'
+            >{`${hours.toString().padStart(2, '0')} hrs ${minutes
+              .toString()
+              .padStart(2, '0')} mins left`}</Typography>
+          )}
         </>
       )
     } else if (!isPast) {
@@ -228,9 +235,18 @@ export const getProJobColumns = (
       renderCell: ({ row }: { row: ProJobListType }) => {
         return (
           <>
-            {auth.state === 'hasValue' ? (
-              <Box>{getJobDateDiff(row.dueAt)}</Box>
-            ) : null}
+            {auth.state === 'hasValue'
+              ? (
+                <Box>{
+                  getJobDateDiff(
+                    row.dueAt,
+                    [60100, 60200, 60300, 60400, 60500, 7000, 70100, 70300].includes(row.status)
+                      ? true
+                      : false,
+                    row.finalProDeliveredAt,
+                  )
+                }</Box>
+              ) : null}
           </>
         )
       },
