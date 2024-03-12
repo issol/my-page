@@ -24,7 +24,7 @@ import NoList from '@src/pages/components/no-list'
 import { getLinguistTeamColumns } from '@src/shared/const/columns/linguist-team'
 import { useRouter } from 'next/router'
 import { MenuType } from '..'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 
 type Props = {
   data: {

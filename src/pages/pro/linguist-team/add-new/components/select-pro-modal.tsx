@@ -15,6 +15,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { getValue } from '@mui/system'
 import {
   DataGrid,
   GridCallbackDetails,
@@ -43,18 +44,6 @@ type Props = {
   onClose: () => void
   getValues: UseFormGetValues<LinguistTeamFormType>
   onClickSelectPro: (proList: ProListType[]) => void
-}
-
-type FilterType = {
-  client: string[]
-  jobType: string[]
-  role: string[]
-  source: string | null
-  target: string | null
-  experience: string[]
-  search: string
-  skip: number
-  take: number
 }
 
 export const initialFilter: LinguistTeamProListFilterType = {
@@ -117,6 +106,8 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
     selectionModel: GridSelectionModel,
     details: GridCallbackDetails<any>,
   ) => {
+    console.log(details)
+
     setSelectionModel(selectionModel)
   }
 
@@ -135,6 +126,21 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
       take: activeFilter.take,
     })
   }
+
+  useEffect(() => {
+    if (proList) {
+      const prosValues = getValues('pros').map(value => value.userId)
+      // console.log(prosValues)
+
+      setSelectionModel(prosValues)
+
+      const filteredProList = proList.data.filter(pro =>
+        prosValues.some(proValue => pro.userId === proValue),
+      )
+
+      // console.log(filteredProList)
+    }
+  }, [proList])
 
   return (
     <Box
@@ -484,6 +490,8 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
           checkboxSelection
           selectionModel={selectionModel}
           onSelectionModelChange={handleSelectionModelChange}
+          keepNonExistentRowsSelected
+          getRowId={row => row.userId}
           pagination
           paginationMode='server'
           pageSize={filter.take}
@@ -492,11 +500,13 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
           rowCount={proList?.totalCount || 0}
           loading={isLoading}
           onPageChange={(n: number) => {
+            setFilter({ ...filter, skip: n })
             setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
           }}
-          onPageSizeChange={(n: number) =>
+          onPageSizeChange={(n: number) => {
+            setFilter({ ...filter, take: n })
             setActiveFilter({ ...activeFilter, take: n })
-          }
+          }}
           // setProListPageSize(newPageSize)
 
           hideFooterSelectedRowCount
@@ -510,8 +520,9 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
             disabled={!selectionModel.length}
             onClick={() => {
               onClickSelectPro(
-                proList?.data?.filter(pro => selectionModel.includes(pro.id)) ||
-                  [],
+                proList?.data?.filter(pro =>
+                  selectionModel.includes(pro.userId),
+                ) || [],
               )
               onClose()
             }}

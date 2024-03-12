@@ -117,7 +117,7 @@ export const getProListColumns = (
               lastName: row.lastName,
               email: row.email,
             }}
-            link={`/pro/detail/${row.userId}`}
+            link={`/pro/list/detail/${row.userId}`}
           />
         )
       },
