@@ -109,7 +109,7 @@ const Filters = ({
           </Box>
         </Grid>
         <Grid item xs={3}>
-          <Box className='filterFormAutoComplete'>
+          <Box className='filterFormSoloAutoComplete'>
             <Autocomplete
               fullWidth
               options={_.uniqBy(languageList, 'value')}
@@ -131,7 +131,7 @@ const Filters = ({
           </Box>
         </Grid>
         <Grid item xs={3}>
-          <Box className='filterFormAutoComplete'>
+          <Box className='filterFormSoloAutoComplete'>
             <Autocomplete
               fullWidth
               options={_.uniqBy(languageList, 'value')}

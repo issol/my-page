@@ -5,6 +5,7 @@ import {
   FormControlLabel,
   IconButton,
   Switch,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
@@ -26,6 +27,7 @@ import {
   RoleChip,
 } from '@src/@core/components/chips/chips'
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
+import { Dispatch, SetStateAction } from 'react'
 
 type Props = {
   onClickSelectProsHelperIcon: () => void
@@ -38,6 +40,8 @@ type Props = {
   handleBack: () => void
   onClickSave: () => void
   type: 'edit' | 'create' | 'detail'
+  setExpandSelectProArea?: Dispatch<SetStateAction<boolean>>
+  expandSelectProArea?: boolean
 }
 
 const SelectPro = ({
@@ -51,6 +55,8 @@ const SelectPro = ({
   handleBack,
   onClickSave,
   type,
+  setExpandSelectProArea,
+  expandSelectProArea,
 }: Props) => {
   return (
     <Box
@@ -59,20 +65,23 @@ const SelectPro = ({
         width: '100%',
         flexDirection: 'column',
         height: '100%',
-        minHeight: '772px',
+        // minHeight: '772px',
       }}
     >
       <Box
         sx={{
           display: 'flex',
-          padding: type === 'detail' ? '20px ' : '32px 20px 20px 20px',
+          padding:
+            type === 'detail' || expandSelectProArea
+              ? '20px '
+              : '32px 20px 20px 20px',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}
       >
         <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <Typography fontSize={20} fontWeight={500}>
-            Select Pros ({getValues('pros')?.length ?? 0})
+            Selected Pros ({getValues('pros')?.length ?? 0})
           </Typography>
           <IconButton sx={{ padding: 0 }} onClick={onClickSelectProsHelperIcon}>
             <Icon icon='mdi:info-circle-outline' />
@@ -134,6 +143,21 @@ const SelectPro = ({
                   />
                 )}
               />
+              <Tooltip title='Expand this section'>
+                <IconButton
+                  sx={{ padding: 0, marginLeft: '16px' }}
+                  onClick={() =>
+                    setExpandSelectProArea &&
+                    setExpandSelectProArea(!expandSelectProArea)
+                  }
+                >
+                  {expandSelectProArea ? (
+                    <Icon icon='pajamas:expand-down' />
+                  ) : (
+                    <Icon icon='pajamas:expand-up' />
+                  )}
+                </IconButton>
+              </Tooltip>
             </>
           )}
         </Box>
@@ -162,7 +186,8 @@ const SelectPro = ({
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
-            minHeight: '772px',
+            // minHeight: '501px',
+            minHeight: type === 'create' ? '500px' : '300px',
             background: '#F7F8FF',
           }}
           className='selectPro'
@@ -173,7 +198,7 @@ const SelectPro = ({
               data-droppable-id={'proList'}
               sx={{
                 overflowY: 'scroll',
-                maxHeight: '650px',
+                maxHeight: type === 'create' ? '650px' : '500px',
                 '&::-webkit-scrollbar': {
                   width: 6,
                 },
@@ -425,6 +450,7 @@ const SelectPro = ({
 
                   display: 'flex',
                   paddingTop: '32px',
+                  paddingBottom: '18px',
                   justifyContent: 'center',
                 }}
               >

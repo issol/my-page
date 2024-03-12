@@ -183,7 +183,9 @@ const AddNew = () => {
   }
   const onClickSelectPro = (proList: ProListType[]) => {
     proList.forEach((pro, index) => {
-      append({ ...pro, order: index + 1 })
+      if (!fields.some(existingPro => existingPro.userId === pro.userId)) {
+        append({ ...pro, order: index + 1 })
+      }
     })
     closeModal('SelectProModal')
   }
@@ -234,6 +236,7 @@ const AddNew = () => {
       </Box>
       <Card
         sx={{
+          // height: 'calc(100vh - 350px)',
           height: '100%',
           position: 'relative',
           paddingBottom: '100px',
