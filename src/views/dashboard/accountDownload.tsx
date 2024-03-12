@@ -10,8 +10,8 @@ import { set } from 'lodash'
 
 interface CSVDownloadProps {
   title: string,
-  projectDueDateFrom: string,
-  projectDueDateTo: string,
+  projectDueDateFrom: string | null,
+  projectDueDateTo: string | null,
   onClose?: () => void
 }
 
@@ -23,6 +23,7 @@ export const AccountingDownload = ({
   const [ loading, setLoading ] = useState(false)
 
   const downloadAccountingCSV = async (title: string) => {
+    if (!projectDueDateFrom || !projectDueDateTo) return
     try {
       setLoading(true)
       const orderData = await getAccountOrderDataToCSV(projectDueDateFrom, projectDueDateTo)
@@ -73,6 +74,7 @@ export const AccountingDownload = ({
         variant='outlined'
         sx={{ display: 'flex', alignItems: 'center' }}
         onClick={() => downloadAccountingCSV(title)}
+        disabled={loading || !projectDueDateFrom || !projectDueDateTo}
       >
         <DownloadIcon sx={{ width: '20px', marginRight: '4px' }} /> Accounting download
       </Button>
