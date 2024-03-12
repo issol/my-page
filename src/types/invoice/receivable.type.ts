@@ -126,7 +126,7 @@ export type InvoiceReceivableOrderType = {
   projectDescription: string
   category: string
   serviceType: string[]
-  expertise: string[]
+  genre: string[]
   status: OrderStatusType
   operatorId: number
   supervisorId: number | null
@@ -203,7 +203,7 @@ export type InvoiceReceivableDetailType = {
   projectName: string
   category: string
   serviceType: string[]
-  expertise: string[]
+  genre: string[]
   revenueFrom: RevenueFormType
   isTaxable: boolean
   orderId: number

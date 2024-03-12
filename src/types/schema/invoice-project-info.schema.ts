@@ -15,7 +15,7 @@ export const invoiceProjectInfoSchema = yup.object().shape({
   category: yup.string().nullable(),
 
   serviceType: yup.array().of(yup.string()).nullable(),
-  expertise: yup.array().of(yup.string()).nullable(),
+  genre: yup.array().of(yup.string()).nullable(),
 
   revenueFrom: yup
     .string()

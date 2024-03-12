@@ -509,7 +509,7 @@ const AssignProFilters = ({
               </Grid>
               <Grid item xs={6}>
                 <Controller
-                  name='expertise'
+                  name='genre'
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <Autocomplete

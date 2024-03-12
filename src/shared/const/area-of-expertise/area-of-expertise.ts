@@ -1,134 +1,16 @@
 import { AreaOfExpertise } from './area-of-expertise.enum'
 
-export const AreaOfExpertiseList = [
-  {
-    value: AreaOfExpertise['Academic/Education'],
-    label: AreaOfExpertise['Academic/Education'],
-  },
-  { value: AreaOfExpertise.Action, label: AreaOfExpertise.Action },
-  {
-    value: AreaOfExpertise['Animals/Pets'],
-    label: AreaOfExpertise['Animals/Pets'],
-  },
-  { value: AreaOfExpertise.Animation, label: AreaOfExpertise.Animation },
-  {
-    value: AreaOfExpertise['Beauty/Fashion'],
-    label: AreaOfExpertise['Beauty/Fashion'],
-  },
-  {
-    value: AreaOfExpertise['Commerce and financial'],
-    label: AreaOfExpertise['Commerce and financial'],
-  },
-  {
-    value: AreaOfExpertise['Computers/Tech'],
-    label: AreaOfExpertise['Computers/Tech'],
-  },
-  {
-    value: AreaOfExpertise['Cooking/Food&Drink'],
-    label: AreaOfExpertise['Cooking/Food&Drink'],
-  },
-  { value: AreaOfExpertise.Documentary, label: AreaOfExpertise.Documentary },
-  { value: AreaOfExpertise.Documents, label: AreaOfExpertise.Documents },
-  { value: AreaOfExpertise.Drama, label: AreaOfExpertise.Drama },
-  { value: AreaOfExpertise.Dubbing, label: AreaOfExpertise.Dubbing },
-  {
-    value: AreaOfExpertise['Dubbing script translating'],
-    label: AreaOfExpertise['Dubbing script translating'],
-  },
-  {
-    value: AreaOfExpertise['Energy and raw materials'],
-    label: AreaOfExpertise['Energy and raw materials'],
-  },
-  { value: AreaOfExpertise.Gaming, label: AreaOfExpertise.Gaming },
-  {
-    value: AreaOfExpertise['Government/Infographics'],
-    label: AreaOfExpertise['Government/Infographics'],
-  },
-  {
-    value: AreaOfExpertise['Horror/Thriller'],
-    label: AreaOfExpertise['Horror/Thriller'],
-  },
-  { value: AreaOfExpertise.Interpreting, label: AreaOfExpertise.Interpreting },
-  { value: AreaOfExpertise.Legal, label: AreaOfExpertise.Legal },
-  { value: AreaOfExpertise['LGBTQ/BL'], label: AreaOfExpertise['LGBTQ/BL'] },
-  {
-    value: AreaOfExpertise['Live-action'],
-    label: AreaOfExpertise['Live-action'],
-  },
-  { value: AreaOfExpertise.Marketing, label: AreaOfExpertise.Marketing },
-  {
-    value: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-    label: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-  },
-  { value: AreaOfExpertise.Movies, label: AreaOfExpertise.Movies },
-  {
-    value: AreaOfExpertise['Music/Entertainment'],
-    label: AreaOfExpertise['Music/Entertainment'],
-  },
-  { value: AreaOfExpertise.Nature, label: AreaOfExpertise.Nature },
-  {
-    value: AreaOfExpertise['Non-profit/Activism'],
-    label: AreaOfExpertise['Non-profit/Activism'],
-  },
-  {
-    value: AreaOfExpertise['Police/Military'],
-    label: AreaOfExpertise['Police/Military'],
-  },
-  { value: AreaOfExpertise.Political, label: AreaOfExpertise.Political },
-  { value: AreaOfExpertise.Proofreading, label: AreaOfExpertise.Proofreading },
-  {
-    value: AreaOfExpertise['Reality show'],
-    label: AreaOfExpertise['Reality show'],
-  },
-  { value: AreaOfExpertise.Rendering, label: AreaOfExpertise.Rendering },
-  {
-    value: AreaOfExpertise['Romantic comedy'],
-    label: AreaOfExpertise['Romantic comedy'],
-  },
-  {
-    value: AreaOfExpertise['Romantic fantasy'],
-    label: AreaOfExpertise['Romantic fantasy'],
-  },
-  {
-    value: AreaOfExpertise['Science/Engineering'],
-    label: AreaOfExpertise['Science/Engineering'],
-  },
-  {
-    value: AreaOfExpertise['Science fiction'],
-    label: AreaOfExpertise['Science fiction'],
-  },
-  { value: AreaOfExpertise['SDH/CC'], label: AreaOfExpertise['SDH/CC'] },
-  { value: AreaOfExpertise.Sports, label: AreaOfExpertise.Sports },
-  { value: AreaOfExpertise.Subtitling, label: AreaOfExpertise.Subtitling },
-  {
-    value: AreaOfExpertise['Supplementals/Trailers'],
-    label: AreaOfExpertise['Supplementals/Trailers'],
-  },
-  { value: AreaOfExpertise.Synopsis, label: AreaOfExpertise.Synopsis },
-  {
-    value: AreaOfExpertise['Template/PLDL'],
-    label: AreaOfExpertise['Template/PLDL'],
-  },
-  {
-    value: AreaOfExpertise.Transcription,
-    label: AreaOfExpertise.Transcription,
-  },
-  { value: AreaOfExpertise.Travel, label: AreaOfExpertise.Travel },
-  {
-    value: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-    label: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-  },
-  {
-    value: AreaOfExpertise['Voice-over'],
-    label: AreaOfExpertise['Voice-over'],
-  },
-  { value: AreaOfExpertise.Webcomics, label: AreaOfExpertise.Webcomics },
-  {
-    value: AreaOfExpertise['Webnovel/Books/E-books'],
-    label: AreaOfExpertise['Webnovel/Books/E-books'],
-  },
-  { value: AreaOfExpertise.YouTube, label: AreaOfExpertise.YouTube },
-]
+interface AreaOfExpertiseItem {
+  value: string
+  label: string
+}
+
+export const AreaOfExpertiseList: AreaOfExpertiseItem[] = Object.keys(
+  AreaOfExpertise,
+).map(key => ({
+  value: key,
+  label: (AreaOfExpertise as { [key: string]: string })[key],
+}))
 
 export const AreaOfExpertisePair = {
   'Documents/Text': [
@@ -157,16 +39,12 @@ export const AreaOfExpertisePair = {
       label: AreaOfExpertise['Cooking/Food&Drink'],
     },
     {
-      value: AreaOfExpertise['Documents'],
-      label: AreaOfExpertise['Documents'],
-    },
-    {
       value: AreaOfExpertise['Energy and raw materials'],
       label: AreaOfExpertise['Energy and raw materials'],
     },
     {
-      value: AreaOfExpertise['Gaming'],
-      label: AreaOfExpertise['Gaming'],
+      value: AreaOfExpertise['Game'],
+      label: AreaOfExpertise['Game'],
     },
     {
       value: AreaOfExpertise['Government/Infographics'],
@@ -235,160 +113,74 @@ export const AreaOfExpertisePair = {
       label: AreaOfExpertise['Academic/Education'],
     },
     {
-      value: AreaOfExpertise['Action'],
-      label: AreaOfExpertise['Action'],
+      value: AreaOfExpertise['Action & Adventure'],
+      label: AreaOfExpertise['Action & Adventure'],
     },
     {
-      value: AreaOfExpertise['Animals/Pets'],
-      label: AreaOfExpertise['Animals/Pets'],
+      value: AreaOfExpertise['Children & Family'],
+      label: AreaOfExpertise['Children & Family'],
+    },
+
+    {
+      value: AreaOfExpertise['Classic'],
+      label: AreaOfExpertise['Classic'],
     },
     {
-      value: AreaOfExpertise['Animation'],
-      label: AreaOfExpertise['Animation'],
+      value: AreaOfExpertise['Comedy'],
+      label: AreaOfExpertise['Comedy'],
     },
     {
-      value: AreaOfExpertise['Beauty/Fashion'],
-      label: AreaOfExpertise['Beauty/Fashion'],
+      value: AreaOfExpertise['Crime'],
+      label: AreaOfExpertise['Crime'],
     },
     {
-      value: AreaOfExpertise['Commerce and financial'],
-      label: AreaOfExpertise['Commerce and financial'],
+      value: AreaOfExpertise['Documentaries'],
+      label: AreaOfExpertise['Documentaries'],
     },
     {
-      value: AreaOfExpertise['Computers/Tech'],
-      label: AreaOfExpertise['Computers/Tech'],
+      value: AreaOfExpertise['Dramas'],
+      label: AreaOfExpertise['Dramas'],
+    },
+
+    {
+      value: AreaOfExpertise['Historical'],
+      label: AreaOfExpertise['Historical'],
     },
     {
-      value: AreaOfExpertise['Cooking/Food&Drink'],
-      label: AreaOfExpertise['Cooking/Food&Drink'],
+      value: AreaOfExpertise['Horror'],
+      label: AreaOfExpertise['Horror'],
     },
     {
-      value: AreaOfExpertise['Documentary'],
-      label: AreaOfExpertise['Documentary'],
+      value: AreaOfExpertise['Music'],
+      label: AreaOfExpertise['Music'],
     },
     {
-      value: AreaOfExpertise['Drama'],
-      label: AreaOfExpertise['Drama'],
+      value: AreaOfExpertise['Romance'],
+      label: AreaOfExpertise['Romance'],
     },
     {
-      value: AreaOfExpertise['Dubbing'],
-      label: AreaOfExpertise['Dubbing'],
-    },
-    {
-      value: AreaOfExpertise['Dubbing script translating'],
-      label: AreaOfExpertise['Dubbing script translating'],
-    },
-    {
-      value: AreaOfExpertise['Energy and raw materials'],
-      label: AreaOfExpertise['Energy and raw materials'],
-    },
-    {
-      value: AreaOfExpertise['Gaming'],
-      label: AreaOfExpertise['Gaming'],
-    },
-    {
-      value: AreaOfExpertise['Government/Infographics'],
-      label: AreaOfExpertise['Government/Infographics'],
-    },
-    {
-      value: AreaOfExpertise['Horror/Thriller'],
-      label: AreaOfExpertise['Horror/Thriller'],
-    },
-    {
-      value: AreaOfExpertise['Legal'],
-      label: AreaOfExpertise['Legal'],
-    },
-    {
-      value: AreaOfExpertise['LGBTQ/BL'],
-      label: AreaOfExpertise['LGBTQ/BL'],
-    },
-    {
-      value: AreaOfExpertise['Live-action'],
-      label: AreaOfExpertise['Live-action'],
-    },
-    {
-      value: AreaOfExpertise['Marketing'],
-      label: AreaOfExpertise['Marketing'],
-    },
-    {
-      value: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-      label: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-    },
-    {
-      value: AreaOfExpertise['Movies'],
-      label: AreaOfExpertise['Movies'],
-    },
-    {
-      value: AreaOfExpertise['Music/Entertainment'],
-      label: AreaOfExpertise['Music/Entertainment'],
-    },
-    {
-      value: AreaOfExpertise['Nature'],
-      label: AreaOfExpertise['Nature'],
-    },
-    {
-      value: AreaOfExpertise['Police/Military'],
-      label: AreaOfExpertise['Police/Military'],
-    },
-    {
-      value: AreaOfExpertise['Political'],
-      label: AreaOfExpertise['Political'],
-    },
-    {
-      value: AreaOfExpertise['Reality show'],
-      label: AreaOfExpertise['Reality show'],
-    },
-    {
-      value: AreaOfExpertise['Romantic comedy'],
-      label: AreaOfExpertise['Romantic comedy'],
-    },
-    {
-      value: AreaOfExpertise['Romantic fantasy'],
-      label: AreaOfExpertise['Romantic fantasy'],
-    },
-    {
-      value: AreaOfExpertise['Science/Engineering'],
-      label: AreaOfExpertise['Science/Engineering'],
-    },
-    {
-      value: AreaOfExpertise['Science fiction'],
-      label: AreaOfExpertise['Science fiction'],
-    },
-    {
-      value: AreaOfExpertise['SDH/CC'],
-      label: AreaOfExpertise['SDH/CC'],
+      value: AreaOfExpertise['Sci-fi & Fantasy'],
+      label: AreaOfExpertise['Sci-fi & Fantasy'],
     },
     {
       value: AreaOfExpertise['Sports'],
       label: AreaOfExpertise['Sports'],
     },
     {
-      value: AreaOfExpertise['Supplementals/Trailers'],
-      label: AreaOfExpertise['Supplementals/Trailers'],
+      value: AreaOfExpertise['Superhero'],
+      label: AreaOfExpertise['Superhero'],
     },
     {
-      value: AreaOfExpertise['Synopsis'],
-      label: AreaOfExpertise['Synopsis'],
+      value: AreaOfExpertise['Thrillers'],
+      label: AreaOfExpertise['Thrillers'],
     },
     {
-      value: AreaOfExpertise['Transcription'],
-      label: AreaOfExpertise['Transcription'],
+      value: AreaOfExpertise['TV Shows'],
+      label: AreaOfExpertise['TV Shows'],
     },
     {
-      value: AreaOfExpertise['Travel'],
-      label: AreaOfExpertise['Travel'],
-    },
-    {
-      value: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-      label: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-    },
-    {
-      value: AreaOfExpertise['Voice-over'],
-      label: AreaOfExpertise['Voice-over'],
-    },
-    {
-      value: AreaOfExpertise['YouTube'],
-      label: AreaOfExpertise['YouTube'],
+      value: AreaOfExpertise['Youtube'],
+      label: AreaOfExpertise['Youtube'],
     },
   ],
   Interpretation: [
@@ -416,7 +208,7 @@ export const AreaOfExpertisePair = {
       value: AreaOfExpertise['Energy and raw materials'],
       label: AreaOfExpertise['Energy and raw materials'],
     },
-    { value: AreaOfExpertise['Gaming'], label: AreaOfExpertise['Gaming'] },
+    { value: AreaOfExpertise['Game'], label: AreaOfExpertise['Game'] },
     {
       value: AreaOfExpertise['Government/Infographics'],
       label: AreaOfExpertise['Government/Infographics'],
@@ -463,433 +255,271 @@ export const AreaOfExpertisePair = {
       label: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
     },
   ],
-  'Misc.': [
-    {
-      value: AreaOfExpertise['Academic/Education'],
-      label: AreaOfExpertise['Academic/Education'],
-    },
-    { value: AreaOfExpertise['Action'], label: AreaOfExpertise['Action'] },
-    {
-      value: AreaOfExpertise['Animals/Pets'],
-      label: AreaOfExpertise['Animals/Pets'],
-    },
-    {
-      value: AreaOfExpertise['Animation'],
-      label: AreaOfExpertise['Animation'],
-    },
-    {
-      value: AreaOfExpertise['Beauty/Fashion'],
-      label: AreaOfExpertise['Beauty/Fashion'],
-    },
-    {
-      value: AreaOfExpertise['Commerce and financial'],
-      label: AreaOfExpertise['Commerce and financial'],
-    },
-    {
-      value: AreaOfExpertise['Computers/Tech'],
-      label: AreaOfExpertise['Computers/Tech'],
-    },
-    {
-      value: AreaOfExpertise['Cooking/Food&Drink'],
-      label: AreaOfExpertise['Cooking/Food&Drink'],
-    },
-    {
-      value: AreaOfExpertise['Documentary'],
-      label: AreaOfExpertise['Documentary'],
-    },
-    {
-      value: AreaOfExpertise['Documents'],
-      label: AreaOfExpertise['Documents'],
-    },
-    { value: AreaOfExpertise['Drama'], label: AreaOfExpertise['Drama'] },
-    { value: AreaOfExpertise['Dubbing'], label: AreaOfExpertise['Dubbing'] },
-    {
-      value: AreaOfExpertise['Dubbing script translating'],
-      label: AreaOfExpertise['Dubbing script translating'],
-    },
-    {
-      value: AreaOfExpertise['Energy and raw materials'],
-      label: AreaOfExpertise['Energy and raw materials'],
-    },
-    { value: AreaOfExpertise['Gaming'], label: AreaOfExpertise['Gaming'] },
-    {
-      value: AreaOfExpertise['Government/Infographics'],
-      label: AreaOfExpertise['Government/Infographics'],
-    },
-    {
-      value: AreaOfExpertise['Horror/Thriller'],
-      label: AreaOfExpertise['Horror/Thriller'],
-    },
-    { value: AreaOfExpertise['Legal'], label: AreaOfExpertise['Legal'] },
-    { value: AreaOfExpertise['LGBTQ/BL'], label: AreaOfExpertise['LGBTQ/BL'] },
-    {
-      value: AreaOfExpertise['Live-action'],
-      label: AreaOfExpertise['Live-action'],
-    },
-    {
-      value: AreaOfExpertise['Marketing'],
-      label: AreaOfExpertise['Marketing'],
-    },
-    {
-      value: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-      label: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-    },
-    { value: AreaOfExpertise['Movies'], label: AreaOfExpertise['Movies'] },
-    {
-      value: AreaOfExpertise['Music/Entertainment'],
-      label: AreaOfExpertise['Music/Entertainment'],
-    },
-    { value: AreaOfExpertise['Nature'], label: AreaOfExpertise['Nature'] },
-    {
-      value: AreaOfExpertise['Non-profit/Activism'],
-      label: AreaOfExpertise['Non-profit/Activism'],
-    },
-    {
-      value: AreaOfExpertise['Police/Military'],
-      label: AreaOfExpertise['Police/Military'],
-    },
-    {
-      value: AreaOfExpertise['Political'],
-      label: AreaOfExpertise['Political'],
-    },
-    {
-      value: AreaOfExpertise['Proofreading'],
-      label: AreaOfExpertise['Proofreading'],
-    },
-    {
-      value: AreaOfExpertise['Reality show'],
-      label: AreaOfExpertise['Reality show'],
-    },
-    {
-      value: AreaOfExpertise['Rendering'],
-      label: AreaOfExpertise['Rendering'],
-    },
-    {
-      value: AreaOfExpertise['Romantic comedy'],
-      label: AreaOfExpertise['Romantic comedy'],
-    },
-    {
-      value: AreaOfExpertise['Romantic fantasy'],
-      label: AreaOfExpertise['Romantic fantasy'],
-    },
-    {
-      value: AreaOfExpertise['Science/Engineering'],
-      label: AreaOfExpertise['Science/Engineering'],
-    },
-    {
-      value: AreaOfExpertise['Science fiction'],
-      label: AreaOfExpertise['Science fiction'],
-    },
-    { value: AreaOfExpertise['SDH/CC'], label: AreaOfExpertise['SDH/CC'] },
-    { value: AreaOfExpertise['Sports'], label: AreaOfExpertise['Sports'] },
-    {
-      value: AreaOfExpertise['Subtitling'],
-      label: AreaOfExpertise['Subtitling'],
-    },
-    {
-      value: AreaOfExpertise['Supplementals/Trailers'],
-      label: AreaOfExpertise['Supplementals/Trailers'],
-    },
-    { value: AreaOfExpertise['Travel'], label: AreaOfExpertise['Travel'] },
-    {
-      value: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-      label: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-    },
-    { value: AreaOfExpertise['YouTube'], label: AreaOfExpertise['YouTube'] },
-  ],
   'OTT/Subtitle': [
     {
       value: AreaOfExpertise['Academic/Education'],
       label: AreaOfExpertise['Academic/Education'],
     },
-    { value: AreaOfExpertise['Action'], label: AreaOfExpertise['Action'] },
     {
-      value: AreaOfExpertise['Animals/Pets'],
-      label: AreaOfExpertise['Animals/Pets'],
+      value: AreaOfExpertise['Action & Adventure'],
+      label: AreaOfExpertise['Action & Adventure'],
     },
     {
-      value: AreaOfExpertise['Animation'],
-      label: AreaOfExpertise['Animation'],
+      value: AreaOfExpertise['Children & Family'],
+      label: AreaOfExpertise['Children & Family'],
+    },
+
+    {
+      value: AreaOfExpertise['Classic'],
+      label: AreaOfExpertise['Classic'],
     },
     {
-      value: AreaOfExpertise['Beauty/Fashion'],
-      label: AreaOfExpertise['Beauty/Fashion'],
+      value: AreaOfExpertise['Comedy'],
+      label: AreaOfExpertise['Comedy'],
     },
     {
-      value: AreaOfExpertise['Commerce and financial'],
-      label: AreaOfExpertise['Commerce and financial'],
+      value: AreaOfExpertise['Crime'],
+      label: AreaOfExpertise['Crime'],
     },
     {
-      value: AreaOfExpertise['Computers/Tech'],
-      label: AreaOfExpertise['Computers/Tech'],
+      value: AreaOfExpertise['Documentaries'],
+      label: AreaOfExpertise['Documentaries'],
     },
     {
-      value: AreaOfExpertise['Cooking/Food&Drink'],
-      label: AreaOfExpertise['Cooking/Food&Drink'],
+      value: AreaOfExpertise['Dramas'],
+      label: AreaOfExpertise['Dramas'],
+    },
+
+    {
+      value: AreaOfExpertise['Historical'],
+      label: AreaOfExpertise['Historical'],
     },
     {
-      value: AreaOfExpertise['Documentary'],
-      label: AreaOfExpertise['Documentary'],
-    },
-    { value: AreaOfExpertise['Drama'], label: AreaOfExpertise['Drama'] },
-    {
-      value: AreaOfExpertise['Energy and raw materials'],
-      label: AreaOfExpertise['Energy and raw materials'],
-    },
-    { value: AreaOfExpertise['Gaming'], label: AreaOfExpertise['Gaming'] },
-    {
-      value: AreaOfExpertise['Government/Infographics'],
-      label: AreaOfExpertise['Government/Infographics'],
+      value: AreaOfExpertise['Horror'],
+      label: AreaOfExpertise['Horror'],
     },
     {
-      value: AreaOfExpertise['Horror/Thriller'],
-      label: AreaOfExpertise['Horror/Thriller'],
-    },
-    { value: AreaOfExpertise['Legal'], label: AreaOfExpertise['Legal'] },
-    { value: AreaOfExpertise['LGBTQ/BL'], label: AreaOfExpertise['LGBTQ/BL'] },
-    {
-      value: AreaOfExpertise['Live-action'],
-      label: AreaOfExpertise['Live-action'],
+      value: AreaOfExpertise['Music'],
+      label: AreaOfExpertise['Music'],
     },
     {
-      value: AreaOfExpertise['Marketing'],
-      label: AreaOfExpertise['Marketing'],
+      value: AreaOfExpertise['Romance'],
+      label: AreaOfExpertise['Romance'],
     },
     {
-      value: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-      label: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-    },
-    { value: AreaOfExpertise['Movies'], label: AreaOfExpertise['Movies'] },
-    {
-      value: AreaOfExpertise['Music/Entertainment'],
-      label: AreaOfExpertise['Music/Entertainment'],
-    },
-    { value: AreaOfExpertise['Nature'], label: AreaOfExpertise['Nature'] },
-    {
-      value: AreaOfExpertise['Non-profit/Activism'],
-      label: AreaOfExpertise['Non-profit/Activism'],
+      value: AreaOfExpertise['Sci-fi & Fantasy'],
+      label: AreaOfExpertise['Sci-fi & Fantasy'],
     },
     {
-      value: AreaOfExpertise['Police/Military'],
-      label: AreaOfExpertise['Police/Military'],
+      value: AreaOfExpertise['Sports'],
+      label: AreaOfExpertise['Sports'],
     },
     {
-      value: AreaOfExpertise['Political'],
-      label: AreaOfExpertise['Political'],
+      value: AreaOfExpertise['Superhero'],
+      label: AreaOfExpertise['Superhero'],
     },
     {
-      value: AreaOfExpertise['Reality show'],
-      label: AreaOfExpertise['Reality show'],
+      value: AreaOfExpertise['Thrillers'],
+      label: AreaOfExpertise['Thrillers'],
     },
     {
-      value: AreaOfExpertise['Rendering'],
-      label: AreaOfExpertise['Rendering'],
+      value: AreaOfExpertise['TV Shows'],
+      label: AreaOfExpertise['TV Shows'],
     },
     {
-      value: AreaOfExpertise['Romantic comedy'],
-      label: AreaOfExpertise['Romantic comedy'],
+      value: AreaOfExpertise['Youtube'],
+      label: AreaOfExpertise['Youtube'],
     },
-    {
-      value: AreaOfExpertise['Romantic fantasy'],
-      label: AreaOfExpertise['Romantic fantasy'],
-    },
-    {
-      value: AreaOfExpertise['Science/Engineering'],
-      label: AreaOfExpertise['Science/Engineering'],
-    },
-    {
-      value: AreaOfExpertise['Science fiction'],
-      label: AreaOfExpertise['Science fiction'],
-    },
-    { value: AreaOfExpertise['SDH/CC'], label: AreaOfExpertise['SDH/CC'] },
-    { value: AreaOfExpertise['Sports'], label: AreaOfExpertise['Sports'] },
-    {
-      value: AreaOfExpertise['Subtitling'],
-      label: AreaOfExpertise['Subtitling'],
-    },
-    {
-      value: AreaOfExpertise['Supplementals/Trailers'],
-      label: AreaOfExpertise['Supplementals/Trailers'],
-    },
-    {
-      value: AreaOfExpertise['Template/PLDL'],
-      label: AreaOfExpertise['Template/PLDL'],
-    },
-    {
-      value: AreaOfExpertise['Transcription'],
-      label: AreaOfExpertise['Transcription'],
-    },
-    { value: AreaOfExpertise['Travel'], label: AreaOfExpertise['Travel'] },
-    {
-      value: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-      label: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-    },
-    { value: AreaOfExpertise['YouTube'], label: AreaOfExpertise['YouTube'] },
   ],
+  'Misc.': AreaOfExpertiseList,
   Webcomics: [
     {
-      value: AreaOfExpertise['Academic/Education'],
-      label: AreaOfExpertise['Academic/Education'],
-    },
-    { value: AreaOfExpertise['Action'], label: AreaOfExpertise['Action'] },
-    {
-      value: AreaOfExpertise['Animals/Pets'],
-      label: AreaOfExpertise['Animals/Pets'],
+      value: AreaOfExpertise['Action & Adventure'],
+      label: AreaOfExpertise['Action & Adventure'],
     },
     {
-      value: AreaOfExpertise['Beauty/Fashion'],
-      label: AreaOfExpertise['Beauty/Fashion'],
+      value: AreaOfExpertise['Autobiographical'],
+      label: AreaOfExpertise['Autobiographical'],
     },
     {
-      value: AreaOfExpertise['Commerce and financial'],
-      label: AreaOfExpertise['Commerce and financial'],
+      value: AreaOfExpertise['Comedy'],
+      label: AreaOfExpertise['Comedy'],
     },
     {
-      value: AreaOfExpertise['Computers/Tech'],
-      label: AreaOfExpertise['Computers/Tech'],
+      value: AreaOfExpertise['Sci-fi & Fantasy'],
+      label: AreaOfExpertise['Sci-fi & Fantasy'],
     },
     {
-      value: AreaOfExpertise['Cooking/Food&Drink'],
-      label: AreaOfExpertise['Cooking/Food&Drink'],
+      value: AreaOfExpertise['Game'],
+      label: AreaOfExpertise['Game'],
     },
-    { value: AreaOfExpertise['Gaming'], label: AreaOfExpertise['Gaming'] },
+    {
+      value: AreaOfExpertise['Romance'],
+      label: AreaOfExpertise['Romance'],
+    },
+    {
+      value: AreaOfExpertise['Horror'],
+      label: AreaOfExpertise['Horror'],
+    },
+    {
+      value: AreaOfExpertise['Historical'],
+      label: AreaOfExpertise['Historical'],
+    },
     {
       value: AreaOfExpertise['Government/Infographics'],
       label: AreaOfExpertise['Government/Infographics'],
     },
-    {
-      value: AreaOfExpertise['Horror/Thriller'],
-      label: AreaOfExpertise['Horror/Thriller'],
-    },
-    { value: AreaOfExpertise['Legal'], label: AreaOfExpertise['Legal'] },
+
     { value: AreaOfExpertise['LGBTQ/BL'], label: AreaOfExpertise['LGBTQ/BL'] },
-    {
-      value: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-      label: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-    },
-    {
-      value: AreaOfExpertise['Music/Entertainment'],
-      label: AreaOfExpertise['Music/Entertainment'],
-    },
-    {
-      value: AreaOfExpertise['Police/Military'],
-      label: AreaOfExpertise['Police/Military'],
-    },
+
     {
       value: AreaOfExpertise['Political'],
       label: AreaOfExpertise['Political'],
     },
     {
-      value: AreaOfExpertise['Proofreading'],
-      label: AreaOfExpertise['Proofreading'],
+      value: AreaOfExpertise['Post-apocalyptic'],
+      label: AreaOfExpertise['Post-apocalyptic'],
     },
     {
-      value: AreaOfExpertise['Romantic comedy'],
-      label: AreaOfExpertise['Romantic comedy'],
+      value: AreaOfExpertise['School'],
+      label: AreaOfExpertise['School'],
     },
-    {
-      value: AreaOfExpertise['Romantic fantasy'],
-      label: AreaOfExpertise['Romantic fantasy'],
-    },
-    {
-      value: AreaOfExpertise['Science/Engineering'],
-      label: AreaOfExpertise['Science/Engineering'],
-    },
-    {
-      value: AreaOfExpertise['Science fiction'],
-      label: AreaOfExpertise['Science fiction'],
-    },
+
     { value: AreaOfExpertise['Sports'], label: AreaOfExpertise['Sports'] },
+
     {
-      value: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-      label: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-    },
-    {
-      value: AreaOfExpertise['Webcomics'],
-      label: AreaOfExpertise['Webcomics'],
+      value: AreaOfExpertise['Superhero'],
+      label: AreaOfExpertise['Superhero'],
     },
   ],
   Webnovel: [
     {
-      value: AreaOfExpertise['Academic/Education'],
-      label: AreaOfExpertise['Academic/Education'],
-    },
-    { value: AreaOfExpertise['Action'], label: AreaOfExpertise['Action'] },
-    {
-      value: AreaOfExpertise['Animals/Pets'],
-      label: AreaOfExpertise['Animals/Pets'],
+      value: AreaOfExpertise['Action & Adventure'],
+      label: AreaOfExpertise['Action & Adventure'],
     },
     {
-      value: AreaOfExpertise['Beauty/Fashion'],
-      label: AreaOfExpertise['Beauty/Fashion'],
+      value: AreaOfExpertise['Autobiographical'],
+      label: AreaOfExpertise['Autobiographical'],
     },
     {
-      value: AreaOfExpertise['Commerce and financial'],
-      label: AreaOfExpertise['Commerce and financial'],
+      value: AreaOfExpertise['Comedy'],
+      label: AreaOfExpertise['Comedy'],
+    },
+    {
+      value: AreaOfExpertise['Sci-fi & Fantasy'],
+      label: AreaOfExpertise['Sci-fi & Fantasy'],
     },
     {
       value: AreaOfExpertise['Computers/Tech'],
       label: AreaOfExpertise['Computers/Tech'],
     },
+
+    { value: AreaOfExpertise['Game'], label: AreaOfExpertise['Game'] },
     {
-      value: AreaOfExpertise['Cooking/Food&Drink'],
-      label: AreaOfExpertise['Cooking/Food&Drink'],
-    },
-    { value: AreaOfExpertise['Gaming'], label: AreaOfExpertise['Gaming'] },
-    {
-      value: AreaOfExpertise['Government/Infographics'],
-      label: AreaOfExpertise['Government/Infographics'],
+      value: AreaOfExpertise['Romance'],
+      label: AreaOfExpertise['Romance'],
     },
     {
-      value: AreaOfExpertise['Horror/Thriller'],
-      label: AreaOfExpertise['Horror/Thriller'],
+      value: AreaOfExpertise['Horror'],
+      label: AreaOfExpertise['Horror'],
     },
-    { value: AreaOfExpertise['Legal'], label: AreaOfExpertise['Legal'] },
+    {
+      value: AreaOfExpertise['Historical'],
+      label: AreaOfExpertise['Historical'],
+    },
     { value: AreaOfExpertise['LGBTQ/BL'], label: AreaOfExpertise['LGBTQ/BL'] },
-    {
-      value: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-      label: AreaOfExpertise['Medical/Healthcare(Mental/Physical)'],
-    },
-    {
-      value: AreaOfExpertise['Music/Entertainment'],
-      label: AreaOfExpertise['Music/Entertainment'],
-    },
-    {
-      value: AreaOfExpertise['Police/Military'],
-      label: AreaOfExpertise['Police/Military'],
-    },
+
     {
       value: AreaOfExpertise['Political'],
       label: AreaOfExpertise['Political'],
     },
     {
-      value: AreaOfExpertise['Proofreading'],
-      label: AreaOfExpertise['Proofreading'],
+      value: AreaOfExpertise['Post-apocalyptic'],
+      label: AreaOfExpertise['Post-apocalyptic'],
     },
     {
-      value: AreaOfExpertise['Romantic comedy'],
-      label: AreaOfExpertise['Romantic comedy'],
-    },
-    {
-      value: AreaOfExpertise['Romantic fantasy'],
-      label: AreaOfExpertise['Romantic fantasy'],
-    },
-    {
-      value: AreaOfExpertise['Science/Engineering'],
-      label: AreaOfExpertise['Science/Engineering'],
-    },
-    {
-      value: AreaOfExpertise['Science fiction'],
-      label: AreaOfExpertise['Science fiction'],
+      value: AreaOfExpertise['School'],
+      label: AreaOfExpertise['School'],
     },
     { value: AreaOfExpertise['Sports'], label: AreaOfExpertise['Sports'] },
     {
-      value: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
-      label: AreaOfExpertise['Vehicles(Planes, trains and automobiles)'],
+      value: AreaOfExpertise['Superhero'],
+      label: AreaOfExpertise['Superhero'],
+    },
+  ],
+  Gaming: [
+    {
+      value: AreaOfExpertise['Action & Adventure'],
+      label: AreaOfExpertise['Action & Adventure'],
     },
     {
-      value: AreaOfExpertise['Webnovel/Books/E-books'],
-      label: AreaOfExpertise['Webnovel/Books/E-books'],
+      value: AreaOfExpertise.Arcade,
+      label: AreaOfExpertise.Arcade,
+    },
+    {
+      value: AreaOfExpertise.Card,
+      label: AreaOfExpertise.Card,
+    },
+    {
+      value: AreaOfExpertise['Tower defense'],
+      label: AreaOfExpertise['Tower defense'],
+    },
+    {
+      value: AreaOfExpertise['Shooter'],
+      label: AreaOfExpertise['Shooter'],
+    },
+    {
+      value: AreaOfExpertise.War,
+      label: AreaOfExpertise.War,
+    },
+    {
+      value: AreaOfExpertise.Puzzle,
+      label: AreaOfExpertise.Puzzle,
+    },
+    {
+      value: AreaOfExpertise.MMORPG,
+      label: AreaOfExpertise.MMORPG,
+    },
+    {
+      value: AreaOfExpertise.RPG,
+      label: AreaOfExpertise.RPG,
+    },
+
+    {
+      value: AreaOfExpertise.Racing,
+      label: AreaOfExpertise.Racing,
+    },
+    {
+      value: AreaOfExpertise.Puzzle,
+      label: AreaOfExpertise.Puzzle,
+    },
+    {
+      value: AreaOfExpertise.Strategy,
+      label: AreaOfExpertise.Strategy,
+    },
+    {
+      value: AreaOfExpertise.Stealth,
+      label: AreaOfExpertise.Stealth,
+    },
+    {
+      value: AreaOfExpertise.Simulation,
+      label: AreaOfExpertise.Simulation,
+    },
+    {
+      value: AreaOfExpertise.Sports,
+      label: AreaOfExpertise.Sports,
+    },
+    {
+      value: AreaOfExpertise['Battle Royale'],
+      label: AreaOfExpertise['Battle Royale'],
+    },
+    {
+      value: AreaOfExpertise.Horror,
+      label: AreaOfExpertise.Horror,
+    },
+    {
+      value: AreaOfExpertise.Survival,
+      label: AreaOfExpertise.Survival,
     },
   ],
 }
