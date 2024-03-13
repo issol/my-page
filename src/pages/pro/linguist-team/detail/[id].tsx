@@ -40,11 +40,36 @@ import { useGetClientList } from '@src/queries/client.query'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import _ from 'lodash'
 import registDND from '../add-new/components/dnd'
+import { deleteLinguistTeam, updateLinguistTeam } from '@src/apis/pro/linguist-team'
+import { useMutation, useQueryClient } from 'react-query'
+
+export type FilterType = {
+  serviceTypeId?: number[]
+  source?: string | null
+  target?: string | null
+  clientId?: number[]
+  search?: string
+  skip: number
+  take: number
+  seeMyTeams?: '0' | '1'
+}
+
+export const initialFilter: FilterType = {
+  serviceTypeId: [],
+  source: null,
+  target: null,
+  seeMyTeams: '0',
+  clientId: [],
+  search: '',
+  skip: 0,
+  take: 12,
+}
 
 const LinguistTeamDetail = () => {
   const router = useRouter()
   const id = router.query.id as string
   const { openModal, closeModal } = useModal()
+  const queryClient = useQueryClient()
 
   const languageList = getGloLanguage()
   const { data, isLoading } = useGetLinguistTeamDetail(Number(id))
@@ -58,6 +83,28 @@ const LinguistTeamDetail = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
   const [editMode, setEditMode] = useState<boolean>(false)
+
+  const updateMutation = useMutation(
+    (
+      data: Omit<LinguistTeamFormType, 'pros'> & {
+        pros: Array<{ userId: number; order: number }>
+      },
+    ) => updateLinguistTeam(data),
+    {
+      onSuccess: (data: any) => {
+        queryClient.invalidateQueries(['linguistTeamDetail', Number(id)])
+        router.replace(`/pro/linguist-team/detail/${data.id}`)
+      },
+    },
+  )
+
+  const deleteMutation = useMutation(
+    (id: number) => deleteLinguistTeam(id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['linguistTeam', initialFilter])
+      router.replace('/pro/?tab=linguistList')
+    },
+  })
 
   const {
     control,
@@ -116,6 +163,8 @@ const LinguistTeamDetail = () => {
           rightButtonText='Delete'
           onClick={() => {
             console.log('delete')
+            closeModal('DeleteLinguistTeam')
+            onClickDelete()
           }}
           onClose={() => closeModal('DeleteLinguistTeam')}
         />
@@ -253,6 +302,10 @@ const LinguistTeamDetail = () => {
     }
   }
 
+  const onClickDelete = () => {
+    deleteMutation.mutate(Number(id))
+  }
+
   const handleSaveChanges = () => {
     const pros = getValues().pros.map((pro, index) => {
       return {
@@ -265,7 +318,7 @@ const LinguistTeamDetail = () => {
       pros,
     }
 
-    // TODO API call
+    updateMutation.mutate(result)
   }
 
   const onClickSave = () => {
