@@ -21,12 +21,17 @@ import AccountDoughnut from '@src/views/dashboard/chart/accountDoughnut'
 import OptionsMenu from '@src/@core/components/option-menu'
 import { AccountItem, AccountRatio } from '@src/queries/dashnaord.query'
 import { mergeData } from '@src/pages/dashboards/tad'
+import { AccountingDownload } from '@src/views/dashboard/accountDownload'
+import { changeTimeZoneOffset } from '@src/shared/helpers/date.helper'
+import { useRecoilValueLoadable, useSetRecoilState } from 'recoil'
+import { authState } from '@src/states/auth'
 
 dayjs.extend(weekday)
 
 // NOTE : 데이터가 많아지는 경우 Suspense 단위로 분리
 const AccountDashboards = () => {
   const router = useRouter()
+  const auth = useRecoilValueLoadable(authState)
 
   const { formHook, infoDialog } = UseDashboardControl()
   const { control, setValue, ...props } = formHook
@@ -37,6 +42,13 @@ const AccountDashboards = () => {
     control,
     name: ['dateRange', 'userViewDate'],
   })
+
+  const [utcISODateRange, setUTCISODateRange] = useState<{
+    from: string | null
+    to: string | null
+  }>(
+    {from: new Date().toISOString(), to: new Date().toISOString()}
+  )
 
   const [office, setOffice] = useState<Office>('Japan')
   const [CSVData, setCSVData] = useState<CSVDataType>([])
@@ -93,12 +105,18 @@ const AccountDashboards = () => {
     setCSVData(mergeData4)
   }, [salesData, receivableData, payableData, clientData, proData])
 
-  const getFileTitle = () => {
-    const from = getDateFormat(
-      (Array.isArray(dateRange) && dateRange[0]) || null,
-    )
-    const to = getDateFormat((Array.isArray(dateRange) && dateRange[1]) || null)
-    return `account-data-${from}-${to}`
+  useEffect(() => {
+    if (Array.isArray(dateRange) && dateRange[0] && dateRange[1]) {
+      const from = changeTimeZoneOffset(dateRange[0].toISOString(), auth.getValue().user?.timezone!)
+      const to = changeTimeZoneOffset(dateRange[1].toISOString(), auth.getValue().user?.timezone!)
+      setUTCISODateRange({from, to})
+    }
+  }, [dateRange])
+
+  const getFileTitle = (type: 'DASHBOARD' | 'ACCOUNTING') => {
+    return type === 'DASHBOARD'
+      ? `account-data-${utcISODateRange.from}-${utcISODateRange.to}`
+      : `accounting-report-${utcISODateRange.from}-${utcISODateRange.to}`
   }
 
   return (
@@ -119,9 +137,14 @@ const AccountDashboards = () => {
           >
             <ChartDate />
           </Grid>
-          <GridItem width={207} height={76}>
-            <Box>
-              <CSVDownload title={`${getFileTitle()}`} data={CSVData || []} />
+          <GridItem width={450} height={76}>
+            <Box sx={{ display: 'flex', gap: '8px' }}>
+              <CSVDownload title={`${getFileTitle('DASHBOARD')}`} data={CSVData || []} />
+              <AccountingDownload 
+                title={`${getFileTitle('ACCOUNTING')}`}
+                projectDueDateFrom={utcISODateRange.from}
+                projectDueDateTo={utcISODateRange.to}
+              />
             </Box>
           </GridItem>
         </Grid>
@@ -140,12 +163,8 @@ const AccountDashboards = () => {
                   { label: 'Prices', align: 'right' },
                 ]}
                 path='sales-recognition'
-                from={getDateFormat(
-                  (Array.isArray(dateRange) && dateRange[0]) || null,
-                )}
-                to={getDateFormat(
-                  (Array.isArray(dateRange) && dateRange[1]) || null,
-                )}
+                from={utcISODateRange.from || ''}
+                to={utcISODateRange.to || ''}
                 setItemData={setSalesData}
               />
             </Box>
@@ -166,12 +185,8 @@ const AccountDashboards = () => {
                   { label: 'Prices', align: 'right' },
                 ]}
                 path='invoice/receivable/paid/count'
-                from={getDateFormat(
-                  (Array.isArray(dateRange) && dateRange[0]) || null,
-                )}
-                to={getDateFormat(
-                  (Array.isArray(dateRange) && dateRange[1]) || null,
-                )}
+                from={utcISODateRange.from || ''}
+                to={utcISODateRange.to || ''}
                 setItemData={setReceivableData}
               />
             </Box>
@@ -192,12 +207,8 @@ const AccountDashboards = () => {
                   { label: 'Prices', align: 'right' },
                 ]}
                 path='invoice/payable/paid/count'
-                from={getDateFormat(
-                  (Array.isArray(dateRange) && dateRange[0]) || null,
-                )}
-                to={getDateFormat(
-                  (Array.isArray(dateRange) && dateRange[1]) || null,
-                )}
+                from={utcISODateRange.from || ''}
+                to={utcISODateRange.to || ''}
                 setItemData={setPayableData}
               />
             </Box>

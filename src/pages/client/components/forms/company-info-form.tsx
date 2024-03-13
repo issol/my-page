@@ -30,6 +30,7 @@ import {
   FieldErrors,
   UseFormGetValues,
   UseFormSetValue,
+  UseFormTrigger,
   UseFormWatch,
 } from 'react-hook-form'
 
@@ -63,6 +64,7 @@ type Props = {
   getValue: UseFormGetValues<CompanyInfoFormType>
   errors: FieldErrors<CompanyInfoFormType>
   watch: UseFormWatch<CompanyInfoFormType>
+  trigger?: UseFormTrigger<CompanyInfoFormType>
 }
 export default function CompanyInfoForm({
   mode,
@@ -71,6 +73,7 @@ export default function CompanyInfoForm({
   errors,
   watch,
   getValue,
+  trigger,
 }: Props) {
   const clientType: Array<ClientType> = ['Company', 'Mr', 'Ms']
   const country = getTypeList('CountryCode')
@@ -96,7 +99,6 @@ export default function CompanyInfoForm({
     setTimeZoneList(filteredTimezone)
   }, [timezone])
 
-  // console.log('errors', errors)
   function renderCompanyTypeBtn(
     type: ClientType,
     value: ClientType,
@@ -446,7 +448,10 @@ export default function CompanyInfoForm({
                   if (!v) onChange(null)
                   else {
                     onChange(v.value)
-                    if (v.value === false) setValue('tax', null)
+                    if (v.value === false) {
+                      setValue('tax', null)
+                      trigger && trigger()
+                    }
                   }
                 }}
                 value={!value && !findValue ? null : findValue}
@@ -476,14 +481,14 @@ export default function CompanyInfoForm({
           render={({ field: { value, onChange } }) => (
             <FormControl
               fullWidth
-              error={Boolean(errors.tax) && getValue('isTaxable')}
+              error={Boolean(errors.tax) && watch('isTaxable')}
             >
-              <InputLabel>Tax rate*</InputLabel>
+              <InputLabel>{!watch('isTaxable') ? 'Tax rate' : 'Tax rate*'}</InputLabel>
               <OutlinedInput
-                value={value ?? ''}
-                error={Boolean(errors.tax) && getValue('isTaxable')}
+                value={value ?? null}
+                error={Boolean(errors.tax) && watch('isTaxable')}
                 onChange={onChange}
-                label='Tax rate*'
+                label={!watch('isTaxable') ? 'Tax rate' : 'Tax rate*'}
                 disabled={!watch('isTaxable')}
                 endAdornment={
                   !watch('isTaxable') ? null : (
