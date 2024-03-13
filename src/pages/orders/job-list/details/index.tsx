@@ -215,32 +215,36 @@ const JobDetails = () => {
   }
 
   const onClickRow = (row: JobType, info: JobItemType) => {
-    openModal({
-      type: 'JobDetailViewModal',
-      children: (
-        <Box
-          sx={{
-            maxWidth: '1180px',
-            width: '100%',
-            maxHeight: '90vh',
-            background: '#ffffff',
-            boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
-            borderRadius: '10px',
-            overflow: 'scroll',
-            '&::-webkit-scrollbar': {
-              display: 'none',
-            },
-          }}
-        >
-          <JobInfoDetailView
-            row={row}
-            orderDetail={orderDetail!}
-            item={info}
-            refetch={refetch}
-          />
-        </Box>
-      ),
+    router.push({
+      pathname: '/orders/job-list/detail/',
+      query: { orderId: orderId, jobId: jobId },
     })
+    // openModal({
+    //   type: 'JobDetailViewModal',
+    //   children: (
+    //     <Box
+    //       sx={{
+    //         maxWidth: '1180px',
+    //         width: '100%',
+    //         maxHeight: '90vh',
+    //         background: '#ffffff',
+    //         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+    //         borderRadius: '10px',
+    //         overflow: 'scroll',
+    //         '&::-webkit-scrollbar': {
+    //           display: 'none',
+    //         },
+    //       }}
+    //     >
+    //       <JobInfoDetailView
+    //         row={row}
+    //         orderDetail={orderDetail!}
+    //         item={info}
+    //         refetch={refetch}
+    //       />
+    //     </Box>
+    //   ),
+    // })
   }
 
   useEffect(() => {
@@ -652,9 +656,10 @@ const JobDetails = () => {
                               <Box>
                                 {row?.totalPrice
                                   ? formatCurrency(
-                                    // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
-                                    // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
-                                      Number(row?.totalPrice) < 1000 && row?.currency === 'KRW'
+                                      // TODO: 임시코드임, job details list에서 totalPrice의 정확한 라운딩 처리를 위해서 numberPlace, rounding 정보가 있어야 하나 없음
+                                      // 원화일때 1000원 미만의 값은 0으로 나오도록 하드코딩 함
+                                      Number(row?.totalPrice) < 1000 &&
+                                        row?.currency === 'KRW'
                                         ? 0
                                         : Number(row?.totalPrice),
                                       row?.currency!,
