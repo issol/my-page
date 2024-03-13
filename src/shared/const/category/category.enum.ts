@@ -7,4 +7,5 @@ export enum Category {
   'OTT/Subtitle' = 'OTT/Subtitle',
   'Webcomics' = 'Webcomics',
   'Webnovel' = 'Webnovel',
+  'Gaming' = 'Gaming',
 }

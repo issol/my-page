@@ -9,11 +9,7 @@ export type InvoiceProStatusType =
   // | 'Under revision'
   // | 'Revised'
   // | 'Paid'
-  | 40000
-  | 40100
-  | 40200
-  | 40300
-  | 40400
+  40000 | 40100 | 40200 | 40300 | 40400
 
 export type InvoicePayableStatusType =
   // | 'Invoice created'
@@ -21,11 +17,7 @@ export type InvoicePayableStatusType =
   // | 'Paid'
   // | 'Overdue'
   // | 'Canceled'
-  | 40000
-  | 40100
-  | 40200
-  | 40300
-  | 40400
+  40000 | 40100 | 40200 | 40300 | 40400
 
 export type InvoiceReceivableStatusType =
   | 30000 //'New'
@@ -42,20 +34,33 @@ export type InvoiceReceivableStatusType =
   | 301100 //'Overdue (Reminder sent)'
   | 301200 //'Canceled'
 
-  export type InvoiceReceivableStatusCodeLabelMixType =
-  | 30000 | 'New'
-  | 30100 | 'In preparation'
-  | 30200 | 'Internal review'
-  | 30300 | 'Invoice sent'
-  | 30400 | 'Client review'
-  | 30500 | 'Under revision'
-  | 30600 | 'Revised'
-  | 30700 | 'Invoice confirmed'
-  | 30800 | 'Tax invoice issued'
-  | 30900 | 'Paid'
-  | 301000 | 'Overdue'
-  | 301100 | 'Overdue (Reminder sent)'
-  | 301200 | 'Canceled'
+export type InvoiceReceivableStatusCodeLabelMixType =
+  | 30000
+  | 'New'
+  | 30100
+  | 'In preparation'
+  | 30200
+  | 'Internal review'
+  | 30300
+  | 'Invoice sent'
+  | 30400
+  | 'Client review'
+  | 30500
+  | 'Under revision'
+  | 30600
+  | 'Revised'
+  | 30700
+  | 'Invoice confirmed'
+  | 30800
+  | 'Tax invoice issued'
+  | 30900
+  | 'Paid'
+  | 301000
+  | 'Overdue'
+  | 301100
+  | 'Overdue (Reminder sent)'
+  | 301200
+  | 'Canceled'
 
 export type InvoiceProjectInfoFormType = {
   status?: InvoiceReceivableStatusType
@@ -65,7 +70,7 @@ export type InvoiceProjectInfoFormType = {
   invoiceDescription?: string
   category?: string
   serviceType?: Array<string>
-  expertise?: Array<string>
+  genre?: Array<string>
   revenueFrom: RevenueFormType
   invoiceDate: Date
   invoiceDateTimezone: CountryType

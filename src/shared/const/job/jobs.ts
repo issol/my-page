@@ -8,6 +8,7 @@ export const JobList = [
   { label: Job['OTT/Subtitle'], value: Job['OTT/Subtitle'] },
   { label: Job.Webcomics, value: Job.Webcomics },
   { label: Job.Webnovel, value: Job.Webnovel },
+  { label: Job.Gaming, value: Job.Gaming },
 ].sort((a, b) => a.label.localeCompare(b.label))
 
 export const ProJobPair = {

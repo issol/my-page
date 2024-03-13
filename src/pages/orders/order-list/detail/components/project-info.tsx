@@ -917,11 +917,11 @@ const ProjectInfo = ({
                       width: '73.45%',
                     }}
                   >
-                    {project.expertise && project.expertise.length > 0
-                      ? project.expertise.map((value, idx) => {
+                    {project.genre && project.genre.length > 0
+                      ? project.genre.map((value, idx) => {
                           return (
                             <Typography key={uuidv4()} variant='subtitle2'>
-                              {project.expertise.length === idx + 1
+                              {project.genre.length === idx + 1
                                 ? value
                                 : `${value}, `}
                             </Typography>

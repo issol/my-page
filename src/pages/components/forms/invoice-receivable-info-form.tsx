@@ -365,7 +365,7 @@ export default function InvoiceProjectInfoForm({
                 onChange={(e, v) => {
                   if (!v) {
                     setValue('serviceType', [], setValueOptions)
-                    setValue('expertise', [], setValueOptions)
+                    setValue('genre', [], setValueOptions)
                   }
                   onChange(v?.value ?? '')
                 }}
@@ -439,7 +439,11 @@ export default function InvoiceProjectInfoForm({
                     value?.includes(item.value),
                   )}
                   renderInput={params => (
-                    <TextField {...params} autoComplete='off' label='Service type' />
+                    <TextField
+                      {...params}
+                      autoComplete='off'
+                      label='Service type'
+                    />
                   )}
                 />
               )
@@ -450,7 +454,7 @@ export default function InvoiceProjectInfoForm({
       {multipleOrder ? null : (
         <Grid item xs={12}>
           <Controller
-            name='expertise'
+            name='genre'
             control={control}
             render={({ field: { value, onChange } }) => {
               const category = watch(

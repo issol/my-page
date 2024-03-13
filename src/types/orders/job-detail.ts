@@ -41,7 +41,7 @@ export type AssignProFilterType = {
   search: string
   source: { label: string; value: string }[]
   target: { label: string; value: string }[]
-  expertise: { label: string; value: string }[]
+  genre: { label: string; value: string }[]
 }
 
 export type AssignProFilterPostType = {
@@ -54,7 +54,7 @@ export type AssignProFilterPostType = {
   search?: string
   source?: string[]
   target?: string[]
-  expertise?: string[]
+  genre?: string[]
   sortId?: string
   sortDate?: string
   isOffBoard: '0' | '1'

@@ -565,7 +565,7 @@ export default function ProjectInfoForm({
               onChange={(e, v) => {
                 if (!v) {
                   setValue('serviceType', [], setValueOptions)
-                  setValue('expertise', [], setValueOptions)
+                  setValue('genre', [], setValueOptions)
                 }
                 onChange(v?.value ?? '')
               }}
@@ -636,7 +636,7 @@ export default function ProjectInfoForm({
       </Grid>
       <Grid item xs={12}>
         <Controller
-          name='expertise'
+          name='genre'
           control={control}
           render={({ field: { value, onChange } }) => {
             const category = watch(
@@ -664,7 +664,11 @@ export default function ProjectInfoForm({
                   value?.includes(item.value),
                 )}
                 renderInput={params => (
-                  <TextField {...params} autoComplete='off' label='Area of expertise' />
+                  <TextField
+                    {...params}
+                    autoComplete='off'
+                    label='Area of expertise'
+                  />
                 )}
                 renderOption={(props, option, { selected }) => (
                   <li {...props}>

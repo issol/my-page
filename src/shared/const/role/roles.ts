@@ -10,7 +10,7 @@ export const RoleList = [
   },
   { label: Role.Copywriter, value: Role.Copywriter },
   { label: Role.DTPer, value: Role.DTPer },
-  { label: Role['DTP QCer'], value: Role['DTP QCer'] },
+
   { label: Role['Dubbing audio QCer'], value: Role['Dubbing audio QCer'] },
   { label: Role['Dubbing script QCer'], value: Role['Dubbing script QCer'] },
   {
@@ -18,7 +18,7 @@ export const RoleList = [
     value: Role['Dubbing script translator'],
   },
   { label: Role['Dubbing voice artist'], value: Role['Dubbing voice artist'] },
-  { label: Role.Editor, value: Role.Editor },
+
   { label: Role.Interpreter, value: Role.Interpreter },
   { label: Role.Proofreader, value: Role.Proofreader },
   { label: Role.QCer, value: Role.QCer },
@@ -41,11 +41,13 @@ export const RoleList = [
 
 export const ProRolePair = {
   'Documents/Text': [
+    { label: Role['Document Translator'], value: Role['Document Translator'] },
+    { label: Role['Document QCer'], value: Role['Document QCer'] },
     { label: Role.DTPer, value: Role.DTPer },
-    { label: Role['DTP QCer'], value: Role['DTP QCer'] },
-    { label: Role.QCer, value: Role.QCer },
     { label: Role.Transcriber, value: Role.Transcriber },
+    { label: Role.Proofreader, value: Role.Proofreader },
     { label: Role.Translator, value: Role.Translator },
+    { label: Role.QCer, value: Role.QCer },
   ],
   Dubbing: [
     { label: Role['Audio describer'], value: Role['Audio describer'] },
@@ -59,20 +61,21 @@ export const ProRolePair = {
       label: Role['Dubbing script translator'],
       value: Role['Dubbing script translator'],
     },
+    { value: Role['Dubbing script QCer'], label: Role['Dubbing script QCer'] },
+
     {
       label: Role['Dubbing voice artist'],
       value: Role['Dubbing voice artist'],
     },
+    {
+      value: Role.QCer,
+      label: Role.QCer,
+    },
   ],
   Interpretation: [{ label: Role.Interpreter, value: Role.Interpreter }],
-  'Misc.': [
-    { label: Role.Copywriter, value: Role.Copywriter },
-    { label: Role.Editor, value: Role.Editor },
-    { label: Role['Video editor'], value: Role['Video editor'] },
-  ],
+  'Misc.': RoleList,
 
   'OTT/Subtitle': [
-    { label: Role.QCer, value: Role.QCer },
     { label: Role['SDH author'], value: Role['SDH author'] },
     { label: Role['SDH QCer'], value: Role['SDH QCer'] },
     { label: Role['Subtitle author'], value: Role['Subtitle author'] },
@@ -82,26 +85,50 @@ export const ProRolePair = {
     { label: Role['Template author'], value: Role['Template author'] },
     { label: Role['Template QCer'], value: Role['Template QCer'] },
     { label: Role.Transcriber, value: Role.Transcriber },
-    { label: Role.Translator, value: Role.Translator },
+    { label: Role.QCer, value: Role.QCer },
   ],
   Webcomics: [
     { label: Role.DTPer, value: Role.DTPer },
-    { label: Role['DTP QCer'], value: Role['DTP QCer'] },
-    { label: Role.Proofreader, value: Role.Proofreader },
     { label: Role['Webcomics QCer'], value: Role['Webcomics QCer'] },
     {
       label: Role['Webcomics translator'],
       value: Role['Webcomics translator'],
     },
+    { label: Role.Proofreader, value: Role.Proofreader },
+    {
+      label: Role.Translator,
+      value: Role.Translator,
+    },
+    {
+      label: Role.QCer,
+      value: Role.QCer,
+    },
   ],
   Webnovel: [
     { label: Role.DTPer, value: Role.DTPer },
-    { label: Role['DTP QCer'], value: Role['DTP QCer'] },
+
     { label: Role['Webnovel QCer'], value: Role['Webnovel QCer'] },
     {
       label: Role['Webnovel translator'],
       value: Role['Webnovel translator'],
     },
+    { label: Role.Proofreader, value: Role.Proofreader },
+    {
+      label: Role.Translator,
+      value: Role.Translator,
+    },
+    {
+      label: Role.QCer,
+      value: Role.QCer,
+    },
+  ],
+  Gaming: [
+    { label: Role.DTPer, value: Role.DTPer },
+    { label: Role['Gaming QCer'], value: Role['Gaming QCer'] },
+    { label: Role['Gaming Translator'], value: Role['Gaming Translator'] },
+    { label: Role.Proofreader, value: Role.Proofreader },
+    { label: Role.Translator, value: Role.Translator },
+    { label: Role.QCer, value: Role.QCer },
   ],
 } as const
 
@@ -109,12 +136,12 @@ export const OnboardingListRolePair: Array<RoleSelectType> = [
   {
     label: Role['Audio describer'],
     value: Role['Audio describer'],
-    jobType: [Job['Dubbing']],
+    jobType: [Job['Dubbing'], Job['Misc.']],
   },
   {
     label: Role['Audio description QCer'],
     value: Role['Audio description QCer'],
-    jobType: [Job['Dubbing']],
+    jobType: [Job['Dubbing'], Job['Misc.']],
   },
   {
     label: Role.Copywriter,
@@ -124,92 +151,139 @@ export const OnboardingListRolePair: Array<RoleSelectType> = [
   {
     label: Role.DTPer,
     value: Role.DTPer,
-    jobType: [Job['Documents/Text'], Job.Webcomics, Job.Webnovel],
+    jobType: [
+      Job['Documents/Text'],
+      Job.Webcomics,
+      Job.Webnovel,
+      Job.Gaming,
+      Job['Misc.'],
+    ],
   },
   {
-    label: Role['DTP QCer'],
-    value: Role['DTP QCer'],
-    jobType: [Job['Documents/Text'], Job.Webcomics, Job.Webnovel],
+    label: Role['Document Translator'],
+    value: Role['Document Translator'],
+    jobType: [Job['Documents/Text'], Job['Misc.']],
+  },
+  {
+    label: Role['Document QCer'],
+    value: Role['Document QCer'],
+    jobType: [Job['Documents/Text'], Job['Misc.']],
   },
   {
     label: Role['Dubbing audio QCer'],
     value: Role['Dubbing audio QCer'],
-    jobType: [Job['Dubbing']],
+    jobType: [Job['Dubbing'], Job['Misc.']],
+  },
+  {
+    label: Role['Dubbing script translator'],
+    value: Role['Dubbing script translator'],
+    jobType: [Job['Dubbing'], Job['Misc.']],
   },
   {
     label: Role['Dubbing script QCer'],
     value: Role['Dubbing script QCer'],
-    jobType: [Job['Dubbing']],
+    jobType: [Job['Dubbing'], Job['Misc.']],
   },
   {
-    label: Role.Editor,
-    value: Role.Editor,
-    jobType: [Job['Misc.']],
+    label: Role['Dubbing voice artist'],
+    value: Role['Dubbing voice artist'],
+    jobType: [Job['Dubbing'], Job['Misc.']],
   },
+  {
+    label: Role['Gaming Translator'],
+    value: Role['Gaming Translator'],
+    jobType: [Job.Gaming, Job['Misc.']],
+  },
+  {
+    label: Role['Gaming QCer'],
+    value: Role['Gaming QCer'],
+    jobType: [Job.Gaming, Job['Misc.']],
+  },
+
   {
     label: Role.Interpreter,
     value: Role.Interpreter,
-    jobType: [Job['Interpretation']],
+    jobType: [Job['Interpretation'], Job['Misc.']],
   },
   {
     label: Role.Proofreader,
     value: Role.Proofreader,
-    jobType: [Job.Webcomics],
+    jobType: [
+      Job['Documents/Text'],
+      Job.Webcomics,
+      Job.Webnovel,
+      Job.Gaming,
+      Job['Misc.'],
+    ],
   },
   {
     label: Role.QCer,
     value: Role.QCer,
-    jobType: [Job['Documents/Text'], Job['OTT/Subtitle']],
+    jobType: [
+      Job['Documents/Text'],
+      Job.Dubbing,
+      Job['OTT/Subtitle'],
+      Job.Webcomics,
+      Job.Webnovel,
+      Job.Gaming,
+      Job['Misc.'],
+    ],
   },
   {
     label: Role['SDH author'],
     value: Role['SDH author'],
-    jobType: [Job['OTT/Subtitle']],
+    jobType: [Job['OTT/Subtitle'], Job['Misc.']],
   },
   {
     label: Role['SDH QCer'],
     value: Role['SDH QCer'],
-    jobType: [Job['OTT/Subtitle']],
+    jobType: [Job['OTT/Subtitle'], Job['Misc.']],
   },
   {
     label: Role['Subtitle author'],
     value: Role['Subtitle author'],
-    jobType: [Job['OTT/Subtitle']],
+    jobType: [Job['OTT/Subtitle'], Job['Misc.']],
   },
   {
     label: Role['Subtitle QCer'],
     value: Role['Subtitle QCer'],
-    jobType: [Job['OTT/Subtitle']],
+    jobType: [Job['OTT/Subtitle'], Job['Misc.']],
   },
   {
     label: Role['Supp author'],
     value: Role['Supp author'],
-    jobType: [Job['OTT/Subtitle']],
+    jobType: [Job['OTT/Subtitle'], Job['Misc.']],
   },
   {
     label: Role['Supp QCer'],
     value: Role['Supp QCer'],
-    jobType: [Job['OTT/Subtitle']],
+    jobType: [Job['OTT/Subtitle'], Job['Misc.']],
   },
   {
     label: Role['Template author'],
     value: Role['Template author'],
-    jobType: [Job['OTT/Subtitle']],
+    jobType: [Job['OTT/Subtitle'], Job['Misc.']],
   },
   {
     label: Role['Template QCer'],
     value: Role['Template QCer'],
-    jobType: [Job['OTT/Subtitle']],
+    jobType: [Job['OTT/Subtitle'], Job['Misc.']],
   },
   {
     label: Role.Transcriber,
     value: Role.Transcriber,
-    jobType: [Job['Documents/Text'], Job['OTT/Subtitle']],
+    jobType: [Job['Documents/Text'], Job['OTT/Subtitle'], Job['Misc.']],
   },
   {
     label: Role.Translator,
     value: Role.Translator,
-    jobType: [Job['Documents/Text'], Job['OTT/Subtitle']],
+    jobType: [
+      Job['Documents/Text'],
+      Job.Webcomics,
+      Job.Webnovel,
+      Job.Gaming,
+      Job['Misc.'],
+    ],
   },
   {
     label: Role['Video editor'],
@@ -219,342 +293,21 @@ export const OnboardingListRolePair: Array<RoleSelectType> = [
   {
     label: Role['Webcomics QCer'],
     value: Role['Webcomics QCer'],
-    jobType: [Job['Webcomics']],
+    jobType: [Job['Webcomics'], Job['Misc.']],
   },
   {
     label: Role['Webcomics translator'],
     value: Role['Webcomics translator'],
-    jobType: [Job['Webcomics']],
+    jobType: [Job['Webcomics'], Job['Misc.']],
   },
   {
     label: Role['Webnovel QCer'],
     value: Role['Webnovel QCer'],
-    jobType: [Job['Webnovel']],
+    jobType: [Job['Webnovel'], Job['Misc.']],
   },
   {
     label: Role['Webnovel translator'],
     value: Role['Webnovel translator'],
-    jobType: [Job['Webnovel']],
+    jobType: [Job['Webnovel'], Job['Misc.']],
   },
 ]
-
-export const AssignJobType = {
-  'Documents/Text': [
-    { label: Role.DTPer, value: Role.DTPer },
-    { label: Role['DTP QCer'], value: Role['DTP QCer'] },
-    { label: Role.QCer, value: Role.QCer },
-    { label: Role.Transcriber, value: Role.Transcriber },
-    { label: Role.Translator, value: Role.Translator },
-    { label: 'Localization engineer', value: 'Localization engineer' },
-    { label: 'Reviewer', value: 'Reviewer' },
-  ],
-  Dubbing: [
-    { label: 'Reviewer', value: 'Reviewer' },
-    { label: Role['Audio describer'], value: Role['Audio describer'] },
-    {
-      label: Role['Audio description QCer'],
-      value: Role['Audio description QCer'],
-    },
-    { label: Role['Dubbing audio QCer'], value: Role['Dubbing audio QCer'] },
-    { label: Role['Dubbing script QCer'], value: Role['Dubbing script QCer'] },
-    {
-      label: Role['Dubbing script translator'],
-      value: Role['Dubbing script translator'],
-    },
-    {
-      label: Role['Dubbing voice artist'],
-      value: Role['Dubbing voice artist'],
-    },
-  ],
-  Interpretation: [
-    { label: 'Reviewer', value: 'Reviewer' },
-    { label: Role.Interpreter, value: Role.Interpreter },
-  ],
-  'Misc.': [
-    { label: 'Content LQA reviewer', value: 'Content LQA reviewer' },
-    { label: 'DTT reviewer', value: 'DTT reviewer' },
-    { label: 'Language manager', value: 'Language manager' },
-    { label: 'Reviewer', value: 'Reviewer' },
-    { label: 'Vendor LM', value: 'Vendor LM' },
-    { label: Role.Copywriter, value: Role.Copywriter },
-    { label: Role.Editor, value: Role.Editor },
-    { label: Role['Video editor'], value: Role['Video editor'] },
-  ],
-
-  'OTT/Subtitle': [
-    { label: 'Content LQA reviewer', value: 'Content LQA reviewer' },
-    { label: 'DTT reviewer', value: 'DTT reviewer' },
-    { label: 'Language manager', value: 'Language manager' },
-    { label: 'Reviewer', value: 'Reviewer' },
-    { label: 'Vendor LM', value: 'Vendor LM' },
-    { label: Role.QCer, value: Role.QCer },
-    { label: Role['SDH author'], value: Role['SDH author'] },
-    { label: Role['SDH QCer'], value: Role['SDH QCer'] },
-    { label: Role['Subtitle author'], value: Role['Subtitle author'] },
-    { label: Role['Subtitle QCer'], value: Role['Subtitle QCer'] },
-    { label: Role['Supp author'], value: Role['Supp author'] },
-    { label: Role['Supp QCer'], value: Role['Supp QCer'] },
-    { label: Role['Template author'], value: Role['Template author'] },
-    { label: Role['Template QCer'], value: Role['Template QCer'] },
-    { label: Role.Transcriber, value: Role.Transcriber },
-    { label: Role.Translator, value: Role.Translator },
-  ],
-  Webcomics: [
-    { label: 'Localization engineer', value: 'Localization engineer' },
-    { label: 'Reviewer', value: 'Reviewer' },
-    { label: Role.DTPer, value: Role.DTPer },
-    { label: Role['DTP QCer'], value: Role['DTP QCer'] },
-    { label: Role.Proofreader, value: Role.Proofreader },
-    { label: Role['Webcomics QCer'], value: Role['Webcomics QCer'] },
-    {
-      label: Role['Webcomics translator'],
-      value: Role['Webcomics translator'],
-    },
-  ],
-  Webnovel: [
-    { label: 'Localization engineer', value: 'Localization engineer' },
-    { label: 'Reviewer', value: 'Reviewer' },
-    { label: Role.DTPer, value: Role.DTPer },
-    { label: Role['DTP QCer'], value: Role['DTP QCer'] },
-    { label: Role['Webnovel QCer'], value: Role['Webnovel QCer'] },
-    {
-      label: Role['Webnovel translator'],
-      value: Role['Webnovel translator'],
-    },
-  ],
-} as const
-
-export const ServiceTypeToProRole = {
-  'Audio description': [
-    { label: Role['Audio describer'], value: Role['Audio describer'] },
-    {
-      label: Role['Audio description QCer'],
-      value: Role['Audio description QCer'],
-    },
-  ],
-  Copywriting: [{ label: Role.Copywriter, value: Role.Copywriter }],
-  DTP: [
-    {
-      label: Role.DTPer,
-      value: Role.DTPer,
-    },
-    { label: Role['DTP QCer'], value: Role['DTP QCer'] },
-  ],
-  'DTP QC': [
-    {
-      label: Role.DTPer,
-      value: Role.DTPer,
-    },
-    { label: Role['DTP QCer'], value: Role['DTP QCer'] },
-  ],
-  'DTP file prep': [
-    {
-      label: Role.DTPer,
-      value: Role.DTPer,
-    },
-    { label: Role['DTP QCer'], value: Role['DTP QCer'] },
-  ],
-  Dubbing: [
-    { label: Role['Dubbing audio QCer'], value: Role['Dubbing audio QCer'] },
-    { label: Role['Dubbing script QCer'], value: Role['Dubbing script QCer'] },
-    {
-      label: Role['Dubbing script translator'],
-      value: Role['Dubbing script translator'],
-    },
-    {
-      label: Role['Dubbing voice artist'],
-      value: Role['Dubbing voice artist'],
-    },
-  ],
-
-  'Dubbing audio QC': [
-    { label: Role['Dubbing audio QCer'], value: Role['Dubbing audio QCer'] },
-    { label: Role['Dubbing script QCer'], value: Role['Dubbing script QCer'] },
-    {
-      label: Role['Dubbing script translator'],
-      value: Role['Dubbing script translator'],
-    },
-    {
-      label: Role['Dubbing voice artist'],
-      value: Role['Dubbing voice artist'],
-    },
-  ],
-  'Dubbing script QC': [
-    { label: Role['Dubbing script QCer'], value: Role['Dubbing script QCer'] },
-    {
-      label: Role['Dubbing script translator'],
-      value: Role['Dubbing script translator'],
-    },
-  ],
-  'Dubbing script translation': [
-    { label: Role['Dubbing script QCer'], value: Role['Dubbing script QCer'] },
-    {
-      label: Role['Dubbing script translator'],
-      value: Role['Dubbing script translator'],
-    },
-  ],
-  Editing: [{ label: Role.Editor, value: Role.Editor }],
-  'File preparation': [
-    { label: Role['Audio describer'], value: Role['Audio describer'] },
-    {
-      label: Role['Audio description QCer'],
-      value: Role['Audio description QCer'],
-    },
-    { label: Role.Copywriter, value: Role.Copywriter },
-    { label: Role.DTPer, value: Role.DTPer },
-    { label: Role['DTP QCer'], value: Role['DTP QCer'] },
-    { label: Role['Dubbing audio QCer'], value: Role['Dubbing audio QCer'] },
-    { label: Role['Dubbing script QCer'], value: Role['Dubbing script QCer'] },
-    {
-      label: Role['Dubbing script translator'],
-      value: Role['Dubbing script translator'],
-    },
-    {
-      label: Role['Dubbing voice artist'],
-      value: Role['Dubbing voice artist'],
-    },
-    { label: Role.Editor, value: Role.Editor },
-    { label: Role.Interpreter, value: Role.Interpreter },
-    { label: Role.Proofreader, value: Role.Proofreader },
-    { label: Role.QCer, value: Role.QCer },
-    { label: Role['SDH author'], value: Role['SDH author'] },
-    { label: Role['SDH QCer'], value: Role['SDH QCer'] },
-    { label: Role['Subtitle author'], value: Role['Subtitle author'] },
-    { label: Role['Subtitle QCer'], value: Role['Subtitle QCer'] },
-    { label: Role['Supp author'], value: Role['Supp author'] },
-    { label: Role['Supp QCer'], value: Role['Supp QCer'] },
-    { label: Role['Template author'], value: Role['Template author'] },
-    { label: Role['Template QCer'], value: Role['Template QCer'] },
-    { label: Role.Transcriber, value: Role.Transcriber },
-    { label: Role.Translator, value: Role.Translator },
-    { label: Role['Video editor'], value: Role['Video editor'] },
-    { label: Role['Webcomics QCer'], value: Role['Webcomics QCer'] },
-    {
-      label: Role['Webcomics translator'],
-      value: Role['Webcomics translator'],
-    },
-    { label: Role['Webnovel QCer'], value: Role['Webnovel QCer'] },
-    { label: Role['Webnovel translator'], value: Role['Webnovel translator'] },
-  ],
-  'Final check': [
-    { label: Role['Dubbing audio QCer'], value: Role['Dubbing audio QCer'] },
-    { label: Role['Dubbing script QCer'], value: Role['Dubbing script QCer'] },
-    { label: Role.Proofreader, value: Role.Proofreader },
-    { label: Role.QCer, value: Role.QCer },
-    { label: Role['Subtitle QCer'], value: Role['Subtitle QCer'] },
-    { label: Role['Supp QCer'], value: Role['Supp QCer'] },
-    { label: Role['Template QCer'], value: Role['Template QCer'] },
-    { label: Role['Webcomics QCer'], value: Role['Webcomics QCer'] },
-    { label: Role['Webnovel QCer'], value: Role['Webnovel QCer'] },
-  ],
-  'In-person': [{ label: Role.Interpreter, value: Role.Interpreter }],
-  'Localization engineering': [
-    {
-      label: 'Localization engineer',
-      value: 'Localization engineer',
-    },
-    {
-      label: 'LPM',
-      value: 'LPM',
-    },
-  ],
-  Online: [{ label: Role.Interpreter, value: Role.Interpreter }],
-  Phone: [{ label: Role.Interpreter, value: Role.Interpreter }],
-  Proofreading: [{ label: Role.Proofreader, value: Role.Proofreader }],
-  'QC review': [
-    { label: Role['Dubbing audio QCer'], value: Role['Dubbing audio QCer'] },
-    { label: Role['Dubbing script QCer'], value: Role['Dubbing script QCer'] },
-    { label: Role.Proofreader, value: Role.Proofreader },
-    { label: Role.QCer, value: Role.QCer },
-    { label: Role['Subtitle QCer'], value: Role['Subtitle QCer'] },
-    { label: Role['Supp QCer'], value: Role['Supp QCer'] },
-    { label: Role['Template QCer'], value: Role['Template QCer'] },
-    { label: Role['Webcomics QCer'], value: Role['Webcomics QCer'] },
-    { label: Role['Webnovel QCer'], value: Role['Webnovel QCer'] },
-  ],
-  'Rendering/TC editing': [
-    { label: Role['SDH author'], value: Role['SDH author'] },
-    { label: Role['SDH QCer'], value: Role['SDH QCer'] },
-    { label: Role['Subtitle author'], value: Role['Subtitle author'] },
-    { label: Role['Subtitle QCer'], value: Role['Subtitle QCer'] },
-    { label: Role['Supp author'], value: Role['Supp author'] },
-    { label: Role['Supp QCer'], value: Role['Supp QCer'] },
-    { label: Role['Template author'], value: Role['Template author'] },
-    { label: Role['Template QCer'], value: Role['Template QCer'] },
-    { label: Role.Transcriber, value: Role.Transcriber },
-  ],
-
-  'Revision(Rework)': [
-    { label: Role['Dubbing audio QCer'], value: Role['Dubbing audio QCer'] },
-    { label: Role['Dubbing script QCer'], value: Role['Dubbing script QCer'] },
-    { label: Role.Proofreader, value: Role.Proofreader },
-    { label: Role.QCer, value: Role.QCer },
-    { label: 'Reviewer', value: 'Reviewer' },
-    { label: Role['Subtitle author'], value: Role['Subtitle author'] },
-    { label: Role['Subtitle QCer'], value: Role['Subtitle QCer'] },
-    { label: Role['Supp author'], value: Role['Supp author'] },
-    { label: Role['Supp QCer'], value: Role['Supp QCer'] },
-    { label: Role['Template author'], value: Role['Template author'] },
-    { label: Role['Template QCer'], value: Role['Template QCer'] },
-    { label: Role.Translator, value: Role.Translator },
-    { label: Role['Webcomics QCer'], value: Role['Webcomics QCer'] },
-    {
-      label: Role['Webcomics translator'],
-      value: Role['Webcomics translator'],
-    },
-    { label: Role['Webnovel QCer'], value: Role['Webnovel QCer'] },
-    { label: Role['Webnovel translator'], value: Role['Webnovel translator'] },
-  ],
-
-  Subtitle: [
-    { label: Role['SDH author'], value: Role['SDH author'] },
-    { label: Role['SDH QCer'], value: Role['SDH QCer'] },
-    { label: Role['Subtitle author'], value: Role['Subtitle author'] },
-    { label: Role['Subtitle QCer'], value: Role['Subtitle QCer'] },
-    { label: Role['Supp author'], value: Role['Supp author'] },
-    { label: Role['Supp QCer'], value: Role['Supp QCer'] },
-    { label: Role['Template author'], value: Role['Template author'] },
-    { label: Role['Template QCer'], value: Role['Template QCer'] },
-    { label: Role.Transcriber, value: Role.Transcriber },
-  ],
-
-  'TAE(Translator accept edits)': [
-    { label: Role['Subtitle author'], value: Role['Subtitle author'] },
-    { label: Role['Supp author'], value: Role['Supp author'] },
-    { label: Role['Template author'], value: Role['Template author'] },
-    { label: Role.Translator, value: Role.Translator },
-    {
-      label: Role['Webcomics translator'],
-      value: Role['Webcomics translator'],
-    },
-    { label: Role['Webnovel translator'], value: Role['Webnovel translator'] },
-  ],
-
-  Transcription: [
-    { label: Role['SDH author'], value: Role['SDH author'] },
-    { label: Role['Subtitle author'], value: Role['Subtitle author'] },
-    { label: Role['Supp author'], value: Role['Supp author'] },
-    { label: Role['Template author'], value: Role['Template author'] },
-    { label: Role.Transcriber, value: Role.Transcriber },
-    { label: Role.Translator, value: Role.Translator },
-    {
-      label: Role['Webcomics translator'],
-      value: Role['Webcomics translator'],
-    },
-    { label: Role['Webnovel translator'], value: Role['Webnovel translator'] },
-  ],
-  Translation: [
-    {
-      label: Role['Dubbing script translator'],
-      value: Role['Dubbing script translator'],
-    },
-    { label: Role['Subtitle author'], value: Role['Subtitle author'] },
-    { label: Role.Translator, value: Role.Translator },
-    {
-      label: Role['Webcomics translator'],
-      value: Role['Webcomics translator'],
-    },
-    { label: Role['Webnovel translator'], value: Role['Webnovel translator'] },
-  ],
-  'Video editing': [{ label: 'Video editor', value: 'Video editor' }],
-}

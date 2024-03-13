@@ -406,7 +406,7 @@ export default function QuotesDetail() {
         projectDescription: project.projectDescription,
         category: project.category,
         serviceType: project.serviceType,
-        expertise: project.expertise,
+        genre: project.genre,
         showDescription: project.showDescription,
 
         quoteDate: {

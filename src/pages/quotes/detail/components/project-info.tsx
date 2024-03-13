@@ -650,7 +650,7 @@ export default function QuotesProjectInfoDetail({
             <LabelContainer style={{ alignItems: 'start' }}>
               <CustomTypo fontWeight={600}>Area of expertise</CustomTypo>
               <CustomTypo variant='body2'>
-                {project.expertise?.join(', ') ?? '-'}
+                {project.genre?.join(', ') ?? '-'}
               </CustomTypo>
             </LabelContainer>
           </Grid>
