@@ -9,13 +9,17 @@ type CellType = {
   row: ProListType
 }
 
-export const getProJobAssignColumns = () => {
+export const getProJobAssignColumns = (
+  isPrioritized: boolean,
+  searchPro: boolean,
+) => {
   const columns: GridColumns<ProListType> = [
     {
       field: 'order',
 
       flex: 0.0503,
       // disableColumnMenu: true,
+      hide: !isPrioritized || searchPro,
       renderHeader: () => (
         // <Icon
         //   icon='mdi:arrow-up'
@@ -24,6 +28,7 @@ export const getProJobAssignColumns = () => {
         // />
         <></>
       ),
+
       renderCell: ({ row }: CellType) => {
         return (
           <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
@@ -77,7 +82,23 @@ export const getProJobAssignColumns = () => {
       },
     },
     {
-      flex: 0.2453,
+      flex: 0.1321,
+      field: 'avg',
+      hideSortIcons: true,
+      sortable: false,
+      disableColumnMenu: true,
+      hide: !searchPro,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Avg. response time
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => {
+        return <Typography> 10 min(s)</Typography>
+      },
+    },
+    {
+      flex: searchPro ? 0.1635 : 0.2453,
       field: 'jobs',
       hideSortIcons: true,
       disableColumnMenu: true,

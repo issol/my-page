@@ -30,6 +30,10 @@ export type LinguistTeamProListFilterType = {
   experience?: string[]
   sortId?: string
   sortDate?: string
+  genre?: string[]
+  serviceTypeId?: number[]
+  category?: string[]
+  hide?: '1' | '0'
 }
 
 export type LinguistTeamFormType = {
