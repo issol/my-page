@@ -7,7 +7,7 @@ export type LinguistTeamListType = {
   sourceLanguage: string
   targetLanguage: string
   serviceTypeId: number
-  client: string
+  clientId: number
   description?: string
   pros: Array<{
     userId: number
