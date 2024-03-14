@@ -141,3 +141,22 @@ export const getUserBeHealthz = async () => {
   const { data } = await axios.get(`/api/enough/u/healthz`)
   return data
 }
+
+export const getServiceType = async (): Promise<
+  Array<{ value: number; label: string }>
+> => {
+  const { data } = await axios.get(`/api/enough/u/service-type`)
+  const res = data.map((item: any) => ({
+    value: item.id,
+    label: item.name,
+  }))
+
+  return res
+}
+
+export const getSimpleClientList = async (): Promise<
+  Array<{ clientId: number; name: string }>
+> => {
+  const { data } = await axios.get(`/api/enough/u/client/ref/list`)
+  return data.data
+}

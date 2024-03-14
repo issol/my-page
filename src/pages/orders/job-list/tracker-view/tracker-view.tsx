@@ -97,8 +97,14 @@ export default function JobTrackerView({ clients, onCreateNewJob }: Props) {
   }
 
   return (
-    <Fragment>
-      <Grid item xs={12}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}
+    >
+      <Box sx={{ display: 'flex', width: '100%' }}>
         <Filters
           filter={filter}
           onReset={onReset}
@@ -107,9 +113,9 @@ export default function JobTrackerView({ clients, onCreateNewJob }: Props) {
           serviceTypeOptions={serviceTypeOptions}
           clients={clients}
         />
-      </Grid>
+      </Box>
 
-      <Grid item xs={12}>
+      <Box sx={{ width: '100%' }}>
         <Card>
           <CardHeader
             title={
@@ -138,7 +144,7 @@ export default function JobTrackerView({ clients, onCreateNewJob }: Props) {
             }
           />
         </Card>
-      </Grid>
-    </Fragment>
+      </Box>
+    </Box>
   )
 }

@@ -53,7 +53,7 @@ import {
   handleJobAssignStatus,
   handleJobReAssign,
   requestJobToPro,
-} from '@src/apis/job-detail.api'
+} from '@src/apis/jobs/job-detail.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import toast from 'react-hot-toast'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
