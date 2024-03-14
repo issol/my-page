@@ -287,8 +287,8 @@ const LinguistTeamList = ({
                                   >
                                     {item.isPrivate
                                       ? ''
-                                      : i.firstName.charAt(0) +
-                                        i.lastName.charAt(0)}
+                                      : i.firstName?.charAt(0) +
+                                        i.lastName?.charAt(0)}
                                   </Avatar>
                                 )
                               })}

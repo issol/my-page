@@ -1,0 +1,97 @@
+import { Icon } from '@iconify/react'
+import { Typography } from '@mui/material'
+import { GridColumns } from '@mui/x-data-grid'
+import { ProStatusChip } from '@src/@core/components/chips/chips'
+import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import { ProListCellType, ProListType } from '@src/types/pro/list'
+
+type CellType = {
+  row: ProListType
+}
+
+export const getProJobAssignColumns = () => {
+  const columns: GridColumns<ProListType> = [
+    {
+      field: 'order',
+
+      flex: 0.0503,
+      // disableColumnMenu: true,
+      renderHeader: () => (
+        // <Icon
+        //   icon='mdi:arrow-up'
+        //   color='rgba(76, 78, 100, 0.54)'
+        //   fontSize={20}
+        // />
+        <></>
+      ),
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+            {row.order}
+          </Typography>
+        )
+      },
+    },
+    {
+      field: 'name',
+
+      flex: 0.4025,
+      headerName: 'No.',
+      disableColumnMenu: true,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Legal name / Email
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => {
+        return (
+          <LegalNameEmail
+            row={{
+              isOnboarded: row.isOnboarded,
+              isActive: row.isActive,
+
+              firstName: row.firstName,
+              middleName: row.middleName,
+              lastName: row.lastName,
+              email: row.email,
+            }}
+          />
+        )
+      },
+    },
+
+    {
+      flex: 0.2264,
+      field: 'status',
+      headerName: 'Status',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Status
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => {
+        return <ProStatusChip status={row.status} label={row.status} />
+      },
+    },
+    {
+      flex: 0.2453,
+      field: 'jobs',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Ongoing jobs
+        </Typography>
+      ),
+      renderCell: ({ row }: CellType) => {
+        return <Typography> {row.ongoingJobCount} job(s)</Typography>
+      },
+    },
+  ]
+
+  return columns
+}

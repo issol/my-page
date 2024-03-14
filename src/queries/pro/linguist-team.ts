@@ -25,6 +25,7 @@ export const useGetLinguistTeamDetail = (id: number) => {
       return getLinguistTeamDetail(id)
     },
     {
+      enabled: id !== 0,
       staleTime: 60 * 1000, // 1
     },
   )

@@ -90,6 +90,7 @@ export type JobType = {
   description: string
   isShowDescription: boolean
   totalPrice: number
+  clientId: number
   contactPerson: {
     userId: number
     firstName: string

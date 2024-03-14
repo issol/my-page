@@ -18,6 +18,14 @@ import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useEffect, useState, MouseEvent, SyntheticEvent } from 'react'
 import AssignPro from './components/assign-pro'
+import {
+  useGetServiceType,
+  useGetSimpleClientList,
+} from '@src/queries/common.query'
+import { ProListType } from '@src/types/pro/list'
+import { v4 as uuidv4 } from 'uuid'
+import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import { GridSelectionModel } from '@mui/x-data-grid'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -26,9 +34,15 @@ const JobDetail = () => {
   const menuQuery = router.query.menu as MenuType
   const jobId = router.query.jobId as string
   const [value, setValue] = useState<MenuType>('info')
+  const [selectionModel, setSelectionModel] = useState<GridSelectionModel>([])
+  const [selectedRows, setSelectedRows] = useState<{
+    [key: string]: { data: Array<ProListType>; isPrivate: boolean }
+  }>({})
 
   const { data: jobInfo, isLoading } = useGetJobInfo(Number(jobId), false)
   const { data: jobPrices } = useGetJobPrices(Number(jobId), false)
+  const { data: serviceTypeList } = useGetServiceType()
+  const { data: clientList } = useGetSimpleClientList()
 
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
@@ -42,6 +56,8 @@ const JobDetail = () => {
       setValue(menuQuery)
     }
   }, [menuQuery])
+
+  console.log(selectedRows)
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -215,7 +231,14 @@ const JobDetail = () => {
                     </Box>
                   </Box>
                 ) : (
-                  <AssignPro jobInfo={jobInfo!} />
+                  <AssignPro
+                    jobInfo={jobInfo!}
+                    serviceTypeList={serviceTypeList || []}
+                    clientList={clientList || []}
+                    setSelectedRows={setSelectedRows}
+                    selectionModel={selectionModel}
+                    setSelectionModel={setSelectionModel}
+                  />
                 )}
               </TabPanel>
               <TabPanel value='history' sx={{ height: '100%' }}>
@@ -226,7 +249,7 @@ const JobDetail = () => {
         </Grid>
         {jobInfo &&
         jobPrices &&
-        (jobInfo.name === null || jobPrices.priceId === null) ? (
+        (jobInfo.name === null || jobPrices.priceId === null) ? null : (
           <Grid item xs={2.784} sx={{}}>
             <Box
               sx={{
@@ -264,67 +287,153 @@ const JobDetail = () => {
                     fontSize={14}
                     fontWeight={500}
                   >
-                    Selected Pros (0)
+                    Selected Pros (
+                    {Object.values(selectedRows).reduce(
+                      (sum, array) => sum + array.data.length,
+                      0,
+                    )}
+                    )
                   </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    padding: '32px 24px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '16px',
-                    height: '156px',
-                    width: '100%',
-                    position: 'absolute',
-                    bottom: 0,
-                  }}
-                >
-                  <Button variant='outlined'>Request</Button>
-                  <Button variant='contained'>Assign</Button>
-                </Box>
-              </Box>
-            </Box>
-          </Grid>
-        ) : (
-          <Grid item xs={2.784} sx={{}}>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                height: '100%',
-                position: 'relative',
-                paddingBottom: '156px',
-              }}
-            >
-              <Box
-                sx={{
-                  padding: '20px',
-                  height: '64px',
-                  borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
-                }}
-              ></Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  height: '100%',
-                }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
+                  {Object.keys(selectedRows).map((key, index) => (
+                    <Box key={uuidv4()}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          padding: '8px 16px 8px 20px',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Box sx={{ display: 'flex', gap: '8px' }}>
+                          {selectedRows[key].isPrivate ? (
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                width: 20,
+                                height: 20,
+                                borderRadius: '5px',
+                                background: '#F7F7F9',
+                              }}
+                            >
+                              <Icon icon='mdi:lock' color='#8D8E9A' />
+                            </Box>
+                          ) : null}
+                          <Typography
+                            fontSize={12}
+                            fontWeight={400}
+                            color='#8D8E9A'
+                            sx={{
+                              width: '100%',
+                              maxWidth: '210px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            {key}
+                          </Typography>
+                        </Box>
+                        <IconButton
+                          sx={{ padding: 0 }}
+                          onClick={() => {
+                            const newSelectedRows = { ...selectedRows }
 
-                    height: '100%',
-                    flexDirection: 'column',
-                  }}
-                >
-                  <Typography
-                    sx={{ padding: '20px' }}
-                    fontSize={14}
-                    fontWeight={500}
-                  >
-                    Selected Pros (0)
-                  </Typography>
+                            const removeRow = newSelectedRows[key].data.map(
+                              value => value.userId,
+                            )
+
+                            delete newSelectedRows[key]
+                            setSelectedRows(newSelectedRows)
+                            setSelectionModel(prev => {
+                              return prev.filter(
+                                value => !removeRow.includes(Number(value)),
+                              )
+                            })
+                          }}
+                        >
+                          <Icon
+                            icon='mdi:close'
+                            color='#8D8E9A'
+                            fontSize={20}
+                          />
+                        </IconButton>
+                      </Box>
+
+                      {selectedRows[key].data.map((pro, index) => (
+                        <Box
+                          key={uuidv4()}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <Box sx={{ display: 'flex' }}>
+                            {pro.order ? (
+                              <Typography
+                                fontSize={14}
+                                fontWeight={600}
+                                sx={{
+                                  padding: '16px 16px 16px 20px',
+                                }}
+                              >
+                                {/* {pro.order} */}
+                                {index + 1}
+                              </Typography>
+                            ) : null}
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                maxWidth: '210px',
+                              }}
+                            >
+                              <LegalNameEmail
+                                row={{
+                                  isOnboarded: pro.isOnboarded,
+                                  isActive: pro.isActive,
+
+                                  firstName: pro.firstName,
+                                  middleName: pro.middleName,
+                                  lastName: pro.lastName,
+                                  email: pro.email,
+                                }}
+                              />
+                            </Box>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+
+                              width: '40px',
+                              height: '100%',
+                              padding: '16px 20px 16px 4px',
+                            }}
+                          >
+                            <IconButton
+                              sx={{ padding: 0 }}
+                              onClick={() => {
+                                const newSelectedRows = { ...selectedRows }
+                                newSelectedRows[key].data.splice(index, 1)
+                                setSelectedRows(newSelectedRows)
+                                setSelectionModel(prev => {
+                                  return prev.filter(
+                                    value => value !== pro.userId,
+                                  )
+                                })
+                              }}
+                            >
+                              <Icon
+                                icon='mdi:close'
+                                color='#8D8E9A'
+                                fontSize={20}
+                              />
+                            </IconButton>
+                          </Box>
+                        </Box>
+                      ))}
+                    </Box>
+                  ))}
                 </Box>
                 <Box
                   sx={{

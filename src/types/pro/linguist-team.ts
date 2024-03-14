@@ -52,8 +52,8 @@ export type LinguistTeamDetailType = {
   targetLanguage: string
   description?: string
   isPrivate: boolean
-  authorId: number, //백엔드에서 author를 기록하기 위해 사용하는 값
-	lastUpdatedAuthorId: number, //백엔드에서 author를 기록하기 위해 사용하는 값
+  authorId: number //백엔드에서 author를 기록하기 위해 사용하는 값
+  lastUpdatedAuthorId: number //백엔드에서 author를 기록하기 위해 사용하는 값
   id: number
   corporationId: string
   author: {
