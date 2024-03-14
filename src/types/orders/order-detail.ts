@@ -46,7 +46,7 @@ export type ProjectInfoType = {
   workName: string
   category: string
   serviceType: string[]
-  expertise: string[]
+  genre: string[]
   revenueFrom: RevenueFormType
   parentOrderId: number
   hasChildOrder: boolean

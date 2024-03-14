@@ -989,7 +989,7 @@ export default function AddNewOrder() {
             projectDescription: res?.projectDescription ?? '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
-            expertise: res?.expertise ?? [],
+            genre: res?.genre ?? [],
             revenueFrom: undefined,
             projectDueAt: res?.projectDueAt
               ? new Date(
@@ -1158,7 +1158,7 @@ export default function AddNewOrder() {
             projectDescription: res?.projectDescription ?? '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
-            expertise: res?.expertise ?? [],
+            genre: res?.genre ?? [],
             revenueFrom: res.revenueFrom,
             projectDueAt: res?.projectDueAt
               ? new Date(

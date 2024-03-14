@@ -8,71 +8,85 @@ export const CategoryList = [
   { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
   { label: Category.Webcomics, value: Category.Webcomics },
   { label: Category.Webnovel, value: Category.Webnovel },
+  { label: Category.Gaming, value: Category.Gaming },
 ]
 
 export const CategoryListPair = {
+  [ServiceType['Translation']]: [
+    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
+    { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
+    { label: Category.Dubbing, value: Category.Dubbing },
+    { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
+    {
+      label: Category.Gaming,
+      value: Category.Gaming,
+    },
+  ],
+  [ServiceType['Quality Control']]: [
+    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
+    { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
+    { label: Category.Dubbing, value: Category.Dubbing },
+    { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
+    {
+      label: Category.Gaming,
+      value: Category.Gaming,
+    },
+  ],
+
+  [ServiceType['Proofreading']]: [
+    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
+    { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
+    { label: Category.Gaming, value: Category.Gaming },
+  ],
+  [ServiceType['Desktop Publishing']]: [
+    {
+      label: Category['Documents/Text'],
+      value: Category['Documents/Text'],
+    },
+    { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Gaming, value: Category.Gaming },
+  ],
+  [ServiceType['Machine Translation Post Editing']]: [
+    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
+    { label: Category.Dubbing, value: Category.Dubbing },
+    { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
+    { label: Category.Webcomics, value: Category.Webcomics },
+    { label: Category.Webnovel, value: Category.Webnovel },
+    { label: Category.Gaming, value: Category.Gaming },
+  ],
+
+  [ServiceType['Transcription']]: [
+    { label: Category['Dubbing'], value: Category['Dubbing'] },
+  ],
+
+  [ServiceType.Recording]: [
+    { label: Category.Dubbing, value: Category.Dubbing },
+    { value: Category['Misc.'], label: Category['Misc.'] },
+  ],
+
+  [ServiceType['Lip-sync']]: [
+    { label: Category.Dubbing, value: Category.Dubbing },
+  ],
+
+  [ServiceType['Voice-over']]: [
+    { label: Category.Dubbing, value: Category.Dubbing },
+  ],
   [ServiceType['Audio description']]: [
-    { value: Category.Dubbing, label: Category.Dubbing },
+    { label: Category.Dubbing, value: Category.Dubbing },
   ],
-  [ServiceType['Copywriting']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category['Misc.'], value: Category['Misc.'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
+  [ServiceType['Pre-mix']]: [
+    { label: Category.Dubbing, value: Category.Dubbing },
   ],
-  [ServiceType['DTP']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
+  [ServiceType['Post-mix']]: [
+    { label: Category.Dubbing, value: Category.Dubbing },
   ],
-  [ServiceType['DTP QC']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
-  ],
-  [ServiceType['DTP file prep']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
-  ],
-  [ServiceType['Dubbing']]: [
-    { value: Category.Dubbing, label: Category.Dubbing },
-  ],
-  [ServiceType['Dubbing audio QC']]: [
-    { value: Category.Dubbing, label: Category.Dubbing },
-  ],
-  [ServiceType['Dubbing script QC']]: [
-    { value: Category.Dubbing, label: Category.Dubbing },
-  ],
-  [ServiceType['Dubbing script translation']]: [
-    { value: Category.Dubbing, label: Category.Dubbing },
-  ],
-  [ServiceType['Editing']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category['Misc.'], value: Category['Misc.'] },
-    { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
-  ],
-  [ServiceType['File preparation']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
-  ],
-  [ServiceType['Final check']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
-  ],
+  [ServiceType['PLDL']]: [{ label: Category.Dubbing, value: Category.Dubbing }],
+
   [ServiceType['In-person']]: [
     { label: Category.Interpretation, value: Category.Interpretation },
-  ],
-  [ServiceType['Localization engineering']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
   ],
   [ServiceType['Online']]: [
     { label: Category.Interpretation, value: Category.Interpretation },
@@ -80,50 +94,33 @@ export const CategoryListPair = {
   [ServiceType['Phone']]: [
     { label: Category.Interpretation, value: Category.Interpretation },
   ],
-  [ServiceType['Proofreading']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-  ],
-  [ServiceType['QC review']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category.Dubbing, value: Category.Dubbing },
-    { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
-  ],
-  [ServiceType['Rendering/TC editing']]: [
+
+  [ServiceType['Rendering/TC editing/Engineering']]: [
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
   ],
-  [ServiceType['Revision(Rework)']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
+  [ServiceType['Consultation']]: [
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
+    {
+      label: Category['Misc.'],
+      value: Category['Misc.'],
+    },
   ],
-  [ServiceType['Subtitle']]: [
+  [ServiceType['SDH/CC']]: [
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
   ],
-  [ServiceType['TAE(Translator accept edits)']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
+  [ServiceType['Template']]: [
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
   ],
-  [ServiceType['Transcription']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
+  [ServiceType['Supplemental/Marketing']]: [
     { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
   ],
-  [ServiceType['Translation']]: [
-    { label: Category['Documents/Text'], value: Category['Documents/Text'] },
-    { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
-    { label: Category.Dubbing, value: Category.Dubbing },
-    { label: Category.Webcomics, value: Category.Webcomics },
-    { label: Category.Webnovel, value: Category.Webnovel },
+  [ServiceType['File Prep']]: [
+    { label: Category['Webcomics'], value: Category['Webcomics'] },
   ],
-  [ServiceType['Video editing']]: [
+  [ServiceType['Video Editing']]: [
     { label: Category['Misc.'], value: Category['Misc.'] },
-    { label: Category['OTT/Subtitle'], value: Category['OTT/Subtitle'] },
+  ],
+  [ServiceType['Copywriting']]: [
+    { label: Category['Misc.'], value: Category['Misc.'] },
   ],
 }
