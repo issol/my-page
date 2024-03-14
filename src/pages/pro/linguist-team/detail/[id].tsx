@@ -129,7 +129,6 @@ const LinguistTeamDetail = () => {
     name: 'pros',
   })
 
-  console.log(isDirty)
 
   const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -944,11 +943,11 @@ const LinguistTeamDetail = () => {
                       </Typography>
                       <Typography fontSize={14} fontWeight={400}>
                         {getLegalName({
-                          firstName: data.author.firstName,
-                          lastName: data.author.lastName,
-                          middleName: data.author.middleName,
+                          firstName: data.author?.firstName,
+                          lastName: data.author?.lastName,
+                          middleName: data.author?.middleName,
                         })}
-                        ({data.author.email})
+                        ({data.author?.email})
                       </Typography>
                     </Box>
                   </Grid>
