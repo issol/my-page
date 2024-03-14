@@ -41,17 +41,21 @@ export type LinguistTeamFormType = {
   targetLanguage: string
   description?: string
   isPrioritized: '1' | '0'
-  pros: Array<
-    ProListType & {
-      order: number
-    }
-  >
+  pros: Array<ProListType>
 }
 
 export type LinguistTeamDetailType = {
+  name: string
+  clientId: number
+  serviceTypeId: number
+  sourceLanguage: string
+  targetLanguage: string
+  description?: string
+  isPrivate: boolean
+  authorId: number, //백엔드에서 author를 기록하기 위해 사용하는 값
+	lastUpdatedAuthorId: number, //백엔드에서 author를 기록하기 위해 사용하는 값
   id: number
   corporationId: string
-  name: string
   author: {
     userId: number
     firstName: string
@@ -59,17 +63,7 @@ export type LinguistTeamDetailType = {
     middleName?: string
     email: string
   }
-  sourceLanguage: string
-  targetLanguage: string
-  serviceTypeId: number
-  clientId: number
-  description?: string
   updatedAt: string
-  isPrivate: boolean
   isPrioritized: boolean
-  pros: Array<
-    ProListType & {
-      order: number
-    }
-  >
+  pros: Array<ProListType>
 }

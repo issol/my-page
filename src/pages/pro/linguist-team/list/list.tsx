@@ -341,7 +341,7 @@ const LinguistTeamList = ({
               overflowX: 'scroll',
               '& .MuiDataGrid-row': { cursor: 'pointer' },
             }}
-            columns={getLinguistTeamColumns(serviceTypeList)}
+            columns={getLinguistTeamColumns(serviceTypeList, clientList)}
             rows={data.data ?? []}
             rowCount={data.totalCount ?? 0}
             loading={isLoading}
