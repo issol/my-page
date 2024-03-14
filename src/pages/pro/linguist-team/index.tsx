@@ -101,7 +101,7 @@ const LinguistTeam = () => {
         </Box>
       </Box>
       <Box sx={{ width: '100%' }}>
-        {linguistList ? (
+        {linguistList && clientList ? (
           <LinguistTeamList
             data={linguistList!}
             isLoading={isLoading}
@@ -119,6 +119,7 @@ const LinguistTeam = () => {
             handleMenuClick={handleMenuClick}
             handleMenuClose={handleMenuClose}
             anchorEl={anchorEl}
+            clientList={clientList}
           />
         ) : null}
       </Box>

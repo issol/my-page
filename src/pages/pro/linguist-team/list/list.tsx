@@ -45,6 +45,10 @@ type Props = {
   handleMenuClick: (event: React.MouseEvent<HTMLElement>) => void
   anchorEl: HTMLElement | null
   handleMenuClose: () => void
+  clientList: {
+    clientId: number
+    name: string
+  }[]
 }
 
 const LinguistTeamList = ({
@@ -60,6 +64,7 @@ const LinguistTeamList = ({
   handleMenuClick,
   anchorEl,
   handleMenuClose,
+  clientList,
 }: Props) => {
   const router = useRouter()
 
@@ -238,7 +243,9 @@ const LinguistTeamList = ({
                             {item.name}
                           </Typography>
                           <Typography color='#666CFF' fontSize={14}>
-                            {item.client}
+                            {clientList.find(
+                              value => value.clientId === item.clientId,
+                            )?.name ?? '-'}
                           </Typography>
 
                           <Box>
