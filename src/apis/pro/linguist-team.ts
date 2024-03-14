@@ -93,7 +93,13 @@ const detailData: LinguistTeamDetailType = {
   ],
 }
 
-export const getLinguistTeamList = async (filter: FilterType) => {
+export const getLinguistTeamList = async (
+  filter: FilterType,
+): Promise<{
+  data: LinguistTeamListType[]
+  totalCount: number
+  count: number
+}> => {
   const { data } = await axios.get(
     `/api/enough/u/pro/linguist-team/list?${makeQuery(filter)}`,
   )

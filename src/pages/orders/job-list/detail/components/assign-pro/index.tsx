@@ -1,10 +1,43 @@
-import { Box, Button, ButtonGroup, styled } from '@mui/material'
-import { useState } from 'react'
+import {
+  Autocomplete,
+  Box,
+  Button,
+  ButtonGroup,
+  TextField,
+  styled,
+} from '@mui/material'
+import { useGetLinguistTeam } from '@src/queries/pro/linguist-team'
+import { JobType } from '@src/types/common/item.type'
+import { useMemo, useState } from 'react'
 
 type MenuType = 'linguistTeam' | 'pro'
 
-const AssignPro = () => {
+type Props = {
+  jobInfo: JobType
+}
+
+const AssignPro = ({ jobInfo }: Props) => {
   const [menu, setMenu] = useState<MenuType>('linguistTeam')
+  const { data: linguistTeam, isLoading } = useGetLinguistTeam({
+    take: 1000,
+    skip: 0,
+  })
+
+  const [selectedLinguistTeam, setSelectedLinguistTeam] = useState<{
+    value: number
+    label: string
+  } | null>(null)
+
+  const linguistTeamList = useMemo(
+    () =>
+      linguistTeam?.data?.map(i => ({
+        label: i.name,
+        value: i.id,
+        client: i.client,
+      })) || [],
+    [linguistTeam],
+  )
+
   return (
     <Box>
       <Box
@@ -30,6 +63,25 @@ const AssignPro = () => {
             Search Pro
           </CustomBtn>
         </ButtonGroup>
+        <Box className='filterFormSoloAutoComplete'>
+          <Autocomplete
+            fullWidth
+            loading={isLoading}
+            options={linguistTeamList}
+            getOptionLabel={option => option.label}
+            value={selectedLinguistTeam}
+            onChange={(e, v) => {
+              if (v) {
+                setSelectedLinguistTeam(v)
+              } else {
+                setSelectedLinguistTeam(null)
+              }
+            }}
+            renderInput={params => (
+              <TextField {...params} placeholder='Select linguist team' />
+            )}
+          />
+        </Box>
       </Box>
     </Box>
   )

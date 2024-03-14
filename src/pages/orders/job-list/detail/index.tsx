@@ -215,7 +215,7 @@ const JobDetail = () => {
                     </Box>
                   </Box>
                 ) : (
-                  <AssignPro />
+                  <AssignPro jobInfo={jobInfo!} />
                 )}
               </TabPanel>
               <TabPanel value='history' sx={{ height: '100%' }}>
