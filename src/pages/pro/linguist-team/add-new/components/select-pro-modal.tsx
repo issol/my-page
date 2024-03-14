@@ -133,7 +133,10 @@ const SelectProModal = ({ onClose, getValues, onClickSelectPro }: Props) => {
   useEffect(() => {
     if (proList) {
       const prosValues = getValues('pros').map(value => value.userId)
-      setSelectionModel(prosValues)
+      setSelectionModel(
+        prev =>
+          Array.from(new Set([...prev, ...prosValues])) as GridSelectionModel,
+      )
       setRows(proList.data)
       setPagedRows(prev => [
         ...prev,
