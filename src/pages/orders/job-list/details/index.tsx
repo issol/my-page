@@ -44,6 +44,7 @@ import {
 } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 const JobDetails = () => {
   const theme = useTheme()
@@ -274,7 +275,24 @@ const JobDetails = () => {
   const onAutoCreateJob = () => {
     openModal({
       type: 'AutoCreateJobProceedConfirm',
-      children: <div>sdvd</div>,
+      children: (
+        <CustomModalV2
+          onClick={() => closeModal('AutoCreateJobProceedConfirm')}
+          onClose={() => closeModal('AutoCreateJobProceedConfirm')}
+          title='Auto-create jobs'
+          vary='successful'
+          subtitle={
+            <p>
+              Based on the service type and language pair configured in the
+              order, jobs will be automatically created under each Item. <br />
+              <br />
+              Would you like to proceed with the creation of{' '}
+              {jobDetails?.items?.length || 0} Jobs?
+            </p>
+          }
+          rightButtonText='Proceed'
+        />
+      ),
     })
   }
 
