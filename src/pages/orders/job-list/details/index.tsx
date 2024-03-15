@@ -32,23 +32,23 @@ import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { getCurrentRole } from '@src/shared/auth/storage'
 import { AssignProFilterPostType } from '@src/types/orders/job-detail'
 import toast from 'react-hot-toast'
-import JobListCard from '@src/pages/orders/job-list/details/jobListCard'
+import JobListCard, {
+  JobListMode,
+} from '@src/pages/orders/job-list/details/jobListCard'
 import {
   ArrowBackIos,
   AutoMode,
   DeleteOutline,
   MoreVert,
 } from '@mui/icons-material'
-import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 const JobDetails = () => {
-  const theme = useTheme()
   const router = useRouter()
+  const { orderId, jobId } = router.query
 
   const tableRowRef = useRef<HTMLTableRowElement>(null)
   const { openModal, closeModal } = useModal()
@@ -56,9 +56,6 @@ const JobDetails = () => {
   const queryClient = useQueryClient()
 
   const auth = useRecoilValueLoadable(authState)
-  const currentRole = getCurrentRole()
-
-  const { orderId, jobId } = router.query
 
   const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId!), true)
   const { data: orderDetail } = useGetProjectInfo(Number(orderId!))
@@ -69,6 +66,7 @@ const JobDetails = () => {
   const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
   const [isLoadingDeleteState, setIsLoadingDeleteState] = useState(false)
 
+  const [mode, setMode] = useState<JobListMode>('view')
   const [serviceType, setServiceType] = useState<
     Array<{ label: string; value: string }[]>
   >([])
@@ -296,7 +294,9 @@ const JobDetails = () => {
     })
   }
 
-  const onDeleteJobs = () => {}
+  const onDeleteJobs = () => {
+    setMode('delete')
+  }
 
   const onEditTrigger = () => {}
 
@@ -373,9 +373,10 @@ const JobDetails = () => {
           {jobDetails?.items.map((value, index) => {
             return (
               <JobListCard
-                key={`${value.id}-${index}`}
                 tableRowRef={tableRowRef}
+                key={`${value.id}-${index}`}
                 index={index}
+                mode={mode}
                 serviceType={serviceType}
                 info={value}
                 statusList={statusList}
