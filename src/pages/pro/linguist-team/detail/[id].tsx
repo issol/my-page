@@ -89,7 +89,7 @@ const LinguistTeamDetail = () => {
       data: Omit<LinguistTeamFormType, 'pros'> & {
         pros: Array<{ userId: number; order: number }>
       },
-    ) => updateLinguistTeam(data),
+    ) => updateLinguistTeam(Number(id), data),
     {
       onSuccess: (data: any) => {
         queryClient.invalidateQueries(['linguistTeamDetail', Number(id)])
