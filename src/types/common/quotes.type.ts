@@ -49,7 +49,7 @@ export type QuotesProjectInfoFormType = {
   projectDescription?: string
   category: string
   serviceType: Array<string>
-  expertise?: Array<string>
+  genre?: Array<string>
   quoteDate: { date: string; timezone: CountryType }
   projectDueDate: { date: string; timezone: CountryType }
   quoteDeadline: { date: string; timezone: CountryType }
@@ -68,7 +68,7 @@ export type QuotesProjectInfoAddNewType = {
   projectDescription?: string
   category: string
   serviceType: Array<string>
-  expertise?: Array<string>
+  genre?: Array<string>
   quoteDate: { date: Date; timezone: CountryType }
   projectDueDate: { date: Date; timezone: CountryType }
   quoteDeadline: { date: Date; timezone: CountryType }
@@ -127,7 +127,7 @@ export type ProjectInfoType = {
   workName: string
   category: string
   serviceType: string[]
-  expertise: string[]
+  genre: string[]
   projectName: string
   projectDescription: string
   showDescription: boolean

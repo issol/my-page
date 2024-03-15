@@ -1,5 +1,5 @@
-import {ApiErrorHandler} from '@src/shared/sentry-provider'
-import type {AxiosResponse, InternalAxiosRequestConfig,} from 'axios'
+import { ApiErrorHandler } from '@src/shared/sentry-provider'
+import type { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import axios from 'axios'
 
 import {

@@ -8,9 +8,19 @@ body {
 }
 
 code {
-  font-family: 'Inter', sans-serif, -apple-system, BlinkMacSystemFont,
-    'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
-    'Droid Sans', 'Helvetica Neue';
+  font-family:
+    'Inter',
+    sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue';
   padding: 0.1rem 0.4rem;
   font-size: 90%;
   color: #d400ff;
@@ -22,6 +32,85 @@ code:not([class*='language-']):after {
 }
 code[class*='language-'] {
   padding: 0;
+}
+
+.filterFormControl {
+  label {
+    transform: translate(14px, 12px) scale(1);
+  }
+
+  label.Mui-focused,
+  label.MuiFormLabel-filled {
+    transform: translate(14px, -9px) scale(0.75);
+  }
+}
+
+.filterFormSoloAutoComplete {
+  .MuiAutocomplete-hasClearIcon {
+    label {
+      transform: translate(14px, -9px) scale(0.75);
+    }
+    .MuiInputBase-root {
+      padding: 4px 12px;
+    }
+  }
+
+  .Mui-focused {
+    .MuiInputBase-root {
+      padding: 0 12px;
+    }
+  }
+
+  .MuiFormControl-root,
+  .MuiInputBase-root {
+    height: 46px;
+  }
+  label {
+    transform: translate(14px, 12px) scale(1);
+  }
+
+  label.Mui-focused,
+  label.MuiFormLabel-filled {
+    transform: translate(14px, -9px) scale(0.75);
+  }
+}
+
+.filterFormAutoComplete {
+  .MuiAutocomplete-hasClearIcon {
+    label {
+      transform: translate(14px, -9px) scale(0.75);
+    }
+    .MuiInputBase-root {
+      padding: 7px 12px;
+    }
+  }
+  .Mui-focused.MuiAutocomplete-hasClearIcon {
+    .MuiFormControl-root,
+    .MuiInputBase-root {
+      height: 100%;
+    }
+    .MuiInputBase-root {
+      padding-top: 12px;
+    }
+  }
+
+  .MuiFormControl-root,
+  .MuiInputBase-root {
+    height: 46px;
+  }
+  label {
+    transform: translate(14px, 12px) scale(1);
+  }
+
+  label.Mui-focused,
+  label.MuiFormLabel-filled {
+    transform: translate(14px, -9px) scale(0.75);
+  }
+
+  .MuiChip-root {
+    height: 24px;
+    /* margin: 0 !important; */
+  }
 }
 
 /* OutlinedInput disabled design */
@@ -102,3 +191,6 @@ input::-webkit-inner-spin-button {
 .pro_bg {
   background-color: rgba(221, 230, 237, 0.5) !important;
 }
+
+/* "MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-uqpg96-MuiInputBase-root-MuiOutlinedInput-root" */
+/* MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-adornedEnd MuiAutocomplete-inputRoot css-1wxwjf-MuiInputBase-root-MuiOutlinedInput-root */

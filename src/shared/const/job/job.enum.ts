@@ -6,4 +6,5 @@ export enum Job {
   'OTT/Subtitle' = 'OTT/Subtitle',
   'Webcomics' = 'Webcomics',
   'Webnovel' = 'Webnovel',
+  'Gaming' = 'Gaming',
 }

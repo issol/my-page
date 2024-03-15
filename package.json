@@ -30,7 +30,7 @@
     "@fullcalendar/list": "^6.1.10",
     "@fullcalendar/react": "^6.1.10",
     "@fullcalendar/timegrid": "^6.1.10",
-    "@glocalize-inc/glo-languages": "^1.0.2",
+    "@glocalize-inc/glo-languages": "^1.0.3",
     "@glocalize-inc/glodex": "^2.8.9",
     "@hookform/resolvers": "^3.3.4",
     "@iconify/react": "4.1.1",

@@ -20,6 +20,7 @@ interface PickerProps {
   error?: boolean
   value?: string
   placeholder?: string
+  sx?: any
 }
 
 const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {

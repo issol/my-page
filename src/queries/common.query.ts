@@ -1,10 +1,19 @@
-import { StatusType, getStatusList } from '@src/apis/common.api'
+import {
+  StatusType,
+  getServiceType,
+  getSimpleClientList,
+  getStatusList,
+} from '@src/apis/common.api'
 import { getClientUserInfo } from '@src/apis/user.api'
+import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
-export const useGetStatusList = (type: StatusType, isSelectable?: '1' | '0') => {
+export const useGetStatusList = (
+  type: StatusType,
+  isSelectable?: '1' | '0',
+) => {
   return useQuery(
-    [`${type}-status-list`,isSelectable],
+    [`${type}-status-list`, isSelectable],
     () => {
       return getStatusList(isSelectable ? type : type, isSelectable)
     },
@@ -27,6 +36,32 @@ export const useGetClientUserInfo = () => {
       suspense: true,
       staleTime: 60 * 10000,
       keepPreviousData: true,
+    },
+  )
+}
+
+export const useGetServiceType = () => {
+  return useQuery([`serviceType`], () => {
+    return getServiceType()
+  })
+}
+
+export const useGetSimpleClientList = () => {
+  return useQuery(
+    ['clientList'],
+    () => {
+      return getSimpleClientList()
+    },
+    {
+      suspense: true,
+      staleTime: 60 * 1000,
+
+      keepPreviousData: true,
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
     },
   )
 }

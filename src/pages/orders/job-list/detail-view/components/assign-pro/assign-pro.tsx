@@ -48,12 +48,12 @@ import {
   useMutation,
   useQueryClient,
 } from 'react-query'
-import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
+
 import {
   handleJobAssignStatus,
   handleJobReAssign,
   requestJobToPro,
-} from '@src/apis/job-detail.api'
+} from '@src/apis/jobs/job-detail.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import toast from 'react-hot-toast'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
@@ -63,7 +63,7 @@ import { timezoneSelector } from '@src/states/permission'
 const defaultValues: AssignProFilterType = {
   source: [],
   target: [],
-  expertise: [],
+  genre: [],
   category: [],
   serviceType: [],
   client: [],
@@ -76,7 +76,7 @@ const defaultFilters: AssignProFilterPostType = {
   search: '',
   source: [],
   target: [],
-  expertise: [],
+  genre: [],
   category: [],
   serviceType: [],
   client: [],
@@ -139,7 +139,7 @@ const AssignPro = ({
   const [filters, setFilters] = useState<AssignProFilterPostType>({
     source: [],
     target: [],
-    expertise: [],
+    genre: [],
     category: [],
     serviceType: [],
     client: [],
@@ -226,7 +226,7 @@ const AssignPro = ({
     const res =
       filters.source!.length > 0 ||
       filters.target!.length > 0 ||
-      filters.expertise!.length > 0 ||
+      filters.genre!.length > 0 ||
       filters.category!.length > 0 ||
       filters.serviceType!.length > 0 ||
       // filters.client!.length > 0 &&
@@ -413,8 +413,8 @@ const AssignPro = ({
       },
     ])
     setValue(
-      'expertise',
-      orderDetail.expertise?.map(value => ({
+      'genre',
+      orderDetail.genre?.map(value => ({
         value: value,
         label: value,
       })),
@@ -424,11 +424,6 @@ const AssignPro = ({
     //   (value: any) => value.value,
     // )
 
-    const serviceTypeToPro = row.serviceType
-      ? //@ts-ignore
-        ServiceTypeToProRole[row.serviceType]?.map(value => value.value) || []
-      : []
-
     setFilters(prevState => ({
       ...prevState,
       source: [row.sourceLanguage],
@@ -437,7 +432,7 @@ const AssignPro = ({
       //@ts-ignore
       // serviceType: serviceTypeToPro,
       serviceType: [row.serviceType],
-      expertise: orderDetail.expertise,
+      genre: orderDetail.genre,
     }))
   }, [row, orderDetail, setValue])
 
@@ -457,7 +452,7 @@ const AssignPro = ({
       target: data.target?.map(value => value.value),
       category: data.category?.map(value => value.value),
       serviceType: data.serviceType?.map(value => value.value),
-      expertise: data.expertise?.map(value => value.value) ?? '',
+      genre: data.genre?.map(value => value.value) ?? '',
       client: data.client?.map(value => value.value),
       search: data.search,
       take: proListPageSize,

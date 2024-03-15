@@ -2,7 +2,7 @@ import {
   getProJobDeliveriesFeedbacks,
   getProJobDetail,
   getProJobDetailDots,
-} from '@src/apis/job-detail.api'
+} from '@src/apis/jobs/job-detail.api'
 import {
   getJobHistory,
   getJobsList,
@@ -10,7 +10,7 @@ import {
   getJobsTrackerList,
   getProJobClientList,
   getProJobList,
-} from '@src/apis/jobs.api'
+} from '@src/apis/jobs/jobs.api'
 import { JobListFilterType } from '@src/pages/jobs/requested-ongoing-list'
 
 import {

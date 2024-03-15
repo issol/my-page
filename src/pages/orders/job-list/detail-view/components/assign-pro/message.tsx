@@ -26,7 +26,7 @@ import {
   useMutation,
 } from 'react-query'
 import { useGetMessage } from '@src/queries/order/job.query'
-import { readMessage, sendMessageToPro } from '@src/apis/job-detail.api'
+import { readMessage, sendMessageToPro } from '@src/apis/jobs/job-detail.api'
 import { useEffect } from 'react'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { useRecoilValueLoadable } from 'recoil'

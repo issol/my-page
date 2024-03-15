@@ -37,7 +37,7 @@ import {
   useGetJobPrices,
 } from '@src/queries/order/job.query'
 import { useGetProjectTeam } from '@src/queries/order/order.query'
-import { saveJobInfo, saveJobPrices } from '@src/apis/job-detail.api'
+import { saveJobInfo, saveJobPrices } from '@src/apis/jobs/job-detail.api'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
