@@ -101,8 +101,7 @@ const LinguistTeamDetail = () => {
   const deleteMutation = useMutation(
     (id: number) => deleteLinguistTeam(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries(['linguistTeam', initialFilter])
-      router.replace('/pro/?tab=linguistList')
+      handleBack()
     },
   })
 
@@ -264,6 +263,7 @@ const LinguistTeamDetail = () => {
 
   const handleBack = () => {
     if (!editMode) {
+      queryClient.invalidateQueries(['linguistTeam', initialFilter])
       router.replace('/pro/?tab=linguistList')
     } else {
       if (!isDirty) {

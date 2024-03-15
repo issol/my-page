@@ -509,6 +509,7 @@ const SelectPro = ({
                     variant='contained'
                     sx={{ width: 181 }}
                     onClick={onClickSave}
+                    disabled={fields.length === 0}
                   >
                     Save
                   </Button>
@@ -519,6 +520,7 @@ const SelectPro = ({
                     variant='contained'
                     sx={{ width: 181 }}
                     onClick={onClickSave}
+                    disabled={fields.length === 0}
                   >
                     Save changes
                   </Button>
