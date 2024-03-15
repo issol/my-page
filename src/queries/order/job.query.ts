@@ -1,5 +1,6 @@
 import {
   getAssignableProList,
+  getJobAssignProRequests,
   getJobDetails,
   getJobInfo,
   getJobPriceHistory,
@@ -84,6 +85,30 @@ export const useGetJobPrices = (
         return {
           queryKey: ['jobPrices', id, isHistory],
           queryFn: () => getJobPrices(id, isHistory),
+          staleTime: 10 * 1000, // 1
+          suspense: false,
+        }
+      }),
+    )
+  }
+}
+
+export const useGetJobAssignProRequests = (jobId: number[] | number) => {
+  if (typeof jobId === 'number') {
+    return useQuery(
+      ['jobAssignProRequests', jobId],
+      () => getJobAssignProRequests(jobId),
+      {
+        staleTime: 10 * 1000, // 1
+        suspense: false,
+      },
+    )
+  } else {
+    return useQueries(
+      jobId.map(id => {
+        return {
+          queryKey: ['jobAssignProRequests', id],
+          queryFn: () => getJobAssignProRequests(id),
           staleTime: 10 * 1000, // 1
           suspense: false,
         }

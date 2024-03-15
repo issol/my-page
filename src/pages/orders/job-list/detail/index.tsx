@@ -13,7 +13,11 @@ import {
   styled,
 } from '@mui/material'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
-import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
+import {
+  useGetJobAssignProRequests,
+  useGetJobInfo,
+  useGetJobPrices,
+} from '@src/queries/order/job.query'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import {
@@ -44,7 +48,9 @@ import { LinguistTeamProListFilterType } from '@src/types/pro/linguist-team'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { JobType } from '@src/types/common/item.type'
 import {
+  JobAssignProRequestsType,
   JobPricesDetailType,
+  JobRequestFormType,
   jobPriceHistoryType,
 } from '@src/types/jobs/jobs.type'
 import select from '@src/@core/theme/overrides/select'
@@ -52,7 +58,9 @@ import useModal from '@src/hooks/useModal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import RequestSummaryModal from './components/assign-pro/request-summary-modal'
-import { UseQueryResult } from 'react-query'
+import { UseQueryResult, useMutation } from 'react-query'
+import { createRequestJobToPro } from '@src/apis/jobs/job-detail.api'
+import { displayCustomToast } from '@src/shared/utils/toast'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -67,6 +75,7 @@ const JobDetail = () => {
       jobId: number
       jobInfo: JobType | undefined
       jobPrices: JobPricesDetailType | undefined
+      jobAssign: JobAssignProRequestsType[]
     }>
   >([])
 
@@ -74,14 +83,13 @@ const JobDetail = () => {
     jobId: number
     jobInfo: JobType
     jobPrices: JobPricesDetailType
+    jobAssign: JobAssignProRequestsType[]
   } | null>(null)
   const [menu, setMenu] = useState<TabType>('linguistTeam')
   const [pastLinguistTeam, setPastLinguistTeam] = useState<{
     value: number
     label: string
   } | null>(null)
-  // const [proPage, setProPage] = useState(0)
-  // const [proPageSize, setProPageSize] = useState(10)
 
   const [filter, setFilter] = useState<LinguistTeamProListFilterType>({
     sourceLanguage: [],
@@ -125,12 +133,22 @@ const JobDetail = () => {
   }>({})
 
   const languageList = getGloLanguage()
+
   const jobInfoList = (
     useGetJobInfo(jobId, false) as UseQueryResult<JobType, unknown>[]
   ).map(value => value.data)
   const jobPriceList = (
     useGetJobPrices(jobId, false) as UseQueryResult<
       JobPricesDetailType | jobPriceHistoryType,
+      unknown
+    >[]
+  ).map(value => value.data)
+  const jobAssignList = (
+    useGetJobAssignProRequests(jobId) as UseQueryResult<
+      {
+        requests: JobAssignProRequestsType[]
+        id: number
+      },
       unknown
     >[]
   ).map(value => value.data)
@@ -196,12 +214,51 @@ const JobDetail = () => {
     selectedLinguistTeam?.value || 0,
   )
 
+  const createRequestMutation = useMutation(
+    (data: JobRequestFormType) => createRequestJobToPro(data),
+    {
+      onSuccess: () => {
+        displayCustomToast('Requested successfully', 'success')
+        setSelectionModel({})
+        setSelectedRows({})
+        setSelectedLinguistTeam(null)
+
+        // queryClient.invalidateQueries('jobRequest')
+      },
+    },
+  )
+
   const onSearch = () => {
     setActiveFilter({
       ...filter,
       skip: filter.skip * activeFilter.take,
       take: activeFilter.take,
     })
+  }
+
+  const handleRequest = (
+    selectedRequestOption: number,
+    requestTerm: number | null,
+    selectedProList: ProListType[],
+  ) => {
+    closeModal('RequestModal')
+    //TODO API 연결
+    const result: JobRequestFormType = {
+      type:
+        selectedRequestOption === 0
+          ? 'relay'
+          : selectedRequestOption === 1
+            ? 'bulkAuto'
+            : 'bulkManual',
+      interval: requestTerm ?? undefined,
+      pros: selectedProList.map((value, index) => {
+        return {
+          userId: value.userId,
+          order: index + 1,
+        }
+      }),
+    }
+    createRequestMutation.mutate(result)
   }
 
   const onClickRequest = () => {
@@ -215,7 +272,7 @@ const JobDetail = () => {
       type: 'RequestModal',
       children: (
         <RequestSummaryModal
-          onClick={() => closeModal('RequestModal')}
+          onClick={handleRequest}
           onClose={() => closeModal('RequestModal')}
           selectedPros={Object.values(selectedRows)
             .map(value => value.data)
@@ -276,17 +333,29 @@ const JobDetail = () => {
   }, [router, menuQuery])
 
   useEffect(() => {
-    if (jobInfoList.includes(undefined) || jobPriceList.includes(undefined))
+    console.log(jobAssignList)
+
+    if (
+      jobInfoList.includes(undefined) ||
+      jobPriceList.includes(undefined) ||
+      jobAssignList.includes(undefined)
+    )
       return
     const combinedList = jobInfoList.map(jobInfo => {
       const jobPrices = jobPriceList.find(price => price!.id === jobInfo!.id)
-      return { jobInfo: jobInfo!, jobPrices: jobPrices!, jobId: jobInfo!.id }
+      const jobAssign = jobAssignList.find(assign => assign!.id === jobInfo!.id)
+      return {
+        jobInfo: jobInfo!,
+        jobPrices: jobPrices!,
+        jobId: jobInfo!.id,
+        jobAssign: jobAssign?.requests!,
+      }
     })
     if (JSON.stringify(combinedList) !== JSON.stringify(jobDetail)) {
       setJobDetail(combinedList)
       setSelectedJobInfo(combinedList[0])
     }
-  }, [jobInfoList, jobPriceList])
+  }, [jobInfoList, jobPriceList, jobAssignList])
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -341,6 +410,7 @@ const JobDetail = () => {
                         jobId: value.jobId,
                         jobInfo: value.jobInfo!,
                         jobPrices: value.jobPrices!,
+                        jobAssign: value.jobAssign!,
                       })
                       setValue('info')
                     }}
@@ -482,6 +552,7 @@ const JobDetail = () => {
                   ) : (
                     <AssignPro
                       jobInfo={selectedJobInfo?.jobInfo!}
+                      jobAssign={selectedJobInfo?.jobAssign!}
                       serviceTypeList={serviceTypeList || []}
                       clientList={clientList || []}
                       setSelectedRows={setSelectedRows}

@@ -1,12 +1,21 @@
 import { Icon } from '@iconify/react'
-import { Typography } from '@mui/material'
+import { IconButton, Typography } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
 import { ProStatusChip } from '@src/@core/components/chips/chips'
+import { ClientUserType, UserDataType } from '@src/context/types'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
+import { JobRequestsProType } from '@src/types/jobs/jobs.type'
 import { ProListCellType, ProListType } from '@src/types/pro/list'
+import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
+import { Loadable } from 'recoil'
 
 type CellType = {
   row: ProListType
+}
+
+type ProAssignJobCellType = {
+  row: JobRequestsProType
 }
 
 export const getProJobAssignColumns = (
@@ -111,6 +120,149 @@ export const getProJobAssignColumns = (
       ),
       renderCell: ({ row }: CellType) => {
         return <Typography> {row.ongoingJobCount} job(s)</Typography>
+      },
+    },
+  ]
+
+  return columns
+}
+
+export const getProJobAssignColumnsForRequest = (
+  auth: Loadable<{
+    user: UserDataType | null
+    company: ClientUserType | null | undefined
+    loading: boolean
+  }>,
+  timezoneList: TimeZoneType[],
+) => {
+  const columns: GridColumns<JobRequestsProType> = [
+    {
+      field: 'order',
+
+      flex: 0.0369,
+      disableColumnMenu: true,
+      sortable: false,
+
+      renderHeader: () => <></>,
+
+      renderCell: ({ row }: ProAssignJobCellType) => {
+        return (
+          <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+            {row.order}
+          </Typography>
+        )
+      },
+    },
+
+    {
+      field: 'name',
+
+      flex: 0.2949,
+      headerName: 'Legal name / Email',
+      disableColumnMenu: true,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Legal name / Email
+        </Typography>
+      ),
+      renderCell: ({ row }: ProAssignJobCellType) => {
+        return (
+          <LegalNameEmail
+            row={{
+              isOnboarded: row.isOnboarded,
+              isActive: row.isActive,
+              firstName: row.firstName,
+              middleName: row.middleName,
+              lastName: row.lastName,
+              email: row.email,
+            }}
+          />
+        )
+      },
+    },
+    {
+      flex: 0.1935,
+      field: 'status',
+      headerName: 'Status',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Status
+        </Typography>
+      ),
+      renderCell: ({ row }: ProAssignJobCellType) => {
+        return (
+          <ProStatusChip
+            status={row.assignmentStatus.toString()}
+            label={row.assignmentStatus}
+          />
+        )
+      },
+    },
+    {
+      flex: 0.2212,
+      field: 'date',
+      headerName: 'Date / Time',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Date / Time
+        </Typography>
+      ),
+      renderCell: ({ row }: ProAssignJobCellType) => {
+        return (
+          <Typography>
+            {convertTimeToTimezone(
+              row.assignmentStatusUpdatedAt,
+              auth.getValue().user?.timezone,
+              timezoneList,
+            )}
+          </Typography>
+        )
+      },
+    },
+    {
+      flex: 0.1659,
+      field: 'message',
+      headerName: 'Message',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => (
+        <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
+          Message
+        </Typography>
+      ),
+      renderCell: ({ row }: ProAssignJobCellType) => {
+        return (
+          <IconButton sx={{ padding: 0 }}>
+            <Icon icon='mdi:message-text' />
+          </IconButton>
+        )
+      },
+    },
+
+    {
+      flex: 0.0876,
+      field: 'action',
+
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <></>,
+      renderCell: ({ row }: ProAssignJobCellType) => {
+        return (
+          <IconButton
+            sx={{ width: '24px', height: '24px', padding: 0 }}
+            // onClick={handleClick}
+          >
+            <Icon icon='mdi:dots-horizontal' />
+          </IconButton>
+        )
       },
     },
   ]

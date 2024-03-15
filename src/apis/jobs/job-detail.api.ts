@@ -4,7 +4,9 @@ import { JobItemType, JobType } from '@src/types/common/item.type'
 import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import {
+  JobAssignProRequestsType,
   JobPricesDetailType,
+  JobRequestFormType,
   ProJobDeliveryType,
   ProJobDetailType,
   ProJobFeedbackType,
@@ -71,6 +73,7 @@ export const getJobInfo = async (
       id: 0,
       order: { id: -1 },
       corporationId: '',
+      clientId: 0,
       name: '',
       status: 60000,
       contactPersonId: 0,
@@ -266,10 +269,7 @@ export const sendMessageToPro = async (
   })
 }
 
-export const readMessage = async (
-  jobId: number,
-  proId: number,
-) => {
+export const readMessage = async (jobId: number, proId: number) => {
   await axios.patch(`/api/enough/u/job/${jobId}/message`, {
     jobId: jobId,
     proId: proId,
@@ -459,4 +459,57 @@ export const patchProJobSourceFileDownload = async (
   })
 
   return data
+}
+
+const testData: JobAssignProRequestsType[] = Array.from(
+  { length: 2 },
+  (_, i) => ({
+    type: i % 3 === 0 ? 'relay' : i % 3 === 1 ? 'bulkAuto' : 'bulkManual',
+    round: i + 1,
+    pros: [
+      {
+        userId: i + 1,
+        firstName: `FirstName${i + 1}`,
+        lastName: `LastName${i + 1}`,
+        email: `user${i + 1}@example.com`,
+        assignmentStatus: i % 2,
+        isOnboarded: i % 2 === 0,
+        isActive: i % 2 === 1,
+        assignmentStatusUpdatedAt: new Date().toISOString(),
+        responseLight: i % 3 === 0 ? 'Red' : i % 3 === 1 ? 'Yellow' : 'Green',
+        ongoingJobCount: i,
+        order: i,
+        messages: [
+          {
+            writer: {
+              userId: i + 1,
+              email: `user${i + 1}@example.com`,
+              firstName: `FirstName${i + 1}`,
+              lastName: `LastName${i + 1}`,
+            },
+            message: `Test message ${i + 1}`,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+      },
+    ],
+  }),
+)
+
+export const getJobAssignProRequests = async (
+  id: number,
+): Promise<{ requests: Array<JobAssignProRequestsType>; id: number }> => {
+  return {
+    id: id,
+    requests: testData,
+  }
+}
+
+export const createRequestJobToPro = async (params: JobRequestFormType) => {
+  // const { data } = await axios.post(`/api/enough/u/job/request`, {
+  //   ...params,
+  // })
+
+  // return data
+  return true
 }

@@ -23,7 +23,11 @@ import { ProStatusChip } from '@src/@core/components/chips/chips'
 import registDND from '@src/pages/pro/linguist-team/add-new/components/dnd'
 
 type Props = {
-  onClick: () => void
+  onClick: (
+    selectedRequestOption: number,
+    requestTerm: number | null,
+    selectedProList: ProListType[],
+  ) => void
   onClose: () => void
   selectedPros: ProListType[]
 }
@@ -412,6 +416,7 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
                         display: 'flex',
                         height: '54px',
                         // background: '#F7F8FF',
+
                         borderTop: '1px solid rgba(76, 78, 100, 0.12)',
                         borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
                       }}
@@ -573,7 +578,14 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
             <Button variant='outlined' onClick={onClose} color='secondary'>
               Cancel
             </Button>
-            <Button variant='contained'>Confirm your request</Button>
+            <Button
+              variant='contained'
+              onClick={() =>
+                onClick(selectedRequestOption, requestTerm, selectedProList)
+              }
+            >
+              Confirm your request
+            </Button>
           </Box>
         </Box>
       </Box>
