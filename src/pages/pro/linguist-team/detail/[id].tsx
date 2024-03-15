@@ -434,7 +434,8 @@ const LinguistTeamDetail = () => {
               )}
             </Box>
             {editMode ? (
-              <Box
+              data.isPrivate ? (
+                <Box
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -471,6 +472,7 @@ const LinguistTeamDetail = () => {
                   Only you will be able to see this team.
                 </Typography>
               </Box>
+              ) : null
             ) : (
               <Box>
                 <IconButton
