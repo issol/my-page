@@ -45,6 +45,7 @@ import {
 } from '@mui/icons-material'
 import styled from '@emotion/styled'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import { JobStatusIcon, TriggerIcon } from '@src/views/svgIcons'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -270,6 +271,10 @@ const JobDetails = () => {
     )
   }
 
+  const onChangeViewMode = () => {
+    setMode('view')
+  }
+
   const onAutoCreateJob = () => {
     openModal({
       type: 'AutoCreateJobProceedConfirm',
@@ -300,7 +305,9 @@ const JobDetails = () => {
 
   const onEditTrigger = () => {}
 
-  const onManageJobStatus = () => {}
+  const onManageJobStatus = () => {
+    setMode('manageStatus')
+  }
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
@@ -342,29 +349,37 @@ const JobDetails = () => {
             </Box>
           </Box>
           <Box display='flex' alignItems='center'>
-            <JobButton label='Auto-create jobs' onClick={onAutoCreateJob}>
-              <AutoMode color='inherit' sx={{ fontSize: 20 }} />
+            <JobButton
+              label='Auto-create jobs'
+              onClick={onAutoCreateJob}
+              disabled={mode !== 'view'}
+            >
+              <AutoMode sx={{ fontSize: 20 }} />
             </JobButton>
-            <JobButton label='Delete jobs' onClick={onDeleteJobs}>
+            <JobButton
+              label='Delete jobs'
+              onClick={onDeleteJobs}
+              disabled={mode !== 'view'}
+            >
               <DeleteOutline
                 color='inherit'
                 sx={{ fontSize: 20 }}
                 fontWeight={500}
               />
             </JobButton>
-            <JobButton label='Edit trigger' onClick={onEditTrigger}>
-              <img
-                width={20}
-                src='/images/icons/job-icons/icon-trigger.svg'
-                alt='trigger on'
-              />
+            <JobButton
+              label='Edit trigger'
+              onClick={onEditTrigger}
+              disabled={mode !== 'view'}
+            >
+              <TriggerIcon disabled={mode !== 'view'} />
             </JobButton>
-            <JobButton label='Manage job status' onClick={onManageJobStatus}>
-              <img
-                width={20}
-                src='/images/icons/job-icons/icon-job-status.svg'
-                alt='trigger on'
-              />
+            <JobButton
+              label='Manage job status'
+              onClick={onManageJobStatus}
+              disabled={mode !== 'view'}
+            >
+              <JobStatusIcon disabled={mode !== 'view'} />
             </JobButton>
           </Box>
         </JobTitleSection>
@@ -384,6 +399,7 @@ const JobDetails = () => {
                 handleRemoveJob={handleRemoveJob}
                 handleChangeServiceType={handleChangeServiceType}
                 onClickAddJob={onClickAddJob}
+                onChangeViewMode={onChangeViewMode}
               />
             )
           })}
@@ -399,15 +415,18 @@ const CardListSection = styled(Box)``
 export const JobButton = ({
   label,
   onClick,
+  disabled,
   children,
 }: {
   label: string
   onClick?: () => void
+  disabled?: boolean
   children: ReactElement
 }) => {
   return (
     <Button
       sx={{ display: 'flex', gap: '2px', color: '#8D8E9A' }}
+      disabled={disabled}
       onClick={onClick}
     >
       {children}

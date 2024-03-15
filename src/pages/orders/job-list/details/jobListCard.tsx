@@ -12,8 +12,13 @@ import {
   Card,
   Checkbox,
   Collapse,
+  FormControl,
   IconButton,
+  MenuItem,
+  OutlinedInput,
   Paper,
+  Select,
+  SelectChangeEvent,
   Table,
   TableBody,
   TableCell,
@@ -37,6 +42,7 @@ import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
 import { JobButton } from '@src/pages/orders/job-list/details/index'
+import { AddFrameIcon, TemplateIcon, TriggerIcon } from '@src/views/svgIcons'
 
 const HeadRowItemNames = [
   '',
@@ -48,7 +54,9 @@ const HeadRowItemNames = [
   '',
 ]
 
-export type JobListMode = 'view' | 'edit' | 'delete'
+const CheckMode: Array<JobListMode> = ['edit', 'delete', 'manageStatus']
+
+export type JobListMode = 'view' | 'edit' | 'delete' | 'manageStatus'
 
 interface JobListCardProps {
   index: number
@@ -72,6 +80,7 @@ interface JobListCardProps {
     index: number,
   ) => void
   onClickAddJob: (itemId: number, index: number) => void
+  onChangeViewMode: () => void
 }
 
 const JobListCard = ({
@@ -85,6 +94,7 @@ const JobListCard = ({
   handleRemoveJob,
   handleChangeServiceType,
   onClickAddJob,
+  onChangeViewMode,
 }: JobListCardProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const theme = useTheme()
@@ -95,25 +105,10 @@ const JobListCard = ({
   const currentRole = getCurrentRole()
 
   const [open, setOpen] = useState<boolean>(true)
-  const [selected, setSelected] = React.useState<readonly number[]>([])
-
-  const NoList = () => {
-    return (
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          padding: '15px',
-          alignItems: 'center',
-          borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
-        }}
-      >
-        <Typography variant='subtitle1'>There are no jobs</Typography>
-      </Box>
-    )
-  }
+  const [selected, setSelected] = useState<readonly number[]>([])
+  const [changeJobStatus, setChangeJobStatus] = useState<JobStatusType | null>(
+    null,
+  )
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     router.push({
@@ -159,6 +154,97 @@ const JobListCard = ({
     return selected.length === filteredJobs.length && filteredJobs.length > 0
   }, [selected])
 
+  const viewState = useMemo(() => CheckMode.includes(mode), [mode])
+
+  const DeleteMode = () => {
+    if (mode !== 'delete') return null
+    return (
+      <Box
+        width='100%'
+        height='100%'
+        display='flex'
+        alignItems='center'
+        justifyContent='flex-end'
+        padding='32px 20px'
+        gap='16px'
+      >
+        <Button size='large' variant='outlined' onClick={onChangeViewMode}>
+          Cancel
+        </Button>
+        <Button
+          size='large'
+          variant='contained'
+          disableElevation
+          disabled={selected.length === 0}
+        >
+          {selected.length === 0 && 'Delete'}
+          {selected.length !== 0 && `Delete selected jobs (${selected.length})`}
+        </Button>
+      </Box>
+    )
+  }
+
+  const ManageStatusMode = () => {
+    if (mode !== 'manageStatus') return null
+
+    const handleChange = (event: SelectChangeEvent) => {
+      const {
+        target: { value },
+      } = event
+
+      setChangeJobStatus(Number(value) as JobStatusType)
+    }
+
+    return (
+      <Box
+        width='100%'
+        height='100%'
+        display='flex'
+        alignItems='center'
+        justifyContent='space-between'
+        padding='32px 20px'
+      >
+        <Box display='flex' alignItems='center' gap='16px'>
+          <Typography variant='body1' fontWeight={600}>
+            Change status of 2 Job(s) to:
+          </Typography>
+          <FormControl>
+            <Select
+              size='small'
+              labelId='demo-multiple-chip-label'
+              id='demo-multiple-chip'
+              value={changeJobStatus ? `${changeJobStatus}` : ''}
+              onChange={handleChange}
+              input={<OutlinedInput />}
+              renderValue={selected => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {JobsStatusChip(
+                    Number(selected) as JobStatusType,
+                    statusList!,
+                  )}
+                </Box>
+              )}
+            >
+              {statusList?.map(status => (
+                <MenuItem key={status.value} value={status.value}>
+                  {JobsStatusChip(status.value as JobStatusType, statusList!)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+        <Box display='flex' gap='16px'>
+          <Button size='large' variant='outlined' onClick={onChangeViewMode}>
+            Cancel
+          </Button>
+          <Button size='large' variant='contained' disableElevation>
+            Save
+          </Button>
+        </Box>
+      </Box>
+    )
+  }
+
   return (
     <Card ref={ref}>
       <Box
@@ -199,17 +285,15 @@ const JobListCard = ({
             </Typography>
           </Box>
           <Box display='flex' alignItems='center'>
-            <JobButton label='Add job' onClick={() => {}}>
-              <img
-                src='/images/icons/job-icons/icon-add-frame.svg'
-                alt='Add job'
-              />
+            <JobButton label='Add job' onClick={() => {}} disabled={viewState}>
+              <AddFrameIcon disabled={viewState} />
             </JobButton>
-            <JobButton label='Add Job template' onClick={() => {}}>
-              <img
-                src='/images/icons/job-icons/icon-template.svg'
-                alt='Add Job template'
-              />
+            <JobButton
+              label='Add Job template'
+              onClick={() => {}}
+              disabled={viewState}
+            >
+              <TemplateIcon disabled={viewState} />
             </JobButton>
           </Box>
         </Box>
@@ -230,7 +314,7 @@ const JobListCard = ({
                   background: theme.palette.background.default,
                 }}
               >
-                {mode === 'delete' && (
+                {viewState && (
                   <TableCell size='small' padding='checkbox'>
                     <Checkbox
                       color='primary'
@@ -293,12 +377,13 @@ const JobListCard = ({
                         }}
                         // hover
                         onClick={() => {
-                          //onClickRow(row, info)
+                          if (mode === 'delete') return
+                          onClickRow(row, info)
                         }}
                         selected={isItemSelected}
                         aria-checked={isItemSelected}
                       >
-                        {mode === 'delete' && (
+                        {viewState && (
                           <CustomTableCell padding='checkbox'>
                             <Checkbox
                               disabled={row.id === Number(jobId!)}
@@ -398,10 +483,7 @@ const JobListCard = ({
                             justifyContent='flex-end'
                             gap='8px'
                           >
-                            <img
-                              src='/images/icons/job-icons/icon-trigger.svg'
-                              alt='trigger on'
-                            />
+                            <TriggerIcon />
                             <TriggerSwitchStatus
                               variant='body2'
                               color={theme.palette.success.main}
@@ -419,7 +501,7 @@ const JobListCard = ({
           </Table>
         </TableContainer>
       </Collapse>
-      {mode === 'delete' && (
+      {viewState && (
         <Card
           sx={{
             width: `${ref.current?.getBoundingClientRect().width}px`,
@@ -428,32 +510,29 @@ const JobListCard = ({
             height: '103px',
           }}
         >
-          <Box
-            width='100%'
-            height='100%'
-            display='flex'
-            alignItems='center'
-            justifyContent='flex-end'
-            padding='32px 20px'
-            gap='16px'
-          >
-            <Button size='large' variant='outlined'>
-              Cancel
-            </Button>
-            <Button
-              size='large'
-              variant='contained'
-              disableElevation
-              disabled={selected.length === 0}
-            >
-              {selected.length === 0 && 'Delete'}
-              {selected.length !== 0 &&
-                `Delete selected jobs (${selected.length})`}
-            </Button>
-          </Box>
+          <DeleteMode />
+          <ManageStatusMode />
         </Card>
       )}
     </Card>
+  )
+}
+
+const NoList = () => {
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '15px',
+        alignItems: 'center',
+        borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+      }}
+    >
+      <Typography variant='subtitle1'>There are no jobs</Typography>
+    </Box>
   )
 }
 
