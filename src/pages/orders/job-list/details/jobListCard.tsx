@@ -1,8 +1,16 @@
-import React, { RefObject, SyntheticEvent, useState } from 'react'
+import React, {
+  RefObject,
+  SyntheticEvent,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import {
   Box,
+  Button,
   Card,
+  Checkbox,
   Collapse,
   IconButton,
   Paper,
@@ -21,7 +29,7 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
-import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRouter } from 'next/router'
@@ -31,6 +39,7 @@ import styled from '@emotion/styled'
 import { JobButton } from '@src/pages/orders/job-list/details/index'
 
 const HeadRowItemNames = [
+  '',
   'No.',
   'Job',
   'Job status',
@@ -39,8 +48,11 @@ const HeadRowItemNames = [
   '',
 ]
 
+export type JobListMode = 'view' | 'edit' | 'delete'
+
 interface JobListCardProps {
   index: number
+  mode?: JobListMode
   info: JobItemType
   isUserInTeamMember: boolean
   serviceType: Array<{ label: string; value: string }[]>
@@ -65,6 +77,7 @@ interface JobListCardProps {
 const JobListCard = ({
   index,
   tableRowRef,
+  mode = 'view',
   info,
   isUserInTeamMember,
   serviceType,
@@ -73,13 +86,16 @@ const JobListCard = ({
   handleChangeServiceType,
   onClickAddJob,
 }: JobListCardProps) => {
+  const ref = useRef<HTMLDivElement>(null)
   const theme = useTheme()
   const router = useRouter()
+
   const { orderId, jobId } = router.query
 
   const currentRole = getCurrentRole()
 
   const [open, setOpen] = useState<boolean>(true)
+  const [selected, setSelected] = React.useState<readonly number[]>([])
 
   const NoList = () => {
     return (
@@ -106,8 +122,45 @@ const JobListCard = ({
     })
   }
 
+  const isSelected = (id: number) => selected.indexOf(id) !== -1
+
+  const onSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelected = info.jobs
+        .filter(row => row.id !== Number(jobId!))
+        .map(n => n.id)
+      setSelected(newSelected)
+      return
+    }
+    setSelected([])
+  }
+
+  const onSelectClick = (event: React.MouseEvent<unknown>, id: number) => {
+    const selectedIndex = selected.indexOf(id)
+    let newSelected: readonly number[] = []
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id)
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1))
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1))
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1),
+      )
+    }
+    setSelected(newSelected)
+  }
+
+  const allChecked = useMemo(() => {
+    const filteredJobs = info.jobs.filter(row => row.id !== Number(jobId))
+    return selected.length === filteredJobs.length && filteredJobs.length > 0
+  }, [selected])
+
   return (
-    <Card>
+    <Card ref={ref}>
       <Box
         display='flex'
         gap='8px'
@@ -171,10 +224,26 @@ const JobListCard = ({
             >
               <TableRow
                 sx={{
+                  height: '46px',
+                  fontWeight: '400',
+                  fontSize: '14px',
                   background: theme.palette.background.default,
                 }}
               >
-                {HeadRowItemNames.map((name, index) => (
+                {mode === 'delete' && (
+                  <TableCell size='small' padding='checkbox'>
+                    <Checkbox
+                      color='primary'
+                      checked={allChecked}
+                      onChange={onSelectAllClick}
+                      inputProps={{
+                        'aria-label': 'select all desserts',
+                      }}
+                    />
+                  </TableCell>
+                )}
+
+                {HeadRowItemNames.slice(1).map((name, index) => (
                   <TableCell
                     key={`${name}-${index}`}
                     sx={{
@@ -209,6 +278,7 @@ const JobListCard = ({
             <TableBody>
               {info.jobs.length > 0
                 ? info.jobs.map((row, index) => {
+                    const isItemSelected = isSelected(row.id)
                     return (
                       <TableRow
                         component='tr'
@@ -223,9 +293,24 @@ const JobListCard = ({
                         }}
                         // hover
                         onClick={() => {
-                          onClickRow(row, info)
+                          //onClickRow(row, info)
                         }}
+                        selected={isItemSelected}
+                        aria-checked={isItemSelected}
                       >
+                        {mode === 'delete' && (
+                          <CustomTableCell padding='checkbox'>
+                            <Checkbox
+                              disabled={row.id === Number(jobId!)}
+                              color='primary'
+                              checked={isItemSelected}
+                              onClick={event => onSelectClick(event, row.id)}
+                              inputProps={{
+                                'aria-labelledby': row.corporationId,
+                              }}
+                            />
+                          </CustomTableCell>
+                        )}
                         <CustomTableCell
                           size='small'
                           component='th'
@@ -280,11 +365,10 @@ const JobListCard = ({
                         >
                           <Box>
                             {row.assignedPro ? (
-                              <LegalNameEmail
+                              <LegalName
                                 row={{
                                   isOnboarded: true,
                                   isActive: true,
-
                                   firstName: row.assignedPro.firstName,
                                   middleName: row.assignedPro.middleName,
                                   lastName: row.assignedPro.lastName,
@@ -292,7 +376,13 @@ const JobListCard = ({
                                 }}
                               />
                             ) : (
-                              '-'
+                              <Button
+                                variant='outlined'
+                                size='small'
+                                onClick={() => {}}
+                              >
+                                Request/Assign
+                              </Button>
                             )}
                           </Box>
                         </CustomTableCell>
@@ -329,6 +419,40 @@ const JobListCard = ({
           </Table>
         </TableContainer>
       </Collapse>
+      {mode === 'delete' && (
+        <Card
+          sx={{
+            width: `${ref.current?.getBoundingClientRect().width}px`,
+            position: 'fixed',
+            bottom: 0,
+            height: '103px',
+          }}
+        >
+          <Box
+            width='100%'
+            height='100%'
+            display='flex'
+            alignItems='center'
+            justifyContent='flex-end'
+            padding='32px 20px'
+            gap='16px'
+          >
+            <Button size='large' variant='outlined'>
+              Cancel
+            </Button>
+            <Button
+              size='large'
+              variant='contained'
+              disableElevation
+              disabled={selected.length === 0}
+            >
+              {selected.length === 0 && 'Delete'}
+              {selected.length !== 0 &&
+                `Delete selected jobs (${selected.length})`}
+            </Button>
+          </Box>
+        </Card>
+      )}
     </Card>
   )
 }

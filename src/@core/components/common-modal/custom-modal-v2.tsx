@@ -1,17 +1,28 @@
 import { Box, Button, IconButton, TextField, Typography } from '@mui/material'
 
 import AlertIcon from '../alert-icon'
-import { useState } from 'react'
+import { ReactElement, useState } from 'react'
 import { Icon } from '@iconify/react'
+
+const TitleStyle = {
+  normal: 400,
+  bold: 700,
+}
+
+const TitleSize = {
+  small: '14px',
+  normal: '16px',
+  large: '20px',
+}
 
 type Props = {
   onClose: any
   onClick: any
-  title: string | JSX.Element
+  title: string | ReactElement
   titleStyle?: 'normal' | 'bold'
   titleSize?: 'small' | 'normal' | 'large'
   titleColor?: string
-  subtitle?: string | JSX.Element
+  subtitle?: string | ReactElement
   subtitleColor?: 'primary' | 'secondary'
   vary:
     | 'error'
@@ -31,7 +42,7 @@ type Props = {
   noButton?: boolean
   closeButton?: boolean
   buttonDirection?: 'row' | 'column-reverse'
-  body?: string | JSX.Element
+  body?: string | ReactElement
 }
 
 const CustomModalV2 = ({
@@ -94,39 +105,21 @@ const CustomModalV2 = ({
           }}
         >
           <AlertIcon type={vary} />
-
           <Typography
             variant='body2'
             textAlign='center'
             mt='10px'
             color={titleColor ?? 'rgba(76, 78, 100, 0.87)'}
             sx={{
-              fontWeight: titleStyle
-                ? titleStyle === 'bold'
-                  ? '700'
-                  : titleStyle === 'normal'
-                    ? '400'
-                    : null
-                : 500,
-              fontSize: titleSize
-                ? titleSize === 'large'
-                  ? '20px'
-                  : titleSize === 'normal'
-                    ? '16px'
-                    : null
-                : '20px',
+              fontWeight: titleStyle ? TitleStyle[titleStyle] : 500,
+              fontSize: titleSize ? TitleSize[titleSize] : '20px',
               // marginBottom: '16px',
             }}
           >
             {title}
           </Typography>
           {subtitle ? (
-            <Typography
-              variant='body2'
-              fontSize={16}
-              textAlign='center'
-              // color={subtitleColor ?? 'primary'}
-            >
+            <Typography variant='body2' textAlign='center' color='#8D8E9A'>
               {subtitle}
             </Typography>
           ) : null}

@@ -32,21 +32,23 @@ import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { getCurrentRole } from '@src/shared/auth/storage'
 import { AssignProFilterPostType } from '@src/types/orders/job-detail'
 import toast from 'react-hot-toast'
-import JobListCard from '@src/pages/orders/job-list/details/jobListCard'
+import JobListCard, {
+  JobListMode,
+} from '@src/pages/orders/job-list/details/jobListCard'
 import {
   ArrowBackIos,
   AutoMode,
   DeleteOutline,
   MoreVert,
 } from '@mui/icons-material'
-import { useTheme } from '@mui/material/styles'
+import styled from '@emotion/styled'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 const JobDetails = () => {
-  const theme = useTheme()
   const router = useRouter()
+  const { orderId, jobId } = router.query
 
   const tableRowRef = useRef<HTMLTableRowElement>(null)
   const { openModal, closeModal } = useModal()
@@ -54,9 +56,6 @@ const JobDetails = () => {
   const queryClient = useQueryClient()
 
   const auth = useRecoilValueLoadable(authState)
-  const currentRole = getCurrentRole()
-
-  const { orderId, jobId } = router.query
 
   const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId!), true)
   const { data: orderDetail } = useGetProjectInfo(Number(orderId!))
@@ -67,6 +66,7 @@ const JobDetails = () => {
   const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
   const [isLoadingDeleteState, setIsLoadingDeleteState] = useState(false)
 
+  const [mode, setMode] = useState<JobListMode>('view')
   const [serviceType, setServiceType] = useState<
     Array<{ label: string; value: string }[]>
   >([])
@@ -270,6 +270,38 @@ const JobDetails = () => {
     )
   }
 
+  const onAutoCreateJob = () => {
+    openModal({
+      type: 'AutoCreateJobProceedConfirm',
+      children: (
+        <CustomModalV2
+          onClick={() => closeModal('AutoCreateJobProceedConfirm')}
+          onClose={() => closeModal('AutoCreateJobProceedConfirm')}
+          title='Auto-create jobs'
+          vary='successful'
+          subtitle={
+            <p>
+              Based on the service type and language pair configured in the
+              order, jobs will be automatically created under each Item. <br />
+              <br />
+              Would you like to proceed with the creation of{' '}
+              {jobDetails?.items?.length || 0} Jobs?
+            </p>
+          }
+          rightButtonText='Proceed'
+        />
+      ),
+    })
+  }
+
+  const onDeleteJobs = () => {
+    setMode('delete')
+  }
+
+  const onEditTrigger = () => {}
+
+  const onManageJobStatus = () => {}
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       {createJobMutation.isLoading ||
@@ -278,7 +310,7 @@ const JobDetails = () => {
         <OverlaySpinner />
       ) : null}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <Box
+        <JobTitleSection
           width='100%'
           display='flex'
           alignItems='center'
@@ -310,24 +342,24 @@ const JobDetails = () => {
             </Box>
           </Box>
           <Box display='flex' alignItems='center'>
-            <JobButton label='Auto-create jobs' onClick={() => {}}>
+            <JobButton label='Auto-create jobs' onClick={onAutoCreateJob}>
               <AutoMode color='inherit' sx={{ fontSize: 20 }} />
             </JobButton>
-            <JobButton label='Delete jobs' onClick={() => {}}>
+            <JobButton label='Delete jobs' onClick={onDeleteJobs}>
               <DeleteOutline
                 color='inherit'
                 sx={{ fontSize: 20 }}
                 fontWeight={500}
               />
             </JobButton>
-            <JobButton label='Edit trigger' onClick={() => {}}>
+            <JobButton label='Edit trigger' onClick={onEditTrigger}>
               <img
                 width={20}
                 src='/images/icons/job-icons/icon-trigger.svg'
                 alt='trigger on'
               />
             </JobButton>
-            <JobButton label='Manage job status' onClick={() => {}}>
+            <JobButton label='Manage job status' onClick={onManageJobStatus}>
               <img
                 width={20}
                 src='/images/icons/job-icons/icon-job-status.svg'
@@ -335,14 +367,16 @@ const JobDetails = () => {
               />
             </JobButton>
           </Box>
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        </JobTitleSection>
+
+        <CardListSection display='flex' flexDirection='column' gap='24px'>
           {jobDetails?.items.map((value, index) => {
             return (
               <JobListCard
-                key={`${value.id}-${index}`}
                 tableRowRef={tableRowRef}
+                key={`${value.id}-${index}`}
                 index={index}
+                mode={mode}
                 serviceType={serviceType}
                 info={value}
                 statusList={statusList}
@@ -353,11 +387,14 @@ const JobDetails = () => {
               />
             )
           })}
-        </Box>
+        </CardListSection>
       </Box>
     </Grid>
   )
 }
+
+const JobTitleSection = styled(Box)``
+const CardListSection = styled(Box)``
 
 export const JobButton = ({
   label,
