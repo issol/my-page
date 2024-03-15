@@ -288,7 +288,7 @@ const AddNew = () => {
 
 AddNew.acl = {
   subject: 'pro',
-  action: 'create',
+  action: 'read',
 }
 
 export default AddNew
