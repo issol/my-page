@@ -269,8 +269,9 @@ const LinguistTeamDetail = () => {
   }
 
   const handleBack = () => {
+    queryClient.invalidateQueries(['linguistTeam', initialFilter])
+    queryClient.invalidateQueries('linguistCardList')
     if (!editMode) {
-      queryClient.invalidateQueries(['linguistTeam'])
       router.replace('/pro/?tab=linguistList')
     } else {
       if (!isDirty) {
