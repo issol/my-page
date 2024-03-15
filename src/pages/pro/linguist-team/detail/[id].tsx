@@ -263,7 +263,7 @@ const LinguistTeamDetail = () => {
 
   const handleBack = () => {
     if (!editMode) {
-      queryClient.invalidateQueries(['linguistTeam', initialFilter])
+      queryClient.invalidateQueries(['linguistTeam'])
       router.replace('/pro/?tab=linguistList')
     } else {
       if (!isDirty) {
