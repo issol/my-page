@@ -73,11 +73,13 @@ export default function HistoryDetail({
   const [proListSkip, setProListSkip] = useState(0)
   const [proPageSize, setProPageSize] = useState(10)
 
-  const {
-    data: jobInfo,
-    refetch,
-    isLoading: jobInfoLoading,
-  } = useGetJobInfo(id, true)
+  const { data: jobInfo, isLoading: jobInfoLoading } = useGetJobInfo(
+    id,
+    true,
+  ) as {
+    data: JobType
+    isLoading: boolean
+  }
 
   const { data: jobPrices, isLoading: jobPricesLoading } = useGetJobPrices(
     id,

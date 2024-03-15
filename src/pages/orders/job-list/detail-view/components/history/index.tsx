@@ -19,7 +19,7 @@ import HistoryDetail from './history-detail'
 import { ProListJobInfoType } from '@src/types/pro/list'
 import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
 import { PriceUnitListType } from '@src/types/common/standard-price'
-import { JobItemType } from '@src/types/common/item.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
 import { useGetJobInfo } from '@src/queries/order/job.query'
 import { timezoneSelector } from '@src/states/permission'
 
@@ -62,7 +62,7 @@ export default function JobHistory({
   const [listSort, setListSort] = useState<'desc' | 'asc'>('desc')
 
   const { data: originJobInfo, isLoading: originJobInfoLoading } =
-    useGetJobInfo(jobId, false)
+    useGetJobInfo(jobId, false) as { data: JobType; isLoading: boolean }
 
   const { data: list, isLoading } = useGetJobHistory(jobId, {
     skip,

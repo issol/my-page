@@ -43,12 +43,16 @@ import { useGetProList } from '@src/queries/pro/pro-list.query'
 import { LinguistTeamProListFilterType } from '@src/types/pro/linguist-team'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { JobType } from '@src/types/common/item.type'
-import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
+import {
+  JobPricesDetailType,
+  jobPriceHistoryType,
+} from '@src/types/jobs/jobs.type'
 import select from '@src/@core/theme/overrides/select'
 import useModal from '@src/hooks/useModal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import RequestSummaryModal from './components/assign-pro/request-summary-modal'
+import { UseQueryResult } from 'react-query'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -121,8 +125,15 @@ const JobDetail = () => {
   }>({})
 
   const languageList = getGloLanguage()
-  const jobInfoList = useGetJobInfo(jobId, false).map(value => value.data)
-  const jobPriceList = useGetJobPrices(jobId, false).map(value => value.data)
+  const jobInfoList = (
+    useGetJobInfo(jobId, false) as UseQueryResult<JobType, unknown>[]
+  ).map(value => value.data)
+  const jobPriceList = (
+    useGetJobPrices(jobId, false) as UseQueryResult<
+      JobPricesDetailType | jobPriceHistoryType,
+      unknown
+    >[]
+  ).map(value => value.data)
 
   const { data: serviceTypeList } = useGetServiceType()
   const { data: clientList } = useGetSimpleClientList()

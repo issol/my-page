@@ -38,49 +38,58 @@ export const useGetJobDetails = (orderId: number, enabled: boolean) => {
   })
 }
 
-export const useGetJobInfo = (jobId: number[], isHistory: boolean) => {
-  return useQueries(
-    jobId.map(id => {
-      return {
-        queryKey: ['jobInfo', id, isHistory],
-        queryFn: () => getJobInfo(id, isHistory),
-
+export const useGetJobInfo = (jobId: number[] | number, isHistory: boolean) => {
+  if (typeof jobId === 'number') {
+    return useQuery(
+      ['jobInfo', jobId, isHistory],
+      () => getJobInfo(jobId, isHistory),
+      {
         staleTime: 10 * 1000, // 1
 
         suspense: false,
-      }
-    }),
-  )
-  // return useQuery(
-  //   ['jobInfo', jobId, isHistory],
-  //   () => getJobInfo(jobId, isHistory),
-  //   {
-  //     staleTime: 10 * 1000, // 1
+      },
+    )
+  } else {
+    return useQueries(
+      jobId.map(id => {
+        return {
+          queryKey: ['jobInfo', id, isHistory],
+          queryFn: () => getJobInfo(id, isHistory),
 
-  //     suspense: false,
-  //   },
-  // )
+          staleTime: 10 * 1000, // 1
+
+          suspense: false,
+        }
+      }),
+    )
+  }
 }
 
-export const useGetJobPrices = (jobId: number[], isHistory: boolean) => {
-  return useQueries(
-    jobId.map(id => {
-      return {
-        queryKey: ['jobPrices', id, isHistory],
-        queryFn: () => getJobPrices(id, isHistory),
+export const useGetJobPrices = (
+  jobId: number[] | number,
+  isHistory: boolean,
+) => {
+  if (typeof jobId === 'number') {
+    return useQuery(
+      ['jobPrices', jobId, isHistory],
+      () => getJobPrices(jobId, isHistory),
+      {
         staleTime: 10 * 1000, // 1
         suspense: false,
-      }
-    }),
-  )
-  // return useQuery(
-  //   ['jobPrices', jobId, isHistory],
-  //   () => getJobPrices(jobId, isHistory),
-  //   {
-  //     staleTime: 10 * 1000, // 1
-  //     suspense: false,
-  //   },
-  // )
+      },
+    )
+  } else {
+    return useQueries(
+      jobId.map(id => {
+        return {
+          queryKey: ['jobPrices', id, isHistory],
+          queryFn: () => getJobPrices(id, isHistory),
+          staleTime: 10 * 1000, // 1
+          suspense: false,
+        }
+      }),
+    )
+  }
 }
 
 export const useGetJobPriceHistory = (jobId: number) => {

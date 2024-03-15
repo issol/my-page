@@ -56,7 +56,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { editJobInfoSchema } from '@src/types/schema/job-detail'
 
 import { toast } from 'react-hot-toast'
-import { ItemType, JobItemType } from '@src/types/common/item.type'
+import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
 import { jobItemSchema } from '@src/types/schema/item.schema'
 import ViewPrices from './components/prices'
 import EditPrices from '@src/pages/orders/job-list/detail-view/components/prices/edit-prices'
@@ -64,6 +64,10 @@ import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useGetStatusList } from '@src/queries/common.query'
 import { languageType } from '@src/pages/orders/add-new'
 import { useGetProPriceList } from '@src/queries/company/standard-price'
+import {
+  jobPriceHistoryType,
+  JobPricesDetailType,
+} from '@src/types/jobs/jobs.type'
 
 type Props = {
   id: number
@@ -84,8 +88,10 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
     { value: string; label: string; userId: any }[]
   >([])
 
-  const { data: jobInfo, isLoading } = useGetJobInfo(id, false)
-  const { data: jobPrices } = useGetJobPrices(id, false)
+  const { data: jobInfo } = useGetJobInfo(id, false) as { data: JobType }
+  const { data: jobPrices } = useGetJobPrices(id, false) as {
+    data: JobPricesDetailType | jobPriceHistoryType
+  }
   const { data: projectTeam } = useGetProjectTeam(jobInfo?.order.id!)
   const { data: statusList } = useGetStatusList('Job')
   const { data: jobDetails } = useGetJobDetails(jobInfo?.order.id!, true)

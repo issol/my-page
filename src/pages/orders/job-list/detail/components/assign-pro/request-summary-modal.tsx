@@ -1,16 +1,26 @@
 import { Icon } from '@iconify/react'
-import { Box, Divider, Grid, IconButton, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  Grid,
+  IconButton,
+  TextField,
+  Typography,
+} from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import useModal from '@src/hooks/useModal'
 import { getProJobAssignColumns } from '@src/shared/const/columns/pro-job-assgin'
 import { ProListType } from '@src/types/pro/list'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { ProStatusChip } from '@src/@core/components/chips/chips'
+import registDND from '@src/pages/pro/linguist-team/add-new/components/dnd'
 
 type Props = {
   onClick: () => void
@@ -19,10 +29,11 @@ type Props = {
 }
 
 const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
-  console.log(selectedPros)
-
   const { openModal, closeModal } = useModal()
   const [selectedRequestOption, setSelectedRequestOption] = useState(0)
+  const [requestTerm, setRequestTerm] = useState<number | null>(null)
+  const [selectedProList, setSelectedProList] =
+    useState<ProListType[]>(selectedPros)
   const onClickRequestOptionHelperIcon = () => {
     openModal({
       type: 'RequestOptionModal',
@@ -86,6 +97,44 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
       // isCloseable: true,
     })
   }
+
+  const onClickRequestTermHelperIcon = () => {
+    openModal({
+      type: 'RequestTermModal',
+      children: (
+        <CustomModalV2
+          noButton
+          closeButton
+          title='Request term'
+          subtitle="In the relay request method, this is the time interval between requests being passed from the previous Pro to the next Pro and can be set in minutes. If a Pro doesn't respond within their request term, their chance to respond is lost and the request is passed on to the next Pro."
+          vary='info'
+          onClose={() => closeModal('RequestTermModal')}
+          onClick={() => closeModal('RequestTermModal')}
+          rightButtonText=''
+        />
+      ),
+    })
+  }
+
+  useEffect(() => {
+    setSelectedProList(
+      selectedPros.map((value, index) => ({ ...value, order: index + 1 })),
+    )
+  }, [selectedPros])
+
+  useEffect(() => {
+    const clear = registDND(({ source, destination }) => {
+      if (!destination) return
+      setSelectedProList(prevList => {
+        const newList = [...prevList]
+        const [removed] = newList.splice(source.index, 1)
+        newList.splice(destination.index, 0, removed)
+        return newList
+      })
+    }, 'assign')
+    return () => clear()
+  }, [setSelectedProList])
+
   return (
     <Box
       sx={{
@@ -305,7 +354,7 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
           }}
         >
           <Typography fontSize={14} fontWeight={500}>
-            Selected Pros ({selectedPros.length ?? 0})
+            Selected Pros ({selectedProList.length ?? 0})
           </Typography>
         </Box>
         <Box>
@@ -332,7 +381,7 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
             }}
             className='selectPro'
           >
-            {selectedPros.length > 0 && (
+            {selectedProList.length > 0 && (
               <Box
                 key='proList'
                 data-droppable-id='proList'
@@ -352,7 +401,7 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
                   },
                 }}
               >
-                {selectedPros.map((value, index) => {
+                {selectedProList.map((value, index) => {
                   return (
                     <Box
                       key={uuidv4()}
@@ -444,7 +493,6 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
                           alignItems: 'center',
                           paddingLeft: '20px',
                           flex: 0.2782,
-                          border: '1px solid',
                         }}
                       >
                         {!value.ongoingJobCount || value.ongoingJobCount === 0
@@ -459,11 +507,10 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
           </Box>
           <Box
             sx={{
-              padding: '32px 20px 20px 20px',
+              padding: '32px 20px 0 20px',
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
-              borderBottom: '1px solid #E5E4E4',
             }}
           >
             <Box
@@ -474,18 +521,59 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
               }}
             >
               <Typography fontSize={14} fontWeight={600}>
-                Request option
+                Request term
               </Typography>
               <Typography fontSize={14} fontWeight={600} color='#666CFF'>
                 *
               </Typography>
               <IconButton
                 sx={{ padding: 0 }}
-                onClick={onClickRequestOptionHelperIcon}
+                onClick={onClickRequestTermHelperIcon}
               >
                 <Icon icon='mdi:info-circle-outline' fontSize={18} />
               </IconButton>
             </Box>
+            <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <FormControl className='filterFormControl'>
+                <TextField
+                  value={requestTerm}
+                  onChange={e => {
+                    if (e.target.value) {
+                      setRequestTerm(Number(e.target.value))
+                    } else {
+                      setRequestTerm(null)
+                    }
+                  }}
+                  sx={{
+                    height: '46px',
+                    width: '205px',
+                  }}
+                  inputProps={{
+                    style: {
+                      height: '46px',
+                      padding: '0 14px',
+                    },
+                  }}
+                />
+              </FormControl>
+              <Typography fontSize={14} fontWeight={600}>
+                minute(s)
+              </Typography>
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              padding: '32px 20px',
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              gap: '16px',
+            }}
+          >
+            <Button variant='outlined' onClick={onClose} color='secondary'>
+              Cancel
+            </Button>
+            <Button variant='contained'>Confirm your request</Button>
           </Box>
         </Box>
       </Box>
