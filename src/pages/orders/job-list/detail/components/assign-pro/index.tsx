@@ -4,7 +4,12 @@ import {
   Button,
   ButtonGroup,
   Checkbox,
+  FormControl,
   Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   Popover,
   Switch,
   TextField,
@@ -44,6 +49,7 @@ import {
   CategoryListPair,
 } from '@src/shared/const/category/categories'
 import { Category } from '@src/shared/const/category/category.enum'
+import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
 
 type Props = {
   jobInfo: JobType
@@ -95,6 +101,7 @@ type Props = {
     value: string
     label: GloLanguageEnum
   }[]
+  onSearch: () => void
 }
 
 function loadServerRows(
@@ -133,6 +140,7 @@ const AssignPro = ({
   setActiveFilter,
   activeFilter,
   languageList,
+  onSearch,
 }: Props) => {
   console.log(proList)
 
@@ -155,7 +163,32 @@ const AssignPro = ({
     setAnchorEl(null)
   }
 
-  console.log(filter)
+  const onReset = () => {
+    setServiceTypeFormList(ServiceTypeList)
+    setCategoryList(CategoryList)
+    setFilter({
+      category: [],
+      serviceTypeId: [],
+      clientId: [],
+      sourceLanguage: [],
+      targetLanguage: [],
+      genre: [],
+      search: '',
+      skip: 0,
+      take: 10,
+    })
+    setActiveFilter({
+      category: [],
+      serviceTypeId: [],
+      clientId: [],
+      sourceLanguage: [],
+      targetLanguage: [],
+      genre: [],
+      search: '',
+      skip: 0,
+      take: 10,
+    })
+  }
 
   const open = Boolean(anchorEl)
   const id = open ? 'simple-popover' : undefined
@@ -297,7 +330,7 @@ const AssignPro = ({
           justifyContent: 'space-between',
         }}
       >
-        <ButtonGroup variant='outlined'>
+        <ButtonGroup variant='outlined' color='secondary'>
           <CustomBtn
             value='linguistTeam'
             $focus={menu === 'linguistTeam'}
@@ -383,7 +416,13 @@ const AssignPro = ({
                   container
                   spacing={4}
                   rowSpacing={4}
-                  sx={{ padding: '20px', minWidth: '567px', width: '100%' }}
+                  sx={{
+                    padding: '20px',
+                    minWidth: '567px',
+                    maxWidth: '567px',
+                    width: '100%',
+                    // maxWidth: '667px',
+                  }}
                 >
                   <Grid item xs={6}>
                     <Box className='filterFormAutoComplete'>
@@ -482,7 +521,14 @@ const AssignPro = ({
                     </Box>
                   </Grid>
                   <Grid item xs={6}>
-                    <Box className='filterFormAutoComplete'>
+                    <Box
+                      className='filterFormAutoComplete'
+                      sx={{
+                        '& .MuiChip-root': {
+                          maxWidth: '110px',
+                        },
+                      }}
+                    >
                       <Autocomplete
                         fullWidth
                         multiple
@@ -491,7 +537,7 @@ const AssignPro = ({
                           return option.value === newValue.value
                         }}
                         onChange={(event, item) => {
-                          if (item) {
+                          if (item.length > 0) {
                             const arr: {
                               label: ServiceType
                               value: ServiceType
@@ -510,7 +556,7 @@ const AssignPro = ({
                           } else {
                             setFilter({
                               ...filter,
-                              category: undefined,
+                              category: [],
                             })
                             setServiceTypeFormList(ServiceTypeList)
                           }
@@ -540,7 +586,14 @@ const AssignPro = ({
                     </Box>
                   </Grid>
                   <Grid item xs={6}>
-                    <Box className='filterFormAutoComplete'>
+                    <Box
+                      className='filterFormAutoComplete'
+                      sx={{
+                        '& .MuiChip-root': {
+                          maxWidth: '110px',
+                        },
+                      }}
+                    >
                       <Autocomplete
                         fullWidth
                         multiple
@@ -549,7 +602,9 @@ const AssignPro = ({
                           return option.value === newValue.value
                         }}
                         onChange={(event, item) => {
-                          if (item.length) {
+                          console.log(item)
+
+                          if (item.length > 0) {
                             const arr: {
                               label: Category
                               value: Category
@@ -570,8 +625,12 @@ const AssignPro = ({
                                 value => value.value,
                               ),
                             })
-                            setCategoryList(arr)
+                            setCategoryList(_.uniqBy(arr, 'value'))
                           } else {
+                            setFilter({
+                              ...filter,
+                              serviceTypeId: [],
+                            })
                             setCategoryList(CategoryList)
                           }
                         }}
@@ -605,10 +664,164 @@ const AssignPro = ({
                       />
                     </Box>
                   </Grid>
-                  <Grid item xs={6}></Grid>
-                  <Grid item xs={6}></Grid>
-                  <Grid item xs={12}></Grid>
-                  <Grid item xs={12}></Grid>
+                  <Grid item xs={6}>
+                    <Box
+                      className='filterFormAutoComplete'
+                      sx={{
+                        '& .MuiChip-root': {
+                          maxWidth: '110px',
+                        },
+                      }}
+                    >
+                      <Autocomplete
+                        autoHighlight
+                        fullWidth
+                        multiple
+                        limitTags={1}
+                        disableCloseOnSelect
+                        options={clientList || []}
+                        value={clientList?.filter(client =>
+                          filter?.clientId?.includes(client.clientId),
+                        )}
+                        onChange={(e, v) =>
+                          setFilter({
+                            ...filter,
+                            clientId: v.map(i => i.clientId),
+                          })
+                        }
+                        // filterSelectedOptions
+                        getOptionLabel={option => option?.name}
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            autoComplete='off'
+                            label='Client'
+                          />
+                        )}
+                        renderOption={(props, option, { selected }) => (
+                          <li {...props}>
+                            <Checkbox checked={selected} sx={{ mr: 2 }} />
+                            {option.name}
+                          </li>
+                        )}
+                      />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Box
+                      className='filterFormAutoComplete'
+                      sx={{
+                        '& .MuiChip-root': {
+                          maxWidth: '110px',
+                        },
+                      }}
+                    >
+                      <Autocomplete
+                        disableCloseOnSelect
+                        fullWidth
+                        isOptionEqualToValue={(option, newValue) => {
+                          return option.value === newValue.value
+                        }}
+                        multiple
+                        limitTags={1}
+                        options={AreaOfExpertiseList}
+                        onChange={(e, v) => {
+                          if (v.length > 0) {
+                            setFilter({
+                              ...filter,
+                              genre: v.map(i => i.value),
+                            })
+                          } else {
+                            setFilter({
+                              ...filter,
+                              genre: [],
+                            })
+                          }
+                        }}
+                        value={AreaOfExpertiseList.filter(item =>
+                          filter.genre?.includes(item.value),
+                        )}
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            autoComplete='off'
+                            label='Area of expertise'
+                            // placeholder='Area of expertise'
+                          />
+                        )}
+                        renderOption={(props, option, { selected }) => (
+                          <li {...props}>
+                            <Checkbox checked={selected} sx={{ mr: 2 }} />
+                            {option.label}
+                          </li>
+                        )}
+                      />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <FormControl fullWidth className='filterFormControl'>
+                      <OutlinedInput
+                        placeholder='Search Pro’s name, email or number'
+                        value={filter.search}
+                        sx={{
+                          height: '46px',
+                        }}
+                        inputProps={{
+                          style: {
+                            height: '46px',
+                            padding: '0 14px',
+                          },
+                        }}
+                        onChange={e =>
+                          setFilter({ ...filter, search: e.target.value })
+                        }
+                        endAdornment={
+                          <InputAdornment position='end'>
+                            <IconButton edge='end'>
+                              <Icon icon='mdi:magnify' />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                      />
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        height: '46px',
+                        width: '100%',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '16px',
+                        }}
+                      >
+                        <Button
+                          variant='outlined'
+                          color='secondary'
+                          type='button'
+                          onClick={onReset}
+                          sx={{ flex: 1 }}
+                        >
+                          Reset
+                        </Button>
+                        <Button
+                          variant='contained'
+                          onClick={onSearch}
+                          color='secondary'
+                          sx={{ flex: 1 }}
+                        >
+                          Search
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Grid>
                 </Grid>
               </Popover>
             </Box>
@@ -658,7 +871,7 @@ const AssignPro = ({
             // sx={{ minHeight: '644px', height: '100%' }}
             rows={rows[selectedLinguistTeam?.label || ''] ?? []}
             components={{
-              NoRowsOverlay: () => NoList('There are no linguist teams'),
+              NoRowsOverlay: () => NoList('No linguist team is selected'),
               NoResultsOverlay: () => NoList('There are no linguist teams'),
             }}
             columns={getProJobAssignColumns(
@@ -700,12 +913,12 @@ const AssignPro = ({
           <DataGrid
             // autoHeight
             sx={{
-              height: 'calc(85vh - 100px)',
+              height: 'calc(75vh - 100px)',
             }}
             rows={rows[selectedLinguistTeam?.label || ''] ?? []}
             components={{
-              NoRowsOverlay: () => NoList('There are no Pros'),
-              NoResultsOverlay: () => NoList('There are no Pros'),
+              NoRowsOverlay: () => NoList('No matching results found'),
+              NoResultsOverlay: () => NoList('No matching results found'),
             }}
             columns={getProJobAssignColumns(false, false)}
             checkboxSelection
@@ -749,5 +962,7 @@ export default AssignPro
 
 const CustomBtn = styled(Button)<{ $focus: boolean }>`
   width: 145px;
+  height: 36px;
+  color: ${({ $focus }) => ($focus ? '#4C4E64' : '#8d8e9a')};
   background: ${({ $focus }) => ($focus ? 'rgba(102, 108, 255, 0.08)' : '')};
 `
