@@ -2,6 +2,7 @@ import React, { RefObject, SyntheticEvent, useState } from 'react'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import {
   Box,
+  Button,
   Card,
   Collapse,
   IconButton,
@@ -21,7 +22,7 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
-import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRouter } from 'next/router'
@@ -280,11 +281,10 @@ const JobListCard = ({
                         >
                           <Box>
                             {row.assignedPro ? (
-                              <LegalNameEmail
+                              <LegalName
                                 row={{
                                   isOnboarded: true,
                                   isActive: true,
-
                                   firstName: row.assignedPro.firstName,
                                   middleName: row.assignedPro.middleName,
                                   lastName: row.assignedPro.lastName,
@@ -292,7 +292,13 @@ const JobListCard = ({
                                 }}
                               />
                             ) : (
-                              '-'
+                              <Button
+                                variant='outlined'
+                                size='small'
+                                onClick={() => {}}
+                              >
+                                Request/Assign
+                              </Button>
                             )}
                           </Box>
                         </CustomTableCell>
