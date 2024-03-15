@@ -21,6 +21,10 @@ export const getLinguistTeamColumns = (
     value: number
     label: string
   }>,
+  clientList: Array<{
+    clientId: number
+    name: string
+  }>,
 ) => {
   const columns: GridColumns<LinguistTeamListType> = [
     {
@@ -96,7 +100,11 @@ export const getLinguistTeamColumns = (
         </Typography>
       ),
       renderCell: ({ row }: CellType) => {
-        return <Typography variant='body1'>{row.client}</Typography>
+        return <Typography variant='body1'>{
+          clientList?.find(
+            value => value.clientId === row.clientId,
+          )?.name ?? '-'
+        }</Typography>
       },
     },
     {

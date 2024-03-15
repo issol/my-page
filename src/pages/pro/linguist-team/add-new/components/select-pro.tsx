@@ -22,6 +22,7 @@ import {
 } from 'react-hook-form'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import {
+  ExtraNumberChip,
   JobTypeChip,
   ProStatusChip,
   RoleChip,
@@ -354,7 +355,7 @@ const SelectPro = ({
                                     >
                                       {item.client}{' '}
                                       {idx === 0 &&
-                                        value.clients.length > 1 &&
+                                        value.clients?.length > 1 &&
                                         ','}
                                       &nbsp;
                                     </Box>
@@ -393,6 +394,14 @@ const SelectPro = ({
                         ) : (
                           '-'
                         )}
+                        {
+                          value.jobInfo?.length > 1 ? (
+                            <ExtraNumberChip
+                              label={`+${value.jobInfo?.slice(1).length}`}
+                              size='small'
+                            />
+                          ) : null
+                        }
                       </Box>
                     </Box>
                     <Box
@@ -500,6 +509,7 @@ const SelectPro = ({
                     variant='contained'
                     sx={{ width: 181 }}
                     onClick={onClickSave}
+                    disabled={fields.length === 0}
                   >
                     Save
                   </Button>
@@ -510,6 +520,7 @@ const SelectPro = ({
                     variant='contained'
                     sx={{ width: 181 }}
                     onClick={onClickSave}
+                    disabled={fields.length === 0}
                   >
                     Save changes
                   </Button>

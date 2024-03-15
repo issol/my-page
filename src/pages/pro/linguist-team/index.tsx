@@ -10,6 +10,8 @@ import { useGetClientList } from '@src/queries/client.query'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { useGetLinguistTeam } from '@src/queries/pro/linguist-team'
 import LinguistTeamList from './list/list'
+import { useInfiniteQuery } from 'react-query'
+import { getLinguistTeamList } from '@src/apis/pro/linguist-team'
 
 export type MenuType = 'card' | 'list'
 export type FilterType = {
@@ -47,6 +49,37 @@ const LinguistTeam = () => {
   const { data: linguistList, isLoading } = useGetLinguistTeam(activeFilter)
   const { data: clientList } = useGetSimpleClientList()
 
+  const {
+    data: linguistCardList,
+    fetchNextPage,
+    hasNextPage,
+    isLoading: isCardLoading,
+    isFetchingNextPage,
+    isError,
+    refetch,
+  } = useInfiniteQuery(
+    ['linguistTeam', activeFilter],
+    ({ pageParam = 0 }) => 
+      getLinguistTeamList({
+        ...activeFilter,
+        skip: pageParam,
+        take: 12,
+      }),
+    {
+      suspense: true,
+      refetchInterval: 600000,
+      refetchIntervalInBackground: true,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: 'always',
+      getNextPageParam: (lastPage, pages) => {
+        if (lastPage.count === 12 && lastPage.totalCount > pages.length * 12) {
+          return pages.length * lastPage.count
+        }
+      },
+      retry: false,
+    },
+  )
+ 
   const onSearch = () => {
     setActiveFilter({
       ...filter,
@@ -101,9 +134,12 @@ const LinguistTeam = () => {
         </Box>
       </Box>
       <Box sx={{ width: '100%' }}>
-        {linguistList ? (
+        {linguistList && clientList ? (
           <LinguistTeamList
             data={linguistList!}
+            infiniteData={linguistCardList}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
             isLoading={isLoading}
             menu={menu}
             setMenu={setMenu}
@@ -119,6 +155,7 @@ const LinguistTeam = () => {
             handleMenuClick={handleMenuClick}
             handleMenuClose={handleMenuClose}
             anchorEl={anchorEl}
+            clientList={clientList}
           />
         ) : null}
       </Box>

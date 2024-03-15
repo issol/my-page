@@ -51,6 +51,9 @@ const AddNew = () => {
         displayCustomToast('Saved successfully', 'success')
         router.replace(`/pro/linguist-team/detail/${data.id}`)
       },
+      onError: (error: any) => {
+        displayCustomToast('Failed to save', 'error')
+      }
     },
   )
 
@@ -94,7 +97,6 @@ const AddNew = () => {
   }
 
   const onClickSave = () => {
-    // TODO API call
     // router.replace('/pro/linguist-team/detail/1')
     console.log(getValues())
     const pros = getValues().pros.map((pro, index) => {

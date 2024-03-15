@@ -63,4 +63,6 @@ export type ProListType = {
   onboardedAt: string
   experience: string
   jobInfo: Array<ProListJobInfoType>
+  order?: number | undefined
+  ongoingJobCount: number
 }
