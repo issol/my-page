@@ -335,8 +335,10 @@ const AssignPro = ({
             value='linguistTeam'
             $focus={menu === 'linguistTeam'}
             onClick={e => {
+              if (menu === 'linguistTeam') return
               setPastLinguistTeam(null)
               setSelectedLinguistTeam(pastLinguistTeam)
+
               setMenu(e.currentTarget.value as TabType)
             }}
           >
@@ -346,11 +348,13 @@ const AssignPro = ({
             $focus={menu === 'pro'}
             value='pro'
             onClick={e => {
+              if (menu === 'pro') return
               setPastLinguistTeam(selectedLinguistTeam)
               setSelectedLinguistTeam({
                 value: 0,
                 label: 'Searched Pros',
               })
+
               setMenu(e.currentTarget.value as TabType)
             }}
           >
@@ -877,6 +881,7 @@ const AssignPro = ({
             columns={getProJobAssignColumns(
               detail?.isPrioritized ?? false,
               false,
+              false,
             )}
             checkboxSelection
             selectionModel={
@@ -920,7 +925,7 @@ const AssignPro = ({
               NoRowsOverlay: () => NoList('No matching results found'),
               NoResultsOverlay: () => NoList('No matching results found'),
             }}
-            columns={getProJobAssignColumns(false, false)}
+            columns={getProJobAssignColumns(false, false, false)}
             checkboxSelection
             selectionModel={
               selectionModel[selectedLinguistTeam?.label || ''] || []

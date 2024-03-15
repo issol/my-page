@@ -194,14 +194,24 @@ const JobDetail = () => {
   }
 
   const onClickRequest = () => {
+    console.log(
+      Object.values(selectedRows)
+        .map(value => value.data)
+        .flat(),
+    )
+
     openModal({
       type: 'RequestModal',
       children: (
         <RequestSummaryModal
           onClick={() => closeModal('RequestModal')}
           onClose={() => closeModal('RequestModal')}
+          selectedPros={Object.values(selectedRows)
+            .map(value => value.data)
+            .flat()}
         />
       ),
+      isCloseable: true,
     })
   }
 

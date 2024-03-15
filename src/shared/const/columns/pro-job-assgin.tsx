@@ -12,12 +12,13 @@ type CellType = {
 export const getProJobAssignColumns = (
   isPrioritized: boolean,
   searchPro: boolean,
+  requestPro: boolean,
 ) => {
   const columns: GridColumns<ProListType> = [
     {
       field: 'order',
 
-      flex: 0.0503,
+      flex: requestPro ? 0.0936 : 0.0503,
       // disableColumnMenu: true,
       hide: !isPrioritized || searchPro,
       renderHeader: () => (
@@ -40,8 +41,8 @@ export const getProJobAssignColumns = (
     {
       field: 'name',
 
-      flex: 0.4025,
-      headerName: 'No.',
+      flex: requestPro ? 0.3974 : 0.4025,
+      headerName: 'Legal name / Email',
       disableColumnMenu: true,
       renderHeader: () => (
         <Typography variant='subtitle1' fontWeight={500} fontSize={14}>
@@ -66,7 +67,7 @@ export const getProJobAssignColumns = (
     },
 
     {
-      flex: 0.2264,
+      flex: requestPro ? 0.2308 : 0.2264,
       field: 'status',
       headerName: 'Status',
       hideSortIcons: true,
@@ -98,7 +99,7 @@ export const getProJobAssignColumns = (
       },
     },
     {
-      flex: searchPro ? 0.1635 : 0.2453,
+      flex: searchPro ? 0.1635 : requestPro ? 0.2782 : 0.2453,
       field: 'jobs',
       hideSortIcons: true,
       disableColumnMenu: true,

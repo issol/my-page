@@ -1,16 +1,26 @@
 import { Icon } from '@iconify/react'
 import { Box, Divider, Grid, IconButton, Typography } from '@mui/material'
+import { DataGrid } from '@mui/x-data-grid'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import useModal from '@src/hooks/useModal'
+import { getProJobAssignColumns } from '@src/shared/const/columns/pro-job-assgin'
+import { ProListType } from '@src/types/pro/list'
 import { useState } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
+import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import { ProStatusChip } from '@src/@core/components/chips/chips'
 
 type Props = {
   onClick: () => void
   onClose: () => void
+  selectedPros: ProListType[]
 }
 
-const RequestSummaryModal = ({ onClick, onClose }: Props) => {
+const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
+  console.log(selectedPros)
+
   const { openModal, closeModal } = useModal()
   const [selectedRequestOption, setSelectedRequestOption] = useState(0)
   const onClickRequestOptionHelperIcon = () => {
@@ -288,6 +298,195 @@ const RequestSummaryModal = ({ onClick, onClose }: Props) => {
               </Box>
             </Grid>
           </Grid>
+        </Box>
+        <Box
+          sx={{
+            padding: '20px',
+          }}
+        >
+          <Typography fontSize={14} fontWeight={500}>
+            Selected Pros ({selectedPros.length ?? 0})
+          </Typography>
+        </Box>
+        <Box>
+          <DataGrid
+            sx={{ height: '54px !important' }}
+            autoHeight
+            rows={[]}
+            components={{
+              NoRowsOverlay: () => <></>,
+              NoResultsOverlay: () => <></>,
+            }}
+            columns={getProJobAssignColumns(true, false, true)}
+            hideFooter
+          />
+          <Box
+            sx={{
+              // position: 'relative',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              // minHeight: '501px',
+              minHeight: '370px',
+              background: '#FFFFFF',
+            }}
+            className='selectPro'
+          >
+            {selectedPros.length > 0 && (
+              <Box
+                key='proList'
+                data-droppable-id='proList'
+                sx={{
+                  overflowY: 'scroll',
+                  maxHeight: '400px',
+                  '&::-webkit-scrollbar': {
+                    width: 6,
+                  },
+                  '&::-webkit-scrollbar-thumb': {
+                    borderRadius: 20,
+                    background: hexToRGBA('#57596C', 0.6),
+                  },
+                  '&::-webkit-scrollbar-track': {
+                    borderRadius: 20,
+                    background: 'transparent',
+                  },
+                }}
+              >
+                {selectedPros.map((value, index) => {
+                  return (
+                    <Box
+                      key={uuidv4()}
+                      data-index={index}
+                      className='dnd-item'
+                      sx={{
+                        width: '100%',
+                        display: 'flex',
+                        height: '54px',
+                        // background: '#F7F8FF',
+                        borderTop: '1px solid rgba(76, 78, 100, 0.12)',
+                        borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flex: 0.0936,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography fontWeight={600} fontSize={14}>
+                            {index + 1}
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            cursor: 'grab',
+                          }}
+                          className='dnd-handle'
+                        >
+                          <Icon
+                            icon='akar-icons:drag-vertical'
+                            fontSize={24}
+                            color='#8D8E9A'
+                          />
+                        </Box>
+                      </Box>
+                      <Box
+                        sx={{
+                          paddingLeft: '16px',
+                          display: 'flex',
+
+                          flex: 0.3974,
+                        }}
+                      >
+                        <LegalNameEmail
+                          row={{
+                            isOnboarded: value.isOnboarded,
+                            isActive: value.isActive,
+
+                            firstName: value.firstName,
+                            middleName: value.middleName,
+                            lastName: value.lastName,
+                            email: value.email,
+                          }}
+                        />
+                      </Box>
+                      <Box
+                        sx={{
+                          // padding: '16px 20px',
+
+                          display: 'flex',
+                          alignItems: 'center',
+                          paddingLeft: '20px',
+                          flex: 0.2308,
+                        }}
+                      >
+                        <ProStatusChip
+                          status={value.status}
+                          label={value.status}
+                        />
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          paddingLeft: '20px',
+                          flex: 0.2782,
+                          border: '1px solid',
+                        }}
+                      >
+                        {!value.ongoingJobCount || value.ongoingJobCount === 0
+                          ? '-'
+                          : `${value.ongoingJobCount} job(s)`}
+                      </Box>
+                    </Box>
+                  )
+                })}
+              </Box>
+            )}
+          </Box>
+          <Box
+            sx={{
+              padding: '32px 20px 20px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              borderBottom: '1px solid #E5E4E4',
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+              }}
+            >
+              <Typography fontSize={14} fontWeight={600}>
+                Request option
+              </Typography>
+              <Typography fontSize={14} fontWeight={600} color='#666CFF'>
+                *
+              </Typography>
+              <IconButton
+                sx={{ padding: 0 }}
+                onClick={onClickRequestOptionHelperIcon}
+              >
+                <Icon icon='mdi:info-circle-outline' fontSize={18} />
+              </IconButton>
+            </Box>
+          </Box>
         </Box>
       </Box>
     </Box>
