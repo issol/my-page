@@ -2,37 +2,46 @@ import { Icon } from '@iconify/react'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import {
-  Badge,
-  Box,
-  Card,
-  Grid,
-  IconButton,
-  Tab,
-  Typography,
-} from '@mui/material'
+import { Badge, Box, IconButton, Tab, Typography } from '@mui/material'
 import {
   useGetProJobDetail,
   useGetProJobDots,
 } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
 import {
-  SyntheticEvent,
-  useState,
   MouseEvent,
   Suspense,
+  SyntheticEvent,
   useEffect,
+  useMemo,
+  useState,
 } from 'react'
 import { useQueryClient } from 'react-query'
 import { styled } from '@mui/system'
 
 import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
-import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
+import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { statusType } from '@src/types/common/status.type'
 import { JobListFilterType } from '../requested-ongoing-list'
+
 type MenuType = 'jobInfo' | 'feedback'
+
+const jobDetailDotsKeys = [
+  'download',
+  'name',
+  'status',
+  'contactPersonId',
+  'dueAt',
+  'dueAtTimezone',
+  'prices',
+  'description',
+]
+
+const excludedStatuses = [
+  60100, 601000, 70000, 70100, 70200, /* 70300, */ 70400, 70500,
+]
 
 const ProJobsDetail = () => {
   const router = useRouter()
@@ -98,6 +107,11 @@ const ProJobsDetail = () => {
     assignmentStatusListLoading,
   ])
 
+  const isContainsKeys = useMemo(
+    () => jobDetailDotsKeys.some(key => jobDetailDots?.includes(key)),
+    [jobDetailDots],
+  )
+
   return (
     <Box>
       <Box
@@ -133,19 +147,12 @@ const ProJobsDetail = () => {
               label={
                 <>
                   Job info
-                  {jobDetailDots.includes('download') ||
-                  jobDetailDots.includes('name') ||
-                  jobDetailDots.includes('status') ||
-                  jobDetailDots.includes('contactPersonId') ||
-                  jobDetailDots.includes('dueAt') ||
-                  jobDetailDots.includes('dueAtTimezone') ||
-                  jobDetailDots.includes('prices') ||
-                  jobDetailDots.includes('description') ? (
+                  {isContainsKeys ? (
                     <Badge
                       variant='dot'
                       color='primary'
                       sx={{ marginLeft: '8px' }}
-                    ></Badge>
+                    />
                   ) : null}
                 </>
               }
@@ -153,14 +160,7 @@ const ProJobsDetail = () => {
               icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
-            {jobDetail.status !== 60100 &&
-            jobDetail.status !== 601000 &&
-            jobDetail.status !== 70000 &&
-            jobDetail.status !== 70100 &&
-            jobDetail.status !== 70200 &&
-            // jobDetail.status !== 70300 &&
-            jobDetail.status !== 70400 &&
-            jobDetail.status !== 70500 ? (
+            {excludedStatuses.includes(jobDetail.status) ? (
               <CustomTab
                 value='feedback'
                 label={
@@ -171,7 +171,7 @@ const ProJobsDetail = () => {
                         variant='dot'
                         color='primary'
                         sx={{ marginLeft: '8px' }}
-                      ></Badge>
+                      />
                     ) : null}
                   </>
                 }
