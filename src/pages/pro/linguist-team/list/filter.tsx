@@ -117,13 +117,13 @@ const Filters = ({
               value={
                 languageList.find(
                   (item: { value: string; label: GloLanguageEnum }) =>
-                    filter.source === item.value,
+                    filter.sourceLanguage === item.value,
                 ) ?? null
               }
               onChange={(e, v) => {
                 setFilter({
                   ...filter,
-                  source: v?.value,
+                  sourceLanguage: v?.value,
                 })
               }}
               renderInput={params => <TextField {...params} label='Source' />}
@@ -139,13 +139,13 @@ const Filters = ({
               value={
                 languageList.find(
                   (item: { value: string; label: GloLanguageEnum }) =>
-                    filter.target === item.value,
+                    filter.targetLanguage === item.value,
                 ) ?? null
               }
               onChange={(e, v) => {
                 setFilter({
                   ...filter,
-                  target: v?.value,
+                  targetLanguage: v?.value,
                 })
               }}
               renderInput={params => <TextField {...params} label='Target' />}

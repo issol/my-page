@@ -15,20 +15,20 @@ import LinguistTeamLayout from './list/layout'
 export type MenuType = 'card' | 'list'
 export type FilterType = {
   serviceTypeId?: number[]
-  source?: string | null
-  target?: string | null
+  sourceLanguage?: string | null
+  targetLanguage?: string | null
   clientId?: number[]
   search?: string
   skip: number
   take: number
-  seeMyTeams?: '0' | '1'
+  mine?: '0' | '1'
 }
 
 export const initialFilter: FilterType = {
   serviceTypeId: [],
-  source: null,
-  target: null,
-  seeMyTeams: '0',
+  sourceLanguage: null,
+  targetLanguage: null,
+  mine: '0',
   clientId: [],
   search: '',
   skip: 0,
@@ -91,11 +91,11 @@ const LinguistTeam = () => {
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>View only my teams</Typography>
           <Switch
-            checked={activeFilter.seeMyTeams === '1'}
+            checked={activeFilter.mine === '1'}
             onChange={e =>
               setActiveFilter({
                 ...activeFilter,
-                seeMyTeams: e.target.checked ? '1' : '0',
+                mine: e.target.checked ? '1' : '0',
               })
             }
           />
