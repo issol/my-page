@@ -99,6 +99,7 @@ const LinguistTeamDetail = () => {
     ) => updateLinguistTeam(Number(id), data),
     {
       onSuccess: (data: any) => {
+        setEditMode(false)
         queryClient.invalidateQueries(['linguistTeamDetail', Number(id)])
         router.replace(`/pro/linguist-team/detail/${data.id}`)
       },
