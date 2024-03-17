@@ -14,6 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import Tooltip from '@mui/material/Tooltip';
 import {
   useGetServiceType,
   useGetSimpleClientList,
@@ -27,7 +28,7 @@ import { timezoneSelector } from '@src/states/permission'
 import { LinguistTeamFormType } from '@src/types/pro/linguist-team'
 import { linguistTeamSchema } from '@src/types/schema/pro/linguist-team.schema'
 import { useRouter } from 'next/router'
-import { useState, MouseEvent, useEffect, useMemo, ChangeEvent } from 'react'
+import { useState, MouseEvent, useEffect, useMemo, ChangeEvent, useContext } from 'react'
 import { Controller, Resolver, useFieldArray, useForm } from 'react-hook-form'
 import { useRecoilValueLoadable } from 'recoil'
 import SelectPro from '../add-new/components/select-pro'
@@ -42,6 +43,8 @@ import _ from 'lodash'
 import registDND from '../add-new/components/dnd'
 import { deleteLinguistTeam, updateLinguistTeam } from '@src/apis/pro/linguist-team'
 import { useMutation, useQueryClient } from 'react-query'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { linguist_team } from '@src/shared/const/permission-class'
 
 export type FilterType = {
   serviceTypeId?: number[]
@@ -76,6 +79,7 @@ const LinguistTeamDetail = () => {
   const { data: serviceTypeList } = useGetServiceType()
   const { data: clientList } = useGetSimpleClientList()
 
+  const ability = useContext(AbilityContext)
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
   const [expandSelectProArea, setExpandSelectProArea] = useState<boolean>(false)
@@ -84,12 +88,15 @@ const LinguistTeamDetail = () => {
 
   const [editMode, setEditMode] = useState<boolean>(false)
 
+  const Writer = new linguist_team(data?.authorId!)
+  const isUpdatable = ability.can('update', Writer)
+
   const updateMutation = useMutation(
     (
       data: Omit<LinguistTeamFormType, 'pros'> & {
         pros: Array<{ userId: number; order: number }>
       },
-    ) => updateLinguistTeam(data),
+    ) => updateLinguistTeam(Number(id), data),
     {
       onSuccess: (data: any) => {
         queryClient.invalidateQueries(['linguistTeamDetail', Number(id)])
@@ -262,8 +269,9 @@ const LinguistTeamDetail = () => {
   }
 
   const handleBack = () => {
+    queryClient.invalidateQueries(['linguistTeam', initialFilter])
+    queryClient.invalidateQueries('linguistCardList')
     if (!editMode) {
-      queryClient.invalidateQueries(['linguistTeam', initialFilter])
       router.replace('/pro/?tab=linguistList')
     } else {
       if (!isDirty) {
@@ -434,7 +442,8 @@ const LinguistTeamDetail = () => {
               )}
             </Box>
             {editMode ? (
-              <Box
+              data.isPrivate ? (
+                <Box
                 sx={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -471,6 +480,7 @@ const LinguistTeamDetail = () => {
                   Only you will be able to see this team.
                 </Typography>
               </Box>
+              ) : null
             ) : (
               <Box>
                 <IconButton
@@ -494,60 +504,66 @@ const LinguistTeamDetail = () => {
                     horizontal: 'left',
                   }}
                 >
-                  <MenuItem
-                    sx={{
-                      gap: 2,
-                      '&:hover': {
-                        background: 'inherit',
-                        cursor: 'default',
-                      },
-                      justifyContent: 'flex-start',
-                      alignItems: 'flex-start',
-                      padding: 0,
-                    }}
-                  >
-                    <Button
-                      fullWidth
-                      startIcon={<Icon icon='mdi:pencil-outline' />}
-                      onClick={() => {
-                        setEditMode(true)
-                        handleMenuClose()
-                      }}
+                  <Tooltip title="Not authorized" disableHoverListener={isUpdatable}>
+                    <Box>
+                    <MenuItem
                       sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
                         justifyContent: 'flex-start',
-                        padding: '6px 16px',
-                        color: 'rgba(76, 78, 100, 0.87)',
-                        borderRadius: 0,
+                        alignItems: 'flex-start',
+                        padding: 0,
                       }}
                     >
-                      Edit
-                    </Button>
-                  </MenuItem>
-                  <MenuItem
-                    sx={{
-                      gap: 2,
-                      '&:hover': {
-                        background: 'inherit',
-                        cursor: 'default',
-                      },
-                      justifyContent: 'flex-start',
-                      alignItems: 'flex-start',
-                      padding: 0,
-                    }}
-                  >
-                    <Button
-                      startIcon={<Icon icon='mdi:trash-outline' />}
+                      <Button
+                        fullWidth
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                        onClick={() => {
+                          setEditMode(true)
+                          handleMenuClose()
+                        }}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          color: 'rgba(76, 78, 100, 0.87)',
+                          borderRadius: 0,
+                        }}
+                        disabled={!isUpdatable}
+                      >
+                        Edit
+                      </Button>
+                    </MenuItem>
+                    <MenuItem
                       sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
                         justifyContent: 'flex-start',
-                        padding: '6px 16px',
-                        color: '#FF4D49',
-                        borderRadius: 0,
+                        alignItems: 'flex-start',
+                        padding: 0,
                       }}
-                      onClick={onClickDeleteButton}
                     >
-                      Delete
-                    </Button>
-                  </MenuItem>
+                      <Button
+                        startIcon={<Icon icon='mdi:trash-outline' />}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          color: '#FF4D49',
+                          borderRadius: 0,
+                        }}
+                        onClick={onClickDeleteButton}
+                        disabled={!isUpdatable}
+                      >
+                        Delete
+                      </Button>
+                    </MenuItem>
+                    </Box>
+                  </Tooltip>
                 </Menu>
               </Box>
             )}

@@ -102,6 +102,8 @@ const LinguistTeamCardList = ({
 
   // activeFilter가 변했을때 데이터 갱신이 useInfiniteQuery에서 처리되지 못해서 refetch로 대체
   useEffect(() => {
+    // TODO: 생성, 삭제 후 리패치가 실행되서 서버에서 신규 데이터를 가져오긴 하지만
+    // 페이지에는 이전 데이터로 반영되는 버그가 있음
     refetch()
   }, [activeFilter])
 

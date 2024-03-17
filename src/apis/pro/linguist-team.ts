@@ -43,11 +43,12 @@ export const createLinguistTeam = async (
 }
 
 export const updateLinguistTeam = async (
+  id: number,
   payload: Omit<LinguistTeamFormType, 'pros'> & {
     pros: Array<{ userId: number; order: number }>
   },
 ) => {
-  const { data } = await axios.patch(`/api/enough/u/pro/linguist-team`, {
+  const { data } = await axios.put(`/api/enough/u/pro/linguist-team/${id}`, {
     ...payload,
   })
 

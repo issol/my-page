@@ -59,6 +59,18 @@ const SelectPro = ({
   setExpandSelectProArea,
   expandSelectProArea,
 }: Props) => {
+
+  const getClientName = (clients: Array<{
+    id: number
+    client: string
+  }>) => {
+    const clientName: Array<string> = []
+    clients.map((client, index) => {
+      clientName.push(client.client)
+    })
+    return clientName.join(', ')
+  }
+
   return (
     <Box
       sx={{
@@ -336,32 +348,24 @@ const SelectPro = ({
                       >
                         {!value.clients?.length
                           ? '-'
-                          : value.clients?.map(
-                              (item, idx) =>
-                                idx < 2 && (
-                                  <Box
-                                    key={uuidv4()}
-                                    sx={{
-                                      display: 'flex',
-                                    }}
-                                  >
-                                    <Box
-                                      sx={{
-                                        maxWidth: '150px',
-                                        overflow: 'hidden',
-                                        whiteSpace: 'nowrap',
-                                        textOverflow: 'ellipsis',
-                                      }}
-                                    >
-                                      {item.client}{' '}
-                                      {idx === 0 &&
-                                        value.clients?.length > 1 &&
-                                        ','}
-                                      &nbsp;
-                                    </Box>
-                                  </Box>
-                                ),
-                            )}
+                          : <Box
+                              key={uuidv4()}
+                              sx={{
+                                display: 'flex',
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  maxWidth: '160px',
+                                  overflow: 'hidden',
+                                  whiteSpace: 'nowrap',
+                                  textOverflow: 'ellipsis',
+                                }}
+                              >
+                                {`${getClientName(value.clients)}`}
+                              </Box>
+                            </Box>
+}
                         {value.clients?.length > 1 ? (
                           <Box>+{value.clients?.length - 1}</Box>
                         ) : null}
