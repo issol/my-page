@@ -53,7 +53,7 @@ const AddNew = () => {
       },
       onError: (error: any) => {
         displayCustomToast('Failed to save', 'error')
-      }
+      },
     },
   )
 
@@ -213,7 +213,7 @@ const AddNew = () => {
       if (!destination) return
 
       move(source.index, destination.index)
-    })
+    }, 'linguist')
     return () => clear()
   }, [move])
 

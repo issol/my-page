@@ -43,7 +43,10 @@ export type DropEvent = {
   destination?: DropItem
 }
 
-export default function registDND(onDrop: (event: DropEvent) => void) {
+export default function registDND(
+  onDrop: (event: DropEvent) => void,
+  type?: 'linguist' | 'assign',
+) {
   const clearDroppableShadow = () => {
     document
       .querySelectorAll<HTMLElement>('[data-droppable-id]')

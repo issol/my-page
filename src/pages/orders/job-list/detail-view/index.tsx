@@ -58,6 +58,10 @@ import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
 import { useGetProPriceList } from '@src/queries/company/standard-price'
 import { languageType } from '../../add-new'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
+import {
+  jobPriceHistoryType,
+  JobPricesDetailType,
+} from '@src/types/jobs/jobs.type'
 
 type Props = {
   tab?: string
@@ -101,14 +105,19 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { data: jobInfo, isLoading } = useGetJobInfo(
     cachedJobIdRef.current,
     false,
-  )
+  ) as { data: JobType; isLoading: boolean }
   const {
     data: jobDeliveriesFeedbacks,
     isLoading: isJobDeliveriesFeedbacksLoading,
     refetch: jobDeliveriesFeedbacksRefetch,
   } = useGetProJobDeliveriesFeedbacks(cachedJobIdRef.current)
 
-  const { data: jobPrices } = useGetJobPrices(cachedJobIdRef.current, false)
+  const { data: jobPrices } = useGetJobPrices(
+    cachedJobIdRef.current,
+    false,
+  ) as {
+    data: JobPricesDetailType | jobPriceHistoryType
+  }
   const { data: jobPriceHistory, isLoading: isJobPriceHistoryLoading } =
     useGetJobPriceHistory(cachedJobIdRef.current)
   const { data: priceUnitsList } = useGetAllClientPriceList()

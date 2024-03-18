@@ -9,7 +9,7 @@ import {
 } from '@src/apis/jobs/job-detail.api'
 import { AssignProFilterPostType } from '@src/types/orders/job-detail'
 import toast from 'react-hot-toast'
-import { useQuery } from 'react-query'
+import { useQueries, useQuery } from 'react-query'
 
 export const useGetAssignableProList = (
   jobId: number,
@@ -38,28 +38,58 @@ export const useGetJobDetails = (orderId: number, enabled: boolean) => {
   })
 }
 
-export const useGetJobInfo = (jobId: number, isHistory: boolean) => {
-  return useQuery(
-    ['jobInfo', jobId, isHistory],
-    () => getJobInfo(jobId, isHistory),
-    {
-      staleTime: 10 * 1000, // 1
+export const useGetJobInfo = (jobId: number[] | number, isHistory: boolean) => {
+  if (typeof jobId === 'number') {
+    return useQuery(
+      ['jobInfo', jobId, isHistory],
+      () => getJobInfo(jobId, isHistory),
+      {
+        staleTime: 10 * 1000, // 1
 
-      suspense: false,
-    },
-  )
+        suspense: false,
+      },
+    )
+  } else {
+    return useQueries(
+      jobId.map(id => {
+        return {
+          queryKey: ['jobInfo', id, isHistory],
+          queryFn: () => getJobInfo(id, isHistory),
+
+          staleTime: 10 * 1000, // 1
+
+          suspense: false,
+        }
+      }),
+    )
+  }
 }
 
-export const useGetJobPrices = (jobId: number, isHistory: boolean) => {
-  return useQuery(
-    ['jobPrices', jobId, isHistory],
-    () => getJobPrices(jobId, isHistory),
-    {
-      staleTime: 10 * 1000, // 1
-
-      suspense: false,
-    },
-  )
+export const useGetJobPrices = (
+  jobId: number[] | number,
+  isHistory: boolean,
+) => {
+  if (typeof jobId === 'number') {
+    return useQuery(
+      ['jobPrices', jobId, isHistory],
+      () => getJobPrices(jobId, isHistory),
+      {
+        staleTime: 10 * 1000, // 1
+        suspense: false,
+      },
+    )
+  } else {
+    return useQueries(
+      jobId.map(id => {
+        return {
+          queryKey: ['jobPrices', id, isHistory],
+          queryFn: () => getJobPrices(id, isHistory),
+          staleTime: 10 * 1000, // 1
+          suspense: false,
+        }
+      }),
+    )
+  }
 }
 
 export const useGetJobPriceHistory = (jobId: number) => {
