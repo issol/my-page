@@ -12,13 +12,8 @@ import {
   Card,
   Checkbox,
   Collapse,
-  FormControl,
   IconButton,
-  MenuItem,
-  OutlinedInput,
   Paper,
-  Select,
-  SelectChangeEvent,
   Table,
   TableBody,
   TableCell,
@@ -38,14 +33,22 @@ import { LegalName } from '@src/pages/onboarding/components/list/list-item/legal
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRouter } from 'next/router'
-import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material'
+import {
+  AutoMode,
+  KeyboardArrowDown,
+  KeyboardArrowUp,
+} from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
 import { JobButton } from '@src/pages/orders/job-list/details/index'
 import { AddFrameIcon, TemplateIcon, TriggerIcon } from '@src/views/svgIcons'
-import useModal from '@src/hooks/useModal'
-import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
-import { displayCustomToast } from '@src/shared/utils/toast'
+import {
+  AddJobMenu,
+  DeleteMode,
+  JobListMode,
+  ManageStatusMode,
+  ModeProps,
+} from '@src/views/jobDetails/viewModes'
 
 const HeadRowItemNames = [
   '',
@@ -59,14 +62,10 @@ const HeadRowItemNames = [
 
 const CheckMode: Array<JobListMode> = ['edit', 'delete', 'manageStatus']
 
-export type JobListMode = 'view' | 'edit' | 'delete' | 'manageStatus'
-
-interface JobListCardProps {
+interface JobListCardProps extends ModeProps {
   index: number
-  mode?: JobListMode
   info: JobItemType
   isUserInTeamMember: boolean
-  serviceType: Array<{ label: string; value: string }[]>
   tableRowRef: RefObject<HTMLTableRowElement>
   statusList?: Array<{ value: number; label: string }>
   handleChangeServiceType: (
@@ -78,7 +77,7 @@ interface JobListCardProps {
     index: number,
   ) => void
   onClickAddJob: (itemId: number, index: number) => void
-  onChangeViewMode: () => void
+  onAutoCreateJob: () => void
 }
 
 const JobListCard = ({
@@ -87,10 +86,10 @@ const JobListCard = ({
   mode = 'view',
   info,
   isUserInTeamMember,
-  serviceType,
   statusList,
   handleChangeServiceType,
   onClickAddJob,
+  onAutoCreateJob,
   onChangeViewMode,
 }: JobListCardProps) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -102,12 +101,12 @@ const JobListCard = ({
   const currentRole = getCurrentRole()
 
   const [open, setOpen] = useState<boolean>(true)
+  const [isAddJobMenuOpen, setIsAddJobMenuOpen] = useState(false)
+
   const [selected, setSelected] = useState<readonly number[]>([])
   const [changeJobStatus, setChangeJobStatus] = useState<JobStatusType | null>(
     null,
   )
-
-  const { openModal, closeModal } = useModal()
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     router.push({
@@ -155,122 +154,6 @@ const JobListCard = ({
 
   const viewState = useMemo(() => CheckMode.includes(mode), [mode])
 
-  const DeleteMode = () => {
-    const NONE_FLOW_TEXT = 'Selected Jobs will be deleted.'
-    const FLOW_TEXT =
-      'Triggers between the jobs will be deleted with the jobs. Proceed?'
-
-    if (mode !== 'delete') return null
-
-    const onClickDelete = () => {
-      const onClickAlertDelete = () => {
-        // NOTE : 삭제하는 로직 필요
-        displayCustomToast('Saved successfully.', 'error')
-      }
-
-      openModal({
-        type: 'DeleteJobsConfirm',
-        children: (
-          <CustomModalV2
-            onClick={onClickAlertDelete}
-            onClose={() => closeModal('DeleteJobsConfirm')}
-            title='Delete jobs?'
-            vary='error-alert'
-            subtitle={NONE_FLOW_TEXT}
-            rightButtonText='Delete'
-          />
-        ),
-      })
-    }
-
-    return (
-      <Box
-        width='100%'
-        height='100%'
-        display='flex'
-        alignItems='center'
-        justifyContent='flex-end'
-        padding='32px 20px'
-        gap='16px'
-      >
-        <Button size='large' variant='outlined' onClick={onChangeViewMode}>
-          Cancel
-        </Button>
-        <Button
-          size='large'
-          variant='contained'
-          disableElevation
-          onClick={onClickDelete}
-          disabled={selected.length === 0}
-        >
-          {selected.length === 0 && 'Delete'}
-          {selected.length !== 0 && `Delete selected jobs (${selected.length})`}
-        </Button>
-      </Box>
-    )
-  }
-
-  const ManageStatusMode = () => {
-    if (mode !== 'manageStatus') return null
-
-    const handleChange = (event: SelectChangeEvent) => {
-      const {
-        target: { value },
-      } = event
-
-      setChangeJobStatus(Number(value) as JobStatusType)
-    }
-
-    return (
-      <Box
-        width='100%'
-        height='100%'
-        display='flex'
-        alignItems='center'
-        justifyContent='space-between'
-        padding='32px 20px'
-      >
-        <Box display='flex' alignItems='center' gap='16px'>
-          <Typography variant='body1' fontWeight={600}>
-            Change status of 2 Job(s) to:
-          </Typography>
-          <FormControl>
-            <Select
-              size='small'
-              labelId='demo-multiple-chip-label'
-              id='demo-multiple-chip'
-              value={changeJobStatus ? `${changeJobStatus}` : ''}
-              onChange={handleChange}
-              input={<OutlinedInput />}
-              renderValue={selected => (
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                  {JobsStatusChip(
-                    Number(selected) as JobStatusType,
-                    statusList!,
-                  )}
-                </Box>
-              )}
-            >
-              {statusList?.map(status => (
-                <MenuItem key={status.value} value={status.value}>
-                  {JobsStatusChip(status.value as JobStatusType, statusList!)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-        <Box display='flex' gap='16px'>
-          <Button size='large' variant='outlined' onClick={onChangeViewMode}>
-            Cancel
-          </Button>
-          <Button size='large' variant='contained' disableElevation>
-            Save
-          </Button>
-        </Box>
-      </Box>
-    )
-  }
-
   return (
     <Card ref={ref}>
       <Box
@@ -311,9 +194,29 @@ const JobListCard = ({
             </Typography>
           </Box>
           <Box display='flex' alignItems='center'>
-            <JobButton label='Add job' onClick={() => {}} disabled={viewState}>
-              <AddFrameIcon disabled={viewState} />
+            <JobButton
+              label='Auto-create'
+              onClick={onAutoCreateJob}
+              disabled={mode !== 'view'}
+            >
+              <AutoMode sx={{ fontSize: 20 }} />
             </JobButton>
+            <Box position='relative'>
+              <JobButton
+                label='Add job'
+                onClick={() => setIsAddJobMenuOpen(prev => !prev)}
+                disabled={viewState}
+              >
+                <AddFrameIcon disabled={viewState} />
+              </JobButton>
+              {isAddJobMenuOpen && (
+                <AddJobMenu
+                  mode={mode}
+                  onChangeViewMode={onChangeViewMode}
+                  alertClose={() => setIsAddJobMenuOpen(false)}
+                />
+              )}
+            </Box>
             <JobButton
               label='Add Job template'
               onClick={() => {}}
@@ -375,7 +278,7 @@ const JobListCard = ({
                           height: '14px',
                           background: theme.palette.divider,
                           display:
-                            HeadRowItemNames.length - 3 < index
+                            HeadRowItemNames.length - 4 < index
                               ? 'none'
                               : 'block',
                         }}
@@ -513,7 +416,7 @@ const JobListCard = ({
                             <TriggerSwitchStatus
                               variant='body2'
                               color={theme.palette.success.main}
-                              bgColor='#EEFBE5'
+                              bgcolor='#EEFBE5'
                             >
                               On
                             </TriggerSwitchStatus>
@@ -536,8 +439,19 @@ const JobListCard = ({
             height: '103px',
           }}
         >
-          <DeleteMode />
-          <ManageStatusMode />
+          <DeleteMode
+            mode={mode}
+            onChangeViewMode={onChangeViewMode}
+            selected={selected}
+          />
+
+          <ManageStatusMode
+            mode={mode}
+            statusList={statusList}
+            changeJobStatus={changeJobStatus}
+            setChangeJobStatus={setChangeJobStatus}
+            onChangeViewMode={onChangeViewMode}
+          />
         </Card>
       )}
     </Card>
@@ -568,15 +482,15 @@ const CustomTableCell = styled(TableCell)(() => ({
 
 const TriggerSwitchStatus = styled(Typography)<{
   color: string
-  bgColor: string
-}>(({ color, bgColor }) => ({
+  bgcolor: string
+}>(({ color, bgcolor }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   width: '40px',
   height: '28px',
   fontWeight: 500,
-  background: bgColor,
+  background: bgcolor,
   color: color,
   borderRadius: '5px',
 }))

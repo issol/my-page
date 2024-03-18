@@ -17,14 +17,14 @@ export const AddFrameIcon = ({ disabled }: { disabled: boolean }) => {
           height='15.4167'
           rx='1.04167'
           stroke={disabled ? '#BBBCC4' : '#8D8E9A'}
-          stroke-width='1.25'
+          strokeWidth='1.25'
         />
         <path
           id='Vector 536'
           d='M4.33398 9.00065H12.6673M8.50065 13.1673V5.21277V4.83398'
           stroke={disabled ? '#BBBCC4' : '#8D8E9A'}
-          stroke-width='1.66667'
-          stroke-linejoin='round'
+          strokeWidth='1.66667'
+          strokeLinejoin='round'
         />
       </g>
     </svg>

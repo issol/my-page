@@ -31,9 +31,7 @@ import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import JobListCard, {
-  JobListMode,
-} from '@src/pages/orders/job-list/details/jobListCard'
+import JobListCard from '@src/pages/orders/job-list/details/jobListCard'
 import {
   ArrowBackIos,
   AutoMode,
@@ -43,6 +41,7 @@ import {
 import styled from '@emotion/styled'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { JobStatusIcon, TriggerIcon } from '@src/views/svgIcons'
+import { JobListMode } from '@src/views/jobDetails/viewModes'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -214,6 +213,7 @@ const JobDetails = () => {
   }
 
   const onAutoCreateJob = () => {
+    // NOTE : 생성될 잡의 갯수추가
     openModal({
       type: 'AutoCreateJobProceedConfirm',
       children: (
@@ -227,8 +227,7 @@ const JobDetails = () => {
               Based on the service type and language pair configured in the
               order, jobs will be automatically created under each Item. <br />
               <br />
-              Would you like to proceed with the creation of{' '}
-              {jobDetails?.items?.length || 0} Jobs?
+              Would you like to proceed with the creation of {0} Jobs?
             </p>
           }
           rightButtonText='Proceed'
@@ -330,12 +329,12 @@ const JobDetails = () => {
                 key={`${value.id}-${index}`}
                 index={index}
                 mode={mode}
-                serviceType={serviceType}
                 info={value}
                 statusList={statusList}
                 isUserInTeamMember={isUserInTeamMember}
                 handleChangeServiceType={handleChangeServiceType}
                 onClickAddJob={onClickAddJob}
+                onAutoCreateJob={onAutoCreateJob}
                 onChangeViewMode={onChangeViewMode}
               />
             )
