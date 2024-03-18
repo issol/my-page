@@ -1,9 +1,7 @@
-import { OnboardingListType } from '@src/types/onboarding/list'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import Box from '@mui/material/Box'
 import Link from 'next/link'
 import Typography from '@mui/material/Typography'
-import { OnboardingListCellType } from '@src/types/onboarding/list'
 
 const LegalNameEmail = ({
   row,
@@ -63,9 +61,10 @@ const LegalNameEmail = ({
         {link ? (
           <Link href={link} style={{ textDecoration: 'none' }}>
             <Typography
+              variant='body2'
+              color='#4C4E64DE'
               sx={{
                 fontWeight: '600',
-                fontSize: '1rem',
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -80,9 +79,10 @@ const LegalNameEmail = ({
           </Link>
         ) : (
           <Typography
+            variant='body2'
+            color='#4C4E64DE'
             sx={{
               fontWeight: '600',
-              fontSize: '1rem',
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',

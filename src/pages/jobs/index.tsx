@@ -3,11 +3,11 @@ import { Badge, Box, Tab, Typography } from '@mui/material'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import {
+  MouseEvent,
   Suspense,
   SyntheticEvent,
-  useState,
-  MouseEvent,
   useEffect,
+  useState,
 } from 'react'
 import { styled } from '@mui/system'
 import TabPanel from '@mui/lab/TabPanel'
@@ -19,11 +19,7 @@ import RequestedOngoingList, {
 import DeliveredInactiveList, {
   completedDefaultFilters,
 } from './delivered-inactive-list'
-import {
-  useGetProJobClientList,
-  useGetProJobList,
-} from '@src/queries/jobs/jobs.query'
-import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
+import { useGetProJobList } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
 
 type MenuType = 'requested' | 'completed'
@@ -64,7 +60,8 @@ const Jobs = () => {
   }, [completedJob, ongoingJob])
 
   useEffect(() => {
-    if (tabQuery && (tabQuery === 'requested' || tabQuery === 'completed')) setValue(tabQuery)
+    if (tabQuery && (tabQuery === 'requested' || tabQuery === 'completed'))
+      setValue(tabQuery)
   }, [tabQuery])
 
   return (

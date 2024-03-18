@@ -2,37 +2,43 @@ import { Icon } from '@iconify/react'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import {
-  Badge,
-  Box,
-  Card,
-  Grid,
-  IconButton,
-  Tab,
-  Typography,
-} from '@mui/material'
+import { Badge, Box, IconButton, Tab, Typography } from '@mui/material'
 import {
   useGetProJobDetail,
   useGetProJobDots,
 } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
 import {
-  SyntheticEvent,
-  useState,
   MouseEvent,
   Suspense,
+  SyntheticEvent,
   useEffect,
+  useState,
 } from 'react'
 import { useQueryClient } from 'react-query'
 import { styled } from '@mui/system'
 
 import DeliveriesFeedback from './deliveries-feedback'
 import ProJobInfo from './job-info'
-import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
+import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { statusType } from '@src/types/common/status.type'
-import { JobListFilterType } from '../requested-ongoing-list'
+
 type MenuType = 'jobInfo' | 'feedback'
+
+const keysJobDetailDots = [
+  'download',
+  'name',
+  'status',
+  'contactPersonId',
+  'dueAt',
+  'dueAtTimezone',
+  'prices',
+  'description',
+]
+const excludedStatuses = [
+  60100, 601000, 70000, 70100, 70200, /* 70300, */ 70400, 70500,
+]
 
 const ProJobsDetail = () => {
   const router = useRouter()
@@ -46,7 +52,7 @@ const ProJobsDetail = () => {
   // assigned이 false이면 히스토리를 조회한다.
   const { data: jobDetail, isLoading } = useGetProJobDetail(
     Number(id),
-    assigned && assigned === 'false' ? true : false,
+    !!(assigned && assigned === 'false'),
     isFetched,
   )
   useEffect(() => {
@@ -57,7 +63,7 @@ const ProJobsDetail = () => {
 
   const { data: jobPrices } = useGetJobPrices(
     Number(id),
-    assigned && assigned === 'false' ? true : false,
+    !!(assigned && assigned === 'false'),
   )
   const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
@@ -91,24 +97,36 @@ const ProJobsDetail = () => {
   return (
     <Box>
       <Box
-        sx={{
-          width: '100%',
-          display: 'flex',
-          background: '#ffffff',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '20px',
-        }}
+        width='100%'
+        display='flex'
+        alignItems='center'
+        justifyContent='space-between'
+        gap='8px'
+        padding='20px'
+        marginBottom='24px'
+        bgcolor='#fff'
       >
         <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <IconButton
             sx={{ padding: '0 !important', height: '24px' }}
             onClick={() => onClickBack()}
           >
-            <Icon icon='mdi:chevron-left' width={24} height={24} />
+            <Icon icon='ic:sharp-arrow-back-ios' fontSize={24} />
           </IconButton>
           <img src='/images/icons/job-icons/job-detail.svg' alt='' />
-          <Typography variant='h5'>{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
+          <Typography
+            variant='h5'
+            fontWeight={500}
+          >{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
+          <Box display='flex' position='relative'>
+            <Icon icon='ic:outline-people' fontSize={32} color='#8D8E9A' />
+            <Icon
+              icon='material-symbols:info-outline'
+              fontSize={15}
+              color='#8D8E9A'
+              style={{ marginLeft: '8px' }}
+            />
+          </Box>
         </Box>
       </Box>
       {jobDetail && jobPrices && statusList && jobDetailDots && (
@@ -123,19 +141,14 @@ const ProJobsDetail = () => {
               label={
                 <>
                   Job info
-                  {jobDetailDots.includes('download') ||
-                  jobDetailDots.includes('name') ||
-                  jobDetailDots.includes('status') ||
-                  jobDetailDots.includes('contactPersonId') ||
-                  jobDetailDots.includes('dueAt') ||
-                  jobDetailDots.includes('dueAtTimezone') ||
-                  jobDetailDots.includes('prices') ||
-                  jobDetailDots.includes('description') ? (
+                  {keysJobDetailDots.some(key =>
+                    jobDetailDots.includes(key),
+                  ) ? (
                     <Badge
                       variant='dot'
                       color='primary'
                       sx={{ marginLeft: '8px' }}
-                    ></Badge>
+                    />
                   ) : null}
                 </>
               }
@@ -143,14 +156,7 @@ const ProJobsDetail = () => {
               icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
-            {jobDetail.status !== 60100 &&
-            jobDetail.status !== 601000 &&
-            jobDetail.status !== 70000 &&
-            jobDetail.status !== 70100 &&
-            jobDetail.status !== 70200 &&
-            // jobDetail.status !== 70300 &&
-            jobDetail.status !== 70400 &&
-            jobDetail.status !== 70500 ? (
+            {!excludedStatuses.includes(jobDetail.status) ? (
               <CustomTab
                 value='feedback'
                 label={
@@ -161,7 +167,7 @@ const ProJobsDetail = () => {
                         variant='dot'
                         color='primary'
                         sx={{ marginLeft: '8px' }}
-                      ></Badge>
+                      />
                     ) : null}
                   </>
                 }
@@ -171,7 +177,7 @@ const ProJobsDetail = () => {
               />
             ) : null}
           </TabList>
-          <TabPanel value='jobInfo' sx={{ pt: '24px' }}>
+          <TabPanel value='jobInfo' sx={{ mt: '24px', padding: 0 }}>
             <Suspense>
               <ProJobInfo
                 jobInfo={jobDetail}
@@ -181,7 +187,7 @@ const ProJobsDetail = () => {
               />
             </Suspense>
           </TabPanel>
-          <TabPanel value='feedback' sx={{ pt: '24px' }}>
+          <TabPanel value='feedback' sx={{ mt: '24px', padding: 0 }}>
             <Suspense>
               <DeliveriesFeedback
                 jobInfo={jobDetail}

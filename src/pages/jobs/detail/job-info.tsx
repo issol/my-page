@@ -25,11 +25,7 @@ import {
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
-import {
-  byteToGB,
-  byteToMB,
-  formatFileSize,
-} from '@src/shared/helpers/file-size.helper'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { authState } from '@src/states/auth'
@@ -39,7 +35,7 @@ import {
   JobsFileType,
   ProJobDetailType,
 } from '@src/types/jobs/jobs.type'
-import { useMemo, useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
@@ -52,10 +48,7 @@ import dynamic from 'next/dynamic'
 import dayjs from 'dayjs'
 import PriceUnitGuideline from './components/modal/price-unit-guideline'
 import CustomChip from '@src/@core/components/mui/chip'
-import {
-  formatByRoundingProcedure,
-  formatCurrency,
-} from '@src/shared/helpers/price.helper'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   handleJobAssignStatus,
@@ -64,6 +57,7 @@ import {
 } from '@src/apis/jobs/job-detail.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
+import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -122,18 +116,12 @@ const ProJobInfo = ({
   )
 
   const fileSize = useMemo(() => {
+    const excludeStatus = [70000, 70100, 70200, 70300, 70400, 70500, 60100]
+
     if (jobInfo?.files?.length > 0) {
       return jobInfo.files
         ?.filter(value => {
-          if (
-            jobInfo.status !== 70000 &&
-            jobInfo.status !== 70100 &&
-            jobInfo.status !== 70200 &&
-            jobInfo.status !== 70300 &&
-            jobInfo.status !== 70400 &&
-            jobInfo.status !== 70500 &&
-            jobInfo.status !== 60100
-          ) {
+          if (!excludeStatus.includes(jobInfo.status)) {
             return value.type === 'SOURCE'
           } else {
             return value.type === 'SAMPLE'
@@ -144,7 +132,7 @@ const ProJobInfo = ({
     return 0
   }, [jobInfo])
 
-  function fetchFile(file: JobsFileType | FileType) {
+  const fetchFile = (file: JobsFileType | FileType) => {
     getDownloadUrlforCommon(S3FileType.JOB, file.file!).then(res => {
       fetch(res.url, { method: 'GET' })
         .then(res => {
@@ -174,13 +162,13 @@ const ProJobInfo = ({
     })
   }
 
-  function downloadOneFile(file: JobsFileType | FileType) {
+  const downloadOneFile = (file: JobsFileType | FileType) => {
     fetchFile(file)
   }
 
-  function downloadAllFiles(
+  const downloadAllFiles = (
     files: Array<JobsFileType> | [] | undefined | Array<FileType>,
-  ) {
+  ) => {
     if (!files || !files.length) return
 
     files.forEach(file => {
@@ -361,7 +349,7 @@ const ProJobInfo = ({
   }
 
   const onClickOnClickStatusMoreInfo = (status: ProJobStatusType) => {
-    console.log("status", status)
+    console.log('status', status)
     openModal({
       type: 'StatusMoreInfoModal',
       children: (
@@ -499,10 +487,8 @@ const ProJobInfo = ({
     }
   }
 
-  const getJobDateDiff = (jobDueDate: string , deliveredDate?: string) => {
-    const now = deliveredDate
-      ? dayjs(deliveredDate)
-      : dayjs()
+  const getJobDateDiff = (jobDueDate: string, deliveredDate?: string) => {
+    const now = deliveredDate ? dayjs(deliveredDate) : dayjs()
     const dueDate = dayjs(jobDueDate)
     const diff = dueDate.diff(now, 'second')
     const isPast = diff < 0
@@ -551,12 +537,39 @@ const ProJobInfo = ({
   }, [jobInfo])
 
   return (
-    <Grid container xs={12} spacing={4}>
+    <Grid container width='100%' xs={12} spacing={4} padding={0}>
       {patchProJobSourceFileDownloadMutation.isLoading ||
       selectAssignMutation.isLoading ? (
         <OverlaySpinner />
       ) : null}
       <Grid item xs={9.25}>
+        <Card sx={{ padding: '20px', marginBottom: '24px' }}>
+          <Box display='grid' gridTemplateColumns='repeat(12, 1fr)' gap='10px'>
+            <NextPrevItemCard
+              title='Previous job'
+              userInfo={{
+                isOnboarded: true,
+                isActive: true,
+                firstName: 'Jenny',
+                lastName: 'Wilson',
+                email: 'proemail@example.com',
+              }}
+              date='09/03/2023, 05:30 PM (KST)'
+            />
+            <NextPrevItemCard
+              title='Next job'
+              userInfo={{
+                isOnboarded: true,
+                isActive: true,
+                firstName: 'Jenny',
+                lastName: 'Wilson',
+                email: 'proemail@example.com',
+              }}
+              date='09/03/2023, 05:30 PM (KST)'
+            />
+          </Box>
+        </Card>
+
         <Card sx={{ padding: '24px' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
             <Box
@@ -992,7 +1005,10 @@ const ProJobInfo = ({
                     >
                       {[60300, 60500].includes(jobInfo.status) ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                          {getJobDateDiff(jobInfo.dueAt, jobInfo.finalProDeliveredAt)}
+                          {getJobDateDiff(
+                            jobInfo.dueAt,
+                            jobInfo.finalProDeliveredAt,
+                          )}
                         </Box>
                       ) : (
                         <Typography variant='body2'>
@@ -1225,7 +1241,7 @@ const ProJobInfo = ({
           </Box>
         </Card>
       </Grid>
-      <Grid item xs={2.75}>
+      <Grid item xs={2.75} padding={0}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           {(fileList && fileList.length === 0) ||
           [70200, 70300, 70400, 70500, 601000].includes(
@@ -1344,6 +1360,51 @@ const ProJobInfo = ({
         </Box>
       </Grid>
     </Grid>
+  )
+}
+
+interface NextPrevItemCardProps {
+  title: string
+  date: string
+  userInfo: {
+    isOnboarded: boolean
+    isActive: boolean
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    email: string
+  }
+  link?: string
+}
+
+const NextPrevItemCard = ({
+  title,
+  userInfo,
+  link,
+  date,
+}: NextPrevItemCardProps) => {
+  return (
+    <Box gridColumn='span 6'>
+      <Typography variant='body2' fontWeight={500} color='#8D8E9A'>
+        {title}
+      </Typography>
+      <Box
+        padding='8px 20px'
+        border='1px solid #D8D8DD'
+        borderRadius='10px'
+        marginTop='8px'
+      >
+        <LegalNameEmail row={{ ...userInfo }} link={link} />
+        <Typography
+          variant='body2'
+          fontWeight={400}
+          color='#8D8E9A'
+          sx={{ mt: '8px' }}
+        >
+          <span style={{ fontWeight: 600 }}>Start date</span>:{date}
+        </Typography>
+      </Box>
+    </Box>
   )
 }
 
