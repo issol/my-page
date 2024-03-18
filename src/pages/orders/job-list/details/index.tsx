@@ -7,7 +7,6 @@ import {
   MenuItem,
   Typography,
 } from '@mui/material'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
 import { useGetJobDetails } from '@src/queries/order/job.query'
 import Link from 'next/link'
@@ -27,13 +26,11 @@ import {
 import { useMutation, useQueryClient } from 'react-query'
 import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
 import { createJob } from '@src/apis/jobs/jobs.api'
-import { deleteJob, getAssignableProList } from '@src/apis/jobs/job-detail.api'
+import { deleteJob } from '@src/apis/jobs/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { AssignProFilterPostType } from '@src/types/orders/job-detail'
-import toast from 'react-hot-toast'
 import JobListCard, {
   JobListMode,
 } from '@src/pages/orders/job-list/details/jobListCard'
@@ -99,6 +96,7 @@ const JobDetails = () => {
     },
   )
 
+  // NOTE : 현재 단일값만 처리할 수 있도록 API 구성되어 있어서 변경 필요함
   const deleteJobMutation = useMutation((jobId: number) => deleteJob(jobId), {
     onSuccess: () => {
       refetch()
@@ -126,66 +124,6 @@ const JobDetails = () => {
       serviceType: serviceType[index].map(value => value.value),
       index: index,
     })
-  }
-
-  const handleRemoveJob = async (
-    jobId: number,
-    corporationId: string,
-    jobName: string,
-  ) => {
-    //job에 request 또는 Assign이 있을 경우 삭제하면 안됨
-    try {
-      setIsLoadingDeleteState(true)
-      const assignableProListFilters: AssignProFilterPostType = {
-        take: 5,
-        skip: 0,
-        isOffBoard: '1',
-      }
-      const assignableProList = await getAssignableProList(
-        jobId,
-        assignableProListFilters,
-        false,
-      )
-      if (assignableProList.data.some(list => list.assignmentStatus !== null)) {
-        openModal({
-          type: 'RemoveImpossibleModal',
-          children: (
-            <CustomModal
-              soloButton={true}
-              onClose={() => closeModal('RemoveImpossibleModal')}
-              onClick={() => closeModal('RemoveImpossibleModal')}
-              title='This job cannot be deleted because it’s already been requested to Pro(s).'
-              subtitle={`[${corporationId}] ${jobName ?? ''}`}
-              vary={'error'}
-              rightButtonText='Okay'
-            />
-          ),
-        })
-      } else {
-        openModal({
-          type: 'RemoveJobModal',
-          children: (
-            <CustomModal
-              onClose={() => closeModal('RemoveJobModal')}
-              onClick={() => {
-                deleteJobMutation.mutate(jobId)
-                closeModal('RemoveJobModal')
-              }}
-              title='Are you sure you want to delete this job?'
-              subtitle={`[${corporationId}] ${jobName ?? ''}`}
-              vary={'error'}
-              rightButtonText='Delete'
-            />
-          ),
-        })
-      }
-    } catch (e) {
-      toast.error('Something went wrong. Please try again.', {
-        position: 'bottom-left',
-      })
-    } finally {
-      setIsLoadingDeleteState(false)
-    }
   }
 
   useEffect(() => {
@@ -396,7 +334,6 @@ const JobDetails = () => {
                 info={value}
                 statusList={statusList}
                 isUserInTeamMember={isUserInTeamMember}
-                handleRemoveJob={handleRemoveJob}
                 handleChangeServiceType={handleChangeServiceType}
                 onClickAddJob={onClickAddJob}
                 onChangeViewMode={onChangeViewMode}

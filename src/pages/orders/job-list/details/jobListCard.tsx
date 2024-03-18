@@ -43,6 +43,9 @@ import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
 import { JobButton } from '@src/pages/orders/job-list/details/index'
 import { AddFrameIcon, TemplateIcon, TriggerIcon } from '@src/views/svgIcons'
+import useModal from '@src/hooks/useModal'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import { displayCustomToast } from '@src/shared/utils/toast'
 
 const HeadRowItemNames = [
   '',
@@ -66,11 +69,6 @@ interface JobListCardProps {
   serviceType: Array<{ label: string; value: string }[]>
   tableRowRef: RefObject<HTMLTableRowElement>
   statusList?: Array<{ value: number; label: string }>
-  handleRemoveJob: (
-    jobId: number,
-    corporationId: string,
-    jobName: string,
-  ) => Promise<void>
   handleChangeServiceType: (
     event: SyntheticEvent<Element, Event>,
     value: {
@@ -91,15 +89,14 @@ const JobListCard = ({
   isUserInTeamMember,
   serviceType,
   statusList,
-  handleRemoveJob,
   handleChangeServiceType,
   onClickAddJob,
   onChangeViewMode,
 }: JobListCardProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const theme = useTheme()
-  const router = useRouter()
 
+  const router = useRouter()
   const { orderId, jobId } = router.query
 
   const currentRole = getCurrentRole()
@@ -109,6 +106,8 @@ const JobListCard = ({
   const [changeJobStatus, setChangeJobStatus] = useState<JobStatusType | null>(
     null,
   )
+
+  const { openModal, closeModal } = useModal()
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     router.push({
@@ -157,7 +156,33 @@ const JobListCard = ({
   const viewState = useMemo(() => CheckMode.includes(mode), [mode])
 
   const DeleteMode = () => {
+    const NONE_FLOW_TEXT = 'Selected Jobs will be deleted.'
+    const FLOW_TEXT =
+      'Triggers between the jobs will be deleted with the jobs. Proceed?'
+
     if (mode !== 'delete') return null
+
+    const onClickDelete = () => {
+      const onClickAlertDelete = () => {
+        // NOTE : 삭제하는 로직 필요
+        displayCustomToast('Saved successfully.', 'error')
+      }
+
+      openModal({
+        type: 'DeleteJobsConfirm',
+        children: (
+          <CustomModalV2
+            onClick={onClickAlertDelete}
+            onClose={() => closeModal('DeleteJobsConfirm')}
+            title='Delete jobs?'
+            vary='error-alert'
+            subtitle={NONE_FLOW_TEXT}
+            rightButtonText='Delete'
+          />
+        ),
+      })
+    }
+
     return (
       <Box
         width='100%'
@@ -175,6 +200,7 @@ const JobListCard = ({
           size='large'
           variant='contained'
           disableElevation
+          onClick={onClickDelete}
           disabled={selected.length === 0}
         >
           {selected.length === 0 && 'Delete'}
