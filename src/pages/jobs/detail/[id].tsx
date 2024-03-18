@@ -23,6 +23,8 @@ import ProJobInfo from './job-info'
 import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { statusType } from '@src/types/common/status.type'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import useModal from '@src/hooks/useModal'
 
 type MenuType = 'jobInfo' | 'feedback'
 
@@ -43,11 +45,13 @@ const excludedStatuses = [
 const ProJobsDetail = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
+
   const { id, assigned, tab } = router.query
+
   const [value, setValue] = useState<MenuType>('jobInfo')
-  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
-    setValue(newValue)
-  }
+  const [statusList, setStatusList] = useState<Array<statusType>>([])
+  const { openModal, closeModal } = useModal()
+
   const { data: jobDetailDots, isFetched } = useGetProJobDots(Number(id))
   // assigned이 false이면 히스토리를 조회한다.
   const { data: jobDetail, isLoading } = useGetProJobDetail(
@@ -72,8 +76,9 @@ const ProJobsDetail = () => {
     isLoading: assignmentStatusListLoading,
   } = useGetStatusList('JobAssignment')
 
-  const [statusList, setStatusList] = useState<Array<statusType>>([])
-
+  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
+    setValue(newValue)
+  }
   const onClickBack = () => {
     router.push(`/jobs?tab=${tab}`)
   }
@@ -93,6 +98,23 @@ const ProJobsDetail = () => {
     assignmentJobStatusList,
     assignmentStatusListLoading,
   ])
+
+  const onClickInfoIcon = () => {
+    openModal({
+      type: 'ConnectedJobsInfoAlert',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('ConnectedJobsInfoAlert')}
+          vary='info'
+          title='Connected jobs'
+          rightButtonText=''
+          subtitle='This job has preceding or succeeding worker. The job entails either continuing the work based on the output of the previous contributor or passing on the completed task to the subsequent participant.'
+          onClick={() => {}}
+          noButton
+        />
+      ),
+    })
+  }
 
   return (
     <Box>
@@ -120,12 +142,17 @@ const ProJobsDetail = () => {
           >{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
           <Box display='flex' position='relative'>
             <Icon icon='ic:outline-people' fontSize={32} color='#8D8E9A' />
-            <Icon
-              icon='material-symbols:info-outline'
-              fontSize={15}
-              color='#8D8E9A'
-              style={{ marginLeft: '8px' }}
-            />
+            <IconButton
+              onClick={() => onClickInfoIcon()}
+              style={{ position: 'absolute', top: -6, left: 24 }}
+            >
+              <Icon
+                icon='material-symbols:info-outline'
+                fontSize={15}
+                color='#8D8E9A'
+                style={{ marginLeft: '8px' }}
+              />
+            </IconButton>
           </Box>
         </Box>
       </Box>

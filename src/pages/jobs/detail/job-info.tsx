@@ -1394,7 +1394,10 @@ const NextPrevItemCard = ({
         borderRadius='10px'
         marginTop='8px'
       >
-        <LegalNameEmail row={{ ...userInfo }} link={link} />
+        <Box display='flex' alignItems='center' gap='20px'>
+          <LegalNameEmail row={{ ...userInfo }} link={link} />
+          <ServiceTypeChip size='small' label='Approved' />
+        </Box>
         <Typography
           variant='body2'
           fontWeight={400}
