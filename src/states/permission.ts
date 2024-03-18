@@ -589,6 +589,18 @@ export const permissionSelector = selector<PermissionObjectType>({
             subject: 'dashboard_TAD',
           },
           { can: 'read', subject: 'dashboard_PRO' },
+          {
+            can: 'read',
+            subject: 'linguist_team',
+          },
+          {
+            can: 'update',
+            subject: 'linguist_team',
+          },
+          {
+            can: 'delete',
+            subject: 'linguist_team',
+          },
         ]
       }
     }
