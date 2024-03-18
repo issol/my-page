@@ -1648,6 +1648,7 @@ const OrderDetail = () => {
                   </Typography>
                   {(projectInfo?.linkedRequest ||
                     projectInfo?.linkedQuote ||
+                    projectInfo?.linkedJobs ||
                     projectInfo?.linkedInvoiceReceivable) &&
                   !uploadFileProcessing ? (
                     <Box>
@@ -1731,6 +1732,24 @@ const OrderDetail = () => {
                             >
                               {projectInfo?.linkedInvoiceReceivable
                                 .corporationId ?? '-'}
+                            </Link>
+                          </MenuItem>
+                        ) : null}
+                        {projectInfo.linkedJobs ? (
+                          <MenuItem
+                            sx={{
+                              gap: 2,
+                              '&:hover': {
+                                background: 'inherit',
+                                cursor: 'default',
+                              },
+                            }}
+                          >
+                            <Link
+                              href={`/orders/job-list/details/?orderId=${projectInfo.id}`}
+                              style={{ color: 'rgba(76, 78, 100, 0.87)', textDecoration: 'none' }}
+                            >
+                              {'Linked jobs >'}
                             </Link>
                           </MenuItem>
                         ) : null}

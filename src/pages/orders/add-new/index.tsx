@@ -107,6 +107,7 @@ import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
 import { formatISO } from 'date-fns'
 import { getClientRequestDetail } from '@src/apis/requests/client-request.api'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 
 export type languageType = {
   id: number | string
@@ -559,20 +560,13 @@ export default function AddNewOrder() {
       openModal({
         type: 'SaveOrderNotUsedPriceModal',
         children: (
-          <CustomModal
+          <CustomModalV2
             onClick={onSubmit}
             onClose={() => closeModal('SaveOrderNotUsedPriceModal')}
-            title={
-              <>
-                Are you sure you want to create this order? Language pair(s) not
-                registered to the item(s) will be deleted from the order.
-                <Typography variant='body2' fontWeight={600} fontSize={16}>
-                  {getProjectInfoValues().projectName}
-                </Typography>
-              </>
-            }
-            vary='successful'
-            rightButtonText='Save'
+            title={'Unused language pair(s)'}
+            subtitle={'Language pair(s) not registered to the item(s) will be deleted from the order. Would you like to continue and create the order?'}
+            vary='error-report'
+            rightButtonText='Create'
           />
         ),
       })
@@ -601,170 +595,141 @@ export default function AddNewOrder() {
 
   function onSubmit() {
     setIsWarn(false)
-    setIsFatching(true)
-    const teams = transformTeamData(getTeamValues())
-    const clients: any = {
-      ...getClientValue(),
-      contactPersonId:
-        getClientValue().contactPersonId === NOT_APPLICABLE
-          ? null
-          : getClientValue().contactPersonId,
-    }
-    const rawProjectInfo = getProjectInfoValues()
-    // const subtotal = getItem().items.reduce(
-    //   (acc, item) => acc + item.totalPrice,
-    //   0,
-    // )
-
-    const projectInfo = {
-      ...rawProjectInfo,
-      // isTaxable : taxable,
-      orderedAt: changeTimeZoneOffset(
-        formatISO(rawProjectInfo.orderedAt),
-        rawProjectInfo.orderTimezone,
-      ),
-      orderTimezone: {
-        ...rawProjectInfo.orderTimezone,
-        code: '',
-        phone: '',
-      },
-      projectDueAt: rawProjectInfo.projectDueAt
-        ? changeTimeZoneOffset(
-            formatISO(rawProjectInfo.projectDueAt),
-            rawProjectInfo.projectDueTimezone,
-          )
-        : undefined,
-      projectDueTimezone: {
-        ...rawProjectInfo.projectDueTimezone,
-        code: '',
-        phone: '',
-      },
-      isTaxable: rawProjectInfo.isTaxable ? '1' : '0',
-      tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
-      subtotal: subPrice,
-    }
-
-    const items: Array<PostItemType> = getItem().items.map((item, idx) => {
-      const {
-        contactPerson,
-        minimumPrice,
-        priceFactor,
-        source,
-        target,
-        ...filterItem
-      } = item
-      return {
-        ...filterItem,
-        // contactPersonId: item.contactPerson?.id!,
-        contactPersonId: item.contactPersonId!,
-        description: item.description || '',
-        analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-        showItemDescription: item.showItemDescription ? '1' : '0',
-        minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
-        minimumPrice: item.minimumPriceApplied ? item.minimumPrice : null,
-        // name: item.itemName,
-        sourceLanguage: item.source,
-        targetLanguage: item.target,
-        sortingOrder: idx + 1,
+    try {
+      setIsFatching(true)
+    
+      const teams = transformTeamData(getTeamValues())
+      const clients: any = {
+        ...getClientValue(),
+        contactPersonId:
+          getClientValue().contactPersonId === NOT_APPLICABLE
+            ? null
+            : getClientValue().contactPersonId,
       }
-    })
-    const langs = getItem('languagePairs').map(item => {
-      if (item?.price?.id) {
+      const rawProjectInfo = getProjectInfoValues()
+      // const subtotal = getItem().items.reduce(
+      //   (acc, item) => acc + item.totalPrice,
+      //   0,
+      // )
+
+      const projectInfo = {
+        ...rawProjectInfo,
+        // isTaxable : taxable,
+        orderedAt: changeTimeZoneOffset(
+          formatISO(rawProjectInfo.orderedAt),
+          rawProjectInfo.orderTimezone,
+        ),
+        orderTimezone: {
+          ...rawProjectInfo.orderTimezone,
+          code: '',
+          phone: '',
+        },
+        projectDueAt: rawProjectInfo.projectDueAt
+          ? changeTimeZoneOffset(
+              formatISO(rawProjectInfo.projectDueAt),
+              rawProjectInfo.projectDueTimezone,
+            )
+          : undefined,
+        projectDueTimezone: {
+          ...rawProjectInfo.projectDueTimezone,
+          code: '',
+          phone: '',
+        },
+        isTaxable: rawProjectInfo.isTaxable ? '1' : '0',
+        tax: !rawProjectInfo.isTaxable ? null : rawProjectInfo.tax,
+        subtotal: subPrice,
+      }
+
+      const items: Array<PostItemType> = getItem().items.map((item, idx) => {
+        const {
+          contactPerson,
+          minimumPrice,
+          priceFactor,
+          source,
+          target,
+          ...filterItem
+        } = item
+        return {
+          ...filterItem,
+          // contactPersonId: item.contactPerson?.id!,
+          contactPersonId: item.contactPersonId!,
+          description: item.description || '',
+          analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+          showItemDescription: item.showItemDescription ? '1' : '0',
+          minimumPriceApplied: item.minimumPriceApplied ? '1' : '0',
+          minimumPrice: item.minimumPriceApplied ? item.minimumPrice : null,
+          // name: item.itemName,
+          sourceLanguage: item.source,
+          targetLanguage: item.target,
+          sortingOrder: idx + 1,
+        }
+      })
+      const langs = getItem('languagePairs').map(item => {
+        if (item?.price?.id) {
+          return {
+            source: item.source,
+            target: item.target,
+            priceId: item.price.id,
+          }
+        }
         return {
           source: item.source,
           target: item.target,
-          priceId: item.price.id,
         }
+      })
+      const stepOneData = {
+        ...teams,
+        ...clients,
+        ...projectInfo,
+        quoteId: quoteId ?? null,
+        requestId: Number(requestId) ?? null,
       }
-      return {
-        source: item.source,
-        target: item.target,
-      }
-    })
-    const stepOneData = {
-      ...teams,
-      ...clients,
-      ...projectInfo,
-      quoteId: quoteId ?? null,
-      requestId: Number(requestId) ?? null,
-    }
 
-    const itemPriceIds = new Set(items.map(item => item.priceId))
+      const itemPriceIds = new Set(items.map(item => item.priceId))
 
-    // langs 배열을 filter 메서드로 필터링하여 items 배열에 없는 priceId를 가진 객체를 제거
-    const filteredLangs = langs.filter(lang =>
-      itemPriceIds.has(lang.priceId ?? 0),
-    )
+      // langs 배열을 filter 메서드로 필터링하여 items 배열에 없는 priceId를 가진 객체를 제거
+      const filteredLangs = langs.filter(lang =>
+        itemPriceIds.has(lang.priceId ?? 0),
+      )
 
-    const removedLangs = langs.filter(lang => !filteredLangs.includes(lang))
+      const removedLangs = langs.filter(lang => !filteredLangs.includes(lang))
 
-    // const matchingPrices =
-    //   prices &&
-    //   prices.filter(price =>
-    //     removedLangs.some(lang => lang.priceId === price.id),
-    //   )
+      // const matchingPrices =
+      //   prices &&
+      //   prices.filter(price =>
+      //     removedLangs.some(lang => lang.priceId === price.id),
+      //   )
 
-    // // 일치하는 객체들의 priceName만 추출
-    // const priceNames =
-    //   matchingPrices && matchingPrices.map(price => price.priceName)
+      // // 일치하는 객체들의 priceName만 추출
+      // const priceNames =
+      //   matchingPrices && matchingPrices.map(price => price.priceName)
 
-    createOrderInfo(stepOneData)
-      .then(res => {
-        if (res.id) {
-          Promise.all([
-            createLangPairForOrder(res.id, filteredLangs),
-            createItemsForOrder(res.id, items, isCopiedOrder ? '1' : '0'),
-          ])
-            .then(data => {
-              closeModal('onClickSaveOrder')
-              if (data[1].length > 0) {
-                openModal({
-                  type: 'CreateJobModal',
-                  children: (
-                    <CustomModal
-                      onClose={() => {
-                        closeModal('CreateJobModal')
-                        router.push(`/orders/order-list/detail/${res.id}`)
-                      }}
-                      leftButtonText='Later'
-                      rightButtonText='Create job'
-                      onClick={() => {
-                        closeModal('CreateJobModal')
-                        router.push({
-                          pathname: '/orders/job-list/details/',
-                          query: { orderId: res.id },
-                        })
-                      }}
-                      vary='successful'
-                      title={
-                        <>
-                          Would you like to create jobs from this order?
-                          <Typography
-                            variant='body2'
-                            fontWeight={600}
-                            fontSize={16}
-                          >
-                            [{res.corporationId}] {res.projectName}
-                          </Typography>
-                        </>
-                      }
-                    />
-                  ),
+      createOrderInfo(stepOneData)
+        .then(res => {
+          if (res.id) {
+            Promise.all([
+              createLangPairForOrder(res.id, filteredLangs),
+              createItemsForOrder(res.id, items, isCopiedOrder ? '1' : '0'),
+            ])
+              .then(data => {
+                closeModal('onClickSaveOrder')
+                toast.success('Saved successfully.', {
+                  position: 'bottom-left',
                 })
-              } else {
                 router.push(`/orders/order-list/detail/${res.id}`)
-              }
-            })
-            .catch(e => onRequestError())
-            .finally(() => {
-              setIsFatching(false)
-            })
-        }
-      })
-      .catch(e => onRequestError())
-      .finally(() => {
-        setIsFatching(false)
-      })
+              })
+              .catch(e => onRequestError())
+              .finally(() => {
+                setIsFatching(false)
+              })
+          }
+        })
+        .catch(e => onRequestError())
+    } catch (e) {
+      onRequestError()
+    } finally {
+      setIsFatching(false)
+    }
   }
 
   function onRequestError() {
