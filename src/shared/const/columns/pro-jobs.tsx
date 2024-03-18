@@ -13,8 +13,8 @@ import { ProJobListType } from '@src/types/jobs/jobs.type'
 import dayjs from 'dayjs'
 import { useRecoilValueLoadable } from 'recoil'
 import { MouseEvent } from 'react'
-import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
 import { timezoneSelector } from '@src/states/permission'
+import InfoDialogButton from '@src/views/pro/infoDialog'
 
 export const getProJobColumns = (
   statusList: {
@@ -37,10 +37,12 @@ export const getProJobColumns = (
     })
   }
 
-  const getJobDateDiff = (jobDueDate: string, useRemainingTime: Boolean, deliveredDate?: string) => {
-    const now = deliveredDate
-      ? dayjs(deliveredDate)
-      : dayjs()
+  const getJobDateDiff = (
+    jobDueDate: string,
+    useRemainingTime: Boolean,
+    deliveredDate?: string,
+  ) => {
+    const now = deliveredDate ? dayjs(deliveredDate) : dayjs()
 
     const dueDate = dayjs(jobDueDate)
 
@@ -163,7 +165,7 @@ export const getProJobColumns = (
       },
     },
     {
-      flex: 0.1568,
+      flex: 0.18,
       minWidth: 196,
       field: 'status',
       headerName: 'Status',
@@ -178,7 +180,22 @@ export const getProJobColumns = (
       renderCell: ({ row }: { row: ProJobListType }) => {
         const statusLabel =
           statusList?.find(i => i.value === row.status)?.label || ''
-        return <>{ProJobStatusChip(statusLabel, row.status)}</>
+
+        const isAwaitingPriorJob = false
+        // NOTE : Awaiting Prior job 일때 info dialog 추가
+        return (
+          <Box display='flex' alignItems='center'>
+            {ProJobStatusChip(statusLabel, row.status)}
+            {isAwaitingPriorJob && (
+              <InfoDialogButton
+                title='Awaiting prior job'
+                alertType='question-info'
+                iconName='fe:question'
+                contents='This state indicates that the previous job is waiting for completion. Once the previous job is finished, this job can start.'
+              />
+            )}
+          </Box>
+        )
       },
     },
     {
@@ -195,7 +212,7 @@ export const getProJobColumns = (
         </Typography>
       ),
       renderCell: ({ row }: { row: ProJobListType }) => {
-        return <ServiceTypeChip label={row.serviceType} />
+        return <ServiceTypeChip size='small' label={row.serviceType} />
       },
     },
     {
@@ -235,18 +252,19 @@ export const getProJobColumns = (
       renderCell: ({ row }: { row: ProJobListType }) => {
         return (
           <>
-            {auth.state === 'hasValue'
-              ? (
-                <Box>{
-                  getJobDateDiff(
-                    row.dueAt,
-                    [60100, 60200, 60300, 60400, 60500, 7000, 70100, 70300].includes(row.status)
-                      ? true
-                      : false,
-                    row.finalProDeliveredAt,
-                  )
-                }</Box>
-              ) : null}
+            {auth.state === 'hasValue' ? (
+              <Box>
+                {getJobDateDiff(
+                  row.dueAt,
+                  [
+                    60100, 60200, 60300, 60400, 60500, 7000, 70100, 70300,
+                  ].includes(row.status)
+                    ? true
+                    : false,
+                  row.finalProDeliveredAt,
+                )}
+              </Box>
+            ) : null}
           </>
         )
       },

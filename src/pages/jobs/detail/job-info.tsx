@@ -192,8 +192,8 @@ const ProJobInfo = ({
         return value.type === 'SAMPLE'
       }
     })
-    .map((file: JobsFileType) => (
-      <Box key={uuidv4()}>
+    .map((file: JobsFileType, index) => (
+      <Box key={`${file.id}-${index}`}>
         <Box
           sx={{ display: 'flex', gap: '10px', alignItems: 'center', mb: '5px' }}
         >

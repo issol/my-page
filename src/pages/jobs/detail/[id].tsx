@@ -23,8 +23,8 @@ import ProJobInfo from './job-info'
 import { useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { statusType } from '@src/types/common/status.type'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
+import InfoDialogButton from '@src/views/pro/infoDialog'
 
 type MenuType = 'jobInfo' | 'feedback'
 
@@ -65,6 +65,7 @@ const ProJobsDetail = () => {
     }
   }, [jobDetail, isLoading, id])
 
+  // @ts-ignore
   const { data: jobPrices } = useGetJobPrices(
     Number(id),
     !!(assigned && assigned === 'false'),
@@ -99,23 +100,6 @@ const ProJobsDetail = () => {
     assignmentStatusListLoading,
   ])
 
-  const onClickInfoIcon = () => {
-    openModal({
-      type: 'ConnectedJobsInfoAlert',
-      children: (
-        <CustomModal
-          onClose={() => closeModal('ConnectedJobsInfoAlert')}
-          vary='info'
-          title='Connected jobs'
-          rightButtonText=''
-          subtitle='This job has preceding or succeeding worker. The job entails either continuing the work based on the output of the previous contributor or passing on the completed task to the subsequent participant.'
-          onClick={() => {}}
-          noButton
-        />
-      ),
-    })
-  }
-
   return (
     <Box>
       <Box
@@ -142,17 +126,13 @@ const ProJobsDetail = () => {
           >{`${jobDetail?.order?.corporationId}-${jobDetail?.corporationId}`}</Typography>
           <Box display='flex' position='relative'>
             <Icon icon='ic:outline-people' fontSize={32} color='#8D8E9A' />
-            <IconButton
-              onClick={() => onClickInfoIcon()}
-              style={{ position: 'absolute', top: -6, left: 24 }}
-            >
-              <Icon
-                icon='material-symbols:info-outline'
-                fontSize={15}
-                color='#8D8E9A'
-                style={{ marginLeft: '8px' }}
+            <div style={{ position: 'absolute', top: 0, left: 36 }}>
+              <InfoDialogButton
+                title='Connected jobs'
+                style={{ position: 'absolute', top: 0, left: 0 }}
+                contents='This job has preceding or succeeding worker. The job entails either continuing the work based on the output of the previous contributor or passing on the completed task to the subsequent participant.'
               />
-            </IconButton>
+            </div>
           </Box>
         </Box>
       </Box>

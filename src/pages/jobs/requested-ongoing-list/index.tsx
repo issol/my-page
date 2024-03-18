@@ -101,13 +101,7 @@ const RequestedOngoingList = () => {
   }
 
   const onSubmit = (data: FilterType) => {
-    const {
-      jobDueDate,
-
-      client,
-
-      search,
-    } = data
+    const { jobDueDate, client, search } = data
 
     const filter: JobListFilterType = {
       client: client?.id,

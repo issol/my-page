@@ -78,7 +78,6 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
           whiteSpace='nowrap'
           overflow='hidden'
           textOverflow='ellipsis'
-          fontWeight={600}
         >
           {row.email}
         </Typography>
