@@ -70,6 +70,9 @@ const JobDetail = () => {
   const router = useRouter()
   const { openModal, closeModal } = useModal()
   const menuQuery = router.query.menu as MenuType
+  const roundQuery = router.query.round as string | undefined
+  const proId = router.query.proId as string | undefined
+
   const [jobDetail, setJobDetail] = useState<
     Array<{
       jobId: number
@@ -85,6 +88,11 @@ const JobDetail = () => {
     jobPrices: JobPricesDetailType
     jobAssign: JobAssignProRequestsType[]
   } | null>(null)
+
+  const [selectedAssign, setSelectedAssign] =
+    useState<JobAssignProRequestsType | null>(
+      selectedJobInfo?.jobAssign[0] ?? null,
+    )
   const [menu, setMenu] = useState<TabType>('linguistTeam')
   const [pastLinguistTeam, setPastLinguistTeam] = useState<{
     value: number
@@ -121,6 +129,10 @@ const JobDetail = () => {
   // const jobId = router.query.jobId
   const [jobId, setJobId] = useState<number[]>([])
   const [value, setValue] = useState<MenuType>('info')
+  const [addRoundMode, setAddRoundMode] = useState(false)
+  const [addProsMode, setAddProsMode] = useState(false)
+  const [assignProMode, setAssignProMode] = useState(false)
+
   const [selectionModel, setSelectionModel] = useState<{
     [key: string]: GridSelectionModel
   }>({})
@@ -240,6 +252,7 @@ const JobDetail = () => {
     selectedRequestOption: number,
     requestTerm: number | null,
     selectedProList: ProListType[],
+    existingProsLength: number,
   ) => {
     closeModal('RequestModal')
     //TODO API 연결
@@ -254,7 +267,7 @@ const JobDetail = () => {
       pros: selectedProList.map((value, index) => {
         return {
           userId: value.userId,
-          order: index + 1,
+          order: index + 1 + existingProsLength,
         }
       }),
     }
@@ -277,6 +290,11 @@ const JobDetail = () => {
           selectedPros={Object.values(selectedRows)
             .map(value => value.data)
             .flat()}
+          existingPros={
+            selectedJobInfo?.jobAssign.find(
+              value => value.round === selectedAssign?.round,
+            ) ?? null
+          }
         />
       ),
       isCloseable: true,
@@ -291,32 +309,62 @@ const JobDetail = () => {
     }
   }) => {
     const pro = Object.values(selectedRows)[0].data[0]
-
-    openModal({
-      type: 'AssignModal',
-      children: (
-        <CustomModalV2
-          onClick={() => closeModal('AssignModal')}
-          onClose={() => closeModal('AssignModal')}
-          title='Assign Pro?'
-          subtitle={
-            <>
-              Are you sure you want to assign{' '}
-              <Typography color='#666CFF' fontSize={16} fontWeight={600}>
-                {getLegalName({
-                  firstName: pro.firstName,
-                  middleName: pro.middleName,
-                  lastName: pro.lastName,
-                })}
-              </Typography>{' '}
-              to this job?
-            </>
-          }
-          vary='successful'
-          rightButtonText='Assign'
-        />
-      ),
-    })
+    const isOngoingRequest = selectedJobInfo?.jobAssign.filter(job =>
+      job.pros.every(pro => pro.assignmentStatus !== 70300),
+    )
+    if (isOngoingRequest && isOngoingRequest.length > 0) {
+      openModal({
+        type: 'AssignModal',
+        children: (
+          <CustomModalV2
+            onClick={() => closeModal('AssignModal')}
+            onClose={() => closeModal('AssignModal')}
+            title='Assign Pro?'
+            subtitle={
+              <>
+                Are you sure you want to assign{' '}
+                <Typography color='#666CFF' fontSize={16} fontWeight={600}>
+                  {getLegalName({
+                    firstName: pro.firstName,
+                    middleName: pro.middleName,
+                    lastName: pro.lastName,
+                  })}
+                </Typography>{' '}
+                to this job? Other request(s) will be terminated.
+              </>
+            }
+            vary='successful'
+            rightButtonText='Assign'
+          />
+        ),
+      })
+    } else {
+      openModal({
+        type: 'AssignModal',
+        children: (
+          <CustomModalV2
+            onClick={() => closeModal('AssignModal')}
+            onClose={() => closeModal('AssignModal')}
+            title='Assign Pro?'
+            subtitle={
+              <>
+                Are you sure you want to assign{' '}
+                <Typography color='#666CFF' fontSize={16} fontWeight={600}>
+                  {getLegalName({
+                    firstName: pro.firstName,
+                    middleName: pro.middleName,
+                    lastName: pro.lastName,
+                  })}
+                </Typography>{' '}
+                to this job?
+              </>
+            }
+            vary='successful'
+            rightButtonText='Assign'
+          />
+        ),
+      })
+    }
   }
 
   useEffect(() => {
@@ -331,6 +379,15 @@ const JobDetail = () => {
       setJobId(ids.map(id => Number(id)))
     }
   }, [router, menuQuery])
+
+  useEffect(() => {
+    if (
+      menuQuery &&
+      ['info', 'prices', 'assign', 'history'].includes(menuQuery)
+    ) {
+      setValue(menuQuery)
+    }
+  }, [menuQuery])
 
   useEffect(() => {
     console.log(jobAssignList)
@@ -356,6 +413,16 @@ const JobDetail = () => {
       setSelectedJobInfo(combinedList[0])
     }
   }, [jobInfoList, jobPriceList, jobAssignList])
+
+  useEffect(() => {
+    if (roundQuery && selectedJobInfo) {
+      setSelectedAssign(
+        selectedJobInfo.jobAssign.find(
+          assign => assign.round === Number(roundQuery),
+        ) ?? null,
+      )
+    }
+  }, [roundQuery, selectedJobInfo])
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -429,9 +496,14 @@ const JobDetail = () => {
         <Grid
           item
           xs={
-            selectedJobInfo &&
-            (selectedJobInfo.jobInfo.name === null ||
-              selectedJobInfo.jobPrices.priceId === null)
+            (selectedJobInfo &&
+              (selectedJobInfo.jobInfo.name === null ||
+                selectedJobInfo.jobPrices.priceId === null)) ||
+            (selectedJobInfo?.jobAssign &&
+              selectedJobInfo?.jobAssign.length > 0 &&
+              !addRoundMode &&
+              !addProsMode &&
+              !assignProMode)
               ? 10.416
               : 7.632
           }
@@ -575,6 +647,16 @@ const JobDetail = () => {
                       pastLinguistTeam={pastLinguistTeam}
                       languageList={languageList}
                       onSearch={onSearch}
+                      roundQuery={roundQuery}
+                      proId={proId}
+                      addRoundMode={addRoundMode}
+                      setAddRoundMode={setAddRoundMode}
+                      addProsMode={addProsMode}
+                      setAddProsMode={setAddProsMode}
+                      assignProMode={assignProMode}
+                      setAssignProMode={setAssignProMode}
+                      selectedAssign={selectedAssign}
+                      setSelectedAssign={setSelectedAssign}
                     />
                   )}
                 </TabPanel>
@@ -825,23 +907,57 @@ const JobDetail = () => {
                     // bottom: 0,
                   }}
                 >
-                  <Button variant='outlined' onClick={onClickRequest}>
-                    Request
-                  </Button>
-                  <Button
-                    variant='contained'
-                    disabled={
-                      Object.values(selectedRows).reduce(
-                        (sum, array) => sum + array.data.length,
-                        0,
-                      ) !== 1
-                    }
-                    onClick={() => {
-                      onClickAssign(selectedRows)
-                    }}
-                  >
-                    Assign
-                  </Button>
+                  {assignProMode ? null : (
+                    <Button
+                      variant={addProsMode ? 'contained' : 'outlined'}
+                      onClick={onClickRequest}
+                    >
+                      Request
+                    </Button>
+                  )}
+
+                  {addProsMode ? (
+                    <Button
+                      variant='outlined'
+                      onClick={() => {
+                        setAddProsMode(false)
+                        setAssignProMode(false)
+                        setSelectionModel({})
+                        setSelectedRows({})
+                        setSelectedLinguistTeam(null)
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  ) : (
+                    <Button
+                      variant={assignProMode ? 'contained' : 'outlined'}
+                      disabled={
+                        Object.values(selectedRows).reduce(
+                          (sum, array) => sum + array.data.length,
+                          0,
+                        ) !== 1
+                      }
+                      onClick={() => {
+                        onClickAssign(selectedRows)
+                      }}
+                    >
+                      Assign
+                    </Button>
+                  )}
+                  {assignProMode ? (
+                    <Button
+                      variant='outlined'
+                      onClick={() => {
+                        setAssignProMode(false)
+                        setSelectionModel({})
+                        setSelectedRows({})
+                        setSelectedLinguistTeam(null)
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  ) : null}
                 </Box>
               </Box>
             </Box>

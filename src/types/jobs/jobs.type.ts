@@ -296,7 +296,7 @@ export type JobRequestsProType = {
   middleName?: string
   lastName: string
   email: string
-  assignmentStatus: number
+  assignmentStatus: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600
   isOnboarded: boolean
   isActive: boolean
   assignmentStatusUpdatedAt: string
@@ -330,4 +330,5 @@ export type JobAssignProRequestsType = {
   type: 'relay' | 'bulkAuto' | 'bulkManual'
   round: number
   pros: Array<JobRequestsProType>
+  interval: number
 }

@@ -9,10 +9,13 @@ import {
   IconButton,
   InputAdornment,
   InputLabel,
+  Menu,
+  MenuItem,
   OutlinedInput,
   Popover,
   Switch,
   TextField,
+  Tooltip,
   Typography,
   styled,
 } from '@mui/material'
@@ -41,7 +44,7 @@ import { ProListType } from '@src/types/pro/list'
 import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { TabType } from '../..'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
-import _ from 'lodash'
+import _, { round } from 'lodash'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import {
   ServiceTypeList,
@@ -53,11 +56,18 @@ import {
 } from '@src/shared/const/category/categories'
 import { Category } from '@src/shared/const/category/category.enum'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
-import { JobAssignProRequestsType } from '@src/types/jobs/jobs.type'
+import {
+  JobAssignProRequestsType,
+  JobRequestsProType,
+} from '@src/types/jobs/jobs.type'
 import select from '@src/@core/theme/overrides/select'
 import { useRecoilValueLoadable } from 'recoil'
 import { timezoneSelector } from '@src/states/permission'
 import { authState } from '@src/states/auth'
+import useModal from '@src/hooks/useModal'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { useRouter } from 'next/router'
 
 type Props = {
   jobInfo: JobType
@@ -111,6 +121,16 @@ type Props = {
     label: GloLanguageEnum
   }[]
   onSearch: () => void
+  roundQuery: string | undefined
+  proId: string | undefined
+  addRoundMode: boolean
+  setAddRoundMode: Dispatch<SetStateAction<boolean>>
+  addProsMode: boolean
+  setAddProsMode: Dispatch<SetStateAction<boolean>>
+  assignProMode: boolean
+  setAssignProMode: Dispatch<SetStateAction<boolean>>
+  selectedAssign: JobAssignProRequestsType | null
+  setSelectedAssign: Dispatch<SetStateAction<JobAssignProRequestsType | null>>
 }
 
 function loadServerRows(
@@ -151,11 +171,30 @@ const AssignPro = ({
   activeFilter,
   languageList,
   onSearch,
+  roundQuery,
+  proId,
+  addRoundMode,
+  setAddRoundMode,
+  addProsMode,
+  setAddProsMode,
+  assignProMode,
+  setAssignProMode,
+  selectedAssign,
+  setSelectedAssign,
 }: Props) => {
+  const { openModal, closeModal } = useModal()
+  console.log(selectionModel, 'test')
+  console.log(selectedRows, 'test')
+
+  const [detailAnchorEl, setDetailAnchorEl] =
+    useState<HTMLButtonElement | null>(null)
+
+  const [listAnchorEl, setListAnchorEl] = useState<HTMLButtonElement | null>(
+    null,
+  )
   const auth = useRecoilValueLoadable(authState)
   const timezoneList = useRecoilValueLoadable(timezoneSelector)
-  const [selectedAssign, setSelectedAssign] =
-    useState<JobAssignProRequestsType | null>(jobAssign[0])
+
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [loading, setLoading] = useState(false)
@@ -167,12 +206,113 @@ const AssignPro = ({
     useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
 
+  const [proIdQuery, setProIdQuery] = useState<number | null>(null)
+
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget)
   }
 
   const handleClose = () => {
     setAnchorEl(null)
+  }
+
+  const handleDetailClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setDetailAnchorEl(event.currentTarget)
+  }
+
+  const handleDetailClose = () => {
+    setDetailAnchorEl(null)
+  }
+
+  const handleListClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setListAnchorEl(event.currentTarget)
+  }
+
+  const handleListClose = () => {
+    setListAnchorEl(null)
+  }
+
+  const handleAssign = () => {
+    closeModal('AssignProModal')
+  }
+
+  const handleCancelRequest = () => {
+    closeModal('CancelRequestProModal')
+  }
+
+  const handleReAssign = () => {
+    closeModal('ReAssignProModal')
+  }
+
+  const onClickAssign = (row: JobRequestsProType) => {
+    openModal({
+      type: 'AssignProModal',
+      children: (
+        <CustomModalV2
+          title='Assign Pro?'
+          subtitle={
+            <>
+              Are you sure you want to assign{' '}
+              <Typography fontWeight={600} color='#666CFF'>
+                {getLegalName({
+                  firstName: row.firstName,
+                  lastName: row.lastName,
+                  middleName: row.middleName,
+                })}
+              </Typography>{' '}
+              to this job? Other request(s) will be terminated.
+            </>
+          }
+          onClick={() => {
+            handleAssign()
+          }}
+          onClose={() => closeModal('AssignProModal')}
+          rightButtonText='Assign'
+          vary='successful'
+        />
+      ),
+    })
+  }
+
+  const onClickCancel = (row: JobRequestsProType) => {
+    openModal({
+      type: 'CancelRequestProModal',
+      children: (
+        <CustomModalV2
+          title='Cancel request?'
+          subtitle={
+            'Are you sure you want to cancel the job request of this Pro?'
+          }
+          onClick={() => {
+            handleCancelRequest()
+          }}
+          onClose={() => closeModal('CancelRequestProModal')}
+          rightButtonText='Cancel request'
+          leftButtonText='No'
+          vary='error-alert'
+        />
+      ),
+    })
+  }
+
+  const onClickReAssign = (row: JobRequestsProType) => {
+    openModal({
+      type: 'ReAssignProModal',
+      children: (
+        <CustomModalV2
+          title='Re-assign Pro?'
+          subtitle={
+            'Are you sure you want to re-assign Pro? The assignment of the current Pro will be canceled.'
+          }
+          onClick={() => {
+            handleReAssign()
+          }}
+          onClose={() => closeModal('ReAssignProModal')}
+          rightButtonText='Re-assign'
+          vary='error-alert'
+        />
+      ),
+    })
   }
 
   const onReset = () => {
@@ -331,11 +471,19 @@ const AssignPro = ({
     }
   }, [selectedLinguistTeam])
 
-  console.log(rows)
+  useEffect(() => {
+    if (proId) {
+      setProIdQuery(Number(proId))
+    }
+  }, [proId])
 
   return (
     <>
-      {jobAssign && jobAssign.length > 0 ? (
+      {jobAssign &&
+      jobAssign.length > 0 &&
+      !addRoundMode &&
+      !addProsMode &&
+      !assignProMode ? (
         <Box sx={{ height: '100%' }}>
           <Box
             sx={{
@@ -377,37 +525,172 @@ const AssignPro = ({
                 color: '#8D8E9A',
               }}
               // TODO 새로운 페이지 추가 액션
+              onClick={() => setAddRoundMode(true)}
               // onClick={() => setRound(assign.round)}
             >
               + Round{jobAssign.length + 1}
             </Button>
           </Box>
-          <Box
-            sx={{
-              padding: '20px',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              display: 'flex',
-              borderTop: '1px solid #E9EAEC',
-            }}
-          >
-            <Typography fontSize={16} fontWeight={600}>
-              {selectedAssign?.type === 'relay'
-                ? 'Relay request'
-                : selectedAssign?.type === 'bulkAuto'
-                  ? 'Bulk request - First come first served'
-                  : selectedAssign?.type === 'bulkManual'
-                    ? 'Bulk request - Manual assign'
-                    : '-'}{' '}
-              ({selectedAssign?.pros.length ?? 0})
-            </Typography>
-            <IconButton
-              sx={{ width: '24px', height: '24px', padding: 0 }}
-              // onClick={handleClick}
+          {selectedAssign ? (
+            <Box
+              sx={{
+                padding: '20px',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                display: 'flex',
+                borderTop: '1px solid #E9EAEC',
+              }}
             >
-              <Icon icon='mdi:dots-horizontal' />
-            </IconButton>
-          </Box>
+              <Typography fontSize={16} fontWeight={600}>
+                {selectedAssign?.type === 'relay'
+                  ? 'Relay request'
+                  : selectedAssign?.type === 'bulkAuto'
+                    ? 'Bulk request - First come first served'
+                    : selectedAssign?.type === 'bulkManual'
+                      ? 'Bulk request - Manual assign'
+                      : '-'}{' '}
+                ({selectedAssign?.pros.length ?? 0})
+              </Typography>
+              <Box>
+                <IconButton
+                  sx={{ width: '24px', height: '24px', padding: 0 }}
+                  onClick={handleListClick}
+                >
+                  <Icon icon='mdi:dots-horizontal' />
+                </IconButton>
+                <Menu
+                  elevation={8}
+                  anchorEl={listAnchorEl}
+                  id='customized-menu'
+                  onClose={handleListClose}
+                  open={Boolean(listAnchorEl)}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                >
+                  {selectedAssign.pros.some(
+                    pro => pro.assignmentStatus === 70300,
+                  ) ? null : (
+                    <MenuItem
+                      sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        padding: 0,
+                      }}
+                    >
+                      <Button
+                        startIcon={
+                          <Icon icon='ic:sharp-add' color='#4C4E648A' />
+                        }
+                        fullWidth
+                        onClick={() => {
+                          handleListClose()
+                          setAddProsMode(true)
+                        }}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          fontSize: 16,
+                          fontWeight: 400,
+                          color: 'rgba(76, 78, 100, 0.87)',
+                          borderRadius: 0,
+                        }}
+                      >
+                        Add Pros to this request
+                      </Button>
+                    </MenuItem>
+                  )}
+                  {selectedAssign.pros.some(
+                    pro => pro.assignmentStatus === 70300,
+                  ) ? null : (
+                    <MenuItem
+                      sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        padding: 0,
+                      }}
+                    >
+                      <Button
+                        startIcon={
+                          <Icon
+                            icon='tdesign:assignment-user'
+                            color='#4C4E648A'
+                          />
+                        }
+                        fullWidth
+                        onClick={() => {
+                          setAssignProMode(true)
+                          handleListClose()
+                        }}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          fontSize: 16,
+                          fontWeight: 400,
+                          color: 'rgba(76, 78, 100, 0.87)',
+                          borderRadius: 0,
+                        }}
+                      >
+                        Assign other Pro
+                      </Button>
+                    </MenuItem>
+                  )}
+                  {selectedAssign.type === 'relay' ? (
+                    <Tooltip title='In preparation'>
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                          justifyContent: 'flex-start',
+                          alignItems: 'flex-start',
+                          padding: 0,
+                        }}
+                        // disabled
+                      >
+                        <Button
+                          startIcon={<Icon icon='ic:outline-low-priority' />}
+                          fullWidth
+                          disabled
+                          onClick={() => {
+                            handleListClose()
+                          }}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            padding: '6px 16px',
+                            fontSize: 16,
+                            fontWeight: 400,
+                            color: 'rgba(76, 78, 100, 0.87)',
+                            borderRadius: 0,
+                          }}
+                        >
+                          Edit priority
+                        </Button>
+                      </MenuItem>
+                    </Tooltip>
+                  ) : null}
+                </Menu>
+              </Box>
+            </Box>
+          ) : null}
+
           <Box sx={{ height: '100%' }}>
             <DataGrid
               // autoHeight
@@ -418,40 +701,18 @@ const AssignPro = ({
               columns={getProJobAssignColumnsForRequest(
                 auth,
                 timezoneList.getValue(),
+                selectedAssign?.pros || [],
+                detailAnchorEl,
+                handleDetailClick,
+                handleDetailClose,
+                onClickAssign,
+                onClickCancel,
+                onClickReAssign,
               )}
-              // checkboxSelection
-              // selectionModel={
-              //   selectionModel[selectedLinguistTeam?.label || ''] || []
-              // }
-              // isRowSelectable={row => {
-              //   return !Object.entries(selectionModel)
-              //     .filter(([key]) => key !== selectedLinguistTeam?.label)
-              //     .map(([, value]) => value)
-              //     .flat()
-              //     .includes(row.row.userId)
-              // }}
-              // onSelectionModelChange={handleSelectionModelChange}
               keepNonExistentRowsSelected
               getRowId={row => row.userId}
-              // pagination
-              // paginationMode='server'
-              // page={filter.skip}
-              // pageSize={filter.take}
-              // rowsPerPageOptions={[10, 25, 50]}
-              // rowCount={proList.totalCount || 0}
-              // loading={loading}
-              // onPageChange={(n: number) => {
-              //   setFilter({ ...filter, skip: n })
-              //   setActiveFilter({
-              //     ...activeFilter,
-              //     skip: n * activeFilter.take!,
-              //   })
-              // }}
-              // onPageSizeChange={(n: number) => {
-              //   setFilter({ ...filter, take: n })
-              //   setActiveFilter({ ...activeFilter, take: n })
-              // }}
               hideFooterSelectedRowCount
+              hideFooter
             />
           </Box>
         </Box>
@@ -1018,17 +1279,33 @@ const AssignPro = ({
                   detail?.isPrioritized ?? false,
                   false,
                   false,
+                  assignProMode,
+                  selectionModel[selectedLinguistTeam?.label || ''],
+                  setSelectionModel,
+                  selectedLinguistTeam?.label || '',
+                  setSelectedRows,
+                  detail?.pros,
                 )}
-                checkboxSelection
+                checkboxSelection={!assignProMode}
                 selectionModel={
                   selectionModel[selectedLinguistTeam?.label || ''] || []
                 }
                 isRowSelectable={row => {
-                  return !Object.entries(selectionModel)
-                    .filter(([key]) => key !== selectedLinguistTeam?.label)
-                    .map(([, value]) => value)
-                    .flat()
-                    .includes(row.row.userId)
+                  console.log('hi')
+
+                  return (
+                    !Object.entries(selectionModel)
+                      .filter(([key]) => key !== selectedLinguistTeam?.label)
+                      .map(([, value]) => value)
+                      .flat()
+                      .includes(row.row.userId) &&
+                    !jobAssign
+                      .filter(job =>
+                        job.pros.every(pro => pro.assignmentStatus !== 70300),
+                      )
+                      .flatMap(job => job.pros.map(pro => pro.userId))
+                      .includes(row.row.userId)
+                  )
                 }}
                 onSelectionModelChange={handleSelectionModelChange}
                 keepNonExistentRowsSelected
@@ -1061,17 +1338,35 @@ const AssignPro = ({
                   NoRowsOverlay: () => NoList('No matching results found'),
                   NoResultsOverlay: () => NoList('No matching results found'),
                 }}
-                columns={getProJobAssignColumns(false, false, false)}
-                checkboxSelection
+                columns={getProJobAssignColumns(
+                  false,
+                  false,
+                  false,
+                  assignProMode,
+                  selectionModel[selectedLinguistTeam?.label || ''],
+                  setSelectionModel,
+                  selectedLinguistTeam?.label || '',
+                  setSelectedRows,
+                  detail?.pros,
+                )}
+                checkboxSelection={!assignProMode}
                 selectionModel={
                   selectionModel[selectedLinguistTeam?.label || ''] || []
                 }
                 isRowSelectable={row => {
-                  return !Object.entries(selectionModel)
-                    .filter(([key]) => key !== selectedLinguistTeam?.label)
-                    .map(([, value]) => value)
-                    .flat()
-                    .includes(row.row.userId)
+                  return (
+                    !Object.entries(selectionModel)
+                      .filter(([key]) => key !== selectedLinguistTeam?.label)
+                      .map(([, value]) => value)
+                      .flat()
+                      .includes(row.row.userId) &&
+                    !jobAssign
+                      .filter(job =>
+                        job.pros.every(pro => pro.assignmentStatus !== 70300),
+                      )
+                      .flatMap(job => job.pros.map(pro => pro.userId))
+                      .includes(row.row.userId)
+                  )
                 }}
                 onSelectionModelChange={handleSelectionModelChange}
                 keepNonExistentRowsSelected

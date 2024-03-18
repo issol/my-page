@@ -21,21 +21,36 @@ import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { ProStatusChip } from '@src/@core/components/chips/chips'
 import registDND from '@src/pages/pro/linguist-team/add-new/components/dnd'
+import {
+  JobAssignProRequestsType,
+  JobRequestsProType,
+} from '@src/types/jobs/jobs.type'
 
 type Props = {
   onClick: (
     selectedRequestOption: number,
     requestTerm: number | null,
     selectedProList: ProListType[],
+    existingProsLength: number,
   ) => void
   onClose: () => void
   selectedPros: ProListType[]
+  existingPros: JobAssignProRequestsType | null
 }
 
-const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
+const RequestSummaryModal = ({
+  onClick,
+  onClose,
+  selectedPros,
+  existingPros,
+}: Props) => {
+  console.log(existingPros)
+
   const { openModal, closeModal } = useModal()
   const [selectedRequestOption, setSelectedRequestOption] = useState(0)
-  const [requestTerm, setRequestTerm] = useState<number | null>(null)
+  const [requestTerm, setRequestTerm] = useState<number | null>(
+    existingPros ? existingPros.interval : null,
+  )
   const [selectedProList, setSelectedProList] =
     useState<ProListType[]>(selectedPros)
   const onClickRequestOptionHelperIcon = () => {
@@ -122,9 +137,29 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
 
   useEffect(() => {
     setSelectedProList(
-      selectedPros.map((value, index) => ({ ...value, order: index + 1 })),
+      selectedPros.map((value, index) => ({
+        ...value,
+        order:
+          index +
+          1 +
+          (existingPros && existingPros?.pros?.length
+            ? existingPros?.pros?.length
+            : 0),
+      })),
     )
-  }, [selectedPros])
+  }, [selectedPros, existingPros])
+
+  useEffect(() => {
+    if (existingPros) {
+      setSelectedRequestOption(
+        existingPros.type === 'relay'
+          ? 0
+          : existingPros.type === 'bulkAuto'
+            ? 1
+            : 2,
+      )
+    }
+  }, [existingPros])
 
   useEffect(() => {
     const clear = registDND(({ source, destination }) => {
@@ -198,158 +233,168 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
             </IconButton>
           </Box>
           <Grid container spacing={4}>
-            <Grid item xs={4}>
-              <Box
-                sx={{
-                  border:
-                    selectedRequestOption === 0
-                      ? '1px solid #666CFF'
-                      : '1px solid #8D8E9A',
-                  padding: '8px 20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  borderRadius: '5px',
-                  height: '61px',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setSelectedRequestOption(0)}
-              >
-                <Icon
-                  icon='simple-icons:relay'
-                  fontSize={24}
-                  color={selectedRequestOption === 0 ? '#666CFF' : '#8D8E9A'}
-                />
-                <Typography
-                  fontSize={14}
-                  fontWeight={500}
-                  color={selectedRequestOption === 0 ? '#666CFF' : '#8D8E9A'}
-                >
-                  Relay request
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={4}>
-              <Box
-                sx={{
-                  border:
-                    selectedRequestOption === 1
-                      ? '1px solid #666CFF'
-                      : '1px solid #8D8E9A',
-                  padding: '8px 0px 8px 20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  borderRadius: '5px',
-                  height: '61px',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setSelectedRequestOption(1)}
-              >
+            {existingPros && existingPros.type === 'relay' ? (
+              <Grid item xs={4}>
                 <Box
                   sx={{
+                    border:
+                      selectedRequestOption === 0
+                        ? '1px solid #666CFF'
+                        : '1px solid #8D8E9A',
+                    padding: '8px 20px',
                     display: 'flex',
-                    gap: '8px',
-
                     alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    borderRadius: '5px',
+                    height: '61px',
+                    cursor: 'pointer',
                   }}
+                  onClick={() => setSelectedRequestOption(0)}
                 >
                   <Icon
-                    icon='mdi:run-fast'
+                    icon='simple-icons:relay'
                     fontSize={24}
-                    color={selectedRequestOption === 1 ? '#666CFF' : '#8D8E9A'}
+                    color={selectedRequestOption === 0 ? '#666CFF' : '#8D8E9A'}
                   />
+                  <Typography
+                    fontSize={14}
+                    fontWeight={500}
+                    color={selectedRequestOption === 0 ? '#666CFF' : '#8D8E9A'}
+                  >
+                    Relay request
+                  </Typography>
+                </Box>
+              </Grid>
+            ) : null}
+            {existingPros && existingPros.type === 'bulkAuto' ? (
+              <Grid item xs={4}>
+                <Box
+                  sx={{
+                    border:
+                      selectedRequestOption === 1
+                        ? '1px solid #666CFF'
+                        : '1px solid #8D8E9A',
+                    padding: '8px 0px 8px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    borderRadius: '5px',
+                    height: '61px',
+                    cursor: 'pointer',
+                  }}
+                  onClick={() => setSelectedRequestOption(1)}
+                >
                   <Box
                     sx={{
                       display: 'flex',
-                      flexDirection: 'column',
+                      gap: '8px',
+
                       alignItems: 'center',
                     }}
                   >
-                    <Typography
-                      fontSize={14}
-                      fontWeight={500}
+                    <Icon
+                      icon='mdi:run-fast'
+                      fontSize={24}
                       color={
                         selectedRequestOption === 1 ? '#666CFF' : '#8D8E9A'
                       }
+                    />
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                      }}
                     >
-                      Bulk request
-                    </Typography>
-                    <Typography
-                      fontSize={14}
-                      fontWeight={400}
-                      color={
-                        selectedRequestOption === 1 ? '#666CFF' : '#8D8E9A'
-                      }
-                    >
-                      (First come first served)
-                    </Typography>
+                      <Typography
+                        fontSize={14}
+                        fontWeight={500}
+                        color={
+                          selectedRequestOption === 1 ? '#666CFF' : '#8D8E9A'
+                        }
+                      >
+                        Bulk request
+                      </Typography>
+                      <Typography
+                        fontSize={14}
+                        fontWeight={400}
+                        color={
+                          selectedRequestOption === 1 ? '#666CFF' : '#8D8E9A'
+                        }
+                      >
+                        (First come first served)
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
-            </Grid>
-            <Grid item xs={4}>
-              <Box
-                sx={{
-                  border:
-                    selectedRequestOption === 2
-                      ? '1px solid #666CFF'
-                      : '1px solid #8D8E9A',
-                  padding: '8px 20px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  borderRadius: '5px',
-                  height: '61px',
-                  cursor: 'pointer',
-                }}
-                onClick={() => setSelectedRequestOption(2)}
-              >
+              </Grid>
+            ) : null}
+            {existingPros && existingPros.type === 'bulkManual' ? (
+              <Grid item xs={4}>
                 <Box
                   sx={{
+                    border:
+                      selectedRequestOption === 2
+                        ? '1px solid #666CFF'
+                        : '1px solid #8D8E9A',
+                    padding: '8px 20px',
                     display: 'flex',
-                    gap: '8px',
-
                     alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    borderRadius: '5px',
+                    height: '61px',
+                    cursor: 'pointer',
                   }}
+                  onClick={() => setSelectedRequestOption(2)}
                 >
-                  <Icon
-                    icon='lucide:mouse-pointer-click'
-                    fontSize={24}
-                    color={selectedRequestOption === 2 ? '#666CFF' : '#8D8E9A'}
-                  />
                   <Box
                     sx={{
                       display: 'flex',
-                      flexDirection: 'column',
+                      gap: '8px',
+
                       alignItems: 'center',
                     }}
                   >
-                    <Typography
-                      fontSize={14}
-                      fontWeight={500}
+                    <Icon
+                      icon='lucide:mouse-pointer-click'
+                      fontSize={24}
                       color={
                         selectedRequestOption === 2 ? '#666CFF' : '#8D8E9A'
                       }
+                    />
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                      }}
                     >
-                      Bulk request
-                    </Typography>
-                    <Typography
-                      fontSize={14}
-                      fontWeight={400}
-                      color={
-                        selectedRequestOption === 2 ? '#666CFF' : '#8D8E9A'
-                      }
-                    >
-                      (Manual assign)
-                    </Typography>
+                      <Typography
+                        fontSize={14}
+                        fontWeight={500}
+                        color={
+                          selectedRequestOption === 2 ? '#666CFF' : '#8D8E9A'
+                        }
+                      >
+                        Bulk request
+                      </Typography>
+                      <Typography
+                        fontSize={14}
+                        fontWeight={400}
+                        color={
+                          selectedRequestOption === 2 ? '#666CFF' : '#8D8E9A'
+                        }
+                      >
+                        (Manual assign)
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
-              </Box>
-            </Grid>
+              </Grid>
+            ) : null}
           </Grid>
         </Box>
         <Box
@@ -370,7 +415,7 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
               NoRowsOverlay: () => <></>,
               NoResultsOverlay: () => <></>,
             }}
-            columns={getProJobAssignColumns(true, false, true)}
+            columns={getProJobAssignColumns(true, false, true, false)}
             hideFooter
           />
           <Box
@@ -436,7 +481,11 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
                           }}
                         >
                           <Typography fontWeight={600} fontSize={14}>
-                            {index + 1}
+                            {index +
+                              1 +
+                              (existingPros && existingPros?.pros?.length
+                                ? existingPros?.pros?.length
+                                : 0)}
                           </Typography>
                         </Box>
 
@@ -542,6 +591,7 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
               <FormControl className='filterFormControl'>
                 <TextField
                   value={requestTerm}
+                  disabled={existingPros ? true : false}
                   onChange={e => {
                     if (e.target.value) {
                       setRequestTerm(Number(e.target.value))
@@ -581,7 +631,12 @@ const RequestSummaryModal = ({ onClick, onClose, selectedPros }: Props) => {
             <Button
               variant='contained'
               onClick={() =>
-                onClick(selectedRequestOption, requestTerm, selectedProList)
+                onClick(
+                  selectedRequestOption,
+                  requestTerm,
+                  selectedProList,
+                  existingPros?.pros.length ?? 0,
+                )
               }
             >
               Confirm your request

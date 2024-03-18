@@ -466,13 +466,15 @@ const testData: JobAssignProRequestsType[] = Array.from(
   (_, i) => ({
     type: i % 3 === 0 ? 'relay' : i % 3 === 1 ? 'bulkAuto' : 'bulkManual',
     round: i + 1,
+    interval: 60,
     pros: [
       {
-        userId: i + 1,
+        userId: i === 0 ? 20 : 34,
         firstName: `FirstName${i + 1}`,
         lastName: `LastName${i + 1}`,
         email: `user${i + 1}@example.com`,
-        assignmentStatus: i % 2,
+        assignmentStatus: 70000,
+
         isOnboarded: i % 2 === 0,
         isActive: i % 2 === 1,
         assignmentStatusUpdatedAt: new Date().toISOString(),
