@@ -49,6 +49,9 @@ import {
   ManageStatusMode,
   ModeProps,
 } from '@src/views/jobDetails/viewModes'
+import AddJobTemplate from '@src/views/jobDetails/addJobTemplate'
+import useDialog from '@src/hooks/useDialog'
+import { Icon } from '@iconify/react'
 
 const HeadRowItemNames = [
   '',
@@ -99,6 +102,7 @@ const JobListCard = ({
   const { orderId, jobId } = router.query
 
   const currentRole = getCurrentRole()
+  const { isOpen, onOpen, onClose } = useDialog()
 
   const [open, setOpen] = useState<boolean>(true)
   const [isAddJobMenuOpen, setIsAddJobMenuOpen] = useState(false)
@@ -219,7 +223,7 @@ const JobListCard = ({
             </Box>
             <JobButton
               label='Add Job template'
-              onClick={() => {}}
+              onClick={() => onOpen()}
               disabled={viewState}
             >
               <TemplateIcon disabled={viewState} />
@@ -338,10 +342,18 @@ const JobListCard = ({
                           component='th'
                           scope='row'
                         >
-                          <ServiceTypeChip
-                            size='small'
-                            label={row.serviceType}
-                          />
+                          <Box display='flex' alignItems='center' gap='8px'>
+                            <ServiceTypeChip
+                              size='small'
+                              label={row.serviceType}
+                            />
+                            {/* NOTE : 트리거냐 아니냐에 따라 none/block 처리*/}
+                            <Icon
+                              icon='ic:outline-people'
+                              fontSize={24}
+                              color='#8D8E9A'
+                            />
+                          </Box>
                         </CustomTableCell>
 
                         <CustomTableCell
@@ -429,6 +441,7 @@ const JobListCard = ({
             </TableBody>
           </Table>
         </TableContainer>
+        <AddJobTemplate isOpen={isOpen} onClose={onClose} />
       </Collapse>
       {viewState && (
         <Card

@@ -316,7 +316,12 @@ export const AddJobMenu = ({ alertClose }: AddJobProps) => {
             }}
           />
         </Box>
-        <Button variant='contained' size='large' onClick={onClickAdd}>
+        <Button
+          variant='contained'
+          size='large'
+          onClick={onClickAdd}
+          disabled={selectedServiceType.length === 0}
+        >
           Add
         </Button>
       </Box>
