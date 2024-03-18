@@ -88,7 +88,7 @@ const LinguistTeamDetail = () => {
 
   const [editMode, setEditMode] = useState<boolean>(false)
 
-  const Writer = new linguist_team(data?.authorId!)
+  const Writer = new linguist_team(data?.author?.userId!)
   const isUpdatable = ability.can('update', Writer)
 
   const updateMutation = useMutation(
