@@ -733,6 +733,16 @@ const AssignPro = ({
         </Box>
       ) : (
         <Box sx={{ height: '100%' }}>
+          {addRoundMode || addProsMode ? (
+            <Box sx={{ padding: '20px 20px 0 20px' }}>
+              <Typography fontSize={14} fontWeight={600}>
+                Round{' '}
+                {addProsMode
+                  ? `${selectedAssign?.round}- Add Pros`
+                  : jobAssign.length + 1}
+              </Typography>
+            </Box>
+          ) : null}
           <Box
             sx={{
               display: 'flex',

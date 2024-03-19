@@ -132,6 +132,7 @@ const Message = ({ jobId, info, onClose }: Props) => {
           display: 'flex',
           justifyContent: 'space-between',
           borderBottom: '1px solid #E5E4E4',
+          alignItems: 'center',
         }}
       >
         <Typography fontSize={14} fontWeight={400} color='#8D8E9A'>

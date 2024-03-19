@@ -70,6 +70,7 @@ const JobDetail = () => {
   const router = useRouter()
   const { openModal, closeModal } = useModal()
   const menuQuery = router.query.menu as MenuType
+  const orderId = router.query.orderId as string
   const roundQuery = router.query.round as string | undefined
   const proId = router.query.proId as string | undefined
 
@@ -295,6 +296,7 @@ const JobDetail = () => {
               value => value.round === selectedAssign?.round,
             ) ?? null
           }
+          type={addProsMode ? 'add' : 'create'}
         />
       ),
       isCloseable: true,
@@ -443,7 +445,30 @@ const JobDetail = () => {
                   padding: '0 !important',
                   height: '24px',
                 }}
-                onClick={() => router.push('/orders/order-list')}
+                onClick={() => {
+                  if (addRoundMode) {
+                    setAddRoundMode(false)
+                    return
+                  } else if (addProsMode) {
+                    setAddProsMode(false)
+                    return
+                  } else if (assignProMode) {
+                    setAssignProMode(false)
+                    return
+                  }
+                  router.push({
+                    pathname: '/orders/job-list/details/',
+                    query:
+                      jobId.length === 1
+                        ? {
+                            orderId: orderId,
+                            jobId: jobId[0],
+                          }
+                        : {
+                            orderId: orderId,
+                          },
+                  })
+                }}
               >
                 <Icon icon='mdi:chevron-left' width={24} height={24} />
               </IconButton>
@@ -707,7 +732,7 @@ const JobDetail = () => {
                   <Typography
                     sx={{ padding: '20px' }}
                     fontSize={14}
-                    fontWeight={500}
+                    fontWeight={600}
                   >
                     Selected Pros (
                     {Object.values(selectedRows).reduce(

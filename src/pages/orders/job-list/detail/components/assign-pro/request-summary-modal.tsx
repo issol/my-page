@@ -36,6 +36,7 @@ type Props = {
   onClose: () => void
   selectedPros: ProListType[]
   existingPros: JobAssignProRequestsType | null
+  type: 'create' | 'add'
 }
 
 const RequestSummaryModal = ({
@@ -43,6 +44,7 @@ const RequestSummaryModal = ({
   onClose,
   selectedPros,
   existingPros,
+  type,
 }: Props) => {
   console.log(existingPros)
 
@@ -117,22 +119,40 @@ const RequestSummaryModal = ({
     })
   }
 
-  const onClickRequestTermHelperIcon = () => {
-    openModal({
-      type: 'RequestTermModal',
-      children: (
-        <CustomModalV2
-          noButton
-          closeButton
-          title='Request term'
-          subtitle="In the relay request method, this is the time interval between requests being passed from the previous Pro to the next Pro and can be set in minutes. If a Pro doesn't respond within their request term, their chance to respond is lost and the request is passed on to the next Pro."
-          vary='info'
-          onClose={() => closeModal('RequestTermModal')}
-          onClick={() => closeModal('RequestTermModal')}
-          rightButtonText=''
-        />
-      ),
-    })
+  const onClickHelperIcon = () => {
+    if (selectedRequestOption === 0) {
+      openModal({
+        type: 'RequestTermModal',
+        children: (
+          <CustomModalV2
+            noButton
+            closeButton
+            title='Request term'
+            subtitle="In the relay request method, this is the time interval between requests being passed from the previous Pro to the next Pro and can be set in minutes. If a Pro doesn't respond within their request term, their chance to respond is lost and the request is passed on to the next Pro."
+            vary='info'
+            onClose={() => closeModal('RequestTermModal')}
+            onClick={() => closeModal('RequestTermModal')}
+            rightButtonText=''
+          />
+        ),
+      })
+    } else {
+      openModal({
+        type: 'ReminderTimeModal',
+        children: (
+          <CustomModalV2
+            noButton
+            closeButton
+            title='Reminder time'
+            subtitle='When using the bulk request method, you can set the reminder time in minutes. If no one responds within the set period of time, a reminder notification is sent to the LPM.'
+            vary='info'
+            onClose={() => closeModal('ReminderTimeModal')}
+            onClick={() => closeModal('ReminderTimeModal')}
+            rightButtonText=''
+          />
+        ),
+      })
+    }
   }
 
   useEffect(() => {
@@ -173,6 +193,8 @@ const RequestSummaryModal = ({
     }, 'assign')
     return () => clear()
   }, [setSelectedProList])
+
+  console.log(existingPros)
 
   return (
     <Box
@@ -233,7 +255,8 @@ const RequestSummaryModal = ({
             </IconButton>
           </Box>
           <Grid container spacing={4}>
-            {existingPros && existingPros.type === 'relay' ? (
+            {(existingPros && existingPros.type === 'relay') ||
+            type === 'create' ? (
               <Grid item xs={4}>
                 <Box
                   sx={{
@@ -267,7 +290,8 @@ const RequestSummaryModal = ({
                 </Box>
               </Grid>
             ) : null}
-            {existingPros && existingPros.type === 'bulkAuto' ? (
+            {(existingPros && existingPros.type === 'bulkAuto') ||
+            type === 'create' ? (
               <Grid item xs={4}>
                 <Box
                   sx={{
@@ -331,7 +355,8 @@ const RequestSummaryModal = ({
                 </Box>
               </Grid>
             ) : null}
-            {existingPros && existingPros.type === 'bulkManual' ? (
+            {(existingPros && existingPros.type === 'bulkManual') ||
+            type === 'create' ? (
               <Grid item xs={4}>
                 <Box
                   sx={{
@@ -415,7 +440,12 @@ const RequestSummaryModal = ({
               NoRowsOverlay: () => <></>,
               NoResultsOverlay: () => <></>,
             }}
-            columns={getProJobAssignColumns(true, false, true, false)}
+            columns={getProJobAssignColumns(
+              selectedRequestOption === 0,
+              false,
+              true,
+              false,
+            )}
             hideFooter
           />
           <Box
@@ -466,52 +496,55 @@ const RequestSummaryModal = ({
                         borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
                       }}
                     >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          flex: 0.0936,
-                        }}
-                      >
+                      {selectedRequestOption === 0 ? (
                         <Box
                           sx={{
                             display: 'flex',
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
+                            flex: 0.0936,
                           }}
                         >
-                          <Typography fontWeight={600} fontSize={14}>
-                            {index +
-                              1 +
-                              (existingPros && existingPros?.pros?.length
-                                ? existingPros?.pros?.length
-                                : 0)}
-                          </Typography>
-                        </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flex: 1,
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <Typography fontWeight={600} fontSize={14}>
+                              {index +
+                                1 +
+                                (existingPros && existingPros?.pros?.length
+                                  ? existingPros?.pros?.length
+                                  : 0)}
+                            </Typography>
+                          </Box>
 
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            flex: 1,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            cursor: 'grab',
-                          }}
-                          className='dnd-handle'
-                        >
-                          <Icon
-                            icon='akar-icons:drag-vertical'
-                            fontSize={24}
-                            color='#8D8E9A'
-                          />
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flex: 1,
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                              cursor: 'grab',
+                            }}
+                            className='dnd-handle'
+                          >
+                            <Icon
+                              icon='akar-icons:drag-vertical'
+                              fontSize={24}
+                              color='#8D8E9A'
+                            />
+                          </Box>
                         </Box>
-                      </Box>
+                      ) : null}
+
                       <Box
                         sx={{
                           paddingLeft: '16px',
                           display: 'flex',
 
-                          flex: 0.3974,
+                          flex: selectedRequestOption === 0 ? 0.3974 : 0.45,
                         }}
                       >
                         <LegalNameEmail
@@ -533,7 +566,7 @@ const RequestSummaryModal = ({
                           display: 'flex',
                           alignItems: 'center',
                           paddingLeft: '20px',
-                          flex: 0.2308,
+                          flex: selectedRequestOption === 0 ? 0.2308 : 0.25,
                         }}
                       >
                         <ProStatusChip
@@ -546,7 +579,8 @@ const RequestSummaryModal = ({
                           display: 'flex',
                           alignItems: 'center',
                           paddingLeft: '20px',
-                          flex: 0.2782,
+
+                          flex: selectedRequestOption === 0 ? 0.2782 : 0.3,
                         }}
                       >
                         {!value.ongoingJobCount || value.ongoingJobCount === 0
@@ -575,19 +609,24 @@ const RequestSummaryModal = ({
               }}
             >
               <Typography fontSize={14} fontWeight={600}>
-                Request term
+                {selectedRequestOption === 0 ? 'Request term' : 'Reminder time'}
               </Typography>
-              <Typography fontSize={14} fontWeight={600} color='#666CFF'>
-                *
-              </Typography>
-              <IconButton
-                sx={{ padding: 0 }}
-                onClick={onClickRequestTermHelperIcon}
-              >
+              {selectedRequestOption === 0 ? (
+                <Typography fontSize={14} fontWeight={600} color='#666CFF'>
+                  *
+                </Typography>
+              ) : null}
+
+              <IconButton sx={{ padding: 0 }} onClick={onClickHelperIcon}>
                 <Icon icon='mdi:info-circle-outline' fontSize={18} />
               </IconButton>
             </Box>
             <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              {selectedRequestOption === 0 ? null : (
+                <Typography fontSize={14} fontWeight={400}>
+                  Remind me if nobody responds in&nbsp;
+                </Typography>
+              )}
               <FormControl className='filterFormControl'>
                 <TextField
                   value={requestTerm}
