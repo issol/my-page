@@ -50,6 +50,7 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
               overflow='hidden'
               textOverflow='ellipsis'
               fontWeight={600}
+              color='rgba(76, 78, 100, 0.87)'
             >
               {getLegalName({
                 firstName: row.firstName,
@@ -65,6 +66,7 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
             overflow='hidden'
             textOverflow='ellipsis'
             fontWeight={600}
+            color='rgba(76, 78, 100, 0.87)'
           >
             {getLegalName({
               firstName: row.firstName,
