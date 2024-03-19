@@ -14,7 +14,10 @@ import {
   GridRowId,
   GridSelectionModel,
 } from '@mui/x-data-grid'
-import { ProStatusChip } from '@src/@core/components/chips/chips'
+import {
+  ProStatusChip,
+  assignmentStatusChip,
+} from '@src/@core/components/chips/chips'
 import { ClientUserType, UserDataType } from '@src/context/types'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
@@ -216,6 +219,10 @@ export const getProJobAssignColumnsForRequest = (
   onClickReAssign: (row: JobRequestsProType) => void,
   onClickMessage: (row: JobRequestsProType) => void,
   requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
+  jobStatusList: {
+    value: number
+    label: string
+  }[],
 ) => {
   const columns: GridColumns<JobRequestsProType> = [
     {
@@ -281,10 +288,7 @@ export const getProJobAssignColumnsForRequest = (
             {row.assignmentStatus === null ? (
               '-'
             ) : (
-              <ProStatusChip
-                status={row.assignmentStatus.toString()}
-                label={row.assignmentStatus}
-              />
+              <>{assignmentStatusChip(row.assignmentStatus, jobStatusList)}</>
             )}
           </>
         )

@@ -70,6 +70,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
 import Message from './message-modal'
 import { UseMutationResult } from 'react-query'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type Props = {
   jobInfo: JobType
@@ -207,6 +208,8 @@ const AssignPro = ({
   )
   const auth = useRecoilValueLoadable(authState)
   const timezoneList = useRecoilValueLoadable(timezoneSelector)
+  const { data: jobStatusList, isLoading: statusListLoading } =
+    useGetStatusList('JobAssignment')
 
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(10)
@@ -739,6 +742,7 @@ const AssignPro = ({
                   onClickReAssign,
                   onClickMessage,
                   selectedAssign.type,
+                  jobStatusList || [],
                 )}
                 keepNonExistentRowsSelected
                 getRowId={row => row.userId}

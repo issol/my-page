@@ -523,7 +523,11 @@ const testData: JobAssignProRequestsType[] = Array.from(
 
 export const getJobAssignProRequests = async (
   id: number,
-): Promise<{ requests: Array<JobAssignProRequestsType>; id: number }> => {
+): Promise<{
+  requests: Array<JobAssignProRequestsType>
+  id: number
+  round: number
+}> => {
   console.log(id)
 
   const { data } = await axios.get(`/api/enough/u/job/${id}/request/list`)

@@ -87,6 +87,7 @@ const JobDetail = () => {
       jobInfo: JobType | undefined
       jobPrices: JobPricesDetailType | undefined
       jobAssign: JobAssignProRequestsType[]
+      jobAssignDefaultRound: number
     }>
   >([])
 
@@ -95,6 +96,7 @@ const JobDetail = () => {
     jobInfo: JobType
     jobPrices: JobPricesDetailType
     jobAssign: JobAssignProRequestsType[]
+    jobAssignDefaultRound: number
   } | null>(null)
 
   const [selectedAssign, setSelectedAssign] =
@@ -168,6 +170,7 @@ const JobDetail = () => {
       {
         requests: JobAssignProRequestsType[]
         id: number
+        round: number
       },
       unknown
     >[]
@@ -175,9 +178,7 @@ const JobDetail = () => {
 
   const { data: serviceTypeList } = useGetServiceType()
   const { data: clientList } = useGetSimpleClientList()
-  const { data: proList, isLoading } = useGetProList(activeFilter)
-
-  console.log(value, 'value')
+  const { data: proList } = useGetProList(activeFilter)
 
   const { data: linguistTeam, isLoading: linguistTeamLoading } =
     useGetLinguistTeam({
@@ -242,6 +243,9 @@ const JobDetail = () => {
         setSelectionModel({})
         setSelectedRows({})
         setSelectedLinguistTeam(null)
+        queryClient.invalidateQueries(['jobInfo'])
+        queryClient.invalidateQueries(['jobPrices'])
+        queryClient.invalidateQueries(['jobAssignProRequests'])
 
         // queryClient.invalidateQueries('jobRequest')
       },
@@ -455,6 +459,7 @@ const JobDetail = () => {
         jobPrices: jobPrices!,
         jobId: jobInfo!.id,
         jobAssign: jobAssign?.requests!,
+        jobAssignDefaultRound: jobAssign?.round ?? 1,
       }
     })
     if (JSON.stringify(combinedList) !== JSON.stringify(jobDetail)) {
@@ -550,6 +555,7 @@ const JobDetail = () => {
                         jobInfo: value.jobInfo!,
                         jobPrices: value.jobPrices!,
                         jobAssign: value.jobAssign!,
+                        jobAssignDefaultRound: value.jobAssignDefaultRound,
                       })
                       setValue('info')
                     }}
