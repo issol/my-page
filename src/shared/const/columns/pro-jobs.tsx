@@ -6,7 +6,6 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import useModal from '@src/hooks/useModal'
-import ProJobsMessage from '@src/pages/jobs/requested-ongoing-list/message'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { authState } from '@src/states/auth'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
@@ -15,6 +14,7 @@ import { useRecoilValueLoadable } from 'recoil'
 import { MouseEvent } from 'react'
 import { timezoneSelector } from '@src/states/permission'
 import InfoDialogButton from '@src/views/pro/infoDialog'
+import Message from '@src/views/jobDetails/messageModal'
 
 export const getProJobColumns = (
   statusList: {
@@ -26,6 +26,7 @@ export const getProJobColumns = (
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
+  console.log(auth.contents.user.id)
   const onClickMessage = (
     event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
     row: ProJobListType,
@@ -33,7 +34,13 @@ export const getProJobColumns = (
     event.stopPropagation()
     openModal({
       type: 'ProJobsMessageModal',
-      children: <ProJobsMessage row={row} />,
+      children: (
+        <Message
+          jobId={row.jobId}
+          info={row}
+          onClose={() => closeModal('ProJobsMessageModal')}
+        />
+      ),
     })
   }
 
@@ -250,17 +257,14 @@ export const getProJobColumns = (
         </Typography>
       ),
       renderCell: ({ row }: { row: ProJobListType }) => {
+        const status = [60100, 60200, 60300, 60400, 60500, 7000, 70100, 70300]
         return (
           <>
             {auth.state === 'hasValue' ? (
               <Box>
                 {getJobDateDiff(
                   row.dueAt,
-                  [
-                    60100, 60200, 60300, 60400, 60500, 7000, 70100, 70300,
-                  ].includes(row.status)
-                    ? true
-                    : false,
+                  status.includes(row.status),
                   row.finalProDeliveredAt,
                 )}
               </Box>
@@ -289,8 +293,6 @@ export const getProJobColumns = (
             <Badge badgeContent={row.message?.unReadCount} color='primary'>
               <IconButton
                 sx={{ padding: 0 }}
-                // disabled={row.assignmentStatus === null}
-
                 onClick={event => onClickMessage(event, row)}
               >
                 <Icon

@@ -1,16 +1,15 @@
 import axios from '@src/configs/axios'
 import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
-import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import {
   JobAssignProRequestsType,
+  jobPriceHistoryType,
   JobPricesDetailType,
   JobRequestFormType,
   ProJobDeliveryType,
   ProJobDetailType,
   ProJobFeedbackType,
-  jobPriceHistoryType,
 } from '@src/types/jobs/jobs.type'
 import {
   AssignProFilterPostType,
@@ -226,31 +225,33 @@ export const handleJobReAssign = async (
   }
 }
 
+type MessageItem = {
+  id: number
+  content: string
+  createdAt: string
+  firstName: string
+  middleName: string | null
+  lastName: string
+  email: string
+  role: string
+  isPro: boolean
+}
+
+export type Member = {
+  userId: number
+  firstName: string
+  middleName: string
+  lastName: string
+  role: string // lpm | pro
+}
+
 export const getMessageList = async (
   jobId: number,
   proId: number,
 ): Promise<{
   unReadCount: number
-  members: {
-    userId: number
-    firstName: string
-    middleName: string
-    lastName: string
-    role: string // lpm | pro
-  }[]
-  contents:
-    | {
-        id: number
-        content: string
-        createdAt: string
-        firstName: string
-        middleName: string | null
-        lastName: string
-        email: string
-        role: string
-        isPro: boolean
-      }[]
-    | null
+  members: Member[]
+  contents: MessageItem[] | null
 }> => {
   try {
     const { data } = await axios.get(
