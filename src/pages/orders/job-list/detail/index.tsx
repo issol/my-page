@@ -13,7 +13,11 @@ import {
   styled,
 } from '@mui/material'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
-import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
+import {
+  useGetJobAssignProRequests,
+  useGetJobInfo,
+  useGetJobPrices,
+} from '@src/queries/order/job.query'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import {
@@ -44,7 +48,9 @@ import { LinguistTeamProListFilterType } from '@src/types/pro/linguist-team'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { JobType } from '@src/types/common/item.type'
 import {
+  JobAssignProRequestsType,
   JobPricesDetailType,
+  JobRequestFormType,
   jobPriceHistoryType,
 } from '@src/types/jobs/jobs.type'
 import select from '@src/@core/theme/overrides/select'
@@ -52,7 +58,9 @@ import useModal from '@src/hooks/useModal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import RequestSummaryModal from './components/assign-pro/request-summary-modal'
-import { UseQueryResult } from 'react-query'
+import { UseQueryResult, useMutation } from 'react-query'
+import { createRequestJobToPro } from '@src/apis/jobs/job-detail.api'
+import { displayCustomToast } from '@src/shared/utils/toast'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -62,11 +70,16 @@ const JobDetail = () => {
   const router = useRouter()
   const { openModal, closeModal } = useModal()
   const menuQuery = router.query.menu as MenuType
+  const orderId = router.query.orderId as string
+  const roundQuery = router.query.round as string | undefined
+  const proId = router.query.proId as string | undefined
+
   const [jobDetail, setJobDetail] = useState<
     Array<{
       jobId: number
       jobInfo: JobType | undefined
       jobPrices: JobPricesDetailType | undefined
+      jobAssign: JobAssignProRequestsType[]
     }>
   >([])
 
@@ -74,14 +87,18 @@ const JobDetail = () => {
     jobId: number
     jobInfo: JobType
     jobPrices: JobPricesDetailType
+    jobAssign: JobAssignProRequestsType[]
   } | null>(null)
+
+  const [selectedAssign, setSelectedAssign] =
+    useState<JobAssignProRequestsType | null>(
+      selectedJobInfo?.jobAssign[0] ?? null,
+    )
   const [menu, setMenu] = useState<TabType>('linguistTeam')
   const [pastLinguistTeam, setPastLinguistTeam] = useState<{
     value: number
     label: string
   } | null>(null)
-  // const [proPage, setProPage] = useState(0)
-  // const [proPageSize, setProPageSize] = useState(10)
 
   const [filter, setFilter] = useState<LinguistTeamProListFilterType>({
     sourceLanguage: [],
@@ -113,6 +130,10 @@ const JobDetail = () => {
   // const jobId = router.query.jobId
   const [jobId, setJobId] = useState<number[]>([])
   const [value, setValue] = useState<MenuType>('info')
+  const [addRoundMode, setAddRoundMode] = useState(false)
+  const [addProsMode, setAddProsMode] = useState(false)
+  const [assignProMode, setAssignProMode] = useState(false)
+
   const [selectionModel, setSelectionModel] = useState<{
     [key: string]: GridSelectionModel
   }>({})
@@ -125,12 +146,22 @@ const JobDetail = () => {
   }>({})
 
   const languageList = getGloLanguage()
+
   const jobInfoList = (
     useGetJobInfo(jobId, false) as UseQueryResult<JobType, unknown>[]
   ).map(value => value.data)
   const jobPriceList = (
     useGetJobPrices(jobId, false) as UseQueryResult<
       JobPricesDetailType | jobPriceHistoryType,
+      unknown
+    >[]
+  ).map(value => value.data)
+  const jobAssignList = (
+    useGetJobAssignProRequests(jobId) as UseQueryResult<
+      {
+        requests: JobAssignProRequestsType[]
+        id: number
+      },
       unknown
     >[]
   ).map(value => value.data)
@@ -196,12 +227,52 @@ const JobDetail = () => {
     selectedLinguistTeam?.value || 0,
   )
 
+  const createRequestMutation = useMutation(
+    (data: JobRequestFormType) => createRequestJobToPro(data),
+    {
+      onSuccess: () => {
+        displayCustomToast('Requested successfully', 'success')
+        setSelectionModel({})
+        setSelectedRows({})
+        setSelectedLinguistTeam(null)
+
+        // queryClient.invalidateQueries('jobRequest')
+      },
+    },
+  )
+
   const onSearch = () => {
     setActiveFilter({
       ...filter,
       skip: filter.skip * activeFilter.take,
       take: activeFilter.take,
     })
+  }
+
+  const handleRequest = (
+    selectedRequestOption: number,
+    requestTerm: number | null,
+    selectedProList: ProListType[],
+    existingProsLength: number,
+  ) => {
+    closeModal('RequestModal')
+    //TODO API 연결
+    const result: JobRequestFormType = {
+      type:
+        selectedRequestOption === 0
+          ? 'relay'
+          : selectedRequestOption === 1
+            ? 'bulkAuto'
+            : 'bulkManual',
+      interval: requestTerm ?? undefined,
+      pros: selectedProList.map((value, index) => {
+        return {
+          userId: value.userId,
+          order: index + 1 + existingProsLength,
+        }
+      }),
+    }
+    createRequestMutation.mutate(result)
   }
 
   const onClickRequest = () => {
@@ -215,11 +286,17 @@ const JobDetail = () => {
       type: 'RequestModal',
       children: (
         <RequestSummaryModal
-          onClick={() => closeModal('RequestModal')}
+          onClick={handleRequest}
           onClose={() => closeModal('RequestModal')}
           selectedPros={Object.values(selectedRows)
             .map(value => value.data)
             .flat()}
+          existingPros={
+            selectedJobInfo?.jobAssign.find(
+              value => value.round === selectedAssign?.round,
+            ) ?? null
+          }
+          type={addProsMode ? 'add' : 'create'}
         />
       ),
       isCloseable: true,
@@ -234,32 +311,62 @@ const JobDetail = () => {
     }
   }) => {
     const pro = Object.values(selectedRows)[0].data[0]
-
-    openModal({
-      type: 'AssignModal',
-      children: (
-        <CustomModalV2
-          onClick={() => closeModal('AssignModal')}
-          onClose={() => closeModal('AssignModal')}
-          title='Assign Pro?'
-          subtitle={
-            <>
-              Are you sure you want to assign{' '}
-              <Typography color='#666CFF' fontSize={16} fontWeight={600}>
-                {getLegalName({
-                  firstName: pro.firstName,
-                  middleName: pro.middleName,
-                  lastName: pro.lastName,
-                })}
-              </Typography>{' '}
-              to this job?
-            </>
-          }
-          vary='successful'
-          rightButtonText='Assign'
-        />
-      ),
-    })
+    const isOngoingRequest = selectedJobInfo?.jobAssign.filter(job =>
+      job.pros.every(pro => pro.assignmentStatus !== 70300),
+    )
+    if (isOngoingRequest && isOngoingRequest.length > 0) {
+      openModal({
+        type: 'AssignModal',
+        children: (
+          <CustomModalV2
+            onClick={() => closeModal('AssignModal')}
+            onClose={() => closeModal('AssignModal')}
+            title='Assign Pro?'
+            subtitle={
+              <>
+                Are you sure you want to assign{' '}
+                <Typography color='#666CFF' fontSize={16} fontWeight={600}>
+                  {getLegalName({
+                    firstName: pro.firstName,
+                    middleName: pro.middleName,
+                    lastName: pro.lastName,
+                  })}
+                </Typography>{' '}
+                to this job? Other request(s) will be terminated.
+              </>
+            }
+            vary='successful'
+            rightButtonText='Assign'
+          />
+        ),
+      })
+    } else {
+      openModal({
+        type: 'AssignModal',
+        children: (
+          <CustomModalV2
+            onClick={() => closeModal('AssignModal')}
+            onClose={() => closeModal('AssignModal')}
+            title='Assign Pro?'
+            subtitle={
+              <>
+                Are you sure you want to assign{' '}
+                <Typography color='#666CFF' fontSize={16} fontWeight={600}>
+                  {getLegalName({
+                    firstName: pro.firstName,
+                    middleName: pro.middleName,
+                    lastName: pro.lastName,
+                  })}
+                </Typography>{' '}
+                to this job?
+              </>
+            }
+            vary='successful'
+            rightButtonText='Assign'
+          />
+        ),
+      })
+    }
   }
 
   useEffect(() => {
@@ -276,17 +383,48 @@ const JobDetail = () => {
   }, [router, menuQuery])
 
   useEffect(() => {
-    if (jobInfoList.includes(undefined) || jobPriceList.includes(undefined))
+    if (
+      menuQuery &&
+      ['info', 'prices', 'assign', 'history'].includes(menuQuery)
+    ) {
+      setValue(menuQuery)
+    }
+  }, [menuQuery])
+
+  useEffect(() => {
+    console.log(jobAssignList)
+
+    if (
+      jobInfoList.includes(undefined) ||
+      jobPriceList.includes(undefined) ||
+      jobAssignList.includes(undefined)
+    )
       return
     const combinedList = jobInfoList.map(jobInfo => {
       const jobPrices = jobPriceList.find(price => price!.id === jobInfo!.id)
-      return { jobInfo: jobInfo!, jobPrices: jobPrices!, jobId: jobInfo!.id }
+      const jobAssign = jobAssignList.find(assign => assign!.id === jobInfo!.id)
+      return {
+        jobInfo: jobInfo!,
+        jobPrices: jobPrices!,
+        jobId: jobInfo!.id,
+        jobAssign: jobAssign?.requests!,
+      }
     })
     if (JSON.stringify(combinedList) !== JSON.stringify(jobDetail)) {
       setJobDetail(combinedList)
       setSelectedJobInfo(combinedList[0])
     }
-  }, [jobInfoList, jobPriceList])
+  }, [jobInfoList, jobPriceList, jobAssignList])
+
+  useEffect(() => {
+    if (roundQuery && selectedJobInfo) {
+      setSelectedAssign(
+        selectedJobInfo.jobAssign.find(
+          assign => assign.round === Number(roundQuery),
+        ) ?? null,
+      )
+    }
+  }, [roundQuery, selectedJobInfo])
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -307,7 +445,30 @@ const JobDetail = () => {
                   padding: '0 !important',
                   height: '24px',
                 }}
-                onClick={() => router.push('/orders/order-list')}
+                onClick={() => {
+                  if (addRoundMode) {
+                    setAddRoundMode(false)
+                    return
+                  } else if (addProsMode) {
+                    setAddProsMode(false)
+                    return
+                  } else if (assignProMode) {
+                    setAssignProMode(false)
+                    return
+                  }
+                  router.push({
+                    pathname: '/orders/job-list/details/',
+                    query:
+                      jobId.length === 1
+                        ? {
+                            orderId: orderId,
+                            jobId: jobId[0],
+                          }
+                        : {
+                            orderId: orderId,
+                          },
+                  })
+                }}
               >
                 <Icon icon='mdi:chevron-left' width={24} height={24} />
               </IconButton>
@@ -341,6 +502,7 @@ const JobDetail = () => {
                         jobId: value.jobId,
                         jobInfo: value.jobInfo!,
                         jobPrices: value.jobPrices!,
+                        jobAssign: value.jobAssign!,
                       })
                       setValue('info')
                     }}
@@ -359,9 +521,14 @@ const JobDetail = () => {
         <Grid
           item
           xs={
-            selectedJobInfo &&
-            (selectedJobInfo.jobInfo.name === null ||
-              selectedJobInfo.jobPrices.priceId === null)
+            (selectedJobInfo &&
+              (selectedJobInfo.jobInfo.name === null ||
+                selectedJobInfo.jobPrices.priceId === null)) ||
+            (selectedJobInfo?.jobAssign &&
+              selectedJobInfo?.jobAssign.length > 0 &&
+              !addRoundMode &&
+              !addProsMode &&
+              !assignProMode)
               ? 10.416
               : 7.632
           }
@@ -482,6 +649,7 @@ const JobDetail = () => {
                   ) : (
                     <AssignPro
                       jobInfo={selectedJobInfo?.jobInfo!}
+                      jobAssign={selectedJobInfo?.jobAssign!}
                       serviceTypeList={serviceTypeList || []}
                       clientList={clientList || []}
                       setSelectedRows={setSelectedRows}
@@ -504,6 +672,16 @@ const JobDetail = () => {
                       pastLinguistTeam={pastLinguistTeam}
                       languageList={languageList}
                       onSearch={onSearch}
+                      roundQuery={roundQuery}
+                      proId={proId}
+                      addRoundMode={addRoundMode}
+                      setAddRoundMode={setAddRoundMode}
+                      addProsMode={addProsMode}
+                      setAddProsMode={setAddProsMode}
+                      assignProMode={assignProMode}
+                      setAssignProMode={setAssignProMode}
+                      selectedAssign={selectedAssign}
+                      setSelectedAssign={setSelectedAssign}
                     />
                   )}
                 </TabPanel>
@@ -554,7 +732,7 @@ const JobDetail = () => {
                   <Typography
                     sx={{ padding: '20px' }}
                     fontSize={14}
-                    fontWeight={500}
+                    fontWeight={600}
                   >
                     Selected Pros (
                     {Object.values(selectedRows).reduce(
@@ -754,23 +932,57 @@ const JobDetail = () => {
                     // bottom: 0,
                   }}
                 >
-                  <Button variant='outlined' onClick={onClickRequest}>
-                    Request
-                  </Button>
-                  <Button
-                    variant='contained'
-                    disabled={
-                      Object.values(selectedRows).reduce(
-                        (sum, array) => sum + array.data.length,
-                        0,
-                      ) !== 1
-                    }
-                    onClick={() => {
-                      onClickAssign(selectedRows)
-                    }}
-                  >
-                    Assign
-                  </Button>
+                  {assignProMode ? null : (
+                    <Button
+                      variant={addProsMode ? 'contained' : 'outlined'}
+                      onClick={onClickRequest}
+                    >
+                      Request
+                    </Button>
+                  )}
+
+                  {addProsMode ? (
+                    <Button
+                      variant='outlined'
+                      onClick={() => {
+                        setAddProsMode(false)
+                        setAssignProMode(false)
+                        setSelectionModel({})
+                        setSelectedRows({})
+                        setSelectedLinguistTeam(null)
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  ) : (
+                    <Button
+                      variant={assignProMode ? 'contained' : 'outlined'}
+                      disabled={
+                        Object.values(selectedRows).reduce(
+                          (sum, array) => sum + array.data.length,
+                          0,
+                        ) !== 1
+                      }
+                      onClick={() => {
+                        onClickAssign(selectedRows)
+                      }}
+                    >
+                      Assign
+                    </Button>
+                  )}
+                  {assignProMode ? (
+                    <Button
+                      variant='outlined'
+                      onClick={() => {
+                        setAssignProMode(false)
+                        setSelectionModel({})
+                        setSelectedRows({})
+                        setSelectedLinguistTeam(null)
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  ) : null}
                 </Box>
               </Box>
             </Box>

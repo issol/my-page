@@ -267,7 +267,7 @@ const OrderDetail = () => {
 
   const { data: jobInfo, isLoading: jobInfoLoading } = useGetJobInfo(
     Number(id!),
-  ) as { data: JobType; isLoading: boolean }
+  )
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
