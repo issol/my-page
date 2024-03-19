@@ -175,7 +175,7 @@ const AssignPro = ({
 
   const assignJobMutation = useMutation(
     (data: { jobId: number; proId: number; status: number }) =>
-      handleJobAssignStatus(data.jobId, data.proId, data.status),
+      handleJobAssignStatus(data.jobId, data.proId, data.status, 'lpm'),
     {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(['jobInfo', variables.jobId, false])

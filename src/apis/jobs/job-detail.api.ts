@@ -201,11 +201,19 @@ export const handleJobAssignStatus = async (
   jobId: number,
   proId: number,
   status: number,
+  role: 'lpm' | 'pro',
 ) => {
-  await axios.patch(`/api/enough/u/job/${jobId}/request`, {
-    proId: proId,
-    status: status,
-  })
+  if (role === 'pro') {
+    await axios.patch(`/api/enough/u/job/request/${jobId}/reply`, {
+      proId: proId,
+      status: status,
+    })
+  } else if (role === 'lpm') {
+    await axios.patch(`/api/enough/u/job/request/${jobId}/set-status`, {
+      proId: proId,
+      status: status,
+    })
+  }
 }
 
 export const handleJobReAssign = async (
@@ -472,9 +480,15 @@ export const patchProJobSourceFileDownload = async (
 const testData: JobAssignProRequestsType[] = Array.from(
   { length: 2 },
   (_, i) => ({
-    type: i % 3 === 0 ? 'relay' : i % 3 === 1 ? 'bulkAuto' : 'bulkManual',
+    type:
+      i % 3 === 0
+        ? 'relayRequest'
+        : i % 3 === 1
+          ? 'bulkAutoAssign'
+          : 'bulkManualAssign',
     round: i + 1,
     interval: 60,
+    requestCompleted: false,
     pros: [
       {
         userId: i === 0 ? 20 : 34,
@@ -509,17 +523,18 @@ const testData: JobAssignProRequestsType[] = Array.from(
 export const getJobAssignProRequests = async (
   id: number,
 ): Promise<{ requests: Array<JobAssignProRequestsType>; id: number }> => {
-  return {
-    id: id,
-    requests: testData,
-  }
+  console.log(id)
+
+  const { data } = await axios.get(`/api/enough/u/job/${id}/request/list`)
+  return data
 }
 
 export const createRequestJobToPro = async (params: JobRequestFormType) => {
+  const { data } = await axios.post(`/api/enough/u/job/request`, { ...params })
   // const { data } = await axios.post(`/api/enough/u/job/request`, {
   //   ...params,
   // })
 
   // return data
-  return true
+  return data
 }
