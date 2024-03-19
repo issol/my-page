@@ -174,7 +174,7 @@ const JobDetail = () => {
       {
         requests: JobAssignProRequestsType[]
         id: number
-        round: number
+        frontRound: number
       },
       unknown
     >[]
@@ -504,7 +504,7 @@ const JobDetail = () => {
         jobPrices: jobPrices!,
         jobId: jobInfo!.id,
         jobAssign: jobAssign?.requests!,
-        jobAssignDefaultRound: jobAssign?.round ?? 1,
+        jobAssignDefaultRound: jobAssign?.frontRound ?? 1,
       }
     })
 

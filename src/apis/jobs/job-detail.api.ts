@@ -527,7 +527,7 @@ export const getJobAssignProRequests = async (
 ): Promise<{
   requests: Array<JobAssignProRequestsType>
   id: number
-  round: number
+  frontRound: number
 }> => {
   console.log(id)
 
