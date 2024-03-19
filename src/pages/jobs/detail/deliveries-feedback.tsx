@@ -1,12 +1,10 @@
 import { Icon } from '@iconify/react'
-import { CheckBox } from '@mui/icons-material'
 import {
   Badge,
   Box,
   Button,
   Card,
   Checkbox,
-  Divider,
   FormControlLabel,
   Grid,
   IconButton,
@@ -24,8 +22,12 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FileType } from '@src/types/common/file.type'
-import { JobsFileType, ProJobDeliveryType, ProJobDetailType } from '@src/types/jobs/jobs.type'
-import { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import {
+  JobsFileType,
+  ProJobDeliveryType,
+  ProJobDetailType,
+} from '@src/types/jobs/jobs.type'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import PartialDeliveryModal from './components/modal/partial-delivery-modal'
@@ -43,15 +45,18 @@ import toast from 'react-hot-toast'
 import Deliveries from './components/deliveries'
 import Feedbacks from './components/feedbacks'
 import { useGetProJobDeliveriesFeedbacks } from '@src/queries/jobs/jobs.query'
-import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   patchProJobFeedbackCheck,
-  patchProJobSourceFileDownload,
   postProJobDeliveries,
 } from '@src/apis/jobs/job-detail.api'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { srtUploadFileExtension } from '@src/shared/const/upload-file-extention/file-extension'
+
+// NOTE : 리딜리버리 코드 필요
+const NOT_FILE_UPLOAD_JOB_STATUS = [
+  60500, 60600, 60700, 60800, 60900, 601000, 601100,
+]
 
 type Props = {
   jobInfo: ProJobDetailType
@@ -176,7 +181,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
     })
   }
 
-  function fetchFile(file: JobsFileType) {
+  const fetchFile = (file: JobsFileType) => {
     getDownloadUrlforCommon(S3FileType.ORDER_DELIVERY, file.file).then(res => {
       fetch(res.url, { method: 'GET' })
         .then(res => {
@@ -205,11 +210,11 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
     })
   }
 
-  function downloadOneFile(file: JobsFileType) {
+  const downloadOneFile = (file: JobsFileType) => {
     fetchFile(file)
   }
 
-  function downloadAllFiles(files: Array<JobsFileType> | [] | undefined) {
+  const downloadAllFiles = (files: Array<JobsFileType> | [] | undefined) => {
     if (!files || !files.length) return
 
     files.forEach(file => {
@@ -227,7 +232,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
         .reduce((acc: File[], file: File) => {
           let result = 0
           acc.concat(file).forEach((file: FileType) => (result += file.size))
-          console.log("file size",result,MAXIMUM_FILE_SIZE)
+          console.log('file size', result, MAXIMUM_FILE_SIZE)
           if (result > MAXIMUM_FILE_SIZE) {
             openModal({
               type: 'AlertMaximumFileSizeModal',
@@ -419,13 +424,12 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                 sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}
               >
                 <Typography variant='h6'>Deliveries</Typography>
-                <Typography variant='body2'>
-                  {formatFileSize(fileSize+deliveryFileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
+                <Typography variant='body2' fontSize='12px'>
+                  {formatFileSize(fileSize + deliveryFileSize)}/
+                  {byteToGB(MAXIMUM_FILE_SIZE)}
                 </Typography>
               </Box>
-              {[60500, 60600, 60700, 60800, 60900, 601000, 601100].includes(
-                jobInfo.status,
-              ) ? null : (
+              {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
                 <Box
                   sx={{
                     display: 'flex',
@@ -437,11 +441,18 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                     <Button
                       variant='contained'
                       size='small'
-                      sx={{ height: '30px' }}
+                      sx={{ display: 'flex', gap: '8px', height: '30px' }}
                       disabled={withoutFiles || jobInfo.status === 601000}
                     >
                       <input {...getInputProps()} />
-                      Upload
+                      <Icon
+                        fontSize={18}
+                        icon='ic:outline-upload-file'
+                        color='#fff'
+                      />
+                      <Typography fontSize={11} color='#fff' fontWeight={500}>
+                        Upload
+                      </Typography>
                     </Button>
                   </div>
 
@@ -457,6 +468,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                     }}
                     control={
                       <Checkbox
+                        size='small'
                         checked={withoutFiles}
                         sx={{ padding: '4px 9px 9px 9px' }}
                         onChange={handleChange}
@@ -468,16 +480,13 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                 </Box>
               )}
             </Box>
-            {[60500, 60600, 60700, 60800, 60900, 601000, 601100].includes(
-              jobInfo.status,
-            ) ? null : (
+            {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? null : (
               <>
                 {fileList.length > 0 && (
                   <Box
                     sx={{
                       display: 'grid',
                       gridTemplateColumns: 'repeat(3, 1fr)',
-
                       width: '100%',
                       gap: '20px',
                     }}
@@ -485,11 +494,8 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                     {fileList}
                   </Box>
                 )}
-                <Divider />
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
-                >
-                  <Typography variant='body1' fontWeight={600}>
+                <Box display='flex' flexDirection='column'>
+                  <Typography variant='h6' sx={{ marginBottom: '12px' }}>
                     Notes to LPM
                   </Typography>
                   <TextField
@@ -506,7 +512,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
                       } else setNote(e.target.value)
                     }}
                   />
-                  <Typography variant='body2' mt='12px' textAlign='right'>
+                  <Typography variant='body2' textAlign='right'>
                     {note?.length ?? 0}/200
                   </Typography>
                 </Box>
@@ -538,9 +544,7 @@ const DeliveriesFeedback = ({ jobInfo, jobDetailDots }: Props) => {
       <Grid item xs={3.25}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
           <Card sx={{ padding: '24px' }}>
-            {[60500, 60600, 60700, 60800, 60900, 601000, 601100].includes(
-              jobInfo.status,
-            ) ? (
+            {NOT_FILE_UPLOAD_JOB_STATUS.includes(jobInfo.status) ? (
               <Box
                 sx={{
                   height: '38px',
