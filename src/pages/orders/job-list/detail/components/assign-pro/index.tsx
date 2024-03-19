@@ -69,6 +69,7 @@ import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
 import Message from './message-modal'
+import { UseMutationResult } from 'react-query'
 
 type Props = {
   jobInfo: JobType
@@ -132,6 +133,16 @@ type Props = {
   setAssignProMode: Dispatch<SetStateAction<boolean>>
   selectedAssign: JobAssignProRequestsType | null
   setSelectedAssign: Dispatch<SetStateAction<JobAssignProRequestsType | null>>
+  assignJobMutation: UseMutationResult<
+    void,
+    unknown,
+    {
+      jobId: number
+      proId: number
+      status: number
+    },
+    unknown
+  >
 }
 
 function loadServerRows(
@@ -182,6 +193,7 @@ const AssignPro = ({
   setAssignProMode,
   selectedAssign,
   setSelectedAssign,
+  assignJobMutation,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   console.log(selectionModel, 'test')
@@ -233,8 +245,12 @@ const AssignPro = ({
     setListAnchorEl(null)
   }
 
-  const handleAssign = () => {
-    closeModal('AssignProModal')
+  const handleAssign = (id: number) => {
+    assignJobMutation.mutate({
+      jobId: jobInfo.id,
+      proId: id,
+      status: 70100,
+    })
   }
 
   const handleCancelRequest = () => {
@@ -265,7 +281,7 @@ const AssignPro = ({
             </>
           }
           onClick={() => {
-            handleAssign()
+            handleAssign(row.userId)
           }}
           onClose={() => closeModal('AssignProModal')}
           rightButtonText='Assign'
@@ -539,8 +555,10 @@ const AssignPro = ({
                 color: '#8D8E9A',
               }}
               // TODO 새로운 페이지 추가 액션
-              onClick={() => setAddRoundMode(true)}
-              // onClick={() => setRound(assign.round)}
+              onClick={() => {
+                setSelectedAssign(null)
+                setAddRoundMode(true)
+              }}
             >
               + Round{jobAssign.length + 1}
             </Button>
@@ -556,11 +574,11 @@ const AssignPro = ({
               }}
             >
               <Typography fontSize={16} fontWeight={600}>
-                {selectedAssign?.type === 'relay'
+                {selectedAssign?.type === 'relayRequest'
                   ? 'Relay request'
-                  : selectedAssign?.type === 'bulkAuto'
+                  : selectedAssign?.type === 'bulkAutoAssign'
                     ? 'Bulk request - First come first served'
-                    : selectedAssign?.type === 'bulkManual'
+                    : selectedAssign?.type === 'bulkManualAssign'
                       ? 'Bulk request - Manual assign'
                       : '-'}{' '}
                 ({selectedAssign?.pros.length ?? 0})
@@ -587,9 +605,7 @@ const AssignPro = ({
                     horizontal: 'right',
                   }}
                 >
-                  {selectedAssign.pros.some(
-                    pro => pro.assignmentStatus === 70300,
-                  ) ? null : (
+                  {selectedAssign.requestCompleted ? null : (
                     <MenuItem
                       sx={{
                         gap: 2,
@@ -624,9 +640,7 @@ const AssignPro = ({
                       </Button>
                     </MenuItem>
                   )}
-                  {selectedAssign.pros.some(
-                    pro => pro.assignmentStatus === 70300,
-                  ) ? null : (
+                  {selectedAssign.requestCompleted ? null : (
                     <MenuItem
                       sx={{
                         gap: 2,
@@ -664,7 +678,7 @@ const AssignPro = ({
                       </Button>
                     </MenuItem>
                   )}
-                  {selectedAssign.type === 'relay' ? (
+                  {selectedAssign.type === 'relayRequest' ? (
                     <Tooltip title='In preparation'>
                       <MenuItem
                         sx={{
@@ -704,32 +718,35 @@ const AssignPro = ({
               </Box>
             </Box>
           ) : null}
-
-          <Box sx={{ height: '100%' }}>
-            <DataGrid
-              // autoHeight
-              sx={{
-                height: 'calc(75vh - 100px)',
-              }}
-              rows={selectedAssign?.pros || []}
-              columns={getProJobAssignColumnsForRequest(
-                auth,
-                timezoneList.getValue(),
-                selectedAssign?.pros || [],
-                detailAnchorEl,
-                handleDetailClick,
-                handleDetailClose,
-                onClickAssign,
-                onClickCancel,
-                onClickReAssign,
-                onClickMessage,
-              )}
-              keepNonExistentRowsSelected
-              getRowId={row => row.userId}
-              hideFooterSelectedRowCount
-              hideFooter
-            />
-          </Box>
+          {selectedAssign ? (
+            <Box sx={{ height: '100%' }}>
+              <DataGrid
+                // autoHeight
+                sx={{
+                  height: 'calc(75vh - 100px)',
+                }}
+                rows={selectedAssign?.pros || []}
+                columns={getProJobAssignColumnsForRequest(
+                  auth,
+                  timezoneList.getValue(),
+                  selectedAssign.requestCompleted,
+                  // selectedAssign?.pros || [],
+                  detailAnchorEl,
+                  handleDetailClick,
+                  handleDetailClose,
+                  onClickAssign,
+                  onClickCancel,
+                  onClickReAssign,
+                  onClickMessage,
+                  selectedAssign.type,
+                )}
+                keepNonExistentRowsSelected
+                getRowId={row => row.userId}
+                hideFooterSelectedRowCount
+                hideFooter
+              />
+            </Box>
+          ) : null}
         </Box>
       ) : (
         <Box sx={{ height: '100%' }}>
@@ -1368,6 +1385,7 @@ const AssignPro = ({
                   false,
                   false,
                   assignProMode,
+
                   selectionModel[selectedLinguistTeam?.label || ''],
                   setSelectionModel,
                   selectedLinguistTeam?.label || '',

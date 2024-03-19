@@ -317,18 +317,28 @@ export type JobRequestsProType = {
 }
 
 export type JobRequestFormType = {
-  type: 'relay' | 'bulkAuto' | 'bulkManual'
-  reminderTime?: number
+  type: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign'
+  round: number
   interval?: number
+  jobId: number
   pros: Array<{
     userId: number
     order: number
   }>
 }
 
+export type JobBulkRequestFormType = {
+  jobId: number
+  proIds: number[]
+  requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign'
+  remindTime?: number
+  requestIntervalSec?: number
+}
+
 export type JobAssignProRequestsType = {
-  type: 'relay' | 'bulkAuto' | 'bulkManual'
+  type: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign'
   round: number
+  requestCompleted: boolean
   pros: Array<JobRequestsProType>
   interval: number
 }

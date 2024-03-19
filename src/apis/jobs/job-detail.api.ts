@@ -5,6 +5,7 @@ import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import {
   JobAssignProRequestsType,
+  JobBulkRequestFormType,
   JobPricesDetailType,
   JobRequestFormType,
   ProJobDeliveryType,
@@ -530,7 +531,26 @@ export const getJobAssignProRequests = async (
 }
 
 export const createRequestJobToPro = async (params: JobRequestFormType) => {
-  const { data } = await axios.post(`/api/enough/u/job/request`, { ...params })
+  const { data } = await axios.post(`/api/enough/u/job/request/relay`, {
+    ...params,
+  })
+  // const { data } = await axios.post(`/api/enough/u/job/request`, {
+  //   ...params,
+  // })
+
+  // return data
+  return data
+}
+
+export const createBulkRequestJobToPro = async (
+  params: JobBulkRequestFormType,
+) => {
+  const { data } = await axios.post(
+    `/api/enough/u/job/${params.jobId}/request/bulk`,
+    {
+      ...params,
+    },
+  )
   // const { data } = await axios.post(`/api/enough/u/job/request`, {
   //   ...params,
   // })

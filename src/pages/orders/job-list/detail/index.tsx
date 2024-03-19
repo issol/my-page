@@ -49,6 +49,7 @@ import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { JobType } from '@src/types/common/item.type'
 import {
   JobAssignProRequestsType,
+  JobBulkRequestFormType,
   JobPricesDetailType,
   JobRequestFormType,
   jobPriceHistoryType,
@@ -58,8 +59,12 @@ import useModal from '@src/hooks/useModal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import RequestSummaryModal from './components/assign-pro/request-summary-modal'
-import { UseQueryResult, useMutation } from 'react-query'
-import { createRequestJobToPro } from '@src/apis/jobs/job-detail.api'
+import { UseQueryResult, useMutation, useQueryClient } from 'react-query'
+import {
+  createBulkRequestJobToPro,
+  createRequestJobToPro,
+  handleJobAssignStatus,
+} from '@src/apis/jobs/job-detail.api'
 import { displayCustomToast } from '@src/shared/utils/toast'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
@@ -68,6 +73,8 @@ export type TabType = 'linguistTeam' | 'pro'
 
 const JobDetail = () => {
   const router = useRouter()
+  const queryClient = useQueryClient()
+
   const { openModal, closeModal } = useModal()
   const menuQuery = router.query.menu as MenuType
   const orderId = router.query.orderId as string
@@ -241,6 +248,32 @@ const JobDetail = () => {
     },
   )
 
+  const createBulkRequestMutation = useMutation(
+    (data: JobBulkRequestFormType) => createBulkRequestJobToPro(data),
+    {
+      onSuccess: () => {
+        displayCustomToast('Requested successfully', 'success')
+        setSelectionModel({})
+        setSelectedRows({})
+        setSelectedLinguistTeam(null)
+      },
+    },
+  )
+
+  const assignJobMutation = useMutation(
+    (data: { jobId: number; proId: number; status: number }) =>
+      handleJobAssignStatus(data.jobId, data.proId, data.status, 'lpm'),
+    {
+      onSuccess: (data, variables) => {
+        closeModal('AssignProModal')
+        displayCustomToast('Assigned successfully', 'success')
+        queryClient.invalidateQueries(['jobInfo'])
+        queryClient.invalidateQueries(['jobPrices'])
+        queryClient.invalidateQueries(['jobAssignProRequests'])
+      },
+    },
+  )
+
   const onSearch = () => {
     setActiveFilter({
       ...filter,
@@ -256,32 +289,46 @@ const JobDetail = () => {
     existingProsLength: number,
   ) => {
     closeModal('RequestModal')
-    //TODO API 연결
-    const result: JobRequestFormType = {
-      type:
-        selectedRequestOption === 0
-          ? 'relay'
-          : selectedRequestOption === 1
-            ? 'bulkAuto'
-            : 'bulkManual',
-      interval: requestTerm ?? undefined,
-      pros: selectedProList.map((value, index) => {
-        return {
-          userId: value.userId,
-          order: index + 1 + existingProsLength,
-        }
-      }),
+
+    if (selectedRequestOption === 0) {
+      const result: JobRequestFormType = {
+        type:
+          selectedRequestOption === 0
+            ? 'relayRequest'
+            : selectedRequestOption === 1
+              ? 'bulkAutoAssign'
+              : 'bulkManualAssign',
+        interval: requestTerm ?? undefined,
+
+        pros: selectedProList.map((value, index) => {
+          return {
+            userId: value.userId,
+            order: index + 1 + existingProsLength,
+          }
+        }),
+        round: (selectedJobInfo?.jobAssign.length ?? 0) + 1,
+        jobId: selectedJobInfo?.jobInfo.id!,
+      }
+      createRequestMutation.mutate(result)
+      //TODO 수정 API 요청
+    } else {
+      const result: JobBulkRequestFormType = {
+        requestType:
+          selectedRequestOption === 0
+            ? 'relayRequest'
+            : selectedRequestOption === 1
+              ? 'bulkAutoAssign'
+              : 'bulkManualAssign',
+        remindTime: requestTerm ?? undefined,
+        proIds: selectedProList.map(value => value.userId),
+        jobId: selectedJobInfo?.jobInfo.id!,
+      }
+
+      createBulkRequestMutation.mutate(result)
     }
-    createRequestMutation.mutate(result)
   }
 
   const onClickRequest = () => {
-    console.log(
-      Object.values(selectedRows)
-        .map(value => value.data)
-        .flat(),
-    )
-
     openModal({
       type: 'RequestModal',
       children: (
@@ -682,6 +729,7 @@ const JobDetail = () => {
                       setAssignProMode={setAssignProMode}
                       selectedAssign={selectedAssign}
                       setSelectedAssign={setSelectedAssign}
+                      assignJobMutation={assignJobMutation}
                     />
                   )}
                 </TabPanel>

@@ -207,7 +207,7 @@ export const getProJobAssignColumnsForRequest = (
     loading: boolean
   }>,
   timezoneList: TimeZoneType[],
-  pros: JobRequestsProType[],
+  requestCompleted: boolean,
   detailAnchorEl: HTMLElement | null,
   handleDetailClick: (event: React.MouseEvent<HTMLButtonElement>) => void,
   handleDetailClose: () => void,
@@ -215,6 +215,7 @@ export const getProJobAssignColumnsForRequest = (
   onClickCancel: (row: JobRequestsProType) => void,
   onClickReAssign: (row: JobRequestsProType) => void,
   onClickMessage: (row: JobRequestsProType) => void,
+  requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
 ) => {
   const columns: GridColumns<JobRequestsProType> = [
     {
@@ -358,132 +359,283 @@ export const getProJobAssignColumnsForRequest = (
       renderHeader: () => <></>,
       renderCell: ({ row }: ProAssignJobCellType) => {
         return (
-          <Box
-            sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}
-          >
-            <IconButton
-              sx={{ width: '24px', height: '24px', padding: 0 }}
-              // onClick={handleClick}
-              onClick={handleDetailClick}
-            >
-              <Icon icon='mdi:dots-horizontal' />
-            </IconButton>
-            <Menu
-              elevation={8}
-              anchorEl={detailAnchorEl}
-              id='customized-menu'
-              onClose={handleDetailClose}
-              open={Boolean(detailAnchorEl)}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-            >
-              {pros.some(pro => pro.assignmentStatus === 70300) ? null : (
-                <MenuItem
-                  sx={{
-                    gap: 2,
-                    '&:hover': {
-                      background: 'inherit',
-                      cursor: 'default',
-                    },
-                    justifyContent: 'flex-start',
-                    alignItems: 'flex-start',
-                    padding: 0,
+          <>
+            {requestType === 'bulkManualAssign' ? (
+              row.assignmentStatus === 70100 ? (
+                <Button
+                  variant='contained'
+                  onClick={() => {
+                    onClickAssign(row)
+                    handleDetailClose()
                   }}
                 >
-                  <Button
-                    fullWidth
-                    onClick={() => {
-                      onClickAssign(row)
-                      handleDetailClose()
+                  Assign
+                </Button>
+              ) : requestCompleted ? null : (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    width: '100%',
+                  }}
+                >
+                  <IconButton
+                    sx={{ width: '24px', height: '24px', padding: 0 }}
+                    // onClick={handleClick}
+                    onClick={handleDetailClick}
+                  >
+                    <Icon icon='mdi:dots-horizontal' />
+                  </IconButton>
+                  <Menu
+                    elevation={8}
+                    anchorEl={detailAnchorEl}
+                    id='customized-menu'
+                    onClose={handleDetailClose}
+                    open={Boolean(detailAnchorEl)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
                     }}
-                    sx={{
-                      justifyContent: 'flex-start',
-                      padding: '6px 16px',
-                      fontSize: 16,
-                      fontWeight: 400,
-                      color: 'rgba(76, 78, 100, 0.87)',
-                      borderRadius: 0,
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'left',
                     }}
                   >
-                    Assign
-                  </Button>
-                </MenuItem>
-              )}
+                    {requestCompleted ? null : (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                          justifyContent: 'flex-start',
+                          alignItems: 'flex-start',
+                          padding: 0,
+                        }}
+                      >
+                        <Button
+                          fullWidth
+                          onClick={() => {
+                            onClickAssign(row)
+                            handleDetailClose()
+                          }}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            padding: '6px 16px',
+                            fontSize: 16,
+                            fontWeight: 400,
+                            color: 'rgba(76, 78, 100, 0.87)',
+                            borderRadius: 0,
+                          }}
+                        >
+                          Assign
+                        </Button>
+                      </MenuItem>
+                    )}
 
-              {row.assignmentStatus === 70000 ||
-              row.assignmentStatus === null ||
-              !pros.some(pro => pro.assignmentStatus === 70300) ? (
-                <MenuItem
-                  sx={{
-                    gap: 2,
-                    '&:hover': {
-                      background: 'inherit',
-                      cursor: 'default',
-                    },
-                    justifyContent: 'flex-start',
-                    alignItems: 'flex-start',
-                    padding: 0,
+                    {row.assignmentStatus === 70000 ||
+                    row.assignmentStatus === null ||
+                    !requestCompleted ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                          justifyContent: 'flex-start',
+                          alignItems: 'flex-start',
+                          padding: 0,
+                        }}
+                      >
+                        <Button
+                          sx={{
+                            justifyContent: 'flex-start',
+                            padding: '6px 16px',
+                            color: '#FF4D49',
+                            fontSize: 16,
+                            fontWeight: 400,
+                            borderRadius: 0,
+                          }}
+                          onClick={() => {
+                            onClickCancel(row)
+                            handleDetailClose()
+                          }}
+                          // onClick={onClickDeleteButton}
+                        >
+                          Cancel
+                        </Button>
+                      </MenuItem>
+                    ) : null}
+                    {row.assignmentStatus === 70300 ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                          justifyContent: 'flex-start',
+                          alignItems: 'flex-start',
+                          padding: 0,
+                        }}
+                      >
+                        <Button
+                          fullWidth
+                          onClick={() => {
+                            onClickReAssign(row)
+                            handleDetailClose()
+                          }}
+                          sx={{
+                            justifyContent: 'flex-start',
+                            padding: '6px 16px',
+                            fontSize: 16,
+                            fontWeight: 400,
+                            color: 'rgba(76, 78, 100, 0.87)',
+                            borderRadius: 0,
+                          }}
+                        >
+                          Re-assign
+                        </Button>
+                      </MenuItem>
+                    ) : null}
+                  </Menu>
+                </Box>
+              )
+            ) : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  width: '100%',
+                }}
+              >
+                <IconButton
+                  sx={{ width: '24px', height: '24px', padding: 0 }}
+                  // onClick={handleClick}
+                  onClick={handleDetailClick}
+                >
+                  <Icon icon='mdi:dots-horizontal' />
+                </IconButton>
+                <Menu
+                  elevation={8}
+                  anchorEl={detailAnchorEl}
+                  id='customized-menu'
+                  onClose={handleDetailClose}
+                  open={Boolean(detailAnchorEl)}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
                   }}
                 >
-                  <Button
-                    sx={{
-                      justifyContent: 'flex-start',
-                      padding: '6px 16px',
-                      color: '#FF4D49',
-                      fontSize: 16,
-                      fontWeight: 400,
-                      borderRadius: 0,
-                    }}
-                    onClick={() => {
-                      onClickCancel(row)
-                      handleDetailClose()
-                    }}
-                    // onClick={onClickDeleteButton}
-                  >
-                    Cancel
-                  </Button>
-                </MenuItem>
-              ) : null}
-              {row.assignmentStatus === 70300 ? (
-                <MenuItem
-                  sx={{
-                    gap: 2,
-                    '&:hover': {
-                      background: 'inherit',
-                      cursor: 'default',
-                    },
-                    justifyContent: 'flex-start',
-                    alignItems: 'flex-start',
-                    padding: 0,
-                  }}
-                >
-                  <Button
-                    fullWidth
-                    onClick={() => {
-                      onClickReAssign(row)
-                      handleDetailClose()
-                    }}
-                    sx={{
-                      justifyContent: 'flex-start',
-                      padding: '6px 16px',
-                      fontSize: 16,
-                      fontWeight: 400,
-                      color: 'rgba(76, 78, 100, 0.87)',
-                      borderRadius: 0,
-                    }}
-                  >
-                    Re-assign
-                  </Button>
-                </MenuItem>
-              ) : null}
-            </Menu>
-          </Box>
+                  {requestCompleted ? null : (
+                    <MenuItem
+                      sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        padding: 0,
+                      }}
+                    >
+                      <Button
+                        fullWidth
+                        onClick={() => {
+                          onClickAssign(row)
+                          handleDetailClose()
+                        }}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          fontSize: 16,
+                          fontWeight: 400,
+                          color: 'rgba(76, 78, 100, 0.87)',
+                          borderRadius: 0,
+                        }}
+                      >
+                        Assign
+                      </Button>
+                    </MenuItem>
+                  )}
+
+                  {row.assignmentStatus === 70000 ||
+                  row.assignmentStatus === null ||
+                  !requestCompleted ? (
+                    <MenuItem
+                      sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        padding: 0,
+                      }}
+                    >
+                      <Button
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          color: '#FF4D49',
+                          fontSize: 16,
+                          fontWeight: 400,
+                          borderRadius: 0,
+                        }}
+                        onClick={() => {
+                          onClickCancel(row)
+                          handleDetailClose()
+                        }}
+                        // onClick={onClickDeleteButton}
+                      >
+                        Cancel
+                      </Button>
+                    </MenuItem>
+                  ) : null}
+                  {row.assignmentStatus === 70300 ? (
+                    <MenuItem
+                      sx={{
+                        gap: 2,
+                        '&:hover': {
+                          background: 'inherit',
+                          cursor: 'default',
+                        },
+                        justifyContent: 'flex-start',
+                        alignItems: 'flex-start',
+                        padding: 0,
+                      }}
+                    >
+                      <Button
+                        fullWidth
+                        onClick={() => {
+                          onClickReAssign(row)
+                          handleDetailClose()
+                        }}
+                        sx={{
+                          justifyContent: 'flex-start',
+                          padding: '6px 16px',
+                          fontSize: 16,
+                          fontWeight: 400,
+                          color: 'rgba(76, 78, 100, 0.87)',
+                          borderRadius: 0,
+                        }}
+                      >
+                        Re-assign
+                      </Button>
+                    </MenuItem>
+                  ) : null}
+                </Menu>
+              </Box>
+            )}
+          </>
         )
       },
     },

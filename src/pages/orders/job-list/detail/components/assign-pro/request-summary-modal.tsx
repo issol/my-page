@@ -172,9 +172,9 @@ const RequestSummaryModal = ({
   useEffect(() => {
     if (existingPros) {
       setSelectedRequestOption(
-        existingPros.type === 'relay'
+        existingPros.type === 'relayRequest'
           ? 0
-          : existingPros.type === 'bulkAuto'
+          : existingPros.type === 'bulkAutoAssign'
             ? 1
             : 2,
       )
@@ -255,7 +255,7 @@ const RequestSummaryModal = ({
             </IconButton>
           </Box>
           <Grid container spacing={4}>
-            {(existingPros && existingPros.type === 'relay') ||
+            {(existingPros && existingPros.type === 'relayRequest') ||
             type === 'create' ? (
               <Grid item xs={4}>
                 <Box
@@ -290,7 +290,7 @@ const RequestSummaryModal = ({
                 </Box>
               </Grid>
             ) : null}
-            {(existingPros && existingPros.type === 'bulkAuto') ||
+            {(existingPros && existingPros.type === 'bulkAutoAssign') ||
             type === 'create' ? (
               <Grid item xs={4}>
                 <Box
@@ -355,7 +355,7 @@ const RequestSummaryModal = ({
                 </Box>
               </Grid>
             ) : null}
-            {(existingPros && existingPros.type === 'bulkManual') ||
+            {(existingPros && existingPros.type === 'bulkManualAssign') ||
             type === 'create' ? (
               <Grid item xs={4}>
                 <Box
