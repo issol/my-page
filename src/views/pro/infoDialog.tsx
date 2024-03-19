@@ -6,7 +6,7 @@ import Box from '@mui/material/Box'
 import AlertIcon, { AlertType } from '@src/@core/components/alert-icon'
 import Dialog from '@mui/material/Dialog'
 
-interface InfoDialogProps {
+export interface InfoDialogProps {
   title: string
   iconName?: string
   alertType?: AlertType

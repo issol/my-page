@@ -11,10 +11,49 @@ import { authState } from '@src/states/auth'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import dayjs from 'dayjs'
 import { useRecoilValueLoadable } from 'recoil'
-import { MouseEvent } from 'react'
+import React, { MouseEvent } from 'react'
 import { timezoneSelector } from '@src/states/permission'
-import InfoDialogButton from '@src/views/pro/infoDialog'
+import InfoDialogButton, { InfoDialogProps } from '@src/views/pro/infoDialog'
 import Message from '@src/views/jobDetails/messageModal'
+
+const AwaitingPriorJobProps: InfoDialogProps = {
+  title: 'Awaiting prior job',
+  alertType: 'question-info',
+  iconName: 'fe:question',
+  contents:
+    'This state indicates that the previous job is waiting for completion. Once the previous job is finished, this job can start.',
+}
+
+const RedeliveryProps: InfoDialogProps = {
+  title: 'Reason for redelivery',
+  alertType: 'question-info',
+  iconName: 'fe:question',
+  contents: (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        fontSize: '16px',
+      }}
+    >
+      <Box component='ul' sx={{ listStyle: 'inside' }}>
+        <li>Did not follow the guidelines/glossary Typo</li>
+        <li>Timecode sync-error (video translation)</li>
+      </Box>
+      <Typography
+        variant='h6'
+        textAlign='center'
+        mt='10px'
+        color='rgba(76, 78, 100, 0.87)'
+        margin='8px 0'
+      >
+        Message from LPM
+      </Typography>
+      <p>Please check the attached guidelines and glossary.</p>
+    </div>
+  ),
+}
 
 export const getProJobColumns = (
   statusList: {
@@ -188,18 +227,17 @@ export const getProJobColumns = (
         const statusLabel =
           statusList?.find(i => i.value === row.status)?.label || ''
 
-        const isAwaitingPriorJob = false
-        // NOTE : Awaiting Prior job 일때 info dialog 추가
+        const viewInfoIcon = ['Redelivery requested', 'Awaiting prior job']
+        const infoProps = viewInfoIcon.includes('Redelivery requested')
+          ? RedeliveryProps
+          : AwaitingPriorJobProps
+
         return (
           <Box display='flex' alignItems='center'>
             {ProJobStatusChip(statusLabel, row.status)}
-            {isAwaitingPriorJob && (
-              <InfoDialogButton
-                title='Awaiting prior job'
-                alertType='question-info'
-                iconName='fe:question'
-                contents='This state indicates that the previous job is waiting for completion. Once the previous job is finished, this job can start.'
-              />
+            {/*// NOTE : 상태값 넣어주기*/}
+            {viewInfoIcon.includes('Redelivery requested') && (
+              <InfoDialogButton {...infoProps} />
             )}
           </Box>
         )

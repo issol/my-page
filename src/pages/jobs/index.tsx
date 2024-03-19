@@ -66,7 +66,9 @@ const Jobs = () => {
 
   return (
     <>
-      <Typography variant='h5'>Jobs</Typography>
+      <Typography variant='h5' marginBottom='24px'>
+        Jobs
+      </Typography>
       <TabContext value={value}>
         <TabList
           onChange={handleChange}
@@ -83,7 +85,7 @@ const Jobs = () => {
                     variant='dot'
                     color='primary'
                     sx={{ marginLeft: '4px' }}
-                  ></Badge>
+                  />
                 ) : null}
               </Box>
             }
@@ -107,7 +109,7 @@ const Jobs = () => {
                     variant='dot'
                     color='primary'
                     sx={{ marginLeft: '4px' }}
-                  ></Badge>
+                  />
                 ) : null}
                 Completed & Inactive
               </Box>
@@ -117,12 +119,12 @@ const Jobs = () => {
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
         </TabList>
-        <TabPanel value='requested' sx={{ pt: '24px' }}>
+        <TabPanel value='requested' sx={{ p: 0, pt: '24px' }}>
           <Suspense>
             <RequestedOngoingList />
           </Suspense>
         </TabPanel>
-        <TabPanel value='completed' sx={{ pt: '24px' }}>
+        <TabPanel value='completed' sx={{ p: 0, pt: '24px' }}>
           <Suspense>
             <DeliveredInactiveList />
           </Suspense>

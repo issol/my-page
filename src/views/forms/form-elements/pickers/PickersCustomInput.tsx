@@ -3,15 +3,9 @@ import { forwardRef } from 'react'
 
 // ** MUI Imports
 import TextField from '@mui/material/TextField'
-import {
-  FormControl,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-} from '@mui/material'
-
-import Icon from '@src/@core/components/icon'
+import { FormControl, InputLabel, OutlinedInput } from '@mui/material'
+import { OverridableStringUnion } from '@mui/types'
+import { InputBasePropsSizeOverrides } from '@mui/material/InputBase/InputBase'
 
 interface PickerProps {
   label?: string
@@ -21,17 +15,18 @@ interface PickerProps {
   value?: string
   placeholder?: string
   sx?: any
+  size?: OverridableStringUnion<'small' | 'medium', InputBasePropsSizeOverrides>
 }
 
 const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
   // ** Props
-  const { label, readOnly, value, placeholder } = props
+  const { label, readOnly, value, placeholder, size } = props
 
   if (props.icon) {
     switch (props.icon) {
       case 'calendar':
         return (
-          <FormControl fullWidth>
+          <FormControl fullWidth size={size}>
             <InputLabel error={props.error}>{label || ''}</InputLabel>
             <OutlinedInput
               inputRef={ref}
@@ -41,13 +36,6 @@ const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
               label={label || ''}
               placeholder={placeholder || ''}
               {...(readOnly && { inputProps: { readOnly: true } })}
-              endAdornment={
-                <InputAdornment position='end'>
-                  <IconButton edge='end'>
-                    <Icon icon='material-symbols:calendar-today-rounded' />
-                  </IconButton>
-                </InputAdornment>
-              }
             />
           </FormControl>
         )

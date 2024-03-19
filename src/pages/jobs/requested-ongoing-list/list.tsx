@@ -39,12 +39,10 @@ const JobList = ({
   return (
     <Card>
       <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '24px',
-        }}
+        display='flex'
+        justifyContent='space-between'
+        alignItems='center'
+        padding='20px'
       >
         <Typography variant='h6'>Jobs ({listCount ?? 0})</Typography>
         {type === 'delivered' && (
