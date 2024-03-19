@@ -335,6 +335,15 @@ export type JobBulkRequestFormType = {
   requestIntervalSec?: number
 }
 
+export type JobAddProsFormType = {
+  jobId: number
+  round: number
+  pros: Array<{
+    userId: number
+    order: number
+  }>
+}
+
 export type JobAssignProRequestsType = {
   type: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign'
   round: number

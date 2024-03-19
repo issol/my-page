@@ -4,6 +4,7 @@ import { JobItemType, JobType } from '@src/types/common/item.type'
 import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import {
+  JobAddProsFormType,
   JobAssignProRequestsType,
   JobBulkRequestFormType,
   JobPricesDetailType,
@@ -560,5 +561,15 @@ export const createBulkRequestJobToPro = async (
   // })
 
   // return data
+  return data
+}
+
+export const addProCurrentRequest = async (params: JobAddProsFormType) => {
+  const { data } = await axios.patch(
+    `/api/enough/u/job/request/relay/add-pro`,
+    {
+      ...params,
+    },
+  )
   return data
 }

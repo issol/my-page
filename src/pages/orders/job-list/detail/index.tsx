@@ -48,6 +48,7 @@ import { LinguistTeamProListFilterType } from '@src/types/pro/linguist-team'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { JobType } from '@src/types/common/item.type'
 import {
+  JobAddProsFormType,
   JobAssignProRequestsType,
   JobBulkRequestFormType,
   JobPricesDetailType,
@@ -61,6 +62,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import RequestSummaryModal from './components/assign-pro/request-summary-modal'
 import { UseQueryResult, useMutation, useQueryClient } from 'react-query'
 import {
+  addProCurrentRequest,
   createBulkRequestJobToPro,
   createRequestJobToPro,
   handleJobAssignStatus,
@@ -74,6 +76,8 @@ export type TabType = 'linguistTeam' | 'pro'
 const JobDetail = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
+
+  console.log(queryClient)
 
   const { openModal, closeModal } = useModal()
   const menuQuery = router.query.menu as MenuType
@@ -238,14 +242,15 @@ const JobDetail = () => {
   const createRequestMutation = useMutation(
     (data: JobRequestFormType) => createRequestJobToPro(data),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        setAddRoundMode(false)
         displayCustomToast('Requested successfully', 'success')
         setSelectionModel({})
         setSelectedRows({})
         setSelectedLinguistTeam(null)
-        queryClient.invalidateQueries(['jobInfo'])
-        queryClient.invalidateQueries(['jobPrices'])
-        queryClient.invalidateQueries(['jobAssignProRequests'])
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
 
         // queryClient.invalidateQueries('jobRequest')
       },
@@ -255,11 +260,15 @@ const JobDetail = () => {
   const createBulkRequestMutation = useMutation(
     (data: JobBulkRequestFormType) => createBulkRequestJobToPro(data),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        setAddRoundMode(false)
         displayCustomToast('Requested successfully', 'success')
         setSelectionModel({})
         setSelectedRows({})
         setSelectedLinguistTeam(null)
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
       },
     },
   )
@@ -271,9 +280,27 @@ const JobDetail = () => {
       onSuccess: (data, variables) => {
         closeModal('AssignProModal')
         displayCustomToast('Assigned successfully', 'success')
-        queryClient.invalidateQueries(['jobInfo'])
-        queryClient.invalidateQueries(['jobPrices'])
-        queryClient.invalidateQueries(['jobAssignProRequests'])
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
+      },
+    },
+  )
+
+  const addProCurrentRequestMutation = useMutation(
+    (data: JobAddProsFormType) => addProCurrentRequest(data),
+    {
+      onSuccess: (data, variables) => {
+        console.log(variables)
+
+        setAddProsMode(false)
+        displayCustomToast('Requested successfully', 'success')
+        setSelectionModel({})
+        setSelectedRows({})
+        setSelectedLinguistTeam(null)
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
       },
     },
   )
@@ -291,29 +318,47 @@ const JobDetail = () => {
     requestTerm: number | null,
     selectedProList: ProListType[],
     existingProsLength: number,
+    type: 'create' | 'add',
   ) => {
     closeModal('RequestModal')
 
     if (selectedRequestOption === 0) {
-      const result: JobRequestFormType = {
-        type:
-          selectedRequestOption === 0
-            ? 'relayRequest'
-            : selectedRequestOption === 1
-              ? 'bulkAutoAssign'
-              : 'bulkManualAssign',
-        interval: requestTerm ?? undefined,
+      if (type === 'create') {
+        const createResult: JobRequestFormType = {
+          type:
+            selectedRequestOption === 0
+              ? 'relayRequest'
+              : selectedRequestOption === 1
+                ? 'bulkAutoAssign'
+                : 'bulkManualAssign',
+          interval: requestTerm ?? undefined,
 
-        pros: selectedProList.map((value, index) => {
-          return {
-            userId: value.userId,
-            order: index + 1 + existingProsLength,
-          }
-        }),
-        round: (selectedJobInfo?.jobAssign.length ?? 0) + 1,
-        jobId: selectedJobInfo?.jobInfo.id!,
+          pros: selectedProList.map((value, index) => {
+            return {
+              userId: value.userId,
+              order: index + 1 + existingProsLength,
+            }
+          }),
+          round: (selectedJobInfo?.jobAssign.length ?? 0) + 1,
+          jobId: selectedJobInfo?.jobInfo.id!,
+        }
+        createRequestMutation.mutate(createResult)
+      } else {
+        const addResult: JobAddProsFormType = {
+          jobId: selectedJobInfo?.jobInfo.id!,
+          round: selectedAssign?.round!,
+          pros: selectedProList.map((value, index) => {
+            return {
+              userId: value.userId,
+              order: index + 1 + existingProsLength,
+            }
+          }),
+        }
+        console.log(addResult)
+
+        addProCurrentRequestMutation.mutate(addResult)
       }
-      createRequestMutation.mutate(result)
+
       //TODO 수정 API 요청
     } else {
       const result: JobBulkRequestFormType = {
@@ -462,9 +507,15 @@ const JobDetail = () => {
         jobAssignDefaultRound: jobAssign?.round ?? 1,
       }
     })
+
     if (JSON.stringify(combinedList) !== JSON.stringify(jobDetail)) {
       setJobDetail(combinedList)
       setSelectedJobInfo(combinedList[0])
+      const defaultRound = combinedList[0].jobAssignDefaultRound ?? 1
+      setSelectedAssign(
+        combinedList[0].jobAssign.find(value => value.round === defaultRound) ??
+          null,
+      )
     }
   }, [jobInfoList, jobPriceList, jobAssignList])
 
@@ -477,6 +528,8 @@ const JobDetail = () => {
       )
     }
   }, [roundQuery, selectedJobInfo])
+
+  console.log(selectedAssign)
 
   return (
     <Card sx={{ height: '100%' }}>

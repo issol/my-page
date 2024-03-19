@@ -32,6 +32,7 @@ type Props = {
     requestTerm: number | null,
     selectedProList: ProListType[],
     existingProsLength: number,
+    type: 'create' | 'add',
   ) => void
   onClose: () => void
   selectedPros: ProListType[]
@@ -675,6 +676,7 @@ const RequestSummaryModal = ({
                   requestTerm,
                   selectedProList,
                   existingPros?.pros.length ?? 0,
+                  type,
                 )
               }
             >
