@@ -231,6 +231,13 @@ export const getMessageList = async (
   proId: number,
 ): Promise<{
   unReadCount: number
+  members: {
+    userId: number
+    firstName: string
+    middleName: string
+    lastName: string
+    role: string // lpm | pro
+  }[]
   contents:
     | {
         id: number
@@ -254,6 +261,7 @@ export const getMessageList = async (
     return {
       unReadCount: 0,
       contents: null,
+      members: [],
     }
   }
 }

@@ -68,6 +68,7 @@ import useModal from '@src/hooks/useModal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
+import Message from './message-modal'
 
 type Props = {
   jobInfo: JobType
@@ -310,6 +311,19 @@ const AssignPro = ({
           onClose={() => closeModal('ReAssignProModal')}
           rightButtonText='Re-assign'
           vary='error-alert'
+        />
+      ),
+    })
+  }
+
+  const onClickMessage = (row: JobRequestsProType) => {
+    openModal({
+      type: 'AssignProMessageModal',
+      children: (
+        <Message
+          jobId={jobInfo.id}
+          info={row}
+          onClose={() => closeModal('AssignProMessageModal')}
         />
       ),
     })
@@ -708,6 +722,7 @@ const AssignPro = ({
                 onClickAssign,
                 onClickCancel,
                 onClickReAssign,
+                onClickMessage,
               )}
               keepNonExistentRowsSelected
               getRowId={row => row.userId}

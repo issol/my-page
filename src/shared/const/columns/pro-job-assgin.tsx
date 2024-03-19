@@ -214,6 +214,7 @@ export const getProJobAssignColumnsForRequest = (
   onClickAssign: (row: JobRequestsProType) => void,
   onClickCancel: (row: JobRequestsProType) => void,
   onClickReAssign: (row: JobRequestsProType) => void,
+  onClickMessage: (row: JobRequestsProType) => void,
 ) => {
   const columns: GridColumns<JobRequestsProType> = [
     {
@@ -335,7 +336,10 @@ export const getProJobAssignColumnsForRequest = (
             }}
           >
             {row.assignmentStatus === null ? null : (
-              <IconButton sx={{ padding: 0 }}>
+              <IconButton
+                sx={{ padding: 0 }}
+                onClick={() => onClickMessage(row)}
+              >
                 <Icon icon='mdi:message-text' />
               </IconButton>
             )}
