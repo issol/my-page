@@ -1,8 +1,16 @@
-import React, { RefObject, SyntheticEvent, useState } from 'react'
+import React, {
+  RefObject,
+  SyntheticEvent,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import {
   Box,
+  Button,
   Card,
+  Checkbox,
   Collapse,
   IconButton,
   Paper,
@@ -21,16 +29,32 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { JobStatusType } from '@src/types/jobs/jobs.type'
-import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
+import { LegalName } from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useRouter } from 'next/router'
-import { KeyboardArrowDown, KeyboardArrowUp } from '@mui/icons-material'
+import {
+  AutoMode,
+  KeyboardArrowDown,
+  KeyboardArrowUp,
+} from '@mui/icons-material'
 import { useTheme } from '@mui/material/styles'
 import styled from '@emotion/styled'
 import { JobButton } from '@src/pages/orders/job-list/details/index'
+import { AddFrameIcon, TemplateIcon, TriggerIcon } from '@src/views/svgIcons'
+import {
+  AddJobMenu,
+  DeleteMode,
+  JobListMode,
+  ManageStatusMode,
+  ModeProps,
+} from '@src/views/jobDetails/viewModes'
+import AddJobTemplate from '@src/views/jobDetails/addJobTemplate'
+import useDialog from '@src/hooks/useDialog'
+import { Icon } from '@iconify/react'
 
 const HeadRowItemNames = [
+  '',
   'No.',
   'Job',
   'Job status',
@@ -39,18 +63,14 @@ const HeadRowItemNames = [
   '',
 ]
 
-interface JobListCardProps {
+const CheckMode: Array<JobListMode> = ['edit', 'delete', 'manageStatus']
+
+interface JobListCardProps extends ModeProps {
   index: number
   info: JobItemType
   isUserInTeamMember: boolean
-  serviceType: Array<{ label: string; value: string }[]>
   tableRowRef: RefObject<HTMLTableRowElement>
   statusList?: Array<{ value: number; label: string }>
-  handleRemoveJob: (
-    jobId: number,
-    corporationId: string,
-    jobName: string,
-  ) => Promise<void>
   handleChangeServiceType: (
     event: SyntheticEvent<Element, Event>,
     value: {
@@ -60,44 +80,37 @@ interface JobListCardProps {
     index: number,
   ) => void
   onClickAddJob: (itemId: number, index: number) => void
+  onAutoCreateJob: () => void
 }
 
 const JobListCard = ({
   index,
   tableRowRef,
+  mode = 'view',
   info,
   isUserInTeamMember,
-  serviceType,
   statusList,
-  handleRemoveJob,
   handleChangeServiceType,
   onClickAddJob,
+  onAutoCreateJob,
+  onChangeViewMode,
 }: JobListCardProps) => {
+  const ref = useRef<HTMLDivElement>(null)
   const theme = useTheme()
+
   const router = useRouter()
   const { orderId, jobId } = router.query
 
   const currentRole = getCurrentRole()
+  const { isOpen, onOpen, onClose } = useDialog()
 
   const [open, setOpen] = useState<boolean>(true)
+  const [isAddJobMenuOpen, setIsAddJobMenuOpen] = useState(false)
 
-  const NoList = () => {
-    return (
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          padding: '15px',
-          alignItems: 'center',
-          borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
-        }}
-      >
-        <Typography variant='subtitle1'>There are no jobs</Typography>
-      </Box>
-    )
-  }
+  const [selected, setSelected] = useState<readonly number[]>([])
+  const [changeJobStatus, setChangeJobStatus] = useState<JobStatusType | null>(
+    null,
+  )
 
   const onClickRow = (row: JobType, info: JobItemType) => {
     router.push({
@@ -106,8 +119,47 @@ const JobListCard = ({
     })
   }
 
+  const isSelected = (id: number) => selected.indexOf(id) !== -1
+
+  const onSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelected = info.jobs
+        .filter(row => row.id !== Number(jobId!))
+        .map(n => n.id)
+      setSelected(newSelected)
+      return
+    }
+    setSelected([])
+  }
+
+  const onSelectClick = (event: React.MouseEvent<unknown>, id: number) => {
+    const selectedIndex = selected.indexOf(id)
+    let newSelected: readonly number[] = []
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selected, id)
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selected.slice(1))
+    } else if (selectedIndex === selected.length - 1) {
+      newSelected = newSelected.concat(selected.slice(0, -1))
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1),
+      )
+    }
+    setSelected(newSelected)
+  }
+
+  const allChecked = useMemo(() => {
+    const filteredJobs = info.jobs.filter(row => row.id !== Number(jobId))
+    return selected.length === filteredJobs.length && filteredJobs.length > 0
+  }, [selected])
+
+  const viewState = useMemo(() => CheckMode.includes(mode), [mode])
+
   return (
-    <Card>
+    <Card ref={ref}>
       <Box
         display='flex'
         gap='8px'
@@ -146,17 +198,35 @@ const JobListCard = ({
             </Typography>
           </Box>
           <Box display='flex' alignItems='center'>
-            <JobButton label='Add job' onClick={() => {}}>
-              <img
-                src='/images/icons/job-icons/icon-add-frame.svg'
-                alt='Add job'
-              />
+            <JobButton
+              label='Auto-create'
+              onClick={onAutoCreateJob}
+              disabled={mode !== 'view'}
+            >
+              <AutoMode sx={{ fontSize: 20 }} />
             </JobButton>
-            <JobButton label='Add Job template' onClick={() => {}}>
-              <img
-                src='/images/icons/job-icons/icon-template.svg'
-                alt='Add Job template'
-              />
+            <Box position='relative'>
+              <JobButton
+                label='Add job'
+                onClick={() => setIsAddJobMenuOpen(prev => !prev)}
+                disabled={viewState}
+              >
+                <AddFrameIcon disabled={viewState} />
+              </JobButton>
+              {isAddJobMenuOpen && (
+                <AddJobMenu
+                  mode={mode}
+                  onChangeViewMode={onChangeViewMode}
+                  alertClose={() => setIsAddJobMenuOpen(false)}
+                />
+              )}
+            </Box>
+            <JobButton
+              label='Add Job template'
+              onClick={() => onOpen()}
+              disabled={viewState}
+            >
+              <TemplateIcon disabled={viewState} />
             </JobButton>
           </Box>
         </Box>
@@ -171,10 +241,26 @@ const JobListCard = ({
             >
               <TableRow
                 sx={{
+                  height: '46px',
+                  fontWeight: '400',
+                  fontSize: '14px',
                   background: theme.palette.background.default,
                 }}
               >
-                {HeadRowItemNames.map((name, index) => (
+                {viewState && (
+                  <TableCell size='small' padding='checkbox'>
+                    <Checkbox
+                      color='primary'
+                      checked={allChecked}
+                      onChange={onSelectAllClick}
+                      inputProps={{
+                        'aria-label': 'select all desserts',
+                      }}
+                    />
+                  </TableCell>
+                )}
+
+                {HeadRowItemNames.slice(1).map((name, index) => (
                   <TableCell
                     key={`${name}-${index}`}
                     sx={{
@@ -196,7 +282,7 @@ const JobListCard = ({
                           height: '14px',
                           background: theme.palette.divider,
                           display:
-                            HeadRowItemNames.length - 3 < index
+                            HeadRowItemNames.length - 4 < index
                               ? 'none'
                               : 'block',
                         }}
@@ -209,6 +295,7 @@ const JobListCard = ({
             <TableBody>
               {info.jobs.length > 0
                 ? info.jobs.map((row, index) => {
+                    const isItemSelected = isSelected(row.id)
                     return (
                       <TableRow
                         component='tr'
@@ -223,9 +310,25 @@ const JobListCard = ({
                         }}
                         // hover
                         onClick={() => {
+                          if (mode === 'delete') return
                           onClickRow(row, info)
                         }}
+                        selected={isItemSelected}
+                        aria-checked={isItemSelected}
                       >
+                        {viewState && (
+                          <CustomTableCell padding='checkbox'>
+                            <Checkbox
+                              disabled={row.id === Number(jobId!)}
+                              color='primary'
+                              checked={isItemSelected}
+                              onClick={event => onSelectClick(event, row.id)}
+                              inputProps={{
+                                'aria-labelledby': row.corporationId,
+                              }}
+                            />
+                          </CustomTableCell>
+                        )}
                         <CustomTableCell
                           size='small'
                           component='th'
@@ -239,10 +342,18 @@ const JobListCard = ({
                           component='th'
                           scope='row'
                         >
-                          <ServiceTypeChip
-                            size='small'
-                            label={row.serviceType}
-                          />
+                          <Box display='flex' alignItems='center' gap='8px'>
+                            <ServiceTypeChip
+                              size='small'
+                              label={row.serviceType}
+                            />
+                            {/* NOTE : 트리거냐 아니냐에 따라 none/block 처리*/}
+                            <Icon
+                              icon='ic:outline-people'
+                              fontSize={24}
+                              color='#8D8E9A'
+                            />
+                          </Box>
                         </CustomTableCell>
 
                         <CustomTableCell
@@ -280,11 +391,10 @@ const JobListCard = ({
                         >
                           <Box>
                             {row.assignedPro ? (
-                              <LegalNameEmail
+                              <LegalName
                                 row={{
                                   isOnboarded: true,
                                   isActive: true,
-
                                   firstName: row.assignedPro.firstName,
                                   middleName: row.assignedPro.middleName,
                                   lastName: row.assignedPro.lastName,
@@ -292,7 +402,13 @@ const JobListCard = ({
                                 }}
                               />
                             ) : (
-                              '-'
+                              <Button
+                                variant='outlined'
+                                size='small'
+                                onClick={() => {}}
+                              >
+                                Request/Assign
+                              </Button>
                             )}
                           </Box>
                         </CustomTableCell>
@@ -308,14 +424,11 @@ const JobListCard = ({
                             justifyContent='flex-end'
                             gap='8px'
                           >
-                            <img
-                              src='/images/icons/job-icons/icon-trigger.svg'
-                              alt='trigger on'
-                            />
+                            <TriggerIcon />
                             <TriggerSwitchStatus
                               variant='body2'
                               color={theme.palette.success.main}
-                              bgColor='#EEFBE5'
+                              bgcolor='#EEFBE5'
                             >
                               On
                             </TriggerSwitchStatus>
@@ -328,8 +441,51 @@ const JobListCard = ({
             </TableBody>
           </Table>
         </TableContainer>
+        <AddJobTemplate isOpen={isOpen} onClose={onClose} />
       </Collapse>
+      {viewState && (
+        <Card
+          sx={{
+            width: `${ref.current?.getBoundingClientRect().width}px`,
+            position: 'fixed',
+            bottom: 0,
+            height: '103px',
+          }}
+        >
+          <DeleteMode
+            mode={mode}
+            onChangeViewMode={onChangeViewMode}
+            selected={selected}
+          />
+
+          <ManageStatusMode
+            mode={mode}
+            statusList={statusList}
+            changeJobStatus={changeJobStatus}
+            setChangeJobStatus={setChangeJobStatus}
+            onChangeViewMode={onChangeViewMode}
+          />
+        </Card>
+      )}
     </Card>
+  )
+}
+
+const NoList = () => {
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '15px',
+        alignItems: 'center',
+        borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+      }}
+    >
+      <Typography variant='subtitle1'>There are no jobs</Typography>
+    </Box>
   )
 }
 
@@ -339,15 +495,15 @@ const CustomTableCell = styled(TableCell)(() => ({
 
 const TriggerSwitchStatus = styled(Typography)<{
   color: string
-  bgColor: string
-}>(({ color, bgColor }) => ({
+  bgcolor: string
+}>(({ color, bgcolor }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   width: '40px',
   height: '28px',
   fontWeight: 500,
-  background: bgColor,
+  background: bgcolor,
   color: color,
   borderRadius: '5px',
 }))

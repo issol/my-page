@@ -7,7 +7,6 @@ import {
   MenuItem,
   Typography,
 } from '@mui/material'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import useModal from '@src/hooks/useModal'
 import { useGetJobDetails } from '@src/queries/order/job.query'
 import Link from 'next/link'
@@ -27,14 +26,11 @@ import {
 import { useMutation, useQueryClient } from 'react-query'
 import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
 import { createJob } from '@src/apis/jobs/jobs.api'
-import { deleteJob, getAssignableProList } from '@src/apis/jobs/job-detail.api'
+import { deleteJob } from '@src/apis/jobs/job-detail.api'
 import { useGetStatusList } from '@src/queries/common.query'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { useRecoilValueLoadable } from 'recoil'
 import { authState } from '@src/states/auth'
-import { getCurrentRole } from '@src/shared/auth/storage'
-import { AssignProFilterPostType } from '@src/types/orders/job-detail'
-import toast from 'react-hot-toast'
 import JobListCard from '@src/pages/orders/job-list/details/jobListCard'
 import {
   ArrowBackIos,
@@ -42,11 +38,14 @@ import {
   DeleteOutline,
   MoreVert,
 } from '@mui/icons-material'
-import { useTheme } from '@mui/material/styles'
+import styled from '@emotion/styled'
+import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
+import { JobStatusIcon, TriggerIcon } from '@src/views/svgIcons'
+import { JobListMode } from '@src/views/jobDetails/viewModes'
 
 const JobDetails = () => {
-  const theme = useTheme()
   const router = useRouter()
+  const { orderId, jobId } = router.query
 
   const tableRowRef = useRef<HTMLTableRowElement>(null)
   const { openModal, closeModal } = useModal()
@@ -54,9 +53,6 @@ const JobDetails = () => {
   const queryClient = useQueryClient()
 
   const auth = useRecoilValueLoadable(authState)
-  const currentRole = getCurrentRole()
-
-  const { orderId, jobId } = router.query
 
   const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId!), true)
   const { data: orderDetail } = useGetProjectInfo(Number(orderId!))
@@ -67,6 +63,7 @@ const JobDetails = () => {
   const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
   const [isLoadingDeleteState, setIsLoadingDeleteState] = useState(false)
 
+  const [mode, setMode] = useState<JobListMode>('view')
   const [serviceType, setServiceType] = useState<
     Array<{ label: string; value: string }[]>
   >([])
@@ -98,6 +95,7 @@ const JobDetails = () => {
     },
   )
 
+  // NOTE : 현재 단일값만 처리할 수 있도록 API 구성되어 있어서 변경 필요함
   const deleteJobMutation = useMutation((jobId: number) => deleteJob(jobId), {
     onSuccess: () => {
       refetch()
@@ -125,66 +123,6 @@ const JobDetails = () => {
       serviceType: serviceType[index].map(value => value.value),
       index: index,
     })
-  }
-
-  const handleRemoveJob = async (
-    jobId: number,
-    corporationId: string,
-    jobName: string,
-  ) => {
-    //job에 request 또는 Assign이 있을 경우 삭제하면 안됨
-    try {
-      setIsLoadingDeleteState(true)
-      const assignableProListFilters: AssignProFilterPostType = {
-        take: 5,
-        skip: 0,
-        isOffBoard: '1',
-      }
-      const assignableProList = await getAssignableProList(
-        jobId,
-        assignableProListFilters,
-        false,
-      )
-      if (assignableProList.data.some(list => list.assignmentStatus !== null)) {
-        openModal({
-          type: 'RemoveImpossibleModal',
-          children: (
-            <CustomModal
-              soloButton={true}
-              onClose={() => closeModal('RemoveImpossibleModal')}
-              onClick={() => closeModal('RemoveImpossibleModal')}
-              title='This job cannot be deleted because it’s already been requested to Pro(s).'
-              subtitle={`[${corporationId}] ${jobName ?? ''}`}
-              vary={'error'}
-              rightButtonText='Okay'
-            />
-          ),
-        })
-      } else {
-        openModal({
-          type: 'RemoveJobModal',
-          children: (
-            <CustomModal
-              onClose={() => closeModal('RemoveJobModal')}
-              onClick={() => {
-                deleteJobMutation.mutate(jobId)
-                closeModal('RemoveJobModal')
-              }}
-              title='Are you sure you want to delete this job?'
-              subtitle={`[${corporationId}] ${jobName ?? ''}`}
-              vary={'error'}
-              rightButtonText='Delete'
-            />
-          ),
-        })
-      }
-    } catch (e) {
-      toast.error('Something went wrong. Please try again.', {
-        position: 'bottom-left',
-      })
-    } finally {
-      setIsLoadingDeleteState(false)
-    }
   }
 
   useEffect(() => {
@@ -270,6 +208,44 @@ const JobDetails = () => {
     )
   }
 
+  const onChangeViewMode = () => {
+    setMode('view')
+  }
+
+  const onAutoCreateJob = () => {
+    // NOTE : 생성될 잡의 갯수추가
+    openModal({
+      type: 'AutoCreateJobProceedConfirm',
+      children: (
+        <CustomModalV2
+          onClick={() => closeModal('AutoCreateJobProceedConfirm')}
+          onClose={() => closeModal('AutoCreateJobProceedConfirm')}
+          title='Auto-create jobs'
+          vary='successful'
+          subtitle={
+            <p>
+              Based on the service type and language pair configured in the
+              order, jobs will be automatically created under each Item. <br />
+              <br />
+              Would you like to proceed with the creation of {0} Jobs?
+            </p>
+          }
+          rightButtonText='Proceed'
+        />
+      ),
+    })
+  }
+
+  const onDeleteJobs = () => {
+    setMode('delete')
+  }
+
+  const onEditTrigger = () => {}
+
+  const onManageJobStatus = () => {
+    setMode('manageStatus')
+  }
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       {createJobMutation.isLoading ||
@@ -278,7 +254,7 @@ const JobDetails = () => {
         <OverlaySpinner />
       ) : null}
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <Box
+        <JobTitleSection
           width='100%'
           display='flex'
           alignItems='center'
@@ -310,67 +286,83 @@ const JobDetails = () => {
             </Box>
           </Box>
           <Box display='flex' alignItems='center'>
-            <JobButton label='Auto-create jobs' onClick={() => {}}>
-              <AutoMode color='inherit' sx={{ fontSize: 20 }} />
+            <JobButton
+              label='Auto-create jobs'
+              onClick={onAutoCreateJob}
+              disabled={mode !== 'view'}
+            >
+              <AutoMode sx={{ fontSize: 20 }} />
             </JobButton>
-            <JobButton label='Delete jobs' onClick={() => {}}>
+            <JobButton
+              label='Delete jobs'
+              onClick={onDeleteJobs}
+              disabled={mode !== 'view'}
+            >
               <DeleteOutline
                 color='inherit'
                 sx={{ fontSize: 20 }}
                 fontWeight={500}
               />
             </JobButton>
-            <JobButton label='Edit trigger' onClick={() => {}}>
-              <img
-                width={20}
-                src='/images/icons/job-icons/icon-trigger.svg'
-                alt='trigger on'
-              />
+            <JobButton
+              label='Edit trigger'
+              onClick={onEditTrigger}
+              disabled={mode !== 'view'}
+            >
+              <TriggerIcon disabled={mode !== 'view'} />
             </JobButton>
-            <JobButton label='Manage job status' onClick={() => {}}>
-              <img
-                width={20}
-                src='/images/icons/job-icons/icon-job-status.svg'
-                alt='trigger on'
-              />
+            <JobButton
+              label='Manage job status'
+              onClick={onManageJobStatus}
+              disabled={mode !== 'view'}
+            >
+              <JobStatusIcon disabled={mode !== 'view'} />
             </JobButton>
           </Box>
-        </Box>
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        </JobTitleSection>
+
+        <CardListSection display='flex' flexDirection='column' gap='24px'>
           {jobDetails?.items.map((value, index) => {
             return (
               <JobListCard
-                key={`${value.id}-${index}`}
                 tableRowRef={tableRowRef}
+                key={`${value.id}-${index}`}
                 index={index}
-                serviceType={serviceType}
+                mode={mode}
                 info={value}
                 statusList={statusList}
                 isUserInTeamMember={isUserInTeamMember}
-                handleRemoveJob={handleRemoveJob}
                 handleChangeServiceType={handleChangeServiceType}
                 onClickAddJob={onClickAddJob}
+                onAutoCreateJob={onAutoCreateJob}
+                onChangeViewMode={onChangeViewMode}
               />
             )
           })}
-        </Box>
+        </CardListSection>
       </Box>
     </Grid>
   )
 }
 
+const JobTitleSection = styled(Box)``
+const CardListSection = styled(Box)``
+
 export const JobButton = ({
   label,
   onClick,
+  disabled,
   children,
 }: {
   label: string
   onClick?: () => void
+  disabled?: boolean
   children: ReactElement
 }) => {
   return (
     <Button
       sx={{ display: 'flex', gap: '2px', color: '#8D8E9A' }}
+      disabled={disabled}
       onClick={onClick}
     >
       {children}
