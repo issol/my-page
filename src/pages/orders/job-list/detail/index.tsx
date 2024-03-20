@@ -752,6 +752,7 @@ const JobDetail = () => {
                         ),
                       )}
                       languagePair={langItem.languagePairs || []}
+                      setJobId={setJobId}
                     />
                   ) : null}
                 </TabPanel>

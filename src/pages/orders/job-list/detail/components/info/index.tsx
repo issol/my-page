@@ -36,7 +36,7 @@ import { statusType } from '@src/types/common/status.type'
 import { JobAssignProRequestsType } from '@src/types/jobs/jobs.type'
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import Image from 'next/image'
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useMutation, useQueryClient } from 'react-query'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
@@ -53,6 +53,7 @@ type Props = {
   projectTeam: ProjectTeamListType[]
   items: JobItemType | undefined
   languagePair: LanguagePairTypeInItem[]
+  setJobId: Dispatch<SetStateAction<number[]>>
 }
 
 const JobInfo = ({
@@ -61,6 +62,7 @@ const JobInfo = ({
   projectTeam,
   items,
   languagePair,
+  setJobId,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
@@ -89,11 +91,19 @@ const JobInfo = ({
       saveJobInfo(data.jobId, data.data),
     {
       onSuccess: (data, variables) => {
-        // if (data.id === variables.jobId) {
+        if (data.id === variables.jobId) {
+          queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+          queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+          queryClient.invalidateQueries([
+            'jobAssignProRequests',
+            variables.jobId,
+          ])
+        } else {
+          setJobId(prev =>
+            prev.map(id => (id === variables.jobId ? data.id : id)),
+          )
+        }
         // setSuccess && setSuccess(true)
-        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
-        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
-        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
       },
     },
   )
@@ -137,6 +147,7 @@ const JobInfo = ({
       {
         onSuccess: () => {
           // setJobStatus(Number(event.target.value))
+          closeModal('StatusAlertModal')
           filterStatus(Number(status))
         },
       },
@@ -292,6 +303,7 @@ const JobInfo = ({
           contactPersonList={contactPersonList}
           items={items}
           languagePair={languagePair}
+          saveJobInfoMutation={saveJobInfoMutation}
         />
       ),
     })
