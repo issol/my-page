@@ -21,6 +21,7 @@ import DeliveredInactiveList, {
 } from './delivered-inactive-list'
 import { useGetProJobList } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type MenuType = 'requested' | 'completed'
 
@@ -78,7 +79,7 @@ const Jobs = () => {
           <CustomTab
             value='requested'
             label={
-              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <Box display='flex' alignItems='center' gap='8px'>
                 Requested & Ongoing
                 {ongoingDot ? (
                   <Badge
@@ -125,7 +126,7 @@ const Jobs = () => {
           </Suspense>
         </TabPanel>
         <TabPanel value='completed' sx={{ p: 0, pt: '24px' }}>
-          <Suspense>
+          <Suspense fallback={<OverlaySpinner />}>
             <DeliveredInactiveList />
           </Suspense>
         </TabPanel>

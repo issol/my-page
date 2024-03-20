@@ -184,7 +184,7 @@ const ProJobsDetail = () => {
               />
             ) : null}
           </TabList>
-          <TabPanel value='jobInfo' sx={{ mt: '24px', padding: 0 }}>
+          <TabPanel value='jobInfo' sx={{ p: 0, mt: '24px' }}>
             <Suspense>
               <ProJobInfo
                 jobInfo={jobDetail}
@@ -194,7 +194,7 @@ const ProJobsDetail = () => {
               />
             </Suspense>
           </TabPanel>
-          <TabPanel value='feedback' sx={{ mt: '24px', padding: 0 }}>
+          <TabPanel value='feedback' sx={{ p: 0, mt: '24px' }}>
             <Suspense>
               <DeliveriesFeedback
                 jobInfo={jobDetail}

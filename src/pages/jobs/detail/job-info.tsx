@@ -55,7 +55,6 @@ import {
   patchProJobDetail,
   patchProJobSourceFileDownload,
 } from '@src/apis/jobs/job-detail.api'
-import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 import { timezoneSelector } from '@src/states/permission'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 
@@ -538,13 +537,9 @@ const ProJobInfo = ({
 
   return (
     <Grid container width='100%' xs={12} spacing={4} padding={0}>
-      {patchProJobSourceFileDownloadMutation.isLoading ||
-      selectAssignMutation.isLoading ? (
-        <OverlaySpinner />
-      ) : null}
       <Grid item xs={9.25}>
         <Card sx={{ padding: '20px', marginBottom: '24px' }}>
-          <Box display='grid' gridTemplateColumns='repeat(12, 1fr)' gap='10px'>
+          <Box width='100%' display='flex' gap='10px'>
             <NextPrevItemCard
               title='Previous job'
               userInfo={{
@@ -1365,8 +1360,8 @@ const ProJobInfo = ({
 
 interface NextPrevItemCardProps {
   title: string
-  date: string
-  userInfo: {
+  date?: string
+  userInfo?: {
     isOnboarded: boolean
     isActive: boolean
     firstName: string
@@ -1384,28 +1379,43 @@ const NextPrevItemCard = ({
   date,
 }: NextPrevItemCardProps) => {
   return (
-    <Box gridColumn='span 6'>
+    <Box width='100%'>
       <Typography variant='body2' fontWeight={500} color='#8D8E9A'>
         {title}
       </Typography>
       <Box
+        width='100%'
+        display='flex'
+        alignItems='center'
+        height={86}
         padding='8px 20px'
         border='1px solid #D8D8DD'
         borderRadius='10px'
         marginTop='8px'
       >
-        <Box display='flex' alignItems='center' gap='20px'>
-          <LegalNameEmail row={{ ...userInfo }} link={link} />
-          <ServiceTypeChip size='small' label='Approved' />
-        </Box>
-        <Typography
-          variant='body2'
-          fontWeight={400}
-          color='#8D8E9A'
-          sx={{ mt: '8px' }}
-        >
-          <span style={{ fontWeight: 600 }}>Start date</span>:{date}
-        </Typography>
+        {!userInfo && (
+          <Box width='100%' display='flex' justifyContent='space-between'>
+            <Typography variant='body2'>-</Typography>
+            <ServiceTypeChip size='small' label='Approved' />
+          </Box>
+        )}
+        {userInfo && (
+          <Box display='flex' width='100%' flexWrap='wrap'>
+            <Box display='flex' alignItems='center' gap='20px'>
+              <LegalNameEmail row={{ ...userInfo }} link={link} />
+              <ServiceTypeChip size='small' label='Approved' />
+            </Box>
+            <Typography
+              width='100%'
+              variant='body2'
+              fontWeight={400}
+              color='#8D8E9A'
+              sx={{ mt: '8px', display: date ? 'block' : 'none' }}
+            >
+              <span style={{ fontWeight: 600 }}>Start date</span>:{date}
+            </Typography>
+          </Box>
+        )}
       </Box>
     </Box>
   )
