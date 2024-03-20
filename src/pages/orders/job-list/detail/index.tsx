@@ -14,6 +14,7 @@ import {
 } from '@mui/material'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import {
+  useGetAssignableProList,
   useGetJobAssignProRequests,
   useGetJobInfo,
   useGetJobPrices,
@@ -48,7 +49,9 @@ import { LinguistTeamProListFilterType } from '@src/types/pro/linguist-team'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { JobType } from '@src/types/common/item.type'
 import {
+  JobAddProsFormType,
   JobAssignProRequestsType,
+  JobBulkRequestFormType,
   JobPricesDetailType,
   JobRequestFormType,
   jobPriceHistoryType,
@@ -58,9 +61,21 @@ import useModal from '@src/hooks/useModal'
 import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import RequestSummaryModal from './components/assign-pro/request-summary-modal'
-import { UseQueryResult, useMutation } from 'react-query'
-import { createRequestJobToPro } from '@src/apis/jobs/job-detail.api'
+import { UseQueryResult, useMutation, useQueryClient } from 'react-query'
+import {
+  addProCurrentRequest,
+  createBulkRequestJobToPro,
+  createRequestJobToPro,
+  forceAssign,
+  getAssignableProList,
+  handleJobAssignStatus,
+} from '@src/apis/jobs/job-detail.api'
 import { displayCustomToast } from '@src/shared/utils/toast'
+import JobInfo from './components/info'
+import {
+  AssignProFilterPostType,
+  AssignProListType,
+} from '@src/types/orders/job-detail'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -68,6 +83,10 @@ export type TabType = 'linguistTeam' | 'pro'
 
 const JobDetail = () => {
   const router = useRouter()
+  const queryClient = useQueryClient()
+
+  console.log(queryClient)
+
   const { openModal, closeModal } = useModal()
   const menuQuery = router.query.menu as MenuType
   const orderId = router.query.orderId as string
@@ -80,6 +99,7 @@ const JobDetail = () => {
       jobInfo: JobType | undefined
       jobPrices: JobPricesDetailType | undefined
       jobAssign: JobAssignProRequestsType[]
+      jobAssignDefaultRound: number
     }>
   >([])
 
@@ -88,6 +108,7 @@ const JobDetail = () => {
     jobInfo: JobType
     jobPrices: JobPricesDetailType
     jobAssign: JobAssignProRequestsType[]
+    jobAssignDefaultRound: number
   } | null>(null)
 
   const [selectedAssign, setSelectedAssign] =
@@ -100,32 +121,31 @@ const JobDetail = () => {
     label: string
   } | null>(null)
 
-  const [filter, setFilter] = useState<LinguistTeamProListFilterType>({
-    sourceLanguage: [],
-    targetLanguage: [],
-    status: [],
-    clientId: [],
+  const [filter, setFilter] = useState<AssignProFilterPostType>({
+    source: [],
+    target: [],
+
+    client: [],
     take: 10,
     skip: 0,
     genre: [],
-    serviceTypeId: [],
+    serviceType: [],
     category: [],
-    hide: '1',
+    isOffBoard: '1',
   })
 
-  const [activeFilter, setActiveFilter] =
-    useState<LinguistTeamProListFilterType>({
-      sourceLanguage: [],
-      targetLanguage: [],
-      status: [],
-      clientId: [],
-      take: 10,
-      skip: 0,
-      genre: [],
-      serviceTypeId: [],
-      category: [],
-      hide: '1',
-    })
+  const [activeFilter, setActiveFilter] = useState<AssignProFilterPostType>({
+    source: [],
+    target: [],
+
+    client: [],
+    take: 10,
+    skip: 0,
+    genre: [],
+    serviceType: [],
+    category: [],
+    isOffBoard: '1',
+  })
 
   // const jobId = router.query.jobId
   const [jobId, setJobId] = useState<number[]>([])
@@ -139,7 +159,7 @@ const JobDetail = () => {
   }>({})
   const [selectedRows, setSelectedRows] = useState<{
     [key: string]: {
-      data: Array<ProListType>
+      data: Array<ProListType | AssignProListType>
       isPrivate?: boolean
       isPrioritized?: boolean
     }
@@ -161,6 +181,7 @@ const JobDetail = () => {
       {
         requests: JobAssignProRequestsType[]
         id: number
+        frontRound: number
       },
       unknown
     >[]
@@ -168,9 +189,11 @@ const JobDetail = () => {
 
   const { data: serviceTypeList } = useGetServiceType()
   const { data: clientList } = useGetSimpleClientList()
-  const { data: proList, isLoading } = useGetProList(activeFilter)
-
-  console.log(value, 'value')
+  const { data: proList } = useGetAssignableProList(
+    selectedJobInfo?.jobId!,
+    activeFilter,
+    false,
+  )
 
   const { data: linguistTeam, isLoading: linguistTeamLoading } =
     useGetLinguistTeam({
@@ -230,13 +253,72 @@ const JobDetail = () => {
   const createRequestMutation = useMutation(
     (data: JobRequestFormType) => createRequestJobToPro(data),
     {
-      onSuccess: () => {
+      onSuccess: (data, variables) => {
+        setAddRoundMode(false)
         displayCustomToast('Requested successfully', 'success')
         setSelectionModel({})
         setSelectedRows({})
         setSelectedLinguistTeam(null)
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
 
         // queryClient.invalidateQueries('jobRequest')
+      },
+    },
+  )
+
+  const createBulkRequestMutation = useMutation(
+    (data: JobBulkRequestFormType) => createBulkRequestJobToPro(data),
+    {
+      onSuccess: (data, variables) => {
+        setAddRoundMode(false)
+        displayCustomToast('Requested successfully', 'success')
+        setSelectionModel({})
+        setSelectedRows({})
+        setSelectedLinguistTeam(null)
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
+      },
+    },
+  )
+
+  const assignJobMutation = useMutation(
+    (data: {
+      jobId: number
+      proId: number
+      status: number
+      type: 'force' | 'normal'
+    }) =>
+      data.type === 'normal'
+        ? handleJobAssignStatus(data.jobId, data.proId, data.status, 'lpm')
+        : forceAssign(data.jobId, data.proId),
+    {
+      onSuccess: (data, variables) => {
+        closeModal('AssignProModal')
+        displayCustomToast('Assigned successfully', 'success')
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
+      },
+    },
+  )
+
+  const addProCurrentRequestMutation = useMutation(
+    (data: JobAddProsFormType) => addProCurrentRequest(data),
+    {
+      onSuccess: (data, variables) => {
+        console.log(variables)
+
+        setAddProsMode(false)
+        displayCustomToast('Requested successfully', 'success')
+        setSelectionModel({})
+        setSelectedRows({})
+        setSelectedLinguistTeam(null)
+        queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
+        queryClient.invalidateQueries(['jobPrices', variables.jobId, false])
+        queryClient.invalidateQueries(['jobAssignProRequests', variables.jobId])
       },
     },
   )
@@ -252,45 +334,79 @@ const JobDetail = () => {
   const handleRequest = (
     selectedRequestOption: number,
     requestTerm: number | null,
-    selectedProList: ProListType[],
+    selectedProList: ProListType[] | AssignProListType[],
     existingProsLength: number,
+    type: 'create' | 'add',
   ) => {
     closeModal('RequestModal')
-    //TODO API 연결
-    const result: JobRequestFormType = {
-      type:
-        selectedRequestOption === 0
-          ? 'relay'
-          : selectedRequestOption === 1
-            ? 'bulkAuto'
-            : 'bulkManual',
-      interval: requestTerm ?? undefined,
-      pros: selectedProList.map((value, index) => {
-        return {
-          userId: value.userId,
-          order: index + 1 + existingProsLength,
+
+    if (selectedRequestOption === 0) {
+      if (type === 'create') {
+        const createResult: JobRequestFormType = {
+          type:
+            selectedRequestOption === 0
+              ? 'relayRequest'
+              : selectedRequestOption === 1
+                ? 'bulkAutoAssign'
+                : 'bulkManualAssign',
+          interval: requestTerm ?? undefined,
+
+          pros: selectedProList.map((value, index) => {
+            return {
+              userId: value.userId,
+              order: index + 1 + existingProsLength,
+            }
+          }),
+          round: (selectedJobInfo?.jobAssign.length ?? 0) + 1,
+          jobId: selectedJobInfo?.jobInfo.id!,
         }
-      }),
+        createRequestMutation.mutate(createResult)
+      } else {
+        const addResult: JobAddProsFormType = {
+          jobId: selectedJobInfo?.jobInfo.id!,
+          round: selectedAssign?.round!,
+          pros: selectedProList.map((value, index) => {
+            return {
+              userId: value.userId,
+              order: index + 1 + existingProsLength,
+            }
+          }),
+        }
+        console.log(addResult)
+
+        addProCurrentRequestMutation.mutate(addResult)
+      }
+
+      //TODO 수정 API 요청
+    } else {
+      const result: JobBulkRequestFormType = {
+        requestType:
+          selectedRequestOption === 0
+            ? 'relayRequest'
+            : selectedRequestOption === 1
+              ? 'bulkAutoAssign'
+              : 'bulkManualAssign',
+        remindTime: requestTerm ?? undefined,
+        proIds: selectedProList.map(value => value.userId),
+        jobId: selectedJobInfo?.jobInfo.id!,
+      }
+
+      createBulkRequestMutation.mutate(result)
     }
-    createRequestMutation.mutate(result)
   }
 
   const onClickRequest = () => {
-    console.log(
-      Object.values(selectedRows)
-        .map(value => value.data)
-        .flat(),
-    )
-
     openModal({
       type: 'RequestModal',
       children: (
         <RequestSummaryModal
           onClick={handleRequest}
           onClose={() => closeModal('RequestModal')}
-          selectedPros={Object.values(selectedRows)
-            .map(value => value.data)
-            .flat()}
+          selectedPros={
+            Object.values(selectedRows)
+              .map(value => value.data)
+              .flat() as ProListType[] | AssignProListType[]
+          }
           existingPros={
             selectedJobInfo?.jobAssign.find(
               value => value.round === selectedAssign?.round,
@@ -305,7 +421,7 @@ const JobDetail = () => {
 
   const onClickAssign = (selectedRows: {
     [key: string]: {
-      data: Array<ProListType>
+      data: Array<ProListType | AssignProListType>
       isPrivate?: boolean | undefined
       isPrioritized?: boolean | undefined
     }
@@ -319,7 +435,15 @@ const JobDetail = () => {
         type: 'AssignModal',
         children: (
           <CustomModalV2
-            onClick={() => closeModal('AssignModal')}
+            onClick={() => {
+              assignJobMutation.mutate({
+                jobId: selectedJobInfo?.jobInfo.id!,
+                proId: pro.userId,
+                status: 70300,
+                type: 'force',
+              })
+              closeModal('AssignModal')
+            }}
             onClose={() => closeModal('AssignModal')}
             title='Assign Pro?'
             subtitle={
@@ -345,7 +469,15 @@ const JobDetail = () => {
         type: 'AssignModal',
         children: (
           <CustomModalV2
-            onClick={() => closeModal('AssignModal')}
+            onClick={() => {
+              assignJobMutation.mutate({
+                jobId: selectedJobInfo?.jobInfo.id!,
+                proId: pro.userId,
+                status: 70300,
+                type: 'force',
+              })
+              closeModal('AssignModal')
+            }}
             onClose={() => closeModal('AssignModal')}
             title='Assign Pro?'
             subtitle={
@@ -408,11 +540,18 @@ const JobDetail = () => {
         jobPrices: jobPrices!,
         jobId: jobInfo!.id,
         jobAssign: jobAssign?.requests!,
+        jobAssignDefaultRound: jobAssign?.frontRound ?? 1,
       }
     })
+
     if (JSON.stringify(combinedList) !== JSON.stringify(jobDetail)) {
       setJobDetail(combinedList)
       setSelectedJobInfo(combinedList[0])
+      const defaultRound = combinedList[0].jobAssignDefaultRound ?? 1
+      setSelectedAssign(
+        combinedList[0].jobAssign.find(value => value.round === defaultRound) ??
+          null,
+      )
     }
   }, [jobInfoList, jobPriceList, jobAssignList])
 
@@ -425,6 +564,8 @@ const JobDetail = () => {
       )
     }
   }, [roundQuery, selectedJobInfo])
+
+  console.log(selectedAssign)
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -503,6 +644,7 @@ const JobDetail = () => {
                         jobInfo: value.jobInfo!,
                         jobPrices: value.jobPrices!,
                         jobAssign: value.jobAssign!,
+                        jobAssignDefaultRound: value.jobAssignDefaultRound,
                       })
                       setValue('info')
                     }}
@@ -590,7 +732,10 @@ const JobDetail = () => {
                   />
                 </TabList>
                 <TabPanel value='info' sx={{ height: '100%' }}>
-                  123
+                  <JobInfo
+                    jobInfo={selectedJobInfo?.jobInfo!}
+                    jobAssign={selectedJobInfo?.jobAssign!}
+                  />
                 </TabPanel>
                 <TabPanel value='prices' sx={{ height: '100%' }}>
                   123
@@ -667,7 +812,7 @@ const JobDetail = () => {
                       activeFilter={activeFilter}
                       setFilter={setFilter}
                       setActiveFilter={setActiveFilter}
-                      proList={proList || { data: [], totalCount: 0 }}
+                      proList={proList || { data: [], totalCount: 0, count: 0 }}
                       setPastLinguistTeam={setPastLinguistTeam}
                       pastLinguistTeam={pastLinguistTeam}
                       languageList={languageList}
@@ -682,6 +827,7 @@ const JobDetail = () => {
                       setAssignProMode={setAssignProMode}
                       selectedAssign={selectedAssign}
                       setSelectedAssign={setSelectedAssign}
+                      assignJobMutation={assignJobMutation}
                     />
                   )}
                 </TabPanel>
@@ -815,9 +961,7 @@ const JobDetail = () => {
                                 setSelectedRows(newSelectedRows)
                                 setSelectionModel(prev => {
                                   const newState = { ...prev }
-                                  delete newState[
-                                    selectedLinguistTeam?.label || ''
-                                  ]
+                                  delete newState[key]
                                   return newState
                                 })
                               }}
@@ -849,7 +993,7 @@ const JobDetail = () => {
                                     padding: '16px 16px 16px 20px',
                                   }}
                                 >
-                                  {pro.order}
+                                  {(pro as ProListType).order}
                                 </Typography>
                               ) : null}
                               <Box
@@ -893,11 +1037,14 @@ const JobDetail = () => {
                                   setSelectedRows(newSelectedRows)
                                   setSelectionModel(prev => {
                                     const newState = { ...prev }
-                                    newState[
-                                      selectedLinguistTeam?.label || ''
-                                    ] = prev[
-                                      selectedLinguistTeam?.label || ''
-                                    ]?.filter(value => value !== pro.userId)
+                                    newState[key] = prev[key]?.filter(
+                                      value => value !== pro.userId,
+                                    )
+                                    if (newState[key]?.length === 0) {
+                                      delete newState[key]
+                                    }
+                                    console.log(newState, 'new')
+
                                     return newState
                                   })
                                 }}
@@ -956,7 +1103,7 @@ const JobDetail = () => {
                     </Button>
                   ) : (
                     <Button
-                      variant={assignProMode ? 'contained' : 'outlined'}
+                      variant={'contained'}
                       disabled={
                         Object.values(selectedRows).reduce(
                           (sum, array) => sum + array.data.length,

@@ -69,6 +69,13 @@ import CustomModalV2 from '@src/@core/components/common-modal/custom-modal-v2'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
 import Message from './message-modal'
+import { UseMutationResult } from 'react-query'
+import { useGetStatusList } from '@src/queries/common.query'
+import { request } from 'http'
+import {
+  AssignProFilterPostType,
+  AssignProListType,
+} from '@src/types/orders/job-detail'
 
 type Props = {
   jobInfo: JobType
@@ -77,7 +84,7 @@ type Props = {
   clientList: Array<{ clientId: number; name: string }>
   selectedRows: {
     [key: string]: {
-      data: ProListType[]
+      data: Array<ProListType | AssignProListType>
       isPrivate?: boolean
       isPrioritized?: boolean
     }
@@ -85,7 +92,7 @@ type Props = {
   setSelectedRows: Dispatch<
     SetStateAction<{
       [key: string]: {
-        data: ProListType[]
+        data: Array<ProListType | AssignProListType>
         isPrivate?: boolean
         isPrioritized?: boolean
       }
@@ -105,7 +112,7 @@ type Props = {
   menu: TabType
   setMenu: Dispatch<SetStateAction<TabType>>
 
-  proList: { data: Array<ProListType>; totalCount: number }
+  proList: { data: Array<AssignProListType>; totalCount: number; count: number }
   setPastLinguistTeam: Dispatch<
     SetStateAction<{
       value: number
@@ -113,10 +120,10 @@ type Props = {
     } | null>
   >
   pastLinguistTeam: { value: number; label: string } | null
-  filter: LinguistTeamProListFilterType
-  setFilter: Dispatch<SetStateAction<LinguistTeamProListFilterType>>
-  setActiveFilter: Dispatch<SetStateAction<LinguistTeamProListFilterType>>
-  activeFilter: LinguistTeamProListFilterType
+  filter: AssignProFilterPostType
+  setFilter: Dispatch<SetStateAction<AssignProFilterPostType>>
+  setActiveFilter: Dispatch<SetStateAction<AssignProFilterPostType>>
+  activeFilter: AssignProFilterPostType
   languageList: {
     value: string
     label: GloLanguageEnum
@@ -132,6 +139,17 @@ type Props = {
   setAssignProMode: Dispatch<SetStateAction<boolean>>
   selectedAssign: JobAssignProRequestsType | null
   setSelectedAssign: Dispatch<SetStateAction<JobAssignProRequestsType | null>>
+  assignJobMutation: UseMutationResult<
+    void,
+    unknown,
+    {
+      jobId: number
+      proId: number
+      status: number
+      type: 'force' | 'normal'
+    },
+    unknown
+  >
 }
 
 function loadServerRows(
@@ -182,6 +200,7 @@ const AssignPro = ({
   setAssignProMode,
   selectedAssign,
   setSelectedAssign,
+  assignJobMutation,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   console.log(selectionModel, 'test')
@@ -195,11 +214,15 @@ const AssignPro = ({
   )
   const auth = useRecoilValueLoadable(authState)
   const timezoneList = useRecoilValueLoadable(timezoneSelector)
+  const { data: jobStatusList, isLoading: statusListLoading } =
+    useGetStatusList('JobAssignment')
 
   const [page, setPage] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [loading, setLoading] = useState(false)
-  const [rows, setRows] = useState<{ [key: string]: Array<ProListType> }>({})
+  const [rows, setRows] = useState<{
+    [key: string]: Array<ProListType | AssignProListType>
+  }>({})
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
   const [sourceMultiple, setSourceMultiple] = useState<boolean>(false)
   const [targetMultiple, setTargetMultiple] = useState<boolean>(false)
@@ -233,8 +256,19 @@ const AssignPro = ({
     setListAnchorEl(null)
   }
 
-  const handleAssign = () => {
-    closeModal('AssignProModal')
+  const handleAssign = (
+    row: JobRequestsProType,
+    requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
+  ) => {
+    assignJobMutation.mutate({
+      jobId: jobInfo.id,
+      proId: row.userId,
+      status: 70300,
+      type:
+        requestType === 'bulkManualAssign' && row.assignmentStatus === 70100
+          ? 'normal'
+          : 'force',
+    })
   }
 
   const handleCancelRequest = () => {
@@ -245,7 +279,10 @@ const AssignPro = ({
     closeModal('ReAssignProModal')
   }
 
-  const onClickAssign = (row: JobRequestsProType) => {
+  const onClickAssign = (
+    row: JobRequestsProType,
+    requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign',
+  ) => {
     openModal({
       type: 'AssignProModal',
       children: (
@@ -265,7 +302,7 @@ const AssignPro = ({
             </>
           }
           onClick={() => {
-            handleAssign()
+            handleAssign(row, requestType)
           }}
           onClose={() => closeModal('AssignProModal')}
           rightButtonText='Assign'
@@ -333,26 +370,28 @@ const AssignPro = ({
     setServiceTypeFormList(ServiceTypeList)
     setCategoryList(CategoryList)
     setFilter({
-      category: [],
-      serviceTypeId: [],
-      clientId: [],
-      sourceLanguage: [],
-      targetLanguage: [],
-      genre: [],
-      search: '',
-      skip: 0,
+      source: [],
+      target: [],
+
+      client: [],
       take: 10,
+      skip: 0,
+      genre: [],
+      serviceType: [],
+      category: [],
+      isOffBoard: '1',
     })
     setActiveFilter({
-      category: [],
-      serviceTypeId: [],
-      clientId: [],
-      sourceLanguage: [],
-      targetLanguage: [],
-      genre: [],
-      search: '',
-      skip: 0,
+      source: [],
+      target: [],
+
+      client: [],
       take: 10,
+      skip: 0,
+      genre: [],
+      serviceType: [],
+      category: [],
+      isOffBoard: '1',
     })
   }
 
@@ -398,8 +437,6 @@ const AssignPro = ({
 
       setSelectionModel(prev => ({ ...prev, ...result }))
     } else if (menu === 'pro' && proList.data.length > 0) {
-      console.log(proList.data)
-
       const selectedPros =
         proList.data.filter(pro => selectionModel.includes(pro.userId)) ?? []
 
@@ -463,7 +500,8 @@ const AssignPro = ({
       setRows(prev => {
         return {
           ...prev,
-          [selectedLinguistTeam?.label || '']: proList.data,
+          [selectedLinguistTeam?.label || '']:
+            proList.data as AssignProListType[],
         }
       })
     }
@@ -530,20 +568,24 @@ const AssignPro = ({
                 </Button>
               )
             })}
-            <Button
-              variant='outlined'
-              color='secondary'
-              sx={{
-                borderRadius: '100px',
-                border: '1px solid #8D8E9A',
-                color: '#8D8E9A',
-              }}
-              // TODO 새로운 페이지 추가 액션
-              onClick={() => setAddRoundMode(true)}
-              // onClick={() => setRound(assign.round)}
-            >
-              + Round{jobAssign.length + 1}
-            </Button>
+            {jobAssign.some(job => job.requestCompleted === true) ? null : (
+              <Button
+                variant='outlined'
+                color='secondary'
+                sx={{
+                  borderRadius: '100px',
+                  border: '1px solid #8D8E9A',
+                  color: '#8D8E9A',
+                }}
+                // TODO 새로운 페이지 추가 액션
+                onClick={() => {
+                  setSelectedAssign(null)
+                  setAddRoundMode(true)
+                }}
+              >
+                + Round{jobAssign.length + 1}
+              </Button>
+            )}
           </Box>
           {selectedAssign ? (
             <Box
@@ -556,11 +598,11 @@ const AssignPro = ({
               }}
             >
               <Typography fontSize={16} fontWeight={600}>
-                {selectedAssign?.type === 'relay'
+                {selectedAssign?.type === 'relayRequest'
                   ? 'Relay request'
-                  : selectedAssign?.type === 'bulkAuto'
+                  : selectedAssign?.type === 'bulkAutoAssign'
                     ? 'Bulk request - First come first served'
-                    : selectedAssign?.type === 'bulkManual'
+                    : selectedAssign?.type === 'bulkManualAssign'
                       ? 'Bulk request - Manual assign'
                       : '-'}{' '}
                 ({selectedAssign?.pros.length ?? 0})
@@ -587,9 +629,7 @@ const AssignPro = ({
                     horizontal: 'right',
                   }}
                 >
-                  {selectedAssign.pros.some(
-                    pro => pro.assignmentStatus === 70300,
-                  ) ? null : (
+                  {selectedAssign.requestCompleted ? null : (
                     <MenuItem
                       sx={{
                         gap: 2,
@@ -624,9 +664,7 @@ const AssignPro = ({
                       </Button>
                     </MenuItem>
                   )}
-                  {selectedAssign.pros.some(
-                    pro => pro.assignmentStatus === 70300,
-                  ) ? null : (
+                  {selectedAssign.requestCompleted ? null : (
                     <MenuItem
                       sx={{
                         gap: 2,
@@ -664,7 +702,7 @@ const AssignPro = ({
                       </Button>
                     </MenuItem>
                   )}
-                  {selectedAssign.type === 'relay' ? (
+                  {selectedAssign.type === 'relayRequest' ? (
                     <Tooltip title='In preparation'>
                       <MenuItem
                         sx={{
@@ -704,32 +742,36 @@ const AssignPro = ({
               </Box>
             </Box>
           ) : null}
-
-          <Box sx={{ height: '100%' }}>
-            <DataGrid
-              // autoHeight
-              sx={{
-                height: 'calc(75vh - 100px)',
-              }}
-              rows={selectedAssign?.pros || []}
-              columns={getProJobAssignColumnsForRequest(
-                auth,
-                timezoneList.getValue(),
-                selectedAssign?.pros || [],
-                detailAnchorEl,
-                handleDetailClick,
-                handleDetailClose,
-                onClickAssign,
-                onClickCancel,
-                onClickReAssign,
-                onClickMessage,
-              )}
-              keepNonExistentRowsSelected
-              getRowId={row => row.userId}
-              hideFooterSelectedRowCount
-              hideFooter
-            />
-          </Box>
+          {selectedAssign ? (
+            <Box sx={{ height: '100%' }}>
+              <DataGrid
+                // autoHeight
+                sx={{
+                  height: 'calc(75vh - 100px)',
+                }}
+                rows={selectedAssign?.pros || []}
+                columns={getProJobAssignColumnsForRequest(
+                  auth,
+                  timezoneList.getValue(),
+                  selectedAssign.requestCompleted,
+                  // selectedAssign?.pros || [],
+                  detailAnchorEl,
+                  handleDetailClick,
+                  handleDetailClose,
+                  onClickAssign,
+                  onClickCancel,
+                  onClickReAssign,
+                  onClickMessage,
+                  selectedAssign.type,
+                  jobStatusList || [],
+                )}
+                keepNonExistentRowsSelected
+                getRowId={row => row.userId}
+                hideFooterSelectedRowCount
+                hideFooter
+              />
+            </Box>
+          ) : null}
         </Box>
       ) : (
         <Box sx={{ height: '100%' }}>
@@ -792,11 +834,11 @@ const AssignPro = ({
                     Hide off-boarded Pros
                   </Typography>
                   <Switch
-                    checked={activeFilter.hide === '1'}
+                    checked={activeFilter.isOffBoard === '1'}
                     onChange={e =>
                       setActiveFilter({
                         ...activeFilter,
-                        hide: e.target.checked ? '1' : '0',
+                        isOffBoard: e.target.checked ? '1' : '0',
                       })
                     }
                   />
@@ -866,11 +908,11 @@ const AssignPro = ({
                               }
                               setFilter({
                                 ...filter,
-                                sourceLanguage: item.map(i => i.value),
+                                source: item.map(i => i.value),
                               })
                             }}
                             value={languageList.filter(value =>
-                              filter.sourceLanguage?.includes(value.value),
+                              filter.source?.includes(value.value),
                             )}
                             isOptionEqualToValue={(option, newValue) => {
                               return option.value === newValue.value
@@ -914,11 +956,11 @@ const AssignPro = ({
                               }
                               setFilter({
                                 ...filter,
-                                targetLanguage: item.map(i => i.value),
+                                target: item.map(i => i.value),
                               })
                             }}
                             value={languageList.filter(value =>
-                              filter.targetLanguage?.includes(value.value),
+                              filter.target?.includes(value.value),
                             )}
                             isOptionEqualToValue={(option, newValue) => {
                               return option.value === newValue.value
@@ -1047,15 +1089,15 @@ const AssignPro = ({
                                 )
                                 setFilter({
                                   ...filter,
-                                  serviceTypeId: serviceTypeId.map(
-                                    value => value.value,
+                                  serviceType: serviceTypeId.map(
+                                    value => value.label,
                                   ),
                                 })
                                 setCategoryList(_.uniqBy(arr, 'value'))
                               } else {
                                 setFilter({
                                   ...filter,
-                                  serviceTypeId: [],
+                                  serviceType: [],
                                 })
                                 setCategoryList(CategoryList)
                               }
@@ -1064,7 +1106,7 @@ const AssignPro = ({
                               serviceTypeFormList.filter(value =>
                                 serviceTypeList
                                   .filter(item =>
-                                    filter.serviceTypeId?.includes(item.value),
+                                    filter.serviceType?.includes(item.label),
                                   )
                                   .map(sorted => sorted.label)
                                   .includes(value.label.toString()),
@@ -1107,12 +1149,12 @@ const AssignPro = ({
                             disableCloseOnSelect
                             options={clientList || []}
                             value={clientList?.filter(client =>
-                              filter?.clientId?.includes(client.clientId),
+                              filter?.client?.includes(client.clientId),
                             )}
                             onChange={(e, v) =>
                               setFilter({
                                 ...filter,
-                                clientId: v.map(i => i.clientId),
+                                client: v.map(i => i.clientId),
                               })
                             }
                             // filterSelectedOptions
@@ -1316,8 +1358,7 @@ const AssignPro = ({
                   selectionModel[selectedLinguistTeam?.label || ''] || []
                 }
                 isRowSelectable={row => {
-                  console.log('hi')
-
+                  console.log(selectionModel)
                   return (
                     !Object.entries(selectionModel)
                       .filter(([key]) => key !== selectedLinguistTeam?.label)
@@ -1368,6 +1409,7 @@ const AssignPro = ({
                   false,
                   false,
                   assignProMode,
+
                   selectionModel[selectedLinguistTeam?.label || ''],
                   setSelectionModel,
                   selectedLinguistTeam?.label || '',

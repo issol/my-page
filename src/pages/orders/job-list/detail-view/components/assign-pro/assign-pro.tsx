@@ -175,7 +175,7 @@ const AssignPro = ({
 
   const assignJobMutation = useMutation(
     (data: { jobId: number; proId: number; status: number }) =>
-      handleJobAssignStatus(data.jobId, data.proId, data.status),
+      handleJobAssignStatus(data.jobId, data.proId, data.status, 'lpm'),
     {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(['jobInfo', variables.jobId, false])
@@ -603,18 +603,19 @@ const AssignPro = ({
       renderHeader: () => <Box>Message</Box>,
       renderCell: ({ row }: { row: AssignProListType }) => {
         return (
-          <Badge badgeContent={row.message?.unReadCount} color='primary'>
-            <IconButton
-              sx={{ padding: 0 }}
-              disabled={row.assignmentStatus === null}
-              onClick={() => onClickMessage(row)}
-            >
-              <Icon
-                icon='material-symbols:chat'
-                color='rgba(76, 78, 100, 0.87)'
-              />
-            </IconButton>
-          </Badge>
+          // <Badge badgeContent={row.message?.unReadCount} color='primary'>
+          //   <IconButton
+          //     sx={{ padding: 0 }}
+          //     disabled={row.assignmentStatus === null}
+          //     onClick={() => onClickMessage(row)}
+          //   >
+          //     <Icon
+          //       icon='material-symbols:chat'
+          //       color='rgba(76, 78, 100, 0.87)'
+          //     />
+          //   </IconButton>
+          // </Badge>
+          <></>
         )
       },
     },

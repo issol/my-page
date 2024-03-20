@@ -45,7 +45,7 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
         {link ? (
           <Link href={link} style={{ textDecoration: 'none' }}>
             <Typography
-              variant='body2'
+              variant='body1'
               whiteSpace='nowrap'
               overflow='hidden'
               textOverflow='ellipsis'
@@ -61,7 +61,7 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
           </Link>
         ) : (
           <Typography
-            variant='body2'
+            variant='body1'
             whiteSpace='nowrap'
             overflow='hidden'
             textOverflow='ellipsis'
@@ -80,6 +80,7 @@ const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
           whiteSpace='nowrap'
           overflow='hidden'
           textOverflow='ellipsis'
+          fontWeight={400}
         >
           {row.email}
         </Typography>

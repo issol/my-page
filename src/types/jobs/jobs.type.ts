@@ -302,26 +302,34 @@ export type JobRequestsProType = {
   isOnboarded: boolean
   isActive: boolean
   assignmentStatusUpdatedAt: string
-  responseLight: 'Red' | 'Yellow' | 'Green'
+  responseLight: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600
   ongoingJobCount: number
   order: number
-  messages: Array<{
-    writer: {
-      userId: number
-      email: string
-      firstName: string
-      middleName?: string
-      lastName: string
-    }
-    message: string
-    createdAt: string
-  }>
+  jobRequestId: number
 }
 
 export type JobRequestFormType = {
-  type: 'relay' | 'bulkAuto' | 'bulkManual'
-  reminderTime?: number
+  type: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign'
+  round: number
   interval?: number
+  jobId: number
+  pros: Array<{
+    userId: number
+    order: number
+  }>
+}
+
+export type JobBulkRequestFormType = {
+  jobId: number
+  proIds: number[]
+  requestType: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign'
+  remindTime?: number
+  requestIntervalSec?: number
+}
+
+export type JobAddProsFormType = {
+  jobId: number
+  round: number
   pros: Array<{
     userId: number
     order: number
@@ -329,8 +337,9 @@ export type JobRequestFormType = {
 }
 
 export type JobAssignProRequestsType = {
-  type: 'relay' | 'bulkAuto' | 'bulkManual'
+  type: 'relayRequest' | 'bulkAutoAssign' | 'bulkManualAssign'
   round: number
+  requestCompleted: boolean
   pros: Array<JobRequestsProType>
   interval: number
 }

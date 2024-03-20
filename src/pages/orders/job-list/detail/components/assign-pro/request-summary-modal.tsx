@@ -25,16 +25,18 @@ import {
   JobAssignProRequestsType,
   JobRequestsProType,
 } from '@src/types/jobs/jobs.type'
+import { AssignProListType } from '@src/types/orders/job-detail'
 
 type Props = {
   onClick: (
     selectedRequestOption: number,
     requestTerm: number | null,
-    selectedProList: ProListType[],
+    selectedProList: ProListType[] | AssignProListType[],
     existingProsLength: number,
+    type: 'create' | 'add',
   ) => void
   onClose: () => void
-  selectedPros: ProListType[]
+  selectedPros: ProListType[] | AssignProListType[]
   existingPros: JobAssignProRequestsType | null
   type: 'create' | 'add'
 }
@@ -53,8 +55,11 @@ const RequestSummaryModal = ({
   const [requestTerm, setRequestTerm] = useState<number | null>(
     existingPros ? existingPros.interval : null,
   )
-  const [selectedProList, setSelectedProList] =
-    useState<ProListType[]>(selectedPros)
+  const [error, setError] = useState(false)
+
+  const [selectedProList, setSelectedProList] = useState<
+    ProListType[] | AssignProListType[]
+  >(selectedPros)
   const onClickRequestOptionHelperIcon = () => {
     openModal({
       type: 'RequestOptionModal',
@@ -165,16 +170,16 @@ const RequestSummaryModal = ({
           (existingPros && existingPros?.pros?.length
             ? existingPros?.pros?.length
             : 0),
-      })),
+      })) as AssignProListType[] | ProListType[],
     )
   }, [selectedPros, existingPros])
 
   useEffect(() => {
     if (existingPros) {
       setSelectedRequestOption(
-        existingPros.type === 'relay'
+        existingPros.type === 'relayRequest'
           ? 0
-          : existingPros.type === 'bulkAuto'
+          : existingPros.type === 'bulkAutoAssign'
             ? 1
             : 2,
       )
@@ -188,13 +193,11 @@ const RequestSummaryModal = ({
         const newList = [...prevList]
         const [removed] = newList.splice(source.index, 1)
         newList.splice(destination.index, 0, removed)
-        return newList
+        return newList as ProListType[] | AssignProListType[]
       })
     }, 'assign')
     return () => clear()
   }, [setSelectedProList])
-
-  console.log(existingPros)
 
   return (
     <Box
@@ -255,7 +258,7 @@ const RequestSummaryModal = ({
             </IconButton>
           </Box>
           <Grid container spacing={4}>
-            {(existingPros && existingPros.type === 'relay') ||
+            {(existingPros && existingPros.type === 'relayRequest') ||
             type === 'create' ? (
               <Grid item xs={4}>
                 <Box
@@ -290,7 +293,7 @@ const RequestSummaryModal = ({
                 </Box>
               </Grid>
             ) : null}
-            {(existingPros && existingPros.type === 'bulkAuto') ||
+            {(existingPros && existingPros.type === 'bulkAutoAssign') ||
             type === 'create' ? (
               <Grid item xs={4}>
                 <Box
@@ -355,7 +358,7 @@ const RequestSummaryModal = ({
                 </Box>
               </Grid>
             ) : null}
-            {(existingPros && existingPros.type === 'bulkManual') ||
+            {(existingPros && existingPros.type === 'bulkManualAssign') ||
             type === 'create' ? (
               <Grid item xs={4}>
                 <Box
@@ -638,6 +641,8 @@ const RequestSummaryModal = ({
                       setRequestTerm(null)
                     }
                   }}
+                  error={error}
+                  helperText={error ? 'This field is required' : ''}
                   sx={{
                     height: '46px',
                     width: '205px',
@@ -669,14 +674,19 @@ const RequestSummaryModal = ({
             </Button>
             <Button
               variant='contained'
-              onClick={() =>
+              onClick={() => {
+                if (selectedRequestOption === 0 && !requestTerm) {
+                  setError(true)
+                  return
+                }
                 onClick(
                   selectedRequestOption,
                   requestTerm,
                   selectedProList,
                   existingPros?.pros.length ?? 0,
+                  type,
                 )
-              }
+              }}
             >
               Confirm your request
             </Button>

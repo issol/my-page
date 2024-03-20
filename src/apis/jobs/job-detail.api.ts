@@ -3,13 +3,15 @@ import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import {
+  JobAddProsFormType,
   JobAssignProRequestsType,
-  jobPriceHistoryType,
+  JobBulkRequestFormType,
   JobPricesDetailType,
   JobRequestFormType,
   ProJobDeliveryType,
   ProJobDetailType,
   ProJobFeedbackType,
+  jobPriceHistoryType,
 } from '@src/types/jobs/jobs.type'
 import {
   AssignProFilterPostType,
@@ -93,6 +95,11 @@ export const getJobInfo = async (
       contactPerson: null,
       pro: null,
       historyAt: null,
+      autoNextJob: false,
+      nextJobId: null,
+      statusCodeForAutoNextJob: null,
+      autoSharingFile: false,
+      sortingOrder: 1,
     }
   }
 }
@@ -200,11 +207,19 @@ export const handleJobAssignStatus = async (
   jobId: number,
   proId: number,
   status: number,
+  role: 'lpm' | 'pro',
 ) => {
-  await axios.patch(`/api/enough/u/job/${jobId}/request`, {
-    proId: proId,
-    status: status,
-  })
+  if (role === 'pro') {
+    await axios.patch(`/api/enough/u/job/request/${jobId}/reply`, {
+      proId: proId,
+      status: status,
+    })
+  } else if (role === 'lpm') {
+    await axios.patch(`/api/enough/u/job/request/${jobId}/set-status`, {
+      proId: proId,
+      status: status,
+    })
+  }
 }
 
 export const handleJobReAssign = async (
@@ -470,57 +485,60 @@ export const patchProJobSourceFileDownload = async (
   return data
 }
 
-const testData: JobAssignProRequestsType[] = Array.from(
-  { length: 2 },
-  (_, i) => ({
-    type: i % 3 === 0 ? 'relay' : i % 3 === 1 ? 'bulkAuto' : 'bulkManual',
-    round: i + 1,
-    interval: 60,
-    pros: [
-      {
-        userId: i === 0 ? 20 : 34,
-        firstName: `FirstName${i + 1}`,
-        lastName: `LastName${i + 1}`,
-        email: `user${i + 1}@example.com`,
-        assignmentStatus: 70000,
-
-        isOnboarded: i % 2 === 0,
-        isActive: i % 2 === 1,
-        assignmentStatusUpdatedAt: new Date().toISOString(),
-        responseLight: i % 3 === 0 ? 'Red' : i % 3 === 1 ? 'Yellow' : 'Green',
-        ongoingJobCount: i,
-        order: i,
-        messages: [
-          {
-            writer: {
-              userId: i + 1,
-              email: `user${i + 1}@example.com`,
-              firstName: `FirstName${i + 1}`,
-              lastName: `LastName${i + 1}`,
-            },
-            message: `Test message ${i + 1}`,
-            createdAt: new Date().toISOString(),
-          },
-        ],
-      },
-    ],
-  }),
-)
-
 export const getJobAssignProRequests = async (
   id: number,
-): Promise<{ requests: Array<JobAssignProRequestsType>; id: number }> => {
-  return {
-    id: id,
-    requests: testData,
-  }
+): Promise<{
+  requests: Array<JobAssignProRequestsType>
+  id: number
+  frontRound: number
+}> => {
+  console.log(id)
+
+  const { data } = await axios.get(`/api/enough/u/job/${id}/request/list`)
+  return data
 }
 
 export const createRequestJobToPro = async (params: JobRequestFormType) => {
+  const { data } = await axios.post(`/api/enough/u/job/request/relay`, {
+    ...params,
+  })
   // const { data } = await axios.post(`/api/enough/u/job/request`, {
   //   ...params,
   // })
 
   // return data
-  return true
+  return data
+}
+
+export const createBulkRequestJobToPro = async (
+  params: JobBulkRequestFormType,
+) => {
+  const { data } = await axios.post(
+    `/api/enough/u/job/${params.jobId}/request/bulk`,
+    {
+      ...params,
+    },
+  )
+  // const { data } = await axios.post(`/api/enough/u/job/request`, {
+  //   ...params,
+  // })
+
+  // return data
+  return data
+}
+
+export const addProCurrentRequest = async (params: JobAddProsFormType) => {
+  const { data } = await axios.patch(
+    `/api/enough/u/job/request/relay/add-pro`,
+    {
+      ...params,
+    },
+  )
+  return data
+}
+
+export const forceAssign = async (jobId: number, proId: number) => {
+  const { data } = await axios.patch(
+    `/api/enough/u/job/${jobId}/request/assign?proId=${proId}`,
+  )
 }

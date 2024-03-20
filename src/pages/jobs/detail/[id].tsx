@@ -25,6 +25,11 @@ import { useGetStatusList } from '@src/queries/common.query'
 import { statusType } from '@src/types/common/status.type'
 import useModal from '@src/hooks/useModal'
 import InfoDialogButton from '@src/views/pro/infoDialog'
+import { JobListFilterType } from '../requested-ongoing-list'
+import {
+  JobPricesDetailType,
+  jobPriceHistoryType,
+} from '@src/types/jobs/jobs.type'
 
 type MenuType = 'jobInfo' | 'feedback'
 
@@ -69,7 +74,9 @@ const ProJobsDetail = () => {
   const { data: jobPrices } = useGetJobPrices(
     Number(id),
     !!(assigned && assigned === 'false'),
-  )
+  ) as {
+    data: JobPricesDetailType | jobPriceHistoryType
+  }
   const { data: jobStatusList, isLoading: statusListLoading } =
     useGetStatusList('Job')
   const {
