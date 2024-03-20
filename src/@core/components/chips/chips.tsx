@@ -19,7 +19,6 @@ import {
 } from '@src/shared/helpers/colors.helper'
 import { OrderStatusType } from '@src/types/common/orders.type'
 import { statusType } from '@src/types/common/status.type'
-import { JobStatusType } from '@src/types/jobs/jobs.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
 import { ProAppliedRolesStatusType } from '@src/types/pro/pro-applied-roles'
 import { TestStatusColor } from '@src/shared/const/chipColors'
@@ -190,6 +189,7 @@ export function WorkStatusChip(status: string) {
     />
   )
 }
+
 export const ProStatusChip = styled(Chip)<{ status: string }>`
   border: none;
   ${({ status }) =>
@@ -299,36 +299,31 @@ export const QuoteStatusChip = styled(Chip)<{
 `
 
 export function JobsStatusChip(
-  status: JobStatusType,
+  status: ProJobStatusType,
   statusList: statusType[],
 ) {
-  const color =
-    status === 60000 //'In preparation'
-      ? '#F572D8'
-      : status === 60100 //'Requested'
-        ? '#A81988'
-        : status === 60200 //'In progress'
-          ? '#FDB528'
-          : status === 60300 //'Overdue'
-            ? '#FF4D49'
-            : status === 60400 //'Partially delivered'
-              ? '#686A80'
-              : status === 60500 //'Delivered'
-                ? '#1A6BBA'
-                : status === 60600 //'Approved'
-                  ? '#64C623'
-                  : status === 60700 //'Invoiced'
-                    ? '#9B6CD8'
-                    : status === 60800 //'Paid'
-                      ? '#1B8332'
-                      : status === 60900 //'Without invoice'
-                        ? '#75571C'
-                        : status === 601000 //'Canceled'
-                          ? '#FF4D49'
-                          : // TODO 컬러 확정되면 업뎃해야함
-                            status === 601100 //'Payment canceled'
-                            ? '#FFFFFF'
-                            : ''
+  const statusColors: Record<ProJobStatusType, string> = {
+    60000: '#F572D8', // 'In preparation'
+    60100: '#A81988', // 'Requested'
+    60110: '#6D788D', // 'Awaiting prior job'
+    60200: '#FDB528', // 'In progress'
+    60250: '#D00606', // 'Redelivery requested'
+    60300: '#FF4D49', // 'Overdue'
+    60400: '#686A80', // 'Partially delivered'
+    60500: '#1A6BBA', // 'Delivered'
+    60600: '#64C623', // 'Approved'
+    60700: '#9B6CD8', // 'Invoiced'
+    60800: '#1B8332', // 'Paid'
+    60900: '#75571C', // 'Without invoice'
+    601000: '#FF4D49', // 'Canceled'
+    601100: '#FFFFFF', // 'Payment canceled'
+    70000: '#A81988', // 'Requested from LPM (Requested)'
+    70100: '#6D788D', // 'Awaiting approval (Request accepted)'
+    70200: '#6D788D', // 'Declined (Request rejected)'
+    70300: '#6D788D', // 'In progress (Assigned)'
+    70400: '#6D788D', // 'Canceled'
+    70500: '#6D788D', // 'Unassigned'
+  }
 
   const statusLabel = statusList.find(list => list.value === status)?.label!
   return (
@@ -336,8 +331,8 @@ export function JobsStatusChip(
       label={status === 60300 ? `🔴 ${statusLabel}` : statusLabel} // Status가 Overdue일 경우 아이콘 붙이기
       skin='light'
       sx={{
-        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
-        color: color,
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${statusColors[status]}`,
+        color: statusColors[status],
       }}
       size='small'
     />
@@ -599,6 +594,7 @@ interface TestStatusChipProps {
   label: string
   status: string
 }
+
 export const TestStatusChip = ({ label, status }: TestStatusChipProps) => {
   const color = TestStatusColor[status as keyof typeof TestStatusColor]
   return (

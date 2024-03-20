@@ -1,240 +1,184 @@
 import { OrderStatusType } from '@src/types/common/orders.type'
-import {
-  QuoteStatusType,
-  QuotesStatusType,
-} from '@src/types/common/quotes.type'
-import { statusType } from '@src/types/common/status.type'
+import { QuotesStatusType } from '@src/types/common/quotes.type'
 import {
   InvoicePayableStatusType,
   InvoiceProStatusType,
   InvoiceReceivableStatusCodeLabelMixType,
-  InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
 import { ProJobStatusType } from '@src/types/jobs/common.type'
-import { JobStatusType } from '@src/types/jobs/jobs.type'
+
 import { ProAppliedRolesStatusType } from '@src/types/pro/pro-applied-roles'
 
 export function getProInvoiceStatusColor(status: InvoiceProStatusType) {
-  const color =
-    status === 40000 //'Invoiced'
-      ? '#9B6CD8'
-      : status === 40100 //'Under revision'
-      ? '#26C6F9'
-      : status === 40300 //'Paid'
-      ? '#1B8332'
-      : status === 40200 //'Revised'
-      ? '#AD7028'
-      : ''
+  const statusColors: Record<InvoiceProStatusType, string> = {
+    40000: '#9B6CD8', // 'Invoiced'
+    40100: '#26C6F9', // 'Under revision'
+    40200: '#AD7028', // 'Revised'
+    40300: '#1B8332', // 'Paid'
+    40400: '#FF4D49',
+  }
 
-  return color
+  return statusColors[status] || ''
 }
 
 export function getPayableColor(status: InvoicePayableStatusType) {
-  return status === 40000 //'Invoiced'
-    ? '#9B6CD8'
-    : status === 40100 //'Under revision'
-    ? '#26C6F9'
-    : status === 40300 //'Paid'
-    ? '#1B8332'
-    : status === 40200 //'Revised'
-    ? '#AD7028'
-    : status === 40400 //Overdue
-    ? '#FF4D49'
-    : ''
+  const statusColors: Record<InvoicePayableStatusType, string> = {
+    40000: '#9B6CD8', // 'Invoiced'
+    40100: '#26C6F9', // 'Under revision'
+    40200: '#AD7028', // 'Revised'
+    40300: '#1B8332', // 'Paid'
+    40400: '#FF4D49', // 'Overdue'
+  }
+
+  return statusColors[status] || ''
 }
 
-export function getReceivableStatusColor(status: InvoiceReceivableStatusCodeLabelMixType) {
-  const color =
-    status === 30000 || status === 'New' //'New'
-      ? '#666CFF'
-      : status === 30100 || status === 'In preparation' //'In preparation'
-      ? '#F572D8'
-      : status === 30200 || status === 'Internal review' //'Internal review'
-      ? '#D8AF1D'
-      : status === 30300 || status === 'Invoice sent' //'Invoice sent'
-      ? '#547ED1'
-      : status === 30400 || status === 'Client review' //'Client review'
-      ? '#FDB528'
-      : status === 30500 || status === 'Under revision' //'Under revision'
-      ? '#26C6F9'
-      : status === 30600 || status === 'Revised' //'Revised'
-      ? '#AD7028'
-      : status === 30700 || status === 'Invoice confirmed' //'Invoice confirmed'
-      ? '#64C623'
-      : status === 30800 || status === 'Tax invoice issued' //'Tax invoice issued'
-      ? '#323A42'
-      : status === 30900 || status === 'Paid' //'Paid'
-      ? '#267838'
-      : status === 301000 || status === 'Overdue' //'Overdue'
-        || status === 301100 || status === 'Overdue (Reminder sent)' //'Overdue (Reminder sent)'
-        || status === 301200 || status === 'Canceled' //'Canceled'
-      ? '#FF4D49'
-      : ''
-  return color
+export function getReceivableStatusColor(
+  status: InvoiceReceivableStatusCodeLabelMixType,
+) {
+  const statusColors: Record<InvoiceReceivableStatusCodeLabelMixType, string> =
+    {
+      30000: '#666CFF',
+      New: '#666CFF',
+      30100: '#F572D8',
+      'In preparation': '#F572D8',
+      30200: '#D8AF1D',
+      'Internal review': '#D8AF1D',
+      30300: '#547ED1',
+      'Invoice sent': '#547ED1',
+      30400: '#FDB528',
+      'Client review': '#FDB528',
+      30500: '#26C6F9',
+      'Under revision': '#26C6F9',
+      30600: '#AD7028',
+      Revised: '#AD7028',
+      30700: '#64C623',
+      'Invoice confirmed': '#64C623',
+      30800: '#323A42',
+      'Tax invoice issued': '#323A42',
+      30900: '#267838',
+      Paid: '#267838',
+      301000: '#FF4D49',
+      Overdue: '#FF4D49',
+      301100: '#FF4D49',
+      'Overdue (Reminder sent)': '#FF4D49',
+      301200: '#FF4D49',
+      Canceled: '#FF4D49',
+    }
+
+  return statusColors[status] || ''
 }
 
 export function getOrderStatusColor(
   status: OrderStatusType,
   code?: OrderStatusType,
 ) {
-  const color =
-    code === 'New' || status === 10000
-      ? '#666CFF'
-      : status === 10100 || status === 'In preparation'
-      ? '#F572D8'
-      : status === 10200 || status === 'Internal review'
-      ? '#D8AF1D'
-      : status === 10300 || status === 'Order sent'
-      ? '#B06646'
-      : status === 10400 || status === 'In progress'
-      ? '#FDB528'
-      : status === 10500 || status === 'Under revision'
-      ? '#26C6F9'
-      : status === 10600 || status === 'Partially delivered'
-      ? '#686A80'
-      : status === 10700 || status === 'Delivery completed'
-      ? '#1A6BBA'
-      : status === 10800 || status === 'Redelivery requested'
-      ? '#A81988'
-      : status === 10900 || status === 'Delivery confirmed'
-      ? '#64C623'
-      : status === 101000 || status === 'Invoiced'
-      ? '#9B6CD8'
-      : status === 101100 || status === 'Paid'
-      ? '#1B8332'
-      : status === 101200 || status === 'Canceled'
-      ? '#FF4D49'
-      : status === 10950 || status === 'Without invoice'
-      ? '#4C4E64'
-      : ''
-  return color
+  if (code === 'New') return '#666CFF'
+
+  const statusColors: Record<OrderStatusType, string> = {
+    New: '#666CFF',
+    10000: '#666CFF',
+    'In preparation': '#F572D8',
+    10100: '#F572D8',
+    'Internal review': '#D8AF1D',
+    10200: '#D8AF1D',
+    'Order sent': '#B06646',
+    10300: '#B06646',
+    'In progress': '#FDB528',
+    10400: '#FDB528',
+    'Under revision': '#26C6F9',
+    10500: '#26C6F9',
+    'Partially delivered': '#686A80',
+    10600: '#686A80',
+    'Delivery completed': '#1A6BBA',
+    10700: '#1A6BBA',
+    'Redelivery requested': '#A81988',
+    10800: '#A81988',
+    'Delivery confirmed': '#64C623',
+    10900: '#64C623',
+    Invoiced: '#9B6CD8',
+    101000: '#9B6CD8',
+    Paid: '#1B8332',
+    101100: '#1B8332',
+    Canceled: '#FF4D49',
+    101200: '#FF4D49',
+    'Without invoice': '#4C4E64',
+    10950: '#4C4E64',
+  }
+
+  return statusColors[status] || ''
 }
 
 export function getQuoteStatusColor(status: QuotesStatusType) {
-  const color =
-    status === 20000
-      ? '#666CFF'
-      : status === 20100
-      ? '#F572D8'
-      : status === 20200
-      ? '#20B6E5'
-      : status === 20300
-      ? '#2B6603'
-      : status === 20400
-      ? '#FDB528'
-      : status === 20500
-      ? '#A81988'
-      : status === 20600
-      ? '#26C6F9'
-      : status === 20700
-      ? '#AD7028'
-      : status === 20800
-      ? '#64C623'
-      : status === 20900
-      ? '#1A6BBA'
-      : status === 201000
-      ? '#FF4D49'
-      : status === 201100
-      ? '#FF4D49'
-      : status === 201200
-      ? '#FF4D49'
-      : ''
-  return color
+  const statusColors: Record<QuotesStatusType, string> = {
+    20000: '#666CFF',
+    20100: '#F572D8',
+    20200: '#20B6E5',
+    20300: '#2B6603',
+    20400: '#FDB528',
+    20500: '#A81988',
+    20600: '#26C6F9',
+    20700: '#AD7028',
+    20800: '#64C623',
+    20900: '#1A6BBA',
+    201000: '#FF4D49',
+    201100: '#FF4D49',
+    201200: '#FF4D49',
+  }
+  return statusColors[status] || ''
 }
 
 export function getProJobStatusColor(status: ProJobStatusType) {
-  const color =
-    status === 60100 || status === 70000 //Requested from LPM, Requested
-      ? '#A81988'
-      : status === 70100 //Awaiting approval
-      ? '#6D788D'
-      : status === 60200 || status === 60400 || status === 70300 // In progress
-      ? '#FDB528'
-      : status === 60300 // Job overdue
-      ? '#FFCFCF'
-      : status === 60500 // Delivered to LPM
-      ? '#1A6BBA'
-      : status === 60600 // Approved
-      ? '#64C623'
-      : status === 60700 // Invoiced
-      ? '#9B6CD8'
-      : status === 60800 // Paid
-      ? '#1B8332'
-      : status === 60900 // Without invoice
-      ? '#0D0D0D'
-      : status === 70500 // Unassigned
-      ? '#6D788D'
-      : status === 601000 ||
-        status === 601100 ||
-        status === 70200 ||
-        status === 70400 // Canceled, Payment canceled, Declined
-      ? '#FF4D49'
-      : null
+  const statusToColor: Record<ProJobStatusType, string> = {
+    '60000': '#F572D8', // 'In preparation'
+    '60100': '#A81988', // 'Requested from LPM'
+    '70000': '#A81988', // 'Requested'
+    '70100': '#6D788D', // 'Awaiting approval'
+    '60200': '#FDB528', // 'In progress'
+    '60400': '#FDB528', // Also 'In progress'
+    '70300': '#FDB528', // Also 'In progress'
+    '60300': '#FFCFCF', // 'Job overdue'
+    '60500': '#1A6BBA', // 'Delivered to LPM'
+    '60600': '#64C623', // 'Approved'
+    '60700': '#9B6CD8', // 'Invoiced'
+    '60800': '#1B8332', // 'Paid'
+    '60900': '#0D0D0D', // 'Without invoice'
+    '70500': '#6D788D', // 'Unassigned'
+    '601000': '#FF4D49', // 'Canceled'
+    '601100': '#FF4D49', // 'Payment canceled'
+    '70200': '#FF4D49', // 'Declined'
+    '70400': '#FF4D49', // Also 'Canceled'
+    '60250': '#D00606', // 'Redelivery requested'
+    '60110': '#6D788D', // 'Awaiting prior job'
+  }
 
-  return color
-}
-export function getJobStatusColor(status: JobStatusType) {
-  const color =
-    status === 60000 //'In preparation'
-      ? '#F572D8'
-      : status === 60100 //'Requested'
-      ? '#A81988'
-      : status === 601000 //'Canceled'
-      ? '#FF4D49'
-      : status === 60200 //'In progress'
-      ? '#FF4D49'
-      : status === 60400 //'Partially delivered'
-      ? '#FF4D49'
-      : status === 60500 //'Delivered'
-      ? '#1A6BBA'
-      : status === 60300 //'Overdue'
-      ? '#FF4D49'
-      : status === 60600 //'Approved'
-      ? '#64C623'
-      : status === 60700 //'Invoiced'
-      ? '#FF4D49'
-      : status === 60900 //'Without invoice'
-      ? '#75571C'
-      : status === 60800 //'Paid'
-      ? '#1B8332'
-      : // TODO: 컬러 확정되면 업데이트 필요
-      status === 601100 //'Payment canceled'
-      ? '#1B8332'
-      : ''
-  return color
+  return statusToColor[status] || ''
 }
 
 export function getProAppliedRolesStatusColor(
   status: ProAppliedRolesStatusType,
 ) {
-  const color =
-    status === 'Awaiting approval' ||
-    status === 'Test assigned' ||
-    status === 'Role assigned' ||
-    status === 'Paused' ||
-    status === 'Test in preparation'
-      ? '#6D788D'
-      : status === 'Rejected by TAD' ||
-        status === 'Test declined' ||
-        status === 'Role declined' ||
-        status === 'Basic failed' ||
-        status === 'Skill failed'
-      ? '#FF4D49'
-      : status === 'Basic test Ready' || status === 'Skill test Ready'
-      ? '#8232C0'
-      : status === 'Basic in progress'
-      ? '#FDB528'
-      : status === 'Basic submitted'
-      ? '#00237D'
-      : status === 'Basic passed' ||
-        status === 'Contract required' ||
-        status === 'Certified'
-      ? '#64C623'
-      : status === 'Skill in progress'
-      ? '#D18A00'
-      : status === 'Skill submitted'
-      ? '#1A6BBA'
-      : ''
+  const statusColors: Record<ProAppliedRolesStatusType, string> = {
+    'Awaiting approval': '#6D788D',
+    'Test assigned': '#6D788D',
+    'Role assigned': '#6D788D',
+    Paused: '#6D788D',
+    'Test in preparation': '#6D788D',
+    'Rejected by TAD': '#FF4D49',
+    'Test declined': '#FF4D49',
+    'Role declined': '#FF4D49',
+    'Basic failed': '#FF4D49',
+    'Skill failed': '#FF4D49',
+    'Basic test Ready': '#8232C0',
+    'Skill test Ready': '#8232C0',
+    'Basic in progress': '#FDB528',
+    'Basic submitted': '#00237D',
+    'Basic passed': '#64C623',
+    'Contract required': '#64C623',
+    Certified: '#64C623',
+    'Skill in progress': '#D18A00',
+    'Skill submitted': '#1A6BBA',
+  }
 
-  return color
+  return statusColors[status] || ''
 }

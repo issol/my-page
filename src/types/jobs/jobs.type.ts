@@ -8,21 +8,10 @@ import { ProJobStatusType } from './common.type'
 import { PriceType } from '../common/orders-and-quotes.type'
 // import { JobStatusType } from './common.type'
 
-export type JobStatusType =
-  | 60000 // "In preparation"
-  | 60100 // "Requested"
-  | 60500 // "Delivered"
-  | 60600 // "Approved"
-  | 60700 // "Invoiced"
-  | 60800 // "Paid"
-  | 60900 // "Without invoice"
-  | 601000 // "Canceled"
-  | 601100 // "Payment canceled"
-
 export type JobsListType = {
   id: number
   corporationId: string // O-000010-TRA-001
-  status: JobStatusType
+  status: ProJobStatusType
   name: string
   jobName?: string
   category: string // order의 category
