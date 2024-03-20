@@ -119,7 +119,12 @@ const CustomModalV2 = ({
             {title}
           </Typography>
           {subtitle ? (
-            <Typography variant='body2' textAlign='center' color='#8D8E9A'>
+            <Typography
+              component='div'
+              variant='body1'
+              textAlign='center'
+              color='#8D8E9A'
+            >
               {subtitle}
             </Typography>
           ) : null}
@@ -166,6 +171,7 @@ const CustomModalV2 = ({
               <Button
                 variant='outlined'
                 onClick={onClose}
+                size='medium'
                 sx={{
                   width:
                     buttonDirection === 'column-reverse' ? '210px' : '100%',
@@ -177,6 +183,7 @@ const CustomModalV2 = ({
 
             <Button
               variant='contained'
+              size='medium'
               onClick={() => (textarea ? onClick(text) : onClick())}
               sx={{
                 width: buttonDirection === 'column-reverse' ? '210px' : '100%',

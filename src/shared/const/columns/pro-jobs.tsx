@@ -6,15 +6,54 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import useModal from '@src/hooks/useModal'
-import ProJobsMessage from '@src/pages/jobs/requested-ongoing-list/message'
 import { convertTimeToTimezone } from '@src/shared/helpers/date.helper'
 import { authState } from '@src/states/auth'
 import { ProJobListType } from '@src/types/jobs/jobs.type'
 import dayjs from 'dayjs'
 import { useRecoilValueLoadable } from 'recoil'
-import { MouseEvent } from 'react'
-import { TimeZoneType } from '@src/types/sign/personalInfoTypes'
+import React, { MouseEvent } from 'react'
 import { timezoneSelector } from '@src/states/permission'
+import InfoDialogButton, { InfoDialogProps } from '@src/views/pro/infoDialog'
+import Message from '@src/views/jobDetails/messageModal'
+
+const AwaitingPriorJobProps: InfoDialogProps = {
+  title: 'Awaiting prior job',
+  alertType: 'question-info',
+  iconName: 'fe:question',
+  contents:
+    'This state indicates that the previous job is waiting for completion. Once the previous job is finished, this job can start.',
+}
+
+const RedeliveryProps: InfoDialogProps = {
+  title: 'Reason for redelivery',
+  alertType: 'question-info',
+  iconName: 'fe:question',
+  contents: (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        fontSize: '16px',
+      }}
+    >
+      <Box component='ul' sx={{ listStyle: 'inside' }}>
+        <li>Did not follow the guidelines/glossary Typo</li>
+        <li>Timecode sync-error (video translation)</li>
+      </Box>
+      <Typography
+        variant='h6'
+        textAlign='center'
+        mt='10px'
+        color='rgba(76, 78, 100, 0.87)'
+        margin='8px 0'
+      >
+        Message from LPM
+      </Typography>
+      <p>Please check the attached guidelines and glossary.</p>
+    </div>
+  ),
+}
 
 export const getProJobColumns = (
   statusList: {
@@ -33,14 +72,22 @@ export const getProJobColumns = (
     event.stopPropagation()
     openModal({
       type: 'ProJobsMessageModal',
-      children: <ProJobsMessage row={row} />,
+      children: (
+        <Message
+          jobId={row.jobId}
+          info={row}
+          onClose={() => closeModal('ProJobsMessageModal')}
+        />
+      ),
     })
   }
 
-  const getJobDateDiff = (jobDueDate: string, useRemainingTime: Boolean, deliveredDate?: string) => {
-    const now = deliveredDate
-      ? dayjs(deliveredDate)
-      : dayjs()
+  const getJobDateDiff = (
+    jobDueDate: string,
+    useRemainingTime: Boolean,
+    deliveredDate?: string,
+  ) => {
+    const now = deliveredDate ? dayjs(deliveredDate) : dayjs()
 
     const dueDate = dayjs(jobDueDate)
 
@@ -163,7 +210,7 @@ export const getProJobColumns = (
       },
     },
     {
-      flex: 0.1568,
+      flex: 0.18,
       minWidth: 196,
       field: 'status',
       headerName: 'Status',
@@ -178,7 +225,21 @@ export const getProJobColumns = (
       renderCell: ({ row }: { row: ProJobListType }) => {
         const statusLabel =
           statusList?.find(i => i.value === row.status)?.label || ''
-        return <>{ProJobStatusChip(statusLabel, row.status)}</>
+
+        const viewInfoIcon = ['Redelivery requested', 'Awaiting prior job']
+        const infoProps = viewInfoIcon.includes('Redelivery requested')
+          ? RedeliveryProps
+          : AwaitingPriorJobProps
+
+        return (
+          <Box display='flex' alignItems='center'>
+            {ProJobStatusChip(statusLabel, row.status)}
+            {/*// NOTE : 상태값 넣어주기*/}
+            {viewInfoIcon.includes('Redelivery requested') && (
+              <InfoDialogButton {...infoProps} />
+            )}
+          </Box>
+        )
       },
     },
     {
@@ -195,7 +256,7 @@ export const getProJobColumns = (
         </Typography>
       ),
       renderCell: ({ row }: { row: ProJobListType }) => {
-        return <ServiceTypeChip label={row.serviceType} />
+        return <ServiceTypeChip size='small' label={row.serviceType} />
       },
     },
     {
@@ -233,20 +294,18 @@ export const getProJobColumns = (
         </Typography>
       ),
       renderCell: ({ row }: { row: ProJobListType }) => {
+        const status = [60100, 60200, 60300, 60400, 60500, 7000, 70100, 70300]
         return (
           <>
-            {auth.state === 'hasValue'
-              ? (
-                <Box>{
-                  getJobDateDiff(
-                    row.dueAt,
-                    [60100, 60200, 60300, 60400, 60500, 7000, 70100, 70300].includes(row.status)
-                      ? true
-                      : false,
-                    row.finalProDeliveredAt,
-                  )
-                }</Box>
-              ) : null}
+            {auth.state === 'hasValue' ? (
+              <Box>
+                {getJobDateDiff(
+                  row.dueAt,
+                  status.includes(row.status),
+                  row.finalProDeliveredAt,
+                )}
+              </Box>
+            ) : null}
           </>
         )
       },
@@ -271,8 +330,6 @@ export const getProJobColumns = (
             <Badge badgeContent={row.message?.unReadCount} color='primary'>
               <IconButton
                 sx={{ padding: 0 }}
-                // disabled={row.assignmentStatus === null}
-
                 onClick={event => onClickMessage(event, row)}
               >
                 <Icon

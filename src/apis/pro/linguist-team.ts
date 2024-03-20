@@ -22,8 +22,8 @@ export const getLinguistTeamList = async (
 }
 
 export const getLinguistTeamDetail = async (
-  id: number
-  ): Promise<LinguistTeamDetailType> => {
+  id: number,
+): Promise<LinguistTeamDetailType> => {
   const { data } = await axios.get(`/api/enough/u/pro/linguist-team/${id}`)
 
   // return detailData

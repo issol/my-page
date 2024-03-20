@@ -3,11 +3,11 @@ import { Badge, Box, Tab, Typography } from '@mui/material'
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import {
+  MouseEvent,
   Suspense,
   SyntheticEvent,
-  useState,
-  MouseEvent,
   useEffect,
+  useState,
 } from 'react'
 import { styled } from '@mui/system'
 import TabPanel from '@mui/lab/TabPanel'
@@ -19,12 +19,9 @@ import RequestedOngoingList, {
 import DeliveredInactiveList, {
   completedDefaultFilters,
 } from './delivered-inactive-list'
-import {
-  useGetProJobClientList,
-  useGetProJobList,
-} from '@src/queries/jobs/jobs.query'
-import { useRecoilStateLoadable, useRecoilValueLoadable } from 'recoil'
+import { useGetProJobList } from '@src/queries/jobs/jobs.query'
 import { useRouter } from 'next/router'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 type MenuType = 'requested' | 'completed'
 
@@ -64,12 +61,15 @@ const Jobs = () => {
   }, [completedJob, ongoingJob])
 
   useEffect(() => {
-    if (tabQuery && (tabQuery === 'requested' || tabQuery === 'completed')) setValue(tabQuery)
+    if (tabQuery && (tabQuery === 'requested' || tabQuery === 'completed'))
+      setValue(tabQuery)
   }, [tabQuery])
 
   return (
     <>
-      <Typography variant='h5'>Jobs</Typography>
+      <Typography variant='h5' marginBottom='24px'>
+        Jobs
+      </Typography>
       <TabContext value={value}>
         <TabList
           onChange={handleChange}
@@ -79,14 +79,14 @@ const Jobs = () => {
           <CustomTab
             value='requested'
             label={
-              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <Box display='flex' alignItems='center' gap='8px'>
                 Requested & Ongoing
                 {ongoingDot ? (
                   <Badge
                     variant='dot'
                     color='primary'
                     sx={{ marginLeft: '4px' }}
-                  ></Badge>
+                  />
                 ) : null}
               </Box>
             }
@@ -110,7 +110,7 @@ const Jobs = () => {
                     variant='dot'
                     color='primary'
                     sx={{ marginLeft: '4px' }}
-                  ></Badge>
+                  />
                 ) : null}
                 Completed & Inactive
               </Box>
@@ -120,13 +120,13 @@ const Jobs = () => {
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
         </TabList>
-        <TabPanel value='requested' sx={{ pt: '24px' }}>
+        <TabPanel value='requested' sx={{ p: 0, pt: '24px' }}>
           <Suspense>
             <RequestedOngoingList />
           </Suspense>
         </TabPanel>
-        <TabPanel value='completed' sx={{ pt: '24px' }}>
-          <Suspense>
+        <TabPanel value='completed' sx={{ p: 0, pt: '24px' }}>
+          <Suspense fallback={<OverlaySpinner />}>
             <DeliveredInactiveList />
           </Suspense>
         </TabPanel>

@@ -1,14 +1,9 @@
-import { OnboardingListType } from '@src/types/onboarding/list'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import Box from '@mui/material/Box'
 import Link from 'next/link'
 import Typography from '@mui/material/Typography'
-import { OnboardingListCellType } from '@src/types/onboarding/list'
 
-const LegalNameEmail = ({
-  row,
-  link,
-}: {
+interface LegalNameEmailProps {
   row: {
     isOnboarded: boolean
     isActive: boolean
@@ -18,32 +13,25 @@ const LegalNameEmail = ({
     email: string
   }
   link?: string
-}) => {
+}
+
+const LegalNameEmail = ({ row, link }: LegalNameEmailProps) => {
   return (
     <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-      }}
+      display='flex'
+      alignItems='center'
+      gap='12px'
+      whiteSpace='nowrap'
+      overflow='hidden'
+      textOverflow='ellipsis'
     >
-      <Box
-        sx={{
-          display: 'flex',
-          width: '32px',
-          height: '32px',
-        }}
-      >
+      <Box display='flex' width='32px' height='32px'>
         <img
           alt=''
           aria-hidden
           src={
             row.isOnboarded && row.isActive
-              ? `/images/icons/onboarding-icons/pro-active.png`
+              ? `/images/icons/onboarding-icons/icon-pro-onboarding.svg`
               : !row.isOnboarded
                 ? `/images/icons/onboarding-icons/pro-onboarding.png`
                 : row.isOnboarded && !row.isActive
@@ -53,23 +41,16 @@ const LegalNameEmail = ({
         />
       </Box>
 
-      <Box
-        sx={{
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-      >
+      <Box whiteSpace='nowrap' overflow='hidden' textOverflow='ellipsis'>
         {link ? (
           <Link href={link} style={{ textDecoration: 'none' }}>
             <Typography
-              sx={{
-                fontWeight: '600',
-                fontSize: '1rem',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
+              variant='body2'
+              whiteSpace='nowrap'
+              overflow='hidden'
+              textOverflow='ellipsis'
+              fontWeight={600}
+              color='rgba(76, 78, 100, 0.87)'
             >
               {getLegalName({
                 firstName: row.firstName,
@@ -80,13 +61,12 @@ const LegalNameEmail = ({
           </Link>
         ) : (
           <Typography
-            sx={{
-              fontWeight: '600',
-              fontSize: '1rem',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
+            variant='body2'
+            whiteSpace='nowrap'
+            overflow='hidden'
+            textOverflow='ellipsis'
+            fontWeight={600}
+            color='rgba(76, 78, 100, 0.87)'
           >
             {getLegalName({
               firstName: row.firstName,
@@ -95,14 +75,11 @@ const LegalNameEmail = ({
             })}
           </Typography>
         )}
-
         <Typography
           variant='body2'
-          sx={{
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}
+          whiteSpace='nowrap'
+          overflow='hidden'
+          textOverflow='ellipsis'
         >
           {row.email}
         </Typography>
@@ -111,4 +88,49 @@ const LegalNameEmail = ({
   )
 }
 
+export const LegalName = ({ row }: Omit<LegalNameEmailProps, 'link'>) => {
+  return (
+    <Box
+      display='flex'
+      alignItems='center'
+      gap='12px'
+      whiteSpace='nowrap'
+      overflow='hidden'
+      textOverflow='ellipsis'
+    >
+      <Box display='flex' width='32px' height='32px'>
+        <img
+          alt=''
+          aria-hidden
+          src={
+            row.isOnboarded && row.isActive
+              ? `/images/icons/onboarding-icons/icon-pro-onboarding.svg`
+              : !row.isOnboarded
+                ? `/images/icons/onboarding-icons/pro-onboarding.png`
+                : row.isOnboarded && !row.isActive
+                  ? `/images/icons/onboarding-icons/pro-inactive.png`
+                  : ''
+          }
+        />
+      </Box>
+
+      <Box whiteSpace='nowrap' overflow='hidden' textOverflow='ellipsis'>
+        <Typography
+          variant='body2'
+          whiteSpace='nowrap'
+          overflow='hidden'
+          textOverflow='ellipsis'
+          fontWeight={600}
+          sx={{ color: `#4C4E64DE` }}
+        >
+          {getLegalName({
+            firstName: row.firstName,
+            middleName: row.middleName,
+            lastName: row.lastName,
+          })}
+        </Typography>
+      </Box>
+    </Box>
+  )
+}
 export default LegalNameEmail

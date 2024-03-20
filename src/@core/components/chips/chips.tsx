@@ -349,16 +349,18 @@ export function assignmentStatusChip(status: number, statusList: statusType[]) {
     status === 70000 //Requested
       ? '#FDB528'
       : status === 70100 //Request accepted
-        ? '#64C623'
+        ? '#6AD721'
         : status === 70200 //Request rejected
           ? '#FF4D49'
           : status === 70300 //Assigned
             ? '#666CFF'
-            : status === 70400 //Canceled
+            : status === 70400 || status === 70600 //Canceled
               ? '#FF4D49'
               : status === 70500 //Unassigned
                 ? '#6D788D'
-                : ''
+                : status === 70700 // No_reply
+                  ? '#8D8E9A'
+                  : ''
   // const statusLabel = assignmentStatusCode.find(list => list.value === status)
   //   ?.label!
   const statusLabel = statusList.find(list => list.value === status)?.label!

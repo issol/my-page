@@ -291,3 +291,46 @@ export type ProJobFeedbackType = {
   createdAt: string
   feedback: string
 }
+
+export type JobRequestsProType = {
+  userId: number
+  firstName: string
+  middleName?: string
+  lastName: string
+  email: string
+  assignmentStatus: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600
+  isOnboarded: boolean
+  isActive: boolean
+  assignmentStatusUpdatedAt: string
+  responseLight: 'Red' | 'Yellow' | 'Green'
+  ongoingJobCount: number
+  order: number
+  messages: Array<{
+    writer: {
+      userId: number
+      email: string
+      firstName: string
+      middleName?: string
+      lastName: string
+    }
+    message: string
+    createdAt: string
+  }>
+}
+
+export type JobRequestFormType = {
+  type: 'relay' | 'bulkAuto' | 'bulkManual'
+  reminderTime?: number
+  interval?: number
+  pros: Array<{
+    userId: number
+    order: number
+  }>
+}
+
+export type JobAssignProRequestsType = {
+  type: 'relay' | 'bulkAuto' | 'bulkManual'
+  round: number
+  pros: Array<JobRequestsProType>
+  interval: number
+}

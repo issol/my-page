@@ -1,36 +1,20 @@
 import {
-  Avatar,
-  AvatarGroup,
   Box,
   Button,
   Card,
-  CardActionArea,
   CardHeader,
-  CircularProgress,
-  Divider,
-  Grid,
   IconButton,
   Menu,
   MenuItem,
   Typography,
 } from '@mui/material'
-import { LinguistTeamListType } from '@src/types/pro/linguist-team'
-
-import { v4 as uuidv4 } from 'uuid'
-import { ServiceTypeChip } from '@src/@core/components/chips/chips'
-import languageHelper from '@src/shared/helpers/language.helper'
 import { Icon } from '@iconify/react'
-import { DataGrid } from '@mui/x-data-grid'
-import NoList from '@src/pages/components/no-list'
-import { getLinguistTeamColumns } from '@src/shared/const/columns/linguist-team'
 import { useRouter } from 'next/router'
 import { MenuType } from '..'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
-import { useInView } from 'react-intersection-observer'
-import { InfiniteData } from 'react-query'
+import { Dispatch, SetStateAction, useState } from 'react'
 import LinguistTeamCardList from './card'
 import LinguistTeamList from './list'
-import { FilterType } from 'src/pages/pro/linguist-team/index'
+import { FilterType } from '@src/pages/pro/linguist-team'
 
 type Props = {
   menu: MenuType
@@ -68,7 +52,7 @@ const LinguistTeamLayout = ({
   activeFilter,
 }: Props) => {
   const router = useRouter()
-  const [ listCount, setListCount ] = useState<number>(0)
+  const [listCount, setListCount] = useState<number>(0)
 
   return (
     <Card>
@@ -213,5 +197,3 @@ const LinguistTeamLayout = ({
     </Card>
   )
 }
-
-export default LinguistTeamLayout
