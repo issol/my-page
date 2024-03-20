@@ -1,10 +1,7 @@
-import { CurrentGuidelineType } from '@src/apis/client-guideline.api'
 import { FileType } from '../common/file.type'
 import { ItemDetailType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
 import { statusType } from '../common/status.type'
-import { AssignProListType } from '../orders/job-detail'
-import { OrderDetailType } from '../orders/order-detail'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 import { ProJobStatusType } from './common.type'
@@ -12,18 +9,15 @@ import { PriceType } from '../common/orders-and-quotes.type'
 // import { JobStatusType } from './common.type'
 
 export type JobStatusType =
-  | 60000
-  | 60100
-  | 60200
-  | 60300
-  | 60400
-  | 60500
-  | 60600
-  | 60700
-  | 60800
-  | 60900
-  | 601000
-  | 601100
+  | 60000 // "In preparation"
+  | 60100 // "Requested"
+  | 60500 // "Delivered"
+  | 60600 // "Approved"
+  | 60700 // "Invoiced"
+  | 60800 // "Paid"
+  | 60900 // "Without invoice"
+  | 601000 // "Canceled"
+  | 601100 // "Payment canceled"
 
 export type JobsListType = {
   id: number
