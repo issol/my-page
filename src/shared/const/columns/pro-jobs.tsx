@@ -65,7 +65,6 @@ export const getProJobColumns = (
   const auth = useRecoilValueLoadable(authState)
   const timezone = useRecoilValueLoadable(timezoneSelector)
 
-  console.log(auth.contents.user.id)
   const onClickMessage = (
     event: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>,
     row: ProJobListType,
