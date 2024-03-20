@@ -479,49 +479,6 @@ export const patchProJobSourceFileDownload = async (
   return data
 }
 
-const testData: JobAssignProRequestsType[] = Array.from(
-  { length: 2 },
-  (_, i) => ({
-    type:
-      i % 3 === 0
-        ? 'relayRequest'
-        : i % 3 === 1
-          ? 'bulkAutoAssign'
-          : 'bulkManualAssign',
-    round: i + 1,
-    interval: 60,
-    requestCompleted: false,
-    pros: [
-      {
-        userId: i === 0 ? 20 : 34,
-        firstName: `FirstName${i + 1}`,
-        lastName: `LastName${i + 1}`,
-        email: `user${i + 1}@example.com`,
-        assignmentStatus: 70000,
-
-        isOnboarded: i % 2 === 0,
-        isActive: i % 2 === 1,
-        assignmentStatusUpdatedAt: new Date().toISOString(),
-        responseLight: i % 3 === 0 ? 'Red' : i % 3 === 1 ? 'Yellow' : 'Green',
-        ongoingJobCount: i,
-        order: i,
-        messages: [
-          {
-            writer: {
-              userId: i + 1,
-              email: `user${i + 1}@example.com`,
-              firstName: `FirstName${i + 1}`,
-              lastName: `LastName${i + 1}`,
-            },
-            message: `Test message ${i + 1}`,
-            createdAt: new Date().toISOString(),
-          },
-        ],
-      },
-    ],
-  }),
-)
-
 export const getJobAssignProRequests = async (
   id: number,
 ): Promise<{

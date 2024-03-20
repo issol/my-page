@@ -300,20 +300,10 @@ export type JobRequestsProType = {
   isOnboarded: boolean
   isActive: boolean
   assignmentStatusUpdatedAt: string
-  responseLight: 'Red' | 'Yellow' | 'Green'
+  responseLight: 70000 | 70100 | 70200 | 70300 | 70400 | 70500 | 70600
   ongoingJobCount: number
   order: number
-  messages: Array<{
-    writer: {
-      userId: number
-      email: string
-      firstName: string
-      middleName?: string
-      lastName: string
-    }
-    message: string
-    createdAt: string
-  }>
+  jobRequestId: number
 }
 
 export type JobRequestFormType = {

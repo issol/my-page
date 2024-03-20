@@ -54,6 +54,8 @@ const RequestSummaryModal = ({
   const [requestTerm, setRequestTerm] = useState<number | null>(
     existingPros ? existingPros.interval : null,
   )
+  const [error, setError] = useState(false)
+
   const [selectedProList, setSelectedProList] =
     useState<ProListType[]>(selectedPros)
   const onClickRequestOptionHelperIcon = () => {
@@ -639,6 +641,8 @@ const RequestSummaryModal = ({
                       setRequestTerm(null)
                     }
                   }}
+                  error={error}
+                  helperText={error ? 'This field is required' : ''}
                   sx={{
                     height: '46px',
                     width: '205px',
@@ -670,7 +674,11 @@ const RequestSummaryModal = ({
             </Button>
             <Button
               variant='contained'
-              onClick={() =>
+              onClick={() => {
+                if (selectedRequestOption === 0 && !requestTerm) {
+                  setError(true)
+                  return
+                }
                 onClick(
                   selectedRequestOption,
                   requestTerm,
@@ -678,7 +686,7 @@ const RequestSummaryModal = ({
                   existingPros?.pros.length ?? 0,
                   type,
                 )
-              }
+              }}
             >
               Confirm your request
             </Button>
