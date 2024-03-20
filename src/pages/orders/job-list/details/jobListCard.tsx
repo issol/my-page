@@ -115,7 +115,12 @@ const JobListCard = ({
   const onClickRow = (row: JobType, info: JobItemType) => {
     router.push({
       pathname: '/orders/job-list/detail/',
-      query: { orderId: orderId, jobId: row.id },
+      query: {
+        orderId: orderId,
+        jobId: row.id,
+        source: info.sourceLanguage,
+        target: info.targetLanguage,
+      },
     })
   }
 

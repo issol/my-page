@@ -31,7 +31,7 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { timezoneSelector } from '@src/states/permission'
 import { FileType } from '@src/types/common/file.type'
-import { JobType } from '@src/types/common/item.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
 import { statusType } from '@src/types/common/status.type'
 import { JobAssignProRequestsType } from '@src/types/jobs/jobs.type'
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
@@ -41,18 +41,35 @@ import { useMutation, useQueryClient } from 'react-query'
 import { useRecoilValueLoadable } from 'recoil'
 import { v4 as uuidv4 } from 'uuid'
 import InfoEditModal from './edit-modal'
+import {
+  LanguagePairTypeInItem,
+  ProjectInfoType,
+  ProjectTeamListType,
+} from '@src/types/orders/order-detail'
 
 type Props = {
   jobInfo: JobType
   jobAssign: JobAssignProRequestsType[]
+  projectTeam: ProjectTeamListType[]
+  items: JobItemType | undefined
+  languagePair: LanguagePairTypeInItem[]
 }
 
-const JobInfo = ({ jobInfo, jobAssign }: Props) => {
+const JobInfo = ({
+  jobInfo,
+  jobAssign,
+  projectTeam,
+  items,
+  languagePair,
+}: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
   const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [contactPersonList, setContactPersonList] = useState<
+    { value: string; label: string; userId: any }[]
+  >([])
 
   const { data: jobStatusList } = useGetStatusList('Job')
   const [filteredJobStatus, setFilteredJobStatus] = useState<Array<statusType>>(
@@ -263,6 +280,8 @@ const JobInfo = ({ jobInfo, jobAssign }: Props) => {
   }
 
   const onClickEdit = () => {
+    console.log(items, 'getValues')
+
     openModal({
       type: 'InfoEditModal',
       children: (
@@ -270,6 +289,9 @@ const JobInfo = ({ jobInfo, jobAssign }: Props) => {
           onClose={() => closeModal('InfoEditModal')}
           statusList={jobStatusList ?? []}
           jobInfo={jobInfo}
+          contactPersonList={contactPersonList}
+          items={items}
+          languagePair={languagePair}
         />
       ),
     })
@@ -278,6 +300,25 @@ const JobInfo = ({ jobInfo, jobAssign }: Props) => {
   useEffect(() => {
     if (jobInfo && jobStatusList) filterStatus(jobInfo.status)
   }, [jobInfo, jobStatusList])
+
+  useEffect(() => {
+    if (projectTeam) {
+      const contactPerson = projectTeam.map(value => ({
+        label: getLegalName({
+          firstName: value.firstName,
+          middleName: value.middleName,
+          lastName: value.lastName,
+        }),
+        value: getLegalName({
+          firstName: value.firstName,
+          middleName: value.middleName,
+          lastName: value.lastName,
+        }),
+        userId: Number(value.userId),
+      }))
+      setContactPersonList(contactPerson)
+    }
+  }, [projectTeam])
 
   return (
     <Box

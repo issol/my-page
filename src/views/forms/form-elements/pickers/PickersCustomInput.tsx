@@ -21,6 +21,7 @@ interface PickerProps {
   value?: string
   placeholder?: string
   sx?: any
+  helperText?: string
 }
 
 const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {

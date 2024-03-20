@@ -96,6 +96,11 @@ export const getJobInfo = async (
       contactPerson: null,
       pro: null,
       historyAt: null,
+      autoNextJob: false,
+      nextJobId: null,
+      statusCodeForAutoNextJob: null,
+      autoSharingFile: false,
+      sortingOrder: 1,
     }
   }
 }
