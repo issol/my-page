@@ -16,6 +16,7 @@ import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import {
   useGetAssignableProList,
   useGetJobAssignProRequests,
+  useGetJobDetails,
   useGetJobInfo,
   useGetJobPrices,
 } from '@src/queries/order/job.query'
@@ -76,6 +77,11 @@ import {
   AssignProFilterPostType,
   AssignProListType,
 } from '@src/types/orders/job-detail'
+import {
+  useGetLangItem,
+  useGetProjectInfo,
+  useGetProjectTeam,
+} from '@src/queries/order/order.query'
 
 type MenuType = 'info' | 'prices' | 'assign' | 'history'
 
@@ -194,6 +200,9 @@ const JobDetail = () => {
     activeFilter,
     false,
   )
+  const { data: projectTeam } = useGetProjectTeam(Number(orderId))
+  const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId), true)
+  const { data: langItem } = useGetLangItem(Number(orderId))
 
   const { data: linguistTeam, isLoading: linguistTeamLoading } =
     useGetLinguistTeam({
@@ -565,7 +574,7 @@ const JobDetail = () => {
     }
   }, [roundQuery, selectedJobInfo])
 
-  console.log(selectedAssign)
+  console.log(jobDetails, 'getValues')
 
   return (
     <Card sx={{ height: '100%' }}>
@@ -732,10 +741,19 @@ const JobDetail = () => {
                   />
                 </TabList>
                 <TabPanel value='info' sx={{ height: '100%' }}>
-                  <JobInfo
-                    jobInfo={selectedJobInfo?.jobInfo!}
-                    jobAssign={selectedJobInfo?.jobAssign!}
-                  />
+                  {jobDetails && langItem ? (
+                    <JobInfo
+                      jobInfo={selectedJobInfo?.jobInfo!}
+                      jobAssign={selectedJobInfo?.jobAssign!}
+                      projectTeam={projectTeam ?? []}
+                      items={jobDetails.items.find(item =>
+                        item.jobs.some(
+                          job => job.id === selectedJobInfo?.jobId,
+                        ),
+                      )}
+                      languagePair={langItem.languagePairs || []}
+                    />
+                  ) : null}
                 </TabPanel>
                 <TabPanel value='prices' sx={{ height: '100%' }}>
                   123

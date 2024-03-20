@@ -14,6 +14,7 @@ export const modalState = atom<Array<ModalType>>({
 
 export function useModal() {
   const [modal, setModal] = useRecoilState(modalState)
+  console.log(modal)
 
   const openModal = (newValue: ModalType) => {
     setModal(oldModalState => {
